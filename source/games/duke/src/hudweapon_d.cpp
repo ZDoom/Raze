@@ -144,9 +144,12 @@ void displaymasks_d(int snum, int p, double interpfrac)
 {
 	if (ps[snum].scuba_on)
 	{
-		int y = 200 - tileHeight(DTILE_SCUBAMASK);
-		hud_drawsprite(44, y, 65536, 0, DTILE_SCUBAMASK, 0, p, 2 + 16);
-		hud_drawsprite((320 - 43), y, 65536, 0, DTILE_SCUBAMASK, 0, p, 2 + 4 + 16);
+		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK", ETextureType::Any);
+		auto tex0 = TexMan.GetGameTexture(scuba0);
+
+		double y = 200 - tex0->GetDisplayHeight();
+		hud_drawsprite(44, y, 1., 0, scuba0, 0, p, 2 + 16);
+		hud_drawsprite((320 - 43), y, 1, 0, scuba0, 0, p, 2 + 4 + 16);
 	}
 }
 

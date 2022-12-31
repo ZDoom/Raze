@@ -69,15 +69,20 @@ void displaymasks_r(int snum, int p, double interpfrac)
 {
 	if (ps[snum].scuba_on)
 	{
+		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK0", ETextureType::Any);
+		auto scuba3 = TexMan.CheckForTexture("SCUBAMASK3", ETextureType::Any);
+		auto scuba4 = TexMan.CheckForTexture("SCUBAMASK4", ETextureType::Any);
+		auto tex0 = TexMan.GetGameTexture(scuba0);
+		auto tex4 = TexMan.GetGameTexture(scuba4);
 		//int pin = 0;
 		// to get the proper clock value with regards to interpolation we have add a interpfrac based offset to the value.
 		double interpclock = PlayClock + TICSPERFRAME * interpfrac;
 		int pin = RS_STRETCH;
-		hud_drawsprite((320 - (tileWidth(RTILE_SCUBAMASK) >> 1) - 15), (200 - (tileHeight(RTILE_SCUBAMASK) >> 1) + BobVal(interpclock) * 16), 49152, 0, RTILE_SCUBAMASK, 0, p, 2 + 16 + pin);
-		hud_drawsprite((320 - tileWidth(RTILE_SCUBAMASK + 4)), (200 - tileHeight(RTILE_SCUBAMASK + 4)), 65536, 0, RTILE_SCUBAMASK + 4, 0, p, 2 + 16 + pin);
-		hud_drawsprite(tileWidth(RTILE_SCUBAMASK + 4), (200 - tileHeight(RTILE_SCUBAMASK + 4)), 65536, 0, RTILE_SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
-		hud_drawsprite(35, (-1), 65536, 0, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
-		hud_drawsprite(285, 200, 65536, -180, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tex0->GetDisplayWidth() * 0.5) - 15), (200 - (tex0->GetDisplayHeight() * 0.5) + BobVal(interpclock) * 16), 0.75, 0, scuba0, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - tex4->GetDisplayWidth()), (200 - tex4->GetDisplayHeight()), 1., 0, scuba4, 0, p, 2 + 16 + pin);
+		hud_drawsprite(tex4->GetDisplayWidth(), (200 - tex4->GetDisplayHeight()), 1., 0, scuba4, 0, p, 2 + 4 + 16 + pin);
+		hud_drawsprite(35, (-1), 1., 0, scuba3, 0, p, 2 + 16 + pin);
+		hud_drawsprite(285, 200, 1., -180, scuba3, 0, p, 2 + 16 + pin);
 	}
 }
 

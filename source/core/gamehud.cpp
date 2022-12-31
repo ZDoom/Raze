@@ -54,13 +54,12 @@
 F2DDrawer twodpsp;
 
 
-void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
+void hud_drawsprite(double sx, double sy, double sz, double a, FTextureID texid, int dashade, int dapalnum, int dastat, double alpha)
 {
-	sz *= 1. / 65536.;
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
 	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
 
-	auto tex = tileGetTexture(picnum, true);
+	auto tex = TexMan.GetGameTexture(texid, true);
 
 	DrawTexture(&twodpsp, tex, sx, sy,
 		DTA_ScaleX, sz, DTA_ScaleY, sz,
@@ -79,6 +78,11 @@ void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int d
 		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
 		DTA_Alpha, alpha,
 		TAG_DONE);
+}
+
+void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
+{
+	hud_drawsprite(sx, sy, sz / 65536., a, tileGetTextureID(picnum), dashade, dapalnum, dastat, alpha);
 }
 
 
