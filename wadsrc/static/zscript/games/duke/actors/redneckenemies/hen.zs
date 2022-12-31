@@ -1,9 +1,14 @@
 class RedneckHen : DukeActor
 {
+	const HEN_NORMAL_STRENGTH = 5;
+	const HEN_TOUGHER_STRENGTH = 12;
+	const HEN_DAMAGE_TO_PLAYER = -1;
+
 	default
 	{
 		pic "HEN";
 		+INTERNAL_BADGUY;
+		Strength HEN_TOUGHER_STRENGTH;
 	}
 	
 	override void Initialize()
@@ -19,18 +24,6 @@ class RedneckHen : DukeActor
 			self.clipdist = 16;
 		}
 	}
-}
-
-class RedneckHenStayput: RedneckHen
-{
-	default
-	{
-		pic "HENSTAYPUT";
-	}
 	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
+
 }

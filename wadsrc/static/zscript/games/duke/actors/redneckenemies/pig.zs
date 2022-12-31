@@ -1,9 +1,13 @@
 class RedneckPig : DukeActor
 {
+	const PIGSTRENGTH = 75;
+	const PIG_GNAW_AMOUNT = -1;
+
 	default
 	{
 		pic "PIG";
 		+INTERNAL_BADGUY;
+		Strength PIGSTRENGTH;
 	}
 	
 	override void Initialize()
@@ -11,20 +15,18 @@ class RedneckPig : DukeActor
 		self.scale = (0.25, 0.25);;
 		self.setClipDistFromTile();
 	}
+	
+	
 }
 
-class RedneckPigStayput: RedneckPig
+class RedneckPigStayput : RedneckPig
 {
 	default
 	{
 		pic "PIGSTAYPUT";
+		+BADGUYSTAYPUT;
 	}
 	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
 }
 
 class RedneckPigEat : RedneckPig
@@ -33,5 +35,7 @@ class RedneckPigEat : RedneckPig
 	{
 		pic "PIGEAT";
 	}
+	
+	
 }
 

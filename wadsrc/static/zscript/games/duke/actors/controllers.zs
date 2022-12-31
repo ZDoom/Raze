@@ -246,38 +246,6 @@ class RedneckLadder : DukeActor
 	}
 }
 
-class RedneckDestructo : DukeActor
-{
-	default
-	{
-		+DESTRUCTOIMMUNE;
-		pic "DESTRUCTO";
-		statnum STAT_DESTRUCT;
-	}
-	
-	override bool animate(tspritetype t)
-	{
-		t.cstat |= CSTAT_SPRITE_INVISIBLE;
-		return true;
-	}
-}
-
-class RedneckDestroyTags : DukeActor
-{
-	default
-	{
-		+DESTRUCTOIMMUNE;
-		pic "DESTROYTAGS";
-	}
-	override void Initialize()
-	{
-		self.cstat |= CSTAT_SPRITE_INVISIBLE;
-		self.scale = (REPEAT_SCALE, REPEAT_SCALE);
-		self.clipdist = 0.25;
-		self.ChangeStat(STAT_DESTRUCT);
-	}
-}
-
 class RedneckPistonSoundEnabler : DukeActor
 {
 	override void StaticSetup()

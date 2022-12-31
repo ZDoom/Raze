@@ -55,6 +55,7 @@ spawnclasses
 	8704 = RedneckJoe9000, noskill
 	7220 = RedneckEmptyBike, noskill
 	7233 = RedneckEmptyBoat, noskill
+	4352 = RedneckRASheriff
 
 	7636 = DukeGenericDestructible, noskill, "OLDPHOTO0", "OLDPHOTO0BROKE", "VENT_BUST"
 	7638 = DukeGenericDestructible, noskill, "OLDPHOTO1", "OLDPHOTO1BROKE", "VENT_BUST"
@@ -166,8 +167,6 @@ spawnclasses
 
 	// stuff below uses CON
 	
-	5376 = RedneckRACoot
-	5377 = RedneckRACootStayput
 	7280 = RedneckRabbit
 	5995 = RedneckBiker
 	5890 = RedneckBikerB

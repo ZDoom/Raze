@@ -337,7 +337,6 @@ spawnclasses
 
 	
 	4861 = RedneckHen
-	4862 = RedneckHenStayput
 	5376 = RedneckCoot
 	5377 = RedneckCootStayput
 	5317 = RedneckCow
@@ -345,8 +344,6 @@ spawnclasses
 	4946 = RedneckPigStayput
 	4162 = RedneckBillyRay
 	4163 = RedneckBillyRayStayput
-	4147 = RedneckBillyRayCock
-	4249 = RedneckBillyRaySniper
 	5120 = RedneckMinion
 	5121 = RedneckMinionStayput
 	4504 = RedneckBubbaStand

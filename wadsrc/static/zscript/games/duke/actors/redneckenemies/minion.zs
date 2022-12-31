@@ -1,5 +1,8 @@
 class RedneckMinion : DukeActor
 {
+	const MINIONSTRENGTH = 50;
+	const MINIONFREAK = -10;
+
 	default
 	{
 		pic "MINION";
@@ -13,16 +16,12 @@ class RedneckMinion : DukeActor
 	{
 		self.scale = (0.25, 0.25);
 		self.setClipDistFromTile();
-		if (Raze.isRRRA())
+		if (ud.ufospawnsminion)
+			self.pal = 8;
+		if (self.pal == 19)
 		{
-			if (ud.ufospawnsminion)
-				self.pal = 8;
-
-			if (self.pal == 19)
-			{
-				self.bHitradius_NoEffect = true;
-				self.bMagmaImmune = true;
-			}
+			self.bHitradius_NoEffect = true;
+			self.bMagmaImmune = true;
 		}
 	}
 	
@@ -32,6 +31,7 @@ class RedneckMinion : DukeActor
 			t.shade = -127;
 		return false;
 	}
+
 }
 
 class RedneckMinionStayput: RedneckMinion
@@ -39,15 +39,12 @@ class RedneckMinionStayput: RedneckMinion
 	default
 	{
 		pic "MINIONSTAYPUT";
+		+BADGUYSTAYPUT;
 	}
 
 	override void PlayFTASound()
 	{
 	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
+
 }
+
