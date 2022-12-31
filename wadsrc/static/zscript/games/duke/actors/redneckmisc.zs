@@ -1,14 +1,3 @@
-
-class RedneckWacoWindow : DukeActor
-{
-	default
-	{
-		pic "WACOWINDER";
-		+BADGUY;
-	}
-}
-
-
 class RedneckTeslaBall : DukeItemBase
 {
 	default

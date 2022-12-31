@@ -6,6 +6,7 @@ class RedneckRabbit : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+LOOKALLAROUND;
+		Strength 50;
 	}
 	
 	override void Initialize()
