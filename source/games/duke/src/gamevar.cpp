@@ -549,6 +549,8 @@ void InitGameVarPointers(void)
 	char aszBuf[64];
 	// called from game Init AND when level is loaded...
 
+	if (!isWW2GI()) return;
+
 	for (i = 0; i < 12/*MAX_WEAPONS*/; i++)	// Setup only exists for the original 12 weapons.
 	{
 		sprintf(aszBuf, "WEAPON%d_CLIP", i);

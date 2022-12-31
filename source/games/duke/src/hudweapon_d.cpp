@@ -282,9 +282,13 @@ void displayweapon_d(int snum, double interpfrac)
 	}
 	else
 	{
-		auto weapTotalTime = aplWeaponTotalTime(p->curr_weapon, snum);
-		auto weapFireDelay = aplWeaponFireDelay(p->curr_weapon, snum);
-		auto weapReload = aplWeaponReload(p->curr_weapon, snum);
+		int weapTotalTime = 0, weapFireDelay = 0, weapReload = 0;
+		if (isWW2GI())
+		{
+			weapTotalTime = aplWeaponTotalTime(p->curr_weapon, snum);
+			weapFireDelay = aplWeaponFireDelay(p->curr_weapon, snum);
+			weapReload = aplWeaponReload(p->curr_weapon, snum);
+		}
 
 		//---------------------------------------------------------------------------
 		//
@@ -737,7 +741,6 @@ void displayweapon_d(int snum, double interpfrac)
 				{
 					// down 
 					offsets.Y += 10 * (kickback_pic - weapTotalTime); //D
-					// offsets.X += 80 * (*kb - aplWeaponTotalTime[cw][snum]);
 					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
 					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 				}
@@ -745,7 +748,6 @@ void displayweapon_d(int snum, double interpfrac)
 				{
 					// up and left
 					offsets.Y += 10 * (weapReload - kickback_pic); //U
-					// offsets.X += 80 * (*kb - aplWeaponTotalTime[cw][snum]);
 					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
 					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 				}

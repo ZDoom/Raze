@@ -1344,28 +1344,22 @@ static void operateweapon(int snum, ESyncBits actions)
 			p->ammo_amount[p->curr_weapon]--;
 			shoot(pact, DukeGrowSparkClass);
 
-			//#ifdef NAM
-			//#else
-			if (!(aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_NOVISIBLE))
+			if (!isNam())
 			{
 				// make them visible if not set...
 				p->visibility = 0;
 				lastvisinc = PlayClock + 32;
+				checkavailweapon(p);
 			}
-			checkavailweapon(p);
-			//#endif
 		}
 		else if (!isNam()) p->kickback_pic++;
 		if (isNam() && p->kickback_pic > 30)
 		{
 			// reload now...
 			p->okickback_pic = p->kickback_pic = 0;
-			if (!(aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_NOVISIBLE))
-			{
-				// make them visible if not set...
-				p->visibility = 0;
-				lastvisinc = PlayClock + 32;
-			}
+			// make them visible if not set...
+			p->visibility = 0;
+			lastvisinc = PlayClock + 32;
 			checkavailweapon(p);
 		}
 		break;
