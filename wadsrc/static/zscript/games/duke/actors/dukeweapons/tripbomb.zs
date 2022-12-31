@@ -272,7 +272,7 @@ class DukeHandHoldingLaser : DukeActor
 {
 	default
 	{
-		pic "HANDHOLDINGLASER";
+		pic "HANDHOLDINGLASER0";
 	}
 
 	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 pos, double ang) const

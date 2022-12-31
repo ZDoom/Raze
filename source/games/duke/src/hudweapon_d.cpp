@@ -62,6 +62,17 @@ inline static void hud_drawpal(double x, double y, int tilenum, int shade, int o
 //
 //---------------------------------------------------------------------------
 
+inline static void hud_drawpal(double x, double y, const char* tilenum, int shade, int orientation, int p, DAngle angle)
+{
+	hud_drawsprite(x, y, 1., angle.Degrees(), TexMan.CheckForTexture(tilenum, ETextureType::Any), shade, p, orientation);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void displayloogie(player_struct* p, double const interpfrac)
 {
 	if (p->loogcnt == 0) return;
@@ -111,7 +122,7 @@ static bool animateknee(int gs, player_struct* p, double xoffset, double yoffset
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 	const double kneei = interpolatedvalue<double>(knee_y[p->oknee_incs], knee_y[p->knee_incs], interpfrac);
 
-	hud_drawpal(105 + (kneei * 0.25) + xoffset, 280 + kneei + yoffset, DTILE_KNEE, gs, 4, pal, angle);
+	hud_drawpal(105 + (kneei * 0.25) + xoffset, 280 + kneei + yoffset, "KNEE", gs, 4, pal, angle);
 
 	return true;
 }
@@ -125,10 +136,10 @@ static bool animateknee(int gs, player_struct* p, double xoffset, double yoffset
 static bool animateknuckles(int gs, player_struct* p, double xoffset, double yoffset, int pal, DAngle angle)
 {
 	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
-
+	static const char* const frames[] = { "CRACKKNUCKLES0", "CRACKKNUCKLES1", "CRACKKNUCKLES2", "CRACKKNUCKLES3" };
 	static const uint8_t knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 
-	hud_drawpal(160 + xoffset, 180 + yoffset, DTILE_CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal, angle);
+	hud_drawpal(160 + xoffset, 180 + yoffset, frames[knuckle_frames[p->knuckle_incs >> 1]], gs, 4, pal, angle);
 
 	return true;
 }
@@ -163,10 +174,11 @@ static bool animatetip(int gs, player_struct* p, double xoffset, double yoffset,
 {
 	if (p->tipincs == 0) return false;
 
+	static const char* frames[] = { "TIP0", "TIP1" };
 	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 	const double tipi = interpolatedvalue<double>(tip_y[p->otipincs], tip_y[p->tipincs], interpfrac) * 0.5;
 
-	hud_drawpal(170 + xoffset, 240 + tipi + yoffset, DTILE_TIP + ((26 - p->tipincs) >> 4), gs, 0, pal, angle);
+	hud_drawpal(170 + xoffset, 240 + tipi + yoffset, frames[((26 - p->tipincs) >> 4)], gs, 0, pal, angle);
 
 	return true;
 }
@@ -181,15 +193,16 @@ static bool animateaccess(int gs, player_struct* p, double xoffset, double yoffs
 {
 	if (p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
+	static const char* const frames[] = { "HANDHOLDINGLASER0", "HANDHOLDINGLASER1", "HANDHOLDINGLASER2", "HANDHOLDINGLASER3" };
 	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 	const double accessi = interpolatedvalue<double>(access_y[p->oaccess_incs], access_y[p->access_incs], interpfrac);
 
 	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
 
 	if ((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
-		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, DTILE_HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal, angle);
+		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, frames[(p->access_incs >> 3)], gs, 0, pal, angle);
 	else
-		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, DTILE_HANDHOLDINGACCESS, gs, 4, pal, angle);
+		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, "HANDHOLDINGACCESS", gs, 4, pal, angle);
 
 	return true;
 }
@@ -305,11 +318,11 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				if (*kb < 5 || *kb > 9)
 				{
-					hud_drawpal(220 + offsets.X, 250 + offsets.Y, DTILE_KNEE, shade, o, pal2, angle);
+					hud_drawpal(220 + offsets.X, 250 + offsets.Y, "KNEE", shade, o, pal2, angle);
 				}
 				else
 				{
-					hud_drawpal(160 + offsets.X, 214 + offsets.Y, DTILE_KNEE + 1, shade, o, pal2, angle);
+					hud_drawpal(160 + offsets.X, 214 + offsets.Y, "KNEE1", shade, o, pal2, angle);
 				}
 			}
 		};
@@ -322,16 +335,17 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaytripbomb = [&]()
 		{
+			static const char* const frames[] = { "HANDHOLDINGLASER0", "HANDHOLDINGLASER1", "HANDHOLDINGLASER2", "HANDHOLDINGLASER3" };
 			offsets.X += 8;
 			offsets.Y -= 10;
 
 			if (*kb > 6)
 				offsets.Y += kickback_pic * 8.;
 			else if (*kb < 4)
-				hud_drawpal(142 + offsets.X, 234 + offsets.Y, DTILE_HANDHOLDINGLASER + 3, shade, o, pal, angle);
+				hud_drawpal(142 + offsets.X, 234 + offsets.Y, "HANDHOLDINGLASER3", shade, o, pal, angle);
 
-			hud_drawpal(130 + offsets.X, 249 + offsets.Y, DTILE_HANDHOLDINGLASER + (*kb >> 2), shade, o, pal, angle);
-			hud_drawpal(152 + offsets.X, 249 + offsets.Y, DTILE_HANDHOLDINGLASER + (*kb >> 2), shade, o | 4, pal, angle);
+			hud_drawpal(130 + offsets.X, 249 + offsets.Y, frames[(*kb >> 2)], shade, o, pal, angle);
+			hud_drawpal(152 + offsets.X, 249 + offsets.Y, frames[(*kb >> 2)], shade, o | 4, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
