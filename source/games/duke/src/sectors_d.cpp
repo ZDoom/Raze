@@ -164,14 +164,14 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == STAT_DEFAULT)
 		return;
 
-	if ((proj->spr.picnum == DTILE_FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
+	if (((proj->flags3 & SFLAG3_CANHURTSHOOTER) || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
 	{
 		if (badguy(targ))
 		{
-			if (isWorldTour() && targ->spr.picnum == DTILE_FIREFLY && targ->spr.scale.X < 0.75)
+			if (targ->spr.scale.X < targ->FloatVar(NAME_minhitscale))
 				return;
 
-			if (proj->spr.picnum == DTILE_RPG) proj->spr.extra <<= 1;
+			if (proj->flags4 & SFLAG4_DOUBLEHITDAMAGE) proj->spr.extra <<= 1;
 
 			if (!(targ->flags3 & SFLAG3_NOHITJIBS) && !(proj->flags3 & SFLAG3_NOHITJIBS))
 			{
@@ -189,7 +189,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 			auto Owner = proj->GetOwner();
 
-			if (Owner && Owner->isPlayer() && targ->spr.picnum != DTILE_ROTATEGUN && targ->spr.picnum != DTILE_DRONE)
+			if (Owner && Owner->isPlayer() && !(targ->flags3 & SFLAG3_NOSHOTGUNBLOOD))
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
 					shoot(targ, DukeBloodSplat3Class);
@@ -215,7 +215,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				ChangeActorStat(targ, STAT_ACTOR);
 				targ->timetosleep = SLEEPTIME;
 			}
-			if ((targ->spr.scale.X < 0.375 || targ->spr.picnum == DTILE_SHARK) && proj->spr.picnum == DTILE_SHRINKSPARK) return;
+			if (!shrinkersizecheck(proj->GetClass(), targ)) return;
 		}
 
 		if (targ->spr.statnum != STAT_ZOMBIEACTOR)
@@ -231,7 +231,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					return;
 
 				auto tOwner = targ->GetOwner();
-				if (hitpic == DukeFireballClass && tOwner && tOwner->GetClass() != DukeFireballClass)
+				if (hitpic == DukeFireballClass && tOwner && tOwner->GetClass() != DukeFireballClass) // hack alert! Even with damage types this special check needs to stay.
 					hitpic = DukeFlamethrowerFlameClass;
 			}
 
@@ -243,7 +243,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 		if (targ->spr.statnum == STAT_PLAYER)
 		{
-			auto p = targ->spr.yint;
+			auto p = targ->PlayerIndex();
 			if (ps[p].newOwner != nullptr)
 			{
 				ps[p].newOwner = nullptr;
@@ -258,7 +258,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				}
 			}
 
-			if (targ->spr.scale.X < 0.375 && proj->GetClass() == DukeShrinkSparkClass)
+			if (!shrinkersizecheck(proj->GetClass(), targ))
 				return;
 
 			auto hitowner = targ->GetHitOwner();

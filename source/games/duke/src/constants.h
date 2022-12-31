@@ -441,10 +441,22 @@ enum sflags3_t
 	SFLAG3_MAGMAIMMUNE = 0x08000000,
 	SFLAG3_DESTRUCTOIMMUNE = 0x10000000,
 	SFLAG3_NOHITJIBS = 0x20000000,
+	SFLAG3_CANHURTSHOOTER = 0x40000000,
+	SFLAG3_NOSHOTGUNBLOOD = 0x80000000,
+
 };
 
 using EDukeFlags3 = TFlags<sflags3_t, uint32_t>;
 DEFINE_TFLAGS_OPERATORS(EDukeFlags3)
+
+enum sflags4_t
+{
+	SFLAG4_DOUBLEHITDAMAGE = 0x00000001,
+	SFLAG4_NODAMAGETURN = 0x00000002,
+};
+
+using EDukeFlags4 = TFlags<sflags4_t, uint32_t>;
+DEFINE_TFLAGS_OPERATORS(EDukeFlags4)
 
 // these get stored as user flags inside the texture manager.
 enum

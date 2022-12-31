@@ -653,7 +653,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				}
 				if (!found)
 				{
-					actor->spr.picnum = 0;
+					actor->spr.setspritetexture(FNullTextureID());
 					actor->spr.cstat2 = CSTAT2_SPRITE_NOFIND;
 					actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 					ChangeActorStat(actor, STAT_REMOVED);

@@ -304,6 +304,13 @@ inline bool DDukeActor::isPlayer() const
 	return IsKindOf(DukePlayerBaseClass);
 }
 
+inline bool shrinkersizecheck(PClass* type, DDukeActor* act2)
+{
+	// this should be a damage type check, not a projectile type check.
+	// It's also quite broken because it doesn't check for being shrunk but tries to guess it from the size.
+	// Unfortunately, with CON there is no way to retrieve proper shrunk state in any way.
+	return type != DukeShrinkSparkClass || (act2->spr.scale.X >= 0.375);
+}
 
 inline void setPlayerActorViewZOffset(DDukeActor* const pact)
 {

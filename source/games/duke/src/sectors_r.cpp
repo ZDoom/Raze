@@ -164,12 +164,11 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == 0)
 		return;
 
-	if ((proj->spr.picnum == RTILE_SAWBLADE || proj->spr.picnum == RTILE_FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
+	if (((proj->flags3 & SFLAG3_CANHURTSHOOTER) || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
 	{
 		if (badguy(targ) == 1)
 		{
-			if (proj->spr.picnum == RTILE_RPG) proj->spr.extra <<= 1;
-			else if (isRRRA() && proj->spr.picnum == RTILE_RPG2) proj->spr.extra <<= 1;
+			if (proj->flags4 & SFLAG4_DOUBLEHITDAMAGE) proj->spr.extra <<= 1;
 
 			if (!(targ->flags3 & SFLAG3_NOHITJIBS) && !(proj->flags3 & SFLAG3_NOHITJIBS))
 			{
@@ -187,7 +186,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 
 			auto Owner = proj->GetOwner();
 
-			if (Owner && Owner->isPlayer() && targ->spr.picnum != RTILE_DRONE)
+			if (Owner && Owner->isPlayer() && !(targ->flags3 & SFLAG3_NOSHOTGUNBLOOD))
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
 					shoot(targ, DukeBloodSplat3Class);
@@ -203,25 +202,25 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			}
 		}
 
-		if (targ->spr.statnum != 2)
+		if (targ->spr.statnum != STAT_ZOMBIEACTOR)
 		{
-			if (proj->spr.picnum == RTILE_FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+			if ((proj->flags2 & SFLAG2_FREEZEDAMAGE) && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
 			targ->attackertype = static_cast<PClassActor*>(proj->GetClass());
 			targ->hitextra += proj->spr.extra;
-			if (targ->spr.picnum != RTILE_COW)
+			if (!(targ->flags4 & SFLAG4_NODAMAGETURN))
 				targ->hitang = proj->spr.Angles.Yaw;
 			targ->SetHitOwner(proj->GetOwner());
 		}
 
-		if (targ->spr.statnum == 10)
+		if (targ->spr.statnum == STAT_PLAYER)
 		{
 			auto p = targ->PlayerIndex();
 			if (ps[p].newOwner != nullptr)
 			{
 				ps[p].newOwner = nullptr;
-				ps[p].GetActor()->restorepos();
+				ps[p].GetActor()->restoreloc();
 
 				updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &ps[p].cursector);
 

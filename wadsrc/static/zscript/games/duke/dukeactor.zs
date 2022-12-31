@@ -260,6 +260,7 @@ class DukeActor : CoreActor native
 	meta double landmovefactor;
 	meta double watermovefactor;
 	meta double gravityfactor;
+	meta double minhitscale;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
@@ -280,6 +281,7 @@ class DukeActor : CoreActor native
 	property landmovefactor: landmovefactor;
 	property watermovefactor: watermovefactor;
 	property gravityfactor: gravityfactor;
+	property minhitscale: minhitscale;
 
 	
 	native void SetSpritesetImage(int index);

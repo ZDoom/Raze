@@ -15,6 +15,7 @@ class DukeRotateGun : DukeActor
 		+NOVERTICALMOVE;
 		+MOVE_NOPLAYERINTERACT;
 		+NOHITJIBS;
+		+NOSHOTGUNBLOOD;
 		
 		sparkoffset -8;
 		aimoffset 32;

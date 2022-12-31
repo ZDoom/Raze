@@ -209,10 +209,6 @@ int ifhitbyweapon_r(DDukeActor *actor)
 			}
 			else
 			{
-				if (actor->hitextra == 0)
-					if (actor->spr.scale.X < 0.375)
-						return -1;
-
 				actor->spr.extra -= actor->hitextra;
 				auto Owner = actor->GetOwner();
 				if (!(actor->flags2 & SFLAG2_IGNOREHITOWNER) && Owner && Owner->spr.statnum < MAXSTATUS)

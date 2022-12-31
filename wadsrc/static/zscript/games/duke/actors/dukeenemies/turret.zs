@@ -10,6 +10,7 @@ class DukeTurret : DukeActor
 		+KILLCOUNT;
 		+NOVERTICALMOVE;
 		+NOHITJIBS;
+		+NOSHOTGUNBLOOD;
 		aimoffset 32;
 	}
 	

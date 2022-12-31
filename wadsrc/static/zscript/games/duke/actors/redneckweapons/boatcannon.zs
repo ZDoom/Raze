@@ -11,6 +11,7 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 		pic "BOATGRENADE";
 		-DOUBLEDMGTHRUST;
 		-ALWAYSROTATE2;
+		-DOUBLEHITDAMAGE;
 		DukeProjectile.SpawnSound "MORTAR";
 	}
 	

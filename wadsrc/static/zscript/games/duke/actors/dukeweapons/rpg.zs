@@ -18,6 +18,7 @@ class DukeRPG : DukeProjectile
 		+DOUBLEDMGTHRUST;
 		+NOFLOORPAL;
 		+BREAKMIRRORS;
+		+DOUBLEHITDAMAGE;
 		DukeProjectile.SpawnSound "RPG_SHOOT";
 	}
 	

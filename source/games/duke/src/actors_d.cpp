@@ -199,10 +199,10 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->attackertype == DukeShrinkSparkClass && actor->spr.scale.X < 0.375)
+					if (!shrinkersizecheck(actor->attackertype, actor))
 						return -1;
 
-				if (actor->attackertype == DukeFireflyClass && actor->spr.scale.X < 0.75)
+				if (actor->spr.scale.X < actor->FloatVar(NAME_minhitscale))
 				{
 					return -1;
 				}

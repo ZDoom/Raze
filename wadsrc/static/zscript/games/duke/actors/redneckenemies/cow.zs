@@ -6,6 +6,7 @@ class RedneckCow : DukeActor
 	{
 		pic "COW";
 		+BADGUY;
+		+NODAMAGETURN;
 		Strength COWSTRENGTH;
 	}
 	

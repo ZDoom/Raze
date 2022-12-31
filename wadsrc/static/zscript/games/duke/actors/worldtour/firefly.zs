@@ -86,6 +86,7 @@ class DukeFirefly : DukeLizTrooper // recycles part of the Liztrooper code and d
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		-DONTENTERWATERONGROUND;
+		minhitscale 0.75;
 	
 		Strength FF_STRENGTH;
 	}

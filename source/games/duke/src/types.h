@@ -105,6 +105,7 @@ public:
 	EDukeFlags1 flags1;
 	EDukeFlags2 flags2;
 	EDukeFlags3 flags3;
+	EDukeFlags4 flags4;
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 	TArray<GameVarValue> uservars;
