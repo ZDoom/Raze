@@ -50,9 +50,9 @@
 #include "texturemanager.h"
 
 
-int tileSetHightileReplacement(int picnum, int palnum, FTextureID texid, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed);
+int tileSetHightileReplacement(int tilenum, int palnum, FTextureID texid, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed);
 
-int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed = false);
+int tileSetSkybox(int tilenum, int palnum, FString* facenames, bool indexed = false);
 void tileRemoveReplacement(int num);
 void AddUserMapHack(const FString& title, const FString& mhkfile, uint8_t* md4);
 
@@ -129,26 +129,26 @@ bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
 //
 //===========================================================================
 
-static int tileSetHightileReplacement(FScanner& sc, int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false)
+static int tileSetHightileReplacement(FScanner& sc, int tilenum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false)
 {
-	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+	if ((uint32_t)tilenum >= (uint32_t)MAXTILES) return -1;
 	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
 
-	auto tex = tbuild->tile[picnum].tileimage;
+	auto tex = tbuild->tile[tilenum].tileimage;
 
 	if (tex == nullptr || tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
 	{
-		sc.ScriptMessage("Warning: defined hightile replacement for empty tile %d.", picnum);
+		sc.ScriptMessage("Warning: defined hightile replacement for empty tile %d.", tilenum);
 		return -1;	// cannot add replacements to empty tiles, must create one beforehand
 	}
 
 	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
 	if (!texid.isValid())
 	{
-		sc.ScriptMessage("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
+		sc.ScriptMessage("%s: Replacement for tile %d does not exist or is invalid\n", filename, tilenum);
 		return -1;
 	}
-	tileSetHightileReplacement(picnum, palnum, texid, alphacut, xscale, yscale, specpower, specfactor, indexed);
+	tileSetHightileReplacement(tilenum, palnum, texid, alphacut, xscale, yscale, specpower, specfactor, indexed);
 	return 0;
 }
 

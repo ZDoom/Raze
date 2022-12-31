@@ -95,9 +95,9 @@ void FontCharCreated(FGameTexture* base, FGameTexture* glyph)
 //
 //===========================================================================
 
-static void AddReplacement(int picnum, const HightileReplacement& replace)
+static void AddReplacement(int tilenum, const HightileReplacement& replace)
 {
-	auto& Hightiles = tileReplacements[picnum];
+	auto& Hightiles = tileReplacements[tilenum];
 	for (auto& ht : Hightiles)
 	{
 		if (replace.palnum == ht.palnum && replace.issky == ht.issky)
@@ -115,9 +115,9 @@ static void AddReplacement(int picnum, const HightileReplacement& replace)
 //
 //==========================================================================
 
-void tileRemoveReplacement(int picnum)
+void tileRemoveReplacement(int tilenum)
 {
-	tileReplacements.Remove(picnum);
+	tileReplacements.Remove(tilenum);
 }
 
 //===========================================================================
@@ -126,9 +126,9 @@ void tileRemoveReplacement(int picnum)
 //
 //===========================================================================
 
-static HightileReplacement* FindReplacement(FTextureID picnum, int palnum, bool skybox)
+static HightileReplacement* FindReplacement(FTextureID texid, int palnum, bool skybox)
 {
-	auto Hightiles = textureReplacements.CheckKey(picnum.GetIndex());
+	auto Hightiles = textureReplacements.CheckKey(texid.GetIndex());
 	if (!Hightiles) return nullptr;
 	for (;;)
 	{
@@ -142,18 +142,18 @@ static HightileReplacement* FindReplacement(FTextureID picnum, int palnum, bool 
 	return nullptr;	// no replacement found
 }
 
-int checkTranslucentReplacement(FTextureID picnum, int pal)
+int checkTranslucentReplacement(FTextureID texid, int pal)
 {
 	FGameTexture* tex = nullptr;
-	auto si = FindReplacement(picnum, pal, 0);
+	auto si = FindReplacement(texid, pal, 0);
 	if (si && hw_hightile) tex = si->image;
 	if (!tex || tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
 	return tex && tex->GetTranslucency();
 }
 
-FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum)
+FGameTexture* SkyboxReplacement(FTextureID texid, int palnum)
 {
-	auto hr = FindReplacement(picnum, palnum, true);
+	auto hr = FindReplacement(texid, palnum, true);
 	if (!hr) return nullptr;
 	return hr->image;
 }
@@ -251,7 +251,7 @@ void highTileSetup()
 //
 //==========================================================================
 
-int tileSetHightileReplacement(int picnum, int palnum, FTextureID texid, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed)
+int tileSetHightileReplacement(int tilenum, int palnum, FTextureID texid, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed)
 {
 	// assumes the texture was already validated.
 	HightileReplacement replace = {};
@@ -263,7 +263,7 @@ int tileSetHightileReplacement(int picnum, int palnum, FTextureID texid, float a
 	replace.issky = 0;
 	replace.indexed = indexed;
 	replace.palnum = (uint16_t)palnum;
-	AddReplacement(picnum, replace);
+	AddReplacement(tilenum, replace);
 	return 0;
 }
 
@@ -274,15 +274,15 @@ int tileSetHightileReplacement(int picnum, int palnum, FTextureID texid, float a
 //
 //==========================================================================
 
-int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed)
+int tileSetSkybox(int tilenum, int palnum, FString* facenames, bool indexed)
 {
-	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+	if ((uint32_t)tilenum >= (uint32_t)MAXTILES) return -1;
 	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
 
-	auto tex = tileGetTexture(picnum);
+	auto tex = tileGetTexture(tilenum);
 	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0)
 	{
-		Printf("Warning: defined skybox replacement for empty tile %d.", picnum);
+		Printf("Warning: defined skybox replacement for empty tile %d.", tilenum);
 		return -1;	// cannot add replacements to empty tiles, must create one beforehand
 	}
 	HightileReplacement replace = {};
@@ -293,7 +293,7 @@ int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed)
 		FTextureID texid = TexMan.CheckForTexture(facenames[i], ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
 		if (!texid.isValid())
 		{
-			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", facenames[i].GetChars(), picnum);
+			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", facenames[i].GetChars(), tilenum);
 			return -1;
 		}
 		faces[i] = TexMan.GetGameTexture(texid);
@@ -307,7 +307,7 @@ int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed)
     replace.issky = 1;
 	replace.indexed = indexed;
 	replace.palnum = (uint16_t)palnum;
-	AddReplacement(picnum, replace);
+	AddReplacement(tilenum, replace);
 	return 0;
 }
 

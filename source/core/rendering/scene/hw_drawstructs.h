@@ -384,7 +384,7 @@ inline float sectorVisibility(sectortype* sec)
 
 inline const float hw_density = 0.35f;
 
-int checkTranslucentReplacement(FTextureID picnum, int pal);
+int checkTranslucentReplacement(FTextureID texid, int pal);
 
 inline bool maskWallHasTranslucency(const walltype* wall)
 {

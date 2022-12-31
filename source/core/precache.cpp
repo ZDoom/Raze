@@ -67,7 +67,7 @@ static void doprecache(FTextureID texid, int palette)
 	auto tex = TexMan.GetGameTexture(texid);
     PrecacheTex(tex, palid);
 
-	int const mid = -1;// hw_models ? modelManager.CheckModel(picnum, palette) : -1;
+	int const mid = -1;// hw_models ? modelManager.CheckModel(texid, palette) : -1;
 
 	if (mid < 0)
 	{
