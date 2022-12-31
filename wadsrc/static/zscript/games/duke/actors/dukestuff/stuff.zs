@@ -47,6 +47,7 @@ class DukeWoodenHorse : DukeSimpleItem
 	default
 	{
 		pic "WOODENHORSE";
+		precacheClass "DukeHorseOnSide";
 		Strength WEAKEST;
 	}
 	

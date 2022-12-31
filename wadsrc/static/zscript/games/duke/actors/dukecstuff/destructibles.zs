@@ -253,6 +253,7 @@ class DukeHydrant : DukeActor
 	Default
 	{
 		spriteset "HYDRENT", "BROKEFIREHYDRENT";
+		precacheclass "DukeToiletWater";
 		+INFLAME;
 		+DOUBLEDMGTHRUST;
 		+BREAKMIRRORS;

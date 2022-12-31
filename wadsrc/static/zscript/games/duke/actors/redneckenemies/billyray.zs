@@ -7,6 +7,7 @@ class RedneckBillyRay : DukeActor
 		pic "BILLYRAY";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		precacheclass "RedneckBillyJibA", "RedneckBillyJibB";
 		Strength BILLYRAYSTRENGTH;
 		
 	}

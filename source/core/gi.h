@@ -47,6 +47,8 @@ struct gameinfo_t
 	FName mSliderBackColor;
 	FString mBackButton;
 	FString TitlePage;
+	TArray<FName> precacheClasses;
+	TArray<FName> precacheTextures;
 };
 
 

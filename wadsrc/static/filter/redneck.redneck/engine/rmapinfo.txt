@@ -127,4 +127,6 @@ gameinfo
 	summaryscreen = RRCutscenes.BuildSPSummary
 	mpsummaryscreen = DukeCutscenes.BuildMPSummary // identical with Duke's 
 	statusbarclass = RedneckStatusBar
+	precacheclasses = "DukeFootprints", "DukeBurning", "DukeBurning2", "DukeExplosion2", "DukeBulletHole",
+		"DukeJibs1", "DukeJibs2", "DukeJibs3", "DukeJibs4", "DukeJibs5", "DukeJibs6", "DukeScrap", "DukeSmallSmoke"
 }

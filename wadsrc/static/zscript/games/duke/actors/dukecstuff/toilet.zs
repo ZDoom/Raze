@@ -4,6 +4,7 @@ class DukeStall : DukeActor
 	default
 	{
 		spriteset "STALL", "STALLBROKE";
+		precacheclass "DukeToiletWater";
 	}
 	
 	override void Initialize()

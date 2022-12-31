@@ -112,4 +112,6 @@ gameinfo
 	summaryscreen = DukeCutscenes.BuildSPSummary
 	mpsummaryscreen = DukeCutscenes.BuildMPSummary  
 	statusbarclass = DukeStatusBar
+	precacheclasses = "DukeFootprints", "DukeBurning", "DukeBurning2", "DukeExplosion2", "DukeExplosion2Bot", "DukeBulletHole",
+		"DukeJibs1", "DukeJibs2", "DukeJibs3", "DukeJibs4", "DukeJibs5", "DukeJibs6", "DukeScrap", "DukeSmallSmoke"
 }

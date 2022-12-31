@@ -376,3 +376,18 @@ DEFINE_PROPERTY(spritesetindex, I, CoreActor)
 	PROP_INT_PARM(i, 0);
 	defaults->spritesetindex = i;
 }
+
+//==========================================================================
+//
+//==========================================================================
+DEFINE_PROPERTY(precacheclass, Sssssssssssssssssssssssssssssss, CoreActor)
+{
+	for (int i = 0; i < PROP_PARM_COUNT; ++i)
+	{
+		PROP_STRING_PARM(n, i);
+		auto cls = PClass::FindActor(n);
+		if (n)
+			info->ActorInfo()-> precacheClasses.Push(cls);
+	}
+}
+

@@ -1578,6 +1578,26 @@ void FMapInfoParser::ParseGameInfo()
 			sc.SetCMode(true);
 			globalCutscenes.StatusBarClass = sc.String;
 		}
+		else if (sc.Compare("precacheclasses"))
+		{
+			ParseAssign();
+			do
+			{
+				sc.MustGetString();
+				gameinfo.precacheClasses.Push(FName(sc.String));
+			} while (sc.CheckString(","));
+
+		}
+		else if (sc.Compare("precachetextures"))
+		{
+			ParseAssign();
+			do
+			{
+				sc.MustGetString();
+				gameinfo.precacheTextures.Push(FName(sc.String));
+			} while (sc.CheckString(","));
+
+		}
 		else if (!ParseCloseBrace())
 		{
 			// Unknown

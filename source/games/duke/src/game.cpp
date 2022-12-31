@@ -449,7 +449,7 @@ void GameInterface::FinalizeSetup()
 				newcls->InitializeDefaults();
 				spawnMap.Insert(i, { newcls, FNullTextureID(), FNullTextureID(), NO_SOUND, int8_t(0), int8_t(0), int16_t(0x8000) });
 				cls = newcls;
-				GetDefaultByType(newcls)->spr.picnum = i; // make it show the right pic.
+				GetDefaultByType(newcls)->spr.setspritetexture(tileGetTextureID(i)); // make it show the right pic.
 			}
 			else
 			{

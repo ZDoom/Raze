@@ -8,6 +8,7 @@ class RedneckCoot : DukeActor
 	{
 		pic "COOT";
 		Strength COOTSTRENGTH;
+		precacheclass "RedneckCootJibA", "RedneckCootJibB", "RedneckCootJibC";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+DESTRUCTOIMMUNE;

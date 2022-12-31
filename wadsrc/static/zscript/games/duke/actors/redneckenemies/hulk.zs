@@ -15,6 +15,7 @@ class RedneckHulk : DukeActor
 		+KILLCOUNT;
 		+NORADIUSPUSH;
 		ProjectileSpread -5.625;
+		precacheclass "RedneckHulkJibA", "RedneckHulkJibB", "RedneckHulkJibC";
 		Strength HULKSTRENGTH;
 	}
 

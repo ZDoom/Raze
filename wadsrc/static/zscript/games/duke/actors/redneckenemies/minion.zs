@@ -6,6 +6,8 @@ class RedneckMinion : DukeActor
 	default
 	{
 		pic "MINION";
+		strength MINIONSTRENGTH;
+		precacheclass "RedneckMinJibA", "RedneckMinJibB", "RedneckMinJibC";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+LOOKALLAROUNDWITHPAL8;

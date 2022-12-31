@@ -7,6 +7,7 @@ class DukeLizTrooper : DukeActor
 	{
 		pic "LIZTROOP";
 		Strength TROOPSTRENGTH;
+		precacheclass "DukeHeadJib1", "DukeArmJib1", "DukeLegJib1";
 		
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
