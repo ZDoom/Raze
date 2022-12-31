@@ -4,7 +4,7 @@ class RedneckMosquito : DukeActor
 	const MOSQDAMAGE = -4;
 	default
 	{
-		pic "DRONE";
+		pic "MOSQUITO";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+NOWATERDIP;

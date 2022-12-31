@@ -19,8 +19,8 @@ breakwalls
 	RRTILE1986 = RRTILE1987, "", "DukeBreakWalls.LightBreak"
 	RRTILE1939 = RRTILE2004, "", "DukeBreakWalls.LightBreak"
 	RRTILE1988 = RRTILE2005, "", "DukeBreakWalls.LightBreak"
-	RRTILE2898 = RRTILE2899, "", "DukeBreakWalls.LightBreak"
-	RRTILE2878 = RRTILE2879, "", "DukeBreakWalls.LightBreak"
+	BUSTAWIN4A = BUSTAWIN4B, "", "DukeBreakWalls.LightBreak"
+	BUSTAWIN5A = BUSTAWIN5B, "", "DukeBreakWalls.LightBreak"
 	RRTILE2123 = RRTILE2124, "", "DukeBreakWalls.LightBreak"
 	RRTILE2125 = RRTILE2126, "", "DukeBreakWalls.LightBreak"
 	RRTILE3200 = RRTILE3201, "", "DukeBreakWalls.LightBreak"
@@ -46,8 +46,8 @@ breakceiling
 	RRTILE1986 = RRTILE1987, "GLASS_BREAKING", lightsout, ceilingglass
 	RRTILE1939 = RRTILE2004, "GLASS_BREAKING", lightsout, ceilingglass
 	RRTILE1988 = RRTILE2005, "GLASS_BREAKING", lightsout, ceilingglass
-	RRTILE2898 = RRTILE2899, "GLASS_BREAKING", lightsout, ceilingglass
-	RRTILE2878 = RRTILE2879, "GLASS_BREAKING", lightsout, ceilingglass
+	BUSTAWIN4A = BUSTAWIN4B, "GLASS_BREAKING", lightsout, ceilingglass
+	BUSTAWIN5A = BUSTAWIN5B, "GLASS_BREAKING", lightsout, ceilingglass
 	RRTILE2123 = RRTILE2124, "GLASS_BREAKING", lightsout, ceilingglass
 	RRTILE2125 = RRTILE2126, "GLASS_BREAKING", lightsout, ceilingglass
 }

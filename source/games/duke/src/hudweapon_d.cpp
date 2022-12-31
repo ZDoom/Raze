@@ -53,7 +53,7 @@ inline static double getavel(int snum)
 
 inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
 {
-	hud_drawsprite(x, y, 65536, angle.Degrees(), tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 65536, angle.Degrees(), tilenum, shade, p, orientation);
 }
 
 //---------------------------------------------------------------------------
@@ -75,7 +75,7 @@ static void displayloogie(player_struct* p, double const interpfrac)
 		const double z = 4096. + ((loogi + i) * 512.);
 		const double x = -getavel(p->GetPlayerNum()) + BobVal((loogi + i) * 64.) * 16;
 
-		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), a - 22.5, DTILE_LOOGIE, 0, 0, 2);
+		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), (z - (i << 8)) / 65536., a - 22.5, TexMan.CheckForTexture("LOOGIE", ETextureType::Any), 0, 0, 0);
 	}
 }
 
@@ -93,7 +93,7 @@ static bool animatefist(int gs, player_struct* p, double xoffset, double yoffset
 	hud_drawsprite(
 		(-fisti + 222 + xoffset),
 		(yoffset + 194 + BobVal((6 + fisti) * 128.) * 32),
-		clamp(65536. - 65536. * BobVal(512 + fisti * 64.), 40920., 90612.), 0, DTILE_FIST, gs, fistpal, 2);
+		clamp(65536. - 65536. * BobVal(512 + fisti * 64.), 40920., 90612.) / 65536., 0, TexMan.CheckForTexture("FIST", ETextureType::Any), gs, fistpal, 0);
 
 	return true;
 }

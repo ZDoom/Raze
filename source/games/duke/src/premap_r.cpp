@@ -257,7 +257,7 @@ static void cachespritenum(DDukeActor* actor)
 	case RTILE_ATOMICHEALTH:
 		maxc = 14;
 		break;
-	case RTILE_DRONE:
+	case RTILE_MOSQUITO:
 		maxc = 6;
 		break;
 	case RTILE_VIXEN:

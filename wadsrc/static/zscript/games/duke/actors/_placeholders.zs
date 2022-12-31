@@ -18,7 +18,7 @@ class RedneckMotoHit : DukeActor
 {
 	default
 	{
-		pic "MOTOHIT";
+		pic "MOTOHIT0";
 	}
 }
 

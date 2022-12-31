@@ -35,28 +35,13 @@ BEGIN_DUKE_NS
 
 //---------------------------------------------------------------------------
 //
-//
+// Note: Scaling factors in here are very weird numbers that are better left in Q16.16.
 //
 //---------------------------------------------------------------------------
 
 inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle, int scale = 32768)
 {
 	hud_drawsprite(x, y, scale, angle.Degrees(), tilenum, shade, p, 2 | orientation);
-}
-
-inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
-{
-	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 36700);
-}
-
-inline static void rd2myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
-{
-	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 44040);
-}
-
-inline static void rd3myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
-{
-	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 47040);
 }
 
 //---------------------------------------------------------------------------
@@ -92,17 +77,131 @@ void displaymasks_r(int snum, int p, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-inline static void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, DAngle a)
+void DrawMotorCycle(int const kb, DVector2 offsets, DAngle angle, int shade, int pal)
 {
-	hud_drawsprite(x, y, 34816, a.Degrees(), tilenum, shade, p, 2 | orientation);
+	const char* temp_kb;
+	if (numplayers == 1)
+	{
+		if (kb)
+		{
+			shade = 0;
+			if (kb == 1)
+			{
+				if ((krand() & 1) == 1)
+					temp_kb = "MOTOHIT1";
+				else
+					temp_kb = "MOTOHIT2";
+			}
+			else if (kb == 4)
+			{
+				if ((krand() & 1) == 1)
+					temp_kb = "MOTOHIT3";
+				else
+					temp_kb = "MOTOHIT4";
+			}
+			else
+				temp_kb = "MOTOHIT0";
+
+		}
+		else
+			temp_kb = "MOTOHIT0";
+	}
+	else
+	{
+		if (kb)
+		{
+			shade = 0;
+			if (kb == 1)
+				temp_kb = "MOTOHIT1";
+			else if (kb == 2)
+				temp_kb = "MOTOHIT2";
+			else if (kb == 3)
+				temp_kb = "MOTOHIT3";
+			else if (kb == 4)
+				temp_kb = "MOTOHIT4";
+			else
+				temp_kb = "MOTOHIT0";
+
+		}
+		else
+			temp_kb = "MOTOHIT0";
+	}
+	hud_drawsprite(160 + offsets.X, 174, 0.53125, -angle.Degrees(), TexMan.CheckForTexture(temp_kb, ETextureType::Any), shade, pal, 0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-inline static void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, DAngle a)
+void DrawBoat(int const kb, DVector2 offsets, DAngle angle, int shade, int pal, bool notonwater)
 {
-	hud_drawsprite(x, y, 66048, a.Degrees(), tilenum, shade, p, 2 | orientation);
-}
+	const char* temp_kb;
+	int temp2, temp3;
+	temp2 = 0;
+	if (angle > nullAngle)
+	{
+		if (kb == 0)
+			temp_kb = "BOATHIT1";
+		else if (kb <= 3)
+		{
+			temp_kb = "BOATHIT5";
+			temp2 = 1;
+		}
+		else if (kb <= 6)
+		{
+			temp_kb = "BOATHIT6";
+			temp2 = 1;
+		}
+		else
+			temp_kb = "BOATHIT1";
+	}
+	else if (angle < nullAngle)
+	{
+		if (kb == 0)
+			temp_kb = "BOATHIT2";
+		else if (kb <= 3)
+		{
+			temp_kb = "BOATHIT7";
+			temp2 = 1;
+		}
+		else if (kb <= 6)
+		{
+			temp_kb = "BOATHIT8";
+			temp2 = 1;
+		}
+		else
+			temp_kb = "BOATHIT2";
+	}
+	else
+	{
+		if (kb == 0)
+			temp_kb = "BOATHIT0";
+		else if (kb <= 3)
+		{
+			temp_kb = "BOATHIT3";
+			temp2 = 1;
+		}
+		else if (kb <= 6)
+		{
+			temp_kb = "BOATHIT4";
+			temp2 = 1;
+		}
+		else
+			temp_kb = "BOATHIT0";
+	}
 
+	if (notonwater)
+		temp3 = 170;
+	else
+		temp3 = 170 + (kb >> 2);
+
+	if (temp2)
+		shade = -96;
+
+	hud_drawsprite(160 + offsets.X, temp3, 1.0078125, -angle.Degrees(), TexMan.CheckForTexture(temp_kb, ETextureType::Any), shade, pal, 0);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -156,122 +255,12 @@ void displayweapon_r(int snum, double interpfrac)
 
 	if (p->OnMotorcycle)
 	{
-		int temp_kb;
-		if (numplayers == 1)
-		{
-			if (*kb)
-			{
-				shade = 0;
-				if (*kb == 1)
-				{
-					if ((krand()&1) == 1)
-						temp_kb = RTILE_MOTOHIT+1;
-					else
-						temp_kb = RTILE_MOTOHIT+2;
-				}
-				else if (*kb == 4)
-				{
-					if ((krand()&1) == 1)
-						temp_kb = RTILE_MOTOHIT+3;
-					else
-						temp_kb = RTILE_MOTOHIT+4;
-				}
-				else
-					temp_kb = RTILE_MOTOHIT;
-
-			}
-			else
-				temp_kb = RTILE_MOTOHIT;
-		}
-		else
-		{
-			if (*kb)
-			{
-				shade = 0;
-				if (*kb == 1)
-					temp_kb = RTILE_MOTOHIT+1;
-				else if (*kb == 2)
-					temp_kb = RTILE_MOTOHIT+2;
-				else if (*kb == 3)
-					temp_kb = RTILE_MOTOHIT+3;
-				else if (*kb == 4)
-					temp_kb = RTILE_MOTOHIT+4;
-				else
-					temp_kb = RTILE_MOTOHIT;
-
-			}
-			else
-				temp_kb = RTILE_MOTOHIT;
-		}
-
-		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, -TiltStatus);
+		DrawMotorCycle(*kb, offsets, TiltStatus, shade, pal);
 		return;
 	}
 	if (p->OnBoat)
 	{
-		int temp2, temp_kb, temp3;
-		temp2 = 0;
-		if (TiltStatus.Sgn() > 0)
-		{
-			if (*kb == 0)
-				temp_kb = RTILE_BOATHIT+1;
-			else if (*kb <= 3)
-			{
-				temp_kb = RTILE_BOATHIT+5;
-				temp2 = 1;
-			}
-			else if (*kb <= 6)
-			{
-				temp_kb = RTILE_BOATHIT+6;
-				temp2 = 1;
-			}
-			else
-				temp_kb = RTILE_BOATHIT+1;
-		}
-		else if (TiltStatus.Sgn() < 0)
-		{
-			if (*kb == 0)
-				temp_kb = RTILE_BOATHIT+2;
-			else if (*kb <= 3)
-			{
-				temp_kb = RTILE_BOATHIT+7;
-				temp2 = 1;
-			}
-			else if (*kb <= 6)
-			{
-				temp_kb = RTILE_BOATHIT+8;
-				temp2 = 1;
-			}
-			else
-				temp_kb = RTILE_BOATHIT+2;
-		}
-		else
-		{
-			if (*kb == 0)
-				temp_kb = RTILE_BOATHIT;
-			else if (*kb <= 3)
-			{
-				temp_kb = RTILE_BOATHIT+3;
-				temp2 = 1;
-			}
-			else if (*kb <= 6)
-			{
-				temp_kb = RTILE_BOATHIT+4;
-				temp2 = 1;
-			}
-			else
-				temp_kb = RTILE_BOATHIT;
-		}
-
-		if (p->NotOnWater)
-			temp3 = 170;
-		else
-			temp3 = 170 + (*kb>>2);
-
-		if (temp2)
-			shade = -96;
-
-		ShowBoat(160 + offsets.X, temp3, temp_kb, shade, 0, pal, -TiltStatus);
+		DrawBoat(*kb, offsets, TiltStatus, shade, pal, p->NotOnWater);
 		return;
 	}
 
@@ -338,7 +327,7 @@ void displayweapon_r(int snum, double interpfrac)
 			}
 			else
 			{
-				rdmyospal(162 + offsets.X, 214 + offsets.Y, RTILE_HANDTHROW + 5, shade, o, pal, angle);
+				hud_drawpal(162 + offsets.X, 214 + offsets.Y, RTILE_HANDTHROW + 5, shade, o, pal, angle, 36700);
 			}
 		};
 
@@ -355,12 +344,12 @@ void displayweapon_r(int snum, double interpfrac)
 
 			if (p->ammo_amount[POWDERKEG_WEAPON])
 			{
-				rdmyospal(180 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_POWDERH, shade, o, pal, angle);
-				rdmyospal(90 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_POWDERH, shade, o | 4, pal, angle);
+				hud_drawpal(180 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_POWDERH, shade, o, pal, angle, 36700);
+				hud_drawpal(90 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_POWDERH, shade, o | 4, pal, angle, 36700);
 			}
 			else
 			{
-				rdmyospal(162 + offsets.X, 214 + offsets.Y, RTILE_HANDTHROW + 5, shade, o, pal, angle);
+				hud_drawpal(162 + offsets.X, 214 + offsets.Y, RTILE_HANDTHROW + 5, shade, o, pal, angle, 36700);
 			}
 		};
 
@@ -377,15 +366,15 @@ void displayweapon_r(int snum, double interpfrac)
 
 			if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 			{
-				rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal, angle);
+				hud_drawpal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal, angle, 36700);
 			}
 			else if (kb_frames[*kb] == 1)
 			{
-				rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], 0, o | pin, pal, angle);
+				hud_drawpal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], 0, o | pin, pal, angle, 36700);
 			}
 			else
 			{
-				rdmyospal(210 + offsets.X, 255 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal, angle);
+				hud_drawpal(210 + offsets.X, 255 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal, angle, 36700);
 			}
 		};
 
@@ -405,15 +394,15 @@ void displayweapon_r(int snum, double interpfrac)
 
 				if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 				{
-					rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal, angle);
+					hud_drawpal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal, angle, 36700);
 				}
 				else if (kb_frames[*kb] == 1)
 				{
-					rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], 0, o |  pin, pal, angle);
+					hud_drawpal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], 0, o |  pin, pal, angle, 36700);
 				}
 				else
 				{
-					rdmyospal(210 + offsets.X, 255 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal, angle);
+					hud_drawpal(210 + offsets.X, 255 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal, angle, 36700);
 				}
 			}
 			else
@@ -422,22 +411,22 @@ void displayweapon_r(int snum, double interpfrac)
 				{
 					if (chickenphase)
 					{
-						rdmyospal(210 + offsets.X, 222 + offsets.Y, RTILE_RPGGUN2 + 7, shade, o |  pin, pal, angle);
+						hud_drawpal(210 + offsets.X, 222 + offsets.Y, RTILE_RPGGUN2 + 7, shade, o |  pin, pal, angle, 36700);
 					}
 					else if ((krand() & 15) == 5)
 					{
 						S_PlayActorSound(327, p->GetActor());
-						rdmyospal(210 + offsets.X, 222 + offsets.Y, RTILE_RPGGUN2 + 7, shade, o |  pin, pal, angle);
+						hud_drawpal(210 + offsets.X, 222 + offsets.Y, RTILE_RPGGUN2 + 7, shade, o |  pin, pal, angle, 36700);
 						chickenphase = 6;
 					}
 					else
 					{
-						rdmyospal(210 + offsets.X, 225 + offsets.Y, RTILE_RPGGUN2, shade, o |  pin, pal, angle);
+						hud_drawpal(210 + offsets.X, 225 + offsets.Y, RTILE_RPGGUN2, shade, o |  pin, pal, angle, 36700);
 					}
 				}
 				else
 				{
-					rdmyospal(210 + offsets.X, 225 + offsets.Y, RTILE_RPGGUN2, shade, o |  pin, pal, angle);
+					hud_drawpal(210 + offsets.X, 225 + offsets.Y, RTILE_RPGGUN2, shade, o |  pin, pal, angle, 36700);
 				}
 			}
 		};
@@ -598,7 +587,7 @@ void displayweapon_r(int snum, double interpfrac)
 				if (kb_frames[*kb])
 					shade = 0;
 
-				rdmyospal(x, y, RTILE_FIRSTGUN + kb_frames[*kb], shade, 0, pal, angle);
+				hud_drawpal(x, y, RTILE_FIRSTGUN + kb_frames[*kb], shade, 0, pal, angle, 36700);
 			}
 			else
 			{
@@ -654,7 +643,7 @@ void displayweapon_r(int snum, double interpfrac)
 					dx = 0;
 					break;
 				}
-				rdmyospal(x - dx, y + dy, RTILE_FIRSTGUNRELOAD + kb_frames[(*kb) - 22], shade, 0, pal, angle);
+				hud_drawpal(x - dx, y + dy, RTILE_FIRSTGUNRELOAD + kb_frames[(*kb) - 22], shade, 0, pal, angle, 36700);
 			}
 		};
 
@@ -668,7 +657,7 @@ void displayweapon_r(int snum, double interpfrac)
 		{
 			offsets.Y += 9 * (*kb);
 
-			rdmyospal(190 + offsets.X, 260 + offsets.Y, RTILE_HANDTHROW, shade, o, pal, angle);
+			hud_drawpal(190 + offsets.X, 260 + offsets.Y, RTILE_HANDTHROW, shade, o, pal, angle, 36700);
 		};
 
 		//---------------------------------------------------------------------------
@@ -691,17 +680,17 @@ void displayweapon_r(int snum, double interpfrac)
 				{
 					if ((*kb) < 5)
 					{
-						rdmyospal(290 + offsets.X - dx, 258 + offsets.Y - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal, angle);
+						hud_drawpal(290 + offsets.X - dx, 258 + offsets.Y - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal, angle, 36700);
 					}
-					rdmyospal(290 + offsets.X, 258 + offsets.Y - dy, RTILE_HANDTHROW + remote_frames[*kb], shade, o |  pin, pal, angle);
+					hud_drawpal(290 + offsets.X, 258 + offsets.Y - dy, RTILE_HANDTHROW + remote_frames[*kb], shade, o |  pin, pal, angle, 36700);
 				}
 				else
 				{
 					if ((*kb) < 5)
 					{
-						rdmyospal(290 + offsets.X - dx, 258 + offsets.Y - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal, angle);
+						hud_drawpal(290 + offsets.X - dx, 258 + offsets.Y - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal, angle, 36700);
 					}
-					rdmyospal(290 + offsets.X, 258 + offsets.Y - dy, RTILE_HANDTHROW + 1, shade, o |  pin, pal, angle);
+					hud_drawpal(290 + offsets.X, 258 + offsets.Y - dy, RTILE_HANDTHROW + 1, shade, o |  pin, pal, angle, 36700);
 				}
 			}
 		};
@@ -719,10 +708,10 @@ void displayweapon_r(int snum, double interpfrac)
 			if (*kb)
 			{
 				shade = 0;
-				rd3myospal(150 + offsets.X, 266 + offsets.Y, RTILE_DEVISTATOR, shade, o, pal, angle);
+				hud_drawpal(150 + offsets.X, 266 + offsets.Y, RTILE_DEVISTATOR, shade, o, pal, angle, 47040);
 			}
 			else
-				rd3myospal(150 + offsets.X, 266 + offsets.Y, RTILE_DEVISTATOR + 1, shade, o, pal, angle);
+				hud_drawpal(150 + offsets.X, 266 + offsets.Y, RTILE_DEVISTATOR + 1, shade, o, pal, angle, 47040);
 		};
 
 		//---------------------------------------------------------------------------
@@ -738,9 +727,9 @@ void displayweapon_r(int snum, double interpfrac)
 			if ((*kb))
 			{
 				static const uint8_t cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-				rdmyospal(260 + offsets.X, 215 + offsets.Y, RTILE_FREEZE + cat_frames[*kb], -32, o |  pin, pal, angle);
+				hud_drawpal(260 + offsets.X, 215 + offsets.Y, RTILE_FREEZE + cat_frames[*kb], -32, o |  pin, pal, angle, 36700);
 			}
-			else rdmyospal(260 + offsets.X, 215 + offsets.Y, RTILE_FREEZE, shade, o |  pin, pal, angle);
+			else hud_drawpal(260 + offsets.X, 215 + offsets.Y, RTILE_FREEZE, shade, o |  pin, pal, angle, 36700);
 		};
 
 		//---------------------------------------------------------------------------
@@ -756,7 +745,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 			if ((*kb) == 0)
 			{
-				rd2myospal(188 + offsets.X, 240 + offsets.Y, RTILE_SHRINKER, shade, o, pal, angle);
+				hud_drawpal(188 + offsets.X, 240 + offsets.Y, RTILE_SHRINKER, shade, o, pal, angle, 44040);
 			}
 			else
 			{
@@ -768,12 +757,12 @@ void displayweapon_r(int snum, double interpfrac)
 
 				if (cw == BUZZSAW_WEAPON)
 				{
-					rd2myospal(184 + offsets.X, 240 + offsets.Y, RTILE_GROWSPARK + ((*kb) & 2), shade, o, 0, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, RTILE_GROWSPARK + ((*kb) & 2), shade, o, 0, angle, 44040);
 				}
 				else
 				{
 					static const int8_t kb_frames[] = { 1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0 };
-					rd2myospal(184 + offsets.X, 240 + offsets.Y, RTILE_SHRINKER + kb_frames[*kb], shade, o, 0, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, RTILE_SHRINKER + kb_frames[*kb], shade, o, 0, angle, 44040);
 				}
 			}
 		};

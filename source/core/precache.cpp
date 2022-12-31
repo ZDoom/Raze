@@ -100,7 +100,9 @@ TMap<int64_t, bool> cachemap;
 
 void markTextureForPrecache(FTextureID nTex, int palnum)
 {
+	if (!nTex.isValid()) return;
 	int i, j;
+	assert(palnum >= 0 && palnum < 256);
 	auto& picanm = GetExtInfo(nTex).picanm;
 	if (picanm.type() == PICANM_ANIMTYPE_BACK)
 	{
@@ -116,12 +118,14 @@ void markTextureForPrecache(FTextureID nTex, int palnum)
 	for (; i <= j; i = i + 1)
 	{
 		int64_t val = i + (int64_t(palnum) << 32);
+		assert(val >= 0);
 		cachemap.Insert(val, true);
 	}
 }
 
 void markTextureForPrecache(const char* texname, int palnum)
 {
+	assert(palnum >= 0 && palnum < 256);
 	auto texid = TexMan.CheckForTexture(texname, ETextureType::Any);
 	if (texid.isValid()) markTextureForPrecache(texid, palnum);
 }

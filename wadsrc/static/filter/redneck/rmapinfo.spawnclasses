@@ -281,7 +281,7 @@ spawnclasses
 	1952 = DukeActor, "*RRTILE1952"
 	1953 = DukeActor, "*RRTILE1953"
 	2050 = DukeActor, "*RRTILE2050"
-	2056 = DukeActor, "*RRTILE2056"
+	2056 = DukeActor, "*TESLACON"
 	2072 = DukeActor, "*RRTILE2072"
 	2075 = DukeActor, "*RRTILE2075"
 	2083 = DukeActor, "*RRTILE2083"
