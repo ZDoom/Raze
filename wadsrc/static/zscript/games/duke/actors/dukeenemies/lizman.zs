@@ -1,6 +1,7 @@
 
 class DukeLizMan : DukeActor
 {
+	const LIZSTRENGTH = 100;
 	default
 	{
 		pic "LIZMAN";
@@ -9,14 +10,24 @@ class DukeLizMan : DukeActor
 		+GREENSLIMEFOOD;
 		+DONTENTERWATER;
 		+RANDOMANGLEONWATER;
-		moveclipdist 18.25;
+		Strength LIZSTRENGTH;
+
 	}
 	
 	override void PlayFTASound()
 	{
 		self.PlayActorSound("CAPT_RECOG");
 	}
+	
+	
 }
+
+	
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizManSpitting : DukeLizMan
 {
@@ -24,15 +35,30 @@ class DukeLizManSpitting : DukeLizMan
 	{
 		pic "LIZMANSPITTING";
 	}
+	
+
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizManFeeding : DukeLizMan
 {
+	// this one has setup code but no implementation.
 	default
 	{
 		pic "LIZMANFEEDING";
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizManJump : DukeLizMan
 {
@@ -41,6 +67,12 @@ class DukeLizManJump : DukeLizMan
 		pic "LIZMANJUMP";
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizManStayput : DukeLizMan
 {

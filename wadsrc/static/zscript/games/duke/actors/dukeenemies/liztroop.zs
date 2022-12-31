@@ -1,26 +1,43 @@
 
 class DukeLizTrooper : DukeActor
 {
+	const TROOPSTRENGTH = 30;
+	
 	default
 	{
 		pic "LIZTROOP";
+		Strength TROOPSTRENGTH;
+		
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+GREENSLIMEFOOD;
 		+TRANSFERPALTOJIBS;
 		+DONTENTERWATERONGROUND;
+		
 	}
 	
 	override void Initialize()
 	{
 		if (self.pal == 0 || self.pal == 2) self.pal = 22;
 	}
-	
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
 	override void PlayFTASound()
 	{
 		self.PlayActorSound("PRED_RECOG");
 	}
+	
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizTrooperToilet : DukeLizTrooper
 {
@@ -32,6 +49,12 @@ class DukeLizTrooperToilet : DukeLizTrooper
 	
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 class DukeLizTrooperSitting : DukeLizTrooper
 {
 	default
@@ -42,13 +65,26 @@ class DukeLizTrooperSitting : DukeLizTrooper
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 class DukeLizTrooperShoot : DukeLizTrooper
 {
 	default
 	{
 		pic "LIZTROOPSHOOT";
 	}
+
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizTrooperJetpack : DukeLizTrooper
 {
@@ -56,7 +92,14 @@ class DukeLizTrooperJetpack : DukeLizTrooper
 	{
 		pic "LIZTROOPJETPACK";
 	}
+	
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizTrooperDucking : DukeLizTrooper
 {
@@ -64,7 +107,15 @@ class DukeLizTrooperDucking : DukeLizTrooper
 	{
 		pic "LIZTROOPDUCKING";
 	}
+	
+	
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizTrooperRunning : DukeLizTrooper
 {
@@ -73,6 +124,12 @@ class DukeLizTrooperRunning : DukeLizTrooper
 		pic "LIZTROOPRUNNING";
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukeLizTrooperStayput : DukeLizTrooper
 {

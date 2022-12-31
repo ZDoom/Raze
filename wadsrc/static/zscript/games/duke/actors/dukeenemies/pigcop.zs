@@ -1,18 +1,30 @@
 class DukePigCop : DukeActor
 {
+	const PIGCOPSTRENGTH = 100;
+	
 	default
 	{
 		pic "PIGCOP";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+GREENSLIMEFOOD;
+		Strength PIGCOPSTRENGTH;
+		
 	}
 	
 	override void PlayFTASound()
 	{
 		self.PlayActorSound("PIG_RECOG");
 	}
+	
 }
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukePigCopStayput: DukePigCop
 {
@@ -23,6 +35,11 @@ class DukePigCopStayput: DukePigCop
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 class DukePigCopDive : DukePigCopStayput
 {
@@ -34,5 +51,6 @@ class DukePigCopDive : DukePigCopStayput
 	override void PlayFTASound()
 	{
 	}
+	
 }
 
