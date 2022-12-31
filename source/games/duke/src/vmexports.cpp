@@ -311,7 +311,7 @@ void setSpritesetImage(DDukeActor* self, unsigned int index)
 		ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad sprite set index %d (max. allowed is %d", index, spriteset.Size() - 1);
 	}
 	self->spritesetindex = index;
-	self->spr.picnum = spriteset[index];
+	self->spr.setspritetexture(spriteset[index]);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetSpritesetImage, setSpritesetImage)

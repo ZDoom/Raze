@@ -797,7 +797,7 @@ void tspritetype_setSpritePic(tspritetype* targ, DCoreActor* self, unsigned z)
 	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
 	if (z < spriteset.Size())
 	{
-		targ->picnum = spriteset[z];
+		targ->setspritetexture(spriteset[z]);
 	}
 	else if (z == ~0)
 	{
