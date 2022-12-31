@@ -4068,6 +4068,7 @@ void fall(DDukeActor *actor, int playernum)
 {
 	actor->spr.xoffset = 0;
 	actor->spr.yoffset = 0;
+	if (actor->flags3 & SFLAG3_NOGRAVITY) return;
 	//			  if(!gotz)
 	{
 		double grav;
