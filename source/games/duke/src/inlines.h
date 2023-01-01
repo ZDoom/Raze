@@ -282,7 +282,7 @@ inline void processinputvel(int snum)
 inline const ActorInfo* DDukeActor::conInfo() const
 {
 	auto tn = static_cast<PClassActor*>(GetClass())->ActorInfo()->TypeNum;
-	return tn < 0 ? nullptr : &gs.actorinfo[tn];
+	return tn < 0 || gs.actorinfo[tn].scriptaddress == 0 ? nullptr : &gs.actorinfo[tn];
 }
 
 inline bool DDukeActor::isPlayer() const

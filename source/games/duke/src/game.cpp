@@ -444,10 +444,10 @@ void GameInterface::FinalizeSetup()
 			}
 			else if (info == nullptr || !info->basetex.isValid())
 			{
-				// No unique actor exists here. Since we need one, create a new class here, directly derived from DDukeActor.
+				// No unique actor class exists here. Since we need one, create a new class here, directly derived from DDukeActor.
 				auto newcls = (PClassActor*)RUNTIME_CLASS(DDukeActor)->CreateDerivedClass(FStringf("NewConActor%d", i), RUNTIME_CLASS(DDukeActor)->Size);
 				newcls->InitializeDefaults();
-				spawnMap.Insert(i, { newcls, FNullTextureID(), FNullTextureID(), NO_SOUND, int8_t(0), int8_t(0), int16_t(0x8000) });
+				insertSpawnType(i, { newcls, FNullTextureID(), FNullTextureID(), NO_SOUND, int8_t(0), int8_t(0), int16_t(0x8000) });
 				cls = newcls;
 				GetDefaultByType(newcls)->spr.setspritetexture(tileGetTextureID(i)); // make it show the right pic.
 			}

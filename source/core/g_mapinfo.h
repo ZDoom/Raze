@@ -38,6 +38,7 @@
 #include "vectors.h"
 #include "sc_man.h"
 #include "file_zip.h"
+#include "actorinfo.h"
 
 struct SpawnRec
 {
@@ -58,6 +59,12 @@ inline PClassActor* GetSpawnType(int spawnnum)
 		return static_cast<PClassActor*>(info->cls);
 	}
 	return nullptr;
+}
+
+inline void insertSpawnType(int typenum, const SpawnRec& entry)
+{
+	spawnMap.Insert(typenum, entry);
+	if (!entry.basetex.isValid()) entry.cls->ActorInfo()->TypeNum = typenum;
 }
 
 struct BreakWallRec

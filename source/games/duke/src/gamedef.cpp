@@ -1212,7 +1212,7 @@ int ConCompiler::parsecommand()
 		transnum(LABEL_DEFINE);
 		lnum = popscriptvalue();
 
-		gs.actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
+		gs.actorinfo[lnum].scriptaddress = parsing_actor;
 		if (tw == concmd_useractor)
 		{
 			gs.actorinfo[lnum].enemyflags |= EDukeFlags1::FromInt(1);
@@ -3206,7 +3206,7 @@ void loadcons()
 	gs.displayflags = DUKE3D_NO_WIDESCREEN_PINNING;
 
 
-	ScriptCode.Clear();
+	ScriptCode.Resize(1);	// We cannot use 0 as a valid index.
 	labels.Clear();
 
 	SortCommands();

@@ -351,7 +351,7 @@ void FMapInfoParser::ParseSpawnClasses()
 		if (actor != 0 && num >= 0)
 		{
 			// todo: check for proper base class
-			spawnMap.Insert(num, { actor, basetex, brokentex, sound, int8_t(fullbright), int8_t(clipdist), int16_t(flags) });
+			insertSpawnType(num, { actor, basetex, brokentex, sound, int8_t(fullbright), int8_t(clipdist), int16_t(flags) });
 		}
 	}
 }
