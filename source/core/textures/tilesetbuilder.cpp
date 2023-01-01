@@ -214,6 +214,24 @@ void TilesetBuildInfo::MakeCanvas(int tilenum, int width, int height)
 	tile[tilenum].tileimage = nullptr;
 }
 
+void LoadAliases(int firsttileid, int maxarttile)
+{
+	int lump, lastlump = 0;
+	while ((lump = fileSystem.FindLump("TEXNAMES", &lastlump, false)) != -1)
+	{
+		FScanner sc;
+		sc.OpenLumpNum(lump);
+		while (sc.GetNumber())
+		{
+			int tile = sc.Number;
+			if (tile < 0 || tile > maxarttile) tile = maxarttile;
+			sc.MustGetStringName("=");
+			sc.MustGetString();
+			TexMan.AddAlias(sc.String, FSetTextureID(firsttileid + tile));
+		}
+	}
+
+}
 //==========================================================================
 //
 // 
@@ -316,6 +334,8 @@ void ConstructTileset()
 	{
 		texExtInfo[i + firstarttile] = info.tile[i].extinfo;
 	}
+
+	LoadAliases(firstarttile, maxarttile);
 
 	for (auto& a : info.aliases)
 	{

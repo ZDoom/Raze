@@ -1064,7 +1064,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 				offsets.Y += 16;
 
-				hud_drawpal(210 + offsets.X, 261 + offsets.Y, "FLAMETHROWERLOW", -32, o, pal, angle);
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, "FLAMETHROWERFIRE", -32, o, pal, angle);
 				hud_drawpal(210 + offsets.X, 235 + offsets.Y, cat[cat_frames[*kb % 6]], -32, o, pal, angle);
 			}
 		};

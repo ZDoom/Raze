@@ -9,29 +9,22 @@ constexpr int REALGAMETICSPERSEC = 30; // The number of game state updates per s
 constexpr int TICSPERFRAME = (TICRATE / REALGAMETICSPERSEC); // (This used to be TICRATE/GAMETICSPERSEC, which was 120/26 = 4.615~ truncated to 4 by integer division.)
 
 
-// tile names which are identical for all games.
-enum
+// the few remaining tile numbers we still need, mainly for the init code.
+enum EFixedTiles
 {
-	SECTOREFFECTOR = 1,
-	ACTIVATOR = 2,
-	TOUCHPLATE = 3,
-	ACTIVATORLOCKED = 4,
-	MUSICANDSFX = 5,
-	LOCATORS = 6,
-	CYCLER = 7,
-	MASTERSWITCH = 8,
-	RESPAWN = 9,
-	GPSPEED = 10,
 	FOF = 13,
 	MIRROR_DUKE = 560,
 	MIRROR_RR = 1089,
 	SCRAP_DUKE = 2390,
 	SCRAP_RR = 1595,
+	VIEWSCREEN_DUKE = 502,
+	VIEWSCREEN_RR = 1055,
+	BOWLINGLANE = 2025,
 
 	// hack alert! CYCLER is free for use here as all items of this type get destroyed right on map spawn and this value never gets checked anywhere else.
 	// This avoids overallocation of empty tile slots as a high value slightly below the tile limit would do.
 	// Once we can do texture management without tile numbers this can be done as a regular texture without a valid tile index.
-	TILE_VIEWSCR = CYCLER 
+	TILE_VIEWSCR = 7 
 
 };	
 

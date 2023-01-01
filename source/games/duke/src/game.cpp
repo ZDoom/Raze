@@ -275,35 +275,8 @@ static void setupbackdrop()
 	}
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-#define x(a, b) registerName(#a, b);
-#define y(a, b)	registerName(#a, b);
-static void SetTileNames(TilesetBuildInfo& info)
-{
-	auto registerName = [&](const char* name, int index)
-	{
-		info.addName(name, index);
-	};
-	if (!isRR())
-	{
-#include "namelist_d.h"
-	}
-	else
-	{
-#include "namelist_r.h"
-	}
-}
-#undef x
-#undef y
-
 void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
-	SetTileNames(info);
 	// set up all special tiles here, before we fully hook up with the texture manager.
 	info.Delete(FOF);	// portal marker
 
@@ -311,17 +284,17 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 	if (!isRR())
 	{
 		info.Delete(MIRROR_DUKE); // the mirror tile.
-		viewscreen = info.tile[502].tileimage;
+		viewscreen = info.tile[VIEWSCREEN_DUKE].tileimage;
 	}
 	else
 	{
 		info.Delete(MIRROR_RR);	// the mirror tile.
 		info.Delete(0);		// RR uses this as an empty texture
-		info.MakeWritable(2025);	// bowling lane pin displays
-		info.MakeWritable(2026);
-		info.MakeWritable(2027);
-		info.MakeWritable(2028);
-		viewscreen = info.tile[1055].tileimage;
+		info.MakeWritable(BOWLINGLANE);	// bowling lane pin displays
+		info.MakeWritable(BOWLINGLANE + 1);
+		info.MakeWritable(BOWLINGLANE + 2);
+		info.MakeWritable(BOWLINGLANE + 3);
+		viewscreen = info.tile[VIEWSCREEN_RR].tileimage;
 	}
 	info.MakeCanvas(TILE_VIEWSCR, viewscreen? viewscreen->GetWidth() : 128, viewscreen? viewscreen->GetHeight() : 128);
 }
