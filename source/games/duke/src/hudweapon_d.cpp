@@ -364,7 +364,12 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				if (*kb < (isWW2GI() ? weapTotalTime : 8))
 				{
-					hud_drawpal(164 + offsets.X, 176 + offsets.Y, DTILE_RPGGUN + (*kb >> 1), shade, o | pin, pal, angle);
+					int frame = (*kb >> 1);
+					if (frame >= 1 && frame <= 3)
+					{
+						static const char* const muzzleflash[] = { "RPGMUZZLEFLASH1", "RPGMUZZLEFLASH2", "RPGMUZZLEFLASH3" };
+						hud_drawpal(164 + offsets.X, 176 + offsets.Y, muzzleflash[frame - 1], shade, o | pin, pal, angle);
+					}
 				}
 				else if (isWW2GI())
 				{
@@ -382,7 +387,7 @@ void displayweapon_d(int snum, double interpfrac)
 				}
 			}
 
-			hud_drawpal(164 + offsets.X, 176 + offsets.Y, DTILE_RPGGUN, shade, o | pin, pal, angle);
+			hud_drawpal(164 + offsets.X, 176 + offsets.Y, "RPGGUN", shade, o | pin, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
@@ -401,7 +406,7 @@ void displayweapon_d(int snum, double interpfrac)
 			if (*kb > 0 && p->GetActor()->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
-			int pic = DTILE_SHOTGUN;
+			const char* pic = "SHOTGUN";
 
 			if (*kb == 0)
 			{
@@ -409,7 +414,7 @@ void displayweapon_d(int snum, double interpfrac)
 			}
 			else if (*kb <= weapTotalTime)
 			{
-				pic += 1;
+				pic = "SHOTGUN1";
 			}
 			// else we are in 'reload time'
 			else if (*kb < ((weapReload - weapTotalTime) / 2 + weapTotalTime))
@@ -440,13 +445,13 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				case 1:
 				case 2:
-					hud_drawpal(168 + offsets.X, 201 + offsets.Y, DTILE_SHOTGUN + 2, -128, o, pal, angle);
+					hud_drawpal(168 + offsets.X, 201 + offsets.Y, "SHOTGUN2", -128, o, pal, angle);
 					[[fallthrough]];
 				case 0:
 				case 6:
 				case 7:
 				case 8:
-					hud_drawpal(146 + offsets.X, 202 + offsets.Y, DTILE_SHOTGUN, shade, o, pal, angle);
+					hud_drawpal(146 + offsets.X, 202 + offsets.Y, "SHOTGUN", shade, o, pal, angle);
 					break;
 				case 3:
 				case 4:
@@ -459,38 +464,38 @@ void displayweapon_d(int snum, double interpfrac)
 					{
 						offsets.Y += 40;
 						offsets.X += 20;
-
-						hud_drawpal(178 + offsets.X, 194 + offsets.Y, DTILE_SHOTGUN + 1 + ((*(kb)-1) >> 1), -128, o, pal, angle);
+						// this was screwed. *kb can only be 3 and 4 here as case 2 is elsewhere, so ((*(kb)-1) >> 1) will always be 1, meaning only SHOTGUN2 can be drawn.
+						hud_drawpal(178 + offsets.X, 194 + offsets.Y, "SHOTGUN2", -128, o, pal, angle);
 					}
-					hud_drawpal(158 + offsets.X, 220 + offsets.Y, DTILE_SHOTGUN + 3, shade, o, pal, angle);
+					hud_drawpal(158 + offsets.X, 220 + offsets.Y, "SHOTGUN3", shade, o, pal, angle);
 					break;
 				case 13:
 				case 14:
 				case 15:
-					hud_drawpal(198 + offsets.X, 210 + offsets.Y, DTILE_SHOTGUN + 4, shade, o, pal, angle);
+					hud_drawpal(198 + offsets.X, 210 + offsets.Y, "SHOTGUN4", shade, o, pal, angle);
 					break;
 				case 16:
 				case 17:
 				case 18:
 				case 19:
-					hud_drawpal(234 + offsets.X, 196 + offsets.Y, DTILE_SHOTGUN + 5, shade, o, pal, angle);
+					hud_drawpal(234 + offsets.X, 196 + offsets.Y, "SHOTGUN5", shade, o, pal, angle);
 					break;
 				case 20:
 				case 21:
 				case 22:
 				case 23:
-					hud_drawpal(240 + offsets.X, 196 + offsets.Y, DTILE_SHOTGUN + 6, shade, o, pal, angle);
+					hud_drawpal(240 + offsets.X, 196 + offsets.Y, "SHOTGUN6", shade, o, pal, angle);
 					break;
 				case 24:
 				case 25:
 				case 26:
 				case 27:
-					hud_drawpal(234 + offsets.X, 196 + offsets.Y, DTILE_SHOTGUN + 5, shade, o, pal, angle);
+					hud_drawpal(234 + offsets.X, 196 + offsets.Y, "SHOTGUN5", shade, o, pal, angle);
 					break;
 				case 28:
 				case 29:
 				case 30:
-					hud_drawpal(188 + offsets.X, 206 + offsets.Y, DTILE_SHOTGUN + 4, shade, o, pal, angle);
+					hud_drawpal(188 + offsets.X, 206 + offsets.Y, "SHOTGUN4", shade, o, pal, angle);
 					break;
 			}
 		};
@@ -511,11 +516,11 @@ void displayweapon_d(int snum, double interpfrac)
 
 			if (*kb == 0)
 			{
-				hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1, shade, o, pal, angle);
+				hud_drawpal(178 + offsets.X, 233 + offsets.Y, "CHAINGUNF1", shade, o, pal, angle);
 			}
 			else if (*kb <= weapTotalTime)
 			{
-				hud_drawpal(188 + offsets.X, 243 + offsets.Y, DTILE_CHAINGUN + 2, shade, o, pal, angle);
+				hud_drawpal(188 + offsets.X, 243 + offsets.Y, "CHAINGUNF2", shade, o, pal, angle);
 			}
 			else
 			{
@@ -527,37 +532,37 @@ void displayweapon_d(int snum, double interpfrac)
 				// 5) move weapon down/left, clip inserted (2519)
 
 				double adj;
-				int pic;
+				const char* pic;
 				const int iFifths = max((weapReload - weapTotalTime) / 5, 1);
 
 				if (*kb < (iFifths + weapTotalTime))
 				{
 					// first segment
-					pic = 2519;
+					pic = "WW2CGRELOAD3";
 					adj = 80 - (10 * (weapTotalTime + iFifths - kickback_pic));
 				}
 				else if (*kb < (iFifths * 2 + weapTotalTime))
 				{
 					// second segment (down)
-					pic = 2518;
+					pic = "WW2SCRELOAD2";
 					adj = 80;
 				}
 				else if (*kb < (iFifths * 3 + weapTotalTime))
 				{
 					// third segment (up)
-					pic = 2517;
+					pic = "WW2CGRELOAD1";
 					adj = 80;
 				}
 				else if (*kb < (iFifths * 4 + weapTotalTime))
 				{
 					// fourth segment (down)
-					pic = 2518;
+					pic = "WW2CGRELOAD2";
 					adj = 80;
 				}
 				else
 				{
 					// up and left
-					pic = 2519;
+					pic = "WW2CGRELOAD3";
 					adj = 10 * (weapReload - kickback_pic);
 				}
 
@@ -574,38 +579,40 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaychaingun = [&]
 		{
+			static const char* const fireframes[] = { "CHAINGUNF1", "CHAINGUNF2", "CHAINGUNF3", "CHAINGUNF4" };
+			static const char* const flashframes[] = { "CHAINGUNFLASH1", "CHAINGUNFLASH2", "CHAINGUNFLASH3" };
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
 			if (*kb > 0 && p->GetActor()->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
-			hud_drawpal(168 + offsets.X, 260 + offsets.Y, DTILE_CHAINGUN, shade, o, pal, angle);
+			hud_drawpal(168 + offsets.X, 260 + offsets.Y, "CHAINGUN", shade, o, pal, angle);
 
 			switch(*kb)
 			{
 				case 0:
-					hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1, shade, o, pal, angle);
+					hud_drawpal(178 + offsets.X, 233 + offsets.Y, "CHAINGUNF1", shade, o, pal, angle);
 					break;
 				default:
 					if (*kb > 4 && *kb < 12)
 					{
 						auto rnd = p->GetActor()->spr.pal != 1 ? rand() & 7 : 0;
-						hud_drawpal(136 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), DTILE_CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
+						hud_drawpal(136 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), flashframes[((*kb - 4) / 5)], shade, o, pal, angle);
 
 						if (p->GetActor()->spr.pal != 1) rnd = rand() & 7;
-						hud_drawpal(180 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), DTILE_CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
+						hud_drawpal(180 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), flashframes[((*kb - 4) / 5)], shade, o, pal, angle);
 					}
 
 					if (*kb < 8)
 					{
 						auto rnd = rand() & 7;
-						hud_drawpal(158 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), DTILE_CHAINGUN + 5 + ((*kb - 2) / 5), shade, o, pal, angle);
-						hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1 + (*kb >> 1), shade, o, pal, angle);
+						hud_drawpal(158 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), flashframes[((*kb - 2) / 5)], shade, o, pal, angle);
+						hud_drawpal(178 + offsets.X, 233 + offsets.Y, fireframes[(*kb >> 1)], shade, o, pal, angle);
 					}
 					else
 					{
-						hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1, shade, o, pal, angle);
+						hud_drawpal(178 + offsets.X, 233 + offsets.Y, "CHAINGUNF1", shade, o, pal, angle);
 					}
 					break;
 			}
