@@ -575,16 +575,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, detonate, DukeActor_detonate)
 	return 0;
 }
 
-void DukeActor_checkhitdefault(DDukeActor* origin, DDukeActor* proj)
-{
-	fi.checkhitdefault(origin, proj);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitdefault, DukeActor_checkhitdefault)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitdefault, checkhitdefault)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_OBJECT(proj, DDukeActor);
-	DukeActor_checkhitdefault(self, proj);
+	checkhitdefault(self, proj);
 	return 0;
 }
 

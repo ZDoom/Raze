@@ -77,7 +77,6 @@ struct Dispatcher
 	void (*initactorflags)();
 	bool (*checkaccessswitch)(int snum, int switchpal, DDukeActor* act, walltype* w);
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
-	void (*checkhitdefault)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
 
 	void (*addweapon)(player_struct *p, int weapon, bool wswitch);

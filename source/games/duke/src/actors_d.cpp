@@ -324,16 +324,16 @@ void movetransports_d(void)
 
 							if (act->spr.pal == 0)
 							{
-								auto k = spawn(Owner, DukeTransporterBeamClass);
-								if (k) S_PlayActorSound(TELEPORTER, k);
+								auto beam = spawn(Owner, DukeTransporterBeamClass);
+								if (beam) S_PlayActorSound(TELEPORTER, beam);
 							}
 
 							break;
 						}
 					}
-					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
+					else if (!(sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground == 1)) break;
 
-					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) < 24)
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) < 24)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].sync.uvel > 0)) ||
 							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) || ps[p].sync.uvel < 0)))
 						{
@@ -426,7 +426,7 @@ void movetransports_d(void)
 						if ((krand() & 255) < 32)
 							spawn(act2, DukeWaterSplashClass);
 
-						if (sectlotag == 1)
+						if (sectlotag == ST_1_ABOVE_WATER)
 							for (int l = 0; l < 9; l++)
 						{
 							auto q = spawn(ps[p].GetActor(), DukeWaterBubbleClass);

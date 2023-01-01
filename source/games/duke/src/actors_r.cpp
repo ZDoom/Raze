@@ -236,37 +236,34 @@ int ifhitbyweapon_r(DDukeActor *actor)
 void movetransports_r(void)
 {
 	uint8_t warpdir = 0;
-	int k, p, sectlotag;
-	int onfloorz;
 
 	 //Transporters
 
 	DukeStatIterator iti(STAT_TRANSPORT);
 	while (auto act = iti.Next())
 	{
-		auto sectp = act->sector();
-		sectlotag = sectp->lotag;
-
 		auto Owner = act->GetOwner();
 		if (Owner == act || Owner == nullptr)
 		{
 			continue;
 		}
 
-		onfloorz = act->temp_data[4];
+		auto sectp = act->sector();
+		int sectlotag = sectp->lotag;
+		int onfloorz = act->temp_data[4];
 
 		if (act->counter > 0) act->counter--;
 
 		DukeSectIterator itj(act->sector());
-		while (auto act2 = itj.Next())
+		while (auto act2 = itj.Next()) 
 		{
 			switch (act2->spr.statnum)
 			{
-			case STAT_PLAYER:	// Player
+			case STAT_PLAYER:
 
 				if (act2->GetOwner())
 				{
-					p = act2->PlayerIndex();
+					int p = act2->PlayerIndex();
 
 					ps[p].on_warping_sector = 1;
 
@@ -277,12 +274,12 @@ void movetransports_r(void)
 							spawn(act, DukeTransporterBeamClass);
 							S_PlayActorSound(TELEPORTER, act);
 
-							for (k = connecthead; k >= 0; k = connectpoint2[k])
-								if (ps[k].cursector == Owner->sector())
-								{
-									ps[k].frag_ps = p;
-									ps[k].GetActor()->spr.extra = 0;
-								}
+							for (int k = connecthead; k >= 0; k = connectpoint2[k])
+							if (ps[k].cursector == Owner->sector())
+							{
+								ps[k].frag_ps = p;
+								ps[k].GetActor()->spr.extra = 0;
+							}
 
 							ps[p].GetActor()->PrevAngles.Yaw = ps[p].GetActor()->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
 
@@ -326,7 +323,7 @@ void movetransports_r(void)
 							break;
 						}
 
-					k = 0;
+					int k = 0;
 
 					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 					{
@@ -370,7 +367,7 @@ void movetransports_r(void)
 						{
 							FX_StopAllSounds();
 						}
-						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
+						S_PlayActorSound(DUKE_GASP, act2);
 
 						ps[p].GetActor()->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
 						ps[p].GetActor()->backupz();
@@ -381,14 +378,14 @@ void movetransports_r(void)
 						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 						ps[p].GetActor()->backupvec2();
 
-						if (Owner->GetOwner() != Owner)
+						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
 
 						if ((krand() & 255) < 32)
-							spawn(ps[p].GetActor(), DukeWaterSplashClass);
+							spawn(act2, DukeWaterSplashClass);
 					}
 					else if (k == 2)
 					{
@@ -405,6 +402,8 @@ void movetransports_r(void)
 				break;
 
 			case STAT_ACTOR:
+				if ((act2->flags3 & SFLAG3_DONTDIVEALIVE) && act2->spr.extra > 0) continue;
+				[[fallthrough]];
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:

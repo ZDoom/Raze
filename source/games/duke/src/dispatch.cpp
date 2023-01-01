@@ -39,8 +39,6 @@ bool checkaccessswitch_d(int snum, int pal, DDukeActor *act, walltype* w);
 bool checkaccessswitch_r(int snum, int pal, DDukeActor* act, walltype* w);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
 void activatebysector_r(sectortype* sect, DDukeActor* j);
-void checkhitdefault_d(DDukeActor* i, DDukeActor* sn);
-void checkhitdefault_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
 void checksectors_r(int snum);
 
@@ -81,7 +79,6 @@ void SetDispatcher()
 		initactorflags_d,
 		checkaccessswitch_d,
 		activatebysector_d,
-		checkhitdefault_d,
 		checksectors_d,
 
 		addweapon_d,
@@ -105,7 +102,6 @@ void SetDispatcher()
 		initactorflags_r,
 		checkaccessswitch_r,
 		activatebysector_r,
-		checkhitdefault_r,
 		checksectors_r,
 
 		addweapon_r,
