@@ -2,62 +2,6 @@
 #include "codegen.h"
 #include "coreactor.h"
 
-//==========================================================================
-//
-//	
-//
-//==========================================================================
-
-class FxSetActionCall : public FxExpression
-{
-	FxExpression *Self;
-	FxExpression *Arg;
-
-public:
-
-	FxSetActionCall(FxExpression *self, FxExpression* arg, const FScriptPosition &pos);
-	~FxSetActionCall();
-	FxExpression *Resolve(FCompileContext&);
-	ExpEmit Emit(VMFunctionBuilder *build);
-};
-
-//==========================================================================
-//
-//	
-//
-//==========================================================================
-
-class FxSetAICall : public FxExpression
-{
-	FxExpression *Self;
-	FxExpression *Arg;
-
-public:
-
-	FxSetAICall(FxExpression *self, FxExpression* arg, const FScriptPosition &pos);
-	~FxSetAICall();
-	FxExpression *Resolve(FCompileContext&);
-	ExpEmit Emit(VMFunctionBuilder *build);
-};
-
-//==========================================================================
-//
-//	
-//
-//==========================================================================
-
-class FxSetMoveCall : public FxExpression
-{
-	FxExpression *Self;
-	FxExpression *Arg;
-
-public:
-
-	FxSetMoveCall(FxExpression *self, FxExpression* arg, const FScriptPosition &pos);
-	~FxSetMoveCall();
-	FxExpression *Resolve(FCompileContext&);
-	ExpEmit Emit(VMFunctionBuilder *build);
-};
 
 //==========================================================================
 //

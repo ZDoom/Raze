@@ -1,5 +1,6 @@
 // Raze specific names
-
+xx(0)
+xx(no)
 xx(IngameMenu)
 xx(ListMenuItemBloodDripDrawer)
 xx(UsermapMenu)
@@ -53,3 +54,6 @@ xx(isDukeEngine)
 xx(isBlood)
 xx(isSW)
 xx(isExhumed)
+xx(ChangeAction)
+xx(ChangeAI)
+xx(ChangeMove)

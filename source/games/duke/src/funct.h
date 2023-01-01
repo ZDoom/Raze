@@ -247,9 +247,9 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act);
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang);
 
-int LookupAction(DDukeActor* self, FName name);
-int LookupMove(DDukeActor* self, FName name);
-int LookupAI(DDukeActor* self, FName name);
+int LookupAction(PClass* self, FName name);
+int LookupMove(PClass* self, FName name);
+int LookupAI(PClass* self, FName name);
 
 
 inline int32_t krand(void)

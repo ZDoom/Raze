@@ -506,22 +506,46 @@ void GameInterface::FinalizeSetup()
 }
 
 
-int LookupAction(DDukeActor* self, FName name)
+int LookupAction(PClass* cls, FName name)
 {
-	// todo
-	return 0;
+	while (true)
+	{
+		auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
+		for (int i = 0; i < ainf->NumActions; i++)
+		{
+			if (actions[ainf->FirstAction + i].name == name) return ainf->FirstAction + i;
+		}
+		if (cls == RUNTIME_CLASS(DDukeActor)) return 0;
+		cls = cls->ParentClass;
+	}
 }
 
-int LookupMove(DDukeActor* self, FName name)
+int LookupMove(PClass* cls, FName name)
 {
-	// todo
-	return 0;
+	while (true)
+	{
+		auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
+		for (int i = 0; i < ainf->NumMoves; i++)
+		{
+			if (actions[ainf->FirstMove + i].name == name) return ainf->FirstMove + i;
+		}
+		if (cls == RUNTIME_CLASS(DDukeActor)) return 0;
+		cls = cls->ParentClass;
+	}
 }
 
-int LookupAI(DDukeActor* self, FName name)
+int LookupAI(PClass* cls, FName name)
 {
-	// todo
-	return 0;
+	while (true)
+	{
+		auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
+		for (int i = 0; i < ainf->NumAIs; i++)
+		{
+			if (actions[ainf->FirstAI + i].name == name) return ainf->FirstAI + i;
+		}
+		if (cls == RUNTIME_CLASS(DDukeActor)) return 0;
+		cls = cls->ParentClass;
+	}
 }
 
 

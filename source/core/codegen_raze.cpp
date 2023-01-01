@@ -46,6 +46,7 @@
 #include "v_font.h"
 #include "gamecontrol.h"
 #include "gi.h"
+#include "games/duke/src/duke3d.h"
 
 PFunction* FindBuiltinFunction(FName funcname);
 
@@ -177,14 +178,81 @@ static FxExpression *ResolveGlobalCustomFunction(FxFunctionCall *func, FCompileC
 			return newfunc->Resolve(ctx);
 		}
 	}
+	// the following 3 are just for compile time argument validation, they do not affect code generation.
 	else if (func->MethodName == NAME_SetAction && isDukeEngine())
 	{
+		auto cls = ctx.Function->Variants[0].SelfClass;
+		if (cls == nullptr || !cls->isClass()) return func;
+		auto clas = static_cast<PClassType*>(cls)->Descriptor;
+		if (!clas->IsDescendantOf(RUNTIME_CLASS(Duke3d::DDukeActor))) return func;
+		if (CheckArgSize(NAME_SetAction, func->ArgList, 1, 1, ScriptPosition))
+		{
+			FxExpression* x;
+			x = func->ArgList[0] = func->ArgList[0]->Resolve(ctx);
+			if (x && x->isConstant() && (x->ValueType == TypeName || x->ValueType == TypeString))
+			{
+				auto c = static_cast<FxConstant*>(x);
+				auto nm = c->GetValue().GetName();
+				if (nm == NAME_None) return func;
+				int pos = Duke3d::LookupAction(clas, nm);
+				if (pos == 0)
+				{
+					ScriptPosition.Message(MSG_ERROR, "Invalid action '%s'", nm.GetChars());
+					delete func;
+					return nullptr;
+				}
+			}
+		}
 	}
 	else if (func->MethodName == NAME_SetAI && isDukeEngine())
 	{
+		auto cls = ctx.Function->Variants[0].SelfClass;
+		if (cls == nullptr || !cls->isClass()) return func;
+		auto clas = static_cast<PClassType*>(cls)->Descriptor;
+		if (!clas->IsDescendantOf(RUNTIME_CLASS(Duke3d::DDukeActor))) return func;
+		if (CheckArgSize(NAME_SetAI, func->ArgList, 1, 1, ScriptPosition))
+		{
+			FxExpression* x;
+			x = func->ArgList[0] = func->ArgList[0]->Resolve(ctx);
+			if (x && x->isConstant() && (x->ValueType == TypeName || x->ValueType == TypeString))
+			{
+				auto c = static_cast<FxConstant*>(x);
+				auto nm = c->GetValue().GetName();
+				if (nm == NAME_None) return func;
+				int pos = Duke3d::LookupAI(clas, nm);
+				if (pos == 0)
+				{
+					ScriptPosition.Message(MSG_ERROR, "Invalid AI '%s'", nm.GetChars());
+					delete func;
+					return nullptr;
+				}
+			}
+		}
 	}
 	else if (func->MethodName == NAME_SetMove && isDukeEngine())
 	{
+		auto cls = ctx.Function->Variants[0].SelfClass;
+		if (cls == nullptr || !cls->isClass()) return func;
+		auto clas = static_cast<PClassType*>(cls)->Descriptor;
+		if (!clas->IsDescendantOf(RUNTIME_CLASS(Duke3d::DDukeActor))) return func;
+		if (CheckArgSize(NAME_SetMove, func->ArgList, 1, 2, ScriptPosition))
+		{
+			FxExpression* x;
+			x = func->ArgList[0] = func->ArgList[0]->Resolve(ctx);
+			if (x && x->isConstant() && (x->ValueType == TypeName || x->ValueType == TypeString))
+			{
+				auto c = static_cast<FxConstant*>(x);
+				auto nm = c->GetValue().GetName();
+				if (nm == NAME_None) return func;
+				int pos = Duke3d::LookupMove(clas, nm);
+				if (pos == 0)
+				{
+					ScriptPosition.Message(MSG_ERROR, "Invalid move '%s'", nm.GetChars());
+					delete func;
+					return nullptr;
+				}
+			}
+		}
 	}
 	// most of these can be resolved right here. Only isWorldTour, isPlutoPak and isShareware can not if Duke is being played.
 	else if (func->MethodName == NAME_isDuke)
@@ -256,152 +324,6 @@ static FxExpression *ResolveGlobalCustomFunction(FxFunctionCall *func, FCompileC
 	}
 
 	return func;
-}
-
-
-
-//==========================================================================
-//
-// FxSetActionCall
-//
-//==========================================================================
-
-FxSetActionCall::FxSetActionCall(FxExpression *self, FxExpression* arg, const FScriptPosition &pos)
-: FxExpression(EFX_ActionSpecialCall, pos)
-{
-	Self = self;
-	Arg = arg;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxSetActionCall::~FxSetActionCall()
-{
-	SAFE_DELETE(Self);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxExpression *FxSetActionCall::Resolve(FCompileContext& ctx)
-{
-	CHECKRESOLVED();
-	return this;
-}
-
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-ExpEmit FxSetActionCall::Emit(VMFunctionBuilder *build)
-{
-	return ExpEmit();
-}
-
-//==========================================================================
-//
-// FxSetAICall
-//
-//==========================================================================
-
-FxSetAICall::FxSetAICall(FxExpression *self, FxExpression* arg, const FScriptPosition &pos)
-: FxExpression(EFX_ActionSpecialCall, pos)
-{
-	Self = self;
-	Arg = arg;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxSetAICall::~FxSetAICall()
-{
-	SAFE_DELETE(Self);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxExpression *FxSetAICall::Resolve(FCompileContext& ctx)
-{
-	CHECKRESOLVED();
-	return this;
-}
-
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-ExpEmit FxSetAICall::Emit(VMFunctionBuilder *build)
-{
-	return ExpEmit();
-}
-
-//==========================================================================
-//
-// FxSetMoveCall
-//
-//==========================================================================
-
-FxSetMoveCall::FxSetMoveCall(FxExpression *self, FxExpression* arg, const FScriptPosition &pos)
-: FxExpression(EFX_ActionSpecialCall, pos)
-{
-	Self = self;
-	Arg = arg;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxSetMoveCall::~FxSetMoveCall()
-{
-	SAFE_DELETE(Self);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxExpression *FxSetMoveCall::Resolve(FCompileContext& ctx)
-{
-	CHECKRESOLVED();
-	return this;
-}
-
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-ExpEmit FxSetMoveCall::Emit(VMFunctionBuilder *build)
-{
-	return ExpEmit();
 }
 
 //==========================================================================

@@ -714,8 +714,10 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
 
 void Duke_SetAction(DDukeActor* self, int intname)
 {
-	int ndx = LookupAction(self, FName(ENamedName(intname)));
+	int ndx = LookupAction(self->GetClass(), FName(ENamedName(intname)));
 	self->curAction = &actions[ndx];
+	self->actioncounter = self->curframe = 0;
+
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetAction, Duke_SetAction)
@@ -728,7 +730,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetAction, Duke_SetAction)
 
 void Duke_SetMove(DDukeActor* self, int intname, int flags)
 {
-	int ndx = LookupMove(self, FName(ENamedName(intname)));
+	int ndx = LookupMove(self->GetClass(), FName(ENamedName(intname)));
 	self->curMove = &moves[ndx];
 	self->spr.hitag = flags;
 }
@@ -744,11 +746,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetMove, Duke_SetMove)
 
 void Duke_SetAI(DDukeActor* self, int intname)
 {
-	int ndx = LookupAI(self, FName(ENamedName(intname)));
+	int ndx = LookupAI(self->GetClass(), FName(ENamedName(intname)));
 	self->curMove = &moves[ais[ndx].move];
 	self->curAction = &actions[ais[ndx].action];
 	self->spr.hitag = ais[ndx].moveflags;
 	self->curAI = ais[ndx].name;
+	self->actioncounter = self->curframe = 0;
+	self->counter = 0;
+	if (self->spr.hitag & random_angle)
+		self->spr.Angles.Yaw = randomAngle();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetAI, Duke_SetAI)
