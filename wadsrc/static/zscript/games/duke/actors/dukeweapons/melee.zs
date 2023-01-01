@@ -7,7 +7,6 @@ class DukeMeleeAttack : DukeActor
 	property extradamage: extradamage;
 	default
 	{
-		pic "KNEE";
 		+DIENOW;
 		DukeMeleeAttack.extradamage 0;
 		Strength KNEE_WEAPON_STRENGTH;
@@ -131,7 +130,6 @@ class RedneckBuzzSaw : DukeMeleeAttack
 {
 	default
 	{
-		pic "BUZSAW";
 		Strength BUZSAW_WEAPON_STRENGTH;
 	}
 }

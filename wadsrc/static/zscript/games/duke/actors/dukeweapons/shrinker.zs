@@ -1,10 +1,5 @@
 class DukeShrinker : DukeActor
 {
-	default
-	{
-		pic "SHRINKER";
-	}
-
 	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 pos, double ang) const
 	{
 		double vel = 48.;
