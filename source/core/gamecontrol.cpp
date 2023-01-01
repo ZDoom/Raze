@@ -1422,17 +1422,17 @@ void ST_LoadCrosshair(int num, bool alwaysload);
 CVAR(Int, crosshair, 0, CVAR_ARCHIVE)
 
 
-void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, DAngle angle, PalEntry color)
+void DrawCrosshair(int health, double xdelta, double ydelta, double scale, DAngle angle, PalEntry color)
 {
 	if (automapMode == am_off && cl_crosshair)
 	{
-		if (deftile < MAXTILES && crosshair == 0)
+		if (crosshair == 0)
 		{
-			auto tile = tileGetTexture(deftile);
-			if (tile)
+			auto tex = TexMan.FindGameTexture("CROSSHAIR", ETextureType::Any);
+			if (tex && tex->isValid())
 			{
 				double crosshair_scale = crosshairscale > 0.0f ? crosshairscale * scale : 1.;
-				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color, DTA_Rotate, angle.Degrees(),
+				DrawTexture(twod, tex, 160 + xdelta, 100 + ydelta, DTA_Color, color, DTA_Rotate, angle.Degrees(),
 					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 					DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), DTA_ViewportHeight, viewport3d.Height(), TAG_DONE);
 

@@ -41,7 +41,6 @@ source as it is released.
 #include "mapinfo.h"
 
 // This currently only works for WW2GI.
-#include "names_d.h"
 
 BEGIN_DUKE_NS
 

@@ -1920,7 +1920,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_debris:
 		insptr++;
-		spawndebris(g_ac, *insptr - gs.firstdebris, *(insptr + 1));
+		spawndebris(g_ac, *insptr - (isRR() ? SCRAP_RR : SCRAP_DUKE), *(insptr + 1)); // must subtract the index of the first scrap tile.
 		insptr += 2;
 		break;
 	case concmd_count:

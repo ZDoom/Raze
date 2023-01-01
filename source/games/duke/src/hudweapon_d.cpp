@@ -34,7 +34,6 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "names_d.h"
 #include "dukeactor.h"
 #include "buildtiles.h"
 

@@ -25,6 +25,8 @@ enum
 	FOF = 13,
 	MIRROR_DUKE = 560,
 	MIRROR_RR = 1089,
+	SCRAP_DUKE = 2390,
+	SCRAP_RR = 1595,
 
 	// hack alert! CYCLER is free for use here as all items of this type get destroyed right on map spawn and this value never gets checked anywhere else.
 	// This avoids overallocation of empty tile slots as a high value slightly below the tile limit would do.

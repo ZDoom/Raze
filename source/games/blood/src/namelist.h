@@ -4,7 +4,7 @@ x(BackTile, 253)
 x(Monolithscreen, 2050)
 x(GTIScreen, 2052)
 
-x(CrosshairTile, 2319)
+x(Crosshair, 2319)
 x(LoadScreen, 2049)
 x(LoadScreenWideBack, 9216)
 x(LoadScreenWideLeft, 9217)

@@ -123,7 +123,4 @@ void SetDispatcher()
 	}
 }
 
-
-int TILE_CROSSHAIR;
-
 END_DUKE_NS

@@ -36,7 +36,6 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "prediction.h"
-#include "names_d.h"
 #include "dukeactor.h"
 #include "gamefuncs.h"
 #include "models/modeldata.h"

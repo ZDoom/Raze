@@ -35,7 +35,6 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "sounds.h"
-#include "names_d.h"
 #include "mapinfo.h"
 #include "dukeactor.h"
 #include "secrets.h"

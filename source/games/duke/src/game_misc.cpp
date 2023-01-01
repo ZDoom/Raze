@@ -286,7 +286,7 @@ void drawoverlays(double interpfrac)
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
 		auto offsets = pp->Angles.getCrosshairOffsets(interpfrac);
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, offsets.first.X, offsets.first.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, offsets.second);
+		DrawCrosshair(ps[screenpeek].last_extra, offsets.first.X, offsets.first.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, offsets.second);
 	}
 
 	if (paused == 2)

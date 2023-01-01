@@ -38,8 +38,7 @@ struct DukeGameInfo
 	int lasermode;
 	int freezerhurtowner;
 	int impact_damage;
-	int firstdebris;
-
+	
 	ActorInfo actorinfo[MAXTILES];
 	int16_t max_ammo_amount[MAX_WEAPONS];
 	PClassActor* weaponsandammosprites[15];

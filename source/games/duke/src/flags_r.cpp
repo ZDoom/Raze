@@ -28,7 +28,6 @@ Prepared for public release, 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #include "ns.h"
 #include "global.h"
-#include "names_r.h"
 
 BEGIN_DUKE_NS
 
@@ -50,9 +49,6 @@ void initactorflags_r()
 	gs.weaponsandammosprites[13] = RedneckTitgunClass;
 	gs.weaponsandammosprites[14] = RedneckTitAmmoClass;
 
-	TILE_CROSSHAIR = RTILE_CROSSHAIR;
-
-	gs.firstdebris = RTILE_SCRAP6;
 	gs.gutsscale = 0.125;
 }
 

@@ -43,7 +43,6 @@ source as it is released.
 #include "mapinfo.h"
 #include "raze_sound.h"
 #include "gamestate.h"
-#include "names_d.h"
 #include "i_music.h"
 #include "vm.h"
 #include "s_music.h"

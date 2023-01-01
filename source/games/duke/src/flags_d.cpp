@@ -34,7 +34,6 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "names_d.h"
 
 BEGIN_DUKE_NS
 
@@ -55,10 +54,6 @@ void initactorflags_d()
 	gs.weaponsandammosprites[12] = DukeRPGAmmoClass;
 	gs.weaponsandammosprites[13] = DukeFreezeSpriteClass;
 	gs.weaponsandammosprites[14] = DukeFreezeAmmoClass;
-	gs.firstdebris = DTILE_SCRAP6;
-
-	TILE_CROSSHAIR = DTILE_CROSSHAIR;
-
 }
 
 
