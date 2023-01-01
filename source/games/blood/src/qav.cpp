@@ -134,8 +134,9 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 		auto translation = TRANSLATION(Translation_Remap, palnum);
 		bool topleft = !!(stat & RS_TOPLEFT);
 
+
 		bool xflip = !!(stat & 0x100); // repurposed flag
-		bool yflip = !!(stat & RS_YFLIP);
+		bool yflip = !!(stat & 4);
 		auto color = shadeToLight(shade);
 
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, a, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
@@ -145,8 +146,8 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 	else
 	{
 		// there's some disagreements about flag values between QAV and the drawer. Shuffle these around.
-		if (stat & RS_YFLIP) stat |= RS_YFLIPHUD;
-		stat &= ~RS_YFLIP;
+		if (stat & 4) stat |= RS_YFLIPHUD;
+		stat &= ~4;
 		if (stat & 0x100) stat |= RS_XFLIPHUD;
 		stat &= ~0x100;
 		if ((stat & kQavOrientationLeft)) stat |= RS_ALIGN_L;

@@ -208,6 +208,7 @@ void DrawBoat(int const kb, DVector2 offsets, DAngle angle, int shade, int pal, 
 //
 //
 //---------------------------------------------------------------------------
+void animateshrunken(player_struct* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac);
 
 void displayweapon_r(int snum, double interpfrac)
 {
@@ -269,7 +270,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 	if (p->GetActor()->spr.scale.X < 0.125)
 	{
-		animateshrunken(p, offsets.X, offsets.Y + gun_pos, RTILE_FIST, shade, o, interpfrac);
+		animateshrunken(p, offsets.X, offsets.Y + gun_pos, shade, o, interpfrac);
 	}
 	else
 	{

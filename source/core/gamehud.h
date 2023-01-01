@@ -11,7 +11,6 @@ void hud_drawsprite(double sx, double sy, double sz, double a, FTextureID texid,
 // orientation bits for hud_drawsprite.
 enum {
     RS_TRANS1 = 1,
-    RS_YFLIP = 4,
     RS_TOPLEFT = 16,
     RS_TRANS2 = 32,
     RS_NOMASK = 64,
@@ -21,8 +20,8 @@ enum {
     RS_ALIGN_MASK = 768,
     RS_STRETCH = 1024,
 
-    RS_XFLIPHUD = RS_YFLIP,
-    RS_YFLIPHUD = 16384, // this is for hud_drawsprite which uses RS_YFLIP for x-flipping but needs both flags
+    RS_XFLIPHUD = 4,
+    RS_YFLIPHUD = 16384,
 
     RS_CENTER = (1 << 29),    // proper center align.
 };

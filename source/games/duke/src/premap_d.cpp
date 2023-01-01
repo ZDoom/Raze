@@ -188,7 +188,7 @@ static void cachegoodsprites(void)
 	for( i = DTILE_CRACKKNUCKLES0; i <= DTILE_CRACKKNUCKLES3; i++)
 			tloadtile(i);
 
-	for( i = DTILE_FIRSTGUN; i <= DTILE_FIRSTGUN+2 ; i++ )
+	for( i = DTILE_FIRSTGUN0; i <= DTILE_FIRSTGUN2 ; i++ )
 			tloadtile(i);
 
 	for( i = DTILE_EXPLOSION2; i < DTILE_EXPLOSION2+21 ; i++ )
@@ -196,7 +196,7 @@ static void cachegoodsprites(void)
 
 	tloadtile(DTILE_BULLETHOLE);
 
-	for( i = DTILE_FIRSTGUNRELOAD; i < DTILE_FIRSTGUNRELOAD+8 ; i++ )
+	for( i = DTILE_FIRSTGUNRELOAD0; i <= DTILE_FIRSTGUNRELOAD0 + 7 ; i++ )
 			tloadtile(i);
 
 	tloadtile(DTILE_FOOTPRINTS);
