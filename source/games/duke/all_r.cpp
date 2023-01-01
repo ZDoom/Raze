@@ -2,7 +2,6 @@
 #include "src/actors_lava.cpp"
 #include "src/animatesprites_r.cpp"
 #include "src/bowling.cpp"
-#include "src/flags_r.cpp"
 #include "src/hudweapon_r.cpp"
 #include "src/player_r.cpp"
 #include "src/premap_r.cpp"

@@ -32,9 +32,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void initactorflags_d();
-void initactorflags_r();
-
 bool checkaccessswitch_d(int snum, int pal, DDukeActor *act, walltype* w);
 bool checkaccessswitch_r(int snum, int pal, DDukeActor* act, walltype* w);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
@@ -76,7 +73,6 @@ void SetDispatcher()
 		fi = {
 		think_d,
 		movetransports_d,
-		initactorflags_d,
 		checkaccessswitch_d,
 		activatebysector_d,
 		checksectors_d,
@@ -99,7 +95,6 @@ void SetDispatcher()
 		fi = {
 		think_r,
 		movetransports_r,
-		initactorflags_r,
 		checkaccessswitch_r,
 		activatebysector_r,
 		checksectors_r,

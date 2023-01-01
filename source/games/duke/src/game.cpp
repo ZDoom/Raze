@@ -326,6 +326,55 @@ void setTextureIDs()
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+void initactorflags()
+{
+	if (!isRR())
+	{
+		gs.weaponsandammosprites[0] = DukeRPGSpriteClass;
+		gs.weaponsandammosprites[1] = DukeChaingunSpriteClass;
+		gs.weaponsandammosprites[2] = DukeDevastatorAmmoClass;
+		gs.weaponsandammosprites[3] = DukeRPGAmmoClass;
+		gs.weaponsandammosprites[4] = DukeRPGAmmoClass;
+		gs.weaponsandammosprites[5] = DukeJetpackClass;
+		gs.weaponsandammosprites[6] = DukeShieldClass;
+		gs.weaponsandammosprites[7] = DukeFirstAidClass;
+		gs.weaponsandammosprites[8] = DukeSteroidsClass;
+		gs.weaponsandammosprites[9] = DukeRPGAmmoClass;
+		gs.weaponsandammosprites[10] = DukeRPGAmmoClass;
+		gs.weaponsandammosprites[11] = DukeRPGSpriteClass;
+		gs.weaponsandammosprites[12] = DukeRPGAmmoClass;
+		gs.weaponsandammosprites[13] = DukeFreezeSpriteClass;
+		gs.weaponsandammosprites[14] = DukeFreezeAmmoClass;
+	}
+	else
+	{
+		gs.weaponsandammosprites[0] = RedneckCrossbowClass;
+		gs.weaponsandammosprites[1] = RedneckRiflegunClass;
+		gs.weaponsandammosprites[2] = RedneckBlasterammoClass;
+		gs.weaponsandammosprites[3] = RedneckDynamiteAmmoClass;
+		gs.weaponsandammosprites[4] = RedneckDynamiteAmmoClass;
+		gs.weaponsandammosprites[5] = RedneckCowpieClass;
+		gs.weaponsandammosprites[6] = RedneckWhiskeyClass;
+		gs.weaponsandammosprites[7] = RedneckPorkRindsClass;
+		gs.weaponsandammosprites[8] = RedneckMoonshineClass;
+		gs.weaponsandammosprites[9] = RedneckDynamiteAmmoClass;
+		gs.weaponsandammosprites[10] = RedneckDynamiteAmmoClass;
+		gs.weaponsandammosprites[11] = RedneckCrossbowClass;
+		gs.weaponsandammosprites[12] = RedneckDynamiteAmmoClass;
+		gs.weaponsandammosprites[13] = RedneckTitgunClass;
+		gs.weaponsandammosprites[14] = RedneckTitAmmoClass;
+
+		gs.gutsscale = 0.125;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
 // set up the game module's state
 //
 //---------------------------------------------------------------------------
@@ -371,7 +420,7 @@ void GameInterface::app_init()
 	SetDispatcher();
 	
 	loadcons();
-	fi.initactorflags();
+	initactorflags();
 	setTextureIDs();			// sets a few texture IDs needed for map checking.
 	duke_menufont->Callback(); // depends on the .CON files so it must be after loadcons
 
@@ -669,6 +718,7 @@ DEFINE_PROPERTY(setgamedefaults, 0, DukeActor)
 
 DEFINE_PROPERTY(move, Sii, DukeActor)
 {
+	if (info->ActorInfo()->NumMoves++ == 0) info->ActorInfo()->FirstMove = moves.Size();
 	auto move = &moves[moves.Reserve(1)];
 	move->movex = move->movez = 0;
 	PROP_STRING_PARM(n, 0);
@@ -688,6 +738,7 @@ DEFINE_PROPERTY(move, Sii, DukeActor)
 
 DEFINE_PROPERTY(movef, Sff, DukeActor)
 {
+	if (info->ActorInfo()->NumMoves++ == 0) info->ActorInfo()->FirstMove = moves.Size();
 	auto move = &moves[moves.Reserve(1)];
 	move->movex = move->movez = 0;
 	PROP_STRING_PARM(n, 0);
@@ -707,6 +758,7 @@ DEFINE_PROPERTY(movef, Sff, DukeActor)
 
 DEFINE_PROPERTY(action, SZIiiii, DukeActor)
 {
+	if (info->ActorInfo()->NumActions++ == 0) info->ActorInfo()->FirstAction = actions.Size();
 	auto action = &actions[actions.Reserve(1)];
 	memset(action, 0, sizeof(*action));
 	PROP_STRING_PARM(n, 0);
@@ -741,6 +793,7 @@ DEFINE_PROPERTY(action, SZIiiii, DukeActor)
 
 DEFINE_PROPERTY(ai, SSSi, DukeActor)
 {
+	if (info->ActorInfo()->NumAIs++ == 0) info->ActorInfo()->FirstAI = ais.Size();
 	auto ai = &ais[ais.Reserve(1)];
 	ai->moveflags = 0;
 	PROP_STRING_PARM(n, 0);
@@ -748,7 +801,7 @@ DEFINE_PROPERTY(ai, SSSi, DukeActor)
 	PROP_STRING_PARM(a, 1);
 	ai->action = FName(a).GetIndex() | 0x80000000;	// don't look it up yet.
 	PROP_STRING_PARM(m, 2);
-	ai->action = FName(m).GetIndex() | 0x80000000;	// don't look it up yet.
+	ai->move = FName(m).GetIndex() | 0x80000000;	// don't look it up yet.
 	if (PROP_PARM_COUNT > 3)
 	{
 		PROP_INT_PARM(v3, 3);

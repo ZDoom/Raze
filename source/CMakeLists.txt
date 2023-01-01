@@ -710,8 +710,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/cheats.cpp
 	games/duke/src/dispatch.cpp
 	games/duke/src/d_menu.cpp
-	games/duke/src/flags_d.cpp
-	games/duke/src/flags_r.cpp
 	games/duke/src/game.cpp
 	games/duke/src/gamedef.cpp
 	games/duke/src/gameexec.cpp

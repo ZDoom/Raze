@@ -26,6 +26,12 @@ struct FActorInfo
 	PClassActor *Replacee = nullptr;
 	DVector2 DefaultScale = { 0, 0 };
 	int TypeNum = -1; // game specific identifier.
+	int FirstAction = -1;
+	int NumActions = 0;
+	int FirstMove = -1;
+	int NumMoves = 0;
+	int FirstAI = -1;
+	int NumAIs = 0;
 	int DefaultFlags = 0;
 	int DefaultCstat = 0;
 	FName DamageType = NAME_None;	// damage type this item inflicts
