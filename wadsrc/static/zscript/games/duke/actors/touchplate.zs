@@ -3,7 +3,7 @@ class DukeTouchPlate : DukeActor
 {
 	private bool checkspawn()
 	{
-		if (!Raze.isWorldTour())
+		if (!isWorldTour())
 		{
 			if (self.pal && ud.multimode > 1) return false;
 		}

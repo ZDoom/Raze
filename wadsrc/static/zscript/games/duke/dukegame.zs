@@ -203,7 +203,7 @@ struct Duke native
 	static void BigText(double x, double y, String text, int align = -1, double alpha = 1.)
 	{
 		let myfont = Raze.PickBigFont();
-		if (!Raze.isRR())
+		if (!isRR())
 		{
 			if (align != -1) x -= myfont.StringWidth(text) * (align == 0 ? 0.5 : 1);
 			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha);
@@ -219,7 +219,7 @@ struct Duke native
 	{
 		let myfont = Raze.PickSmallFont();
 		int fsmode = FSMode_Fit320x200;
-		if (Raze.isRR())
+		if (isRR())
 		{
 			x *= 2;
 			y *= 2;

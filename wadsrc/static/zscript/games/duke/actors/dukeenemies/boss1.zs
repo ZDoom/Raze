@@ -18,7 +18,7 @@ class DukeBossBase : DukeActor
 		if (owner && owner is 'DukeRespawnController')
 			self.pal = owner.pal;
 		
-		if (self.pal != 0 && (!Raze.isWorldTour() || !(currentLevel.gameflags & MapRecord.LEVEL_WT_BOSSSPAWN) || self.pal != 22))
+		if (self.pal != 0 && (!isWorldTour() || !(currentLevel.gameflags & MapRecord.LEVEL_WT_BOSSSPAWN) || self.pal != 22))
 		{
 			self.clipdist = 20;
 			self.scale = (0.625, 0.625);

@@ -74,7 +74,7 @@ class DukePipeBomb : DukeActor
 		self.makeitfall();
 
 		// Feature check later needs to be map controlled, not game controlled.
-		if (sectp.lotag != ST_1_ABOVE_WATER && (!Raze.isRRRA() || sectp.lotag != ST_160_FLOOR_TELEPORT) && self.pos.Z >= self.floorz - 1 && self.yint < 3)
+		if (sectp.lotag != ST_1_ABOVE_WATER && (!isRRRA() || sectp.lotag != ST_160_FLOOR_TELEPORT) && self.pos.Z >= self.floorz - 1 && self.yint < 3)
 		{
 			if (self.yint > 0 || (self.yint == 0 && self.floorz == sectp.floorz))
 			{
@@ -129,7 +129,7 @@ class DukePipeBomb : DukeActor
 		bool bBoom = false;
 		if (Owner && Owner.isPlayer())
 		{
-			if (Raze.isNamWW2GI())
+			if (isNamWW2GI())
 			{
 				self.extra--;
 				if (self.extra <= 0)
@@ -153,11 +153,11 @@ class DukePipeBomb : DukeActor
 			int x = self.extra;
 			int m = gs.pipebombblastradius;
 
-			if (self.sector.lotag != 800 || !Raze.isRR()) // this line is RR only
+			if (self.sector.lotag != 800 || !isRR()) // this line is RR only
 			{
 				self.hitradius(m, x >> 2, x >> 1, x - (x >> 2), x);
 				self.spawn("DukeExplosion2");
-				if (self.vel.Z == 0 && !Raze.isRR()) self.spawn("DukeExplosion2Bot"); // this line is Duke only
+				if (self.vel.Z == 0 && !isRR()) self.spawn("DukeExplosion2Bot"); // this line is Duke only
 				self.PlayActorSound("PIPEBOMB_EXPLODE");
 				for (x = 0; x < 8; x++)
 					self.RANDOMSCRAP();

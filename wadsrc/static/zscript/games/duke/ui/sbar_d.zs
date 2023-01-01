@@ -149,7 +149,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		//
 		// Health
 		//
-		img = TexMan.CheckForTexture(Raze.isNamWW2GI()? "FIRSTAID_ICON" : "COLA");
+		img = TexMan.CheckForTexture(isNamWW2GI()? "FIRSTAID_ICON" : "COLA");
 		let siz = TexMan.GetScaledSize(img);
 		imgScale = baseScale / siz.Y;
 		DrawTexture(img, (2, -1.5), DI_ITEM_LEFT_BOTTOM, scale:(imgScale, imgScale));
@@ -191,7 +191,7 @@ class DukeStatusBar : DukeCommonStatusBar
 			}
 			else
 			{
-				int clip = CalcMagazineAmount(ammo, Raze.isNam() ? 20 : 12, p.kickback_pic >= 1);
+				int clip = CalcMagazineAmount(ammo, isNam() ? 20 : 12, p.kickback_pic >= 1);
 				format = String.Format("%d/%d", clip, ammo - clip);
 			}
 			img = TexMan.CheckForTexture(wicon, TexMan.TYPE_Any);
@@ -209,7 +209,7 @@ class DukeStatusBar : DukeCommonStatusBar
 			{
 				DrawString(numberFont, format, (-3, texty), DI_TEXT_ALIGN_RIGHT, Font.CR_UNTRANSLATED);
 			}
-			if (weapon != 7 || !Raze.isNam())
+			if (weapon != 7 || !isNam())
 				DrawTexture(img, (-imgX, -1.5), DI_ITEM_RIGHT_BOTTOM, scale:(imgScale, imgScale));
 		}
 
@@ -505,7 +505,7 @@ class DukeStatusBar : DukeCommonStatusBar
 
 		stats.info.statfont = SmallFont;
 		stats.info.letterColor = Font.TEXTCOLOR_ORANGE;
-		if (Raze.isNamWW2GI())
+		if (isNamWW2GI())
 		{
 			stats.info.statfont = ConFont;
 			stats.info.spacing = 8;
@@ -520,7 +520,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		}
 		
 		let p = Duke.GetViewPlayer();
-		stats.healthicon = Raze.isNamWW2GI()? "FIRSTAID_ICON" : "COLA";
+		stats.healthicon = isNamWW2GI()? "FIRSTAID_ICON" : "COLA";
 		stats.healthvalue = p.last_extra;
 		
 		let armorval = GetMoraleOrShield(p);
@@ -544,7 +544,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		static const String weaponIcons[] = { "", "FIRSTGUNSPRITE",  "SHOTGUNSPRITE", "CHAINGUNSPRITE", "RPGSPRITE", "" /*pipe bomb*/, "SHRINKERSPRITE", 
 			"DEVISTATORSPRITE", "" /*trip bomb*/, "FREEZESPRITE", "" /*handremote*/, "" /*grower*/, "FLAMETHROWERSPRITE" };
 			
-		int maxweap = Raze.IsWorldTour()? 12 : 10;
+		int maxweap = isWorldTour()? 12 : 10;
 		
 		for(int i = 0; i <= maxweap; i++)
 		{
@@ -562,12 +562,12 @@ class DukeStatusBar : DukeCommonStatusBar
 		
 		static const int ammoOrder[] = { DukeWpn.PISTOL_WEAPON, DukeWpn.SHOTGUN_WEAPON, DukeWpn.CHAINGUN_WEAPON, DukeWpn.RPG_WEAPON, DukeWpn.HANDBOMB_WEAPON, DukeWpn.SHRINKER_WEAPON, 
 										DukeWpn.GROW_WEAPON, DukeWpn.DEVISTATOR_WEAPON, DukeWpn.TRIPBOMB_WEAPON, DukeWpn.FREEZE_WEAPON, DukeWpn.FLAMETHROWER_WEAPON };
-		int maxammo = Raze.IsWorldTour()? 11 : 10;
+		int maxammo = isWorldTour()? 11 : 10;
 		
 		for(int i = 0; i < maxammo; i++)
 		{
 			int ammonum = ammoorder[i];
-			if (ammonum == DukeWpn.GROW_WEAPON && !Raze.isPlutoPak()) continue;
+			if (ammonum == DukeWpn.GROW_WEAPON && !isPlutoPak()) continue;
 			if (p.curr_weapon == ammonum || (p.curr_weapon == DukeWpn.HANDREMOTE_WEAPON && ammonum == DukeWpn.HANDBOMB_WEAPON)) 
 			{
 				stats.ammoselect = stats.ammoicons.Size();

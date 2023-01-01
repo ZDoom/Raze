@@ -143,7 +143,7 @@ class RazeStatusBar : StatusBarCore
 		{
 			scale = info.fontscale * hud_statscale;
 			spacing = info.altspacing * hud_statscale;
-			myfont = Raze.isNamWW2GI()? ConFont : Raze.PickSmallFont(allname);
+			myfont = isNamWW2GI()? ConFont : Raze.PickSmallFont(allname);
 		}
 
 		String mapname;

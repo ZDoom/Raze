@@ -258,7 +258,7 @@ class DukeFirelaserTrail : DukeActor
 	override bool animate(tspritetype tspr)
 	{
 		self.extra = 999;
-		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
+		if (isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
 		return true;
 	}
 		

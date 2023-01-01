@@ -33,7 +33,7 @@ class DukeRat : DukeActor
 		self.makeitfall();
 		if (self.DoMove(CLIPMASK0))
 		{
-			if (!Raze.isRRRA() && random(0, 255) == 0) self.PlayActorSound("RATTY");
+			if (!isRRRA() && random(0, 255) == 0) self.PlayActorSound("RATTY");
 			self.angle += Raze.BAngToDegree * (random(-15, 15) + Raze.BobVal(self.counter << 8) * 8);
 		}
 		else

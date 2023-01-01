@@ -519,7 +519,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		for(int i = 0; i < ammoOrder.Size(); i++)
 		{
 			int ammonum = ammoorder[i];
-			if (ammonum == RRWpn.CHICKEN_WEAPON && !Raze.isRRRA()) continue;
+			if (ammonum == RRWpn.CHICKEN_WEAPON && !isRRRA()) continue;
 			if (ammonum == RRWpn.MOTORCYCLE_WEAPON && !p.OnMotorcycle) continue;
 			if (ammonum == RRWpn.BOAT_WEAPON && !p.OnBoat) continue;
 			// dynamite and crossbow dynamite ammo types are coupled.

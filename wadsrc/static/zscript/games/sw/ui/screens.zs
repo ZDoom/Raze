@@ -458,7 +458,7 @@ class SWCutscenes ui
 
 	static void BuildSybexScreen(ScreenJobRunner runner)
 	{
-		if (Raze.isShareware() && !netgame)
+		if (isShareware() && !netgame)
 			runner.Append(ImageScreen.CreateNamed("SYBEXSCREEN", TexMan.Type_Any));
 	}
 

@@ -26,7 +26,7 @@ class DukeCactus : DukeCactusBroke
 	{
 		if (self.spritesetindex == 0 && hitter.bINFLAME)
 		{
-			let scrap = Raze.isRR()? DukeScrap.Scrap6 : DukeScrap.Scrap3;
+			let scrap = isRR()? DukeScrap.Scrap6 : DukeScrap.Scrap3;
 			
 			for (int k = 0; k < 64; k++)
 			{

@@ -144,7 +144,7 @@ class DukeRPG : DukeProjectile
 			if (actor is 'DukeBoss3')
 			{
 				double zoffs = 32;
-				if (Raze.isWorldTour()) // Twentieth Anniversary World Tour
+				if (isWorldTour()) // Twentieth Anniversary World Tour
 					zoffs *= (actor.scale.Y * 0.8);
 				pos.Z -= zoffs;
 			}
@@ -152,7 +152,7 @@ class DukeRPG : DukeProjectile
 			{
 				vel += 8;
 				double zoffs = 24;
-				if (Raze.isWorldTour()) // Twentieth Anniversary World Tour
+				if (isWorldTour()) // Twentieth Anniversary World Tour
 					zoffs *= (actor.scale.Y * 0.8);
 				pos.Z += zoffs;
 			}
@@ -201,7 +201,7 @@ class DukeRPG : DukeProjectile
 					aoffs = -aoffs;
 				}
 
-				if (Raze.isWorldTour()) // Twentieth Anniversary World Tour
+				if (isWorldTour()) // Twentieth Anniversary World Tour
 				{
 					double siz = actor.scale.Y * 0.8;
 					spawnofs *= siz;
@@ -218,7 +218,7 @@ class DukeRPG : DukeProjectile
 				Vector2 spawnofs = (sin(ang) * (1024. / 56.), cos(ang) * -(1024. / 56.));
 				let aoffs = 22.5 / 16. - frandom(-45, 45);
 
-				if (Raze.isWorldTour())  // Twentieth Anniversary World Tour
+				if (isWorldTour())  // Twentieth Anniversary World Tour
 				{
 					double siz = actor.scale.Y * 0.9143;
 					spawnofs *= siz;
@@ -236,7 +236,7 @@ class DukeRPG : DukeProjectile
 				spawned.extra >>= 2;
 			}
 		}
-		else if (p.curr_weapon == DukeWpn.DEVISTATOR_WEAPON && !Raze.isRR())
+		else if (p.curr_weapon == DukeWpn.DEVISTATOR_WEAPON && !isRR())
 		{
 			spawned.extra >>= 2;
 			spawned.Angle += frandom(-22.5 / 8, 22.5 / 8);

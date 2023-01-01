@@ -938,6 +938,7 @@ set (PCH_SOURCES
 
 	core/actorinfo.cpp
 	core/zcc_compile_raze.cpp
+	core/codegen_raze.cpp
 	core/vmexports.cpp
 	core/thingdef_data.cpp
 	core/thingdef_properties.cpp

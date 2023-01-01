@@ -125,7 +125,7 @@ class RedneckShotgunammo : DukeItemBase
 	override void Initialize()
 	{
 		commonItemSetup((0.28125, 0.265625));
-		if (Raze.isRRRA()) self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
+		if (isRRRA()) self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 	}
 }
 
@@ -238,7 +238,7 @@ class RedneckPorkRinds : DukeItemBase
 	override void Initialize()
 	{
 		commonItemSetup((0.203125, 0.140625));
-		if (Raze.isRRRA()) self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
+		if (isRRRA()) self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 	}
 }
 class RedneckGoogooCluster : DukeItemBase

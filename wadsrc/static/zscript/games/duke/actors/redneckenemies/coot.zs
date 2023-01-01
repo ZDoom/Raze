@@ -16,7 +16,7 @@ class RedneckCoot : DukeActor
 	
 	override void PlayFTASound(int mode)
 	{
-		if (!Raze.isRRRA() && (random(0, 3)) == 2)
+		if (!isRRRA() && (random(0, 3)) == 2)
 			self.PlayActorSound("CT_GET");
 	}
 	
@@ -25,7 +25,7 @@ class RedneckCoot : DukeActor
 		self.scale = (0.375, 0.28125);
 		self.setClipDistFromTile();
 		self.clipdist *= 4;
-		if (Raze.isRRRA()) bLookAllaround = true;
+		if (isRRRA()) bLookAllaround = true;
 	}
 
 	

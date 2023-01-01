@@ -147,7 +147,7 @@ class DukeCommonStatusBar : RazeStatusBar
 				int select = 1 << (p.inven_icon - 1);
 				double alpha = select == i ? 1.0 : 0.7;
 				DrawImage(item_icons[bit+1], (x, y), align, alpha, scale:(scale, scale));
-				if (select == i) DrawImage("ARROW", (Raze.isWW2GI()? x + 7.5 : x, Raze.isWW2GI()? y + 0.5 : y), align, alpha, scale:(scale, scale));
+				if (select == i) DrawImage("ARROW", (isWW2GI()? x + 7.5 : x, isWW2GI()? y + 0.5 : y), align, alpha, scale:(scale, scale));
 				x += 22;
 			}
 		}
@@ -162,7 +162,7 @@ class DukeCommonStatusBar : RazeStatusBar
 	void DoLevelStats(int bottomy, SummaryInfo info)
 	{
 		StatsPrintInfo stats;
-		stats.fontscale = Raze.isRR() ? 0.5 : 1.;
+		stats.fontscale = isRR() ? 0.5 : 1.;
 		stats.screenbottomspace = bottomy;
 
 		int y = -1;
@@ -171,8 +171,8 @@ class DukeCommonStatusBar : RazeStatusBar
 		{
 			stats.statfont = SmallFont2;
 			stats.spacing = 6;
-			if (Raze.isNamWW2GI()) stats.altspacing = 10;
-			else if (!Raze.isRR()) stats.altspacing = 11;
+			if (isNamWW2GI()) stats.altspacing = 10;
+			else if (!isRR()) stats.altspacing = 11;
 			else stats.altspacing = 14;
 
 			stats.standardColor = Font.TEXTCOLOR_UNTRANSLATED;
@@ -184,14 +184,14 @@ class DukeCommonStatusBar : RazeStatusBar
 		{
 			stats.statfont = SmallFont;
 			stats.letterColor = Font.TEXTCOLOR_ORANGE;
-			if (Raze.isNamWW2GI())
+			if (isNamWW2GI())
 			{
 				stats.statfont = ConFont;
 				stats.spacing = 8;
 				stats.standardColor = Font.TEXTCOLOR_YELLOW;
 				stats.completeColor = Font.TEXTCOLOR_FIRE;
 			}
-			else if (!Raze.isRR())
+			else if (!isRR())
 			{
 				stats.spacing = 7;
 				stats.standardColor = Font.TEXTCOLOR_CREAM;

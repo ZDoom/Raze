@@ -80,7 +80,7 @@ class DukeTitleScreen : SkippableScreenJob
 
 	override void Start()
 	{
-		if (Raze.isNam() || userConfig.nologo) Duke.PlaySpecialMusic(Duke.MUS_INTRO);
+		if (isNam() || userConfig.nologo) Duke.PlaySpecialMusic(Duke.MUS_INTRO);
 	}
 
 	override void OnTick() 
@@ -99,12 +99,12 @@ class DukeTitleScreen : SkippableScreenJob
 		if (soundanm == 2 && clock >= 280 && clock < 395)
 		{
 			soundanm = 3;
-			if (Raze.isPlutoPak()) Duke.PlaySound("FLY_BY", CHAN_AUTO, CHANF_UI);
+			if (isPlutoPak()) Duke.PlaySound("FLY_BY", CHAN_AUTO, CHANF_UI);
 		}
 		else if (soundanm == 3 && clock >= 395)
 		{
 			soundanm = 4;
-			if (Raze.isPlutoPak()) Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
+			if (isPlutoPak()) Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 		}
 
 		if (clock > (860 + 120))
@@ -143,7 +143,7 @@ class DukeTitleScreen : SkippableScreenJob
 				DTA_CenterOffsetRel, true, DTA_TranslationIndex, trans, DTA_ScaleX, scale, DTA_ScaleY, scale);
 		}
 
-		if (Raze.isPlutoPak()) 
+		if (isPlutoPak()) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
@@ -373,7 +373,7 @@ class Episode3End : ImageScreen
 			break;
 
 		case 6:
-			if (Raze.isPlutoPak())
+			if (isPlutoPak())
 			{
 				if (ticks > finishtime) jobstate = finished;
 			}
@@ -388,7 +388,7 @@ class Episode3End : ImageScreen
 
 	override void OnDestroy()
 	{
-		if (!Raze.isPlutoPak()) Duke.PlaySound("ENDSEQVOL3SND4", CHAN_AUTO, CHANF_UI);
+		if (!isPlutoPak()) Duke.PlaySound("ENDSEQVOL3SND4", CHAN_AUTO, CHANF_UI);
 	}
 }
 
@@ -461,19 +461,19 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 
 	override void Start()
 	{
-		if (!Raze.isRR()) Duke.PlayBonusMusic();
+		if (!isRR()) Duke.PlayBonusMusic();
 	}
 
 	override void Draw(double smoothratio)
 	{
-		bool isRR = Raze.isRR();
+		bool isRR = isRR();
 		double titlescale = isRR? 0.36 : 1;
 
 		String tempbuf;
 		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
 		Screen.DrawTexture(TexMan.CheckForTexture("MENUSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal);
 		Screen.DrawTexture(TexMan.CheckForTexture("INGAMEDUKETHREEDEE"), true, 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, DTA_ScaleX, titlescale, DTA_ScaleY, titlescale);
-		if (Raze.isPlutoPak()) Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), true, 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true);
+		if (isPlutoPak()) Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), true, 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true);
 
 		Raze.DrawScoreboard(60);
 	}
@@ -647,7 +647,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 		String tempbuf;
 		Duke.GameText(text_x, 59 + 9, "$TXT_YourTime", 0);
 		Duke.GameText(text_x, 69 + 9, "$TXT_ParTime", 0);
-		if (!Raze.isNamWW2GI())
+		if (!isNamWW2GI())
 			Duke.GameText(text_x, 79 + 9, "$TXT_3DRTIME", 0);
 
 		if (displaystate & printTimeVal)
@@ -658,7 +658,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 			tempbuf = FormatTime(level.parTime);
 			Duke.GameText(val_x, 69 + 9, tempbuf, 0);
 
-			if (!Raze.isNamWW2GI())
+			if (!isNamWW2GI())
 			{
 				tempbuf = FormatTime(level.designerTime);
 				Duke.GameText(val_x, 79 + 9, tempbuf, 0);
@@ -1084,14 +1084,14 @@ class DukeLoadScreen : ScreenJob
 	{
 		Screen.DrawTexture(TexMan.CheckForTexture("LOADSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
 
-		if (!Raze.IsRR())
+		if (!isRR())
 		{
 			Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING", 0);
 			Duke.BigText(160, 114, rec.DisplayName(), 0);
 		}
 		else
 		{
-			int y = Raze.isRRRA()? 140 : 90;
+			int y = isRRRA()? 140 : 90;
 			Duke.BigText(160, y, (rec.flags & MapRecord.USERMAP)? "$TXT_ENTRUM" : "$TXT_ENTERIN", 0);
 			Duke.BigText(160, y+24, rec.DisplayName(), 0);
 		}

@@ -53,7 +53,7 @@ class DukeFrameEffect : DukeActor
 					}
 			if ((OwnerAc.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
 			{
-				if (!OwnerAc.isPlayer() || !Raze.isRR()) t.SetSpritePic(OwnerAc, -1);
+				if (!OwnerAc.isPlayer() || !isRR()) t.SetSpritePic(OwnerAc, -1);
 				else t.SetSpritePic(OwnerAc, 0);
 				t.pal = OwnerAc.pal;
 				t.shade = OwnerAc.shade;

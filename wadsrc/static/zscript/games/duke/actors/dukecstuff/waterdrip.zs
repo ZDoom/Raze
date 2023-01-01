@@ -49,7 +49,7 @@ class DukeWaterDrip : DukeActor
 			{
 				self.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-				if (self.pal != 2 && (self.hitag == 0 || Raze.isRR()))
+				if (self.pal != 2 && (self.hitag == 0 || isRR()))
 					self.PlayActorSound("SOMETHING_DRIPPING");
 
 				if (!self.mapSpawned)

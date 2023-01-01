@@ -50,7 +50,7 @@ class DukeBloodPool : DukeActor
 			}
 			else self.insertspriteq();
 		}
-		if (Raze.isRR() && self.sector.lotag == 800)
+		if (isRR() && self.sector.lotag == 800)
 		{
 			self.Destroy();
 			return;

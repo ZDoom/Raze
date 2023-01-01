@@ -38,7 +38,7 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
     {
 		if (!userConfig.nologo)
 		{
-			if (!Raze.isShareware())
+			if (!isShareware())
 			{
 				Array<int> soundinfo;
 				soundinfo.Pushv(
@@ -46,7 +46,7 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 					19, int(Sound("PIPEBOMB_EXPLODE")));
 				runner.Append(MoviePlayerJob.CreateWithSoundinfo("logo.anm", soundinfo, 0, 9, 9, 9));
 			}
-			if (!Raze.isNam()) runner.Append(new("DRealmsScreen").Init());
+			if (!isNam()) runner.Append(new("DRealmsScreen").Init());
 		}
 		runner.Append(new("DukeTitleScreen").Init());
     }
@@ -116,7 +116,7 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov3.anm", soundinfo, 0, 10, 10, 10));
 			runner.Append(BlackScreen.Create(200, ScreenJob.stopsound));
 			runner.Append(new("Episode3End").Init());
-			if (!Raze.isPlutoPak()) runner.Append(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
+			if (!isPlutoPak()) runner.Append(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
 		}
 	}
 
@@ -310,7 +310,7 @@ class RRCutscenes ui
 
 	static void BuildE1End(ScreenJobRunner runner)
     {
-		if (!Raze.isRRRA())
+		if (!isRRRA())
 		{
 			Array<int> soundinfo;
 			soundinfo.Pushv(1, int(Sound("CHKAMMO")));
@@ -352,7 +352,7 @@ class RRCutscenes ui
 
 	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
-		runner.Append(new("RRLevelSummaryScreen").Init(map, stats, !Raze.isRRRA() || stats.endOfGame));
+		runner.Append(new("RRLevelSummaryScreen").Init(map, stats, !isRRRA() || stats.endOfGame));
 	}
 
 	//---------------------------------------------------------------------------

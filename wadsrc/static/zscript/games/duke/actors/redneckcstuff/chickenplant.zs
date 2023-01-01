@@ -77,7 +77,7 @@ class RedneckChickenHeadSpawner : RedneckChickenSpawner1
 		{
 			let spawned = self.spawn('RedneckChickenHead');
 			self.lotag = 96;
-			if (spawned && !Raze.isRRRA()) self.PlayActorSound("POOLBUD");
+			if (spawned && !isRRRA()) self.PlayActorSound("POOLBUD");
 		}
 	}
 }

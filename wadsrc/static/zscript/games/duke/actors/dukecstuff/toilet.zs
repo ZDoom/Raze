@@ -68,7 +68,7 @@ class DukeToilet : DukeStall
 
 	override void StandingOn(DukePlayer p)
 	{
-		if (Raze.isRR() && p.PlayerInput(Duke.SB_CROUCH) && !p.OnMotorcycle)
+		if (isRR() && p.PlayerInput(Duke.SB_CROUCH) && !p.OnMotorcycle)
 		{
 			p.actor.PlayActorSound("CRAP");
 			p.last_pissed_time = 4000;

@@ -29,7 +29,7 @@ class RedneckMinion : DukeActor
 	
 	override bool animate(tspritetype t)
 	{
-		if (Raze.isRRRA() && t.pal == 19)
+		if (isRRRA() && t.pal == 19)
 			t.shade = -127;
 		return false;
 	}

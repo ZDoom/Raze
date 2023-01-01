@@ -91,7 +91,7 @@ class DukeMortar : DukeActor
 					self.vel.Z *= 0.25;
 				self.yint++;
 			}
-			if (itemmode != 2 && self.pos.Z < self.ceilingz + self.ceilingdist && (!Raze.isRR() || sectp.lotag != ST_2_UNDERWATER)) // underwater check only for RR
+			if (itemmode != 2 && self.pos.Z < self.ceilingz + self.ceilingdist && (!isRR() || sectp.lotag != ST_2_UNDERWATER)) // underwater check only for RR
 			{
 				self.pos.Z = self.ceilingz + self.ceilingdist;
 				self.vel.Z = 0;
@@ -147,11 +147,11 @@ class DukeMortar : DukeActor
 				int x = self.extra;
 				int m = itemmode == 0? gs.bouncemineblastradius : gs.morterblastradius;
 
-				if (self.sector.lotag != 800 || !Raze.isRR()) // this line is RR only
+				if (self.sector.lotag != 800 || !isRR()) // this line is RR only
 				{
 					self.hitradius(m, x >> 2, x >> 1, x - (x >> 2), x);
 					self.spawn("DukeExplosion2");
-					if (self.vel.Z == 0 && !Raze.isRR()) self.spawn("DukeExplosion2Bot"); // this line is Duke only
+					if (self.vel.Z == 0 && !isRR()) self.spawn("DukeExplosion2Bot"); // this line is Duke only
 					if (itemmode == 2) self.spawn("DukeBurning");
 					self.PlayActorSound("PIPEBOMB_EXPLODE");
 					for (x = 0; x < 8; x++)

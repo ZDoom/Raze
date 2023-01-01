@@ -37,7 +37,7 @@ class DukeActivator : DukeActor
 				if (a2.statnum == STAT_EFFECTOR) switch (a2.lotag)
 				{
 				case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
-					if (Raze.isRRRA()) break;
+					if (isRRRA()) break;
 
 				case SE_36_PROJ_SHOOTER:
 				case SE_31_FLOOR_RISE_FALL:
@@ -71,7 +71,7 @@ class DukeActivatorLocked : DukeActor
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
-		if (!Raze.IsRR()) self.sector.lotag |= 16384;
+		if (!isRR()) self.sector.lotag |= 16384;
 		else self.sector.lotag ^= 16384;
 		self.ChangeStat(STAT_ACTIVATOR);
 	}

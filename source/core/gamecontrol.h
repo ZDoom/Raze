@@ -180,6 +180,11 @@ inline bool isRRRA()
 	return g_gameType & (GAMEFLAG_RRRA);
 }
 
+inline bool isRoute66()
+{
+	return g_gameType & (GAMEFLAG_ROUTE66);
+}
+
 inline bool isWorldTour()
 {
 	return g_gameType & GAMEFLAG_WORLDTOUR;
@@ -188,6 +193,11 @@ inline bool isWorldTour()
 inline bool isPlutoPak()
 {
 	return g_gameType & GAMEFLAG_PLUTOPAK;
+}
+
+inline bool isVacation()
+{
+	return g_gameType & GAMEFLAG_DUKEVACA;
 }
 
 inline bool isShareware()

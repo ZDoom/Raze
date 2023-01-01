@@ -464,7 +464,7 @@ class DukeActor : CoreActor native
 		}
 
 		// RR defaults to using the floor shade here, let's make this configurable.
-		if (usefloorshade == 1 || (usefloorshade == -1 && Raze.isRR()))
+		if (usefloorshade == 1 || (usefloorshade == -1 && isRR()))
 		{
 			self.shade = self.sector.floorshade;
 		}

@@ -44,7 +44,7 @@ class DukeShell : DukeActor
 				self.vel.X = -direction;
 			}
 
-			double scale = Raze.isRR() && isshell ? 0.03125 : 0.0625;
+			double scale = isRR() && isshell ? 0.03125 : 0.0625;
 			self.scale = (scale, scale);
 		}
 		self.shade = -8;

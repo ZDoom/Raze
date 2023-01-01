@@ -46,6 +46,7 @@
 
 void InitThingdef();
 void SynthesizeFlagFields();
+void SetRazeCompileEnvironment();
 
 void ParseScripts()
 {
@@ -82,6 +83,7 @@ void LoadScripts()
 	cycle_t timer;
 
 	PType::StaticInit();
+	SetRazeCompileEnvironment();
 	InitThingdef();
 	timer.Reset(); timer.Clock();
 	FScriptPosition::ResetErrorCounter();

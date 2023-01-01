@@ -63,7 +63,7 @@ class DukeJibs1 : DukeActor
 		if(self.vel.X > 0) self.vel.X -= 1/16.;
 		else self.vel.X = 0;
 
-		if (!Raze.IsRR())
+		if (!isRR())
 		{
 			if (self.temp_data[0] < 30 * 10)
 				self.temp_data[0]++;
@@ -126,7 +126,7 @@ class DukeJibs1 : DukeActor
 			self.pos += self.angle.ToVector() * self.vel.X;
 			self.pos.Z += self.vel.Z;
 
-			if (Raze.IsRR() && self.pos.Z >= self.sector.floorz)
+			if (isRR() && self.pos.Z >= self.sector.floorz)
 			{
 				self.Destroy();
 				return;
@@ -175,7 +175,7 @@ class DukeJibs1 : DukeActor
 				return;
 			}
 		}
-		if (Raze.IsRR() && self.sector.lotag == 800 &&  self.pos.Z >= self.sector.floorz - 8)
+		if (isRR() && self.sector.lotag == 800 &&  self.pos.Z >= self.sector.floorz - 8)
 		{
 			self.Destroy();
 			return;
@@ -186,7 +186,7 @@ class DukeJibs1 : DukeActor
 	
 	override bool animate(tspritetype tspr) 
 	{ 
-		if (Raze.isRRRA() && tspr.pal == 19)
+		if (isRRRA() && tspr.pal == 19)
 			tspr.shade = -127;
 	
 		if (spritesetindex == 1)
@@ -264,7 +264,7 @@ class DukeJibs6 : DukeJibs1
 	
 	override void Initialize()
 	{
-		if (Raze.isRR()) self.scale *= 0.5; // only RR needs this.
+		if (isRR()) self.scale *= 0.5; // only RR needs this.
 		self.setSpriteSetImage(1);
 	}
 }

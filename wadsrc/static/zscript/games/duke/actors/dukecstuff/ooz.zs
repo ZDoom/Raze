@@ -13,7 +13,7 @@ class DukeOoz : DukeActor
 		{
 			if (self.bPAL8OOZ)
 				self.pal = 8;
-			if (!Raze.IsRR()) self.insertspriteq();
+			if (!isRR()) self.insertspriteq();
 		}
 
 		self.getglobalz();
