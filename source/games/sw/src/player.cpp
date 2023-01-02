@@ -2429,7 +2429,7 @@ void DoTankTreads(PLAYER* pp)
                     }
                 }
 
-                SP_TAG5(actor) = vel;
+                actor->vel.X = vel;
             }
             else if (actor->spr.statnum == STAT_FLOOR_PAN)
             {
@@ -2450,7 +2450,7 @@ void DoTankTreads(PLAYER* pp)
                     }
                 }
 
-                SP_TAG5(actor) = vel;
+                actor->vel.X = vel;
             }
             else if (actor->spr.statnum == STAT_CEILING_PAN)
             {
@@ -2471,7 +2471,7 @@ void DoTankTreads(PLAYER* pp)
                     }
                 }
 
-                SP_TAG5(actor) = vel;
+                actor->vel.X = vel;
             }
         }
     }
