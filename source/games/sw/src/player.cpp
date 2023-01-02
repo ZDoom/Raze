@@ -2396,7 +2396,7 @@ void DoTankTreads(PLAYER* pp)
     if (Prediction)
         return;
 
-    int vel = int(pp->vect.Length() * 1024);
+    double vel = pp->vect.Length() * 64;
 	double dot =  pp->vect.dot(pp->angle.ang.ToVector());
     if (dot < 0)
         reverse = true;
