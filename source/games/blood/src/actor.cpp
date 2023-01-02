@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 
 #include "blood.h"
+#include "texids.h"
 
 BEGIN_BLD_NS
 
@@ -3944,7 +3945,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 			if (GetExtInfo(actorHit->spr.spritetexture()).surftype == kSurfFlesh)
 			{
-				missileActor->spr.picnum = 2123;
+				missileActor->spr.setspritetexture(aTexIds[kTexFLESHHIT]);
 				missileActor->SetTarget(actorHit);
 				missileActor->xspr.TargetPos.Z = (missileActor->spr.pos.Z - actorHit->spr.pos.Z);
 				missileActor->xspr.goalAng = (missileActor->spr.pos.XY() - actorHit->spr.pos.XY()).Angle() - actorHit->spr.Angles.Yaw;

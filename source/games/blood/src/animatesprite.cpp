@@ -166,7 +166,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			vect.Z = pt.Y;
 
 			pNSprite->pos = pTSprite->pos + vect;
-			pNSprite->picnum = 1720;
+			pNSprite->setspritetexture(aTexIds[kTexATOMEFFECT]);
 			pNSprite->shade = -128;
 		}
 		break;
@@ -186,7 +186,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->scale = DVector2(0.375, 0.375);
 		else
 			pNSprite->scale = DVector2(1, 1);
-		pNSprite->picnum = 3558;
+		pNSprite->setspritetexture(aTexIds[kTexFLAGHAVE]);
 		return pNSprite;
 	}
 	case kViewEffectTesla:
@@ -199,7 +199,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = -128;
 		pNSprite->scale = pTSprite->scale;
-		pNSprite->picnum = 2135;
+		pNSprite->setspritetexture(aTexIds[kTexTESLAEFFECT]);
 		break;
 	}
 	case kViewEffectShoot:
@@ -211,7 +211,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = -128;
 		pNSprite->pal = 0;
 		pNSprite->scale = DVector2(1, 1);
-		pNSprite->picnum = 2605;
+		pNSprite->setspritetexture(aTexIds[kTexSHOOTEFFECT]);
 		return pNSprite;
 	}
 	case kViewEffectReflectiveBall:
@@ -224,7 +224,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->scale = DVector2(1, 1);
-		pNSprite->picnum = 2089;
+		pNSprite->setspritetexture(aTexIds[kTexBALLEFFECT]);
 		break;
 	}
 	case kViewEffectPhase:
@@ -240,7 +240,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->scale = DVector2(0.375, 0.375);
-		pNSprite->picnum = 626;
+		pNSprite->setspritetexture(aTexIds[kTexPHASEEFFECT]);
 		break;
 	}
 	case kViewEffectTrail:
@@ -287,7 +287,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		pNSprite->shade = -128;
 		pNSprite->pos.Z = pTSprite->pos.Z;
-		pNSprite->picnum = 908;
+		pNSprite->setspritetexture(aTexIds[kTexFLAMEEFFECT]);
 		pNSprite->statnum = kStatDecoration;
 		s = (pTTex->GetDisplayWidth() * pTSprite->scale.X) / 64.;
 		pNSprite->scale = DVector2(s, s);
@@ -303,9 +303,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		pNSprite->pos.Z = top;
 		if (IsDudeSprite(pTSprite))
-			pNSprite->picnum = 672;
+			pNSprite->setspritetexture(aTexIds[kTexBIGSMOKEEFFECT]);
 		else
-			pNSprite->picnum = 754;
+			pNSprite->setspritetexture(aTexIds[kTexSMALLSMOKEEFFECT]);
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = 8;
 		pNSprite->scale = pTSprite->scale;
@@ -321,9 +321,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		pNSprite->pos.Z = bottom;
 		if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
-			pNSprite->picnum = 672;
+			pNSprite->setspritetexture(aTexIds[kTexBIGSMOKEEFFECT]);
 		else
-			pNSprite->picnum = 754;
+			pNSprite->setspritetexture(aTexIds[kTexSMALLSMOKEEFFECT]);
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = 8;
 		pNSprite->scale = pTSprite->scale;
@@ -338,7 +338,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		pNSprite->pos.Z = top;
-		pNSprite->picnum = 2101;
+		pNSprite->setspritetexture(aTexIds[kTexTORCHEFFECT]);
 		pNSprite->shade = -128;
 		s = (pTTex->GetDisplayWidth() * pTSprite->scale.X) / 32.;
 		pNSprite->scale = DVector2(s, s);
@@ -353,7 +353,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		pNSprite->pos.Z = bottom;
-		pNSprite->picnum = 2101;
+		pNSprite->setspritetexture(aTexIds[kTexTORCHEFFECT]);
 		pNSprite->shade = -128;
 		s = (pTTex->GetDisplayWidth() * pTSprite->scale.X) / 32.;
 		pNSprite->scale = DVector2(s, s);
@@ -389,7 +389,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->scale.Y = pTSprite->scale.Y * 0.25;
 		pNSprite->setspritetexture(pTSprite->spritetexture());
 		if (!VanillaMode() && (pTSprite->type == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
-			pNSprite->picnum = 800;
+			pNSprite->setspritetexture(aTexIds[kTexICONLEECH]);
 		pNSprite->pal = 5;
 		auto tex = TexMan.GetGameTexture(pNSprite->spritetexture());
 		double height = tex->GetDisplayHeight();
@@ -408,7 +408,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->scale = pTSprite->scale;
-		pNSprite->picnum = 2427;
+		pNSprite->setspritetexture(aTexIds[kTexHALOEFFECT]);
 		break;
 	}
 	case kViewEffectCeilGlow:
@@ -420,7 +420,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		sectortype* pSector = pTSprite->sectp;
 		pNSprite->pos = { pTSprite->pos.X, pTSprite->pos.Y, pSector->ceilingz };
 
-		pNSprite->picnum = 624;
+		pNSprite->setspritetexture(aTexIds[kTexGLOWEFFECT]);
 		pNSprite->shade = int(pTSprite->pos.Z - pSector->ceilingz) - 64;
 		pNSprite->pal = 2;
 		pNSprite->scale = DVector2(1, 1);
@@ -437,7 +437,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		sectortype* pSector = pTSprite->sectp;
 		pNSprite->pos = { pTSprite->pos.X, pTSprite->pos.Y, pSector->floorz };
-		pNSprite->picnum = 624;
+		pNSprite->setspritetexture(aTexIds[kTexGLOWEFFECT]);
 		uint8_t nShade = (uint8_t)clamp(pSector->floorz - pTSprite->pos.Z, 0., 255.);
 		pNSprite->shade = nShade - 32;
 		pNSprite->pal = 2;
@@ -458,7 +458,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
 		pNSprite->scale = DVector2(pTSprite->scale.X, 1);
-		pNSprite->picnum = 775;
+		pNSprite->setspritetexture(aTexIds[kTexSAWBLOOD]);
 		break;
 	}
 	case kViewEffectShowWeapon:
@@ -888,13 +888,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			if (pTSprite->type == kTrapSawCircular) {
 				if (owneractor->xspr.state) {
 					if (owneractor->xspr.data1) {
-						pTSprite->picnum = 772;
+						pTSprite->setspritetexture(aTexIds[kTexCIRCLESAW1]);
 						if (owneractor->xspr.data2)
 							viewAddEffect(tsprites, nTSprite, kViewEffectSpear);
 					}
 				}
-				else if (owneractor->xspr.data1) pTSprite->picnum = 773;
-				else pTSprite->picnum = 656;
+				else if (owneractor->xspr.data1) pTSprite->setspritetexture(aTexIds[kTexCIRCLESAW2]);
+				else pTSprite->setspritetexture(aTexIds[kTexCIRCLESAWOFF]);
 
 			}
 			break;

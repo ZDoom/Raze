@@ -92,7 +92,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 	for (int i = 0; i < 8; i++)
 	{
 		auto spawnedactor = actSpawnSprite(actor, 5);
-		spawnedactor->spr.picnum = 2424;
+		spawnedactor->spr.setspritetexture(aTexIds[kTexFLAREBURST]);
 		spawnedactor->spr.shade = -128;
 		spawnedactor->spr.scale = DVector2(0.5, 0.5);
 		spawnedactor->spr.type = kMissileFlareAlt;
@@ -556,12 +556,12 @@ void sleeveStopBouncing(DBloodActor* actor)
 	case FX_37:
 	case FX_38:
 	case FX_39:
-		actor->spr.picnum = 2465;
+		actor->spr.setspritetexture(aTexIds[kTexBULLETCASE]);
 		break;
 	case FX_40:
 	case FX_41:
 	case FX_42:
-		actor->spr.picnum = 2464;
+		actor->spr.setspritetexture(aTexIds[kTexSHELLCASE]);
 		break;
 	}
 

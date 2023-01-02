@@ -586,6 +586,7 @@ void GameInterface::loadPalette(void)
 void GameInterface::app_init()
 {
 	mirrortile = tileGetTextureID(504);
+	InitTextureIDs();
 
 	GC::AddMarkerFunc(markgcroots);
 
