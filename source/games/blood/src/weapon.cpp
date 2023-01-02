@@ -2166,7 +2166,7 @@ static int WeaponFindLoaded(PLAYER* pPlayer, int* a2)
 
 int processSprayCan(PLAYER* pPlayer)
 {
-	const char bUseShootAsThrow = !VanillaMode() && pPlayer->input.buttonFlags.shoot;
+	const char bUseShootAsThrow = !VanillaMode() && (pPlayer->input.actions & SB_FIRE);
 	switch (pPlayer->weaponState)
 	{
 	case 5:
@@ -2211,7 +2211,7 @@ int processSprayCan(PLAYER* pPlayer)
 
 static bool processTNT(PLAYER* pPlayer)
 {
-	const char bUseShootAsThrow = !VanillaMode() && pPlayer->input.buttonFlags.shoot;
+	const char bUseShootAsThrow = !VanillaMode() && (pPlayer->input.actions & SB_FIRE);
 	switch (pPlayer->weaponState)
 	{
 	case 4:
