@@ -76,7 +76,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
             auto pPlayerActor = PlayerList[i].pActor;
             auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
-            DrawTexture(twod, tileGetTexture(pPlayerActor->spr.picnum /*+ ((PlayClock >> 4) & 3)*/, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,
+            DrawTexture(twod, pPlayerActor->spr.spritetexture(), true, vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,
                 DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (pPlayerActor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
             break;
         }

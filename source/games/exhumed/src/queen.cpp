@@ -1450,13 +1450,13 @@ void AIQueen::Tick(RunListEvent* ev)
                     {
                         auto pChunkActor = BuildCreatureChunk(pActor, queenPicnum);
 
-                        pChunkActor->spr.picnum = kQueenChunk + (i % 3);
+                        pChunkActor->spr.setspritetexture(aTexIds[kTexQueenChunk + (i % 3)]);
 						pChunkActor->spr.scale = DVector2(1.5625, 1.5625);
                     }
 
                     auto pChunkActor = BuildCreatureChunk(pActor, queenPicnum);
 
-                    pChunkActor->spr.picnum = kTile3126;
+                    pChunkActor->spr.setspritetexture(aTexIds[kTexAltQueenChunk]);
 					pChunkActor->spr.scale = DVector2(1.5625, 1.5625);
 
                     PlayFXAtXYZ(

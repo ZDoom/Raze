@@ -348,11 +348,11 @@ void seq_LoadSequences()
     nPilotLightFrame = 0;
 
     const auto fontSeq = getSequence("font2");
-    const int nFontFirstChar = legacyTileNum(fontSeq->getFirstFrameTexture());
+    const auto nFontFirstChar = fontSeq->getFirstFrameTexture();
 
     for (unsigned i = 0; i < fontSeq->frames.Size(); i++)
     {
-        auto tex = tileGetTexture(nFontFirstChar + i);
+        auto tex = TexMan.GetGameTexture(nFontFirstChar + i);
         tex->SetOffsets(0, 0);
     }
 }

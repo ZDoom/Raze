@@ -20,13 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 enum
 {
-kTile985 = 985,
-kTile986 = 986,
 kTile3000 = 3000,
-kQueenChunk = 3117,
-kTile3126 = 3126,
 kTile3512 = 3512,
-kTile3571 = 3571,
 kTile3593 = 3593,
 kTile3603 = 3603,
 kTile4092 = 4092,

@@ -58,8 +58,8 @@ static constexpr double nActionEyeLevel[] = {
     -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0
 };
 
-static constexpr uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
-static constexpr uint16_t nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
+static const uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
+static const uint16_t nGunPicnum[] = { kTexWeaponSpriteSword, kTexWeaponSpriteMagnum, kTexWeaponSpriteM60, kTexWeaponSpriteFlamethrower, kTexAmmoSpriteGrenade, kTexWeaponSpriteCobra, kTexWeaponSpriteMummy };
 
 static constexpr int16_t nItemText[] = {
     -1, -1, -1, -1, -1, -1, 18, 20, 19, 13, -1, 10, 1, 0, 2, -1, 3,
@@ -162,8 +162,12 @@ void InitPlayerInventory(int nPlayer)
     if (nPlayer == nLocalPlayer)
         automapMode = am_off;
 
-    const auto pixels = GetRawPixels(tileGetTextureID(kTile3571 + nPlayer));
-    PlayerList[nPlayer].nPlayerColor = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
+
+    auto tex = aTexIds[kTexPlayermarker1 + nPlayer];
+    auto texp = TexMan.GetGameTexture(tex);
+    auto pixels = GetRawPixels(tex);
+
+    PlayerList[nPlayer].nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
 }
 
 //---------------------------------------------------------------------------
@@ -250,7 +254,8 @@ void RestartPlayer(int nPlayer)
 		pFloorSprite->spr.pos = pPlayerActor->spr.pos;
 		pFloorSprite->spr.scale = DVector2(1, 1);
 		pFloorSprite->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		pFloorSprite->spr.picnum = nPlayer + kTile3571;
+        pFloorSprite->spr.setspritetexture(aTexIds[kTexPlayermarker1 + nPlayer]);
+
 	}
 	else
 	{
@@ -388,7 +393,7 @@ void StartDeathSeq(int nPlayer, int nVal)
                 ChangeActorSect(pGunActor, pSector);
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
                 pGunActor->spr.pos = DVector3(pPlayerActor->spr.pos.XY(), pSector->floorz - 2);
-                pGunActor->spr.picnum = nGunPicnum[nWeapon];
+                pGunActor->spr.setspritetexture(aTexIds[nGunPicnum[nWeapon]]);
                 BuildItemAnim(pGunActor);
             }
         }

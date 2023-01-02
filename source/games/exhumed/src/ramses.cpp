@@ -112,7 +112,7 @@ void InitSpiritHead()
 
 
 	pSpiritSpr->spr.scale = DVector2(2.1875, 2.1875);
-    pSpiritSpr->spr.picnum = kTileRamsesWorkTile;
+    pSpiritSpr->spr.setspritetexture(aTexIds[kTexTileRamsesWorkTile]);
 
     nHeadStage = 0;
 

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "interpolate.h"
 #include "mapinfo.h"
+#include "texids.h"
 #include <string.h>
 #include <assert.h>
 
@@ -1398,7 +1399,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
     if (nVal >= 2)
     {
-        pSpark->spr.picnum = kEnergy2;
+        pSpark->spr.setspritetexture(aTexIds[kTexENERGY2]);
         nSmokeSparks++;
 
         if (nVal == 3)
@@ -1424,7 +1425,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
         }
 
         pSpark->vel.Z = -RandomSize(4) * 0.5;
-        pSpark->spr.picnum = kTile985 + nVal;
+        pSpark->spr.setspritetexture(aTexIds[kTexSpark1 + nVal]);
     }
 
     pSpark->spr.pos.Z = pActor->spr.pos.Z;
@@ -1461,12 +1462,12 @@ void AISpark::Tick(RunListEvent* ev)
 		pActor->spr.scale.Y += (-0.03125);
 
         // calling BuildSpark() with 2nd parameter as '1' will set kTile986
-        if (pActor->spr.picnum == kTile986 && int((pActor->spr.scale.X * INV_REPEAT_SCALE)) & 2) // hack alert
+        if (pActor->spr.spritetexture() == aTexIds[kTexSpark2] && int((pActor->spr.scale.X * INV_REPEAT_SCALE)) & 2) // hack alert
         {
             BuildSpark(pActor, 2);
         }
 
-        if (pActor->spr.picnum >= kTile3000) {
+        if (pActor->spr.spritetexture() == aTexIds[kTexENERGY2]) {
             return;
         }
 
@@ -1486,7 +1487,7 @@ void AISpark::Tick(RunListEvent* ev)
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
 
-    if (pActor->spr.picnum > kTile3000) {
+    if (pActor->spr.spritetexture() == aTexIds[kTexENERGY2]) {
         nSmokeSparks--;
     }
 
