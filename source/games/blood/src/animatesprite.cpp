@@ -270,13 +270,12 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			if (pSector2) pSector = pSector2;
 			pNSprite->sectp = pSector;
 			pNSprite->ownerActor = pTSprite->ownerActor;
-			pNSprite->picnum = pTSprite->picnum;
+			pNSprite->setspritetexture(pTSprite->spritetexture());
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			if (i < 2)
 				pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 			pNSprite->shade = ClipLow(pTSprite->shade - 16, -128);
 			pNSprite->scale = pTSprite->scale;
-			pNSprite->picnum = pTSprite->picnum;
 		}
 		break;
 	}
@@ -388,7 +387,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->scale.X = pTSprite->scale.X;
 		pNSprite->scale.Y = pTSprite->scale.Y * 0.25;
-		pNSprite->picnum = pTSprite->picnum;
+		pNSprite->setspritetexture(pTSprite->spritetexture());
 		if (!VanillaMode() && (pTSprite->type == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
 			pNSprite->picnum = 800;
 		pNSprite->pal = 5;
@@ -550,7 +549,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
-		// skip picnum 0 on face sprites. picnum 0 is a simple wall texture in Blood, 
+		// skip tile 0 on face sprites. tile 0 is a simple wall texture in Blood, 
 		// but there are maps that use 0 on some operator sprites that may show up in portals as a result.
 		// Since the wall texture is perfectly fine for wall and floor sprites, these will be allowed to pass.
 		if (legacyTileNum(nTex) == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)

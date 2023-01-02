@@ -331,7 +331,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	DBloodActor* spawned = nullptr;
 	if ((spawned = actFireThing(actor, 0., 0., (dv.Z / 32768.) - zThrow, curWeapon, dist * (2048. / 64800))) == nullptr) return;
 
-	if (pThinkInfo->picnum < 0 && spawned->spr.type != kModernThingThrowableRock) spawned->spr.picnum = 0;
+	if (pThinkInfo->picno < 0 && spawned->spr.type != kModernThingThrowableRock) spawned->spr.picnum = 0;
 
 	spawned->SetOwner(actor);
 

@@ -2744,7 +2744,7 @@ static DBloodActor* actDropAmmo(DBloodActor* actor, int nType)
 		auto act2 = actSpawnFloor(actor);
 		const AMMOITEMDATA* pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
 		act2->spr.type = nType;
-		act2->spr.picnum = pAmmo->picnum;
+		act2->spr.setspritetexture(pAmmo->textureID());
 		act2->spr.shade = pAmmo->shade;
 		act2->spr.scale = DVector2(pAmmo->xrepeat * REPEAT_SCALE, pAmmo->yrepeat * REPEAT_SCALE);
 		return act2;
@@ -2760,7 +2760,7 @@ static DBloodActor* actDropWeapon(DBloodActor* actor, int nType)
 		auto act2 = actSpawnFloor(actor);
 		const WEAPONITEMDATA* pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
 		act2->spr.type = nType;
-		act2->spr.picnum = pWeapon->picnum;
+		act2->spr.setspritetexture(pWeapon->textureID());
 		act2->spr.shade = pWeapon->shade;
 		act2->spr.scale = DVector2(pWeapon->xrepeat * REPEAT_SCALE, pWeapon->yrepeat * REPEAT_SCALE);
 		return act2;
@@ -2776,7 +2776,7 @@ static DBloodActor* actDropItem(DBloodActor* actor, int nType)
 		auto act2 = actSpawnFloor(actor);
 		const ITEMDATA* pItem = &gItemData[nType - kItemBase];
 		act2->spr.type = nType;
-		act2->spr.picnum = pItem->picnum;
+		act2->spr.setspritetexture(pItem->textureID());
 		act2->spr.shade = pItem->shade;
 		act2->spr.scale = DVector2(pItem->xrepeat * REPEAT_SCALE, pItem->yrepeat * REPEAT_SCALE);
 		return act2;
@@ -6246,7 +6246,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	actor->spr.flags = pThingInfo->flags;
 	if (actor->spr.flags & 2) actor->spr.flags |= 4;
 	actor->spr.cstat |= pThingInfo->cstat;
-	actor->spr.picnum = pThingInfo->picnum;
+	actor->spr.setspritetexture(pThingInfo->textureID());
 	actor->spr.shade = pThingInfo->shade;
 	actor->spr.pal = pThingInfo->pal;
 	if (pThingInfo->xrepeat) actor->spr.scale.X = (pThingInfo->xrepeat * REPEAT_SCALE);
@@ -6463,7 +6463,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	spawned->spr.flags = 1;
 
 	spawned->spr.scale = DVector2(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
-	spawned->spr.picnum = pMissileInfo->picnum;
+	spawned->spr.setspritetexture(pMissileInfo->textureID());
 	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw + mapangle(pMissileInfo->angleOfs);
 	spawned->vel = dv.Unit() * pMissileInfo->fVelocity();
 	spawned->SetOwner(actor);

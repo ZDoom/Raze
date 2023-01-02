@@ -73,20 +73,21 @@ struct THINGINFO
 	int32_t elastic;
 	int32_t dmgResist;
 	ESpriteFlags cstat;
-	int16_t picnum;
+	int16_t picno;
 	int8_t shade;
 	uint8_t pal;
 	uint8_t xrepeat;
 	uint8_t yrepeat;
 	int dmgControl[kDamageMax]; // damage
 	
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 	double fClipdist() const { return clipdist * 0.25; }
 };
 
 struct AMMOITEMDATA
 {
 	int16_t cstat;
-	int16_t picnum;
+	int16_t picno;
 	int8_t shade;
 	uint8_t pal;
 	uint8_t xrepeat;
@@ -94,12 +95,13 @@ struct AMMOITEMDATA
 	int16_t count;
 	uint8_t type;
 	uint8_t weaponType;
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 struct WEAPONITEMDATA
 {
 	int16_t cstat;
-	int16_t picnum;
+	int16_t picno;
 	int8_t shade;
 	uint8_t pal;
 	uint8_t xrepeat;
@@ -107,22 +109,24 @@ struct WEAPONITEMDATA
 	int16_t type;
 	int16_t ammoType;
 	int16_t count;
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 struct ITEMDATA
 {
 	int16_t cstat;
-	int16_t picnum;
+	int16_t picno;
 	int8_t shade;
 	uint8_t pal;
 	uint8_t xrepeat;
 	uint8_t yrepeat;
 	int16_t packSlot;
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 struct MissileType
 {
-	int16_t picnum;
+	int16_t picno;
 	int velocity;
 	int angleOfs;
 	uint8_t xrepeat;
@@ -138,6 +142,7 @@ struct MissileType
 	{
 		return FixedToFloat(velocity);
 	}
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 struct EXPLOSION
