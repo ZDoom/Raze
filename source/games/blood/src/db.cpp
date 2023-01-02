@@ -482,7 +482,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		*pSprite = {};
 		pSprite->SetMapPos(LittleLong(load.x), LittleLong(load.y), LittleLong(load.z));
 		pSprite->cstat = ESpriteFlags::FromInt(LittleShort(load.cstat));
-		pSprite->picnum = LittleShort(load.picnum);
+		pSprite->picnum = LittleShort(load.pic);
 		int secno = LittleShort(load.sectnum);
 		pSprite->statnum = LittleShort(load.statnum);
 		pSprite->Angles.Yaw = mapangle(LittleShort(load.ang));

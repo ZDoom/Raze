@@ -117,7 +117,7 @@ void InitMirrors(void)
 			auto sectj = link2->sector();
 			int j = sectindex(sectj);
 			if (sectj->ceilingtexture != mirrortile)
-				I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
+				I_Error("Lower link sector %d doesn't have mirror pic\n", j);
 			mirror[mirrorcnt].type = 2;
 			mirror[mirrorcnt].diff = link2->spr.pos - link->spr.pos;
 			mirror[mirrorcnt].mynum = i;

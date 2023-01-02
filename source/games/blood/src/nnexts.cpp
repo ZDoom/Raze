@@ -1416,7 +1416,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 	}
 
 	SPRITEMASS* cached = &actor->spriteMass;
-	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.scale.X == cached->scale.X &&
+	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.spritetexture() == cached->texid) && actor->spr.scale.X == cached->scale.X &&
 		actor->spr.scale.Y == cached->scale.Y && clipDist == cached->clipDist)
 	{
 		return cached->mass;
@@ -1499,7 +1499,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 
 	cached->scale.X = actor->spr.scale.X;
 	cached->scale.Y = actor->spr.scale.Y;
-	cached->picnum = actor->spr.picnum;
+	cached->texid = actor->spr.spritetexture();
 	cached->seqId = seqId;
 	cached->clipDist = actor->clipdist;
 
@@ -9178,7 +9178,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 
 		burstactor->spr.type = actor->spr.type;
 		burstactor->spr.shade = actor->spr.shade;
-		burstactor->spr.picnum = actor->spr.picnum;
+		burstactor->spr.setspritetexture(actor->spr.spritetexture());
 
 
 		burstactor->spr.cstat = actor->spr.cstat;
@@ -9413,7 +9413,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPR
 	if (arc.BeginObject(keyname))
 	{
 		arc("seq", w.seqId, &nul.seqId)
-			("picnum", w.picnum, &nul.picnum)
+			("texid", w.texid, &nul.texid)
 			("scale", w.scale, &nul.scale)
 			("clipdist", w.clipDist)
 			("mass", w.mass)

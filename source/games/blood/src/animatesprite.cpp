@@ -656,7 +656,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		while (nAnim > 0)
 		{
-			pTSprite->picnum += GetExtInfo(pTSprite->spritetexture()).picanm.num + 1;
+			pTSprite->setspritetexture(pTSprite->spritetexture() + GetExtInfo(pTSprite->spritetexture()).picanm.num + 1);
 			nAnim--;
 		}
 
@@ -940,7 +940,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		while (nAnim > 0)
 		{
-			pTSprite->picnum += GetExtInfo(pTSprite->spritetexture()).picanm.num + 1;
+			pTSprite->setspritetexture(pTSprite->spritetexture() + GetExtInfo(pTSprite->spritetexture()).picanm.num + 1);
 			nAnim--;
 		}
 	}

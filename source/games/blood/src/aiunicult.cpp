@@ -2287,7 +2287,8 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 	case kGenDudePropertyMass: {
 		// to ensure mass gets updated, let's clear all cache
 		SPRITEMASS* pMass = &actor->spriteMass;
-		pMass->seqId = pMass->picnum = 0;
+		pMass->seqId = 0;
+		pMass->texid = FNullTextureID();
 		pMass->scale.Zero();
 		pMass->clipDist = 0;
 		pMass->mass = pMass->airVel = pMass->fraction = 0;
