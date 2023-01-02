@@ -6946,8 +6946,7 @@ void domovethings(void)
             return;
     }
 
-    PlayClock += synctics;
-    if (PlayClock == 2*synctics) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
+    if (PlayClock == synctics) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
 
     thinktime.Reset();
     thinktime.Clock();
@@ -7029,6 +7028,8 @@ void domovethings(void)
     }
 
     MultiPlayLimits();
+
+    PlayClock += synctics;
 
     thinktime.Unclock();
 
