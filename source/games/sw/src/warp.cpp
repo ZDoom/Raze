@@ -95,7 +95,7 @@ DSWActor* WarpPlane(DVector3& pos, sectortype** sect, double testz)
 
     if (sp_ceiling)
     {
-        if (pos.Z <= sp_ceiling->spr.pos.Z)
+        if (testz <= sp_ceiling->spr.pos.Z)
         {
             return WarpToArea(sp_ceiling, pos, sect);
         }
@@ -103,7 +103,7 @@ DSWActor* WarpPlane(DVector3& pos, sectortype** sect, double testz)
 
     if (sp_floor)
     {
-        if (pos.Z >= sp_floor->spr.pos.Z)
+        if (testz >= sp_floor->spr.pos.Z)
         {
             return WarpToArea(sp_floor, pos, sect);
         }
