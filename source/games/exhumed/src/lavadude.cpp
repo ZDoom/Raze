@@ -51,7 +51,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, double height)
     pLimbActor->spr.xoffset = 0;
     pLimbActor->spr.yoffset = 0;
 	pLimbActor->spr.scale = DVector2(1.40625, 1.40625);
-    pLimbActor->spr.picnum = (move & 3) % 3;
+    pLimbActor->spr.detail = (move & 3) % 3;
     pLimbActor->spr.hitag = 0;
     pLimbActor->spr.lotag = runlist_HeadRun() + 1;
     pLimbActor->clipdist = 0;

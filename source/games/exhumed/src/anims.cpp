@@ -101,7 +101,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, const FName seqFile, int seqInde
     pActor->spr.cstat = 0;
     pActor->clipdist = 2.5;
 	pActor->spr.scale = DVector2(nScale, nScale);
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.Angles.Yaw = nullAngle;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;

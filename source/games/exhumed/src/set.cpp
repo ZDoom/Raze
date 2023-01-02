@@ -70,7 +70,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.Angles.Yaw = nAngle;
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;

@@ -68,7 +68,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     ap->spr.xoffset = 0;
     ap->spr.shade = -12;
     ap->spr.yoffset = 0;
-    ap->spr.picnum = 1;
+    setvalidpic(ap);
     ap->spr.pal = ap->sector()->ceilingpal;
 	ap->clipdist = 15;
     ap->spr.Angles.Yaw = nAngle;

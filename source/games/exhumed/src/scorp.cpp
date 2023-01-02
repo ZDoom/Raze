@@ -62,7 +62,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 	pActor->clipdist = 17.5;
     pActor->spr.shade = -12;
 	pActor->spr.scale = DVector2(1.25, 1.25);
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;

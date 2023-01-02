@@ -90,7 +90,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.shade = -12;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.pal = pActor->sector()->ceilingpal;
 	pActor->clipdist = 7.5;
     pActor->spr.Angles.Yaw = nAngle;

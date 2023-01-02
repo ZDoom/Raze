@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumedactor.h"
 #include "serialize_obj.h"
 #include "texturemanager.h"
+#include "texinfo.h"
 #include "player.h"
 
 BEGIN_PS_NS
@@ -85,6 +86,12 @@ void InitNewGame();
 void menu_DoPlasma();
 void DoEnergyTile();
 void InitEnergyTile();
+
+void setvalidpic(DExhumedActor* actor)
+{
+    // all we want here is setting it to something that passes renderer validation. This is never used to draw the sprite.
+    actor->spr.setspritetexture(tileGetTextureID(1));
+}
 
 extern int EndLevel;
 extern int32_t g_commandSetup;

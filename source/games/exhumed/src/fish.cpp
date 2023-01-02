@@ -66,7 +66,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 
     //getSequence(pChunkActor->nSeqFile, pChunkActor->nCount)->getFirstTexID();
 
-    pChunkActor->spr.picnum = anim;
+    setvalidpic(pChunkActor);
     pChunkActor->spr.lotag = runlist_HeadRun() + 1;
     pChunkActor->clipdist = 0;
 

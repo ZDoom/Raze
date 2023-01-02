@@ -430,7 +430,7 @@ void BuildTail()
         pTailActor->spr.cstat = 0;
         pTailActor->clipdist = 25;
 		pTailActor->spr.scale = DVector2(1.25, 1.25);
-        pTailActor->spr.picnum = 1;
+        setvalidpic(pTailActor);
         pTailActor->spr.pal = pTailActor->sector()->ceilingpal;
         pTailActor->spr.xoffset = 0;
         pTailActor->spr.yoffset = 0;
@@ -475,8 +475,8 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.xoffset = 0;
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
-    pActor2->spr.picnum = 1;
-	pActor2->spr.Angles.Yaw = pActor->spr.Angles.Yaw + RandomAngle9() - DAngle45;
+    setvalidpic(pActor2);
+    pActor2->spr.Angles.Yaw = pActor->spr.Angles.Yaw + RandomAngle9() - DAngle45;
     pActor2->backuppos();
 
     if (!nVal)
@@ -757,7 +757,7 @@ void BuildQueenHead(int nQueen)
 	pActor2->clipdist = 17.5;
 	pActor2->spr.scale = DVector2(1.25, 1.25);
     pActor2->spr.cstat = 0;
-    pActor2->spr.picnum = 1;
+    setvalidpic(pActor2);
     pActor2->spr.shade = -12;
     pActor2->spr.pal = 0;
     pActor2->spr.xoffset = 0;
@@ -1182,7 +1182,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 	pActor->spr.scale = DVector2(1.25, 1.25);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.Angles.Yaw = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;

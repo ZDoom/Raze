@@ -68,7 +68,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.xoffset = 0;
     spp->spr.yoffset = 0;
     spp->spr.Angles.Yaw = nAngle;
-    spp->spr.picnum = 1;
+    setvalidpic(spp);
     spp->spr.hitag = 0;
     spp->spr.lotag = runlist_HeadRun() + 1;
     spp->spr.extra = -1;

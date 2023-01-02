@@ -129,7 +129,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.shade = -64;
     pActor->spr.scale = DVector2(0.3125, 0.3125);
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.pal = 0;
 	pActor->clipdist = 7.5;
     pActor->spr.xoffset = 0;

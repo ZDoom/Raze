@@ -61,7 +61,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->clipdist = 20;
     pActor->spr.shade = -12;
     pActor->spr.scale = DVector2(1, 1);
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;

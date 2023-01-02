@@ -58,7 +58,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.shade = -12;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.pal = pActor->sector()->ceilingpal;
 	pActor->clipdist = 15;
     pActor->spr.Angles.Yaw = angle;

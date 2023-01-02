@@ -59,7 +59,7 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 	pActor->clipdist = 15;
     pActor->spr.shade = -12;
     pActor->spr.scale = DVector2(0.625, 0.625);
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;

@@ -70,7 +70,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = 1;
+    setvalidpic(pActor);
     pActor->spr.Angles.Yaw = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
