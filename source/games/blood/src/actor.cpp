@@ -4230,7 +4230,7 @@ static void checkHit(DBloodActor* actor)
 	case kHitWall:
 		break;
 	case kHitSprite:
-		if (coll.actor()->hasX())
+		if (coll.actor() && coll.actor()->hasX())
 		{
 			auto actor2 = coll.actor();
 
@@ -4303,7 +4303,7 @@ static void checkFloorHit(DBloodActor* actor)
 		actTouchFloor(actor, coll.hitSector);
 		break;
 	case kHitSprite:
-		if (coll.actor()->hasX())
+		if (coll.actor() && coll.actor()->hasX())
 		{
 			auto actor2 = coll.actor();
 
