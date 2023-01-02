@@ -815,7 +815,7 @@ static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
     if (nItem == 12)
     {
         pPickupActor->spr.hitag = 0;
-        pPickupActor->spr.picnum++;
+        pPickupActor->spr.setspritetexture(pPickupActor->spr.spritetexture() + 1);
         ChangeActorStat(pPickupActor, 0);
     }
     else
@@ -2051,7 +2051,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayerActor = pPlayer->pActor;
 
     pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)->getFirstFrameTexture());
-    pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
+    pPlayer->pDoppleSprite->spr.setspritetexture(pPlayerActor->spr.spritetexture());
 
     doPlayerCounters(pPlayer);
     doPlayerGravity(pPlayerActor);

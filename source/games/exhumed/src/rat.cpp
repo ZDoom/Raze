@@ -149,7 +149,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     DExhumedActor* pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
     if (pActor2 != nullptr)
     {
-        if (legacyTileNum(nPlayerPic) == pActor2->spr.picnum)
+        if (nPlayerPic == pActor2->spr.spritetexture())
         {
             if (cansee(pActor->spr.pos, pSector, pActor2->spr.pos, pActor2->sector())) {
                 return pActor2;
