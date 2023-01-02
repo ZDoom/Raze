@@ -3974,7 +3974,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			switch (cond)
 			{
 			case 24: return condCmp(GetExtInfo(actor->spr.spritetexture()).surftype, arg1, arg2, cmpOp);
-			case 25: return condCmp(actor->spr.picnum, arg1, arg2, cmpOp);
+			case 25: return condCmp(legacyTileNum(actor->spr.spritetexture()), arg1, arg2, cmpOp);
 			case 26: return condCmp(actor->spr.pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((actor->spr.cstat & ESpriteFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (actor->spr.cstat & ESpriteFlags::FromInt(arg1));
@@ -7212,7 +7212,7 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSe
 		break;
 	case OBJ_SPRITE:
 		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-			objActor->spr.picnum = sourceactor->xspr.data1;
+			objActor->spr.setspritetexture(tileGetTextureID(sourceactor->xspr.data1));
 
 		if (sourceactor->xspr.data2 >= 0) objActor->spr.shade = (sourceactor->xspr.data2 > 127) ? 127 : sourceactor->xspr.data2;
 		else if (sourceactor->xspr.data2 < -1) objActor->spr.shade = (sourceactor->xspr.data2 < -127) ? -127 : sourceactor->xspr.data2;

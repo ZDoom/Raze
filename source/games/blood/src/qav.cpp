@@ -65,7 +65,7 @@ static void qavInitTileFinderMap()
 		return prevFrame->tiles[i].texid == thisFrame->tiles[i].texid ? &prevFrame->tiles[i] : nullptr;
 		});
 
-	// Interpolate between frames if the picnum is valid. This can be problematic if tile indices change between frames.
+	// Interpolate between frames if the tilenum is valid. This can be problematic if tile indices change between frames.
 	qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
 		return prevFrame->tiles[i].texid.isValid() ? &prevFrame->tiles[i] : nullptr;
 		});

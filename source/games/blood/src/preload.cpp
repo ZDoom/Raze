@@ -42,10 +42,10 @@ void gibPrecache();
 //
 //---------------------------------------------------------------------------
 
-void tilePrecacheTile(int nTile, int nType, int palette)
+void tilePrecacheTile(FTextureID nTex, int nType, int palette)
 {
-	auto nTex = tileGetTextureID(nTile);
 	int n = 1;
+	if (!nTex.isValid()) return;
 	switch (GetExtInfo(nTex).picanm.extra & 7)
 	{
 	case 0:
@@ -194,7 +194,7 @@ void PrecacheThing(DBloodActor* actor)
 		//case kThingObjectExplode: weird that only gib object is precached and this one is not
 		break;
 	}
-	tilePrecacheTile(actor->spr.picnum, -1, palette);
+	tilePrecacheTile(actor->spr.spritetexture(), -1, palette);
 }
 
 //---------------------------------------------------------------------------
@@ -222,7 +222,7 @@ void PreloadCache()
 			PrecacheThing(actor);
 			break;
 		default:
-			tilePrecacheTile(actor->spr.picnum, -1, actor->spr.pal);
+			tilePrecacheTile(actor->spr.spritetexture(), -1, actor->spr.pal);
 			break;
 		}
 	}
@@ -233,8 +233,8 @@ void PreloadCache()
 		seqPrecacheId(i, 0);
 	}
 
-	tilePrecacheTile(1147, -1, 0); // water drip
-	tilePrecacheTile(1160, -1, 0); // blood drip
+	tilePrecacheTile(aTexIds[kTexWATERDRIP], -1, 0); // water drip
+	tilePrecacheTile(aTexIds[kTexBLOODDRIP], -1, 0); // blood drip
 
 	// Player SEQs
 	seqPrecacheId(dudeInfo[31].seqStartID + 6, 0);

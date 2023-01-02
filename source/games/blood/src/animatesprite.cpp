@@ -720,7 +720,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				break;
 			case kDecorationTorch:
 				if (!owneractor->hasX() || owneractor->xspr.state == 1) {
-					pTSprite->picnum++;
+					pTSprite->setspritetexture(pTSprite->spritetexture() + 1);
 					viewAddEffect(tsprites, nTSprite, kViewEffectTorchHigh);
 				}
 				else {

@@ -111,7 +111,7 @@ void Seq::Precache(int palette)
 	if ((version & 0xff00) != 0x300)
 		I_Error("Obsolete sequence version");
 	for (int i = 0; i < nFrames; i++)
-		tilePrecacheTile(seqGetTile(&frames[i]), -1, palette);
+		tilePrecacheTile(seqGetTexture(&frames[i]), -1, palette);
 }
 
 void seqPrecacheId(int id, int palette)
@@ -252,7 +252,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 			|| (pFrame->scaley && pFrame->scaley != int(actor->spr.scale.Y * INV_REPEAT_SCALE)))
 			actor->spr.flags |= 4;
 	}
-	actor->spr.picnum = seqGetTile(pFrame);
+	actor->spr.setspritetexture(seqGetTexture(pFrame));
 	if (pFrame->palette)
 		actor->spr.pal = pFrame->palette;
 	actor->spr.shade = pFrame->shade;

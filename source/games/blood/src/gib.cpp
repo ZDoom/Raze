@@ -44,10 +44,11 @@ struct GIBFX
 struct GIBTHING
 {
 	int type;
-	int Kills;
+	int picno;
 	int chance;
 	int atc;
 	int at10;
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 struct GIBLIST
@@ -369,8 +370,8 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 		auto gibactor = actSpawnThing(pSector, gPos, pGThing->type);
 		if (!gibactor) return;
 
-		if (pGThing->Kills > -1)
-			gibactor->spr.picnum = pGThing->Kills;
+		if (pGThing->textureID().isValid())
+			gibactor->spr.setspritetexture(pGThing->textureID());
 		if (pVel)
 		{
 			gibactor->vel = *pVel + DVector3(Random2F(pGThing->atc, 4), Random2F(pGThing->atc, 4), -RandomF(pGThing->at10, 8));
@@ -521,8 +522,8 @@ void gibPrecache()
 		{
 			for (int j = 0; j < gibList[i].atc; j++)
 			{
-				if (pThing[j].Kills >= 0)
-					tilePrecacheTile(pThing[j].Kills, -1, 0);
+				if (pThing[j].textureID().isValid())
+					tilePrecacheTile(pThing[j].textureID(), -1, 0);
 			}
 		}
 	}

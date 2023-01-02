@@ -190,10 +190,11 @@ struct AMMOINFO
 
 struct POWERUPINFO
 {
-	int16_t picnum;
+	int16_t picno;
 	bool pickupOnce;
 	int bonusTime;
 	int maxTime;
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 void playerResetPosture(PLAYER* pPlayer);

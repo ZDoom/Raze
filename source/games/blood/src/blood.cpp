@@ -750,12 +750,12 @@ DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(pwup);
-	int tile = -1;
+	FTextureID tile = FNullTextureID();
 	if (pwup >= 0 && pwup < (int)countof(gPowerUpInfo))
 	{
-		tile = gPowerUpInfo[pwup].picnum;
+		tile = gPowerUpInfo[pwup].textureID();
 	}
-	FGameTexture* tex = tileGetTexture(tile);
+	FGameTexture* tex = TexMan.GetGameTexture(tile);
 	ACTION_RETURN_INT(tex ? tex->GetID().GetIndex() : -1);
 }
 

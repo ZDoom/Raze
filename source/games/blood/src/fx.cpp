@@ -39,12 +39,13 @@ struct FXDATA {
 	int32_t gravity;
 	int32_t drag; // air drag
 	int32_t defangle;
-	int16_t picnum;
+	int16_t picno;
 	uint8_t xrepeat;
 	uint8_t yrepeat;
 	ESpriteFlags cstat;
 	int8_t shade;
 	uint8_t pal;
+	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 FXDATA gFXData[] = {
@@ -166,7 +167,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 	auto actor = actSpawnSprite(pSector, pos, 1, 0);
 
 	actor->spr.type = nFx;
-	actor->spr.picnum = pFX->picnum;
+	actor->spr.setspritetexture(pFX->textureID());
 	actor->spr.cstat |= pFX->cstat;
 	actor->spr.shade = pFX->shade;
 	actor->spr.pal = pFX->pal;
@@ -370,7 +371,7 @@ void fxPrecache()
 {
 	for (int i = 0; i < kFXMax; i++)
 	{
-		tilePrecacheTile(gFXData[i].picnum, 0, 0);
+		tilePrecacheTile(gFXData[i].textureID(), 0, 0);
 		if (gFXData[i].seq)
 			seqPrecacheId(gFXData[i].seq, 0);
 	}
