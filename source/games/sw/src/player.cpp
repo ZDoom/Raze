@@ -2686,7 +2686,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->vect = (pp->vect + (pp->ovect*1))/2;
     }
 
-    if (abs(pp->vect.X) < 0.5 && abs(pp->vect.Y) < 0.5)
+    if (abs(pp->vect.X) < 0.04883 && abs(pp->vect.Y) < 0.04883)
         pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
