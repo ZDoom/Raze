@@ -784,7 +784,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
                         tsp->cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
-                    auto pos = DVector3(pp->si.XY(), tsp->pos.Z + pp->si.Z + pp->getViewHeightDiff());
+                    auto pos = pp->si.plusZ(tsp->pos.Z + pp->getViewHeightDiff());
 
                     if (pp->Flags & (PF_CLIMBING))
                     {
