@@ -86,22 +86,23 @@ static const int effectDetail[kViewEffectMax] = {
 struct WEAPONICON {
 	int16_t nTile;
 	uint8_t zOffset;
+	FTextureID textureID() const { return tileGetTextureID(nTile); }
 };
 
 static const WEAPONICON gWeaponIcon[] = {
 	{ -1, 0 },
 	{ -1, 0 }, // 1: pitchfork
-	{ 524, 6 }, // 2: flare gun
-	{ 559, 6 }, // 3: shotgun
-	{ 558, 8 }, // 4: tommy gun
-	{ 526, 6 }, // 5: napalm launcher
-	{ 589, 11 }, // 6: dynamite
-	{ 618, 11 }, // 7: spray can
-	{ 539, 6 }, // 8: tesla gun
-	{ 800, 0 }, // 9: life leech
-	{ 525, 11 }, // 10: voodoo doll
-	{ 811, 11 }, // 11: proxy bomb
-	{ 810, 11 }, // 12: remote bomb
+	{ kICONFLAREGUN, 6 }, // 2: flare gun
+	{ kICONSHOTGUN, 6 }, // 3: shotgun
+	{ kICONTOMMY, 8 }, // 4: tommy gun
+	{ kICONNAPALM, 6 }, // 5: napalm launcher
+	{ kAmmoIcon5, 11 }, // 6: dynamite
+	{ kAmmoIcon6, 11 }, // 7: spray can
+	{ kICONTESLA, 6 }, // 8: tesla gun
+	{ kICONLEECH, 0 }, // 9: life leech
+	{ kAmmoIcon9, 11 }, // 10: voodoo doll
+	{ kAmmoIcon10, 11 }, // 11: proxy bomb
+	{ kAmmoIcon11, 11 }, // 12: remote bomb
 	{ -1, 0 },
 };
 
@@ -133,7 +134,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite2)
 			break;
 
-		pNSprite2->picnum = 2203;
+		pNSprite2->setspritetexture(aTexIds[kTexSPOTPROGRESS]);
 		pNSprite2->scale = DVector2(width * REPEAT_SCALE, 0.3125);
 
 		pNSprite2->pal = 10;
@@ -466,17 +467,17 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		assert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
 		PLAYER* pPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
 		WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
-		auto& nTile = weaponIcon.nTile;
-		if (nTile < 0) break;
+		auto nTex = weaponIcon.textureID();
+		if (!nTex.isValid()) break;
 		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
 
 		pNSprite->pos = pTSprite->pos.plusZ(-32 - weaponIcon.zOffset);
-		pNSprite->picnum = nTile;
+		pNSprite->setspritetexture(nTex);
 		pNSprite->shade = pTSprite->shade;
 		pNSprite->scale = DVector2(0.5, 0.5);
-		int nVoxel = GetExtInfo(tileGetTextureID(nTile)).tiletovox;
+		int nVoxel = GetExtInfo(nTex).tiletovox;
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
 			auto gView = &gPlayer[gViewIndex];
@@ -674,11 +675,12 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		nShade += GetExtInfo(pTSprite->spritetexture()).tileshade;
 		pTSprite->shade = ClipRange(nShade, -128, 127);
+#if 0 // This was disabled because it seemingly cannot be activated (see comment below) and the sprites being used here are part of something else.
 		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.intowner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
 		{
 			pTSprite->scale = DVector2(0.75, 0.75);
 			pTSprite->shade = -128;
-			pTSprite->picnum = 2272 + 2 * owneractor->xspr.respawnPending;
+			pTSprite->p icnum = 2272 + 2 * owneractor->xspr.respawnPending;
 			pTSprite->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP);
 			if (((IsItemSprite(pTSprite) || IsAmmoSprite(pTSprite)) && gGameOptions.nItemSettings == 2)
 				|| (IsWeaponSprite(pTSprite) && gGameOptions.nWeaponSettings == 3))
@@ -690,6 +692,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				pTSprite->scale = DVector2(0, 0);
 			}
 		}
+#endif
 		if (owneractor->hasX() && owneractor->xspr.burnTime > 0)
 		{
 			pTSprite->shade = ClipRange(pTSprite->shade - 16 - QRandom(8), -128, 127);

@@ -103,12 +103,6 @@ const GENDUDESND gCustomDudeSnd[] = {
 	{ 9008, 0, 17, false, false },      // transforming in other dude
 };
 
-// for kModernThingThrowableRock
-const int16_t gCustomDudeDebrisPics[6] = {
-
-	2406, 2280, 2185, 2155, 2620, 3135
-
-};
 
 //---------------------------------------------------------------------------
 //
@@ -344,7 +338,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	case kModernThingThrowableRock:
 	{
 		double s = 0.375 + Random(42) * REPEAT_SCALE;
-		spawned->spr.picnum = gCustomDudeDebrisPics[Random(5)];
+		spawned->spr.setspritetexture(aTexIds[kTexROCKDEBRIS1 + Random(5)]);
 		spawned->spr.scale = DVector2(s, s);
 		spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
 		spawned->spr.pal = 5;
