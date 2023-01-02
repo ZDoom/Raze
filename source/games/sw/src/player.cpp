@@ -166,7 +166,7 @@ void DoPlayerDeathExplode(PLAYER* pp);
 void DoPlayerDeathFall(PLAYER* pp);
 
 void PlayerCheckValidMove(PLAYER* pp);
-void PlayerWarpUpdatePos(PLAYER* pp);
+void PlayerWarpUpdatePos(PLAYER* pp, const DVector3& oldpos);
 void DoPlayerBeginDiveNoWarp(PLAYER* pp);
 int PlayerCanDiveNoWarp(PLAYER* pp);
 void DoPlayerCurrent(PLAYER* pp);
@@ -2140,12 +2140,15 @@ void DoPlayerMove(PLAYER* pp)
     }
 
     // check for warp - probably can remove from CeilingHit
+    const auto oldpos = actor->spr.pos;
     if (WarpPlane(actor->spr.pos, &pp->cursector, actor->getOffsetZ()))
     {
-        PlayerWarpUpdatePos(pp);
+        PlayerWarpUpdatePos(pp, oldpos);
     }
-
-    DoPlayerZrange(pp);
+    else
+    {
+        DoPlayerZrange(pp);
+    }
 
     //PlayerSectorBound(pp, 1);
 
@@ -3405,9 +3408,10 @@ void DoPlayerClimb(PLAYER* pp)
         LadderUpdate = true;
     }
 
+    const auto oldpos = pp->actor->spr.pos;
     if (WarpPlane(pp->actor->spr.pos, &pp->cursector, pp->actor->getOffsetZ()))
     {
-        PlayerWarpUpdatePos(pp);
+        PlayerWarpUpdatePos(pp, oldpos);
         LadderUpdate = true;
     }
 
@@ -3655,12 +3659,12 @@ void DoPlayerBeginFly(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerWarpUpdatePos(PLAYER* pp)
+void PlayerWarpUpdatePos(PLAYER* pp, const DVector3& oldpos)
 {
     if (Prediction)
         return;
 
-    pp->actor->backuppos();
+    pp->actor->opos += pp->actor->spr.pos - oldpos;
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
