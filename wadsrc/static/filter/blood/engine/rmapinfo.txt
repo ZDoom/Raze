@@ -19,4 +19,18 @@ gameinfo
 	summaryscreen = BloodCutscenes.BuildSPSummary
 	mpsummaryscreen = BloodCutscenes.BuildMPSummary
 	statusbarclass = BloodStatusBar
+	precachetextures = "Armorbox", "Statusbar", "FullHUD", "BlinkIcon", "Armor1Gauge", "Armor2Gauge", "Armor3Gauge", "SBPlayerSlot", "ThrowGauge", "PackSelect", "Healthicon", "Armor1Icon", "Armor2Icon", "Armor3Icon",
+		"SBarHealthAmount0", "SBarHealthAmount1", "SBarHealthAmount2", "SBarHealthAmount3", "SBarHealthAmount4", "SBarHealthAmount5", "SBarHealthAmount6", "SBarHealthAmount7", "SBarHealthAmount8", "SBarHealthAmount9",
+		"SBarAmmoAmount0", "SBarAmmoAmount1", "SBarAmmoAmount2", "SBarAmmoAmount3", "SBarAmmoAmount4", "SBarAmmoAmount5", "SBarAmmoAmount6", "SBarAmmoAmount7", "SBarAmmoAmount8", "SBarAmmoAmount9",
+		"SBarWaponNum0", "SBarWaponNum1", "SBarWaponNum2", "SBarWaponNum3", "SBarWaponNum4", "SBarWaponNum5", "SBarWaponNum6", "SBarWaponNum7", "SBarWaponNum8", "SBarWaponNum9",
+		"SBarPackAmount0", "SBarPackAmount1", "SBarPackAmount2", "SBarPackAmount3", "SBarPackAmount4", "SBarPackAmount5", "SBarPackAmount6", "SBarPackAmount7", "SBarPackAmount8", "SBarPackAmount9",
+		"SBarNumberHealth0", "SBarNumberHealth1", "SBarNumberHealth2", "SBarNumberHealth3", "SBarNumberHealth4", "SBarNumberHealth5", "SBarNumberHealth6", "SBarNumberHealth7", "SBarNumberHealth8", "SBarNumberHealth9",
+		"SBarNumberAmmo0", "SBarNumberAmmo1", "SBarNumberAmmo2", "SBarNumberAmmo3", "SBarNumberAmmo4", "SBarNumberAmmo5", "SBarNumberAmmo6", "SBarNumberAmmo7", "SBarNumberAmmo8", "SBarNumberAmmo9",
+		"SBarNumberInv0", "SBarNumberInv1", "SBarNumberInv2", "SBarNumberInv3", "SBarNumberInv4", "SBarNumberInv5", "SBarNumberInv6", "SBarNumberInv7", "SBarNumberInv8", "SBarNumberInv9",
+		"SBarNumberArmor1_0", "SBarNumberArmor1_1", "SBarNumberArmor1_2", "SBarNumberArmor1_3", "SBarNumberArmor1_4", "SBarNumberArmor1_5", "SBarNumberArmor1_6", "SBarNumberArmor1_7", "SBarNumberArmor1_8", "SBarNumberArmor1_9",
+		"SBarNumberArmor2_0", "SBarNumberArmor2_1", "SBarNumberArmor2_2", "SBarNumberArmor2_3", "SBarNumberArmor2_4", "SBarNumberArmor2_5", "SBarNumberArmor2_6", "SBarNumberArmor2_7", "SBarNumberArmor2_8", "SBarNumberArmor2_9",
+		"SBarNumberArmor3_0", "SBarNumberArmor3_1", "SBarNumberArmor3_2", "SBarNumberArmor3_3", "SBarNumberArmor3_4", "SBarNumberArmor3_5", "SBarNumberArmor3_6", "SBarNumberArmor3_7", "SBarNumberArmor3_8", "SBarNumberArmor3_9",
+		"KeyIcon1", "KeyIcon2", "KeyIcon3", "KeyIcon4", "KeyIcon5", "KeyIcon6", 
+		"HudKeyIcon1", "HudKeyIcon2", "HudKeyIcon3", "HudKeyIcon4", "HudKeyIcon5", "HudKeyIcon6"
+	
 }
