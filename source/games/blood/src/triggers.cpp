@@ -49,7 +49,7 @@ double GetWaveValue(unsigned int nPhase, int nType)
 	case 2:
 		return 1.0 - BobVal((nPhase / 128.) + 512);
 	case 3:
-		return (1. +  BobVal(-512. + (nPhase / 64.))) * 0.5;
+		return !VanillaMode() ? (1. + BobVal(-512. + (nPhase / 64.))) * 0.5 : BobVal(nPhase / 128.);
 	}
 	return nPhase;
 }
