@@ -43,13 +43,13 @@ double GetWaveValue(unsigned int nPhase, int nType)
 	switch (nType)
 	{
 	case 0:
-		return 0.5 - 0.5 * BobVal(int((nPhase >> 6) + 512));
+		return 0.5 - 0.5 * BobVal((nPhase / 64.) + 512);
 	case 1:
 		return FixedToFloat(nPhase);
 	case 2:
-		return 1.0 - BobVal(int((nPhase >> 7) + 512));
+		return 1.0 - BobVal((nPhase / 128.) + 512);
 	case 3:
-		return BobVal(int(nPhase >> 7));
+		return BobVal(nPhase / 128.);
 	}
 	return nPhase;
 }
