@@ -193,7 +193,7 @@ enum
 
 struct TILE_FRAME
 {
-	int picnum;
+	FTextureID texid;
 	int x;
 	int y;
 	int z;
