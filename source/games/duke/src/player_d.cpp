@@ -701,6 +701,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, DVector2(0.21875, 0.21875), ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
+	CallInitialize(spawned);
 
 	if (p >= 0)
 	{
