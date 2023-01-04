@@ -90,7 +90,7 @@ grpinfo
 	size 44356548
 	crc DukeWorldTour_CRC
 	flags GAMEFLAG_DUKE
-	gamefilter "Duke.Duke.15"
+	gamefilter "Duke.WorldTour"
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
@@ -103,7 +103,7 @@ grpinfo // another variant? I got this one, dated 2016-10-12
 	size 44486702
 	crc 0x89792E05
 	flags GAMEFLAG_DUKE
-	gamefilter "Duke.Duke.15"
+	gamefilter "Duke.WorldTour"
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
