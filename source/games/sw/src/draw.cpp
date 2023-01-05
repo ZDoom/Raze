@@ -1438,7 +1438,8 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     {
         if (p == screenpeek)
         {
-            auto actor = Player[p].actor;
+            auto pp = &Player[p];
+            auto actor = pp->actor;
             if (actor->vel.X > 1) pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
             sprisplayer = true;
 
@@ -1457,7 +1458,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -((!SyncInput() ? actor->spr.Angles.Yaw : actor->interpolatedyaw(interpfrac)) - cang).Normalized360().Degrees();
+                    const auto daang = -(pp->Angles.RenderAngles.Yaw - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.
