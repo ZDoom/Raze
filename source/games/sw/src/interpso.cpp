@@ -141,10 +141,12 @@ static void setvalue(so_interp::interp_data& element, double value)
         wall[index].moved();
         break;
     case soi_ceil:
-        sector[index].setceilingz((int)value);
+        if (!(sector[index].interpolate & 2)) 
+            sector[index].setceilingz((int)value);
         break;
     case soi_floor:
-        sector[index].setfloorz((int)value);
+        if (!(sector[index].interpolate & 1))
+            sector[index].setfloorz((int)value);
         break;
     case soi_sox:
         SectorObject[index].pmid.X = (int)value;

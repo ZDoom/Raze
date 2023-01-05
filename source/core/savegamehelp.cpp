@@ -552,7 +552,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 				("damage", c.damage, def->damage)
 				("number", c.number, def->number)
 				("u_defined", c.u_defined, def->u_defined)
-				("flags2", c.flags2, def->flags2);
+				("flags2", c.flags2, def->flags2)
+				("interpolate", c.interpolate, def->interpolate);
 		}
 
 		arc.EndObject();

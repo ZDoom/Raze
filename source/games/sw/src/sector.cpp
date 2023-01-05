@@ -472,24 +472,30 @@ void SectorSetup(void)
 
             // set the first on up
             swf = &SineWaveFloor[NextSineWave][swf_ndx];
-            if (tag != TAG_SINE_WAVE_CEILING) StartInterpolation(sectp, Interp_Sect_Floorz);
-            if (tag != TAG_SINE_WAVE_FLOOR) StartInterpolation(sectp, Interp_Sect_Ceilingz);
 
             swf->flags = 0;
 
             switch (num)
             {
             case 0:
+                StartInterpolation(sectp, Interp_Sect_Floorz);
+                sectp->interpolate |= 1;
                 swf->flags |= (SINE_FLOOR);
                 if ((sectp->floorstat & CSTAT_SECTOR_SLOPE))
                 {
+                    StartInterpolation(sectp, Interp_Sect_Floorheinum);
                     swf->flags |= (SINE_SLOPED);
                 }
                 break;
             case 1:
+                StartInterpolation(sectp, Interp_Sect_Ceilingz);
+                sectp->interpolate |= 2;
                 swf->flags |= (SINE_CEILING);
                 break;
             case 2:
+                StartInterpolation(sectp, Interp_Sect_Floorz);
+                StartInterpolation(sectp, Interp_Sect_Ceilingz);
+                sectp->interpolate |= 3;
                 swf->flags |= (SINE_FLOOR | SINE_CEILING);
                 break;
             }
@@ -2345,6 +2351,7 @@ void DoSineWaveFloor(void)
     int wave;
     int flags;
 
+    Printf("---------------------------\n");
     for (wave = 0; wave < MAX_SINE_WAVE; wave++)
     {
         for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sectp != nullptr && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
@@ -2355,6 +2362,7 @@ void DoSineWaveFloor(void)
             if ((flags & SINE_FLOOR))
             {
                 newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
+                Printf("sector %d: orig = %2.5f, range = %2.5f, new = %2.5f, index = %d\n", int(swf->sectp - sector.Data()), swf->floorOrigz, swf->Range, newz, swf->sintable_ndx);
                 swf->sectp->setfloorz(newz);
             }
 
