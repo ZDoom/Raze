@@ -427,8 +427,8 @@ void CallInitialize(DDukeActor* actor)
 {
 	IFVIRTUALPTR(actor, DDukeActor, Initialize)
 	{
-		VMValue val[2] = { actor };
-		VMCall(func, val, 1, nullptr, 0);
+		VMValue val = actor;
+		VMCall(func, &val, 1, nullptr, 0);
 	}
 }
 
