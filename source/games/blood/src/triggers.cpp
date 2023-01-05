@@ -49,7 +49,7 @@ double GetWaveValue(unsigned int nPhase, int nType)
 	case 2:
 		return 1.0 - BobVal((nPhase / 128.) + 512);
 	case 3:
-		return !VanillaMode() ? (1. + BobVal(-512. + (nPhase / 64.))) * 0.5 : BobVal(nPhase / 128.);
+		return BobVal(nPhase / 128.);
 	}
 	return nPhase;
 }
@@ -1328,12 +1328,8 @@ int VDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			}
 		}
 	}
-	int nWave;
-	if (pXSector->busy < a2)
-		nWave = pXSector->busyWaveA;
-	else
-		nWave = pXSector->busyWaveB;
-	ZTranslateSector(pSector, pXSector, a2, nWave);
+	const int nWave = (pXSector->busy < a2) ? pXSector->busyWaveA : pXSector->busyWaveB;
+	ZTranslateSector(pSector, pXSector, a2, (!VanillaMode() && nWave == 3) ? 0 : nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
 		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
