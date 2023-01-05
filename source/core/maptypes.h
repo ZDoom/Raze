@@ -407,6 +407,7 @@ struct sectortype
 			short number;  // usually used for matching number
 			bool u_defined;
 			uint8_t flags2;
+			uint8_t interpolate; // this one is valid even without u_defined.
 		};
 
 	};
