@@ -136,7 +136,7 @@ cycle_t thinktime, actortime, gameupdatetime, drawtime;
 gameaction_t gameaction = ga_nothing;
 // gameaction state
 MapRecord* g_nextmap;
-int g_nextskill;
+int g_nextskill = -1;
 int g_bossexit;
 
 
