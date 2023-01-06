@@ -6459,7 +6459,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 
 	spawned->spr.scale = DVector2(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
 	spawned->spr.picnum = pMissileInfo->picnum;
-	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw += mapangle(pMissileInfo->angleOfs);
+	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw + mapangle(pMissileInfo->angleOfs);
 	spawned->vel = dv * pMissileInfo->fVelocity();
 	spawned->SetOwner(actor);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
