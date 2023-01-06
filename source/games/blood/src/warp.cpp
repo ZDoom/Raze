@@ -211,12 +211,13 @@ int CheckLink(DBloodActor* actor)
 			assert(aLower);
 			assert(aLower->insector());
 			ChangeActorSect(actor, aLower->sector());
+			actor->spr.pos.XY() += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
 			double z2;
 			if (aLower->spr.type == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
 			else
 				z2 = getceilzofslopeptr(actor->sector(), actor->spr.pos);
-			actor->spr.pos += DVector3(aLower->spr.pos.XY() - aUpper->spr.pos.XY(), z2 - z);
+			actor->spr.pos.Z += z2 - z;
 			actor->interpolated = false;
 			return aUpper->spr.type;
 		}
@@ -234,12 +235,13 @@ int CheckLink(DBloodActor* actor)
 			assert(aUpper);
 			assert(aUpper->insector());
 			ChangeActorSect(actor, aUpper->sector());
+			actor->spr.pos.XY() += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
 			double z2;
 			if (aUpper->spr.type == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;
 			else
 				z2 = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-			actor->spr.pos += DVector3(aUpper->spr.pos.XY() - aLower->spr.pos.XY(), z2 - z);
+			actor->spr.pos.Z += z2 - z;
 			actor->interpolated = false;
 			return aLower->spr.type;
 		}
