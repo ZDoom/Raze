@@ -4224,17 +4224,17 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 			if (ticselapsed < 2)
 			{
-				if (angdif < DAngle45)
+				if (abs(angdif) < DAngle45)
 				{
-					DAngle add = DAngle22_5 * ((krand() & 256)? 1 : -1);
+					DAngle add = DAngle22_5 - randomAngle(DAngle45);
 					actor->spr.angle += add;
-					if (hits(actor) < 51.25)
+					if (hits(actor) < 52.75)
 						actor->spr.angle -= add;
 				}
 			}
 			else if (ticselapsed > 18 && ticselapsed < 26) // choose
 			{
-				if (angdif < DAngle90) actor->spr.angle = goalang;
+				if (abs(angdif) < DAngle90) actor->spr.angle = goalang;
 				else actor->spr.angle += angdif * 0.25;
 			}
 		}
