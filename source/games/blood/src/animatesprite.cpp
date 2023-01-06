@@ -481,7 +481,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
 			auto gView = &gPlayer[gViewIndex];
-			pNSprite->Angles.Yaw = gView->actor->spr.Angles.Yaw += DAngle90; // always face viewer
+			pNSprite->Angles.Yaw = gView->actor->spr.Angles.Yaw + DAngle90; // always face viewer
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
