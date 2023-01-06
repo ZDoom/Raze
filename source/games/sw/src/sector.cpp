@@ -2569,7 +2569,6 @@ void DoSineWaveFloor(void)
     int wave;
     int flags;
 
-    Printf("---------------------------\n");
     for (wave = 0; wave < MAX_SINE_WAVE; wave++)
     {
         for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sectp != nullptr && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
@@ -2580,7 +2579,6 @@ void DoSineWaveFloor(void)
             if ((flags & SINE_FLOOR))
             {
                 double newz = swf->floorOrigz + swf->Range * BobVal(swf->sintable_ndx);
-                Printf("sector %d: orig = %2.5f, range = %2.5f, new = %2.5f, index = %d\n", int(swf->sectp - sector.Data()), swf->floorOrigz, swf->Range, newz, swf->sintable_ndx);
                 swf->sectp->setfloorz(newz);
             }
 
