@@ -423,7 +423,7 @@ void hud_input(int plnum)
 						{
 							p->inven_icon = 4;
 
-							S_StopSound(-1, pact, CHAN_VOICE);	// this will stop the falling scream
+							S_StopSound(DUKE_SCREAM, pact);	// this will stop the falling scream
 							S_PlayActorSound(DUKE_JETPACK_ON, pact);
 							FTA(QUOTE_JETPACK_ON, p);
 						}
