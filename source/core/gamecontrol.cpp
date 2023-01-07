@@ -98,6 +98,7 @@ CVARD(Bool, hud_textfont, false, CVAR_ARCHIVE, "Use the regular text font as rep
 
 EXTERN_CVAR(Bool, ui_generic)
 EXTERN_CVAR(String, language)
+EXTERN_CVAR(Bool, i_pauseinbackground)
 
 CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 {
@@ -1187,7 +1188,10 @@ void updatePauseStatus()
 	// This must go through the network in multiplayer games.
 	if (M_Active() || System_WantGuiCapture() || !AppActive)
 	{
-		paused = 1;
+		if (i_pauseinbackground)
+			paused = 1;
+		else if (!pausedWithKey)
+			paused = 0;
 	}
 	else if (!M_Active() || !System_WantGuiCapture())
 	{
