@@ -8287,7 +8287,7 @@ void WallBounce(DSWActor* actor, DAngle ang)
 bool SlopeBounce(DSWActor* actor, bool* hit_wall)
 {
     double hiz, loz;
-    int slope;
+    double slope;
 
     auto hit_sector = actor->user.coll.hitSector;
 
@@ -8299,48 +8299,34 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
         if (!(hit_sector->ceilingstat & CSTAT_SECTOR_SLOPE))
             slope = 0;
         else
-            slope = hit_sector->ceilingheinum;
+            slope = hit_sector->ceilingheinum / SLOPEVAL_FACTOR;
     }
     else
     {
         if (!(hit_sector->floorstat & CSTAT_SECTOR_SLOPE))
             slope = 0;
         else
-            slope = hit_sector->floorheinum;
+            slope = hit_sector->floorheinum / SLOPEVAL_FACTOR;
     }
 
     if (!slope)
         return false;
 
     // if greater than a 45 degree angle
-    if (abs(slope) > SLOPEVAL_FACTOR)
-        *hit_wall = true;
-    else
-        *hit_wall = false;
+    *hit_wall = (abs(slope) > 1);
 
     // get angle of the first wall of the sector
     auto wallp = hit_sector->walls.Data();
-    DAngle daang = wallp->delta().Angle();
+    auto angle = wallp->delta().Angle();
 
     // k is now the slope of the ceiling or floor
 
     // normal vector of the slope
-    double dax = slope * daang.Sin();
-    double day = slope * -daang.Cos();
-    double daz = 256; // 4096/256 = 45 degrees
+    DVector3 normal(slope * angle.Sin(), slope * -angle.Cos(), 1);
 
     // reflection code
-    double k = actor->user.change.X * dax + actor->user.change.Y * day + actor->user.change.Z * daz;
-    double l = (dax * dax) + (day * day) + (daz * daz);
-
-    k /= l;
-
-    actor->user.change.X = dax * k;
-    actor->user.change.Y = day * k;
-    actor->user.change.Z = daz * k * 16;
-
-    SetAngleFromChange(actor);
-
+    double k = actor->user.change.dot(normal) / normal.LengthSquared();
+    actor->user.change -= k * normal;
     return true;
 }
 
