@@ -294,6 +294,7 @@ enum EFxType
 	EFX_Super,
 	EFX_StackVariable,
 	EFX_MultiAssign,
+	EFX_MultiAssignDecl,
 	EFX_StaticArray,
 	EFX_StaticArrayVariable,
 	EFX_CVar,
@@ -902,6 +903,17 @@ public:
 	~FxMultiAssign();
 	FxExpression *Resolve(FCompileContext&);
 	ExpEmit Emit(VMFunctionBuilder *build);
+};
+
+class FxMultiAssignDecl : public FxExpression
+{
+	FArgumentList Base;
+	FxExpression *Right;
+public:
+	FxMultiAssignDecl(FArgumentList &base, FxExpression *right, const FScriptPosition &pos);
+	~FxMultiAssignDecl();
+	FxExpression *Resolve(FCompileContext&);
+	//ExpEmit Emit(VMFunctionBuilder *build); This node is transformed into Declarations + FxMultiAssign , so it won't ever be emitted itself
 };
 
 //==========================================================================
