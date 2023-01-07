@@ -100,9 +100,9 @@ int FTileTexture::CopyPixels(FBitmap* bmp, int conversion)
 	return 0;
 }
 
-TArray<uint8_t> FTileTexture::CreatePalettedPixels(int conversion)
+PalettedPixels FTileTexture::CreatePalettedPixels(int conversion)
 {
-	TArray<uint8_t> buffer(Width * Height, true);
+	PalettedPixels buffer(Width * Height);
 	auto p = GetRawData();
 	if (p) memcpy(buffer.Data(), p, buffer.Size());
 	else memset(buffer.Data(), 0, buffer.Size());

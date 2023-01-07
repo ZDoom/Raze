@@ -90,7 +90,7 @@ public:
 		bTranslucent = false;
 	}
 	virtual uint8_t* GetRawData() = 0;
-	virtual TArray<uint8_t> CreatePalettedPixels(int conversion);
+	PalettedPixels CreatePalettedPixels(int conversion);
 	virtual int CopyPixels(FBitmap* bmp, int conversion);			// This will always ignore 'luminance'.
 };
 
