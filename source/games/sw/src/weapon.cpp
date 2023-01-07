@@ -8327,6 +8327,7 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
     // reflection code
     double k = actor->user.change.dot(normal) / normal.LengthSquared();
     actor->user.change -= k * normal;
+    SetAngleFromChange(actor);
     return true;
 }
 
