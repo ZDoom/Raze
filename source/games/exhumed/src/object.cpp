@@ -662,7 +662,7 @@ void MoveSectorSprites(sectortype* pSector, double z)
     while (auto pActor = it.Next())
     {
         double actz = pActor->spr.pos.Z;
-        if ((pActor->spr.statnum != 200 && actz >= minz && actz <= maxz) || pActor->spr.statnum >= 900)
+        if ((pActor->spr.statnum != 200 && actz > minz - zmaptoworld && actz < maxz + zmaptoworld) || pActor->spr.statnum >= 900)
         {
 			pActor->spr.pos.Z = newz;
         }
