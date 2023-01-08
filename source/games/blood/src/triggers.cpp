@@ -485,7 +485,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		{
 			auto spawned = actSpawnDude(actor, actor->xspr.data1, -1);
 			if (spawned) {
-				gKillMgr.AddKill(spawned);
+				gKillMgr.AddKillCount(spawned);
 				switch (actor->xspr.data1) {
 				case kDudeBurningInnocent:
 				case kDudeBurningCultist:
