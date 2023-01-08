@@ -9,15 +9,13 @@ class RedneckGamblingMachine : DukeActor
 		extra 0;
 		spriteset "GAMBLINGMACHINE2", "GAMBLINGMACHINE3", "GAMBLINGMACHINE4", "GAMBLINGMACHINE5", "GAMBLINGMACHINE6", "GAMBLINGMACHINE7", "GAMBLINGMACHINE8", "GAMBLINGMACHINEBROKE";
 		spritesetindex 3;
-	}
-	
-	Sound winsound;
-	
-	override void Initialize()
-	{
-		winsound = "COW3";
-	}
+		RedneckGamblingMachine.winsound "COW3";
 
+	}
+	
+	meta Sound winsound;
+	property winsound: winsound;
+	
 	override void Tick()
 	{
 		int spriteindex;
@@ -123,10 +121,6 @@ class RedneckGamblingMachine2 : RedneckGamblingMachine
 	default
 	{
 		spriteset "GAMBLINGMACHINE2_2", "GAMBLINGMACHINE2_3", "GAMBLINGMACHINE2_4", "GAMBLINGMACHINE2_5", "GAMBLINGMACHINE2_6", "GAMBLINGMACHINE2_7", "GAMBLINGMACHINE2_8", "GAMBLINGMACHINE2_BROKE";
-	}
-	
-	override void Initialize()
-	{
-		winsound = "VX_TPIN2";
+		RedneckGamblingMachine.winsound "VX_TPIN2";
 	}
 }
