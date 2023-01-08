@@ -3,7 +3,7 @@ class RedneckBowlingPin : DukeActor
 	default
 	{
 		RedneckBowlingPin.Behavior 0;
-		spriteset "BOWLINGPIN", "BOWLINGPIN1";
+		spriteset "BOWLINGPIN", "BOWLINGPIN1", "BOWLINGPIN2";
 	}
 
 	meta int behavior;
@@ -65,12 +65,17 @@ class RedneckBowlingPin : DukeActor
 			}
 			if (type < 2 && self.vel.X == 0)
 			{
+				if (type == 0 && self.spritesetindex == 1) self.setSpritesetImage(2);
 				return;
 			}
 		}
 		else if (self.sector.lotag == 900 && type != 2)
 		{
 			self.Destroy();
+		}
+		else
+		{
+			if (type == 0 && self.spritesetindex == 1) self.setSpritesetImage(2);
 		}
 	}
 	
