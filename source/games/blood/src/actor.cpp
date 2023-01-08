@@ -6424,8 +6424,6 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 
 DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dv, int nType)
 {
-	// this function expects a vector with unit length in XY. Let's not depend on all callers doing it.
-	dv /= dv.XY().Length();
 	assert(nType >= kMissileBase && nType < kMissileMax);
 	bool impact = false;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
@@ -6460,7 +6458,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	spawned->spr.scale = DVector2(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
 	spawned->spr.picnum = pMissileInfo->picnum;
 	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw + mapangle(pMissileInfo->angleOfs);
-	spawned->vel = dv * pMissileInfo->fVelocity();
+	spawned->vel = dv.Unit() * pMissileInfo->fVelocity();
 	spawned->SetOwner(actor);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
 	spawned->SetTarget(nullptr);

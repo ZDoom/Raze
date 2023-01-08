@@ -1020,7 +1020,7 @@ OptionMenu GameplayOptions protected
 		Option "$ENEMY_BEHAVIOR", "cl_bloodvanillaenemies", "EnemyBehavior"
 	}
 	StaticText ""
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, Blood, ShadowWarrior)
 	{
 		Option "$PLRMNU_FULLVIEWPITCH", "cl_clampedpitch", "OffOn"
 	}
