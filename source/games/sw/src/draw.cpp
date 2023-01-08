@@ -312,13 +312,10 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 		scale = tsp->scale;
     }
 
-    loz = ownerActor->user.loz;
-    if (ownerActor->user.lowActor)
+    loz = DoShadowFindGroundPoint(tsp);
+    if (ownerActor->user.lowActor && (ownerActor->user.lowActor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR)))
     {
-        if (!(ownerActor->user.lowActor->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR)))
-        {
-            loz = DoShadowFindGroundPoint(tsp);
-        }
+        loz = ownerActor->user.loz;
     }
 
     // need to find the ground here
