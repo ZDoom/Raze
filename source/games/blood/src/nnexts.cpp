@@ -316,7 +316,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 
 	aiInitSprite(pDudeActor);
 
-	gKillMgr.AddKill(pDudeActor);
+	gKillMgr.AddKillCount(pDudeActor);
 
 	bool burning = IsBurningDude(pDudeActor);
 	if (burning) {
