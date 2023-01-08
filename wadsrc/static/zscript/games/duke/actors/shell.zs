@@ -32,6 +32,7 @@ class DukeShell : DukeActor
 			}
 
 			self.pos.XY = Owner.pos.XY + ang.ToVector() * 8;
+			self.opos = self.pos;
 
 			if (direction > 0)
 			{
