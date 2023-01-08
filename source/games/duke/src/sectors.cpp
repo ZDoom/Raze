@@ -1650,7 +1650,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			break;
 
 		case SwitchDef::Access:
-			if (!fi.checkaccessswitch(snum, switchpal, act, wwal))
+			if (fi.checkaccessswitch(snum, switchpal, act, wwal))
 				return 0;
 			[[fallthrough]];
 
