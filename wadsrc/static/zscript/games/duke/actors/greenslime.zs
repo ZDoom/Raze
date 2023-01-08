@@ -3,15 +3,15 @@ class DukeGreenSlime : DukeActor
 	default
 	{
 		spriteset "GREENSLIME", "GREENSLIME1", "GREENSLIME2", "GREENSLIME3", "GREENSLIME4", "GREENSLIME5", "GREENSLIME6", "GREENSLIME7";
-		scaleX 0.625;
-		scaleY 0.625;
-		clipdist 20;
-		extra 1;
 	}
 
 	override void Initialize()
 	{
 		commonEnemySetup();
+		self.scale = (0.625, 0.625);
+		self.clipdist = 20;
+		self.extra = 1;
+
 	}
 
 	override void PlayFTASound()

@@ -247,9 +247,6 @@ class RedneckUFO1 : DukeRecon
 	default
 	{
 		Pic "UFO1_RR";
-		ScaleX 0.5;
-		ScaleY 0.5;
-		Extra 50;
 	}
 	
 	override void Initialize()
@@ -259,6 +256,9 @@ class RedneckUFO1 : DukeRecon
 		RoamSnd = "UFOLET";
 		shift =	1;
 		SpawnType = "RedneckHen";
+		self.Scale = (0.5, 0.5);
+		self.Extra = 50;
+
 		self.setClipDistFromTile();
 	}
 

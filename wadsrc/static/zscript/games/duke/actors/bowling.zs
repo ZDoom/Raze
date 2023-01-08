@@ -2,9 +2,12 @@ class RedneckBowlingPin : DukeActor
 {
 	default
 	{
-		detail 0;
+		RedneckBowlingPin.Behavior 0;
 		spriteset "BOWLINGPIN", "BOWLINGPIN1";
 	}
+
+	meta int behavior;
+	property behavior: behavior;
 	
 	override void Initialize()
 	{
@@ -83,14 +86,14 @@ class RedneckBowlingPin : DukeActor
 		let targ = RedneckBowlingPin(targa);
 		if (!targ) return;
 		
-		if (targ.detail == 0)
+		if (targ.behavior == 0)
 		{
 			self.vel.X *= 0.75;
 			self.angle -= targ.angle * 2 + frandom(0, 11.25);
 			targ.angle += frandom(0, 22.5 / 8);
 			targ.PlayActorSound("BOWLPIN");
 		}
-		else if (targ.detail == 1)
+		else if (targ.behavior == 1)
 		{
 			self.vel.X *= 0.75;
 			self.angle -= targ.angle * 2 + frandom(0, 22.5 / 8);
@@ -115,7 +118,7 @@ class RedneckHenstand : RedneckBowlingPin
 	default
 	{
 		spriteset "HENSTAND", "HENSTAND1";
-		detail 1;
+		RedneckBowlingPin.Behavior 1;
 	}
 	
 	override void Initialize()
@@ -144,7 +147,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 	default
 	{
 		pic "BOWLINGBALL";
-		detail 2;
+		RedneckBowlingPin.Behavior 2;
 	}
 	
 	override void Initialize()

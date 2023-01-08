@@ -3,8 +3,11 @@ class DukeMortar : DukeActor
 	default
 	{
 		pic "MORTAR";
-		detail 3;
+		DukeMortar.ceilingdist 3;
 	}
+
+	meta int ceilingdist;
+	property ceilingdist: ceilingdist;
 	
 	override void Tick()
 	{
@@ -61,9 +64,9 @@ class DukeMortar : DukeActor
 					self.vel.Z *= 0.25;
 				self.yint++;
 			}
-			if (itemmode != 2 && self.pos.Z < self.ceilingz + self.detail && (!Raze.isRR() || sectp.lotag != ST_2_UNDERWATER)) // underwater check only for RR
+			if (itemmode != 2 && self.pos.Z < self.ceilingz + self.ceilingdist && (!Raze.isRR() || sectp.lotag != ST_2_UNDERWATER)) // underwater check only for RR
 			{
-				self.pos.Z = self.ceilingz + self.detail;
+				self.pos.Z = self.ceilingz + self.ceilingdist;
 				self.vel.Z = 0;
 			}
 		}
@@ -184,7 +187,7 @@ class RedneckMortar : DukeMortar
 	default
 	{
 		pic "MORTAR";
-		detail 16;
+		DukeMortar.ceilingdist 16;
 	}
 	
 	override void Tick()
@@ -199,7 +202,7 @@ class RedneckCheerBomb : DukeMortar
 	default
 	{
 		spriteset "CHEERBOMB", "CHEERBOMB1", "CHEERBOMB2", "CHEERBOMB3";
-		detail 16;
+		DukeMortar.ceilingdist 16;
 	}
 	
 	override bool Animate(tspritetype t)

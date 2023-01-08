@@ -375,33 +375,33 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 	spr.cstat = (mspr->cstat & ~ESpriteFlags::FromInt(actorinfo->DefaultCstat)) | (spr.cstat & ESpriteFlags::FromInt(actorinfo->DefaultCstat));
 	spr.pos = mspr->pos;
 	spr.sectp = mspr->sectp;
-	spr.clipdist = mspr->clipdist;	// this has no associated property because it is needed for initialization of the real clipdist.
+	spr.clipdist = mspr->clipdist;
 
-	// only copy those values which have not been defaulted by the class definition.
-#define setter(flag, var) if (!(actorinfo->DefaultFlags & flag)) spr.var = mspr->var;
+	// picnum may only be used if the class allows it. 
+	if (!(actorinfo->DefaultFlags & DEFF_PICNUM)) spr.picnum = mspr->picnum;
 
-	setter(DEFF_PICNUM, picnum);
-	setter(DEFF_ANG, Angles.Yaw);
-	setter(DEFF_INTANG, intangle);
-	setter(DEFF_XVEL, xint);
-	setter(DEFF_YVEL, yint);
-	setter(DEFF_ZVEL, inittype);
-	setter(DEFF_HITAG, hitag);
-	setter(DEFF_LOTAG, lotag);
-	setter(DEFF_EXTRA, extra);
-	setter(DEFF_DETAIL, detail);
-	setter(DEFF_SHADE, shade);
-	setter(DEFF_PAL, pal);
-	setter(DEFF_BLEND, blend);
-	setter(DEFF_XREPEAT, scale.X);
-	setter(DEFF_YREPEAT, scale.Y);
-	setter(DEFF_XOFFSET, xoffset);
-	setter(DEFF_YOFFSET, yoffset);
-	setter(DEFF_OWNER, intowner);
+#define setter(var) spr.var = mspr->var;
+
+	setter(Angles.Yaw);
+	setter(intangle);
+	setter(xint);
+	setter(yint);
+	setter(inittype);
+	setter(hitag);
+	setter(lotag);
+	setter(extra);
+	setter(detail);
+	setter(shade);
+	setter(pal);
+	setter(blend);
+	setter(scale);
+	setter(xoffset);
+	setter(yoffset);
+	setter(intowner);
 
 #undef setter
 
-	if (!(actorinfo->DefaultFlags & DEFF_CLIPDIST)) clipdist = spr.clipdist * 0.25;
+	clipdist = spr.clipdist * 0.25;
 	if (mspr->statnum != 0 && !(actorinfo->DefaultFlags & DEFF_STATNUM))
 		ChangeActorStat(this, mspr->statnum);
 }

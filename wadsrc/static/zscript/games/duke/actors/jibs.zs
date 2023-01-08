@@ -49,10 +49,15 @@ class DukeJibs1 : DukeActor
 {
 	default
 	{
+		DukeJibs1.Behavior 0;
 		statnum STAT_MISC;
 		spriteset "JIBS1", "JIBS6", "JIBS6A", "JIBS6B", "JIBS6C", "JIBS6D", "JIBS6E", "JIBS6F", "JIBS6G";
 	}
 	
+	meta int behavior;
+	property behavior: behavior;
+	
+
 	override void Tick()
 	{
 		if(self.vel.X > 0) self.vel.X -= 1/16.;
@@ -94,7 +99,7 @@ class DukeJibs1 : DukeActor
 			else if (sectp.lotag != 2)
 			{
 				self.temp_data[1] = 0;
-				if (detail == 1)
+				if (self.behavior == 1)
 				{
 					if (self.temp_data[0] > 6) self.temp_data[0] = 0;
 					else self.temp_data[0]++;
@@ -129,7 +134,7 @@ class DukeJibs1 : DukeActor
 		}
 		else
 		{
-			if (self.detail == 2) // cactus debris only
+			if (self.behavior == 2) // cactus debris only
 			{
 				self.Destroy();
 				return;
@@ -317,7 +322,7 @@ class DukePlayerTorso : DukeJibs1
 	default
 	{
 		pic "DUKETORSO";
-		detail 1;
+		DukeJibs1.Behavior 1;
 	}
 }
 
@@ -596,7 +601,7 @@ class RedneckCactusDebris1 : DukeJibs1
 	default
 	{
 		pic "CACTUSDEBRIS1";
-		detail 2;
+		DukeJibs1.Behavior 2;
 	}
 }
 

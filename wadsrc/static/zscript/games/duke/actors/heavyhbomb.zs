@@ -4,10 +4,9 @@ class DukePipeBomb : DukeActor
 	default
 	{
 		pic "HEAVYHBOMB";
-		detail 3;	// ceiling distance
 		// do not add anything here!
 	}
-	
+
 	override void Initialize()
 	{
 		// This is only for placed items, not for armed weapons!
@@ -226,7 +225,6 @@ class RedneckDynamite : DukePipeBomb
 	default
 	{
 		pic "DYNAMITE";
-		detail 16;
 	}
 
 	override void pickupCheck(DukePlayer p)
