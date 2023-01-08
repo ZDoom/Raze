@@ -255,6 +255,9 @@ void InterpSectorSprites(sectortype* sect, bool state)
                 continue;
         }
 
+        if (actor->spr.statnum >= STAT_PLAYER0 && actor->spr.statnum <= STAT_PLAYER7)
+            continue;
+
         if (state)
             StartInterpolation(actor, Interp_Sprite_Z);
         else
