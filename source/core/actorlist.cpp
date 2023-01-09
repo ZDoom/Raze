@@ -358,6 +358,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	auto defaults = GetDefaultByType(type);
 	auto actorinfo = static_cast<PClassActor*>(actor->GetClass())->ActorInfo();
 	if (actorinfo && actorinfo->DefaultFlags & DEFF_STATNUM) stat = defaults->spr.statnum;
+	if (stat == -1) stat = 0;
 	GC::WriteBarrier(actor);
 
 	InsertActorStat(actor, stat, tail);
