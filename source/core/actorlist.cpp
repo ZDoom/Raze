@@ -348,6 +348,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	assert(type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)));
 
 	auto actor = static_cast<DCoreActor*>(type->CreateNew());
+	if (stat == -1) stat = 0;
 	GC::WriteBarrier(actor);
 
 	InsertActorStat(actor, stat, tail);
