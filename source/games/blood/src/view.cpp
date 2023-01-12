@@ -639,7 +639,7 @@ void viewDrawScreen(bool sceneonly)
 		if (!bDelirium)
 		{
 			deliriumTilt = 0;
-			deliriumTurn = DAngle::fromDeg(0.);
+			deliriumTurn = nullAngle;
 			deliriumPitch = 0;
 		}
 		int brightness = 0;
