@@ -84,7 +84,7 @@ body:
     id: description
     attributes:
       label: A clear and concise description of what the bug is.
-      description: Describe what happens, what software were you running? _Include screenshot if possible_
+      description: Describe what happens, what software were you running? _Include a saved game demonstrating the bug, or a screenshot if possible_
       placeholder: "How & When does this occur?"
     validations:
       required: true
