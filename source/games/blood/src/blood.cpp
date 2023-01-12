@@ -440,6 +440,9 @@ void GameInterface::Ticker()
 		// this must be done before the view is backed up.
 		pPlayer->Angles.resetRenderAngles();
 
+		// disable synchronised input if set by game.
+		resetForcedSyncInput();
+
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			viewBackupView(i);

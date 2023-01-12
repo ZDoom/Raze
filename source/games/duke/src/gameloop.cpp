@@ -72,6 +72,9 @@ void GameInterface::Ticker()
 		// this must be done before the view is backed up.
 		ps[myconnectindex].Angles.resetRenderAngles();
 
+		// disable synchronised input if set by game.
+		resetForcedSyncInput();
+
 		DukeSpriteIterator it;
 		while (auto ac = it.Next())
 		{

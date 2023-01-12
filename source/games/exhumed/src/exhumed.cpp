@@ -378,6 +378,9 @@ void GameInterface::Ticker()
 
         inita = inita.Normalized360();
 
+        // disable synchronised input if set by game.
+        resetForcedSyncInput();
+
         auto& lPlayerVel = sPlayerInput[nLocalPlayer].vel;
 
         auto inputvect = DVector2(localInput.fvel, localInput.svel).Rotated(inita) * 0.375;
