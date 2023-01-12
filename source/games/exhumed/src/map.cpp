@@ -54,7 +54,6 @@ void DrawMap(const DVector2& pos, const DAngle yaw, const double interpfrac)
 {
     if (!nFreeze && automapMode != am_off) 
     {
-        auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
         DrawOverheadMap(pos, yaw, interpfrac);
     }
 }
