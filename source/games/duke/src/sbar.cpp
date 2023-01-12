@@ -53,6 +53,7 @@ void DrawBorder()
 	auto tex = tileGetTexture(TILE_SCREENBORDER);
 	if (tex != nullptr && tex->isValid())
 	{
+		// Backdrop.
 		if (viewport3d.Top() > 0)
 		{
 			twod->AddFlatFill(0, 0, twod->GetWidth(), viewport3d.Top(), tex, false, 1);
@@ -69,20 +70,25 @@ void DrawBorder()
 		{
 			twod->AddFlatFill(viewport3d.Right(), viewport3d.Top(), twod->GetWidth(), viewport3d.Bottom(), tex, false, 1);
 		}
-		auto vb = tileGetTexture(TILE_VIEWBORDER);
-		auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
-		int x1 = viewport3d.Left() - 4;
-		int y1 = viewport3d.Top() - 4;
-		int x2 = viewport3d.Right() + 4;
-		int y2 = viewport3d.Bottom() + 4;
-		twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
-		twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
-		twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);
-		twod->AddFlatFill(x2 - 4, y1, x2, y2, vb, 3);
-		twod->AddFlatFill(x1, y1, x1 + 4, y1 + 4, ve, 1);
-		twod->AddFlatFill(x2 - 4, y1, x2, y1 + 4, ve, 3);
-		twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
-		twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
+
+		// Border.
+		if (hud_size < Hud_Stbar)
+		{
+			auto vb = tileGetTexture(TILE_VIEWBORDER);
+			auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
+			int x1 = viewport3d.Left() - 4;
+			int y1 = viewport3d.Top() - 4;
+			int x2 = viewport3d.Right() + 4;
+			int y2 = viewport3d.Bottom() + 4;
+			twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
+			twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
+			twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);
+			twod->AddFlatFill(x2 - 4, y1, x2, y2, vb, 3);
+			twod->AddFlatFill(x1, y1, x1 + 4, y1 + 4, ve, 1);
+			twod->AddFlatFill(x2 - 4, y1, x2, y1 + 4, ve, 3);
+			twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
+			twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
+		}
 	}
 }
 
