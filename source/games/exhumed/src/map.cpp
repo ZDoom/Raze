@@ -50,12 +50,12 @@ void UpdateMap()
     }
 }
 
-void DrawMap(double const interpfrac)
+void DrawMap(const DVector2& pos, const DAngle yaw, const double interpfrac)
 {
     if (!nFreeze && automapMode != am_off) 
     {
         auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
-        DrawOverheadMap(pPlayerActor->interpolatedpos(interpfrac).XY(), PlayerList[nLocalPlayer].Angles.getRenderAngles(interpfrac).Yaw, interpfrac);
+        DrawOverheadMap(pos, yaw, interpfrac);
     }
 }
 

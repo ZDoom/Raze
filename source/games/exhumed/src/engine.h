@@ -105,7 +105,7 @@ extern bool bShowTowers;
 
 void GrabMap();
 void UpdateMap();
-void DrawMap(double const interpfrac);
+void DrawMap(const DVector2& pos, const DAngle yaw, const double interpfrac);
 
 // random
 

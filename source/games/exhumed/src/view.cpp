@@ -371,19 +371,15 @@ void DrawView(double interpfrac, bool sceneonly)
         }
         else if (!sceneonly)
         {
-            if (nSnakeCam < 0)
-            {
-                DrawMap(interpfrac);
-            }
-            else
+            if (nSnakeCam >= 0)
             {
                 RestoreGreenPal();
                 if (nEnemyPal > -1) {
                     pEnemy->spr.pal = (uint8_t)nEnemyPal;
                 }
-
-                DrawMap(interpfrac);
             }
+
+            DrawMap(nCamerapos.XY(), nCameraangles.Yaw, interpfrac);
         }
     }
     else
