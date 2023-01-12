@@ -375,6 +375,9 @@ void GameInterface::Ticker()
     {
         inita &= kAngleMask;
 
+        // disable synchronised input if set by game.
+        resetForcedSyncInput();
+
         for (int i = 0; i < 4; i++)
         {
             lPlayerXVel += localInput.fvel * bcos(inita) + localInput.svel * bsin(inita);

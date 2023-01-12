@@ -428,6 +428,9 @@ void GameInterface::Ticker()
 	{
 		thinktime.Reset();
 		thinktime.Clock();
+		// disable synchronised input if set by game.
+		resetForcedSyncInput();
+
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			viewBackupView(i);

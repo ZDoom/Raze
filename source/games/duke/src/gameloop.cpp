@@ -69,6 +69,9 @@ void GameInterface::Ticker()
 		ud.cameraactor = nullptr;
 		everyothertime++;
 
+		// disable synchronised input if set by game.
+		resetForcedSyncInput();
+
 		DukeSpriteIterator it;
 		while (auto ac = it.Next())
 		{
