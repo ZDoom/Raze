@@ -48,7 +48,7 @@ BEGIN_DUKE_NS
 //
 //==========================================================================
 
-void DrawBorder()
+void UpdateFrame()
 {
 	auto tex = tileGetTexture(TILE_SCREENBORDER);
 	if (tex != nullptr && tex->isValid())
@@ -94,7 +94,10 @@ void DrawBorder()
 
 void DrawStatusBar()
 {
-	DrawBorder();
+    if (hud_size <= Hud_Stbar)
+    {
+        UpdateFrame();
+    }
 
 	SummaryInfo info{};
 
