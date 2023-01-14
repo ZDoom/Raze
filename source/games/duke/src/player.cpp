@@ -250,7 +250,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 				setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
 
 				HitInfo hit{};
-				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel), hit, CLIPMASK1);
+				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
