@@ -102,6 +102,17 @@ DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SetSpriteLotag)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SetSpriteSector)
+{
+	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
+	PARAM_UINT(sprite);
+	PARAM_INT(sect);
+	if (sprite < self->sprites->sprites.Size())
+		self->sprites->sprites[sprite].sectp = &sector[sect];
+
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(DLevelPostProcessor, ChangeSpriteFlags)
 {
 	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
