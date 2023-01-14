@@ -161,6 +161,7 @@ bool G_Responder(event_t* ev);
 void HudScaleChanged();
 bool M_SetSpecialMenu(FName& menu, int param);
 void OnMenuOpen(bool makeSound);
+void DestroyAltHUD();
 
 DStatusBarCore* StatusBar;
 
@@ -618,6 +619,7 @@ int GameMain()
 	}
 	//DeleteScreenJob();
 	if (gi) gi->FreeLevelData();
+	DestroyAltHUD();
 	DeinitMenus();
 	if (StatusBar) StatusBar->Destroy();
 	StatusBar = nullptr;
