@@ -198,8 +198,8 @@ struct Duke native
 		}
 		else
 		{
-			if (align != -1) x -= myfont.StringWidth(text) * (align == 0 ? 0.2 : 0.4);
-			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha);
+			if (align != -1) x -= myfont.StringWidth(text) * (align == 0 ? 0.175 : 0.35);
+			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 0.35, DTA_ScaleY, 0.35, DTA_Alpha, alpha);
 		}
 	}
 
