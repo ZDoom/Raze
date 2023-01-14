@@ -117,7 +117,7 @@ switches
 	comboswitch = "TECHSWITCH", "TECHSWITCHON"
 	comboswitch = "ALIENSWITCH", "ALIENSWITCHON"
 	accessswitch = "ACCESSSWITCH", "ACCESSSWITCHON", nofilter, oneway
-	accessswitch = "ACCESSSWITCH2", "ACCESSSWITCH2", nofilter, oneway
+	accessswitch = "ACCESSSWITCH2", "ACCESSSWITCH2ON", nofilter, oneway
 	switch = "DIPSWITCH2", "DIPSWITCH2ON", shootable
 	switch = "DIPSWITCH3", "DIPSWITCH3ON", shootable
 	multiswitch = "MULTISWITCH", "MULTISWITCH_2", "MULTISWITCH_3", "MULTISWITCH_4"
