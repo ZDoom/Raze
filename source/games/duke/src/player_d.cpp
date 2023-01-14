@@ -677,7 +677,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			double zoffs = 32;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 				zoffs *= (actor->spr.scale.Y * 0.8);
-			pos.Z += zoffs;
+			pos.Z -= zoffs;
 		}
 		else if (actor->spr.picnum == DTILE_BOSS2)
 		{
@@ -685,7 +685,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			double zoffs = 24;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 				zoffs *= (actor->spr.scale.Y * 0.8);
-			pos.Z -= zoffs;
+			pos.Z += zoffs;
 		}
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
