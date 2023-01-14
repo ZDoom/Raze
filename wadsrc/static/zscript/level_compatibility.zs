@@ -12,6 +12,10 @@ class LevelCompatibility : LevelPostProcessor
 			case 'b522da99f32a71ab31fc27aaba9b7f43':	// Duke E2L1 World Tour
 				SplitSector(37, 269, 274);				// sector bleeds into another area.
 				break;
+
+			case '459c71d47b5beaa058253e162fd5a5c2':	// World Tour e5l1.map
+				for(int i = 1373; i <= 1376; i++) SetSpriteSector(i, 860);	// fix bad sector in a few sprites.
+				break;
 				
 			case 'c3bfb6a6e7cded2e5fe16cea86632d79':	// CP07
 				SplitSector(33, 192, 196);				// sector bleeds into another area.
