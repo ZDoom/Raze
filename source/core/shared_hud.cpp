@@ -134,14 +134,18 @@ static DObject* DoCreateAltHUD(const FName classname)
 	return althud;
 }
 
-void CreateAltHUD()
+void DestroyAltHUD()
 {
 	if (AltHud)
 	{
 		AltHud->Destroy();
 		AltHud = nullptr;
 	}
+}
 
+void CreateAltHUD()
+{
+	DestroyAltHUD();
 	/*
 	if (!hud_althud_forceinternal)
 		AltHud = DoCreateAltHUD(gameinfo.althudclass);
