@@ -248,6 +248,7 @@ void HWDrawInfo::SetupView(FRenderState &state, float vx, float vy, float vz, bo
 	SetViewMatrix(vp.HWAngles, vx, vy, vz, mirror, planemirror);
 	SetCameraPos(vp.Pos);
 	VPUniforms.CalcDependencies();
+	VPUniforms.mLightBlendMode = 0;
 	vpIndex = screen->mViewpoints->SetViewpoint(state, &VPUniforms);
 }
 

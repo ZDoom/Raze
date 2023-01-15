@@ -235,6 +235,8 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 			float uClipHeight;
 			float uClipHeightDirection;
 			int uShadowmapFilter;
+			
+			int uLightBlendMode;
 		};
 
 		uniform int uTextureMode;
@@ -328,6 +330,7 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 		uniform sampler2D texture9;
 		uniform sampler2D texture10;
 		uniform sampler2D texture11;
+		uniform sampler2D texture12;
 
 		// timer data
 		uniform float timer;
