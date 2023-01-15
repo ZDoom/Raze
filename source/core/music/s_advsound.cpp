@@ -328,7 +328,7 @@ static void S_AddSNDINFO (int lump)
 				}
 				else
 				{
-					sc.ScriptMessage("'dukepitchrange' is not available in current game and will be ignored");
+					sc.ScriptMessage("'$dukepitchrange' is not available in the current game and will be ignored");
 				}
 				break;
 
@@ -360,7 +360,7 @@ static void S_AddSNDINFO (int lump)
 				}
 				else
 				{
-					sc.ScriptMessage("'dukeflags' is not available in current game and will be ignored");
+					sc.ScriptMessage("'$dukeflags' is not available in the current game and will be ignored");
 				}
 				break;
 
