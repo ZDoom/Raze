@@ -63,6 +63,7 @@ enum SICommands
 	SI_PitchSetDuke,
 	SI_DukeFlags,
 	SI_Loop,
+	SI_BloodRelVol,
 };
 
 
@@ -97,6 +98,7 @@ static const char *SICommandStrings[] =
 	"$pitchsetduke",
 	"$dukeflags",
 	"$loop",
+	"$bloodrelvol",
 	NULL
 };
 
@@ -383,7 +385,7 @@ static void S_AddSNDINFO (int lump)
 			}
 
 			case SI_Loop: {
-				// dukesound <logical name> <start> <end>
+				// loop <logical name> <start> <end>
 				// Sets loop points for the given sound in samples. Only really useful for WAV - for Ogg and FLAC use the metadata they can contain.
 				sc.MustGetString();
 				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
@@ -392,6 +394,29 @@ static void S_AddSNDINFO (int lump)
 				sfx->LoopStart = sc.Number;
 				if (sc.CheckNumber())
 					sfx->LoopEnd = sc.Number;
+				break;
+			}
+
+			case SI_BloodRelVol: {
+				// bloodrelvol <logical name> <value>
+				// Sets Blood's hacky volume modifier.
+				sc.MustGetString();
+				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
+				auto sfx = soundEngine->GetWritableSfx(sfxid);
+				sc.MustGetNumber();
+				if (isBlood())
+				{
+					auto sfx = soundEngine->GetWritableSfx(sfxid);
+					if (sfx->UserData.Size() < 1)
+					{
+						sfx->UserData.Resize(1);
+					}
+					sfx->UserData[0] = sc.Number;
+				}
+				else
+				{
+					sc.ScriptMessage("'$bloodrelvol' is not available in the current game and will be ignored");
+				}
 				break;
 			}
 
