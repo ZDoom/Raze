@@ -91,6 +91,7 @@ void HWViewpointBuffer::Set2D(FRenderState &di, int width, int height, int pll)
 	matrices.mPalLightLevels = pll;
 	matrices.mClipLine.X = -10000000.0f;
 	matrices.mShadowmapFilter = gl_shadowmap_filter;
+	matrices.mLightBlendMode = 0;
 
 	matrices.mProjectionMatrix.ortho(0, (float)width, (float)height, 0, -1.0f, 1.0f);
 	matrices.CalcDependencies();
