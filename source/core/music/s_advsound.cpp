@@ -60,7 +60,7 @@ enum SICommands
 	SI_Limit,
 	SI_Singular,
 	SI_PitchSet,
-	SI_DukePitchRange,
+	SI_PitchSetDuke,
 	SI_DukeFlags,
 };
 
@@ -93,7 +93,7 @@ static const char *SICommandStrings[] =
 	"$limit",
 	"$singular",
 	"$pitchset",
-	"$dukepitchrange",
+	"$pitchsetduke",
 	"$dukeflags",
 	NULL
 };
@@ -315,6 +315,26 @@ static void S_AddSNDINFO (int lump)
 			}
 			break;
 
+			case SI_PitchSetDuke: {
+				// $pitchset <logical name> <pitch amount as float> [range maximum]
+				// Same as above, but uses Duke's value range of 1200 units per octave.
+				FSoundID sfx;
+
+				sc.MustGetString();
+				sfx = soundEngine->FindSoundTentative(sc.String);
+				sc.MustGetFloat();
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
+				sfxp->DefPitch = (float)pow(2, sc.Float / 1200.);
+				if (sc.CheckFloat())
+				{
+					sfxp->DefPitchMax = (float)pow(2, sc.Float / 1200.);
+				}
+				else
+				{
+					sfxp->DefPitchMax = 0;
+				}
+				break;
+			}
 
 			case SI_ConReserve: {
 				// $conreserve <logical name> <resource id>
@@ -327,34 +347,6 @@ static void S_AddSNDINFO (int lump)
 				sfxp->ResourceId = sc.Number;
 				break;
 				}
-
-			case SI_DukePitchRange: {
-				// dukesound <logical name> <lower> <upper>
-				// Sets a pitch range for the sound.
-				sc.MustGetString();
-				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
-				sc.MustGetNumber();
-				int minpitch = sc.Number;
-				sc.MustGetNumber();
-				int maxpitch = sc.Number;
-				if (isDukeEngine())
-				{
-					auto sfx = soundEngine->GetWritableSfx(sfxid);
-					if (sfx->UserData.Size() < Duke3d::kMaxUserData)
-					{
-						sfx->UserData.Resize(Duke3d::kMaxUserData);
-						memset(sfx->UserData.Data(), 0, Duke3d::kMaxUserData * sizeof(int));
-					}
-					sfx->UserData[Duke3d::kPitchStart] = clamp<int>(minpitch, INT16_MIN, INT16_MAX);
-					sfx->UserData[Duke3d::kPitchEnd] = clamp<int>(maxpitch, INT16_MIN, INT16_MAX);
-				}
-				else
-				{
-					sc.ScriptMessage("'$dukepitchrange' is not available in the current game and will be ignored");
-				}
-				break;
-
-			}
 
 			case SI_DukeFlags: {
 				static const char* dukeflags[] = { "LOOP", "MSFX", "TALK", "GLOBAL", nullptr};

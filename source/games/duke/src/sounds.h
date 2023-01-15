@@ -26,10 +26,7 @@ enum {
 
 enum esound_t
 {
-	kPitchStart,
-	kPitchEnd,
 	kVolAdjust,
-	kPriority,
 	kFlags,
 	kWorldTourMapping,
 	kMaxUserData
