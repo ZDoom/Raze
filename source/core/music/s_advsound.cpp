@@ -62,6 +62,7 @@ enum SICommands
 	SI_PitchSet,
 	SI_PitchSetDuke,
 	SI_DukeFlags,
+	SI_Loop,
 };
 
 
@@ -95,6 +96,7 @@ static const char *SICommandStrings[] =
 	"$pitchset",
 	"$pitchsetduke",
 	"$dukeflags",
+	"$loop",
 	NULL
 };
 
@@ -378,6 +380,19 @@ static void S_AddSNDINFO (int lump)
 				}
 				break;
 
+			}
+
+			case SI_Loop: {
+				// dukesound <logical name> <start> <end>
+				// Sets loop points for the given sound in samples. Only really useful for WAV - for Ogg and FLAC use the metadata they can contain.
+				sc.MustGetString();
+				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
+				auto sfx = soundEngine->GetWritableSfx(sfxid);
+				sc.MustGetNumber();
+				sfx->LoopStart = sc.Number;
+				if (sc.CheckNumber())
+					sfx->LoopEnd = sc.Number;
+				break;
 			}
 
 

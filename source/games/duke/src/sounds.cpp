@@ -526,7 +526,7 @@ int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int 
 	{
 		if (explosion && underwater) 
 		{
-			pitch = chan->Pitch? chan->Pitch * (0.55 / 128) : 0.55;	// todo: fix pitch storage in backend.
+			pitch = float(chan->Pitch? chan->Pitch * (0.55 / 128) : 0.55);	// todo: fix pitch storage in backend.
 			soundEngine->SetPitch(chan, pitch);
 		}
 		chan->UserData = (currentCommentarySound != NO_SOUND);
