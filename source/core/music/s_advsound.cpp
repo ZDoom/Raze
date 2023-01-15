@@ -52,6 +52,7 @@ enum SICommands
 	SI_MusicVolume,
 	SI_MidiDevice,
 	SI_MusicAlias,
+	SI_Loop,
 };
 
 
@@ -78,6 +79,7 @@ static const char *SICommandStrings[] =
 	"$musicvolume",
 	"$mididevice",
 	"$musicalias",
+	"$loop",
 	NULL
 };
 
