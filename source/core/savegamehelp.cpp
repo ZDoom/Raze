@@ -106,8 +106,8 @@ static void SerializeGlobals(FSerializer& arc)
 
 static void SerializeSession(FSerializer& arc)
 {
-	// In Duke we now have reliable sound names.
-	if (isDukeEngine()) arc.SetUniqueSoundNames();	
+	// In Duke and Blood we now have reliable sound names.
+	if (isDukeEngine() || isBlood()) arc.SetUniqueSoundNames();	
 
 	arc.ReadObjects(false);
 	SerializeMap(arc);

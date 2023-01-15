@@ -147,13 +147,12 @@ void GameInterface::UpdateSounds()
 //
 //---------------------------------------------------------------------------
 
-FSoundID getSfx(FSoundID soundId, float& attenuation, int& pitch, int& relvol)
+FSoundID getSfx(FSoundID soundId, float& attenuation, int& relvol)
 {
 	auto udata = soundEngine->GetUserData(soundId);
-	if (pitch < 0) pitch = udata ? udata[0] : 0x10000;
 
 	if (relvol < 0) relvol = 0;
-	else if (relvol == 0) relvol = udata && udata[2] ? udata[2] : 80;
+	else if (relvol == 0) relvol = udata && udata[0] ? udata[0] : 80;
 	if (relvol > 255) relvol = 255;
 	// Limit the attenuation. More than 2.0 is simply too much.
 	attenuation = relvol > 0 ? clamp(80.f / relvol, 0.f, 2.f) : 1.f;
@@ -177,7 +176,7 @@ void sfxPlay3DSound(const DVector3& pos, int soundId, sectortype* pSector)
 	float attenuation;
 	int pitch = -1;
 	int relvol = 0;
-	sid = getSfx(sid, attenuation, pitch, relvol);
+	sid = getSfx(sid, attenuation, relvol);
 	auto sfx = soundEngine->GetSfx(sid);
 	EChanFlags flags = CHANF_OVERLAP;
 	if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
@@ -194,14 +193,14 @@ void sfxPlay3DSound(const DVector3& pos, int soundId, sectortype* pSector)
 
 void sfxPlay3DSoundCP(DBloodActor* pActor, int soundId, int playchannel, int playflags, int pitch, int volume)
 {
-	if (!SoundEnabled() || soundId < 0 || !pActor) return;
+	if (!SoundEnabled() || soundId <= 0 || !pActor) return;
 	auto sid = soundEngine->FindSoundByResID(soundId);
 	if (!sid.isvalid()) return;
 
 	auto svec = GetSoundPos(pActor->spr.pos);
 
 	float attenuation;
-	sid = getSfx(sid, attenuation, pitch, volume);
+	sid = getSfx(sid, attenuation, volume);
 	if (volume == -1) volume = 80;
 
 	if (playchannel >= 0)

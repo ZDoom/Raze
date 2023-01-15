@@ -97,6 +97,7 @@ constexpr FSoundID INVALID_SOUND = FSoundID::fromInt(-1);
 	 bool		bUsed = false;
 	 bool		bSingular = false;
 	 bool		bTentative = true;
+	 bool		bExternal = false;
 
 	 TArray<int> UserData;
 

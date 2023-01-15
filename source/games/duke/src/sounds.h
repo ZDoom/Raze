@@ -18,10 +18,9 @@ enum {
 	SF_TALK = 4,
 	SF_ADULT = 8,
 	SF_GLOBAL = 16,
-	SF_CON_MASK = 31,
-	SF_CONDEFINED = 64,
 
 	SF_DTAG = 128,
+	SF_CON_MASK = 159,
 };
 
 enum esound_t

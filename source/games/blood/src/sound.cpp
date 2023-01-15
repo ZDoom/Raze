@@ -62,24 +62,42 @@ void ByteSwapSFX(SFX* pSFX)
 //
 // S_AddBloodSFX
 //
-// Registers a new sound with the name "<lumpname>.sfx"
-// Actual sound data is searched for in the ns_bloodraw namespace.
-//
 //==========================================================================
 
 static void S_AddBloodSFX(int lumpnum)
 {
+	FSoundID sfxnum;
+
+	int resid = fileSystem.GetResourceId(lumpnum);
+	sfxinfo_t* soundfx = nullptr;
+
+	sfxnum = soundEngine->FindSoundByResIDNoHash(resid);
+	if (sfxnum.isvalid())
+	{
+		soundfx = soundEngine->GetWritableSfx(sfxnum);
+		if (soundfx->UserData.Size() == 0)
+		{
+			soundfx->UserData.Resize(1);
+			soundfx->UserData[1] = 80;	// default for RelVol
+		}
+		if (!soundfx->bTentative) return;	// sound was already defined.
+	}
+
 	auto sfxlump = fileSystem.ReadFile(lumpnum);
 	SFX* sfx = (SFX*)sfxlump.GetMem();
 	ByteSwapSFX(sfx);
+
 	FStringf rawname("%s.raw", sfx->rawName);
 	auto rawlump = fileSystem.FindFile(rawname);
-	FSoundID sfxnum;
 
 	if (rawlump != -1)
 	{
-		sfxnum = soundEngine->AddSoundLump(sfx->rawName, rawlump, 0, fileSystem.GetResourceId(lumpnum), 6);
-		auto soundfx = soundEngine->GetWritableSfx(sfxnum);
+		if (!sfxnum.isvalid())
+		{
+			sfxnum = soundEngine->AddSoundLump(FStringf("SfxSound@%04d", resid), rawlump, 0, resid, 6);	// use a generic name here in case sound replacements are being used.
+			soundfx = soundEngine->GetWritableSfx(sfxnum);
+			soundfx->UserData.Resize(1);
+		}
 		if (sfx->format < 5 || sfx->format > 12)
 		{	// [0..4] + invalid formats
 			soundfx->RawRate = 11025;
@@ -92,14 +110,18 @@ static void S_AddBloodSFX(int lumpnum)
 		{	// [9..12]
 			soundfx->RawRate = 44100;
 		}
+		soundfx->NearLimit = 6;
+		soundfx->lumpnum = rawlump;
 		soundfx->bLoadRAW = true;
+		soundfx->bExternal = true;
+		soundfx->bTentative = false;
 		soundfx->LoopStart = LittleLong(sfx->loopStart);
 		//S_sfx[sfxnum].Volume = sfx->relVol / 255.f; This cannot be done because this volume setting is optional.
-		soundfx->UserData.Resize(3);
+		// pitchrange is unused.
+		if (sfx->pitch != 0x10000) soundfx->DefPitch = sfx->pitch / 65536.f;
+		else soundfx->DefPitch = 0;
 		int* udata = (int*)soundfx->UserData.Data();
-		udata[0] = sfx->pitch;
-		udata[1] = sfx->pitchRange;
-		udata[2] = sfx->relVol;
+		udata[0] = sfx->relVol;
 	}
 }
 
@@ -122,8 +144,7 @@ void sndInit(void)
 		auto type = fileSystem.GetResourceType(i);
 		if (!stricmp(type, "SFX"))
 		{
-			if (soundEngine->FindSoundByResID(fileSystem.GetResourceId(i)) == NO_SOUND)
-				S_AddBloodSFX(i);
+			S_AddBloodSFX(i);
 		}
 		else if (!stricmp(type, "WAV") || !stricmp(type, "OGG") || !stricmp(type, "FLAC") || !stricmp(type, "VOC"))
 		{
@@ -193,7 +214,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
 		if (nVolume < 0)
 		{
 			auto udata = soundEngine->GetUserData(snd);
-			if (udata) nVolume = min(Scale(udata[2], 255, 100), 255);
+			if (udata) nVolume = min(Scale(udata[0], 255, 100), 255);
 			else nVolume = 255;
 		}
 		if (bLoop) chanflags |= CHANF_LOOP;

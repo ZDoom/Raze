@@ -209,7 +209,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 		if (sfx->UserData.Size() >= kMaxUserData)
 		{
 			auto& sndinf = sfx->UserData;
-			settable = !!(sndinf[kFlags] & SF_CONDEFINED);
+			settable = sfx->bExternal;
 		}
 	}
 	if (!settable)
@@ -229,8 +229,9 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 
 	sfx->ResourceId = index;
 	sfx->UserData.Resize(kMaxUserData);
+	sfx->bExternal = true;
 	auto& sndinf = sfx->UserData;
-	sndinf[kFlags] = (type & SF_CON_MASK) | SF_CONDEFINED;
+	sndinf[kFlags] = (type & SF_CON_MASK);
 
 	// Take care of backslashes in sound names. Also double backslashes which occur in World Tour.
 	FString fn = filename;
