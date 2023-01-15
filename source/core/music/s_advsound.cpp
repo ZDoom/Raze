@@ -59,6 +59,7 @@ enum SICommands
 	SI_Alias,
 	SI_Limit,
 	SI_Singular,
+	SI_PitchSet,
 	SI_DukePitchRange,
 	SI_DukeFlags,
 };
@@ -91,6 +92,7 @@ static const char *SICommandStrings[] =
 	"$alias",
 	"$limit",
 	"$singular",
+	"$pitchset",
 	"$dukepitchrange",
 	"$dukeflags",
 	NULL
@@ -292,6 +294,26 @@ static void S_AddSNDINFO (int lump)
 				sfxp->bSingular = true;
 				}
 				break;
+
+			case SI_PitchSet: {
+				// $pitchset <logical name> <pitch amount as float> [range maximum]
+				FSoundID sfx;
+
+				sc.MustGetString();
+				sfx = soundEngine->FindSoundTentative(sc.String);
+				sc.MustGetFloat();
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
+				sfxp->DefPitch = (float)sc.Float;
+				if (sc.CheckFloat())
+				{
+					sfxp->DefPitchMax = (float)sc.Float;
+				}
+				else
+				{
+					sfxp->DefPitchMax = 0;
+				}
+			}
+			break;
 
 
 			case SI_ConReserve: {
