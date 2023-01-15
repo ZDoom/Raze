@@ -18,7 +18,7 @@ enum {
 	SF_TALK = 4,
 	SF_ADULT = 8,
 	SF_GLOBAL = 16,
-	SF_ONEINST_INTERNAL = 32,
+	SF_CON_MASK = 31,
 	SF_CONDEFINED = 64,
 
 	SF_DTAG = 128,
@@ -35,6 +35,7 @@ enum esound_t
 	kMaxUserData
 };
 
+class DDukeActor;
 int S_PlaySound(FSoundID num, int channel = CHAN_AUTO, EChanFlags flags = 0, float vol = 0.8f);
 int S_PlaySound3D(FSoundID num, DDukeActor* spriteNum, const DVector3& pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
 int S_PlayActorSound(FSoundID soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);

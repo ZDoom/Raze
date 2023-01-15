@@ -246,9 +246,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sfx->ResourceId = index;
 	sfx->UserData.Resize(kMaxUserData);
 	auto& sndinf = sfx->UserData;
-	sndinf[kFlags] = (type & ~SF_ONEINST_INTERNAL) | SF_CONDEFINED;
-	if (sndinf[kFlags] & SF_LOOP)
-		sndinf[kFlags] |= SF_ONEINST_INTERNAL;
+	sndinf[kFlags] = (type & SF_CON_MASK) | SF_CONDEFINED;
 
 	// Take care of backslashes in sound names. Also double backslashes which occur in World Tour.
 	FString fn = filename;
@@ -528,7 +526,7 @@ int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int 
 
 	int const repeatp = (userflags & SF_LOOP);
 
-	if (repeatp && (userflags & SF_ONEINST_INTERNAL) && is_playing)
+	if (repeatp && is_playing)
 	{
 		return -1;
 	}

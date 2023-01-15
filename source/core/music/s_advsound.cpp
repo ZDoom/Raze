@@ -42,9 +42,11 @@
 #include "s_music.h"
 #include "sc_man.h"
 #include "s_soundinternal.h"
+#include "gamecontrol.h"
 #include <zmusic.h>
 
 #include "raze_music.h"
+#include "games/duke/src/sounds.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -56,7 +58,9 @@ enum SICommands
 	SI_ConReserve,
 	SI_Alias,
 	SI_Limit,
-	SI_Singular
+	SI_Singular,
+	SI_DukePitchRange,
+	SI_DukeFlags,
 };
 
 
@@ -87,6 +91,8 @@ static const char *SICommandStrings[] =
 	"$alias",
 	"$limit",
 	"$singular",
+	"$dukepitchrange",
+	"$dukeflags",
 	NULL
 };
 
@@ -299,6 +305,67 @@ static void S_AddSNDINFO (int lump)
 				sfxp->ResourceId = sc.Number;
 				break;
 				}
+
+			case SI_DukePitchRange: {
+				// dukesound <logical name> <lower> <upper>
+				// Sets a pitch range for the sound.
+				sc.MustGetString();
+				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
+				sc.MustGetNumber();
+				int minpitch = sc.Number;
+				sc.MustGetNumber();
+				int maxpitch = sc.Number;
+				if (isDukeEngine())
+				{
+					auto sfx = soundEngine->GetWritableSfx(sfxid);
+					if (sfx->UserData.Size() < Duke3d::kMaxUserData)
+					{
+						sfx->UserData.Resize(Duke3d::kMaxUserData);
+						memset(sfx->UserData.Data(), 0, Duke3d::kMaxUserData * sizeof(int));
+					}
+					sfx->UserData[Duke3d::kPitchStart] = clamp<int>(minpitch, INT16_MIN, INT16_MAX);
+					sfx->UserData[Duke3d::kPitchEnd] = clamp<int>(maxpitch, INT16_MIN, INT16_MAX);
+				}
+				else
+				{
+					sc.ScriptMessage("'dukepitchrange' is not available in current game and will be ignored");
+				}
+				break;
+
+			}
+
+			case SI_DukeFlags: {
+				static const char* dukeflags[] = { "LOOP", "MSFX", "TALK", "GLOBAL", nullptr};
+
+				// dukesound <logical name> <flag> <flag> <flag>..
+				// Sets a pitch range for the sound.
+				sc.MustGetString();
+				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
+				int flags = 0;
+				while (sc.GetString())
+				{
+					int bit = sc.MatchString(dukeflags);
+					if (bit == -1) break;
+					flags |= 1 << bit;
+				}
+				if (isDukeEngine())
+				{
+					auto sfx = soundEngine->GetWritableSfx(sfxid);
+					if (sfx->UserData.Size() < Duke3d::kMaxUserData)
+					{
+						sfx->UserData.Resize(Duke3d::kMaxUserData);
+						memset(sfx->UserData.Data(), 0, Duke3d::kMaxUserData * sizeof(int));
+					}
+					sfx->UserData[Duke3d::kFlags] = flags;
+				}
+				else
+				{
+					sc.ScriptMessage("'dukeflags' is not available in current game and will be ignored");
+				}
+				break;
+
+			}
+
 
 			default:
 			{ // Got a logical sound mapping
