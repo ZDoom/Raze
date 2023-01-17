@@ -43,3 +43,10 @@ Special thanks to Coraline of the 3DGE team for allowing us to use her README.md
 ## How to build Raze
 
 To build Raze, please see the [wiki](https://zdoom.org/wiki/) and see the "Programmer's Corner" on the bottom-right corner of the page to build for your platform - use this repository instead of GZDoom's.
+
+# Resources
+- https://raze.zdoom.org/ - Home Page
+- https://forum.zdoom.org/viewforum.php?f=351 - Forum
+- https://raze.zdoom.org/wiki/ - Wiki
+- https://discord.gg/zdoom - Discord Server
+- https://docs.google.com/spreadsheets/d/1pvwXEgytkor9SClCiDn4j5AH7FedyXS-ocCbsuQIXDU/edit?usp=sharing - Translation sheet (Google Docs)
