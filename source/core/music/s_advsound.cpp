@@ -180,9 +180,11 @@ static void S_AddSNDINFO (int lump)
 			continue;
 		}
 
-		if (sc.String[0] == '$')
+		int cmd;
+		if (sc.String[0] == '$') cmd = sc.MatchString(SICommandStrings);
+		else cmd = -1;
 		{ // Got a command
-			switch (sc.MatchString (SICommandStrings))
+			switch (cmd)
 			{
 			case SI_MusicVolume: {
 				sc.MustGetString();
