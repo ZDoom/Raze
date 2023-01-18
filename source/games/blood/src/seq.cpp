@@ -386,7 +386,7 @@ void SEQINST::Update()
 			if (snd.isvalid())
 			{
 				auto udata = soundEngine->GetUserData(snd);
-				int relVol = udata ? udata[0] : 255;
+				int relVol = udata ? udata[0] : 80;
 				sfxPlay3DSoundCP(actor, sndId, -1, 0, 0, (surfSfxMove[surf][2] != relVol) ? relVol : surfSfxMove[surf][3]);
 			}
 		}

@@ -75,11 +75,6 @@ static void S_AddBloodSFX(int lumpnum)
 	if (sfxnum.isvalid())
 	{
 		soundfx = soundEngine->GetWritableSfx(sfxnum);
-		if (soundfx->UserData.Size() == 0)
-		{
-			soundfx->UserData.Resize(1);
-			soundfx->UserData[1] = 80;	// default for RelVol
-		}
 		if (!soundfx->bTentative) return;	// sound was already defined.
 	}
 
@@ -120,8 +115,11 @@ static void S_AddBloodSFX(int lumpnum)
 		// pitchrange is unused.
 		if (sfx->pitch != 0x10000) soundfx->DefPitch = sfx->pitch / 65536.f;
 		else soundfx->DefPitch = 0;
-		int* udata = (int*)soundfx->UserData.Data();
-		udata[0] = sfx->relVol;
+		if (sfx->relVol != 80) // 80 is the default
+		{
+			soundfx->UserData.Resize(1);
+			soundfx->UserData[0] = sfx->relVol;
+		}
 	}
 }
 
@@ -214,7 +212,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
 		if (nVolume < 0)
 		{
 			auto udata = soundEngine->GetUserData(snd);
-			if (udata) nVolume = min(Scale(udata[0], 255, 100), 255);
+			if (udata) nVolume = min(Scale(udata[0], 255, 80), 255);
 			else nVolume = 255;
 		}
 		if (bLoop) chanflags |= CHANF_LOOP;
