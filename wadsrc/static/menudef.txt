@@ -1748,6 +1748,11 @@ OptionString "LanguageOptions"
 	"eng", "English (UK)"
 	"cs", "Česky (Czech)"
 	"de", "Deutsch (German)"
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
+	{
+		"es", "Español"
+	}
+
 	//"es", "Español (España) (Castilian Spanish)"
 	//"esm", "Español (Latino) (Latin American Spanish)"
 	//"eo", "Esperanto"
