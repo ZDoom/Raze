@@ -1613,7 +1613,7 @@ void InitAmbient(int num, DSWActor* actor);
 
 inline void PlaySound(int num, PLAYER* player, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, nullptr, player, nullptr, flags, channel, sndflags);
+    _PlaySound(num, nullptr, player, nullptr, flags | v3df_follow, channel, sndflags);
 }
 inline void PlaySound(int num, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
