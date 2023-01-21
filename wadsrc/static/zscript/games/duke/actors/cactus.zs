@@ -10,7 +10,7 @@ class DukeCactusBroke : DukeActor
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
-		self.ChangeStat(STAT_ACTOR);
+		self.ChangeStat(STAT_DEFAULT);
 	}
 }
 
@@ -34,7 +34,7 @@ class DukeCactus : DukeCactusBroke
 				double vel = frandom(4, 8);
 				double zvel = -frandom(0, 16) - self.vel.Z * 0.25;
 
-				let spawned = dlevel.SpawnActor(self.sector, self.pos.plusZ(-48), "DukeScrap", -8, (0.75, 0.75), ang, vel, zvel, self);
+				let spawned = dlevel.SpawnActor(self.sector, self.pos.plusZ(-48), "DukeScrap", -8, (0.75, 0.75), ang, vel, zvel, self, STAT_MISC);
 				if (spawned)
 				{
 					spawned.spriteextra = DukeScrap.Scrap3 + random(0, 3);
