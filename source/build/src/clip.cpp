@@ -480,7 +480,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 const int32_t sinang = bsin(actor->int_ang());
                 vec2_t const span = { (int)tex->GetDisplayWidth(), (int)tex->GetDisplayHeight() };
                 vec2_t const repeat = { int(actor->spr.scale.X * scaletoint), int(actor->spr.scale.Y * scaletoint) };
-                vec2_t adjofs = { (int)tex->GetDisplayTopOffset(), (int)tex->GetDisplayTopOffset() };
+                vec2_t adjofs = { (int)tex->GetDisplayLeftOffset(), (int)tex->GetDisplayTopOffset() };
 
                 if (actor->spr.cstat & CSTAT_SPRITE_XFLIP)
                     adjofs.X = -adjofs.X;
