@@ -2741,12 +2741,12 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetPistolClip)
 {
-    ACTION_RETURN_POINTER(&PlayerList[nLocalPlayer].nPistolClip);
+    ACTION_RETURN_INT(PlayerList[nLocalPlayer].nPistolClip);
 }
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
 {
-    ACTION_RETURN_POINTER(&PlayerList[nLocalPlayer].nPlayerClip);
+    ACTION_RETURN_INT(PlayerList[nLocalPlayer].nPlayerClip);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
