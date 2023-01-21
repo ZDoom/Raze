@@ -228,7 +228,7 @@ double hitawall(player_struct* p, walltype** hitw)
 
 DDukeActor* aim(DDukeActor* actor, int abase)
 {
-	DAngle aang = DAngle90 * (AUTO_AIM_ANGLE / 512.);
+	DAngle aang = DAngle90 * (+AUTO_AIM_ANGLE / 512.);
 
 	bool gotshrinker, gotfreezer;
 	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };

@@ -36,10 +36,12 @@ enum
     kGenDudeTransformStatus = -222,
     kGenDudeUpdTimeRate = 10,
     kGenDudeMaxMeleeDist = 2048,
-    kGenDudeMaxMeleeDistf = 128,
     kGenDudeMinDispesion = 200,
     kGenDudeMaxDispersion = 3500,
 };
+
+constexpr double kGenDudeMaxMeleeDistf = 128;
+
 
 enum {
 kGenDudeSeqIdleL            = 0,

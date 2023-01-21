@@ -67,14 +67,14 @@ enum
 	kModernTypeFlag64 = 0x0040,
 
 	kMaxRandomizeRetries = 16,
-	kPercFull = 100,
 	kCondRange = 100,
 };
+
+constexpr int kPercFull = 100;
 
 enum
 {
 	kPatrolStateSize = 42,
-	kPatrolAlarmSeeDistSq = 625*625,
 	kPatrolAlarmHearDist = 10000,
 	kMaxPatrolSpotValue = 500,
 	kMinPatrolTurnDelay = 8,
@@ -83,7 +83,6 @@ enum
 	kDudeFlagStealth = 0x0001,
 	kDudeFlagCrouch = 0x0002,
 
-	kSlopeDist = 0x20,
 	kEffectGenCallbackBase = 200,
 	kTriggerSpriteScreen = 0x0001,
 	kTriggerSpriteAim = 0x0002,
@@ -92,6 +91,8 @@ enum
 	kMaxAllowedPowerup = kMaxPowerUps
 };
 
+constexpr double kPatrolAlarmSeeDistSq = 625 * 625;
+constexpr double kSlopeDist = 0x20;
 constexpr double kMaxPatrolVelocity = FixedToFloat(500000); // ~7.63
 constexpr double kMaxPatrolCrouchVelocity = (kMaxPatrolVelocity / 2);
 

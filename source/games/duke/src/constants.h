@@ -4,12 +4,10 @@
 
 // all game constants got collected here.
 
-enum
-{
-	TICRATE = 120,
-	REALGAMETICSPERSEC = 30, // The number of game state updates per second:
-	TICSPERFRAME = (TICRATE/REALGAMETICSPERSEC) // (This used to be TICRATE/GAMETICSPERSEC, which was 120/26 = 4.615~ truncated to 4 by integer division.)
-};
+constexpr int TICRATE = 120;
+constexpr int REALGAMETICSPERSEC = 30; // The number of game state updates per second:
+constexpr int TICSPERFRAME = (TICRATE / REALGAMETICSPERSEC); // (This used to be TICRATE/GAMETICSPERSEC, which was 120/26 = 4.615~ truncated to 4 by integer division.)
+
 
 // tile names which are identical for all games.
 enum
