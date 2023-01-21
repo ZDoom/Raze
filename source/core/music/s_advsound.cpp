@@ -425,6 +425,10 @@ static void S_AddSNDINFO (int lump)
 
 			default:
 			{ // Got a logical sound mapping
+				if (sc.String[0] == '$')
+				{
+					sc.ScriptError("%s: Unknown keyword");
+				}
 				FString name (sc.String);
 				if (wantassigns == -1)
 				{
