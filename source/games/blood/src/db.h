@@ -88,8 +88,8 @@ void GetSpriteExtents(spritetypebase const* const pSprite, double* top, double* 
 	if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
 	{
 		auto tex = TexMan.GetGameTexture(pSprite->spritetexture());
-		double height = tex->GetDisplayHeight();
-		double center = height / 2 + tex->GetDisplayTopOffset();
+		int height = int(tex->GetDisplayHeight());
+		int center = height / 2 + int(tex->GetDisplayTopOffset());
 		*top -= pSprite->scale.Y * center;
 		*bottom += pSprite->scale.Y * (height - center);
 	}
