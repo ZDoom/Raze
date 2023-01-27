@@ -1188,7 +1188,11 @@ int RunGame()
 void updatePauseStatus()
 {
 	// This must go through the network in multiplayer games.
-	if (M_Active() || System_WantGuiCapture() || !AppActive)
+	if (M_Active() || System_WantGuiCapture())
+	{
+		paused = 1;
+	}
+	else if (!AppActive)
 	{
 		if (i_pauseinbackground)
 			paused = 1;
