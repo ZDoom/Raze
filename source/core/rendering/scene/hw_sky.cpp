@@ -91,7 +91,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 	pe.a = 230;
 
 	sky->fadecolor = pe;
-	sky->shade = clamp<int>(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
+	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;
 }
 
