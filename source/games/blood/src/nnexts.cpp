@@ -807,7 +807,6 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 	{
 		if (iactor->xspr.busyTime <= 0 || iactor->xspr.isTriggered) continue;
 
-		int count = 0;
 		TRCONDITION* pCond = &gConditions[gConditions.Reserve(1)];
 
 		for (auto iactor2 : actors)
@@ -825,18 +824,18 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			if (iactor2->spr.type == kModernCondition || iactor2->spr.type == kModernConditionFalse)
 				condError(iactor, "Tracking condition always must be first in condition sequence!");
 
-			pCond->objects.Reserve(2);
-			pCond->objects[count].obj = EventObject(iactor2);
-			pCond->objects[count++].cmd = (uint8_t)iactor2->xspr.command;
+			pCond->objects.Reserve(1);
+			pCond->objects.Last().obj = EventObject(iactor2);
+			pCond->objects.Last().cmd = (uint8_t)iactor2->xspr.command;
 		}
 
 		for (auto& sect : sector)
 		{
 			if (!sect.hasX() || sect.xs().txID != iactor->xspr.rxID) continue;
 
-			pCond->objects.Reserve(2);
-			pCond->objects[count].obj = EventObject(&sect);
-			pCond->objects[count++].cmd = sect.xs().command;
+			pCond->objects.Reserve(1);
+			pCond->objects.Last().obj = EventObject(&sect);
+			pCond->objects.Last().cmd = sect.xs().command;
 		}
 
 		for (auto& wal : wall)
@@ -850,12 +849,12 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 				continue;
 			}
 
-			pCond->objects.Reserve(2);
-			pCond->objects[count].obj = EventObject(&wal);
-			pCond->objects[count++].cmd = wal.xw().command;
+			pCond->objects.Reserve(1);
+			pCond->objects.Last().obj = EventObject(&wal);
+			pCond->objects.Last().cmd = wal.xw().command;
 		}
 
-		if (iactor->xspr.data1 > kCondGameMax && count == 0)
+		if (iactor->xspr.data1 > kCondGameMax && pCond->objects.Size() == 0)
 			Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", iactor->GetIndex(), iactor->xspr.rxID);
 
 		pCond->actor = iactor;
