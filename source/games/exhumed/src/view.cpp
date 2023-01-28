@@ -118,7 +118,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
             pTSprite->pos.Z -= nTileY;
         }
 
-        if (pTSprite->pal == 4 && pTSprite->shade >= numshades) pTSprite->shade = numshades - 1;
+        if (pTSprite->pal == 4 && pTSprite->shade >= numshades && !hw_int_useindexedcolortextures) pTSprite->shade = numshades - 1;
 
         if (pActor->spr.statnum > 0)
         {
