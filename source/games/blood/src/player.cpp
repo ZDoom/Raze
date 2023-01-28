@@ -1452,7 +1452,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				int nMass = getDudeInfo(hitactor->spr.type)->mass;
 				if (nMass)
 				{
-					hitactor->spr.pos += pos * (FixedToFloat<8>(0xccccc) / nMass);
+					hitactor->vel += pos * (FixedToFloat<10>(0xccccc) / nMass);
 				}
 				if (hitactor->xspr.Push && !hitactor->xspr.state && !hitactor->xspr.isTriggered)
 					trTriggerSprite(hitactor, kCmdSpritePush);
