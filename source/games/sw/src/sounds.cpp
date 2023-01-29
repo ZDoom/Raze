@@ -537,7 +537,8 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             {
                 auto act = ((PLAYER*)source)->actor;
                 if (act) vPos = act->getPosWithOffsetZ();
-                else vPos = pp->actor->getPosWithOffsetZ();
+                else if (pp->actor)
+                    vPos = pp->actor->getPosWithOffsetZ();
             }
             pancheck = true;
             FVector3 npos = GetSoundPos(vPos);
