@@ -79,7 +79,7 @@ void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 		if (nDist == 0 || nDist > 0x280)
 			continue;
 
-		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
+		pos2 += actor->vel * nDist * (65536. / 0x1aaaaa);
 
 		DVector3 tvec = pos;
 		tvec.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
@@ -135,7 +135,7 @@ void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
 		if (nDist == 0 || nDist > 0x280)
 			continue;
 
-		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
+		pos2 += actor->vel * nDist * (65536. / 0x1aaaaa);
 
 		DVector3 tvec = pos;
 		tvec.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
