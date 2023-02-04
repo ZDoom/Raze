@@ -190,8 +190,10 @@ void PlayerAngles::doPitchKeys(ESyncBits* actions, const bool stopcentering)
 		if (!pActor->spr.Angles.Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
 	}
 
-	// clamp before we finish, even if it's clamped in the drawer.
-	pActor->spr.Angles.Pitch = ClampViewPitch(pActor->spr.Angles.Pitch);
+	// clamp before we finish, factoring in the player's view pitch offset.
+	const auto maximum = GetMaxPitch() - ViewAngles.Pitch * (ViewAngles.Pitch < nullAngle);
+	const auto minimum = GetMinPitch() - ViewAngles.Pitch * (ViewAngles.Pitch > nullAngle);
+	pActor->spr.Angles.Pitch = clamp(pActor->spr.Angles.Pitch, maximum, minimum);
 }
 
 
