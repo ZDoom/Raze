@@ -101,6 +101,7 @@ ticcmd_t playercmds[MAXPLAYERS];
 
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
+static double inputScale;
 
 bool r_NoInterpolate;
 int entertic;

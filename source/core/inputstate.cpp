@@ -50,7 +50,6 @@ ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
 bool sendPause;
 bool crouch_toggle;
-double inputScale;
 
 // Mouse speeds
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
