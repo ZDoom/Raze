@@ -73,13 +73,12 @@ static inline DAngle getscaledangle(const DAngle angle, const double scale, cons
 
 static inline bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
-	if (auto sgn = angle.Sgn())
+	auto sgn = angle.Sgn();
+
+	if (!sgn || sgn != (angle -= getscaledangle(angle, scale, push * sgn)).Sgn())
 	{
-		if (sgn != (angle -= getscaledangle(angle, scale, push * sgn)).Sgn())
-		{
-			angle = nullAngle;
-			return true;
-		}
+		angle = nullAngle;
+		return true;
 	}
 	return false;
 }
