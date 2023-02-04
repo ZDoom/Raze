@@ -565,7 +565,7 @@ void TryRunTics (void)
 	oldentertics = entertic;
 
 	// update the scale factor for unsynchronised input here.
-	inputScale = I_GetInputFrac(SyncInput());
+	inputScale = !SyncInput() ? I_GetInputFrac() : 1.;
 
 	// get available tics
 	NetUpdate ();
