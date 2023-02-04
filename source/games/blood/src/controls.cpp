@@ -54,14 +54,11 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 	ApplyGlobalInput(gInput, hidInput);
 	processMovement(&input, &gInput, hidInput, scaleAdjust);
 
-	if (!SyncInput() && gamestate == GS_LEVEL)
+	// Perform unsynchronised angle/horizon if not dead.
+	if (!SyncInput() && gamestate == GS_LEVEL && pPlayer->actor->xspr.health != 0)
 	{
-		// Perform unsynchronised angle/horizon if not dead.
-		if (pPlayer->actor->xspr.health != 0)
-		{
-			pPlayer->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
-			pPlayer->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
-		}
+		pPlayer->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
+		pPlayer->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
 	}
 
 	if (packet)

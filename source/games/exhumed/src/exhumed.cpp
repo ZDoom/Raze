@@ -376,8 +376,6 @@ void GameInterface::Ticker()
         PlayerList[nLocalPlayer].Angles.resetRenderAngles();
         UpdatePlayerSpriteAngle(&PlayerList[nLocalPlayer]);
 
-        inita = inita.Normalized360();
-
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 

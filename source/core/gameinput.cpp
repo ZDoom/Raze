@@ -242,7 +242,7 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			auto rotpt = pos + ang.ToVector() * (isBlood() ? 4 : 32);
+			auto rotpt = pos + ang.ToVector() * (!isBlood() ? 32 : 4);
 			auto tempsect = cursectnum;
 			updatesector(rotpt, &tempsect);
 

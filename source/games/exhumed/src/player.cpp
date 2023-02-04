@@ -666,7 +666,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    if (pPlayer->pActor) inita = pPlayer->pActor->spr.Angles.Yaw;
+    if (pPlayer->pActor) inita = pPlayer->pActor->spr.Angles.Yaw.Normalized360();
 }
 
 //---------------------------------------------------------------------------

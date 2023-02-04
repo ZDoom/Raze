@@ -489,7 +489,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, sector
 		{
 			cPos.Z += bobHeight;
 		}
-		cPos.Z -= interpolatedvalue(0., 10., cAngles.Pitch / DAngle90);
+		cPos.Z -= 10. * (cAngles.Pitch / DAngle90);
 	}
 	else
 	{

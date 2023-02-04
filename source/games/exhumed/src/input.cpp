@@ -82,17 +82,14 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
         sPlayerInput[nLocalPlayer].vel.Zero();
     }
 
-    if (!SyncInput() && gamestate == GS_LEVEL)
+    if (!SyncInput() && gamestate == GS_LEVEL && !nFreeze)
     {
-        if (!nFreeze)
-        {
-            pPlayer->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
-            pPlayer->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
+        pPlayer->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
+        pPlayer->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
 
-            if (input.horz)
-            {
-                pPlayer->bPlayerPan = pPlayer->bLockPan = true;
-            }
+        if (input.horz)
+        {
+            pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
 
         UpdatePlayerSpriteAngle(pPlayer);

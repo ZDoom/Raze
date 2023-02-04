@@ -28,7 +28,7 @@ struct PlayerAngles
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
 	{
-		if ((pActor = actor)) RenderAngles = PrevLerpAngles = pActor->spr.Angles;
+		if (pActor = actor) RenderAngles = PrevLerpAngles = pActor->spr.Angles;
 		PrevViewAngles.Yaw = ViewAngles.Yaw = viewyaw;
 	}
 	DAngle getPitchWithView()
@@ -37,21 +37,17 @@ struct PlayerAngles
 	}
 
 	// Render angle functions.
-	DRotator lerpViewAngles(const double interpfrac)
-	{
-		return interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
-	}
 	DRotator getRenderAngles(const double interpfrac)
 	{
 		// Get angles and return with clamped off pitch.
-		auto angles = RenderAngles + lerpViewAngles(interpfrac);
+		auto angles = RenderAngles + interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
 		angles.Pitch = ClampViewPitch(angles.Pitch);
 		return angles;
 	}
 	void updateRenderAngles(const double interpfrac)
 	{
 		// Apply the current interpolated angle state to the render angles.
-		const auto lerpAngles = pActor->interpolatedangles(interpfrac);
+		const auto lerpAngles = interpolatedvalue(pActor->PrevAngles, pActor->spr.Angles, interpfrac);
 		RenderAngles += lerpAngles - PrevLerpAngles;
 		PrevLerpAngles = lerpAngles;
 	}
@@ -66,14 +62,9 @@ struct PlayerAngles
 	// Draw code helpers.
 	auto getCrosshairOffsets(const double interpfrac)
 	{
-		// Set up angles.
-		const auto viewAngles = lerpViewAngles(interpfrac);
-		const auto rotTangent = viewAngles.Roll.Tan();
-		const auto yawTangent = clamp(viewAngles.Yaw, -DAngle90, DAngle90).Tan();
-		const auto fovTangent = tan(r_fov * pi::pi() / 360.);
-
-		// Return as pair with roll as the 2nd object since all callers inevitably need it.
-		return std::make_pair(DVector2(160, 120 * -rotTangent) * -yawTangent / fovTangent, viewAngles.Roll);
+		// Set up angles and return as pair with roll as the 2nd object since all callers inevitably need it.
+		const auto viewAngles = interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
+		return std::make_pair(DVector2(160, 120 * -viewAngles.Roll.Tan()) * -viewAngles.Yaw.Tan() / tan(r_fov * pi::pi() / 360.), viewAngles.Roll);
 	}
 	auto getWeaponOffsets(const double interpfrac)
 	{
