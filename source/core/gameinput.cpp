@@ -71,13 +71,17 @@ static inline DAngle getscaledangle(const DAngle angle, const double scale, cons
 	return (angle.Normalized180() * getTicrateScale(scale)) + push;
 }
 
-static inline void scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(32. / 465.))
+static inline bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
 	if (auto sgn = angle.Sgn())
 	{
-		angle -= getscaledangle(angle, scale, push * sgn);
-		if (sgn != angle.Sgn()) angle = nullAngle;
+		if (sgn != (angle -= getscaledangle(angle, scale, push * sgn)).Sgn())
+		{
+			angle = nullAngle;
+			return true;
+		}
 	}
+	return false;
 }
 
 
@@ -186,8 +190,8 @@ void PlayerAngles::doPitchKeys(ESyncBits* actions, const bool stopcentering)
 	{
 		const auto pitch = abs(pActor->spr.Angles.Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-		scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale);
-		if (!pActor->spr.Angles.Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
+		if (scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale))
+			*actions &= ~SB_CENTERVIEW;
 	}
 
 	// clamp before we finish, factoring in the player's view pitch offset.
@@ -270,7 +274,8 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
+			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB)
+				ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
