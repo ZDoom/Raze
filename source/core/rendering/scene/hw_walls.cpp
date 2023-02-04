@@ -1128,10 +1128,6 @@ int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
 
 void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sector)
 {
-	if (spr->time == 1373)
-	{
-		int a = 0;
-	}
 	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 	if (!tex || !tex->isValid()) return;
 
