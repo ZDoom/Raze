@@ -43,6 +43,12 @@ class DukeStatueFlash : DukeActor
 	{
 		pic "STATUEFLASH";
 	}
+
+	override void Initialize()
+	{
+		self.clipdist = 32;
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+	}
 	
 	override void OnHit(DukeActor proj)
 	{
