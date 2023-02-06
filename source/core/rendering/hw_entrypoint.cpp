@@ -154,10 +154,17 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 
 		// Stereo mode specific perspective projection
 		di->VPUniforms.mProjectionMatrix = eye.GetProjection(fov, ratio, fovratio);
-		// Stereo mode specific viewpoint adjustment
-		vp.Pos += eye.GetViewShift(vp.HWAngles.Yaw.Degrees());
-		di->SetupView(RenderState, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, false, false);
 
+		// Stereo mode specific viewpoint adjustment
+		if (eye.mShiftFactor != 0)
+		{
+			vp.Pos += eye.GetViewShift(vp.HWAngles.Yaw.Degrees());
+			sectortype* sect = &sector[vp.SectCount];
+			updatesector(DVector2(vp.Pos.X, -vp.Pos.Y), &sect);
+			vp.SectCount = sectindex(sect);
+		}
+
+		di->SetupView(RenderState, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, false, false);
 		di->ProcessScene(toscreen);
 
 		if (mainview)
