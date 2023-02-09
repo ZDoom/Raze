@@ -149,7 +149,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	switch (act->spr.picnum)
 	{
 	default:
-		CallInitialize(act);
+		if (!badguy(act) || commonEnemySetup(act, actj))
+			CallInitialize(act);
 		break;
 	case FOF:
 		act->spr.scale = DVector2(0, 0);

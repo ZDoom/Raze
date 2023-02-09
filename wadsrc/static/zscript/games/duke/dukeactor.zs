@@ -263,9 +263,12 @@ class DukeActor : CoreActor native
 				self.scale = (0, 0);
 				self.ChangeStat(STAT_MISC);
 			}
-			self.clipdist = 10;
-			self.ownerActor = self;
-			self.ChangeStat(STAT_ACTOR);
+			else
+			{
+				self.clipdist = 10;
+				self.ownerActor = self;
+				self.ChangeStat(STAT_ACTOR);
+			}
 		}
 		
 	}

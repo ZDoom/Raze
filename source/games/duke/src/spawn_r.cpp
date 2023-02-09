@@ -61,7 +61,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	{
 	default:
 	default_case:
-		CallInitialize(act);
+		if (!badguy(act) || commonEnemySetup(act, actj))
+			CallInitialize(act);
 		break;
 	case RTILE_RRTILE7936:
 		if (!isRRRA()) goto default_case;
