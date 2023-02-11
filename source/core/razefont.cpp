@@ -43,6 +43,7 @@
 
 FGameTexture* GetBaseForChar(FGameTexture* t);
 void FontCharCreated(FGameTexture* base, FGameTexture* glyph);
+EXTERN_CVAR(String, language)
 
 
 FFont* IndexFont;
@@ -55,8 +56,12 @@ CUSTOM_CVAR(Int, duke_menufont, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOIN
 	if (self < -1 || self > 1) self = -1;
 	else
 	{
+		// BigFont15 is Latin only, so for non-latin languages force BigFont13 until someone completes this font. (This lists all relevant European languages, regardless of support!)
+		if (!strnicmp(language, "ru", 2) || !strnicmp(language, "sr", 2) || !strnicmp(language, "bg", 2) || !strnicmp(language, "mk", 2)  || !strnicmp(language, "uk", 2) || !strnicmp(language, "el", 2))
+			OriginalBigFont->CopyFrom(*BigFont13);
+		
 		// Font info must be copied so that BigFont does not change its address.
-		if (self == 0 || (self == -1 && isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont15);
+		else if (self == 0 || (self == -1 && isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont15);
 		else if (self == 1 || (self == -1 && !isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont13);
 	}
 }

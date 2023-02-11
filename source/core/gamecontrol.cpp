@@ -550,6 +550,14 @@ bool WantEscape()
 	return gi->WantEscape();
 }
 
+EXTERN_CVAR(Int, duke_menufont)
+
+void LanguageChanged(const char* lang)
+{
+	duke_menufont->Callback();
+}
+
+
 
 
 void I_StartupJoysticks();
@@ -596,7 +604,7 @@ int GameMain()
 		HudScaleChanged,
 		M_SetSpecialMenu,
 		OnMenuOpen,
-		nullptr,
+		LanguageChanged,
 		nullptr,
 		[]() ->FConfigFile* { return GameConfig; },
 		WantEscape,
