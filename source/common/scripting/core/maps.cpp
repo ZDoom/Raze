@@ -108,7 +108,7 @@ template<typename T>
 using expand_types_vm = 
 std::conditional_t<std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t>, uint32_t , /* expand 8/16-bit to 32-bit */
     std::conditional_t<std::is_same_v<T, float> , double , /* expand float to double */
-        std::conditional_t<std::is_same_v<T, FString> , const FString & , T>>>; /* change String to String ref */
+        std::conditional_t<std::is_same_v<T, FString> , const FString & , T>>>; /* change String to String ref */   
 
 template<typename M> unsigned int MapCountUsed(M * self)
 {
@@ -118,13 +118,22 @@ template<typename M> unsigned int MapCountUsed(M * self)
 template<typename M> expand_types_vm<typename M::ValueType> MapGet(M * self,expand_types_vm<typename M::KeyType> key)
 {
     typename M::ValueType * v = self->CheckKey(key);
-    if (v) {
-        return *v;
+    if (v)
+    {
+        if constexpr(std::is_same_v<typename M::ValueType, DObject*>)
+        {
+            return GC::ReadBarrier(*v);
+        }
+        else
+        {
+            return *v;
+        }
     }
     else
     {
         typename M::ValueType n {};
         self->Insert(key,n);
+        self->info->rev++; // invalidate iterators
         return n;
     }
 }
@@ -139,12 +148,75 @@ template<typename M> void MapGetString(M * self,expand_types_vm<typename M::KeyT
     {
         out = FString();
         self->Insert(key,out);
+        self->info->rev++; // invalidate iterators
+    }
+}
+
+template<typename M> expand_types_vm<typename M::ValueType> MapGetIfExists(M * self,expand_types_vm<typename M::KeyType> key)
+{
+    typename M::ValueType * v = self->CheckKey(key);
+    if (v) {
+        if constexpr(std::is_same_v<typename M::ValueType, DObject*>)
+        {
+            return GC::ReadBarrier(*v);
+        }
+        else
+        {
+            return *v;
+        }
+    }
+    else
+    {
+        return {};
+    }
+}
+
+template<typename M> void MapGetIfExistsString(M * self,expand_types_vm<typename M::KeyType> key, FString &out)
+{
+    FString * v = self->CheckKey(key);
+    if (v) {
+        out = *v;
+    }
+    else
+    {
+        out = FString();
     }
 }
 
 template<typename M> int MapCheckKey(M * self, expand_types_vm<typename M::KeyType> key)
 {
     return self->CheckKey(key) != nullptr;
+}
+
+template<typename M> expand_types_vm<typename M::ValueType> MapCheckValue(M * self,expand_types_vm<typename M::KeyType> key, int &exists)
+{
+    typename M::ValueType * v = self->CheckKey(key);
+    if ((exists = !!v)) {
+        if constexpr(std::is_same_v<typename M::ValueType, DObject*>)
+        {
+            return GC::ReadBarrier(*v);
+        }
+        else
+        {
+            return *v;
+        }
+    }
+    else
+    {
+        return {};
+    }
+}
+
+template<typename M> void MapCheckValueString(M * self,expand_types_vm<typename M::KeyType> key, FString &out, int &exists)
+{
+    FString * v = self->CheckKey(key);
+    if ((exists = !!v)) {
+        out = *v;
+    }
+    else
+    {
+        out = FString();
+    }
 }
 
 
@@ -238,7 +310,14 @@ template<typename I> void MapIteratorGetKeyString(I * self, FString &out)
 
 template<typename I> expand_types_vm<typename I::ValueType> MapIteratorGetValue(I * self)
 {
-    return self->GetValue();
+    if constexpr(std::is_same_v<typename I::ValueType, DObject*>)
+    {
+        return GC::ReadBarrier(self->GetValue());
+    }
+    else
+    {
+        return self->GetValue();
+    }
 }
 
 template<typename I> void MapIteratorGetValueString(I * self, FString &out)
@@ -271,6 +350,25 @@ template<typename I> void MapIteratorSetValue(I * self, expand_types_vm<typename
 //
 //
 //==========================================================================
+
+template<int N, typename T, typename U> void SetValType(T & ret,U & val){
+    if constexpr(std::is_same_v<U, DObject*>)
+    {
+        ret[N].SetObject(val);
+    }
+    else if constexpr(std::is_same_v<U, void*>)
+    {
+        ret[N].SetPointer(val);
+    }
+    else if constexpr(std::is_same_v<U, uint32_t>)
+    {
+        ret[N].SetInt(val);
+    }
+    else if constexpr(std::is_same_v<U, double>)
+    {
+        ret[N].SetFloat(val);
+    }
+}
 
 #define PARAM_VOIDPOINTER(X) PARAM_POINTER( X , void )
 #define PARAM_OBJPOINTER(X) PARAM_OBJECT( X , DObject )
@@ -345,6 +443,23 @@ template<typename I> void MapIteratorSetValue(I * self, expand_types_vm<typename
         PARAM_SELF_STRUCT_PROLOGUE( name ); \
         PARAM_KEY( key ); \
         ACTION_RETURN_VALUE( MapGet(self, key) ); \
+    } \
+    DEFINE_ACTION_FUNCTION_NATIVE( name, GetIfExists, MapGetIfExists< name >) \
+    { \
+        PARAM_SELF_STRUCT_PROLOGUE( name ); \
+        PARAM_KEY( key ); \
+        ACTION_RETURN_VALUE( MapGetIfExists(self, key) ); \
+    } \
+    DEFINE_ACTION_FUNCTION_NATIVE( name, CheckValue, MapCheckValue< name >) \
+    { \
+        PARAM_SELF_STRUCT_PROLOGUE( name ); \
+        PARAM_KEY( key ); \
+        int exists; \
+        expand_types_vm<value_type> out; \
+        out = MapCheckValue(self, key, exists); \
+	    if (numret > 1) ret[1].SetInt(exists); \
+        if (numret > 0) SetValType<0>(ret, out); \
+        return numret; \
     }
 
 #define DEF_MAP_X_S( name, key_type, PARAM_KEY ) \
@@ -356,6 +471,25 @@ template<typename I> void MapIteratorSetValue(I * self, expand_types_vm<typename
         FString out; \
         MapGetString(self, key, out); \
         ACTION_RETURN_STRING( out ); \
+    } \
+    DEFINE_ACTION_FUNCTION_NATIVE( name, GetIfExists, MapGetIfExistsString< name >) \
+    { \
+        PARAM_SELF_STRUCT_PROLOGUE( name ); \
+        PARAM_KEY( key ); \
+        FString out; \
+        MapGetIfExistsString(self, key, out); \
+        ACTION_RETURN_STRING( out ); \
+    } \
+    DEFINE_ACTION_FUNCTION_NATIVE( name, CheckValue, MapCheckValueString< name >) \
+    { \
+        PARAM_SELF_STRUCT_PROLOGUE( name ); \
+        PARAM_KEY( key ); \
+        int exists; \
+        FString out; \
+        MapCheckValueString(self, key, out, exists); \
+	    if (numret > 1) ret[1].SetInt(exists); \
+        if (numret > 0) ret[0].SetString(out); \
+        return numret; \
     }
 
 #define COMMA ,
