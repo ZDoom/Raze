@@ -45,7 +45,7 @@ public:
 	bool ReadAllFields(FSerializer &ar, void *addr) const;
 	int FindVirtualIndex(FName name, PFunction::Variant *variant, PFunction *parentfunc, bool exactReturnType);
 	PSymbol *FindSymbol(FName symname, bool searchparents) const;
-	PField *AddField(FName name, PType *type, uint32_t flags);
+	PField *AddField(FName name, PType *type, uint32_t flags, int fileno = 0);
 	void InitializeDefaults();
 
 	static void StaticInit();
@@ -80,7 +80,7 @@ public:
 	~PClass();
 	void InsertIntoHash(bool native);
 	DObject *CreateNew();
-	PClass *CreateDerivedClass(FName name, unsigned int size, bool *newlycreated = nullptr);
+	PClass *CreateDerivedClass(FName name, unsigned int size, bool *newlycreated = nullptr, int fileno = 0);
 
 	void InitializeActorInfo();
 	void BuildFlatPointers();

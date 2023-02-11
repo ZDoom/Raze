@@ -1985,12 +1985,114 @@ PStaticArray *NewStaticArray(PType *type)
 //
 //==========================================================================
 
+enum OverrideFunctionRetType {
+	OFN_RET_VOID,
+	OFN_RET_VAL,
+	OFN_RET_KEY,
+	OFN_RET_BOOL,
+	OFN_RET_VAL_BOOL,
+	OFN_RET_INT,
+};
+enum OverrideFunctionArgType {
+	OFN_ARG_VOID,
+	OFN_ARG_KEY,
+	OFN_ARG_VAL,
+	OFN_ARG_KEY_VAL,
+	OFN_ARG_ELEM,
+	OFN_ARG_INT_ELEM,
+};
+
+template<OverrideFunctionRetType RetType, OverrideFunctionArgType ArgType , int ExtraFlags = 0, class MT>
+void CreateOverrideFunction(MT *self, FName name)
+{
+	auto Fn = Create<PFunction>(self->BackingType, name);
+	auto NativeFn = FindFunction(self->BackingType, name.GetChars());
+
+	assert(NativeFn);
+	assert(NativeFn->VMPointer);
+
+	TArray<PType*> ret;
+	TArray<PType*> args;
+	TArray<uint32_t> argflags;
+	TArray<FName> argnames;
+
+	if constexpr(RetType == OFN_RET_VAL)
+	{
+		ret.Push(self->ValueType);
+	}
+	else if constexpr(RetType == OFN_RET_KEY)
+	{
+		ret.Push(self->KeyType);
+	}
+	else if constexpr(RetType == OFN_RET_BOOL)
+	{
+		ret.Push(TypeBool);
+	}
+	else if constexpr(RetType == OFN_RET_VAL_BOOL)
+	{
+		ret.Push(self->ValueType);
+		ret.Push(TypeBool);
+	}
+	else if constexpr(RetType == OFN_RET_INT)
+	{
+		ret.Push(TypeSInt32);
+	}
+
+	args.Push(NewPointer(self->BackingType));
+	argnames.Push(NAME_self);
+	argflags.Push(VARF_Implicit | VARF_ReadOnly);
+
+	if constexpr(ArgType == OFN_ARG_KEY)
+	{
+		args.Push(self->KeyType);
+		argflags.Push(0);
+		argnames.Push(NAME_Key);
+	}
+	else if constexpr(ArgType == OFN_ARG_VAL)
+	{
+
+		args.Push(self->ValueType);
+		argflags.Push(0);
+		argnames.Push(NAME_Value);
+	}
+	else if constexpr(ArgType == OFN_ARG_KEY_VAL)
+	{
+		args.Push(self->KeyType);
+		args.Push(self->ValueType);
+		argflags.Push(0);
+		argflags.Push(0);
+		argnames.Push(NAME_Key);
+		argnames.Push(NAME_Value);
+	}
+	else if constexpr(ArgType == OFN_ARG_ELEM)
+	{
+		args.Push(self->ElementType);
+		argflags.Push(0);
+		argnames.Push(NAME_Item);
+	}
+	else if constexpr(ArgType == OFN_ARG_INT_ELEM)
+	{
+		args.Push(TypeSInt32);
+		args.Push(self->ElementType);
+		argflags.Push(0);
+		argflags.Push(0);
+		argnames.Push(NAME_Index);
+		argnames.Push(NAME_Item);
+	}
+
+	Fn->AddVariant(NewPrototype(ret, args), argflags, argnames, *NativeFn->VMPointer, VARF_Method | VARF_Native | ExtraFlags, SUF_ACTOR | SUF_OVERLAY | SUF_WEAPON | SUF_ITEM);
+	self->FnOverrides.Insert(name, Fn);
+}
+
 PDynArray::PDynArray(PType *etype,PStruct *backing)
 : ElementType(etype), BackingType(backing)
 {
 	mDescriptiveName.Format("DynArray<%s>", etype->DescriptiveName());
 	Size = sizeof(FArray);
 	Align = alignof(FArray);
+	CreateOverrideFunction<OFN_RET_INT ,  OFN_ARG_ELEM     , VARF_ReadOnly> (this, NAME_Find);
+	CreateOverrideFunction<OFN_RET_INT ,  OFN_ARG_ELEM     > (this, NAME_Push);
+	CreateOverrideFunction<OFN_RET_VOID , OFN_ARG_INT_ELEM > (this, NAME_Insert);
 }
 
 //==========================================================================
@@ -2226,89 +2328,19 @@ PDynArray *NewDynArray(PType *type)
 //
 //==========================================================================
 
-enum OverrideFunctionRetType {
-	OFN_RET_VOID,
-	OFN_RET_VAL,
-	OFN_RET_KEY,
-	OFN_RET_BOOL,
-};
-enum OverrideFunctionArgType {
-	OFN_ARG_VOID,
-	OFN_ARG_KEY,
-	OFN_ARG_VAL,
-	OFN_ARG_KEY_VAL,
-};
-
-template<class MT, OverrideFunctionRetType RetType, OverrideFunctionArgType ArgType >
-void CreateOverrideFunction(MT *self, FName name)
-{
-	auto Fn = Create<PFunction>(self->BackingType, name);
-	auto NativeFn = FindFunction(self->BackingType, name.GetChars());
-
-	assert(NativeFn);
-	assert(NativeFn->VMPointer);
-
-
-	TArray<PType*> ret;
-	TArray<PType*> args;
-	TArray<uint32_t> argflags;
-	TArray<FName> argnames;
-
-	if constexpr(RetType == OFN_RET_VAL)
-	{
-		ret.Push(self->ValueType);
-	}
-	else if constexpr(RetType == OFN_RET_KEY)
-	{
-		ret.Push(self->KeyType);
-	}
-	else if constexpr(RetType == OFN_RET_BOOL)
-	{
-		ret.Push(TypeBool);
-	}
-
-	args.Push(NewPointer(self->BackingType));
-	argnames.Push(NAME_self);
-	argflags.Push(VARF_Implicit | VARF_ReadOnly);
-
-	if constexpr(ArgType == OFN_ARG_KEY)
-	{
-		args.Push(self->KeyType);
-		argflags.Push(0);
-		argnames.Push(NAME_Key);
-	}
-	else if constexpr(ArgType == OFN_ARG_VAL)
-	{
-
-		args.Push(self->ValueType);
-		argflags.Push(0);
-		argnames.Push(NAME_Value);
-	}
-	else if constexpr(ArgType == OFN_ARG_KEY_VAL)
-	{
-		args.Push(self->KeyType);
-		args.Push(self->ValueType);
-		argflags.Push(0);
-		argflags.Push(0);
-		argnames.Push(NAME_Key);
-		argnames.Push(NAME_Value);
-	}
-
-	Fn->AddVariant(NewPrototype(ret, args), argflags, argnames, *NativeFn->VMPointer, VARF_Method | VARF_Native,SUF_ACTOR | SUF_OVERLAY | SUF_WEAPON | SUF_ITEM);
-	self->FnOverrides.Insert(name, Fn);
-}
-
 PMap::PMap(PType *keytype, PType *valtype, PStruct *backing, int backing_class)
 : KeyType(keytype), ValueType(valtype), BackingType(backing), BackingClass((decltype(BackingClass)) backing_class)
 {
 	mDescriptiveName.Format("Map<%s, %s>", keytype->DescriptiveName(), valtype->DescriptiveName());
 	Size = sizeof(ZSFMap);
 	Align = alignof(ZSFMap);
-	CreateOverrideFunction<PMap, OFN_RET_VAL, OFN_ARG_KEY>(this, NAME_Get);
-	CreateOverrideFunction<PMap, OFN_RET_BOOL, OFN_ARG_KEY>(this, NAME_CheckKey);
-	CreateOverrideFunction<PMap, OFN_RET_VOID, OFN_ARG_KEY_VAL>(this, NAME_Insert);
-	CreateOverrideFunction<PMap, OFN_RET_VOID, OFN_ARG_KEY>(this, NAME_InsertNew);
-	CreateOverrideFunction<PMap, OFN_RET_VOID, OFN_ARG_KEY>(this, NAME_Remove);
+	CreateOverrideFunction< OFN_RET_VAL      , OFN_ARG_KEY     > (this, NAME_Get);
+	CreateOverrideFunction< OFN_RET_VAL      , OFN_ARG_KEY     , VARF_ReadOnly> (this, NAME_GetIfExists);
+	CreateOverrideFunction< OFN_RET_BOOL     , OFN_ARG_KEY     , VARF_ReadOnly> (this, NAME_CheckKey);
+	CreateOverrideFunction< OFN_RET_VAL_BOOL , OFN_ARG_KEY     , VARF_ReadOnly> (this, NAME_CheckValue);
+	CreateOverrideFunction< OFN_RET_VOID     , OFN_ARG_KEY_VAL > (this, NAME_Insert);
+	CreateOverrideFunction< OFN_RET_VOID     , OFN_ARG_KEY     > (this, NAME_InsertNew);
+	CreateOverrideFunction< OFN_RET_VOID     , OFN_ARG_KEY     > (this, NAME_Remove);
 }
 
 //==========================================================================
@@ -2770,9 +2802,9 @@ PMapIterator::PMapIterator(PType *keytype, PType *valtype, PStruct *backing, int
 	mDescriptiveName.Format("MapIterator<%s, %s>", keytype->DescriptiveName(), valtype->DescriptiveName());
 	Size = sizeof(ZSFMap);
 	Align = alignof(ZSFMap);
-	CreateOverrideFunction<PMapIterator, OFN_RET_KEY, OFN_ARG_VOID>(this, NAME_GetKey);
-	CreateOverrideFunction<PMapIterator, OFN_RET_VAL, OFN_ARG_VOID>(this, NAME_GetValue);
-	CreateOverrideFunction<PMapIterator, OFN_RET_VOID, OFN_ARG_VAL>(this, NAME_SetValue);
+	CreateOverrideFunction<OFN_RET_KEY,  OFN_ARG_VOID>(this, NAME_GetKey);
+	CreateOverrideFunction<OFN_RET_VAL,  OFN_ARG_VOID>(this, NAME_GetValue);
+	CreateOverrideFunction<OFN_RET_VOID, OFN_ARG_VAL>(this, NAME_SetValue);
 }
 
 //==========================================================================
@@ -3009,12 +3041,13 @@ PMapIterator *NewMapIterator(PType *keyType, PType *valueType)
 //
 //==========================================================================
 
-PStruct::PStruct(FName name, PTypeBase *outer, bool isnative)
+PStruct::PStruct(FName name, PTypeBase *outer, bool isnative, int fileno)
 : PContainerType(name, outer)
 {
 	mDescriptiveName.Format("%sStruct<%s>", isnative? "Native" : "", name.GetChars());
 	Size = 0;
 	isNative = isnative;
+	mDefFileNo = fileno;
 }
 
 //==========================================================================
@@ -3155,7 +3188,7 @@ PField *PStruct::AddField(FName name, PType *type, uint32_t flags)
 
 PField *PStruct::AddNativeField(FName name, PType *type, size_t address, uint32_t flags, int bitvalue)
 {
-	return Symbols.AddNativeField(name, type, address, flags, bitvalue);
+	return Symbols.AddNativeField(name, type, address, flags, bitvalue, mDefFileNo);
 }
 
 //==========================================================================
@@ -3166,14 +3199,14 @@ PField *PStruct::AddNativeField(FName name, PType *type, size_t address, uint32_
 //
 //==========================================================================
 
-PStruct *NewStruct(FName name, PTypeBase *outer, bool native)
+PStruct *NewStruct(FName name, PTypeBase *outer, bool native, int fileno)
 {
 	size_t bucket;
 	if (outer == nullptr) outer = Namespaces.GlobalNamespace;
 	PType *stype = TypeTable.FindType(NAME_Struct, (intptr_t)outer, name.GetIndex(), &bucket);
 	if (stype == nullptr)
 	{
-		stype = new PStruct(name, outer, native);
+		stype = new PStruct(name, outer, native, fileno);
 		TypeTable.AddType(stype, NAME_Struct, (intptr_t)outer, name.GetIndex(), bucket);
 	}
 	return static_cast<PStruct *>(stype);
@@ -3271,7 +3304,7 @@ PPrototype *NewPrototype(const TArray<PType *> &rettypes, const TArray<PType *> 
 //
 //==========================================================================
 
-PClassType::PClassType(PClass *cls)
+PClassType::PClassType(PClass *cls, int fileno)
 {
 	assert(cls->VMType == nullptr);
 	Descriptor = cls;
@@ -3284,6 +3317,7 @@ PClassType::PClassType(PClass *cls)
 		ScopeFlags = ParentType->ScopeFlags;
 	}
 	cls->VMType = this;
+	mDefFileNo = fileno;
 	mDescriptiveName.Format("Class<%s>", cls->TypeName.GetChars());
 }
 
@@ -3295,7 +3329,7 @@ PClassType::PClassType(PClass *cls)
 
 PField *PClassType::AddField(FName name, PType *type, uint32_t flags)
 {
-	return Descriptor->AddField(name, type, flags);
+	return Descriptor->AddField(name, type, flags, mDefFileNo);
 }
 
 //==========================================================================
@@ -3306,7 +3340,7 @@ PField *PClassType::AddField(FName name, PType *type, uint32_t flags)
 
 PField *PClassType::AddNativeField(FName name, PType *type, size_t address, uint32_t flags, int bitvalue)
 {
-	auto field = Symbols.AddNativeField(name, type, address, flags, bitvalue);
+	auto field = Symbols.AddNativeField(name, type, address, flags, bitvalue, mDefFileNo);
 	if (field != nullptr) Descriptor->Fields.Push(field);
 	return field;
 }
@@ -3317,13 +3351,13 @@ PField *PClassType::AddNativeField(FName name, PType *type, size_t address, uint
 //
 //==========================================================================
 
-PClassType *NewClassType(PClass *cls)
+PClassType *NewClassType(PClass *cls, int fileno)
 {
 	size_t bucket;
 	PType *ptype = TypeTable.FindType(NAME_Object, 0, cls->TypeName.GetIndex(), &bucket);
 	if (ptype == nullptr)
 	{
-		ptype = new PClassType(cls);
+		ptype = new PClassType(cls, fileno);
 		TypeTable.AddType(ptype, NAME_Object, 0, cls->TypeName.GetIndex(), bucket);
 	}
 	return static_cast<PClassType *>(ptype);

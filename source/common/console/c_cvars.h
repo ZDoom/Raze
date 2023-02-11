@@ -37,6 +37,7 @@
 #include "tarray.h"
 #include "autosegs.h"
 #include "name.h"
+#include "dobjgc.h"
 
 class FSerializer; // this needs to go away.
 /*
@@ -49,29 +50,31 @@ CVARS (console variables)
 
 enum
 {
-	CVAR_ARCHIVE       = 1,       // set to cause it to be saved to config.
-	CVAR_USERINFO      = 1 <<  1, // added to userinfo  when changed.
-	CVAR_SERVERINFO    = 1 <<  2, // added to serverinfo when changed.
-	CVAR_NOSET         = 1 <<  3, // don't allow change from console at all,
-	                              // but can be set from the command line.
-	CVAR_LATCH         = 1 <<  4, // save changes until server restart.
-	CVAR_UNSETTABLE    = 1 <<  5, // can unset this var from console.
-	CVAR_DEMOSAVE      = 1 <<  6, // save the value of this cvar in a demo.
-	CVAR_ISDEFAULT     = 1 <<  7, // is cvar unchanged since creation?
-	CVAR_AUTO          = 1 <<  8, // allocated; needs to be freed when destroyed.
-	CVAR_NOINITCALL    = 1 <<  9, // don't call callback at game start.
-	CVAR_GLOBALCONFIG  = 1 << 10, // cvar is saved to global config section.
-	CVAR_VIDEOCONFIG   = 1 << 11, // cvar is saved to video config section (not implemented).
-	CVAR_NOSAVE        = 1 << 12, // when used with CVAR_SERVERINFO, do not save var to savegame
-	                              // and config.
-	CVAR_MOD           = 1 << 13, // cvar was defined by a mod.
-	CVAR_IGNORE        = 1 << 14, // do not send cvar across the network/inaccesible from ACS
-	                              // (dummy mod cvar).
-	CVAR_CHEAT         = 1 << 15, // can be set only when sv_cheats is enabled.
-	CVAR_UNSAFECONTEXT = 1 << 16, // cvar value came from unsafe context.
-	CVAR_VIRTUAL       = 1 << 17, // do not invoke the callback recursively so it can be used to
-	                              // mirror an external variable.
-	CVAR_CONFIG_ONLY   = 1 << 18, // do not save var to savegame and do not send it across network.
+	CVAR_ARCHIVE			= 1,       // set to cause it to be saved to config.
+	CVAR_USERINFO			= 1 <<  1, // added to userinfo  when changed.
+	CVAR_SERVERINFO			= 1 <<  2, // added to serverinfo when changed.
+	CVAR_NOSET				= 1 <<  3, // don't allow change from console at all,
+									   // but can be set from the command line.
+	CVAR_LATCH				= 1 <<  4, // save changes until server restart.
+	CVAR_UNSETTABLE			= 1 <<  5, // can unset this var from console.
+	CVAR_DEMOSAVE			= 1 <<  6, // save the value of this cvar in a demo.
+	CVAR_ISDEFAULT			= 1 <<  7, // is cvar unchanged since creation?
+	CVAR_AUTO				= 1 <<  8, // allocated; needs to be freed when destroyed.
+	CVAR_NOINITCALL			= 1 <<  9, // don't call callback at game start.
+	CVAR_GLOBALCONFIG		= 1 << 10, // cvar is saved to global config section.
+	CVAR_VIDEOCONFIG		= 1 << 11, // cvar is saved to video config section (not implemented).
+	CVAR_NOSAVE				= 1 << 12, // when used with CVAR_SERVERINFO, do not save var to savegame
+									   // and config.
+	CVAR_MOD				= 1 << 13, // cvar was defined by a mod.
+	CVAR_IGNORE				= 1 << 14, // do not send cvar across the network/inaccesible from ACS
+									   // (dummy mod cvar).
+	CVAR_CHEAT				= 1 << 15, // can be set only when sv_cheats is enabled.
+	CVAR_UNSAFECONTEXT		= 1 << 16, // cvar value came from unsafe context.
+	CVAR_VIRTUAL			= 1 << 17, // do not invoke the callback recursively so it can be used to
+									   // mirror an external variable.
+	CVAR_CONFIG_ONLY		= 1 << 18, // do not save var to savegame and do not send it across network.
+	CVAR_ZS_CUSTOM			= 1 << 19, // Custom CVar backed by a ZScript class
+	CVAR_ZS_CUSTOM_CLONE	= 1 << 20, // Clone of a Custom ZScript CVar
 };
 
 enum ECVarType
@@ -182,12 +185,20 @@ public:
 	virtual UCVarValue GetFavoriteRepDefault (ECVarType *type) const = 0;
 	virtual void SetGenericRepDefault (UCVarValue value, ECVarType type) = 0;
 
+	virtual UCVarValue GenericZSCVarCallback(UCVarValue value, ECVarType type)
+	{	// not valid for cvars that aren't custom zscript cvars, doesn't modify the actual cvar directly, just transforms the value
+		// FZSStringCVar allocates a buffer for the returned string that must be freed by the caller
+		return 0;
+	}
+
 	FBaseCVar &operator= (const FBaseCVar &var)
 		{ UCVarValue val; ECVarType type; val = var.GetFavoriteRep (&type); SetGenericRep (val, type); return *this; }
 
 	static void EnableNoSet ();		// enable the honoring of CVAR_NOSET
 	static void EnableCallbacks ();
 	static void DisableCallbacks ();
+	static void InitZSCallbacks ();
+	static void MarkZSCallbacks ();
 	static void ResetColors ();		// recalc color cvars' indices after screen change
 
 	static void ListVars (const char *filter, bool plain);
@@ -209,6 +220,10 @@ public:
 
 protected:
 	virtual void DoSet (UCVarValue value, ECVarType type) = 0;
+	virtual void InstantiateZSCVar()
+	{}
+	virtual void MarkZSCVar()
+	{}
 
 	static bool ToBool (UCVarValue value, ECVarType type);
 	static int ToInt (UCVarValue value, ECVarType type);
@@ -278,6 +293,7 @@ FBaseCVar *GetCVar(int playernum, const char *cvarname);
 
 // Create a new cvar with the specified name and type
 FBaseCVar *C_CreateCVar(const char *var_name, ECVarType var_type, uint32_t flags);
+FBaseCVar *C_CreateZSCustomCVar(const char *var_name, ECVarType var_type, uint32_t flags, FName className);
 
 // Called from G_InitNew()
 void UnlatchCVars (void);
@@ -480,6 +496,76 @@ protected:
 	FIntCVar &ValueVar;
 	uint32_t BitVal;
 	int BitNum;
+};
+
+class FZSIntCVar : public FIntCVar
+{
+	TObjPtr<DObject*> customCVarHandler;
+	FName cvarName;
+	FName className;
+
+	static void CallCVarCallback(FZSIntCVar &);
+public:
+	FZSIntCVar(const char *name, int def, uint32_t flags, FName className, const char* descr = nullptr);
+	void InstantiateZSCVar() override;
+	void MarkZSCVar() override;
+	UCVarValue GenericZSCVarCallback(UCVarValue value, ECVarType type) override;
+};
+
+class FZSFloatCVar : public FFloatCVar
+{
+	TObjPtr<DObject*> customCVarHandler;
+	FName cvarName;
+	FName className;
+
+	static void CallCVarCallback(FZSFloatCVar &);
+public:
+	FZSFloatCVar(const char *name, float def, uint32_t flags, FName className, const char* descr = nullptr);
+	void InstantiateZSCVar() override;
+	void MarkZSCVar() override;
+	UCVarValue GenericZSCVarCallback(UCVarValue value, ECVarType type) override;
+};
+
+class FZSStringCVar : public FStringCVar
+{
+	TObjPtr<DObject*> customCVarHandler;
+	FName cvarName;
+	FName className;
+
+	static void CallCVarCallback(FZSStringCVar &);
+public:
+	FZSStringCVar(const char *name, const char * def, uint32_t flags, FName className, const char* descr = nullptr);
+	void InstantiateZSCVar() override;
+	void MarkZSCVar() override;
+	UCVarValue GenericZSCVarCallback(UCVarValue value, ECVarType type) override;
+};
+
+class FZSBoolCVar : public FBoolCVar
+{
+	TObjPtr<DObject*> customCVarHandler;
+	FName cvarName;
+	FName className;
+
+	static void CallCVarCallback(FZSBoolCVar &);
+public:
+	FZSBoolCVar(const char *name, bool def, uint32_t flags, FName className, const char* descr = nullptr);
+	void InstantiateZSCVar() override;
+	void MarkZSCVar() override;
+	UCVarValue GenericZSCVarCallback(UCVarValue value, ECVarType type) override;
+};
+
+class FZSColorCVar : public FColorCVar
+{
+	TObjPtr<DObject*> customCVarHandler;
+	FName cvarName;
+	FName className;
+
+	static void CallCVarCallback(FZSColorCVar &);
+public:
+	FZSColorCVar(const char *name, int def, uint32_t flags, FName className, const char* descr = nullptr);
+	void InstantiateZSCVar() override;
+	void MarkZSCVar() override;
+	UCVarValue GenericZSCVarCallback(UCVarValue value, ECVarType type) override;
 };
 
 class FBoolCVarRef

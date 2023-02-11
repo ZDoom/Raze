@@ -388,6 +388,7 @@ BOOL CALLBACK IWADBoxCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 			break;
 #ifdef HAVE_GLES2
 		case 2:
+		case 3:
 			SendDlgItemMessage( hDlg, IDC_WELCOME_VULKAN4, BM_SETCHECK, BST_CHECKED, 0 );
 			break;
 #endif			
