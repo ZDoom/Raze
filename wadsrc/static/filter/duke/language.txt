@@ -23,8 +23,10 @@
 "#CrosshairOn" = "$$CROSSHAIR: ON";
 "#CrosshairOff" = "$$CROSSHAIR: OFF";
 "#Cheater" = "$$YOU'RE TOO GOOD TO BE CHEATING!";
-"#MessagesOn" = "$$MESSAGES: ON";
-"#MessagesOff" = "$$MESSAGES: OFF";
+"#MessagesOn" = "$$MSGON";
+"#MessagesOff" = "$$MSGOFF";
+"MESSAGES: ON" = "$$MSGON";
+"MESSAGES: OFF" = "$$MSGOFF";
 "#TypeTheCheatCode" = "$$TYPE THE CHEAT CODE:";
 "#DetailLow" = "$$DETAIL: LOW";
 "#DetailHigh" = "$$DETAIL: HIGH";
