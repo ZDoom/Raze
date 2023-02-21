@@ -54,12 +54,9 @@ CUSTOM_CVAR(Int, duke_menufont, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOIN
 {
 	if (!(g_gameType & GAMEFLAG_DUKE) || !BigFont13 || !BigFont15) return;
 	if (self < -1 || self > 1) self = -1;
-	else
-	{
-		// Font info must be copied so that BigFont does not change its address.
-		else if (self == 0 || (self == -1 && isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont15);
-		else if (self == 1 || (self == -1 && !isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont13);
-	}
+	// Font info must be copied so that BigFont does not change its address.
+	else if (self == 0 || (self == -1 && isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont15);
+	else if (self == 1 || (self == -1 && !isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont13);
 }
 
 #if 0
