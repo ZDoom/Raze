@@ -375,7 +375,7 @@ void GameInterface::Ticker()
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 
-        auto& lPlayerVel = sPlayerInput[nLocalPlayer].vel;
+        auto& lPlayerVel = PlayerList[nLocalPlayer].pActor->vel.XY();
 
         auto inputvect = DVector2(localInput.fvel, localInput.svel).Rotated(inita) * 0.375;
 

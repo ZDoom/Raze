@@ -32,7 +32,6 @@ enum {
 // 32 bytes
 struct PlayerInput
 {
-    DVector2 vel;
     float nAngle;
     float pan;
     ESyncBits actions;
