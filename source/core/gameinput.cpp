@@ -240,30 +240,31 @@ void PlayerAngles::doYawKeys(ESyncBits* actions)
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, bool const climbing)
+void PlayerAngles::doViewPitch(const bool canslopetilt, const bool climbing)
 {
-	if (cl_slopetilting && cursectnum != nullptr)
+	if (cl_slopetilting)
 	{
-		if (aimmode && canslopetilt) // If the floor is sloped
+		const auto actorsect = pActor->sector();
+		if (actorsect && (actorsect->floorstat & CSTAT_SECTOR_SLOPE) && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			auto rotpt = pos + ang.ToVector() * (!isBlood() ? 32 : 4);
-			auto tempsect = cursectnum;
+			const auto rotpt = pActor->spr.pos.XY() + pActor->spr.Angles.Yaw.ToVector() * (!isBlood() ? 32 : 4);
+			auto tempsect = actorsect;
 			updatesector(rotpt, &tempsect);
 
 			if (tempsect != nullptr) // If the new point is inside a valid sector...
 			{
 				// Get the floorz as if the new (x,y) point was still in
 				// your sector, unless it's Blood.
-				double const j = getflorzofslopeptr(cursectnum, pos);
-				double const k = getflorzofslopeptr(!isBlood() ? cursectnum : tempsect, rotpt);
+				const double j = getflorzofslopeptr(actorsect, pActor->spr.pos.XY());
+				const double k = getflorzofslopeptr(!isBlood() ? actorsect : tempsect, rotpt);
 
 				// If extended point is in same sector as you or the slopes
 				// of the sector of the extended point and your sector match
 				// closely (to avoid accidently looking straight out when
 				// you're at the edge of a sector line) then adjust horizon
 				// accordingly
-				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
+				if (actorsect == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
 					ViewAngles.Pitch -= maphoriz((j - k) * (!isBlood() ? 0.625 : 5.5));
 				}

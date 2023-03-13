@@ -1495,20 +1495,6 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 //---------------------------------------------------------------------------
 //
-// Player's slope tilting wrapper function function, called in ProcessInput() or from gi->GetInput() as required.
-//
-//---------------------------------------------------------------------------
-
-void doslopetilting(PLAYER* pPlayer)
-{
-	auto plActor = pPlayer->actor;
-	int const florhit = pPlayer->actor->hit.florhit.type;
-	bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-	pPlayer->Angles.doViewPitch(plActor->spr.pos.XY(), plActor->spr.Angles.Yaw, va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector());
-}
-
-//---------------------------------------------------------------------------
-//
 //
 //
 //---------------------------------------------------------------------------
@@ -1717,8 +1703,9 @@ void ProcessInput(PLAYER* pPlayer)
 		pPlayer->actor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
 	}
 
+	const int florhit = pPlayer->actor->hit.florhit.type;
+	pPlayer->Angles.doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
 	pPlayer->Angles.doPitchKeys(&pInput->actions, pInput->horz);
-	doslopetilting(pPlayer);
 
 	pPlayer->slope = pPlayer->actor->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)

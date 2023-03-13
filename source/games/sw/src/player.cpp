@@ -1663,8 +1663,8 @@ void SlipSlope(PLAYER* pp)
 
 void DoPlayerSlopeTilting(PLAYER* pp)
 {
-    bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
-    pp->Angles.doViewPitch(pp->actor->spr.pos.XY(), pp->actor->spr.Angles.Yaw, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, (pp->Flags & PF_CLIMBING));
+    const bool canslopetilt = (pp->input.actions & SB_AIMMODE) && !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING));
+    pp->Angles.doViewPitch(canslopetilt, pp->Flags & PF_CLIMBING);
 }
 
 //---------------------------------------------------------------------------

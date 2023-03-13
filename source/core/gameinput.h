@@ -22,7 +22,7 @@ struct PlayerAngles
 	// Prototypes.
 	void doPitchKeys(ESyncBits* actions, const bool stopcentering);
 	void doYawKeys(ESyncBits* actions);
-	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, bool const climbing = false);
+	void doViewPitch(const bool canslopetilt, const bool climbing = false);
 	void doViewYaw(const ESyncBits actions);
 
 	// General methods.
