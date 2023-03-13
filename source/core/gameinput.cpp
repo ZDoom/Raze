@@ -21,11 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //------------------------------------------------------------------------- 
 
-#include "gamecontrol.h"
 #include "gameinput.h"
-#include "gamestruct.h"
-#include "serializer.h"
-#include "gamefuncs.h"
 
 //---------------------------------------------------------------------------
 //
@@ -73,7 +69,7 @@ static inline DAngle getscaledangle(const DAngle angle, const double scale, cons
 
 static inline bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
-	auto sgn = angle.Sgn();
+	const auto sgn = angle.Sgn();
 
 	if (!sgn || sgn != (angle -= getscaledangle(angle, scale, push * sgn)).Sgn())
 	{
@@ -92,7 +88,7 @@ static inline bool scaletozero(DAngle& angle, const double scale, const DAngle p
 
 static double turnheldtime;
 
-void updateTurnHeldAmt(double const scaleAdjust)
+void updateTurnHeldAmt(const double scaleAdjust)
 {
 	turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
 }
@@ -114,23 +110,23 @@ void resetTurnHeldAmt()
 //
 //---------------------------------------------------------------------------
 
-void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
+void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// set up variables.
-	int const keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
-	float const hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
-	float const scaleAdjustf = float(scaleAdjust);
+	const int keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
+	const float hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
+	const float scaleAdjustf = float(scaleAdjust);
 
 	// determine player input.
-	auto const turning = buttonMap.ButtonDown(gamefunc_Turn_Right) - buttonMap.ButtonDown(gamefunc_Turn_Left);
-	auto const moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + hidInput->dz * scaleAdjustf;
-	auto const strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - hidInput->dx * scaleAdjustf;
+	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) - buttonMap.ButtonDown(gamefunc_Turn_Left);
+	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + hidInput->dz * scaleAdjustf;
+	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - hidInput->dx * scaleAdjustf;
 
 	// process player angle input.
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
-		float const turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
-		float const turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
+		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
+		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
 		currInput->avel += hidInput->mouseturnx + (hidInput->dyaw * hidspeed + turndir * turnspeed) * scaleAdjustf;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
@@ -207,22 +203,22 @@ void PlayerAngles::doPitchKeys(InputPacket* const input)
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doYawKeys(ESyncBits* actions)
+void PlayerAngles::doYawKeys(InputPacket* const input)
 {
-	if (*actions & SB_TURNAROUND)
+	if (input->actions & SB_TURNAROUND)
 	{
 		if (YawSpin == nullAngle)
 		{
 			// currently not spinning, so start a spin
 			YawSpin = -DAngle180;
 		}
-		*actions &= ~SB_TURNAROUND;
+		input->actions &= ~SB_TURNAROUND;
 	}
 
 	if (YawSpin < nullAngle)
 	{
 		// return spin to 0
-		DAngle add = DAngle::fromDeg(getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH));
+		DAngle add = DAngle::fromDeg(getTicrateScale(!(input->actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH));
 		YawSpin += add;
 		if (YawSpin > nullAngle)
 		{
@@ -296,17 +292,17 @@ void PlayerAngles::doViewPitch(const bool canslopetilt, const bool climbing)
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doViewYaw(const ESyncBits actions)
+void PlayerAngles::doViewYaw(InputPacket* const input)
 {
 	// Process angle return to zeros.
 	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN);
 	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN);
 
 	// Process keyboard input.
-	if (auto looking = !!(actions & SB_LOOK_RIGHT) - !!(actions & SB_LOOK_LEFT))
+	if (const auto looking = !!(input->actions & SB_LOOK_RIGHT) - !!(input->actions & SB_LOOK_LEFT))
 	{
-		ViewAngles.Yaw += DAngle::fromDeg(getTicrateScale(YAW_LOOKINGSPEED)) * looking;
-		ViewAngles.Roll += DAngle::fromDeg(getTicrateScale(YAW_ROTATESPEED)) * looking;
+		ViewAngles.Yaw += DAngle::fromDeg(getTicrateScale(YAW_LOOKINGSPEED) * looking);
+		ViewAngles.Roll += DAngle::fromDeg(getTicrateScale(YAW_ROTATESPEED) * looking);
 	}
 }
 

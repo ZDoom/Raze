@@ -1,10 +1,7 @@
 #pragma once
 
-#include "m_fixed.h"
-#include "gamecvars.h"
-#include "gamestruct.h"
+#include "serializer.h"
 #include "gamefuncs.h"
-#include "packet.h"
 
 struct PlayerAngles
 {
@@ -21,9 +18,9 @@ struct PlayerAngles
 
 	// Prototypes.
 	void doPitchKeys(InputPacket* const input);
-	void doYawKeys(ESyncBits* actions);
+	void doYawKeys(InputPacket* const input);
 	void doViewPitch(const bool canslopetilt, const bool climbing = false);
-	void doViewYaw(const ESyncBits actions);
+	void doViewYaw(InputPacket* const input);
 
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
@@ -83,7 +80,7 @@ class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
 
-void updateTurnHeldAmt(double const scaleAdjust);
+void updateTurnHeldAmt(const double scaleAdjust);
 bool isTurboTurnTime();
 void resetTurnHeldAmt();
-void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
+void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1);

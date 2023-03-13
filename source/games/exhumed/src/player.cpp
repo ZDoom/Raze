@@ -976,7 +976,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
     }
 
-    PlayerList[nPlayer].Angles.doViewYaw(sPlayerInput[nLocalPlayer].actions);
+    PlayerList[nPlayer].Angles.doViewYaw(&PlayerList[nLocalPlayer].input);
 
     // loc_1A494:
     if (SyncInput())
@@ -984,7 +984,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         PlayerList[nPlayer].pActor->spr.Angles.Yaw += DAngle::fromDeg(PlayerList[nPlayer].input.avel);
     }
 
-    PlayerList[nPlayer].Angles.doYawKeys(&sPlayerInput[nLocalPlayer].actions);
+    PlayerList[nPlayer].Angles.doYawKeys(&PlayerList[nLocalPlayer].input);
     UpdatePlayerSpriteAngle(&PlayerList[nPlayer]);
 
     // player.zvel is modified within Gravity()

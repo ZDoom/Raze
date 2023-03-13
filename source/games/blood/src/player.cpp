@@ -1569,14 +1569,14 @@ void ProcessInput(PLAYER* pPlayer)
 		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
 	}
 
-	pPlayer->Angles.doViewYaw(pInput->actions);
+	pPlayer->Angles.doViewYaw(pInput);
 
 	if (SyncInput())
 	{
 		pPlayer->actor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
 	}
 
-	pPlayer->Angles.doYawKeys(&pInput->actions);
+	pPlayer->Angles.doYawKeys(pInput);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;

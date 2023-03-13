@@ -2024,7 +2024,7 @@ void DoPlayerMove(PLAYER* pp)
 
     SlipSlope(pp);
 
-    pp->Angles.doViewYaw(pp->input.actions);
+    pp->Angles.doViewYaw(&pp->input);
 
     if (!SyncInput())
     {
@@ -2035,7 +2035,7 @@ void DoPlayerMove(PLAYER* pp)
         pp->actor->spr.Angles.Yaw += DAngle::fromDeg(pp->input.avel);
     }
 
-    pp->Angles.doYawKeys(&pp->input.actions);
+    pp->Angles.doYawKeys(&pp->input);
     UpdatePlayerSpriteAngle(pp);
 
     pp->lastcursector = pp->cursector;

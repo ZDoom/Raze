@@ -3442,7 +3442,7 @@ void processinput_r(int snum)
 	p->psectlotag = psectlotag;
 
 	//Do the quick lefts and rights
-	p->Angles.doViewYaw(actions);
+	p->Angles.doViewYaw(&p->sync);
 
 	if (movementBlocked(p))
 	{
@@ -3459,7 +3459,7 @@ void processinput_r(int snum)
 		p->GetActor()->spr.Angles.Yaw += p->adjustavel(PlayerInputAngVel(snum));
 	}
 
-	p->Angles.doYawKeys(&actions);
+	p->Angles.doYawKeys(&p->sync);
 	purplelavacheck(p);
 
 	if (p->spritebridge == 0 && pact->insector())
