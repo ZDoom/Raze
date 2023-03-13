@@ -167,30 +167,31 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doPitchKeys(ESyncBits* actions, const bool stopcentering)
+void PlayerAngles::doPitchKeys(InputPacket* const input)
 {
 	// Cancel return to center if conditions met.
-	if (stopcentering) *actions &= ~SB_CENTERVIEW;
+	if (input->horz)
+		input->actions &= ~SB_CENTERVIEW;
 
 	// Process keyboard input.
-	if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
+	if (const auto aiming = !!(input->actions & SB_AIM_DOWN) - !!(input->actions & SB_AIM_UP))
 	{
-		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_AIMSPEED)) * aiming;
-		*actions &= ~SB_CENTERVIEW;
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_AIMSPEED) * aiming);
+		input->actions &= ~SB_CENTERVIEW;
 	}
-	if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
+	if (const auto looking = !!(input->actions & SB_LOOK_DOWN) - !!(input->actions & SB_LOOK_UP))
 	{
-		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_LOOKSPEED)) * looking;
-		*actions |= SB_CENTERVIEW;
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_LOOKSPEED) * looking);
+		input->actions |= SB_CENTERVIEW;
 	}
 
 	// Do return to centre.
-	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+	if ((input->actions & SB_CENTERVIEW) && !(input->actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
 		const auto pitch = abs(pActor->spr.Angles.Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
 		if (scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale))
-			*actions &= ~SB_CENTERVIEW;
+			input->actions &= ~SB_CENTERVIEW;
 	}
 
 	// clamp before we finish, factoring in the player's view pitch offset.

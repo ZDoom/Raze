@@ -20,7 +20,7 @@ struct PlayerAngles
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
 	// Prototypes.
-	void doPitchKeys(ESyncBits* actions, const bool stopcentering);
+	void doPitchKeys(InputPacket* const input);
 	void doYawKeys(ESyncBits* actions);
 	void doViewPitch(const bool canslopetilt, const bool climbing = false);
 	void doViewYaw(const ESyncBits actions);

@@ -1705,7 +1705,7 @@ void ProcessInput(PLAYER* pPlayer)
 
 	const int florhit = pPlayer->actor->hit.florhit.type;
 	pPlayer->Angles.doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
-	pPlayer->Angles.doPitchKeys(&pInput->actions, pInput->horz);
+	pPlayer->Angles.doPitchKeys(pInput);
 
 	pPlayer->slope = pPlayer->actor->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)

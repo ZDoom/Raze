@@ -2988,7 +2988,7 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}
 
-	p->Angles.doPitchKeys(&actions, GetPlayerHorizon(snum).Sgn());
+	p->Angles.doPitchKeys(&p->sync);
 
 	p->checkhardlanding();
 

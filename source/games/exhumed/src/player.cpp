@@ -2471,7 +2471,7 @@ sectdone:
             pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(PlayerList[nPlayer].input.horz);
         }
 
-        pPlayer->Angles.doPitchKeys(&PlayerList[nLocalPlayer].input.actions, PlayerList[nPlayer].input.pan);
+        pPlayer->Angles.doPitchKeys(&PlayerList[nLocalPlayer].input);
 
         if (actions & (SB_AIM_UP | SB_AIM_DOWN) || PlayerList[nPlayer].input.horz)
         {

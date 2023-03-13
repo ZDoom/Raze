@@ -2163,7 +2163,7 @@ void DoPlayerMove(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
+    pp->Angles.doPitchKeys(&pp->input);
 
     DoPlayerSlopeTilting(pp);
 
@@ -2750,7 +2750,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
+    pp->Angles.doPitchKeys(&pp->input);
 
     DoPlayerSlopeTilting(pp);
 
@@ -2796,7 +2796,7 @@ void DoPlayerMoveTurret(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
+    pp->Angles.doPitchKeys(&pp->input);
 
     DoPlayerSlopeTilting(pp);
 }
@@ -3398,7 +3398,7 @@ void DoPlayerClimb(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
+    pp->Angles.doPitchKeys(&pp->input);
 
     DoPlayerSlopeTilting(pp);
 
