@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-PlayerInput sPlayerInput[kMaxPlayers];
+static InputPacket localInput;
 
 //---------------------------------------------------------------------------
 //
@@ -35,7 +35,7 @@ PlayerInput sPlayerInput[kMaxPlayers];
 
 void ClearSpaceBar(int nPlayer)
 {
-    sPlayerInput[nPlayer].actions &= SB_OPEN;
+    PlayerList[nPlayer].input.actions &= SB_OPEN;
     buttonMap.ClearButton(gamefunc_Open);
 }
 

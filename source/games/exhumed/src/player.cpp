@@ -432,7 +432,6 @@ void RestartPlayer(int nPlayer)
 
 	plr->ototalvel = plr->totalvel = 0;
 
-	memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
     PlayerList[nPlayer].nCurrentItem = -1;
 
 	plr->nDeathType = 0;
@@ -982,7 +981,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     // loc_1A494:
     if (SyncInput())
     {
-        PlayerList[nPlayer].pActor->spr.Angles.Yaw += DAngle::fromDeg(sPlayerInput[nPlayer].nAngle);
+        PlayerList[nPlayer].pActor->spr.Angles.Yaw += DAngle::fromDeg(PlayerList[nPlayer].input.avel);
     }
 
     PlayerList[nPlayer].Angles.doYawKeys(&sPlayerInput[nLocalPlayer].actions);
@@ -1215,7 +1214,7 @@ sectdone:
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 
-    auto actions = sPlayerInput[nPlayer].actions;
+    auto actions = PlayerList[nPlayer].input.actions;
 
     // loc_1AEF5:
     if (PlayerList[nPlayer].nHealth > 0)
@@ -2425,7 +2424,7 @@ sectdone:
 
             // loc_1BE70:
             // Handle player pressing number keys to change weapon
-            uint8_t var_90 = sPlayerInput[nPlayer].getNewWeapon();
+            uint8_t var_90 = PlayerList[nPlayer].input.getNewWeapon();
 
             if (var_90)
             {
@@ -2469,12 +2468,12 @@ sectdone:
 
         if (SyncInput())
         {
-            pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(sPlayerInput[nPlayer].pan);
+            pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(PlayerList[nPlayer].input.horz);
         }
 
-        pPlayer->Angles.doPitchKeys(&sPlayerInput[nLocalPlayer].actions, sPlayerInput[nPlayer].pan);
+        pPlayer->Angles.doPitchKeys(&PlayerList[nLocalPlayer].input.actions, PlayerList[nPlayer].input.pan);
 
-        if (actions & (SB_AIM_UP | SB_AIM_DOWN) || sPlayerInput[nPlayer].pan)
+        if (actions & (SB_AIM_UP | SB_AIM_DOWN) || PlayerList[nPlayer].input.horz)
         {
             pPlayer->nDestVertPan = pPlayer->pActor->spr.Angles.Pitch;
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;

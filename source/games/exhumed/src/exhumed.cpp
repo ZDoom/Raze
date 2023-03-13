@@ -98,8 +98,6 @@ void InitCheats();
 int EndLevel = 0;
 
 
-InputPacket localInput;
-
 ////////
 
 void ResetEngine()
@@ -375,9 +373,14 @@ void GameInterface::Ticker()
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 
+        // set new player input, factoring in previous view centering.
+        auto oldactions = PlayerList[nLocalPlayer].input.actions;
+        PlayerList[nLocalPlayer].input = playercmds[nLocalPlayer].ucmd;
+        if (oldactions & SB_CENTERVIEW) PlayerList[nLocalPlayer].input.actions |= SB_CENTERVIEW;   
+
         auto& lPlayerVel = PlayerList[nLocalPlayer].pActor->vel.XY();
 
-        auto inputvect = DVector2(localInput.fvel, localInput.svel).Rotated(inita) * 0.375;
+        auto inputvect = DVector2(PlayerList[nLocalPlayer].input.fvel, PlayerList[nLocalPlayer].input.svel).Rotated(inita) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {
@@ -387,7 +390,7 @@ void GameInterface::Ticker()
         }
         UpdateInterpolations();
 
-        if (localInput.actions & SB_INVPREV)
+        if (PlayerList[nLocalPlayer].input.actions & SB_INVPREV)
         {
             int nItem = PlayerList[nLocalPlayer].nItem;
 
@@ -404,7 +407,7 @@ void GameInterface::Ticker()
             if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
         }
 
-        if (localInput.actions & SB_INVNEXT)
+        if (PlayerList[nLocalPlayer].input.actions & SB_INVNEXT)
         {
             int nItem = PlayerList[nLocalPlayer].nItem;
 
@@ -421,19 +424,19 @@ void GameInterface::Ticker()
             if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
         }
 
-        if (localInput.actions & SB_INVUSE)
+        if (PlayerList[nLocalPlayer].input.actions & SB_INVUSE)
         {
             if (PlayerList[nLocalPlayer].nItem != -1)
             {
-                localInput.setItemUsed(PlayerList[nLocalPlayer].nItem);
+                PlayerList[nLocalPlayer].input.setItemUsed(PlayerList[nLocalPlayer].nItem);
             }
         }
 
         for (int i = 0; i < 6; i++)
         {
-            if (localInput.isItemUsed(i))
+            if (PlayerList[nLocalPlayer].input.isItemUsed(i))
             {
-                localInput.clearItemUsed(i);
+                PlayerList[nLocalPlayer].input.clearItemUsed(i);
                 if (PlayerList[nLocalPlayer].items[i] > 0)
                 {
                     if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
@@ -446,7 +449,7 @@ void GameInterface::Ticker()
         }
 
         auto currWeap = PlayerList[nLocalPlayer].nCurrentWeapon;
-        int weap2 = localInput.getNewWeapon();
+        int weap2 = PlayerList[nLocalPlayer].input.getNewWeapon();
         if (weap2 == WeaponSel_Next)
         {
             auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
@@ -455,7 +458,7 @@ void GameInterface::Ticker()
                 newWeap++;
                 if (newWeap > 6) newWeap = 0;
             }
-            localInput.setNewWeapon(newWeap + 1);
+            PlayerList[nLocalPlayer].input.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Prev)
         {
@@ -464,7 +467,7 @@ void GameInterface::Ticker()
             {
                 newWeap--;
             }
-            localInput.setNewWeapon(newWeap + 1);
+            PlayerList[nLocalPlayer].input.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Alt)
         {
@@ -472,15 +475,8 @@ void GameInterface::Ticker()
         }
 
         // make weapon selection persist until it gets used up.
-        int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
-        if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
-
-        auto oldactions = sPlayerInput[nLocalPlayer].actions;
-        sPlayerInput[nLocalPlayer].actions = localInput.actions;
-        if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;        
-
-        sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
-        sPlayerInput[nLocalPlayer].pan = localInput.horz;
+        int weap = PlayerList[nLocalPlayer].input.getNewWeapon();
+        if (weap2 <= 0 || weap2 > 7) PlayerList[nLocalPlayer].input.setNewWeapon(weap);     
 
         PlayerList[nLocalPlayer].pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 

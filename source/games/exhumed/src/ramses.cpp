@@ -196,7 +196,7 @@ void DoSpiritHead()
     static int dimSectCount = 0;
     auto pSpiritSpr = pSpiritSprite;
 
-    sPlayerInput[0].actions |= SB_CENTERVIEW;
+    PlayerList[0].input.actions |= SB_CENTERVIEW;
 
     switch (nHeadStage) 
     {

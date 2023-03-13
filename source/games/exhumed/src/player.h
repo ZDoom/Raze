@@ -79,6 +79,7 @@ struct Player
     bool bPlayerPan, bLockPan;
     DAngle nDestVertPan;
 
+    InputPacket input;
     PlayerAngles Angles;
     sectortype* pPlayerPushSect;
     sectortype* pPlayerViewSect;
