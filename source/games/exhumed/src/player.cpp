@@ -433,7 +433,7 @@ void RestartPlayer(int nPlayer)
 	plr->ototalvel = plr->totalvel = 0;
 
 	memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
-	sPlayerInput[nPlayer].nItem = -1;
+    PlayerList[nPlayer].nCurrentItem = -1;
 
 	plr->nDeathType = 0;
 	nQuake[nPlayer] = 0;
@@ -908,10 +908,10 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
 
-    if (sPlayerInput[nPlayer].nItem > -1)
+    if (PlayerList[nPlayer].nCurrentItem > -1)
     {
-        UseItem(nPlayer, sPlayerInput[nPlayer].nItem);
-        sPlayerInput[nPlayer].nItem = -1;
+        UseItem(nPlayer, PlayerList[nPlayer].nCurrentItem);
+        PlayerList[nPlayer].nCurrentItem = -1;
     }
 
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, PlayerList[nPlayer].nSeqSize);

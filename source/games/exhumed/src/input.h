@@ -35,7 +35,6 @@ struct PlayerInput
     DVector2 vel;
     float nAngle;
     float pan;
-    int8_t nItem;
     ESyncBits actions;
 
     int getNewWeapon() const

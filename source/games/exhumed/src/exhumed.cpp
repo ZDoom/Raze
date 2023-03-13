@@ -438,7 +438,7 @@ void GameInterface::Ticker()
                 {
                     if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
                     {
-                        sPlayerInput[nLocalPlayer].nItem = i;
+                        PlayerList[nLocalPlayer].nCurrentItem = i;
                         break;
                     }
                 }
