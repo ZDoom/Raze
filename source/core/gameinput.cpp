@@ -270,22 +270,22 @@ void PlayerAngles::doViewPitch(const bool canslopetilt, const bool climbing)
 				}
 			}
 		}
-
-		if (climbing)
-		{
-			// tilt when climbing but you can't even really tell it.
-			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB)
-				ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
-		}
-		else
-		{
-			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
-		}
-
-		// Clamp off against the maximum allowed pitch.
-		ViewAngles.Pitch = ClampViewPitch(ViewAngles.Pitch);
 	}
+
+	if (cl_slopetilting && climbing)
+	{
+		// tilt when climbing but you can't even really tell it.
+		if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB)
+			ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
+	}
+	else
+	{
+		// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
+		scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
+	}
+
+	// Clamp off against the maximum allowed pitch.
+	ViewAngles.Pitch = ClampViewPitch(ViewAngles.Pitch);
 }
 
 
