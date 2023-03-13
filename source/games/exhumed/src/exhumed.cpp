@@ -146,8 +146,6 @@ int nEnergyTowers = 0;
 
 int nCfgNetPlayers = 0;
 
-int lLocalCodes = 0;
-
 bool bCoordinates = false;
 
 int nNetTime = -1;
@@ -481,13 +479,10 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;        
 
-        sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
         sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
         PlayerList[nLocalPlayer].pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
-
-        lLocalCodes = 0;
 
         PlayClock += 4;
         if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.

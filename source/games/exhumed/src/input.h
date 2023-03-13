@@ -33,7 +33,6 @@ enum {
 struct PlayerInput
 {
     DVector2 vel;
-    uint16_t buttons;
     float nAngle;
     float pan;
     int8_t nItem;
@@ -57,7 +56,6 @@ int GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
 extern InputPacket localInput;
-extern int lLocalCodes;
 
 END_PS_NS
 
