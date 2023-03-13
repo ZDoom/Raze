@@ -63,7 +63,6 @@ IMPLEMENT_POINTERS_END
 
 size_t MarkMove();
 size_t MarkBullets();
-size_t MarkInput();
 size_t MarkItems();
 size_t MarkLighting();
 size_t MarkObjects();
@@ -77,7 +76,6 @@ size_t MarkRunlist();
 static void markgcroots()
 {
     MarkBullets();
-    MarkInput();
     MarkItems();
     MarkLighting();
     MarkObjects();
@@ -484,11 +482,10 @@ void GameInterface::Ticker()
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;        
 
         sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
-        sPlayerInput[nLocalPlayer].pTarget = bestTarget;
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
         sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
-        Ra[nLocalPlayer].pTarget = bestTarget;
+        PlayerList[nLocalPlayer].pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 
         lLocalCodes = 0;
 

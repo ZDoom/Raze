@@ -216,7 +216,7 @@ void AIRa::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    Ra[nPlayer].pTarget = sPlayerInput[nPlayer].pTarget;
+    Ra[nPlayer].pTarget = PlayerList[nPlayer].pTarget;
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
     if (Ra[nPlayer].nAction)

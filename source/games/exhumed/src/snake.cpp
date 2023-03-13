@@ -191,9 +191,9 @@ void BuildSnake(int nPlayer, double zVal)
         if (hitactor && hitactor->spr.statnum >= 90 && hitactor->spr.statnum <= 199) {
             pTarget = hitactor;
         }
-        else if (sPlayerInput[nPlayer].pTarget != nullptr) 
+        else if (PlayerList[nPlayer].pTarget != nullptr)
         {
-            pTarget = sPlayerInput[nPlayer].pTarget;
+            pTarget = PlayerList[nPlayer].pTarget;
         }
 
         int nSnake = GrabSnake();

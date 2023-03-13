@@ -101,6 +101,7 @@ struct Player
     TObjPtr<DExhumedActor*> pPlayerGrenade;
     TObjPtr<DExhumedActor*> pPlayerFloorSprite;
     TObjPtr<DExhumedActor*> pDoppleSprite;
+    TObjPtr<DExhumedActor*> pTarget;
 
 };
 

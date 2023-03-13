@@ -33,15 +33,6 @@ PlayerInput sPlayerInput[kMaxPlayers];
 //
 //---------------------------------------------------------------------------
 
-size_t MarkInput()
-{
-    for (auto& p : sPlayerInput)
-    {
-        GC::Mark(p.pTarget);
-    }
-    return kMaxPlayers;
-}
-
 void ClearSpaceBar(int nPlayer)
 {
     sPlayerInput[nPlayer].actions &= SB_OPEN;

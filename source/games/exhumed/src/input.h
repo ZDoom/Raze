@@ -32,7 +32,6 @@ enum {
 // 32 bytes
 struct PlayerInput
 {
-    TObjPtr<DExhumedActor*> pTarget;
     DVector2 vel;
     uint16_t buttons;
     float nAngle;

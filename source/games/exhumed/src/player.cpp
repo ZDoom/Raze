@@ -100,9 +100,10 @@ size_t MarkPlayers()
         GC::Mark(p.pDoppleSprite);
         GC::Mark(p.pPlayerFloorSprite);
         GC::Mark(p.pPlayerGrenade);
+        GC::Mark(p.pTarget);
     }
     GC::MarkArray(nNetStartSprite, kMaxPlayers);
-    return 5 * kMaxPlayers;
+    return 6 * kMaxPlayers;
 }
 
 //---------------------------------------------------------------------------
