@@ -421,7 +421,7 @@ void GameInterface::Ticker()
 		inp.actions |= oldactions & ~(SB_BUTTON_MASK | SB_RUN | SB_WEAPONMASK_BITS);  // should be everything non-button and non-weapon
 
 		int newweap = inp.getNewWeapon();
-		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
+		if (newweap > 0 && newweap <= WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
 	BloodSpriteIterator it;
