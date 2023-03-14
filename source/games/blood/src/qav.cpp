@@ -309,9 +309,8 @@ void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
 {
 	if (*duration > 0)
 	{
-		auto thisTick = I_GetTime(pQAV->ticrate);
-		auto numTicks = thisTick - (*lastTick);
-		if (numTicks)
+		const auto thisTick = I_GetTime(pQAV->ticrate);
+		if (const auto numTicks = thisTick - (*lastTick))
 		{
 			*lastTick = thisTick;
 			*duration -= pQAV->ticksPerFrame * numTicks;
@@ -328,34 +327,33 @@ void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
 
 void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration, bool const ignoreWeaponTimer)
 {
-	// Process if not paused.
+	// Process clock based on QAV's ticrate and last tick value.
 	if (!paused)
 	{
-		// Process clock based on QAV's ticrate and last tick value.
 		qavProcessTicker(pQAV, &pPlayer->qavTimer, &pPlayer->qavLastTick);
-
-		if (pPlayer->weaponTimer == 0 && pPlayer->qavTimer == 0 && !ignoreWeaponTimer)
-		{
-			// Check if we're playing an idle QAV as per the ticker's weapon timer.
-			*duration = fixedduration ? pQAV->duration - 1 : I_GetBuildTime() % pQAV->duration;
-			*interpfrac = 1.;
-		}
-		else if (pPlayer->qavTimer == 0)
-		{
-			// If qavTimer is 0, play the last frame uninterpolated. Sometimes the timer can be just ahead of weaponTimer.
-			*duration = pQAV->duration - 1;
-			*interpfrac = 1.;
-		}
-		else
-		{
-			// Apply normal values.
-			*duration = pQAV->duration - pPlayer->qavTimer;
-			*interpfrac = !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac(pQAV->ticrate);
-		}
 	}
 	else
 	{
+		pPlayer->qavLastTick = I_GetTime(pQAV->ticrate);
+	}
+
+	if (pPlayer->weaponTimer == 0 && pPlayer->qavTimer == 0 && !ignoreWeaponTimer)
+	{
+		// Check if we're playing an idle QAV as per the ticker's weapon timer.
+		*duration = fixedduration ? pQAV->duration - 1 : I_GetBuildTime() % pQAV->duration;
 		*interpfrac = 1.;
+	}
+	else if (pPlayer->qavTimer == 0)
+	{
+		// If qavTimer is 0, play the last frame uninterpolated. Sometimes the timer can be just ahead of weaponTimer.
+		*duration = pQAV->duration - 1;
+		*interpfrac = 1.;
+	}
+	else
+	{
+		// Apply normal values.
+		*duration = pQAV->duration - pPlayer->qavTimer;
+		*interpfrac = !cl_interpolate || cl_capfps || paused ? 1. : I_GetTimeFrac(pQAV->ticrate);
 	}
 }
 
