@@ -55,31 +55,25 @@ void InitAnims()
 }
 
 /*
-    Use when deleting an ignited sprite to check if any anims reference it. 
-    Will remove the Anim's loop flag and set the source (the ignited sprite's) sprite reference to -1.
-    FuncAnim() will then delete the anim on next call for this anim.
+    Use when deleting an ignited actor to check if any actors reference it. 
+    Will remove the actor's anim loop flag and set the source (the ignited actor's) actor target to null.
+    FuncAnim() will then delete the actor on next call for this actor.
 
-    Without this, the anim will hold reference to a sprite which will eventually be reused, but the anim code
-    will continue to manipulate its hitag value. This can break runlist records for things like LavaDude
-    limbs that store these in the sprite hitag.
+    Without this, the actor will hold reference to an actor which will prevent the GC from deleting it properly.
 
     Specifically needed for IgniteSprite() anims which can become orphaned from the source sprite (e.g a bullet)
     when the bullet sprite is deleted.
 */
 void UnlinkIgnitedAnim(DExhumedActor* pActor)
 {
-    // scan the active anims (that aren't in the 'free' section of AnimsFree[])
-    ExhumedStatIterator it(500);
+    ExhumedStatIterator it(kStatIgnited);
     while (auto itActor = it.Next())
     {
-        if (itActor->spr.statnum == kStatIgnited)
+        // .pTarget holds the actor pointer of the source 'actor that's on fire' actor
+        if (pActor == itActor->pTarget)
         {
-            // .hitag holds the sprite number of the source 'sprite that's on fire' sprite
-            if (pActor == itActor->pTarget)
-            {
-                itActor->nAction &= ~kAnimLoop; // clear the animation loop flag
-                itActor->pTarget = nullptr; // set the sprite reference to -1
-            }
+            itActor->nAction &= ~kAnimLoop; // clear the animation loop flag
+            itActor->pTarget = nullptr; // set the actor target to null
         }
     }
 }
