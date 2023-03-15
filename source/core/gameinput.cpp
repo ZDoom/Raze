@@ -239,10 +239,10 @@ void PlayerAngles::doYawKeys(InputPacket* const input)
 
 void PlayerAngles::doViewPitch(const bool canslopetilt, const bool climbing)
 {
-	if (cl_slopetilting)
+	if (cl_slopetilting && canslopetilt)
 	{
 		const auto actorsect = pActor->sector();
-		if (actorsect && (actorsect->floorstat & CSTAT_SECTOR_SLOPE) && canslopetilt) // If the floor is sloped
+		if (actorsect && (actorsect->floorstat & CSTAT_SECTOR_SLOPE)) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
 			const auto rotpt = pActor->spr.pos.XY() + pActor->spr.Angles.Yaw.ToVector() * (!isBlood() ? 32 : 4);
