@@ -487,8 +487,8 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	{
 		sprxscale *= 1.25f;
 		auto rvec = ownerActor->sprext.rot.Yaw.ToVector();
-		translatevec.Y -= spr->xoffset * rvec.X;
-		translatevec.X += spr->xoffset * rvec.Y;
+		translatevec.Y -= spr->xoffset * rvec.X / 64;
+		translatevec.X += spr->xoffset * rvec.Y / 64;
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) 
