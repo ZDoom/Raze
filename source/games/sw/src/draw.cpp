@@ -800,7 +800,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     }
 
 					tsp->pos = pos;
-                    tsp->Angles.Yaw = pp->siang;
+                    tsp->Angles.Yaw = pp->Angles.RenderAngles.Yaw;
                     //continue;
                 }
                 else
@@ -1260,7 +1260,6 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     }
 
     pp->si = tpos.plusZ(-pp->actor->getOffsetZ());
-    pp->siang = tangles.Yaw;
 
     QuakeViewChange(camerapp, tpos, tangles.Yaw);
     int vis = g_visibility;

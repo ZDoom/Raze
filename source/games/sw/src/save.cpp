@@ -460,7 +460,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("six", w.si.X)
 			("siy", w.si.Y)
 			("siz", w.si.Z)
-			("siang", w.siang)
 			("xvect", w.vect.X)
 			("yvect", w.vect.Y)
 			("friction", w.friction)

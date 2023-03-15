@@ -198,7 +198,6 @@ struct SWPlayer native
     native double hiz,loz;
     native double p_ceiling_dist,p_floor_dist;
     native double circle_camera_dist;
-    native double siang;
 
     native int friction;
     native int16 slide_ang;
