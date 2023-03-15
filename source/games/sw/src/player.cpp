@@ -1485,7 +1485,7 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
 
 void DoPlayerViewOffset(PLAYER* pp)
 {
-    pp->actor->viewzoffset -= pp->getViewHeightDiff() * 0.375;
+    pp->actor->viewzoffset -= (pp->actor->viewzoffset + pp->height) * 0.375;
 }
 
 void DoPlayerHeight(PLAYER* pp)

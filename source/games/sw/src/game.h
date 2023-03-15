@@ -1892,11 +1892,6 @@ struct PLAYER
 
     uint8_t WpnReloadState;
 
-    double getViewHeightDiff()
-    {
-        return actor->viewzoffset + height;
-    }
-
     void posZset(const double val)
     {
         actor->spr.pos.Z = val - actor->viewzoffset;
