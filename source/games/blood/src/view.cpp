@@ -894,7 +894,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
 			double ysize = twod->GetHeight() / 2. + y1 / double(1 << 12);
 			// This very likely needs fixing later
 			DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
-				DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
+				DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), TAG_DONE);
 		}
 	}
 	return true;
