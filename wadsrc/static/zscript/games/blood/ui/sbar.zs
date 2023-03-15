@@ -671,6 +671,9 @@ class BloodStatusBar : RazeStatusBar
 			}
 			else
 			{
+				bool stateNeedsEvenAmt = pPlayer.weaponState == 3 || pPlayer.weaponState == 1;
+				bool stateNeedsOddAmt = pPlayer.weaponState == 2;
+				num += stateNeedsEvenAmt && (num % 2) || stateNeedsOddAmt && !(num % 2);
 				int clip = CalcMagazineAmount(num, 2, pPlayer.weaponState == 1);
 				int total = num - clip;
 				String format = String.Format("%d/%d", clip, num - clip);
