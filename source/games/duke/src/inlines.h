@@ -353,4 +353,14 @@ inline void processinputvel(int snum)
 	p->sync.svel = (float)velvect.Y;
 }
 
+inline void setPlayerActorViewZOffset(DDukeActor* const pact)
+{
+	if (!PlayClock)
+	{
+		pact->spr.pos.Z += gs.playerheight;
+		pact->opos.Z += gs.playerheight;
+		pact->oviewzoffset = pact->viewzoffset = -gs.playerheight;
+	}
+}
+
 END_DUKE_NS

@@ -3244,12 +3244,7 @@ void processinput_r(int snum)
 		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
 	}
 
-	if (!PlayClock)
-	{
-		pact->spr.pos.Z += gs.playerheight;
-		pact->opos.Z += gs.playerheight;
-		pact->oviewzoffset = pact->viewzoffset = -gs.playerheight;
-	}
+	setPlayerActorViewZOffset(pact);
 
 	p->truefz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
