@@ -50,7 +50,7 @@ struct ExhumedPlayer native
 	native uint16 keys;
 	native int16 nMagic;
 	native int16 nItem;
-	native uint8 items[8];
+	native int8 items[8];
 	native int16 nAmmo[7]; // TODO - kMaxWeapons?
 	native int16 nPlayerWeapons;
 
