@@ -60,8 +60,8 @@ AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL,
 
 void HackSeqCallback(int, DBloodActor* actor)
 {
-	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
+	if (!target) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	DVector3 dv;
