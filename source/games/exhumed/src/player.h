@@ -66,7 +66,7 @@ struct Player
     int16_t nMagic;
     int16_t nItem;
     int8_t nCurrentItem;
-    uint8_t items[8];
+    int8_t items[8];
     int16_t nAmmo[7]; // TODO - kMaxWeapons?
 
     int16_t nCurrentWeapon;
