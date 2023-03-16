@@ -854,7 +854,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                 {
                     PlayerList[nPlayer].pPlayerPushSect = sect;
 
-                    DVector2 vel = PlayerList[nPlayer].pActor->vel.XY();
+                    DVector2 vel = PlayerList[nPlayer].vel;
                     auto nMyAngle = vel.Angle().Normalized360();
 
                     setsectinterpolate(sect);
@@ -904,6 +904,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     int nAction = PlayerList[nPlayer].nAction;
     int nActionB = PlayerList[nPlayer].nAction;
+
+    pPlayerActor->vel.XY() = PlayerList[nPlayer].vel;
 
     if (PlayerList[nPlayer].nCurrentItem > -1)
     {
@@ -1003,7 +1005,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     auto playerPos = pPlayerActor->spr.pos.XY();
 
-    DVector2 vect = pPlayerActor->vel.XY();
+    DVector2 vect = PlayerList[nPlayer].vel;
     double zz = pPlayerActor->vel.Z;
 
     if (pPlayerActor->vel.Z > 32)
@@ -1071,6 +1073,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             pPlayerActor->spr.Angles = DRotator(nullAngle, GetAngleToSprite(pPlayerActor, pSpiritSprite), nullAngle);
             pPlayerActor->backupang();
 
+            PlayerList[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
 
             if (nFreeze < 1)

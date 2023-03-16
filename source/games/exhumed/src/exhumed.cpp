@@ -379,7 +379,7 @@ void GameInterface::Ticker()
         PlayerList[nLocalPlayer].input = playercmds[nLocalPlayer].ucmd;
         if (oldactions & SB_CENTERVIEW) PlayerList[nLocalPlayer].input.actions |= SB_CENTERVIEW;   
 
-        auto& lPlayerVel = PlayerList[nLocalPlayer].pActor->vel.XY();
+        auto& lPlayerVel = PlayerList[nLocalPlayer].vel;
 
         auto inputvect = DVector2(PlayerList[nLocalPlayer].input.fvel, PlayerList[nLocalPlayer].input.svel).Rotated(inita) * 0.375;
 

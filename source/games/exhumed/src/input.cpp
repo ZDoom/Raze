@@ -68,9 +68,9 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     {
         processMovement(&input, &localInput, hidInput, scaleAdjust);
     }
-    else if (pPlayer->pActor)
+    else
     {
-        pPlayer->pActor->vel.Zero();
+        pPlayer->vel.Zero();
     }
 
     if (!SyncInput() && gamestate == GS_LEVEL && !nFreeze)

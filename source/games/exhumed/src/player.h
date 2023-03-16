@@ -81,6 +81,7 @@ struct Player
 
     InputPacket input;
     PlayerAngles Angles;
+    DVector2 vel;
     sectortype* pPlayerPushSect;
     sectortype* pPlayerViewSect;
 
