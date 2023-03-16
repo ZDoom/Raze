@@ -65,8 +65,8 @@ struct PlayerAngles
 	}
 	auto getWeaponOffsets(const double interpfrac)
 	{
-		// Push the Y down a bit since the weapon is at the edge of the screen.
-		auto offsets = getCrosshairOffsets(interpfrac); offsets.first.Y *= 4.;
+		// Push the Y down a bit since the weapon is at the edge of the screen. Also null roll for now.
+		auto offsets = getCrosshairOffsets(interpfrac); offsets.first.Y *= 4.; offsets.second = nullAngle;
 		return offsets;
 	}
 

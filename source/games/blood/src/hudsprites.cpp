@@ -112,6 +112,9 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 {
 	if (gViewPos == 0)
 	{
+		// Nullify incoming roll angle for now as it doesn't draw weapons made up of parts correctly.
+		angle = nullAngle;
+
 		auto cXY = DVector2(160, 220) + pPlayer->Angles.getWeaponOffsets(interpfrac).first;
 
 		if (cl_weaponsway)
