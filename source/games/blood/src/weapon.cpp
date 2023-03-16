@@ -862,6 +862,7 @@ void WeaponLower(PLAYER* pPlayer)
 			}
 			else
 			{
+				pPlayer->weaponState = 1;
 				StartQAV(pPlayer, kQAVBUNDOWN2);
 			}
 			break;
@@ -2400,7 +2401,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 			{
 				pPlayer->fuseTime = pPlayer->weaponTimer;
 				DropBundle(1, pPlayer);
-				pPlayer->weaponState = 1;
+				pPlayer->weaponState = 3;
 			}
 		}
 		WeaponLower(pPlayer);
