@@ -3235,22 +3235,26 @@ void processinput_r(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.scale.Y < 0.125);
-	double tempfz;
 	if (pact->clipdist == 16)
 	{
 		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	}
 	else
 	{
 		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	}
 
-	p->truefz = tempfz;
+	if (!PlayClock)
+	{
+		pact->spr.pos.Z += gs.playerheight;
+		pact->opos.Z += gs.playerheight;
+		pact->oviewzoffset = pact->viewzoffset = -gs.playerheight;
+	}
+
+	p->truefz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 
-	double truefdist = abs(p->GetActor()->getOffsetZ() - tempfz);
+	double truefdist = abs(p->GetActor()->getOffsetZ() - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
@@ -3700,7 +3704,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	SetActor(pact, p->GetActor()->spr.pos);
+	SetActor(pact, pact->spr.pos);
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{

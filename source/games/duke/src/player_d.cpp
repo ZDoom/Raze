@@ -2620,6 +2620,13 @@ void processinput_d(int snum)
 	shrunk = (pact->spr.scale.Y < 0.5);
 	getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 
+	if (!PlayClock)
+	{
+		pact->spr.pos.Z += gs.playerheight;
+		pact->opos.Z += gs.playerheight;
+		pact->oviewzoffset = pact->viewzoffset = -gs.playerheight;
+	}
+
 	p->truefz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 
@@ -2910,7 +2917,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	SetActor(pact, p->GetActor()->spr.pos);
+	SetActor(pact, pact->spr.pos);
 
 	if (psectlotag < 3)
 	{
