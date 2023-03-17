@@ -370,7 +370,7 @@ CCMD(show_weapon)
 	gi->ToggleShowWeapon();
 }
 
-void ApplyGlobalInput(InputPacket& input, HIDInput* hidInput, bool const crouchable, bool const disableToggle)
+void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
@@ -413,11 +413,11 @@ void ApplyGlobalInput(InputPacket& input, HIDInput* hidInput, bool const croucha
 
 	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
 	{
-		crouch_toggle = !crouch_toggle && crouchable;
-		if (crouchable)	buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+		crouch_toggle = !crouch_toggle;
+		buttonMap.ClearButton(gamefunc_Toggle_Crouch);
 	}
 
-	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || disableToggle)
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump))
 		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))

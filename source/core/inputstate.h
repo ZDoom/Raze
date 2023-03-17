@@ -96,7 +96,7 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
-void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput, bool const crouchable = true, bool const disableToggle = false);
+void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput);
 extern ESyncBits ActionsToSend;
 extern bool gamesetinput;
 

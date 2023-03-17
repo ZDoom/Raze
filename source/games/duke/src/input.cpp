@@ -530,8 +530,14 @@ static void processInputBits(player_struct *p, HIDInput* const hidInput)
 	bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
 	bool const disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
 
-	ApplyGlobalInput(loc, hidInput, crouchable, disableToggle);
+	ApplyGlobalInput(loc, hidInput);
 	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
+
+	if (!crouchable || disableToggle)
+	{
+		crouch_toggle = false;
+		loc.actions &= ~SB_CROUCH;
+	}
 
 	if (p->OnMotorcycle || p->OnBoat)
 	{

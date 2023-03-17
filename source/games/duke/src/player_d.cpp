@@ -1738,7 +1738,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if ((actions & SB_CROUCH) || crouch_toggle)	// FIXME: The crouch_toggle check here is not network safe and needs revision when multiplayer is going.
+		if (actions & SB_CROUCH)
 		{
 			playerCrouch(snum);
 		}
