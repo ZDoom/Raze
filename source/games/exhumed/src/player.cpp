@@ -2623,7 +2623,7 @@ sectdone:
             {
                 PlayerList[nPlayer].pActor->spr.Angles.Pitch -= maphoriz(dVertPan[nPlayer]);
 
-                if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Degrees() <= 38)
+                if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Degrees() <= -38)
                 {
                     PlayerList[nPlayer].pActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
                 }
