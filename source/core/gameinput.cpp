@@ -119,27 +119,27 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 	// determine player input.
 	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) - buttonMap.ButtonDown(gamefunc_Turn_Left);
-	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + hidInput->dforward * scaleAdjustf;
-	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - hidInput->dside * scaleAdjustf;
+	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + hidInput->joyaxes[JOYAXIS_Forward] * scaleAdjustf;
+	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - hidInput->joyaxes[JOYAXIS_Side] * scaleAdjustf;
 
 	// process player angle input.
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		currInput->avel += hidInput->mouseturnx - (hidInput->dyaw * hidspeed - turndir * turnspeed) * scaleAdjustf;
+		currInput->avel += hidInput->mouseturnx - (hidInput->joyaxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
 	else
 	{
-		currInput->svel += hidInput->mousemovex - (hidInput->dyaw - turning) * keymove * scaleAdjustf;
+		currInput->svel += hidInput->mousemovex - (hidInput->joyaxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjustf;
 	}
 
 	// process player pitch input.
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->horz += hidInput->mouseturny - hidInput->dpitch * hidspeed * scaleAdjustf;
+		currInput->horz += hidInput->mouseturny - hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
 	else
-		currInput->fvel -= hidInput->mousemovey - hidInput->dpitch * keymove * scaleAdjustf;
+		currInput->fvel -= hidInput->mousemovey - hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
 
 	// process movement input.
 	currInput->fvel += moving * keymove;

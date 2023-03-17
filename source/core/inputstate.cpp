@@ -195,30 +195,6 @@ int32_t handleevents(void)
 	return 0;
 }
 
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void getHidInput(HIDInput* const hidInput)
-{
-	inputState.GetMouseDelta(hidInput);
-
-	if (use_joystick)
-	{
-		// Handle joysticks/game controllers.
-		float joyaxes[NUM_JOYAXIS];
-
-		I_GetAxes(joyaxes);
-
-		hidInput->dyaw += joyaxes[JOYAXIS_Yaw];
-		hidInput->dpitch += joyaxes[JOYAXIS_Pitch];
-		hidInput->dforward += joyaxes[JOYAXIS_Forward] * .5f;
-		hidInput->dside += joyaxes[JOYAXIS_Side] * .5f;		
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -401,33 +377,33 @@ void ApplyGlobalInput(InputPacket& input, HIDInput* hidInput, bool const croucha
 	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
 		// These buttons should not autorepeat. The game handlers are not really equipped for that.
-		if (hidInput->dforward > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
+		if (hidInput->joyaxes[JOYAXIS_Forward] > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
 		else dpad_lock &= ~1;
-		if (hidInput->dforward < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
+		if (hidInput->joyaxes[JOYAXIS_Forward] < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
 		else dpad_lock &= ~2;
-		if ((hidInput->dside < 0 || hidInput->dyaw > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
+		if ((hidInput->joyaxes[JOYAXIS_Side] < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
 		else dpad_lock &= ~4;
-		if ((hidInput->dside > 0 || hidInput->dyaw < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
+		if ((hidInput->joyaxes[JOYAXIS_Side] > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
 		else dpad_lock &= ~8;
 
 		// This eats the controller input for regular use
-		hidInput->dside = 0;
-		hidInput->dforward = 0;
-		hidInput->dyaw = 0;
+		hidInput->joyaxes[JOYAXIS_Side] = 0;
+		hidInput->joyaxes[JOYAXIS_Forward] = 0;
+		hidInput->joyaxes[JOYAXIS_Yaw] = 0;
 	}
 	else dpad_lock = 0;
 
 	input.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
-	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->dforward > 0)) 
+	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] > 0)) 
 		input.actions |= SB_AIM_UP;
 
-	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->dforward < 0))) 
+	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] < 0))) 
 		input.actions |= SB_AIM_DOWN;
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
-		hidInput->dforward = 0;
+		hidInput->joyaxes[JOYAXIS_Forward] = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		input.actions |= SB_JUMP;

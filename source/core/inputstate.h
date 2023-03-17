@@ -16,12 +16,7 @@
 
 struct HIDInput
 {
-	float       dside;
-	float       dup;
-	float       dforward;
-	float       dyaw;
-	float       dpitch;
-	float       droll;
+	float       joyaxes[NUM_JOYAXIS];
 	float       mouseturnx;
 	float       mouseturny;
 	float       mousemovex;
@@ -63,7 +58,6 @@ public:
 
 extern InputState inputState;
 
-void getHidInput(HIDInput* const hidInput);
 int32_t handleevents(void);
 
 enum GameFunction_t
@@ -114,6 +108,12 @@ inline bool SyncInput()
 inline float backendinputscale()
 {
 	return (1.f / 16.f);
+}
+
+inline void getHidInput(HIDInput* const hidInput)
+{
+	inputState.GetMouseDelta(hidInput);
+	if (use_joystick) I_GetAxes(hidInput->joyaxes);
 }
 
 //---------------------------------------------------------------------------
