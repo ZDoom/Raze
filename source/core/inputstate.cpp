@@ -213,7 +213,7 @@ void getHidInput(HIDInput* const hidInput)
 		I_GetAxes(joyaxes);
 
 		hidInput->dyaw += joyaxes[JOYAXIS_Yaw];
-		hidInput->dpitch += -joyaxes[JOYAXIS_Pitch];
+		hidInput->dpitch += joyaxes[JOYAXIS_Pitch];
 		hidInput->dforward += joyaxes[JOYAXIS_Forward] * .5f;
 		hidInput->dside += joyaxes[JOYAXIS_Side] * .5f;		
 	}
