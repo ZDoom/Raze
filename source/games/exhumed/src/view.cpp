@@ -250,6 +250,8 @@ void DrawView(double interpfrac, bool sceneonly)
         }
     }
 
+    const auto ampos = nCamerapos.XY();
+
     if (nSnakeCam >= 0 && !sceneonly)
     {
         nCameraangles.Pitch = nullAngle;
@@ -379,7 +381,7 @@ void DrawView(double interpfrac, bool sceneonly)
                 }
             }
 
-            DrawMap(nCamerapos.XY(), nCameraangles.Yaw, interpfrac);
+            DrawMap(ampos, nCameraangles.Yaw, interpfrac);
         }
     }
     else
