@@ -402,7 +402,6 @@ void GameInterface::app_init()
 	//Net_SendClientInfo();
 
 	setupbackdrop();
-	SetupGameButtons();
 	InitCheats();
 	checkcommandline();
 	registerosdcommands();
