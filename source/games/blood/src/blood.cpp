@@ -437,14 +437,12 @@ void GameInterface::Ticker()
 
 		PLAYER* pPlayer = &gPlayer[myconnectindex];
 
-		// this must be done before the view is backed up.
-		pPlayer->Angles.resetCameraAngles();
-
 		// disable synchronised input if set by game.
 		resetForcedSyncInput();
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
+			gPlayer[i].Angles.resetCameraAngles();
 			viewBackupView(i);
 			playerProcess(&gPlayer[i]);
 		}

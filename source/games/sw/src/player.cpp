@@ -6704,14 +6704,12 @@ void MoveSkipSavePos(void)
     MoveSkip4 = (MoveSkip4 + 1) & 3;
     MoveSkip2 ^= 1;
 
-    // this must be done before the view is backed up.
-    Player[myconnectindex].Angles.resetCameraAngles();
-
     // Save off player
     TRAVERSE_CONNECT(pnum)
     {
         pp = Player + pnum;
 
+        pp->Angles.resetCameraAngles();
         pp->actor->backuploc();
         pp->obob_z = pp->bob_z;
         pp->opbob_amt = pp->pbob_amt;

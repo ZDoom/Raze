@@ -70,7 +70,10 @@ void GameInterface::Ticker()
 		everyothertime++;
 
 		// this must be done before the view is backed up.
-		ps[myconnectindex].Angles.resetCameraAngles();
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
+		{
+			ps[i].Angles.resetCameraAngles();
+		}
 
 		// disable synchronised input if set by game.
 		resetForcedSyncInput();
