@@ -203,7 +203,7 @@ void DrawView(double interpfrac, bool sceneonly)
     auto nDoppleOldCstat = pDop->spr.cstat;
 
     // update render angles.
-    pPlayer->Angles.updateRenderAngles(interpfrac);
+    pPlayer->Angles.updateCameraAngles(interpfrac);
     UpdatePlayerSpriteAngle(pPlayer);
 
     if (nSnakeCam >= 0 && !sceneonly)

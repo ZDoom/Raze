@@ -9,7 +9,7 @@ struct PlayerAngles
 	DRotator PrevViewAngles, ViewAngles;
 
 	// Player camera angles, not for direct manipulation within the playsim.
-	DRotator RenderAngles;
+	DRotator CameraAngles;
 
 	// Holder of current yaw spin state for the 180 degree turn.
 	DAngle YawSpin;
@@ -25,7 +25,7 @@ struct PlayerAngles
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
 	{
-		if (pActor = actor) RenderAngles = PrevLerpAngles = pActor->spr.Angles;
+		if (pActor = actor) CameraAngles = PrevLerpAngles = pActor->spr.Angles;
 		PrevViewAngles.Yaw = ViewAngles.Yaw = viewyaw;
 	}
 	DAngle getPitchWithView()
@@ -37,22 +37,22 @@ struct PlayerAngles
 	DRotator getRenderAngles(const double interpfrac)
 	{
 		// Get angles and return with clamped off pitch.
-		auto angles = RenderAngles + interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
+		auto angles = CameraAngles + interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
 		angles.Pitch = ClampViewPitch(angles.Pitch);
 		return angles;
 	}
-	void updateRenderAngles(const double interpfrac)
+	void updateCameraAngles(const double interpfrac)
 	{
 		// Apply the current interpolated angle state to the render angles.
 		const auto lerpAngles = interpolatedvalue(pActor->PrevAngles, pActor->spr.Angles, interpfrac);
-		RenderAngles += lerpAngles - PrevLerpAngles;
+		CameraAngles += lerpAngles - PrevLerpAngles;
 		PrevLerpAngles = lerpAngles;
 	}
-	void resetRenderAngles()
+	void resetCameraAngles()
 	{
 		// Apply any last remaining ticrate angle updates and reset variables.
-		RenderAngles += pActor->spr.Angles - PrevLerpAngles;
-		PrevLerpAngles = pActor->spr.Angles = RenderAngles;
+		CameraAngles += pActor->spr.Angles - PrevLerpAngles;
+		PrevLerpAngles = pActor->spr.Angles = CameraAngles;
 		PrevViewAngles = ViewAngles;
 	}
 

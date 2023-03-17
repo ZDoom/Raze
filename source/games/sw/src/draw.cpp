@@ -803,7 +803,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     }
 
 					tsp->pos = pos;
-                    tsp->Angles.Yaw = pp->Angles.RenderAngles.Yaw;
+                    tsp->Angles.Yaw = pp->Angles.CameraAngles.Yaw;
                     //continue;
                 }
                 else
@@ -1242,7 +1242,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     }
 
     // update render angles.
-    pp->Angles.updateRenderAngles(interpfrac);
+    pp->Angles.updateCameraAngles(interpfrac);
 
     // Get initial player position, interpolating if required.
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
@@ -1458,7 +1458,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -(pp->Angles.RenderAngles.Yaw - cang).Normalized360().Degrees();
+                    const auto daang = -(pp->Angles.CameraAngles.Yaw - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.

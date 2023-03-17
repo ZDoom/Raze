@@ -180,22 +180,22 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     {
         if ((pp->Flags2 & PF2_INPUT_CAN_AIM))
         {
-            pp->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
+            pp->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_GENERAL))
         {
-            pp->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
+            pp->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_VEHICLE))
         {
-            DoPlayerTurnVehicle(pp, pp->Angles.RenderAngles.Yaw, input.avel, pp->actor->getOffsetZ() + 10, abs(pp->actor->getOffsetZ() + 10 - pp->sop->floor_loz));
+            DoPlayerTurnVehicle(pp, pp->Angles.CameraAngles.Yaw, input.avel, pp->actor->getOffsetZ() + 10, abs(pp->actor->getOffsetZ() + 10 - pp->sop->floor_loz));
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_TURRET))
         {
-            DoPlayerTurnTurret(pp, pp->Angles.RenderAngles.Yaw, input.avel);
+            DoPlayerTurnTurret(pp, pp->Angles.CameraAngles.Yaw, input.avel);
         }
     }
 

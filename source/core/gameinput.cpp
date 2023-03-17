@@ -324,7 +324,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 
 		if (arc.isReading())
 		{
-			w.resetRenderAngles();
+			w.resetCameraAngles();
 		}
 	}
 	return arc;

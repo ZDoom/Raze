@@ -75,8 +75,8 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
     if (!SyncInput() && gamestate == GS_LEVEL && !nFreeze)
     {
-        pPlayer->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
-        pPlayer->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
+        pPlayer->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
+        pPlayer->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
 
         if (input.horz)
         {

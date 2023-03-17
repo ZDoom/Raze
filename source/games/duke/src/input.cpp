@@ -830,8 +830,8 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
 	if (!SyncInput() && p->GetActor()->spr.extra > 0)
 	{
-		p->Angles.RenderAngles.Yaw += p->adjustavel(input.avel);
-		p->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
+		p->Angles.CameraAngles.Yaw += p->adjustavel(input.avel);
+		p->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
 	}
 
 	if (packet)

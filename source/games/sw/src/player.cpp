@@ -6705,7 +6705,7 @@ void MoveSkipSavePos(void)
     MoveSkip2 ^= 1;
 
     // this must be done before the view is backed up.
-    Player[myconnectindex].Angles.resetRenderAngles();
+    Player[myconnectindex].Angles.resetCameraAngles();
 
     // Save off player
     TRAVERSE_CONNECT(pnum)

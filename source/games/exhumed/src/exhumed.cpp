@@ -368,7 +368,7 @@ void GameInterface::Ticker()
     else if (EndLevel == 0)
     {
         // this must be done before the view is backed up.
-        PlayerList[nLocalPlayer].Angles.resetRenderAngles();
+        PlayerList[nLocalPlayer].Angles.resetCameraAngles();
         UpdatePlayerSpriteAngle(&PlayerList[nLocalPlayer]);
 
         // disable synchronised input if set by game.
