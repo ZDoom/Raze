@@ -16,9 +16,9 @@
 
 struct ControlInfo
 {
-	float       dx;
-	float       dy;
-	float       dz;
+	float       dside;
+	float       dup;
+	float       dforward;
 	float       dyaw;
 	float       dpitch;
 	float       droll;

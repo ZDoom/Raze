@@ -582,7 +582,7 @@ static float motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool c
 		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
 			constexpr float velScale = (3.f / 10.f);
-			const float baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->dz < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
+			const float baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->dforward < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
@@ -744,8 +744,8 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
-		p->vehForwardScale = min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
-		p->vehReverseScale = min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
+		p->vehForwardScale = min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dforward, 1.f); 
+		p->vehReverseScale = min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dforward, 1.f);
 		p->vehBraking = buttonMap.ButtonDown(gamefunc_Run);
 	}
 
