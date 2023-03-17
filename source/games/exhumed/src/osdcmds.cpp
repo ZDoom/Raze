@@ -39,17 +39,9 @@ BEGIN_PS_NS
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
+DCoreActor* GameInterface::getConsoleActor()
 {
-    Player *nPlayer = &PlayerList[nLocalPlayer];
-
-    nPlayer->pActor->spr.pos = DVector3(x, y, z);
-    nPlayer->pActor->backuppos();
-
-    if (ang != DAngle::fromDeg(INT_MIN))
-    {
-        nPlayer->pActor->PrevAngles.Yaw = nPlayer->pActor->spr.Angles.Yaw = ang;
-    }
+    return PlayerList[nLocalPlayer].pActor;
 }
 
 //---------------------------------------------------------------------------

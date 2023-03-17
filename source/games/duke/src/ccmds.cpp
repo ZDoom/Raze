@@ -118,20 +118,9 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
+DCoreActor* GameInterface::getConsoleActor()
 {
-	player_struct* p = &ps[myconnectindex];
-	auto pActor = p->GetActor();
-
-	if (!pActor) return;
-
-	pActor->spr.pos = DVector3(x, y, z);
-	pActor->backuppos();
-
-	if (ang != DAngle::fromDeg(INT_MIN))
-	{
-		p->GetActor()->PrevAngles.Yaw = p->GetActor()->spr.Angles.Yaw = ang;
-	}
+    return ps[myconnectindex].GetActor();
 }
 
 void GameInterface::ToggleThirdPerson()

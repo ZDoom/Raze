@@ -365,7 +365,7 @@ CCMD(warptocoords)
 	}
 	if (argv.argc() < 4)
 	{
-		Printf("warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates\n");
+		Printf("warptocoords [x] [y] [z] [yaw] (optional) [pitch] (optional): warps the player to the specified coordinates\n");
 		return;
 	}
 	if (gamestate != GS_LEVEL)
@@ -373,20 +373,14 @@ CCMD(warptocoords)
 		Printf("warptocoords: must be in a level\n");
 		return;
 	}
-	int x = atoi(argv[1]);
-	int y = atoi(argv[2]);
-	int z = atoi(argv[3]);
-	int ang = INT_MIN, horiz = INT_MIN;
-	if (argv.argc() > 4)
-	{
-		ang = atoi(argv[4]);
-	}
-	if (argv.argc() > 5)
-	{
-		horiz = atoi(argv[5]);
-	}
 
-	gi->WarpToCoords(x, y, z, DAngle::fromDeg(ang));
+	if (const auto pActor = gi->getConsoleActor())
+	{
+		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
+		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));
+		if (argv.argc() > 5) pActor->spr.Angles.Pitch = DAngle::fromDeg(atof(argv[5]));
+		pActor->backuploc();
+	}
 }
 
 CCMD(third_person_view)
