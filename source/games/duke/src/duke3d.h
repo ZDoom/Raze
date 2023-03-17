@@ -38,7 +38,7 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	void ExitFromMenu() override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
+	void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;

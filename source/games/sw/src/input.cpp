@@ -160,7 +160,7 @@ static void processWeapon(PLAYER* const pp)
     }
 }
 
-void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket *packet)
+void GameInterface::GetInput(const double scaleAdjust, InputPacket *packet)
 {
     PLAYER* pp = &Player[myconnectindex];
 
@@ -170,10 +170,13 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
         return;
     }
 
+    HIDInput hidInput;
+    getHidInput(&hidInput);
+
     InputPacket input {};
 
-    ApplyGlobalInput(loc, hidInput);
-    processMovement(&input, &loc, hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
+    ApplyGlobalInput(loc, &hidInput);
+    processMovement(&input, &loc, &hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
     processWeapon(pp);
 
     if (!SyncInput())

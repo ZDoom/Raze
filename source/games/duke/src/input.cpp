@@ -523,7 +523,7 @@ static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
 //
 //---------------------------------------------------------------------------
 
-static void processInputBits(player_struct *p, ControlInfo* const hidInput)
+static void processInputBits(player_struct *p, HIDInput* const hidInput)
 {
 	// Set-up crouch bools.
 	int const sectorLotag = p->insector() ? p->cursector->lotag : 0;
@@ -555,7 +555,7 @@ static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 //
 //---------------------------------------------------------------------------
 
-static float motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, const float factor)
+static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool const kbdLeft, bool const kbdRight, const float factor)
 {
 	float turnvel = 0;
 	p->oTiltStatus = p->TiltStatus;
@@ -645,7 +645,7 @@ static float motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool c
 //
 //---------------------------------------------------------------------------
 
-static float boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, const float factor)
+static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool const kbdLeft, bool const kbdRight, const float factor)
 {
 	float turnvel = 0;
 	p->oTiltStatus = p->TiltStatus;
@@ -731,7 +731,7 @@ static float boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool c
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, InputPacket& input, double const scaleAdjust)
+static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket& input, double const scaleAdjust)
 {
 	bool const kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	bool const kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
@@ -805,7 +805,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
+void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 {
 	if (paused || gamestate != GS_LEVEL)
 	{
@@ -813,18 +813,21 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 		return;
 	}
 
+	HIDInput hidInput;
+	getHidInput(&hidInput);
+
 	auto const p = &ps[myconnectindex];
 	InputPacket input{};
 
-	processInputBits(p, hidInput);
+	processInputBits(p, &hidInput);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		processVehicleInput(p, hidInput, input, scaleAdjust);
+		processVehicleInput(p, &hidInput, input, scaleAdjust);
 	}
 	else
 	{
-		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
+		processMovement(&input, &loc, &hidInput, scaleAdjust, p->drink_amt);
 	}
 
 	FinalizeInput(p, input);

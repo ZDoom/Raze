@@ -1681,7 +1681,7 @@ struct GameInterface : public ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* input = nullptr) override;
+    void GetInput(const double scaleAdjust, InputPacket* input = nullptr) override;
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;

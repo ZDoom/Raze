@@ -65,7 +65,7 @@ CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertic
 //
 //==========================================================================
 
-void InputState::GetMouseDelta(ControlInfo * hidInput)
+void InputState::GetMouseDelta(HIDInput * hidInput)
 {
 	g_mousePos *= backendinputscale();
 
@@ -201,11 +201,9 @@ int32_t handleevents(void)
 //
 //==========================================================================
 
-ControlInfo CONTROL_GetInput()
+void getHidInput(HIDInput* const hidInput)
 {
-	ControlInfo hidInput {};
-
-	inputState.GetMouseDelta(&hidInput);
+	inputState.GetMouseDelta(hidInput);
 
 	if (use_joystick)
 	{
@@ -214,13 +212,11 @@ ControlInfo CONTROL_GetInput()
 
 		I_GetAxes(joyaxes);
 
-		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw];
-		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch];
-		hidInput.dforward += joyaxes[JOYAXIS_Forward] * .5f;
-		hidInput.dside += joyaxes[JOYAXIS_Side] * .5f;		
+		hidInput->dyaw += -joyaxes[JOYAXIS_Yaw];
+		hidInput->dpitch += -joyaxes[JOYAXIS_Pitch];
+		hidInput->dforward += joyaxes[JOYAXIS_Forward] * .5f;
+		hidInput->dside += joyaxes[JOYAXIS_Side] * .5f;		
 	}
-
-	return hidInput;
 }
 
 //---------------------------------------------------------------------------
@@ -398,7 +394,7 @@ CCMD(show_weapon)
 	gi->ToggleShowWeapon();
 }
 
-void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crouchable, bool const disableToggle)
+void ApplyGlobalInput(InputPacket& input, HIDInput* hidInput, bool const crouchable, bool const disableToggle)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;

@@ -120,7 +120,7 @@ struct GameInterface : public ::GameInterface
 	void MenuClosed() override;
 	bool CanSave() override;
 	void UpdateSounds() override;
-	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
+	void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) override;
 	void Ticker() override;
 	void DrawBackground() override;
 	void Startup() override;

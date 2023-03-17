@@ -88,7 +88,7 @@ struct GameInterface
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
-	virtual void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) {}
+	virtual void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) {}
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Startup() {}

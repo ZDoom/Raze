@@ -46,7 +46,7 @@ void ClearSpaceBar(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
+void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 {
     if (paused || M_Active())
     {
@@ -54,10 +54,13 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
         return;
     }
 
+    HIDInput hidInput;
+    getHidInput(&hidInput);
+
     if (packet != nullptr)
     {
         localInput = {};
-        ApplyGlobalInput(localInput, hidInput);
+        ApplyGlobalInput(localInput, &hidInput);
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
     }
 
@@ -66,7 +69,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
     if (PlayerList[nLocalPlayer].nHealth != 0)
     {
-        processMovement(&input, &localInput, hidInput, scaleAdjust);
+        processMovement(&input, &localInput, &hidInput, scaleAdjust);
     }
     else
     {

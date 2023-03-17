@@ -40,7 +40,7 @@ static InputPacket gInput;
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
+void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 {
 	if (paused || M_Active())
 	{
@@ -48,11 +48,14 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 		return;
 	}
 
+	HIDInput hidInput;
+	getHidInput(&hidInput);
+
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	InputPacket input{};
 
-	ApplyGlobalInput(gInput, hidInput);
-	processMovement(&input, &gInput, hidInput, scaleAdjust);
+	ApplyGlobalInput(gInput, &hidInput);
+	processMovement(&input, &gInput, &hidInput, scaleAdjust);
 
 	// Perform unsynchronised angle/horizon if not dead.
 	if (!SyncInput() && gamestate == GS_LEVEL && pPlayer->actor->xspr.health != 0)

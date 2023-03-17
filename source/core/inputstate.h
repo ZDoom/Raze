@@ -14,7 +14,7 @@
 #include "vectors.h"
 
 
-struct ControlInfo
+struct HIDInput
 {
 	float       dside;
 	float       dup;
@@ -50,7 +50,7 @@ public:
 		g_mousePos.Y += y;
 	}
 
-	void GetMouseDelta(ControlInfo* hidInput);
+	void GetMouseDelta(HIDInput* hidInput);
 
 	void ClearAllInput();
 	bool CheckAllInput()
@@ -63,7 +63,7 @@ public:
 
 extern InputState inputState;
 
-ControlInfo CONTROL_GetInput();
+void getHidInput(HIDInput* const hidInput);
 int32_t handleevents(void);
 
 enum GameFunction_t
@@ -102,7 +102,7 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
-void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput, bool const crouchable = true, bool const disableToggle = false);
+void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput, bool const crouchable = true, bool const disableToggle = false);
 extern ESyncBits ActionsToSend;
 extern bool gamesetinput;
 

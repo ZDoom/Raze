@@ -136,8 +136,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 	}
 	cmd->ucmd = {};
 	I_GetEvent();
-	auto input = CONTROL_GetInput();
-	gi->GetInput(&input, inputScale, &cmd->ucmd);
+	gi->GetInput(inputScale, &cmd->ucmd);
 	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
@@ -615,8 +614,7 @@ void TryRunTics (void)
 		if (!SyncInput())
 		{
 			I_GetEvent();
-			auto input = CONTROL_GetInput();
-			gi->GetInput(&input, inputScale);
+			gi->GetInput(inputScale);
 		}
 		return;
 	}
