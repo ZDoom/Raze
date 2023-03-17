@@ -212,7 +212,7 @@ void getHidInput(HIDInput* const hidInput)
 
 		I_GetAxes(joyaxes);
 
-		hidInput->dyaw += -joyaxes[JOYAXIS_Yaw];
+		hidInput->dyaw += joyaxes[JOYAXIS_Yaw];
 		hidInput->dpitch += -joyaxes[JOYAXIS_Pitch];
 		hidInput->dforward += joyaxes[JOYAXIS_Forward] * .5f;
 		hidInput->dside += joyaxes[JOYAXIS_Side] * .5f;		
@@ -405,9 +405,9 @@ void ApplyGlobalInput(InputPacket& input, HIDInput* hidInput, bool const croucha
 		else dpad_lock &= ~1;
 		if (hidInput->dforward < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
 		else dpad_lock &= ~2;
-		if ((hidInput->dside < 0 || hidInput->dyaw < 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
+		if ((hidInput->dside < 0 || hidInput->dyaw > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
 		else dpad_lock &= ~4;
-		if ((hidInput->dside > 0 || hidInput->dyaw > 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
+		if ((hidInput->dside > 0 || hidInput->dyaw < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
 		else dpad_lock &= ~8;
 
 		// This eats the controller input for regular use

@@ -564,13 +564,13 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 	{
 		resetTurnHeldAmt();
 
-		if (kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
+		if (kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw > 0)
 		{
 			p->TiltStatus -= (float)factor;
 			if (p->TiltStatus < -10)
 				p->TiltStatus = -10;
 		}
-		else if (kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
+		else if (kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw < 0)
 		{
 			p->TiltStatus += (float)factor;
 			if (p->TiltStatus > 10)
@@ -584,7 +584,7 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 			constexpr float velScale = (3.f / 10.f);
 			const float baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->dforward < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
 
-			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
+			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw > 0)
 			{
 				p->TiltStatus -= (float)factor;
 
@@ -597,13 +597,13 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 				if (hidInput->mouseturnx < 0)
 					turnvel -= Sgn(baseVel) * sqrtf(abs(p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * -(hidInput->mouseturnx / factor) * (7.f / 20.f));
 
-				if (hidInput->dyaw < 0)
+				if (hidInput->dyaw > 0)
 					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
 
 				updateTurnHeldAmt(factor);
 			}
 
-			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
+			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw < 0)
 			{
 				p->TiltStatus += (float)factor;
 
@@ -616,7 +616,7 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 				if (hidInput->mouseturnx > 0)
 					turnvel += Sgn(baseVel) * sqrtf(abs(p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * (hidInput->mouseturnx / factor) * (7.f / 20.f));
 
-				if (hidInput->dyaw > 0)
+				if (hidInput->dyaw < 0)
 					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
 
 				updateTurnHeldAmt(factor);
@@ -657,7 +657,7 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 			const float velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
 			const float baseVel = VEHICLETURN * velScale;
 
-			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
+			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw > 0)
 			{
 				if (!p->NotOnWater)
 				{
@@ -672,13 +672,13 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 				if (hidInput->mouseturnx < 0)
 					turnvel -= Sgn(baseVel) * sqrtf(abs(baseVel) * -(hidInput->mouseturnx / factor) * (7.f / 20.f));
 
-				if (hidInput->dyaw < 0)
+				if (hidInput->dyaw > 0)
 					turnvel += baseVel * hidInput->dyaw;
 
 				updateTurnHeldAmt(factor);
 			}
 
-			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
+			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw < 0)
 			{
 				if (!p->NotOnWater)
 				{
@@ -693,7 +693,7 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 				if (hidInput->mouseturnx > 0)
 					turnvel += Sgn(baseVel) * sqrtf(abs(baseVel) * (hidInput->mouseturnx / factor) * (7.f / 20.f));
 
-				if (hidInput->dyaw > 0)
+				if (hidInput->dyaw < 0)
 					turnvel += baseVel * hidInput->dyaw;
 
 				updateTurnHeldAmt(factor);
@@ -739,8 +739,8 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	// Cancel out micro-movement
 	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) hidInput->mouseturnx = 0;
 
-	p->vehTurnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw < 0;
-	p->vehTurnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw > 0;
+	p->vehTurnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw > 0;
+	p->vehTurnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw < 0;
 
 	if (p->OnBoat || !p->moto_underwater)
 	{

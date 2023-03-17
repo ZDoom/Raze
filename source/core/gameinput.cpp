@@ -127,12 +127,12 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		currInput->avel += hidInput->mouseturnx + (hidInput->dyaw * hidspeed + turndir * turnspeed) * scaleAdjustf;
+		currInput->avel += hidInput->mouseturnx - (hidInput->dyaw * hidspeed - turndir * turnspeed) * scaleAdjustf;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
 	else
 	{
-		currInput->svel += hidInput->mousemovex + (hidInput->dyaw + turning) * keymove * scaleAdjustf;
+		currInput->svel += hidInput->mousemovex - (hidInput->dyaw - turning) * keymove * scaleAdjustf;
 	}
 
 	// process player pitch input.
