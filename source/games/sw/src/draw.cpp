@@ -967,19 +967,6 @@ void post_analyzesprites(tspriteArray& tsprites)
 //
 //---------------------------------------------------------------------------
 
-std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
-{
-    auto ppActor = Player[myconnectindex].actor;
-    if (!ppActor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-    return std::make_pair(ppActor->spr.pos, ppActor->spr.Angles.Yaw);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void PrintSpriteInfo(PLAYER* pp)
 {
     const int Y_STEP = 7;

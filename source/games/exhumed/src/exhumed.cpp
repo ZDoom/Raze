@@ -679,13 +679,6 @@ bool GameInterface::CanSave()
     return new GameInterface;
 }
 
-std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
-{
-    auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
-    if (!pPlayerActor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-    return std::make_pair(pPlayerActor->spr.pos, pPlayerActor->spr.Angles.Yaw);
-}
-
 
 //---------------------------------------------------------------------------
 //

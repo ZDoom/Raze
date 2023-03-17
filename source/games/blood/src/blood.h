@@ -119,7 +119,6 @@ struct GameInterface : public ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	std::pair<DVector3, DAngle> GetCoordinates() override;
 	void UpdateSounds() override;
 	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void Ticker() override;

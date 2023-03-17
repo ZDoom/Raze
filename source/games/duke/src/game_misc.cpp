@@ -55,13 +55,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
-{
-	auto pActor = ps[screenpeek].GetActor();
-	if (!pActor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-	return std::make_pair(pActor->spr.pos, pActor->spr.Angles.Yaw);
-}
-
 GameStats GameInterface::getStats()
 {
 	player_struct* p = &ps[myconnectindex];

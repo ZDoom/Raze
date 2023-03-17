@@ -46,6 +46,7 @@
 #include "quotemgr.h"
 #include "gamestruct.h"
 #include "statusbar.h"
+#include "coreactor.h"
 
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
@@ -235,14 +236,14 @@ ADD_STAT(fps)
 
 ADD_STAT(coord)
 {
-	auto coord = gi->GetCoordinates();
 	FString out;
-	if (coord.first.X < DBL_MAX)
+	if (const auto pActor = gi->getConsoleActor())
 	{
-		out.AppendFormat("X: %f ", coord.first.X);
-		out.AppendFormat("Y: %f ", coord.first.Y);
-		out.AppendFormat("Z: %f ", coord.first.Z);
-		out.AppendFormat("Angle: %f\n", coord.second.Degrees());
+		out.AppendFormat("X: %.4f ", pActor->spr.pos.X);
+		out.AppendFormat("Y: %.4f ", pActor->spr.pos.Y);
+		out.AppendFormat("Z: %.4f ", pActor->spr.pos.Z);
+		out.AppendFormat("Yaw: %.4f ", pActor->spr.Angles.Yaw.Degrees());
+		out.AppendFormat("Pitch: %.4f\n", pActor->spr.Angles.Pitch.Degrees());
 	}
 	return out;
 }

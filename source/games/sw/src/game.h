@@ -1679,7 +1679,6 @@ struct GameInterface : public ::GameInterface
 	FSavegameInfo GetSaveSig() override;
     void SerializeGameState(FSerializer& arc);
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
-    std::pair<DVector3, DAngle> GetCoordinates() override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
     void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* input = nullptr) override;

@@ -87,7 +87,6 @@ struct GameInterface
 	virtual void SerializeGameState(FSerializer& arc) {}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
-	virtual std::pair<DVector3, DAngle> GetCoordinates() { return {}; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) {}
 	virtual void UpdateSounds() {}
