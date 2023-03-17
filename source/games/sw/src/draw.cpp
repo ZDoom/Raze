@@ -1246,6 +1246,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
 
     // Get initial player position, interpolating if required.
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
+    DVector2 ampos = tpos.XY();
     DRotator tangles = camerapp->Angles.getRenderAngles(interpfrac);
     sectortype* tsect = camerapp->cursector;
 
@@ -1333,7 +1334,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(tpos.XY(), tangles.Yaw, interpfrac);
+        DrawOverheadMap(ampos, tangles.Yaw, interpfrac);
     }
 
     SWSpriteIterator it;
