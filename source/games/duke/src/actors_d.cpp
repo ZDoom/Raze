@@ -1550,7 +1550,7 @@ void think_d(void)
 
 	actortime.Reset();
 	actortime.Clock();
-	tickstat(STAT_ACTOR);			//ST 1
+	tickstat(STAT_ACTOR, true);			//ST 1
 	actortime.Unclock();
 
 	moveeffectors_d();		//ST 3

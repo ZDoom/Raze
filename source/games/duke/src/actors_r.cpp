@@ -1029,7 +1029,7 @@ void moveactors_r(void)
 	if (ud.chickenplant) tickstat(STAT_CHICKENPLANT);
 	tickstat(STAT_BOWLING);
 	tickstat(STAT_TELEPORT);
-	tickstat(STAT_ACTOR);
+	tickstat(STAT_ACTOR, true);
 }
 
 //---------------------------------------------------------------------------
