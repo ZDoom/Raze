@@ -67,7 +67,6 @@ void GameInterface::Ticker()
 		if (ud.earthquaketime > 0) ud.earthquaketime--;
 
 		ud.cameraactor = nullptr;
-		everyothertime++;
 
 		// this must be done before the view is backed up.
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
@@ -102,7 +101,7 @@ void GameInterface::Ticker()
 
 		fi.think();
 
-		if ((everyothertime & 1) == 0)
+		if (PlayClock & 4)
 		{
 			animatewalls();
 			movecyclers();

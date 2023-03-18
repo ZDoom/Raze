@@ -101,7 +101,6 @@ sectortype* mirrorsector[64];					// mirrors
 walltype* mirrorwall[64];
 int numplayersprites;						// player management for some SEs.
 player_orig po[MAXPLAYERS];
-uint32_t everyothertime;					// Global animation ticker helper.
 
 // Redneck Rampage
 int thunder_brightness;

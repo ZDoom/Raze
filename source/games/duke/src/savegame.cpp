@@ -467,7 +467,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			FX_SetReverb(0);
 			show_shareware = 0;
-			everyothertime = 0;
 
 			FX_SetReverb(0);
 			resetlanepics();

@@ -1135,7 +1135,6 @@ void enterlevel(MapRecord *mi, int gamemode)
 	}
 	resetmys();
 
-	everyothertime = 0;
 	global_random = 0;
 
 	ud.last_level = 1;
