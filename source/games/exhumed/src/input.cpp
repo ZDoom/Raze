@@ -62,24 +62,12 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
     Player* pPlayer = &PlayerList[nLocalPlayer];
     InputPacket input {};
 
-    if (PlayerList[nLocalPlayer].nHealth != 0)
-    {
-        processMovement(&input, &localInput, &hidInput, scaleAdjust);
-    }
-    else
-    {
-        pPlayer->vel.Zero();
-    }
+    processMovement(&input, &localInput, &hidInput, scaleAdjust);
 
-    if (!SyncInput() && gamestate == GS_LEVEL && !nFreeze)
+    if (!SyncInput() && gamestate == GS_LEVEL)
     {
         pPlayer->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
         pPlayer->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
-
-        if (input.horz)
-        {
-            pPlayer->bPlayerPan = pPlayer->bLockPan = true;
-        }
     }
 
     if (packet)

@@ -390,6 +390,16 @@ void GameInterface::Ticker()
         }
         UpdateInterpolations();
 
+        if (nFreeze) setForcedSyncInput();
+
+        if (PlayerList[nLocalPlayer].nHealth <= 0)
+        {
+            setForcedSyncInput();
+            auto& packet = PlayerList[nLocalPlayer].input;
+            packet.fvel = packet.svel = packet.avel = packet.horz = 0;
+            lPlayerVel.Zero();
+        }
+
         if (PlayerList[nLocalPlayer].input.actions & SB_INVPREV)
         {
             int nItem = PlayerList[nLocalPlayer].nItem;
