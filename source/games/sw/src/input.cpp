@@ -34,9 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerTurnVehicle(PLAYER* pp, DAngle& plyaw, float avel, double z, double floor_dist);
-void DoPlayerTurnTurret(PLAYER* pp, DAngle& plyaw, float avel);
-
 static InputPacket loc;
 
 //---------------------------------------------------------------------------
@@ -181,25 +178,8 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket *packet)
 
     if (!SyncInput())
     {
-        if ((pp->Flags2 & PF2_INPUT_CAN_AIM))
-        {
-            pp->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
-        }
-
-        if ((pp->Flags2 & PF2_INPUT_CAN_TURN_GENERAL))
-        {
-            pp->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
-        }
-
-        if ((pp->Flags2 & PF2_INPUT_CAN_TURN_VEHICLE))
-        {
-            DoPlayerTurnVehicle(pp, pp->Angles.CameraAngles.Yaw, input.avel, pp->actor->getOffsetZ() + 10, abs(pp->actor->getOffsetZ() + 10 - pp->sop->floor_loz));
-        }
-
-        if ((pp->Flags2 & PF2_INPUT_CAN_TURN_TURRET))
-        {
-            DoPlayerTurnTurret(pp, pp->Angles.CameraAngles.Yaw, input.avel);
-        }
+        pp->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
+        pp->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
     }
 
     if (packet)

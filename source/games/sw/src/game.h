@@ -567,8 +567,6 @@ enum
     PF_TANK                     = (BIT(29)), // Doin the tank thang
     PF_WEAPON_DOWN              = (BIT(31)),
     PF2_TELEPORTED              = (BIT(0)),
-    PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon() from processMovement()
-    PF2_INPUT_CAN_TURN_GENERAL  = (BIT(2)), // Allow calling DoPlayerTurn() from processMovement()
     PF2_INPUT_CAN_TURN_VEHICLE  = (BIT(3)), // Allow calling DoPlayerTurnVehicle() from processMovement()
     PF2_INPUT_CAN_TURN_TURRET   = (BIT(4)), // Allow calling DoPlayerTurnTurret() from processMovement()
 };
