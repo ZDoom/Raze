@@ -32,7 +32,7 @@ struct PlayerAngles
 	}
 
 	// Render angle functions.
-	const DRotator& getCameraAngles()
+	const DRotator& getCameraAngles() const
 	{
 		return CameraAngles;
 	}
