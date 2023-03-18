@@ -345,6 +345,11 @@ struct player_struct
 	{
 		bobpos = GetActor()->spr.pos.XY();
 	}
+
+	bool centeringView()
+	{
+		return (sync.actions & SB_CENTERVIEW) && abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370;
+	}
 };
 
 struct Cycler

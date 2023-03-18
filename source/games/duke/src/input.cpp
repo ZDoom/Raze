@@ -741,41 +741,6 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	inputBuffer->avel += currInput->avel;
 }
 
-//---------------------------------------------------------------------------
-//
-// finalizes the input and passes it to the global input buffer
-//
-//---------------------------------------------------------------------------
-
-static void FinalizeInput(player_struct *p, InputPacket& input)
-{
-	if (gamestate != GS_LEVEL || movementBlocked(p) || p->GetActor()->spr.extra <= 0)
-	{
-		// neutralize all movement when not in a game, blocked or in automap follow mode
-		loc.fvel = loc.svel = 0;
-		loc.avel = loc.horz = 0;
-		input.avel = input.horz = 0;
-	}
-	else
-	{
-		if (p->on_crane != nullptr)
-		{
-			loc.fvel = input.fvel = 0;
-			loc.svel = input.svel = 0;
-		}
-
-		if (p->newOwner != nullptr || p->on_crane != nullptr)
-		{
-			loc.avel = input.avel = 0;
-		}
-
-		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370))
-		{
-			loc.horz = input.horz = 0;
-		}
-	}
-}
-
 
 //---------------------------------------------------------------------------
 //
@@ -807,8 +772,6 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 	{
 		processMovement(&hidInput, &loc, &input, scaleAdjust, p->drink_amt);
 	}
-
-	FinalizeInput(p, input);
 
 	if (!SyncInput() && p->GetActor()->spr.extra > 0)
 	{

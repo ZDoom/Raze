@@ -151,6 +151,7 @@ class DukeCrane : DukeActor
 					plr.on_crane = self;
 					plr.actor.PlayActorSound("CRANEGRAB");
 					plr.settargetangle(self.angle + 180);
+					Raze.forceSyncInput();
 				}
 				else
 				{

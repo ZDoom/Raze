@@ -1512,6 +1512,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 	ACTION_RETURN_INT(I_GetBuildTime());
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, forceSyncInput, setForcedSyncInput)
+{
+	setForcedSyncInput();
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION(_Raze, PickTexture)
 {
 	PARAM_PROLOGUE;

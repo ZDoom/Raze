@@ -3382,6 +3382,7 @@ void processinput_r(int snum)
 
 	if (p->newOwner != nullptr)
 	{
+		setForcedSyncInput();
 		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
@@ -3399,7 +3400,10 @@ void processinput_r(int snum)
 	auto oldpos = p->GetActor()->opos;
 
 	if (p->on_crane != nullptr)
+	{
+		setForcedSyncInput();
 		goto HORIZONLY;
+	}
 
 	p->playerweaponsway(pact->vel.X);
 
@@ -3448,6 +3452,7 @@ void processinput_r(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
+		setForcedSyncInput();
 	}
 	else if (SyncInput())
 	{
@@ -3796,7 +3801,12 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
-	if (SyncInput())
+	if (p->centeringView())
+	{
+		p->sync.horz = 0;
+		setForcedSyncInput();
+	}
+	else if (SyncInput())
 	{
 		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}
