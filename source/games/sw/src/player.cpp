@@ -173,6 +173,7 @@ int GetOverlapSector2(const DVector2& pos, sectortype** over, sectortype** under
 void PlayerToRemote(PLAYER* pp);
 void PlayerRemoteInit(PLAYER* pp);
 void PlayerSpawnPosition(PLAYER* pp);
+void processWeapon(PLAYER* const pp);
 
 extern short target_ang;
 
@@ -6943,6 +6944,9 @@ void domovethings(void)
                 pp->cookieTime = 0;
             }
         }
+
+        // process weapon bits
+        processWeapon(pp);
 
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)

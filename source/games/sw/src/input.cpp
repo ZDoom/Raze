@@ -77,13 +77,13 @@ enum
 //
 //---------------------------------------------------------------------------
 
-static void processWeapon(PLAYER* const pp)
+void processWeapon(PLAYER* const pp)
 {
     DSWActor* plActor = pp->actor;
     if (plActor == nullptr) return;
     int i;
 
-    if (loc.getNewWeapon() == WeaponSel_Next)
+    if (pp->input.getNewWeapon() == WeaponSel_Next)
     {
         int next_weapon = plActor->user.WeaponNum + 1;
         int start_weapon;
@@ -116,9 +116,9 @@ static void processWeapon(PLAYER* const pp)
             }
         }
 
-        loc.setNewWeapon(next_weapon + 1);
+        pp->input.setNewWeapon(next_weapon + 1);
     }
-    else if (loc.getNewWeapon() == WeaponSel_Prev)
+    else if (pp->input.getNewWeapon() == WeaponSel_Prev)
     {
         int prev_weapon = plActor->user.WeaponNum - 1;
         int start_weapon;
@@ -148,12 +148,12 @@ static void processWeapon(PLAYER* const pp)
                 }
             }
         }
-        loc.setNewWeapon(prev_weapon + 1);
+        pp->input.setNewWeapon(prev_weapon + 1);
     }
-    else if (loc.getNewWeapon() == WeaponSel_Alt)
+    else if (pp->input.getNewWeapon() == WeaponSel_Alt)
     {
         int which_weapon = plActor->user.WeaponNum + 1;
-        loc.setNewWeapon(which_weapon);
+        pp->input.setNewWeapon(which_weapon);
     }
 }
 
@@ -174,7 +174,6 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket *packet)
 
     ApplyGlobalInput(loc, &hidInput);
     processMovement(&input, &loc, &hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
-    processWeapon(pp);
 
     if (!SyncInput())
     {
