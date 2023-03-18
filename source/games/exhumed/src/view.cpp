@@ -204,7 +204,6 @@ void DrawView(double interpfrac, bool sceneonly)
 
     // update render angles.
     pPlayer->Angles.updateCameraAngles(interpfrac);
-    UpdatePlayerSpriteAngle(pPlayer);
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
@@ -341,12 +340,6 @@ void DrawView(double interpfrac, bool sceneonly)
                     auto ang2 = nCameraangles.Yaw - pPlayerActor->spr.Angles.Yaw;
                     if (ang2.Degrees() < 0)
                         ang2 = -ang2;
-
-                    if (ang2 > mapangle(10))
-                    {
-                        inita -= ang2 * (1. / 8.);
-                        return;
-                    }
 
                     if (bSubTitles)
                     {

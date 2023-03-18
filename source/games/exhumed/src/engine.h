@@ -57,7 +57,6 @@ enum {
 };
 
 extern DVector3 initpos;
-extern DAngle inita;
 extern sectortype* initsectp;
 
 extern int nCurChunkNum;

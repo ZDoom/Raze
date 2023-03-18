@@ -85,8 +85,6 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
         {
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
-
-        UpdatePlayerSpriteAngle(pPlayer);
     }
 
     if (packet)

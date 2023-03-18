@@ -945,7 +945,6 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
     */
     auto pActor = PlayerList[nLocalPlayer].pActor;
     initpos = pActor->spr.pos;
-    inita = pActor->spr.Angles.Yaw;
     initsectp = pActor->sector();
 }
 

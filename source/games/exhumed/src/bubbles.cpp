@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sequence.h"
 #include "mapinfo.h"
 #include <assert.h>
+#include "player.h"
 
 BEGIN_PS_NS
 
@@ -53,6 +54,7 @@ DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector)
     }
 
     auto pActor = insertActor(pSector, 402);
+    auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
 
 	pActor->spr.pos = pos;
     pActor->spr.cstat = 0;
@@ -63,7 +65,7 @@ DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.Angles.Yaw = inita;
+    pActor->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = -1200 / 256.;

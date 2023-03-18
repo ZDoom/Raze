@@ -664,17 +664,6 @@ static void pickupMessage(int no)
 //
 //---------------------------------------------------------------------------
 
-void UpdatePlayerSpriteAngle(Player* pPlayer)
-{
-    if (pPlayer->pActor) inita = pPlayer->pActor->spr.Angles.Yaw.Normalized360();
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void AIPlayer::Draw(RunListEvent* ev)
 {
     int nPlayer = RunData[ev->nRun].nObjIndex;
@@ -987,7 +976,6 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     PlayerList[nPlayer].Angles.doYawKeys(&PlayerList[nLocalPlayer].input);
-    UpdatePlayerSpriteAngle(&PlayerList[nPlayer]);
 
     // player.zvel is modified within Gravity()
 	double zVel = pPlayerActor->vel.Z;
@@ -2600,7 +2588,6 @@ sectdone:
     {
         initpos = pPlayerActor->spr.pos;
         initsectp = pPlayerActor->sector();
-        inita = pPlayerActor->spr.Angles.Yaw;
     }
 
     if (!PlayerList[nPlayer].nHealth)

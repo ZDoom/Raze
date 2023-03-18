@@ -500,6 +500,8 @@ void GameInterface::UpdateSounds()
     if (nFreeze)
         return;
 
+    const auto pActor = PlayerList[nLocalPlayer].pActor;
+
     DVector3 pos;
     DAngle ang;
     if (nSnakeCam > -1)
@@ -508,10 +510,10 @@ void GameInterface::UpdateSounds()
         pos = pSnake->pSprites[0]->spr.pos;
         ang = pSnake->pSprites[0]->spr.Angles.Yaw;
     }
-    else
+    else if (pActor)
     {
         pos = initpos;
-        ang = inita;
+        ang = pActor->spr.Angles.Yaw;
     }
     SoundListener listener;
     listener.angle = float(-ang.Radians()); // Build uses a period of 2048.

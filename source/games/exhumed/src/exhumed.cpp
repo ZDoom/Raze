@@ -369,7 +369,6 @@ void GameInterface::Ticker()
     {
         // this must be done before the view is backed up.
         PlayerList[nLocalPlayer].Angles.resetCameraAngles();
-        UpdatePlayerSpriteAngle(&PlayerList[nLocalPlayer]);
 
         // disable synchronised input if set by game.
         resetForcedSyncInput();
@@ -381,7 +380,7 @@ void GameInterface::Ticker()
 
         auto& lPlayerVel = PlayerList[nLocalPlayer].vel;
 
-        auto inputvect = DVector2(PlayerList[nLocalPlayer].input.fvel, PlayerList[nLocalPlayer].input.svel).Rotated(inita) * 0.375;
+        auto inputvect = DVector2(PlayerList[nLocalPlayer].input.fvel, PlayerList[nLocalPlayer].input.svel).Rotated(PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {

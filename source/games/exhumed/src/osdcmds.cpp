@@ -73,13 +73,16 @@ static int osdcmd_doors(CCmdFuncPtr parm)
 
 static int osdcmd_spawn(CCmdFuncPtr parm)
 {
+    auto pActor = PlayerList[nLocalPlayer].pActor;
     if (parm->numparms != 1) return CCMD_SHOWHELP;
+    if (!pActor) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
 	auto sectp = initsectp;
+    auto inita = pActor->spr.Angles.Yaw;
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initpos, sectp, inita, false);
     else if (!stricmp(c, "spider")) BuildSpider(nullptr, initpos, sectp, inita);
     else if (!stricmp(c, "mummy")) BuildMummy(nullptr, initpos, sectp, inita);
-    else if (!stricmp(c, "fish")) BuildFish(nullptr, initpos.plusZ(PlayerList[nLocalPlayer].pActor->viewzoffset), sectp, inita);
+    else if (!stricmp(c, "fish")) BuildFish(nullptr, initpos.plusZ(pActor->viewzoffset), sectp, inita);
     else if (!stricmp(c, "lion")) BuildLion(nullptr, initpos, sectp, inita);
     else if (!stricmp(c, "lava")) BuildLava(nullptr, initpos, sectp, inita, nNetPlayerCount);
     else if (!stricmp(c, "rex")) BuildRex(nullptr, initpos, sectp, inita, nNetPlayerCount);

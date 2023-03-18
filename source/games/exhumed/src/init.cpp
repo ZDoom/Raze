@@ -40,7 +40,6 @@ enum
 };
 
 DVector3 initpos;
-DAngle inita;
 sectortype* initsectp;
 
 int nCurChunkNum = 0;
@@ -147,7 +146,6 @@ uint8_t LoadLevel(MapRecord* map)
     SpawnSpriteDef spawned;
     int16_t mapang;
     loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
-    inita = DAngle::fromBuild(mapang);
     initsectp = initsect;
     auto actors = spawnactors(spawned);
 
@@ -164,6 +162,13 @@ uint8_t LoadLevel(MapRecord* map)
     precache();
 
     LoadObjects(actors);
+
+    for (int i = 0; i < nTotalPlayers; i++)
+    {
+        SetSavePoint(i, initpos, initsectp, DAngle::fromBuild(mapang));
+        RestartPlayer(i);
+        InitPlayerKeys(i);
+    }
     return true;
 }
 
@@ -179,13 +184,6 @@ void InitLevel(MapRecord* map)
     currentLevel = map;
     if (!LoadLevel(map)) {
         I_Error("Cannot load %s...\n", map->fileName.GetChars());
-    }
-
-    for (int i = 0; i < nTotalPlayers; i++)
-    {
-        SetSavePoint(i, initpos, initsectp, inita);
-        RestartPlayer(i);
-        InitPlayerKeys(i);
     }
     EndLevel = 0;
     ResetView();
@@ -854,7 +852,6 @@ void SerializeInit(FSerializer& arc)
     if (arc.BeginObject("init"))
     {
         arc("init", initpos)
-            ("inita", inita)
             ("initsect", initsectp)
             ("curchunk", nCurChunkNum)
             .Array("counters", Counters, kNumCounters)
