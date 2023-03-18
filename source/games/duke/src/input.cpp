@@ -533,7 +533,7 @@ static void processInputBits(player_struct *p, HIDInput* const hidInput)
 	ApplyGlobalInput(loc, hidInput);
 	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
 
-	if (!crouchable || disableToggle)
+	if (crouch_toggle && (!crouchable || disableToggle))
 	{
 		crouch_toggle = false;
 		loc.actions &= ~SB_CROUCH;
