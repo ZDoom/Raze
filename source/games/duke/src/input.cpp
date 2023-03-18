@@ -73,6 +73,31 @@ void hud_input(int plnum)
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	p->backupweapon();
 
+	// Set-up crouch bools.
+	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
+	const bool crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
+	const bool disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
+
+	if (isRR() && (p->sync.actions & SB_CROUCH)) p->sync.actions &= ~SB_JUMP;
+
+	if (crouch_toggle && (!crouchable || disableToggle))
+	{
+		crouch_toggle = false;
+		p->sync.actions &= ~SB_CROUCH;
+	}
+
+	if (p->OnMotorcycle || p->OnBoat)
+	{
+		// mask out all actions not compatible with vehicles.
+		p->sync.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
+	}
+	else
+	{
+		if ((isRR() && p->drink_amt > 88)) p->sync.actions |= SB_LOOK_LEFT;
+		if ((isRR() && p->drink_amt > 99)) p->sync.actions |= SB_LOOK_DOWN;
+	}
+
 	if (isRR())
 	{
 		if (PlayerInput(plnum, SB_QUICK_KICK) && p->last_pissed_time == 0)
@@ -519,41 +544,6 @@ static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
 
 //---------------------------------------------------------------------------
 //
-// handles the input bits
-//
-//---------------------------------------------------------------------------
-
-static void processInputBits(player_struct *p, HIDInput* const hidInput)
-{
-	// Set-up crouch bools.
-	int const sectorLotag = p->insector() ? p->cursector->lotag : 0;
-	bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
-	bool const disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
-
-	ApplyGlobalInput(loc, hidInput);
-	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
-
-	if (crouch_toggle && (!crouchable || disableToggle))
-	{
-		crouch_toggle = false;
-		loc.actions &= ~SB_CROUCH;
-	}
-
-	if (p->OnMotorcycle || p->OnBoat)
-	{
-		// mask out all actions not compatible with vehicles.
-		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
-			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
-	}
-	else
-	{
-		if ((isRR() && p->drink_amt > 88)) loc.actions |= SB_LOOK_LEFT;
-		if ((isRR() && p->drink_amt > 99)) loc.actions |= SB_LOOK_DOWN;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // split out for readability
 //
 //---------------------------------------------------------------------------
@@ -822,7 +812,7 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 	auto const p = &ps[myconnectindex];
 	InputPacket input{};
 
-	processInputBits(p, &hidInput);
+	ApplyGlobalInput(loc, &hidInput);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
