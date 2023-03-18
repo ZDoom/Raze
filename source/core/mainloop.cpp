@@ -136,7 +136,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 	}
 	cmd->ucmd = {};
 	I_GetEvent();
-	gi->GetInput(inputScale, &cmd->ucmd);
+	gi->GetInput(!SyncInput() ? inputScale : 1., &cmd->ucmd);
 	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
@@ -564,7 +564,7 @@ void TryRunTics (void)
 	oldentertics = entertic;
 
 	// update the scale factor for unsynchronised input here.
-	inputScale = !SyncInput() ? I_GetInputFrac() : 1.;
+	inputScale = I_GetInputFrac();
 
 	// get available tics
 	NetUpdate ();
@@ -614,7 +614,7 @@ void TryRunTics (void)
 		if (!SyncInput())
 		{
 			I_GetEvent();
-			gi->GetInput(inputScale);
+			gi->GetInput(!SyncInput() ? inputScale : 1.);
 		}
 		return;
 	}
