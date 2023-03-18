@@ -2586,7 +2586,6 @@ sectdone:
     // loc_1C3B4:
     if (nPlayer == nLocalPlayer)
     {
-        initpos = pPlayerActor->spr.pos;
         initsectp = pPlayerActor->sector();
     }
 

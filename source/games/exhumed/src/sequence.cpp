@@ -676,7 +676,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         auto pSector =pTSprite->sectp;
         double nFloorZ = pSector->floorz;
 
-        if (nFloorZ <= PlayerList[nLocalPlayer].pActor->viewzoffset + initpos.Z) {
+        if (nFloorZ <= PlayerList[nLocalPlayer].pActor->viewzoffset + PlayerList[nLocalPlayer].pActor->spr.pos.Z) {
             pTSprite->ownerActor = nullptr;
         }
         else

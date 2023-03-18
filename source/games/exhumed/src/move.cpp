@@ -944,7 +944,6 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
         TODO: Might need to be done elsewhere too?
     */
     auto pActor = PlayerList[nLocalPlayer].pActor;
-    initpos = pActor->spr.pos;
     initsectp = pActor->sector();
 }
 

@@ -39,7 +39,6 @@ enum
     kTagRamses = 61,
 };
 
-DVector3 initpos;
 sectortype* initsectp;
 
 int nCurChunkNum = 0;
@@ -144,6 +143,7 @@ uint8_t LoadLevel(MapRecord* map)
 
     sectortype* initsect;
     SpawnSpriteDef spawned;
+    DVector3 initpos;
     int16_t mapang;
     loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
     initsectp = initsect;
@@ -769,7 +769,7 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
     {
         auto pActor = insertActor(initsectp, 0);
 
-        pActor->spr.pos = initpos;
+        pActor->spr.pos = PlayerList[nLocalPlayer].pActor->spr.pos;
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;
@@ -837,8 +837,6 @@ void LoadObjects(TArray<DExhumedActor*>& actors)
         runlist_ChangeChannel(nChannel, 0);
         runlist_ReadyChannel(nChannel);
     }
-
-    nCamerapos = initpos;
 }
 
 //---------------------------------------------------------------------------
@@ -851,8 +849,7 @@ void SerializeInit(FSerializer& arc)
 {
     if (arc.BeginObject("init"))
     {
-        arc("init", initpos)
-            ("initsect", initsectp)
+        arc("initsect", initsectp)
             ("curchunk", nCurChunkNum)
             .Array("counters", Counters, kNumCounters)
             .EndObject();

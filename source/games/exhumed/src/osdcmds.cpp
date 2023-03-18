@@ -77,6 +77,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (parm->numparms != 1) return CCMD_SHOWHELP;
     if (!pActor) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
+    auto& initpos = pActor->spr.pos;
 	auto sectp = initsectp;
     auto inita = pActor->spr.Angles.Yaw;
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initpos, sectp, inita, false);

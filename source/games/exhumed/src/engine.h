@@ -56,7 +56,6 @@ enum {
     kSectLava = 0x4000,
 };
 
-extern DVector3 initpos;
 extern sectortype* initsectp;
 
 extern int nCurChunkNum;

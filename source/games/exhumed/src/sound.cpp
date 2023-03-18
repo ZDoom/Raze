@@ -433,9 +433,9 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             Snake* pSnake = &SnakeList[nSnakeCam];
             campos = pSnake->pSprites[0]->spr.pos;
         }
-        else
+        else if (const auto pActor = PlayerList[nLocalPlayer].pActor)
         {
-            campos = initpos;
+            campos = pActor->spr.pos;
         }
         auto fcampos = GetSoundPos(campos);
 
@@ -512,7 +512,7 @@ void GameInterface::UpdateSounds()
     }
     else if (pActor)
     {
-        pos = initpos;
+        pos = pActor->spr.pos;
         ang = pActor->spr.Angles.Yaw;
     }
     SoundListener listener;
