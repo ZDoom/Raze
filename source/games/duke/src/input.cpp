@@ -44,9 +44,6 @@ EXTERN_CVAR(Float, m_yaw)
 
 BEGIN_DUKE_NS
 
-// State timer counters. 
-static InputPacket loc; // input accumulation buffer.
-
 //---------------------------------------------------------------------------
 //
 // handles all HUD related input, i.e. inventory item selection and activation plus weapon selection.
@@ -748,53 +745,18 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
+void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts)
 {
-	if (paused || gamestate != GS_LEVEL)
-	{
-		loc = {};
-		return;
-	}
-
-	HIDInput hidInput;
-	getHidInput(&hidInput);
-
 	auto const p = &ps[myconnectindex];
-	InputPacket input{};
-
-	ApplyGlobalInput(&hidInput, &loc);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		processVehicleInput(p, &hidInput, &loc, &input, scaleAdjust);
+		processVehicleInput(p, hidInput, inputBuffer, currInput, scaleAdjust);
 	}
 	else
 	{
-		processMovement(&hidInput, &loc, &input, scaleAdjust, p->drink_amt);
+		processMovement(hidInput, inputBuffer, currInput, scaleAdjust, inputOpts);
 	}
-
-	if (!SyncInput() && p->GetActor()->spr.extra > 0)
-	{
-		p->Angles.CameraAngles.Yaw += p->adjustavel(input.avel);
-		p->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
-	}
-
-	if (packet)
-	{
-		*packet = loc;
-		loc = {};
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// This is called from InputState::ClearAllInput and resets all static state being used here.
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::clearlocalinputstate()
-{
-	loc = {};
 }
 
 

@@ -502,9 +502,6 @@ void InitRunLevel(void)
     // send packets with player info
     InitNetPlayerOptions();
 
-    // Initialize Game part of network code
-    InitNetVars();
-
     if (currentLevel)
     {
         PlaySong(currentLevel->music, currentLevel->cdSongId);

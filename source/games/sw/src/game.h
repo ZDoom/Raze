@@ -1587,8 +1587,6 @@ void SyncStatMessage(void); // sync.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
-void computergetinput(int snum,InputPacket *syn); // jplayer.c
-
 void SetupMirrorTiles(void);    // rooms.c
 bool FAF_Sector(sectortype* sect); // rooms.c
 double GetZadjustment(sectortype* sect,short hitag);  // rooms.c
@@ -1858,7 +1856,6 @@ struct GameInterface : public ::GameInterface
     void LoadTextureInfo(TilesetBuildInfo& info) override;
     void SetupSpecialTextures(TilesetBuildInfo& info) override;
     void loadPalette() override;
-    void clearlocalinputstate() override;
     void FreeLevelData() override;
     bool GenerateSavePic() override;
     void MenuSound(EMenuSounds snd) override;
@@ -1869,7 +1866,7 @@ struct GameInterface : public ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(const double scaleAdjust, InputPacket* input = nullptr) override;
+    InputOptions GetInputOptions() override { return std::make_pair(!Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.); }
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;
@@ -1882,6 +1879,7 @@ struct GameInterface : public ::GameInterface
     void NewGame(MapRecord *map, int skill, bool) override;
     bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
     DCoreActor* getConsoleActor() override { return Player[myconnectindex].actor; }
+    PlayerAngles* getConsoleAngles() override { return &Player[myconnectindex].Angles; }
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;

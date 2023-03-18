@@ -142,7 +142,7 @@ void InputState::ClearAllInput()
 	{
 		ActionsToSend = 0;
 		crouch_toggle = false;
-		gi->clearlocalinputstate();		// also clear game local input state.
+		clearLocalInputBuffer();		// also clear game local input state.
 	}
 	else if (gamestate == GS_LEVEL && crouch_toggle)
 	{

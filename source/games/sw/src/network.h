@@ -74,7 +74,6 @@ struct gNET
 extern gNET gNet;
 
 void UpdateInputs(void);
-void InitNetVars(void);
 void InitTimingVars(void);
 void InitNetPlayerOptions(void);
 inline void SW_SendMessage(short, const char*) {}

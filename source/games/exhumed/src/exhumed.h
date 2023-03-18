@@ -212,7 +212,6 @@ struct GameInterface : public ::GameInterface
     const char* Name() override { return "Exhumed"; }
     void app_init() override;
     void SetupSpecialTextures(TilesetBuildInfo& info) override;
-    void clearlocalinputstate() override;
     void loadPalette() override;
 	bool GenerateSavePic() override;
     void MenuOpened() override;
@@ -226,7 +225,6 @@ struct GameInterface : public ::GameInterface
     void DrawBackground() override;
     void Render() override;
     //void DrawWeapons() override;
-    void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) override;
     void Startup() override;
     const char* GenericCheat(int player, int cheat) override;
 	void NewGame(MapRecord *map, int skill, bool) override;
@@ -236,6 +234,7 @@ struct GameInterface : public ::GameInterface
     DAngle playerPitchMin() override { return DAngle::fromDeg(49.5); }
     DAngle playerPitchMax() override { return DAngle::fromDeg(-49.5); }
     DCoreActor* getConsoleActor() override { return PlayerList[nLocalPlayer].pActor; }
+    PlayerAngles* getConsoleAngles() override { return &PlayerList[nLocalPlayer].Angles; }
     void ToggleThirdPerson() override;
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;

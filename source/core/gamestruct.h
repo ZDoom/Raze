@@ -17,6 +17,10 @@ struct sectortype;
 struct tspritetype;
 class DCoreActor;
 struct MapRecord;
+struct PlayerAngles;
+
+using InputOptions = std::pair<int, double>;
+void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts);
 
 struct GameStats
 {
@@ -69,7 +73,6 @@ struct GameInterface
 	virtual void LoadTextureInfo(TilesetBuildInfo& info) {}
 	virtual void SetupSpecialTextures(TilesetBuildInfo&) {}
 	virtual void loadPalette();
-	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeLevelData();
 	virtual void FreeGameData() {}
@@ -88,7 +91,8 @@ struct GameInterface
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
-	virtual void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) {}
+	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts) { processMovement(hidInput, inputBuffer, currInput, scaleAdjust, inputOpts); }
+	virtual InputOptions GetInputOptions() { return std::make_pair(true, 1.); }
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Startup() {}
@@ -105,6 +109,7 @@ struct GameInterface
 	virtual DAngle playerPitchMin() { return DAngle::fromDeg(57.375); }
 	virtual DAngle playerPitchMax() { return DAngle::fromDeg(-57.375); }
 	virtual DCoreActor* getConsoleActor() = 0;
+	virtual PlayerAngles* getConsoleAngles() = 0;
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }

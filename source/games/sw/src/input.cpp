@@ -34,18 +34,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-static InputPacket loc;
-
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
-
-void InitNetVars(void)
-{
-    loc = {};
-}
 
 void InitTimingVars(void)
 {
@@ -155,48 +148,6 @@ void processWeapon(PLAYER* const pp)
         int which_weapon = plActor->user.WeaponNum + 1;
         pp->input.setNewWeapon(which_weapon);
     }
-}
-
-void GameInterface::GetInput(const double scaleAdjust, InputPacket *packet)
-{
-    PLAYER* pp = &Player[myconnectindex];
-
-    if (paused || M_Active() || pp->actor == nullptr)
-    {
-        loc = {};
-        return;
-    }
-
-    HIDInput hidInput;
-    getHidInput(&hidInput);
-
-    InputPacket input {};
-
-    ApplyGlobalInput(&hidInput, &loc);
-    processMovement(&hidInput, &loc, &input, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
-
-    if (!SyncInput())
-    {
-        pp->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
-        pp->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
-    }
-
-    if (packet)
-    {
-        *packet = loc;
-        loc = {};
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-// This is called from InputState::ClearAllInput and resets all static state being used here.
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::clearlocalinputstate()
-{
-    loc = {};
 }
 
 END_SW_NS

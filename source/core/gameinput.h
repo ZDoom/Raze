@@ -8,13 +8,11 @@ struct PlayerAngles
 	// Player viewing angles, separate from the camera.
 	DRotator PrevViewAngles, ViewAngles;
 
-	// Player camera angles, not for direct manipulation within the playsim.
-	DRotator CameraAngles;
-
 	// Holder of current yaw spin state for the 180 degree turn.
 	DAngle YawSpin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
+	friend void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet);
 
 	// Prototypes.
 	void doPitchKeys(InputPacket* const input);
@@ -34,6 +32,10 @@ struct PlayerAngles
 	}
 
 	// Render angle functions.
+	const DRotator& getCameraAngles()
+	{
+		return CameraAngles;
+	}
 	DRotator getRenderAngles(const double interpfrac)
 	{
 		// Get angles and return with clamped off pitch.
@@ -71,8 +73,8 @@ struct PlayerAngles
 	}
 
 private:
-	// Private data which should never be accessed publically.
-	DRotator PrevLerpAngles;
+	// Private data which should never be accessed publicly.
+	DRotator PrevLerpAngles, CameraAngles;
 	DCoreActor* pActor;
 };
 
@@ -83,4 +85,5 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 void updateTurnHeldAmt(const double scaleAdjust);
 bool isTurboTurnTime();
 void resetTurnHeldAmt();
-void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1);
+void clearLocalInputBuffer();
+void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet = nullptr);

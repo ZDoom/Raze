@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //------------------------------------------------------------------------- 
 
+#include "menu.h"
+#include "gamestate.h"
 #include "gameinput.h"
 
 //---------------------------------------------------------------------------
@@ -49,6 +51,7 @@ static constexpr double PITCH_HORIZOFFSPEED = 4.375;
 static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
 static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
+static InputPacket inputBuffer{};
 
 
 //---------------------------------------------------------------------------
@@ -110,9 +113,11 @@ void resetTurnHeldAmt()
 //
 //---------------------------------------------------------------------------
 
-void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts)
 {
 	// set up variables.
+	const bool allowstrafe = isDukeEngine() ? true : inputOpts.first;
+	const double turnscale = inputOpts.second;
 	const int keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
 	const float hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
 	const float scaleAdjustf = float(scaleAdjust);
@@ -146,14 +151,55 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 	currInput->svel += strafing * keymove * allowstrafe;
 
 	// process RR's drunk state.
-	if (isRR() && drink_amt >= 66 && drink_amt <= 87)
-		currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
+	if (isRR() && inputOpts.first)
+		currInput->svel += inputOpts.first & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
 	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
 	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -(float)keymove, (float)keymove);
 	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
 	inputBuffer->horz = clamp(inputBuffer->horz + currInput->horz, -179.f, 179.f);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Processes input and returns a packet if provided.
+//
+//---------------------------------------------------------------------------
+
+void clearLocalInputBuffer()
+{
+	inputBuffer = {};
+}
+
+void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet)
+{
+	if (paused || M_Active() || gamestate != GS_LEVEL || !plrAngles || !plrAngles->pActor)
+	{
+		clearLocalInputBuffer();
+		return;
+	}
+
+	const auto inputOpts = gi->GetInputOptions();
+	InputPacket input{};
+	HIDInput hidInput{};
+	getHidInput(&hidInput);
+	ApplyGlobalInput(&hidInput, &inputBuffer);
+	gi->GetInput(&hidInput, &inputBuffer, &input, !SyncInput() ? scaleAdjust : 1., inputOpts);
+
+	// Directly update the camera angles if we're unsynchronised.
+	if (!SyncInput())
+	{
+		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(input.avel);
+		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(input.horz);
+	}
+
+	if (packet)
+	{
+		*packet = inputBuffer;
+		clearLocalInputBuffer();
+	}
 }
 
 

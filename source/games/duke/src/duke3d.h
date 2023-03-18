@@ -27,7 +27,6 @@ struct GameInterface : public ::GameInterface
 	void app_init() override;
 	void loadPalette() override;
 	void SetupSpecialTextures(TilesetBuildInfo& info) override;
-	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
 	GameStats getStats() override;
@@ -40,7 +39,8 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	void ExitFromMenu() override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) override;
+	void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts) override;
+	InputOptions GetInputOptions() override { return std::make_pair(ps[myconnectindex].drink_amt >= 66 && ps[myconnectindex].drink_amt <= 87, 1.); }
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;
@@ -53,6 +53,7 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
 	DCoreActor* getConsoleActor() override { return ps[myconnectindex].GetActor(); }
+	PlayerAngles* getConsoleAngles() override { return &ps[myconnectindex].Angles; }
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;

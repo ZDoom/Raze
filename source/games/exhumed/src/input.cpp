@@ -25,8 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-static InputPacket localInput;
-
 //---------------------------------------------------------------------------
 //
 //
@@ -37,55 +35,6 @@ void ClearSpaceBar(int nPlayer)
 {
     PlayerList[nPlayer].input.actions &= SB_OPEN;
     buttonMap.ClearButton(gamefunc_Open);
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
-{
-    if (paused || M_Active())
-    {
-        localInput = {};
-        return;
-    }
-
-    HIDInput hidInput;
-    getHidInput(&hidInput);
-
-    ApplyGlobalInput(&hidInput, &localInput);
-
-    Player* pPlayer = &PlayerList[nLocalPlayer];
-    InputPacket input {};
-
-    processMovement(&hidInput, &localInput, &input, scaleAdjust);
-
-    if (!SyncInput() && gamestate == GS_LEVEL)
-    {
-        pPlayer->Angles.CameraAngles.Yaw += DAngle::fromDeg(input.avel);
-        pPlayer->Angles.CameraAngles.Pitch += DAngle::fromDeg(input.horz);
-    }
-
-    if (packet)
-    {
-        *packet = localInput;
-        localInput = {};
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-// This is called from InputState::ClearAllInput and resets all static state being used here.
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::clearlocalinputstate()
-{
-    localInput = {};
 }
 
 END_PS_NS

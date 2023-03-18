@@ -111,7 +111,6 @@ struct GameInterface : public ::GameInterface
 	void app_init() override;
 	void SerializeGameState(FSerializer& arc) override;
 	void loadPalette() override;
-	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void FreeLevelData() override;
 	void FreeGameData() override;
@@ -120,7 +119,6 @@ struct GameInterface : public ::GameInterface
 	void MenuClosed() override;
 	bool CanSave() override;
 	void UpdateSounds() override;
-	void GetInput(const double scaleAdjust, InputPacket* packet = nullptr) override;
 	void Ticker() override;
 	void DrawBackground() override;
 	void Startup() override;
@@ -133,6 +131,7 @@ struct GameInterface : public ::GameInterface
 	DAngle playerPitchMin() override { return DAngle::fromDeg(54.575); }
 	DAngle playerPitchMax() override { return DAngle::fromDeg(-43.15); }
 	DCoreActor* getConsoleActor() override { return gPlayer[myconnectindex].actor; }
+	PlayerAngles* getConsoleAngles() override { return &gPlayer[myconnectindex].Angles; }
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
