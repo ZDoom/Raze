@@ -367,42 +367,44 @@ void GameInterface::Ticker()
 	}
     else if (EndLevel == 0)
     {
+        // Shorten some constant array accesses.
+        const auto pPlayer = &PlayerList[nLocalPlayer];
+        auto& pInput = pPlayer->input;
+
         // this must be done before the view is backed up.
-        PlayerList[nLocalPlayer].Angles.resetCameraAngles();
+        pPlayer->Angles.resetCameraAngles();
 
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 
         // set new player input, factoring in previous view centering.
-        auto oldactions = PlayerList[nLocalPlayer].input.actions;
-        PlayerList[nLocalPlayer].input = playercmds[nLocalPlayer].ucmd;
-        if (oldactions & SB_CENTERVIEW) PlayerList[nLocalPlayer].input.actions |= SB_CENTERVIEW;   
+        const auto oldactions = pInput.actions;
+        pInput = playercmds[nLocalPlayer].ucmd;
+        if (oldactions & SB_CENTERVIEW) pInput.actions |= SB_CENTERVIEW;   
 
-        auto& lPlayerVel = PlayerList[nLocalPlayer].vel;
-
-        auto inputvect = DVector2(PlayerList[nLocalPlayer].input.fvel, PlayerList[nLocalPlayer].input.svel).Rotated(PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw) * 0.375;
+        const auto inputvect = DVector2(pInput.fvel, pInput.svel).Rotated(pPlayer->pActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {
             // Velocities are stored as Q14.18
-            lPlayerVel += inputvect;
-            lPlayerVel *= 0.953125;
+            pPlayer->vel += inputvect;
+            pPlayer->vel *= 0.953125;
         }
         UpdateInterpolations();
 
         if (nFreeze) setForcedSyncInput();
 
-        if (PlayerList[nLocalPlayer].nHealth <= 0)
+        if (pPlayer->nHealth <= 0)
         {
             setForcedSyncInput();
-            auto& packet = PlayerList[nLocalPlayer].input;
+            auto& packet = pInput;
             packet.fvel = packet.svel = packet.avel = packet.horz = 0;
-            lPlayerVel.Zero();
+            pPlayer->vel.Zero();
         }
 
-        if (PlayerList[nLocalPlayer].input.actions & SB_INVPREV)
+        if (pInput.actions & SB_INVPREV)
         {
-            int nItem = PlayerList[nLocalPlayer].nItem;
+            int nItem = pPlayer->nItem;
 
             int i;
             for (i = 6; i > 0; i--)
@@ -410,16 +412,16 @@ void GameInterface::Ticker()
                 nItem--;
                 if (nItem < 0) nItem = 5;
 
-                if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                if (pPlayer->items[nItem] != 0)
                     break;
             }
 
-            if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
+            if (i > 0) pPlayer->nItem = nItem;
         }
 
-        if (PlayerList[nLocalPlayer].input.actions & SB_INVNEXT)
+        if (pInput.actions & SB_INVNEXT)
         {
-            int nItem = PlayerList[nLocalPlayer].nItem;
+            int nItem = pPlayer->nItem;
 
             int i;
             for (i = 6; i > 0; i--)
@@ -427,57 +429,57 @@ void GameInterface::Ticker()
                 nItem++;
                 if (nItem == 6) nItem = 0;
 
-                if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                if (pPlayer->items[nItem] != 0)
                     break;
             }
 
-            if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
+            if (i > 0) pPlayer->nItem = nItem;
         }
 
-        if (PlayerList[nLocalPlayer].input.actions & SB_INVUSE)
+        if (pInput.actions & SB_INVUSE)
         {
-            if (PlayerList[nLocalPlayer].nItem != -1)
+            if (pPlayer->nItem != -1)
             {
-                PlayerList[nLocalPlayer].input.setItemUsed(PlayerList[nLocalPlayer].nItem);
+                pInput.setItemUsed(pPlayer->nItem);
             }
         }
 
         for (int i = 0; i < 6; i++)
         {
-            if (PlayerList[nLocalPlayer].input.isItemUsed(i))
+            if (pInput.isItemUsed(i))
             {
-                PlayerList[nLocalPlayer].input.clearItemUsed(i);
-                if (PlayerList[nLocalPlayer].items[i] > 0)
+                pInput.clearItemUsed(i);
+                if (pPlayer->items[i] > 0)
                 {
-                    if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
+                    if (nItemMagic[i] <= pPlayer->nMagic)
                     {
-                        PlayerList[nLocalPlayer].nCurrentItem = i;
+                        pPlayer->nCurrentItem = i;
                         break;
                     }
                 }
             }
         }
 
-        auto currWeap = PlayerList[nLocalPlayer].nCurrentWeapon;
-        int weap2 = PlayerList[nLocalPlayer].input.getNewWeapon();
+        auto currWeap = pPlayer->nCurrentWeapon;
+        int weap2 = pInput.getNewWeapon();
         if (weap2 == WeaponSel_Next)
         {
             auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
-            while (newWeap != 0 && (!(PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap)) || (PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0)))
+            while (newWeap != 0 && (!(pPlayer->nPlayerWeapons & (1 << newWeap)) || (pPlayer->nPlayerWeapons & (1 << newWeap) && pPlayer->nAmmo[newWeap] == 0)))
             {
                 newWeap++;
                 if (newWeap > 6) newWeap = 0;
             }
-            PlayerList[nLocalPlayer].input.setNewWeapon(newWeap + 1);
+            pInput.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Prev)
         {
             auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
-            while (newWeap != 0 && ((!(PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap)) || (PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))))
+            while (newWeap != 0 && ((!(pPlayer->nPlayerWeapons & (1 << newWeap)) || (pPlayer->nPlayerWeapons & (1 << newWeap) && pPlayer->nAmmo[newWeap] == 0))))
             {
                 newWeap--;
             }
-            PlayerList[nLocalPlayer].input.setNewWeapon(newWeap + 1);
+            pInput.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Alt)
         {
@@ -485,10 +487,10 @@ void GameInterface::Ticker()
         }
 
         // make weapon selection persist until it gets used up.
-        int weap = PlayerList[nLocalPlayer].input.getNewWeapon();
-        if (weap2 <= 0 || weap2 > 7) PlayerList[nLocalPlayer].input.setNewWeapon(weap);     
+        int weap = pInput.getNewWeapon();
+        if (weap2 <= 0 || weap2 > 7) pInput.setNewWeapon(weap);     
 
-        PlayerList[nLocalPlayer].pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
+        pPlayer->pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 
         PlayClock += 4;
         if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
