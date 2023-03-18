@@ -3444,6 +3444,12 @@ void processinput_r(int snum)
 
 	p->psectlotag = psectlotag;
 
+	if (p->centeringView())
+	{
+		p->sync.horz = 0;
+		setForcedSyncInput();
+	}
+
 	//Do the quick lefts and rights
 	p->Angles.doViewYaw(&p->sync);
 
@@ -3801,12 +3807,7 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
-	if (p->centeringView())
-	{
-		p->sync.horz = 0;
-		setForcedSyncInput();
-	}
-	else if (SyncInput())
+	if (SyncInput())
 	{
 		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}

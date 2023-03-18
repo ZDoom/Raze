@@ -75,7 +75,7 @@ void GameInterface::Ticker()
 		}
 
 		// disable synchronised input if set by game.
-		if (!ps[myconnectindex].centeringView()) resetForcedSyncInput();
+		resetForcedSyncInput();
 
 		DukeSpriteIterator it;
 		while (auto ac = it.Next())
