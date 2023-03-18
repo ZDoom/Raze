@@ -449,5 +449,8 @@ void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput)
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
 		input.actions |= SB_LOOK_RIGHT;
 
+	if (buttonMap.ButtonDown(gamefunc_Quick_Kick))
+		input.actions |= SB_QUICK_KICK;
+
 }
 
