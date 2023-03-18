@@ -172,8 +172,8 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket *packet)
 
     InputPacket input {};
 
-    ApplyGlobalInput(loc, &hidInput);
-    processMovement(&input, &loc, &hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
+    ApplyGlobalInput(&hidInput, &loc);
+    processMovement(&hidInput, &loc, &input, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
 
     if (!SyncInput())
     {

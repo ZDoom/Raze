@@ -709,7 +709,7 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket& input, double const scaleAdjust)
+static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
 {
 	bool const kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	bool const kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
@@ -729,16 +729,16 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 
 	if (p->OnMotorcycle)
 	{
-		input.avel = motoApplyTurn(p, hidInput, kbdLeft, kbdRight, (float)scaleAdjust);
+		currInput->avel = motoApplyTurn(p, hidInput, kbdLeft, kbdRight, (float)scaleAdjust);
 		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else
 	{
-		input.avel = boatApplyTurn(p, hidInput, kbdLeft, kbdRight, (float)scaleAdjust);
+		currInput->avel = boatApplyTurn(p, hidInput, kbdLeft, kbdRight, (float)scaleAdjust);
 	}
 
-	loc.fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
-	loc.avel += input.avel;
+	inputBuffer->fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
+	inputBuffer->avel += currInput->avel;
 }
 
 //---------------------------------------------------------------------------
@@ -797,15 +797,15 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 	auto const p = &ps[myconnectindex];
 	InputPacket input{};
 
-	ApplyGlobalInput(loc, &hidInput);
+	ApplyGlobalInput(&hidInput, &loc);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		processVehicleInput(p, &hidInput, input, scaleAdjust);
+		processVehicleInput(p, &hidInput, &loc, &input, scaleAdjust);
 	}
 	else
 	{
-		processMovement(&input, &loc, &hidInput, scaleAdjust, p->drink_amt);
+		processMovement(&hidInput, &loc, &input, scaleAdjust, p->drink_amt);
 	}
 
 	FinalizeInput(p, input);

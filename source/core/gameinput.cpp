@@ -110,7 +110,7 @@ void resetTurnHeldAmt()
 //
 //---------------------------------------------------------------------------
 
-void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, HIDInput* const hidInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// set up variables.
 	const int keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));

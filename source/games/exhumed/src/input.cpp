@@ -57,12 +57,12 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
     HIDInput hidInput;
     getHidInput(&hidInput);
 
-    ApplyGlobalInput(localInput, &hidInput);
+    ApplyGlobalInput(&hidInput, &localInput);
 
     Player* pPlayer = &PlayerList[nLocalPlayer];
     InputPacket input {};
 
-    processMovement(&input, &localInput, &hidInput, scaleAdjust);
+    processMovement(&hidInput, &localInput, &input, scaleAdjust);
 
     if (!SyncInput() && gamestate == GS_LEVEL)
     {

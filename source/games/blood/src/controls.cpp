@@ -54,8 +54,8 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	InputPacket input{};
 
-	ApplyGlobalInput(gInput, &hidInput);
-	processMovement(&input, &gInput, &hidInput, scaleAdjust);
+	ApplyGlobalInput(&hidInput, &gInput);
+	processMovement(&hidInput, &gInput, &input, scaleAdjust);
 
 	// Perform unsynchronised angle/horizon if not dead.
 	if (!SyncInput() && gamestate == GS_LEVEL && pPlayer->actor->xspr.health != 0)

@@ -83,4 +83,4 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 void updateTurnHeldAmt(const double scaleAdjust);
 bool isTurboTurnTime();
 void resetTurnHeldAmt();
-void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, HIDInput* const hidInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1);
+void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1);

@@ -96,7 +96,7 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
-void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput);
+void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer);
 extern ESyncBits ActionsToSend;
 extern bool gamesetinput;
 

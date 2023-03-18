@@ -370,46 +370,46 @@ CCMD(show_weapon)
 	gi->ToggleShowWeapon();
 }
 
-void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput)
+void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer)
 {
-	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
+	if (WeaponToSend != 0) inputBuffer->setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
 	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
 		// These buttons should not autorepeat. The game handlers are not really equipped for that.
-		if (hidInput->joyaxes[JOYAXIS_Forward] > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
+		if (hidInput->joyaxes[JOYAXIS_Forward] > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  inputBuffer->setNewWeapon(WeaponSel_Prev); }
 		else dpad_lock &= ~1;
-		if (hidInput->joyaxes[JOYAXIS_Forward] < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
+		if (hidInput->joyaxes[JOYAXIS_Forward] < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  inputBuffer->setNewWeapon(WeaponSel_Next); }
 		else dpad_lock &= ~2;
-		if ((hidInput->joyaxes[JOYAXIS_Side] < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
+		if ((hidInput->joyaxes[JOYAXIS_Side] < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  inputBuffer->actions |= SB_INVPREV; }
 		else dpad_lock &= ~4;
-		if ((hidInput->joyaxes[JOYAXIS_Side] > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
+		if ((hidInput->joyaxes[JOYAXIS_Side] > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  inputBuffer->actions |= SB_INVNEXT; }
 		else dpad_lock &= ~8;
 
-		// This eats the controller input for regular use
+		// This eats the controller inputBuffer-> for regular use
 		hidInput->joyaxes[JOYAXIS_Side] = 0;
 		hidInput->joyaxes[JOYAXIS_Forward] = 0;
 		hidInput->joyaxes[JOYAXIS_Yaw] = 0;
 	}
 	else dpad_lock = 0;
 
-	input.actions |= ActionsToSend;
+	inputBuffer->actions |= ActionsToSend;
 	ActionsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] > 0)) 
-		input.actions |= SB_AIM_UP;
+		inputBuffer->actions |= SB_AIM_UP;
 
 	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] < 0))) 
-		input.actions |= SB_AIM_DOWN;
+		inputBuffer->actions |= SB_AIM_DOWN;
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		hidInput->joyaxes[JOYAXIS_Forward] = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Jump))
-		input.actions |= SB_JUMP;
+		inputBuffer->actions |= SB_JUMP;
 
 	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
-		input.actions |= SB_CROUCH;
+		inputBuffer->actions |= SB_CROUCH;
 
 	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
 	{
@@ -421,36 +421,36 @@ void ApplyGlobalInput(InputPacket& input, HIDInput* const hidInput)
 		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))
-		input.actions |= SB_FIRE;
+		inputBuffer->actions |= SB_FIRE;
 
 	if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
-		input.actions |= SB_ALTFIRE;
+		inputBuffer->actions |= SB_ALTFIRE;
 
 	if (buttonMap.ButtonDown(gamefunc_Open))
 	{
 		if (isBlood()) buttonMap.ClearButton(gamefunc_Open);
-		input.actions |= SB_OPEN;
+		inputBuffer->actions |= SB_OPEN;
 	}
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
-		input.actions |= SB_RUN;
+		inputBuffer->actions |= SB_RUN;
 
 	if (!in_mousemode && !buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
-		input.actions |= SB_AIMMODE;
+		inputBuffer->actions |= SB_AIMMODE;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Up)) 
-		input.actions |= SB_LOOK_UP;
+		inputBuffer->actions |= SB_LOOK_UP;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Down)) 
-		input.actions |= SB_LOOK_DOWN;
+		inputBuffer->actions |= SB_LOOK_DOWN;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Left)) 
-		input.actions |= SB_LOOK_LEFT;
+		inputBuffer->actions |= SB_LOOK_LEFT;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
-		input.actions |= SB_LOOK_RIGHT;
+		inputBuffer->actions |= SB_LOOK_RIGHT;
 
 	if (buttonMap.ButtonDown(gamefunc_Quick_Kick))
-		input.actions |= SB_QUICK_KICK;
+		inputBuffer->actions |= SB_QUICK_KICK;
 
 }
 
