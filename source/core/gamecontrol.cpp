@@ -178,6 +178,7 @@ CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALC
 
 extern int hud_size_max;
 
+static bool sendPause;
 bool pausedWithKey;
 
 bool gamesetinput = false;
@@ -1287,6 +1288,12 @@ void CONFIG_ReadCombatMacros()
 // 
 //
 //==========================================================================
+
+
+CCMD(pause)
+{
+	sendPause = true;
+}
 
 
 CCMD(snd_reset)
