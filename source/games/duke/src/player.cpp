@@ -600,8 +600,8 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->GetActor()->getOffsetZ() - floorz) > (gs.playerheight * 0.5))
-				p->GetActor()->spr.pos.Z += 348/ 256.;
+			if (abs(actor->getOffsetZ() - floorz) > (gs.playerheight * 0.5))
+				actor->spr.pos.Z += 348/ 256.;
 		}
 		else
 		{
@@ -610,19 +610,19 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		}
 
 		Collision coll;
-		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
+		clipmove(actor->spr.pos.XY(), actor->getOffsetZ(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
 	actor->backuploc();
 
-	p->Angles.ViewAngles.Pitch = p->GetActor()->spr.Angles.Pitch = nullAngle;
+	p->Angles.ViewAngles.Pitch = actor->spr.Angles.Pitch = nullAngle;
 
-	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+	updatesector(actor->getPosWithOffsetZ(), &p->cursector);
 
-	pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
+	pushmove(actor->spr.pos.XY(), actor->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->Angles.ViewAngles.Roll = DAngle::fromBuild(-(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2)));
+		p->Angles.ViewAngles.Roll = DAngle::fromBuild(-(p->dead_flag + ((floorz + actor->getOffsetZ()) * 2)));
 
 	p->on_warping_sector = 0;
 
