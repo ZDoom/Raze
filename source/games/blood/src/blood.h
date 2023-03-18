@@ -132,7 +132,7 @@ struct GameInterface : public ::GameInterface
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
 	DAngle playerPitchMin() override { return DAngle::fromDeg(54.575); }
 	DAngle playerPitchMax() override { return DAngle::fromDeg(-43.15); }
-	DCoreActor* getConsoleActor() override;
+	DCoreActor* getConsoleActor() override { return gPlayer[myconnectindex].actor; }
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;

@@ -118,11 +118,6 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-DCoreActor* GameInterface::getConsoleActor()
-{
-    return ps[myconnectindex].GetActor();
-}
-
 void GameInterface::ToggleThirdPerson()
 {
 	if (gamestate != GS_LEVEL) return;

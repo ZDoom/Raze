@@ -19,6 +19,8 @@
 
 BEGIN_DUKE_NS
 
+extern player_struct ps[MAXPLAYERS];
+
 struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
@@ -50,7 +52,7 @@ struct GameInterface : public ::GameInterface
 	void NewGame(MapRecord* map, int skill, bool) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-	DCoreActor* getConsoleActor() override;
+	DCoreActor* getConsoleActor() override { return ps[myconnectindex].GetActor(); }
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;

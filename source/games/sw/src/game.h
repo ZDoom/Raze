@@ -1661,52 +1661,6 @@ extern int ChopTics;
 extern int Bunny_Count;
 
 
-struct GameInterface : public ::GameInterface
-{
-    const char* Name() override { return "ShadowWarrior"; }
-    void app_init() override;
-    void LoadTextureInfo(TilesetBuildInfo& info) override;
-    void SetupSpecialTextures(TilesetBuildInfo& info) override;
-    void loadPalette() override;
-    void clearlocalinputstate() override;
-    void FreeLevelData() override;
-    bool GenerateSavePic() override;
-	void MenuSound(EMenuSounds snd) override;
-	bool CanSave() override;
-	bool StartGame(FNewGameStartup& gs) override;
-	FSavegameInfo GetSaveSig() override;
-    void SerializeGameState(FSerializer& arc);
-    void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
-    void UpdateSounds() override;
-    void ErrorCleanup() override;
-    void GetInput(const double scaleAdjust, InputPacket* input = nullptr) override;
-    void DrawBackground(void) override;
-    void Ticker(void) override;
-    void Render() override;
-    //void DrawWeapons() override;
-    void Startup() override;
-    const char *CheckCheatMode() override;
-    const char* GenericCheat(int player, int cheat) override;
-	void LevelCompleted(MapRecord *map, int skill) override;
-	void NextLevel(MapRecord *map, int skill) override;
-	void NewGame(MapRecord *map, int skill, bool) override;
-    bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-    DCoreActor* getConsoleActor() override;
-    void ToggleThirdPerson() override;
-    void SwitchCoopView() override;
-    void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;
-    void UpdateCameras(double smoothratio) override;
-    void EnterPortal(DCoreActor* viewer, int type) override;
-    void LeavePortal(DCoreActor* viewer, int type) override;
-    void ExitFromMenu() override;
-    int GetCurrentSkill() override;
-    void StartSoundEngine() override;
-
-
-    GameStats getStats() override;
-};
-
-
 END_SW_NS
 
 #include "swactor.h"
@@ -1895,6 +1849,52 @@ struct PLAYER
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
+
+
+struct GameInterface : public ::GameInterface
+{
+    const char* Name() override { return "ShadowWarrior"; }
+    void app_init() override;
+    void LoadTextureInfo(TilesetBuildInfo& info) override;
+    void SetupSpecialTextures(TilesetBuildInfo& info) override;
+    void loadPalette() override;
+    void clearlocalinputstate() override;
+    void FreeLevelData() override;
+    bool GenerateSavePic() override;
+    void MenuSound(EMenuSounds snd) override;
+    bool CanSave() override;
+    bool StartGame(FNewGameStartup& gs) override;
+    FSavegameInfo GetSaveSig() override;
+    void SerializeGameState(FSerializer& arc);
+    void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
+    void UpdateSounds() override;
+    void ErrorCleanup() override;
+    void GetInput(const double scaleAdjust, InputPacket* input = nullptr) override;
+    void DrawBackground(void) override;
+    void Ticker(void) override;
+    void Render() override;
+    //void DrawWeapons() override;
+    void Startup() override;
+    const char *CheckCheatMode() override;
+    const char* GenericCheat(int player, int cheat) override;
+    void LevelCompleted(MapRecord *map, int skill) override;
+    void NextLevel(MapRecord *map, int skill) override;
+    void NewGame(MapRecord *map, int skill, bool) override;
+    bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
+    DCoreActor* getConsoleActor() override { return Player[myconnectindex].actor; }
+    void ToggleThirdPerson() override;
+    void SwitchCoopView() override;
+    void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;
+    void UpdateCameras(double smoothratio) override;
+    void EnterPortal(DCoreActor* viewer, int type) override;
+    void LeavePortal(DCoreActor* viewer, int type) override;
+    void ExitFromMenu() override;
+    int GetCurrentSkill() override;
+    void StartSoundEngine() override;
+
+
+    GameStats getStats() override;
+};
 
 
 // OVER and UNDER water macros

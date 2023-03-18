@@ -39,17 +39,6 @@ BEGIN_PS_NS
 //
 //---------------------------------------------------------------------------
 
-DCoreActor* GameInterface::getConsoleActor()
-{
-    return PlayerList[nLocalPlayer].pActor;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static int osdcmd_doors(CCmdFuncPtr parm)
 {
     for (int i = 0; i < kMaxChannels; i++)
