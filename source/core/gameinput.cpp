@@ -113,11 +113,9 @@ void resetTurnHeldAmt()
 //
 //---------------------------------------------------------------------------
 
-void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts)
+void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// set up variables.
-	const bool allowstrafe = isDukeEngine() ? true : inputOpts.first;
-	const double turnscale = inputOpts.second;
 	const int keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
 	const float hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
 	const float scaleAdjustf = float(scaleAdjust);
@@ -151,8 +149,8 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 	currInput->svel += strafing * keymove * allowstrafe;
 
 	// process RR's drunk state.
-	if (isRR() && inputOpts.first)
-		currInput->svel += inputOpts.first & 1 ? -currInput->fvel : currInput->fvel;
+	if (isRR() && drink_amt >= 66 && drink_amt <= 87)
+		currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
 	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
@@ -181,12 +179,11 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 		return;
 	}
 
-	const auto inputOpts = gi->GetInputOptions();
 	InputPacket input{};
 	HIDInput hidInput{};
 	getHidInput(&hidInput);
 	ApplyGlobalInput(&hidInput, &inputBuffer);
-	gi->GetInput(&hidInput, &inputBuffer, &input, !SyncInput() ? scaleAdjust : 1., inputOpts);
+	gi->GetInput(&hidInput, &inputBuffer, &input, !SyncInput() ? scaleAdjust : 1.);
 
 	// Directly update the camera angles if we're unsynchronised.
 	if (!SyncInput())

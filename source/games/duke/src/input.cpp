@@ -745,7 +745,7 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts)
+void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
 {
 	auto const p = &ps[myconnectindex];
 
@@ -755,7 +755,7 @@ void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputB
 	}
 	else
 	{
-		processMovement(hidInput, inputBuffer, currInput, scaleAdjust, inputOpts);
+		processMovement(hidInput, inputBuffer, currInput, scaleAdjust, p->drink_amt);
 	}
 }
 

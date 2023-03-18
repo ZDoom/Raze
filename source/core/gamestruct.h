@@ -19,8 +19,7 @@ class DCoreActor;
 struct MapRecord;
 struct PlayerAngles;
 
-using InputOptions = std::pair<int, double>;
-void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts);
+void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
 
 struct GameStats
 {
@@ -91,8 +90,7 @@ struct GameInterface
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
-	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts) { processMovement(hidInput, inputBuffer, currInput, scaleAdjust, inputOpts); }
-	virtual InputOptions GetInputOptions() { return std::make_pair(true, 1.); }
+	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) { processMovement(hidInput, inputBuffer, currInput, scaleAdjust); }
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Startup() {}

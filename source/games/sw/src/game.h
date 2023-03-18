@@ -1866,7 +1866,7 @@ struct GameInterface : public ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    InputOptions GetInputOptions() override { return std::make_pair(!Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.); }
+    void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) override { processMovement(hidInput, inputBuffer, currInput, scaleAdjust, 0, Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.); }
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;

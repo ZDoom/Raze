@@ -39,8 +39,7 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	void ExitFromMenu() override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const InputOptions& inputOpts) override;
-	InputOptions GetInputOptions() override { return std::make_pair(ps[myconnectindex].drink_amt >= 66 && ps[myconnectindex].drink_amt <= 87, 1.); }
+	void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;
