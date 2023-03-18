@@ -78,7 +78,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (!pActor) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
     auto& initpos = pActor->spr.pos;
-	auto sectp = initsectp;
+	auto sectp = pActor->sector();
     auto inita = pActor->spr.Angles.Yaw;
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initpos, sectp, inita, false);
     else if (!stricmp(c, "spider")) BuildSpider(nullptr, initpos, sectp, inita);

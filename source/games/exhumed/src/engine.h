@@ -56,8 +56,6 @@ enum {
     kSectLava = 0x4000,
 };
 
-extern sectortype* initsectp;
-
 extern int nCurChunkNum;
 
 // all static counters combined in an array for easier maintenance.

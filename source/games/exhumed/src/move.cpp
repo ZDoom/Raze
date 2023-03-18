@@ -936,15 +936,6 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
     }
 
     nVel = vect;
-
-    /* 
-        Update player position variables, in case the player sprite was moved by a sector,
-        Otherwise these can be out of sync when used in sound code (before being updated in PlayerFunc()). 
-        Can cause local player sounds to play off-centre.
-        TODO: Might need to be done elsewhere too?
-    */
-    auto pActor = PlayerList[nLocalPlayer].pActor;
-    initsectp = pActor->sector();
 }
 
 //---------------------------------------------------------------------------

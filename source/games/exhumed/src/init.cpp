@@ -39,8 +39,6 @@ enum
     kTagRamses = 61,
 };
 
-sectortype* initsectp;
-
 int nCurChunkNum = 0;
 
 int Counters[kNumCounters];
@@ -146,7 +144,6 @@ uint8_t LoadLevel(MapRecord* map)
     DVector3 initpos;
     int16_t mapang;
     loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
-    initsectp = initsect;
     auto actors = spawnactors(spawned);
 
     int i;
@@ -165,7 +162,7 @@ uint8_t LoadLevel(MapRecord* map)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        SetSavePoint(i, initpos, initsectp, DAngle::fromBuild(mapang));
+        SetSavePoint(i, initpos, initsect, DAngle::fromBuild(mapang));
         RestartPlayer(i);
         InitPlayerKeys(i);
     }
@@ -767,7 +764,7 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
 
     if (nNetPlayerCount)
     {
-        auto pActor = insertActor(initsectp, 0);
+        auto pActor = insertActor(PlayerList[nLocalPlayer].pActor->sector(), 0);
 
         pActor->spr.pos = PlayerList[nLocalPlayer].pActor->spr.pos;
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -849,8 +846,7 @@ void SerializeInit(FSerializer& arc)
 {
     if (arc.BeginObject("init"))
     {
-        arc("initsect", initsectp)
-            ("curchunk", nCurChunkNum)
+        arc("curchunk", nCurChunkNum)
             .Array("counters", Counters, kNumCounters)
             .EndObject();
     }

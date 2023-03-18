@@ -45,6 +45,7 @@ void GrabMap()
 
 void UpdateMap()
 {
+    const auto initsectp = PlayerList[nLocalPlayer].pActor->sector();
     if (initsectp->ceilingpal != 3 || (PlayerList[nLocalPlayer].nTorch != 0)) {
         MarkSectorSeen(initsectp);
     }

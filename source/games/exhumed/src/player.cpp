@@ -2583,12 +2583,6 @@ sectdone:
         }
     }
 
-    // loc_1C3B4:
-    if (nPlayer == nLocalPlayer)
-    {
-        initsectp = pPlayerActor->sector();
-    }
-
     if (!PlayerList[nPlayer].nHealth)
     {
         PlayerList[nPlayer].nThrust.Zero();
