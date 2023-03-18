@@ -57,12 +57,7 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
     HIDInput hidInput;
     getHidInput(&hidInput);
 
-    if (packet != nullptr)
-    {
-        localInput = {};
-        ApplyGlobalInput(localInput, &hidInput);
-        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
-    }
+    ApplyGlobalInput(localInput, &hidInput);
 
     Player* pPlayer = &PlayerList[nLocalPlayer];
     InputPacket input {};
@@ -90,6 +85,7 @@ void GameInterface::GetInput(const double scaleAdjust, InputPacket* packet)
     if (packet)
     {
         *packet = localInput;
+        localInput = {};
     }
 }
 
