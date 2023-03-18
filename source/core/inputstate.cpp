@@ -48,7 +48,6 @@
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
-bool sendPause;
 bool crouch_toggle;
 
 // Mouse speeds
@@ -345,11 +344,6 @@ CCMD(turnaround)
 CCMD(holsterweapon)
 {
 	ActionsToSend |= SB_HOLSTER;
-}
-
-CCMD(pause)
-{
-	sendPause = true;
 }
 
 CCMD(warptocoords)
