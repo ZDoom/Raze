@@ -2600,6 +2600,7 @@ void processinput_d(int snum)
 
 	ESyncBits& actions = p->sync.actions;
 
+	processinputvel(snum);
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
 

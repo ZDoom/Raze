@@ -1471,8 +1471,14 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	int rng;
 
 	if (p->MotoSpeed < 0)
+	{
 		p->MotoSpeed = 0;
+		p->sync.fvel = 0;
+	}
 
+	const auto oldMotoSpeed = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	bool forward = p->sync.fvel > 0;
+	bool reverse = p->sync.fvel < 0;
 	bool turnLeft = p->sync.avel < 0;
 	bool turnRight = p->sync.avel > 0;
 
@@ -1481,7 +1487,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		actions &= ~SB_CROUCH;
 	}
 
-	if (p->vehForwardScale != 0)
+	if (forward != 0)
 	{
 		if (p->on_ground)
 		{
@@ -1551,7 +1557,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpTarget = -30;
 			p->moto_do_bump = 1;
 		}
-		else if (p->vehForwardScale != 0 && !braking)
+		else if (forward && !braking)
 		{
 			if (p->MotoSpeed < 40)
 			{
@@ -1559,8 +1565,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				p->moto_bump_fast = 1;
 			}
 
-			p->MotoSpeed += 2 * p->vehForwardScale;
-			p->vehForwardScale = 0;
+			p->MotoSpeed += 2 * p->sync.fvel;
+			forward = false;
 
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
@@ -1577,13 +1583,13 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->moto_do_bump = 0;
 		}
 
-		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !braking)
+		if (reverse && p->MotoSpeed <= 0 && !braking)
 		{
 			bool temp = turnRight;
 			turnRight = turnLeft;
 			turnLeft = temp;
-			p->MotoSpeed = -15 * p->vehReverseScale;
-			p->vehReverseScale = 0;
+			p->MotoSpeed = 15.f * p->sync.fvel;
+			reverse = false;
 		}
 	}
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
@@ -1699,6 +1705,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
+	p->sync.fvel = oldMotoSpeed;
 }
 
 //---------------------------------------------------------------------------
@@ -1715,6 +1722,9 @@ static void onBoat(int snum, ESyncBits &actions)
 	bool braking = false, heeltoe = false;
 	int rng;
 
+	const auto oldMotoSpeed = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	bool forward = p->sync.fvel > 0;
+	bool reverse = p->sync.fvel < 0;
 	bool turnLeft = p->sync.avel < 0;
 	bool turnRight = p->sync.avel > 0;
 
@@ -1735,13 +1745,13 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if ((actions & SB_CROUCH) && (p->vehForwardScale != 0))
+	if ((actions & SB_CROUCH) && forward)
 	{
 		heeltoe = true;
-		p->vehForwardScale = 0;
+		forward = false;
 	}
 
-	if (p->vehForwardScale != 0)
+	if (forward)
 	{
 		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 89))
 		{
@@ -1830,15 +1840,15 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpTarget = 30;
 			p->moto_do_bump = 1;
 		}
-		else if (p->vehForwardScale != 0)
+		else if (forward)
 		{
 			if (p->MotoSpeed < 40 && !p->NotOnWater)
 			{
 				p->VBumpTarget = -30;
 				p->moto_bump_fast = 1;
 			}
-			p->MotoSpeed += 1 * p->vehForwardScale;
-			p->vehForwardScale = 0;
+			p->MotoSpeed += 1 * p->sync.fvel;
+			forward = false;
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
 		}
@@ -1851,13 +1861,13 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->moto_do_bump = 0;
 		}
 
-		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !braking)
+		if (reverse && p->MotoSpeed == 0 && !braking)
 		{
 			bool temp = turnRight;
 			turnRight = turnLeft;
 			turnLeft = temp;
-			p->MotoSpeed = -(!p->NotOnWater ? 25 : 20) * p->vehReverseScale;
-			p->vehReverseScale = 0;
+			p->MotoSpeed = (!p->NotOnWater ? 25 : 20) * p->sync.fvel;
+			reverse = false;
 		}
 	}
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
@@ -1938,6 +1948,8 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
+
+	p->sync.fvel = oldMotoSpeed;
 }
 
 //---------------------------------------------------------------------------
@@ -3197,9 +3209,6 @@ void processinput_r(int snum)
 
 	ESyncBits& actions = p->sync.actions;
 
-	auto sb_fvel = PlayerInputForwardVel(snum);
-	auto sb_svel = PlayerInputSideVel(snum);
-
 	auto psectp = p->cursector;
 	if (p->OnMotorcycle && pact->spr.extra > 0)
 	{
@@ -3209,6 +3218,11 @@ void processinput_r(int snum)
 	{
 		onBoat(snum, actions);
 	}
+
+	processinputvel(snum);
+	auto sb_fvel = PlayerInputForwardVel(snum);
+	auto sb_svel = PlayerInputSideVel(snum);
+
 	if (psectp == nullptr)
 	{
 		if (pact->spr.extra > 0 && ud.clipping == 0)

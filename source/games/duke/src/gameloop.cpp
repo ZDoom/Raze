@@ -94,7 +94,6 @@ void GameInterface::Ticker()
 				p->pals.a--;
 
 			hud_input(i);
-			processinputvel(i);
 			fi.processinput(i);
 			fi.checksectors(i);
 		}

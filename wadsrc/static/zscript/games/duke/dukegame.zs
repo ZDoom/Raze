@@ -334,7 +334,7 @@ struct DukePlayer native
 	native uint8 hurt_delay2, nocheat;
 	native uint8 OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	native uint8 moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
-	native double vehForwardScale, vehReverseScale, MotoSpeed;
+	native double MotoSpeed;
 
 	// input stuff.
 	//InputPacket sync;

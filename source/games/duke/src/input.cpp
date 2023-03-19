@@ -504,36 +504,6 @@ void hud_input(int plnum)
 
 //---------------------------------------------------------------------------
 //
-// Main input routine.
-// This includes several input improvements from EDuke32, but this code
-// has been mostly rewritten completely to make it clearer and reduce redundancy.
-//
-//---------------------------------------------------------------------------
-
-#if 0
-enum
-{
-
-	TURBOTURNTIME = (TICRATE/8), // 7
-	NORMALTURN    = 15,
-	PREAMBLETURN  = 5,
-	NORMALKEYMOVE = 40,
-	MAXVEL        = ((NORMALKEYMOVE*2)+10),
-	MAXSVEL       = ((NORMALKEYMOVE*2)+10),
-	MAXANGVEL     = 1024, // 127
-	MAXHORIZVEL   = 256,  // 127
-};
-#endif
-
-enum
-{
-	MAXVELMOTO    = 120,
-};
-
-static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
-
-//---------------------------------------------------------------------------
-//
 // split out for readability
 //
 //---------------------------------------------------------------------------
@@ -608,6 +578,7 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 
 static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
 {
+	static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
 	float baseVel, velScale;
 
 	// mask out all actions not compatible with vehicles.
@@ -616,8 +587,9 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
-		p->vehForwardScale = min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->joyaxes[JOYAXIS_Forward], 1.f); 
-		p->vehReverseScale = min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->joyaxes[JOYAXIS_Forward], 1.f);
+		const bool kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
+		const bool kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
+		inputBuffer->fvel = clamp(kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward], -1.f, 1.f);
 		
 		if (buttonMap.ButtonDown(gamefunc_Run))
 			inputBuffer->actions |= SB_CROUCH;
@@ -627,7 +599,6 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	{
 		velScale = (3.f / 10.f);
 		baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
-		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else
 	{
@@ -635,7 +606,6 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 		baseVel = VEHICLETURN * velScale;
 	}
 
-	inputBuffer->fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
 	inputBuffer->avel += (currInput->avel = getVehicleTurnVel(p, hidInput, (float)scaleAdjust, baseVel, velScale));
 }
 
