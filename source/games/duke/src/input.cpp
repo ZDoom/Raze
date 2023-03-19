@@ -547,7 +547,7 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && (!p->OnMotorcycle || p->MotoSpeed > 0);
 		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
 
-		turnvel = vel * hidInput->joyaxes[JOYAXIS_Yaw];
+		turnvel = vel * -hidInput->joyaxes[JOYAXIS_Yaw];
 
 		if (const auto kbdDir = kbdRight - kbdLeft)
 		{
