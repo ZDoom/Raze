@@ -555,15 +555,24 @@ static void doVehicleTilting(player_struct* const p, const float factor, const b
 	}
 }
 
-static float doVehicleTurning(player_struct* const p, HIDInput* const hidInput, const int kbdDir, const float factor, const float baseVel, const float velScale)
+static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const int kbdDir, const float factor, const float baseVel, const float velScale)
 {
-	// process only if we're turning
-	if (const auto turning = (p->vehTurnRight || p->moto_drink > 0) - (p->vehTurnLeft || p->moto_drink < 0))
+	float turnvel = 0;
+	p->oTiltStatus = p->TiltStatus;
+
+	if (p->OnMotorcycle && (p->MotoSpeed == 0 || !p->on_ground))
 	{
+		resetTurnHeldAmt();
+		doVehicleTilting(p, factor);
+	}
+	else if ((p->OnMotorcycle || p->MotoSpeed) && (p->vehTurnLeft || p->vehTurnRight || p->moto_drink))
+	{
+		doVehicleTilting(p, factor, p->OnMotorcycle || !p->NotOnWater);
+
 		const bool noattenuate = (isTurboTurnTime() || hidInput->mouseturnx || hidInput->joyaxes[JOYAXIS_Yaw]) && (!p->OnMotorcycle || p->MotoSpeed > 0);
 		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
 
-		float turnvel = vel * hidInput->joyaxes[JOYAXIS_Yaw];
+		turnvel = vel * hidInput->joyaxes[JOYAXIS_Yaw];
 
 		if (kbdDir)
 		{
@@ -573,65 +582,11 @@ static float doVehicleTurning(player_struct* const p, HIDInput* const hidInput, 
 
 		if (hidInput->mouseturnx)
 			turnvel += sqrtf(abs(vel * hidInput->mouseturnx / factor) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
-
-		return turnvel * factor;
 	}
-	return 0;
-}
-
-static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, const int kbdDir, const float factor)
-{
-	float turnvel = 0;
-	p->oTiltStatus = p->TiltStatus;
-
-	if (p->MotoSpeed == 0 || !p->on_ground)
+	else if (p->OnMotorcycle || !p->NotOnWater)
 	{
 		resetTurnHeldAmt();
-		doVehicleTilting(p, factor);
-	}
-	else if (p->vehTurnLeft || p->vehTurnRight || p->moto_drink)
-	{
-		constexpr float velScale = (3.f / 10.f);
-		const float baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
-
-		doVehicleTilting(p, factor);
-		turnvel = doVehicleTurning(p, hidInput, kbdDir, factor, baseVel, velScale);
-	}
-	else
-	{
-		resetTurnHeldAmt();
-		p->TiltStatus -= (float)factor * Sgn(p->TiltStatus);
-	}
-
-	if (fabs(p->TiltStatus) < factor)
-		p->TiltStatus = 0;
-
-	return turnvel;
-}
-
-//---------------------------------------------------------------------------
-//
-// same for the boat
-//
-//---------------------------------------------------------------------------
-
-static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, const int kbdDir, const float factor)
-{
-	float turnvel = 0;
-	p->oTiltStatus = p->TiltStatus;
-
-	if (p->MotoSpeed && (p->vehTurnLeft || p->vehTurnRight || p->moto_drink))
-	{
-		const float velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
-		const float baseVel = VEHICLETURN * velScale;
-
-		doVehicleTilting(p, factor, !p->NotOnWater);
-		turnvel = doVehicleTurning(p, hidInput, kbdDir, factor, baseVel, velScale);
-	}
-	else if (!p->NotOnWater)
-	{
-		resetTurnHeldAmt();
-		p->TiltStatus -= (float)factor * Sgn(p->TiltStatus);
+		p->TiltStatus -= factor * Sgn(p->TiltStatus);
 	}
 
 	if (fabs(p->TiltStatus) < factor)
@@ -648,6 +603,7 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, const int
 
 static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
 {
+	float baseVel, velScale;
 	bool const kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	bool const kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
 
@@ -666,16 +622,18 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 
 	if (p->OnMotorcycle)
 	{
-		currInput->avel = motoApplyTurn(p, hidInput, kbdRight - kbdLeft, (float)scaleAdjust);
+		velScale = (3.f / 10.f);
+		baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
 		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else
 	{
-		currInput->avel = boatApplyTurn(p, hidInput, kbdRight - kbdLeft, (float)scaleAdjust);
+		velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
+		baseVel = VEHICLETURN * velScale;
 	}
 
 	inputBuffer->fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
-	inputBuffer->avel += currInput->avel;
+	inputBuffer->avel += getVehicleTurnVel(p, hidInput, kbdRight - kbdLeft, (float)scaleAdjust, baseVel, velScale);
 }
 
 
