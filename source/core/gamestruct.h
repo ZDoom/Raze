@@ -70,44 +70,41 @@ struct GameInterface
 	virtual bool GenerateSavePic() { return false; }
 	virtual void app_init() = 0;
 	virtual void LoadTextureInfo(TilesetBuildInfo& info) {}
-	virtual void SetupSpecialTextures(TilesetBuildInfo&) {}
-	virtual void loadPalette();
-	virtual void UpdateScreenSize() {}
+	virtual void SetupSpecialTextures(TilesetBuildInfo&) = 0;
+	virtual void loadPalette() = 0;
 	virtual void FreeLevelData();
 	virtual void FreeGameData() {}
 	virtual void PlayHudSound() {}
 	virtual GameStats getStats() { return {}; }
-	virtual void MainMenuOpened() {}
 	virtual void MenuOpened() {}
 	virtual void MenuClosed() {}
 	virtual void MenuSound(EMenuSounds snd) {}
 	virtual bool CanSave() { return true; }
-	virtual void CustomMenuSelection(int menu, int item) {}
 	virtual bool StartGame(FNewGameStartup& gs) { return true; }
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual double SmallFontScale() { return 1; }
-	virtual void SerializeGameState(FSerializer& arc) {}
+	virtual void SerializeGameState(FSerializer& arc) = 0;
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
-	virtual void UpdateSounds() {}
+	virtual void UpdateSounds() = 0;
 	virtual void ErrorCleanup() {}
-	virtual void Startup() {}
-	virtual void DrawBackground() {}
-	virtual void Render() {}
-	virtual void Ticker() {}
+	virtual void Startup() = 0;
+	virtual void DrawBackground() = 0;
+	virtual void Render() = 0;
+	virtual void Ticker() = 0;
 	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
 	virtual const char *CheckCheatMode() { return nullptr; }
 	virtual const char* GenericCheat(int player, int cheat) = 0;
-	virtual void NextLevel(MapRecord* map, int skill) {}
-	virtual void NewGame(MapRecord* map, int skill, bool special = false) {}
-	virtual void LevelCompleted(MapRecord* map, int skill) {}
+	virtual void NextLevel(MapRecord* map, int skill) = 0;
+	virtual void NewGame(MapRecord* map, int skill, bool special = false) = 0;
+	virtual void LevelCompleted(MapRecord* map, int skill) = 0;
 	virtual bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) { return false; }
 	virtual DAngle playerPitchMin() { return DAngle::fromDeg(57.375); }
 	virtual DAngle playerPitchMax() { return DAngle::fromDeg(-57.375); }
 	virtual DCoreActor* getConsoleActor() = 0;
 	virtual PlayerAngles* getConsoleAngles() = 0;
-	virtual void ToggleThirdPerson() { }
+	virtual void ToggleThirdPerson() = 0;
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
 	virtual void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) = 0;
