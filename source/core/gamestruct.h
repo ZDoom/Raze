@@ -90,7 +90,6 @@ struct GameInterface
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void SetAmbience(bool on) {}
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
-	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) { processMovement(hidInput, inputBuffer, currInput, scaleAdjust); }
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Startup() {}
@@ -124,6 +123,10 @@ struct GameInterface
 	virtual void RemoveQAVInterpProps(const int res_id) { }
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
+	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
+	{
+		processMovement(hidInput, inputBuffer, currInput, scaleAdjust);
+	}
 
 	virtual FString statFPS()
 	{

@@ -1866,7 +1866,6 @@ struct GameInterface : public ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) override { processMovement(hidInput, inputBuffer, currInput, scaleAdjust, 0, Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.); }
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;
@@ -1889,6 +1888,10 @@ struct GameInterface : public ::GameInterface
     void ExitFromMenu() override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
+    void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) override
+    {
+        processMovement(hidInput, inputBuffer, currInput, scaleAdjust, 0, !Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.);
+    }
 
 
     GameStats getStats() override;
