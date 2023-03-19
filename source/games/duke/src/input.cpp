@@ -592,7 +592,7 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 	if (fabs(p->TiltStatus) < factor)
 		p->TiltStatus = 0;
 
-	return turnvel;
+	return turnvel * factor;
 }
 
 //---------------------------------------------------------------------------
@@ -633,7 +633,7 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	}
 
 	inputBuffer->fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
-	inputBuffer->avel += getVehicleTurnVel(p, hidInput, kbdRight - kbdLeft, (float)scaleAdjust, baseVel, velScale);
+	inputBuffer->avel += (currInput->avel = getVehicleTurnVel(p, hidInput, kbdRight - kbdLeft, (float)scaleAdjust, baseVel, velScale));
 }
 
 
