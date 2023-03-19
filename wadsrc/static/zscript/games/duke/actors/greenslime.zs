@@ -272,7 +272,7 @@ class DukeGreenSlime : DukeActor
 				s5.vel.X = 0;
 				
 				self.pos = s5.pos + s5.angle.ToVector() * 0.5;
-				self.setspriteSetImage(Duke.global_random() & 1);
+				self.setspriteSetImage(2 + (Duke.global_random() & 1));
 
 				if (self.scale.Y < 1) self.scale.Y += (0.03125);
 				else
