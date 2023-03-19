@@ -1470,17 +1470,17 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	bool braking = false;
 	int rng;
 
-	if (p->MotoSpeed < 0)
-	{
+	if (p->moto_underwater)
 		p->MotoSpeed = 0;
-		p->sync.fvel = 0;
-	}
 
 	const auto oldMotoSpeed = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
 	bool forward = p->sync.fvel > 0;
 	bool reverse = p->sync.fvel < 0;
 	bool turnLeft = p->sync.avel < 0;
 	bool turnRight = p->sync.avel > 0;
+
+	if (p->MotoSpeed < 0)
+		p->MotoSpeed = 0;
 
 	if ((braking = actions & SB_CROUCH))
 	{
