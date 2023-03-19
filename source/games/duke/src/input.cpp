@@ -592,7 +592,7 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, const int
 	else if (p->vehTurnLeft || p->vehTurnRight || p->moto_drink)
 	{
 		constexpr float velScale = (3.f / 10.f);
-		const float baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->joyaxes[JOYAXIS_Forward] < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
+		const float baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
 
 		doVehicleTilting(p, factor);
 		turnvel = doVehicleTurning(p, hidInput, kbdDir, factor, baseVel, velScale);
