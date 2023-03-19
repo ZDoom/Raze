@@ -545,6 +545,16 @@ static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
 //
 //---------------------------------------------------------------------------
 
+static void doVehicleTilting(player_struct* const p, const float factor, const bool allowed = true)
+{
+	if (const auto turndir = (p->vehTurnRight - p->vehTurnLeft) * allowed)
+	{
+		p->TiltStatus += factor * turndir;
+		if (abs(p->TiltStatus) > 10)
+			p->TiltStatus = 10.f * turndir;
+	}
+}
+
 static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool const kbdLeft, bool const kbdRight, const float factor)
 {
 	float turnvel = 0;
@@ -553,32 +563,17 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 	if (p->MotoSpeed == 0 || !p->on_ground)
 	{
 		resetTurnHeldAmt();
-
-		if (p->vehTurnLeft)
-		{
-			p->TiltStatus -= (float)factor;
-			if (p->TiltStatus < -10)
-				p->TiltStatus = -10;
-		}
-		else if (p->vehTurnRight)
-		{
-			p->TiltStatus += (float)factor;
-			if (p->TiltStatus > 10)
-				p->TiltStatus = 10;
-		}
+		doVehicleTilting(p, factor);
 	}
 	else if (p->vehTurnLeft || p->vehTurnRight || p->moto_drink)
 	{
 		constexpr float velScale = (3.f / 10.f);
 		const float baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->joyaxes[JOYAXIS_Forward] < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
 
+		doVehicleTilting(p, factor);
+
 		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
-			p->TiltStatus -= (float)factor;
-
-			if (p->TiltStatus < -10)
-				p->TiltStatus = -10;
-
 			if (kbdLeft)
 				turnvel -= isTurboTurnTime() && p->MotoSpeed > 0 ? baseVel : baseVel * velScale;
 
@@ -593,11 +588,6 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 
 		if (p->vehTurnRight || p->moto_drink > 0)
 		{
-			p->TiltStatus += (float)factor;
-
-			if (p->TiltStatus > 10)
-				p->TiltStatus = 10;
-
 			if (kbdRight)
 				turnvel += isTurboTurnTime() && p->MotoSpeed > 0 ? baseVel : baseVel * velScale;
 
@@ -613,11 +603,7 @@ static float motoApplyTurn(player_struct* p, HIDInput* const hidInput, bool cons
 	else
 	{
 		resetTurnHeldAmt();
-
-		if (p->TiltStatus > 0)
-			p->TiltStatus -= (float)factor;
-		else if (p->TiltStatus < 0)
-			p->TiltStatus += (float)factor;
+		p->TiltStatus -= (float)factor * Sgn(p->TiltStatus);
 	}
 
 	if (fabs(p->TiltStatus) < factor)
@@ -642,15 +628,10 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 		const float velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
 		const float baseVel = VEHICLETURN * velScale;
 
+		doVehicleTilting(p, factor, !p->NotOnWater);
+
 		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
-			if (!p->NotOnWater)
-			{
-				p->TiltStatus -= (float)factor;
-				if (p->TiltStatus < -10)
-					p->TiltStatus = -10;
-			}
-
 			if (kbdLeft)
 				turnvel -= isTurboTurnTime() ? baseVel : baseVel * velScale;
 
@@ -665,13 +646,6 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 
 		if (p->vehTurnRight || p->moto_drink > 0)
 		{
-			if (!p->NotOnWater)
-			{
-				p->TiltStatus += (float)factor;
-				if (p->TiltStatus > 10)
-					p->TiltStatus = 10;
-			}
-
 			if (kbdRight)
 				turnvel += isTurboTurnTime() ? baseVel : baseVel * velScale;
 
@@ -687,11 +661,7 @@ static float boatApplyTurn(player_struct *p, HIDInput* const hidInput, bool cons
 	else if (!p->NotOnWater)
 	{
 		resetTurnHeldAmt();
-
-		if (p->TiltStatus > 0)
-			p->TiltStatus -= (float)factor;
-		else if (p->TiltStatus < 0)
-			p->TiltStatus += (float)factor;
+		p->TiltStatus -= (float)factor * Sgn(p->TiltStatus);
 	}
 
 	if (fabs(p->TiltStatus) < factor)
