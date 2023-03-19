@@ -1472,6 +1472,9 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
+	bool turnLeft = p->sync.avel < 0;
+	bool turnRight = p->sync.avel > 0;
+
 	if (p->vehForwardScale != 0)
 	{
 		if (p->on_ground)
@@ -1570,9 +1573,9 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !p->vehBraking)
 		{
-			bool temp = p->vehTurnRight;
-			p->vehTurnRight = p->vehTurnLeft;
-			p->vehTurnLeft = temp;
+			bool temp = turnRight;
+			turnRight = turnLeft;
+			turnLeft = temp;
 			p->MotoSpeed = -15 * p->vehReverseScale;
 			p->vehReverseScale = 0;
 		}
@@ -1582,12 +1585,12 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		if (!p->VBumpNow && (krand() & 3) == 2)
 			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * ((krand() & 7) - 4);
 
-		if (p->vehTurnLeft || p->moto_drink < 0)
+		if (turnLeft || p->moto_drink < 0)
 		{
 			if (p->moto_drink < 0)
 				p->moto_drink++;
 		}
-		else if (p->vehTurnRight || p->moto_drink > 0)
+		else if (turnRight || p->moto_drink > 0)
 		{
 			if (p->moto_drink > 0)
 				p->moto_drink--;
@@ -1639,9 +1642,9 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	DAngle velAdjustment;
 
 	int currSpeed = int(p->MotoSpeed);
-	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
+	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (turnLeft || turnRight))
 	{
-		velAdjustment = p->vehTurnLeft ? -adjust : adjust;
+		velAdjustment = adjust * Sgn(p->sync.avel);
 		auto angAdjustment = velAdjustment > nullAngle ? 734003200 : -734003200;
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
@@ -1690,7 +1693,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
-	p->vehTurnLeft = p->vehTurnRight = p->vehBraking = false;
+	p->vehBraking = false;
 }
 
 //---------------------------------------------------------------------------
@@ -1706,6 +1709,9 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	bool heeltoe;
 	int rng;
+
+	bool turnLeft = p->sync.avel < 0;
+	bool turnRight = p->sync.avel > 0;
 
 	if (p->NotOnWater)
 	{
@@ -1764,10 +1770,10 @@ static void onBoat(int snum, ESyncBits &actions)
 			S_PlayActorSound(87, pact);
 	}
 
-	if (p->vehTurnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+	if (turnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 		S_PlayActorSound(91, pact);
 
-	if (p->vehTurnRight && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+	if (turnRight && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 		S_PlayActorSound(91, pact);
 
 	if (!p->NotOnWater)
@@ -1840,9 +1846,9 @@ static void onBoat(int snum, ESyncBits &actions)
 
 		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !p->vehBraking)
 		{
-			bool temp = p->vehTurnRight;
-			p->vehTurnRight = p->vehTurnLeft;
-			p->vehTurnLeft = temp;
+			bool temp = turnRight;
+			turnRight = turnLeft;
+			turnLeft = temp;
 			p->MotoSpeed = -(!p->NotOnWater ? 25 : 20) * p->vehReverseScale;
 			p->vehReverseScale = 0;
 		}
@@ -1852,11 +1858,11 @@ static void onBoat(int snum, ESyncBits &actions)
 		if (!p->VBumpNow && (krand() & 15) == 14)
 			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * ((krand() & 3) - 2);
 
-		if (p->vehTurnLeft && p->moto_drink < 0)
+		if (turnLeft && p->moto_drink < 0)
 		{
 			p->moto_drink++;
 		}
-		else if (p->vehTurnRight && p->moto_drink > 0)
+		else if (turnRight && p->moto_drink > 0)
 		{
 			p->moto_drink--;
 		}
@@ -1903,12 +1909,10 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->GetActor()->spr.Angles.Pitch = -maphoriz(horiz);
 	}
 
-	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
+	if (p->MotoSpeed > 0 && p->on_ground == 1 && (turnLeft || turnRight))
 	{
-		const DAngle adjust = mapangle(-510);
-
 		int currSpeed = int(p->MotoSpeed * 4.);
-		DAngle velAdjustment = p->vehTurnLeft ? -adjust : adjust;
+		DAngle velAdjustment = mapangle(-510) * Sgn(p->sync.avel);
 		auto angAdjustment = velAdjustment > nullAngle ? 734003200 : -734003200;
 
 		if (p->moto_do_bump)
@@ -1928,7 +1932,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
 
-	p->vehTurnLeft = p->vehTurnRight = p->vehBraking = false;
+	p->vehBraking = false;
 }
 
 //---------------------------------------------------------------------------

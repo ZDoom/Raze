@@ -545,36 +545,48 @@ static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleTilting(player_struct* const p, const float factor, const bool allowed = true)
+static void doVehicleTilting(player_struct* const p, const int turndir, const float factor)
 {
-	if (const auto turndir = (p->vehTurnRight - p->vehTurnLeft) * allowed)
+	if (turndir)
 	{
+		p->oTiltStatus = p->TiltStatus;
 		p->TiltStatus += factor * turndir;
 		if (abs(p->TiltStatus) > 10)
 			p->TiltStatus = 10.f * turndir;
 	}
 }
 
-static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const int kbdDir, const float factor, const float baseVel, const float velScale)
+static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const float factor, const float baseVel, const float velScale)
 {
 	float turnvel = 0;
-	p->oTiltStatus = p->TiltStatus;
+
+	// Cancel out micro-movement
+	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) 
+		hidInput->mouseturnx = 0;
+
+	// Yes, we need all these bools...
+	const bool kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+	const bool kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+	const bool turnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
+	const bool turnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
+	const int turndir = turnRight - turnLeft;
 
 	if (p->OnMotorcycle && (p->MotoSpeed == 0 || !p->on_ground))
 	{
 		resetTurnHeldAmt();
-		doVehicleTilting(p, factor);
+		doVehicleTilting(p, turndir, factor);
 	}
-	else if ((p->OnMotorcycle || p->MotoSpeed) && (p->vehTurnLeft || p->vehTurnRight || p->moto_drink))
+	else if ((p->OnMotorcycle || p->MotoSpeed) && (turndir || p->moto_drink))
 	{
-		doVehicleTilting(p, factor, p->OnMotorcycle || !p->NotOnWater);
+		if (p->OnMotorcycle || !p->NotOnWater)
+			doVehicleTilting(p, turndir, factor);
 
 		const bool noattenuate = (isTurboTurnTime() || hidInput->mouseturnx || hidInput->joyaxes[JOYAXIS_Yaw]) && (!p->OnMotorcycle || p->MotoSpeed > 0);
 		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
 
 		turnvel = vel * hidInput->joyaxes[JOYAXIS_Yaw];
 
-		if (kbdDir)
+		if (const auto kbdDir = kbdRight - kbdLeft)
 		{
 			turnvel += vel * kbdDir;
 			updateTurnHeldAmt(factor);
@@ -604,14 +616,6 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
 {
 	float baseVel, velScale;
-	bool const kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
-	bool const kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-
-	// Cancel out micro-movement
-	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) hidInput->mouseturnx = 0;
-
-	p->vehTurnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
-	p->vehTurnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
@@ -633,7 +637,7 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	}
 
 	inputBuffer->fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
-	inputBuffer->avel += (currInput->avel = getVehicleTurnVel(p, hidInput, kbdRight - kbdLeft, (float)scaleAdjust, baseVel, velScale));
+	inputBuffer->avel += (currInput->avel = getVehicleTurnVel(p, hidInput, (float)scaleAdjust, baseVel, velScale));
 }
 
 
