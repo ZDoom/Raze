@@ -83,17 +83,10 @@ void hud_input(int plnum)
 		p->sync.actions &= ~SB_CROUCH;
 	}
 
-	if (p->OnMotorcycle || p->OnBoat)
-	{
-		// mask out all actions not compatible with vehicles.
-		p->sync.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
-			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
-	}
-	else
-	{
-		if ((isRR() && p->drink_amt > 88)) p->sync.actions |= SB_LOOK_LEFT;
-		if ((isRR() && p->drink_amt > 99)) p->sync.actions |= SB_LOOK_DOWN;
-	}
+	if ((isRR() && p->drink_amt > 88))
+		p->sync.actions |= SB_LOOK_LEFT;
+	if ((isRR() && p->drink_amt > 99))
+		p->sync.actions |= SB_LOOK_DOWN;
 
 	if (isRR())
 	{
@@ -617,11 +610,17 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 {
 	float baseVel, velScale;
 
+	// mask out all actions not compatible with vehicles.
+	inputBuffer->actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
+
 	if (p->OnBoat || !p->moto_underwater)
 	{
 		p->vehForwardScale = min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->joyaxes[JOYAXIS_Forward], 1.f); 
 		p->vehReverseScale = min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->joyaxes[JOYAXIS_Forward], 1.f);
-		p->vehBraking = buttonMap.ButtonDown(gamefunc_Run);
+		
+		if (buttonMap.ButtonDown(gamefunc_Run))
+			inputBuffer->actions |= SB_CROUCH;
 	}
 
 	if (p->OnMotorcycle)
