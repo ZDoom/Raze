@@ -530,9 +530,9 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 	// Yes, we need all these bools...
 	const bool kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	const bool kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-	const bool turnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
-	const bool turnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
-	const int turndir = turnRight - turnLeft;
+	const bool hidLeft = hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
+	const bool hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
+	const int turndir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
 
 	if (p->OnMotorcycle && (p->MotoSpeed == 0 || !p->on_ground))
 	{
@@ -544,7 +544,7 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 		if (p->OnMotorcycle || !p->NotOnWater)
 			doVehicleTilting(p, turndir, factor);
 
-		const bool noattenuate = (isTurboTurnTime() || hidInput->mouseturnx || hidInput->joyaxes[JOYAXIS_Yaw]) && (!p->OnMotorcycle || p->MotoSpeed > 0);
+		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && (!p->OnMotorcycle || p->MotoSpeed > 0);
 		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
 
 		turnvel = vel * hidInput->joyaxes[JOYAXIS_Yaw];
