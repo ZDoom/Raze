@@ -1462,19 +1462,54 @@ void checkweapons_r(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleBumping(player_struct* p, DDukeActor* pact, bool turnLeft, bool turnRight, bool bumptest, int bumpscale)
+enum : unsigned
+{
+	VEH_FORWARD = 1,
+	VEH_REVERSE = 2,
+	VEH_TURNLEFT = 4,
+	VEH_TURNRIGHT = 8,
+	VEH_BRAKING = 16,
+	VEH_HEELTOE = 32,
+};
+
+static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
+{
+	unsigned flags = 0;
+	flags += VEH_FORWARD * (p->sync.fvel > 0);
+	flags += VEH_REVERSE * (p->sync.fvel < 0);
+	flags += VEH_TURNLEFT * (p->sync.avel < 0);
+	flags += VEH_TURNRIGHT * (p->sync.avel > 0);
+	flags += VEH_BRAKING * !!(actions & SB_CROUCH);
+	actions &= ~SB_CROUCH;
+
+	if (p->OnBoat && (flags & (VEH_FORWARD|VEH_BRAKING)))
+	{
+		flags |= VEH_HEELTOE;
+		flags &= ~(VEH_FORWARD|VEH_BRAKING);
+	}
+
+	return flags;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void doVehicleBumping(player_struct* p, DDukeActor* pact, unsigned flags, bool bumptest, int bumpscale)
 {
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
 		if (!p->VBumpNow && bumptest)
 			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * bumpscale;
 
-		if (turnLeft || p->moto_drink < 0)
+		if ((flags & VEH_TURNLEFT) || p->moto_drink < 0)
 		{
 			if (p->moto_drink < 0)
 				p->moto_drink++;
 		}
-		else if (turnRight || p->moto_drink > 0)
+		else if ((flags & VEH_TURNRIGHT) || p->moto_drink > 0)
 		{
 			if (p->moto_drink > 0)
 				p->moto_drink--;
@@ -1549,13 +1584,13 @@ static void doVehicleDrunk(player_struct* const p)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleSounds(player_struct* p, DDukeActor* pact, bool forward, bool braking, unsigned sound1, unsigned sound2, unsigned sound3, unsigned sound4)
+static void doVehicleSounds(player_struct* p, DDukeActor* pact, unsigned flags, unsigned sound1, unsigned sound2, unsigned sound3, unsigned sound4)
 {
-	if (forward)
+	if (flags & VEH_FORWARD)
 	{
 		if (p->OnBoat || p->on_ground)
 		{
-			if (p->OnMotorcycle && p->MotoSpeed == 0 && braking)
+			if (p->OnMotorcycle && p->MotoSpeed == 0 && (flags * VEH_BRAKING))
 			{
 				if (!S_CheckActorSoundPlaying(pact, sound1))
 					S_PlayActorSound(sound1, pact);
@@ -1601,12 +1636,11 @@ static void doVehicleSounds(player_struct* p, DDukeActor* pact, bool forward, bo
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleThrottling(player_struct* p, DDukeActor* pact, bool& turnLeft, bool& turnRight, bool& forward, bool& reverse,
-	bool braking, int fwdSpeed, int revSpeed, int brakeSpeed, int vBmpFwd, int vBmpBrake, bool heeltoe = false)
+static void doVehicleThrottling(player_struct* p, DDukeActor* pact, unsigned& flags, int fwdSpeed, int revSpeed, int brakeSpeed, int vBmpFwd, int vBmpBrake)
 {
 	if (p->on_ground == 1)
 	{
-		if (p->OnBoat && heeltoe)
+		if (p->OnBoat && (flags & VEH_HEELTOE))
 		{
 			if (p->MotoSpeed <= 25)
 			{
@@ -1623,7 +1657,7 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, bool& turnLe
 				p->moto_do_bump = 1;
 			}
 		}
-		else if (braking && p->MotoSpeed > 0)
+		else if ((flags & VEH_BRAKING) && p->MotoSpeed > 0)
 		{
 			p->MotoSpeed -= brakeSpeed;
 			if (p->MotoSpeed < 0)
@@ -1631,7 +1665,7 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, bool& turnLe
 			p->VBumpTarget = vBmpBrake;
 			p->moto_do_bump = 1;
 		}
-		else if (forward && (p->OnBoat || !braking))
+		else if ((flags & VEH_FORWARD) && (p->OnBoat || !(flags & VEH_BRAKING)))
 		{
 			if (p->MotoSpeed < 40 && (p->OnMotorcycle || !p->NotOnWater))
 			{
@@ -1640,7 +1674,7 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, bool& turnLe
 			}
 
 			p->MotoSpeed += fwdSpeed * p->sync.fvel;
-			forward = false;
+			flags *= ~VEH_FORWARD;
 
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
@@ -1651,19 +1685,26 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, bool& turnLe
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
 
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
+		if (p->moto_do_bump && (!(flags & VEH_BRAKING) || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
 
-		if (reverse && p->MotoSpeed <= 0 && !braking)
+		if ((flags & VEH_REVERSE) && p->MotoSpeed <= 0 && !(flags & VEH_BRAKING))
 		{
-			bool temp = turnRight;
-			turnRight = turnLeft;
-			turnLeft = temp;
+			if (flags & VEH_TURNLEFT)
+			{
+				flags &= ~VEH_TURNLEFT;
+				flags |= VEH_TURNRIGHT;
+			}
+			else
+			{
+				flags &= ~VEH_TURNRIGHT;
+				flags |= VEH_TURNLEFT;
+			}
 			p->MotoSpeed = revSpeed * p->sync.fvel;
-			reverse = false;
+			flags &= ~VEH_REVERSE;
 		}
 	}
 }
@@ -1682,27 +1723,17 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
 
-	bool braking = false;
-	bool forward = p->sync.fvel > 0;
-	bool reverse = p->sync.fvel < 0;
-	bool turnLeft = p->sync.avel < 0;
-	bool turnRight = p->sync.avel > 0;
-
-	if ((braking = actions & SB_CROUCH))
-	{
-		actions &= ~SB_CROUCH;
-	}
-
-	doVehicleSounds(p, pact, forward, braking, 187, 188, 214, 189);
+	unsigned flags = outVehicleFlags(p, actions);
+	doVehicleSounds(p, pact, flags, 187, 188, 214, 189);
 	doVehicleDrunk(p);
-	doVehicleThrottling(p, pact, turnLeft, turnRight, forward, reverse, braking, 2, 15, p->moto_on_oil ? 2 : 4, 70, -30);
-	doVehicleBumping(p, pact, turnLeft, turnRight, (krand() & 3) == 2, (krand() & 7) - 4);
+	doVehicleThrottling(p, pact, flags, 2, 15, p->moto_on_oil ? 2 : 4, 70, -30);
+	doVehicleBumping(p, pact, flags, (krand() & 3) == 2, (krand() & 7) - 4);
 
 	constexpr DAngle adjust = mapangle(-510);
 	DAngle velAdjustment;
 
 	int currSpeed = int(p->MotoSpeed);
-	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (turnLeft || turnRight))
+	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (flags & (VEH_TURNLEFT|VEH_TURNRIGHT)))
 	{
 		velAdjustment = adjust * Sgn(p->sync.avel);
 		auto angAdjustment = (350 << 21) * velAdjustment.Sgn();
@@ -1766,12 +1797,6 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	bool braking = false, heeltoe = false;
-	bool forward = p->sync.fvel > 0;
-	bool reverse = p->sync.fvel < 0;
-	bool turnLeft = p->sync.avel < 0;
-	bool turnRight = p->sync.avel > 0;
-
 	if (p->NotOnWater)
 	{
 		if (p->MotoSpeed > 0)
@@ -1789,35 +1814,21 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if ((braking = actions & SB_CROUCH))
-	{
-		actions &= ~SB_CROUCH;
-	}
-
-	if (braking && forward)
-	{
-		heeltoe = true;
-		forward = false;
-		braking = false;
-	}
-
-	doVehicleSounds(p, pact, forward, braking, 87, 88, 89, 90);
-
-	if (turnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-		S_PlayActorSound(91, pact);
-
-	if (turnRight && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-		S_PlayActorSound(91, pact);
+	unsigned flags = outVehicleFlags(p, actions);
+	doVehicleSounds(p, pact, flags, 87, 88, 89, 90);
 
 	if (!p->NotOnWater)
 	{
+		if ((flags & (VEH_TURNLEFT|VEH_TURNRIGHT)) && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30)
+			S_PlayActorSound(91, pact);
+
 		doVehicleDrunk(p);
 	}
 
-	doVehicleThrottling(p, pact, turnLeft, turnRight, forward, reverse, braking, 1, !p->NotOnWater ? 25 : 20, 2, -30, 30, heeltoe);
-	doVehicleBumping(p, pact, turnLeft, turnRight, (krand() & 15) == 14, (krand() & 7) - 4);
+	doVehicleThrottling(p, pact, flags, 1, !p->NotOnWater ? 25 : 20, 2, -30, 30);
+	doVehicleBumping(p, pact, flags, (krand() & 15) == 14, (krand() & 7) - 4);
 
-	if (p->MotoSpeed > 0 && p->on_ground == 1 && (turnLeft || turnRight))
+	if (p->MotoSpeed > 0 && p->on_ground == 1 && (flags & (VEH_TURNLEFT|VEH_TURNRIGHT)))
 	{
 		int currSpeed = int(p->MotoSpeed * 4.);
 		DAngle velAdjustment = mapangle(-510) * Sgn(p->sync.avel);
