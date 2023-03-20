@@ -1462,6 +1462,67 @@ void checkweapons_r(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
+static void doVehicleBumping(player_struct* p, DDukeActor* pact, bool turnLeft, bool turnRight, bool bumptest, int bumpscale)
+{
+	if (p->MotoSpeed != 0 && p->on_ground == 1)
+	{
+		if (!p->VBumpNow && bumptest)
+			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * bumpscale;
+
+		if (turnLeft || p->moto_drink < 0)
+		{
+			if (p->moto_drink < 0)
+				p->moto_drink++;
+		}
+		else if (turnRight || p->moto_drink > 0)
+		{
+			if (p->moto_drink > 0)
+				p->moto_drink--;
+		}
+	}
+
+	if (p->TurbCount)
+	{
+		if (p->TurbCount <= 1)
+		{
+			p->TurbCount = 0;
+			p->VBumpTarget = 0;
+			p->VBumpNow = 0;
+		}
+		else
+		{
+			p->TurbCount--;
+			p->moto_drink = (krand() & 3) - 2;
+			pact->spr.Angles.Pitch = -maphoriz((krand() & 15) - 7);
+		}
+	}
+	else if (p->VBumpTarget > p->VBumpNow)
+	{
+		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
+		if (p->VBumpTarget < p->VBumpNow)
+			p->VBumpNow = p->VBumpTarget;
+		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
+	}
+	else if (p->VBumpTarget < p->VBumpNow)
+	{
+		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
+		if (p->VBumpTarget > p->VBumpNow)
+			p->VBumpNow = p->VBumpTarget;
+		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
+	}
+	else
+	{
+		p->VBumpTarget = 0;
+		p->moto_bump_fast = 0;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
@@ -1588,57 +1649,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			reverse = false;
 		}
 	}
-	if (p->MotoSpeed != 0 && p->on_ground == 1)
-	{
-		if (!p->VBumpNow && (krand() & 3) == 2)
-			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * ((krand() & 7) - 4);
 
-		if (turnLeft || p->moto_drink < 0)
-		{
-			if (p->moto_drink < 0)
-				p->moto_drink++;
-		}
-		else if (turnRight || p->moto_drink > 0)
-		{
-			if (p->moto_drink > 0)
-				p->moto_drink--;
-		}
-	}
-
-	if (p->TurbCount)
-	{
-		if (p->TurbCount <= 1)
-		{
-			p->TurbCount = 0;
-			p->VBumpTarget = 0;
-			p->VBumpNow = 0;
-		}
-		else
-		{
-			p->TurbCount--;
-			p->moto_drink = (krand() & 3) - 2;
-			pact->spr.Angles.Pitch = -maphoriz((krand() & 15) - 7);
-		}
-	}
-	else if (p->VBumpTarget > p->VBumpNow)
-	{
-		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
-		if (p->VBumpTarget < p->VBumpNow)
-			p->VBumpNow = p->VBumpTarget;
-		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
-	}
-	else if (p->VBumpTarget < p->VBumpNow)
-	{
-		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
-		if (p->VBumpTarget > p->VBumpNow)
-			p->VBumpNow = p->VBumpTarget;
-		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
-	}
-	else
-	{
-		p->VBumpTarget = 0;
-		p->moto_bump_fast = 0;
-	}
+	doVehicleBumping(p, pact, turnLeft, turnRight, (krand() & 3) == 2, (krand() & 7) - 4);
 
 	constexpr DAngle adjust = mapangle(-510);
 	DAngle velAdjustment;
@@ -1860,55 +1872,8 @@ static void onBoat(int snum, ESyncBits &actions)
 			reverse = false;
 		}
 	}
-	if (p->MotoSpeed != 0 && p->on_ground == 1)
-	{
-		if (!p->VBumpNow && (krand() & 15) == 14)
-			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * ((krand() & 3) - 2);
 
-		if (turnLeft && p->moto_drink < 0)
-		{
-			p->moto_drink++;
-		}
-		else if (turnRight && p->moto_drink > 0)
-		{
-			p->moto_drink--;
-		}
-	}
-
-	if (p->TurbCount)
-	{
-		if (p->TurbCount <= 1)
-		{
-			p->TurbCount = 0;
-			p->VBumpTarget = 0;
-			p->VBumpNow = 0;
-		}
-		else
-		{
-			p->TurbCount--;
-			p->moto_drink = (krand() & 3) - 2;
-			pact->spr.Angles.Pitch = -maphoriz((krand() & 15) - 7);
-		}
-	}
-	else if (p->VBumpTarget > p->VBumpNow)
-	{
-		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
-		if (p->VBumpTarget < p->VBumpNow)
-			p->VBumpNow = p->VBumpTarget;
-		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
-	}
-	else if (p->VBumpTarget < p->VBumpNow)
-	{
-		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
-		if (p->VBumpTarget > p->VBumpNow)
-			p->VBumpNow = p->VBumpTarget;
-		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
-	}
-	else
-	{
-		p->VBumpTarget = 0;
-		p->moto_bump_fast = 0;
-	}
+	doVehicleBumping(p, pact, turnLeft, turnRight, (krand() & 15) == 14, (krand() & 7) - 4);
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (turnLeft || turnRight))
 	{
