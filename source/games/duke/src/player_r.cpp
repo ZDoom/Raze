@@ -1549,6 +1549,58 @@ static void doVehicleDrunk(player_struct* const p)
 //
 //---------------------------------------------------------------------------
 
+static void doVehicleSounds(player_struct* p, DDukeActor* pact, bool forward, bool braking, unsigned sound1, unsigned sound2, unsigned sound3, unsigned sound4)
+{
+	if (forward)
+	{
+		if (p->OnBoat || p->on_ground)
+		{
+			if (p->OnMotorcycle && p->MotoSpeed == 0 && braking)
+			{
+				if (!S_CheckActorSoundPlaying(pact, sound1))
+					S_PlayActorSound(sound1, pact);
+			}
+			else if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, sound3))
+			{
+				if (S_CheckActorSoundPlaying(pact, sound1))
+					S_StopSound(sound1, pact);
+				S_PlayActorSound(sound3, pact);
+			}
+			else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pact, sound2))
+			{
+				S_PlayActorSound(sound2, pact);
+			}
+			else if (!S_CheckActorSoundPlaying(pact, sound2) && !S_CheckActorSoundPlaying(pact, sound3))
+			{
+				S_PlayActorSound(sound2, pact);
+			}
+		}
+	}
+	else
+	{
+		if (S_CheckActorSoundPlaying(pact, sound3))
+		{
+			S_StopSound(sound3, pact);
+			if (!S_CheckActorSoundPlaying(pact, sound4))
+				S_PlayActorSound(sound4, pact);
+		}
+		if (S_CheckActorSoundPlaying(pact, sound2))
+		{
+			S_StopSound(sound2, pact);
+			if (!S_CheckActorSoundPlaying(pact, sound4))
+				S_PlayActorSound(sound4, pact);
+		}
+		if (!S_CheckActorSoundPlaying(pact, sound4) && !S_CheckActorSoundPlaying(pact, sound1))
+			S_PlayActorSound(sound1, pact);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
@@ -1568,49 +1620,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		actions &= ~SB_CROUCH;
 	}
 
-	if (forward)
-	{
-		if (p->on_ground)
-		{
-			if (p->MotoSpeed == 0 && braking)
-			{
-				if (!S_CheckActorSoundPlaying(pact, 187))
-					S_PlayActorSound(187, pact);
-			}
-			else if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 214))
-			{
-				if (S_CheckActorSoundPlaying(pact, 187))
-					S_StopSound(187, pact);
-				S_PlayActorSound(214, pact);
-			}
-			else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pact, 188))
-			{
-				S_PlayActorSound(188, pact);
-			}
-			else if (!S_CheckActorSoundPlaying(pact, 188) && !S_CheckActorSoundPlaying(pact, 214))
-			{
-				S_PlayActorSound(188, pact);
-			}
-		}
-	}
-	else
-	{
-		if (S_CheckActorSoundPlaying(pact, 214))
-		{
-			S_StopSound(214, pact);
-			if (!S_CheckActorSoundPlaying(pact, 189))
-				S_PlayActorSound(189, pact);
-		}
-		if (S_CheckActorSoundPlaying(pact, 188))
-		{
-			S_StopSound(188, pact);
-			if (!S_CheckActorSoundPlaying(pact, 189))
-				S_PlayActorSound(189, pact);
-		}
-		if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 187))
-			S_PlayActorSound(187, pact);
-	}
-
+	doVehicleSounds(p, pact, forward, braking, 187, 188, 214, 189);
 	doVehicleDrunk(p);
 
 	if (p->on_ground == 1)
@@ -1764,36 +1774,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		braking = false;
 	}
 
-	if (forward)
-	{
-		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 89))
-		{
-			if (S_CheckActorSoundPlaying(pact, 87))
-				S_StopSound(87, pact);
-			S_PlayActorSound(89, pact);
-		}
-		else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pact, 88))
-			S_PlayActorSound(88, pact);
-		else if (!S_CheckActorSoundPlaying(pact, 88) && !S_CheckActorSoundPlaying(pact, 89))
-			S_PlayActorSound(88, pact);
-	}
-	else
-	{
-		if (S_CheckActorSoundPlaying(pact, 89))
-		{
-			S_StopSound(89, pact);
-			if (!S_CheckActorSoundPlaying(pact, 90))
-				S_PlayActorSound(90, pact);
-		}
-		if (S_CheckActorSoundPlaying(pact, 88))
-		{
-			S_StopSound(88, pact);
-			if (!S_CheckActorSoundPlaying(pact, 90))
-				S_PlayActorSound(90, pact);
-		}
-		if (!S_CheckActorSoundPlaying(pact, 90) && !S_CheckActorSoundPlaying(pact, 87))
-			S_PlayActorSound(87, pact);
-	}
+	doVehicleSounds(p, pact, forward, braking, 87, 88, 89, 90);
 
 	if (turnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 		S_PlayActorSound(91, pact);
