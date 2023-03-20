@@ -1601,6 +1601,79 @@ static void doVehicleSounds(player_struct* p, DDukeActor* pact, bool forward, bo
 //
 //---------------------------------------------------------------------------
 
+static void doVehicleThrottling(player_struct* p, DDukeActor* pact, bool& turnLeft, bool& turnRight, bool& forward, bool& reverse,
+	bool braking, int fwdSpeed, int revSpeed, int brakeSpeed, int vBmpFwd, int vBmpBrake, bool heeltoe = false)
+{
+	if (p->on_ground == 1)
+	{
+		if (p->OnBoat && heeltoe)
+		{
+			if (p->MotoSpeed <= 25)
+			{
+				p->MotoSpeed++;
+				if (!S_CheckActorSoundPlaying(pact, 182))
+					S_PlayActorSound(182, pact);
+			}
+			else
+			{
+				p->MotoSpeed -= brakeSpeed;
+				if (p->MotoSpeed < 0)
+					p->MotoSpeed = 0;
+				p->VBumpTarget = vBmpBrake;
+				p->moto_do_bump = 1;
+			}
+		}
+		else if (braking && p->MotoSpeed > 0)
+		{
+			p->MotoSpeed -= brakeSpeed;
+			if (p->MotoSpeed < 0)
+				p->MotoSpeed = 0;
+			p->VBumpTarget = vBmpBrake;
+			p->moto_do_bump = 1;
+		}
+		else if (forward && (p->OnBoat || !braking))
+		{
+			if (p->MotoSpeed < 40 && (p->OnMotorcycle || !p->NotOnWater))
+			{
+				p->VBumpTarget = vBmpFwd;
+				p->moto_bump_fast = 1;
+			}
+
+			p->MotoSpeed += fwdSpeed * p->sync.fvel;
+			forward = false;
+
+			if (p->MotoSpeed > 120)
+				p->MotoSpeed = 120;
+
+			if (p->OnMotorcycle && !p->NotOnWater && p->MotoSpeed > 80)
+				p->MotoSpeed = 80;
+		}
+		else if (p->MotoSpeed > 0)
+			p->MotoSpeed--;
+
+		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
+		{
+			p->VBumpTarget = 0;
+			p->moto_do_bump = 0;
+		}
+
+		if (reverse && p->MotoSpeed <= 0 && !braking)
+		{
+			bool temp = turnRight;
+			turnRight = turnLeft;
+			turnLeft = temp;
+			p->MotoSpeed = revSpeed * p->sync.fvel;
+			reverse = false;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
@@ -1622,53 +1695,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 	doVehicleSounds(p, pact, forward, braking, 187, 188, 214, 189);
 	doVehicleDrunk(p);
-
-	if (p->on_ground == 1)
-	{
-		if (braking && p->MotoSpeed > 0)
-		{
-			p->MotoSpeed -= p->moto_on_oil ? 2 : 4;
-			if (p->MotoSpeed < 0)
-				p->MotoSpeed = 0;
-			p->VBumpTarget = -30;
-			p->moto_do_bump = 1;
-		}
-		else if (forward && !braking)
-		{
-			if (p->MotoSpeed < 40)
-			{
-				p->VBumpTarget = 70;
-				p->moto_bump_fast = 1;
-			}
-
-			p->MotoSpeed += 2 * p->sync.fvel;
-			forward = false;
-
-			if (p->MotoSpeed > 120)
-				p->MotoSpeed = 120;
-
-			if (!p->NotOnWater && p->MotoSpeed > 80)
-				p->MotoSpeed = 80;
-		}
-		else if (p->MotoSpeed > 0)
-			p->MotoSpeed--;
-
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
-		{
-			p->VBumpTarget = 0;
-			p->moto_do_bump = 0;
-		}
-
-		if (reverse && p->MotoSpeed <= 0 && !braking)
-		{
-			bool temp = turnRight;
-			turnRight = turnLeft;
-			turnLeft = temp;
-			p->MotoSpeed = 15.f * p->sync.fvel;
-			reverse = false;
-		}
-	}
-
+	doVehicleThrottling(p, pact, turnLeft, turnRight, forward, reverse, braking, 2, 15, p->moto_on_oil ? 2 : 4, 70, -30);
 	doVehicleBumping(p, pact, turnLeft, turnRight, (krand() & 3) == 2, (krand() & 7) - 4);
 
 	constexpr DAngle adjust = mapangle(-510);
@@ -1787,64 +1814,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		doVehicleDrunk(p);
 	}
 
-	if (p->on_ground == 1)
-	{
-		if (heeltoe)
-		{
-			if (p->MotoSpeed <= 25)
-			{
-				p->MotoSpeed++;
-				if (!S_CheckActorSoundPlaying(pact, 182))
-					S_PlayActorSound(182, pact);
-			}
-			else
-			{
-				p->MotoSpeed -= 2;
-				if (p->MotoSpeed < 0)
-					p->MotoSpeed = 0;
-				p->VBumpTarget = 30;
-				p->moto_do_bump = 1;
-			}
-		}
-		else if (braking && p->MotoSpeed > 0)
-		{
-			p->MotoSpeed -= 2;
-			if (p->MotoSpeed < 0)
-				p->MotoSpeed = 0;
-			p->VBumpTarget = 30;
-			p->moto_do_bump = 1;
-		}
-		else if (forward)
-		{
-			if (p->MotoSpeed < 40 && !p->NotOnWater)
-			{
-				p->VBumpTarget = -30;
-				p->moto_bump_fast = 1;
-			}
-			p->MotoSpeed += 1 * p->sync.fvel;
-			forward = false;
-			if (p->MotoSpeed > 120)
-				p->MotoSpeed = 120;
-		}
-		else if (p->MotoSpeed > 0)
-			p->MotoSpeed--;
-
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
-		{
-			p->VBumpTarget = 0;
-			p->moto_do_bump = 0;
-		}
-
-		if (reverse && p->MotoSpeed == 0 && !braking)
-		{
-			bool temp = turnRight;
-			turnRight = turnLeft;
-			turnLeft = temp;
-			p->MotoSpeed = (!p->NotOnWater ? 25 : 20) * p->sync.fvel;
-			reverse = false;
-		}
-	}
-
+	doVehicleThrottling(p, pact, turnLeft, turnRight, forward, reverse, braking, 1, !p->NotOnWater ? 25 : 20, 2, -30, 30, heeltoe);
 	doVehicleBumping(p, pact, turnLeft, turnRight, (krand() & 15) == 14, (krand() & 7) - 4);
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (turnLeft || turnRight))
