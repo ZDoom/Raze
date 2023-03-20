@@ -1523,17 +1523,41 @@ static void doVehicleBumping(player_struct* p, DDukeActor* pact, bool turnLeft, 
 //
 //---------------------------------------------------------------------------
 
+static void doVehicleDrunk(player_struct* const p)
+{
+	if (p->drink_amt > 88 && p->moto_drink == 0)
+	{
+		const int rng = krand() & 63;
+		if (rng == 1)
+			p->moto_drink = -10;
+		else if (rng == 2)
+			p->moto_drink = 10;
+	}
+	else if (p->drink_amt > 99 && p->moto_drink == 0)
+	{
+		const int rng = krand() & 31;
+		if (rng == 1)
+			p->moto_drink = -20;
+		else if (rng == 2)
+			p->moto_drink = 20;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	bool braking = false;
-	int rng;
-
 	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
 
+	bool braking = false;
 	bool forward = p->sync.fvel > 0;
 	bool reverse = p->sync.fvel < 0;
 	bool turnLeft = p->sync.avel < 0;
@@ -1587,22 +1611,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			S_PlayActorSound(187, pact);
 	}
 
-	if (p->drink_amt > 88 && p->moto_drink == 0)
-	{
-		rng = krand() & 63;
-		if (rng == 1)
-			p->moto_drink = -10;
-		else if (rng == 2)
-			p->moto_drink = 10;
-	}
-	else if (p->drink_amt > 99 && p->moto_drink == 0)
-	{
-		rng = krand() & 31;
-		if (rng == 1)
-			p->moto_drink = -20;
-		else if (rng == 2)
-			p->moto_drink = 20;
-	}
+	doVehicleDrunk(p);
 
 	if (p->on_ground == 1)
 	{
@@ -1700,8 +1709,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
-		rng = krand() & 1;
-		velAdjustment = rng == 0 ? -adjust : adjust;
+		velAdjustment = krand() & 1 ? adjust : -adjust;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
 		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
 	}
@@ -1722,8 +1730,6 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 
 	bool braking = false, heeltoe = false;
-	int rng;
-
 	bool forward = p->sync.fvel > 0;
 	bool reverse = p->sync.fvel < 0;
 	bool turnLeft = p->sync.avel < 0;
@@ -1797,22 +1803,7 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (!p->NotOnWater)
 	{
-		if (p->drink_amt > 88 && p->moto_drink == 0)
-		{
-			rng = krand() & 63;
-			if (rng == 1)
-				p->moto_drink = -10;
-			else if (rng == 2)
-				p->moto_drink = 10;
-		}
-		else if (p->drink_amt > 99 && p->moto_drink == 0)
-		{
-			rng = krand() & 31;
-			if (rng == 1)
-				p->moto_drink = -20;
-			else if (rng == 2)
-				p->moto_drink = 20;
-		}
+		doVehicleDrunk(p);
 	}
 
 	if (p->on_ground == 1)
