@@ -1605,21 +1605,19 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 	}
 
-	double horiz = FRACUNIT;
 	if (p->TurbCount)
 	{
 		if (p->TurbCount <= 1)
 		{
-			horiz = 0;
 			p->TurbCount = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
 		}
 		else
 		{
-			horiz = ((krand() & 15) - 7);
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
+			pact->spr.Angles.Pitch = -maphoriz((krand() & 15) - 7);
 		}
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
@@ -1627,33 +1625,29 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow * (1. / 3.);
+		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
 		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow * (1. / 3.);
+		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
 	}
 	else
 	{
 		p->VBumpTarget = 0;
 		p->moto_bump_fast = 0;
 	}
-	if (horiz != FRACUNIT)
-	{
-		p->GetActor()->spr.Angles.Pitch = -maphoriz(horiz);
-	}
 
-	const DAngle adjust = mapangle(-510);
+	constexpr DAngle adjust = mapangle(-510);
 	DAngle velAdjustment;
 
 	int currSpeed = int(p->MotoSpeed);
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (turnLeft || turnRight))
 	{
 		velAdjustment = adjust * Sgn(p->sync.avel);
-		auto angAdjustment = velAdjustment > nullAngle ? 734003200 : -734003200;
+		auto angAdjustment = (350 << 21) * velAdjustment.Sgn();
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
@@ -1689,15 +1683,15 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			}
 		}
 
-		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
-		p->GetActor()->spr.Angles.Yaw = (p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment)).Normalized360();
+		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
+		pact->spr.Angles.Yaw -= DAngle::fromBam(angAdjustment);
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -adjust : adjust;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
-		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
+		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -1881,21 +1875,19 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 	}
 
-	double horiz = FRACUNIT;
 	if (p->TurbCount)
 	{
 		if (p->TurbCount <= 1)
 		{
-			horiz = 0;
 			p->TurbCount = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
 		}
 		else
 		{
-			horiz = ((krand() & 15) - 7);
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
+			pact->spr.Angles.Pitch = -maphoriz((krand() & 15) - 7);
 		}
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
@@ -1903,30 +1895,26 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow * (1. / 3.);
+		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
 		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow * (1. / 3.);
+		pact->spr.Angles.Pitch = -maphoriz(p->VBumpNow * (1. / 3.));
 	}
 	else
 	{
 		p->VBumpTarget = 0;
 		p->moto_bump_fast = 0;
 	}
-	if (horiz != FRACUNIT)
-	{
-		p->GetActor()->spr.Angles.Pitch = -maphoriz(horiz);
-	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (turnLeft || turnRight))
 	{
 		int currSpeed = int(p->MotoSpeed * 4.);
 		DAngle velAdjustment = mapangle(-510) * Sgn(p->sync.avel);
-		auto angAdjustment = velAdjustment > nullAngle ? 734003200 : -734003200;
+		auto angAdjustment = (350 << 21) * velAdjustment.Sgn();
 
 		if (p->moto_do_bump)
 		{
@@ -1939,11 +1927,11 @@ static void onBoat(int snum, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
-		p->GetActor()->spr.Angles.Yaw = (p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment)).Normalized360();
+		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
+		pact->spr.Angles.Yaw -= DAngle::fromBam(angAdjustment);
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
-		p->MotoSpeed -= (p->MotoSpeed / 2.);
+		p->MotoSpeed *= 0.5;
 
 	p->sync.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
 }
