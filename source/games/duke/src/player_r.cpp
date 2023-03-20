@@ -1471,7 +1471,6 @@ enum : unsigned
 	VEH_TURNING = VEH_TURNLEFT|VEH_TURNRIGHT,
 	VEH_BRAKING = 16,
 	VEH_FWDBRAKING = VEH_FORWARD|VEH_BRAKING,
-	VEH_HEELTOE = 32,
 };
 
 static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
@@ -1483,13 +1482,6 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 	flags += VEH_TURNRIGHT * (p->sync.avel > 0);
 	flags += VEH_BRAKING * !!(actions & SB_CROUCH);
 	actions &= ~SB_CROUCH;
-
-	if (p->OnBoat && (flags & VEH_FWDBRAKING) == VEH_FWDBRAKING)
-	{
-		flags |= VEH_HEELTOE;
-		flags &= ~VEH_FWDBRAKING;
-	}
-
 	return flags;
 }
 
@@ -1588,7 +1580,7 @@ static void doVehicleDrunk(player_struct* const p)
 
 static void doVehicleSounds(player_struct* p, DDukeActor* pact, unsigned flags, unsigned sound1, unsigned sound2, unsigned sound3, unsigned sound4)
 {
-	if (flags & VEH_FORWARD)
+	if ((p->OnBoat && (flags & VEH_FWDBRAKING) == VEH_FORWARD) || flags & VEH_FORWARD)
 	{
 		if (p->OnBoat || p->on_ground)
 		{
@@ -1642,7 +1634,7 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, unsigned& fl
 {
 	if (p->on_ground == 1)
 	{
-		if (p->OnBoat && (flags & VEH_HEELTOE))
+		if (p->OnBoat && (flags & VEH_FWDBRAKING) == VEH_FWDBRAKING)
 		{
 			if (p->MotoSpeed <= 25)
 			{
