@@ -1470,7 +1470,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	bool braking = false;
 	int rng;
 
-	if (p->moto_underwater)
+	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
 
 	bool forward = p->sync.fvel > 0;
@@ -1478,15 +1478,12 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	bool turnLeft = p->sync.avel < 0;
 	bool turnRight = p->sync.avel > 0;
 
-	if (p->MotoSpeed < 0)
-		p->MotoSpeed = 0;
-
 	if ((braking = actions & SB_CROUCH))
 	{
 		actions &= ~SB_CROUCH;
 	}
 
-	if (forward != 0)
+	if (forward)
 	{
 		if (p->on_ground)
 		{
@@ -1743,10 +1740,16 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if ((actions & SB_CROUCH) && forward)
+	if ((braking = actions & SB_CROUCH))
+	{
+		actions &= ~SB_CROUCH;
+	}
+
+	if (braking && forward)
 	{
 		heeltoe = true;
 		forward = false;
+		braking = false;
 	}
 
 	if (forward)
@@ -1778,11 +1781,6 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 		if (!S_CheckActorSoundPlaying(pact, 90) && !S_CheckActorSoundPlaying(pact, 87))
 			S_PlayActorSound(87, pact);
-	}
-
-	if ((braking = actions & SB_CROUCH))
-	{
-		actions &= ~SB_CROUCH;
 	}
 
 	if (turnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
