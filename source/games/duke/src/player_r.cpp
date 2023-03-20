@@ -1735,7 +1735,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	int currSpeed = int(p->MotoSpeed);
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (flags & (VEH_TURNLEFT|VEH_TURNRIGHT)))
 	{
-		velAdjustment = adjust * Sgn(p->sync.avel);
+		velAdjustment = (flags & VEH_TURNLEFT) ? -adjust : adjust;
 		auto angAdjustment = (350 << 21) * velAdjustment.Sgn();
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
@@ -1831,7 +1831,8 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (flags & (VEH_TURNLEFT|VEH_TURNRIGHT)))
 	{
 		int currSpeed = int(p->MotoSpeed * 4.);
-		DAngle velAdjustment = mapangle(-510) * Sgn(p->sync.avel);
+		constexpr DAngle adjust = mapangle(-510);
+		DAngle velAdjustment = (flags & VEH_TURNLEFT) ? -adjust : adjust;
 		auto angAdjustment = (350 << 21) * velAdjustment.Sgn();
 
 		if (p->moto_do_bump)
