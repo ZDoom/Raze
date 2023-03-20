@@ -1592,7 +1592,7 @@ static void doVehicleSounds(player_struct* p, DDukeActor* pact, unsigned flags, 
 	{
 		if (p->OnBoat || p->on_ground)
 		{
-			if (p->OnMotorcycle && p->MotoSpeed == 0 && (flags * VEH_BRAKING))
+			if (p->OnMotorcycle && p->MotoSpeed == 0 && (flags & VEH_BRAKING))
 			{
 				if (!S_CheckActorSoundPlaying(pact, sound1))
 					S_PlayActorSound(sound1, pact);
@@ -1676,7 +1676,7 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, unsigned& fl
 			}
 
 			p->MotoSpeed += fwdSpeed * p->sync.fvel;
-			flags *= ~VEH_FORWARD;
+			flags &= ~VEH_FORWARD;
 
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
