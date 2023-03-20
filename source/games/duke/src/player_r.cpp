@@ -1468,6 +1468,7 @@ enum : unsigned
 	VEH_REVERSE = 2,
 	VEH_TURNLEFT = 4,
 	VEH_TURNRIGHT = 8,
+	VEH_TURNING = VEH_TURNLEFT|VEH_TURNRIGHT,
 	VEH_BRAKING = 16,
 	VEH_FWDBRAKING = VEH_FORWARD|VEH_BRAKING,
 	VEH_HEELTOE = 32,
@@ -1734,7 +1735,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	DAngle velAdjustment;
 
 	int currSpeed = int(p->MotoSpeed);
-	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (flags & (VEH_TURNLEFT|VEH_TURNRIGHT)))
+	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (flags & VEH_TURNING))
 	{
 		velAdjustment = (flags & VEH_TURNLEFT) ? -adjust : adjust;
 		auto angAdjustment = (350 << 21) * velAdjustment.Sgn();
@@ -1820,7 +1821,7 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (!p->NotOnWater)
 	{
-		if ((flags & (VEH_TURNLEFT|VEH_TURNRIGHT)) && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30)
+		if ((flags & VEH_TURNING) && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30)
 			S_PlayActorSound(91, pact);
 
 		doVehicleDrunk(p);
@@ -1829,7 +1830,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	doVehicleThrottling(p, pact, flags, 1, !p->NotOnWater ? 25 : 20, 2, -30, 30);
 	doVehicleBumping(p, pact, flags, (krand() & 15) == 14, (krand() & 7) - 4);
 
-	if (p->MotoSpeed > 0 && p->on_ground == 1 && (flags & (VEH_TURNLEFT|VEH_TURNRIGHT)))
+	if (p->MotoSpeed > 0 && p->on_ground == 1 && (flags & VEH_TURNING))
 	{
 		int currSpeed = int(p->MotoSpeed * 4.);
 		constexpr DAngle adjust = mapangle(-510);
