@@ -1469,6 +1469,7 @@ enum : unsigned
 	VEH_TURNLEFT = 4,
 	VEH_TURNRIGHT = 8,
 	VEH_BRAKING = 16,
+	VEH_FWDBRAKING = VEH_FORWARD|VEH_BRAKING,
 	VEH_HEELTOE = 32,
 };
 
@@ -1482,10 +1483,10 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 	flags += VEH_BRAKING * !!(actions & SB_CROUCH);
 	actions &= ~SB_CROUCH;
 
-	if (p->OnBoat && (flags & (VEH_FORWARD|VEH_BRAKING)))
+	if (p->OnBoat && (flags & VEH_FWDBRAKING) == VEH_FWDBRAKING)
 	{
 		flags |= VEH_HEELTOE;
-		flags &= ~(VEH_FORWARD|VEH_BRAKING);
+		flags &= ~VEH_FWDBRAKING;
 	}
 
 	return flags;
