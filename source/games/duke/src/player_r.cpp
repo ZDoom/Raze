@@ -3315,9 +3315,8 @@ void processinput_r(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum, actions);
+	p->Angles.doViewYaw(&p->sync);
 	p->apply_seasick();
-
-	auto oldpos = p->GetActor()->opos;
 
 	if (p->on_crane != nullptr)
 	{
@@ -3331,6 +3330,8 @@ void processinput_r(int snum)
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
+
+	p->Angles.doYawKeys(&p->sync);
 
 	// Shrinking code
 
@@ -3370,9 +3371,6 @@ void processinput_r(int snum)
 		setForcedSyncInput();
 	}
 
-	//Do the quick lefts and rights
-	p->Angles.doViewYaw(&p->sync);
-
 	if (movementBlocked(p))
 	{
 		doubvel = 0;
@@ -3389,7 +3387,6 @@ void processinput_r(int snum)
 		p->GetActor()->spr.Angles.Yaw += p->adjustavel(PlayerInputAngVel(snum));
 	}
 
-	p->Angles.doYawKeys(&p->sync);
 	purplelavacheck(p);
 
 	if (p->spritebridge == 0 && pact->insector())
@@ -3535,10 +3532,8 @@ void processinput_r(int snum)
 	}
 
 HORIZONLY:
-	double iif = 40;
 
-	if (psectlotag == 1 || p->spritebridge == 1) iif = 4;
-	else iif = 20;
+	double iif = (psectlotag == 1 || p->spritebridge == 1) ? 4 : 20;
 
 	if (p->insector() && p->cursector->lotag == 2) k = 0;
 	else k = 1;
@@ -3661,6 +3656,7 @@ HORIZONLY:
 	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
+	auto oldpos = p->GetActor()->opos;
 	int retry = 0;
 	while (ud.clipping == 0)
 	{
@@ -3727,14 +3723,14 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
+	p->Angles.doPitchKeys(&p->sync);
+
+	p->checkhardlanding();
+
 	if (SyncInput())
 	{
 		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}
-
-	p->Angles.doPitchKeys(&p->sync);
-
-	p->checkhardlanding();
 
 	//Shooting code/changes
 
