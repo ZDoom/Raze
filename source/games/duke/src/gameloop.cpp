@@ -63,7 +63,7 @@ void GameInterface::Ticker()
 
 		// temporary workaround for issue where first packet
 		// seems captured after the playsim has ran once.
-		playercmds[myconnectindex].ucmd.actions |= gi->GetNeededInputBits();
+		gi->reapplyInputBits(&playercmds[myconnectindex].ucmd);
 
 		// this must be done before the view is backed up.
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])

@@ -194,7 +194,7 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 
 	if (packet)
 	{
-		inputBuffer.actions |= gi->GetNeededInputBits();
+		gi->reapplyInputBits(&inputBuffer);
 		*packet = inputBuffer;
 		clearLocalInputBuffer();
 	}

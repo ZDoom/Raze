@@ -120,7 +120,7 @@ struct GameInterface
 	virtual void RemoveQAVInterpProps(const int res_id) { }
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
-	virtual ESyncBits GetNeededInputBits() = 0;
+	virtual void reapplyInputBits(InputPacket* const input) = 0;
 	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
 	{
 		processMovement(hidInput, inputBuffer, currInput, scaleAdjust);

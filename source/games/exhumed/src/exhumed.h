@@ -239,7 +239,7 @@ struct GameInterface : public ::GameInterface
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
-    ESyncBits GetNeededInputBits() override { return PlayerList[nLocalPlayer].input.actions & SB_CENTERVIEW; }
+    void reapplyInputBits(InputPacket* const input) override { input->actions |= PlayerList[nLocalPlayer].input.actions & SB_CENTERVIEW; }
 
 	::GameStats getStats() override;
 };
