@@ -39,7 +39,7 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	void ExitFromMenu() override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void reapplyInputBits(InputPacket* const input) override { input->actions |= ps[myconnectindex].sync.actions & SB_CENTERVIEW; }
+	void reapplyInputBits(InputPacket* const input) override;
 	void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) override;
 	void UpdateSounds() override;
 	void Startup() override;
