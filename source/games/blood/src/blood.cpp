@@ -412,18 +412,6 @@ int GameInterface::GetCurrentSkill()
 
 void GameInterface::Ticker()
 {
-	for (int i = connecthead; i >= 0; i = connectpoint2[i])
-	{
-		auto& inp = gPlayer[i].input;
-		auto oldactions = inp.actions;
-
-		inp = playercmds[i].ucmd;
-		inp.actions |= oldactions & ~(SB_BUTTON_MASK | SB_RUN | SB_WEAPONMASK_BITS);  // should be everything non-button and non-weapon
-
-		int newweap = inp.getNewWeapon();
-		if (newweap > 0 && newweap <= WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
-	}
-
 	BloodSpriteIterator it;
 	while (DBloodActor* act = it.Next()) act->interpolated = false;
 
@@ -442,6 +430,7 @@ void GameInterface::Ticker()
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
+			gPlayer[i].input = playercmds[i].ucmd;
 			gPlayer[i].Angles.resetCameraAngles();
 			viewBackupView(i);
 			playerProcess(&gPlayer[i]);

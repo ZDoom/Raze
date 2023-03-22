@@ -2382,6 +2382,9 @@ void WeaponProcess(PLAYER* pPlayer) {
 	}
 #endif
 
+	int newweap = pPlayer->input.getNewWeapon();
+	if (newweap > 0 && newweap <= WeaponSel_MaxBlood) pPlayer->newWeapon = newweap;
+
 	if (pPlayer->actor->xspr.health == 0)
 	{
 		pPlayer->qavLoop = 0;

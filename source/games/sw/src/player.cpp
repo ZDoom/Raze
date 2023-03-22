@@ -6887,7 +6887,7 @@ void PauseMultiPlay(void)
 
 void domovethings(void)
 {
-    short i, pnum;
+    short pnum;
 
     PLAYER* pp;
     extern int FinishTimer;
@@ -6934,6 +6934,9 @@ void domovethings(void)
 
         pp = Player + pnum;
         GlobPlayerP = pp;
+
+        pp->lastinput = pp->input;
+        pp->input = playercmds[pnum].ucmd;
 
         if (pp->cookieTime)
         {

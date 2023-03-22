@@ -1888,6 +1888,7 @@ struct GameInterface : public ::GameInterface
     void ExitFromMenu() override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
+    ESyncBits GetNeededInputBits() override { return Player[myconnectindex].input.actions & SB_CENTERVIEW; }
     void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust) override
     {
         processMovement(hidInput, inputBuffer, currInput, scaleAdjust, 0, !Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.);

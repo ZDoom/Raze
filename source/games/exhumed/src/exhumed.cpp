@@ -377,10 +377,8 @@ void GameInterface::Ticker()
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 
-        // set new player input, factoring in previous view centering.
-        const auto oldactions = pInput.actions;
+        // set new player input.
         pInput = playercmds[nLocalPlayer].ucmd;
-        if (oldactions & SB_CENTERVIEW) pInput.actions |= SB_CENTERVIEW;   
 
         const auto inputvect = DVector2(pInput.fvel, pInput.svel).Rotated(pPlayer->pActor->spr.Angles.Yaw) * 0.375;
 

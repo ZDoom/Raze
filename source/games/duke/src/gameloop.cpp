@@ -46,13 +46,6 @@ BEGIN_DUKE_NS
 
 void GameInterface::Ticker()
 {
-	// Make copies so that the originals do not have to be modified.
-	for (int i = 0; i < MAXPLAYERS; i++)
-	{
-		auto oldactions = ps[i].sync.actions;
-		ps[i].sync = playercmds[i].ucmd;
-		if (oldactions & SB_CENTERVIEW) ps[i].sync.actions |= SB_CENTERVIEW;
-	}
 	if (rtsplaying > 0) rtsplaying--;
 
 	if (show_shareware > 0)
@@ -72,6 +65,7 @@ void GameInterface::Ticker()
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			ps[i].Angles.resetCameraAngles();
+			ps[i].sync = playercmds[i].ucmd;
 		}
 
 		// disable synchronised input if set by game.
