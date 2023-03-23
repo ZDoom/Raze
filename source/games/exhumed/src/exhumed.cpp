@@ -55,8 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-TObjPtr<DExhumedActor*> bestTarget;
-
 IMPLEMENT_CLASS(DExhumedActor, false, true)
 IMPLEMENT_POINTERS_START(DExhumedActor)
 IMPLEMENT_POINTER(pTarget)
@@ -86,7 +84,6 @@ static void markgcroots()
     MarkSnake();
     MarkRunlist();
 
-    GC::Mark(bestTarget);
     GC::Mark(pSpiritSprite);
 }
 
@@ -279,6 +276,71 @@ void DoGameOverScene(bool finallevel)
         {
             gameaction = ga_mainmenu;
         });
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void updatePlayerTarget(const int nPlayer)
+{
+    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pRa = &Ra[nPlayer];
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
+
+    DExhumedActor* bestTarget = nullptr;
+    double bestclose = 20;
+    double bestside = 30000;
+
+    ExhumedSpriteIterator it;
+    while (const auto itActor = it.Next())
+    {
+        const bool validstatnum = (itActor->spr.statnum > 0) && (itActor->spr.statnum < 150);
+        const bool validsprcstat = itActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL;
+
+        if (validstatnum && validsprcstat && itActor != pPlayerActor)
+        {
+            const DVector2 delta = itActor->spr.pos.XY() - pPlayerActor->spr.pos.XY();
+            const double fwd = abs((nAngVect.X * delta.Y) + (delta.X * nAngVect.Y));
+            const double side = abs((nAngVect.X * delta.X) - (delta.Y * nAngVect.Y));
+
+            if (!side)
+                continue;
+
+            const double close = fwd * 32 / side;
+            if (side < 1000 / 16. && side < bestside && close < 10)
+            {
+                bestTarget = itActor;
+                bestclose = close;
+                bestside = side;
+            }
+            else if (side < 30000 / 16.)
+            {
+                const double t = bestclose - close;
+                if (t > 3 || (side < bestside && abs(t) < 5))
+                {
+                    bestTarget = itActor;
+                    bestclose = close;
+                    bestside = side;
+                }
+            }
+        }
+    }
+
+    if (bestTarget)
+    {
+        if (nPlayer == nLocalPlayer) nCreepyTimer = kCreepyCount;
+
+        if (!cansee(pPlayerActor->spr.pos, pPlayerActor->sector(), bestTarget->spr.pos.plusZ(-GetActorHeight(bestTarget)), bestTarget->sector()))
+        {
+            bestTarget = nullptr;
+        }
+    }
+
+    pPlayer->pTarget = pRa->pTarget = bestTarget;
 }
 
 //---------------------------------------------------------------------------
@@ -481,10 +543,8 @@ void GameInterface::Ticker()
             updatePlayerVelocity(pPlayer);
             updatePlayerInventory(pPlayer);
             updatePlayerWeapon(pPlayer);
+            updatePlayerTarget(i);
         }
-
-        // this setup needs rewriting to work for all players in an MP game.
-        PlayerList[nLocalPlayer].pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 
         GameMove();
 
@@ -610,10 +670,6 @@ void DeleteActor(DExhumedActor* actor)
         return;
     }
 
-    if (actor == bestTarget) {
-        bestTarget = nullptr;
-    }
-
     UnlinkIgnitedAnim(actor);
     actor->Destroy();
 }
@@ -731,8 +787,7 @@ void SerializeState(FSerializer& arc)
             InitEnergyTile();
     }
 
-        arc ("besttarget", bestTarget)
-            ("creaturestotal", nCreaturesTotal)
+        arc ("creaturestotal", nCreaturesTotal)
             ("creatureskilled", nCreaturesKilled)
             ("freeze", nFreeze)
             ("snakecam", nSnakeCam)

@@ -74,18 +74,6 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
         }
     }
 
-    auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
-
-    double bestclose = 20;
-    double bestside = 30000;
-
-
-    bestTarget = nullptr;
-
-    auto pSector =pPlayerActor->sector();
-
-    DAngle nAngle = -pPlayerActor->spr.Angles.Yaw;
-
     for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
         auto pTSprite = tsprites.get(nTSprite);
@@ -117,54 +105,10 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
             RunListEvent ev{};
             ev.pTSprite = pTSprite;
             runlist_SignalRun(pActor->spr.lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
-
-            if ((pActor->spr.statnum < 150) && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
-            {
-                DVector2 delta = pActor->spr.pos.XY() - view.XY();
-
-                double vcos = nAngle.Cos();
-                double vsin = nAngle.Sin();
-
-
-                double fwd = ((vcos * delta.Y) + (delta.X * vsin));
-                double side = abs((vcos * delta.X) - (delta.Y * vsin));
-
-                if (!side)
-                    continue;
-
-                double close = (abs(fwd) * 32) / side;
-                if (side < 1000 / 16. && side < bestside && close < 10)
-                {
-                    bestTarget = pActor;
-                    bestclose = close;
-                    bestside = side;
-                }
-                else if (side < 30000 / 16.)
-                {
-                    double t = bestclose - close;
-                    if (t > 3 || (side < bestside && abs(t) < 5))
-                    {
-                        bestclose = close;
-                        bestside = side;
-                        bestTarget = pActor;
-                    }
-                }
-            }
-        }
-    }
-    auto targ = bestTarget;
-    if (targ != nullptr)
-    {
-        nCreepyTimer = kCreepyCount;
-
-        if (!cansee(view, pSector, targ->spr.pos.plusZ(-GetActorHeight(targ)), targ->sector()))
-        {
-            bestTarget = nullptr;
         }
     }
 
     mytspriteArray = nullptr;
-
 }
 
 //---------------------------------------------------------------------------

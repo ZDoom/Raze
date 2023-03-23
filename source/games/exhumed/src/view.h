@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 extern bool bSubTitles;
-extern TObjPtr<DExhumedActor*> bestTarget;
 extern bool bCamera;
 
 void DrawStatusBar();
