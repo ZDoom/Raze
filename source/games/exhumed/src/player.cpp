@@ -891,6 +891,18 @@ static void ClearSpaceBar(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerCurrentItem(Player* const pPlayer)
+{
+    UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
+    pPlayer->nCurrentItem = -1;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerTorch(Player* const pPlayer)
 {
     pPlayer->nTorch--;
@@ -1008,15 +1020,11 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nActionB = pPlayer->nAction;
 
     pPlayerActor->vel.XY() = pPlayer->vel;
-
-    if (pPlayer->nCurrentItem > -1)
-    {
-        UseItem(nPlayer, pPlayer->nCurrentItem);
-        pPlayer->nCurrentItem = -1;
-    }
-
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[nAction]].a, pPlayer->nSeqSize);
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
+
+    if (pPlayer->nCurrentItem > -1)
+        doPlayerCurrentItem(pPlayer);
 
     if (pPlayer->nTorch > 0)
         doPlayerTorch(pPlayer);
