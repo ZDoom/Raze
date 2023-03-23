@@ -887,6 +887,27 @@ static void ClearSpaceBar(int nPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerTorch(Player* const pPlayer)
+{
+    pPlayer->nTorch--;
+
+    if (pPlayer->nTorch == 0)
+    {
+        SetTorch(pPlayer->nPlayer, 0);
+    }
+    else if (pPlayer->nPlayer != nLocalPlayer)
+    {
+        nFlashDepth = 5;
+        AddFlash(pPlayer->pActor->sector(), pPlayer->pActor->spr.pos, 0);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -920,21 +941,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
 
     if (pPlayer->nTorch > 0)
-    {
-        pPlayer->nTorch--;
-        if (pPlayer->nTorch == 0)
-        {
-            SetTorch(nPlayer, 0);
-        }
-        else
-        {
-            if (nPlayer != nLocalPlayer)
-            {
-                nFlashDepth = 5;
-                AddFlash(pPlayerActor->sector(), pPlayerActor->spr.pos, 0);
-            }
-        }
-    }
+        doPlayerTorch(pPlayer);
 
     if (pPlayer->nDouble > 0)
     {
