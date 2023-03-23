@@ -404,7 +404,7 @@ void RestartPlayer(int nPlayer)
 
 	plr->pPlayerGrenade = nullptr;
 	pActor->oviewzoffset = pActor->viewzoffset = -55.;
-	dVertPan[nPlayer] = 0;
+	plr->dVertPan = 0;
 
 	nTemperature[nPlayer] = 0;
 
@@ -508,7 +508,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].pActor->PrevAngles.Pitch = PlayerList[nPlayer].pActor->spr.Angles.Pitch = nullAngle;
     pActor->oviewzoffset = pActor->viewzoffset = -55;
     PlayerList[nPlayer].nInvisible = 0;
-    dVertPan[nPlayer] = 15;
+    PlayerList[nPlayer].dVertPan = 15;
 
     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
@@ -2593,18 +2593,18 @@ sectdone:
         if (pPlayerActor->viewzoffset >= -11)
         {
             pPlayerActor->viewzoffset = -11;
-            dVertPan[nPlayer] = 0;
+            PlayerList[nPlayer].dVertPan = 0;
         }
         else
         {
             if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Sgn() > 0)
             {
                 pPlayerActor->spr.Angles.Pitch = nullAngle;
-                pPlayerActor->viewzoffset -= dVertPan[nPlayer];
+                pPlayerActor->viewzoffset -= PlayerList[nPlayer].dVertPan;
             }
             else
             {
-                PlayerList[nPlayer].pActor->spr.Angles.Pitch -= maphoriz(dVertPan[nPlayer]);
+                PlayerList[nPlayer].pActor->spr.Angles.Pitch -= maphoriz(PlayerList[nPlayer].dVertPan);
 
                 if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Degrees() <= -38)
                 {
@@ -2618,7 +2618,7 @@ sectdone:
                     }
                 }
 
-                dVertPan[nPlayer]--;
+                PlayerList[nPlayer].dVertPan--;
             }
         }
     }

@@ -36,7 +36,6 @@ BEGIN_PS_NS
 
 bool bSubTitles = true;
 
-int16_t dVertPan[kMaxPlayers];
 DVector3 nCamerapos;
 bool bTouchFloor;
 
@@ -346,7 +345,6 @@ void SerializeView(FSerializer& arc)
             ("touchfloor", bTouchFloor)
             ("chunktotal", nChunkTotal)
             ("camera", bCamera)
-            .Array("vertpan", dVertPan, countof(dVertPan))
             .Array("quake", nQuake, countof(nQuake))
             .EndObject();
     }
