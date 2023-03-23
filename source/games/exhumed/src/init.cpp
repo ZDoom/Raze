@@ -165,14 +165,6 @@ uint8_t LoadLevel(MapRecord* map)
     loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
     auto actors = spawnactors(spawned);
 
-    int i;
-
-    for (i = 0; i < kMaxPlayers; i++)
-    {
-        PlayerList[i].pActor = nullptr;
-        PlayerList[i].Angles = {};
-    }
-
     g_visibility = 1024;
     flash = 0;
     precache();
