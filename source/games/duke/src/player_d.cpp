@@ -2730,6 +2730,12 @@ void processinput_d(int snum)
 	checklook(snum,actions);
 	p->Angles.doViewYaw(&p->sync);
 
+	if (p->centeringView())
+	{
+		p->sync.horz = 0;
+		setForcedSyncInput();
+	}
+
 	if (p->on_crane != nullptr)
 	{
 		setForcedSyncInput();
@@ -2762,12 +2768,6 @@ void processinput_d(int snum)
 	}
 
 	p->psectlotag = psectlotag;
-
-	if (p->centeringView())
-	{
-		p->sync.horz = 0;
-		setForcedSyncInput();
-	}
 
 	if (movementBlocked(p))
 	{

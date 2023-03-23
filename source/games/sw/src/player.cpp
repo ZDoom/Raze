@@ -2630,7 +2630,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     double floordist = abs(zz - pp->sop->floor_loz);
-
+    setForcedSyncInput();
 
     if (RectClip)
     {
@@ -2684,7 +2684,6 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     }
     else
     {
-        setForcedSyncInput();
         DoPlayerTurnVehicle(pp, zz, floordist);
 
         auto save_cstat = plActor->spr.cstat;
