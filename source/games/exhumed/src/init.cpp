@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <string.h>
 #include "statusbar.h"
+#include "precache.h"
 
 BEGIN_PS_NS
 
@@ -78,6 +79,25 @@ static TArray<DExhumedActor*> spawnactors(SpawnSpriteDef& sprites)
     return spawns;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void precache()
+{
+    if (!r_precache) return;
+
+    precacheMap();
+
+    ExhumedSpriteIterator it;
+    while (auto ac = it.Next())
+    {
+        markTextureForPrecache(ac->spr.spritetexture(), ac->spr.pal);
+    }
+    precacheMarkedTiles();
+}
 
 //---------------------------------------------------------------------------
 //
