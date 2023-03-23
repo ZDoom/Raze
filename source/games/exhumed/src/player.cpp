@@ -965,6 +965,27 @@ static void doPlayerInvincibility(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerQuake(Player* const pPlayer)
+{
+    pPlayer->nQuake = -pPlayer->nQuake;
+
+    if (pPlayer->nQuake > 0)
+    {
+        pPlayer->nQuake -= 2.;
+
+        if (pPlayer->nQuake < 0)
+        {
+            pPlayer->nQuake = 0;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -1010,15 +1031,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerInvincibility(pPlayer);
 
     if (pPlayer->nQuake != 0)
-    {
-        pPlayer->nQuake = -pPlayer->nQuake;
-        if (pPlayer->nQuake > 0)
-        {
-            pPlayer->nQuake -= 2.;
-            if (pPlayer->nQuake < 0)
-                pPlayer->nQuake = 0;
-        }
-    }
+        doPlayerQuake(pPlayer);
 
     pPlayer->Angles.doViewYaw(&pPlayer->input);
 
