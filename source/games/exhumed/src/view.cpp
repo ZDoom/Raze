@@ -58,57 +58,6 @@ tspriteArray* mytspriteArray;
 //
 //---------------------------------------------------------------------------
 
-static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double const interpfrac)
-{
-    mytspriteArray = &tsprites;
-
-    for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
-    {
-        auto pTSprite = tsprites.get(nTSprite);
-        auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
-
-        // interpolate sprite position
-        pTSprite->pos = pActor->interpolatedpos(interpfrac);
-        pTSprite->Angles.Yaw = pActor->interpolatedyaw(interpfrac);
-
-        if (pTSprite->sectp != nullptr)
-        {
-            sectortype *pTSector = pTSprite->sectp;
-            int nSectShade = (pTSector->ceilingstat & CSTAT_SECTOR_SKY) ? pTSector->ceilingshade : pTSector->floorshade;
-            int nShade = pTSprite->shade + nSectShade + 6;
-            pTSprite->shade = clamp(nShade, -128, 127);
-        }
-
-        pTSprite->pal = RemapPLU(pTSprite->pal);
-
-        // PowerSlaveGDX: Torch bouncing fix
-        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
-        {
-            pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
-            auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());
-            double nTileY = (tex->GetDisplayHeight() * pTSprite->scale.Y) * 0.5;
-            pTSprite->pos.Z -= nTileY;
-        }
-
-        if (pTSprite->pal == 4 && pTSprite->shade >= numshades && !hw_int_useindexedcolortextures) pTSprite->shade = numshades - 1;
-
-        if (pActor->spr.statnum > 0)
-        {
-            RunListEvent ev{};
-            ev.pTSprite = pTSprite;
-            runlist_SignalRun(pActor->spr.lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
-        }
-    }
-
-    mytspriteArray = nullptr;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void ResetView()
 {
     EraseScreen(0);
@@ -339,7 +288,47 @@ bool GameInterface::GenerateSavePic()
 
 void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac)
 {
-    analyzesprites(tsprites, view, interpfrac);
+    mytspriteArray = &tsprites;
+
+    for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
+    {
+        auto pTSprite = tsprites.get(nTSprite);
+        auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
+
+        // interpolate sprite position
+        pTSprite->pos = pActor->interpolatedpos(interpfrac);
+        pTSprite->Angles.Yaw = pActor->interpolatedyaw(interpfrac);
+
+        if (pTSprite->sectp != nullptr)
+        {
+            sectortype *pTSector = pTSprite->sectp;
+            int nSectShade = (pTSector->ceilingstat & CSTAT_SECTOR_SKY) ? pTSector->ceilingshade : pTSector->floorshade;
+            int nShade = pTSprite->shade + nSectShade + 6;
+            pTSprite->shade = clamp(nShade, -128, 127);
+        }
+
+        pTSprite->pal = RemapPLU(pTSprite->pal);
+
+        // PowerSlaveGDX: Torch bouncing fix
+        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
+        {
+            pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
+            auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());
+            double nTileY = (tex->GetDisplayHeight() * pTSprite->scale.Y) * 0.5;
+            pTSprite->pos.Z -= nTileY;
+        }
+
+        if (pTSprite->pal == 4 && pTSprite->shade >= numshades && !hw_int_useindexedcolortextures) pTSprite->shade = numshades - 1;
+
+        if (pActor->spr.statnum > 0)
+        {
+            RunListEvent ev{};
+            ev.pTSprite = pTSprite;
+            runlist_SignalRun(pActor->spr.lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
+        }
+    }
+
+    mytspriteArray = nullptr;
 }
 
 
