@@ -465,8 +465,6 @@ void GameInterface::Ticker()
         }
         UpdateInterpolations();
 
-        if (nFreeze) setForcedSyncInput();
-
         if (pPlayer->nHealth <= 0)
         {
             setForcedSyncInput();
