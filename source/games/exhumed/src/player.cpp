@@ -895,31 +895,32 @@ void AIPlayer::Tick(RunListEvent* ev)
     int var_40;
     bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
 
-    int nPlayer = RunData[ev->nRun].nObjIndex;
+    const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    auto pPlayerActor = PlayerList[nPlayer].pActor;
+    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayerActor = pPlayer->pActor;
 
-    DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
+    DExhumedActor* pDopple = pPlayer->pDoppleSprite;
 
-    int nAction = PlayerList[nPlayer].nAction;
-    int nActionB = PlayerList[nPlayer].nAction;
+    int nAction = pPlayer->nAction;
+    int nActionB = pPlayer->nAction;
 
-    pPlayerActor->vel.XY() = PlayerList[nPlayer].vel;
+    pPlayerActor->vel.XY() = pPlayer->vel;
 
-    if (PlayerList[nPlayer].nCurrentItem > -1)
+    if (pPlayer->nCurrentItem > -1)
     {
-        UseItem(nPlayer, PlayerList[nPlayer].nCurrentItem);
-        PlayerList[nPlayer].nCurrentItem = -1;
+        UseItem(nPlayer, pPlayer->nCurrentItem);
+        pPlayer->nCurrentItem = -1;
     }
 
-    pPlayerActor->spr.picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, PlayerList[nPlayer].nSeqSize);
+    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[nAction]].a, pPlayer->nSeqSize);
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
 
-    if (PlayerList[nPlayer].nTorch > 0)
+    if (pPlayer->nTorch > 0)
     {
-        PlayerList[nPlayer].nTorch--;
-        if (PlayerList[nPlayer].nTorch == 0)
+        pPlayer->nTorch--;
+        if (pPlayer->nTorch == 0)
         {
             SetTorch(nPlayer, 0);
         }
@@ -933,60 +934,60 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
     }
 
-    if (PlayerList[nPlayer].nDouble > 0)
+    if (pPlayer->nDouble > 0)
     {
-        PlayerList[nPlayer].nDouble--;
-        if (PlayerList[nPlayer].nDouble == 150 && nPlayer == nLocalPlayer) {
+        pPlayer->nDouble--;
+        if (pPlayer->nDouble == 150 && nPlayer == nLocalPlayer) {
             PlayAlert(GStrings("TXT_EX_WEAPONEX"));
         }
     }
 
-    if (PlayerList[nPlayer].nInvisible > 0)
+    if (pPlayer->nInvisible > 0)
     {
-        PlayerList[nPlayer].nInvisible--;
-        if (PlayerList[nPlayer].nInvisible == 0)
+        pPlayer->nInvisible--;
+        if (pPlayer->nInvisible == 0)
         {
             pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
-            DExhumedActor* pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
+            DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
 
             if (pFloorSprite != nullptr) {
                 pFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
             }
         }
-        else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
+        else if (pPlayer->nInvisible == 150 && nPlayer == nLocalPlayer)
         {
             PlayAlert(GStrings("TXT_EX_INVISEX"));
         }
     }
 
-    if (PlayerList[nPlayer].invincibility > 0)
+    if (pPlayer->invincibility > 0)
     {
-        PlayerList[nPlayer].invincibility--;
-        if (PlayerList[nPlayer].invincibility == 150 && nPlayer == nLocalPlayer) {
+        pPlayer->invincibility--;
+        if (pPlayer->invincibility == 150 && nPlayer == nLocalPlayer) {
             PlayAlert(GStrings("TXT_EX_INVINCEX"));
         }
     }
 
-    if (PlayerList[nPlayer].nQuake != 0)
+    if (pPlayer->nQuake != 0)
     {
-        PlayerList[nPlayer].nQuake = -PlayerList[nPlayer].nQuake;
-        if (PlayerList[nPlayer].nQuake > 0)
+        pPlayer->nQuake = -pPlayer->nQuake;
+        if (pPlayer->nQuake > 0)
         {
-            PlayerList[nPlayer].nQuake -= 2.;
-            if (PlayerList[nPlayer].nQuake < 0)
-                PlayerList[nPlayer].nQuake = 0;
+            pPlayer->nQuake -= 2.;
+            if (pPlayer->nQuake < 0)
+                pPlayer->nQuake = 0;
         }
     }
 
-    PlayerList[nPlayer].Angles.doViewYaw(&PlayerList[nLocalPlayer].input);
+    pPlayer->Angles.doViewYaw(&pPlayer->input);
 
     // loc_1A494:
     if (SyncInput())
     {
-        PlayerList[nPlayer].pActor->spr.Angles.Yaw += DAngle::fromDeg(PlayerList[nPlayer].input.avel);
+        pPlayer->pActor->spr.Angles.Yaw += DAngle::fromDeg(pPlayer->input.avel);
     }
 
-    PlayerList[nPlayer].Angles.doYawKeys(&PlayerList[nLocalPlayer].input);
+    pPlayer->Angles.doYawKeys(&pPlayer->input);
 
     // player.zvel is modified within Gravity()
 	double zVel = pPlayerActor->vel.Z;
@@ -1000,17 +1001,17 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     // loc_1A4E6
     auto pSector = pPlayerActor->sector();
-    int nSectFlag = PlayerList[nPlayer].pPlayerViewSect->Flag;
+    int nSectFlag = pPlayer->pPlayerViewSect->Flag;
 
     auto playerPos = pPlayerActor->spr.pos.XY();
 
-    DVector2 vect = PlayerList[nPlayer].vel;
+    DVector2 vect = pPlayer->vel;
     double zz = pPlayerActor->vel.Z;
 
     if (pPlayerActor->vel.Z > 32)
         pPlayerActor->vel.Z = 32;
 
-    if (PlayerList[nPlayer].bIsMummified)
+    if (pPlayer->bIsMummified)
     {
         vect *= 0.5;
     }
@@ -1061,7 +1062,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (bUnderwater)
     {
-        PlayerList[nPlayer].nThrust /= 2;
+        pPlayer->nThrust /= 2;
     }
 
     // Trigger Ramses?
@@ -1073,7 +1074,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             pPlayerActor->spr.Angles = DRotator(nullAngle, GetAngleToSprite(pPlayerActor, pSpiritSprite), nullAngle);
             pPlayerActor->backupang();
 
-            PlayerList[nPlayer].vel.Zero();
+            pPlayer->vel.Zero();
             pPlayerActor->vel.Zero();
 
             if (nFreeze < 1)
@@ -1083,7 +1084,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 StopLocalSound();
                 InitSpiritHead();
 
-                PlayerList[nPlayer].nDestVertPan = nullAngle;
+                pPlayer->nDestVertPan = nullAngle;
                 pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
             }
         }
@@ -1100,7 +1101,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (bTouchFloor)
         {
             // Damage stuff..
-            PlayerList[nPlayer].nThrust /= 2;
+            pPlayer->nThrust /= 2;
 
             if (nPlayer == nLocalPlayer)
             {
@@ -1110,8 +1111,8 @@ void AIPlayer::Tick(RunListEvent* ev)
                     zVelB = -zVelB;
                 }
 
-                if (zVelB > 2 && !PlayerList[nPlayer].pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting) {
-                    PlayerList[nPlayer].nDestVertPan = nullAngle;
+                if (zVelB > 2 && !pPlayer->pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting) {
+                    pPlayer->nDestVertPan = nullAngle;
                 }
             }
 
@@ -1121,7 +1122,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                 runlist_DamageEnemy(pPlayerActor, nullptr, ((int(zVel * 256) - 6500) >> 7) + 10);
 
-                if (PlayerList[nPlayer].nHealth <= 0)
+                if (pPlayer->nHealth <= 0)
                 {
                     pPlayerActor->vel.X = 0;
                     pPlayerActor->vel.Y = 0;
@@ -1141,31 +1142,31 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // loc_1AB46:
-    if (PlayerList[nPlayer].nPlayerPushSound > -1)
+    if (pPlayer->nPlayerPushSound > -1)
     {
-        if (PlayerList[nPlayer].pPlayerPushSect != nullptr)
+        if (pPlayer->pPlayerPushSect != nullptr)
         {
-            StopActorSound(sBlockInfo[PlayerList[nPlayer].pPlayerPushSect->extra].pActor);
+            StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
         }
 
-        PlayerList[nPlayer].nPlayerPushSound = -1;
+        pPlayer->nPlayerPushSound = -1;
     }
 
 sectdone:
-    if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
+    if (!pPlayer->bPlayerPan && !pPlayer->bLockPan)
     {
-        PlayerList[nPlayer].nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
+        pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     }
 
     playerPos -= pPlayerActor->spr.pos.XY();
 
 
-    PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel;
-    PlayerList[nPlayer].totalvel = int(playerPos.Length() * worldtoint);
+    pPlayer->ototalvel = pPlayer->totalvel;
+    pPlayer->totalvel = int(playerPos.Length() * worldtoint);
 
     auto pViewSect = pPlayerActor->sector();
 
-    double EyeZ = pPlayerActor->getOffsetZ() + PlayerList[nPlayer].nQuake;
+    double EyeZ = pPlayerActor->getOffsetZ() + pPlayer->nQuake;
 
     while (1)
     {
@@ -1211,62 +1212,62 @@ sectdone:
     }
 
     // loc_1ADAF
-    PlayerList[nPlayer].pPlayerViewSect = pViewSect;
+    pPlayer->pPlayerViewSect = pViewSect;
 
-    PlayerList[nPlayer].nPlayerD = (pPlayerActor->spr.pos - spr_pos);
+    pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 
-    auto actions = PlayerList[nPlayer].input.actions;
+    auto actions = pPlayer->input.actions;
 
     // loc_1AEF5:
-    if (PlayerList[nPlayer].nHealth > 0)
+    if (pPlayer->nHealth > 0)
     {
-        if (PlayerList[nPlayer].nMaskAmount > 0)
+        if (pPlayer->nMaskAmount > 0)
         {
-            PlayerList[nPlayer].nMaskAmount--;
-            if (PlayerList[nPlayer].nMaskAmount == 150 && nPlayer == nLocalPlayer) {
+            pPlayer->nMaskAmount--;
+            if (pPlayer->nMaskAmount == 150 && nPlayer == nLocalPlayer) {
 				PlayAlert(GStrings("TXT_EX_MASKEX"));
             }
         }
 
-        if (!PlayerList[nPlayer].invincibility)
+        if (!pPlayer->invincibility)
         {
             // Handle air
-            PlayerList[nPlayer].nBreathTimer--;
+            pPlayer->nBreathTimer--;
 
-            if (PlayerList[nPlayer].nBreathTimer <= 0)
+            if (pPlayer->nBreathTimer <= 0)
             {
-                PlayerList[nPlayer].nBreathTimer = 90;
+                pPlayer->nBreathTimer = 90;
 
                 // if underwater
                 if (var_5C)
                 {
-                    if (PlayerList[nPlayer].nMaskAmount > 0)
+                    if (pPlayer->nMaskAmount > 0)
                     {
                         D3PlayFX(StaticSound[kSound30], pPlayerActor);
 
-                        PlayerList[nPlayer].nAir = 100;
+                        pPlayer->nAir = 100;
                     }
                     else
                     {
-                        PlayerList[nPlayer].nAir -= 25;
-                        if (PlayerList[nPlayer].nAir > 0)
+                        pPlayer->nAir -= 25;
+                        if (pPlayer->nAir > 0)
                         {
                             D3PlayFX(StaticSound[kSound25], pPlayerActor);
                         }
                         else
                         {
-                            PlayerList[nPlayer].nHealth += (PlayerList[nPlayer].nAir << 2);
-                            if (PlayerList[nPlayer].nHealth <= 0)
+                            pPlayer->nHealth += (pPlayer->nAir << 2);
+                            if (pPlayer->nHealth <= 0)
                             {
-                                PlayerList[nPlayer].nHealth = 0;
+                                pPlayer->nHealth = 0;
                                 StartDeathSeq(nPlayer, 0);
                             }
 
-                            PlayerList[nPlayer].nAir = 0;
+                            pPlayer->nAir = 0;
 
-                            if (PlayerList[nPlayer].nHealth < 300)
+                            if (pPlayer->nHealth < 300)
                             {
                                 D3PlayFX(StaticSound[kSound79], pPlayerActor);
                             }
@@ -1285,9 +1286,9 @@ sectdone:
         // loc_1B0B9
         if (var_5C) // if underwater
         {
-            if (PlayerList[nPlayer].nTorch > 0)
+            if (pPlayer->nTorch > 0)
             {
-                PlayerList[nPlayer].nTorch = 0;
+                pPlayer->nTorch = 0;
                 SetTorch(nPlayer, 0);
             }
         }
@@ -1295,7 +1296,7 @@ sectdone:
         {
             auto pTmpSect = pPlayerActor->sector();
 
-            if (PlayerList[nPlayer].totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
+            if (pPlayer->totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
             {
                 if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
                 {
@@ -1306,28 +1307,28 @@ sectdone:
             // CHECKME - wrong place?
             if (nSectFlag & kSectUnderwater)
             {
-                if (PlayerList[nPlayer].nAir < 50)
+                if (pPlayer->nAir < 50)
                 {
                     D3PlayFX(StaticSound[kSound14], pPlayerActor);
                 }
 
-                PlayerList[nPlayer].nBreathTimer = 1;
+                pPlayer->nBreathTimer = 1;
             }
 
-            PlayerList[nPlayer].nBreathTimer--;
-            if (PlayerList[nPlayer].nBreathTimer <= 0)
+            pPlayer->nBreathTimer--;
+            if (pPlayer->nBreathTimer <= 0)
             {
-                PlayerList[nPlayer].nBreathTimer = 90;
+                pPlayer->nBreathTimer = 90;
             }
 
-            if (PlayerList[nPlayer].nAir < 100)
+            if (pPlayer->nAir < 100)
             {
-                PlayerList[nPlayer].nAir = 100;
+                pPlayer->nAir = 100;
             }
         }
 
         // loc_1B1EB
-        DExhumedActor* pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
+        DExhumedActor* pFloorActor = pPlayer->pPlayerFloorSprite;
         if (nTotalPlayers > 1 && pFloorActor)
         {
             pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
@@ -1342,12 +1343,12 @@ sectdone:
 
         int var_30 = 0;
 
-        if (PlayerList[nPlayer].nHealth >= 800)
+        if (pPlayer->nHealth >= 800)
         {
             var_30 = 2;
         }
 
-        if (PlayerList[nPlayer].nMagic >= 1000)
+        if (pPlayer->nMagic >= 1000)
         {
             var_30 |= 1;
         }
@@ -1450,9 +1451,9 @@ sectdone:
                     if (AddAmmo(nPlayer, 4, 1))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
-                        if (!(PlayerList[nPlayer].nPlayerWeapons & 0x10))
+                        if (!(pPlayer->nPlayerWeapons & 0x10))
                         {
-                            PlayerList[nPlayer].nPlayerWeapons |= 0x10;
+                            pPlayer->nPlayerWeapons |= 0x10;
                             SetNewWeaponIfBetter(nPlayer, 4);
                         }
 
@@ -1523,16 +1524,16 @@ sectdone:
 
                     if (edx <= 0 || (!(var_30 & 2)))
                     {
-                        if (!PlayerList[nPlayer].invincibility || edx > 0)
+                        if (!pPlayer->invincibility || edx > 0)
                         {
-                            PlayerList[nPlayer].nHealth += edx;
-                            if (PlayerList[nPlayer].nHealth > 800)
+                            pPlayer->nHealth += edx;
+                            if (pPlayer->nHealth > 800)
                             {
-                                PlayerList[nPlayer].nHealth = 800;
+                                pPlayer->nHealth = 800;
                             }
                             else
                             {
-                                if (PlayerList[nPlayer].nHealth < 0)
+                                if (pPlayer->nHealth < 0)
                                 {
                                     var_88 = -1;
                                     StartDeathSeq(nPlayer, 0);
@@ -1592,16 +1593,16 @@ sectdone:
                     // Same code as case 6 now till break
                     if (edx <= 0 || (!(var_30 & 2)))
                     {
-                        if (!PlayerList[nPlayer].invincibility || edx > 0)
+                        if (!pPlayer->invincibility || edx > 0)
                         {
-                            PlayerList[nPlayer].nHealth += edx;
-                            if (PlayerList[nPlayer].nHealth > 800)
+                            pPlayer->nHealth += edx;
+                            if (pPlayer->nHealth > 800)
                             {
-                                PlayerList[nPlayer].nHealth = 800;
+                                pPlayer->nHealth = 800;
                             }
                             else
                             {
-                                if (PlayerList[nPlayer].nHealth < 0)
+                                if (pPlayer->nHealth < 0)
                                 {
                                     var_88 = -1;
                                     StartDeathSeq(nPlayer, 0);
@@ -1661,16 +1662,16 @@ sectdone:
                     // Same code as case 6 and 7 from now till break
                     if (edx <= 0 || (!(var_30 & 2)))
                     {
-                        if (!PlayerList[nPlayer].invincibility || edx > 0)
+                        if (!pPlayer->invincibility || edx > 0)
                         {
-                            PlayerList[nPlayer].nHealth += edx;
-                            if (PlayerList[nPlayer].nHealth > 800)
+                            pPlayer->nHealth += edx;
+                            if (pPlayer->nHealth > 800)
                             {
-                                PlayerList[nPlayer].nHealth = 800;
+                                pPlayer->nHealth = 800;
                             }
                             else
                             {
-                                if (PlayerList[nPlayer].nHealth < 0)
+                                if (pPlayer->nHealth < 0)
                                 {
                                     var_88 = -1;
                                     StartDeathSeq(nPlayer, 0);
@@ -1725,17 +1726,17 @@ sectdone:
 
                 case 11: // Bubble Nest
                 {
-                    PlayerList[nPlayer].nAir += 10;
-                    if (PlayerList[nPlayer].nAir > 100) {
-                        PlayerList[nPlayer].nAir = 100; // TODO - constant
+                    pPlayer->nAir += 10;
+                    if (pPlayer->nAir > 100) {
+                        pPlayer->nAir = 100; // TODO - constant
                     }
 
-                    if (PlayerList[nPlayer].nBreathTimer < 89)
+                    if (pPlayer->nBreathTimer < 89)
                     {
                         D3PlayFX(StaticSound[kSound13], pPlayerActor);
                     }
 
-                    PlayerList[nPlayer].nBreathTimer = 90;
+                    pPlayer->nBreathTimer = 90;
                     break;
                 }
 
@@ -1797,11 +1798,11 @@ sectdone:
                 {
                     var_88 = -1;
 
-                    if (PlayerList[nPlayer].nLives >= kMaxPlayerLives) {
+                    if (pPlayer->nLives >= kMaxPlayerLives) {
                         break;
                     }
 
-                    PlayerList[nPlayer].nLives++;
+                    pPlayer->nLives++;
 
                     var_8C = 32;
                     var_44 = 32;
@@ -1817,7 +1818,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = pPlayer->nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -1832,7 +1833,7 @@ sectdone:
 
                         SetNewWeaponIfBetter(nPlayer, weapons);
 
-                        PlayerList[nPlayer].nPlayerWeapons |= var_18;
+                        pPlayer->nPlayerWeapons |= var_18;
 
                         AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
@@ -1879,7 +1880,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = pPlayer->nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -1894,7 +1895,7 @@ sectdone:
 
                         SetNewWeaponIfBetter(nPlayer, weapons);
 
-                        PlayerList[nPlayer].nPlayerWeapons |= var_18;
+                        pPlayer->nPlayerWeapons |= var_18;
 
                         AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
@@ -1941,7 +1942,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = pPlayer->nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -1956,7 +1957,7 @@ sectdone:
 
                         SetNewWeaponIfBetter(nPlayer, weapons);
 
-                        PlayerList[nPlayer].nPlayerWeapons |= var_18;
+                        pPlayer->nPlayerWeapons |= var_18;
 
                         AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
@@ -2003,7 +2004,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = pPlayer->nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -2018,7 +2019,7 @@ sectdone:
 
                         SetNewWeaponIfBetter(nPlayer, weapons);
 
-                        PlayerList[nPlayer].nPlayerWeapons |= var_18;
+                        pPlayer->nPlayerWeapons |= var_18;
 
                         AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
@@ -2065,7 +2066,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = pPlayer->nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -2080,7 +2081,7 @@ sectdone:
 
                         SetNewWeaponIfBetter(nPlayer, weapons);
 
-                        PlayerList[nPlayer].nPlayerWeapons |= var_18;
+                        pPlayer->nPlayerWeapons |= var_18;
 
                         AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
@@ -2127,7 +2128,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = pPlayer->nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -2142,7 +2143,7 @@ sectdone:
 
                         SetNewWeaponIfBetter(nPlayer, weapons);
 
-                        PlayerList[nPlayer].nPlayerWeapons |= var_18;
+                        pPlayer->nPlayerWeapons |= var_18;
 
                         AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
@@ -2209,9 +2210,9 @@ sectdone:
 
                     var_88 = -1;
 
-                    if (!(PlayerList[nPlayer].keys & keybit))
+                    if (!(pPlayer->keys & keybit))
                     {
-                        PlayerList[nPlayer].keys |= keybit;
+                        pPlayer->keys |= keybit;
 
                         if (nTotalPlayers > 1)
                         {
@@ -2229,15 +2230,15 @@ sectdone:
                 case 43: // Magical Essence
                 case 44: // ?
                 {
-                    if (PlayerList[nPlayer].nMagic >= 1000) {
+                    if (pPlayer->nMagic >= 1000) {
                         break;
                     }
 
                     var_88 = StaticSound[kSoundMana1];
 
-                    PlayerList[nPlayer].nMagic += 100;
-                    if (PlayerList[nPlayer].nMagic >= 1000) {
-                        PlayerList[nPlayer].nMagic = 1000;
+                    pPlayer->nMagic += 100;
+                    if (pPlayer->nMagic >= 1000) {
+                        pPlayer->nMagic = 1000;
                     }
 
                     goto do_default;
@@ -2295,7 +2296,7 @@ sectdone:
             }
         }
 
-        if (!PlayerList[nPlayer].bIsMummified)
+        if (!pPlayer->bIsMummified)
         {
             if (actions & SB_OPEN)
             {
@@ -2363,7 +2364,7 @@ sectdone:
                     }
 
                 loc_1BD2E:
-                    if (PlayerList[nPlayer].totalvel < 1) {
+                    if (pPlayer->totalvel < 1) {
                         nActionB = 6;
                     }
                     else {
@@ -2375,13 +2376,13 @@ sectdone:
             }
             else
             {
-                if (PlayerList[nPlayer].nHealth > 0)
+                if (pPlayer->nHealth > 0)
                 {
                     pPlayerActor->viewzoffset += (nActionEyeLevel[nAction] - pPlayerActor->viewzoffset) * 0.5;
 
                     if (bUnderwater)
                     {
-                        if (PlayerList[nPlayer].totalvel <= 1)
+                        if (pPlayer->totalvel <= 1)
                             nActionB = 9;
                         else
                             nActionB = 10;
@@ -2395,10 +2396,10 @@ sectdone:
                         }
                         else
                         {
-                            if (PlayerList[nPlayer].totalvel <= 1) {
+                            if (pPlayer->totalvel <= 1) {
                                 nActionB = 0;//bUnderwater; // this is just setting to 0
                             }
-                            else if (PlayerList[nPlayer].totalvel <= 30) {
+                            else if (pPlayer->totalvel <= 30) {
                                 nActionB = 2;
                             }
                             else
@@ -2427,13 +2428,13 @@ sectdone:
 
             // loc_1BE70:
             // Handle player pressing number keys to change weapon
-            uint8_t var_90 = PlayerList[nPlayer].input.getNewWeapon();
+            uint8_t var_90 = pPlayer->input.getNewWeapon();
 
             if (var_90)
             {
                 var_90--;
 
-                if (PlayerList[nPlayer].nPlayerWeapons & (1 << var_90))
+                if (pPlayer->nPlayerWeapons & (1 << var_90))
                 {
                     SetNewWeapon(nPlayer, var_90);
                 }
@@ -2448,7 +2449,7 @@ sectdone:
 
             if (nAction != 15)
             {
-                if (PlayerList[nPlayer].totalvel <= 1)
+                if (pPlayer->totalvel <= 1)
                 {
                     nActionB = 13;
                 }
@@ -2463,20 +2464,18 @@ sectdone:
         if (nActionB != nAction && nAction != 4)
         {
             nAction = nActionB;
-            PlayerList[nPlayer].nAction = nActionB;
-            PlayerList[nPlayer].nSeqSize = 0;
+            pPlayer->nAction = nActionB;
+            pPlayer->nSeqSize = 0;
         }
-
-        Player* pPlayer = &PlayerList[nPlayer];
 
         if (SyncInput())
         {
-            pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(PlayerList[nPlayer].input.horz);
+            pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pPlayer->input.horz);
         }
 
-        pPlayer->Angles.doPitchKeys(&PlayerList[nLocalPlayer].input);
+        pPlayer->Angles.doPitchKeys(&pPlayer->input);
 
-        if (actions & (SB_AIM_UP | SB_AIM_DOWN) || PlayerList[nPlayer].input.horz)
+        if (actions & (SB_AIM_UP | SB_AIM_DOWN) || pPlayer->input.horz)
         {
             pPlayer->nDestVertPan = pPlayer->pActor->spr.Angles.Pitch;
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
@@ -2487,7 +2486,7 @@ sectdone:
             pPlayer->bPlayerPan = pPlayer->bLockPan = false;
         }
 
-        if (PlayerList[nPlayer].totalvel > 20)
+        if (pPlayer->totalvel > 20)
         {
             pPlayer->bPlayerPan = false;
         }
@@ -2518,9 +2517,9 @@ sectdone:
                     GrabPalette();
                 }
 
-                PlayerList[nPlayer].nCurrentWeapon = PlayerList[nPlayer].nPlayerOldWeapon;
+                pPlayer->nCurrentWeapon = pPlayer->nPlayerOldWeapon;
 
-                if (PlayerList[nPlayer].nLives && nNetTime)
+                if (pPlayer->nLives && nNetTime)
                 {
                     if (nAction != 20)
                     {
@@ -2531,9 +2530,7 @@ sectdone:
 
                     // will invalidate nPlayerSprite
                     RestartPlayer(nPlayer);
-
-                    pPlayerActor = PlayerList[nPlayer].pActor;
-                    pDopple = PlayerList[nPlayer].pDoppleSprite;
+                    pDopple = pPlayer->pDoppleSprite;
                 }
                 else
                 {
@@ -2551,28 +2548,28 @@ sectdone:
         CheckAmbience(pLocalEyeSect);
     }
 
-    int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;
+    int var_AC = SeqOffsets[pPlayer->nSeq] + PlayerSeq[nAction].a;
 
-    seq_MoveSequence(pPlayerActor, var_AC, PlayerList[nPlayer].nSeqSize);
-    PlayerList[nPlayer].nSeqSize++;
+    seq_MoveSequence(pPlayerActor, var_AC, pPlayer->nSeqSize);
+    pPlayer->nSeqSize++;
 
-    if (PlayerList[nPlayer].nSeqSize >= SeqSize[var_AC])
+    if (pPlayer->nSeqSize >= SeqSize[var_AC])
     {
-        PlayerList[nPlayer].nSeqSize = 0;
+        pPlayer->nSeqSize = 0;
 
-        switch (PlayerList[nPlayer].nAction)
+        switch (pPlayer->nAction)
         {
         default:
             break;
 
         case 3:
-            PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
+            pPlayer->nSeqSize = SeqSize[var_AC] - 1;
             break;
         case 4:
-            PlayerList[nPlayer].nAction = 0;
+            pPlayer->nAction = 0;
             break;
         case 16:
-            PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
+            pPlayer->nSeqSize = SeqSize[var_AC] - 1;
 
             if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
             {
@@ -2588,48 +2585,48 @@ sectdone:
             }
             break;
         case 17:
-            PlayerList[nPlayer].nAction = 18;
+            pPlayer->nAction = 18;
             break;
         case 19:
             pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-            PlayerList[nPlayer].nAction = 20;
+            pPlayer->nAction = 20;
             break;
         }
     }
 
-    if (!PlayerList[nPlayer].nHealth)
+    if (!pPlayer->nHealth)
     {
-        PlayerList[nPlayer].nThrust.Zero();
+        pPlayer->nThrust.Zero();
 
         if (pPlayerActor->viewzoffset >= -11)
         {
             pPlayerActor->viewzoffset = -11;
-            PlayerList[nPlayer].dVertPan = 0;
+            pPlayer->dVertPan = 0;
         }
         else
         {
-            if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Sgn() > 0)
+            if (pPlayer->pActor->spr.Angles.Pitch.Sgn() > 0)
             {
                 pPlayerActor->spr.Angles.Pitch = nullAngle;
-                pPlayerActor->viewzoffset -= PlayerList[nPlayer].dVertPan;
+                pPlayerActor->viewzoffset -= pPlayer->dVertPan;
             }
             else
             {
-                PlayerList[nPlayer].pActor->spr.Angles.Pitch -= maphoriz(PlayerList[nPlayer].dVertPan);
+                pPlayer->pActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
 
-                if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Degrees() <= -38)
+                if (pPlayer->pActor->spr.Angles.Pitch.Degrees() <= -38)
                 {
-                    PlayerList[nPlayer].pActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
+                    pPlayer->pActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
                 }
-                else if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Sgn() >= 0)
+                else if (pPlayer->pActor->spr.Angles.Pitch.Sgn() >= 0)
                 {
                     if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
                     {
-                        SetNewWeapon(nPlayer, PlayerList[nPlayer].nDeathType + 8);
+                        SetNewWeapon(nPlayer, pPlayer->nDeathType + 8);
                     }
                 }
 
-                PlayerList[nPlayer].dVertPan--;
+                pPlayer->dVertPan--;
             }
         }
     }
