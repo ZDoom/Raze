@@ -435,7 +435,7 @@ void RestartPlayer(int nPlayer)
     PlayerList[nPlayer].nCurrentItem = -1;
 
 	plr->nDeathType = 0;
-	nQuake[nPlayer] = 0;
+	plr->nQuake = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -956,14 +956,14 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
     }
 
-    if (nQuake[nPlayer] != 0)
+    if (PlayerList[nPlayer].nQuake != 0)
     {
-        nQuake[nPlayer] = -nQuake[nPlayer];
-        if (nQuake[nPlayer] > 0)
+        PlayerList[nPlayer].nQuake = -PlayerList[nPlayer].nQuake;
+        if (PlayerList[nPlayer].nQuake > 0)
         {
-            nQuake[nPlayer] -= 2.;
-            if (nQuake[nPlayer] < 0)
-                nQuake[nPlayer] = 0;
+            PlayerList[nPlayer].nQuake -= 2.;
+            if (PlayerList[nPlayer].nQuake < 0)
+                PlayerList[nPlayer].nQuake = 0;
         }
     }
 
@@ -1154,7 +1154,7 @@ sectdone:
 
     auto pViewSect = pPlayerActor->sector();
 
-    double EyeZ = pPlayerActor->getOffsetZ() + nQuake[nPlayer];
+    double EyeZ = pPlayerActor->getOffsetZ() + PlayerList[nPlayer].nQuake;
 
     while (1)
     {

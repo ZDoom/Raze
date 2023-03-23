@@ -1556,7 +1556,7 @@ void DoFinale()
             PlayFX2(StaticSound[kSound78] | 0x2000, pFinaleSpr);
 
             for (int i = 0; i < nTotalPlayers; i++) {
-                nQuake[i] = 5.;
+                PlayerList[i].nQuake = 5.;
             }
         }
     }

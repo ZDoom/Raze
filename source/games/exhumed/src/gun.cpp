@@ -827,7 +827,7 @@ loc_flag:
                 case kWeaponM60:
                 {
                     if (nWeapon == kWeaponM60) { // hack(?) to do fallthrough from kWeapon3 into kWeaponPistol without doing the nQuake[] change
-                        nQuake[nPlayer] = 0.5;
+                        PlayerList[nPlayer].nQuake = 0.5;
                     }
                     // fall through
                     [[fallthrough]];
@@ -864,7 +864,7 @@ loc_flag:
                 case kWeaponStaff:
                 {
                     BuildSnake(nPlayer, nHeight);
-                    nQuake[nPlayer] = 2.;
+                    PlayerList[nPlayer].nQuake = 2.;
 
                     PlayerList[nPlayer].nThrust -= pPlayerActor->spr.Angles.Yaw.ToVector() * 2;
                     break;

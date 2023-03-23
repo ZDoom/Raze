@@ -35,18 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 bool bSubTitles = true;
-
 DVector3 nCamerapos;
 bool bTouchFloor;
-
-double nQuake[kMaxPlayers] = { 0 };
-
 int nChunkTotal = 0;
-
 int nViewTop;
 bool bCamera = false;
-
-
 
 // We cannot drag these through the entire event system... :(
 tspriteArray* mytspriteArray;
@@ -141,8 +134,8 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamerapos.Z = min(nCamerapos.Z + nQuake[nLocalPlayer], pPlayerActor->sector()->floorz);
-        nCameraangles.Yaw += DAngle::fromDeg(fmod(nQuake[nLocalPlayer], 16.) * (45. / 128.));
+        nCamerapos.Z = min(nCamerapos.Z + pPlayer->nQuake, pPlayerActor->sector()->floorz);
+        nCameraangles.Yaw += DAngle::fromDeg(fmod(pPlayer->nQuake, 16.) * (45. / 128.));
 
         if (bCamera)
         {
@@ -345,7 +338,6 @@ void SerializeView(FSerializer& arc)
             ("touchfloor", bTouchFloor)
             ("chunktotal", nChunkTotal)
             ("camera", bCamera)
-            .Array("quake", nQuake, countof(nQuake))
             .EndObject();
     }
 }

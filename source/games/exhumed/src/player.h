@@ -99,6 +99,7 @@ struct Player
     int16_t nTauntTimer;
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
     int16_t dVertPan;
+    double nQuake;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;

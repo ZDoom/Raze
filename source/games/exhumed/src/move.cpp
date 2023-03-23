@@ -955,9 +955,9 @@ void SetQuake(DExhumedActor* pActor, int nVal)
             nVal = clamp(int(nVal / nSqrt), 0, 15);
         }
 
-        if (nVal > nQuake[i])
+        if (nVal > PlayerList[i].nQuake)
         {
-            nQuake[i] = nVal;
+            PlayerList[i].nQuake = nVal;
         }
     }
 }
