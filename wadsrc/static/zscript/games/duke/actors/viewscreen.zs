@@ -47,7 +47,7 @@ class DukeViewscreen : DukeActor
 				camsprite = self;
 
 				user.newOwner = acti;
-				Raze.forceSyncInput();
+				Raze.forceSyncInput(Duke.GetPlayerIndex(user));
 				return true;
 			}
 		}

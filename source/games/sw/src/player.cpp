@@ -2630,7 +2630,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     double floordist = abs(zz - pp->sop->floor_loz);
-    setForcedSyncInput();
+    setForcedSyncInput(pp->pnum);
 
     if (RectClip)
     {
@@ -2751,7 +2751,7 @@ void DoPlayerMoveTurret(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
-    setForcedSyncInput();
+    setForcedSyncInput(pp->pnum);
     DoPlayerTurnTurret(pp);
 
     if (PLAYER_MOVING(pp) == 0)
@@ -5868,7 +5868,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->Flags |= (PF_DEAD);
     plActor->user.Flags &= ~(SPR_BOUNCE);
     pp->Flags &= ~(PF_HEAD_CONTROL);
-    setForcedSyncInput();
+    setForcedSyncInput(pp->pnum);
 }
 
 //---------------------------------------------------------------------------

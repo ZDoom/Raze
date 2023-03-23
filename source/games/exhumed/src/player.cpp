@@ -1058,7 +1058,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         if (nTotalPlayers <= 1)
         {
-            setForcedSyncInput();
+            setForcedSyncInput(nPlayer);
             pPlayerActor->spr.Angles = DRotator(nullAngle, GetAngleToSprite(pPlayerActor, pSpiritSprite), nullAngle);
             pPlayerActor->backupang();
 
@@ -2491,7 +2491,7 @@ sectdone:
     }
     else // else, player's health is less than 0
     {
-        setForcedSyncInput();
+        setForcedSyncInput(nPlayer);
 
         // loc_1C0E9
         if (actions & SB_OPEN)

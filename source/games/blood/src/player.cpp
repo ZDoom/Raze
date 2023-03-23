@@ -1525,7 +1525,7 @@ void ProcessInput(PLAYER* pPlayer)
 	if (actor->xspr.health == 0)
 	{
 		// force synchronised input upon death.
-		setForcedSyncInput();
+		setForcedSyncInput(pPlayer->nPlayer);
 
 		bool bSeqStat = playerSeqPlaying(pPlayer, 16);
 		DBloodActor* fragger = pPlayer->fragger;

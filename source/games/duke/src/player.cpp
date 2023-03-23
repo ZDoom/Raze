@@ -546,7 +546,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	auto actor = p->GetActor();
 
 	// lock input when dead.
-	setForcedSyncInput();
+	setForcedSyncInput(snum);
 
 	if (p->dead_flag == 0)
 	{

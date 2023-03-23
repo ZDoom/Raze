@@ -2714,7 +2714,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		setForcedSyncInput();
+		setForcedSyncInput(snum);
 		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
@@ -2733,12 +2733,12 @@ void processinput_d(int snum)
 	if (p->centeringView())
 	{
 		p->sync.horz = 0;
-		setForcedSyncInput();
+		setForcedSyncInput(snum);
 	}
 
 	if (p->on_crane != nullptr)
 	{
-		setForcedSyncInput();
+		setForcedSyncInput(snum);
 		goto HORIZONLY;
 	}
 
@@ -2774,7 +2774,7 @@ void processinput_d(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		setForcedSyncInput();
+		setForcedSyncInput(snum);
 	}
 	else if (SyncInput())
 	{

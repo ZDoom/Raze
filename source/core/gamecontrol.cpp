@@ -1524,9 +1524,9 @@ bool SyncInput()
 	return gamesetinput || cl_syncinput || cl_capfps;
 }
 
-void setForcedSyncInput()
+void setForcedSyncInput(const int playeridx)
 {
-	gamesetinput = true;
+	if (playeridx == myconnectindex) gamesetinput = true;
 }
 
 void resetForcedSyncInput()
@@ -1536,7 +1536,9 @@ void resetForcedSyncInput()
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, forceSyncInput, setForcedSyncInput)
 {
-	setForcedSyncInput();
+	PARAM_PROLOGUE;
+	PARAM_INT(playeridx);
+	setForcedSyncInput(playeridx);
 	return 0;
 }
 
