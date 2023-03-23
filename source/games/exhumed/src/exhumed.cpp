@@ -489,9 +489,10 @@ void GameInterface::Ticker()
 
         pPlayer->pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 
+        GameMove();
+
         PlayClock += 4;
         if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
-        GameMove();
         r_NoInterpolate = false;
     }
 	else
