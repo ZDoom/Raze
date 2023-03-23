@@ -27,12 +27,11 @@ BEGIN_PS_NS
 //
 //---------------------------------------------------------------------------
 
-static void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, int nVal2, double deflen)
+static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal2, double deflen)
 {
-    *nSprite = nullptr;
+    DExhumedActor* pPickupActor = nullptr;
 
     auto startwall = pSector->walls.Data();
-
     int nWalls = pSector->walls.Size();
 
     int var_20 = nVal2 & 2;
@@ -43,13 +42,13 @@ static void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nS
         if (pSector != nullptr)
         {
             ExhumedSectIterator it(pSector);
-            while (auto pActor = it.Next())
+            while (auto itActor = it.Next())
             {
-                int nStat = pActor->spr.statnum;
+                int nStat = itActor->spr.statnum;
 
-                if (nStat >= 900 && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
+                if (nStat >= 900 && !(itActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 {
-                    auto diff = pActor->spr.pos - pos;
+                    auto diff = itActor->spr.pos - pos;
 
                     if (diff.Z < 20 && diff.Z > -100)
                     {
@@ -58,7 +57,7 @@ static void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nS
                         if (len < deflen && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
                         {
                             deflen = len;
-                            *nSprite = pActor;
+                            pPickupActor = itActor;
                         }
                     }
                 }
@@ -67,11 +66,13 @@ static void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nS
 
         nWalls--;
         if (nWalls < 0)
-            return;
+            return pPickupActor;
 
         pSector = startwall->nextSector();
         startwall++;
     }
+
+    return pPickupActor;
 }
 
 //---------------------------------------------------------------------------
@@ -98,8 +99,7 @@ void doPlayerItemPickups(Player* const pPlayer)
         var_30 |= 1;
     }
 
-    DExhumedActor* pPickupActor;
-    feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), &pPickupActor, var_30, 48);
+    DExhumedActor* pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), var_30, 48);
 
     if (pPickupActor != nullptr && pPickupActor->spr.statnum >= 900)
     {
