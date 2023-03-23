@@ -924,6 +924,31 @@ static void doPlayerDouble(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerInvisibility(Player* const pPlayer)
+{
+    pPlayer->nInvisible--;
+
+    if (pPlayer->nInvisible == 0)
+    {
+        pPlayer->pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+
+        if (pPlayer->pPlayerFloorSprite) 
+        {
+            pPlayer->pPlayerFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+        }
+    }
+    else if (pPlayer->nInvisible == 150 && pPlayer->nPlayer == nLocalPlayer)
+    {
+        PlayAlert(GStrings("TXT_EX_INVISEX"));
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -963,22 +988,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerDouble(pPlayer);
 
     if (pPlayer->nInvisible > 0)
-    {
-        pPlayer->nInvisible--;
-        if (pPlayer->nInvisible == 0)
-        {
-            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
-            DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
-
-            if (pFloorSprite != nullptr) {
-                pFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
-            }
-        }
-        else if (pPlayer->nInvisible == 150 && nPlayer == nLocalPlayer)
-        {
-            PlayAlert(GStrings("TXT_EX_INVISEX"));
-        }
-    }
+        doPlayerInvisibility(pPlayer);
 
     if (pPlayer->invincibility > 0)
     {
