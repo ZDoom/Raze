@@ -98,12 +98,6 @@ enum GameFunction_t
 void SetupGameButtons();
 void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer);
 extern ESyncBits ActionsToSend;
-extern bool gamesetinput;
-
-inline bool SyncInput()
-{
-	return gamesetinput || cl_syncinput || cl_capfps;
-}
 
 inline float backendinputscale()
 {
@@ -114,19 +108,4 @@ inline void getHidInput(HIDInput* const hidInput)
 {
 	inputState.GetMouseDelta(hidInput);
 	if (use_joystick) I_GetAxes(hidInput->joyaxes);
-}
-
-//---------------------------------------------------------------------------
-//
-// Inline functions to help with edge cases where synchronised input is needed.
-//
-//---------------------------------------------------------------------------
-
-inline void setForcedSyncInput()
-{
-	gamesetinput = true;
-}
-inline void resetForcedSyncInput()
-{
-	gamesetinput = false;
 }

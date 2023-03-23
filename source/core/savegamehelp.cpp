@@ -663,7 +663,6 @@ void SerializeMap(FSerializer& arc)
 			("visibility", g_visibility)
 			("relvisibility", g_relvisibility)
 			("numsprites", Numsprites)
-			("gamesetinput", gamesetinput)
 			("allportals", allPortals);
 
 		SerializeInterpolations(arc);

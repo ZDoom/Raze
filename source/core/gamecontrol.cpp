@@ -181,7 +181,7 @@ extern int hud_size_max;
 static bool sendPause;
 bool pausedWithKey;
 
-bool gamesetinput = false;
+static bool gamesetinput = false;
 
 int PlayClock;
 extern int nextwipe;
@@ -1517,6 +1517,21 @@ DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 {
 	ACTION_RETURN_INT(I_GetBuildTime());
+}
+
+bool SyncInput()
+{
+	return gamesetinput || cl_syncinput || cl_capfps;
+}
+
+void setForcedSyncInput()
+{
+	gamesetinput = true;
+}
+
+void resetForcedSyncInput()
+{
+	gamesetinput = false;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, forceSyncInput, setForcedSyncInput)
