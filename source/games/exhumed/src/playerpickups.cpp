@@ -98,15 +98,15 @@ void doPlayerItemPickups(Player* const pPlayer)
         var_30 |= 1;
     }
 
-    DExhumedActor* pActorB;
-    feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), &pActorB, var_30, 48);
+    DExhumedActor* pPickupActor;
+    feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), &pPickupActor, var_30, 48);
 
-    if (pActorB != nullptr && pActorB->spr.statnum >= 900)
+    if (pPickupActor != nullptr && pPickupActor->spr.statnum >= 900)
     {
         int var_8C = 16;
         int var_88 = 9;
 
-        int var_70 = pActorB->spr.statnum - 900;
+        int var_70 = pPickupActor->spr.statnum - 900;
         int var_44 = 0;
 
         // item lotags start at 6 (1-5 reserved?) so 0-offset them
@@ -125,14 +125,14 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                 {
                     // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
-                    if (pActorB->nRun == pActorB->nDamage && pActorB->nRun != 0 && pActorB->nPhase == ITEM_MAGIC)
-                        DestroyAnim(pActorB);
+                    if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
+                        DestroyAnim(pPickupActor);
                     else
-                        DeleteActor(pActorB);
+                        DeleteActor(pPickupActor);
                 }
                 else
                 {
-                    StartRegenerate(pActorB);
+                    StartRegenerate(pPickupActor);
                 }
             do_default_b:
                 // loc_1BA74
@@ -155,7 +155,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             }
             case 0: // Speed Loader
             {
-                if (AddAmmo(pPlayer->nPlayer, 1, pActorB->spr.hitag))
+                if (AddAmmo(pPlayer->nPlayer, 1, pPickupActor->spr.hitag))
                 {
                     var_88 = StaticSound[kSoundAmmoPickup];
                     goto do_default;
@@ -165,7 +165,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             }
             case 1: // Fuel Canister
             {
-                if (AddAmmo(pPlayer->nPlayer, 3, pActorB->spr.hitag))
+                if (AddAmmo(pPlayer->nPlayer, 3, pPickupActor->spr.hitag))
                 {
                     var_88 = StaticSound[kSoundAmmoPickup];
                     goto do_default;
@@ -174,7 +174,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             }
             case 2: // M - 60 Ammo Belt
             {
-                if (AddAmmo(pPlayer->nPlayer, 2, pActorB->spr.hitag))
+                if (AddAmmo(pPlayer->nPlayer, 2, pPickupActor->spr.hitag))
                 {
                     var_88 = StaticSound[kSoundAmmoPickup];
                     CheckClip(pPlayer->nPlayer);
@@ -197,8 +197,8 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     if (var_70 == 55)
                     {
-                        pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                        DestroyItemAnim(pActorB);
+                        pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                        DestroyItemAnim(pPickupActor);
 
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
@@ -253,7 +253,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
             case 6: // Berry Twig
             {
-                if (pActorB->spr.hitag == 0) {
+                if (pPickupActor->spr.hitag == 0) {
                     break;
                 }
 
@@ -281,10 +281,10 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     if (var_70 == 12)
                     {
-                        pActorB->spr.hitag = 0;
-                        pActorB->spr.picnum++;
+                        pPickupActor->spr.hitag = 0;
+                        pPickupActor->spr.picnum++;
 
-                        ChangeActorStat(pActorB, 0);
+                        ChangeActorStat(pPickupActor, 0);
 
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
@@ -350,10 +350,10 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     if (var_70 == 12)
                     {
-                        pActorB->spr.hitag = 0;
-                        pActorB->spr.picnum++;
+                        pPickupActor->spr.hitag = 0;
+                        pPickupActor->spr.picnum++;
 
-                        ChangeActorStat(pActorB, 0);
+                        ChangeActorStat(pPickupActor, 0);
 
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
@@ -419,10 +419,10 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     if (var_70 == 12)
                     {
-                        pActorB->spr.hitag = 0;
-                        pActorB->spr.picnum++;
+                        pPickupActor->spr.hitag = 0;
+                        pPickupActor->spr.picnum++;
 
-                        ChangeActorStat(pActorB, 0);
+                        ChangeActorStat(pPickupActor, 0);
 
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
@@ -586,8 +586,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     goto do_default;
                 }
 
-                pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pActorB);
+                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                DestroyItemAnim(pPickupActor);
                 ////
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -648,8 +648,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     goto do_default;
                 }
 
-                pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pActorB);
+                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                DestroyItemAnim(pPickupActor);
                 ////
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -710,8 +710,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     goto do_default;
                 }
 
-                pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pActorB);
+                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                DestroyItemAnim(pPickupActor);
                 ////
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -772,8 +772,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     goto do_default;
                 }
 
-                pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pActorB);
+                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                DestroyItemAnim(pPickupActor);
                 ////
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -834,8 +834,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     goto do_default;
                 }
 
-                pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pActorB);
+                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                DestroyItemAnim(pPickupActor);
                 ////
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -896,8 +896,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     goto do_default;
                 }
 
-                pActorB->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pActorB);
+                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                DestroyItemAnim(pPickupActor);
                 ////
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -931,7 +931,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
             case 32: // Raw Energy
             {
-                if (AddAmmo(pPlayer->nPlayer, 6, pActorB->spr.hitag)) {
+                if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag)) {
                     var_88 = StaticSound[kSoundAmmoPickup];
                     goto do_default;
                 }
@@ -986,11 +986,11 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (nLocalPlayer == pPlayer->nPlayer)
                 {
-                    pActorB->nIndex2++;
-                    pActorB->nAction &= 0xEF;
-                    pActorB->nIndex = 0;
+                    pPickupActor->nIndex2++;
+                    pPickupActor->nAction &= 0xEF;
+                    pPickupActor->nIndex = 0;
 
-                    ChangeActorStat(pActorB, 899);
+                    ChangeActorStat(pPickupActor, 899);
                 }
 
                 SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw);
@@ -1004,8 +1004,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                     LevelFinished();
                 }
 
-                DestroyItemAnim(pActorB);
-                DeleteActor(pActorB);
+                DestroyItemAnim(pPickupActor);
+                DeleteActor(pPickupActor);
                 break;
             }
             }
