@@ -39,8 +39,6 @@ inline Collision movespritevel(DExhumedActor* spritenum, const DVector3& pos, do
 	return movesprite(spritenum, pos.XY() * xyfactor / 64, pos.Z, flordist, clipmask);
 }
 
-void precache();
-
 // cd
 
 bool playCDtrack(int nTrack, bool bLoop);
