@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "sequence.h"
 #include "view.h"
-#include "input.h"
 #include "status.h"
 #include "sound.h"
 #include "sound.h"
@@ -870,6 +869,18 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
         }
     }
     return false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void ClearSpaceBar(int nPlayer)
+{
+    PlayerList[nPlayer].input.actions &= SB_OPEN;
+    buttonMap.ClearButton(gamefunc_Open);
 }
 
 //---------------------------------------------------------------------------

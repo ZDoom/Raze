@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sequence.h"
 #include "names.h"
 #include "player.h"
-#include "input.h"
 #include "sound.h"
 #include "view.h"
 #include "status.h"
@@ -42,6 +41,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+enum {
+    kButtonCheatGuns = 0x20,
+    kButtonCheatGodMode = 0x40,
+    kButtonCheatKeys = 0x80,
+    kButtonCheatItems = 0x100,
+};
 
 //---------------------------------------------------------------------------
 //

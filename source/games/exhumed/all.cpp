@@ -11,7 +11,6 @@
 #include "src/grenade.cpp"
 #include "src/gun.cpp"
 #include "src/init.cpp"
-#include "src/input.cpp"
 #include "src/items.cpp"
 #include "src/lavadude.cpp"
 #include "src/light.cpp"

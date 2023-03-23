@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "status.h"
 #include "engine.h"
-#include "input.h"
 #include "mapinfo.h"
 
 BEGIN_PS_NS
