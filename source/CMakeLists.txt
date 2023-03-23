@@ -662,7 +662,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/blood.cpp
 	games/blood/src/callback.cpp
 	games/blood/src/choke.cpp
-	games/blood/src/controls.cpp
 	games/blood/src/db.cpp
 	games/blood/src/dude.cpp
 	games/blood/src/d_menu.cpp
@@ -815,14 +814,12 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/cd.cpp
 	games/exhumed/src/cheats.cpp
 	games/exhumed/src/d_menu.cpp
-	games/exhumed/src/enginesubs.cpp
 	games/exhumed/src/exhumed.cpp
 	games/exhumed/src/fish.cpp
 	games/exhumed/src/gameloop.cpp
 	games/exhumed/src/grenade.cpp
 	games/exhumed/src/gun.cpp
 	games/exhumed/src/init.cpp
-	games/exhumed/src/input.cpp
 	games/exhumed/src/items.cpp
 	games/exhumed/src/lavadude.cpp
 	games/exhumed/src/light.cpp
@@ -836,6 +833,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/object.cpp
 	games/exhumed/src/osdcmds.cpp
 	games/exhumed/src/player.cpp
+	games/exhumed/src/playerpickups.cpp
 	games/exhumed/src/queen.cpp
 	games/exhumed/src/ra.cpp
 	games/exhumed/src/ramses.cpp
