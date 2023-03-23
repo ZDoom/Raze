@@ -62,22 +62,14 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
 {
     mytspriteArray = &tsprites;
 
-    for (unsigned i = 0; i < tsprites.Size(); i++) 
-    {
-        auto pTSprite = tsprites.get(i);
-
-        if (pTSprite->ownerActor)
-        {
-            // interpolate sprite position
-            pTSprite->pos = pTSprite->ownerActor->interpolatedpos(interpfrac);
-            pTSprite->Angles.Yaw = pTSprite->ownerActor->interpolatedyaw(interpfrac);
-        }
-    }
-
     for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
         auto pTSprite = tsprites.get(nTSprite);
         auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
+
+        // interpolate sprite position
+        pTSprite->pos = pActor->interpolatedpos(interpfrac);
+        pTSprite->Angles.Yaw = pActor->interpolatedyaw(interpfrac);
 
         if (pTSprite->sectp != nullptr)
         {
