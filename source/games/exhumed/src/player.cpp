@@ -949,6 +949,22 @@ static void doPlayerInvisibility(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerInvincibility(Player* const pPlayer)
+{
+    pPlayer->invincibility--;
+
+    if (pPlayer->invincibility == 150 && pPlayer->nPlayer == nLocalPlayer)
+    {
+        PlayAlert(GStrings("TXT_EX_INVINCEX"));
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -991,12 +1007,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerInvisibility(pPlayer);
 
     if (pPlayer->invincibility > 0)
-    {
-        pPlayer->invincibility--;
-        if (pPlayer->invincibility == 150 && nPlayer == nLocalPlayer) {
-            PlayAlert(GStrings("TXT_EX_INVINCEX"));
-        }
-    }
+        doPlayerInvincibility(pPlayer);
 
     if (pPlayer->nQuake != 0)
     {
