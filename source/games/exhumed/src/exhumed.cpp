@@ -101,7 +101,6 @@ int EndLevel = 0;
 void ResetEngine()
 {
     EraseScreen(-1);
-    resettiming();
 }
 
 void GameInterface::loadPalette()
@@ -647,7 +646,6 @@ void GameInterface::app_init()
     seq_LoadSequences();
     InitStatus();
 
-    resettiming();
     GrabPalette();
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;

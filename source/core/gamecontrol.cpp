@@ -128,7 +128,6 @@ GameInterface* gi;
 int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXPLAYERS];
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-int lastTic;
 
 extern bool pauseext;
 

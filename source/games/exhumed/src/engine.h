@@ -40,7 +40,6 @@ inline Collision movespritevel(DExhumedActor* spritenum, const DVector3& pos, do
 }
 
 void precache();
-void resettiming();
 
 // cd
 

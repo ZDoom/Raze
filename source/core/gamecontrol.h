@@ -237,9 +237,6 @@ enum
 
 extern int paused;
 extern int chatmodeon;
-
-extern int lastTic;
-
 extern int PlayClock;
 
 enum gameaction_t : int

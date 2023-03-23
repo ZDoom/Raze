@@ -233,7 +233,6 @@ void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
 
 void GameInterface::Startup()
 {
-    resettiming();
     EndLevel = 0;
     PlayLogos(ga_mainmenu, ga_mainmenu, false);
 }
