@@ -908,6 +908,22 @@ static void doPlayerTorch(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerDouble(Player* const pPlayer)
+{
+    pPlayer->nDouble--;
+
+    if (pPlayer->nDouble == 150 && pPlayer->nPlayer == nLocalPlayer)
+    {
+        PlayAlert(GStrings("TXT_EX_WEAPONEX"));
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -944,12 +960,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerTorch(pPlayer);
 
     if (pPlayer->nDouble > 0)
-    {
-        pPlayer->nDouble--;
-        if (pPlayer->nDouble == 150 && nPlayer == nLocalPlayer) {
-            PlayAlert(GStrings("TXT_EX_WEAPONEX"));
-        }
-    }
+        doPlayerDouble(pPlayer);
 
     if (pPlayer->nInvisible > 0)
     {
