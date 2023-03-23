@@ -287,8 +287,10 @@ void DoGameOverScene(bool finallevel)
 //
 //---------------------------------------------------------------------------
 
-void GameMove(void)
+static void GameMove(void)
 {
+    UpdateInterpolations();
+
     FixPalette();
 
 	ExhumedSpriteIterator it;
@@ -462,32 +464,27 @@ static void updatePlayerWeapon(Player* const pPlayer)
 
 void GameInterface::Ticker()
 {
-
 	if (paused)
 	{
 		r_NoInterpolate = true;
 	}
     else if (EndLevel == 0)
     {
-        // Shorten some constant array accesses.
-        const auto pPlayer = &PlayerList[nLocalPlayer];
-
-        // this must be done before the view is backed up.
-        pPlayer->Angles.resetCameraAngles();
-
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 
-        // set new player input.
-        pPlayer->input = playercmds[nLocalPlayer].ucmd;
+        for (int i = connecthead; i >= 0; i = connectpoint2[i])
+        {
+            const auto pPlayer = &PlayerList[i];
+            pPlayer->Angles.resetCameraAngles();
+            pPlayer->input = playercmds[i].ucmd;
+            updatePlayerVelocity(pPlayer);
+            updatePlayerInventory(pPlayer);
+            updatePlayerWeapon(pPlayer);
+        }
 
-        UpdateInterpolations();
-
-        updatePlayerVelocity(pPlayer);
-        updatePlayerInventory(pPlayer);
-        updatePlayerWeapon(pPlayer);
-
-        pPlayer->pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
+        // this setup needs rewriting to work for all players in an MP game.
+        PlayerList[nLocalPlayer].pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 
         GameMove();
 
@@ -594,6 +591,10 @@ void GameInterface::app_init()
     GrabPalette();
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
+
+    myconnectindex = connecthead = 0;
+    numplayers = 1;
+    connectpoint2[0] = -1;
 }
 
 //---------------------------------------------------------------------------

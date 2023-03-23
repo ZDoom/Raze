@@ -55,7 +55,6 @@ BEGIN_PS_NS
 int nBestLevel;
 
 void RunCinemaScene(int num);
-void GameMove(void);
 void DrawClock();
 double calc_interpfrac();
 void DoTitle(CompletionFunc completion);
