@@ -351,6 +351,33 @@ void GameMove(void)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerVelocity(Player* const pPlayer)
+{
+    const auto pInput = &pPlayer->input;
+
+    if (pPlayer->nHealth > 0)
+    {
+        const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayer->pActor->spr.Angles.Yaw) * 0.375;
+
+        for (int i = 0; i < 4; i++)
+        {
+            pPlayer->vel += inputvect;
+            pPlayer->vel *= 0.953125;
+        }
+    }
+    else
+    {
+        pInput->fvel = pInput->svel = pInput->avel = pInput->horz = 0;
+        pPlayer->vel.Zero();
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerInventory(Player* const pPlayer)
 {
     if (const auto invDir = !!(pPlayer->input.actions & SB_INVNEXT) - !!(pPlayer->input.actions & SB_INVPREV))
@@ -444,7 +471,6 @@ void GameInterface::Ticker()
     {
         // Shorten some constant array accesses.
         const auto pPlayer = &PlayerList[nLocalPlayer];
-        auto& pInput = pPlayer->input;
 
         // this must be done before the view is backed up.
         pPlayer->Angles.resetCameraAngles();
@@ -453,26 +479,11 @@ void GameInterface::Ticker()
         resetForcedSyncInput();
 
         // set new player input.
-        pInput = playercmds[nLocalPlayer].ucmd;
+        pPlayer->input = playercmds[nLocalPlayer].ucmd;
 
-        const auto inputvect = DVector2(pInput.fvel, pInput.svel).Rotated(pPlayer->pActor->spr.Angles.Yaw) * 0.375;
-
-        for (int i = 0; i < 4; i++)
-        {
-            // Velocities are stored as Q14.18
-            pPlayer->vel += inputvect;
-            pPlayer->vel *= 0.953125;
-        }
         UpdateInterpolations();
 
-        if (pPlayer->nHealth <= 0)
-        {
-            setForcedSyncInput();
-            auto& packet = pInput;
-            packet.fvel = packet.svel = packet.avel = packet.horz = 0;
-            pPlayer->vel.Zero();
-        }
-
+        updatePlayerVelocity(pPlayer);
         updatePlayerInventory(pPlayer);
         updatePlayerWeapon(pPlayer);
 
