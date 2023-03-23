@@ -254,6 +254,8 @@ void RestartPlayer(int nPlayer)
 
     DExhumedActor* floorsprt;
 
+    plr->nPlayer = nPlayer;
+
 	if (pActor)
 	{
         runlist_DoSubRunRec(pActor->spr.intowner);
