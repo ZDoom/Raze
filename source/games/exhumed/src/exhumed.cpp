@@ -345,13 +345,6 @@ void GameMove(void)
     totalmoves++;
 }
 
-static int SelectAltWeapon(int weap2)
-{
-    // todo
-    return 0;
-}
-
-
 //---------------------------------------------------------------------------
 //
 //
@@ -403,6 +396,43 @@ static void updatePlayerInventory(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerWeapon(Player* const pPlayer)
+{
+    const auto currWeap = pPlayer->nCurrentWeapon;
+    auto weap2 = pPlayer->input.getNewWeapon();
+
+    if (const auto weapDir = (weap2 == WeaponSel_Next) - (weap2 == WeaponSel_Prev))
+    {
+        auto wrapFwd = weapDir > 0 && currWeap == 6;
+        auto wrapBck = weapDir < 0 && currWeap == 0;
+        auto newWeap = wrapFwd ? 0 : wrapBck ? 6 : (currWeap + weapDir);
+        auto hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
+
+        while (newWeap && (!hasWeap || (hasWeap && !pPlayer->nAmmo[newWeap])))
+        {
+            newWeap += weapDir;
+            if (newWeap > 6) newWeap = 0;
+            hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
+        }
+
+        pPlayer->input.setNewWeapon(newWeap + 1);
+    }
+    else if (weap2 == WeaponSel_Alt)
+    {
+        // todo
+    }
+
+    // make weapon selection persist until it gets used up.
+    if (weap2 <= 0 || weap2 > 7)
+        pPlayer->input.setNewWeapon(pPlayer->input.getNewWeapon());
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::Ticker()
 {
 
@@ -446,36 +476,7 @@ void GameInterface::Ticker()
         }
 
         updatePlayerInventory(pPlayer);
-
-        auto currWeap = pPlayer->nCurrentWeapon;
-        int weap2 = pInput.getNewWeapon();
-        if (weap2 == WeaponSel_Next)
-        {
-            auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
-            while (newWeap != 0 && (!(pPlayer->nPlayerWeapons & (1 << newWeap)) || (pPlayer->nPlayerWeapons & (1 << newWeap) && pPlayer->nAmmo[newWeap] == 0)))
-            {
-                newWeap++;
-                if (newWeap > 6) newWeap = 0;
-            }
-            pInput.setNewWeapon(newWeap + 1);
-        }
-        else if (weap2 == WeaponSel_Prev)
-        {
-            auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
-            while (newWeap != 0 && ((!(pPlayer->nPlayerWeapons & (1 << newWeap)) || (pPlayer->nPlayerWeapons & (1 << newWeap) && pPlayer->nAmmo[newWeap] == 0))))
-            {
-                newWeap--;
-            }
-            pInput.setNewWeapon(newWeap + 1);
-        }
-        else if (weap2 == WeaponSel_Alt)
-        {
-            weap2 = SelectAltWeapon(weap2);
-        }
-
-        // make weapon selection persist until it gets used up.
-        int weap = pInput.getNewWeapon();
-        if (weap2 <= 0 || weap2 > 7) pInput.setNewWeapon(weap);     
+        updatePlayerWeapon(pPlayer);
 
         pPlayer->pTarget = Ra[nLocalPlayer].pTarget = bestTarget;
 
