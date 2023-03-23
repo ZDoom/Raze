@@ -358,6 +358,51 @@ static int SelectAltWeapon(int weap2)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerInventory(Player* const pPlayer)
+{
+    if (const auto invDir = !!(pPlayer->input.actions & SB_INVNEXT) - !!(pPlayer->input.actions & SB_INVPREV))
+    {
+        int nItem = pPlayer->nItem;
+
+        int i;
+        for (i = 6; i > 0; i--)
+        {
+            nItem += invDir;
+            if (nItem < 0) nItem = 5;
+            else if (nItem == 6) nItem = 0;
+
+            if (pPlayer->items[nItem] != 0)
+                break;
+        }
+
+        if (i > 0) pPlayer->nItem = nItem;
+    }
+
+    if ((pPlayer->input.actions & SB_INVUSE) && pPlayer->nItem != -1)
+    {
+        pPlayer->input.setItemUsed(pPlayer->nItem);
+    }
+
+    for (int i = 0; i < 6; i++)
+    {
+        if (pPlayer->input.isItemUsed(i))
+        {
+            pPlayer->input.clearItemUsed(i);
+            if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
+            {
+                pPlayer->nCurrentItem = i;
+                break;
+            }
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::Ticker()
 {
 
@@ -400,63 +445,7 @@ void GameInterface::Ticker()
             pPlayer->vel.Zero();
         }
 
-        if (pInput.actions & SB_INVPREV)
-        {
-            int nItem = pPlayer->nItem;
-
-            int i;
-            for (i = 6; i > 0; i--)
-            {
-                nItem--;
-                if (nItem < 0) nItem = 5;
-
-                if (pPlayer->items[nItem] != 0)
-                    break;
-            }
-
-            if (i > 0) pPlayer->nItem = nItem;
-        }
-
-        if (pInput.actions & SB_INVNEXT)
-        {
-            int nItem = pPlayer->nItem;
-
-            int i;
-            for (i = 6; i > 0; i--)
-            {
-                nItem++;
-                if (nItem == 6) nItem = 0;
-
-                if (pPlayer->items[nItem] != 0)
-                    break;
-            }
-
-            if (i > 0) pPlayer->nItem = nItem;
-        }
-
-        if (pInput.actions & SB_INVUSE)
-        {
-            if (pPlayer->nItem != -1)
-            {
-                pInput.setItemUsed(pPlayer->nItem);
-            }
-        }
-
-        for (int i = 0; i < 6; i++)
-        {
-            if (pInput.isItemUsed(i))
-            {
-                pInput.clearItemUsed(i);
-                if (pPlayer->items[i] > 0)
-                {
-                    if (nItemMagic[i] <= pPlayer->nMagic)
-                    {
-                        pPlayer->nCurrentItem = i;
-                        break;
-                    }
-                }
-            }
-        }
+        updatePlayerInventory(pPlayer);
 
         auto currWeap = pPlayer->nCurrentWeapon;
         int weap2 = pInput.getNewWeapon();
