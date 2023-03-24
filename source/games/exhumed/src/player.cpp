@@ -444,7 +444,7 @@ void StartDeathSeq(int nPlayer, int nVal)
         }
     }
 
-    StopFiringWeapon(nPlayer);
+    PlayerList[nPlayer].bIsFiring = false;
 
     PlayerList[nPlayer].pActor->PrevAngles.Pitch = PlayerList[nPlayer].pActor->spr.Angles.Pitch = nullAngle;
     pActor->oviewzoffset = pActor->viewzoffset = -55;
@@ -1520,15 +1520,7 @@ sectdone:
                 }
             }
 
-            // was int var_38 = buttons & 0x8
-            if (pPlayer->input.actions & SB_FIRE)
-            {
-                FireWeapon(pPlayer->nPlayer);
-            }
-            else
-            {
-                StopFiringWeapon(pPlayer->nPlayer);
-            }
+            pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
         }
 
         updatePlayerAction(pPlayer);

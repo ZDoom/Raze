@@ -138,8 +138,6 @@ void SetNewWeapon(int nPlayer, int nWeapon);
 void SetNewWeaponImmediate(int nPlayer, int nWeapon);
 void SetNewWeaponIfBetter(int nPlayer, int nWeapon);
 void SelectNewWeapon(int nPlayer);
-void StopFiringWeapon(int nPlayer);
-void FireWeapon(int nPlayer);
 void CheckClip(int nPlayer);
 void MoveWeapons(int nPlayer);
 void DrawWeapons(double interpfrac);

@@ -248,18 +248,6 @@ void SelectNewWeapon(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void StopFiringWeapon(int nPlayer)
-{
-    PlayerList[nPlayer].bIsFiring = false;
-}
-
-void FireWeapon(int nPlayer)
-{
-    if (!PlayerList[nPlayer].bIsFiring) {
-        PlayerList[nPlayer].bIsFiring = true;
-    }
-}
-
 void SetWeaponStatus(int nPlayer)
 {
 }
