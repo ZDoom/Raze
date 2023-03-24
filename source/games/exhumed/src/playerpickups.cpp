@@ -81,6 +81,13 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal
 //
 //---------------------------------------------------------------------------
 
+enum
+{
+    kPickupProcess = 1,
+    kPickupOnConsole = 2,
+    kPickupDefaults = kPickupProcess | kPickupOnConsole,
+};
+
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -99,53 +106,17 @@ void doPlayerItemPickups(Player* const pPlayer)
             int tintRed = 0;
             int tintGreen = 16;
             int nSound = -1;
+            int pickFlag = 0;
             int var_40;
 
             switch (itemtype)
             {
-            do_default:
-            default:
-            {
-                // loc_1B3C7
-
-                // CHECKME - is order of evaluation correct?
-                if (!mplevel || (statBase >= 25 && (statBase <= 25 || statBase == 50)))
-                {
-                    // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
-                    if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
-                        DestroyAnim(pPickupActor);
-                    else
-                        DeleteActor(pPickupActor);
-                }
-                else
-                {
-                    StartRegenerate(pPickupActor);
-                }
-            do_default_b:
-                // loc_1BA74
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
-                break;
-            }
             case 0: // Speed Loader
             {
                 if (AddAmmo(pPlayer->nPlayer, 1, pPickupActor->spr.hitag))
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -155,7 +126,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (AddAmmo(pPlayer->nPlayer, 3, pPickupActor->spr.hitag))
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
                 break;
             }
@@ -165,7 +136,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     CheckClip(pPlayer->nPlayer);
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
                 break;
             }
@@ -206,7 +177,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                     else
                     {
-                        goto do_default;
+                        pickFlag |= kPickupDefaults;
                     }
                 }
                 break;
@@ -229,13 +200,13 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 45:
             case 52:
             {
-                goto do_default;
+                pickFlag |= kPickupDefaults;
             }
 
             case 5: // Map
             {
                 GrabMap();
-                goto do_default;
+                pickFlag |= kPickupDefaults;
             }
 
             case 6: // Berry Twig
@@ -304,7 +275,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                             tintGreen = 0;
                         }
 
-                        goto do_default;
+                        pickFlag |= kPickupDefaults;
                     }
                 }
 
@@ -373,7 +344,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                             tintGreen = 0;
                         }
 
-                        goto do_default;
+                        pickFlag |= kPickupDefaults;
                     }
                 }
 
@@ -442,7 +413,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                             tintGreen = 0;
                         }
 
-                        goto do_default;
+                        pickFlag |= kPickupDefaults;
                     }
                 }
 
@@ -468,7 +439,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 12: // Still Beating Heart
             {
                 if (GrabItem(pPlayer->nPlayer, kItemHeart)) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -477,7 +448,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 13: // Scarab amulet(Invicibility)
             {
                 if (GrabItem(pPlayer->nPlayer, kItemInvincibility)) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -486,7 +457,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 14: // Severed Slave Hand(double damage)
             {
                 if (GrabItem(pPlayer->nPlayer, kItemDoubleDamage)) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -495,7 +466,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 15: // Unseen eye(Invisibility)
             {
                 if (GrabItem(pPlayer->nPlayer, kItemInvisibility)) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -504,7 +475,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 16: // Torch
             {
                 if (GrabItem(pPlayer->nPlayer, kItemTorch)) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -513,7 +484,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 17: // Sobek Mask
             {
                 if (GrabItem(pPlayer->nPlayer, kItemMask)) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -531,7 +502,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                 tintGreen = 32;
                 tintRed = 32;
-                goto do_default;
+                pickFlag |= kPickupDefaults;
             }
 
             // FIXME - lots of repeated code from here down!!
@@ -570,7 +541,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 if (statBase <= 50) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -632,7 +603,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 if (statBase <= 50) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -694,7 +665,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 if (statBase <= 50) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -756,7 +727,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 if (statBase <= 50) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -818,7 +789,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 if (statBase <= 50) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -880,7 +851,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 if (statBase <= 50) {
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
@@ -910,7 +881,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (AddAmmo(pPlayer->nPlayer, 5, 1)) {
                     nSound = StaticSound[kSoundAmmoPickup];
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -920,7 +891,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag)) {
                     nSound = StaticSound[kSoundAmmoPickup];
-                    goto do_default;
+                    pickFlag |= kPickupDefaults;
                 }
 
                 break;
@@ -941,11 +912,11 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     if (nTotalPlayers > 1)
                     {
-                        goto do_default_b;
+                        pickFlag |= kPickupOnConsole;
                     }
                     else
                     {
-                        goto do_default;
+                        pickFlag |= kPickupDefaults;
                     }
                 }
 
@@ -966,7 +937,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     pPlayer->nMagic = 1000;
                 }
 
-                goto do_default;
+                pickFlag |= kPickupDefaults;
             }
 
             case 53: // Scarab (Checkpoint)
@@ -995,6 +966,40 @@ void doPlayerItemPickups(Player* const pPlayer)
                 DeleteActor(pPickupActor);
                 break;
             }
+            }
+
+            if (pickFlag & kPickupProcess)
+            {
+                if (!mplevel || (statBase >= 25 && (statBase <= 25 || statBase == 50)))
+                {
+                    // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
+                    if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
+                    {
+                        DestroyAnim(pPickupActor);
+                    }
+                    else
+                    {
+                        DeleteActor(pPickupActor);
+                    }
+                }
+                else
+                {
+                    StartRegenerate(pPickupActor);
+                }
+            }
+
+            if (pickFlag & kPickupOnConsole)
+            {
+                if (pPlayer->nPlayer == nLocalPlayer)
+                {
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
+                        pickupMessage(statBase);
+
+                    if (nSound > -1)
+                        PlayLocalSound(nSound, 0);
+
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
+                }
             }
         }
     }
