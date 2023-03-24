@@ -899,6 +899,24 @@ static void doPlayerRamses(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerGravity(DExhumedActor* const pPlayerActor)
+{
+    // Z vel is modified within Gravity() and needs backing up.
+    const double zVel = pPlayerActor->vel.Z;
+    Gravity(pPlayerActor);
+
+    if (pPlayerActor->vel.Z >= 6500/256. && zVel < 6500 / 256.)
+    {
+        D3PlayFX(StaticSound[kSound17], pPlayerActor);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1147,16 +1165,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerQuake(pPlayer);
 
     doPlayerYaw(pPlayer);
-
-    // player.zvel is modified within Gravity()
-	double zVel = pPlayerActor->vel.Z;
-
-    Gravity(pPlayerActor);
-
-    if (pPlayerActor->vel.Z >= 6500/256. && zVel < 6500 / 256.)
-    {
-        D3PlayFX(StaticSound[kSound17], pPlayerActor);
-    }
+    doPlayerGravity(pPlayerActor);
 
     // loc_1A4E6
     auto pSector = pPlayerActor->sector();
@@ -1180,8 +1189,6 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     // TODO
     // nSectFlag & kSectUnderwater;
-
-    zVel = pPlayerActor->vel.Z;
 
     Collision nMove;
     nMove.setNone();
@@ -1208,12 +1215,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
     {
         ChangeActorSect(pPlayerActor, spr_sect);
-
 		pPlayerActor->spr.pos.XY() = spr_pos.XY();
-
-        if (zVel < pPlayerActor->vel.Z) {
-            pPlayerActor->vel.Z = zVel;
-        }
     }
 
     //			int _bTouchFloor = bTouchFloor;
@@ -1238,24 +1240,16 @@ void AIPlayer::Tick(RunListEvent* ev)
             // Damage stuff..
             pPlayer->nThrust /= 2;
 
-            if (nPlayer == nLocalPlayer)
+            if (nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2 && !pPlayer->pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting)
             {
-                double zVelB = zVel;
-
-                if (zVelB < 0) {
-                    zVelB = -zVelB;
-                }
-
-                if (zVelB > 2 && !pPlayer->pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting) {
-                    pPlayer->nDestVertPan = nullAngle;
-                }
+                pPlayer->nDestVertPan = nullAngle;
             }
 
-            if (zVel >= 6500 / 256.)
+            if (pPlayerActor->vel.Z >= 6500 / 256.)
             {
                 pPlayerActor->vel.XY() *= 0.25;
 
-                runlist_DamageEnemy(pPlayerActor, nullptr, ((int(zVel * 256) - 6500) >> 7) + 10);
+                runlist_DamageEnemy(pPlayerActor, nullptr, int(((pPlayerActor->vel.Z * 256) - 6500) * (1. / 128.)) + 10);
 
                 if (pPlayer->nHealth <= 0)
                 {
