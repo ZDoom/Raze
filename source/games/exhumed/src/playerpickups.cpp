@@ -133,8 +133,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     StartRegenerate(pPickupActor);
                 }
-
-                doConsoleMessage();
             };
             const auto doPickupWeapon = [&]()
             {
@@ -166,8 +164,9 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pPickupActor);
-                    doConsoleMessage();
                 }
+
+                doConsoleMessage();
             };
             const auto doPickupHealth = [&]()
             {
@@ -193,7 +192,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                         pPickupActor->spr.hitag = 0;
                         pPickupActor->spr.picnum++;
                         ChangeActorStat(pPickupActor, 0);
-                        doConsoleMessage();
                     }
                     else
                     {
@@ -210,6 +208,8 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                         doProcessPickup();
                     }
+
+                    doConsoleMessage();
                 }
             };
 
@@ -220,6 +220,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -228,6 +229,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -237,6 +239,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     nSound = StaticSound[kSoundAmmoPickup];
                     CheckClip(pPlayer->nPlayer);
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -257,12 +260,13 @@ void doPlayerItemPickups(Player* const pPlayer)
                     {
                         pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                         DestroyItemAnim(pPickupActor);
-                        doConsoleMessage();
                     }
                     else
                     {
                         doProcessPickup();
                     }
+
+                    doConsoleMessage();
                 }
                 break;
 
@@ -283,11 +287,13 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 45:
             case 52:
                 doProcessPickup();
+                doConsoleMessage();
                 break;
 
             case 5: // Map
                 GrabMap();
                 doProcessPickup();
+                doConsoleMessage();
                 break;
 
             case 6: // Berry Twig
@@ -331,6 +337,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, kItemHeart))
                 {
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -338,6 +345,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, kItemInvincibility))
                 {
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -345,6 +353,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, kItemDoubleDamage))
                 {
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -352,6 +361,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, kItemInvisibility))
                 {
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -359,6 +369,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, kItemTorch))
                 {
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -366,6 +377,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, kItemMask))
                 {
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -376,6 +388,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     tintGreen = 32;
                     tintRed = 32;
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -425,6 +438,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -433,6 +447,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
@@ -447,15 +462,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (!(pPlayer->keys & keybit))
                 {
                     pPlayer->keys |= keybit;
-
-                    if (nTotalPlayers > 1)
-                    {
-                        doConsoleMessage();
-                    }
-                    else
-                    {
-                        doProcessPickup();
-                    }
+                    doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
             }
@@ -474,6 +482,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
 
                     doProcessPickup();
+                    doConsoleMessage();
                 }
                 break;
 
