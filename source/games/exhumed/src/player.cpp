@@ -752,87 +752,81 @@ void AIPlayer::Damage(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerCurrentItem(Player* const pPlayer)
+static void doPlayerCounters(Player* const pPlayer)
 {
-    UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
-    pPlayer->nCurrentItem = -1;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerTorch(Player* const pPlayer)
-{
-    pPlayer->nTorch--;
-
-    if (pPlayer->nTorch == 0)
+    if (pPlayer->nCurrentItem > -1)
     {
-        SetTorch(pPlayer->nPlayer, 0);
+        UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
+        pPlayer->nCurrentItem = -1;
     }
-    else if (pPlayer->nPlayer != nLocalPlayer)
+
+    if (pPlayer->nTorch > 0)
     {
-        nFlashDepth = 5;
-        AddFlash(pPlayer->pActor->sector(), pPlayer->pActor->spr.pos, 0);
-    }
-}
+        pPlayer->nTorch--;
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerDouble(Player* const pPlayer)
-{
-    pPlayer->nDouble--;
-
-    if (pPlayer->nDouble == 150 && pPlayer->nPlayer == nLocalPlayer)
-    {
-        PlayAlert(GStrings("TXT_EX_WEAPONEX"));
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerInvisibility(Player* const pPlayer)
-{
-    pPlayer->nInvisible--;
-
-    if (pPlayer->nInvisible == 0)
-    {
-        pPlayer->pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
-
-        if (pPlayer->pPlayerFloorSprite) 
+        if (pPlayer->nTorch == 0)
         {
-            pPlayer->pPlayerFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+            SetTorch(pPlayer->nPlayer, 0);
+        }
+        else if (pPlayer->nPlayer != nLocalPlayer)
+        {
+            nFlashDepth = 5;
+            AddFlash(pPlayer->pActor->sector(), pPlayer->pActor->spr.pos, 0);
         }
     }
-    else if (pPlayer->nInvisible == 150 && pPlayer->nPlayer == nLocalPlayer)
+
+    if (pPlayer->nDouble > 0)
     {
-        PlayAlert(GStrings("TXT_EX_INVISEX"));
+        pPlayer->nDouble--;
+
+        if (pPlayer->nDouble == 150 && pPlayer->nPlayer == nLocalPlayer)
+        {
+            PlayAlert(GStrings("TXT_EX_WEAPONEX"));
+        }
     }
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerInvincibility(Player* const pPlayer)
-{
-    pPlayer->invincibility--;
-
-    if (pPlayer->invincibility == 150 && pPlayer->nPlayer == nLocalPlayer)
+    if (pPlayer->nInvisible > 0)
     {
-        PlayAlert(GStrings("TXT_EX_INVINCEX"));
+        pPlayer->nInvisible--;
+
+        if (pPlayer->nInvisible == 0)
+        {
+            pPlayer->pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+
+            if (pPlayer->pPlayerFloorSprite) 
+            {
+                pPlayer->pPlayerFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+            }
+        }
+        else if (pPlayer->nInvisible == 150 && pPlayer->nPlayer == nLocalPlayer)
+        {
+            PlayAlert(GStrings("TXT_EX_INVISEX"));
+        }
+    }
+
+    if (pPlayer->invincibility > 0)
+    {
+        pPlayer->invincibility--;
+
+        if (pPlayer->invincibility == 150 && pPlayer->nPlayer == nLocalPlayer)
+        {
+            PlayAlert(GStrings("TXT_EX_INVINCEX"));
+        }
+    }
+
+    if (pPlayer->nQuake != 0)
+    {
+        pPlayer->nQuake = -pPlayer->nQuake;
+
+        if (pPlayer->nQuake > 0)
+        {
+            pPlayer->nQuake -= 2.;
+
+            if (pPlayer->nQuake < 0)
+            {
+                pPlayer->nQuake = 0;
+            }
+        }
     }
 }
 
@@ -917,27 +911,6 @@ static void doPlayerBreath(Player* const pPlayer)
 
     if (pPlayer->nAir < 100)
         pPlayer->nAir = 100;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerQuake(Player* const pPlayer)
-{
-    pPlayer->nQuake = -pPlayer->nQuake;
-
-    if (pPlayer->nQuake > 0)
-    {
-        pPlayer->nQuake -= 2.;
-
-        if (pPlayer->nQuake < 0)
-        {
-            pPlayer->nQuake = 0;
-        }
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -1564,24 +1537,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
     pPlayerActor->vel.XY() = pPlayer->vel;
 
-    if (pPlayer->nCurrentItem > -1)
-        doPlayerCurrentItem(pPlayer);
-
-    if (pPlayer->nTorch > 0)
-        doPlayerTorch(pPlayer);
-
-    if (pPlayer->nDouble > 0)
-        doPlayerDouble(pPlayer);
-
-    if (pPlayer->nInvisible > 0)
-        doPlayerInvisibility(pPlayer);
-
-    if (pPlayer->invincibility > 0)
-        doPlayerInvincibility(pPlayer);
-
-    if (pPlayer->nQuake != 0)
-        doPlayerQuake(pPlayer);
-
+    doPlayerCounters(pPlayer);
     doPlayerYaw(pPlayer);
     doPlayerGravity(pPlayerActor);
 
