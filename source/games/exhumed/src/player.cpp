@@ -926,14 +926,163 @@ static void doPlayerQuake(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void updatePlayerAction(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const bool bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
+    int nActionB = pPlayer->nAction;
+    int var_48 = 0;
+
+    if (!pPlayer->bIsMummified)
+    {
+        // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->spr.sector so we can make this code a bit neater. Don't assume pPlayerActor->spr.sector == nSector here!!
+        if (nStandHeight > (pPlayerActor->sector()->floorz - pPlayerActor->sector()->ceilingz)) {
+            var_48 = 1;
+        }
+
+        // Jumping
+        if (pPlayer->input.actions & SB_JUMP)
+        {
+            if (bUnderwater)
+            {
+                pPlayerActor->vel.Z = -8;
+                nActionB = 10;
+            }
+            else if (bTouchFloor)
+            {
+                if (pPlayer->nAction < 6 || pPlayer->nAction > 8)
+                {
+                    pPlayerActor->vel.Z = -14;
+                    nActionB = 3;
+                }
+            }
+        }
+        else if (pPlayer->input.actions & SB_CROUCH)
+        {
+            if (bUnderwater)
+            {
+                pPlayerActor->vel.Z = 8;
+                nActionB = 10;
+            }
+            else
+            {
+                if (pPlayerActor->viewzoffset < -32.5) {
+                    pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
+                }
+
+            loc_1BD2E:
+                if (pPlayer->totalvel < 1) {
+                    nActionB = 6;
+                }
+                else {
+                    nActionB = 7;
+                }
+            }
+        }
+        else
+        {
+            if (pPlayer->nHealth > 0)
+            {
+                pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
+
+                if (bUnderwater)
+                {
+                    if (pPlayer->totalvel <= 1)
+                        nActionB = 9;
+                    else
+                        nActionB = 10;
+                }
+                else
+                {
+                    // CHECKME - confirm branching in this area is OK
+                    if (var_48)
+                    {
+                        goto loc_1BD2E;
+                    }
+                    else
+                    {
+                        if (pPlayer->totalvel <= 1) {
+                            nActionB = 0;//bUnderwater; // this is just setting to 0
+                        }
+                        else if (pPlayer->totalvel <= 30) {
+                            nActionB = 2;
+                        }
+                        else
+                        {
+                            nActionB = 1;
+                        }
+                    }
+                }
+            }
+            // loc_1BE30
+            if (pPlayer->input.actions & SB_FIRE) // was var_38
+            {
+                if (bUnderwater)
+                {
+                    nActionB = 11;
+                }
+                else
+                {
+                    if (nActionB != 2 && nActionB != 1)
+                    {
+                        nActionB = 5;
+                    }
+                }
+            }
+        }
+
+        // loc_1BE70:
+        // Handle player pressing number keys to change weapon
+        if (uint8_t var_90 = pPlayer->input.getNewWeapon())
+        {
+            var_90--;
+
+            if (pPlayer->nPlayerWeapons & (1 << var_90))
+            {
+                SetNewWeapon(pPlayer->nPlayer, var_90);
+            }
+        }
+    }
+    else // player is mummified
+    {
+        if (pPlayer->input.actions & SB_FIRE)
+        {
+            FireWeapon(pPlayer->nPlayer);
+        }
+
+        if (pPlayer->nAction != 15)
+        {
+            if (pPlayer->totalvel <= 1)
+            {
+                nActionB = 13;
+            }
+            else
+            {
+                nActionB = 14;
+            }
+        }
+    }
+
+    // loc_1BF09
+    if (nActionB != pPlayer->nAction && pPlayer->nAction != 4)
+    {
+        pPlayer->nAction = nActionB;
+        pPlayer->nSeqSize = 0;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
 
 void AIPlayer::Tick(RunListEvent* ev)
 {
-    int var_48 = 0;
-
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
@@ -941,12 +1090,9 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayerActor = pPlayer->pActor;
 
     DExhumedActor* pDopple = pPlayer->pDoppleSprite;
-
-    int nActionB = pPlayer->nAction;
-
-    pPlayerActor->vel.XY() = pPlayer->vel;
-    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
+    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
+    pPlayerActor->vel.XY() = pPlayer->vel;
 
     if (pPlayer->nCurrentItem > -1)
         doPlayerCurrentItem(pPlayer);
@@ -1377,149 +1523,15 @@ sectdone:
             // was int var_38 = buttons & 0x8
             if (pPlayer->input.actions & SB_FIRE)
             {
-                FireWeapon(nPlayer);
+                FireWeapon(pPlayer->nPlayer);
             }
             else
             {
-                StopFiringWeapon(nPlayer);
-            }
-
-            // loc_1BC57:
-
-            // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->spr.sector so we can make this code a bit neater. Don't assume pPlayerActor->spr.sector == nSector here!!
-            if (nStandHeight > (pPlayerActor->sector()->floorz - pPlayerActor->sector()->ceilingz)) {
-                var_48 = 1;
-            }
-
-            // Jumping
-            if (pPlayer->input.actions & SB_JUMP)
-            {
-                if (bUnderwater)
-                {
-                    pPlayerActor->vel.Z = -8;
-                    nActionB = 10;
-                }
-                else if (bTouchFloor)
-                {
-                    if (pPlayer->nAction < 6 || pPlayer->nAction > 8)
-                    {
-                        pPlayerActor->vel.Z = -14;
-                        nActionB = 3;
-                    }
-                }
-            }
-            else if (pPlayer->input.actions & SB_CROUCH)
-            {
-                if (bUnderwater)
-                {
-					pPlayerActor->vel.Z = 8;
-                    nActionB = 10;
-                }
-                else
-                {
-                    if (pPlayerActor->viewzoffset < -32.5) {
-                        pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
-                    }
-
-                loc_1BD2E:
-                    if (pPlayer->totalvel < 1) {
-                        nActionB = 6;
-                    }
-                    else {
-                        nActionB = 7;
-                    }
-                }
-            }
-            else
-            {
-                if (pPlayer->nHealth > 0)
-                {
-                    pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
-
-                    if (bUnderwater)
-                    {
-                        if (pPlayer->totalvel <= 1)
-                            nActionB = 9;
-                        else
-                            nActionB = 10;
-                    }
-                    else
-                    {
-                        // CHECKME - confirm branching in this area is OK
-                        if (var_48)
-                        {
-                            goto loc_1BD2E;
-                        }
-                        else
-                        {
-                            if (pPlayer->totalvel <= 1) {
-                                nActionB = 0;//bUnderwater; // this is just setting to 0
-                            }
-                            else if (pPlayer->totalvel <= 30) {
-                                nActionB = 2;
-                            }
-                            else
-                            {
-                                nActionB = 1;
-                            }
-                        }
-                    }
-                }
-                // loc_1BE30
-                if (pPlayer->input.actions & SB_FIRE) // was var_38
-                {
-                    if (bUnderwater)
-                    {
-                        nActionB = 11;
-                    }
-                    else
-                    {
-                        if (nActionB != 2 && nActionB != 1)
-                        {
-                            nActionB = 5;
-                        }
-                    }
-                }
-            }
-
-            // loc_1BE70:
-            // Handle player pressing number keys to change weapon
-            if (uint8_t var_90 = pPlayer->input.getNewWeapon())
-            {
-                var_90--;
-
-                if (pPlayer->nPlayerWeapons & (1 << var_90))
-                {
-                    SetNewWeapon(nPlayer, var_90);
-                }
-            }
-        }
-        else // player is mummified
-        {
-            if (pPlayer->input.actions & SB_FIRE)
-            {
-                FireWeapon(nPlayer);
-            }
-
-            if (pPlayer->nAction != 15)
-            {
-                if (pPlayer->totalvel <= 1)
-                {
-                    nActionB = 13;
-                }
-                else
-                {
-                    nActionB = 14;
-                }
+                StopFiringWeapon(pPlayer->nPlayer);
             }
         }
 
-        // loc_1BF09
-        if (nActionB != pPlayer->nAction && pPlayer->nAction != 4)
-        {
-            pPlayer->nAction = nActionB;
-            pPlayer->nSeqSize = 0;
-        }
+        updatePlayerAction(pPlayer);
 
         if (SyncInput())
         {
