@@ -334,15 +334,8 @@ void doPlayerItemPickups(Player* const pPlayer)
             }
 
             case 31: // Cobra staff ammo
-                if (AddAmmo(pPlayer->nPlayer, 5, 1))
-                {
-                    doProcessPickup();
-                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
-                }
-                break;
-
             case 32: // Raw Energy
-                if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag))
+                if (AddAmmo(pPlayer->nPlayer, itemtype - 26, (itemtype == 32) ? pPickupActor->spr.hitag : 1))
                 {
                     doProcessPickup();
                     doConsoleMessage(StaticSound[kSoundAmmoPickup]);
@@ -355,7 +348,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 42: // Earth key
             {
                 const int keybit = 4096 << (itemtype - 39);
-
                 if (!(pPlayer->keys & keybit))
                 {
                     pPlayer->keys |= keybit;
@@ -372,9 +364,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     pPlayer->nMagic += 100;
 
                     if (pPlayer->nMagic >= 1000)
-                    {
                         pPlayer->nMagic = 1000;
-                    }
 
                     doProcessPickup();
                     doConsoleMessage(StaticSound[kSoundMana1]);
@@ -387,19 +377,13 @@ void doPlayerItemPickups(Player* const pPlayer)
                     pPickupActor->nIndex2++;
                     pPickupActor->nAction &= 0xEF;
                     pPickupActor->nIndex = 0;
-
                     ChangeActorStat(pPickupActor, 899);
                 }
-
                 SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw);
                 break;
 
             case 54: // Golden Sarcophagus (End Level)
-                if (!bInDemo)
-                {
-                    LevelFinished();
-                }
-
+                if (!bInDemo) LevelFinished();
                 DestroyItemAnim(pPickupActor);
                 DeleteActor(pPickupActor);
                 break;
