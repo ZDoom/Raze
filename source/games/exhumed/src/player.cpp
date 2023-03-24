@@ -1168,10 +1168,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     doPlayerGravity(pPlayerActor);
 
     // loc_1A4E6
-    auto pSector = pPlayerActor->sector();
     int nSectFlag = pPlayer->pPlayerViewSect->Flag;
-
-    auto playerPos = pPlayerActor->spr.pos.XY();
 
     DVector2 vect = pPlayer->vel;
     double zz = pPlayerActor->vel.Z;
@@ -1184,8 +1181,8 @@ void AIPlayer::Tick(RunListEvent* ev)
         vect *= 0.5;
     }
 
-	auto spr_pos = pPlayerActor->spr.pos;
-    auto spr_sect = pPlayerActor->sector();
+    const auto spr_pos = pPlayerActor->spr.pos;
+    const auto spr_sect = pPlayerActor->sector();
 
     // TODO
     // nSectFlag & kSectUnderwater;
@@ -1331,11 +1328,8 @@ void AIPlayer::Tick(RunListEvent* ev)
         pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     }
 
-    playerPos -= pPlayerActor->spr.pos.XY();
-
-
     pPlayer->ototalvel = pPlayer->totalvel;
-    pPlayer->totalvel = int(playerPos.Length() * worldtoint);
+    pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
 
     auto pViewSect = pPlayerActor->sector();
 
@@ -1523,11 +1517,11 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        if (pSector != pPlayerActor->sector())
+        if (spr_sect != pPlayerActor->sector())
         {
-            if (pSector->lotag > 0)
+            if (spr_sect->lotag > 0)
             {
-                runlist_SignalRun(pSector->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
+                runlist_SignalRun(spr_sect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
             }
 
             if (pPlayerActor->sector()->lotag > 0)
