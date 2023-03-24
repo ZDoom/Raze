@@ -966,7 +966,6 @@ static void updatePlayerAction(Player* const pPlayer)
                     pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
                 }
 
-            loc_1BD2E:
                 nextAction = 7 - (pPlayer->totalvel < 1);
             }
         }
@@ -984,7 +983,7 @@ static void updatePlayerAction(Player* const pPlayer)
                 {
                     // CHECKME - confirm branching in this area is OK
                     // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->sector() so we can make this code a bit neater. Don't assume pPlayerActor->sector() == nSector here!!
-                    goto loc_1BD2E;
+                    nextAction = 7 - (pPlayer->totalvel < 1);
                 }
                 else
                 {
