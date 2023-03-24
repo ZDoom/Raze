@@ -933,32 +933,23 @@ static void doPlayerQuake(Player* const pPlayer)
 static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const bool bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
-    int nActionB = pPlayer->nAction;
-    int var_48 = 0;
+    const auto pPlayerSect = pPlayerActor->sector();
+    const bool bUnderwater = pPlayerSect->Flag & kSectUnderwater;
+    int nextAction = pPlayer->nAction;
 
     if (!pPlayer->bIsMummified)
     {
-        // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->spr.sector so we can make this code a bit neater. Don't assume pPlayerActor->spr.sector == nSector here!!
-        if (nStandHeight > (pPlayerActor->sector()->floorz - pPlayerActor->sector()->ceilingz)) {
-            var_48 = 1;
-        }
-
-        // Jumping
         if (pPlayer->input.actions & SB_JUMP)
         {
             if (bUnderwater)
             {
                 pPlayerActor->vel.Z = -8;
-                nActionB = 10;
+                nextAction = 10;
             }
-            else if (bTouchFloor)
+            else if (bTouchFloor && (pPlayer->nAction < 6 || pPlayer->nAction > 8))
             {
-                if (pPlayer->nAction < 6 || pPlayer->nAction > 8)
-                {
-                    pPlayerActor->vel.Z = -14;
-                    nActionB = 3;
-                }
+                pPlayerActor->vel.Z = -14;
+                nextAction = 3;
             }
         }
         else if (pPlayer->input.actions & SB_CROUCH)
@@ -966,21 +957,17 @@ static void updatePlayerAction(Player* const pPlayer)
             if (bUnderwater)
             {
                 pPlayerActor->vel.Z = 8;
-                nActionB = 10;
+                nextAction = 10;
             }
             else
             {
-                if (pPlayerActor->viewzoffset < -32.5) {
+                if (pPlayerActor->viewzoffset < -32.5)
+                {
                     pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
                 }
 
             loc_1BD2E:
-                if (pPlayer->totalvel < 1) {
-                    nActionB = 6;
-                }
-                else {
-                    nActionB = 7;
-                }
+                nextAction = 7 - (pPlayer->totalvel < 1);
             }
         }
         else
@@ -991,59 +978,40 @@ static void updatePlayerAction(Player* const pPlayer)
 
                 if (bUnderwater)
                 {
-                    if (pPlayer->totalvel <= 1)
-                        nActionB = 9;
-                    else
-                        nActionB = 10;
+                    nextAction = 10 - (pPlayer->totalvel <= 1);
+                }
+                else if (nStandHeight > (pPlayerSect->floorz - pPlayerSect->ceilingz))
+                {
+                    // CHECKME - confirm branching in this area is OK
+                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->sector() so we can make this code a bit neater. Don't assume pPlayerActor->sector() == nSector here!!
+                    goto loc_1BD2E;
                 }
                 else
                 {
-                    // CHECKME - confirm branching in this area is OK
-                    if (var_48)
-                    {
-                        goto loc_1BD2E;
-                    }
-                    else
-                    {
-                        if (pPlayer->totalvel <= 1) {
-                            nActionB = 0;//bUnderwater; // this is just setting to 0
-                        }
-                        else if (pPlayer->totalvel <= 30) {
-                            nActionB = 2;
-                        }
-                        else
-                        {
-                            nActionB = 1;
-                        }
-                    }
+                    const auto totalvel = pPlayer->totalvel;
+                    nextAction = (totalvel <= 1) ? 0 : (totalvel <= 30) ? 2 : 1;
                 }
             }
-            // loc_1BE30
+
             if (pPlayer->input.actions & SB_FIRE) // was var_38
             {
                 if (bUnderwater)
                 {
-                    nActionB = 11;
+                    nextAction = 11;
                 }
-                else
+                else if (nextAction != 2 && nextAction != 1)
                 {
-                    if (nActionB != 2 && nActionB != 1)
-                    {
-                        nActionB = 5;
-                    }
+                    nextAction = 5;
                 }
             }
         }
 
-        // loc_1BE70:
         // Handle player pressing number keys to change weapon
-        if (uint8_t var_90 = pPlayer->input.getNewWeapon())
+        if (auto newWeap = pPlayer->input.getNewWeapon())
         {
-            var_90--;
-
-            if (pPlayer->nPlayerWeapons & (1 << var_90))
+            if (pPlayer->nPlayerWeapons & (1 << (newWeap--)))
             {
-                SetNewWeapon(pPlayer->nPlayer, var_90);
+                SetNewWeapon(pPlayer->nPlayer, newWeap);
             }
         }
     }
@@ -1051,26 +1019,18 @@ static void updatePlayerAction(Player* const pPlayer)
     {
         if (pPlayer->input.actions & SB_FIRE)
         {
-            FireWeapon(pPlayer->nPlayer);
+            pPlayer->bIsFiring = true;
         }
 
         if (pPlayer->nAction != 15)
         {
-            if (pPlayer->totalvel <= 1)
-            {
-                nActionB = 13;
-            }
-            else
-            {
-                nActionB = 14;
-            }
+            nextAction = 14 - (pPlayer->totalvel <= 1);
         }
     }
 
-    // loc_1BF09
-    if (nActionB != pPlayer->nAction && pPlayer->nAction != 4)
+    if (nextAction != pPlayer->nAction && pPlayer->nAction != 4)
     {
-        pPlayer->nAction = nActionB;
+        pPlayer->nAction = nextAction;
         pPlayer->nSeqSize = 0;
     }
 }
