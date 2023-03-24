@@ -85,35 +85,22 @@ void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
-
-    int var_30 = 0;
-    int var_40;
-
-    if (pPlayer->nHealth >= 800)
-    {
-        var_30 = 2;
-    }
-
-    if (pPlayer->nMagic >= 1000)
-    {
-        var_30 |= 1;
-    }
-
-    DExhumedActor* pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), var_30, 48);
+    const auto nFlags = (pPlayer->nMagic >= 1000) + 2 * (pPlayer->nHealth >= 800);
+    const auto pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), nFlags, 48);
 
     if (pPickupActor != nullptr && pPickupActor->spr.statnum >= 900)
     {
-        int var_8C = 16;
-        int var_88 = 9;
-
-        int var_70 = pPickupActor->spr.statnum - 900;
-        int var_44 = 0;
-
         // item lotags start at 6 (1-5 reserved?) so 0-offset them
-        int itemtype = var_70 - 6;
+        const int statBase = pPickupActor->spr.statnum - 900;
+        const int itemtype = statBase - 6;
 
         if (itemtype <= 54)
         {
+            int tintRed = 0;
+            int tintGreen = 16;
+            int nSound = 9;
+            int var_40;
+
             switch (itemtype)
             {
             do_default:
@@ -122,7 +109,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 // loc_1B3C7
 
                 // CHECKME - is order of evaluation correct?
-                if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
+                if (!mplevel || (statBase >= 25 && (statBase <= 25 || statBase == 50)))
                 {
                     // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
                     if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
@@ -138,16 +125,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                 // loc_1BA74
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -157,7 +144,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (AddAmmo(pPlayer->nPlayer, 1, pPickupActor->spr.hitag))
                 {
-                    var_88 = StaticSound[kSoundAmmoPickup];
+                    nSound = StaticSound[kSoundAmmoPickup];
                     goto do_default;
                 }
 
@@ -167,7 +154,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (AddAmmo(pPlayer->nPlayer, 3, pPickupActor->spr.hitag))
                 {
-                    var_88 = StaticSound[kSoundAmmoPickup];
+                    nSound = StaticSound[kSoundAmmoPickup];
                     goto do_default;
                 }
                 break;
@@ -176,7 +163,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (AddAmmo(pPlayer->nPlayer, 2, pPickupActor->spr.hitag))
                 {
-                    var_88 = StaticSound[kSoundAmmoPickup];
+                    nSound = StaticSound[kSoundAmmoPickup];
                     CheckClip(pPlayer->nPlayer);
                     goto do_default;
                 }
@@ -188,14 +175,14 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (AddAmmo(pPlayer->nPlayer, 4, 1))
                 {
-                    var_88 = StaticSound[kSoundAmmoPickup];
+                    nSound = StaticSound[kSoundAmmoPickup];
                     if (!(pPlayer->nPlayerWeapons & 0x10))
                     {
                         pPlayer->nPlayerWeapons |= 0x10;
                         SetNewWeaponIfBetter(pPlayer->nPlayer, 4);
                     }
 
-                    if (var_70 == 55)
+                    if (statBase == 55)
                     {
                         pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                         DestroyItemAnim(pPickupActor);
@@ -203,16 +190,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
                         {
-                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                             {
-                                pickupMessage(var_70);
+                                pickupMessage(statBase);
                             }
 
-                            TintPalette(var_44 * 4, var_8C * 4, 0);
+                            TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                            if (var_88 > -1)
+                            if (nSound > -1)
                             {
-                                PlayLocalSound(var_88, 0);
+                                PlayLocalSound(nSound, 0);
                             }
                         }
                         break;
@@ -257,10 +244,10 @@ void doPlayerItemPickups(Player* const pPlayer)
                     break;
                 }
 
-                var_88 = 20;
+                nSound = 20;
                 int edx = 40;
 
-                if (edx <= 0 || (!(var_30 & 2)))
+                if (edx <= 0 || (!(nFlags & 2)))
                 {
                     if (!pPlayer->invincibility || edx > 0)
                     {
@@ -273,13 +260,13 @@ void doPlayerItemPickups(Player* const pPlayer)
                         {
                             if (pPlayer->nHealth < 0)
                             {
-                                var_88 = -1;
+                                nSound = -1;
                                 StartDeathSeq(pPlayer->nPlayer, 0);
                             }
                         }
                     }
 
-                    if (var_70 == 12)
+                    if (statBase == 12)
                     {
                         pPickupActor->spr.hitag = 0;
                         pPickupActor->spr.picnum++;
@@ -289,16 +276,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
                         {
-                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                             {
-                                pickupMessage(var_70);
+                                pickupMessage(statBase);
                             }
 
-                            TintPalette(var_44 * 4, var_8C * 4, 0);
+                            TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                            if (var_88 > -1)
+                            if (nSound > -1)
                             {
-                                PlayLocalSound(var_88, 0);
+                                PlayLocalSound(nSound, 0);
                             }
                         }
 
@@ -306,15 +293,15 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                     else
                     {
-                        if (var_70 != 14)
+                        if (statBase != 14)
                         {
-                            var_88 = 21;
+                            nSound = 21;
                         }
                         else
                         {
-                            var_44 = var_8C;
-                            var_88 = 22;
-                            var_8C = 0;
+                            tintRed = tintGreen;
+                            nSound = 22;
+                            tintGreen = 0;
                         }
 
                         goto do_default;
@@ -329,7 +316,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 int edx = 160;
 
                 // Same code as case 6 now till break
-                if (edx <= 0 || (!(var_30 & 2)))
+                if (edx <= 0 || (!(nFlags & 2)))
                 {
                     if (!pPlayer->invincibility || edx > 0)
                     {
@@ -342,13 +329,13 @@ void doPlayerItemPickups(Player* const pPlayer)
                         {
                             if (pPlayer->nHealth < 0)
                             {
-                                var_88 = -1;
+                                nSound = -1;
                                 StartDeathSeq(pPlayer->nPlayer, 0);
                             }
                         }
                     }
 
-                    if (var_70 == 12)
+                    if (statBase == 12)
                     {
                         pPickupActor->spr.hitag = 0;
                         pPickupActor->spr.picnum++;
@@ -358,16 +345,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
                         {
-                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                             {
-                                pickupMessage(var_70);
+                                pickupMessage(statBase);
                             }
 
-                            TintPalette(var_44 * 4, var_8C * 4, 0);
+                            TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                            if (var_88 > -1)
+                            if (nSound > -1)
                             {
-                                PlayLocalSound(var_88, 0);
+                                PlayLocalSound(nSound, 0);
                             }
                         }
 
@@ -375,15 +362,15 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                     else
                     {
-                        if (var_70 != 14)
+                        if (statBase != 14)
                         {
-                            var_88 = 21;
+                            nSound = 21;
                         }
                         else
                         {
-                            var_44 = var_8C;
-                            var_88 = 22;
-                            var_8C = 0;
+                            tintRed = tintGreen;
+                            nSound = 22;
+                            tintGreen = 0;
                         }
 
                         goto do_default;
@@ -398,7 +385,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 int edx = -200;
 
                 // Same code as case 6 and 7 from now till break
-                if (edx <= 0 || (!(var_30 & 2)))
+                if (edx <= 0 || (!(nFlags & 2)))
                 {
                     if (!pPlayer->invincibility || edx > 0)
                     {
@@ -411,13 +398,13 @@ void doPlayerItemPickups(Player* const pPlayer)
                         {
                             if (pPlayer->nHealth < 0)
                             {
-                                var_88 = -1;
+                                nSound = -1;
                                 StartDeathSeq(pPlayer->nPlayer, 0);
                             }
                         }
                     }
 
-                    if (var_70 == 12)
+                    if (statBase == 12)
                     {
                         pPickupActor->spr.hitag = 0;
                         pPickupActor->spr.picnum++;
@@ -427,16 +414,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                         if (pPlayer->nPlayer == nLocalPlayer)
                         {
-                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                             {
-                                pickupMessage(var_70);
+                                pickupMessage(statBase);
                             }
 
-                            TintPalette(var_44 * 4, var_8C * 4, 0);
+                            TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                            if (var_88 > -1)
+                            if (nSound > -1)
                             {
-                                PlayLocalSound(var_88, 0);
+                                PlayLocalSound(nSound, 0);
                             }
                         }
 
@@ -444,15 +431,15 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                     else
                     {
-                        if (var_70 != 14)
+                        if (statBase != 14)
                         {
-                            var_88 = 21;
+                            nSound = 21;
                         }
                         else
                         {
-                            var_44 = var_8C;
-                            var_88 = 22;
-                            var_8C = 0;
+                            tintRed = tintGreen;
+                            nSound = 22;
+                            tintGreen = 0;
                         }
 
                         goto do_default;
@@ -534,7 +521,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
             case 19: // Extra Life
             {
-                var_88 = -1;
+                nSound = -1;
 
                 if (pPlayer->nLives >= kMaxPlayerLives) {
                     break;
@@ -542,8 +529,8 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                 pPlayer->nLives++;
 
-                var_8C = 32;
-                var_44 = 32;
+                tintGreen = 32;
+                tintRed = 32;
                 goto do_default;
             }
 
@@ -575,14 +562,14 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
-                    var_88 = StaticSound[kSound72];
+                    nSound = StaticSound[kSound72];
                 }
 
                 if (var_40 == 2) {
                     CheckClip(pPlayer->nPlayer);
                 }
 
-                if (var_70 <= 50) {
+                if (statBase <= 50) {
                     goto do_default;
                 }
 
@@ -592,16 +579,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -637,14 +624,14 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
-                    var_88 = StaticSound[kSound72];
+                    nSound = StaticSound[kSound72];
                 }
 
                 if (var_40 == 2) {
                     CheckClip(pPlayer->nPlayer);
                 }
 
-                if (var_70 <= 50) {
+                if (statBase <= 50) {
                     goto do_default;
                 }
 
@@ -654,16 +641,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -699,14 +686,14 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
-                    var_88 = StaticSound[kSound72];
+                    nSound = StaticSound[kSound72];
                 }
 
                 if (var_40 == 2) {
                     CheckClip(pPlayer->nPlayer);
                 }
 
-                if (var_70 <= 50) {
+                if (statBase <= 50) {
                     goto do_default;
                 }
 
@@ -716,16 +703,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -761,14 +748,14 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
-                    var_88 = StaticSound[kSound72];
+                    nSound = StaticSound[kSound72];
                 }
 
                 if (var_40 == 2) {
                     CheckClip(pPlayer->nPlayer);
                 }
 
-                if (var_70 <= 50) {
+                if (statBase <= 50) {
                     goto do_default;
                 }
 
@@ -778,16 +765,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -823,14 +810,14 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
-                    var_88 = StaticSound[kSound72];
+                    nSound = StaticSound[kSound72];
                 }
 
                 if (var_40 == 2) {
                     CheckClip(pPlayer->nPlayer);
                 }
 
-                if (var_70 <= 50) {
+                if (statBase <= 50) {
                     goto do_default;
                 }
 
@@ -840,16 +827,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -885,14 +872,14 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
 
-                    var_88 = StaticSound[kSound72];
+                    nSound = StaticSound[kSound72];
                 }
 
                 if (var_40 == 2) {
                     CheckClip(pPlayer->nPlayer);
                 }
 
-                if (var_70 <= 50) {
+                if (statBase <= 50) {
                     goto do_default;
                 }
 
@@ -902,16 +889,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                         // loc_1BA74: - repeated block, see in default case
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
                     {
-                        pickupMessage(var_70);
+                        pickupMessage(statBase);
                     }
 
-                    TintPalette(var_44 * 4, var_8C * 4, 0);
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
 
-                    if (var_88 > -1)
+                    if (nSound > -1)
                     {
-                        PlayLocalSound(var_88, 0);
+                        PlayLocalSound(nSound, 0);
                     }
                 }
 
@@ -922,7 +909,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 31: // Cobra staff ammo
             {
                 if (AddAmmo(pPlayer->nPlayer, 5, 1)) {
-                    var_88 = StaticSound[kSoundAmmoPickup];
+                    nSound = StaticSound[kSoundAmmoPickup];
                     goto do_default;
                 }
 
@@ -932,7 +919,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 32: // Raw Energy
             {
                 if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag)) {
-                    var_88 = StaticSound[kSoundAmmoPickup];
+                    nSound = StaticSound[kSoundAmmoPickup];
                     goto do_default;
                 }
 
@@ -946,7 +933,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 int keybit = 4096 << (itemtype - 39);
 
-                var_88 = -1;
+                nSound = -1;
 
                 if (!(pPlayer->keys & keybit))
                 {
@@ -972,7 +959,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     break;
                 }
 
-                var_88 = StaticSound[kSoundMana1];
+                nSound = StaticSound[kSoundMana1];
 
                 pPlayer->nMagic += 100;
                 if (pPlayer->nMagic >= 1000) {
