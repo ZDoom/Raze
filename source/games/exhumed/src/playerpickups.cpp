@@ -84,8 +84,7 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal
 enum
 {
     kPickupProcess = 1,
-    kPickupOnConsole = 2,
-    kPickupDefaults = kPickupProcess | kPickupOnConsole,
+    kPickupDefaults = kPickupProcess,
     kPickupHealth = 4,
     kPickupWeapon = 8,
 };
@@ -111,6 +110,20 @@ void doPlayerItemPickups(Player* const pPlayer)
             int nAmount = 0;
             int nWeapon = 0;
             int pickFlag = 0;
+
+            const auto doConsoleMessage = [&]()
+            {
+                if (pPlayer->nPlayer == nLocalPlayer)
+                {
+                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
+                        pickupMessage(statBase);
+
+                    if (nSound > -1)
+                        PlayLocalSound(nSound, 0);
+
+                    TintPalette(tintRed * 4, tintGreen * 4, 0);
+                }
+            };
 
             switch (itemtype)
             {
@@ -156,7 +169,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     {
                         pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                         DestroyItemAnim(pPickupActor);
-                        pickFlag |= kPickupOnConsole;
+                        doConsoleMessage();
                     }
                     else
                     {
@@ -346,7 +359,15 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (!(pPlayer->keys & keybit))
                 {
                     pPlayer->keys |= keybit;
-                    pickFlag |= (nTotalPlayers > 1) ? kPickupOnConsole : kPickupDefaults;
+
+                    if (nTotalPlayers > 1)
+                    {
+                        doConsoleMessage();
+                    }
+                    else
+                    {
+                        pickFlag |= kPickupDefaults;
+                    }
                 }
                 break;
             }
@@ -416,7 +437,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         pPickupActor->spr.hitag = 0;
                         pPickupActor->spr.picnum++;
                         ChangeActorStat(pPickupActor, 0);
-                        pickFlag |= kPickupOnConsole;
+                        doConsoleMessage();
                     }
                     else
                     {
@@ -466,7 +487,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pPickupActor);
-                    pickFlag |= kPickupOnConsole;
+                    doConsoleMessage();
                 }
             }
 
@@ -487,20 +508,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                 else
                 {
                     StartRegenerate(pPickupActor);
-                }
-            }
-
-            if (pickFlag & kPickupOnConsole)
-            {
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                        pickupMessage(statBase);
-
-                    if (nSound > -1)
-                        PlayLocalSound(nSound, 0);
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
                 }
             }
         }
