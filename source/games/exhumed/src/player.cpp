@@ -1000,6 +1000,30 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerFloorActor(Player* const pPlayer)
+{
+    if (nTotalPlayers > 1)
+    {
+        if (DExhumedActor* const pFloorActor = pPlayer->pPlayerFloorSprite)
+        {
+            const auto pPlayerActor = pPlayer->pActor;
+            pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
+            pFloorActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+
+            if (pFloorActor->sector() != pPlayerActor->sector())
+            {
+                ChangeActorSect(pFloorActor, pPlayerActor->sector());
+            }
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1481,29 +1505,12 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        // loc_1B1EB
-        DExhumedActor* pFloorActor = pPlayer->pPlayerFloorSprite;
-        if (nTotalPlayers > 1 && pFloorActor)
-        {
-            pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
-
-            if (pFloorActor->sector() != pPlayerActor->sector())
-            {
-                ChangeActorSect(pFloorActor, pPlayerActor->sector());
-            }
-
-			pFloorActor->spr.pos.Z = pPlayerActor->sector()->floorz;
-        }
-
+        updatePlayerFloorActor(pPlayer);
         doPlayerItemPickups(pPlayer);
 
-        // CORRECT ? // loc_1BAF9:
-        if (bTouchFloor)
+        if (bTouchFloor && pPlayerActor->sector()->lotag > 0)
         {
-            if (pPlayerActor->sector()->lotag > 0)
-            {
-                runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
-            }
+            runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
         }
 
         if (spr_sect != pPlayerActor->sector())
