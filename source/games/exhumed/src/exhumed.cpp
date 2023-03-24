@@ -282,10 +282,9 @@ void DoGameOverScene(bool finallevel)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerTarget(const int nPlayer)
+static void updatePlayerTarget(Player* const pPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
-    const auto pRa = &Ra[nPlayer];
+    const auto pRa = &Ra[pPlayer->nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
     const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
 
@@ -330,7 +329,7 @@ static void updatePlayerTarget(const int nPlayer)
 
     if (bestTarget)
     {
-        if (nPlayer == nLocalPlayer) nCreepyTimer = kCreepyCount;
+        if (pPlayer->nPlayer == nLocalPlayer) nCreepyTimer = kCreepyCount;
 
         if (!cansee(pPlayerActor->spr.pos, pPlayerActor->sector(), bestTarget->spr.pos.plusZ(-GetActorHeight(bestTarget)), bestTarget->sector()))
         {
@@ -541,7 +540,7 @@ void GameInterface::Ticker()
             updatePlayerVelocity(pPlayer);
             updatePlayerInventory(pPlayer);
             updatePlayerWeapon(pPlayer);
-            updatePlayerTarget(i);
+            updatePlayerTarget(pPlayer);
         }
 
         GameMove();
