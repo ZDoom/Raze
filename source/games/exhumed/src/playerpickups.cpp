@@ -210,7 +210,9 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 11: // Bubble Nest
             {
                 pPlayer->nAir += 10;
-                if (pPlayer->nAir > 100) {
+
+                if (pPlayer->nAir > 100)
+                {
                     pPlayer->nAir = 100; // TODO - constant
                 }
 
@@ -224,75 +226,57 @@ void doPlayerItemPickups(Player* const pPlayer)
             }
 
             case 12: // Still Beating Heart
-            {
-                if (GrabItem(pPlayer->nPlayer, kItemHeart)) {
+                if (GrabItem(pPlayer->nPlayer, kItemHeart))
+                {
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 13: // Scarab amulet(Invicibility)
-            {
-                if (GrabItem(pPlayer->nPlayer, kItemInvincibility)) {
+                if (GrabItem(pPlayer->nPlayer, kItemInvincibility))
+                {
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 14: // Severed Slave Hand(double damage)
-            {
-                if (GrabItem(pPlayer->nPlayer, kItemDoubleDamage)) {
+                if (GrabItem(pPlayer->nPlayer, kItemDoubleDamage))
+                {
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 15: // Unseen eye(Invisibility)
-            {
-                if (GrabItem(pPlayer->nPlayer, kItemInvisibility)) {
+                if (GrabItem(pPlayer->nPlayer, kItemInvisibility))
+                {
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 16: // Torch
-            {
-                if (GrabItem(pPlayer->nPlayer, kItemTorch)) {
+                if (GrabItem(pPlayer->nPlayer, kItemTorch))
+                {
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 17: // Sobek Mask
-            {
-                if (GrabItem(pPlayer->nPlayer, kItemMask)) {
+                if (GrabItem(pPlayer->nPlayer, kItemMask))
+                {
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 19: // Extra Life
-            {
-                nSound = -1;
-
-                if (pPlayer->nLives >= kMaxPlayerLives) {
-                    break;
+                if (pPlayer->nLives < kMaxPlayerLives)
+                {
+                    pPlayer->nLives++;
+                    tintGreen = 32;
+                    tintRed = 32;
+                    pickFlag |= kPickupDefaults;
                 }
+                break;
 
-                pPlayer->nLives++;
-
-                tintGreen = 32;
-                tintRed = 32;
-                pickFlag |= kPickupDefaults;
-            }
-
-            // FIXME - lots of repeated code from here down!!
             case 20: // sword pickup??
             {
                 var_40 = 0;
