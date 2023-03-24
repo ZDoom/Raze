@@ -1170,19 +1170,12 @@ void AIPlayer::Tick(RunListEvent* ev)
     // loc_1A4E6
     int nSectFlag = pPlayer->pPlayerViewSect->Flag;
 
-    DVector2 vect = pPlayer->vel;
-    double zz = pPlayerActor->vel.Z;
+    const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
+    const auto spr_pos = pPlayerActor->spr.pos;
+    const auto spr_sect = pPlayerActor->sector();
 
     if (pPlayerActor->vel.Z > 32)
         pPlayerActor->vel.Z = 32;
-
-    if (pPlayer->bIsMummified)
-    {
-        vect *= 0.5;
-    }
-
-    const auto spr_pos = pPlayerActor->spr.pos;
-    const auto spr_sect = pPlayerActor->sector();
 
     // TODO
     // nSectFlag & kSectUnderwater;
@@ -1191,14 +1184,14 @@ void AIPlayer::Tick(RunListEvent* ev)
     nMove.setNone();
     if (bSlipMode)
     {
-        pPlayerActor->spr.pos += vect;
+        pPlayerActor->spr.pos += spr_vel.XY();
 
         SetActor(pPlayerActor, pPlayerActor->spr.pos);
         pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
     }
     else
     {
-        nMove = movesprite(pPlayerActor, vect, zz, -20, CLIPMASK0);
+        nMove = movesprite(pPlayerActor, spr_vel.XY(), spr_vel.Z, -20, CLIPMASK0);
 
         auto pPlayerSect = pPlayerActor->sector();
 
@@ -1308,7 +1301,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                         ChangeActorSect(pPlayerActor, spr_sect);
                     }
 
-                    movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
+                    movesprite(pPlayerActor, vel, spr_vel.Z, -20, CLIPMASK0);
                 }
                 else if (pPlayer->nPlayerPushSound != -1)
                 {
@@ -1363,7 +1356,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 double fz = pViewSect->floorz - 20;
                 pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
 
-                auto coll = movesprite(pPlayerActor, vect, 0, 0, CLIPMASK0);
+                auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
                     ChangeActorSect(pPlayerActor, pPlayerActor->sector());
