@@ -96,10 +96,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
         if (itemtype <= 54)
         {
-            int tintRed = 0;
-            int tintGreen = 16;
-
-            const auto doConsoleMessage = [&](const int nSound = -1)
+            const auto doConsoleMessage = [=](const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
             {
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
@@ -112,7 +109,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     TintPalette(tintRed * 4, tintGreen * 4, 0);
                 }
             };
-            const auto doProcessPickup = [&]()
+            const auto doProcessPickup = [=]()
             {
                 if (!mplevel || (statBase >= 25 && (statBase <= 25 || statBase == 50)))
                 {
@@ -131,7 +128,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     StartRegenerate(pPickupActor);
                 }
             };
-            const auto doPickupWeapon = [&](const int nWeapon, const int nAmount)
+            const auto doPickupWeapon = [=](const int nWeapon, const int nAmount)
             {
                 const int weapFlag = 1 << nWeapon;
 
@@ -164,10 +161,12 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                 doConsoleMessage(StaticSound[kSound72]);
             };
-            const auto doPickupHealth = [&](const int nAmount, int nSound = -1)
+            const auto doPickupHealth = [=](const int nAmount, int nSound = -1)
             {
                 if (nAmount <= 0 || (!(nFlags & 2)))
                 {
+                    int tintRed = 0, tintGreen = 16;
+
                     if (!pPlayer->invincibility || nAmount > 0)
                     {
                         pPlayer->nHealth += nAmount;
@@ -204,7 +203,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         doProcessPickup();
                     }
 
-                    doConsoleMessage(nSound);
+                    doConsoleMessage(nSound, tintRed, tintGreen);
                 }
             };
 
@@ -371,10 +370,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (pPlayer->nLives < kMaxPlayerLives)
                 {
                     pPlayer->nLives++;
-                    tintGreen = 32;
-                    tintRed = 32;
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(-1, 32, 32);
                 }
                 break;
 
