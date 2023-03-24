@@ -133,7 +133,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     StartRegenerate(pPickupActor);
                 }
             };
-            const auto doPickupWeapon = [=](const int nWeapon, const int nAmount)
+            const auto doPickupWeapon = [=](const int nWeapon, const int nAmount, const int nSound = kSound72)
             {
                 const int weapFlag = 1 << nWeapon;
 
@@ -154,17 +154,17 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (nWeapon == 2)
                     CheckClip(pPlayer->nPlayer);
 
-                if (statBase <= 50)
-                {
-                    doProcessPickup();
-                }
-                else
+                if (statBase > 50)
                 {
                     pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pPickupActor);
                 }
+                else
+                {
+                    doProcessPickup();
+                }
 
-                doConsoleMessage(StaticSound[kSound72]);
+                doConsoleMessage(StaticSound[nSound]);
             };
             const auto doPickupHealth = [=](const int nAmount, int nSound)
             {
@@ -222,35 +222,16 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 3: // Grenade
-            case 21:
+            case 21: // May not be grenade, needs confirmation
             case 49:
-                if (AddAmmo(pPlayer->nPlayer, 4, 1))
-                {
-                    if (!(pPlayer->nPlayerWeapons & 0x10))
-                    {
-                        pPlayer->nPlayerWeapons |= 0x10;
-                        SetNewWeaponIfBetter(pPlayer->nPlayer, 4);
-                    }
-
-                    if (statBase == 55)
-                    {
-                        pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                        DestroyItemAnim(pPickupActor);
-                    }
-                    else
-                    {
-                        doProcessPickup();
-                    }
-
-                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
-                }
+                doPickupWeapon(4, 1, kSoundAmmoPickup);
                 break;
 
             case 4: // Pickable item
             case 9: // Pickable item
             case 10: // Reserved
             case 18:
-            case 25:
+            case 25: // Check whether is grenade or not as it matches sequence for weapons below
             case 28:
             case 29:
             case 30:
