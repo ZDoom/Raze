@@ -1040,6 +1040,25 @@ static void updatePlayerAction(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerYaw(Player* const pPlayer)
+{
+    const auto pInput = &pPlayer->input;
+
+    if (SyncInput())
+    {
+        pPlayer->pActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
+    }
+
+    pPlayer->Angles.doYawKeys(pInput);
+    pPlayer->Angles.doViewYaw(pInput);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerPitch(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1114,15 +1133,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     if (pPlayer->nQuake != 0)
         doPlayerQuake(pPlayer);
 
-    pPlayer->Angles.doViewYaw(&pPlayer->input);
-
-    // loc_1A494:
-    if (SyncInput())
-    {
-        pPlayer->pActor->spr.Angles.Yaw += DAngle::fromDeg(pPlayer->input.avel);
-    }
-
-    pPlayer->Angles.doYawKeys(&pPlayer->input);
+    doPlayerYaw(pPlayer);
 
     // player.zvel is modified within Gravity()
 	double zVel = pPlayerActor->vel.Z;
