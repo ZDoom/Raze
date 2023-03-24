@@ -776,37 +776,34 @@ bool CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_po
         // moving blocks - move this to a separate function!
         if (sect != nullptr)
         {
-            if ((sect->hitag == 45) && bTouchFloor)
+            const auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
+
+            if ((sect->hitag == 45) && bTouchFloor && nDiff <= DAngle45)
             {
-                auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
+                pPlayer->pPlayerPushSect = sect;
 
-                if (nDiff <= DAngle45)
+                DVector2 vel = pPlayer->vel;
+                auto nMyAngle = vel.Angle().Normalized360();
+
+                setsectinterpolate(sect);
+                MoveSector(sect, nMyAngle, vel);
+
+                if (pPlayer->nPlayerPushSound <= -1)
                 {
-                    pPlayer->pPlayerPushSect = sect;
+                    pPlayer->nPlayerPushSound = 1;
+                    int nBlock = pPlayer->pPlayerPushSect->extra;
+                    DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
 
-                    DVector2 vel = pPlayer->vel;
-                    auto nMyAngle = vel.Angle().Normalized360();
-
-                    setsectinterpolate(sect);
-                    MoveSector(sect, nMyAngle, vel);
-
-                    if (pPlayer->nPlayerPushSound <= -1)
-                    {
-                        pPlayer->nPlayerPushSound = 1;
-                        int nBlock = pPlayer->pPlayerPushSect->extra;
-                        DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
-
-                        D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
-                    }
-                    else
-                    {
-                        pPlayerActor->spr.pos = spr_pos;
-                        ChangeActorSect(pPlayerActor, spr_sect);
-                    }
-
-                    movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
-                    return true;
+                    D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
                 }
+                else
+                {
+                    pPlayerActor->spr.pos = spr_pos;
+                    ChangeActorSect(pPlayerActor, spr_sect);
+                }
+
+                movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
+                return true;
             }
         }
     }
