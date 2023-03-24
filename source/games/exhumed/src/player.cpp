@@ -942,11 +942,10 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     DExhumedActor* pDopple = pPlayer->pDoppleSprite;
 
-    int nAction = pPlayer->nAction;
     int nActionB = pPlayer->nAction;
 
     pPlayerActor->vel.XY() = pPlayer->vel;
-    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[nAction]].a, pPlayer->nSeqSize);
+    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
 
     if (pPlayer->nCurrentItem > -1)
@@ -1402,7 +1401,7 @@ sectdone:
                 }
                 else if (bTouchFloor)
                 {
-                    if (nAction < 6 || nAction > 8)
+                    if (pPlayer->nAction < 6 || pPlayer->nAction > 8)
                     {
                         pPlayerActor->vel.Z = -14;
                         nActionB = 3;
@@ -1435,7 +1434,7 @@ sectdone:
             {
                 if (pPlayer->nHealth > 0)
                 {
-                    pPlayerActor->viewzoffset += (nActionEyeLevel[nAction] - pPlayerActor->viewzoffset) * 0.5;
+                    pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
 
                     if (bUnderwater)
                     {
@@ -1502,7 +1501,7 @@ sectdone:
                 FireWeapon(nPlayer);
             }
 
-            if (nAction != 15)
+            if (pPlayer->nAction != 15)
             {
                 if (pPlayer->totalvel <= 1)
                 {
@@ -1516,9 +1515,8 @@ sectdone:
         }
 
         // loc_1BF09
-        if (nActionB != nAction && nAction != 4)
+        if (nActionB != pPlayer->nAction && pPlayer->nAction != 4)
         {
-            nAction = nActionB;
             pPlayer->nAction = nActionB;
             pPlayer->nSeqSize = 0;
         }
@@ -1563,7 +1561,7 @@ sectdone:
         {
             pPlayer->input.actions &= ~SB_OPEN;
 
-            if (nAction >= 16)
+            if (pPlayer->nAction >= 16)
             {
                 if (nPlayer == nLocalPlayer)
                 {
@@ -1576,7 +1574,7 @@ sectdone:
 
                 if (pPlayer->nLives && nNetTime)
                 {
-                    if (nAction != 20)
+                    if (pPlayer->nAction != 20)
                     {
                         pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
                         pPlayerActor->spr.cstat = 0;
@@ -1603,7 +1601,7 @@ sectdone:
         CheckAmbience(pLocalEyeSect);
     }
 
-    int var_AC = SeqOffsets[pPlayer->nSeq] + PlayerSeq[nAction].a;
+    int var_AC = SeqOffsets[pPlayer->nSeq] + PlayerSeq[pPlayer->nAction].a;
 
     seq_MoveSequence(pPlayerActor, var_AC, pPlayer->nSeqSize);
     pPlayer->nSeqSize++;
