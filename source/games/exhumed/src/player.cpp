@@ -752,7 +752,7 @@ void AIPlayer::Damage(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-bool CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
+static void CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const double zz = pPlayerActor->vel.Z;
@@ -788,10 +788,10 @@ bool CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_po
                 setsectinterpolate(sect);
                 MoveSector(sect, nMyAngle, vel);
 
-                if (pPlayer->nPlayerPushSound <= -1)
+                if (pPlayer->nPlayerPushSound == -1)
                 {
-                    pPlayer->nPlayerPushSound = 1;
-                    int nBlock = pPlayer->pPlayerPushSect->extra;
+                    const int nBlock = pPlayer->pPlayerPushSect->extra;
+                    pPlayer->nPlayerPushSound = nBlock;
                     DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
 
                     D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
@@ -803,11 +803,18 @@ bool CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_po
                 }
 
                 movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
-                return true;
+            }
+            else if (pPlayer->nPlayerPushSound != -1)
+            {
+                if (pPlayer->pPlayerPushSect != nullptr)
+                {
+                    StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
+                }
+
+                pPlayer->nPlayerPushSound = -1;
             }
         }
     }
-    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -1324,22 +1331,9 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        if (CheckMovingBlocks(pPlayer, nMove, spr_pos, spr_sect))
-            goto sectdone;
+        CheckMovingBlocks(pPlayer, nMove, spr_pos, spr_sect);
     }
 
-    // loc_1AB46:
-    if (pPlayer->nPlayerPushSound > -1)
-    {
-        if (pPlayer->pPlayerPushSect != nullptr)
-        {
-            StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
-        }
-
-        pPlayer->nPlayerPushSound = -1;
-    }
-
-sectdone:
     if (!pPlayer->bPlayerPan && !pPlayer->bLockPan)
     {
         pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
