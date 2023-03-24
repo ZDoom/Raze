@@ -1024,6 +1024,41 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerFloorDamage(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    pPlayer->nThrust /= 2;
+
+    if (pPlayer->nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2 && !pPlayerActor->spr.Angles.Pitch.Sgn() && cl_slopetilting)
+        pPlayer->nDestVertPan = nullAngle;
+
+    if (pPlayerActor->vel.Z >= 6500 / 256.)
+    {
+        pPlayerActor->vel.XY() *= 0.25;
+
+        runlist_DamageEnemy(pPlayerActor, nullptr, int(((pPlayerActor->vel.Z * 256) - 6500) * (1. / 128.)) + 10);
+
+        if (pPlayer->nHealth <= 0)
+        {
+            pPlayerActor->vel.X = 0;
+            pPlayerActor->vel.Y = 0;
+
+            StopActorSound(pPlayerActor);
+            PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME
+        }
+        else
+        {
+            D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, const DVector3& spr_pos, const DVector3& spr_vel, sectortype* const spr_sect)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1138,31 +1173,7 @@ static bool doPlayerMovement(Player* const pPlayer)
     {
         if (bTouchFloor)
         {
-            // Damage stuff..
-            pPlayer->nThrust /= 2;
-
-            if (pPlayer->nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2 && !pPlayer->pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting)
-                pPlayer->nDestVertPan = nullAngle;
-
-            if (pPlayerActor->vel.Z >= 6500 / 256.)
-            {
-                pPlayerActor->vel.XY() *= 0.25;
-
-                runlist_DamageEnemy(pPlayerActor, nullptr, int(((pPlayerActor->vel.Z * 256) - 6500) * (1. / 128.)) + 10);
-
-                if (pPlayer->nHealth <= 0)
-                {
-                    pPlayerActor->vel.X = 0;
-                    pPlayerActor->vel.Y = 0;
-
-                    StopActorSound(pPlayerActor);
-                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME
-                }
-                else
-                {
-                    D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
-                }
-            }
+            doPlayerFloorDamage(pPlayer);
         }
 
         if (nMove.type == kHitSector || nMove.type == kHitWall)
