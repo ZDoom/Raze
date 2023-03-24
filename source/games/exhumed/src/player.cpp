@@ -1431,6 +1431,58 @@ static void doPlayerPitch(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerActionSequence(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto nSeq = SeqOffsets[pPlayer->nSeq] + PlayerSeq[pPlayer->nAction].a;
+
+    seq_MoveSequence(pPlayerActor, nSeq, pPlayer->nSeqSize);
+    pPlayer->nSeqSize++;
+
+    if (pPlayer->nSeqSize >= SeqSize[nSeq])
+    {
+        pPlayer->nSeqSize = 0;
+
+        switch (pPlayer->nAction)
+        {
+        default:
+            break;
+        case 3:
+            pPlayer->nSeqSize = SeqSize[nSeq] - 1;
+            break;
+        case 4:
+            pPlayer->nAction = 0;
+            break;
+        case 16:
+            pPlayer->nSeqSize = SeqSize[nSeq] - 1;
+
+            if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
+                pPlayerActor->spr.pos.Z++;
+
+            if (!RandomSize(5))
+            {
+                sectortype* mouthSect;
+                const auto pos = WheresMyMouth(pPlayer->nPlayer, &mouthSect);
+                BuildAnim(nullptr, 71, 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
+            }
+            break;
+        case 17:
+            pPlayer->nAction = 18;
+            break;
+        case 19:
+            pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayer->nAction = 20;
+            break;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerDeathPitch(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1638,51 +1690,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
     }
 
-    int var_AC = SeqOffsets[pPlayer->nSeq] + PlayerSeq[pPlayer->nAction].a;
-
-    seq_MoveSequence(pPlayerActor, var_AC, pPlayer->nSeqSize);
-    pPlayer->nSeqSize++;
-
-    if (pPlayer->nSeqSize >= SeqSize[var_AC])
-    {
-        pPlayer->nSeqSize = 0;
-
-        switch (pPlayer->nAction)
-        {
-        default:
-            break;
-
-        case 3:
-            pPlayer->nSeqSize = SeqSize[var_AC] - 1;
-            break;
-        case 4:
-            pPlayer->nAction = 0;
-            break;
-        case 16:
-            pPlayer->nSeqSize = SeqSize[var_AC] - 1;
-
-            if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
-            {
-				pPlayerActor->spr.pos.Z++;
-            }
-
-            if (!RandomSize(5))
-            {
-                sectortype* mouthSect;
-                auto pos = WheresMyMouth(nPlayer, &mouthSect);
-
-                BuildAnim(nullptr, 71, 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
-            }
-            break;
-        case 17:
-            pPlayer->nAction = 18;
-            break;
-        case 19:
-            pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-            pPlayer->nAction = 20;
-            break;
-        }
-    }
+    doPlayerActionSequence(pPlayer);
 
     if (!pPlayer->nHealth)
         doPlayerDeathPitch(pPlayer);
