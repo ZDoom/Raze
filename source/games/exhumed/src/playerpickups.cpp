@@ -84,7 +84,6 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal
 enum
 {
     kPickupHealth = 4,
-    kPickupWeapon = 8,
 };
 
 void doPlayerItemPickups(Player* const pPlayer)
@@ -142,6 +141,39 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
 
                 doConsoleMessage();
+            };
+            const auto doPickupWeapon = [&]()
+            {
+                const int weapFlag = 1 << nWeapon;
+
+                if (pPlayer->nPlayerWeapons & weapFlag)
+                {
+                    if (mplevel)
+                    {
+                        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+                    }
+                }
+                else
+                {
+                    SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
+                    pPlayer->nPlayerWeapons |= weapFlag;
+                    AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+                    nSound = StaticSound[kSound72];
+                }
+
+                if (nWeapon == 2)
+                    CheckClip(pPlayer->nPlayer);
+
+                if (statBase <= 50)
+                {
+                    doProcessPickup();
+                }
+                else
+                {
+                    pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                    DestroyItemAnim(pPickupActor);
+                    doConsoleMessage();
+                }
             };
 
             switch (itemtype)
@@ -313,42 +345,42 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 20: // sword pickup??
                 nWeapon = 0;
                 nAmount = 0;
-                pickFlag |= kPickupWeapon;
+                doPickupWeapon();
                 break;
 
             case 22: // .357 Magnum Revolver
             case 46:
                 nWeapon = 1;
                 nAmount = 6;
-                pickFlag |= kPickupWeapon;
+                doPickupWeapon();
                 break;
 
             case 23: // M - 60 Machine Gun
             case 47:
                 nWeapon = 2;
                 nAmount = 24;
-                pickFlag |= kPickupWeapon;
+                doPickupWeapon();
                 break;
 
             case 24: // Flame Thrower
             case 48:
                 nWeapon = 3;
                 nAmount = 100;
-                pickFlag |= kPickupWeapon;
+                doPickupWeapon();
                 break;
 
             case 26: // Cobra Staff
             case 50:
                 nWeapon = 5;
                 nAmount = 20;
-                pickFlag |= kPickupWeapon;
+                doPickupWeapon();
                 break;
 
             case 27: // Eye of Ra Gauntlet
             case 51:
                 nWeapon = 6;
                 nAmount = 2;
-                pickFlag |= kPickupWeapon;
+                doPickupWeapon();
                 break;
 
             case 31: // Cobra staff ammo
@@ -473,40 +505,6 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                         doProcessPickup();
                     }
-                }
-            }
-
-            if (pickFlag & kPickupWeapon)
-            {
-                const int weapFlag = 1 << nWeapon;
-
-                if (pPlayer->nPlayerWeapons & weapFlag)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
-                    }
-                }
-                else
-                {
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
-                    pPlayer->nPlayerWeapons |= weapFlag;
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (nWeapon == 2)
-                    CheckClip(pPlayer->nPlayer);
-
-                if (statBase <= 50)
-                {
-                    doProcessPickup();
-                }
-                else
-                {
-                    pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                    DestroyItemAnim(pPickupActor);
-                    doConsoleMessage();
                 }
             }
         }
