@@ -1327,12 +1327,6 @@ sectdone:
 			pFloorActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
 
-        // code to handle item pickup?
-        HitInfo near;
-
-        // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
-
         doPlayerItemPickups(pPlayer);
 
         // CORRECT ? // loc_1BAF9:
@@ -1362,6 +1356,12 @@ sectdone:
             if (pPlayer->input.actions & SB_OPEN)
             {
                 pPlayer->input.actions &= ~SB_OPEN;
+
+                // code to handle item pickup?
+                HitInfo near;
+
+                // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
+                neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
 
                 int tag;
                 if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
