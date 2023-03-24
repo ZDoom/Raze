@@ -97,6 +97,7 @@ void doPlayerItemPickups(Player* const pPlayer)
         if (itemtype <= 54)
         {
             static constexpr int itemArray[] = {kItemHeart, kItemInvincibility, kItemDoubleDamage, kItemInvisibility, kItemTorch, kItemMask};
+            static constexpr int weapArray[] = {6, 24, 100, 20, 2};
             static constexpr int ammoArray[] = {1, 3, 2};
 
             const auto doConsoleMessage = [=](const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
@@ -329,28 +330,19 @@ void doPlayerItemPickups(Player* const pPlayer)
 
             case 22: // .357 Magnum Revolver
             case 46:
-                doPickupWeapon(1, 6);
-                break;
-
             case 23: // M - 60 Machine Gun
             case 47:
-                doPickupWeapon(2, 24);
-                break;
-
             case 24: // Flame Thrower
             case 48:
-                doPickupWeapon(3, 100);
-                break;
-
             case 26: // Cobra Staff
             case 50:
-                doPickupWeapon(5, 20);
-                break;
-
             case 27: // Eye of Ra Gauntlet
             case 51:
-                doPickupWeapon(6, 2);
+            {
+                const int index = itemtype - 24 * (itemtype > 40) - 22;
+                doPickupWeapon(index + 1, weapArray[index]);
                 break;
+            }
 
             case 31: // Cobra staff ammo
                 if (AddAmmo(pPlayer->nPlayer, 5, 1))
