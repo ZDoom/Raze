@@ -87,6 +87,7 @@ enum
     kPickupOnConsole = 2,
     kPickupDefaults = kPickupProcess | kPickupOnConsole,
     kPickupHealth = 4,
+    kPickupWeapon = 8,
 };
 
 void doPlayerItemPickups(Player* const pPlayer)
@@ -107,9 +108,9 @@ void doPlayerItemPickups(Player* const pPlayer)
             int tintRed = 0;
             int tintGreen = 16;
             int nSound = -1;
-            int nHealth = 0;
+            int nAmount = 0;
+            int nWeapon = 0;
             int pickFlag = 0;
-            int var_40;
 
             switch (itemtype)
             {
@@ -192,18 +193,18 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (pPickupActor->spr.hitag != 0) 
                 {
                     nSound = 20;
-                    nHealth = 40;
+                    nAmount = 40;
                     pickFlag |= kPickupHealth;
                 }
                 break;
 
             case 7: // Blood Bowl
-                nHealth = 160;
+                nAmount = 160;
                 pickFlag |= kPickupHealth;
                 break;
 
             case 8: // Cobra Venom Bowl
-                nHealth = -200;
+                nAmount = -200;
                 pickFlag |= kPickupHealth;
                 break;
 
@@ -278,375 +279,45 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 20: // sword pickup??
-            {
-                var_40 = 0;
-                int ebx = 0;
-
-                // loc_1B75D
-                int var_18 = 1 << var_40;
-
-                int weapons = pPlayer->nPlayerWeapons;
-
-                if (weapons & var_18)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                    }
-                }
-                else
-                {
-                    weapons = var_40;
-
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, weapons);
-
-                    pPlayer->nPlayerWeapons |= var_18;
-
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (var_40 == 2) {
-                    CheckClip(pPlayer->nPlayer);
-                }
-
-                if (statBase <= 50) {
-                    pickFlag |= kPickupDefaults;
-                }
-
-                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pPickupActor);
-                ////
-                        // loc_1BA74: - repeated block, see in default case
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
+                nWeapon = 0;
+                nAmount = 0;
+                pickFlag |= kPickupWeapon;
                 break;
-                /////
-            }
 
             case 22: // .357 Magnum Revolver
             case 46:
-            {
-                var_40 = 1;
-                int ebx = 6;
-
-                // loc_1B75D
-                int var_18 = 1 << var_40;
-
-                int weapons = pPlayer->nPlayerWeapons;
-
-                if (weapons & var_18)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                    }
-                }
-                else
-                {
-                    weapons = var_40;
-
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, weapons);
-
-                    pPlayer->nPlayerWeapons |= var_18;
-
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (var_40 == 2) {
-                    CheckClip(pPlayer->nPlayer);
-                }
-
-                if (statBase <= 50) {
-                    pickFlag |= kPickupDefaults;
-                }
-
-                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pPickupActor);
-                ////
-                        // loc_1BA74: - repeated block, see in default case
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
+                nWeapon = 1;
+                nAmount = 6;
+                pickFlag |= kPickupWeapon;
                 break;
-                /////
-            }
 
             case 23: // M - 60 Machine Gun
             case 47:
-            {
-                var_40 = 2;
-                int ebx = 24;
-
-                // loc_1B75D
-                int var_18 = 1 << var_40;
-
-                int weapons = pPlayer->nPlayerWeapons;
-
-                if (weapons & var_18)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                    }
-                }
-                else
-                {
-                    weapons = var_40;
-
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, weapons);
-
-                    pPlayer->nPlayerWeapons |= var_18;
-
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (var_40 == 2) {
-                    CheckClip(pPlayer->nPlayer);
-                }
-
-                if (statBase <= 50) {
-                    pickFlag |= kPickupDefaults;
-                }
-
-                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pPickupActor);
-                ////
-                        // loc_1BA74: - repeated block, see in default case
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
+                nWeapon = 2;
+                nAmount = 24;
+                pickFlag |= kPickupWeapon;
                 break;
-                /////
-            }
 
             case 24: // Flame Thrower
             case 48:
-            {
-                var_40 = 3;
-                int ebx = 100;
-
-                // loc_1B75D
-                int var_18 = 1 << var_40;
-
-                int weapons = pPlayer->nPlayerWeapons;
-
-                if (weapons & var_18)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                    }
-                }
-                else
-                {
-                    weapons = var_40;
-
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, weapons);
-
-                    pPlayer->nPlayerWeapons |= var_18;
-
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (var_40 == 2) {
-                    CheckClip(pPlayer->nPlayer);
-                }
-
-                if (statBase <= 50) {
-                    pickFlag |= kPickupDefaults;
-                }
-
-                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pPickupActor);
-                ////
-                        // loc_1BA74: - repeated block, see in default case
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
+                nWeapon = 3;
+                nAmount = 100;
+                pickFlag |= kPickupWeapon;
                 break;
-                /////
-            }
 
             case 26: // Cobra Staff
             case 50:
-            {
-                var_40 = 5;
-                int ebx = 20;
-
-                // loc_1B75D
-                int var_18 = 1 << var_40;
-
-                int weapons = pPlayer->nPlayerWeapons;
-
-                if (weapons & var_18)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                    }
-                }
-                else
-                {
-                    weapons = var_40;
-
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, weapons);
-
-                    pPlayer->nPlayerWeapons |= var_18;
-
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (var_40 == 2) {
-                    CheckClip(pPlayer->nPlayer);
-                }
-
-                if (statBase <= 50) {
-                    pickFlag |= kPickupDefaults;
-                }
-
-                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pPickupActor);
-                ////
-                        // loc_1BA74: - repeated block, see in default case
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
+                nWeapon = 5;
+                nAmount = 20;
+                pickFlag |= kPickupWeapon;
                 break;
-                /////
-            }
 
             case 27: // Eye of Ra Gauntlet
             case 51:
-            {
-                var_40 = 6;
-                int ebx = 2;
-
-                // loc_1B75D
-                int var_18 = 1 << var_40;
-
-                int weapons = pPlayer->nPlayerWeapons;
-
-                if (weapons & var_18)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                    }
-                }
-                else
-                {
-                    weapons = var_40;
-
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, weapons);
-
-                    pPlayer->nPlayerWeapons |= var_18;
-
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                    nSound = StaticSound[kSound72];
-                }
-
-                if (var_40 == 2) {
-                    CheckClip(pPlayer->nPlayer);
-                }
-
-                if (statBase <= 50) {
-                    pickFlag |= kPickupDefaults;
-                }
-
-                pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                DestroyItemAnim(pPickupActor);
-                ////
-                        // loc_1BA74: - repeated block, see in default case
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                    {
-                        pickupMessage(statBase);
-                    }
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                    if (nSound > -1)
-                    {
-                        PlayLocalSound(nSound, 0);
-                    }
-                }
-
+                nWeapon = 6;
+                nAmount = 2;
+                pickFlag |= kPickupWeapon;
                 break;
-                /////
-            }
 
             case 31: // Cobra staff ammo
             {
@@ -741,11 +412,11 @@ void doPlayerItemPickups(Player* const pPlayer)
 
             if (pickFlag & kPickupHealth)
             {
-                if (nHealth <= 0 || (!(nFlags & 2)))
+                if (nAmount <= 0 || (!(nFlags & 2)))
                 {
-                    if (!pPlayer->invincibility || nHealth > 0)
+                    if (!pPlayer->invincibility || nAmount > 0)
                     {
-                        pPlayer->nHealth += nHealth;
+                        pPlayer->nHealth += nAmount;
 
                         if (pPlayer->nHealth > 800)
                         {
@@ -780,6 +451,40 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                         pickFlag |= kPickupDefaults;
                     }
+                }
+            }
+
+            if (pickFlag & kPickupWeapon)
+            {
+                const int weapFlag = 1 << nWeapon;
+
+                if (pPlayer->nPlayerWeapons & weapFlag)
+                {
+                    if (mplevel)
+                    {
+                        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+                    }
+                }
+                else
+                {
+                    SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
+                    pPlayer->nPlayerWeapons |= weapFlag;
+                    AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+                    nSound = StaticSound[kSound72];
+                }
+
+                if (nWeapon == 2)
+                    CheckClip(pPlayer->nPlayer);
+
+                if (statBase <= 50)
+                {
+                    pickFlag |= kPickupDefaults;
+                }
+                else
+                {
+                    pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                    DestroyItemAnim(pPickupActor);
+                    pickFlag |= kPickupOnConsole;
                 }
             }
 
