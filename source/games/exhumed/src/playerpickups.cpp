@@ -112,26 +112,22 @@ void doPlayerItemPickups(Player* const pPlayer)
             switch (itemtype)
             {
             case 0: // Speed Loader
-            {
                 if (AddAmmo(pPlayer->nPlayer, 1, pPickupActor->spr.hitag))
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
+
             case 1: // Fuel Canister
-            {
                 if (AddAmmo(pPlayer->nPlayer, 3, pPickupActor->spr.hitag))
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
                     pickFlag |= kPickupDefaults;
                 }
                 break;
-            }
+
             case 2: // M - 60 Ammo Belt
-            {
                 if (AddAmmo(pPlayer->nPlayer, 2, pPickupActor->spr.hitag))
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
@@ -139,14 +135,14 @@ void doPlayerItemPickups(Player* const pPlayer)
                     pickFlag |= kPickupDefaults;
                 }
                 break;
-            }
+
             case 3: // Grenade
             case 21:
             case 49:
-            {
                 if (AddAmmo(pPlayer->nPlayer, 4, 1))
                 {
                     nSound = StaticSound[kSoundAmmoPickup];
+
                     if (!(pPlayer->nPlayerWeapons & 0x10))
                     {
                         pPlayer->nPlayerWeapons |= 0x10;
@@ -157,23 +153,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     {
                         pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                         DestroyItemAnim(pPickupActor);
-
-                        // loc_1BA74: - repeated block, see in default case
-                        if (pPlayer->nPlayer == nLocalPlayer)
-                        {
-                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                            {
-                                pickupMessage(statBase);
-                            }
-
-                            TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                            if (nSound > -1)
-                            {
-                                PlayLocalSound(nSound, 0);
-                            }
-                        }
-                        break;
+                        pickFlag |= kPickupOnConsole;
                     }
                     else
                     {
@@ -181,7 +161,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                 }
                 break;
-            }
 
             case 4: // Pickable item
             case 9: // Pickable item
@@ -199,15 +178,13 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 38:
             case 45:
             case 52:
-            {
                 pickFlag |= kPickupDefaults;
-            }
+                break;
 
             case 5: // Map
-            {
                 GrabMap();
                 pickFlag |= kPickupDefaults;
-            }
+                break;
 
             case 6: // Berry Twig
             {
