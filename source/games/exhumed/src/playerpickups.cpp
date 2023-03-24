@@ -96,6 +96,8 @@ void doPlayerItemPickups(Player* const pPlayer)
 
         if (itemtype <= 54)
         {
+            static constexpr int itemArray[] = {kItemHeart, kItemInvincibility, kItemDoubleDamage, kItemInvisibility, kItemTorch, kItemMask};
+
             const auto doConsoleMessage = [=](const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
             {
                 if (pPlayer->nPlayer == nLocalPlayer)
@@ -301,65 +303,24 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 11: // Bubble Nest
-            {
                 pPlayer->nAir += 10;
 
                 if (pPlayer->nAir > 100)
-                {
                     pPlayer->nAir = 100; // TODO - constant
-                }
 
                 if (pPlayer->nBreathTimer < 89)
-                {
                     D3PlayFX(StaticSound[kSound13], pPlayerActor);
-                }
 
                 pPlayer->nBreathTimer = 90;
                 break;
-            }
 
             case 12: // Still Beating Heart
-                if (GrabItem(pPlayer->nPlayer, kItemHeart))
-                {
-                    doProcessPickup();
-                    doConsoleMessage();
-                }
-                break;
-
             case 13: // Scarab amulet(Invicibility)
-                if (GrabItem(pPlayer->nPlayer, kItemInvincibility))
-                {
-                    doProcessPickup();
-                    doConsoleMessage();
-                }
-                break;
-
             case 14: // Severed Slave Hand(double damage)
-                if (GrabItem(pPlayer->nPlayer, kItemDoubleDamage))
-                {
-                    doProcessPickup();
-                    doConsoleMessage();
-                }
-                break;
-
             case 15: // Unseen eye(Invisibility)
-                if (GrabItem(pPlayer->nPlayer, kItemInvisibility))
-                {
-                    doProcessPickup();
-                    doConsoleMessage();
-                }
-                break;
-
             case 16: // Torch
-                if (GrabItem(pPlayer->nPlayer, kItemTorch))
-                {
-                    doProcessPickup();
-                    doConsoleMessage();
-                }
-                break;
-
             case 17: // Sobek Mask
-                if (GrabItem(pPlayer->nPlayer, kItemMask))
+                if (GrabItem(pPlayer->nPlayer, itemArray[itemtype - 12]))
                 {
                     doProcessPickup();
                     doConsoleMessage();
