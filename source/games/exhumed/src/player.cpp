@@ -842,6 +842,22 @@ static void doPlayerInvincibility(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerMask(Player* const pPlayer)
+{
+    pPlayer->nMaskAmount--;
+
+    if (pPlayer->nMaskAmount == 150 && pPlayer->nPlayer == nLocalPlayer)
+    {
+        PlayAlert(GStrings("TXT_EX_MASKEX"));
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerQuake(Player* const pPlayer)
 {
     pPlayer->nQuake = -pPlayer->nQuake;
@@ -1379,12 +1395,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     if (pPlayer->nHealth > 0)
     {
         if (pPlayer->nMaskAmount > 0)
-        {
-            pPlayer->nMaskAmount--;
-            if (pPlayer->nMaskAmount == 150 && nPlayer == nLocalPlayer) {
-				PlayAlert(GStrings("TXT_EX_MASKEX"));
-            }
-        }
+            doPlayerMask(pPlayer);
 
         if (!pPlayer->invincibility)
         {
