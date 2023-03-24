@@ -1024,6 +1024,30 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerDoppleActor(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    DExhumedActor* const pDopple = pPlayer->pDoppleSprite;
+    pDopple->spr.pos = pPlayerActor->spr.pos;
+
+    if (pPlayerActor->sector()->pAbove != nullptr)
+    {
+        pDopple->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
+        ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
+        pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+    }
+    else
+    {
+        pDopple->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_pos, const DVector3& spr_vel, const bool bUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1536,8 +1560,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayerActor = pPlayer->pActor;
     const auto pStartSect = pPlayerActor->sector();
 
-    DExhumedActor* pDopple = pPlayer->pDoppleSprite;
-    pDopple->spr.picnum = pPlayerActor->spr.picnum;
+    pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
     pPlayerActor->vel.XY() = pPlayer->vel;
 
@@ -1679,7 +1702,6 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                     // will invalidate nPlayerSprite
                     RestartPlayer(nPlayer);
-                    pDopple = pPlayer->pDoppleSprite;
                 }
                 else
                 {
@@ -1695,19 +1717,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     if (!pPlayer->nHealth)
         doPlayerDeathPitch(pPlayer);
 
-    // loc_1C4E1
-    pDopple->spr.pos = pPlayerActor->spr.pos;
-
-    if (pPlayerActor->sector()->pAbove != nullptr)
-    {
-        pDopple->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
-        ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
-        pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-    }
-    else
-    {
-        pDopple->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    }
+    updatePlayerDoppleActor(pPlayer);
 
     MoveWeapons(nPlayer);
 }
