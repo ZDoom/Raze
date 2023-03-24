@@ -98,11 +98,8 @@ void doPlayerItemPickups(Player* const pPlayer)
         {
             int tintRed = 0;
             int tintGreen = 16;
-            int nSound = -1;
-            int nAmount = 0;
-            int nWeapon = 0;
 
-            const auto doConsoleMessage = [&]()
+            const auto doConsoleMessage = [&](const int nSound = -1)
             {
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
@@ -134,7 +131,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     StartRegenerate(pPickupActor);
                 }
             };
-            const auto doPickupWeapon = [&]()
+            const auto doPickupWeapon = [&](const int nWeapon, const int nAmount)
             {
                 const int weapFlag = 1 << nWeapon;
 
@@ -150,7 +147,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                     SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
                     pPlayer->nPlayerWeapons |= weapFlag;
                     AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
-                    nSound = StaticSound[kSound72];
                 }
 
                 if (nWeapon == 2)
@@ -166,9 +162,9 @@ void doPlayerItemPickups(Player* const pPlayer)
                     DestroyItemAnim(pPickupActor);
                 }
 
-                doConsoleMessage();
+                doConsoleMessage(StaticSound[kSound72]);
             };
-            const auto doPickupHealth = [&]()
+            const auto doPickupHealth = [&](const int nAmount, int nSound = -1)
             {
                 if (nAmount <= 0 || (!(nFlags & 2)))
                 {
@@ -182,7 +178,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                         }
                         else if (pPlayer->nHealth < 0)
                         {
-                            nSound = -1;
                             StartDeathSeq(pPlayer->nPlayer, 0);
                         }
                     }
@@ -209,7 +204,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         doProcessPickup();
                     }
 
-                    doConsoleMessage();
+                    doConsoleMessage(nSound);
                 }
             };
 
@@ -218,28 +213,25 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 0: // Speed Loader
                 if (AddAmmo(pPlayer->nPlayer, 1, pPickupActor->spr.hitag))
                 {
-                    nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
             case 1: // Fuel Canister
                 if (AddAmmo(pPlayer->nPlayer, 3, pPickupActor->spr.hitag))
                 {
-                    nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
             case 2: // M - 60 Ammo Belt
                 if (AddAmmo(pPlayer->nPlayer, 2, pPickupActor->spr.hitag))
                 {
-                    nSound = StaticSound[kSoundAmmoPickup];
                     CheckClip(pPlayer->nPlayer);
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
@@ -248,8 +240,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 49:
                 if (AddAmmo(pPlayer->nPlayer, 4, 1))
                 {
-                    nSound = StaticSound[kSoundAmmoPickup];
-
                     if (!(pPlayer->nPlayerWeapons & 0x10))
                     {
                         pPlayer->nPlayerWeapons |= 0x10;
@@ -266,7 +256,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         doProcessPickup();
                     }
 
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
@@ -299,20 +289,16 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 6: // Berry Twig
                 if (pPickupActor->spr.hitag != 0) 
                 {
-                    nSound = 20;
-                    nAmount = 40;
-                    doPickupHealth();
+                    doPickupHealth(40, 20);
                 }
                 break;
 
             case 7: // Blood Bowl
-                nAmount = 160;
-                doPickupHealth();
+                doPickupHealth(160);
                 break;
 
             case 8: // Cobra Venom Bowl
-                nAmount = -200;
-                doPickupHealth();
+                doPickupHealth(-200);
                 break;
 
             case 11: // Bubble Nest
@@ -393,61 +379,47 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 20: // sword pickup??
-                nWeapon = 0;
-                nAmount = 0;
-                doPickupWeapon();
+                doPickupWeapon(0, 0);
                 break;
 
             case 22: // .357 Magnum Revolver
             case 46:
-                nWeapon = 1;
-                nAmount = 6;
-                doPickupWeapon();
+                doPickupWeapon(1, 6);
                 break;
 
             case 23: // M - 60 Machine Gun
             case 47:
-                nWeapon = 2;
-                nAmount = 24;
-                doPickupWeapon();
+                doPickupWeapon(2, 24);
                 break;
 
             case 24: // Flame Thrower
             case 48:
-                nWeapon = 3;
-                nAmount = 100;
-                doPickupWeapon();
+                doPickupWeapon(3, 100);
                 break;
 
             case 26: // Cobra Staff
             case 50:
-                nWeapon = 5;
-                nAmount = 20;
-                doPickupWeapon();
+                doPickupWeapon(5, 20);
                 break;
 
             case 27: // Eye of Ra Gauntlet
             case 51:
-                nWeapon = 6;
-                nAmount = 2;
-                doPickupWeapon();
+                doPickupWeapon(6, 2);
                 break;
 
             case 31: // Cobra staff ammo
                 if (AddAmmo(pPlayer->nPlayer, 5, 1))
                 {
-                    nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
             case 32: // Raw Energy
                 if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag))
                 {
-                    nSound = StaticSound[kSoundAmmoPickup];
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
@@ -457,7 +429,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 42: // Earth key
             {
                 const int keybit = 4096 << (itemtype - 39);
-                nSound = -1;
 
                 if (!(pPlayer->keys & keybit))
                 {
@@ -472,8 +443,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 44: // ?
                 if (pPlayer->nMagic < 1000)
                 {
-                    nSound = StaticSound[kSoundMana1];
-
                     pPlayer->nMagic += 100;
 
                     if (pPlayer->nMagic >= 1000)
@@ -482,7 +451,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
 
                     doProcessPickup();
-                    doConsoleMessage();
+                    doConsoleMessage(StaticSound[kSoundMana1]);
                 }
                 break;
 
