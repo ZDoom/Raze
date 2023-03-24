@@ -1036,6 +1036,49 @@ static void updatePlayerAction(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerPitch(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pInput = &pPlayer->input;
+
+    if (SyncInput())
+    {
+        pPlayerActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
+    }
+
+    pPlayer->Angles.doPitchKeys(pInput);
+
+    if (pInput->actions & (SB_AIM_UP | SB_AIM_DOWN) || pInput->horz)
+    {
+        pPlayer->nDestVertPan = pPlayerActor->spr.Angles.Pitch;
+        pPlayer->bPlayerPan = pPlayer->bLockPan = true;
+    }
+    else if (pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
+    {
+        pPlayer->nDestVertPan = pPlayerActor->spr.Angles.Pitch;
+        pPlayer->bPlayerPan = pPlayer->bLockPan = false;
+    }
+
+    if (pPlayer->totalvel > 20)
+    {
+        pPlayer->bPlayerPan = false;
+    }
+
+    if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
+    {
+        if (double nVertPan = deltaangle(pPlayerActor->spr.Angles.Pitch, pPlayer->nDestVertPan).Tan() * 32.)
+        {
+            pPlayerActor->spr.Angles.Pitch += maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -1483,37 +1526,7 @@ sectdone:
         }
 
         updatePlayerAction(pPlayer);
-
-        if (SyncInput())
-        {
-            pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pPlayer->input.horz);
-        }
-
-        pPlayer->Angles.doPitchKeys(&pPlayer->input);
-
-        if (pPlayer->input.actions & (SB_AIM_UP | SB_AIM_DOWN) || pPlayer->input.horz)
-        {
-            pPlayer->nDestVertPan = pPlayer->pActor->spr.Angles.Pitch;
-            pPlayer->bPlayerPan = pPlayer->bLockPan = true;
-        }
-        else if (pPlayer->input.actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
-        {
-            pPlayer->nDestVertPan = pPlayer->pActor->spr.Angles.Pitch;
-            pPlayer->bPlayerPan = pPlayer->bLockPan = false;
-        }
-
-        if (pPlayer->totalvel > 20)
-        {
-            pPlayer->bPlayerPan = false;
-        }
-
-        if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
-        {
-            if (double nVertPan = deltaangle(pPlayer->pActor->spr.Angles.Pitch, pPlayer->nDestVertPan).Tan() * 32.)
-            {
-                pPlayer->pActor->spr.Angles.Pitch += maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.);
-            }
-        }
+        doPlayerPitch(pPlayer);
     }
     else // else, player's health is less than 0
     {
