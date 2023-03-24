@@ -1024,6 +1024,212 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static bool doPlayerMovement(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
+    const auto spr_pos = pPlayerActor->spr.pos;
+    const auto spr_sect = pPlayerActor->sector();
+
+    if (pPlayerActor->vel.Z > 32)
+        pPlayerActor->vel.Z = 32;
+
+    Collision nMove;
+    nMove.setNone();
+
+    if (bSlipMode)
+    {
+        SetActor(pPlayerActor, pPlayerActor->spr.pos + spr_vel.XY());
+        pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+    }
+    else
+    {
+        nMove = movesprite(pPlayerActor, spr_vel.XY(), spr_vel.Z, -20, CLIPMASK0);
+
+        auto pPlayerSect = pPlayerActor->sector();
+        pushmove(pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->clipdist, 20, -20, CLIPMASK0);
+
+        if (pPlayerSect != pPlayerActor->sector())
+            ChangeActorSect(pPlayerActor, pPlayerSect);
+    }
+
+    if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
+    {
+        ChangeActorSect(pPlayerActor, spr_sect);
+        pPlayerActor->spr.pos.XY() = spr_pos.XY();
+    }
+
+    const bool bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
+
+    if (bUnderwater)
+        pPlayer->nThrust /= 2;
+
+    // Trigger Ramses?
+    if ((pPlayerActor->sector()->Flag & 0x8000) && bTouchFloor)
+        return false;
+
+    if (nMove.type || nMove.exbits)
+    {
+        if (bTouchFloor)
+        {
+            // Damage stuff..
+            pPlayer->nThrust /= 2;
+
+            if (pPlayer->nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2 && !pPlayer->pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting)
+                pPlayer->nDestVertPan = nullAngle;
+
+            if (pPlayerActor->vel.Z >= 6500 / 256.)
+            {
+                pPlayerActor->vel.XY() *= 0.25;
+
+                runlist_DamageEnemy(pPlayerActor, nullptr, int(((pPlayerActor->vel.Z * 256) - 6500) * (1. / 128.)) + 10);
+
+                if (pPlayer->nHealth <= 0)
+                {
+                    pPlayerActor->vel.X = 0;
+                    pPlayerActor->vel.Y = 0;
+
+                    StopActorSound(pPlayerActor);
+                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME
+                }
+                else
+                {
+                    D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
+                }
+            }
+        }
+
+        if (nMove.type == kHitSector || nMove.type == kHitWall)
+        {
+            sectortype* sect;
+            DAngle nNormal = nullAngle;
+
+            if (nMove.type == kHitSector)
+            {
+                sect = nMove.hitSector;
+                // Hm... Normal calculation here was broken.
+            }
+            else //if (nMove.type == kHitWall)
+            {
+                sect = nMove.hitWall->nextSector();
+                nNormal = nMove.hitWall->normalAngle();
+            }
+
+            // moving blocks - move this to a separate function!
+            if (sect != nullptr)
+            {
+                const auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
+
+                if ((sect->hitag == 45) && bTouchFloor && nDiff <= DAngle45)
+                {
+                    pPlayer->pPlayerPushSect = sect;
+
+                    DVector2 vel = pPlayer->vel;
+                    auto nMyAngle = vel.Angle().Normalized360();
+
+                    setsectinterpolate(sect);
+                    MoveSector(sect, nMyAngle, vel);
+
+                    if (pPlayer->nPlayerPushSound == -1)
+                    {
+                        const int nBlock = pPlayer->pPlayerPushSect->extra;
+                        pPlayer->nPlayerPushSound = nBlock;
+                        DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
+
+                        D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
+                    }
+                    else
+                    {
+                        pPlayerActor->spr.pos = spr_pos;
+                        ChangeActorSect(pPlayerActor, spr_sect);
+                    }
+
+                    movesprite(pPlayerActor, vel, spr_vel.Z, -20, CLIPMASK0);
+                }
+                else if (pPlayer->nPlayerPushSound != -1)
+                {
+                    if (pPlayer->pPlayerPushSect != nullptr)
+                    {
+                        StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
+                    }
+
+                    pPlayer->nPlayerPushSound = -1;
+                }
+            }
+        }
+    }
+
+    if (!pPlayer->bPlayerPan && !pPlayer->bLockPan)
+    {
+        pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
+    }
+
+    pPlayer->ototalvel = pPlayer->totalvel;
+    pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
+
+    auto pViewSect = pPlayerActor->sector();
+    double EyeZ = pPlayerActor->getOffsetZ() + pPlayer->nQuake;
+
+    while (1)
+    {
+        double nCeilZ = pViewSect->ceilingz;
+
+        if (EyeZ >= nCeilZ)
+            break;
+
+        if (pViewSect->pAbove == nullptr)
+            break;
+
+        pViewSect = pViewSect->pAbove;
+    }
+
+    // Do underwater sector check
+    if (bUnderwater)
+    {
+        if (pViewSect != pPlayerActor->sector())
+        {
+            if (nMove.type == kHitWall)
+            {
+                auto pos = pPlayerActor->spr.pos;
+
+                ChangeActorSect(pPlayerActor, pViewSect);
+
+                double fz = pViewSect->floorz - 20;
+                pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
+
+                auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
+                if (coll.type == kHitWall)
+                {
+                    ChangeActorSect(pPlayerActor, pPlayerActor->sector());
+                    pPlayerActor->spr.pos = pos;
+                }
+                else
+                {
+                    pPlayerActor->spr.pos.Z = fz-1;
+                    D3PlayFX(StaticSound[kSound42], pPlayerActor);
+                }
+            }
+        }
+    }
+
+    pPlayer->pPlayerViewSect = pViewSect;
+    pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
+
+    if (nLocalPlayer == pPlayer->nPlayer)
+    {
+        pLocalEyeSect = pPlayer->pPlayerViewSect;
+        CheckAmbience(pLocalEyeSect);
+    }
+
+    return true;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1247,6 +1453,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
+    const auto pStartSect = pPlayerActor->sector();
 
     DExhumedActor* pDopple = pPlayer->pDoppleSprite;
     pDopple->spr.picnum = pPlayerActor->spr.picnum;
@@ -1274,209 +1481,13 @@ void AIPlayer::Tick(RunListEvent* ev)
     doPlayerYaw(pPlayer);
     doPlayerGravity(pPlayerActor);
 
-    const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
-    const auto spr_pos = pPlayerActor->spr.pos;
-    const auto spr_sect = pPlayerActor->sector();
-
-    if (pPlayerActor->vel.Z > 32)
-        pPlayerActor->vel.Z = 32;
-
-    Collision nMove;
-    nMove.setNone();
-    if (bSlipMode)
-    {
-        pPlayerActor->spr.pos += spr_vel.XY();
-
-        SetActor(pPlayerActor, pPlayerActor->spr.pos);
-        pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
-    }
-    else
-    {
-        nMove = movesprite(pPlayerActor, spr_vel.XY(), spr_vel.Z, -20, CLIPMASK0);
-
-        auto pPlayerSect = pPlayerActor->sector();
-
-        pushmove(pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->clipdist, 20, -20, CLIPMASK0);
-        if (pPlayerSect != pPlayerActor->sector()) {
-            ChangeActorSect(pPlayerActor, pPlayerSect);
-        }
-    }
-
-    // loc_1A6E4
-    if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
-    {
-        ChangeActorSect(pPlayerActor, spr_sect);
-		pPlayerActor->spr.pos.XY() = spr_pos.XY();
-    }
-
-    //			int _bTouchFloor = bTouchFloor;
-    int bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
-
-    if (bUnderwater)
-    {
-        pPlayer->nThrust /= 2;
-    }
-
     // Trigger Ramses?
-    if ((pPlayerActor->sector()->Flag & 0x8000) && bTouchFloor)
+    if (!doPlayerMovement(pPlayer))
     {
         doPlayerRamses(pPlayer);
         return;
     }
 
-    if (nMove.type || nMove.exbits)
-    {
-        if (bTouchFloor)
-        {
-            // Damage stuff..
-            pPlayer->nThrust /= 2;
-
-            if (nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2 && !pPlayer->pActor->spr.Angles.Pitch.Sgn() && cl_slopetilting)
-            {
-                pPlayer->nDestVertPan = nullAngle;
-            }
-
-            if (pPlayerActor->vel.Z >= 6500 / 256.)
-            {
-                pPlayerActor->vel.XY() *= 0.25;
-
-                runlist_DamageEnemy(pPlayerActor, nullptr, int(((pPlayerActor->vel.Z * 256) - 6500) * (1. / 128.)) + 10);
-
-                if (pPlayer->nHealth <= 0)
-                {
-                    pPlayerActor->vel.X = 0;
-                    pPlayerActor->vel.Y = 0;
-
-                    StopActorSound(pPlayerActor);
-                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME
-                }
-                else
-                {
-                    D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
-                }
-            }
-        }
-
-        if (nMove.type == kHitSector || nMove.type == kHitWall)
-        {
-            sectortype* sect;
-            DAngle nNormal = nullAngle;
-
-            if (nMove.type == kHitSector)
-            {
-                sect = nMove.hitSector;
-                // Hm... Normal calculation here was broken.
-            }
-            else //if (nMove.type == kHitWall)
-            {
-                sect = nMove.hitWall->nextSector();
-                nNormal = nMove.hitWall->normalAngle();
-            }
-
-            // moving blocks - move this to a separate function!
-            if (sect != nullptr)
-            {
-                const auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
-
-                if ((sect->hitag == 45) && bTouchFloor && nDiff <= DAngle45)
-                {
-                    pPlayer->pPlayerPushSect = sect;
-
-                    DVector2 vel = pPlayer->vel;
-                    auto nMyAngle = vel.Angle().Normalized360();
-
-                    setsectinterpolate(sect);
-                    MoveSector(sect, nMyAngle, vel);
-
-                    if (pPlayer->nPlayerPushSound == -1)
-                    {
-                        const int nBlock = pPlayer->pPlayerPushSect->extra;
-                        pPlayer->nPlayerPushSound = nBlock;
-                        DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
-
-                        D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
-                    }
-                    else
-                    {
-                        pPlayerActor->spr.pos = spr_pos;
-                        ChangeActorSect(pPlayerActor, spr_sect);
-                    }
-
-                    movesprite(pPlayerActor, vel, spr_vel.Z, -20, CLIPMASK0);
-                }
-                else if (pPlayer->nPlayerPushSound != -1)
-                {
-                    if (pPlayer->pPlayerPushSect != nullptr)
-                    {
-                        StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
-                    }
-
-                    pPlayer->nPlayerPushSound = -1;
-                }
-            }
-        }
-    }
-
-    if (!pPlayer->bPlayerPan && !pPlayer->bLockPan)
-    {
-        pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
-    }
-
-    pPlayer->ototalvel = pPlayer->totalvel;
-    pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
-
-    auto pViewSect = pPlayerActor->sector();
-
-    double EyeZ = pPlayerActor->getOffsetZ() + pPlayer->nQuake;
-
-    while (1)
-    {
-        double nCeilZ = pViewSect->ceilingz;
-
-        if (EyeZ >= nCeilZ)
-            break;
-
-        if (pViewSect->pAbove == nullptr)
-            break;
-
-        pViewSect = pViewSect->pAbove;
-    }
-
-    // Do underwater sector check
-    if (bUnderwater)
-    {
-        if (pViewSect != pPlayerActor->sector())
-        {
-            if (nMove.type == kHitWall)
-            {
-				auto pos = pPlayerActor->spr.pos;
-
-                ChangeActorSect(pPlayerActor, pViewSect);
-
-
-                double fz = pViewSect->floorz - 20;
-                pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
-
-                auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
-                if (coll.type == kHitWall)
-                {
-                    ChangeActorSect(pPlayerActor, pPlayerActor->sector());
-                    pPlayerActor->spr.pos = pos;
-                }
-                else
-                {
-                    pPlayerActor->spr.pos.Z = fz-1;
-                    D3PlayFX(StaticSound[kSound42], pPlayerActor);
-                }
-            }
-        }
-    }
-
-    // loc_1ADAF
-    pPlayer->pPlayerViewSect = pViewSect;
-    pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
-
-    // loc_1AEF5:
     if (pPlayer->nHealth > 0)
     {
         if (pPlayer->nMaskAmount > 0)
@@ -1513,11 +1524,11 @@ void AIPlayer::Tick(RunListEvent* ev)
             runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
         }
 
-        if (spr_sect != pPlayerActor->sector())
+        if (pStartSect != pPlayerActor->sector())
         {
-            if (spr_sect->lotag > 0)
+            if (pStartSect->lotag > 0)
             {
-                runlist_SignalRun(spr_sect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
+                runlist_SignalRun(pStartSect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
             }
 
             if (pPlayerActor->sector()->lotag > 0)
@@ -1596,13 +1607,6 @@ void AIPlayer::Tick(RunListEvent* ev)
                 }
             }
         }
-    }
-
-    // loc_1C201:
-    if (nLocalPlayer == nPlayer)
-    {
-        pLocalEyeSect = PlayerList[nLocalPlayer].pPlayerViewSect;
-        CheckAmbience(pLocalEyeSect);
     }
 
     int var_AC = SeqOffsets[pPlayer->nSeq] + PlayerSeq[pPlayer->nAction].a;
