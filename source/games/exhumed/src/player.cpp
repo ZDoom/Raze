@@ -754,6 +754,8 @@ void AIPlayer::Damage(RunListEvent* ev)
 
 static void doPlayerCounters(Player* const pPlayer)
 {
+    const auto pPlayerActor = pPlayer->pActor;
+
     if (pPlayer->nCurrentItem > -1)
     {
         UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
@@ -771,7 +773,7 @@ static void doPlayerCounters(Player* const pPlayer)
         else if (pPlayer->nPlayer != nLocalPlayer)
         {
             nFlashDepth = 5;
-            AddFlash(pPlayer->pActor->sector(), pPlayer->pActor->spr.pos, 0);
+            AddFlash(pPlayerActor->sector(), pPlayerActor->spr.pos, 0);
         }
     }
 
@@ -791,7 +793,7 @@ static void doPlayerCounters(Player* const pPlayer)
 
         if (pPlayer->nInvisible == 0)
         {
-            pPlayer->pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
 
             if (pPlayer->pPlayerFloorSprite) 
             {
