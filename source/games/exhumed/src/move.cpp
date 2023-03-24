@@ -1025,11 +1025,6 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     return movesprite(pActor, vec, zz * 16 + BobVal(zbob) * 2, 0, nClipType);
 }
 
-DAngle GetWallNormal(walltype* pWall)
-{
-    return (pWall->delta().Angle() + DAngle90).Normalized360();
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -1276,7 +1271,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitWall)
             {
-                nAngle = GetWallNormal(nVal.hitWall);
+                nAngle = nVal.hitWall->normalAngle();
             }
             else
             {

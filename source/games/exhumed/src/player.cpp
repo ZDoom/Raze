@@ -770,7 +770,7 @@ static void CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3&
         else //if (nMove.type == kHitWall)
         {
             sect = nMove.hitWall->nextSector();
-            nNormal = GetWallNormal(nMove.hitWall);
+            nNormal = nMove.hitWall->normalAngle();
         }
 
         // moving blocks - move this to a separate function!

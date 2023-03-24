@@ -601,7 +601,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             default:
                 return;
             case kHitWall:
-                nAngle = GetWallNormal(nMov.hitWall);
+                nAngle = nMov.hitWall->normalAngle();
                 break;
             case kHitSprite:
                 nAngle = nMov.actor()->spr.Angles.Yaw;
@@ -856,7 +856,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             if (nMov.exbits == 0)
             {
                 if (nMov.type == kHitSprite) nNewAng = nMov.actor()->spr.Angles.Yaw;
-                else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.hitWall);
+                else if (nMov.type == kHitWall) nNewAng = nMov.hitWall->normalAngle();
             }
             else if (nMov.exbits == kHitAux2)
             {

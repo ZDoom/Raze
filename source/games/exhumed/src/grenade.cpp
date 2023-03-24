@@ -96,7 +96,7 @@ void ThrowGrenade(int nPlayer, double dz, double push1)
         auto nMov = movesprite(pActor, vec, dz, 0, CLIPMASK1);
         if (nMov.type == kHitWall)
         {
-            nAngle = GetWallNormal(nMov.hitWall);
+            nAngle = nMov.hitWall->normalAngle();
             BounceGrenade(pActor, nAngle);
         }
     }
@@ -359,7 +359,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         // loc_2CF60:
         if (nMov.type == kHitWall)
         {
-            BounceGrenade(pActor, GetWallNormal(nMov.hitWall));
+            BounceGrenade(pActor, nMov.hitWall->normalAngle());
         }
         else if (nMov.type == kHitSprite)
         {
