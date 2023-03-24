@@ -1373,10 +1373,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     // loc_1ADAF
     pPlayer->pPlayerViewSect = pViewSect;
-
     pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
-
-    int var_5C = pViewSect->Flag & kSectUnderwater;
 
     // loc_1AEF5:
     if (pPlayer->nHealth > 0)
@@ -1399,7 +1396,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 pPlayer->nBreathTimer = 90;
 
                 // if underwater
-                if (var_5C)
+                if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
                 {
                     if (pPlayer->nMaskAmount > 0)
                     {
@@ -1442,7 +1439,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
 
         // loc_1B0B9
-        if (var_5C) // if underwater
+        if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater) // if underwater
         {
             if (pPlayer->nTorch > 0)
             {
