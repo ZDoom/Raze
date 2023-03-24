@@ -752,77 +752,6 @@ void AIPlayer::Damage(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-static void CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
-{
-    const auto pPlayerActor = pPlayer->pActor;
-    const double zz = pPlayerActor->vel.Z;
-
-    if (nMove.type == kHitSector || nMove.type == kHitWall)
-    {
-        sectortype* sect;
-        DAngle nNormal = nullAngle;
-
-        if (nMove.type == kHitSector)
-        {
-            sect = nMove.hitSector;
-            // Hm... Normal calculation here was broken.
-        }
-        else //if (nMove.type == kHitWall)
-        {
-            sect = nMove.hitWall->nextSector();
-            nNormal = nMove.hitWall->normalAngle();
-        }
-
-        // moving blocks - move this to a separate function!
-        if (sect != nullptr)
-        {
-            const auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
-
-            if ((sect->hitag == 45) && bTouchFloor && nDiff <= DAngle45)
-            {
-                pPlayer->pPlayerPushSect = sect;
-
-                DVector2 vel = pPlayer->vel;
-                auto nMyAngle = vel.Angle().Normalized360();
-
-                setsectinterpolate(sect);
-                MoveSector(sect, nMyAngle, vel);
-
-                if (pPlayer->nPlayerPushSound == -1)
-                {
-                    const int nBlock = pPlayer->pPlayerPushSect->extra;
-                    pPlayer->nPlayerPushSound = nBlock;
-                    DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
-
-                    D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
-                }
-                else
-                {
-                    pPlayerActor->spr.pos = spr_pos;
-                    ChangeActorSect(pPlayerActor, spr_sect);
-                }
-
-                movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
-            }
-            else if (pPlayer->nPlayerPushSound != -1)
-            {
-                if (pPlayer->pPlayerPushSect != nullptr)
-                {
-                    StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
-                }
-
-                pPlayer->nPlayerPushSound = -1;
-            }
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void doPlayerCurrentItem(Player* const pPlayer)
 {
     UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
@@ -1331,7 +1260,64 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        CheckMovingBlocks(pPlayer, nMove, spr_pos, spr_sect);
+        if (nMove.type == kHitSector || nMove.type == kHitWall)
+        {
+            sectortype* sect;
+            DAngle nNormal = nullAngle;
+
+            if (nMove.type == kHitSector)
+            {
+                sect = nMove.hitSector;
+                // Hm... Normal calculation here was broken.
+            }
+            else //if (nMove.type == kHitWall)
+            {
+                sect = nMove.hitWall->nextSector();
+                nNormal = nMove.hitWall->normalAngle();
+            }
+
+            // moving blocks - move this to a separate function!
+            if (sect != nullptr)
+            {
+                const auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
+
+                if ((sect->hitag == 45) && bTouchFloor && nDiff <= DAngle45)
+                {
+                    pPlayer->pPlayerPushSect = sect;
+
+                    DVector2 vel = pPlayer->vel;
+                    auto nMyAngle = vel.Angle().Normalized360();
+
+                    setsectinterpolate(sect);
+                    MoveSector(sect, nMyAngle, vel);
+
+                    if (pPlayer->nPlayerPushSound == -1)
+                    {
+                        const int nBlock = pPlayer->pPlayerPushSect->extra;
+                        pPlayer->nPlayerPushSound = nBlock;
+                        DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
+
+                        D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
+                    }
+                    else
+                    {
+                        pPlayerActor->spr.pos = spr_pos;
+                        ChangeActorSect(pPlayerActor, spr_sect);
+                    }
+
+                    movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
+                }
+                else if (pPlayer->nPlayerPushSound != -1)
+                {
+                    if (pPlayer->pPlayerPushSect != nullptr)
+                    {
+                        StopActorSound(sBlockInfo[pPlayer->pPlayerPushSect->extra].pActor);
+                    }
+
+                    pPlayer->nPlayerPushSound = -1;
+                }
+            }
+        }
     }
 
     if (!pPlayer->bPlayerPan && !pPlayer->bLockPan)
