@@ -81,11 +81,6 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal
 //
 //---------------------------------------------------------------------------
 
-enum
-{
-    kPickupHealth = 4,
-};
-
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -106,7 +101,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             int nSound = -1;
             int nAmount = 0;
             int nWeapon = 0;
-            int pickFlag = 0;
 
             const auto doConsoleMessage = [&]()
             {
@@ -173,6 +167,49 @@ void doPlayerItemPickups(Player* const pPlayer)
                     pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pPickupActor);
                     doConsoleMessage();
+                }
+            };
+            const auto doPickupHealth = [&]()
+            {
+                if (nAmount <= 0 || (!(nFlags & 2)))
+                {
+                    if (!pPlayer->invincibility || nAmount > 0)
+                    {
+                        pPlayer->nHealth += nAmount;
+
+                        if (pPlayer->nHealth > 800)
+                        {
+                            pPlayer->nHealth = 800;
+                        }
+                        else if (pPlayer->nHealth < 0)
+                        {
+                            nSound = -1;
+                            StartDeathSeq(pPlayer->nPlayer, 0);
+                        }
+                    }
+
+                    if (statBase == 12)
+                    {
+                        pPickupActor->spr.hitag = 0;
+                        pPickupActor->spr.picnum++;
+                        ChangeActorStat(pPickupActor, 0);
+                        doConsoleMessage();
+                    }
+                    else
+                    {
+                        if (statBase != 14)
+                        {
+                            nSound = 21;
+                        }
+                        else
+                        {
+                            tintRed = tintGreen;
+                            nSound = 22;
+                            tintGreen = 0;
+                        }
+
+                        doProcessPickup();
+                    }
                 }
             };
 
@@ -258,18 +295,18 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     nSound = 20;
                     nAmount = 40;
-                    pickFlag |= kPickupHealth;
+                    doPickupHealth();
                 }
                 break;
 
             case 7: // Blood Bowl
                 nAmount = 160;
-                pickFlag |= kPickupHealth;
+                doPickupHealth();
                 break;
 
             case 8: // Cobra Venom Bowl
                 nAmount = -200;
-                pickFlag |= kPickupHealth;
+                doPickupHealth();
                 break;
 
             case 11: // Bubble Nest
@@ -462,50 +499,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                 DestroyItemAnim(pPickupActor);
                 DeleteActor(pPickupActor);
                 break;
-            }
-
-            if (pickFlag & kPickupHealth)
-            {
-                if (nAmount <= 0 || (!(nFlags & 2)))
-                {
-                    if (!pPlayer->invincibility || nAmount > 0)
-                    {
-                        pPlayer->nHealth += nAmount;
-
-                        if (pPlayer->nHealth > 800)
-                        {
-                            pPlayer->nHealth = 800;
-                        }
-                        else if (pPlayer->nHealth < 0)
-                        {
-                            nSound = -1;
-                            StartDeathSeq(pPlayer->nPlayer, 0);
-                        }
-                    }
-
-                    if (statBase == 12)
-                    {
-                        pPickupActor->spr.hitag = 0;
-                        pPickupActor->spr.picnum++;
-                        ChangeActorStat(pPickupActor, 0);
-                        doConsoleMessage();
-                    }
-                    else
-                    {
-                        if (statBase != 14)
-                        {
-                            nSound = 21;
-                        }
-                        else
-                        {
-                            tintRed = tintGreen;
-                            nSound = 22;
-                            tintGreen = 0;
-                        }
-
-                        doProcessPickup();
-                    }
-                }
             }
         }
     }
