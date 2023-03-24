@@ -858,6 +858,73 @@ static void doPlayerMask(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerBreath(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    pPlayer->nBreathTimer--;
+
+    if (pPlayer->nBreathTimer <= 0)
+    {
+        const auto pPlayerActor = pPlayer->pActor;
+        pPlayer->nBreathTimer = 90;
+
+        if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
+        {
+            if (pPlayer->nMaskAmount > 0)
+            {
+                D3PlayFX(StaticSound[kSound30], pPlayerActor);
+                pPlayer->nAir = 100;
+            }
+            else
+            {
+                pPlayer->nAir -= 25;
+
+                if (pPlayer->nAir > 0)
+                {
+                    D3PlayFX(StaticSound[kSound25], pPlayerActor);
+                }
+                else
+                {
+                    pPlayer->nHealth += (pPlayer->nAir << 2);
+
+                    if (pPlayer->nHealth <= 0)
+                    {
+                        pPlayer->nHealth = 0;
+                        StartDeathSeq(pPlayer->nPlayer, 0);
+                    }
+
+                    pPlayer->nAir = 0;
+                    D3PlayFX(StaticSound[(pPlayer->nHealth < 300) ? kSound79 : kSound19], pPlayerActor);
+                }
+            }
+
+            DoBubbles(pPlayer->nPlayer);
+        }
+    }
+
+    if (pPlayerActor->sector()->Flag & kSectUnderwater)
+    {
+        if (pPlayer->nAir < 50)
+            D3PlayFX(StaticSound[kSound14], pPlayerActor);
+
+        pPlayer->nBreathTimer = 1;
+    }
+
+    pPlayer->nBreathTimer--;
+
+    if (pPlayer->nBreathTimer <= 0)
+        pPlayer->nBreathTimer = 90;
+
+    if (pPlayer->nAir < 100)
+        pPlayer->nAir = 100;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerQuake(Player* const pPlayer)
 {
     pPlayer->nQuake = -pPlayer->nQuake;
@@ -1183,18 +1250,12 @@ void AIPlayer::Tick(RunListEvent* ev)
     doPlayerYaw(pPlayer);
     doPlayerGravity(pPlayerActor);
 
-    // loc_1A4E6
-    int nSectFlag = pPlayer->pPlayerViewSect->Flag;
-
     const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
     const auto spr_pos = pPlayerActor->spr.pos;
     const auto spr_sect = pPlayerActor->sector();
 
     if (pPlayerActor->vel.Z > 32)
         pPlayerActor->vel.Z = 32;
-
-    // TODO
-    // nSectFlag & kSectUnderwater;
 
     Collision nMove;
     nMove.setNone();
@@ -1398,59 +1459,9 @@ void AIPlayer::Tick(RunListEvent* ev)
             doPlayerMask(pPlayer);
 
         if (!pPlayer->invincibility)
-        {
-            // Handle air
-            pPlayer->nBreathTimer--;
+            doPlayerBreath(pPlayer);
 
-            if (pPlayer->nBreathTimer <= 0)
-            {
-                pPlayer->nBreathTimer = 90;
-
-                // if underwater
-                if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
-                {
-                    if (pPlayer->nMaskAmount > 0)
-                    {
-                        D3PlayFX(StaticSound[kSound30], pPlayerActor);
-
-                        pPlayer->nAir = 100;
-                    }
-                    else
-                    {
-                        pPlayer->nAir -= 25;
-                        if (pPlayer->nAir > 0)
-                        {
-                            D3PlayFX(StaticSound[kSound25], pPlayerActor);
-                        }
-                        else
-                        {
-                            pPlayer->nHealth += (pPlayer->nAir << 2);
-                            if (pPlayer->nHealth <= 0)
-                            {
-                                pPlayer->nHealth = 0;
-                                StartDeathSeq(nPlayer, 0);
-                            }
-
-                            pPlayer->nAir = 0;
-
-                            if (pPlayer->nHealth < 300)
-                            {
-                                D3PlayFX(StaticSound[kSound79], pPlayerActor);
-                            }
-                            else
-                            {
-                                D3PlayFX(StaticSound[kSound19], pPlayerActor);
-                            }
-                        }
-                    }
-
-                    DoBubbles(nPlayer);
-                }
-            }
-        }
-
-        // loc_1B0B9
-        if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater) // if underwater
+        if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
         {
             if (pPlayer->nTorch > 0)
             {
@@ -1460,36 +1471,13 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
         else
         {
-            auto pTmpSect = pPlayerActor->sector();
+            const auto pTmpSect = pPlayerActor->sector();
+            const bool highvel = pPlayer->totalvel > 25;
+            const bool belowfloor = pPlayerActor->spr.pos.Z > pTmpSect->floorz;
 
-            if (pPlayer->totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
+            if (highvel && belowfloor && pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
             {
-                if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
-                {
-                    D3PlayFX(StaticSound[kSound42], pPlayerActor);
-                }
-            }
-
-            // CHECKME - wrong place?
-            if (nSectFlag & kSectUnderwater)
-            {
-                if (pPlayer->nAir < 50)
-                {
-                    D3PlayFX(StaticSound[kSound14], pPlayerActor);
-                }
-
-                pPlayer->nBreathTimer = 1;
-            }
-
-            pPlayer->nBreathTimer--;
-            if (pPlayer->nBreathTimer <= 0)
-            {
-                pPlayer->nBreathTimer = 90;
-            }
-
-            if (pPlayer->nAir < 100)
-            {
-                pPlayer->nAir = 100;
+                D3PlayFX(StaticSound[kSound42], pPlayerActor);
             }
         }
 
