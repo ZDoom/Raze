@@ -752,10 +752,10 @@ void AIPlayer::Damage(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
+bool CheckMovingBlocks(Player* const pPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
 {
-    auto pPlayerActor = PlayerList[nPlayer].pActor;
-    double const zz = pPlayerActor->vel.Z;
+    const auto pPlayerActor = pPlayer->pActor;
+    const double zz = pPlayerActor->vel.Z;
 
     if (nMove.type == kHitSector || nMove.type == kHitWall)
     {
@@ -782,18 +782,18 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
 
                 if (nDiff <= DAngle45)
                 {
-                    PlayerList[nPlayer].pPlayerPushSect = sect;
+                    pPlayer->pPlayerPushSect = sect;
 
-                    DVector2 vel = PlayerList[nPlayer].vel;
+                    DVector2 vel = pPlayer->vel;
                     auto nMyAngle = vel.Angle().Normalized360();
 
                     setsectinterpolate(sect);
                     MoveSector(sect, nMyAngle, vel);
 
-                    if (PlayerList[nPlayer].nPlayerPushSound <= -1)
+                    if (pPlayer->nPlayerPushSound <= -1)
                     {
-                        PlayerList[nPlayer].nPlayerPushSound = 1;
-                        int nBlock = PlayerList[nPlayer].pPlayerPushSect->extra;
+                        pPlayer->nPlayerPushSound = 1;
+                        int nBlock = pPlayer->pPlayerPushSect->extra;
                         DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
 
                         D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
@@ -1327,7 +1327,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        if (CheckMovingBlocks(nPlayer, nMove, spr_pos, spr_sect))
+        if (CheckMovingBlocks(pPlayer, nMove, spr_pos, spr_sect))
             goto sectdone;
     }
 
