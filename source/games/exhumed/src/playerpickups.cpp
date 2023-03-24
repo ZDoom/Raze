@@ -97,6 +97,7 @@ void doPlayerItemPickups(Player* const pPlayer)
         if (itemtype <= 54)
         {
             static constexpr int itemArray[] = {kItemHeart, kItemInvincibility, kItemDoubleDamage, kItemInvisibility, kItemTorch, kItemMask};
+            static constexpr int ammoArray[] = {1, 3, 2};
 
             const auto doConsoleMessage = [=](const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
             {
@@ -212,25 +213,11 @@ void doPlayerItemPickups(Player* const pPlayer)
             switch (itemtype)
             {
             case 0: // Speed Loader
-                if (AddAmmo(pPlayer->nPlayer, 1, pPickupActor->spr.hitag))
-                {
-                    doProcessPickup();
-                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
-                }
-                break;
-
             case 1: // Fuel Canister
-                if (AddAmmo(pPlayer->nPlayer, 3, pPickupActor->spr.hitag))
-                {
-                    doProcessPickup();
-                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
-                }
-                break;
-
             case 2: // M - 60 Ammo Belt
-                if (AddAmmo(pPlayer->nPlayer, 2, pPickupActor->spr.hitag))
+                if (AddAmmo(pPlayer->nPlayer, ammoArray[itemtype], pPickupActor->spr.hitag))
                 {
-                    CheckClip(pPlayer->nPlayer);
+                    if (itemtype == 2) CheckClip(pPlayer->nPlayer);
                     doProcessPickup();
                     doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
