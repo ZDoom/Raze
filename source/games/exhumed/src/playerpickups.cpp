@@ -98,6 +98,7 @@ void doPlayerItemPickups(Player* const pPlayer)
         {
             static constexpr int itemArray[] = {kItemHeart, kItemInvincibility, kItemDoubleDamage, kItemInvisibility, kItemTorch, kItemMask};
             static constexpr int weapArray[] = {6, 24, 100, 20, 2};
+            static constexpr int healArray[] = {40, 160, -200};
             static constexpr int ammoArray[] = {1, 3, 2};
 
             const auto doConsoleMessage = [=](const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
@@ -165,7 +166,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                 doConsoleMessage(StaticSound[kSound72]);
             };
-            const auto doPickupHealth = [=](const int nAmount, int nSound = -1)
+            const auto doPickupHealth = [=](const int nAmount, int nSound)
             {
                 if (nAmount <= 0 || (!(nFlags & 2)))
                 {
@@ -181,6 +182,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         }
                         else if (pPlayer->nHealth < 0)
                         {
+                            nSound = -1;
                             StartDeathSeq(pPlayer->nPlayer, 0);
                         }
                     }
@@ -193,14 +195,9 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                     else
                     {
-                        if (statBase != 14)
-                        {
-                            nSound = 21;
-                        }
-                        else
+                        if (statBase == 14)
                         {
                             tintRed = tintGreen;
-                            nSound = 22;
                             tintGreen = 0;
                         }
 
@@ -276,18 +273,10 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 6: // Berry Twig
-                if (pPickupActor->spr.hitag != 0) 
-                {
-                    doPickupHealth(40, 20);
-                }
-                break;
-
             case 7: // Blood Bowl
-                doPickupHealth(160);
-                break;
-
             case 8: // Cobra Venom Bowl
-                doPickupHealth(-200);
+                if (pPickupActor->spr.hitag != 0) 
+                    doPickupHealth(healArray[itemtype - 6], itemtype + 14);
                 break;
 
             case 11: // Bubble Nest
