@@ -1265,7 +1265,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (nTotalPlayers <= 1)
         {
             setForcedSyncInput(nPlayer);
-            pPlayerActor->spr.Angles = DRotator(nullAngle, GetAngleToSprite(pPlayerActor, pSpiritSprite), nullAngle);
+            pPlayerActor->spr.Angles = DRotator(nullAngle, (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle(), nullAngle);
             pPlayerActor->backupang();
 
             pPlayer->vel.Zero();

@@ -585,20 +585,6 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 //
 //---------------------------------------------------------------------------
 
-DAngle GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
-{
-    if (!a1 || !a2)
-        return -minAngle;
-
-    return (a2->spr.pos - a1->spr.pos).Angle();
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 {
     if (pActor1 == nullptr || pActor2 == nullptr)

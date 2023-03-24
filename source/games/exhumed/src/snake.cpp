@@ -297,7 +297,7 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
         {
             if (pAct2 != pPlayerActor && !(pAct2->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
-                DAngle nAngle2 = absangle(nAngle, GetAngleToSprite(pActor, pAct2));
+                DAngle nAngle2 = absangle(nAngle, (pAct2->spr.pos.XY() - pActor->spr.pos.XY()).Angle());
                 if (nAngle2 < maxangle)
                 {
                     pEnemy = pAct2;
