@@ -863,6 +863,42 @@ static void doPlayerQuake(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerRamses(Player* const pPlayer)
+{
+    setForcedSyncInput(pPlayer->nPlayer);
+
+    if (nTotalPlayers <= 1)
+    {
+        const auto pPlayerActor = pPlayer->pActor;
+
+        pPlayerActor->spr.Angles = DRotator(nullAngle, (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle(), nullAngle);
+        pPlayerActor->backupang();
+        pPlayerActor->vel.Zero();
+        pPlayer->vel.Zero();
+
+        if (nFreeze < 1)
+        {
+            nFreeze = 1;
+            StopAllSounds();
+            StopLocalSound();
+            InitSpiritHead();
+
+            pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
+            pPlayer->nDestVertPan = nullAngle;
+        }
+    }
+    else
+    {
+        LevelFinished();
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1191,31 +1227,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     // Trigger Ramses?
     if ((pPlayerActor->sector()->Flag & 0x8000) && bTouchFloor)
     {
-        if (nTotalPlayers <= 1)
-        {
-            setForcedSyncInput(nPlayer);
-            pPlayerActor->spr.Angles = DRotator(nullAngle, (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle(), nullAngle);
-            pPlayerActor->backupang();
-
-            pPlayer->vel.Zero();
-            pPlayerActor->vel.Zero();
-
-            if (nFreeze < 1)
-            {
-                nFreeze = 1;
-                StopAllSounds();
-                StopLocalSound();
-                InitSpiritHead();
-
-                pPlayer->nDestVertPan = nullAngle;
-                pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
-            }
-        }
-        else
-        {
-            LevelFinished();
-        }
-
+        doPlayerRamses(pPlayer);
         return;
     }
 
