@@ -1024,6 +1024,62 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_pos, const DVector3& spr_vel, const bool bUnderwater)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const double EyeZ = pPlayerActor->getOffsetZ() + pPlayer->nQuake;
+    auto pViewSect = pPlayerActor->sector();
+
+    while (1)
+    {
+        double nCeilZ = pViewSect->ceilingz;
+
+        if (EyeZ >= nCeilZ)
+            break;
+
+        if (pViewSect->pAbove == nullptr)
+            break;
+
+        pViewSect = pViewSect->pAbove;
+    }
+
+    // Do underwater sector check
+    if (bUnderwater && pViewSect != pPlayerActor->sector() && nMove.type == kHitWall)
+    {
+        auto pos = pPlayerActor->spr.pos;
+        ChangeActorSect(pPlayerActor, pViewSect);
+
+        double fz = pViewSect->floorz - 20;
+        pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
+
+        auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
+        if (coll.type == kHitWall)
+        {
+            ChangeActorSect(pPlayerActor, pPlayerActor->sector());
+            pPlayerActor->spr.pos = pos;
+        }
+        else
+        {
+            pPlayerActor->spr.pos.Z = fz-1;
+            D3PlayFX(StaticSound[kSound42], pPlayerActor);
+        }
+    }
+
+    pPlayer->pPlayerViewSect = pViewSect;
+
+    if (nLocalPlayer == pPlayer->nPlayer)
+    {
+        pLocalEyeSect = pPlayer->pPlayerViewSect;
+        CheckAmbience(pLocalEyeSect);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerFloorDamage(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1190,59 +1246,9 @@ static bool doPlayerMovement(Player* const pPlayer)
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
 
-    auto pViewSect = pPlayerActor->sector();
-    double EyeZ = pPlayerActor->getOffsetZ() + pPlayer->nQuake;
+    updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
 
-    while (1)
-    {
-        double nCeilZ = pViewSect->ceilingz;
-
-        if (EyeZ >= nCeilZ)
-            break;
-
-        if (pViewSect->pAbove == nullptr)
-            break;
-
-        pViewSect = pViewSect->pAbove;
-    }
-
-    // Do underwater sector check
-    if (bUnderwater)
-    {
-        if (pViewSect != pPlayerActor->sector())
-        {
-            if (nMove.type == kHitWall)
-            {
-                auto pos = pPlayerActor->spr.pos;
-
-                ChangeActorSect(pPlayerActor, pViewSect);
-
-                double fz = pViewSect->floorz - 20;
-                pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
-
-                auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
-                if (coll.type == kHitWall)
-                {
-                    ChangeActorSect(pPlayerActor, pPlayerActor->sector());
-                    pPlayerActor->spr.pos = pos;
-                }
-                else
-                {
-                    pPlayerActor->spr.pos.Z = fz-1;
-                    D3PlayFX(StaticSound[kSound42], pPlayerActor);
-                }
-            }
-        }
-    }
-
-    pPlayer->pPlayerViewSect = pViewSect;
     pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
-
-    if (nLocalPlayer == pPlayer->nPlayer)
-    {
-        pLocalEyeSect = pPlayer->pPlayerViewSect;
-        CheckAmbience(pLocalEyeSect);
-    }
 
     return true;
 }
