@@ -1098,6 +1098,50 @@ static void doPlayerPitch(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerDeathPitch(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    pPlayer->nThrust.Zero();
+
+    if (pPlayerActor->viewzoffset >= -11)
+    {
+        pPlayerActor->viewzoffset = -11;
+        pPlayer->dVertPan = 0;
+    }
+    else
+    {
+        if (pPlayerActor->spr.Angles.Pitch.Sgn() > 0)
+        {
+            pPlayerActor->spr.Angles.Pitch = nullAngle;
+            pPlayerActor->viewzoffset -= pPlayer->dVertPan;
+        }
+        else
+        {
+            pPlayerActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
+
+            if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -38)
+            {
+                pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
+            }
+            else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0)
+            {
+                if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
+                {
+                    SetNewWeapon(pPlayer->nPlayer, pPlayer->nDeathType + 8);
+                }
+            }
+
+            pPlayer->dVertPan--;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // this function is pure spaghetti madness... :(
 //
 //---------------------------------------------------------------------------
@@ -1635,41 +1679,7 @@ sectdone:
     }
 
     if (!pPlayer->nHealth)
-    {
-        pPlayer->nThrust.Zero();
-
-        if (pPlayerActor->viewzoffset >= -11)
-        {
-            pPlayerActor->viewzoffset = -11;
-            pPlayer->dVertPan = 0;
-        }
-        else
-        {
-            if (pPlayer->pActor->spr.Angles.Pitch.Sgn() > 0)
-            {
-                pPlayerActor->spr.Angles.Pitch = nullAngle;
-                pPlayerActor->viewzoffset -= pPlayer->dVertPan;
-            }
-            else
-            {
-                pPlayer->pActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
-
-                if (pPlayer->pActor->spr.Angles.Pitch.Degrees() <= -38)
-                {
-                    pPlayer->pActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
-                }
-                else if (pPlayer->pActor->spr.Angles.Pitch.Sgn() >= 0)
-                {
-                    if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
-                    {
-                        SetNewWeapon(nPlayer, pPlayer->nDeathType + 8);
-                    }
-                }
-
-                pPlayer->dVertPan--;
-            }
-        }
-    }
+        doPlayerDeathPitch(pPlayer);
 
     // loc_1C4E1
     pDopple->spr.pos = pPlayerActor->spr.pos;
