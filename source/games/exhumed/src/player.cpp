@@ -1408,8 +1408,6 @@ sectdone:
                         nActionB = 3;
                     }
                 }
-
-                // goto loc_1BE70:
             }
             else if (pPlayer->input.actions & SB_CROUCH)
             {
@@ -1432,8 +1430,6 @@ sectdone:
                         nActionB = 7;
                     }
                 }
-
-                // goto loc_1BE70:
             }
             else
             {
@@ -1489,9 +1485,7 @@ sectdone:
 
             // loc_1BE70:
             // Handle player pressing number keys to change weapon
-            uint8_t var_90 = pPlayer->input.getNewWeapon();
-
-            if (var_90)
+            if (uint8_t var_90 = pPlayer->input.getNewWeapon())
             {
                 var_90--;
 
