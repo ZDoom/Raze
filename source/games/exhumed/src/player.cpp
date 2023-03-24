@@ -853,7 +853,6 @@ static void doPlayerBreath(Player* const pPlayer)
 
     if (pPlayer->nBreathTimer <= 0)
     {
-        const auto pPlayerActor = pPlayer->pActor;
         pPlayer->nBreathTimer = 90;
 
         if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
@@ -920,7 +919,6 @@ static void doPlayerRamses(Player* const pPlayer)
     if (nTotalPlayers <= 1)
     {
         const auto pPlayerActor = pPlayer->pActor;
-
         pPlayerActor->spr.Angles = DRotator(nullAngle, (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle(), nullAngle);
         pPlayerActor->backupang();
         pPlayerActor->vel.Zero();
