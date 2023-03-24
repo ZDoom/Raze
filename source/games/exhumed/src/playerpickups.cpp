@@ -320,70 +320,55 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 31: // Cobra staff ammo
-            {
-                if (AddAmmo(pPlayer->nPlayer, 5, 1)) {
+                if (AddAmmo(pPlayer->nPlayer, 5, 1))
+                {
                     nSound = StaticSound[kSoundAmmoPickup];
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 32: // Raw Energy
-            {
-                if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag)) {
+                if (AddAmmo(pPlayer->nPlayer, 6, pPickupActor->spr.hitag))
+                {
                     nSound = StaticSound[kSoundAmmoPickup];
                     pickFlag |= kPickupDefaults;
                 }
-
                 break;
-            }
 
             case 39: // Power key
             case 40: // Time key
             case 41: // War key
             case 42: // Earth key
             {
-                int keybit = 4096 << (itemtype - 39);
-
+                const int keybit = 4096 << (itemtype - 39);
                 nSound = -1;
 
                 if (!(pPlayer->keys & keybit))
                 {
                     pPlayer->keys |= keybit;
-
-                    if (nTotalPlayers > 1)
-                    {
-                        pickFlag |= kPickupOnConsole;
-                    }
-                    else
-                    {
-                        pickFlag |= kPickupDefaults;
-                    }
+                    pickFlag |= (nTotalPlayers > 1) ? kPickupOnConsole : kPickupDefaults;
                 }
-
                 break;
             }
 
             case 43: // Magical Essence
             case 44: // ?
-            {
-                if (pPlayer->nMagic >= 1000) {
-                    break;
+                if (pPlayer->nMagic < 1000)
+                {
+                    nSound = StaticSound[kSoundMana1];
+
+                    pPlayer->nMagic += 100;
+
+                    if (pPlayer->nMagic >= 1000)
+                    {
+                        pPlayer->nMagic = 1000;
+                    }
+
+                    pickFlag |= kPickupDefaults;
                 }
-
-                nSound = StaticSound[kSoundMana1];
-
-                pPlayer->nMagic += 100;
-                if (pPlayer->nMagic >= 1000) {
-                    pPlayer->nMagic = 1000;
-                }
-
-                pickFlag |= kPickupDefaults;
-            }
+                break;
 
             case 53: // Scarab (Checkpoint)
-            {
                 if (nLocalPlayer == pPlayer->nPlayer)
                 {
                     pPickupActor->nIndex2++;
@@ -395,10 +380,8 @@ void doPlayerItemPickups(Player* const pPlayer)
 
                 SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw);
                 break;
-            }
 
             case 54: // Golden Sarcophagus (End Level)
-            {
                 if (!bInDemo)
                 {
                     LevelFinished();
@@ -407,7 +390,6 @@ void doPlayerItemPickups(Player* const pPlayer)
                 DestroyItemAnim(pPickupActor);
                 DeleteActor(pPickupActor);
                 break;
-            }
             }
 
             if (pickFlag & kPickupHealth)
