@@ -280,7 +280,7 @@ struct walltype
 	walltype* point2Wall() const;
 	DVector2 delta() const { return point2Wall()->pos - pos; }
 	DVector2 center() const { return(point2Wall()->pos + pos) / 2; }
-	DAngle normalAngle() const { return delta().Angle() + DAngle90; }
+	DAngle normalAngle() const { return (delta().Angle() + DAngle90).Normalized360(); }
 	bool twoSided() const { return nextsector >= 0; }
 	double Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
