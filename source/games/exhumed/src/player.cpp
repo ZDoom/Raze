@@ -814,6 +814,16 @@ static void doPlayerCounters(Player* const pPlayer)
         }
     }
 
+    if (pPlayer->nMaskAmount > 0 && pPlayer->nHealth > 0)
+    {
+        pPlayer->nMaskAmount--;
+
+        if (pPlayer->nMaskAmount == 150 && pPlayer->nPlayer == nLocalPlayer)
+        {
+            PlayAlert(GStrings("TXT_EX_MASKEX"));
+        }
+    }
+
     if (pPlayer->nQuake != 0)
     {
         pPlayer->nQuake = -pPlayer->nQuake;
@@ -827,22 +837,6 @@ static void doPlayerCounters(Player* const pPlayer)
                 pPlayer->nQuake = 0;
             }
         }
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerMask(Player* const pPlayer)
-{
-    pPlayer->nMaskAmount--;
-
-    if (pPlayer->nMaskAmount == 150 && pPlayer->nPlayer == nLocalPlayer)
-    {
-        PlayAlert(GStrings("TXT_EX_MASKEX"));
     }
 }
 
@@ -1550,9 +1544,6 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayer->nHealth > 0)
     {
-        if (pPlayer->nMaskAmount > 0)
-            doPlayerMask(pPlayer);
-
         if (!pPlayer->invincibility)
             doPlayerBreath(pPlayer);
 
