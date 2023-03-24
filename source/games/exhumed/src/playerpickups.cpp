@@ -98,7 +98,7 @@ void doPlayerItemPickups(Player* const pPlayer)
         {
             int tintRed = 0;
             int tintGreen = 16;
-            int nSound = 9;
+            int nSound = -1;
             int var_40;
 
             switch (itemtype)
