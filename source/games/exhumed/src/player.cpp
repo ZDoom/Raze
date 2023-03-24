@@ -819,18 +819,6 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
 //
 //---------------------------------------------------------------------------
 
-static void ClearSpaceBar(int nPlayer)
-{
-    PlayerList[nPlayer].input.actions &= SB_OPEN;
-    buttonMap.ClearButton(gamefunc_Open);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void doPlayerCurrentItem(Player* const pPlayer)
 {
     UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
@@ -1218,8 +1206,6 @@ sectdone:
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 
-    auto actions = pPlayer->input.actions;
-
     // loc_1AEF5:
     if (pPlayer->nHealth > 0)
     {
@@ -1373,9 +1359,9 @@ sectdone:
 
         if (!pPlayer->bIsMummified)
         {
-            if (actions & SB_OPEN)
+            if (pPlayer->input.actions & SB_OPEN)
             {
-                ClearSpaceBar(nPlayer);
+                pPlayer->input.actions &= ~SB_OPEN;
 
                 int tag;
                 if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
@@ -1390,7 +1376,7 @@ sectdone:
             }
 
             // was int var_38 = buttons & 0x8
-            if (actions & SB_FIRE)
+            if (pPlayer->input.actions & SB_FIRE)
             {
                 FireWeapon(nPlayer);
             }
@@ -1407,7 +1393,7 @@ sectdone:
             }
 
             // Jumping
-            if (actions & SB_JUMP)
+            if (pPlayer->input.actions & SB_JUMP)
             {
                 if (bUnderwater)
                 {
@@ -1425,7 +1411,7 @@ sectdone:
 
                 // goto loc_1BE70:
             }
-            else if (actions & SB_CROUCH)
+            else if (pPlayer->input.actions & SB_CROUCH)
             {
                 if (bUnderwater)
                 {
@@ -1485,7 +1471,7 @@ sectdone:
                     }
                 }
                 // loc_1BE30
-                if (actions & SB_FIRE) // was var_38
+                if (pPlayer->input.actions & SB_FIRE) // was var_38
                 {
                     if (bUnderwater)
                     {
@@ -1517,7 +1503,7 @@ sectdone:
         }
         else // player is mummified
         {
-            if (actions & SB_FIRE)
+            if (pPlayer->input.actions & SB_FIRE)
             {
                 FireWeapon(nPlayer);
             }
@@ -1550,12 +1536,12 @@ sectdone:
 
         pPlayer->Angles.doPitchKeys(&pPlayer->input);
 
-        if (actions & (SB_AIM_UP | SB_AIM_DOWN) || pPlayer->input.horz)
+        if (pPlayer->input.actions & (SB_AIM_UP | SB_AIM_DOWN) || pPlayer->input.horz)
         {
             pPlayer->nDestVertPan = pPlayer->pActor->spr.Angles.Pitch;
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
-        else if (actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
+        else if (pPlayer->input.actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
         {
             pPlayer->nDestVertPan = pPlayer->pActor->spr.Angles.Pitch;
             pPlayer->bPlayerPan = pPlayer->bLockPan = false;
@@ -1579,9 +1565,9 @@ sectdone:
         setForcedSyncInput(nPlayer);
 
         // loc_1C0E9
-        if (actions & SB_OPEN)
+        if (pPlayer->input.actions & SB_OPEN)
         {
-            ClearSpaceBar(nPlayer);
+            pPlayer->input.actions &= ~SB_OPEN;
 
             if (nAction >= 16)
             {
