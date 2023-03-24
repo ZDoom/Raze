@@ -1547,7 +1547,7 @@ static void doPlayerDeathPitch(Player* const pPlayer)
 
 //---------------------------------------------------------------------------
 //
-// this function is pure spaghetti madness... :(
+// this function is (no longer) pure spaghetti madness... :)
 //
 //---------------------------------------------------------------------------
 
@@ -1615,30 +1615,22 @@ void AIPlayer::Tick(RunListEvent* ev)
             const bool belowfloor = pPlayerActor->spr.pos.Z > pTmpSect->floorz;
 
             if (highvel && belowfloor && pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
-            {
                 D3PlayFX(StaticSound[kSound42], pPlayerActor);
-            }
         }
 
         updatePlayerFloorActor(pPlayer);
         doPlayerItemPickups(pPlayer);
 
         if (bTouchFloor && pPlayerActor->sector()->lotag > 0)
-        {
             runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
-        }
 
         if (pStartSect != pPlayerActor->sector())
         {
             if (pStartSect->lotag > 0)
-            {
                 runlist_SignalRun(pStartSect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
-            }
 
             if (pPlayerActor->sector()->lotag > 0)
-            {
                 runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
-            }
         }
 
         if (!pPlayer->bIsMummified)
@@ -1647,22 +1639,16 @@ void AIPlayer::Tick(RunListEvent* ev)
             {
                 pPlayer->input.actions &= ~SB_OPEN;
 
-                // code to handle item pickup?
-                HitInfo near;
-
                 // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
+                HitInfo near;
                 neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
 
                 int tag;
                 if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
-                {
                     runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
-                }
 
                 if (near.hitSector != nullptr && (tag = near.hitSector->lotag) > 0)
-                {
                     runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
-                }
             }
 
             pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
@@ -1675,7 +1661,6 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         setForcedSyncInput(nPlayer);
 
-        // loc_1C0E9
         if (pPlayer->input.actions & SB_OPEN)
         {
             pPlayer->input.actions &= ~SB_OPEN;
