@@ -86,6 +86,7 @@ enum
     kPickupProcess = 1,
     kPickupOnConsole = 2,
     kPickupDefaults = kPickupProcess | kPickupOnConsole,
+    kPickupHealth = 4,
 };
 
 void doPlayerItemPickups(Player* const pPlayer)
@@ -106,6 +107,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             int tintRed = 0;
             int tintGreen = 16;
             int nSound = -1;
+            int nHealth = 0;
             int pickFlag = 0;
             int var_40;
 
@@ -187,215 +189,23 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 6: // Berry Twig
-            {
-                if (pPickupActor->spr.hitag == 0) {
-                    break;
-                }
-
-                nSound = 20;
-                int edx = 40;
-
-                if (edx <= 0 || (!(nFlags & 2)))
+                if (pPickupActor->spr.hitag != 0) 
                 {
-                    if (!pPlayer->invincibility || edx > 0)
-                    {
-                        pPlayer->nHealth += edx;
-                        if (pPlayer->nHealth > 800)
-                        {
-                            pPlayer->nHealth = 800;
-                        }
-                        else
-                        {
-                            if (pPlayer->nHealth < 0)
-                            {
-                                nSound = -1;
-                                StartDeathSeq(pPlayer->nPlayer, 0);
-                            }
-                        }
-                    }
-
-                    if (statBase == 12)
-                    {
-                        pPickupActor->spr.hitag = 0;
-                        pPickupActor->spr.picnum++;
-
-                        ChangeActorStat(pPickupActor, 0);
-
-                        // loc_1BA74: - repeated block, see in default case
-                        if (pPlayer->nPlayer == nLocalPlayer)
-                        {
-                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                            {
-                                pickupMessage(statBase);
-                            }
-
-                            TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                            if (nSound > -1)
-                            {
-                                PlayLocalSound(nSound, 0);
-                            }
-                        }
-
-                        break;
-                    }
-                    else
-                    {
-                        if (statBase != 14)
-                        {
-                            nSound = 21;
-                        }
-                        else
-                        {
-                            tintRed = tintGreen;
-                            nSound = 22;
-                            tintGreen = 0;
-                        }
-
-                        pickFlag |= kPickupDefaults;
-                    }
+                    nSound = 20;
+                    nHealth = 40;
+                    pickFlag |= kPickupHealth;
                 }
-
                 break;
-            }
 
             case 7: // Blood Bowl
-            {
-                int edx = 160;
-
-                // Same code as case 6 now till break
-                if (edx <= 0 || (!(nFlags & 2)))
-                {
-                    if (!pPlayer->invincibility || edx > 0)
-                    {
-                        pPlayer->nHealth += edx;
-                        if (pPlayer->nHealth > 800)
-                        {
-                            pPlayer->nHealth = 800;
-                        }
-                        else
-                        {
-                            if (pPlayer->nHealth < 0)
-                            {
-                                nSound = -1;
-                                StartDeathSeq(pPlayer->nPlayer, 0);
-                            }
-                        }
-                    }
-
-                    if (statBase == 12)
-                    {
-                        pPickupActor->spr.hitag = 0;
-                        pPickupActor->spr.picnum++;
-
-                        ChangeActorStat(pPickupActor, 0);
-
-                        // loc_1BA74: - repeated block, see in default case
-                        if (pPlayer->nPlayer == nLocalPlayer)
-                        {
-                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                            {
-                                pickupMessage(statBase);
-                            }
-
-                            TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                            if (nSound > -1)
-                            {
-                                PlayLocalSound(nSound, 0);
-                            }
-                        }
-
-                        break;
-                    }
-                    else
-                    {
-                        if (statBase != 14)
-                        {
-                            nSound = 21;
-                        }
-                        else
-                        {
-                            tintRed = tintGreen;
-                            nSound = 22;
-                            tintGreen = 0;
-                        }
-
-                        pickFlag |= kPickupDefaults;
-                    }
-                }
-
+                nHealth = 160;
+                pickFlag |= kPickupHealth;
                 break;
-            }
 
             case 8: // Cobra Venom Bowl
-            {
-                int edx = -200;
-
-                // Same code as case 6 and 7 from now till break
-                if (edx <= 0 || (!(nFlags & 2)))
-                {
-                    if (!pPlayer->invincibility || edx > 0)
-                    {
-                        pPlayer->nHealth += edx;
-                        if (pPlayer->nHealth > 800)
-                        {
-                            pPlayer->nHealth = 800;
-                        }
-                        else
-                        {
-                            if (pPlayer->nHealth < 0)
-                            {
-                                nSound = -1;
-                                StartDeathSeq(pPlayer->nPlayer, 0);
-                            }
-                        }
-                    }
-
-                    if (statBase == 12)
-                    {
-                        pPickupActor->spr.hitag = 0;
-                        pPickupActor->spr.picnum++;
-
-                        ChangeActorStat(pPickupActor, 0);
-
-                        // loc_1BA74: - repeated block, see in default case
-                        if (pPlayer->nPlayer == nLocalPlayer)
-                        {
-                            if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                            {
-                                pickupMessage(statBase);
-                            }
-
-                            TintPalette(tintRed * 4, tintGreen * 4, 0);
-
-                            if (nSound > -1)
-                            {
-                                PlayLocalSound(nSound, 0);
-                            }
-                        }
-
-                        break;
-                    }
-                    else
-                    {
-                        if (statBase != 14)
-                        {
-                            nSound = 21;
-                        }
-                        else
-                        {
-                            tintRed = tintGreen;
-                            nSound = 22;
-                            tintGreen = 0;
-                        }
-
-                        pickFlag |= kPickupDefaults;
-                    }
-                }
-
+                nHealth = -200;
+                pickFlag |= kPickupHealth;
                 break;
-            }
 
             case 11: // Bubble Nest
             {
@@ -943,6 +753,50 @@ void doPlayerItemPickups(Player* const pPlayer)
                 DeleteActor(pPickupActor);
                 break;
             }
+            }
+
+            if (pickFlag & kPickupHealth)
+            {
+                if (nHealth <= 0 || (!(nFlags & 2)))
+                {
+                    if (!pPlayer->invincibility || nHealth > 0)
+                    {
+                        pPlayer->nHealth += nHealth;
+
+                        if (pPlayer->nHealth > 800)
+                        {
+                            pPlayer->nHealth = 800;
+                        }
+                        else if (pPlayer->nHealth < 0)
+                        {
+                            nSound = -1;
+                            StartDeathSeq(pPlayer->nPlayer, 0);
+                        }
+                    }
+
+                    if (statBase == 12)
+                    {
+                        pPickupActor->spr.hitag = 0;
+                        pPickupActor->spr.picnum++;
+                        ChangeActorStat(pPickupActor, 0);
+                        pickFlag |= kPickupOnConsole;
+                    }
+                    else
+                    {
+                        if (statBase != 14)
+                        {
+                            nSound = 21;
+                        }
+                        else
+                        {
+                            tintRed = tintGreen;
+                            nSound = 22;
+                            tintGreen = 0;
+                        }
+
+                        pickFlag |= kPickupDefaults;
+                    }
+                }
             }
 
             if (pickFlag & kPickupProcess)
