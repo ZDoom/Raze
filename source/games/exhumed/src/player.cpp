@@ -1343,12 +1343,12 @@ static bool doPlayerMovement(Player* const pPlayer)
 
         if (pPlayerSect != pPlayerActor->sector())
             ChangeActorSect(pPlayerActor, pPlayerSect);
-    }
 
-    if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
-    {
-        ChangeActorSect(pPlayerActor, spr_sect);
-        pPlayerActor->spr.pos.XY() = spr_pos.XY();
+        if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
+        {
+            ChangeActorSect(pPlayerActor, spr_sect);
+            pPlayerActor->spr.pos.XY() = spr_pos.XY();
+        }
     }
 
     const bool bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
