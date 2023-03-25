@@ -167,6 +167,54 @@ static void doPickupWeapon(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 //
 //---------------------------------------------------------------------------
 
+static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nItem, const int nAmount, int nSound)
+{
+    if (nAmount <= 0 || pPlayer->nHealth < 800)
+    {
+        int tintRed = 0, tintGreen = 16;
+
+        if (!pPlayer->invincibility || nAmount > 0)
+        {
+            pPlayer->nHealth += nAmount;
+
+            if (pPlayer->nHealth > 800)
+            {
+                pPlayer->nHealth = 800;
+            }
+            else if (pPlayer->nHealth < 0)
+            {
+                nSound = -1;
+                StartDeathSeq(pPlayer->nPlayer, 0);
+            }
+        }
+
+        if (nItem == 12)
+        {
+            pPickupActor->spr.hitag = 0;
+            pPickupActor->spr.picnum++;
+            ChangeActorStat(pPickupActor, 0);
+        }
+        else
+        {
+            if (nItem == 14)
+            {
+                tintRed = tintGreen;
+                tintGreen = 0;
+            }
+
+            doPickupDestroy(pPickupActor, nItem);
+        }
+
+        doPickupNotification(pPlayer, nItem, nSound, tintRed, tintGreen);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -183,48 +231,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             static constexpr int weapArray[] = {6, 24, 100, 20, 2};
             static constexpr int healArray[] = {40, 160, -200};
             static constexpr int ammoArray[] = {1, 3, 2};
-
-            const auto doPickupHealth = [=](const int nAmount, int nSound)
-            {
-                if (nAmount <= 0 || (!(nFlags & 2)))
-                {
-                    int tintRed = 0, tintGreen = 16;
-
-                    if (!pPlayer->invincibility || nAmount > 0)
-                    {
-                        pPlayer->nHealth += nAmount;
-
-                        if (pPlayer->nHealth > 800)
-                        {
-                            pPlayer->nHealth = 800;
-                        }
-                        else if (pPlayer->nHealth < 0)
-                        {
-                            nSound = -1;
-                            StartDeathSeq(pPlayer->nPlayer, 0);
-                        }
-                    }
-
-                    if (nItem == 12)
-                    {
-                        pPickupActor->spr.hitag = 0;
-                        pPickupActor->spr.picnum++;
-                        ChangeActorStat(pPickupActor, 0);
-                    }
-                    else
-                    {
-                        if (nItem == 14)
-                        {
-                            tintRed = tintGreen;
-                            tintGreen = 0;
-                        }
-
-                        doPickupDestroy(pPickupActor, nItem);
-                    }
-
-                    doPickupNotification(pPlayer, nItem, nSound, tintRed, tintGreen);
-                }
-            };
 
             switch (nItem)
             {
@@ -275,7 +281,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 13: // Blood Bowl
             case 14: // Cobra Venom Bowl
                 if (pPickupActor->spr.hitag != 0) 
-                    doPickupHealth(healArray[nItem - 12], nItem + 8);
+                    doPickupHealth(pPlayer, pPickupActor, nItem, healArray[nItem - 12], nItem + 8);
                 break;
 
             case 17: // Bubble Nest
