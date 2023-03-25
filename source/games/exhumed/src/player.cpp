@@ -799,6 +799,7 @@ static void updatePlayerInventory(Player* const pPlayer)
         for (i = 6; i > 0; i--)
         {
             nItem += invDir;
+
             if (nItem < 0) nItem = 5;
             else if (nItem == 6) nItem = 0;
 
@@ -810,15 +811,14 @@ static void updatePlayerInventory(Player* const pPlayer)
     }
 
     if ((pPlayer->input.actions & SB_INVUSE) && pPlayer->nItem != -1)
-    {
         pPlayer->input.setItemUsed(pPlayer->nItem);
-    }
 
     for (int i = 0; i < 6; i++)
     {
         if (pPlayer->input.isItemUsed(i))
         {
             pPlayer->input.clearItemUsed(i);
+
             if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
             {
                 pPlayer->nCurrentItem = i;
@@ -874,6 +874,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
 static void doPlayerCounters(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
+    const bool bConsolePlayer = pPlayer->nPlayer == nLocalPlayer;
 
     if (pPlayer->nCurrentItem > -1)
     {
@@ -889,7 +890,7 @@ static void doPlayerCounters(Player* const pPlayer)
         {
             SetTorch(pPlayer->nPlayer, 0);
         }
-        else if (pPlayer->nPlayer != nLocalPlayer)
+        else if (!bConsolePlayer)
         {
             nFlashDepth = 5;
             AddFlash(pPlayerActor->sector(), pPlayerActor->spr.pos, 0);
@@ -900,10 +901,8 @@ static void doPlayerCounters(Player* const pPlayer)
     {
         pPlayer->nDouble--;
 
-        if (pPlayer->nDouble == 150 && pPlayer->nPlayer == nLocalPlayer)
-        {
+        if (pPlayer->nDouble == 150 && bConsolePlayer)
             PlayAlert(GStrings("TXT_EX_WEAPONEX"));
-        }
     }
 
     if (pPlayer->nInvisible > 0)
@@ -912,14 +911,12 @@ static void doPlayerCounters(Player* const pPlayer)
 
         if (pPlayer->nInvisible == 0)
         {
-            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
+            pPlayerActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
             if (pPlayer->pPlayerFloorSprite) 
-            {
-                pPlayer->pPlayerFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE; // set visible
-            }
+                pPlayer->pPlayerFloorSprite->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
         }
-        else if (pPlayer->nInvisible == 150 && pPlayer->nPlayer == nLocalPlayer)
+        else if (pPlayer->nInvisible == 150 && bConsolePlayer)
         {
             PlayAlert(GStrings("TXT_EX_INVISEX"));
         }
@@ -929,20 +926,16 @@ static void doPlayerCounters(Player* const pPlayer)
     {
         pPlayer->invincibility--;
 
-        if (pPlayer->invincibility == 150 && pPlayer->nPlayer == nLocalPlayer)
-        {
+        if (pPlayer->invincibility == 150 && bConsolePlayer)
             PlayAlert(GStrings("TXT_EX_INVINCEX"));
-        }
     }
 
     if (pPlayer->nMaskAmount > 0 && pPlayer->nHealth > 0)
     {
         pPlayer->nMaskAmount--;
 
-        if (pPlayer->nMaskAmount == 150 && pPlayer->nPlayer == nLocalPlayer)
-        {
+        if (pPlayer->nMaskAmount == 150 && bConsolePlayer)
             PlayAlert(GStrings("TXT_EX_MASKEX"));
-        }
     }
 
     if (pPlayer->nQuake != 0)
@@ -954,9 +947,7 @@ static void doPlayerCounters(Player* const pPlayer)
             pPlayer->nQuake -= 2.;
 
             if (pPlayer->nQuake < 0)
-            {
                 pPlayer->nQuake = 0;
-            }
         }
     }
 }
@@ -1025,15 +1016,12 @@ static void doPlayerUnderwater(Player* const pPlayer)
     }
     else
     {
-        const auto pTmpSect = pPlayerActor->sector();
+        const auto pPlayerSect = pPlayerActor->sector();
+        const auto highSpeed = pPlayer->totalvel > 25;
+        const auto belowFloor = pPlayerActor->spr.pos.Z > pPlayerSect->floorz;
 
-        if (pPlayer->totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
-        {
-            if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
-            {
-                D3PlayFX(StaticSound[kSound42], pPlayerActor);
-            }
-        }
+        if (highSpeed && belowFloor && pPlayerSect->Depth && !pPlayerSect->Speed && !pPlayerSect->Damage)
+            D3PlayFX(StaticSound[kSound42], pPlayerActor);
 
         // Checked and confirmed.
         if (bUnderwater)
@@ -1075,12 +1063,11 @@ static void doPlayerRamses(Player* const pPlayer)
         if (nFreeze < 1)
         {
             nFreeze = 1;
+            pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
+            pPlayer->nDestVertPan = nullAngle;
             StopAllSounds();
             StopLocalSound();
             InitSpiritHead();
-
-            pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
-            pPlayer->nDestVertPan = nullAngle;
         }
     }
     else
@@ -1098,13 +1085,11 @@ static void doPlayerRamses(Player* const pPlayer)
 static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 {
     // Z vel is modified within Gravity() and needs backing up.
-    const double zVel = pPlayerActor->vel.Z;
+    const double nStartVelZ = pPlayerActor->vel.Z;
     Gravity(pPlayerActor);
 
-    if (pPlayerActor->vel.Z >= 6500/256. && zVel < 6500 / 256.)
-    {
+    if (pPlayerActor->vel.Z >= (6500 / 256.) && nStartVelZ < (6500 / 256.))
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -1120,13 +1105,12 @@ static void updatePlayerFloorActor(Player* const pPlayer)
         if (DExhumedActor* const pFloorActor = pPlayer->pPlayerFloorSprite)
         {
             const auto pPlayerActor = pPlayer->pActor;
+            const auto pPlayerSect = pPlayerActor->sector();
             pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
-            pFloorActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+            pFloorActor->spr.pos.Z = pPlayerSect->floorz;
 
-            if (pFloorActor->sector() != pPlayerActor->sector())
-            {
-                ChangeActorSect(pFloorActor, pPlayerActor->sector());
-            }
+            if (pFloorActor->sector() != pPlayerSect)
+                ChangeActorSect(pFloorActor, pPlayerSect);
         }
     }
 }
@@ -1140,14 +1124,15 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 static void updatePlayerDoppleActor(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerSect = pPlayerActor->sector();
     DExhumedActor* const pDopple = pPlayer->pDoppleSprite;
     pDopple->spr.pos = pPlayerActor->spr.pos;
 
-    if (pPlayerActor->sector()->pAbove != nullptr)
+    if (pPlayerSect->pAbove != nullptr)
     {
         pDopple->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
-        ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+        ChangeActorSect(pDopple, pPlayerSect->pAbove);
     }
     else
     {
@@ -1169,12 +1154,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 
     while (1)
     {
-        double nCeilZ = pViewSect->ceilingz;
-
-        if (EyeZ >= nCeilZ)
-            break;
-
-        if (pViewSect->pAbove == nullptr)
+        if (EyeZ >= pViewSect->ceilingz || !pViewSect->pAbove)
             break;
 
         pViewSect = pViewSect->pAbove;
@@ -1183,13 +1163,12 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
     // Do underwater sector check
     if (bUnderwater && pViewSect != pPlayerActor->sector() && nMove.type == kHitWall)
     {
-        auto pos = pPlayerActor->spr.pos;
-        ChangeActorSect(pPlayerActor, pViewSect);
-
-        double fz = pViewSect->floorz - 20;
+        const auto pos = pPlayerActor->spr.pos;
+        const auto fz = pViewSect->floorz - 20;
         pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
+        ChangeActorSect(pPlayerActor, pViewSect);
+        const auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
 
-        auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
         if (coll.type == kHitWall)
         {
             ChangeActorSect(pPlayerActor, pPlayerActor->sector());
@@ -1349,7 +1328,7 @@ static bool doPlayerMovement(Player* const pPlayer)
     const bool bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
 
     if (bUnderwater)
-        pPlayer->nThrust /= 2;
+        pPlayer->nThrust *= 0.5;
 
     // Trigger Ramses?
     if ((pPlayerActor->sector()->Flag & 0x8000) && bTouchFloor)
@@ -1358,14 +1337,10 @@ static bool doPlayerMovement(Player* const pPlayer)
     if (nMove.type || nMove.exbits)
     {
         if (bTouchFloor)
-        {
             doPlayerFloorDamage(pPlayer, nStartVelZ);
-        }
 
         if (nMove.type == kHitSector || nMove.type == kHitWall)
-        {
             doPlayerMovingBlocks(pPlayer, nMove, spr_pos, spr_vel, spr_sect);
-        }
     }
 
     pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
@@ -1402,23 +1377,19 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
             runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::LeaveSector);
     }
 
-    if (!pPlayer->bIsMummified)
+    if (!pPlayer->bIsMummified && (pPlayer->input.actions & SB_OPEN))
     {
-        if (pPlayer->input.actions & SB_OPEN)
-        {
-            pPlayer->input.actions &= ~SB_OPEN;
+        pPlayer->input.actions &= ~SB_OPEN;
 
-            // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-            HitInfo near;
-            neartag(pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
+        // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
+        HitInfo near;
+        neartag(pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
 
-            int tag;
-            if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
-                runlist_SignalRun(tag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+        if (near.hitWall != nullptr && near.hitWall->lotag > 0)
+            runlist_SignalRun(near.hitWall->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
 
-            if (near.hitSector != nullptr && (tag = near.hitSector->lotag) > 0)
-                runlist_SignalRun(tag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
-        }
+        if (near.hitSector != nullptr && near.hitSector->lotag > 0)
+            runlist_SignalRun(near.hitSector->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
     }
 }
 
@@ -1460,9 +1431,7 @@ static void updatePlayerAction(Player* const pPlayer)
             else
             {
                 if (pPlayerActor->viewzoffset < -32.5)
-                {
                     pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
-                }
 
                 nextAction = 7 - (pPlayer->totalvel < 1);
             }
@@ -1503,26 +1472,20 @@ static void updatePlayerAction(Player* const pPlayer)
             }
         }
 
-        pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
-
         // Handle player pressing number keys to change weapon
         const unsigned newWeap = pPlayer->input.getNewWeapon() - 1;
         if (pPlayer->nPlayerWeapons & (1 << newWeap))
-        {
             SetNewWeapon(pPlayer->nPlayer, newWeap);
-        }
+
+        pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
     }
     else // player is mummified
     {
         if (pPlayer->input.actions & SB_FIRE)
-        {
             pPlayer->bIsFiring = true;
-        }
 
         if (pPlayer->nAction != 15)
-        {
             nextAction = 14 - (pPlayer->totalvel <= 1);
-        }
     }
 
     if (nextAction != pPlayer->nAction && pPlayer->nAction != 4)
@@ -1669,31 +1632,25 @@ static void doPlayerDeathPitch(Player* const pPlayer)
         pPlayerActor->viewzoffset = -11;
         pPlayer->dVertPan = 0;
     }
+    else if (pPlayerActor->spr.Angles.Pitch.Sgn() > 0)
+    {
+        pPlayerActor->spr.Angles.Pitch = nullAngle;
+        pPlayerActor->viewzoffset -= pPlayer->dVertPan;
+    }
     else
     {
-        if (pPlayerActor->spr.Angles.Pitch.Sgn() > 0)
-        {
-            pPlayerActor->spr.Angles.Pitch = nullAngle;
-            pPlayerActor->viewzoffset -= pPlayer->dVertPan;
-        }
-        else
-        {
-            pPlayerActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
+        pPlayerActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
 
-            if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -38)
-            {
-                pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-38);
-            }
-            else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0)
-            {
-                if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
-                {
-                    SetNewWeapon(pPlayer->nPlayer, pPlayer->nDeathType + 8);
-                }
-            }
-
-            pPlayer->dVertPan--;
+        if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -38)
+        {
+            pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-38);
         }
+        else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0 && !(pPlayerActor->sector()->Flag & kSectUnderwater))
+        {
+            SetNewWeapon(pPlayer->nPlayer, pPlayer->nDeathType + 8);
+        }
+
+        pPlayer->dVertPan--;
     }
 }
 
