@@ -61,7 +61,6 @@ struct ExhumedPlayer native
 	native int16 nLastWeapon;
 	native int16 bIsFiring;
 	native int16 nRun;
-	native bool bPlayerPan, bLockPan;
 	//fixedhoriz nDestVertPan;
 
 	//PlayerHorizon horizon;

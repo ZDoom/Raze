@@ -76,7 +76,6 @@ struct Player
     int16_t nState;
     int16_t nLastWeapon;
     int16_t nRun;
-    bool bPlayerPan, bLockPan;
     DAngle nDestVertPan;
 
     InputPacket input;

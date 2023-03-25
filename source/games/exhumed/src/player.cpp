@@ -368,7 +368,6 @@ void RestartPlayer(int nPlayer)
 	if (nPlayer == nLocalPlayer)
 	{
 		RestoreGreenPal();
-        plr->bPlayerPan = plr->bLockPan = false;
 	}
 
 	plr->ototalvel = plr->totalvel = 0;
@@ -1273,7 +1272,7 @@ static void doPlayerFloorDamage(Player* const pPlayer)
     const auto pPlayerActor = pPlayer->pActor;
     pPlayer->nThrust /= 2;
 
-    if (pPlayer->nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2 && !pPlayerActor->spr.Angles.Pitch.Sgn() && cl_slopetilting)
+    if (pPlayer->nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2)
         pPlayer->nDestVertPan = nullAngle;
 
     if (pPlayerActor->vel.Z >= 6500 / 256.)
@@ -1426,11 +1425,7 @@ static bool doPlayerMovement(Player* const pPlayer)
         }
     }
 
-    if (!pPlayer->bPlayerPan && !pPlayer->bLockPan)
-    {
-        pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
-    }
-
+    pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
 
@@ -1637,28 +1632,14 @@ static void doPlayerPitch(Player* const pPlayer)
 
     pPlayer->Angles.doPitchKeys(pInput);
 
-    if (pInput->actions & (SB_AIM_UP | SB_AIM_DOWN) || pInput->horz)
+    if (cl_slopetilting)
     {
-        pPlayer->nDestVertPan = pPlayerActor->spr.Angles.Pitch;
-        pPlayer->bPlayerPan = pPlayer->bLockPan = true;
+        const double nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, pPlayer->nDestVertPan).Tan() * 32.;
+        pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
     }
-    else if (pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
+    else
     {
-        pPlayer->nDestVertPan = pPlayerActor->spr.Angles.Pitch;
-        pPlayer->bPlayerPan = pPlayer->bLockPan = false;
-    }
-
-    if (pPlayer->totalvel > 20)
-    {
-        pPlayer->bPlayerPan = false;
-    }
-
-    if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
-    {
-        if (double nVertPan = deltaangle(pPlayerActor->spr.Angles.Pitch, pPlayer->nDestVertPan).Tan() * 32.)
-        {
-            pPlayerActor->spr.Angles.Pitch += maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.);
-        }
+        pPlayer->Angles.ViewAngles.Pitch = nullAngle;
     }
 }
 
@@ -1990,8 +1971,6 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nNextWeapon);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nState);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nLastWeapon);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nRun);
-DEFINE_FIELD_X(ExhumedPlayer, Player, bPlayerPan);
-DEFINE_FIELD_X(ExhumedPlayer, Player, bLockPan);
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
 {
