@@ -55,10 +55,7 @@ int nBestLevel;
 
 void RunCinemaScene(int num);
 void DrawClock();
-double calc_interpfrac();
 void DoTitle(CompletionFunc completion);
-
-
 
 //---------------------------------------------------------------------------
 //
@@ -77,11 +74,9 @@ void GameInterface::Render()
         DrawClock();
     }
 
-    double const interpfrac = calc_interpfrac();
-
-
-
+    const double interpfrac = bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate || EndLevel ? 1. : I_GetTimeFrac();
     DrawView(interpfrac);
+
     if (nFreeze != 2) // Hide when Ramses is talking.
     {
         DrawStatusBar();

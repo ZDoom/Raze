@@ -262,11 +262,6 @@ void DrawClock()
 //
 //---------------------------------------------------------------------------
 
-double calc_interpfrac()
-{
-    return bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate || EndLevel ? 1. : I_GetTimeFrac();
-}
-
 void DoGameOverScene(bool finallevel)
 {
     // todo: make these customizable later.
