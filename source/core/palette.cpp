@@ -369,7 +369,14 @@ void LookupTableInfo::makeTable(int palnum, const uint8_t *remapbuf, int r, int 
     {
         // colored fog case
 
-        for (int i = 0; i < numshades; i++)
+        auto src = getTable(0);
+        for (int i = 0; i < 256; i++)
+        {
+            p[i] = src[remapbuf[i]];
+        }
+
+#if 0 // these are never used.
+        for (int i = 1; i < numshades; i++)
         {
             int colfac = (numshades - i);
             for (int j = 0; j < 256; j++)
@@ -381,6 +388,7 @@ void LookupTableInfo::makeTable(int palnum, const uint8_t *remapbuf, int r, int 
                     (pe.b * colfac + b * i) / numshades);
             }
         }
+#endif
     }
 
     tables[palnum].FadeColor.r = r;
