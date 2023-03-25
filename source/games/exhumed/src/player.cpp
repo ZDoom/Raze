@@ -1668,6 +1668,53 @@ static void doPlayerPitch(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static bool doPlayerDeathRestart(Player* const pPlayer)
+{
+    if (pPlayer->input.actions & SB_OPEN)
+    {
+        pPlayer->input.actions &= ~SB_OPEN;
+
+        if (pPlayer->nAction >= 16)
+        {
+            if (pPlayer->nPlayer == nLocalPlayer)
+            {
+                StopAllSounds();
+                StopLocalSound();
+                GrabPalette();
+            }
+
+            pPlayer->nCurrentWeapon = pPlayer->nPlayerOldWeapon;
+
+            if (pPlayer->nLives && nNetTime)
+            {
+                if (pPlayer->nAction != 20)
+                {
+                    const auto pPlayerActor = pPlayer->pActor;
+                    pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
+                    pPlayerActor->spr.cstat = 0;
+                    pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+                }
+
+                // will invalidate nPlayerSprite
+                RestartPlayer(pPlayer->nPlayer);
+            }
+            else
+            {
+                DoGameOverScene(currentLevel->levelNumber == 20);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerActionSequence(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1800,53 +1847,19 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerPitch(pPlayer);
         doPlayerYaw(pPlayer);
     }
-    else // else, player's health is less than 0
+    else
     {
         setForcedSyncInput(nPlayer);
+        doPlayerDeathPitch(pPlayer);
 
-        if (pPlayer->input.actions & SB_OPEN)
+        if (!doPlayerDeathRestart(pPlayer))
         {
-            pPlayer->input.actions &= ~SB_OPEN;
-
-            if (pPlayer->nAction >= 16)
-            {
-                if (nPlayer == nLocalPlayer)
-                {
-                    StopAllSounds();
-                    StopLocalSound();
-                    GrabPalette();
-                }
-
-                pPlayer->nCurrentWeapon = pPlayer->nPlayerOldWeapon;
-
-                if (pPlayer->nLives && nNetTime)
-                {
-                    if (pPlayer->nAction != 20)
-                    {
-                        pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
-                        pPlayerActor->spr.cstat = 0;
-						pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
-                    }
-
-                    // will invalidate nPlayerSprite
-                    RestartPlayer(nPlayer);
-                }
-                else
-                {
-                    DoGameOverScene(currentLevel->levelNumber == 20);
-                    return;
-                }
-            }
+            return;
         }
     }
 
     doPlayerActionSequence(pPlayer);
-
-    if (!pPlayer->nHealth)
-        doPlayerDeathPitch(pPlayer);
-
     updatePlayerDoppleActor(pPlayer);
-
     MoveWeapons(nPlayer);
 }
 
