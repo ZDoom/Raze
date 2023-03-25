@@ -1218,16 +1218,16 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerFloorDamage(Player* const pPlayer)
+static void doPlayerFloorDamage(Player* const pPlayer, const double nVelZ)
 {
     const auto pPlayerActor = pPlayer->pActor;
     pPlayer->nThrust /= 2;
 
-    if (pPlayerActor->vel.Z >= 6500 / 256.)
+    if (nVelZ >= 6500 / 256.)
     {
         pPlayerActor->vel.XY() *= 0.25;
 
-        runlist_DamageEnemy(pPlayerActor, nullptr, int(((pPlayerActor->vel.Z * 256) - 6500) * (1. / 128.)) + 10);
+        runlist_DamageEnemy(pPlayerActor, nullptr, int(((nVelZ * 256) - 6500) * (1. / 128.)) + 10);
 
         if (pPlayer->nHealth <= 0)
         {
@@ -1326,6 +1326,10 @@ static bool doPlayerMovement(Player* const pPlayer)
     if (pPlayerActor->vel.Z > 32)
         pPlayerActor->vel.Z = 32;
 
+    // we need a separate zvel backup taken before a move,
+    // but after we've clamped its value. Exhumed is a mess...
+    const auto nStartVelZ = pPlayerActor->vel.Z;
+
     Collision nMove;
     nMove.setNone();
 
@@ -1348,6 +1352,9 @@ static bool doPlayerMovement(Player* const pPlayer)
         {
             ChangeActorSect(pPlayerActor, spr_sect);
             pPlayerActor->spr.pos.XY() = spr_pos.XY();
+
+            if (nStartVelZ < pPlayerActor->vel.Z)
+                pPlayerActor->vel.Z = nStartVelZ;
         }
     }
 
@@ -1364,7 +1371,7 @@ static bool doPlayerMovement(Player* const pPlayer)
     {
         if (bTouchFloor)
         {
-            doPlayerFloorDamage(pPlayer);
+            doPlayerFloorDamage(pPlayer, nStartVelZ);
         }
 
         if (nMove.type == kHitSector || nMove.type == kHitWall)
