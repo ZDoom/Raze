@@ -250,12 +250,11 @@ class DukeGreenSlime : DukeActor
 			self.cstat &= ~CSTAT_SPRITE_YFLIP;
 			self.setSpriteSetImage(4);
 
-			if (self.scale.X > 0.5 ) self.scale.X += (-random(0, 7)) * REPEAT_SCALE;
-			if (self.scale.Y > 0.25 ) self.scale.Y += (-random(0, 7)) * REPEAT_SCALE;
+			if (self.scale.X > 0.5 ) self.scale.X -= random(0, 7) * REPEAT_SCALE;
+			if (self.scale.Y > 0.25 ) self.scale.Y -= random(0, 7) * REPEAT_SCALE;
 			else
 			{
 				self.scale = (0.625, 0.25);
-				self.temp_actor = nullptr;
 				self.temp_data[0] = 0;
 			}
 
@@ -281,12 +280,17 @@ class DukeGreenSlime : DukeActor
 					else
 					{
 						self.temp_data[0] = -1;
+						self.temp_actor = nullptr;
 						double dist = (self.pos.XY - s5.pos.XY).LengthSquared();
 						if (dist < 48*48) {
 							s5.scale.X = 0;
 						}
 					}
 				}
+			}
+			else
+			{
+				self.temp_data[0] = -1;
 			}
 			return;
 		}
