@@ -188,25 +188,25 @@ int GetPlayerFromActor(DExhumedActor* pActor)
 
 void RestartPlayer(int nPlayer)
 {
-	auto plr = &PlayerList[nPlayer];
-    auto pActor = plr->pActor;
-    DExhumedActor* pDopSprite = plr->pDoppleSprite;
+	const auto pPlayer = &PlayerList[nPlayer];
+    DExhumedActor* pPlayerActor = pPlayer->pActor;
+    DExhumedActor* pDopSprite = pPlayer->pDoppleSprite;
 
-    DExhumedActor* floorsprt;
+    DExhumedActor* pFloorSprite;
 
-    plr->nPlayer = nPlayer;
+    pPlayer->nPlayer = nPlayer;
 
-	if (pActor)
+	if (pPlayerActor)
 	{
-        runlist_DoSubRunRec(pActor->spr.intowner);
-		runlist_FreeRun(pActor->spr.lotag - 1);
+        runlist_DoSubRunRec(pPlayerActor->spr.intowner);
+		runlist_FreeRun(pPlayerActor->spr.lotag - 1);
 
-		ChangeActorStat(pActor, 0);
+		ChangeActorStat(pPlayerActor, 0);
 
-        plr->pActor = nullptr;
-        plr->Angles = {};
+        pPlayer->pActor = nullptr;
+        pPlayer->Angles = {};
 
-		DExhumedActor* pFloorSprite = plr->pPlayerFloorSprite;
+		DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
 		if (pFloorSprite != nullptr) {
 			DeleteActor(pFloorSprite);
 		}
@@ -219,13 +219,13 @@ void RestartPlayer(int nPlayer)
 		}
 	}
 
-    pActor = GrabBody();
+    pPlayerActor = GrabBody();
 
-	ChangeActorSect(pActor, plr->sPlayerSave.pSector);
-	ChangeActorStat(pActor, 100);
+	ChangeActorSect(pPlayerActor, pPlayer->sPlayerSave.pSector);
+	ChangeActorStat(pPlayerActor, 100);
 
-	auto pDActor = insertActor(pActor->sector(), 100);
-	plr->pDoppleSprite = pDActor;
+	pDopSprite = insertActor(pPlayerActor->sector(), 100);
+	pPlayer->pDoppleSprite = pDopSprite;
 
 	if (nTotalPlayers > 1)
 	{
@@ -236,102 +236,102 @@ void RestartPlayer(int nPlayer)
 			nCurStartSprite = 0;
 		}
 
-		pActor->spr.pos = nNStartSprite->spr.pos;
-		ChangeActorSect(pActor, nNStartSprite->sector());
-        pActor->spr.Angles.Yaw = nNStartSprite->spr.Angles.Yaw;
+		pPlayerActor->spr.pos = nNStartSprite->spr.pos;
+		ChangeActorSect(pPlayerActor, nNStartSprite->sector());
+        pPlayerActor->spr.Angles.Yaw = nNStartSprite->spr.Angles.Yaw;
 
-		floorsprt = insertActor(pActor->sector(), 0);
+		pFloorSprite = insertActor(pPlayerActor->sector(), 0);
 
-		floorsprt->spr.pos = pActor->spr.pos;
-		floorsprt->spr.scale = DVector2(1, 1);
-		floorsprt->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		floorsprt->spr.picnum = nPlayer + kTile3571;
+		pFloorSprite->spr.pos = pPlayerActor->spr.pos;
+		pFloorSprite->spr.scale = DVector2(1, 1);
+		pFloorSprite->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
+		pFloorSprite->spr.picnum = nPlayer + kTile3571;
 	}
 	else
 	{
-        pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
-		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
-		pActor->spr.Angles.Yaw = plr->sPlayerSave.nAngle;
+        pPlayerActor->spr.pos.XY() = pPlayer->sPlayerSave.pos.XY();
+		pPlayerActor->spr.pos.Z = pPlayer->sPlayerSave.pSector->floorz;
+		pPlayerActor->spr.Angles.Yaw = pPlayer->sPlayerSave.nAngle;
 
-		floorsprt = nullptr;
+		pFloorSprite = nullptr;
 	}
 
-    pActor->backuploc();
+    pPlayerActor->backuploc();
 
-	plr->pPlayerFloorSprite = floorsprt;
+	pPlayer->pPlayerFloorSprite = pFloorSprite;
 
-	pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-	pActor->spr.shade = -12;
-	pActor->clipdist = 14.5;
-	pActor->spr.pal = 0;
-	pActor->spr.scale = DVector2(0.625, 0.625);
-	pActor->spr.xoffset = 0;
-	pActor->spr.yoffset = 0;
-	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
+	pPlayerActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+	pPlayerActor->spr.shade = -12;
+	pPlayerActor->clipdist = 14.5;
+	pPlayerActor->spr.pal = 0;
+	pPlayerActor->spr.scale = DVector2(0.625, 0.625);
+	pPlayerActor->spr.xoffset = 0;
+	pPlayerActor->spr.yoffset = 0;
+	pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
-	pActor->vel.X = 0;
-	pActor->vel.Y = 0;
-	pActor->vel.Z = 0;
+	pPlayerActor->vel.X = 0;
+	pPlayerActor->vel.Y = 0;
+	pPlayerActor->vel.Z = 0;
 
-	nStandHeight = GetActorHeight(pActor);
+	nStandHeight = GetActorHeight(pPlayerActor);
 
-	pActor->spr.hitag = 0;
-	pActor->spr.extra = -1;
-	pActor->spr.lotag = runlist_HeadRun() + 1;
+	pPlayerActor->spr.hitag = 0;
+	pPlayerActor->spr.extra = -1;
+	pPlayerActor->spr.lotag = runlist_HeadRun() + 1;
 
-    pDActor->spr.pos = pActor->spr.pos;
-	pDActor->spr.scale = pActor->spr.scale;
-	pDActor->spr.xoffset = 0;
-	pDActor->spr.yoffset = 0;
-	pDActor->spr.shade = pActor->spr.shade;
-	pDActor->spr.Angles.Yaw = pActor->spr.Angles.Yaw;
-	pDActor->spr.cstat = pActor->spr.cstat;
+    pDopSprite->spr.pos = pPlayerActor->spr.pos;
+	pDopSprite->spr.scale = pPlayerActor->spr.scale;
+	pDopSprite->spr.xoffset = 0;
+	pDopSprite->spr.yoffset = 0;
+	pDopSprite->spr.shade = pPlayerActor->spr.shade;
+	pDopSprite->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
+	pDopSprite->spr.cstat = pPlayerActor->spr.cstat;
 
-	pDActor->spr.lotag = runlist_HeadRun() + 1;
+	pDopSprite->spr.lotag = runlist_HeadRun() + 1;
 
-	plr->nAction = 0;
-	plr->nHealth = 800; // TODO - define
+	pPlayer->nAction = 0;
+	pPlayer->nHealth = 800; // TODO - define
 
 	if (nNetPlayerCount) {
-		plr->nHealth = 1600; // TODO - define
+		pPlayer->nHealth = 1600; // TODO - define
 	}
 
-	plr->nSeqSize = 0;
-	plr->pActor = pActor;
-    plr->Angles = {};
-    plr->Angles.initialize(plr->pActor);
-	plr->bIsMummified = false;
+	pPlayer->nSeqSize = 0;
+	pPlayer->pActor = pPlayerActor;
+    pPlayer->Angles = {};
+    pPlayer->Angles.initialize(pPlayer->pActor);
+	pPlayer->bIsMummified = false;
 
-	if (plr->invincibility >= 0) {
-		plr->invincibility = 0;
+	if (pPlayer->invincibility >= 0) {
+		pPlayer->invincibility = 0;
 	}
 
-	plr->nTorch = 0;
-	plr->nMaskAmount = 0;
+	pPlayer->nTorch = 0;
+	pPlayer->nMaskAmount = 0;
 
 	SetTorch(nPlayer, 0);
 
-	plr->nInvisible = 0;
+	pPlayer->nInvisible = 0;
 
-	plr->bIsFiring = 0;
-	plr->nSeqSize2 = 0;
-	plr->pPlayerViewSect = plr->sPlayerSave.pSector;
-	plr->nState = 0;
+	pPlayer->bIsFiring = 0;
+	pPlayer->nSeqSize2 = 0;
+	pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
+	pPlayer->nState = 0;
 
-	plr->nDouble = 0;
+	pPlayer->nDouble = 0;
 
-	plr->nSeq = kSeqJoe;
+	pPlayer->nSeq = kSeqJoe;
 
-	plr->nPlayerPushSound = -1;
+	pPlayer->nPlayerPushSound = -1;
 
-	plr->nNextWeapon = -1;
+	pPlayer->nNextWeapon = -1;
 
-	if (plr->nCurrentWeapon == 7) {
-		plr->nCurrentWeapon = plr->nLastWeapon;
+	if (pPlayer->nCurrentWeapon == 7) {
+		pPlayer->nCurrentWeapon = pPlayer->nLastWeapon;
 	}
 
-	plr->nLastWeapon = 0;
-	plr->nAir = 100;
+	pPlayer->nLastWeapon = 0;
+	pPlayer->nAir = 100;
 
 	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
 	{
@@ -340,27 +340,27 @@ void RestartPlayer(int nPlayer)
 	else
 	{
 		ResetPlayerWeapons(nPlayer);
-		plr->nMagic = 0;
+		pPlayer->nMagic = 0;
 	}
 
-	plr->pPlayerGrenade = nullptr;
-	pActor->oviewzoffset = pActor->viewzoffset = -55.;
-	plr->dVertPan = 0;
+	pPlayer->pPlayerGrenade = nullptr;
+	pPlayerActor->oviewzoffset = pPlayerActor->viewzoffset = -55.;
+	pPlayer->dVertPan = 0;
 
 	nTemperature[nPlayer] = 0;
 
-    plr->nThrust.Zero();
+    pPlayer->nThrust.Zero();
 
-	plr->nDestVertPan = plr->pActor->PrevAngles.Pitch = plr->pActor->spr.Angles.Pitch = nullAngle;
-	plr->nBreathTimer = 90;
+	pPlayer->nDestVertPan = pPlayerActor->PrevAngles.Pitch = pPlayerActor->spr.Angles.Pitch = nullAngle;
+	pPlayer->nBreathTimer = 90;
 
-	plr->nTauntTimer = RandomSize(3) + 3;
+	pPlayer->nTauntTimer = RandomSize(3) + 3;
 
-	pDActor->spr.intowner = runlist_AddRunRec(pDActor->spr.lotag - 1, nPlayer, 0xA0000);
-	pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0xA0000);
+	pDopSprite->spr.intowner = runlist_AddRunRec(pDopSprite->spr.lotag - 1, nPlayer, 0xA0000);
+	pPlayerActor->spr.intowner = runlist_AddRunRec(pPlayerActor->spr.lotag - 1, nPlayer, 0xA0000);
 
-	if (plr->nRun < 0) {
-		plr->nRun = runlist_AddRunRec(NewRun, nPlayer, 0xA0000);
+	if (pPlayer->nRun < 0) {
+		pPlayer->nRun = runlist_AddRunRec(NewRun, nPlayer, 0xA0000);
 	}
 
 	BuildRa(nPlayer);
@@ -370,12 +370,12 @@ void RestartPlayer(int nPlayer)
 		RestoreGreenPal();
 	}
 
-	plr->ototalvel = plr->totalvel = 0;
+	pPlayer->ototalvel = pPlayer->totalvel = 0;
 
-    PlayerList[nPlayer].nCurrentItem = -1;
+    pPlayer->nCurrentItem = -1;
 
-	plr->nDeathType = 0;
-	plr->nQuake = 0;
+	pPlayer->nDeathType = 0;
+	pPlayer->nQuake = 0;
 }
 
 //---------------------------------------------------------------------------
