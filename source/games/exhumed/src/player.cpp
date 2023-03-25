@@ -1566,25 +1566,17 @@ static void doPlayerYaw(Player* const pPlayer)
 
 static void doPlayerPitch(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
     const auto pInput = &pPlayer->input;
+    const auto nCurrVertPan = cl_slopetilting ? pPlayer->Angles.ViewAngles.Pitch : nullAngle;
+    const auto nVertPan = deltaangle(nCurrVertPan, pPlayer->nDestVertPan).Tan() * 32.;
 
     if (SyncInput())
     {
-        pPlayerActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
+        pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
     }
 
     pPlayer->Angles.doPitchKeys(pInput);
-
-    if (cl_slopetilting)
-    {
-        const double nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, pPlayer->nDestVertPan).Tan() * 32.;
-        pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
-    }
-    else
-    {
-        pPlayer->Angles.ViewAngles.Pitch = nullAngle;
-    }
+    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
 }
 
 //---------------------------------------------------------------------------
