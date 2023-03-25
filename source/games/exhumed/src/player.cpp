@@ -1549,8 +1549,6 @@ static void updatePlayerAction(Player* const pPlayer)
 
             if (pPlayer->input.actions & SB_FIRE) // was var_38
             {
-                pPlayer->bIsFiring = true;
-
                 if (bUnderwater)
                 {
                     nextAction = 11;
@@ -1560,11 +1558,9 @@ static void updatePlayerAction(Player* const pPlayer)
                     nextAction = 5;
                 }
             }
-            else
-            {
-                pPlayer->bIsFiring = false;
-            }
         }
+
+        pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
 
         // Handle player pressing number keys to change weapon
         if (auto newWeap = pPlayer->input.getNewWeapon())
