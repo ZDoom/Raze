@@ -27,15 +27,11 @@ BEGIN_PS_NS
 //
 //---------------------------------------------------------------------------
 
-static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal2, double deflen)
+static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nMagic, int nHealth, double deflen)
 {
     DExhumedActor* pPickupActor = nullptr;
-
     auto startwall = pSector->walls.Data();
     int nWalls = pSector->walls.Size();
-
-    int var_20 = nVal2 & 2;
-    int var_14 = nVal2 & 1;
 
     while (1)
     {
@@ -44,17 +40,19 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal
             ExhumedSectIterator it(pSector);
             while (auto itActor = it.Next())
             {
-                int nStat = itActor->spr.statnum;
+                const int nStat = itActor->spr.statnum;
 
                 if (nStat >= 900 && !(itActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 {
-                    auto diff = itActor->spr.pos - pos;
+                    const auto diff = itActor->spr.pos - pos;
 
                     if (diff.Z < 20 && diff.Z > -100)
                     {
-                        double len = diff.XY().Length();
+                        const auto len = diff.XY().Length();
+                        const bool needsMagic = (nStat != 950 && nStat != 949) || nMagic < 1000;
+                        const bool needsHealth = (nStat != 912 && nStat != 913) || nHealth < 800;
 
-                        if (len < deflen && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
+                        if (len < deflen && needsMagic && needsHealth)
                         {
                             deflen = len;
                             pPickupActor = itActor;
@@ -218,8 +216,7 @@ static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const auto nFlags = (pPlayer->nMagic >= 1000) + 2 * (pPlayer->nHealth >= 800);
-    const auto pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), nFlags, 48);
+    const auto pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayer->nMagic, pPlayer->nHealth, 48);
 
     if (pPickupActor != nullptr && pPickupActor->spr.statnum >= 900)
     {
