@@ -1702,8 +1702,8 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayerActor = pPlayer->pActor;
     const auto pStartSect = pPlayerActor->sector();
 
-    pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
+    pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
     updatePlayerVelocity(pPlayer);
     doPlayerCounters(pPlayer);
