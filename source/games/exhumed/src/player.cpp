@@ -1511,12 +1511,10 @@ static void updatePlayerAction(Player* const pPlayer)
         pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
 
         // Handle player pressing number keys to change weapon
-        if (auto newWeap = pPlayer->input.getNewWeapon())
+        const unsigned newWeap = pPlayer->input.getNewWeapon() - 1;
+        if (pPlayer->nPlayerWeapons & (1 << newWeap))
         {
-            if (pPlayer->nPlayerWeapons & (1 << (newWeap--)))
-            {
-                SetNewWeapon(pPlayer->nPlayer, newWeap);
-            }
+            SetNewWeapon(pPlayer->nPlayer, newWeap);
         }
     }
     else // player is mummified
