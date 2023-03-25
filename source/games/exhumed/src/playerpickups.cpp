@@ -90,11 +90,9 @@ void doPlayerItemPickups(Player* const pPlayer)
 
     if (pPickupActor != nullptr && pPickupActor->spr.statnum >= 900)
     {
-        // item lotags start at 6 (1-5 reserved?) so 0-offset them
-        const int statBase = pPickupActor->spr.statnum - 900;
-        const int itemtype = statBase - 6;
+        const int nItem = pPickupActor->spr.statnum - 900;
 
-        if (itemtype <= 54)
+        if (nItem <= 60)
         {
             static constexpr int itemArray[] = {kItemHeart, kItemInvincibility, kItemDoubleDamage, kItemInvisibility, kItemTorch, kItemMask};
             static constexpr int weapArray[] = {6, 24, 100, 20, 2};
@@ -105,8 +103,8 @@ void doPlayerItemPickups(Player* const pPlayer)
             {
                 if (pPlayer->nPlayer == nLocalPlayer)
                 {
-                    if (nItemText[statBase] > -1 && nTotalPlayers == 1)
-                        pickupMessage(statBase);
+                    if (nItemText[nItem] > -1 && nTotalPlayers == 1)
+                        pickupMessage(nItem);
 
                     if (nSound > -1)
                         PlayLocalSound(nSound, 0);
@@ -116,7 +114,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             };
             const auto doProcessPickup = [=]()
             {
-                if (!mplevel || (statBase >= 25 && (statBase <= 25 || statBase == 50)))
+                if (!mplevel || (nItem >= 25 && (nItem <= 25 || nItem == 50)))
                 {
                     // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
                     if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
@@ -154,7 +152,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (nWeapon == 2)
                     CheckClip(pPlayer->nPlayer);
 
-                if (statBase > 50)
+                if (nItem > 50)
                 {
                     pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pPickupActor);
@@ -187,7 +185,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         }
                     }
 
-                    if (statBase == 12)
+                    if (nItem == 12)
                     {
                         pPickupActor->spr.hitag = 0;
                         pPickupActor->spr.picnum++;
@@ -195,7 +193,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     }
                     else
                     {
-                        if (statBase == 14)
+                        if (nItem == 14)
                         {
                             tintRed = tintGreen;
                             tintGreen = 0;
@@ -208,59 +206,59 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
             };
 
-            switch (itemtype)
+            switch (nItem)
             {
-            case 0: // Speed Loader
-            case 1: // Fuel Canister
-            case 2: // M - 60 Ammo Belt
-                if (AddAmmo(pPlayer->nPlayer, ammoArray[itemtype], pPickupActor->spr.hitag))
+            case 6: // Speed Loader
+            case 7: // Fuel Canister
+            case 8: // M - 60 Ammo Belt
+                if (AddAmmo(pPlayer->nPlayer, ammoArray[nItem - 6], pPickupActor->spr.hitag))
                 {
-                    if (itemtype == 2) CheckClip(pPlayer->nPlayer);
+                    if (nItem == 8) CheckClip(pPlayer->nPlayer);
                     doProcessPickup();
                     doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
-            case 3: // Grenade
-            case 21: // May not be grenade, needs confirmation
-            case 49:
+            case 9: // Grenade
+            case 27: // May not be grenade, needs confirmation
+            case 55:
                 doPickupWeapon(4, 1, kSoundAmmoPickup);
                 break;
 
-            case 4: // Pickable item
-            case 9: // Pickable item
-            case 10: // Reserved
-            case 18:
-            case 25: // Check whether is grenade or not as it matches sequence for weapons below
-            case 28:
-            case 29:
-            case 30:
-            case 33:
+            case 10: // Pickable item
+            case 15: // Pickable item
+            case 16: // Reserved
+            case 24:
+            case 31: // Check whether is grenade or not as it matches sequence for weapons below
             case 34:
             case 35:
             case 36:
-            case 37:
-            case 38:
-            case 45:
-            case 52:
+            case 39:
+            case 40:
+            case 41:
+            case 42:
+            case 43:
+            case 44:
+            case 51:
+            case 58:
                 doProcessPickup();
                 doConsoleMessage();
                 break;
 
-            case 5: // Map
+            case 11: // Map
                 GrabMap();
                 doProcessPickup();
                 doConsoleMessage();
                 break;
 
-            case 6: // Berry Twig
-            case 7: // Blood Bowl
-            case 8: // Cobra Venom Bowl
+            case 12: // Berry Twig
+            case 13: // Blood Bowl
+            case 14: // Cobra Venom Bowl
                 if (pPickupActor->spr.hitag != 0) 
-                    doPickupHealth(healArray[itemtype - 6], itemtype + 14);
+                    doPickupHealth(healArray[nItem - 12], nItem + 8);
                 break;
 
-            case 11: // Bubble Nest
+            case 17: // Bubble Nest
                 pPlayer->nAir += 10;
 
                 if (pPlayer->nAir > 100)
@@ -272,20 +270,20 @@ void doPlayerItemPickups(Player* const pPlayer)
                 pPlayer->nBreathTimer = 90;
                 break;
 
-            case 12: // Still Beating Heart
-            case 13: // Scarab amulet(Invicibility)
-            case 14: // Severed Slave Hand(double damage)
-            case 15: // Unseen eye(Invisibility)
-            case 16: // Torch
-            case 17: // Sobek Mask
-                if (GrabItem(pPlayer->nPlayer, itemArray[itemtype - 12]))
+            case 18: // Still Beating Heart
+            case 19: // Scarab amulet(Invicibility)
+            case 20: // Severed Slave Hand(double damage)
+            case 21: // Unseen eye(Invisibility)
+            case 22: // Torch
+            case 23: // Sobek Mask
+                if (GrabItem(pPlayer->nPlayer, itemArray[nItem - 18]))
                 {
                     doProcessPickup();
                     doConsoleMessage();
                 }
                 break;
 
-            case 19: // Extra Life
+            case 25: // Extra Life
                 if (pPlayer->nLives < kMaxPlayerLives)
                 {
                     pPlayer->nLives++;
@@ -294,41 +292,41 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
                 break;
 
-            case 20: // sword pickup??
+            case 26: // sword pickup??
                 doPickupWeapon(0, 0);
                 break;
 
-            case 22: // .357 Magnum Revolver
-            case 46:
-            case 23: // M - 60 Machine Gun
-            case 47:
-            case 24: // Flame Thrower
-            case 48:
-            case 26: // Cobra Staff
-            case 50:
-            case 27: // Eye of Ra Gauntlet
-            case 51:
+            case 28: // .357 Magnum Revolver
+            case 52:
+            case 29: // M - 60 Machine Gun
+            case 53:
+            case 30: // Flame Thrower
+            case 54:
+            case 32: // Cobra Staff
+            case 56:
+            case 33: // Eye of Ra Gauntlet
+            case 57:
             {
-                const int index = itemtype - 24 * (itemtype > 40) - 22;
+                const int index = nItem - 28 - 24 * (nItem > 50);
                 doPickupWeapon(index + 1, weapArray[index]);
                 break;
             }
 
-            case 31: // Cobra staff ammo
-            case 32: // Raw Energy
-                if (AddAmmo(pPlayer->nPlayer, itemtype - 26, (itemtype == 32) ? pPickupActor->spr.hitag : 1))
+            case 37: // Cobra staff ammo
+            case 38: // Raw Energy
+                if (AddAmmo(pPlayer->nPlayer, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
                 {
                     doProcessPickup();
                     doConsoleMessage(StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
-            case 39: // Power key
-            case 40: // Time key
-            case 41: // War key
-            case 42: // Earth key
+            case 45: // Power key
+            case 46: // Time key
+            case 47: // War key
+            case 48: // Earth key
             {
-                const int keybit = 4096 << (itemtype - 39);
+                const int keybit = 4096 << (nItem - 45);
                 if (!(pPlayer->keys & keybit))
                 {
                     pPlayer->keys |= keybit;
@@ -338,8 +336,8 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
             }
 
-            case 43: // Magical Essence
-            case 44: // ?
+            case 49: // Magical Essence
+            case 50: // ?
                 if (pPlayer->nMagic < 1000)
                 {
                     pPlayer->nMagic += 100;
@@ -352,7 +350,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
                 break;
 
-            case 53: // Scarab (Checkpoint)
+            case 59: // Scarab (Checkpoint)
                 if (nLocalPlayer == pPlayer->nPlayer)
                 {
                     pPickupActor->nIndex2++;
@@ -363,7 +361,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw);
                 break;
 
-            case 54: // Golden Sarcophagus (End Level)
+            case 60: // Golden Sarcophagus (End Level)
                 if (!bInDemo) LevelFinished();
                 DestroyItemAnim(pPickupActor);
                 DeleteActor(pPickupActor);
