@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 int16_t cPupData[300];
-uint8_t *Worktile;
 int lHeadStartClock;
 int16_t* pPupData;
 int lNextStateChange;
@@ -118,7 +117,7 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
+	auto Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
 
     pSpiritSpr->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
@@ -170,7 +169,7 @@ void DimSector(sectortype* pSector)
     }
 }
 
-void CopyHeadToWorkTile(int nTile)
+void CopyHeadToWorkTile(int nTile, uint8_t* Worktile)
 {
 	const uint8_t* pSrc = GetRawPixels(tileGetTextureID(nTile));
     uint8_t *pDest = &Worktile[212 * 49 + 53];
@@ -194,6 +193,7 @@ void DoSpiritHead()
 {
     static int dimSectCount = 0;
     auto pSpiritSpr = pSpiritSprite;
+    auto Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
 
     PlayerList[0].input.actions |= SB_CENTERVIEW;
 
@@ -245,7 +245,7 @@ void DoSpiritHead()
                 word_964EC = RandomSize(6) + 4;
         }
 
-        CopyHeadToWorkTile(word_964EA + tilenum);
+        CopyHeadToWorkTile(word_964EA + tilenum, Worktile);
 
         if (nTalkTime) 
         {
@@ -419,7 +419,7 @@ void DoSpiritHead()
             }
 
             if (PlayClock - lHeadStartClock > 600)
-                CopyHeadToWorkTile(590);
+                CopyHeadToWorkTile(590, Worktile);
 
             if (nCount < (15 * nPixels) / 16) {
                 SoundBigEntrance();
@@ -427,7 +427,7 @@ void DoSpiritHead()
                 AddFlash(pSpiritSpr->sector(), pSpiritSpr->spr.pos, 128);
                 nHeadStage = 3;
                 TintPalette(255, 255, 255);
-                CopyHeadToWorkTile(kTileRamsesNormal);
+                CopyHeadToWorkTile(kTileRamsesNormal, Worktile);
             }
         }
         break;
