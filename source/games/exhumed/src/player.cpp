@@ -1217,29 +1217,26 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerFloorDamage(Player* const pPlayer, const double nVelZ)
+static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    pPlayer->nThrust /= 2;
+    pPlayer->nThrust *= 0.5;
 
-    if (nVelZ >= 6500 / 256.)
+    if (nStartVelZ < (6500 / 256.))
+        return;
+
+    pPlayerActor->vel.XY() *= 0.25;
+    runlist_DamageEnemy(pPlayerActor, nullptr, int(((nStartVelZ * 256) - 6500) * (1. / 128.)) + 10);
+
+    if (pPlayer->nHealth <= 0)
     {
-        pPlayerActor->vel.XY() *= 0.25;
-
-        runlist_DamageEnemy(pPlayerActor, nullptr, int(((nVelZ * 256) - 6500) * (1. / 128.)) + 10);
-
-        if (pPlayer->nHealth <= 0)
-        {
-            pPlayerActor->vel.X = 0;
-            pPlayerActor->vel.Y = 0;
-
-            StopActorSound(pPlayerActor);
-            PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME
-        }
-        else
-        {
-            D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
-        }
+        pPlayerActor->vel.Zero();
+        StopActorSound(pPlayerActor);
+        PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME
+    }
+    else
+    {
+        D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
     }
 }
 
