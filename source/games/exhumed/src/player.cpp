@@ -1023,64 +1023,91 @@ static void doPlayerCounters(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerBreath(Player* const pPlayer)
+static void doPlayerUnderwater(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    pPlayer->nBreathTimer--;
+    const bool bUnderwater = pPlayer->pPlayerViewSect->Flag & kSectUnderwater;
 
-    if (pPlayer->nBreathTimer <= 0)
+    if (!pPlayer->invincibility)
     {
-        pPlayer->nBreathTimer = 90;
+        pPlayer->nBreathTimer--;
 
-        if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
+        if (pPlayer->nBreathTimer <= 0)
         {
-            if (pPlayer->nMaskAmount > 0)
-            {
-                D3PlayFX(StaticSound[kSound30], pPlayerActor);
-                pPlayer->nAir = 100;
-            }
-            else
-            {
-                pPlayer->nAir -= 25;
+            pPlayer->nBreathTimer = 90;
 
-                if (pPlayer->nAir > 0)
+            if (bUnderwater)
+            {
+                if (pPlayer->nMaskAmount > 0)
                 {
-                    D3PlayFX(StaticSound[kSound25], pPlayerActor);
+                    D3PlayFX(StaticSound[kSound30], pPlayerActor);
+                    pPlayer->nAir = 100;
                 }
                 else
                 {
-                    pPlayer->nHealth += (pPlayer->nAir << 2);
+                    pPlayer->nAir -= 25;
 
-                    if (pPlayer->nHealth <= 0)
+                    if (pPlayer->nAir > 0)
                     {
-                        pPlayer->nHealth = 0;
-                        StartDeathSeq(pPlayer->nPlayer, 0);
+                        D3PlayFX(StaticSound[kSound25], pPlayerActor);
                     }
+                    else
+                    {
+                        pPlayer->nHealth += (pPlayer->nAir << 2);
 
-                    pPlayer->nAir = 0;
-                    D3PlayFX(StaticSound[(pPlayer->nHealth < 300) ? kSound79 : kSound19], pPlayerActor);
+                        if (pPlayer->nHealth <= 0)
+                        {
+                            pPlayer->nHealth = 0;
+                            StartDeathSeq(pPlayer->nPlayer, 0);
+                        }
+
+                        pPlayer->nAir = 0;
+                        D3PlayFX(StaticSound[(pPlayer->nHealth < 300) ? kSound79 : kSound19], pPlayerActor);
+                    }
                 }
-            }
 
-            DoBubbles(pPlayer->nPlayer);
+                DoBubbles(pPlayer->nPlayer);
+            }
         }
     }
 
-    if (pPlayerActor->sector()->Flag & kSectUnderwater)
+    if (bUnderwater)
     {
-        if (pPlayer->nAir < 50)
-            D3PlayFX(StaticSound[kSound14], pPlayerActor);
-
-        pPlayer->nBreathTimer = 1;
+        if (pPlayer->nTorch > 0)
+        {
+            pPlayer->nTorch = 0;
+            SetTorch(pPlayer->nPlayer, 0);
+        }
     }
+    else
+    {
+        const auto pTmpSect = pPlayerActor->sector();
 
-    pPlayer->nBreathTimer--;
+        if (pPlayer->totalvel > 25 && pPlayerActor->spr.pos.Z > pTmpSect->floorz)
+        {
+            if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
+            {
+                D3PlayFX(StaticSound[kSound42], pPlayerActor);
+            }
+        }
 
-    if (pPlayer->nBreathTimer <= 0)
-        pPlayer->nBreathTimer = 90;
+        // Checked and confirmed.
+        if (bUnderwater)
+        {
+            if (pPlayer->nAir < 50)
+                D3PlayFX(StaticSound[kSound14], pPlayerActor);
 
-    if (pPlayer->nAir < 100)
-        pPlayer->nAir = 100;
+            pPlayer->nBreathTimer = 1;
+        }
+
+        pPlayer->nBreathTimer--;
+
+        if (pPlayer->nBreathTimer <= 0)
+            pPlayer->nBreathTimer = 90;
+
+        if (pPlayer->nAir < 100)
+            pPlayer->nAir = 100;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -1721,27 +1748,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayer->nHealth > 0)
     {
-        if (!pPlayer->invincibility)
-            doPlayerBreath(pPlayer);
-
-        if (pPlayer->pPlayerViewSect->Flag & kSectUnderwater)
-        {
-            if (pPlayer->nTorch > 0)
-            {
-                pPlayer->nTorch = 0;
-                SetTorch(nPlayer, 0);
-            }
-        }
-        else
-        {
-            const auto pTmpSect = pPlayerActor->sector();
-            const bool highvel = pPlayer->totalvel > 25;
-            const bool belowfloor = pPlayerActor->spr.pos.Z > pTmpSect->floorz;
-
-            if (highvel && belowfloor && pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
-                D3PlayFX(StaticSound[kSound42], pPlayerActor);
-        }
-
+        doPlayerUnderwater(pPlayer);
         updatePlayerFloorActor(pPlayer);
         updatePlayerInventory(pPlayer);
         updatePlayerWeapon(pPlayer);
