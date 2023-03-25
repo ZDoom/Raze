@@ -1272,9 +1272,6 @@ static void doPlayerFloorDamage(Player* const pPlayer)
     const auto pPlayerActor = pPlayer->pActor;
     pPlayer->nThrust /= 2;
 
-    if (pPlayer->nPlayer == nLocalPlayer && abs(pPlayerActor->vel.Z) > 2)
-        pPlayer->nDestVertPan = nullAngle;
-
     if (pPlayerActor->vel.Z >= 6500 / 256.)
     {
         pPlayerActor->vel.XY() *= 0.25;
