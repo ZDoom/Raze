@@ -1545,36 +1545,21 @@ static void updatePlayerAction(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerYaw(Player* const pPlayer)
+static void doPlayerAngles(Player* const pPlayer)
 {
-    const auto pInput = &pPlayer->input;
-
-    if (SyncInput())
-    {
-        pPlayer->pActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
-    }
-
-    pPlayer->Angles.doYawKeys(pInput);
-    pPlayer->Angles.doViewYaw(pInput);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerPitch(Player* const pPlayer)
-{
+    const auto pPlayerActor = pPlayer->pActor;
     const auto pInput = &pPlayer->input;
     const auto nCurrVertPan = cl_slopetilting ? pPlayer->Angles.ViewAngles.Pitch : nullAngle;
     const auto nVertPan = deltaangle(nCurrVertPan, pPlayer->nDestVertPan).Tan() * 32.;
 
     if (SyncInput())
     {
-        pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
+        pPlayerActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
+        pPlayerActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
     }
 
+    pPlayer->Angles.doYawKeys(pInput);
+    pPlayer->Angles.doViewYaw(pInput);
     pPlayer->Angles.doPitchKeys(pInput);
     pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
 }
@@ -1745,9 +1730,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayer->nHealth > 0)
     {
-        doPlayerPitch(pPlayer);
-        doPlayerYaw(pPlayer);
         updatePlayerVelocity(pPlayer);
+        doPlayerAngles(pPlayer);
 
         if (!doPlayerMovement(pPlayer))
         {
