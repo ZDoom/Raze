@@ -606,37 +606,30 @@ void AIPlayer::Damage(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
-    const auto nAction = pPlayer->nAction;
     const auto nDamage = ev->nDamage;
 
-    if (!nDamage) {
+    if (!nDamage || !pPlayer->nHealth)
         return;
-    }
 
-    DExhumedActor* pActor2 = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget.Get();
-
-    // ok continue case 0x80000 as normal, loc_1C57C
-    if (!pPlayer->nHealth) {
-        return;
-    }
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pDamageActor = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget.Get();
 
     if (!pPlayer->invincibility)
     {
         pPlayer->nHealth -= nDamage;
+
         if (nPlayer == nLocalPlayer)
-        {
             TintPalette(nDamage, 0, 0);
-        }
     }
 
     if (pPlayer->nHealth > 0)
     {
         if (nDamage > 40 || (totalmoves & 0xF) < 2)
         {
-            if (pPlayer->invincibility) {
+            if (pPlayer->invincibility)
                 return;
-            }
+
+            const auto nAction = pPlayer->nAction;
 
             if (pPlayerActor->sector()->Flag & kSectUnderwater)
             {
@@ -654,9 +647,10 @@ void AIPlayer::Damage(RunListEvent* ev)
                     pPlayer->nSeqSize = 0;
                     pPlayer->nAction = 4;
 
-                    if (pActor2)
+                    if (pDamageActor)
                     {
                         pPlayer->nPlayerSwear--;
+
                         if (pPlayer->nPlayerSwear <= 0)
                         {
                             D3PlayFX(StaticSound[kSound52], pPlayer->pDoppleSprite);
@@ -666,17 +660,12 @@ void AIPlayer::Damage(RunListEvent* ev)
                 }
             }
         }
-
-        return;
     }
-    else
+    else // player has died
     {
-        // player has died
-        if (pActor2 && pActor2->spr.statnum == 100)
+        if (pDamageActor && pDamageActor->spr.statnum == 100)
         {
-            int nPlayer2 = GetPlayerFromActor(pActor2);
-
-            if (nPlayer2 == nPlayer) // player caused their own death
+            if (GetPlayerFromActor(pDamageActor) == nPlayer) // player caused their own death
             {
                 pPlayer->nPlayerScore--;
             }
@@ -685,7 +674,7 @@ void AIPlayer::Damage(RunListEvent* ev)
                 pPlayer->nPlayerScore++;
             }
         }
-        else if (pActor2 == nullptr)
+        else if (pDamageActor == nullptr)
         {
             pPlayer->nPlayerScore--;
         }
