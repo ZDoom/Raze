@@ -1771,7 +1771,7 @@ static void doPlayerDeathPitch(Player* const pPlayer)
 
             if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -38)
             {
-                pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
+                pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-38);
             }
             else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0)
             {
