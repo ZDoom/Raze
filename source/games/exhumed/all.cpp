@@ -24,7 +24,6 @@
 #include "src/object.cpp"
 #include "src/osdcmds.cpp"
 #include "src/player.cpp"
-#include "src/playerpickups.cpp"
 #include "src/queen.cpp"
 #include "src/ra.cpp"
 #include "src/ramses.cpp"

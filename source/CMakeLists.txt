@@ -833,7 +833,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/object.cpp
 	games/exhumed/src/osdcmds.cpp
 	games/exhumed/src/player.cpp
-	games/exhumed/src/playerpickups.cpp
 	games/exhumed/src/queen.cpp
 	games/exhumed/src/ra.cpp
 	games/exhumed/src/ramses.cpp
