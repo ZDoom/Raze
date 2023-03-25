@@ -1565,40 +1565,37 @@ static void doPlayerAngles(Player* const pPlayer)
 
 static bool doPlayerDeathRestart(Player* const pPlayer)
 {
-    if (pPlayer->input.actions & SB_OPEN)
+    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->nAction < 16)
+        return true;
+
+    pPlayer->input.actions &= ~SB_OPEN;
+
+    if (pPlayer->nPlayer == nLocalPlayer)
     {
-        pPlayer->input.actions &= ~SB_OPEN;
+        StopAllSounds();
+        StopLocalSound();
+        GrabPalette();
+    }
 
-        if (pPlayer->nAction >= 16)
+    pPlayer->nCurrentWeapon = pPlayer->nPlayerOldWeapon;
+
+    if (pPlayer->nLives && nNetTime)
+    {
+        if (pPlayer->nAction != 20)
         {
-            if (pPlayer->nPlayer == nLocalPlayer)
-            {
-                StopAllSounds();
-                StopLocalSound();
-                GrabPalette();
-            }
-
-            pPlayer->nCurrentWeapon = pPlayer->nPlayerOldWeapon;
-
-            if (pPlayer->nLives && nNetTime)
-            {
-                if (pPlayer->nAction != 20)
-                {
-                    const auto pPlayerActor = pPlayer->pActor;
-                    pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
-                    pPlayerActor->spr.cstat = 0;
-                    pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
-                }
-
-                // will invalidate nPlayerSprite
-                RestartPlayer(pPlayer->nPlayer);
-            }
-            else
-            {
-                DoGameOverScene(currentLevel->levelNumber == 20);
-                return false;
-            }
+            const auto pPlayerActor = pPlayer->pActor;
+            pPlayerActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
+            pPlayerActor->spr.cstat = 0;
+            pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
+
+        // will invalidate nPlayerSprite
+        RestartPlayer(pPlayer->nPlayer);
+    }
+    else
+    {
+        DoGameOverScene(currentLevel->levelNumber == 20);
+        return false;
     }
 
     return true;
