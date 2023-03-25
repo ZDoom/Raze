@@ -602,11 +602,13 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
 
 void AIPlayer::Damage(RunListEvent* ev)
 {
-    int nDamage = ev->nDamage;
-    int nPlayer = RunData[ev->nRun].nObjIndex;
-    auto pPlayerActor = PlayerList[nPlayer].pActor;
-    int nAction = PlayerList[nPlayer].nAction;
-    DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
+    const int nPlayer = RunData[ev->nRun].nObjIndex;
+    assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
+
+    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto nAction = pPlayer->nAction;
+    const auto nDamage = ev->nDamage;
 
     if (!nDamage) {
         return;
@@ -615,24 +617,24 @@ void AIPlayer::Damage(RunListEvent* ev)
     DExhumedActor* pActor2 = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget.Get();
 
     // ok continue case 0x80000 as normal, loc_1C57C
-    if (!PlayerList[nPlayer].nHealth) {
+    if (!pPlayer->nHealth) {
         return;
     }
 
-    if (!PlayerList[nPlayer].invincibility)
+    if (!pPlayer->invincibility)
     {
-        PlayerList[nPlayer].nHealth -= nDamage;
+        pPlayer->nHealth -= nDamage;
         if (nPlayer == nLocalPlayer)
         {
             TintPalette(nDamage, 0, 0);
         }
     }
 
-    if (PlayerList[nPlayer].nHealth > 0)
+    if (pPlayer->nHealth > 0)
     {
         if (nDamage > 40 || (totalmoves & 0xF) < 2)
         {
-            if (PlayerList[nPlayer].invincibility) {
+            if (pPlayer->invincibility) {
                 return;
             }
 
@@ -640,8 +642,8 @@ void AIPlayer::Damage(RunListEvent* ev)
             {
                 if (nAction != 12)
                 {
-                    PlayerList[nPlayer].nSeqSize = 0;
-                    PlayerList[nPlayer].nAction = 12;
+                    pPlayer->nSeqSize = 0;
+                    pPlayer->nAction = 12;
                     return;
                 }
             }
@@ -649,16 +651,16 @@ void AIPlayer::Damage(RunListEvent* ev)
             {
                 if (nAction != 4)
                 {
-                    PlayerList[nPlayer].nSeqSize = 0;
-                    PlayerList[nPlayer].nAction = 4;
+                    pPlayer->nSeqSize = 0;
+                    pPlayer->nAction = 4;
 
                     if (pActor2)
                     {
-                        PlayerList[nPlayer].nPlayerSwear--;
-                        if (PlayerList[nPlayer].nPlayerSwear <= 0)
+                        pPlayer->nPlayerSwear--;
+                        if (pPlayer->nPlayerSwear <= 0)
                         {
-                            D3PlayFX(StaticSound[kSound52], pDopple);
-                            PlayerList[nPlayer].nPlayerSwear = RandomSize(3) + 4;
+                            D3PlayFX(StaticSound[kSound52], pPlayer->pDoppleSprite);
+                            pPlayer->nPlayerSwear = RandomSize(3) + 4;
                         }
                     }
                 }
@@ -676,16 +678,16 @@ void AIPlayer::Damage(RunListEvent* ev)
 
             if (nPlayer2 == nPlayer) // player caused their own death
             {
-                PlayerList[nPlayer].nPlayerScore--;
+                pPlayer->nPlayerScore--;
             }
             else
             {
-                PlayerList[nPlayer].nPlayerScore++;
+                pPlayer->nPlayerScore++;
             }
         }
         else if (pActor2 == nullptr)
         {
-            PlayerList[nPlayer].nPlayerScore--;
+            pPlayer->nPlayerScore--;
         }
 
         if (ev->isRadialEvent())
