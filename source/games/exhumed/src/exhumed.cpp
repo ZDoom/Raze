@@ -282,70 +282,6 @@ void DoGameOverScene(bool finallevel)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerTarget(Player* const pPlayer)
-{
-    const auto pRa = &Ra[pPlayer->nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
-    const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
-
-    DExhumedActor* bestTarget = nullptr;
-    double bestclose = 20;
-    double bestside = 30000;
-
-    ExhumedSpriteIterator it;
-    while (const auto itActor = it.Next())
-    {
-        const bool validstatnum = (itActor->spr.statnum > 0) && (itActor->spr.statnum < 150);
-        const bool validsprcstat = itActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL;
-
-        if (validstatnum && validsprcstat && itActor != pPlayerActor)
-        {
-            const DVector2 delta = itActor->spr.pos.XY() - pPlayerActor->spr.pos.XY();
-            const double fwd = abs((nAngVect.X * delta.Y) + (delta.X * nAngVect.Y));
-            const double side = abs((nAngVect.X * delta.X) - (delta.Y * nAngVect.Y));
-
-            if (!side)
-                continue;
-
-            const double close = fwd * 32 / side;
-            if (side < 1000 / 16. && side < bestside && close < 10)
-            {
-                bestTarget = itActor;
-                bestclose = close;
-                bestside = side;
-            }
-            else if (side < 30000 / 16.)
-            {
-                const double t = bestclose - close;
-                if (t > 3 || (side < bestside && abs(t) < 5))
-                {
-                    bestTarget = itActor;
-                    bestclose = close;
-                    bestside = side;
-                }
-            }
-        }
-    }
-
-    if (bestTarget)
-    {
-        if (pPlayer->nPlayer == nLocalPlayer) nCreepyTimer = kCreepyCount;
-
-        if (!cansee(pPlayerActor->spr.pos, pPlayerActor->sector(), bestTarget->spr.pos.plusZ(-GetActorHeight(bestTarget)), bestTarget->sector()))
-        {
-            bestTarget = nullptr;
-        }
-    }
-
-    pPlayer->pTarget = pRa->pTarget = bestTarget;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void GameMove(void)
 {
     UpdateInterpolations();
@@ -412,115 +348,6 @@ static void GameMove(void)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerVelocity(Player* const pPlayer)
-{
-    const auto pInput = &pPlayer->input;
-
-    if (pPlayer->nHealth > 0)
-    {
-        const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayer->pActor->spr.Angles.Yaw) * 0.375;
-
-        for (int i = 0; i < 4; i++)
-        {
-            pPlayer->vel += inputvect;
-            pPlayer->vel *= 0.953125;
-        }
-    }
-    else
-    {
-        pInput->fvel = pInput->svel = pInput->avel = pInput->horz = 0;
-        pPlayer->vel.Zero();
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void updatePlayerInventory(Player* const pPlayer)
-{
-    if (const auto invDir = !!(pPlayer->input.actions & SB_INVNEXT) - !!(pPlayer->input.actions & SB_INVPREV))
-    {
-        int nItem = pPlayer->nItem;
-
-        int i;
-        for (i = 6; i > 0; i--)
-        {
-            nItem += invDir;
-            if (nItem < 0) nItem = 5;
-            else if (nItem == 6) nItem = 0;
-
-            if (pPlayer->items[nItem] != 0)
-                break;
-        }
-
-        if (i > 0) pPlayer->nItem = nItem;
-    }
-
-    if ((pPlayer->input.actions & SB_INVUSE) && pPlayer->nItem != -1)
-    {
-        pPlayer->input.setItemUsed(pPlayer->nItem);
-    }
-
-    for (int i = 0; i < 6; i++)
-    {
-        if (pPlayer->input.isItemUsed(i))
-        {
-            pPlayer->input.clearItemUsed(i);
-            if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
-            {
-                pPlayer->nCurrentItem = i;
-                break;
-            }
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void updatePlayerWeapon(Player* const pPlayer)
-{
-    const auto currWeap = pPlayer->nCurrentWeapon;
-    auto weap2 = pPlayer->input.getNewWeapon();
-
-    if (const auto weapDir = (weap2 == WeaponSel_Next) - (weap2 == WeaponSel_Prev))
-    {
-        auto wrapFwd = weapDir > 0 && currWeap == 6;
-        auto wrapBck = weapDir < 0 && currWeap == 0;
-        auto newWeap = wrapFwd ? 0 : wrapBck ? 6 : (currWeap + weapDir);
-        auto hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
-
-        while (newWeap && (!hasWeap || (hasWeap && !pPlayer->nAmmo[newWeap])))
-        {
-            newWeap += weapDir;
-            if (newWeap > 6) newWeap = 0;
-            hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
-        }
-
-        pPlayer->input.setNewWeapon(newWeap + 1);
-    }
-    else if (weap2 == WeaponSel_Alt)
-    {
-        // todo
-    }
-
-    // make weapon selection persist until it gets used up.
-    if (weap2 <= 0 || weap2 > 7)
-        pPlayer->input.setNewWeapon(pPlayer->input.getNewWeapon());
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void GameInterface::Ticker()
 {
 	if (paused)
@@ -537,10 +364,6 @@ void GameInterface::Ticker()
             const auto pPlayer = &PlayerList[i];
             pPlayer->Angles.resetCameraAngles();
             pPlayer->input = playercmds[i].ucmd;
-            updatePlayerVelocity(pPlayer);
-            updatePlayerInventory(pPlayer);
-            updatePlayerWeapon(pPlayer);
-            updatePlayerTarget(pPlayer);
         }
 
         GameMove();
