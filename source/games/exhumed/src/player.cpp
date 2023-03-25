@@ -817,11 +817,12 @@ void updatePlayerTarget(Player* const pPlayer)
 
 static void updatePlayerVelocity(Player* const pPlayer)
 {
-    const auto pInput = &pPlayer->input;
+    const auto pPlayerActor = pPlayer->pActor;
 
     if (pPlayer->nHealth > 0)
     {
-        const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayer->pActor->spr.Angles.Yaw) * 0.375;
+        const auto pInput = &pPlayer->input;
+        const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {
@@ -830,7 +831,7 @@ static void updatePlayerVelocity(Player* const pPlayer)
         }
     }
 
-    pPlayer->pActor->vel.XY() = pPlayer->vel;
+    pPlayerActor->vel.XY() = pPlayer->vel;
 }
 
 //---------------------------------------------------------------------------
