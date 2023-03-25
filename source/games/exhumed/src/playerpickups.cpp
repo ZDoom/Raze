@@ -127,10 +127,49 @@ static void doPickupDestroy(DExhumedActor* const pPickupActor, const int nItem)
 //
 //---------------------------------------------------------------------------
 
+static void doPickupWeapon(Player* pPlayer, DExhumedActor* pPickupActor, int nItem, int nWeapon, int nAmount, int nSound = kSound72)
+{
+    const int weapFlag = 1 << nWeapon;
+
+    if (pPlayer->nPlayerWeapons & weapFlag)
+    {
+        if (currentLevel->gameflags & LEVEL_EX_MULTI)
+        {
+            AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+        }
+    }
+    else
+    {
+        SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
+        pPlayer->nPlayerWeapons |= weapFlag;
+        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+    }
+
+    if (nWeapon == 2)
+        CheckClip(pPlayer->nPlayer);
+
+    if (nItem > 50)
+    {
+        pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+        DestroyItemAnim(pPickupActor);
+    }
+    else
+    {
+        doPickupDestroy(pPickupActor, nItem);
+    }
+
+    doPickupNotification(pPlayer, nItem, StaticSound[nSound]);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
     const auto nFlags = (pPlayer->nMagic >= 1000) + 2 * (pPlayer->nHealth >= 800);
     const auto pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), nFlags, 48);
 
@@ -145,39 +184,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             static constexpr int healArray[] = {40, 160, -200};
             static constexpr int ammoArray[] = {1, 3, 2};
 
-            const auto doPickupWeapon = [=](const int nWeapon, const int nAmount, const int nSound = kSound72)
-            {
-                const int weapFlag = 1 << nWeapon;
-
-                if (pPlayer->nPlayerWeapons & weapFlag)
-                {
-                    if (mplevel)
-                    {
-                        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
-                    }
-                }
-                else
-                {
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
-                    pPlayer->nPlayerWeapons |= weapFlag;
-                    AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
-                }
-
-                if (nWeapon == 2)
-                    CheckClip(pPlayer->nPlayer);
-
-                if (nItem > 50)
-                {
-                    pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-                    DestroyItemAnim(pPickupActor);
-                }
-                else
-                {
-                    doPickupDestroy(pPickupActor, nItem);
-                }
-
-                doPickupNotification(pPlayer, nItem, StaticSound[nSound]);
-            };
             const auto doPickupHealth = [=](const int nAmount, int nSound)
             {
                 if (nAmount <= 0 || (!(nFlags & 2)))
@@ -236,7 +242,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 9: // Grenade
             case 27: // May not be grenade, needs confirmation
             case 55:
-                doPickupWeapon(4, 1, kSoundAmmoPickup);
+                doPickupWeapon(pPlayer, pPickupActor, nItem, 4, 1, kSoundAmmoPickup);
                 break;
 
             case 10: // Pickable item
@@ -307,7 +313,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 break;
 
             case 26: // sword pickup??
-                doPickupWeapon(0, 0);
+                doPickupWeapon(pPlayer, pPickupActor, nItem, 0, 0);
                 break;
 
             case 28: // .357 Magnum Revolver
@@ -322,7 +328,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 57:
             {
                 const int index = nItem - 28 - 24 * (nItem > 50);
-                doPickupWeapon(index + 1, weapArray[index]);
+                doPickupWeapon(pPlayer, pPickupActor, nItem, index + 1, weapArray[index]);
                 break;
             }
 
