@@ -81,6 +81,26 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nVal
 //
 //---------------------------------------------------------------------------
 
+static void doPickupNotification(Player* const pPlayer, const int nItem, const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
+{
+    if (pPlayer->nPlayer == nLocalPlayer)
+    {
+        if (nItemText[nItem] > -1 && nTotalPlayers == 1)
+            pickupMessage(nItem);
+
+        if (nSound > -1)
+            PlayLocalSound(nSound, 0);
+
+        TintPalette(tintRed * 4, tintGreen * 4, 0);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -99,19 +119,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             static constexpr int healArray[] = {40, 160, -200};
             static constexpr int ammoArray[] = {1, 3, 2};
 
-            const auto doConsoleMessage = [=](const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
-            {
-                if (pPlayer->nPlayer == nLocalPlayer)
-                {
-                    if (nItemText[nItem] > -1 && nTotalPlayers == 1)
-                        pickupMessage(nItem);
-
-                    if (nSound > -1)
-                        PlayLocalSound(nSound, 0);
-
-                    TintPalette(tintRed * 4, tintGreen * 4, 0);
-                }
-            };
             const auto doProcessPickup = [=]()
             {
                 if (!mplevel || (nItem >= 25 && (nItem <= 25 || nItem == 50)))
@@ -162,7 +169,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     doProcessPickup();
                 }
 
-                doConsoleMessage(StaticSound[nSound]);
+                doPickupNotification(pPlayer, nItem, StaticSound[nSound]);
             };
             const auto doPickupHealth = [=](const int nAmount, int nSound)
             {
@@ -202,7 +209,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         doProcessPickup();
                     }
 
-                    doConsoleMessage(nSound, tintRed, tintGreen);
+                    doPickupNotification(pPlayer, nItem, nSound, tintRed, tintGreen);
                 }
             };
 
@@ -215,7 +222,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     if (nItem == 8) CheckClip(pPlayer->nPlayer);
                     doProcessPickup();
-                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
+                    doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
@@ -242,13 +249,13 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 51:
             case 58:
                 doProcessPickup();
-                doConsoleMessage();
+                doPickupNotification(pPlayer, nItem);
                 break;
 
             case 11: // Map
                 GrabMap();
                 doProcessPickup();
-                doConsoleMessage();
+                doPickupNotification(pPlayer, nItem);
                 break;
 
             case 12: // Berry Twig
@@ -279,7 +286,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (GrabItem(pPlayer->nPlayer, itemArray[nItem - 18]))
                 {
                     doProcessPickup();
-                    doConsoleMessage();
+                    doPickupNotification(pPlayer, nItem);
                 }
                 break;
 
@@ -288,7 +295,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     pPlayer->nLives++;
                     doProcessPickup();
-                    doConsoleMessage(-1, 32, 32);
+                    doPickupNotification(pPlayer, nItem, -1, 32, 32);
                 }
                 break;
 
@@ -317,7 +324,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (AddAmmo(pPlayer->nPlayer, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
                 {
                     doProcessPickup();
-                    doConsoleMessage(StaticSound[kSoundAmmoPickup]);
+                    doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
                 }
                 break;
 
@@ -331,7 +338,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 {
                     pPlayer->keys |= keybit;
                     doProcessPickup();
-                    doConsoleMessage();
+                    doPickupNotification(pPlayer, nItem);
                 }
                 break;
             }
@@ -346,7 +353,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                         pPlayer->nMagic = 1000;
 
                     doProcessPickup();
-                    doConsoleMessage(StaticSound[kSoundMana1]);
+                    doPickupNotification(pPlayer, nItem, StaticSound[kSoundMana1]);
                 }
                 break;
 
