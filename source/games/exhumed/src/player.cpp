@@ -830,11 +830,6 @@ static void updatePlayerVelocity(Player* const pPlayer)
             pPlayer->vel *= 0.953125;
         }
     }
-    else
-    {
-        pInput->fvel = pInput->svel = pInput->avel = pInput->horz = 0;
-        pPlayer->vel.Zero();
-    }
 
     pPlayer->pActor->vel.XY() = pPlayer->vel;
 }
@@ -1781,22 +1776,20 @@ void AIPlayer::Tick(RunListEvent* ev)
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
-    updatePlayerVelocity(pPlayer);
     doPlayerCounters(pPlayer);
-    doPlayerYaw(pPlayer);
     doPlayerGravity(pPlayerActor);
-
-    // Trigger Ramses?
-    if (!doPlayerMovement(pPlayer))
-    {
-        doPlayerRamses(pPlayer);
-        return;
-    }
-
-    updatePlayerTarget(pPlayer);
 
     if (pPlayer->nHealth > 0)
     {
+        updatePlayerVelocity(pPlayer);
+
+        if (!doPlayerMovement(pPlayer))
+        {
+            doPlayerRamses(pPlayer);
+            return;
+        }
+
+        updatePlayerTarget(pPlayer);
         doPlayerUnderwater(pPlayer);
         updatePlayerFloorActor(pPlayer);
         updatePlayerInventory(pPlayer);
@@ -1805,6 +1798,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerRunlistSignals(pPlayer, pStartSect);
         updatePlayerAction(pPlayer);
         doPlayerPitch(pPlayer);
+        doPlayerYaw(pPlayer);
     }
     else // else, player's health is less than 0
     {
