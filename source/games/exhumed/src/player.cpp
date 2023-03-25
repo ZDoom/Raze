@@ -565,11 +565,13 @@ static void pickupMessage(int no)
 
 void AIPlayer::Draw(RunListEvent* ev)
 {
-    int nPlayer = RunData[ev->nRun].nObjIndex;
+    const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
-    int nAction = PlayerList[nPlayer].nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].nSeqSize, PlayerSeq[nAction].b);
+    const auto pPlayer = &PlayerList[nPlayer];
+    const auto nAction = pPlayer->nAction;
+
+    seq_PlotSequence(ev->nParam, SeqOffsets[pPlayer->nSeq] + PlayerSeq[nAction].a, pPlayer->nSeqSize, PlayerSeq[nAction].b);
 }
 
 //---------------------------------------------------------------------------
