@@ -703,8 +703,8 @@ void AIPlayer::Damage(RunListEvent* ev)
 
 void updatePlayerTarget(Player* const pPlayer)
 {
-    const auto pRa = &Ra[pPlayer->nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
+    const auto pRa = &Ra[pPlayer->nPlayer];
     const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
 
     DExhumedActor* bestTarget = nullptr;
@@ -717,43 +717,42 @@ void updatePlayerTarget(Player* const pPlayer)
         const bool validstatnum = (itActor->spr.statnum > 0) && (itActor->spr.statnum < 150);
         const bool validsprcstat = itActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL;
 
-        if (validstatnum && validsprcstat && itActor != pPlayerActor)
+        if (!validstatnum || !validsprcstat || itActor == pPlayerActor)
+            continue;
+
+        const DVector2 delta = itActor->spr.pos.XY() - pPlayerActor->spr.pos.XY();
+        const double fwd = abs((nAngVect.X * delta.Y) + (delta.X * nAngVect.Y));
+        const double side = abs((nAngVect.X * delta.X) - (delta.Y * nAngVect.Y));
+
+        if (!side)
+            continue;
+
+        const double close = fwd * 32 / side;
+        if (side < 1000 / 16. && side < bestside && close < 10)
         {
-            const DVector2 delta = itActor->spr.pos.XY() - pPlayerActor->spr.pos.XY();
-            const double fwd = abs((nAngVect.X * delta.Y) + (delta.X * nAngVect.Y));
-            const double side = abs((nAngVect.X * delta.X) - (delta.Y * nAngVect.Y));
-
-            if (!side)
-                continue;
-
-            const double close = fwd * 32 / side;
-            if (side < 1000 / 16. && side < bestside && close < 10)
+            bestTarget = itActor;
+            bestclose = close;
+            bestside = side;
+        }
+        else if (side < 30000 / 16.)
+        {
+            const double t = bestclose - close;
+            if (t > 3 || (side < bestside && abs(t) < 5))
             {
                 bestTarget = itActor;
                 bestclose = close;
                 bestside = side;
-            }
-            else if (side < 30000 / 16.)
-            {
-                const double t = bestclose - close;
-                if (t > 3 || (side < bestside && abs(t) < 5))
-                {
-                    bestTarget = itActor;
-                    bestclose = close;
-                    bestside = side;
-                }
             }
         }
     }
 
     if (bestTarget)
     {
-        if (pPlayer->nPlayer == nLocalPlayer) nCreepyTimer = kCreepyCount;
+        if (pPlayer->nPlayer == nLocalPlayer)
+            nCreepyTimer = kCreepyCount;
 
         if (!cansee(pPlayerActor->spr.pos, pPlayerActor->sector(), bestTarget->spr.pos.plusZ(-GetActorHeight(bestTarget)), bestTarget->sector()))
-        {
             bestTarget = nullptr;
-        }
     }
 
     pPlayer->pTarget = pRa->pTarget = bestTarget;
