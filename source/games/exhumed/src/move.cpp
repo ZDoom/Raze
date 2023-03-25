@@ -112,7 +112,9 @@ void MoveThings()
 
     if (nFreeze)
     {
-        if (nFreeze == 1 || nFreeze == 2) {
+        if (nFreeze == 1 || nFreeze == 2)
+        {
+            setForcedSyncInput(nLocalPlayer);
             DoSpiritHead();
         }
     }
