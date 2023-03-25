@@ -101,6 +101,32 @@ static void doPickupNotification(Player* const pPlayer, const int nItem, const i
 //
 //---------------------------------------------------------------------------
 
+static void doPickupDestroy(DExhumedActor* const pPickupActor, const int nItem)
+{
+    if (!(currentLevel->gameflags & LEVEL_EX_MULTI) || (nItem >= 25 && (nItem <= 25 || nItem == 50)))
+    {
+        // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
+        if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
+        {
+            DestroyAnim(pPickupActor);
+        }
+        else
+        {
+            DeleteActor(pPickupActor);
+        }
+    }
+    else
+    {
+        StartRegenerate(pPickupActor);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void doPlayerItemPickups(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -119,25 +145,6 @@ void doPlayerItemPickups(Player* const pPlayer)
             static constexpr int healArray[] = {40, 160, -200};
             static constexpr int ammoArray[] = {1, 3, 2};
 
-            const auto doProcessPickup = [=]()
-            {
-                if (!mplevel || (nItem >= 25 && (nItem <= 25 || nItem == 50)))
-                {
-                    // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
-                    if (pPickupActor->nRun == pPickupActor->nDamage && pPickupActor->nRun != 0 && pPickupActor->nPhase == ITEM_MAGIC)
-                    {
-                        DestroyAnim(pPickupActor);
-                    }
-                    else
-                    {
-                        DeleteActor(pPickupActor);
-                    }
-                }
-                else
-                {
-                    StartRegenerate(pPickupActor);
-                }
-            };
             const auto doPickupWeapon = [=](const int nWeapon, const int nAmount, const int nSound = kSound72)
             {
                 const int weapFlag = 1 << nWeapon;
@@ -166,7 +173,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 }
                 else
                 {
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                 }
 
                 doPickupNotification(pPlayer, nItem, StaticSound[nSound]);
@@ -206,7 +213,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                             tintGreen = 0;
                         }
 
-                        doProcessPickup();
+                        doPickupDestroy(pPickupActor, nItem);
                     }
 
                     doPickupNotification(pPlayer, nItem, nSound, tintRed, tintGreen);
@@ -221,7 +228,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (AddAmmo(pPlayer->nPlayer, ammoArray[nItem - 6], pPickupActor->spr.hitag))
                 {
                     if (nItem == 8) CheckClip(pPlayer->nPlayer);
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                     doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
                 }
                 break;
@@ -248,13 +255,13 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 44:
             case 51:
             case 58:
-                doProcessPickup();
+                doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem);
                 break;
 
             case 11: // Map
                 GrabMap();
-                doProcessPickup();
+                doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem);
                 break;
 
@@ -285,7 +292,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 23: // Sobek Mask
                 if (GrabItem(pPlayer->nPlayer, itemArray[nItem - 18]))
                 {
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                     doPickupNotification(pPlayer, nItem);
                 }
                 break;
@@ -294,7 +301,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (pPlayer->nLives < kMaxPlayerLives)
                 {
                     pPlayer->nLives++;
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                     doPickupNotification(pPlayer, nItem, -1, 32, 32);
                 }
                 break;
@@ -323,7 +330,7 @@ void doPlayerItemPickups(Player* const pPlayer)
             case 38: // Raw Energy
                 if (AddAmmo(pPlayer->nPlayer, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
                 {
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                     doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
                 }
                 break;
@@ -337,7 +344,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                 if (!(pPlayer->keys & keybit))
                 {
                     pPlayer->keys |= keybit;
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                     doPickupNotification(pPlayer, nItem);
                 }
                 break;
@@ -352,7 +359,7 @@ void doPlayerItemPickups(Player* const pPlayer)
                     if (pPlayer->nMagic >= 1000)
                         pPlayer->nMagic = 1000;
 
-                    doProcessPickup();
+                    doPickupDestroy(pPickupActor, nItem);
                     doPickupNotification(pPlayer, nItem, StaticSound[kSoundMana1]);
                 }
                 break;
