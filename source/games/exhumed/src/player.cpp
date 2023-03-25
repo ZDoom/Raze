@@ -1452,6 +1452,49 @@ static bool doPlayerMovement(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pStartSect)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerSect = pPlayerActor->sector();
+
+    if (bTouchFloor && pPlayerSect->lotag > 0)
+        runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::TouchFloor);
+
+    if (pStartSect != pPlayerSect)
+    {
+        if (pStartSect->lotag > 0)
+            runlist_SignalRun(pStartSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::EnterSector);
+
+        if (pPlayerSect->lotag > 0)
+            runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::LeaveSector);
+    }
+
+    if (!pPlayer->bIsMummified)
+    {
+        if (pPlayer->input.actions & SB_OPEN)
+        {
+            pPlayer->input.actions &= ~SB_OPEN;
+
+            // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
+            HitInfo near;
+            neartag(pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
+
+            int tag;
+            if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
+                runlist_SignalRun(tag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+
+            if (near.hitSector != nullptr && (tag = near.hitSector->lotag) > 0)
+                runlist_SignalRun(tag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1516,6 +1559,8 @@ static void updatePlayerAction(Player* const pPlayer)
 
             if (pPlayer->input.actions & SB_FIRE) // was var_38
             {
+                pPlayer->bIsFiring = true;
+
                 if (bUnderwater)
                 {
                     nextAction = 11;
@@ -1524,6 +1569,10 @@ static void updatePlayerAction(Player* const pPlayer)
                 {
                     nextAction = 5;
                 }
+            }
+            else
+            {
+                pPlayer->bIsFiring = false;
             }
         }
 
@@ -1753,40 +1802,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         updatePlayerInventory(pPlayer);
         updatePlayerWeapon(pPlayer);
         doPlayerItemPickups(pPlayer);
-
-        if (bTouchFloor && pPlayerActor->sector()->lotag > 0)
-            runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
-
-        if (pStartSect != pPlayerActor->sector())
-        {
-            if (pStartSect->lotag > 0)
-                runlist_SignalRun(pStartSect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
-
-            if (pPlayerActor->sector()->lotag > 0)
-                runlist_SignalRun(pPlayerActor->sector()->lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
-        }
-
-        if (!pPlayer->bIsMummified)
-        {
-            if (pPlayer->input.actions & SB_OPEN)
-            {
-                pPlayer->input.actions &= ~SB_OPEN;
-
-                // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-                HitInfo near;
-                neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
-
-                int tag;
-                if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
-                    runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
-
-                if (near.hitSector != nullptr && (tag = near.hitSector->lotag) > 0)
-                    runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
-            }
-
-            pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
-        }
-
+        doPlayerRunlistSignals(pPlayer, pStartSect);
         updatePlayerAction(pPlayer);
         doPlayerPitch(pPlayer);
     }
