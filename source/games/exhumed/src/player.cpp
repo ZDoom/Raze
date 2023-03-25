@@ -1809,6 +1809,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayer->nHealth > 0)
     {
+        doPlayerPitch(pPlayer);
+        doPlayerYaw(pPlayer);
         updatePlayerVelocity(pPlayer);
 
         if (!doPlayerMovement(pPlayer))
@@ -1825,8 +1827,6 @@ void AIPlayer::Tick(RunListEvent* ev)
         doPlayerItemPickups(pPlayer);
         doPlayerRunlistSignals(pPlayer, pStartSect);
         updatePlayerAction(pPlayer);
-        doPlayerPitch(pPlayer);
-        doPlayerYaw(pPlayer);
     }
     else
     {
