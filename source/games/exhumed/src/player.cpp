@@ -580,17 +580,15 @@ void AIPlayer::Draw(RunListEvent* ev)
 
 void AIPlayer::RadialDamage(RunListEvent* ev)
 {
-    int nPlayer = RunData[ev->nRun].nObjIndex;
+    const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    auto pPlayerActor = PlayerList[nPlayer].pActor;
+    const auto pPlayer = &PlayerList[nPlayer];
 
-    if (PlayerList[nPlayer].nHealth <= 0)
-    {
+    if (pPlayer->nHealth <= 0)
         return;
-    }
 
-    ev->nDamage = runlist_CheckRadialDamage(pPlayerActor);
+    ev->nDamage = runlist_CheckRadialDamage(pPlayer->pActor);
     Damage(ev);
 }
 
