@@ -128,7 +128,6 @@ struct Weapon
 };
 
 extern Weapon WeaponInfo[];
-extern int16_t nTemperature[];
 
 void RestoreMinAmmo(int nPlayer);
 void FillWeapons(int nPlayer);

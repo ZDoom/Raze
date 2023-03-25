@@ -100,6 +100,7 @@ struct Player
     int16_t dVertPan;
     double nQuake;
     uint8_t nPlayer;
+    int16_t nTemperature;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;

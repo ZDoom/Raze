@@ -306,6 +306,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->nCurrentItem = -1;
     pPlayer->nDeathType = 0;
     pPlayer->nQuake = 0;
+    pPlayer->nTemperature = 0;
     SetTorch(nPlayer, 0);
 
     if (nNetPlayerCount)
@@ -332,8 +333,6 @@ void RestartPlayer(int nPlayer)
 		ResetPlayerWeapons(nPlayer);
 		pPlayer->nMagic = 0;
 	}
-
-	nTemperature[nPlayer] = 0;
 
 	BuildRa(nPlayer);
 }

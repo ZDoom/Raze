@@ -45,7 +45,6 @@ Weapon WeaponInfo[] = {
     { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false }
 };
 
-int16_t nTemperature[kMaxPlayers];
 static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
 int isRed = 0;
 
@@ -60,10 +59,7 @@ void SerializeGun(FSerializer& arc)
 {
     if (arc.BeginObject("gun"))
     {
-        arc.Array("temperature", nTemperature, kMaxPlayers)
-            ("isred", isRed)
-            .EndObject();
-
+        arc("isred", isRed).EndObject();
     }
 }
 
@@ -360,7 +356,7 @@ void MoveWeapons(int nPlayer)
         nPilotLightFrame = 0;
 
     if (!PlayerList[nPlayer].bIsFiring || (nSectFlag & kSectUnderwater))
-        nTemperature[nPlayer] = 0;
+        PlayerList[nPlayer].nTemperature = 0;
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
@@ -678,11 +674,11 @@ loc_flag:
 
             if (nWeapon == kWeaponFlamer && (!(nSectFlag & kSectUnderwater)))
             {
-                nTemperature[nPlayer]++;
+                PlayerList[nPlayer].nTemperature++;
 
-                if (nTemperature[nPlayer] > 50)
+                if (PlayerList[nPlayer].nTemperature > 50)
                 {
-                    nTemperature[nPlayer] = 0;
+                    PlayerList[nPlayer].nTemperature = 0;
                     PlayerList[nPlayer].nState = 4;
                     PlayerList[nPlayer].nSeqSize2 = 0;
                 }
