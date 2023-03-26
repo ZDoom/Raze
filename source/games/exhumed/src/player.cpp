@@ -1587,6 +1587,8 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
         pLocalEyeSect = pPlayer->pPlayerViewSect;
         CheckAmbience(pLocalEyeSect);
     }
+
+    pPlayer->nPlayerD = pPlayerActor->spr.pos - spr_pos;
 }
 
 //---------------------------------------------------------------------------
@@ -1756,8 +1758,6 @@ static bool doPlayerMovement(Player* const pPlayer)
     // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
     doPlayerPitch(pPlayer, -posdelta.Z * 2.);
     updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
-
-    pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
 
     return true;
 }
