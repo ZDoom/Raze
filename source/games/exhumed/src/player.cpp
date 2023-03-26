@@ -1420,9 +1420,6 @@ static void doPlayerRamses(Player* const pPlayer)
     if (nTotalPlayers <= 1)
     {
         const auto pPlayerActor = pPlayer->pActor;
-        pPlayerActor->spr.Angles.Yaw = (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle();
-        pPlayerActor->spr.Angles.Pitch = pPlayerActor->PrevAngles.Pitch;
-        pPlayerActor->backupang();
         pPlayerActor->vel.Zero();
         pPlayer->vel.Zero();
 
@@ -1455,6 +1452,31 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 
     if (pPlayerActor->vel.Z >= (6500 / 256.) && nStartVelZ < (6500 / 256.))
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerAngles(Player* const pPlayer)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pInput = &pPlayer->input;
+    const auto nDestVertPan = cl_slopetilting ? pPlayer->nDestVertPan : nullAngle;
+    const auto nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, nDestVertPan).Tan() * 32.;
+
+    if (SyncInput())
+    {
+        pPlayerActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
+        pPlayerActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
+    }
+
+    pPlayer->Angles.doYawKeys(pInput);
+    pPlayer->Angles.doViewYaw(pInput);
+    pPlayer->Angles.doPitchKeys(pInput);
+    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
 }
 
 //---------------------------------------------------------------------------
@@ -1650,6 +1672,9 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
 
 static bool doPlayerMovement(Player* const pPlayer)
 {
+    // update the player/actor's velocity before anything.
+    updatePlayerVelocity(pPlayer);
+
     const auto pPlayerActor = pPlayer->pActor;
     const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
     const auto spr_pos = pPlayerActor->spr.pos;
@@ -1698,6 +1723,9 @@ static bool doPlayerMovement(Player* const pPlayer)
     // Trigger Ramses?
     if ((pPlayerActor->sector()->Flag & 0x8000) && bTouchFloor)
         return false;
+
+    // update player angles here as per the original workflow.
+    doPlayerAngles(pPlayer);
 
     if (nMove.type || nMove.exbits)
     {
@@ -1867,31 +1895,6 @@ static void updatePlayerAction(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerAngles(Player* const pPlayer)
-{
-    const auto pPlayerActor = pPlayer->pActor;
-    const auto pInput = &pPlayer->input;
-    const auto nDestVertPan = cl_slopetilting ? pPlayer->nDestVertPan : nullAngle;
-    const auto nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, nDestVertPan).Tan() * 32.;
-
-    if (SyncInput())
-    {
-        pPlayerActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
-        pPlayerActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
-    }
-
-    pPlayer->Angles.doYawKeys(pInput);
-    pPlayer->Angles.doViewYaw(pInput);
-    pPlayer->Angles.doPitchKeys(pInput);
-    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static bool doPlayerDeathRestart(Player* const pPlayer)
 {
     if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->nAction < 16)
@@ -2043,9 +2046,6 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayer->nHealth > 0)
     {
-        updatePlayerVelocity(pPlayer);
-        doPlayerAngles(pPlayer);
-
         if (!doPlayerMovement(pPlayer))
         {
             doPlayerRamses(pPlayer);

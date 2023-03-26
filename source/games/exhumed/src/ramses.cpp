@@ -197,6 +197,8 @@ void DoSpiritHead()
 
     const auto pPlayer = &PlayerList[0];
     const auto pPlayerActor = pPlayer->pActor;
+    const auto nSpiritAngle = (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle();
+    pPlayerActor->spr.Angles.Yaw += deltaangle(pPlayerActor->spr.Angles.Yaw, nSpiritAngle) * 0.25;
     pPlayerActor->spr.Angles.Pitch += deltaangle(pPlayerActor->spr.Angles.Pitch, pPlayer->nDestVertPan) * 0.25;
 
     switch (nHeadStage) 
