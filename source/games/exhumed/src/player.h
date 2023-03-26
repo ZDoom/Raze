@@ -101,6 +101,7 @@ struct Player
     double nQuake;
     uint8_t nPlayer;
     int16_t nTemperature;
+    double nStandHeight;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;

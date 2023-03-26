@@ -72,7 +72,6 @@ int obobangle = 0, bobangle  = 0;
 int nLocalPlayer = 0;
 Player PlayerList[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
-double nStandHeight;
 int PlayerCount;
 int nNetStartSprites;
 int nCurStartSprite;
@@ -308,6 +307,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->nDeathType = 0;
     pPlayer->nQuake = 0;
     pPlayer->nTemperature = 0;
+    pPlayer->nStandHeight = GetActorHeight(pPlayerActor);
     SetTorch(nPlayer, 0);
 
     if (nNetPlayerCount)
@@ -1810,7 +1810,7 @@ static void updatePlayerAction(Player* const pPlayer)
                 {
                     nextAction = 10 - (pPlayer->totalvel <= 1);
                 }
-                else if (GetActorHeight(pPlayerActor) > (pPlayerSect->floorz - pPlayerSect->ceilingz))
+                else if (pPlayer->nStandHeight > (pPlayerSect->floorz - pPlayerSect->ceilingz))
                 {
                     // CHECKME - confirm branching in this area is OK
                     // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->sector() so we can make this code a bit neater. Don't assume pPlayerActor->sector() == nSector here!!
