@@ -1869,8 +1869,8 @@ static void doPlayerAngles(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const auto pInput = &pPlayer->input;
-    const auto nCurrVertPan = cl_slopetilting ? pPlayer->Angles.ViewAngles.Pitch : nullAngle;
-    const auto nVertPan = deltaangle(nCurrVertPan, pPlayer->nDestVertPan).Tan() * 32.;
+    const auto nDestVertPan = cl_slopetilting ? pPlayer->nDestVertPan : nullAngle;
+    const auto nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, nDestVertPan).Tan() * 32.;
 
     if (SyncInput())
     {
