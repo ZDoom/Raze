@@ -170,13 +170,19 @@ public:
 		mShadowMap.SetAABBTree(tree);
 	}
 	virtual void SetLevelMesh(hwrenderer::LevelMesh *mesh) { }
-	bool allowSSBO()
+	bool allowSSBO() const
 	{
 #ifndef HW_BLOCK_SSBO
 		return true;
 #else
 		return mPipelineType == 0;
 #endif
+	}
+
+	// SSBOs have quite worse performance for read only data, so keep this around only as long as Vulkan has not been adapted yet.
+	bool useSSBO() 
+	{
+		return IsVulkan();
 	}
 
 	virtual DCanvas* GetCanvas() { return nullptr; }
