@@ -876,6 +876,8 @@ void playerCenterView(int snum)
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
 		p->sync.actions |= SB_CENTERVIEW;
+		p->sync.horz = 0;
+		setForcedSyncInput(snum);
 	}
 	else
 	{

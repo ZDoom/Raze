@@ -351,7 +351,7 @@ struct player_struct
 			return;
 
 		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
-		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370;
+		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370; // Build horizon value of 5.
 
 		if ((centertest && returnlock) || !sync.horz)
 		{
