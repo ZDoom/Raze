@@ -936,16 +936,16 @@ void SetQuake(DExhumedActor* pActor, int nVal)
 {
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        double qVal = nVal;
+        auto nSqrt = ((PlayerList[i].pActor->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
 
-        if (const auto nSqrt = ((PlayerList[i].pActor->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length())
+        if (nSqrt)
         {
-            qVal = clamp(qVal / nSqrt, 0., 15.);
+            nVal = clamp(int(nVal / nSqrt), 0, 15);
         }
 
-        if (qVal > PlayerList[i].nQuake)
+        if (nVal > PlayerList[i].nQuake)
         {
-            PlayerList[i].nQuake = qVal;
+            PlayerList[i].nQuake = nVal;
         }
     }
 }
