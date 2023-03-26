@@ -1693,17 +1693,17 @@ static bool doPlayerMovement(Player* const pPlayer)
     if (bSlipMode)
     {
         SetActor(pPlayerActor, pPlayerActor->spr.pos + spr_vel.XY());
-        pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
+        pPlayerActor->spr.pos.Z = spr_sect->floorz;
     }
     else
     {
         nMove = movesprite(pPlayerActor, spr_vel.XY(), spr_vel.Z, -20, CLIPMASK0);
 
-        auto pPlayerSect = pPlayerActor->sector();
-        pushmove(pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->clipdist, 20, -20, CLIPMASK0);
+        auto pTempSect = spr_sect;
+        pushmove(pPlayerActor->spr.pos, &pTempSect, pPlayerActor->clipdist, 20, -20, CLIPMASK0);
 
-        if (pPlayerSect != pPlayerActor->sector())
-            ChangeActorSect(pPlayerActor, pPlayerSect);
+        if (pTempSect != spr_sect)
+            ChangeActorSect(pPlayerActor, pTempSect);
 
         if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
         {
@@ -1715,13 +1715,14 @@ static bool doPlayerMovement(Player* const pPlayer)
         }
     }
 
-    const bool bUnderwater = pPlayerActor->sector()->Flag & kSectUnderwater;
+    const auto pPlayerSect = pPlayerActor->sector();
+    const bool bUnderwater = pPlayerSect->Flag & kSectUnderwater;
 
     if (bUnderwater)
         pPlayer->nThrust *= 0.5;
 
     // Trigger Ramses?
-    if ((pPlayerActor->sector()->Flag & 0x8000) && bTouchFloor)
+    if ((pPlayerSect->Flag & 0x8000) && bTouchFloor)
         return false;
 
     // update player angles here as per the original workflow.
