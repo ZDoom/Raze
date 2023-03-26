@@ -225,14 +225,11 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->spr.extra = -1;
     pPlayerActor->spr.lotag = runlist_HeadRun() + 1;
     pPlayerActor->clipdist = 14.5;
-    pPlayerActor->oviewzoffset = pPlayerActor->viewzoffset = -55.;
+    pPlayerActor->viewzoffset = -55.;
     pPlayerActor->vel.X = 0;
     pPlayerActor->vel.Y = 0;
     pPlayerActor->vel.Z = 0;
-    pPlayerActor->backuploc();
     pPlayerActor->spr.intowner = runlist_AddRunRec(pPlayerActor->spr.lotag - 1, nPlayer, 0xA0000);
-
-    ChangeActorSect(pPlayerActor, pPlayer->sPlayerSave.pSector);
     ChangeActorStat(pPlayerActor, 100);
 
 	if (nTotalPlayers > 1)
@@ -258,8 +255,11 @@ void RestartPlayer(int nPlayer)
         pPlayerActor->spr.pos.XY() = pPlayer->sPlayerSave.pos.XY();
 		pPlayerActor->spr.pos.Z = pPlayer->sPlayerSave.pSector->floorz;
 		pPlayerActor->spr.Angles.Yaw = pPlayer->sPlayerSave.nAngle;
+        ChangeActorSect(pPlayerActor, pPlayer->sPlayerSave.pSector);
 		pFloorSprite = nullptr;
 	}
+
+    pPlayerActor->backuploc();
 
     pDopSprite = insertActor(pPlayerActor->sector(), 100);
     pDopSprite->spr.pos = pPlayerActor->spr.pos;
