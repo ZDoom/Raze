@@ -23,7 +23,7 @@ struct PlayerAngles
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
 	{
-		if (pActor = actor) CameraAngles = PrevLerpAngles = pActor->spr.Angles;
+		if ((pActor = actor)) CameraAngles = PrevLerpAngles = pActor->spr.Angles;
 		PrevViewAngles.Yaw = ViewAngles.Yaw = viewyaw;
 	}
 	DAngle getPitchWithView()

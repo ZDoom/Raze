@@ -184,12 +184,12 @@ inline const TileOffs* GetHiresOffset(FTextureID tex)
 	else return nullptr;
 }
 
-inline const unsigned tileflags(FTextureID texid)
+inline unsigned tileflags(FTextureID texid)
 {
 	return GetExtInfo(texid).flags;
 }
 
-inline const uint8_t tilesurface(FTextureID texid)
+inline uint8_t tilesurface(FTextureID texid)
 {
 	return GetExtInfo(texid).surftype;
 }
