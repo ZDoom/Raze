@@ -2990,14 +2990,14 @@ HORIZONLY:
 		playerAimDown(snum, actions);
 	}
 
-	p->Angles.doPitchKeys(&p->sync);
-
 	p->checkhardlanding();
 
 	if (SyncInput())
 	{
 		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}
+
+	p->Angles.doPitchKeys(&p->sync);
 
 	//Shooting code/changes
 
