@@ -300,7 +300,6 @@ void RestartPlayer(int nPlayer)
     pPlayer->dVertPan = 0;
     pPlayer->vel.Zero();
     pPlayer->nThrust.Zero();
-    pPlayer->nDestVertPan = nullAngle;
     pPlayer->nBreathTimer = 90;
     pPlayer->nTauntTimer = RandomSize(3) + 3;
     pPlayer->ototalvel = pPlayer->totalvel = 0;
@@ -1426,7 +1425,6 @@ static void doPlayerRamses(Player* const pPlayer)
         if (nFreeze < 1)
         {
             nFreeze = 1;
-            pPlayer->nDestVertPan = currentLevel->ex_ramses_horiz;
             StopAllSounds();
             StopLocalSound();
             InitSpiritHead();
@@ -1460,11 +1458,10 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerPitch(Player* const pPlayer)
+static void doPlayerPitch(Player* const pPlayer, const double nDestVertPan)
 {
     const auto pInput = &pPlayer->input;
-    const auto nDestVertPan = cl_slopetilting ? pPlayer->nDestVertPan : nullAngle;
-    const auto nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, nDestVertPan).Tan() * 32.;
+    const auto nVertPan = (nDestVertPan * cl_slopetilting - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
 
     if (SyncInput())
     {
@@ -1752,12 +1749,11 @@ static bool doPlayerMovement(Player* const pPlayer)
             doPlayerMovingBlocks(pPlayer, nMove, spr_pos, spr_vel, spr_sect);
     }
 
-    // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
-    pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
 
-    doPlayerPitch(pPlayer);
+    // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
+    doPlayerPitch(pPlayer, (pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
 
     pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
