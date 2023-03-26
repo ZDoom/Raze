@@ -298,6 +298,7 @@ void RestartPlayer(int nPlayer)
 	pPlayer->nAir = 100;
     pPlayer->pPlayerGrenade = nullptr;
     pPlayer->dVertPan = 0;
+    pPlayer->vel.Zero();
     pPlayer->nThrust.Zero();
     pPlayer->nDestVertPan = pPlayerActor->PrevAngles.Pitch = pPlayerActor->spr.Angles.Pitch = nullAngle;
     pPlayer->nBreathTimer = 90;
@@ -335,6 +336,9 @@ void RestartPlayer(int nPlayer)
 	}
 
 	BuildRa(nPlayer);
+
+    // clear out all input before finishing here
+    inputState.ClearAllInput();
 }
 
 //---------------------------------------------------------------------------
