@@ -3318,11 +3318,7 @@ void processinput_r(int snum)
 	p->Angles.doViewYaw(&p->sync);
 	p->apply_seasick();
 
-	if (p->centeringView())
-	{
-		p->sync.horz = 0;
-		setForcedSyncInput(snum);
-	}
+	p->updatecentering(snum);
 
 	if (p->on_crane != nullptr)
 	{

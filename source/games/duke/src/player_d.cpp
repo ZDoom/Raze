@@ -2730,11 +2730,7 @@ void processinput_d(int snum)
 	checklook(snum,actions);
 	p->Angles.doViewYaw(&p->sync);
 
-	if (p->centeringView())
-	{
-		p->sync.horz = 0;
-		setForcedSyncInput(snum);
-	}
+	p->updatecentering(snum);
 
 	if (p->on_crane != nullptr)
 	{

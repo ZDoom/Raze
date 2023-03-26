@@ -345,12 +345,23 @@ struct player_struct
 		bobpos = GetActor()->spr.pos.XY();
 	}
 
-	bool centeringView()
+	void updatecentering(const int snum)
 	{
-		const bool centering = sync.actions & SB_CENTERVIEW;
-		const bool lockedret = cl_dukepitchmode & kDukePitchLockReturn;
-		const bool rangetest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370;
-		return centering && lockedret && rangetest;
+		if (!(sync.actions & SB_CENTERVIEW))
+			return;
+
+		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
+		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370;
+
+		if ((centertest && returnlock) || !sync.horz)
+		{
+			setForcedSyncInput(snum);
+			sync.horz = 0;
+		}
+		else
+		{
+			sync.actions &= ~SB_CENTERVIEW;
+		}
 	}
 };
 
