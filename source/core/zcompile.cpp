@@ -75,6 +75,8 @@ void ParseScripts()
 	}
 }
 
+void InitServices();
+
 void LoadScripts()
 {
 	cycle_t timer;
@@ -131,4 +133,5 @@ void LoadScripts()
 
 	// Now we may call the scripted OnDestroy method.
 	PClass::bVMOperational = true;
+	InitServices();
 }
