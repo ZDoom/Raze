@@ -1749,11 +1749,12 @@ static bool doPlayerMovement(Player* const pPlayer)
             doPlayerMovingBlocks(pPlayer, nMove, spr_pos, spr_vel, spr_sect);
     }
 
+    const auto posdelta = spr_pos - pPlayerActor->spr.pos;
     pPlayer->ototalvel = pPlayer->totalvel;
-    pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
+    pPlayer->totalvel = int(posdelta.XY().Length() * worldtoint);
 
     // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
-    doPlayerPitch(pPlayer, (pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
+    doPlayerPitch(pPlayer, -posdelta.Z * 2.);
     updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
 
     pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
