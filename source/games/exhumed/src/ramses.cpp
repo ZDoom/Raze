@@ -195,7 +195,9 @@ void DoSpiritHead()
     auto pSpiritSpr = pSpiritSprite;
     auto Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
 
-    PlayerList[0].input.actions |= SB_CENTERVIEW;
+    const auto pPlayer = &PlayerList[0];
+    const auto pPlayerActor = pPlayer->pActor;
+    pPlayerActor->spr.Angles.Pitch += deltaangle(pPlayerActor->spr.Angles.Pitch, pPlayer->nDestVertPan) * 0.25;
 
     switch (nHeadStage) 
     {

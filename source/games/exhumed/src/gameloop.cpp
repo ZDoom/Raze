@@ -74,7 +74,7 @@ void GameInterface::Render()
         DrawClock();
     }
 
-    const double interpfrac = bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate || EndLevel ? 1. : I_GetTimeFrac();
+    const double interpfrac = bRecord || bPlayback || paused || cl_capfps || !cl_interpolate || EndLevel ? 1. : I_GetTimeFrac();
     DrawView(interpfrac);
 
     if (nFreeze != 2) // Hide when Ramses is talking.

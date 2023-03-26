@@ -1420,7 +1420,8 @@ static void doPlayerRamses(Player* const pPlayer)
     if (nTotalPlayers <= 1)
     {
         const auto pPlayerActor = pPlayer->pActor;
-        pPlayerActor->spr.Angles = DRotator(nullAngle, (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle(), nullAngle);
+        pPlayerActor->spr.Angles.Yaw = (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle();
+        pPlayerActor->spr.Angles.Pitch = pPlayerActor->PrevAngles.Pitch;
         pPlayerActor->backupang();
         pPlayerActor->vel.Zero();
         pPlayer->vel.Zero();
@@ -1428,8 +1429,7 @@ static void doPlayerRamses(Player* const pPlayer)
         if (nFreeze < 1)
         {
             nFreeze = 1;
-            pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
-            pPlayer->nDestVertPan = nullAngle;
+            pPlayer->nDestVertPan = currentLevel->ex_ramses_horiz;
             StopAllSounds();
             StopLocalSound();
             InitSpiritHead();
@@ -1708,6 +1708,7 @@ static bool doPlayerMovement(Player* const pPlayer)
             doPlayerMovingBlocks(pPlayer, nMove, spr_pos, spr_vel, spr_sect);
     }
 
+    // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
     pPlayer->nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
@@ -2006,9 +2007,9 @@ static void doPlayerDeathPitch(Player* const pPlayer)
     {
         pPlayerActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
 
-        if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -38)
+        if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -40.156)
         {
-            pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-38);
+            pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-40.156);
         }
         else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0 && !(pPlayerActor->sector()->Flag & kSectUnderwater))
         {
