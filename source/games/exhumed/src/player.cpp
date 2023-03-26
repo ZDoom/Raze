@@ -1460,23 +1460,38 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerAngles(Player* const pPlayer)
+static void doPlayerPitch(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
     const auto pInput = &pPlayer->input;
     const auto nDestVertPan = cl_slopetilting ? pPlayer->nDestVertPan : nullAngle;
     const auto nVertPan = deltaangle(pPlayer->Angles.ViewAngles.Pitch, nDestVertPan).Tan() * 32.;
 
     if (SyncInput())
     {
-        pPlayerActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
-        pPlayerActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
+        pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
+    }
+
+    pPlayer->Angles.doPitchKeys(pInput);
+    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerYaw(Player* const pPlayer)
+{
+    const auto pInput = &pPlayer->input;
+
+    if (SyncInput())
+    {
+        pPlayer->pActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
     }
 
     pPlayer->Angles.doYawKeys(pInput);
     pPlayer->Angles.doViewYaw(pInput);
-    pPlayer->Angles.doPitchKeys(pInput);
-    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
 }
 
 //---------------------------------------------------------------------------
@@ -1725,8 +1740,8 @@ static bool doPlayerMovement(Player* const pPlayer)
     if ((pPlayerSect->Flag & 0x8000) && bTouchFloor)
         return false;
 
-    // update player angles here as per the original workflow.
-    doPlayerAngles(pPlayer);
+    // update player yaw here as per the original workflow.
+    doPlayerYaw(pPlayer);
 
     if (nMove.type || nMove.exbits)
     {
@@ -1742,6 +1757,7 @@ static bool doPlayerMovement(Player* const pPlayer)
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int((spr_pos.XY() - pPlayerActor->spr.pos.XY()).Length() * worldtoint);
 
+    doPlayerPitch(pPlayer);
     updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
 
     pPlayer->nPlayerD = (pPlayerActor->spr.pos - spr_pos);
