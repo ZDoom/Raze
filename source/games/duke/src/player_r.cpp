@@ -3694,7 +3694,7 @@ HORIZONLY:
 		return;
 	}
 
-	if (actions & SB_CENTERVIEW || p->hard_landing)
+	if (actions & SB_CENTERVIEW || (p->hard_landing && (cl_dukepitchmode & kDukePitchLandingRecenter)))
 	{
 		playerCenterView(snum);
 	}

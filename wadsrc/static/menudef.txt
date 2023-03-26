@@ -1024,12 +1024,18 @@ OptionMenu GameplayOptions protected
 	{
 		Option "$PLRMNU_FULLVIEWPITCH", "cl_clampedpitch", "OffOn"
 	}
+	StaticText ""
 	ifgame(Blood)
 	{
 		Option "$PLRMNU_BLDQAVINTERP", "cl_bloodqavinterp", "OnOff"
 		Option "$PLRMNU_BLDWEAPINTERP", "cl_bloodweapinterp", "OnOff", "cl_bloodqavinterp"
 	}
-	// StaticText ""
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
+	{
+		Option "$PLRMNU_DUKEPITCHLOCKRET", "cl_dukepitchlockreturn", "OnOff"
+		Option "$PLRMNU_DUKEPITCHHARDLAND", "cl_dukepitchhardlanding", "OnOff"
+		Option "$PLRMNU_DUKEPITCHLANDRET", "cl_dukepitchlandingrecenter", "OnOff"
+	}
 	// Option "Record Demo", "m_recstat", "OnOff"
 	// Submenu "Cheats" "CheatsMenu
 }

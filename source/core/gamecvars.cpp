@@ -91,8 +91,16 @@ CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's wea
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
 CVARD(Bool, cl_loadingscreens, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable loading screens for games")
 CVARD(Bool, cl_clampedpitch, true, CVAR_ARCHIVE, "clamp the view pitch to original ranges")
-CVARD(Bool, cl_dukelockpitchreturn, true, CVAR_ARCHIVE, "enable/disable Duke's pitch input when returning to centre")
 
+CUSTOM_CVARD(Int, cl_dukepitchmode, 7, CVAR_ARCHIVE, "customise Duke's myriad of pitch options")
+{
+	if (self < 0) self = 0;
+	else if (self > 7) self = 7;
+}
+
+CVARD(Flag, cl_dukepitchlockreturn, cl_dukepitchmode, 1, "enable/disable pitch input while returning to centre");
+CVARD(Flag, cl_dukepitchhardlanding, cl_dukepitchmode, 2, "enable/disable pitch adjustment from a high fall");
+CVARD(Flag, cl_dukepitchlandingrecenter, cl_dukepitchmode, 4, "enable/disable pitch recentreing after a high fall");
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
 {

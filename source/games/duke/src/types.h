@@ -347,7 +347,10 @@ struct player_struct
 
 	bool centeringView()
 	{
-		return (sync.actions & SB_CENTERVIEW) && abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370;
+		const bool centering = sync.actions & SB_CENTERVIEW;
+		const bool lockedret = cl_dukepitchmode & kDukePitchLockReturn;
+		const bool rangetest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370;
+		return centering && lockedret && rangetest;
 	}
 };
 

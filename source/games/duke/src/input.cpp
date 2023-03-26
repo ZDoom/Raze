@@ -612,21 +612,6 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::reapplyInputBits(InputPacket* const input)
-{
-	if ((ps[myconnectindex].sync.actions & SB_CENTERVIEW) && (cl_dukelockpitchreturn || !input->avel))
-	{
-		input->actions |= SB_CENTERVIEW;
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
 // External entry point
 //
 //---------------------------------------------------------------------------

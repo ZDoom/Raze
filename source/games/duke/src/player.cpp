@@ -802,7 +802,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		GetActor()->spr.Angles.Pitch += maphoriz(hard_landing << 4);
+		GetActor()->spr.Angles.Pitch += maphoriz(hard_landing << 4) * !!(cl_dukepitchmode & kDukePitchHardLanding);
 		hard_landing--;
 	}
 }
