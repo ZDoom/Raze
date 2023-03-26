@@ -229,6 +229,7 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->vel.X = 0;
     pPlayerActor->vel.Y = 0;
     pPlayerActor->vel.Z = 0;
+    pPlayerActor->spr.Angles.Pitch = nullAngle;
     pPlayerActor->spr.intowner = runlist_AddRunRec(pPlayerActor->spr.lotag - 1, nPlayer, 0xA0000);
     ChangeActorStat(pPlayerActor, 100);
 
@@ -275,6 +276,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->pActor = pPlayerActor;
     pPlayer->pDoppleSprite = pDopSprite;
     pPlayer->pPlayerFloorSprite = pFloorSprite;
+    pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
     pPlayer->nPlayer = nPlayer;
     pPlayer->nAction = 0;
     pPlayer->nHealth = 800; // TODO - define
@@ -287,7 +289,6 @@ void RestartPlayer(int nPlayer)
 	pPlayer->nInvisible = 0;
 	pPlayer->bIsFiring = 0;
 	pPlayer->nSeqSize2 = 0;
-	pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
 	pPlayer->nState = 0;
 	pPlayer->nDouble = 0;
 	pPlayer->nSeq = kSeqJoe;
@@ -299,7 +300,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->dVertPan = 0;
     pPlayer->vel.Zero();
     pPlayer->nThrust.Zero();
-    pPlayer->nDestVertPan = pPlayerActor->PrevAngles.Pitch = pPlayerActor->spr.Angles.Pitch = nullAngle;
+    pPlayer->nDestVertPan = nullAngle;
     pPlayer->nBreathTimer = 90;
     pPlayer->nTauntTimer = RandomSize(3) + 3;
     pPlayer->ototalvel = pPlayer->totalvel = 0;
