@@ -1468,8 +1468,8 @@ static void doPlayerPitch(Player* const pPlayer, const double nDestVertPan)
         pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
     }
 
-    pPlayer->Angles.doPitchKeys(pInput);
     pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
+    pPlayer->Angles.doPitchKeys(pInput);
 }
 
 //---------------------------------------------------------------------------

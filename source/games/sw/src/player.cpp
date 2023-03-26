@@ -2155,9 +2155,8 @@ void DoPlayerMove(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input);
-
     DoPlayerSlopeTilting(pp);
+    pp->Angles.doPitchKeys(&pp->input);
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -2728,9 +2727,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input);
-
     DoPlayerSlopeTilting(pp);
+    pp->Angles.doPitchKeys(&pp->input);
 
     DoTankTreads(pp);
 }
@@ -2764,9 +2762,8 @@ void DoPlayerMoveTurret(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input);
-
     DoPlayerSlopeTilting(pp);
+    pp->Angles.doPitchKeys(&pp->input);
 }
 
 //---------------------------------------------------------------------------
@@ -3362,9 +3359,8 @@ void DoPlayerClimb(PLAYER* pp)
         pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
 
-    pp->Angles.doPitchKeys(&pp->input);
-
     DoPlayerSlopeTilting(pp);
+    pp->Angles.doPitchKeys(&pp->input);
 
     if (FAF_ConnectArea(pp->cursector))
     {
