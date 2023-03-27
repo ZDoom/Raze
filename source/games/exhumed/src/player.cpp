@@ -1200,11 +1200,20 @@ static void updatePlayerInventory(Player* const pPlayer)
 
 static void updatePlayerWeapon(Player* const pPlayer)
 {
-    const auto currWeap = pPlayer->nCurrentWeapon;
+    const bool bIsFiring = pPlayer->input.actions & SB_FIRE;
+
+    if (pPlayer->bIsMummified)
+    {
+        // the original game never set this to false here.
+        if (bIsFiring) pPlayer->bIsFiring = true;
+        return;
+    }
+
     auto weap2 = pPlayer->input.getNewWeapon();
 
     if (const auto weapDir = (weap2 == WeaponSel_Next) - (weap2 == WeaponSel_Prev))
     {
+        const auto currWeap = pPlayer->nCurrentWeapon;
         auto wrapFwd = weapDir > 0 && currWeap == 6;
         auto wrapBck = weapDir < 0 && currWeap == 0;
         auto newWeap = wrapFwd ? 0 : wrapBck ? 6 : (currWeap + weapDir);
@@ -1217,16 +1226,18 @@ static void updatePlayerWeapon(Player* const pPlayer)
             hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
         }
 
-        pPlayer->input.setNewWeapon(newWeap + 1);
+        weap2 = newWeap + 1;
     }
     else if (weap2 == WeaponSel_Alt)
     {
         // todo
     }
 
-    // make weapon selection persist until it gets used up.
-    if (weap2 <= 0 || weap2 > 7)
-        pPlayer->input.setNewWeapon(pPlayer->input.getNewWeapon());
+    // this is where we actually set the weapon in the game.
+    if (pPlayer->nPlayerWeapons & (1 << (weap2 - 1)))
+        SetNewWeapon(pPlayer->nPlayer, weap2 - 1);
+
+    pPlayer->bIsFiring = bIsFiring;
 }
 
 //---------------------------------------------------------------------------
@@ -1879,19 +1890,9 @@ static void updatePlayerAction(Player* const pPlayer)
                 }
             }
         }
-
-        // Handle player pressing number keys to change weapon
-        const unsigned newWeap = pPlayer->input.getNewWeapon() - 1;
-        if (pPlayer->nPlayerWeapons & (1 << newWeap))
-            SetNewWeapon(pPlayer->nPlayer, newWeap);
-
-        pPlayer->bIsFiring = !!(pPlayer->input.actions & SB_FIRE);
     }
     else // player is mummified
     {
-        if (pPlayer->input.actions & SB_FIRE)
-            pPlayer->bIsFiring = true;
-
         if (pPlayer->nAction != 15)
             nextAction = 14 - (pPlayer->totalvel <= 1);
     }
