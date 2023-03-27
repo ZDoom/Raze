@@ -1224,6 +1224,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
         return;
     }
 
+    pPlayer->bIsFiring = bIsFiring;
     const auto newWeap = pPlayer->input.getNewWeapon();
 
     if (const auto weapDir = (newWeap == WeaponSel_Next) - (newWeap == WeaponSel_Prev))
@@ -1247,8 +1248,6 @@ static void updatePlayerWeapon(Player* const pPlayer)
     {
         SetNewWeapon(pPlayer->nPlayer, newWeap - 1);
     }
-
-    pPlayer->bIsFiring = bIsFiring;
 }
 
 //---------------------------------------------------------------------------
@@ -1523,8 +1522,7 @@ static void doPlayerRamses(Player* const pPlayer)
 
     if (nTotalPlayers <= 1)
     {
-        const auto pPlayerActor = pPlayer->pActor;
-        pPlayerActor->vel.Zero();
+        pPlayer->pActor->vel.Zero();
         pPlayer->vel.Zero();
 
         if (nFreeze < 1)
@@ -1652,21 +1650,13 @@ static void updatePlayerDoppleActor(Player* const pPlayer)
 static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_pos, const DVector3& spr_vel, const bool bUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const double EyeZ = pPlayerActor->getOffsetZ() + pPlayer->nQuake;
-    auto pViewSect = pPlayerActor->sector();
-
-    while (1)
-    {
-        if (EyeZ >= pViewSect->ceilingz || !pViewSect->pAbove)
-            break;
-
-        pViewSect = pViewSect->pAbove;
-    }
+    const auto pPlayerSect = pPlayerActor->sector();
+    const auto bPlayerBelowCeil = (pPlayerActor->getOffsetZ() + pPlayer->nQuake) < pPlayerSect->ceilingz;
+    const auto pViewSect = bPlayerBelowCeil && pPlayerSect->pAbove ? pPlayerSect->pAbove : pPlayerSect;
 
     // Do underwater sector check
-    if (bUnderwater && pViewSect != pPlayerActor->sector() && nMove.type == kHitWall)
+    if (bUnderwater && pViewSect != pPlayerSect && nMove.type == kHitWall)
     {
-        const auto sect = pPlayerActor->sector();
         const auto pos = pPlayerActor->spr.pos;
         const auto fz = pViewSect->floorz - 20;
         pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
@@ -1674,7 +1664,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 
         if (movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0).type == kHitWall)
         {
-            ChangeActorSect(pPlayerActor, sect);
+            ChangeActorSect(pPlayerActor, pPlayerSect);
             pPlayerActor->spr.pos = pos;
         }
         else
