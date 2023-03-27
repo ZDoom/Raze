@@ -125,5 +125,11 @@ void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
 
+inline void doPlayerVertPanning(Player* const pPlayer, const double nDestVertPan)
+{
+    const auto nVertPan = (nDestVertPan - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
+    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
+}
+
 END_PS_NS
 

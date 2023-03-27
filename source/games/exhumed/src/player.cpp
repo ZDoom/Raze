@@ -1573,14 +1573,13 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 static void doPlayerPitch(Player* const pPlayer, const double nDestVertPan)
 {
     const auto pInput = &pPlayer->input;
-    const auto nVertPan = (nDestVertPan * cl_slopetilting - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
 
     if (SyncInput())
     {
         pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
     }
 
-    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
+    doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
     pPlayer->Angles.doPitchKeys(pInput);
 }
 
