@@ -1227,33 +1227,29 @@ static void updatePlayerWeapon(Player* const pPlayer)
         return;
     }
 
-    auto weap2 = pPlayer->input.getNewWeapon();
+    const auto newWeap = pPlayer->input.getNewWeapon();
 
-    if (const auto weapDir = (weap2 == WeaponSel_Next) - (weap2 == WeaponSel_Prev))
+    if (const auto weapDir = (newWeap == WeaponSel_Next) - (newWeap == WeaponSel_Prev))
     {
-        const auto currWeap = pPlayer->nCurrentWeapon;
-        auto wrapFwd = weapDir > 0 && currWeap == 6;
-        auto wrapBck = weapDir < 0 && currWeap == 0;
-        auto newWeap = wrapFwd ? 0 : wrapBck ? 6 : (currWeap + weapDir);
-        auto hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
+        int nextWeap = getWrappedIndex(pPlayer->nCurrentWeapon + weapDir, kMaxWeapons);
+        int haveWeap = pPlayer->nPlayerWeapons & (1 << nextWeap);
 
-        while (newWeap && (!hasWeap || (hasWeap && !pPlayer->nAmmo[newWeap])))
+        while (nextWeap && (!haveWeap || (haveWeap && !pPlayer->nAmmo[nextWeap])))
         {
-            newWeap += weapDir;
-            if (newWeap > 6) newWeap = 0;
-            hasWeap = pPlayer->nPlayerWeapons & (1 << newWeap);
+            nextWeap = getWrappedIndex(nextWeap + weapDir, kMaxWeapons);
+            haveWeap = pPlayer->nPlayerWeapons & (1 << nextWeap);
         }
 
-        weap2 = newWeap + 1;
+        SetNewWeapon(pPlayer->nPlayer, nextWeap);
     }
-    else if (weap2 == WeaponSel_Alt)
+    else if (newWeap == WeaponSel_Alt)
     {
         // todo
     }
-
-    // this is where we actually set the weapon in the game.
-    if (pPlayer->nPlayerWeapons & (1 << (weap2 - 1)))
-        SetNewWeapon(pPlayer->nPlayer, weap2 - 1);
+    else if (pPlayer->nPlayerWeapons & (1 << (newWeap - 1)))
+    {
+        SetNewWeapon(pPlayer->nPlayer, newWeap - 1);
+    }
 
     pPlayer->bIsFiring = bIsFiring;
 }

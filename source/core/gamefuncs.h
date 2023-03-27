@@ -486,4 +486,9 @@ inline void setFreeAimVelocity(double& vel, double& zvel, const DAngle pitch, co
 	zvel = pitch.Sin() * zvspeed;
 }
 
+inline int getWrappedIndex(const int index, const int maxvalue)
+{
+    return ((index % maxvalue) + maxvalue) % maxvalue;
+}
+
 #include "updatesector.h"
