@@ -1180,10 +1180,7 @@ static void updatePlayerInventory(Player* const pPlayer)
         int i;
         for (i = 6; i > 0; i--)
         {
-            nItem += invDir;
-
-            if (nItem < 0) nItem = 5;
-            else if (nItem == 6) nItem = 0;
+            nItem = getWrappedIndex(nItem + invDir, 6);
 
             if (pPlayer->items[nItem] != 0)
                 break;
