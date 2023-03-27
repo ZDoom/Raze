@@ -1267,7 +1267,6 @@ static void updatePlayerWeapon(Player* const pPlayer)
 static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const auto pPlayerSect = pPlayerActor->sector();
     int nextAction = pPlayer->nAction;
 
     if (!pPlayer->bIsMummified)
@@ -1302,6 +1301,9 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
         }
         else
         {
+            const auto pPlayerSect = pPlayerActor->sector();
+            const bool bTallerThanSector = pPlayer->nStandHeight > (pPlayerSect->floorz - pPlayerSect->ceilingz);
+
             if (pPlayer->nHealth > 0)
             {
                 pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
@@ -1310,20 +1312,17 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                 {
                     nextAction = 10 - (pPlayer->totalvel <= 1);
                 }
-                else if (pPlayer->nStandHeight > (pPlayerSect->floorz - pPlayerSect->ceilingz))
+                else if (bTallerThanSector)
                 {
-                    // CHECKME - confirm branching in this area is OK
-                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->sector() so we can make this code a bit neater. Don't assume pPlayerActor->sector() == nSector here!!
                     nextAction = 7 - (pPlayer->totalvel < 1);
                 }
                 else
                 {
-                    const auto totalvel = pPlayer->totalvel;
-                    nextAction = (totalvel <= 1) ? 0 : (totalvel <= 30) ? 2 : 1;
+                    nextAction = (pPlayer->totalvel <= 1) ? bUnderwater : (pPlayer->totalvel <= 30) ? 2 : 1;
                 }
             }
 
-            if (pPlayer->input.actions & SB_FIRE) // was var_38
+            if (!bTallerThanSector && (pPlayer->input.actions & SB_FIRE)) // was var_38
             {
                 if (bUnderwater)
                 {
