@@ -1264,6 +1264,96 @@ static void updatePlayerWeapon(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
+static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerSect = pPlayerActor->sector();
+    int nextAction = pPlayer->nAction;
+
+    if (!pPlayer->bIsMummified)
+    {
+        if (pPlayer->input.actions & SB_JUMP)
+        {
+            if (bUnderwater)
+            {
+                pPlayerActor->vel.Z = -8;
+                nextAction = 10;
+            }
+            else if (bTouchFloor && (pPlayer->nAction < 6 || pPlayer->nAction > 8))
+            {
+                pPlayerActor->vel.Z = -14;
+                nextAction = 3;
+            }
+        }
+        else if (pPlayer->input.actions & SB_CROUCH)
+        {
+            if (bUnderwater)
+            {
+                pPlayerActor->vel.Z = 8;
+                nextAction = 10;
+            }
+            else
+            {
+                if (pPlayerActor->viewzoffset < -32.5)
+                    pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
+
+                nextAction = 7 - (pPlayer->totalvel < 1);
+            }
+        }
+        else
+        {
+            if (pPlayer->nHealth > 0)
+            {
+                pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
+
+                if (bUnderwater)
+                {
+                    nextAction = 10 - (pPlayer->totalvel <= 1);
+                }
+                else if (pPlayer->nStandHeight > (pPlayerSect->floorz - pPlayerSect->ceilingz))
+                {
+                    // CHECKME - confirm branching in this area is OK
+                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->sector() so we can make this code a bit neater. Don't assume pPlayerActor->sector() == nSector here!!
+                    nextAction = 7 - (pPlayer->totalvel < 1);
+                }
+                else
+                {
+                    const auto totalvel = pPlayer->totalvel;
+                    nextAction = (totalvel <= 1) ? 0 : (totalvel <= 30) ? 2 : 1;
+                }
+            }
+
+            if (pPlayer->input.actions & SB_FIRE) // was var_38
+            {
+                if (bUnderwater)
+                {
+                    nextAction = 11;
+                }
+                else if (nextAction != 2 && nextAction != 1)
+                {
+                    nextAction = 5;
+                }
+            }
+        }
+    }
+    else if (pPlayer->nAction != 15)
+    {
+        nextAction = 14 - (pPlayer->totalvel <= 1);
+    }
+
+    if (nextAction != pPlayer->nAction && pPlayer->nAction != 4)
+    {
+        pPlayer->nAction = nextAction;
+        pPlayer->nSeqSize = 0;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doPlayerCounters(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1345,7 +1435,7 @@ static void doPlayerCounters(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerUnderwater(Player* const pPlayer)
+static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const bool bUnderwater = pPlayer->pPlayerViewSect->Flag & kSectUnderwater;
@@ -1411,7 +1501,7 @@ static void doPlayerUnderwater(Player* const pPlayer)
             D3PlayFX(StaticSound[kSound42], pPlayerActor);
 
         // Checked and confirmed.
-        if (bUnderwater)
+        if (oUnderwater)
         {
             if (pPlayer->nAir < 50)
                 D3PlayFX(StaticSound[kSound14], pPlayerActor);
@@ -1585,15 +1675,15 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
     // Do underwater sector check
     if (bUnderwater && pViewSect != pPlayerActor->sector() && nMove.type == kHitWall)
     {
+        const auto sect = pPlayerActor->sector();
         const auto pos = pPlayerActor->spr.pos;
         const auto fz = pViewSect->floorz - 20;
         pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
         ChangeActorSect(pPlayerActor, pViewSect);
-        const auto coll = movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0);
 
-        if (coll.type == kHitWall)
+        if (movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0).type == kHitWall)
         {
-            ChangeActorSect(pPlayerActor, pPlayerActor->sector());
+            ChangeActorSect(pPlayerActor, sect);
             pPlayerActor->spr.pos = pos;
         }
         else
@@ -1707,7 +1797,7 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
 //
 //---------------------------------------------------------------------------
 
-static bool doPlayerMovement(Player* const pPlayer)
+static bool doPlayerInput(Player* const pPlayer)
 {
     // update the player/actor's velocity before anything.
     updatePlayerVelocity(pPlayer);
@@ -1780,7 +1870,15 @@ static bool doPlayerMovement(Player* const pPlayer)
 
     // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
     doPlayerPitch(pPlayer, -posdelta.Z * 2.);
+
+    // Most-move updates. Input bit funcs are here because
+    // updatePlayerAction() needs access to bUnderwater.
     updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
+    updatePlayerFloorActor(pPlayer);
+    updatePlayerTarget(pPlayer);
+    updatePlayerInventory(pPlayer);
+    updatePlayerWeapon(pPlayer);
+    updatePlayerAction(pPlayer, bUnderwater);
 
     return true;
 }
@@ -1821,98 +1919,6 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
 
         if (near.hitSector != nullptr && near.hitSector->lotag > 0)
             runlist_SignalRun(near.hitSector->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void updatePlayerAction(Player* const pPlayer)
-{
-    const auto pPlayerActor = pPlayer->pActor;
-    const auto pPlayerSect = pPlayerActor->sector();
-    const bool bUnderwater = pPlayerSect->Flag & kSectUnderwater;
-    int nextAction = pPlayer->nAction;
-
-    if (!pPlayer->bIsMummified)
-    {
-        if (pPlayer->input.actions & SB_JUMP)
-        {
-            if (bUnderwater)
-            {
-                pPlayerActor->vel.Z = -8;
-                nextAction = 10;
-            }
-            else if (bTouchFloor && (pPlayer->nAction < 6 || pPlayer->nAction > 8))
-            {
-                pPlayerActor->vel.Z = -14;
-                nextAction = 3;
-            }
-        }
-        else if (pPlayer->input.actions & SB_CROUCH)
-        {
-            if (bUnderwater)
-            {
-                pPlayerActor->vel.Z = 8;
-                nextAction = 10;
-            }
-            else
-            {
-                if (pPlayerActor->viewzoffset < -32.5)
-                    pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
-
-                nextAction = 7 - (pPlayer->totalvel < 1);
-            }
-        }
-        else
-        {
-            if (pPlayer->nHealth > 0)
-            {
-                pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
-
-                if (bUnderwater)
-                {
-                    nextAction = 10 - (pPlayer->totalvel <= 1);
-                }
-                else if (pPlayer->nStandHeight > (pPlayerSect->floorz - pPlayerSect->ceilingz))
-                {
-                    // CHECKME - confirm branching in this area is OK
-                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->sector() so we can make this code a bit neater. Don't assume pPlayerActor->sector() == nSector here!!
-                    nextAction = 7 - (pPlayer->totalvel < 1);
-                }
-                else
-                {
-                    const auto totalvel = pPlayer->totalvel;
-                    nextAction = (totalvel <= 1) ? 0 : (totalvel <= 30) ? 2 : 1;
-                }
-            }
-
-            if (pPlayer->input.actions & SB_FIRE) // was var_38
-            {
-                if (bUnderwater)
-                {
-                    nextAction = 11;
-                }
-                else if (nextAction != 2 && nextAction != 1)
-                {
-                    nextAction = 5;
-                }
-            }
-        }
-    }
-    else // player is mummified
-    {
-        if (pPlayer->nAction != 15)
-            nextAction = 14 - (pPlayer->totalvel <= 1);
-    }
-
-    if (nextAction != pPlayer->nAction && pPlayer->nAction != 4)
-    {
-        pPlayer->nAction = nextAction;
-        pPlayer->nSeqSize = 0;
     }
 }
 
@@ -2063,7 +2069,6 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
-    const auto pStartSect = pPlayerActor->sector();
 
     pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
@@ -2073,20 +2078,18 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayer->nHealth > 0)
     {
-        if (!doPlayerMovement(pPlayer))
+        const auto pStartSect = pPlayerActor->sector();
+        const auto oUnderwater = pPlayer->pPlayerViewSect->Flag & kSectUnderwater;
+
+        if (!doPlayerInput(pPlayer))
         {
             doPlayerRamses(pPlayer);
             return;
         }
 
-        updatePlayerTarget(pPlayer);
-        doPlayerUnderwater(pPlayer);
-        updatePlayerFloorActor(pPlayer);
-        updatePlayerInventory(pPlayer);
-        updatePlayerWeapon(pPlayer);
+        doPlayerUnderwater(pPlayer, oUnderwater);
         doPlayerItemPickups(pPlayer);
         doPlayerRunlistSignals(pPlayer, pStartSect);
-        updatePlayerAction(pPlayer);
     }
     else
     {
