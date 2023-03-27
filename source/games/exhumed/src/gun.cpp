@@ -321,17 +321,13 @@ Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 
 void CheckClip(int nPlayer)
 {
-    if (PlayerList[nPlayer].nPlayerClip <= 0)
-    {
-        PlayerList[nPlayer].nPlayerClip = PlayerList[nPlayer].nAmmo[kWeaponM60];
+    const auto pPlayer = &PlayerList[nPlayer];
 
-        if (PlayerList[nPlayer].nPlayerClip > 100) {
-            PlayerList[nPlayer].nPlayerClip = 100;
-        }
-    }
+    if (pPlayer->nPlayerClip <= 0)
+        pPlayer->nPlayerClip = min(pPlayer->nAmmo[kWeaponM60], (int16_t)100);
 
-    // Reset pistol's clip amount.
-    PlayerList[nPlayer].nPistolClip = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
+    if (pPlayer->nPistolClip <= 0)
+        pPlayer->nPistolClip = min(pPlayer->nAmmo[kWeaponPistol], (int16_t)6);
 }
 
 //---------------------------------------------------------------------------

@@ -320,12 +320,12 @@ class ExhumedStatusBar : RazeStatusBar
 		{
 			if (weapon == kWeaponPistol && cl_showmagamt)
 			{
-				int clip = CalcMagazineAmount(ammo, 6, Exhumed.GetPistolClip() == 0);
+				int clip = Exhumed.GetPistolClip();
 				format = String.Format("%d/%d", clip, ammo - clip);
 			}
 			else if (weapon == kWeaponM60 && cl_showmagamt)
 			{
-				int clip = CalcMagazineAmount(ammo, 100, Exhumed.GetPlayerClip() == 0);
+				int clip = Exhumed.GetPlayerClip();
 				format = String.Format("%d/%d", clip, ammo - clip);
 			}
 			else
