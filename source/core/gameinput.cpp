@@ -183,13 +183,17 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 	HIDInput hidInput{};
 	getHidInput(&hidInput);
 	ApplyGlobalInput(&hidInput, &inputBuffer);
-	gi->GetInput(&hidInput, &inputBuffer, &input, !SyncInput() ? scaleAdjust : 1.);
 
 	// Directly update the camera angles if we're unsynchronised.
 	if (!SyncInput())
 	{
+		gi->GetInput(&hidInput, &inputBuffer, &input, scaleAdjust);
 		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(input.avel);
 		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(input.horz);
+	}
+	else
+	{
+		gi->GetInput(&hidInput, &inputBuffer, &input, 1);
 	}
 
 	if (packet)
