@@ -303,7 +303,6 @@ void RestartPlayer(int nPlayer)
     pPlayer->nBreathTimer = 90;
     pPlayer->nTauntTimer = RandomSize(3) + 3;
     pPlayer->ototalvel = pPlayer->totalvel = 0;
-    pPlayer->nCurrentItem = -1;
     pPlayer->nDeathType = 0;
     pPlayer->nQuake = 0;
     pPlayer->nTemperature = 0;
@@ -1185,7 +1184,7 @@ static void updatePlayerInventory(Player* const pPlayer)
 
             if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
             {
-                pPlayer->nCurrentItem = i;
+                UseItem(pPlayer->nPlayer, i);
                 break;
             }
         }
@@ -1250,12 +1249,6 @@ static void doPlayerCounters(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const bool bConsolePlayer = pPlayer->nPlayer == nLocalPlayer;
-
-    if (pPlayer->nCurrentItem > -1)
-    {
-        UseItem(pPlayer->nPlayer, pPlayer->nCurrentItem);
-        pPlayer->nCurrentItem = -1;
-    }
 
     if (pPlayer->nTorch > 0)
     {
