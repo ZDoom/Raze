@@ -911,7 +911,26 @@ void doPlayerItemPickups(Player* const pPlayer)
         case 9: // Grenade
         case 27: // May not be grenade, needs confirmation
         case 55:
-            doPickupWeapon(pPlayer, pPickupActor, nItem, 4, 1, kSoundAmmoPickup);
+            if (AddAmmo(pPlayer->nPlayer, 4, 1))
+            {
+                if (!(pPlayer->nPlayerWeapons & 0x10))
+                {
+                    pPlayer->nPlayerWeapons |= 0x10;
+                    SetNewWeaponIfBetter(pPlayer->nPlayer, 4);
+                }
+
+                if (nItem == 55)
+                {
+                    pPickupActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+                    DestroyItemAnim(pPickupActor);
+                }
+                else
+                {
+                    doPickupDestroy(pPickupActor, nItem);
+                }
+
+                doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
+            }
             break;
 
         case 10: // Pickable item
