@@ -2401,8 +2401,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	if (arc.BeginObject(keyname))
 	{
 		arc("spritenum", w.actor)
-			("horizon", w.Angles)
-			("angle", w.Angles)
+			("angles", w.Angles)
 			("newweapon", w.newWeapon)
 			("used1", w.used1)
 			("weaponqav", w.weaponQav)

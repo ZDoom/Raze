@@ -78,8 +78,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("angle", w.Angles)
-			("horizon", w.Angles)
+		arc("angles", w.Angles)
 			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
 			("pals", w.pals)
 			("fricx", w.fric.X)
