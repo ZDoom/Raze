@@ -108,7 +108,6 @@ extern int gFXVolume;
 extern int nStopSound;
 extern int nStoneSound;
 extern int nSwitchSound;
-extern sectortype* pLocalEyeSect;
 extern int nElevSound;
 extern int nCreepyTimer;
 

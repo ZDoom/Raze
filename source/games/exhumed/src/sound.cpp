@@ -115,7 +115,6 @@ const char *SoundFiles[kMaxSoundFiles] =
 int nStopSound;
 int nStoneSound;
 int nSwitchSound;
-sectortype* pLocalEyeSect;
 int nElevSound;
 int nCreepyTimer;
 

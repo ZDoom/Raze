@@ -1677,10 +1677,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
     pPlayer->pPlayerViewSect = pViewSect;
 
     if (nLocalPlayer == pPlayer->nPlayer)
-    {
-        pLocalEyeSect = pPlayer->pPlayerViewSect;
-        CheckAmbience(pLocalEyeSect);
-    }
+        CheckAmbience(pPlayer->pPlayerViewSect);
 
     pPlayer->nPlayerD = pPlayerActor->spr.pos - spr_pos;
 }
