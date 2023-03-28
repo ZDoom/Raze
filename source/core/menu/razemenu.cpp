@@ -157,7 +157,6 @@ bool M_SetSpecialMenu(FName& menu, int param)
 			int ep = NewGameStartupInfo.Episode;
 			auto vol = FindVolume(ep);
 			if (vol) STAT_StartNewGame(vol->name, NewGameStartupInfo.Skill);
-			inputState.ClearAllInput();
 		}
 		return false;
 
@@ -206,7 +205,6 @@ void OnMenuOpen(bool makeSound)
 void System_MenuClosed()
 {
 	GSnd->SetSfxPaused(false, PAUSESFX_MENU);
-	inputState.ClearAllInput();
 	gi->MenuClosed();
 }
 

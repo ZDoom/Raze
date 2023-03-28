@@ -335,9 +335,6 @@ void RestartPlayer(int nPlayer)
 	}
 
 	BuildRa(nPlayer);
-
-    // clear out all input before finishing here
-    inputState.ClearAllInput();
 }
 
 //---------------------------------------------------------------------------
@@ -1934,6 +1931,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 
         // will invalidate nPlayerSprite
         RestartPlayer(pPlayer->nPlayer);
+        inputState.ClearAllInput();
     }
     else
     {

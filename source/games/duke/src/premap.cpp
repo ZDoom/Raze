@@ -1180,7 +1180,6 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 	if (isShareware() && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
 
 	PlayerColorChanged();
-	inputState.ClearAllInput();
 }
 
 //---------------------------------------------------------------------------

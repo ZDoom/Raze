@@ -733,7 +733,6 @@ static int nextquicksave = -1;
 		 gamestate = GS_HIDECONSOLE;
 	 }
 
-	 inputState.ClearAllInput();
 	 DoLoadGame(savename);
 	 BackupSaveGame = savename;
  }

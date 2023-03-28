@@ -245,7 +245,6 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (!level) return;
 	gFrameCount = 0;
 	PlayClock = 0;
-	inputState.ClearAllInput();
 	currentLevel = level;
 
 	if (gGameOptions.nGameType == 0)
@@ -636,11 +635,6 @@ static void gameInit()
 	gViewIndex = myconnectindex;
 
 	UpdateNetworkMenus();
-	if (gGameOptions.nGameType > 0)
-	{
-		inputState.ClearAllInput();
-	}
-
 }
 
 

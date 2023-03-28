@@ -467,8 +467,6 @@ void validateStartSector(const char* filename, const DVector3& pos, sectortype**
 
 void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, sectortype** cursect, SpawnSpriteDef& sprites)
 {
-	inputState.ClearAllInput();
-
 	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen()) I_Error("Unable to open map %s", filename);
 	int mapversion = fr.ReadInt32();

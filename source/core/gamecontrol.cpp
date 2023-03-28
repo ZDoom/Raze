@@ -1103,8 +1103,6 @@ int RunGame()
 	StartWindow = FStartupScreen::CreateInstance(8, true);
 	StartWindow->Progress();
 
-	inputState.ClearAllInput();
-
 	if (!GameConfig->IsInitialized())
 	{
 		CONFIG_ReadCombatMacros();
