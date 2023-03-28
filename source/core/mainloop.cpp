@@ -264,7 +264,7 @@ static void GameTicker()
 		case ga_level:
 			Net_ClearFifo();
 			gamestate = GS_LEVEL;
-			break;
+			return;
 
 		case ga_intro:
 			gamestate = GS_INTRO;
