@@ -337,7 +337,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 
 void AIAnubis::Draw(RunListEvent* ev)
 {
-    auto ap = ev->pObjActor;
+    const auto ap = ev->pObjActor;
     if (!ap) return;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqAnubis] + AnubisSeq[ap->nAction].a, ap->nFrame, AnubisSeq[ap->nAction].b);
@@ -345,9 +345,9 @@ void AIAnubis::Draw(RunListEvent* ev)
 
 void AIAnubis::RadialDamage(RunListEvent* ev)
 {
-    auto ap = ev->pObjActor;
-    if (!ap) return;
-    if (ap->nAction < 11) 
+    const auto ap = ev->pObjActor;
+
+    if (ap && ap->nAction < 11) 
 	{
     	ev->nDamage = runlist_CheckRadialDamage(ap);
 	    Damage(ev);
@@ -362,10 +362,11 @@ void AIAnubis::RadialDamage(RunListEvent* ev)
 
 void AIAnubis::Damage(RunListEvent* ev)
 {
-    auto ap = ev->pObjActor;
+    const auto ap = ev->pObjActor;
     if (!ap) return;
-    int nAction = ap->nAction;
-    int nDamage = ev->nDamage;
+
+    const int nAction = ap->nAction;
+    const int nDamage = ev->nDamage;
 
     if (nDamage)
     {
@@ -376,24 +377,18 @@ void AIAnubis::Damage(RunListEvent* ev)
 
         if (ap->nHealth > 0)
         {
-            // loc_258D6:
-            if (ev->pOtherActor == nullptr) {
+            if (ev->pOtherActor == nullptr)
                 return;
-            }
-            auto statnum = ev->pOtherActor->spr.statnum;
 
-            if (statnum == 100 || statnum < 199)
-            {
-                if (!RandomSize(5)) {
-                    ap->pTarget = ev->pOtherActor;
-                }
-            }
+            const auto statnum = ev->pOtherActor->spr.statnum;
+            if ((statnum == 100 || statnum < 199) && !RandomSize(5))
+                ap->pTarget = ev->pOtherActor;
 
             if (RandomSize(1))
             {
                 if (nAction >= 6 && nAction <= 10)
                 {
-                    auto pDrumActor = insertActor(ap->sector(), kStatAnubisDrum);
+                    const auto pDrumActor = insertActor(ap->sector(), kStatAnubisDrum);
 
                     pDrumActor->spr.pos = { ap->spr.pos.X, ap->spr.pos.Y, pDrumActor->sector()->floorz };
                     pDrumActor->spr.scale = DVector2(0.625, 0.625);
@@ -407,7 +402,6 @@ void AIAnubis::Damage(RunListEvent* ev)
             }
             else
             {
-                // loc_259B5:
                 D3PlayFX(StaticSound[kSound39], ap);
             }
         }
@@ -419,7 +413,6 @@ void AIAnubis::Damage(RunListEvent* ev)
             ap->vel.Z = 0;
 			ap->spr.pos.Z = ap->sector()->floorz;
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-
             ap->nHealth = 0;
 
             nCreaturesKilled++;
