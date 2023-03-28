@@ -118,22 +118,21 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
 
 void AIAnubis::Tick(RunListEvent* ev)
 {
-    auto ap = ev->pObjActor;
-    int nAction = ap->nAction;
-
+    const auto ap = ev->pObjActor;
+    const int nAction = ap->nAction;
+    const int nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
+    const int nFrame = SeqBase[nSeq] + ap->nFrame;
+    const int nFlag = FrameFlag[nFrame];
     bool bVal = false;
 
-    if (nAction < 11) {
+    if (nAction < 11)
         Gravity(ap);
-    }
-
-    int nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
 
     seq_MoveSequence(ap, nSeq, ap->nFrame);
 
     ap->spr.picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
-
     ap->nFrame++;
+
     if (ap->nFrame >= SeqSize[nSeq])
     {
         ap->nFrame = 0;
@@ -142,15 +141,11 @@ void AIAnubis::Tick(RunListEvent* ev)
 
     DExhumedActor* pTarget = ap->pTarget;
 
-    int nFrame = SeqBase[nSeq] + ap->nFrame;
-    int nFlag = FrameFlag[nFrame];
-
     Collision move;
     move.setNone();
 
-    if (nAction > 0 && nAction < 11) {
+    if (nAction > 0 && nAction < 11)
         move = MoveCreatureWithCaution(ap);
-    }
 
     switch (nAction)
     {
@@ -158,9 +153,8 @@ void AIAnubis::Tick(RunListEvent* ev)
     {
         if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
-            if (pTarget == nullptr) {
+            if (pTarget == nullptr)
                 pTarget = FindPlayer(ap, 100);
-            }
 
             if (pTarget)
             {
@@ -168,7 +162,6 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->nAction = 1;
                 ap->nFrame = 0;
                 ap->pTarget = pTarget;
-
                 ap->VelFromAngle(-2);
             }
         }
@@ -179,7 +172,6 @@ void AIAnubis::Tick(RunListEvent* ev)
         if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F) && pTarget)
         {
             PlotCourseToSprite(ap, pTarget);
-
 			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
         }
 
@@ -189,7 +181,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                auto nAngDiff = absangle(ap->spr.Angles.Yaw, (pTarget->spr.pos - ap->spr.pos).Angle());
+                const auto nAngDiff = absangle(ap->spr.Angles.Yaw, (pTarget->spr.pos - ap->spr.pos).Angle());
                 if (nAngDiff < DAngle22_5 / 2)
                 {
                     ap->nAction = 2;
@@ -206,7 +198,6 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->VelFromAngle(-2);
             break;
         }
-
         default:
         {
             if (ap->nCount)
@@ -217,7 +208,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             {
                 ap->nCount = 60;
 
-                if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
+                if (pTarget != nullptr)
                 {
                     if (cansee(ap->spr.pos.plusZ(-GetActorHeight(ap)), ap->sector(),
                         pTarget->spr.pos.plusZ(-GetActorHeight(pTarget)), pTarget->sector()))
@@ -225,7 +216,6 @@ void AIAnubis::Tick(RunListEvent* ev)
                         ap->vel.X = 0;
                         ap->vel.Y = 0;
                         ap->spr.Angles.Yaw = (pTarget->spr.pos - ap->spr.pos).Angle();
-
                         ap->nAction = 3;
                         ap->nFrame = 0;
                     }
@@ -255,12 +245,9 @@ void AIAnubis::Tick(RunListEvent* ev)
             {
                 ap->nAction = 1;
             }
-            else
+            else if (nFlag & 0x80)
             {
-                if (nFlag & 0x80)
-                {
-                    runlist_DamageEnemy(pTarget, ap, 7);
-                }
+                runlist_DamageEnemy(pTarget, ap, 7);
             }
         }
 
@@ -271,17 +258,12 @@ void AIAnubis::Tick(RunListEvent* ev)
         if (bVal)
         {
             ap->nAction = 1;
-
 			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
             ap->nFrame = 0;
         }
-        else
+        else if (nFlag & 0x80)
         {
-            // loc_25718:
-            if (nFlag & 0x80)
-            {
-                BuildBullet(ap, 8, INT_MAX, ap->spr.Angles.Yaw, pTarget, 1);
-            }
+            BuildBullet(ap, 8, INT_MAX, ap->spr.Angles.Yaw, pTarget, 1);
         }
 
         return;
@@ -336,19 +318,14 @@ void AIAnubis::Tick(RunListEvent* ev)
         return;
     }
 
-    // loc_2564C:
-    if (nAction && pTarget != nullptr)
+    if (nAction && pTarget && !(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
     {
-        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
-        {
-            ap->nAction = 0;
-            ap->nFrame = 0;
-            ap->nCount = 100;
-            ap->pTarget = nullptr;
-
-            ap->vel.X = 0;
-            ap->vel.Y = 0;
-        }
+        ap->nAction = 0;
+        ap->nFrame = 0;
+        ap->nCount = 100;
+        ap->pTarget = nullptr;
+        ap->vel.X = 0;
+        ap->vel.Y = 0;
     }
 }
 
