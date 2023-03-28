@@ -113,7 +113,6 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 			soundEngine->UpdateSounds(I_GetTime());
 			I_GetEvent();
 		}
-		Net_ClearFifo();
 	}
 	return true;
 }
