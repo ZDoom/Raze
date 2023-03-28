@@ -61,19 +61,18 @@ void InitAnims()
 
     Without this, the actor will hold reference to an actor which will prevent the GC from deleting it properly.
 
-    Specifically needed for IgniteSprite() anims which can become orphaned from the source sprite (e.g a bullet)
-    when the bullet sprite is deleted.
+    Specifically needed for IgniteSprite() anims which can become orphaned from the source actor (e.g a bullet)
+    when the bullet actor is deleted.
 */
 void UnlinkIgnitedAnim(DExhumedActor* pActor)
 {
     ExhumedStatIterator it(kStatIgnited);
     while (auto itActor = it.Next())
     {
-        // .pTarget holds the actor pointer of the source 'actor that's on fire' actor
         if (pActor == itActor->pTarget)
         {
-            itActor->nAction &= ~kAnimLoop; // clear the animation loop flag
-            itActor->pTarget = nullptr; // set the actor target to null
+            itActor->nAction &= ~kAnimLoop;
+            itActor->pTarget = nullptr;
         }
     }
 }
@@ -153,15 +152,15 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int nSeq, int nOffset, const DVe
 
 void AIAnim::Tick(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
+    const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    int nIndex2 = pActor->nIndex2;
-    int nIndex = pActor->nIndex;
+    const int nSeq = pActor->nIndex2;
+    const int nFrame = pActor->nIndex;
 
     if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        seq_MoveSequence(pActor, nIndex2, nIndex);
+        seq_MoveSequence(pActor, nSeq, nFrame);
     }
 
     if (pActor->spr.statnum == kStatIgnited)
@@ -185,7 +184,7 @@ void AIAnim::Tick(RunListEvent* ev)
                 }
             }
 
-            if (!nIndex)
+            if (!nFrame)
             {
                 if (pIgniter->spr.cstat != CSTAT_SPRITE_INVISIBLE)
                 {
@@ -224,20 +223,20 @@ void AIAnim::Tick(RunListEvent* ev)
     }
 
     pActor->nIndex++;
-    if (pActor->nIndex >= SeqSize[nIndex2])
+    if (pActor->nIndex >= SeqSize[nSeq])
     {
         if (pActor->nAction & 0x10)
         {
             pActor->nIndex = 0;
         }
-        else if (nIndex2 == nPreMagicSeq)
+        else if (nSeq == nPreMagicSeq)
         {
             pActor->nIndex = 0;
             pActor->nIndex2 = nMagicSeq;
             pActor->nAction |= 0x10;
             pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
-        else if (nIndex2 == nSavePointSeq)
+        else if (nSeq == nSavePointSeq)
         {
             pActor->nIndex = 0;
             pActor->nIndex2++;
@@ -258,11 +257,10 @@ void AIAnim::Tick(RunListEvent* ev)
 
 void AIAnim::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
+    const auto pActor = ev->pObjActor;
     if (!pActor) return;
-    int nIndex2 = pActor->nIndex2;
 
-    seq_PlotSequence(ev->nParam, nIndex2, pActor->nIndex, 0x101);
+    seq_PlotSequence(ev->nParam, pActor->nIndex2, pActor->nIndex, 0x101);
     ev->pTSprite->ownerActor = nullptr;
 }
 
@@ -274,20 +272,20 @@ void AIAnim::Draw(RunListEvent* ev)
 
 void BuildExplosion(DExhumedActor* pActor)
 {
-    auto pSector = pActor->sector();
+    const auto pSector = pActor->sector();
 
-    int edx = 36;
+    int nSeq = 36;
 
     if (pSector->Flag & kSectUnderwater)
     {
-        edx = 75;
+        nSeq = 75;
     }
-    else if (pActor->spr.pos.Z == pActor->sector()->floorz)
+    else if (pActor->spr.pos.Z == pSector->floorz)
     {
-        edx = 34;
+        nSeq = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.scale.X, 4);
+    BuildAnim(nullptr, nSeq, 0, pActor->spr.pos, pSector, pActor->spr.scale.X, 4);
 }
 
 //---------------------------------------------------------------------------
@@ -303,7 +301,7 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 
     if (pActor->spr.statnum != 200)
     {
-		double rep = pActor->spr.scale.X;
+		const double rep = pActor->spr.scale.X;
         nScale = rep + RandomFloat(rep);
         nSound = kSound0;
     }
@@ -313,22 +311,22 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
         nSound = kSound1;
     }
 
-    int bIsLava = pSector->Flag & kSectLava;
+    const int bIsLava = pSector->Flag & kSectLava;
 
-    int edx, nFlag;
+    int nSeq, nFlag;
 
     if (bIsLava)
     {
-        edx = 43;
+        nSeq = 43;
         nFlag = 4;
     }
     else
     {
-        edx = 35;
+        nSeq = 35;
         nFlag = 0;
     }
 
-	auto pSpawned = BuildAnim(nullptr, edx, 0, DVector3(pActor->spr.pos.XY(), pSector->floorz), pSector, nScale, nFlag);
+	const auto pSpawned = BuildAnim(nullptr, nSeq, 0, DVector3(pActor->spr.pos.XY(), pSector->floorz), pSector, nScale, nFlag);
 
     if (!bIsLava)
     {
