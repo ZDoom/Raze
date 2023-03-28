@@ -96,13 +96,10 @@ void DestroyAnim(DExhumedActor* pActor)
 //
 //---------------------------------------------------------------------------
 
-DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector3& pos, sectortype* pSector, double nScale, int nFlag)
+DExhumedActor* BuildAnim(DExhumedActor* pActor, int nSeq, int nOffset, const DVector3& pos, sectortype* pSector, double nScale, int nFlag)
 {
-    if (pActor == nullptr) {
+    if (pActor == nullptr)
         pActor = insertActor(pSector, 500);
-    }
-	pActor->spr.pos = pos;
-    pActor->spr.cstat = 0;
 
     if (nFlag & 4)
     {
@@ -115,6 +112,15 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
         pActor->spr.shade = -12;
     }
 
+    // CHECKME - where is hitag set otherwise?
+    if (pActor->spr.statnum < 900)
+        pActor->spr.hitag = -1;
+
+    if (nFlag & 0x80)
+        pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT; // set transluscence
+
+	pActor->spr.pos = pos;
+    pActor->spr.cstat = 0;
     pActor->clipdist = 2.5;
 	pActor->spr.scale = DVector2(nScale, nScale);
     pActor->spr.picnum = 1;
@@ -124,28 +130,17 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
-    pActor->backuppos();
-
-    // CHECKME - where is hitag set otherwise?
-    if (pActor->spr.statnum < 900) {
-        pActor->spr.hitag = -1;
-    }
-
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.intowner = -1;
     pActor->spr.extra = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x100000);
-
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x100000);
     pActor->nAction = nFlag;
     pActor->nIndex = 0;
-    pActor->nIndex2 = SeqOffsets[val] + val2;
+    pActor->nIndex2 = SeqOffsets[nSeq] + nOffset;
     pActor->pTarget = nullptr;
     pActor->nDamage = pActor->nRun;
     pActor->nPhase = ITEM_MAGIC;
-
-    if (nFlag & 0x80) {
-        pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT; // set transluscence
-    }
+    pActor->backuppos();
 
     return pActor;
 }

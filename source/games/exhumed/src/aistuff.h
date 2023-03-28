@@ -35,7 +35,7 @@ enum
 
 void InitAnims();
 void DestroyAnim(DExhumedActor* nAnim);
-DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, const DVector3& pos, sectortype* pSector, double nScale, int nFlag);
+DExhumedActor* BuildAnim(DExhumedActor* actor, int nSeq, int nOffset, const DVector3& pos, sectortype* pSector, double nScale, int nFlag);
 void UnlinkIgnitedAnim(DExhumedActor* pActor);
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
