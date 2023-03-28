@@ -693,7 +693,6 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool)
 	ShadowWarrior::NewGame = true;
 	InitLevel(map);
 	InitRunLevel();
-    gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------

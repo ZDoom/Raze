@@ -147,7 +147,6 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
 	// start a new game on the given level
 	InitNewGame();
     InitLevel(map);
-    gameaction = ga_level;
 }
 
 int GameInterface::GetCurrentSkill()

@@ -153,6 +153,7 @@ void NewGame(MapRecord* map, int skill, bool ns = false)
 	newGameStarted = true;
 	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
 		gi->NewGame(map, skill, ns); 
+		gameaction = ga_level;
 		ResetStatusBar();
 		Net_ClearFifo();
 		});
@@ -189,7 +190,6 @@ static void GameTicker()
 				FX_StopAllSounds();
 				FX_SetReverb(0);
 				gi->FreeLevelData();
-				gameaction = ga_level;
 				NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
 			}
@@ -217,7 +217,6 @@ static void GameTicker()
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_FlushDisplay();
-			gameaction = ga_level;
 			BackupSaveGame = "";
 			NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
 			break;
