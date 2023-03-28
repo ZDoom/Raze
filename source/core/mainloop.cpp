@@ -268,7 +268,7 @@ static void GameTicker()
 			Net_ClearFifo();
 			inputState.ClearAllInput();
 			gamestate = GS_LEVEL;
-			break;
+			return;
 
 		case ga_intro:
 			gamestate = GS_INTRO;
