@@ -102,6 +102,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     ap->nFrame  = 0;
     ap->pTarget = nullptr;
     ap->nCount = 0;
+    ap->backuploc();
 
     ap->spr.intowner = runlist_AddRunRec(ap->spr.lotag - 1, ap, 0x90000);
 
