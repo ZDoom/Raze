@@ -1152,7 +1152,6 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 
 	PlayerColorChanged();
 	inputState.ClearAllInput();
-	gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------

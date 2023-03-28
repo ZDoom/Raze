@@ -377,7 +377,6 @@ void NewLevel(MapRecord *sng, int skill, bool newgame)
 	if (skill != -1) gGameOptions.nDifficulty = skill;
 	gSkill = gGameOptions.nDifficulty;
 	StartLevel(sng, newgame);
-	gameaction = ga_level;
 }
 
 void GameInterface::NewGame(MapRecord *sng, int skill, bool)
