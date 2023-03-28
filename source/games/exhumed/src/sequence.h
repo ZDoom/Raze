@@ -131,7 +131,7 @@ extern int16_t FrameBase[];
 
 void seq_LoadSequences();
 int seq_GetFrameSound(int val, int edx);
-void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t bx);
+void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame);
 
 int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame);
 int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx);

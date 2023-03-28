@@ -479,11 +479,11 @@ int seq_GetFrameSound(int val, int edx)
 //
 //---------------------------------------------------------------------------
 
-void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t bx)
+void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
 {
     assert(nSeq >= 0); // TEMP
 
-    int nSound = FrameSound[SeqBase[nSeq] + bx];
+    int nSound = FrameSound[SeqBase[nSeq] + nFrame];
     if (nSound == -1) {
         return;
     }
