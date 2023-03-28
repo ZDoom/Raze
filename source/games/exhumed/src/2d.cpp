@@ -15,6 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+
 #include "ns.h"
 #include "build.h"
 #include "exhumed.h"
@@ -40,10 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_bind.h"
 #include "vm.h"
 #include "razefont.h"
-
 #include "buildtiles.h"
-
-
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -72,25 +70,6 @@ void DrawRel(int tile, double x, double y, int shade)
     DrawRel(tileGetTexture(tile), x, y, shade);
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-// this might be static within the DoPlasma function?
-static uint8_t* PlasmaBuffer;
-static int nPlasmaTile = kTile4092;
-static int nSmokeBottom;
-static int nSmokeRight;
-static int nSmokeTop;
-static int nSmokeLeft;
-static int nextPlasmaTic;
-static int plasma_A[5] = { 0 };
-static int plasma_B[5] = { 0 };
-static int plasma_C[5] = { 0 };
-static FRandom rnd_plasma;
-
 enum
 {
     kPlasmaWidth = 320,
@@ -105,13 +84,33 @@ enum
 
 void menu_DoPlasma()
 {
-    auto nLogoTexid = GameLogo();
-    auto pLogoTex = TexMan.GetGameTexture(nLogoTexid);
-    int lw = (int)pLogoTex->GetDisplayWidth();
-    int lh = (int)pLogoTex->GetDisplayHeight();
+    static uint8_t* PlasmaBuffer;
+    static int nPlasmaTile;
+    static int nSmokeBottom;
+    static int nSmokeRight;
+    static int nSmokeTop;
+    static int nSmokeLeft;
+    static int nextPlasmaTic;
+    static int plasma_A[5];
+    static int plasma_B[5];
+    static int plasma_C[5];
+    static FRandom rnd_plasma;
 
-    int ptile = nPlasmaTile;
-    int pclock = I_GetBuildTime();
+    if (!nPlasmaTile)
+    {
+        nPlasmaTile = kTile4092;
+        plasma_A[5] = {};
+        plasma_B[5] = {};
+        plasma_C[5] = {};
+    }
+
+    const auto nLogoTexid = GameLogo();
+    const auto pLogoTex = TexMan.GetGameTexture(nLogoTexid);
+    const int logowidth = (int)pLogoTex->GetDisplayWidth();
+    const int logoheight = (int)pLogoTex->GetDisplayHeight();
+    const int ptile = nPlasmaTile;
+    const int pclock = I_GetBuildTime();
+
     while (pclock >= nextPlasmaTic || !PlasmaBuffer)
     {
         nextPlasmaTic += 4;
@@ -124,22 +123,18 @@ void menu_DoPlasma()
             PlasmaBuffer = GetWritablePixels(tileGetTextureID(kTile4093));
             memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
-
-            nSmokeLeft = 160 - lw / 2;
-            nSmokeRight = nSmokeLeft + lw;
-
-            nSmokeTop = 40 - lh / 2;
-            nSmokeBottom = nSmokeTop + lh - 1;
+            nSmokeLeft = 160 - logowidth / 2;
+            nSmokeRight = nSmokeLeft + logowidth;
+            nSmokeTop = 40 - logoheight / 2;
+            nSmokeBottom = nSmokeTop + logoheight - 1;
 
             for (int i = 0; i < 5; i++)
             {
-                int logoWidth = lw;
-                plasma_C[i] = IntToFixed(nSmokeLeft + rand() % logoWidth);
+                plasma_C[i] = IntToFixed(nSmokeLeft + rand() % logowidth);
                 plasma_B[i] = (rnd_plasma.GenRand32() % 327680) + 0x10000;
 
-                if (rnd_plasma.GenRand32()&1) {
+                if (rnd_plasma.GenRand32()&1)
                     plasma_B[i] = -plasma_B[i];
-                }
 
                 plasma_A[i] = rnd_plasma.GenRand32() & 1;
             }
@@ -158,69 +153,49 @@ void menu_DoPlasma()
 
                 if (al != 96)
                 {
-                    if (al > 158) {
-                        *r_ebx = al - 1;
-                    }
-                    else {
-                        *r_ebx = 96;
-                    }
+                    *r_ebx = (al > 158) ? (al - 1) : 96;
                 }
                 else
                 {
-                    if (rnd_plasma.GenRand32() & 1) {
+                    if (rnd_plasma.GenRand32() & 1)
+                    {
                         *r_ebx = *r_edx;
                     }
                     else
                     {
                         al = *(r_edx + 1);
                         cl = *(r_edx - 1);
-
-                        if (al <= cl) {
-                            al = cl;
-                        }
+                        if (al <= cl) al = cl;
 
                         cl = al;
                         al = *(r_edx - 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
+                        if (cl <= al) cl = al;
 
                         al = *(r_edx + 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
+                        if (cl <= al) cl = al;
 
                         al = *(r_edx + 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
+                        if (cl <= al) cl = al;
 
                         al = *(r_edx + 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
+                        if (cl <= al) cl = al;
 
                         al = *(r_edx - 79);
-                        if (cl > al) {
-                            al = cl;
-                        }
+                        if (cl > al) al = cl;
 
                         cl = *(r_edx - 81);
-                        if (al <= cl) {
-                            al = cl;
-                        }
+                        if (al <= cl) al = cl;
 
                         cl = al;
 
-                        if (al <= 159) {
+                        if (al <= 159)
+                        {
                             *r_ebx = 96;
                         }
                         else
                         {
                             if (!(rnd_plasma.GenRand32() & 1)) 
-                            {
                                 cl--;
-                            }
 
                             *r_ebx = cl;
                         }
@@ -237,15 +212,14 @@ void menu_DoPlasma()
             r_ebx += 2;
         }
 
-        auto logopix = GetRawPixels(nLogoTexid);
+        const auto logopix = GetRawPixels(nLogoTexid);
 
         for (int j = 0; j < 5; j++)
         {
-            int pB = plasma_B[j];
-            int pC = plasma_C[j];
-            int badOffset = FixedToInt(pC) < nSmokeLeft || FixedToInt(pC) >= nSmokeRight;
-
-            const uint8_t* ptr3 = (logopix + (FixedToInt(pC) - nSmokeLeft) * lh);
+            const int pB = plasma_B[j];
+            const int pC = plasma_C[j];
+            const int badOffset = FixedToInt(pC) < nSmokeLeft || FixedToInt(pC) >= nSmokeRight;
+            const uint8_t* ptr3 = (logopix + (FixedToInt(pC) - nSmokeLeft) * logoheight);
 
             plasma_C[j] += plasma_B[j];
 
@@ -268,9 +242,9 @@ void menu_DoPlasma()
                 while (nSmokeOffset < nSmokeBottom)
                 {
                     uint8_t al = *ptr3;
-                    if (al != TRANSPARENT_INDEX && al != 96) {
+
+                    if (al != TRANSPARENT_INDEX && al != 96)
                         break;
-                    }
 
                     nSmokeOffset++;
                     ptr3++;
@@ -279,15 +253,14 @@ void menu_DoPlasma()
             else
             {
                 nSmokeOffset = nSmokeBottom;
-
-                ptr3 += lh - 1;
+                ptr3 += logoheight - 1;
 
                 while (nSmokeOffset > nSmokeTop)
                 {
                     uint8_t al = *ptr3;
-                    if (al != TRANSPARENT_INDEX && al != 96) {
+
+                    if (al != TRANSPARENT_INDEX && al != 96)
                         break;
-                    }
 
                     nSmokeOffset--;
                     ptr3--;
@@ -299,27 +272,29 @@ void menu_DoPlasma()
         }
 
         // flip between tile 4092 and 4093
-        if (nPlasmaTile == kTile4092) {
+        if (nPlasmaTile == kTile4092)
+        {
             nPlasmaTile = kTile4093;
         }
-        else if (nPlasmaTile == kTile4093) {
+        else if (nPlasmaTile == kTile4093)
+        {
             nPlasmaTile = kTile4092;
         }
     }
+
     DrawAbs(ptile, 0, 0);
     DrawRel(pLogoTex, 160, 40);
 
     // draw the fire urn/lamp thingies
-    int dword_9AB5F = (pclock / 16) & 3;
-
-    DrawRel(kTile3512 + dword_9AB5F, 50, 150);
-    DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150);
+    const int urnclock = (pclock / 16) & 3;
+    DrawRel(kTile3512 + urnclock, 50, 150);
+    DrawRel(kTile3512 + ((urnclock + 2) & 3), 270, 150);
 }
 
 
 DEFINE_ACTION_FUNCTION(_Exhumed, DrawPlasma)
 {
-        menu_DoPlasma();
+    menu_DoPlasma();
     return 0;
 }
 
@@ -371,9 +346,8 @@ void TextOverlay::DisplayText()
 
         while (i < screentext.Size() && y <= 199)
         {
-            if (y >= -10) {
+            if (y >= -10)
                 DrawText(twod, font, CR_NATIVEPAL, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
-            }
 
             i++;
             y += 10;
@@ -385,7 +359,7 @@ bool TextOverlay::AdvanceCinemaText(double clock)
 {
     if (nHeight + nCrawlY > 0 || CDplaying())
     {
-        nCrawlY-= min(clock - lastclock, 1.5) / 15.;   // do proper interpolation.
+        nCrawlY -= min(clock - lastclock, 1.5) / 15.;   // do proper interpolation.
         lastclock = clock;
         return true;
     }
@@ -394,13 +368,13 @@ bool TextOverlay::AdvanceCinemaText(double clock)
 }
 
 
- //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //
 // cinema
 //
 //---------------------------------------------------------------------------
 
-static const char * const cinpalfname[] = {
+static const char* const cinpalfname[] = {
     "3454.pal",
     "3452.pal",
     "3449.pal",
@@ -425,10 +399,13 @@ void uploadCinemaPalettes()
     {
         uint8_t palette[768] = {};
         auto hFile = fileSystem.OpenFileReader(cinpalfname[i]);
+
         if (hFile.isOpen())
             hFile.Read(palette, 768);
+
         for (auto& c : palette)
             c <<= 2;
+
         paletteSetColorTable(ANIMPAL+i, palette, false, true);
     }
 }
@@ -441,32 +418,30 @@ void uploadCinemaPalettes()
 
 static int DoStatic(int a, int b)
 {
-    auto pixels = GetWritablePixels(tileGetTextureID(kTileLoboLaptop), true);
-
     int y = 160 - a / 2;
-    int left = 81 - b / 2;
+    const int left = 81 - b / 2;
+    const int bottom = y + a;
+    const int right = left + b;
 
-    int bottom = y + a;
-    int right = left + b;
-
+    const auto pixels = GetWritablePixels(tileGetTextureID(kTileLoboLaptop), true);
     auto pTile = (pixels + (200 * y)) + left;
 
     for(;y < bottom; y++)
-        {
+    {
         uint8_t* pixel = pTile;
-            pTile += 200;
+        pTile += 200;
 
         for (int x = left; x < right; x++)
-            {
+        {
             *pixel++ = RandomBit() * 16;
-            }
         }
+    }
     return tileGetTexture(kTileLoboLaptop)->GetID().GetIndex();
 }
 
 static int UndoStatic()
 {
-    auto texid = tileGetTextureID(kTileLoboLaptop);
+    const auto texid = tileGetTextureID(kTileLoboLaptop);
     GetWritablePixels(texid, true);
     return texid.GetIndex();
 }
