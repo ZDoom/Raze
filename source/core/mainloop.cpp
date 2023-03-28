@@ -562,9 +562,6 @@ void TryRunTics (void)
 	realtics = entertic - oldentertics;
 	oldentertics = entertic;
 
-	// update the scale factor for unsynchronised input here.
-	inputScale = I_GetInputFrac();
-
 	// get available tics
 	NetUpdate ();
 
@@ -743,6 +740,9 @@ void MainLoop ()
 				I_StartFrame ();
 			}
 			I_SetFrameTime();
+
+			// update the scale factor for unsynchronised input here.
+			inputScale = I_GetInputFrac();
 
 			TryRunTics (); // will run at least one tic
 			// Update display, next frame, with current state.

@@ -1982,7 +1982,6 @@ void Net_SkipCommand (int cmd, uint8_t **stream)
 void Net_ClearFifo(void)
 {
 	I_SetFrameTime();
-	I_ResetInputTime();
 	gametime = I_GetTime();
 }
 
