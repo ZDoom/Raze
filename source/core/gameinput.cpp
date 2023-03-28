@@ -173,7 +173,7 @@ void clearLocalInputBuffer()
 
 void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet)
 {
-	if (paused || M_Active() || gamestate != GS_LEVEL || !plrAngles || !plrAngles->pActor)
+	if (M_Active() || gamestate != GS_LEVEL || !plrAngles || !plrAngles->pActor)
 	{
 		clearLocalInputBuffer();
 		return;
