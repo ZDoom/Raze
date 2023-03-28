@@ -134,25 +134,12 @@ void InputState::ClearAllInput()
 {
 	memset(KeyStatus, 0, sizeof(KeyStatus));
 	AnyKeyStatus = false;
+	ActionsToSend = 0;
 	WeaponToSend = 0;
 	dpad_lock = 0;
-
-	if (gamestate != GS_LEVEL)
-	{
-		ActionsToSend = 0;
-		crouch_toggle = false;
-		clearLocalInputBuffer();		// also clear game local input state.
-	}
-	else if (gamestate == GS_LEVEL && crouch_toggle)
-	{
-		ActionsToSend |= SB_CROUCH;
-	}
-	else
-	{
-		ActionsToSend = 0;
-	}
-
+	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
+	clearLocalInputBuffer();		// also clear game local input state.
 	resetTurnHeldAmt();
 }
 
