@@ -766,7 +766,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		for (int i = 0; i < gNetPlayers; i++)
 			playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
 		viewSetErrorMessage("");
-		Net_ClearFifo();
 		paused = 0;
 		Mus_ResumeSaved();
 	}

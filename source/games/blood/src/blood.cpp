@@ -360,7 +360,6 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (!gPlayer[myconnectindex].packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 		sfxSetReverb(0);
 	ambInit();
-	Net_ClearFifo();
 	gChokeCounter = 0;
 	M_ClearMenus();
 	// viewSetMessage("");

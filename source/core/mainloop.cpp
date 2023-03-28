@@ -155,7 +155,6 @@ void NewGame(MapRecord* map, int skill, bool ns = false)
 		gi->NewGame(map, skill, ns); 
 		gameaction = ga_level;
 		ResetStatusBar();
-		Net_ClearFifo();
 		});
 }
 
@@ -206,7 +205,6 @@ static void GameTicker()
 			gameaction = ga_level;
 			gi->NextLevel(g_nextmap, g_nextskill);
 			ResetStatusBar();
-			Net_ClearFifo();
 			break;
 
 		case ga_newgame:
@@ -267,6 +265,7 @@ static void GameTicker()
 			break;
 
 		case ga_level:
+			Net_ClearFifo();
 			gamestate = GS_LEVEL;
 			break;
 
