@@ -103,9 +103,11 @@ size_t MarkPlayers()
 
 void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
-    PlayerList[nPlayer].sPlayerSave.pos = pos;
-    PlayerList[nPlayer].sPlayerSave.pSector = pSector;
-    PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
+    const auto pPlayer = &PlayerList[nPlayer];
+
+    pPlayer->sPlayerSave.pos = pos;
+    pPlayer->sPlayerSave.pSector = pSector;
+    pPlayer->sPlayerSave.nAngle = nAngle;
 }
 
 //---------------------------------------------------------------------------
@@ -116,11 +118,14 @@ void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle 
 
 void InitPlayer()
 {
-    for (int i = 0; i < kMaxPlayers; i++) {
-        PlayerList[i].pActor = nullptr;
-        PlayerList[i].Angles = {};
-        PlayerList[i].pPlayerPushSect = nullptr;
-        PlayerList[i].pPlayerViewSect = nullptr;
+    for (int i = 0; i < kMaxPlayers; i++)
+    {
+        const auto pPlayer = &PlayerList[i];
+
+        pPlayer->pActor = nullptr;
+        pPlayer->Angles = {};
+        pPlayer->pPlayerPushSect = nullptr;
+        pPlayer->pPlayerViewSect = nullptr;
     }
 }
 
@@ -137,32 +142,26 @@ void InitPlayerKeys(int nPlayer)
 
 void InitPlayerInventory(int nPlayer)
 {
-    memset(&PlayerList[nPlayer], 0, sizeof(Player));
-
-    PlayerList[nPlayer].nItem = -1;
-    PlayerList[nPlayer].nPlayerSwear = 4;
+    const auto pPlayer = &PlayerList[nPlayer];
+    memset(pPlayer, 0, sizeof(Player));
 
     ResetPlayerWeapons(nPlayer);
 
-    PlayerList[nPlayer].nLives = kDefaultLives;
+    pPlayer->nItem = -1;
+    pPlayer->nPlayerSwear = 4;
+    pPlayer->nLives = kDefaultLives;
+    pPlayer->pActor = nullptr;
+    pPlayer->Angles = {};
+    pPlayer->nRun = -1;
+    pPlayer->nPistolClip = 6;
+    pPlayer->nPlayerClip = 0;
+    pPlayer->nCurrentWeapon = 0;
+    pPlayer->nPlayerScore = 0;
 
-    PlayerList[nPlayer].pActor = nullptr;
-    PlayerList[nPlayer].Angles = {};
-    PlayerList[nPlayer].nRun = -1;
-
-    PlayerList[nPlayer].nPistolClip = 6;
-    PlayerList[nPlayer].nPlayerClip = 0;
-
-    PlayerList[nPlayer].nCurrentWeapon = 0;
-
-    if (nPlayer == nLocalPlayer) {
+    if (nPlayer == nLocalPlayer)
         automapMode = am_off;
-    }
 
-    PlayerList[nPlayer].nPlayerScore = 0;
-
-    auto pixels = GetRawPixels(tileGetTextureID(kTile3571 + nPlayer));
-
+    const auto pixels = GetRawPixels(tileGetTextureID(kTile3571 + nPlayer));
     PlayerList[nPlayer].nPlayerColor = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }
 
@@ -343,9 +342,8 @@ void RestartPlayer(int nPlayer)
 
 int GrabPlayer()
 {
-    if (PlayerCount >= kMaxPlayers) {
+    if (PlayerCount >= kMaxPlayers)
         return -1;
-    }
 
     return PlayerCount++;
 }
@@ -456,29 +454,20 @@ void StartDeathSeq(int nPlayer, int nVal)
 
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 {
-    if (!nAmmoAmount) {
+    const auto pPlayer = &PlayerList[nPlayer];
+
+    if (!nAmmoAmount)
         nAmmoAmount = 1;
-    }
 
-    int nCurAmmo = PlayerList[nPlayer].nAmmo[nWeapon];
+    const int nCurAmmo = pPlayer->nAmmo[nWeapon];
 
-    if (nCurAmmo >= 300 && nAmmoAmount > 0) {
+    if (nCurAmmo >= 300 && nAmmoAmount > 0)
         return 0;
-    }
 
-    nAmmoAmount = nCurAmmo + nAmmoAmount;
-    if (nAmmoAmount > 300) {
-        nAmmoAmount = 300;
-    }
+    pPlayer->nAmmo[nWeapon] = min(nCurAmmo + nAmmoAmount, 300);
 
-    PlayerList[nPlayer].nAmmo[nWeapon] = nAmmoAmount;
-
-    if (nWeapon == 1)
-    {
-        if (!PlayerList[nPlayer].nPistolClip) {
-            PlayerList[nPlayer].nPistolClip = 6;
-        }
-    }
+    if (nWeapon == 1 && !pPlayer->nPistolClip)
+        pPlayer->nPistolClip = 6;
 
     return 1;
 }
@@ -491,25 +480,23 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
-    DExhumedActor* pActor = PlayerList[nPlayer].pActor;
+    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayerActor = pPlayer->pActor;
 
-    pActor->vel.Y = 0;
-    pActor->vel.X = 0;
+    pPlayerActor->vel.XY().Zero();
 
-    PlayerList[nPlayer].bIsMummified = bIsMummified;
-
-    if (bIsMummified)
+    if ((pPlayer->bIsMummified = bIsMummified))
     {
-        PlayerList[nPlayer].nAction = 13;
-        PlayerList[nPlayer].nSeq = kSeqMummy;
+        pPlayer->nAction = 13;
+        pPlayer->nSeq = kSeqMummy;
     }
     else
     {
-        PlayerList[nPlayer].nAction = 0;
-        PlayerList[nPlayer].nSeq = kSeqJoe;
+        pPlayer->nAction = 0;
+        pPlayer->nSeq = kSeqJoe;
     }
 
-    PlayerList[nPlayer].nSeqSize = 0;
+    pPlayer->nSeqSize = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -520,9 +507,11 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 
 void ShootStaff(int nPlayer)
 {
-    PlayerList[nPlayer].nAction = 15;
-    PlayerList[nPlayer].nSeqSize = 0;
-    PlayerList[nPlayer].nSeq = kSeqJoe;
+    const auto pPlayer = &PlayerList[nPlayer];
+
+    pPlayer->nAction = 15;
+    pPlayer->nSeqSize = 0;
+    pPlayer->nSeq = kSeqJoe;
 }
 
 //---------------------------------------------------------------------------
