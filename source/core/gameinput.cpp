@@ -198,7 +198,6 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 
 	if (packet)
 	{
-		gi->reapplyInputBits(&inputBuffer);
 		*packet = inputBuffer;
 		clearLocalInputBuffer();
 	}
@@ -217,20 +216,26 @@ void PlayerAngles::doPitchKeys(InputPacket* const input)
 	if (input->horz)
 		input->actions &= ~SB_CENTERVIEW;
 
+	// Set up a myriad of bools.
+	const auto aimingUp = (input->actions & SB_LOOK_UP) == SB_AIM_UP;
+	const auto aimingDown = (input->actions & SB_LOOK_DOWN) == SB_AIM_DOWN;
+	const auto lookingUp = (input->actions & SB_LOOK_UP) == SB_LOOK_UP;
+	const auto lookingDown = (input->actions & SB_LOOK_DOWN) == SB_LOOK_DOWN;
+
 	// Process keyboard input.
-	if (const auto aiming = !!(input->actions & SB_AIM_DOWN) - !!(input->actions & SB_AIM_UP))
+	if (const auto aiming = aimingDown - aimingUp)
 	{
 		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_AIMSPEED) * aiming);
 		input->actions &= ~SB_CENTERVIEW;
 	}
-	if (const auto looking = !!(input->actions & SB_LOOK_DOWN) - !!(input->actions & SB_LOOK_UP))
+	if (const auto looking = lookingDown - lookingUp)
 	{
 		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_LOOKSPEED) * looking);
 		input->actions |= SB_CENTERVIEW;
 	}
 
 	// Do return to centre.
-	if ((input->actions & SB_CENTERVIEW) && !(input->actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+	if ((input->actions & SB_CENTERVIEW) && !(lookingUp || lookingDown))
 	{
 		const auto pitch = abs(pActor->spr.Angles.Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;

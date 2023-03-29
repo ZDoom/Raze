@@ -374,14 +374,22 @@ void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer)
 	}
 	else dpad_lock = 0;
 
+	gi->reapplyInputBits(inputBuffer);
+
 	inputBuffer->actions |= ActionsToSend;
 	ActionsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] > 0)) 
+	{
 		inputBuffer->actions |= SB_AIM_UP;
+		inputBuffer->actions &= ~SB_CENTERVIEW;
+	}
 
 	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] < 0))) 
+	{
 		inputBuffer->actions |= SB_AIM_DOWN;
+		inputBuffer->actions &= ~SB_CENTERVIEW;
+	}
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		hidInput->joyaxes[JOYAXIS_Forward] = 0;

@@ -3694,19 +3694,19 @@ HORIZONLY:
 	{
 		playerCenterView(snum);
 	}
-	else if (actions & SB_LOOK_UP)
+	else if ((actions & SB_LOOK_UP) == SB_LOOK_UP)
 	{
 		playerLookUp(snum, actions);
 	}
-	else if (actions & SB_LOOK_DOWN)
+	else if ((actions & SB_LOOK_DOWN) == SB_LOOK_DOWN)
 	{
 		playerLookDown(snum, actions);
 	}
-	else if ((actions & SB_AIM_UP) && !p->OnMotorcycle)
+	else if ((actions & SB_LOOK_UP) == SB_AIM_UP && !p->OnMotorcycle)
 	{
 		playerAimUp(snum, actions);
 	}
-	else if ((actions & SB_AIM_DOWN) && !p->OnMotorcycle)
+	else if ((actions & SB_LOOK_DOWN) == SB_AIM_DOWN && !p->OnMotorcycle)
 	{
 		playerAimDown(snum, actions);
 	}

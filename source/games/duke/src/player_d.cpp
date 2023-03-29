@@ -2973,19 +2973,19 @@ HORIZONLY:
 	{
 		playerCenterView(snum);
 	}
-	else if (actions & SB_LOOK_UP)
+	else if ((actions & SB_LOOK_UP) == SB_LOOK_UP)
 	{
 		playerLookUp(snum, actions);
 	}
-	else if (actions & SB_LOOK_DOWN)
+	else if ((actions & SB_LOOK_DOWN) == SB_LOOK_DOWN)
 	{
 		playerLookDown(snum, actions);
 	}
-	else if (actions & SB_AIM_UP)
+	else if ((actions & SB_LOOK_UP) == SB_AIM_UP)
 	{
 		playerAimUp(snum, actions);
 	}
-	else if (actions & SB_AIM_DOWN)
+	else if ((actions & SB_LOOK_DOWN) == SB_AIM_DOWN)
 	{	// aim_down
 		playerAimDown(snum, actions);
 	}
