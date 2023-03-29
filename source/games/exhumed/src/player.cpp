@@ -39,9 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void doPlayerItemPickups(Player* const pPlayer);
-
-static actionSeq PlayerSeq[] = {
+static constexpr actionSeq PlayerSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
     {72,  0}, {54,  0}, {45,  0}, {54,  0}, {81,  0},
     {90,  0}, {99,  0}, {108, 0}, {8,   0}, {0,   0},
@@ -49,7 +47,7 @@ static actionSeq PlayerSeq[] = {
     {122, 1}
 };
 
-static const uint8_t nHeightTemplate[] = { 0, 0, 0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0 };
+static constexpr uint8_t nHeightTemplate[] = { 0, 0, 0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static constexpr double nActionEyeLevel[] = {
     -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -32.5,
@@ -57,10 +55,10 @@ static constexpr double nActionEyeLevel[] = {
     -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0
 };
 
-static const uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
-static const uint16_t nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
+static constexpr uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
+static constexpr uint16_t nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
 
-static const int16_t nItemText[] = {
+static constexpr int16_t nItemText[] = {
     -1, -1, -1, -1, -1, -1, 18, 20, 19, 13, -1, 10, 1, 0, 2, -1, 3,
     -1, 4, 5, 9, 6, 7, 8, -1, 11, -1, 13, 12, 14, 15, -1, 16, 17,
     -1, -1, -1, 21, 22, -1, -1, -1, -1, -1, -1, 23, 24, 25, 26, 27,
