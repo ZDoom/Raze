@@ -356,18 +356,20 @@ int GrabPlayer()
 
 void StartDeathSeq(int nPlayer, int nVal)
 {
+    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerSect = pPlayerActor->sector();
+
     FreeRa(nPlayer);
 
-    auto pActor = PlayerList[nPlayer].pActor;
-    PlayerList[nPlayer].nHealth = 0;
+    pPlayer->nHealth = 0;
 
-    int nLotag = pActor->sector()->lotag;
-
-    if (nLotag > 0) {
-        runlist_SignalRun(nLotag - 1, nPlayer, &ExhumedAI::EnterSector);
+    if (pPlayerSect->lotag > 0)
+    {
+        runlist_SignalRun(pPlayerSect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
     }
 
-    if (PlayerList[nPlayer].pPlayerGrenade)
+    if (pPlayer->pPlayerGrenade)
     {
         ThrowGrenade(nPlayer, 0, -10000);
     }
@@ -375,75 +377,43 @@ void StartDeathSeq(int nPlayer, int nVal)
     {
         if (nNetPlayerCount)
         {
-            int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
+            const int nWeapon = pPlayer->nCurrentWeapon;
 
             if (nWeapon > kWeaponSword && nWeapon <= kWeaponRing)
             {
-                auto pSector = pActor->sector();
-                if (pSector->pBelow != nullptr) {
-                    pSector = pSector->pBelow;
-                }
+                const auto pSector = pPlayerSect->pBelow ? pPlayerSect->pBelow : pPlayerSect;
+                const auto pGunActor = GrabBodyGunSprite();
 
-                auto pGunActor = GrabBodyGunSprite();
                 ChangeActorSect(pGunActor, pSector);
-
-                pGunActor->spr.pos = { pActor->spr.pos.X, pActor->spr.pos.Y, pSector->floorz - 2 };
-
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
-
+                pGunActor->spr.pos = DVector3(pPlayerActor->spr.pos.XY(), pSector->floorz - 2);
                 pGunActor->spr.picnum = nGunPicnum[nWeapon];
-
                 BuildItemAnim(pGunActor);
             }
         }
     }
 
-    PlayerList[nPlayer].bIsFiring = false;
-
-    PlayerList[nPlayer].pActor->PrevAngles.Pitch = PlayerList[nPlayer].pActor->spr.Angles.Pitch = nullAngle;
-    pActor->oviewzoffset = pActor->viewzoffset = -55;
-    PlayerList[nPlayer].nInvisible = 0;
-    PlayerList[nPlayer].dVertPan = 15;
-
-    pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+    pPlayer->bIsFiring = false;
+    pPlayer->nInvisible = 0;
+    pPlayer->dVertPan = 15;
+    pPlayer->nDeathType = pPlayerSect->Damage <= 0 ? nVal : 2;
+    pPlayer->ototalvel = pPlayer->totalvel = 0;
+    pPlayer->nSeqSize = 0;
+    pPlayer->nAction = (nVal || !(pPlayerSect->Flag & kSectUnderwater)) ? ((nVal * 2) + 17) : 16;
+    pPlayerActor->PrevAngles.Pitch = pPlayerActor->spr.Angles.Pitch = nullAngle;
+    pPlayerActor->oviewzoffset = pPlayerActor->viewzoffset = -55;
+    pPlayerActor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_BLOCK_ALL);
 
     SetNewWeaponImmediate(nPlayer, -2);
 
-    if (pActor->sector()->Damage <= 0)
-    {
-        PlayerList[nPlayer].nDeathType = nVal;
-    }
-    else
-    {
-        PlayerList[nPlayer].nDeathType = 2;
-    }
-
-    nVal *= 2;
-
-    if (nVal || !(pActor->sector()->Flag & kSectUnderwater))
-    {
-        PlayerList[nPlayer].nAction = nVal + 17;
-    }
-    else {
-        PlayerList[nPlayer].nAction = 16;
-    }
-
-    PlayerList[nPlayer].nSeqSize = 0;
-
-    pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-
     if (nTotalPlayers == 1)
     {
-        if (!(currentLevel->gameflags & LEVEL_EX_TRAINING)) { // if not on the training level
-            PlayerList[nPlayer].nLives--;
-        }
+        if (!(currentLevel->gameflags & LEVEL_EX_TRAINING))
+            pPlayer->nLives--;
 
-        if (PlayerList[nPlayer].nLives < 0) {
-            PlayerList[nPlayer].nLives = 0;
-        }
+        if (pPlayer->nLives < 0)
+            pPlayer->nLives = 0;
     }
-
-    PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel = 0;
 }
 
 //---------------------------------------------------------------------------
