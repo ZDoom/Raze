@@ -218,7 +218,7 @@ bool System_DispatchEvent(event_t* ev)
 {
 	if (ev->type == EV_Mouse && !System_WantGuiCapture())
 	{
-		inputState.MouseAddToPos(ev->x, -ev->y);
+		inputState.MouseAddToPos(ev->x, ev->y);
 		return true;
 	}
 

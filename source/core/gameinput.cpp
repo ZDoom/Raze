@@ -140,9 +140,9 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 
 	// process player pitch input.
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->horz += hidInput->mouseturny - hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
+		currInput->horz -= hidInput->mouseturny + hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
 	else
-		currInput->fvel -= hidInput->mousemovey - hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
+		currInput->fvel += hidInput->mousemovey + hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
 
 	// process movement input.
 	currInput->fvel += moving * keymove;
