@@ -353,6 +353,9 @@ CCMD(show_weapon)
 
 void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer)
 {
+	inputState.GetMouseDelta(hidInput);
+	if (use_joystick) I_GetAxes(hidInput->joyaxes);
+
 	if (WeaponToSend != 0) inputBuffer->setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
 	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))

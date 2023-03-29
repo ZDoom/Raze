@@ -181,7 +181,6 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 
 	InputPacket input{};
 	HIDInput hidInput{};
-	getHidInput(&hidInput);
 	ApplyGlobalInput(&hidInput, &inputBuffer);
 
 	// Directly update the camera angles if we're unsynchronised.
