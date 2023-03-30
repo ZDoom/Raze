@@ -18,6 +18,7 @@ struct tspritetype;
 class DCoreActor;
 struct MapRecord;
 struct PlayerAngles;
+struct HIDInput;
 
 void processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
 

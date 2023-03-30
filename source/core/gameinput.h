@@ -83,6 +83,11 @@ private:
 class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
+struct HIDInput
+{
+	float       joyaxes[NUM_JOYAXIS];
+	FVector2    mouse;
+};
 
 void clearLocalInputBuffer();
 void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);

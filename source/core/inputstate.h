@@ -13,14 +13,6 @@
 #include "packet.h"
 #include "vectors.h"
 
-
-struct HIDInput
-{
-	float       joyaxes[NUM_JOYAXIS];
-	FVector2    mouse;
-};
-
-
 class InputState
 {
 	uint8_t KeyStatus[NUM_KEYS];
