@@ -504,51 +504,6 @@ void hud_input(int plnum)
 
 //---------------------------------------------------------------------------
 //
-// split out for readability
-//
-//---------------------------------------------------------------------------
-
-static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const float factor, const float baseVel, const float velScale)
-{
-	float turnvel = 0;
-
-	// Cancel out micro-movement
-	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) 
-		hidInput->mouseturnx = 0;
-
-	// Yes, we need all these bools...
-	const bool kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
-	const bool kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-	const bool hidLeft = hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
-	const bool hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
-	const int turndir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
-
-	if ((p->OnMotorcycle || p->MotoSpeed) && (turndir || p->moto_drink))
-	{
-		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && (!p->OnMotorcycle || p->MotoSpeed > 0);
-		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
-
-		turnvel = vel * -hidInput->joyaxes[JOYAXIS_Yaw];
-
-		if (const auto kbdDir = kbdRight - kbdLeft)
-		{
-			turnvel += vel * kbdDir;
-			updateTurnHeldAmt(factor);
-		}
-
-		if (hidInput->mouseturnx)
-			turnvel += sqrtf(abs(vel * hidInput->mouseturnx / factor) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
-	}
-	else
-	{
-		resetTurnHeldAmt();
-	}
-
-	return turnvel * factor;
-}
-
-//---------------------------------------------------------------------------
-//
 // much of this was rewritten from scratch to make the logic easier to follow.
 //
 //---------------------------------------------------------------------------
@@ -562,14 +517,23 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	inputBuffer->actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
+	// Cancel out micro-movement
+	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) 
+		hidInput->mouseturnx = 0;
+
+	// Yes, we need all these bools...
+	const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
+	const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
+	const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+	const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+	const auto hidLeft = hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
+	const auto hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
+	const auto turnDir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
+
 	if (p->OnBoat || !p->moto_underwater)
 	{
-		const bool kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
-		const bool kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
-		inputBuffer->fvel = clamp(kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward], -1.f, 1.f);
-		
-		if (buttonMap.ButtonDown(gamefunc_Run))
-			inputBuffer->actions |= SB_CROUCH;
+		currInput->fvel = kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward];
+		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer->actions |= SB_CROUCH;
 	}
 
 	if (p->OnMotorcycle)
@@ -583,7 +547,37 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 		baseVel = VEHICLETURN * velScale;
 	}
 
-	inputBuffer->avel += (currInput->avel = getVehicleTurnVel(p, hidInput, (float)scaleAdjust, baseVel, velScale));
+	if ((p->OnMotorcycle || p->MotoSpeed) && (turnDir || p->moto_drink))
+	{
+		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && (!p->OnMotorcycle || p->MotoSpeed > 0);
+		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
+
+		currInput->avel = vel * -hidInput->joyaxes[JOYAXIS_Yaw];
+
+		if (const auto kbdDir = kbdRight - kbdLeft)
+		{
+			currInput->avel += vel * kbdDir;
+			updateTurnHeldAmt(scaleAdjust);
+		}
+		else
+		{
+			resetTurnHeldAmt();
+		}
+
+		if (hidInput->mouseturnx)
+		{
+			currInput->avel += sqrtf(abs(vel * hidInput->mouseturnx / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
+		}
+
+		currInput->avel *= (float)scaleAdjust;
+	}
+	else
+	{
+		resetTurnHeldAmt();
+	}
+
+	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -1.00f, 1.00f);
+	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
 }
 
 
