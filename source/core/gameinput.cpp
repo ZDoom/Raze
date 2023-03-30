@@ -26,8 +26,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameinput.h"
 #include "d_net.h"
 
+//---------------------------------------------------------------------------
+//
+// CVARs to control mouse input sensitivity.
+//
+//---------------------------------------------------------------------------
+
 EXTERN_CVAR(Float, m_sensitivity_x)
-EXTERN_CVAR(Float, m_yaw)
+CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 
 
 //---------------------------------------------------------------------------
@@ -139,19 +148,19 @@ void processMovement(HIDInput* const hidInput, InputPacket* const currInput, con
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		currInput->avel += hidInput->mouseturnx - (hidInput->joyaxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
+		currInput->avel += hidInput->mouseturnx * m_yaw - (hidInput->joyaxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
 	else
 	{
-		currInput->svel += hidInput->mousemovex - (hidInput->joyaxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjustf;
+		currInput->svel += hidInput->mousemovex * m_side - (hidInput->joyaxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjustf;
 	}
 
 	// process player pitch input.
 	if (!(inputBuffer.actions & SB_AIMMODE))
-		currInput->horz -= hidInput->mouseturny + hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
+		currInput->horz -= hidInput->mouseturny * m_pitch + hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
 	else
-		currInput->fvel += hidInput->mousemovey + hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
+		currInput->fvel += hidInput->mousemovey * m_forward + hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
 
 	// process movement input.
 	currInput->fvel += moving * keymove;
@@ -182,7 +191,7 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
 	// Cancel out micro-movement
-	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) 
+	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * backendinputscale() * 2.f)) 
 		hidInput->mouseturnx = 0;
 
 	// Yes, we need all these bools...
@@ -219,7 +228,7 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 
 		if (hidInput->mouseturnx)
 		{
-			currInput->avel += sqrtf(abs(vel * hidInput->mouseturnx / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
+			currInput->avel += sqrtf(abs(vel * hidInput->mouseturnx * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
 		}
 
 		currInput->avel *= (float)scaleAdjust;

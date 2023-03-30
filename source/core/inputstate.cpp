@@ -45,10 +45,6 @@
 #include "gameinput.h"
 
 // Mouse speeds
-CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
 CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
@@ -62,10 +58,10 @@ void InputState::GetMouseDelta(HIDInput * hidInput)
 {
 	g_mousePos *= backendinputscale();
 
-	hidInput->mouseturnx = g_mousePos.X * m_yaw;
-	hidInput->mouseturny = g_mousePos.Y * m_pitch;
-	hidInput->mousemovex = g_mousePos.X * m_side;
-	hidInput->mousemovey = g_mousePos.Y * m_forward;
+	hidInput->mouseturnx = g_mousePos.X;
+	hidInput->mouseturny = g_mousePos.Y;
+	hidInput->mousemovex = g_mousePos.X;
+	hidInput->mousemovey = g_mousePos.Y;
 
 	if (invertmousex)
 	{
