@@ -505,7 +505,7 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
+void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust)
 {
 	auto const p = &ps[myconnectindex];
 
@@ -529,11 +529,11 @@ void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputB
 		const auto canTurn = p->OnMotorcycle || p->MotoSpeed || p->moto_drink;
 		const auto attenuate = p->OnMotorcycle && p->MotoSpeed <= 0;
 
-		processVehicleInput(hidInput, inputBuffer, currInput, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
+		processVehicleInput(hidInput, currInput, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
 	}
 	else
 	{
-		processMovement(hidInput, inputBuffer, currInput, scaleAdjust, p->drink_amt);
+		processMovement(hidInput, currInput, scaleAdjust, p->drink_amt);
 	}
 }
 

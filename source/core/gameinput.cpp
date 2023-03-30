@@ -119,10 +119,10 @@ static inline void resetTurnHeldAmt()
 //
 //---------------------------------------------------------------------------
 
-void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// set up variables.
-	const int keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
+	const int keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
 	const float hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
 	const float scaleAdjustf = float(scaleAdjust);
 
@@ -145,7 +145,7 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 	}
 
 	// process player pitch input.
-	if (!(inputBuffer->actions & SB_AIMMODE))
+	if (!(inputBuffer.actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny + hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
 	else
 		currInput->fvel += hidInput->mousemovey + hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
@@ -159,10 +159,10 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 		currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
-	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
-	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -(float)keymove, (float)keymove);
-	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
-	inputBuffer->horz = clamp(inputBuffer->horz + currInput->horz, -179.f, 179.f);
+	inputBuffer.fvel = clamp(inputBuffer.fvel + currInput->fvel, -(float)keymove, (float)keymove);
+	inputBuffer.svel = clamp(inputBuffer.svel + currInput->svel, -(float)keymove, (float)keymove);
+	inputBuffer.avel = clamp(inputBuffer.avel + currInput->avel, -179.f, 179.f);
+	inputBuffer.horz = clamp(inputBuffer.horz + currInput->horz, -179.f, 179.f);
 }
 
 
@@ -172,10 +172,10 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 //
 //---------------------------------------------------------------------------
 
-void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
+void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
 {
 	// mask out all actions not compatible with vehicles.
-	inputBuffer->actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+	inputBuffer.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
 	// Cancel out micro-movement
@@ -194,7 +194,7 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffe
 	if (canMove)
 	{
 		currInput->fvel = kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward];
-		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer->actions |= SB_CROUCH;
+		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
 	}
 
 	if (canTurn && turnDir)
@@ -226,8 +226,8 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffe
 		resetTurnHeldAmt();
 	}
 
-	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -1.00f, 1.00f);
-	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
+	inputBuffer.fvel = clamp(inputBuffer.fvel + currInput->fvel, -1.00f, 1.00f);
+	inputBuffer.avel = clamp(inputBuffer.avel + currInput->avel, -179.f, 179.f);
 }
 
 
@@ -237,57 +237,57 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffe
 //
 //---------------------------------------------------------------------------
 
-static void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer)
+static void ApplyGlobalInput(HIDInput* const hidInput)
 {
 	inputState.GetMouseDelta(hidInput);
 	if (use_joystick) I_GetAxes(hidInput->joyaxes);
 
-	if (WeaponToSend != 0) inputBuffer->setNewWeapon(WeaponToSend);
+	if (WeaponToSend != 0) inputBuffer.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
 	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
 		// These buttons should not autorepeat. The game handlers are not really equipped for that.
-		if (hidInput->joyaxes[JOYAXIS_Forward] > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  inputBuffer->setNewWeapon(WeaponSel_Prev); }
+		if (hidInput->joyaxes[JOYAXIS_Forward] > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  inputBuffer.setNewWeapon(WeaponSel_Prev); }
 		else dpad_lock &= ~1;
-		if (hidInput->joyaxes[JOYAXIS_Forward] < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  inputBuffer->setNewWeapon(WeaponSel_Next); }
+		if (hidInput->joyaxes[JOYAXIS_Forward] < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  inputBuffer.setNewWeapon(WeaponSel_Next); }
 		else dpad_lock &= ~2;
-		if ((hidInput->joyaxes[JOYAXIS_Side] < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  inputBuffer->actions |= SB_INVPREV; }
+		if ((hidInput->joyaxes[JOYAXIS_Side] < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  inputBuffer.actions |= SB_INVPREV; }
 		else dpad_lock &= ~4;
-		if ((hidInput->joyaxes[JOYAXIS_Side] > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  inputBuffer->actions |= SB_INVNEXT; }
+		if ((hidInput->joyaxes[JOYAXIS_Side] > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  inputBuffer.actions |= SB_INVNEXT; }
 		else dpad_lock &= ~8;
 
-		// This eats the controller inputBuffer-> for regular use
+		// This eats the controller input for regular use
 		hidInput->joyaxes[JOYAXIS_Side] = 0;
 		hidInput->joyaxes[JOYAXIS_Forward] = 0;
 		hidInput->joyaxes[JOYAXIS_Yaw] = 0;
 	}
 	else dpad_lock = 0;
 
-	gi->reapplyInputBits(inputBuffer);
+	gi->reapplyInputBits(&inputBuffer);
 
-	inputBuffer->actions |= ActionsToSend;
+	inputBuffer.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] > 0)) 
 	{
-		inputBuffer->actions |= SB_AIM_UP;
-		inputBuffer->actions &= ~SB_CENTERVIEW;
+		inputBuffer.actions |= SB_AIM_UP;
+		inputBuffer.actions &= ~SB_CENTERVIEW;
 	}
 
 	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] < 0))) 
 	{
-		inputBuffer->actions |= SB_AIM_DOWN;
-		inputBuffer->actions &= ~SB_CENTERVIEW;
+		inputBuffer.actions |= SB_AIM_DOWN;
+		inputBuffer.actions &= ~SB_CENTERVIEW;
 	}
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		hidInput->joyaxes[JOYAXIS_Forward] = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Jump))
-		inputBuffer->actions |= SB_JUMP;
+		inputBuffer.actions |= SB_JUMP;
 
 	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
-		inputBuffer->actions |= SB_CROUCH;
+		inputBuffer.actions |= SB_CROUCH;
 
 	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
 	{
@@ -299,36 +299,36 @@ static void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputB
 		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))
-		inputBuffer->actions |= SB_FIRE;
+		inputBuffer.actions |= SB_FIRE;
 
 	if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
-		inputBuffer->actions |= SB_ALTFIRE;
+		inputBuffer.actions |= SB_ALTFIRE;
 
 	if (buttonMap.ButtonDown(gamefunc_Open))
 	{
 		if (isBlood()) buttonMap.ClearButton(gamefunc_Open);
-		inputBuffer->actions |= SB_OPEN;
+		inputBuffer.actions |= SB_OPEN;
 	}
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
-		inputBuffer->actions |= SB_RUN;
+		inputBuffer.actions |= SB_RUN;
 
 	if (!in_mousemode && !buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
-		inputBuffer->actions |= SB_AIMMODE;
+		inputBuffer.actions |= SB_AIMMODE;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Up)) 
-		inputBuffer->actions |= SB_LOOK_UP;
+		inputBuffer.actions |= SB_LOOK_UP;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Down)) 
-		inputBuffer->actions |= SB_LOOK_DOWN;
+		inputBuffer.actions |= SB_LOOK_DOWN;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Left)) 
-		inputBuffer->actions |= SB_LOOK_LEFT;
+		inputBuffer.actions |= SB_LOOK_LEFT;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
-		inputBuffer->actions |= SB_LOOK_RIGHT;
+		inputBuffer.actions |= SB_LOOK_RIGHT;
 
 	if (buttonMap.ButtonDown(gamefunc_Quick_Kick))
-		inputBuffer->actions |= SB_QUICK_KICK;
+		inputBuffer.actions |= SB_QUICK_KICK;
 }
 
 
@@ -356,18 +356,18 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 
 	InputPacket input{};
 	HIDInput hidInput{};
-	ApplyGlobalInput(&hidInput, &inputBuffer);
+	ApplyGlobalInput(&hidInput);
 
 	// Directly update the camera angles if we're unsynchronised.
 	if (!SyncInput())
 	{
-		gi->GetInput(&hidInput, &inputBuffer, &input, scaleAdjust);
+		gi->GetInput(&hidInput, &input, scaleAdjust);
 		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(input.avel);
 		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(input.horz);
 	}
 	else
 	{
-		gi->GetInput(&hidInput, &inputBuffer, &input, 1);
+		gi->GetInput(&hidInput, &input, 1);
 	}
 
 	if (packet)

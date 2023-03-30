@@ -83,5 +83,5 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 
 
 void clearLocalInputBuffer();
-void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet = nullptr);

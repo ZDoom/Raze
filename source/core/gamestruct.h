@@ -19,7 +19,7 @@ class DCoreActor;
 struct MapRecord;
 struct PlayerAngles;
 
-void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
+void processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
 
 struct GameStats
 {
@@ -121,10 +121,7 @@ struct GameInterface
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
 	virtual void reapplyInputBits(InputPacket* const input) = 0;
-	virtual void GetInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
-	{
-		processMovement(hidInput, inputBuffer, currInput, scaleAdjust);
-	}
+	virtual void GetInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust) { processMovement(hidInput, currInput, scaleAdjust); }
 
 	virtual FString statFPS()
 	{
