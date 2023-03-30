@@ -58,22 +58,14 @@ void InputState::GetMouseDelta(HIDInput * hidInput)
 {
 	g_mousePos *= backendinputscale();
 
-	hidInput->mouseturnx = g_mousePos.X;
-	hidInput->mouseturny = g_mousePos.Y;
-	hidInput->mousemovex = g_mousePos.X;
-	hidInput->mousemovey = g_mousePos.Y;
+	hidInput->mousex = g_mousePos.X;
+	hidInput->mousey = g_mousePos.Y;
 
 	if (invertmousex)
-	{
-		hidInput->mouseturnx = -hidInput->mouseturnx;
-		hidInput->mousemovex = -hidInput->mousemovex;
-	}
+		hidInput->mousex = -hidInput->mousex;
 
 	if (invertmouse)
-	{
-		hidInput->mouseturny = -hidInput->mouseturny;
-		hidInput->mousemovey = -hidInput->mousemovey;
-	}
+		hidInput->mousey = -hidInput->mousey;
 
 	g_mousePos.Zero();
 }

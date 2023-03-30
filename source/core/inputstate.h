@@ -17,10 +17,8 @@
 struct HIDInput
 {
 	float       joyaxes[NUM_JOYAXIS];
-	float       mouseturnx;
-	float       mouseturny;
-	float       mousemovex;
-	float       mousemovey;
+	float       mousex;
+	float       mousey;
 };
 
 

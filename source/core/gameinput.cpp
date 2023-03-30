@@ -148,19 +148,19 @@ void processMovement(HIDInput* const hidInput, InputPacket* const currInput, con
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		currInput->avel += hidInput->mouseturnx * m_yaw - (hidInput->joyaxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
+		currInput->avel += hidInput->mousex * m_yaw - (hidInput->joyaxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
 	else
 	{
-		currInput->svel += hidInput->mousemovex * m_side - (hidInput->joyaxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjustf;
+		currInput->svel += hidInput->mousex * m_side - (hidInput->joyaxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjustf;
 	}
 
 	// process player pitch input.
 	if (!(inputBuffer.actions & SB_AIMMODE))
-		currInput->horz -= hidInput->mouseturny * m_pitch + hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
+		currInput->horz -= hidInput->mousey * m_pitch + hidInput->joyaxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
 	else
-		currInput->fvel += hidInput->mousemovey * m_forward + hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
+		currInput->fvel += hidInput->mousey * m_forward + hidInput->joyaxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
 
 	// process movement input.
 	currInput->fvel += moving * keymove;
@@ -191,16 +191,16 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
 	// Cancel out micro-movement
-	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * backendinputscale() * 2.f)) 
-		hidInput->mouseturnx = 0;
+	if (fabs(hidInput->mousex) < (m_sensitivity_x * backendinputscale() * 2.f)) 
+		hidInput->mousex = 0;
 
 	// Yes, we need all these bools...
 	const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 	const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
 	const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-	const auto hidLeft = hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
-	const auto hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
+	const auto hidLeft = hidInput->mousex < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
+	const auto hidRight = hidInput->mousex > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
 	const auto turnDir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
 
 	if (canMove)
@@ -226,9 +226,9 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 			resetTurnHeldAmt();
 		}
 
-		if (hidInput->mouseturnx)
+		if (hidInput->mousex)
 		{
-			currInput->avel += sqrtf(abs(vel * hidInput->mouseturnx * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
+			currInput->avel += sqrtf(abs(vel * hidInput->mousex * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mousex);
 		}
 
 		currInput->avel *= (float)scaleAdjust;
