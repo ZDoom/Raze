@@ -41,6 +41,11 @@ enum
 	TURBOTURNBASE = 590,
 };
 
+static InputPacket inputBuffer{};
+static double turnheldtime = 0;
+static int WeaponToSend = 0;
+static int dpad_lock = 0;
+
 static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
 static constexpr double YAW_LOOKINGSPEED = 801.5625;
@@ -55,7 +60,6 @@ static constexpr double PITCH_HORIZOFFSPEED = 4.375;
 static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
 static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
-static InputPacket inputBuffer{};
 
 
 //---------------------------------------------------------------------------
@@ -92,8 +96,6 @@ static inline bool scaletozero(DAngle& angle, const double scale, const DAngle p
 // Functions for determining whether its turbo turn time (turn key held for a number of tics).
 //
 //---------------------------------------------------------------------------
-
-static double turnheldtime;
 
 static inline void updateTurnHeldAmt(const double scaleAdjust)
 {
@@ -231,6 +233,107 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffe
 
 //---------------------------------------------------------------------------
 //
+// Processes all the input bits.
+//
+//---------------------------------------------------------------------------
+
+static void ApplyGlobalInput(HIDInput* const hidInput, InputPacket* const inputBuffer)
+{
+	inputState.GetMouseDelta(hidInput);
+	if (use_joystick) I_GetAxes(hidInput->joyaxes);
+
+	if (WeaponToSend != 0) inputBuffer->setNewWeapon(WeaponToSend);
+	WeaponToSend = 0;
+	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	{
+		// These buttons should not autorepeat. The game handlers are not really equipped for that.
+		if (hidInput->joyaxes[JOYAXIS_Forward] > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  inputBuffer->setNewWeapon(WeaponSel_Prev); }
+		else dpad_lock &= ~1;
+		if (hidInput->joyaxes[JOYAXIS_Forward] < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  inputBuffer->setNewWeapon(WeaponSel_Next); }
+		else dpad_lock &= ~2;
+		if ((hidInput->joyaxes[JOYAXIS_Side] < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  inputBuffer->actions |= SB_INVPREV; }
+		else dpad_lock &= ~4;
+		if ((hidInput->joyaxes[JOYAXIS_Side] > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  inputBuffer->actions |= SB_INVNEXT; }
+		else dpad_lock &= ~8;
+
+		// This eats the controller inputBuffer-> for regular use
+		hidInput->joyaxes[JOYAXIS_Side] = 0;
+		hidInput->joyaxes[JOYAXIS_Forward] = 0;
+		hidInput->joyaxes[JOYAXIS_Yaw] = 0;
+	}
+	else dpad_lock = 0;
+
+	gi->reapplyInputBits(inputBuffer);
+
+	inputBuffer->actions |= ActionsToSend;
+	ActionsToSend = 0;
+
+	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] > 0)) 
+	{
+		inputBuffer->actions |= SB_AIM_UP;
+		inputBuffer->actions &= ~SB_CENTERVIEW;
+	}
+
+	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->joyaxes[JOYAXIS_Forward] < 0))) 
+	{
+		inputBuffer->actions |= SB_AIM_DOWN;
+		inputBuffer->actions &= ~SB_CENTERVIEW;
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
+		hidInput->joyaxes[JOYAXIS_Forward] = 0;
+
+	if (buttonMap.ButtonDown(gamefunc_Jump))
+		inputBuffer->actions |= SB_JUMP;
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
+		inputBuffer->actions |= SB_CROUCH;
+
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+	{
+		crouch_toggle = !crouch_toggle;
+		buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump))
+		crouch_toggle = false;
+
+	if (buttonMap.ButtonDown(gamefunc_Fire))
+		inputBuffer->actions |= SB_FIRE;
+
+	if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
+		inputBuffer->actions |= SB_ALTFIRE;
+
+	if (buttonMap.ButtonDown(gamefunc_Open))
+	{
+		if (isBlood()) buttonMap.ClearButton(gamefunc_Open);
+		inputBuffer->actions |= SB_OPEN;
+	}
+	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
+		inputBuffer->actions |= SB_RUN;
+
+	if (!in_mousemode && !buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
+		inputBuffer->actions |= SB_AIMMODE;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Up)) 
+		inputBuffer->actions |= SB_LOOK_UP;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Down)) 
+		inputBuffer->actions |= SB_LOOK_DOWN;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Left)) 
+		inputBuffer->actions |= SB_LOOK_LEFT;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
+		inputBuffer->actions |= SB_LOOK_RIGHT;
+
+	if (buttonMap.ButtonDown(gamefunc_Quick_Kick))
+		inputBuffer->actions |= SB_QUICK_KICK;
+}
+
+
+//---------------------------------------------------------------------------
+//
 // Processes input and returns a packet if provided.
 //
 //---------------------------------------------------------------------------
@@ -238,6 +341,8 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffe
 void clearLocalInputBuffer()
 {
 	inputBuffer = {};
+	WeaponToSend = 0;
+	dpad_lock = 0;
 	resetTurnHeldAmt();
 }
 
@@ -450,4 +555,46 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 		}
 	}
 	return arc;
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(slot)
+{
+	// The max differs between games so we have to handle this here.
+	const bool isDukeShareware = (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE);
+	const int max = isExhumed() || isDukeShareware ? 7 : isBlood() ? 12 : 10;
+
+	if (argv.argc() != 2)
+	{
+		Printf("slot <weaponslot>: select a weapon from the given slot (1-%d)", max);
+		return;
+	}
+
+	const auto slot = atoi(argv[1]);
+
+	if (slot >= 1 && slot <= max)
+	{
+		WeaponToSend = slot;
+	}
+}
+
+CCMD(weapprev)
+{
+	WeaponToSend = WeaponSel_Prev;
+}
+
+CCMD(weapnext)
+{
+	WeaponToSend = WeaponSel_Next;
+}
+
+CCMD(weapalt)
+{
+	WeaponToSend = WeaponSel_Alt;	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
 }
