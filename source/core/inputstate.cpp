@@ -34,66 +34,9 @@
 #include "inputstate.h"
 #include "i_system.h"
 #include "v_draw.h"
-#include "build.h"
-#include "gamecvars.h"
 #include "v_video.h"
 #include "statusbar.h"
-#include"packet.h"
 #include "gamecontrol.h"
-#include "gamestruct.h"
-#include "gamestate.h"
-#include "gameinput.h"
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-static int exclKeys[] = { KEY_VOLUMEDOWN, KEY_VOLUMEUP };
-
-void InputState::AddEvent(const event_t *ev)
-{
-	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
-	{
-		int key = ev->data1;
-		bool state = ev->type == EV_KeyDown;
-		bool ignore = false;
-		KeyStatus[key] = (uint8_t)state;
-
-		// Check if key is to be excluded from setting AnyKeyStatus.
-		for (int i = 0; i < 2; i++)
-		{
-			if (exclKeys[i] == key)
-			{
-				ignore = true;
-				break;
-			}
-		}
-		if (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT)
-		{
-			ignore = true;
-		}
-
-		if (state && !ignore)
-			AnyKeyStatus = true;
-	}
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void InputState::ClearAllInput()
-{
-	memset(KeyStatus, 0, sizeof(KeyStatus));
-	AnyKeyStatus = false;
-	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
-	clearLocalInputBuffer();		// also clear game local input state.
-}
-
 
 //==========================================================================
 //

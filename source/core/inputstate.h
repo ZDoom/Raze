@@ -13,6 +13,8 @@
 #include "packet.h"
 #include "vectors.h"
 
+void clearLocalInputBuffer();
+
 class InputState
 {
 	uint8_t KeyStatus[NUM_KEYS];
@@ -26,7 +28,22 @@ public:
 		return KeyStatus[sc_LeftShift] || KeyStatus[sc_RightShift];
 	}
 
-	void AddEvent(const event_t* ev);
+	void AddEvent(const event_t* ev)
+	{
+		if (ev->type != EV_KeyDown && ev->type != EV_KeyUp)
+			return;
+
+		const int key = ev->data1;
+		const bool state = ev->type == EV_KeyDown;
+		KeyStatus[key] = (uint8_t)state;
+
+		// Check if key is to be excluded from setting AnyKeyStatus.
+		const bool ignore = key == KEY_VOLUMEDOWN || key == KEY_VOLUMEUP ||
+			(key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT);
+
+		if (state && !ignore)
+			AnyKeyStatus = true;
+	}
 
 	void MouseAddToPos(float x, float y)
 	{
@@ -40,7 +57,14 @@ public:
 		g_mousePos.Zero();
 	}
 
-	void ClearAllInput();
+	void ClearAllInput()
+	{
+		memset(KeyStatus, 0, sizeof(KeyStatus));
+		AnyKeyStatus = false;
+		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
+		clearLocalInputBuffer();		// also clear game local input state.
+	}
+
 	bool CheckAllInput()
 	{
 		bool res = AnyKeyStatus;
