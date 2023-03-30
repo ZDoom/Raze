@@ -508,17 +508,6 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleTilting(player_struct* const p, const int turndir, const float factor)
-{
-	if (turndir)
-	{
-		p->oTiltStatus = p->TiltStatus;
-		p->TiltStatus += factor * turndir;
-		if (abs(p->TiltStatus) > 10)
-			p->TiltStatus = 10.f * turndir;
-	}
-}
-
 static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const float factor, const float baseVel, const float velScale)
 {
 	float turnvel = 0;
@@ -534,16 +523,8 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 	const bool hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
 	const int turndir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
 
-	if (p->OnMotorcycle && (p->MotoSpeed == 0 || !p->on_ground))
+	if ((p->OnMotorcycle || p->MotoSpeed) && (turndir || p->moto_drink))
 	{
-		resetTurnHeldAmt();
-		doVehicleTilting(p, turndir, factor);
-	}
-	else if ((p->OnMotorcycle || p->MotoSpeed) && (turndir || p->moto_drink))
-	{
-		if (p->OnMotorcycle || !p->NotOnWater)
-			doVehicleTilting(p, turndir, factor);
-
 		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && (!p->OnMotorcycle || p->MotoSpeed > 0);
 		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
 
@@ -558,14 +539,10 @@ static float getVehicleTurnVel(player_struct* p, HIDInput* const hidInput, const
 		if (hidInput->mouseturnx)
 			turnvel += sqrtf(abs(vel * hidInput->mouseturnx / factor) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
 	}
-	else if (p->OnMotorcycle || !p->NotOnWater)
+	else
 	{
 		resetTurnHeldAmt();
-		p->TiltStatus -= factor * Sgn(p->TiltStatus);
 	}
-
-	if (fabs(p->TiltStatus) < factor)
-		p->TiltStatus = 0;
 
 	return turnvel * factor;
 }

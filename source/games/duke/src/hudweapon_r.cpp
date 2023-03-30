@@ -119,7 +119,7 @@ void displayweapon_r(int snum, double interpfrac)
 		weapon_sway = interpolatedvalue<double>(p->oweapon_sway, p->weapon_sway, interpfrac);
 		hard_landing = interpolatedvalue<double>(p->ohard_landing, p->hard_landing, interpfrac);
 		gun_pos = 80 - interpolatedvalue<double>(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, interpfrac);
-		TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvalue<double>(p->oTiltStatus, p->TiltStatus, interpfrac);
+		TiltStatus = interpolatedvalue<double>(p->oTiltStatus, p->TiltStatus, interpfrac);
 	}
 	else
 	{

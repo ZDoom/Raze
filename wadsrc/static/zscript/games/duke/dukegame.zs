@@ -325,7 +325,7 @@ struct DukePlayer native
 	native int SeaSick;
 	native int16 MamaEnd; // raat609
 	native int16 moto_drink;
-	native float TiltStatus, oTiltStatus;
+	native int16 TiltStatus, oTiltStatus;
 	native double VBumpNow, VBumpTarget;
 	native int16 TurbCount;
 	native int16 drug_stat[3]; // raat5f1..5

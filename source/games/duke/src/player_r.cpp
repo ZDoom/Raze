@@ -1491,6 +1491,18 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 //
 //---------------------------------------------------------------------------
 
+static void doVehicleTilting(player_struct* const p, const int turndir, const bool canTilt)
+{
+	p->oTiltStatus = p->TiltStatus;
+	p->TiltStatus = clamp(p->TiltStatus + (turndir && canTilt ? turndir : -Sgn(p->TiltStatus)), -10, 10);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void doVehicleBumping(player_struct* p, DDukeActor* pact, unsigned flags, bool bumptest, int bumpscale)
 {
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
@@ -1718,6 +1730,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->MotoSpeed = 0;
 
 	unsigned flags = outVehicleFlags(p, actions);
+	doVehicleTilting(p, Sgn(p->sync.avel), !p->on_ground || p->sync.avel);
 	doVehicleSounds(p, pact, flags, 187, 188, 214, 189);
 	doVehicleDrunk(p);
 	doVehicleThrottling(p, pact, flags, 2, 15, p->moto_on_oil ? 2 : 4, 70, -30);
@@ -1809,6 +1822,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->MotoSpeed = 0;
 
 	unsigned flags = outVehicleFlags(p, actions);
+	doVehicleTilting(p, Sgn(p->sync.avel), (p->MotoSpeed != 0 && (p->sync.avel || p->moto_drink)) || !p->NotOnWater); 
 	doVehicleSounds(p, pact, flags, 87, 88, 89, 90);
 
 	if (!p->NotOnWater)
