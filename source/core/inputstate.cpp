@@ -140,7 +140,6 @@ void InputState::ClearAllInput()
 	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	clearLocalInputBuffer();		// also clear game local input state.
-	resetTurnHeldAmt();
 }
 
 

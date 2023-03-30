@@ -95,17 +95,17 @@ static inline bool scaletozero(DAngle& angle, const double scale, const DAngle p
 
 static double turnheldtime;
 
-void updateTurnHeldAmt(const double scaleAdjust)
+static inline void updateTurnHeldAmt(const double scaleAdjust)
 {
 	turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
 }
 
-bool isTurboTurnTime()
+static inline bool isTurboTurnTime()
 {
 	return turnheldtime >= getTicrateScale(TURBOTURNBASE);
 }
 
-void resetTurnHeldAmt()
+static inline void resetTurnHeldAmt()
 {
 	turnheldtime = 0;
 }
@@ -238,13 +238,14 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffe
 void clearLocalInputBuffer()
 {
 	inputBuffer = {};
+	resetTurnHeldAmt();
 }
 
 void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet)
 {
 	if (M_Active() || gamestate != GS_LEVEL || !plrAngles || !plrAngles->pActor)
 	{
-		clearLocalInputBuffer();
+		inputBuffer = {};
 		return;
 	}
 
@@ -267,7 +268,7 @@ void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPack
 	if (packet)
 	{
 		*packet = inputBuffer;
-		clearLocalInputBuffer();
+		inputBuffer = {};
 	}
 }
 
