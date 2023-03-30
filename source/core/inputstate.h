@@ -17,8 +17,7 @@
 struct HIDInput
 {
 	float       joyaxes[NUM_JOYAXIS];
-	float       mousex;
-	float       mousey;
+	FVector2    mouse;
 };
 
 
@@ -43,7 +42,7 @@ public:
 		g_mousePos.Y += y;
 	}
 
-	void GetMouseDelta(HIDInput* hidInput);
+	void GetMouseDelta(FVector2& hidInput);
 
 	void ClearAllInput();
 	bool CheckAllInput()

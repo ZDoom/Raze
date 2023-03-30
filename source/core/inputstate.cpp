@@ -54,20 +54,16 @@ CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertic
 //
 //==========================================================================
 
-void InputState::GetMouseDelta(HIDInput * hidInput)
+void InputState::GetMouseDelta(FVector2& hidInput)
 {
-	g_mousePos *= backendinputscale();
-
-	hidInput->mousex = g_mousePos.X;
-	hidInput->mousey = g_mousePos.Y;
+	hidInput = g_mousePos * backendinputscale();
+	g_mousePos.Zero();
 
 	if (invertmousex)
-		hidInput->mousex = -hidInput->mousex;
+		hidInput.X = -hidInput.X;
 
 	if (invertmouse)
-		hidInput->mousey = -hidInput->mousey;
-
-	g_mousePos.Zero();
+		hidInput.Y = -hidInput.Y;
 }
 
 //==========================================================================
