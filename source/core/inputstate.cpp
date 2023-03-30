@@ -44,28 +44,6 @@
 #include "gamestate.h"
 #include "gameinput.h"
 
-// Mouse speeds
-CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
-CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void InputState::GetMouseDelta(FVector2& hidInput)
-{
-	hidInput = g_mousePos * backendinputscale();
-	g_mousePos.Zero();
-
-	if (invertmousex)
-		hidInput.X = -hidInput.X;
-
-	if (invertmouse)
-		hidInput.Y = -hidInput.Y;
-}
-
 //==========================================================================
 //
 //

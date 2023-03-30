@@ -37,6 +37,8 @@ CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
+CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
 
 //---------------------------------------------------------------------------
@@ -58,6 +60,7 @@ static int dpad_lock = 0;
 ESyncBits ActionsToSend = 0;
 bool crouch_toggle = false;
 
+static constexpr float backendmousescale = 1.f / 16.f;
 static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
 static constexpr double YAW_LOOKINGSPEED = 801.5625;
@@ -191,7 +194,7 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
 	// Cancel out micro-movement
-	if (fabs(hidInput->mouse.X) < (m_sensitivity_x * backendinputscale() * 2.f)) 
+	if (fabs(hidInput->mouse.X) < (m_sensitivity_x * backendmousescale * 2.f)) 
 		hidInput->mouse.X = 0;
 
 	// Yes, we need all these bools...
@@ -253,6 +256,14 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 {
 	inputState.GetMouseDelta(hidInput->mouse);
 	if (use_joystick) I_GetAxes(hidInput->joyaxes);
+
+	hidInput->mouse *= backendmousescale;
+
+	if (invertmousex)
+		hidInput->mouse.X = -hidInput->mouse.X;
+
+	if (invertmouse)
+		hidInput->mouse.Y = -hidInput->mouse.Y;
 
 	if (WeaponToSend != 0) inputBuffer.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;

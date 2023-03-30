@@ -34,7 +34,11 @@ public:
 		g_mousePos.Y += y;
 	}
 
-	void GetMouseDelta(FVector2& hidInput);
+	void GetMouseDelta(FVector2& gameinput)
+	{
+		gameinput = g_mousePos;
+		g_mousePos.Zero();
+	}
 
 	void ClearAllInput();
 	bool CheckAllInput()
@@ -85,8 +89,3 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
-
-inline float backendinputscale()
-{
-	return (1.f / 16.f);
-}
