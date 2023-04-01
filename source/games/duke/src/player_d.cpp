@@ -278,10 +278,10 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			}
 			zvel += (zRange / 2) - krandf(zRange);
 		}
-		else if (aimed == nullptr)
+		else if (aimed == nullptr || atwith != DTILE_SHOTSPARK1)
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 16.);
+			if (aimed == nullptr) setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
