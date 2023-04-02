@@ -244,7 +244,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.GetActor()->backuppos();
+		w.GetActor()->backuploc();
 		w.opyoff = w.pyoff;
 		w.backupweapon();
 		w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
