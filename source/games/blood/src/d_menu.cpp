@@ -161,7 +161,7 @@ void GameInterface::MenuClosed()
 
 bool GameInterface::CanSave()
 {
-	return (gamestate == GS_LEVEL && gPlayer[myconnectindex].actor->xspr.health != 0);
+	return gPlayer[myconnectindex].actor && gPlayer[myconnectindex].actor->xspr.health != 0;
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
