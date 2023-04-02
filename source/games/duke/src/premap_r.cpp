@@ -588,7 +588,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		if (!actor->exists()) continue;
 		if (actor->spr.picnum == RRTILE19)
 		{
-			if (geocnt > 64)
+			if (geocnt >= MAXGEOSECTORS)
 				I_Error("Too many geometry effects");
 			if (actor->spr.hitag == 0)
 			{
