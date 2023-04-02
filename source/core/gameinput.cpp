@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "gameinput.h"
 
+EXTERN_CVAR(Float, m_sensitivity_x)
+EXTERN_CVAR(Float, m_yaw)
+
+
 //---------------------------------------------------------------------------
 //
 // Static constants used throughout functions.
@@ -157,6 +161,71 @@ void processMovement(HIDInput* const hidInput, InputPacket* const inputBuffer, I
 	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -(float)keymove, (float)keymove);
 	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
 	inputBuffer->horz = clamp(inputBuffer->horz + currInput->horz, -179.f, 179.f);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Player's vehicle movement function.
+//
+//---------------------------------------------------------------------------
+
+void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
+{
+	// mask out all actions not compatible with vehicles.
+	inputBuffer->actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
+
+	// Cancel out micro-movement
+	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) 
+		hidInput->mouseturnx = 0;
+
+	// Yes, we need all these bools...
+	const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
+	const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
+	const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+	const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+	const auto hidLeft = hidInput->mouseturnx < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
+	const auto hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
+	const auto turnDir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
+
+	if (canMove)
+	{
+		currInput->fvel = kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward];
+		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer->actions |= SB_CROUCH;
+	}
+
+	if (canTurn && turnDir)
+	{
+		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && !attenuate;
+		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
+
+		currInput->avel = vel * -hidInput->joyaxes[JOYAXIS_Yaw];
+
+		if (const auto kbdDir = kbdRight - kbdLeft)
+		{
+			currInput->avel += vel * kbdDir;
+			updateTurnHeldAmt(scaleAdjust);
+		}
+		else
+		{
+			resetTurnHeldAmt();
+		}
+
+		if (hidInput->mouseturnx)
+		{
+			currInput->avel += sqrtf(abs(vel * hidInput->mouseturnx / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouseturnx);
+		}
+
+		currInput->avel *= (float)scaleAdjust;
+	}
+	else
+	{
+		resetTurnHeldAmt();
+	}
+
+	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -1.00f, 1.00f);
+	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
 }
 
 
