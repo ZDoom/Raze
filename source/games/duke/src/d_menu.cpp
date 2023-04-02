@@ -90,9 +90,9 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 bool GameInterface::CanSave()
 {
-	if (ud.recstat == 2 || gamestate != GS_LEVEL) return false;
-	auto &myplayer = ps[myconnectindex];
-	return (myplayer.GetActor()->spr.extra > 0);
+	if (ud.recstat == 2) return false;
+	auto pActor = ps[myconnectindex].GetActor();
+	return (pActor && pActor->spr.extra > 0);
 }
 
 bool GameInterface::StartGame(FNewGameStartup& gs)
