@@ -146,11 +146,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 //
 //
 //==========================================================================
-bool newGameStarted;
 
 void NewGame(MapRecord* map, int skill, bool ns = false)
 {
-	newGameStarted = true;
 	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
 		gi->NewGame(map, skill, ns); 
 		gameaction = ga_level;
@@ -205,6 +203,7 @@ static void GameTicker()
 			gameaction = ga_level;
 			gi->NextLevel(g_nextmap, g_nextskill);
 			ResetStatusBar();
+			M_Autosave();
 			break;
 
 		case ga_newgame:
@@ -257,11 +256,6 @@ static void GameTicker()
 		case ga_loadgamehidecon:
 		//case ga_autoloadgame:
 			G_DoLoadGame();
-			break;
-
-		case ga_autosave:
-			if (gamestate == GS_LEVEL && !newGameStarted) M_Autosave();
-			newGameStarted = false;
 			break;
 
 		case ga_level:
