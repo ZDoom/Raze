@@ -3733,14 +3733,14 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
-	p->checkhardlanding();
-
 	if (SyncInput())
 	{
 		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}
 
 	p->Angles.doPitchKeys(&p->sync);
+
+	p->checkhardlanding();
 
 	//Shooting code/changes
 
