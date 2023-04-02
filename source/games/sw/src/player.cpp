@@ -3535,18 +3535,38 @@ void DoPlayerCrawl(PLAYER* pp)
         return;
     }
 
-    // Current Z position, adjust down to the floor, adjust to player height,
-    // adjust for "bump head"
-
-    // Let off of crawl to get up
-    if (!(pp->input.actions & SB_CROUCH))
+    if (pp->Flags & PF_LOCK_CRAWL)
     {
-        if (abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+        if (pp->input.actions & SB_CROUCH_LOCK)
         {
-            pp->Flags &= ~(PF_CRAWLING);
+            if ((pp->KeyPressBits & SB_CROUCH_LOCK) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+            {
+                pp->KeyPressBits &= ~SB_CROUCH_LOCK;
+                pp->Flags &= ~PF_CRAWLING;
+                DoPlayerBeginRun(pp);
+                return;
+            }
+        }
+        else
+        {
+           pp->KeyPressBits |= SB_CROUCH_LOCK;
+        }
+
+        // Jump to get up
+        if ((pp->input.actions & (SB_JUMP|SB_CROUCH)) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+        {
+            pp->Flags &= ~PF_CRAWLING;
             DoPlayerBeginRun(pp);
             return;
         }
+
+    }
+    else if (!(pp->input.actions & SB_CROUCH) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+    {
+        // Let off of crawl to get up
+        pp->Flags &= ~PF_CRAWLING;
+        DoPlayerBeginRun(pp);
+        return;
     }
 
     if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_CURRENT))
@@ -6492,6 +6512,22 @@ void DoPlayerRun(PLAYER* pp)
     else
     {
         pp->KeyPressBits |= SB_JUMP;
+    }
+
+    // Crawl lock
+    if (pp->input.actions & SB_CROUCH_LOCK)
+    {
+        if (pp->KeyPressBits & SB_CROUCH_LOCK)
+        {
+            pp->KeyPressBits &= ~SB_CROUCH_LOCK;
+            pp->Flags |= PF_LOCK_CRAWL;
+            DoPlayerBeginCrawl(pp);
+            return;
+        }
+    }
+    else
+    {
+        pp->KeyPressBits |= SB_CROUCH_LOCK;
     }
 
     if (PlayerFlyKey())

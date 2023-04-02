@@ -103,6 +103,7 @@ struct Player
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;
+    bool crouch_toggle;
     TObjPtr<DExhumedActor*> pPlayerGrenade;
     TObjPtr<DExhumedActor*> pPlayerFloorSprite;
     TObjPtr<DExhumedActor*> pDoppleSprite;

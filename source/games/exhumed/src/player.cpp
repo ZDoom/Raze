@@ -304,6 +304,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->nQuake = 0;
     pPlayer->nTemperature = 0;
     pPlayer->nStandHeight = GetActorHeight(pPlayerActor);
+    pPlayer->crouch_toggle = false;
     SetTorch(nPlayer, 0);
 
     if (nNetPlayerCount)
@@ -1217,6 +1218,8 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
     if (!pPlayer->bIsMummified)
     {
+        processCrouchToggle(pPlayer->crouch_toggle, pPlayer->input.actions, !bUnderwater, bUnderwater);
+
         if (pPlayer->input.actions & SB_JUMP)
         {
             if (bUnderwater)
@@ -2098,6 +2101,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("save", w.sPlayerSave)
             ("totalvel", w.totalvel)
             ("grenade", w.pPlayerGrenade)
+            ("crouch_toggle", w.crouch_toggle)
 
             .EndObject();
     }

@@ -58,7 +58,6 @@ static double turnheldtime = 0;
 static int WeaponToSend = 0;
 static int dpad_lock = 0;
 ESyncBits ActionsToSend = 0;
-bool crouch_toggle = false;
 
 static constexpr float backendmousescale = 1.f / 16.f;
 static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
@@ -309,17 +308,14 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		inputBuffer.actions |= SB_JUMP;
 
-	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
+	if (buttonMap.ButtonDown(gamefunc_Crouch))
 		inputBuffer.actions |= SB_CROUCH;
 
 	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
 	{
-		crouch_toggle = !crouch_toggle;
+		inputBuffer.actions |= SB_CROUCH_LOCK;
 		buttonMap.ClearButton(gamefunc_Toggle_Crouch);
 	}
-
-	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump))
-		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))
 		inputBuffer.actions |= SB_FIRE;
@@ -357,6 +353,31 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 
 //---------------------------------------------------------------------------
 //
+// Handle all the game-side crouch requirements.
+//
+//---------------------------------------------------------------------------
+
+void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle)
+{
+	if (actions & SB_CROUCH_LOCK)
+	{
+		toggle = !toggle && crouchable;
+		actions &= ~SB_CROUCH_LOCK;
+	}
+
+	if ((actions & (SB_CROUCH|SB_JUMP)) || disabletoggle)
+	{
+		toggle = 0;
+	}
+
+	if (toggle)
+	{
+		actions |= SB_CROUCH;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // Processes input and returns a packet if provided.
 //
 //---------------------------------------------------------------------------
@@ -364,7 +385,6 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 void clearLocalInputBuffer()
 {
 	inputBuffer = {};
-	crouch_toggle = false;
 	ActionsToSend = 0;
 	WeaponToSend = 0;
 	dpad_lock = 0;

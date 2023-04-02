@@ -69,16 +69,12 @@ void hud_input(int plnum)
 
 	// Set-up crouch bools.
 	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
-	const bool crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
+	const bool crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge) && !p->jetpack_on;
 	const bool disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
 
-	if (isRR() && (p->sync.actions & SB_CROUCH)) p->sync.actions &= ~SB_JUMP;
+	processCrouchToggle(p->crouch_toggle, p->sync.actions, crouchable, disableToggle);
 
-	if (crouch_toggle && (!crouchable || disableToggle))
-	{
-		crouch_toggle = false;
-		p->sync.actions &= ~SB_CROUCH;
-	}
+	if (isRR() && (p->sync.actions & SB_CROUCH)) p->sync.actions &= ~SB_JUMP;
 
 	if ((isRR() && p->drink_amt > 88))
 		p->sync.actions |= SB_LOOK_LEFT;

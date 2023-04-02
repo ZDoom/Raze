@@ -240,6 +240,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.Array("frags", w.frags, MAXPLAYERS)
 			("uservars", w.uservars)
 			("fistsign", w.fistsign)
+			("crouch_toggle", w.crouch_toggle)
 			.EndObject();
 
 		w.invdisptime = 0;

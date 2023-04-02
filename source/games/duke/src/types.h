@@ -312,6 +312,7 @@ struct player_struct
 
 	TArray<GameVarValue> uservars;
 
+	bool crouch_toggle;
 
 	// input stuff.
 	InputPacket sync;

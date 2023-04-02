@@ -89,21 +89,6 @@ END_BLD_NS
 //
 //=============================================================================
 
-static void SerializeGlobals(FSerializer& arc)
-{
-	if (arc.BeginObject("globals"))
-	{
-		arc("crouch_toggle", crouch_toggle)
-		.EndObject();
-	}
-}
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
 static void SerializeSession(FSerializer& arc)
 {
 	// In Duke and Blood we now have reliable sound names.
@@ -118,7 +103,6 @@ static void SerializeSession(FSerializer& arc)
 	S_SerializeSounds(arc);
 	SerializeAutomap(arc);
 	SerializeHud(arc);
-	SerializeGlobals(arc);
 	gi->SerializeGameState(arc);
 }
 
