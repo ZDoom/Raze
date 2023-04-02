@@ -359,6 +359,7 @@ $conreserve LN_SCREW     350
 $conreserve THUNDER1     351
 $conreserve THUNDER2     352
 $conreserve THUNDER3     353
+$random THUNDER { THUNDER1 THUNDER2, THUNDER3 }
 $conreserve BOWLSTRT     354
 $conreserve BOWLPIN      355
 $conreserve BOWLLOOP     356

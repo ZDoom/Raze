@@ -52,6 +52,7 @@
 
 enum SICommands
 {
+	SI_Random,
 	SI_MusicVolume,
 	SI_MidiDevice,
 	SI_MusicAlias,
@@ -87,6 +88,7 @@ static void S_AddSNDINFO (int lumpnum);
 
 static const char *SICommandStrings[] =
 {
+	"$random",
 	"$musicvolume",
 	"$mididevice",
 	"$musicalias",
@@ -164,7 +166,7 @@ FSoundID S_AddSound(const char* logicalname, const char* lumpname, FScanner* sc)
 static void S_AddSNDINFO (int lump)
 {
 	bool skipToEndIf;
-	TArray<uint32_t> list;
+	TArray<FSoundID> list;
 	int wantassigns = -1;
 
 	FScanner sc(lump);
@@ -187,6 +189,37 @@ static void S_AddSNDINFO (int lump)
 		{ // Got a command
 			switch (cmd)
 			{
+			case SI_Random: {
+				// $random <logical name> { <logical name> ... }
+				FRandomSoundList random;
+
+				list.Clear();
+				sc.MustGetString();
+				FSoundID Owner = S_AddSound(sc.String, -1, &sc);
+				sc.MustGetStringName("{");
+				while (sc.GetString() && !sc.Compare("}"))
+				{
+					FSoundID sfxto = soundEngine->FindSoundTentative(sc.String);
+					if (sfxto == random.Owner)
+					{
+						Printf("Definition of random sound '%s' refers to itself recursively.\n", sc.String);
+						continue;
+					}
+					list.Push(sfxto);
+				}
+				if (list.Size() == 1)
+				{ // Only one sound: treat as $alias
+					auto sfxp = soundEngine->GetWritableSfx(Owner);
+					sfxp->link = list[0];
+					sfxp->NearLimit = -1;
+				}
+				else if (list.Size() > 1)
+				{ // Only add non-empty random lists
+					soundEngine->AddRandomSound(Owner, list);
+				}
+			}
+				break;
+
 			case SI_MusicVolume: {
 				sc.MustGetString();
 				FName musname (sc.String);

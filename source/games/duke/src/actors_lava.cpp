@@ -459,7 +459,7 @@ void thunder(void)
 			{
 				thunderflash = 1;
 				thundertime = 256;
-				S_PlaySound(351 + (rand() % 3));
+				S_PlaySound(soundEngine->FindSound("THUNDER"));
 			}
 		}
 		else
@@ -477,7 +477,7 @@ void thunder(void)
 			thunder_brightness = brightness;
 		}
 	}
-	if (!winderflash && isRR())
+	if (!winderflash)
 	{
 		bool seen = false;
 		for (i = 0; i < lightnincnt; i++)
@@ -496,7 +496,7 @@ void thunder(void)
 			{
 				winderflash = 1;
 				windertime = 128;
-				S_PlaySound(351 + (rand() % 3));
+				S_PlaySound(soundEngine->FindSound("THUNDER"));
 			}
 		}
 	}
