@@ -680,97 +680,72 @@ CUSTOM_CVAR(Int, autosavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 CVAR(Int, quicksavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 static int nextquicksave = -1;
- CUSTOM_CVAR(Int, quicksavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CUSTOM_CVAR(Int, quicksavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
 	if (self < 1)
 		self = 1;
 }
 
- void DoLoadGame(const char* name)
- {
-	 gi->FreeLevelData();
-	 if (ReadSavegame(name))
-	 {
-		 gameaction = ga_level;
-	 }
-	 else
-	 {
-		 I_Error("%s: Failed to open savegame", name);
-	 }
- }
+void DoLoadGame(const char* name)
+{
+	gi->FreeLevelData();
+	if (ReadSavegame(name))
+	{
+		gameaction = ga_level;
+	}
+	else
+	{
+		I_Error("%s: Failed to open savegame", name);
+	}
+}
 
 
- void G_LoadGame(const char* name, bool hidecon)
- {
-	 if (name != NULL)
-	 {
-		 savename = name;
-		 gameaction = !hidecon ? ga_loadgame : ga_loadgamehidecon;
-	 }
- }
+void G_LoadGame(const char* name, bool hidecon)
+{
+	if (name != NULL)
+	{
+		savename = name;
+		gameaction = !hidecon ? ga_loadgame : ga_loadgamehidecon;
+	}
+}
 
- void G_DoLoadGame()
- {
-	 if (gameaction == ga_loadgamehidecon && gamestate == GS_FULLCONSOLE)
-	 {
-		 // does this even do anything anymore?
-		 gamestate = GS_HIDECONSOLE;
-	 }
+void G_DoLoadGame()
+{
+	if (gameaction == ga_loadgamehidecon && gamestate == GS_FULLCONSOLE)
+	{
+		// does this even do anything anymore?
+		gamestate = GS_HIDECONSOLE;
+	}
 
-	 DoLoadGame(savename);
-	 BackupSaveGame = savename;
- }
+	DoLoadGame(savename);
+	BackupSaveGame = savename;
+}
 
- extern bool sendsave;
- extern FString	savedescription;
- extern FString	savegamefile;
+extern bool sendsave;
+extern FString	savedescription;
+extern FString	savegamefile;
 
- void G_SaveGame(const char* filename, const char* description)
- {
-	 if (sendsave || gameaction == ga_savegame)
-	 {
-		 Printf("%s\n", GStrings("TXT_SAVEPENDING"));
-	 }
-	 else if (gamestate != GS_LEVEL)
-	 {
-		 Printf("%s\n", GStrings("TXT_NOTINLEVEL"));
-	 }
-	 else if (!gi->CanSave())
-	 {
-		 Printf("%s\n", GStrings("TXT_SPPLAYERDEAD"));
-	 }
-	 else
-	 {
-		 savegamefile = filename;
-		 savedescription = description;
-		 sendsave = true;
-	 }
- }
-
- //---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
- void startSaveGame(int player, uint8_t** stream, bool skip)
- {
-	 auto s = ReadString(stream);
-	 savegamefile = s;
-	 delete[] s;
-	 s = ReadString(stream);
-	 savedescription = s;
-	 if (!skip && gi->CanSave())
-	 {
-		 if (player != consoleplayer)
-		 {
-			 // Paths sent over the network will be valid for the system that sent
-			 // the save command. For other systems, the path needs to be changed.
-			 savegamefile = G_BuildSaveName(ExtractFileBase(savegamefile, true));
-		 }
-		 gameaction = ga_savegame;
-	 }
- }
+void G_SaveGame(const char* filename, const char* description)
+{
+	if (sendsave || gameaction == ga_savegame)
+	{
+		Printf("%s\n", GStrings("TXT_SAVEPENDING"));
+	}
+	else if (gamestate != GS_LEVEL)
+	{
+		Printf("%s\n", GStrings("TXT_NOTINLEVEL"));
+	}
+	else if (!gi->CanSave())
+	{
+		Printf("%s\n", GStrings("TXT_SPPLAYERDEAD"));
+	}
+	else
+	{
+		savegamefile = filename;
+		savedescription = description;
+		sendsave = true;
+	}
+}
 
 //---------------------------------------------------------------------------
 //
@@ -778,15 +753,40 @@ static int nextquicksave = -1;
 //
 //---------------------------------------------------------------------------
 
- void G_DoSaveGame(bool ok4q, bool forceq, const char* fn, const char* desc)
- {
-	 if (WriteSavegame(fn, desc))
-	 {
-		 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
-		 Printf(PRINT_NOTIFY, "%s\n", GStrings("GGSAVED"));
-		 BackupSaveGame = fn;
-	 }
- }
+void startSaveGame(int player, uint8_t** stream, bool skip)
+{
+	auto s = ReadString(stream);
+	savegamefile = s;
+	delete[] s;
+	s = ReadString(stream);
+	savedescription = s;
+	if (!skip && gi->CanSave())
+	{
+		if (player != consoleplayer)
+		{
+			// Paths sent over the network will be valid for the system that sent
+			// the save command. For other systems, the path needs to be changed.
+			savegamefile = G_BuildSaveName(ExtractFileBase(savegamefile, true));
+		}
+		gameaction = ga_savegame;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void G_DoSaveGame(bool ok4q, bool forceq, const char* fn, const char* desc)
+{
+	if (WriteSavegame(fn, desc))
+	{
+		savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
+		Printf(PRINT_NOTIFY, "%s\n", GStrings("GGSAVED"));
+		BackupSaveGame = fn;
+	}
+}
 
  //---------------------------------------------------------------------------
  //
@@ -794,7 +794,7 @@ static int nextquicksave = -1;
  //
  //---------------------------------------------------------------------------
 
- void M_Autosave()
+void M_Autosave()
 {
 	if (disableautosave) return;
 	if (!gi->CanSave()) return;
