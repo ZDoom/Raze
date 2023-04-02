@@ -7,7 +7,6 @@ class DukeFlamethrowerFlame : DukeActor
 	
 	override void Tick()
 	{
-		Console.Printf("ticky");
 		let sectp = self.sector;
 		double xx;
 		Super.Tick();	// Run CON or its replacement.
@@ -111,7 +110,6 @@ class DukeFlamethrowerFlame : DukeActor
 
 	override bool shootthis(DukeActor actor, DukePlayer p, Vector3 spos, double sang) const
 	{
-		Console.Printf("launching");
 		double vel, zvel = 0;
 
 		if (actor.extra >= 0)
