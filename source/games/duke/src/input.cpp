@@ -508,11 +508,8 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust)
+static void processVehicleInput(HIDInput* const hidInput, InputPacket* const inputBuffer, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
 {
-	static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
-	float baseVel, velScale;
-
 	// mask out all actions not compatible with vehicles.
 	inputBuffer->actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
@@ -530,26 +527,15 @@ static void processVehicleInput(player_struct *p, HIDInput* const hidInput, Inpu
 	const auto hidRight = hidInput->mouseturnx > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
 	const auto turnDir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
 
-	if (p->OnBoat || !p->moto_underwater)
+	if (canMove)
 	{
 		currInput->fvel = kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward];
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer->actions |= SB_CROUCH;
 	}
 
-	if (p->OnMotorcycle)
+	if (canTurn && turnDir)
 	{
-		velScale = (3.f / 10.f);
-		baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
-	}
-	else
-	{
-		velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
-		baseVel = VEHICLETURN * velScale;
-	}
-
-	if ((p->OnMotorcycle || p->MotoSpeed) && (turnDir || p->moto_drink))
-	{
-		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && (!p->OnMotorcycle || p->MotoSpeed > 0);
+		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && !attenuate;
 		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
 
 		currInput->avel = vel * -hidInput->joyaxes[JOYAXIS_Yaw];
@@ -593,7 +579,25 @@ void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const inputB
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		processVehicleInput(p, hidInput, inputBuffer, currInput, scaleAdjust);
+		static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
+		float baseVel, velScale;
+
+		if (p->OnMotorcycle)
+		{
+			velScale = (3.f / 10.f);
+			baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
+		}
+		else
+		{
+			velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
+			baseVel = VEHICLETURN * velScale;
+		}
+
+		const auto canMove = p->OnBoat || !p->moto_underwater;
+		const auto canTurn = p->OnMotorcycle || p->MotoSpeed || p->moto_drink;
+		const auto attenuate = p->OnMotorcycle && p->MotoSpeed <= 0;
+
+		processVehicleInput(hidInput, inputBuffer, currInput, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
 	}
 	else
 	{
