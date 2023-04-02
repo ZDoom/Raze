@@ -1037,14 +1037,14 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 
 	auto actorlist = spawnactors(sprites);
 
+	if (isRR()) prelevel_r(gamemode, actorlist);
+	else prelevel_d(gamemode, actorlist);
+
 	for (auto& sect : sector)
 	{
 		if (tilesurface(sect.ceilingtexture) == TSURF_THUNDERSKY)
 			thunderon = 1;
 	}
-
-	if (isRR()) prelevel_r(gamemode, actorlist);
-	else prelevel_d(gamemode, actorlist);
 
 	SpawnPortals();
 
