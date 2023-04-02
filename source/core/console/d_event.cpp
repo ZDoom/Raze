@@ -37,7 +37,7 @@
 #include "d_event.h"
 #include "c_console.h"
 #include "d_gui.h"
-#include "inputstate.h"
+#include "gameinput.h"
 #include "razemenu.h"
 #include "gamestate.h"
 #include "gamecontrol.h"

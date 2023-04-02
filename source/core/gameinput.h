@@ -3,6 +3,8 @@
 #include "serializer.h"
 #include "gamefuncs.h"
 
+extern ESyncBits ActionsToSend;
+
 struct PlayerAngles
 {
 	// Player viewing angles, separate from the camera.

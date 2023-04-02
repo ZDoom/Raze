@@ -96,7 +96,6 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
-extern ESyncBits ActionsToSend;
 
 inline float backendinputscale()
 {

@@ -41,12 +41,8 @@
 #include"packet.h"
 #include "gamecontrol.h"
 #include "gamestruct.h"
-#include "d_net.h"
 #include "gamestate.h"
 #include "gameinput.h"
-
-ESyncBits ActionsToSend = 0;
-bool crouch_toggle;
 
 // Mouse speeds
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
@@ -132,8 +128,6 @@ void InputState::ClearAllInput()
 {
 	memset(KeyStatus, 0, sizeof(KeyStatus));
 	AnyKeyStatus = false;
-	ActionsToSend = 0;
-	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	clearLocalInputBuffer();		// also clear game local input state.
 }
@@ -218,98 +212,4 @@ void SetupGameButtons()
 
 	};
 	buttonMap.SetButtons(actions, NUM_ACTIONS);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-CCMD(useitem)
-{
-	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : isSWALL()? 7 : isBlood() ? 4 : 5;
-	if (argv.argc() != 2)
-	{
-		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
-		return;
-	}
-
-	auto slot = atoi(argv[1]);
-	if (slot >= 1 && slot <= max)
-	{
-		ActionsToSend |= ESyncBits::FromInt(SB_ITEM_BIT_1 << (slot - 1));
-	}
-}
-
-CCMD(invprev)
-{
-	ActionsToSend |= SB_INVPREV;
-}
-
-CCMD(invnext)
-{
-	ActionsToSend |= SB_INVNEXT;
-}
-
-CCMD(invuse)
-{
-	ActionsToSend |= SB_INVUSE;
-}
-
-CCMD(centerview)
-{
-	ActionsToSend |= SB_CENTERVIEW;
-}
-
-CCMD(turnaround)
-{
-	ActionsToSend |= SB_TURNAROUND;
-}
-
-CCMD(holsterweapon)
-{
-	ActionsToSend |= SB_HOLSTER;
-}
-
-CCMD(warptocoords)
-{
-	if (netgame)
-	{
-		Printf("warptocoords cannot be used in multiplayer.\n");
-		return;
-	}
-	if (argv.argc() < 4)
-	{
-		Printf("warptocoords [x] [y] [z] [yaw] (optional) [pitch] (optional): warps the player to the specified coordinates\n");
-		return;
-	}
-	if (gamestate != GS_LEVEL)
-	{
-		Printf("warptocoords: must be in a level\n");
-		return;
-	}
-
-	if (const auto pActor = gi->getConsoleActor())
-	{
-		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
-		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));
-		if (argv.argc() > 5) pActor->spr.Angles.Pitch = DAngle::fromDeg(atof(argv[5]));
-		pActor->backuploc();
-	}
-}
-
-CCMD(third_person_view)
-{
-	gi->ToggleThirdPerson();
-}
-
-CCMD(coop_view)
-{
-	gi->SwitchCoopView();
-}
-
-CCMD(show_weapon)
-{
-	gi->ToggleShowWeapon();
 }

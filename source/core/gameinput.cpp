@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "gamestate.h"
 #include "gameinput.h"
+#include "d_net.h"
 
 EXTERN_CVAR(Float, m_sensitivity_x)
 EXTERN_CVAR(Float, m_yaw)
@@ -45,6 +46,8 @@ static InputPacket inputBuffer{};
 static double turnheldtime = 0;
 static int WeaponToSend = 0;
 static int dpad_lock = 0;
+ESyncBits ActionsToSend = 0;
+bool crouch_toggle = false;
 
 static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
@@ -341,6 +344,8 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 void clearLocalInputBuffer()
 {
 	inputBuffer = {};
+	crouch_toggle = false;
+	ActionsToSend = 0;
 	WeaponToSend = 0;
 	dpad_lock = 0;
 	resetTurnHeldAmt();
@@ -597,4 +602,94 @@ CCMD(weapnext)
 CCMD(weapalt)
 {
 	WeaponToSend = WeaponSel_Alt;	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
+}
+
+CCMD(useitem)
+{
+	const int max = isExhumed() ? 6 : isSWALL() ? 7 : isBlood() ? 4 : 5;
+
+	if (argv.argc() != 2)
+	{
+		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
+		return;
+	}
+
+	const auto slot = atoi(argv[1]);
+
+	if (slot >= 1 && slot <= max)
+	{
+		ActionsToSend |= ESyncBits::FromInt(SB_ITEM_BIT_1 << (slot - 1));
+	}
+}
+
+CCMD(invprev)
+{
+	ActionsToSend |= SB_INVPREV;
+}
+
+CCMD(invnext)
+{
+	ActionsToSend |= SB_INVNEXT;
+}
+
+CCMD(invuse)
+{
+	ActionsToSend |= SB_INVUSE;
+}
+
+CCMD(centerview)
+{
+	ActionsToSend |= SB_CENTERVIEW;
+}
+
+CCMD(turnaround)
+{
+	ActionsToSend |= SB_TURNAROUND;
+}
+
+CCMD(holsterweapon)
+{
+	ActionsToSend |= SB_HOLSTER;
+}
+
+CCMD(warptocoords)
+{
+	if (netgame)
+	{
+		Printf("warptocoords cannot be used in multiplayer.\n");
+		return;
+	}
+	if (argv.argc() < 4)
+	{
+		Printf("warptocoords [x] [y] [z] [yaw] (optional) [pitch] (optional): warps the player to the specified coordinates\n");
+		return;
+	}
+	if (gamestate != GS_LEVEL)
+	{
+		Printf("warptocoords: must be in a level\n");
+		return;
+	}
+
+	if (const auto pActor = gi->getConsoleActor())
+	{
+		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
+		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));
+		if (argv.argc() > 5) pActor->spr.Angles.Pitch = DAngle::fromDeg(atof(argv[5]));
+		pActor->backuploc();
+	}
+}
+
+CCMD(third_person_view)
+{
+	gi->ToggleThirdPerson();
+}
+
+CCMD(coop_view)
+{
+	gi->SwitchCoopView();
+}
+
+CCMD(show_weapon)
+{
+	gi->ToggleShowWeapon();
 }
