@@ -43,25 +43,11 @@ CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertic
 
 //---------------------------------------------------------------------------
 //
-// Static constants used throughout functions.
+// Initialised variables.
 //
 //---------------------------------------------------------------------------
 
-enum
-{
-	BUILDTICRATE = 120,
-	TURBOTURNBASE = 590,
-};
-
-static InputPacket inputBuffer{};
-static double turnheldtime = 0;
-static int WeaponToSend = 0;
-static int dpad_lock = 0;
-ESyncBits ActionsToSend = 0;
-
-static constexpr float backendmousescale = 1.f / 16.f;
-static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
-static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
+GameInput gameInput{};
 
 
 //---------------------------------------------------------------------------
@@ -69,11 +55,6 @@ static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1
 // Input scale helper functions.
 //
 //---------------------------------------------------------------------------
-
-static inline double getTicrateScale(const double value)
-{
-	return value / GameTicRate;
-}
 
 static inline DAngle getscaledangle(const DAngle angle, const double scale, const DAngle push)
 {
@@ -90,28 +71,6 @@ static inline bool scaletozero(DAngle& angle, const double scale, const DAngle p
 		return true;
 	}
 	return false;
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Functions for determining whether its turbo turn time (turn key held for a number of tics).
-//
-//---------------------------------------------------------------------------
-
-static inline void updateTurnHeldAmt(const double scaleAdjust)
-{
-	turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
-}
-
-static inline bool isTurboTurnTime()
-{
-	return turnheldtime >= getTicrateScale(TURBOTURNBASE);
-}
-
-static inline void resetTurnHeldAmt()
-{
-	turnheldtime = 0;
 }
 
 
@@ -147,7 +106,7 @@ void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable
 //
 //---------------------------------------------------------------------------
 
-void processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void GameInput::processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// set up variables.
 	const int keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
@@ -165,7 +124,7 @@ void processMovement(HIDInput* const hidInput, InputPacket* const currInput, con
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
 		currInput->avel += hidInput->mouse.X * m_yaw - (hidInput->joyaxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
-		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
+		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
@@ -200,7 +159,7 @@ void processMovement(HIDInput* const hidInput, InputPacket* const currInput, con
 //
 //---------------------------------------------------------------------------
 
-void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
+void GameInput::processVehicle(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
 {
 	// mask out all actions not compatible with vehicles.
 	inputBuffer.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
@@ -217,7 +176,7 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 	if (canTurn)
 	{
 		// Cancel out micro-movement
-		hidInput->mouse.X *= fabs(hidInput->mouse.X) >= (m_sensitivity_x * backendmousescale * 2.f);
+		hidInput->mouse.X *= fabs(hidInput->mouse.X) >= (m_sensitivity_x * MOUSESCALE * 2.f);
 
 		const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 		const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
@@ -229,11 +188,11 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 		currInput->avel += turnVel * -hidInput->joyaxes[JOYAXIS_Yaw] + turnVel * kbdDir;
 		currInput->avel += sqrtf(abs(turnVel * hidInput->mouse.X * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(turnVel) * Sgn(hidInput->mouse.X);
 		currInput->avel *= (float)scaleAdjust;
-		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
+		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
-		resetTurnHeldAmt();
+		turnheldtime = 0;
 	}
 
 	inputBuffer.fvel = clamp(inputBuffer.fvel + currInput->fvel, -1.00f, 1.00f);
@@ -247,12 +206,12 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 //
 //---------------------------------------------------------------------------
 
-static void ApplyGlobalInput(HIDInput* const hidInput)
+void GameInput::ApplyGlobalInput(HIDInput* const hidInput)
 {
 	inputState.GetMouseDelta(hidInput->mouse);
 	if (use_joystick) I_GetAxes(hidInput->joyaxes);
 
-	hidInput->mouse *= backendmousescale;
+	hidInput->mouse *= MOUSESCALE;
 
 	if (invertmousex)
 		hidInput->mouse.X = -hidInput->mouse.X;
@@ -353,16 +312,7 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 //
 //---------------------------------------------------------------------------
 
-void clearLocalInputBuffer()
-{
-	inputBuffer = {};
-	ActionsToSend = 0;
-	WeaponToSend = 0;
-	dpad_lock = 0;
-	resetTurnHeldAmt();
-}
-
-void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet)
+void GameInput::getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet)
 {
 	if (M_Active() || gamestate != GS_LEVEL || !plrAngles || !plrAngles->pActor)
 	{
@@ -596,23 +546,23 @@ CCMD(slot)
 
 	if (slot >= 1 && slot <= max)
 	{
-		WeaponToSend = slot;
+		gameInput.SendWeapon(slot);
 	}
 }
 
 CCMD(weapprev)
 {
-	WeaponToSend = WeaponSel_Prev;
+	gameInput.SendWeapon(WeaponSel_Prev);
 }
 
 CCMD(weapnext)
 {
-	WeaponToSend = WeaponSel_Next;
+	gameInput.SendWeapon(WeaponSel_Next);
 }
 
 CCMD(weapalt)
 {
-	WeaponToSend = WeaponSel_Alt;	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
+	gameInput.SendWeapon(WeaponSel_Alt);	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
 }
 
 CCMD(useitem)
@@ -629,38 +579,38 @@ CCMD(useitem)
 
 	if (slot >= 1 && slot <= max)
 	{
-		ActionsToSend |= ESyncBits::FromInt(SB_ITEM_BIT_1 << (slot - 1));
+		gameInput.SendAction(ESyncBits::FromInt(SB_ITEM_BIT_1 << (slot - 1)));
 	}
 }
 
 CCMD(invprev)
 {
-	ActionsToSend |= SB_INVPREV;
+	gameInput.SendAction(SB_INVPREV);
 }
 
 CCMD(invnext)
 {
-	ActionsToSend |= SB_INVNEXT;
+	gameInput.SendAction(SB_INVNEXT);
 }
 
 CCMD(invuse)
 {
-	ActionsToSend |= SB_INVUSE;
+	gameInput.SendAction(SB_INVUSE);
 }
 
 CCMD(centerview)
 {
-	ActionsToSend |= SB_CENTERVIEW;
+	gameInput.SendAction(SB_CENTERVIEW);
 }
 
 CCMD(turnaround)
 {
-	ActionsToSend |= SB_TURNAROUND;
+	gameInput.SendAction(SB_TURNAROUND);
 }
 
 CCMD(holsterweapon)
 {
-	ActionsToSend |= SB_HOLSTER;
+	gameInput.SendAction(SB_HOLSTER);
 }
 
 CCMD(warptocoords)

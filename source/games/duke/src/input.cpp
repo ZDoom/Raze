@@ -525,11 +525,11 @@ void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const currIn
 		const auto canTurn = p->OnMotorcycle || p->MotoSpeed || p->moto_drink;
 		const auto attenuate = p->OnMotorcycle && p->MotoSpeed <= 0;
 
-		processVehicleInput(hidInput, currInput, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
+		gameInput.processVehicle(hidInput, currInput, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
 	}
 	else
 	{
-		processMovement(hidInput, currInput, scaleAdjust, p->drink_amt);
+		gameInput.processMovement(hidInput, currInput, scaleAdjust, p->drink_amt);
 	}
 }
 

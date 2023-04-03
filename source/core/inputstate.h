@@ -13,8 +13,6 @@
 #include "packet.h"
 #include "vectors.h"
 
-void clearLocalInputBuffer();
-
 class InputState
 {
 	uint8_t KeyStatus[NUM_KEYS];
@@ -62,7 +60,6 @@ public:
 		memset(KeyStatus, 0, sizeof(KeyStatus));
 		AnyKeyStatus = false;
 		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
-		clearLocalInputBuffer();		// also clear game local input state.
 	}
 
 	bool CheckAllInput()

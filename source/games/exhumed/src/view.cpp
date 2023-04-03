@@ -224,12 +224,14 @@ void DrawView(double interpfrac, bool sceneonly)
                         subtitleOverlay.ReadyCinemaText(currentLevel->ex_ramses_text);
                     }
                     inputState.ClearAllInput();
+                    gameInput.Clear();
                 }
                 else if (nHeadStage == 5)
                 {
                     if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(I_GetTimeNS() * (120. / 1'000'000'000))) || inputState.CheckAllInput())
                     {
                         inputState.ClearAllInput();
+                        gameInput.Clear();
                         LevelFinished();
                         EndLevel = 1;
 

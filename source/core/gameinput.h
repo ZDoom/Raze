@@ -3,7 +3,75 @@
 #include "serializer.h"
 #include "gamefuncs.h"
 
-extern ESyncBits ActionsToSend;
+inline double getTicrateScale(const double value)
+{
+	return value / GameTicRate;
+}
+
+struct HIDInput
+{
+	float       joyaxes[NUM_JOYAXIS];
+	FVector2    mouse;
+};
+
+class GameInput
+{
+	enum
+	{
+		BUILDTICRATE = 120,
+		TURBOTURNBASE = 590,
+	};
+
+	static constexpr float MOUSESCALE = (1.f / 16.f);
+	static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
+	static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
+
+	// Internal variables when generating a packet.
+	InputPacket inputBuffer;
+	double turnheldtime;
+	int WeaponToSend;
+	int dpad_lock;
+	ESyncBits ActionsToSend;
+
+	// Turn speed doubling after x amount of tics.
+	void updateTurnHeldAmt(const double scaleAdjust)
+	{
+		turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
+	}
+	bool isTurboTurnTime()
+	{
+		return turnheldtime >= getTicrateScale(TURBOTURNBASE);
+	}
+
+	// Prototypes for private member functions.
+	void ApplyGlobalInput(HIDInput* const hidInput);
+
+public:
+	// Bit sender updates.
+	void SendWeapon(const int weapon)
+	{
+		WeaponToSend = weapon;
+	}
+	void SendAction(const ESyncBits action)
+	{
+		ActionsToSend |= action;
+	}
+
+	// Clear all values within this object.
+	void Clear()
+	{
+		inputBuffer = {};
+		ActionsToSend = 0;
+		WeaponToSend = 0;
+		dpad_lock = 0;
+		turnheldtime = 0;
+	}
+
+	// Prototypes for large member functions.
+	void processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
+	void processVehicle(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+	void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet = nullptr);
+};
 
 struct PlayerAngles
 {
@@ -14,7 +82,7 @@ struct PlayerAngles
 	DAngle YawSpin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-	friend void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet);
+	friend void GameInput::getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet);
 
 	// Prototypes.
 	void doPitchKeys(InputPacket* const input);
@@ -94,15 +162,8 @@ private:
 	static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
 };
 
+extern GameInput gameInput;
+
 class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-
-struct HIDInput
-{
-	float       joyaxes[NUM_JOYAXIS];
-	FVector2    mouse;
-};
-
 void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle);
-void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
-void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet = nullptr);

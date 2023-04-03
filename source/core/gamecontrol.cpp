@@ -84,6 +84,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_material.h"
 #include "tiletexture.h"
 #include "tilesetbuilder.h"
+#include "gameinput.h"
 
 #include "buildtiles.h"
 
@@ -1406,6 +1407,17 @@ void GameInterface::FreeLevelData()
 	wall.Reset();
 	currentLevel = nullptr;
 	GC::FullGC();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust)
+{
+	gameInput.processMovement(hidInput, currInput, scaleAdjust);
 }
 
 //---------------------------------------------------------------------------

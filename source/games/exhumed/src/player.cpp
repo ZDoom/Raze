@@ -1892,6 +1892,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
         // will invalidate nPlayerSprite
         RestartPlayer(pPlayer->nPlayer);
         inputState.ClearAllInput();
+        gameInput.Clear();
     }
     else
     {

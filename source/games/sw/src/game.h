@@ -1891,7 +1891,7 @@ struct GameInterface : public ::GameInterface
     void reapplyInputBits(InputPacket* const input) override { input->actions |= Player[myconnectindex].input.actions & SB_CENTERVIEW; }
     void GetInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust) override
     {
-        processMovement(hidInput, currInput, scaleAdjust, 0, !Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.);
+        gameInput.processMovement(hidInput, currInput, scaleAdjust, 0, !Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.);
     }
 
 
