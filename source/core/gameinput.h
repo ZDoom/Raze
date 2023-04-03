@@ -16,7 +16,6 @@ class GameInput
 		TURBOTURNBASE = 590,
 	};
 
-	static constexpr float MOUSESCALE = (1.f / 16.f);
 	static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 	static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
 

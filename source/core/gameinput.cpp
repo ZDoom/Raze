@@ -123,22 +123,22 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		thisInput.avel += mouseInput.X * m_yaw - (joyAxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjust;
+		thisInput.avel += mouseInput.X * (1.f / 16.f) * m_yaw - (joyAxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjust;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
-		thisInput.svel += mouseInput.X * m_side - (joyAxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjust;
+		thisInput.svel += mouseInput.X * (1.f / 16.f) * m_side - (joyAxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjust;
 	}
 
 	// process player pitch input.
 	if (!(inputBuffer.actions & SB_AIMMODE))
 	{
-		thisInput.horz -= mouseInput.Y * m_pitch + joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
+		thisInput.horz -= mouseInput.Y * (1.f / 16.f) * m_pitch + joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
 	}
 	else
 	{
-		thisInput.fvel += mouseInput.Y * m_forward + joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
+		thisInput.fvel += mouseInput.Y * (1.f / 16.f) * m_forward + joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
 	}
 
 	// process movement input.
@@ -190,7 +190,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 	if (canTurn)
 	{
 		// Cancel out micro-movement
-		mouseInput.X *= fabs(mouseInput.X) >= (m_sensitivity_x * MOUSESCALE * 2.f);
+		mouseInput.X *= fabs(mouseInput.X) >= (m_sensitivity_x * 2.f);
 
 		const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 		const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
@@ -200,7 +200,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		const auto turnVel = (!attenuate && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
 
 		thisInput.avel += turnVel * -joyAxes[JOYAXIS_Yaw] + turnVel * kbdDir;
-		thisInput.avel += sqrtf(abs(turnVel * mouseInput.X * m_yaw / scaleAdjust) * (7.f / 20.f)) * Sgn(turnVel) * Sgn(mouseInput.X);
+		thisInput.avel += sqrtf(abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw);
 		thisInput.avel *= scaleAdjust;
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
@@ -230,7 +230,6 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 void GameInput::prepareHidInput()
 {
 	I_GetAxes(joyAxes);
-	mouseInput *= MOUSESCALE;
 	if (invertmousex) mouseInput.X = -mouseInput.X;
 	if (invertmouse)  mouseInput.Y = -mouseInput.Y;
 }
