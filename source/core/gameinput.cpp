@@ -117,6 +117,32 @@ static inline void resetTurnHeldAmt()
 
 //---------------------------------------------------------------------------
 //
+// Handle all the game-side crouch requirements.
+//
+//---------------------------------------------------------------------------
+
+void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle)
+{
+	if (actions & SB_CROUCH_LOCK)
+	{
+		toggle = !toggle && crouchable;
+		actions &= ~SB_CROUCH_LOCK;
+	}
+
+	if ((actions & (SB_CROUCH|SB_JUMP)) || disabletoggle)
+	{
+		toggle = 0;
+	}
+
+	if (toggle)
+	{
+		actions |= SB_CROUCH;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
 // Player's movement function, called from game's ticker or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
@@ -320,31 +346,6 @@ static void ApplyGlobalInput(HIDInput* const hidInput)
 		inputBuffer.actions |= SB_QUICK_KICK;
 }
 
-
-//---------------------------------------------------------------------------
-//
-// Handle all the game-side crouch requirements.
-//
-//---------------------------------------------------------------------------
-
-void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle)
-{
-	if (actions & SB_CROUCH_LOCK)
-	{
-		toggle = !toggle && crouchable;
-		actions &= ~SB_CROUCH_LOCK;
-	}
-
-	if ((actions & (SB_CROUCH|SB_JUMP)) || disabletoggle)
-	{
-		toggle = 0;
-	}
-
-	if (toggle)
-	{
-		actions |= SB_CROUCH;
-	}
-}
 
 //---------------------------------------------------------------------------
 //
