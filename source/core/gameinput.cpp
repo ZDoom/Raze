@@ -180,48 +180,30 @@ void processVehicleInput(HIDInput* const hidInput, InputPacket* const currInput,
 	inputBuffer.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
-	// Cancel out micro-movement
-	if (fabs(hidInput->mouse.X) < (m_sensitivity_x * backendmousescale * 2.f)) 
-		hidInput->mouse.X = 0;
-
-	// Yes, we need all these bools...
-	const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
-	const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
-	const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
-	const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-	const auto hidLeft = hidInput->mouse.X < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
-	const auto hidRight = hidInput->mouse.X > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
-	const auto turnDir = (kbdRight || hidRight) - (kbdLeft || hidLeft);
-
 	if (canMove)
 	{
+		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
+		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
 		currInput->fvel = kbdForwards - kbdBackward + hidInput->joyaxes[JOYAXIS_Forward];
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
 	}
 
-	if (canTurn && turnDir)
+	if (canTurn)
 	{
-		const bool noattenuate = (isTurboTurnTime() || hidLeft || hidRight) && !attenuate;
-		const auto vel = (noattenuate) ? (baseVel) : (baseVel * velScale);
+		// Cancel out micro-movement
+		hidInput->mouse.X *= fabs(hidInput->mouse.X) >= (m_sensitivity_x * backendmousescale * 2.f);
 
-		currInput->avel = vel * -hidInput->joyaxes[JOYAXIS_Yaw];
+		const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+		const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+		const auto hidLeft = hidInput->mouse.X < 0 || hidInput->joyaxes[JOYAXIS_Yaw] > 0;
+		const auto hidRight = hidInput->mouse.X > 0 || hidInput->joyaxes[JOYAXIS_Yaw] < 0;
+		const auto kbdDir = kbdRight - kbdLeft;
+		const auto turnVel = (!attenuate && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
 
-		if (const auto kbdDir = kbdRight - kbdLeft)
-		{
-			currInput->avel += vel * kbdDir;
-			updateTurnHeldAmt(scaleAdjust);
-		}
-		else
-		{
-			resetTurnHeldAmt();
-		}
-
-		if (hidInput->mouse.X)
-		{
-			currInput->avel += sqrtf(abs(vel * hidInput->mouse.X * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(vel) * Sgn(hidInput->mouse.X);
-		}
-
+		currInput->avel += turnVel * -hidInput->joyaxes[JOYAXIS_Yaw] + turnVel * kbdDir;
+		currInput->avel += sqrtf(abs(turnVel * hidInput->mouse.X * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(turnVel) * Sgn(hidInput->mouse.X);
 		currInput->avel *= (float)scaleAdjust;
+		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
 	else
 	{
