@@ -75,8 +75,8 @@ public:
 	}
 
 	// Prototypes for large member functions.
-	void processMovement(const float scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
-	void processVehicle(const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+	void processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
+	void processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 	void getInput(const double scaleAdjust, InputPacket* packet = nullptr);
 };
 
@@ -89,8 +89,8 @@ struct PlayerAngles
 	DAngle YawSpin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-	friend void GameInput::processMovement(const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale);
-	friend void GameInput::processVehicle(const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+	friend void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale);
+	friend void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 
 	// Prototypes.
 	void doPitchKeys(InputPacket* const input);

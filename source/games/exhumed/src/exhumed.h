@@ -234,12 +234,12 @@ struct GameInterface : public ::GameInterface
     DAngle playerPitchMin() override { return DAngle::fromDeg(49.5); }
     DAngle playerPitchMax() override { return DAngle::fromDeg(-49.5); }
     DCoreActor* getConsoleActor() override { return PlayerList[nLocalPlayer].pActor; }
-    PlayerAngles* getConsoleAngles() override { return &PlayerList[nLocalPlayer].Angles; }
     void ToggleThirdPerson() override;
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
     void reapplyInputBits(InputPacket* const input) override { input->actions |= PlayerList[nLocalPlayer].input.actions & SB_CENTERVIEW; }
+    void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&PlayerList[nLocalPlayer].Angles, scaleAdjust); }
 
 	::GameStats getStats() override;
 };

@@ -106,7 +106,7 @@ void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processMovement(const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
@@ -158,7 +158,6 @@ void GameInput::processMovement(const float scaleAdjust, const int drink_amt, co
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		const auto plrAngles = gi->getConsoleAngles();
 		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(thisInput.avel);
 		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(thisInput.horz);
 	}
@@ -171,7 +170,7 @@ void GameInput::processMovement(const float scaleAdjust, const int drink_amt, co
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processVehicle(const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
+void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
@@ -216,7 +215,6 @@ void GameInput::processVehicle(const float scaleAdjust, const float baseVel, con
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		const auto plrAngles = gi->getConsoleAngles();
 		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(thisInput.avel);
 		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(thisInput.horz);
 	}

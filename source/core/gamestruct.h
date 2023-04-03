@@ -101,7 +101,6 @@ struct GameInterface
 	virtual DAngle playerPitchMin() { return DAngle::fromDeg(57.375); }
 	virtual DAngle playerPitchMax() { return DAngle::fromDeg(-57.375); }
 	virtual DCoreActor* getConsoleActor() = 0;
-	virtual PlayerAngles* getConsoleAngles() = 0;
 	virtual void ToggleThirdPerson() = 0;
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
@@ -119,7 +118,7 @@ struct GameInterface
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
 	virtual void reapplyInputBits(InputPacket* const input) = 0;
-	virtual void doPlayerMovement(const float scaleAdjust);
+	virtual void doPlayerMovement(const float scaleAdjust) = 0;
 
 	virtual FString statFPS()
 	{

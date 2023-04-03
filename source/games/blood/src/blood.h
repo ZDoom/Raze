@@ -131,7 +131,6 @@ struct GameInterface : public ::GameInterface
 	DAngle playerPitchMin() override { return DAngle::fromDeg(54.575); }
 	DAngle playerPitchMax() override { return DAngle::fromDeg(-43.15); }
 	DCoreActor* getConsoleActor() override { return gPlayer[myconnectindex].actor; }
-	PlayerAngles* getConsoleAngles() override { return &gPlayer[myconnectindex].Angles; }
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
@@ -146,6 +145,7 @@ struct GameInterface : public ::GameInterface
 	void RemoveQAVInterpProps(const int res_id) override;
 	void StartSoundEngine() override;
 	void reapplyInputBits(InputPacket* const input) override { input->actions |= gPlayer[myconnectindex].input.actions & ~(SB_BUTTON_MASK | SB_RUN | SB_WEAPONMASK_BITS); }
+	void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&gPlayer[myconnectindex].Angles, scaleAdjust); }
 
 	GameStats getStats() override;
 };

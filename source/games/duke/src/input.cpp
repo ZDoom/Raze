@@ -525,11 +525,11 @@ void GameInterface::doPlayerMovement(const float scaleAdjust)
 		const auto canTurn = p->OnMotorcycle || p->MotoSpeed || p->moto_drink;
 		const auto attenuate = p->OnMotorcycle && p->MotoSpeed <= 0;
 
-		gameInput.processVehicle(scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
+		gameInput.processVehicle(&p->Angles, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
 	}
 	else
 	{
-		gameInput.processMovement(scaleAdjust, p->drink_amt);
+		gameInput.processMovement(&p->Angles, scaleAdjust, p->drink_amt);
 	}
 }
 
