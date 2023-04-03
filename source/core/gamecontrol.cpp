@@ -1415,7 +1415,7 @@ void GameInterface::FreeLevelData()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::doPlayerMovement(const double scaleAdjust)
+void GameInterface::doPlayerMovement(const float scaleAdjust)
 {
 	gameInput.processMovement(scaleAdjust);
 }

@@ -106,42 +106,39 @@ void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processMovement(const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void GameInput::processMovement(const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
 
 	// set up variables.
-	const int keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
-	const float hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
-	const float scaleAdjustf = float(scaleAdjust);
-
-	// determine player input.
+	const auto keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
+	const auto hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
 	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) - buttonMap.ButtonDown(gamefunc_Turn_Left);
-	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + joyAxes[JOYAXIS_Forward] * scaleAdjustf;
-	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - joyAxes[JOYAXIS_Side] * scaleAdjustf;
+	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + joyAxes[JOYAXIS_Forward] * scaleAdjust;
+	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - joyAxes[JOYAXIS_Side] * scaleAdjust;
 
 	// process player angle input.
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		thisInput.avel += mouseInput.X * m_yaw - (joyAxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjustf;
+		thisInput.avel += mouseInput.X * m_yaw - (joyAxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjust;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
-		thisInput.svel += mouseInput.X * m_side - (joyAxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjustf;
+		thisInput.svel += mouseInput.X * m_side - (joyAxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjust;
 	}
 
 	// process player pitch input.
 	if (!(inputBuffer.actions & SB_AIMMODE))
 	{
-		thisInput.horz -= mouseInput.Y * m_pitch + joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjustf;
+		thisInput.horz -= mouseInput.Y * m_pitch + joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
 	}
 	else
 	{
-		thisInput.fvel += mouseInput.Y * m_forward + joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjustf;
+		thisInput.fvel += mouseInput.Y * m_forward + joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
 	}
 
 	// process movement input.
@@ -174,7 +171,7 @@ void GameInput::processMovement(const double scaleAdjust, const int drink_amt, c
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processVehicle(const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
+void GameInput::processVehicle(const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
@@ -204,8 +201,8 @@ void GameInput::processVehicle(const double scaleAdjust, const float baseVel, co
 		const auto turnVel = (!attenuate && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
 
 		thisInput.avel += turnVel * -joyAxes[JOYAXIS_Yaw] + turnVel * kbdDir;
-		thisInput.avel += sqrtf(abs(turnVel * mouseInput.X * m_yaw / (float)scaleAdjust) * (7.f / 20.f)) * Sgn(turnVel) * Sgn(mouseInput.X);
-		thisInput.avel *= (float)scaleAdjust;
+		thisInput.avel += sqrtf(abs(turnVel * mouseInput.X * m_yaw / scaleAdjust) * (7.f / 20.f)) * Sgn(turnVel) * Sgn(mouseInput.X);
+		thisInput.avel *= scaleAdjust;
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
@@ -357,7 +354,7 @@ void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 
 	prepareHidInput();
 	processInputBits();
-	gi->doPlayerMovement(!SyncInput() ? scaleAdjust : 1.);
+	gi->doPlayerMovement(!SyncInput() ? (float)scaleAdjust : 1.f);
 	resetHidInput();
 
 	if (packet)

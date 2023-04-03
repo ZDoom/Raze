@@ -119,7 +119,7 @@ struct GameInterface
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
 	virtual void reapplyInputBits(InputPacket* const input) = 0;
-	virtual void doPlayerMovement(const double scaleAdjust);
+	virtual void doPlayerMovement(const float scaleAdjust);
 
 	virtual FString statFPS()
 	{

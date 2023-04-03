@@ -501,7 +501,7 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::doPlayerMovement(const double scaleAdjust)
+void GameInterface::doPlayerMovement(const float scaleAdjust)
 {
 	auto const p = &ps[myconnectindex];
 
