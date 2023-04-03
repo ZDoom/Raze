@@ -1889,9 +1889,9 @@ struct GameInterface : public ::GameInterface
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
     void reapplyInputBits(InputPacket* const input) override { input->actions |= Player[myconnectindex].input.actions & SB_CENTERVIEW; }
-    void GetInput(InputPacket* const currInput, const double scaleAdjust) override
+    void doPlayerMovement(const double scaleAdjust) override
     {
-        gameInput.processMovement(currInput, scaleAdjust, 0, !Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.);
+        gameInput.processMovement(scaleAdjust, 0, !Player[myconnectindex].sop, Player[myconnectindex].sop_control ? 3. / 1.40625 : 1.);
     }
 
 

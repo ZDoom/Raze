@@ -501,7 +501,7 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(InputPacket* const currInput, const double scaleAdjust)
+void GameInterface::doPlayerMovement(const double scaleAdjust)
 {
 	auto const p = &ps[myconnectindex];
 
@@ -525,11 +525,11 @@ void GameInterface::GetInput(InputPacket* const currInput, const double scaleAdj
 		const auto canTurn = p->OnMotorcycle || p->MotoSpeed || p->moto_drink;
 		const auto attenuate = p->OnMotorcycle && p->MotoSpeed <= 0;
 
-		gameInput.processVehicle(currInput, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
+		gameInput.processVehicle(scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
 	}
 	else
 	{
-		gameInput.processMovement(currInput, scaleAdjust, p->drink_amt);
+		gameInput.processMovement(scaleAdjust, p->drink_amt);
 	}
 }
 

@@ -137,7 +137,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 	}
 	cmd->ucmd = {};
 	I_GetEvent();
-	gameInput.getInput(inputScale, gi->getConsoleAngles(), &cmd->ucmd);
+	gameInput.getInput(inputScale, &cmd->ucmd);
 	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
@@ -606,7 +606,7 @@ void TryRunTics (void)
 		if (!SyncInput())
 		{
 			I_GetEvent();
-			gameInput.getInput(inputScale, gi->getConsoleAngles());
+			gameInput.getInput(inputScale);
 		}
 		return;
 	}

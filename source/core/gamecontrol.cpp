@@ -1415,9 +1415,9 @@ void GameInterface::FreeLevelData()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(InputPacket* const currInput, const double scaleAdjust)
+void GameInterface::doPlayerMovement(const double scaleAdjust)
 {
-	gameInput.processMovement(currInput, scaleAdjust);
+	gameInput.processMovement(scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
