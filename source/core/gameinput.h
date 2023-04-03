@@ -78,6 +78,20 @@ private:
 	// Private data which should never be accessed publicly.
 	DRotator PrevLerpAngles, CameraAngles;
 	DCoreActor* pActor;
+
+	// Constants used throughout input functions.
+	static constexpr double YAW_LOOKINGSPEED = 801.5625;
+	static constexpr double YAW_ROTATESPEED = 63.28125;
+	static constexpr double YAW_LOOKRETURN = 7.5;
+	static constexpr double YAW_SPINSTAND = 675.;
+	static constexpr double YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
+	static constexpr double PITCH_LOOKSPEED = 222.83185;
+	static constexpr double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
+	static constexpr double PITCH_CENTERSPEED = 10.7375;
+	static constexpr double PITCH_HORIZOFFSPEED = 4.375;
+	static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
+	static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
+	static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
 };
 
 class FSerializer;
