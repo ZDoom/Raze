@@ -8,12 +8,6 @@ inline double getTicrateScale(const double value)
 	return value / GameTicRate;
 }
 
-struct HIDInput
-{
-	float       joyaxes[NUM_JOYAXIS];
-	FVector2    mouse;
-};
-
 class GameInput
 {
 	enum
@@ -25,6 +19,10 @@ class GameInput
 	static constexpr float MOUSESCALE = (1.f / 16.f);
 	static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 	static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
+
+	// Input received from the OS.
+	float joyAxes[NUM_JOYAXIS];
+	FVector2 mouseInput;	
 
 	// Internal variables when generating a packet.
 	InputPacket inputBuffer;
@@ -44,7 +42,9 @@ class GameInput
 	}
 
 	// Prototypes for private member functions.
-	void ApplyGlobalInput(HIDInput* const hidInput);
+	void processInputBits();
+	void prepareHidInput();
+	void resetHidInput();
 
 public:
 	// Bit sender updates.
@@ -67,9 +67,16 @@ public:
 		turnheldtime = 0;
 	}
 
+	// Receives mouse input from OS for processing.
+	void MouseAddToPos(float x, float y)
+	{
+		mouseInput.X += x;
+		mouseInput.Y += y;
+	}
+
 	// Prototypes for large member functions.
-	void processMovement(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
-	void processVehicle(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+	void processMovement(InputPacket* const currInput, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
+	void processVehicle(InputPacket* const currInput, const double scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 	void getInput(const double scaleAdjust, PlayerAngles* const plrAngles, InputPacket* packet = nullptr);
 };
 

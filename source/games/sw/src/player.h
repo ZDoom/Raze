@@ -125,7 +125,6 @@ void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
 void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang);
-void MoveScrollMode2D(PLAYER* pp, HIDInput* const hidInput);
 void DoPlayerDivePalette(PLAYER* pp);
 void DoPlayerNightVisionPalette(PLAYER* pp);
 void DoPlayerStopDiveNoWarp(PLAYER* pp);

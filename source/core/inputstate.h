@@ -17,7 +17,6 @@ class InputState
 {
 	uint8_t KeyStatus[NUM_KEYS];
 	bool AnyKeyStatus;
-	FVector2  g_mousePos;
 
 public:
 
@@ -41,18 +40,6 @@ public:
 
 		if (state && !ignore)
 			AnyKeyStatus = true;
-	}
-
-	void MouseAddToPos(float x, float y)
-	{
-		g_mousePos.X += x;
-		g_mousePos.Y += y;
-	}
-
-	void GetMouseDelta(FVector2& gameinput)
-	{
-		gameinput = g_mousePos;
-		g_mousePos.Zero();
 	}
 
 	void ClearAllInput()

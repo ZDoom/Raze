@@ -219,7 +219,7 @@ bool System_DispatchEvent(event_t* ev)
 {
 	if (ev->type == EV_Mouse && !System_WantGuiCapture())
 	{
-		inputState.MouseAddToPos(ev->x, ev->y);
+		gameInput.MouseAddToPos(ev->x, ev->y);
 		return true;
 	}
 
@@ -1415,9 +1415,9 @@ void GameInterface::FreeLevelData()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(HIDInput* const hidInput, InputPacket* const currInput, const double scaleAdjust)
+void GameInterface::GetInput(InputPacket* const currInput, const double scaleAdjust)
 {
-	gameInput.processMovement(hidInput, currInput, scaleAdjust);
+	gameInput.processMovement(currInput, scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
