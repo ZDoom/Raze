@@ -436,6 +436,11 @@ void Display()
 			screen->BeginFrame();
 			screen->SetSceneRenderTarget(gl_ssao != 0);
 			//updateModelInterpolation();
+			if (!SyncInput())
+			{
+				I_GetEvent();
+				gameInput.getInput(inputScale);
+			}
 			gi->Render();
 			DrawFullscreenBlends();
 			drawMapTitle();
@@ -602,11 +607,6 @@ void TryRunTics (void)
 			gi->Unpredict();
 			gi->Predict(myconnectindex);
 #endif
-		}
-		if (!SyncInput())
-		{
-			I_GetEvent();
-			gameInput.getInput(inputScale);
 		}
 		return;
 	}
