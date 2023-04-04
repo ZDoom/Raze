@@ -59,11 +59,7 @@ public:
 	// Clear all values within this object.
 	void Clear()
 	{
-		inputBuffer = {};
-		ActionsToSend = 0;
-		WeaponToSend = 0;
-		dpad_lock = 0;
-		turnheldtime = 0;
+		memset(this, 0, sizeof(*this));
 	}
 
 	// Receives mouse input from OS for processing.
