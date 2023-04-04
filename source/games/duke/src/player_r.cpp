@@ -1726,11 +1726,12 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
+	unsigned flags = outVehicleFlags(p, actions);
+	doVehicleTilting(p, Sgn(p->sync.avel) * Sgn(p->MotoSpeed), !p->on_ground || p->sync.avel);
+
 	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
 
-	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, Sgn(p->sync.avel), !p->on_ground || p->sync.avel);
 	doVehicleSounds(p, pact, flags, 187, 188, 214, 189);
 	doVehicleDrunk(p);
 	doVehicleThrottling(p, pact, flags, 2, 15, p->moto_on_oil ? 2 : 4, 70, -30);
