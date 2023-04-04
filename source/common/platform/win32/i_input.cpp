@@ -635,6 +635,8 @@ void I_StartFrame ()
 
 void I_GetAxes(float axes[NUM_JOYAXIS])
 {
+	memset(axes, 0, sizeof(axes));
+
 	if (use_joystick)
 	{
 		for (unsigned i = 0; i < NUM_JOYDEVICES; ++i)

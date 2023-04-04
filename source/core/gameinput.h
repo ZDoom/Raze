@@ -42,8 +42,6 @@ class GameInput
 
 	// Prototypes for private member functions.
 	void processInputBits();
-	void prepareHidInput();
-	void resetHidInput();
 
 public:
 	// Bit sender updates.

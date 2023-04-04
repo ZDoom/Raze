@@ -221,23 +221,6 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 
 //---------------------------------------------------------------------------
 //
-// Prepares received backend input for use throughout class.
-//
-//---------------------------------------------------------------------------
-
-void GameInput::prepareHidInput()
-{
-	I_GetAxes(joyAxes);
-}
-
-void GameInput::resetHidInput()
-{
-	memset(joyAxes, 0, sizeof(joyAxes));
-	mouseInput.Zero();
-}
-
-//---------------------------------------------------------------------------
-//
 // Processes all the input bits.
 //
 //---------------------------------------------------------------------------
@@ -345,10 +328,10 @@ void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 		return;
 	}
 
-	prepareHidInput();
+	I_GetAxes(joyAxes);
 	processInputBits();
 	gi->doPlayerMovement(!SyncInput() ? (float)scaleAdjust : 1.f);
-	resetHidInput();
+	mouseInput.Zero();
 
 	if (packet)
 	{
