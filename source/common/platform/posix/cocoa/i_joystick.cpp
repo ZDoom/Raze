@@ -1202,7 +1202,7 @@ void I_GetJoysticks(TArray<IJoystickConfig*>& sticks)
 
 void I_GetAxes(float axes[NUM_JOYAXIS])
 {
-	memset(axes, 0, sizeof(axes));
+	memset(axes, 0, sizeof(float) * NUM_JOYAXIS);
 
 	if (use_joystick && NULL != s_joystickManager)
 	{
