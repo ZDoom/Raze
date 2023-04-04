@@ -37,8 +37,6 @@ CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
-CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
 
 //---------------------------------------------------------------------------
@@ -230,8 +228,6 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 void GameInput::prepareHidInput()
 {
 	I_GetAxes(joyAxes);
-	if (invertmousex) mouseInput.X = -mouseInput.X;
-	if (invertmouse)  mouseInput.Y = -mouseInput.Y;
 }
 
 void GameInput::resetHidInput()
