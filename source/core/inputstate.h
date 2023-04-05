@@ -15,7 +15,7 @@
 
 class InputState
 {
-	uint8_t KeyStatus[NUM_KEYS];
+	FixedBitArray<NUM_KEYS> KeyStatus;
 	bool AnyKeyStatus;
 
 public:
@@ -31,20 +31,19 @@ public:
 			return;
 
 		const int key = ev->data1;
-		const bool state = ev->type == EV_KeyDown;
-		KeyStatus[key] = (uint8_t)state;
+		KeyStatus.Set(key, ev->type == EV_KeyDown);
 
 		// Check if key is to be excluded from setting AnyKeyStatus.
 		const bool ignore = key == KEY_VOLUMEDOWN || key == KEY_VOLUMEUP ||
 			(key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT);
 
-		if (state && !ignore)
+		if (KeyStatus[key] && !ignore)
 			AnyKeyStatus = true;
 	}
 
 	void ClearAllInput()
 	{
-		memset(KeyStatus, 0, sizeof(KeyStatus));
+		KeyStatus.Zero();
 		AnyKeyStatus = false;
 		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	}
