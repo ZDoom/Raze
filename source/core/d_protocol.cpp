@@ -295,8 +295,8 @@ int SkipTicCmd (uint8_t **stream, int count)
 				skip = 1;
 				if (*flow & UCMDF_PITCH)		skip += 4;
 				if (*flow & UCMDF_YAW)			skip += 4;
-				if (*flow & UCMDF_FORWARDMOVE)	skip += 2;
-				if (*flow & UCMDF_SIDEMOVE)		skip += 2;
+				if (*flow & UCMDF_FORWARDMOVE)	skip += 4;
+				if (*flow & UCMDF_SIDEMOVE)		skip += 4;
 				if (*flow & UCMDF_UPMOVE)		skip += 4;
 				if (*flow & UCMDF_ROLL)			skip += 4;
 				if (*flow & UCMDF_BUTTONS)		skip += 4;
