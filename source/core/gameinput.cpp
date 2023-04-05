@@ -531,7 +531,7 @@ CCMD(slot)
 {
 	// The max differs between games so we have to handle this here.
 	const bool isDukeShareware = (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE);
-	const int max = isExhumed() || isDukeShareware ? 7 : isBlood() ? 12 : 10;
+	const int max = isExhumed() || isDukeShareware ? WeaponSel_MaxExhumed : isBlood() ? WeaponSel_MaxBlood : WeaponSel_Max;
 
 	if (argv.argc() != 2)
 	{
