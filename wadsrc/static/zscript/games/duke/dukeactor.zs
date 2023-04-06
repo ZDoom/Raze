@@ -258,6 +258,11 @@ class DukeActor : CoreActor native
 		{
 			if (!self.mapSpawned) self.lotag = 0;
 
+			if (self.scale.X == 0 || self.scale.Y == 0)
+			{
+				self.scale = (REPEAT_SCALE, REPEAT_SCALE);
+			}
+
 			if (self.lotag > ud.player_skill)
 			{
 				self.scale = (0, 0);
