@@ -55,7 +55,7 @@ static int16_t SeqBase[kMaxSequences];
 static int16_t SeqSize[kMaxSequences];
 static int16_t SeqFlag[kMaxSequences]; // not used at all.
 
-int16_t FrameSound[kMaxSEQFrames];
+static int16_t FrameSound[kMaxSEQFrames];
 static int16_t FrameSize[kMaxSEQFrames];
 static int16_t FrameBase[kMaxSEQFrames];
 static int16_t FrameFlag[kMaxSEQFrames];
@@ -204,6 +204,17 @@ int getSeqFrameChunk(const int nFrame)
 int getSeqFrameFlags(const int nFrame)
 {
     return FrameFlag[nFrame];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameSound(const int nFrame)
+{
+    return FrameSound[nFrame];
 }
 
 //---------------------------------------------------------------------------
@@ -562,7 +573,7 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
 
 int seq_GetFrameSound(int val, int edx)
 {
-    return FrameSound[getSeqFrame(val, edx)];
+    return getSeqFrameSound(getSeqFrame(val, edx));
 }
 
 //---------------------------------------------------------------------------
@@ -575,7 +586,7 @@ void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
 {
     assert(nSeq >= 0); // TEMP
 
-    int nSound = FrameSound[getSeqFrame(nSeq, nFrame)];
+    int nSound = getSeqFrameSound(getSeqFrame(nSeq, nFrame));
     if (nSound == -1) {
         return;
     }
