@@ -70,7 +70,7 @@ struct ChunkFrame
     {
         x = getSeqFrameChunkPosX(nFrameBase);
         y = getSeqFrameChunkPosY(nFrameBase);
-        auto ttex = tileGetTexture(ChunkPict[nFrameBase]);
+        auto ttex = tileGetTexture(getSeqFrameChunkPicnum(nFrameBase));
         if (ttex) tex = ttex->GetID();
         else tex.SetInvalid();
         flags = ChunkFlag[nFrameBase];

@@ -116,7 +116,6 @@ extern int16_t nFlameHeight;
 extern int16_t nPilotLightFrame;
 extern int16_t nPilotLightCount;
 
-extern int16_t ChunkPict[];
 extern int16_t ChunkFlag[];
 
 
@@ -141,6 +140,7 @@ int getSeqFrameFlags(const int nFrame);
 int getSeqFrameChunkCount(const int nFrame);
 int getSeqFrameChunkPosX(const int nChunk);
 int getSeqFrameChunkPosY(const int nChunk);
+int getSeqFrameChunkPicnum(const int nChunk);
 
 END_PS_NS
 
