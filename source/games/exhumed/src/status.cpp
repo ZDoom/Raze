@@ -68,8 +68,8 @@ struct ChunkFrame
 
     void GetChunkFrame(int nFrameBase)
     {
-        x = ChunkXpos[nFrameBase];
-        y = ChunkYpos[nFrameBase];
+        x = getSeqFrameChunkPosX(nFrameBase);
+        y = getSeqFrameChunkPosY(nFrameBase);
         auto ttex = tileGetTexture(ChunkPict[nFrameBase]);
         if (ttex) tex = ttex->GetID();
         else tex.SetInvalid();

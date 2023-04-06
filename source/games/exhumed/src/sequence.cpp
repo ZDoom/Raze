@@ -60,8 +60,8 @@ static int16_t FrameSize[kMaxSEQFrames];
 static int16_t FrameBase[kMaxSEQFrames];
 static int16_t FrameFlag[kMaxSEQFrames];
 
-int16_t ChunkYpos[kMaxSEQChunks];
-int16_t ChunkXpos[kMaxSEQChunks];
+static int16_t ChunkYpos[kMaxSEQChunks];
+static int16_t ChunkXpos[kMaxSEQChunks];
 int16_t ChunkPict[kMaxSEQChunks];
 int16_t ChunkFlag[kMaxSEQChunks];
 
@@ -215,6 +215,28 @@ int getSeqFrameFlags(const int nFrame)
 int getSeqFrameChunkCount(const int nFrame)
 {
     return FrameSize[nFrame];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameChunkPosX(const int nChunk)
+{
+    return ChunkXpos[nChunk];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameChunkPosY(const int nChunk)
+{
+    return ChunkYpos[nChunk];
 }
 
 //---------------------------------------------------------------------------
@@ -459,8 +481,8 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
                 return;
 
             int16_t nTile = ChunkPict[nFrameBase];
-            double x = ChunkXpos[nFrameBase] + (160 + xOffset);
-            double y = ChunkYpos[nFrameBase] + (100 + yOffset);
+            double x = getSeqFrameChunkPosX(nFrameBase) + (160 + xOffset);
+            double y = getSeqFrameChunkPosY(nFrameBase) + (100 + yOffset);
 
             hud_drawsprite(x, y, 65536, PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw.Normalized180().Degrees() * 2., nTile, 0, 0, 1);
             nFrameBase++;
@@ -487,8 +509,8 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
         if (nFrameSize < 0)
             break;
 
-        int x = ChunkXpos[nFrameBase] + 160;
-        int y = ChunkYpos[nFrameBase] + 100;
+        int x = getSeqFrameChunkPosX(nFrameBase) + 160;
+        int y = getSeqFrameChunkPosY(nFrameBase) + 100;
 
         int stat = 0;
         if (ChunkFlag[nFrameBase] & 1)
@@ -606,15 +628,15 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 
     if (ChunkFlag[nFrameBase] & 1)
     {
-        pTSprite->xoffset = (int8_t)ChunkXpos[nFrameBase];
+        pTSprite->xoffset = (int8_t)getSeqFrameChunkPosX(nFrameBase);
         pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
     }
     else
     {
-        pTSprite->xoffset = (int8_t)-ChunkXpos[nFrameBase];
+        pTSprite->xoffset = (int8_t)-getSeqFrameChunkPosX(nFrameBase);
     }
 
-    pTSprite->yoffset = -ChunkYpos[nFrameBase];
+    pTSprite->yoffset = -getSeqFrameChunkPosY(nFrameBase);
     pTSprite->picnum = ChunkPict[nFrameBase];
 
     return ChunkPict[nFrameBase];
@@ -696,15 +718,15 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
         if (ChunkFlag[nBase] & 1)
         {
-            tsp->xoffset = (int8_t)ChunkXpos[nBase];
+            tsp->xoffset = (int8_t)getSeqFrameChunkPosX(nBase);
             tsp->cstat |= CSTAT_SPRITE_XFLIP; // x-flipped
         }
         else
         {
-            tsp->xoffset = -ChunkXpos[nBase];
+            tsp->xoffset = -getSeqFrameChunkPosX(nBase);
         }
 
-        tsp->yoffset = -ChunkYpos[nBase];
+        tsp->yoffset = -getSeqFrameChunkPosY(nBase);
         tsp->picnum = ChunkPict[nBase];
 
         nBase++;
