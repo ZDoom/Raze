@@ -148,8 +148,19 @@ const char *SeqNames[kMaxSEQFiles] =
   "rat"
 };
 
-int16_t SeqOffsets[kMaxSEQFiles];
+static int16_t SeqOffsets[kMaxSEQFiles];
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFromId(const int nSeqFileId, const int nSeq)
+{
+    return SeqOffsets[nSeqFileId] + nSeq;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -307,7 +318,7 @@ int seq_ReadSequence(const char *seqName)
 
 int seq_GetFirstSeqPicnum(int nSeq)
 {
-    int i = SeqOffsets[nSeq];
+    int i = getSeqFromId(nSeq);
     i = SeqBase[i];
     i = FrameBase[i];
     i = ChunkPict[i];
@@ -360,13 +371,13 @@ void seq_LoadSequences()
 
     nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
 
-    nPilotLightBase  = SeqBase[SeqOffsets[kSeqFlamer] + 3];
-    nPilotLightCount = SeqSize[SeqOffsets[kSeqFlamer] + 3];
+    nPilotLightBase  = SeqBase[getSeqFromId(kSeqFlamer, 3)];
+    nPilotLightCount = SeqSize[getSeqFromId(kSeqFlamer, 3)];
     nPilotLightFrame = 0;
 
     nFontFirstChar = seq_GetFirstSeqPicnum(kSeqFont2);
 
-    int16_t nSize = SeqSize[SeqOffsets[kSeqFont2]];
+    int16_t nSize = SeqSize[getSeqFromId(kSeqFont2)];
 
     for (i = 0; i < nSize; i++)
     {
@@ -514,8 +525,7 @@ int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 
 int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 {
-    edx += SeqOffsets[nSeq];
-    ebx += SeqBase[edx];
+    ebx += SeqBase[getSeqFromId(nSeq, edx)];
     int16_t c = FrameBase[ebx];
 
     return ChunkPict[c];

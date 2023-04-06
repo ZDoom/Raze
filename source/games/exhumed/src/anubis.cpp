@@ -120,7 +120,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 {
     const auto ap = ev->pObjActor;
     const int nAction = ap->nAction;
-    const int nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
+    const int nSeq = getSeqFromId(kSeqAnubis, AnubisSeq[nAction].a);
     const int nFrame = SeqBase[nSeq] + ap->nFrame;
     const int nFlag = FrameFlag[nFrame];
     bool bVal = false;
@@ -340,7 +340,7 @@ void AIAnubis::Draw(RunListEvent* ev)
     const auto ap = ev->pObjActor;
     if (!ap) return;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqAnubis] + AnubisSeq[ap->nAction].a, ap->nFrame, AnubisSeq[ap->nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqAnubis, AnubisSeq[ap->nAction].a), ap->nFrame, AnubisSeq[ap->nAction].b);
 }
 
 void AIAnubis::RadialDamage(RunListEvent* ev)

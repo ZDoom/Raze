@@ -112,7 +112,6 @@ extern int16_t frames;
 
 extern int16_t SeqBase[];
 extern int16_t SeqSize[];
-extern int16_t SeqOffsets[];
 extern int16_t FrameFlag[];
 
 extern int16_t nShadowWidth;
@@ -142,6 +141,8 @@ int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame);
 int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx);
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
+
+int getSeqFromId(const int nSeqFileId, const int nSeq = 0);
 
 END_PS_NS
 

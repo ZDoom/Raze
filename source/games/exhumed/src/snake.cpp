@@ -339,7 +339,7 @@ void AISnake::Tick(RunListEvent* ev)
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0];
     if (!pActor) return;
 
-    seq_MoveSequence(pActor, SeqOffsets[kSeqSnakehed], 0);
+    seq_MoveSequence(pActor, getSeqFromId(kSeqSnakehed), 0);
 
     DExhumedActor* pEnemySprite = SnakeList[nSnake].pEnemy;
 
@@ -428,10 +428,10 @@ void AISnake::Draw(RunListEvent* ev)
     int nSprite = ev->nParam;
 
     if ((nSnake & 0xFF) == 0) {
-        seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);
+        seq_PlotSequence(nSprite, getSeqFromId(kSeqSnakehed), 0, 0);
     }
     else {
-        seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
+        seq_PlotSequence(nSprite, getSeqFromId(kSeqSnakBody), 0, 0);
     }
 
     ev->pTSprite->ownerActor = nullptr;

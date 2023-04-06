@@ -224,7 +224,7 @@ void AIRat::Draw(RunListEvent* ev)
     if (!pActor) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRat] + RatSeq[nAction].a, pActor->nFrame, RatSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRat, RatSeq[nAction].a), pActor->nFrame, RatSeq[nAction].b);
 }
 
 
@@ -244,7 +244,7 @@ void AIRat::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    int nSeq = SeqOffsets[kSeqRat] + RatSeq[nAction].a;
+    int nSeq = getSeqFromId(kSeqRat, RatSeq[nAction].a);
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);

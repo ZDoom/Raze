@@ -237,7 +237,7 @@ void AIGrenade::Draw(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    int nSeq = pActor->nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + pActor->nIndex;
+    int nSeq = pActor->nFrame ? getSeqFromId(kSeqGrenBoom) : getSeqFromId(kSeqGrenRoll, pActor->nIndex);
     seq_PlotSequence(ev->nParam, nSeq, pActor->nHealth >> 8, 1);
 }
 
@@ -253,7 +253,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    int nSeq = pActor->nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + pActor->nIndex;
+    int nSeq = pActor->nFrame ? getSeqFromId(kSeqGrenBoom) : getSeqFromId(kSeqGrenRoll, pActor->nIndex);
 
     seq_MoveSequence(pActor, nSeq, pActor->nHealth >> 8);
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nHealth >> 8);

@@ -117,7 +117,7 @@ void AISpider::Tick(RunListEvent* ev)
         }
     }
 
-    int nSeq = SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a;
+    int nSeq = getSeqFromId(kSeqSpider, SpiderSeq[nAction].a);
 
     spp->spr.picnum = seq_GetSeqPicnum2(nSeq, spp->nFrame);
 
@@ -354,7 +354,7 @@ void AISpider::Draw(RunListEvent* ev)
 
     int nAction = spp->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqSpider, SpiderSeq[nAction].a), spp->nFrame, SpiderSeq[nAction].b);
 }
 
 //---------------------------------------------------------------------------

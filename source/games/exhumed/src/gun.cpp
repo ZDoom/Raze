@@ -376,7 +376,7 @@ void MoveWeapons(int nPlayer)
     int eax = pPlayer->nState;
     int nSeq = WeaponInfo[nWeapon].nSeq;
 
-    int var_3C = WeaponInfo[nWeapon].b[eax] + SeqOffsets[nSeq];
+    int var_3C = getSeqFromId(nSeq, WeaponInfo[nWeapon].b[eax]);
 
     int var_1C = (pPlayer->nDouble > 0) + 1;
 
@@ -568,7 +568,7 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(nPlayer);
                                 pPlayer->nState = 5;
 
-                                pPlayer->nSeqSize2 = SeqSize[WeaponInfo[kWeaponGrenade].b[0] + SeqOffsets[nSeq]] - 1; // CHECKME
+                                pPlayer->nSeqSize2 = SeqSize[getSeqFromId(nSeq, WeaponInfo[kWeaponGrenade].b[0])] - 1; // CHECKME
                                 goto loc_flag; // FIXME
                             }
                         }
@@ -618,7 +618,7 @@ void MoveWeapons(int nPlayer)
                 }
 
                 // loc_26FC5
-                var_3C = SeqOffsets[WeaponInfo[nWeapon].nSeq] + WeaponInfo[nWeapon].b[pPlayer->nState];
+                var_3C = getSeqFromId(WeaponInfo[nWeapon].nSeq, WeaponInfo[nWeapon].b[pPlayer->nState]);
                 pPlayer->nSeqSize2 = 0;
             }
             else
@@ -919,7 +919,7 @@ void DrawWeapons(double interpfrac)
     }
     int var_34 = PlayerList[nLocalPlayer].nState;
 
-    int var_30 = SeqOffsets[WeaponInfo[nWeapon].nSeq];
+    int var_30 = getSeqFromId(WeaponInfo[nWeapon].nSeq);
 
     int var_28 = var_30 + WeaponInfo[nWeapon].b[var_34];
 

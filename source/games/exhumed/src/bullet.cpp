@@ -799,7 +799,7 @@ void AIBullet::Tick(RunListEvent* ev)
     int nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
-    int nSeq = SeqOffsets[BulletList[nBullet].nSeq];
+    int nSeq = getSeqFromId(BulletList[nBullet].nSeq);
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
     int nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
@@ -844,7 +844,7 @@ void AIBullet::Draw(RunListEvent* ev)
     int nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
-    int nSeq = SeqOffsets[BulletList[nBullet].nSeq];
+    int nSeq = getSeqFromId(BulletList[nBullet].nSeq);
 
     ev->pTSprite->statnum = 1000;
 

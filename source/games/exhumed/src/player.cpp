@@ -529,7 +529,7 @@ void AIPlayer::Draw(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto nAction = pPlayer->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[pPlayer->nSeq] + PlayerSeq[nAction].a, pPlayer->nSeqSize, PlayerSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(pPlayer->nSeq, PlayerSeq[nAction].a), pPlayer->nSeqSize, PlayerSeq[nAction].b);
 }
 
 //---------------------------------------------------------------------------
@@ -1912,7 +1912,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 static void doPlayerActionSequence(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const auto nSeq = SeqOffsets[pPlayer->nSeq] + PlayerSeq[pPlayer->nAction].a;
+    const auto nSeq = getSeqFromId(pPlayer->nSeq, PlayerSeq[pPlayer->nAction].a);
 
     seq_MoveSequence(pPlayerActor, nSeq, pPlayer->nSeqSize);
     pPlayer->nSeqSize++;

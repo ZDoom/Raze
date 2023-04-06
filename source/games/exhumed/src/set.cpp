@@ -142,7 +142,7 @@ void AISoul::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    seq_MoveSequence(pActor, SeqOffsets[kSeqSet] + 75, 0);
+    seq_MoveSequence(pActor, getSeqFromId(kSeqSet, 75), 0);
 
     if (pActor->spr.scale.X < 0.5)
     {
@@ -248,7 +248,7 @@ void AISet::Draw(RunListEvent* ev)
 	if (!pActor) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSet] + SetSeq[nAction].a, pActor->nFrame, SetSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqSet, SetSeq[nAction].a), pActor->nFrame, SetSeq[nAction].b);
     return;
 }
 
@@ -269,7 +269,7 @@ void AISet::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = SeqOffsets[kSeqSet] + SetSeq[pActor->nAction].a;
+    int nSeq = getSeqFromId(kSeqSet, SetSeq[nAction].a);
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 

@@ -47,7 +47,7 @@ int nStatusSeqOffset;
 
 void InitStatus()
 {
-    nStatusSeqOffset = SeqOffsets[kSeqStatus];
+    nStatusSeqOffset = getSeqFromId(kSeqStatus);
 }
 
 

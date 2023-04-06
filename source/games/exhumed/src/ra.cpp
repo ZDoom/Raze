@@ -209,7 +209,7 @@ void AIRa::Tick(RunListEvent* ev)
     int nPlayer = RunData[ev->nRun].nObjIndex;
     int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-    int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
+    int nSeq = getSeqFromId(kSeqEyeHit, RaSeq[Ra[nPlayer].nAction].a);
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
 
@@ -336,7 +336,7 @@ void AIRa::Tick(RunListEvent* ev)
 void AIRa::Draw(RunListEvent* ev)
 {
     int nPlayer = RunData[ev->nRun].nObjIndex;
-    int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
+    int nSeq = getSeqFromId(kSeqEyeHit, RaSeq[Ra[nPlayer].nAction].a);
 
     seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);
     ev->pTSprite->ownerActor = nullptr;

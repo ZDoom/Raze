@@ -49,9 +49,9 @@ void SerializeAnim(FSerializer& arc)
 
 void InitAnims()
 {
-    nMagicSeq     = SeqOffsets[kSeqItems] + 21;
-    nPreMagicSeq  = SeqOffsets[kSeqMagic2];
-    nSavePointSeq = SeqOffsets[kSeqItems] + 12;
+    nMagicSeq = getSeqFromId(kSeqItems, 21);
+    nPreMagicSeq = getSeqFromId(kSeqMagic2);
+    nSavePointSeq = getSeqFromId(kSeqItems, 12);
 }
 
 /*
@@ -135,7 +135,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int nSeq, int nOffset, const DVe
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x100000);
     pActor->nAction = nFlag;
     pActor->nIndex = 0;
-    pActor->nIndex2 = SeqOffsets[nSeq] + nOffset;
+    pActor->nIndex2 = getSeqFromId(nSeq, nOffset);
     pActor->pTarget = nullptr;
     pActor->nDamage = pActor->nRun;
     pActor->nPhase = ITEM_MAGIC;

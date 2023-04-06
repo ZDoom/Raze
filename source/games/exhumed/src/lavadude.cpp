@@ -92,7 +92,7 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    seq_PlotSequence(ev->nParam, (SeqOffsets[kSeqLavag] + 30) + pActor->spr.picnum, 0, 1);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqLavag, 30) + pActor->spr.picnum, 0, 1);
 }
 
 
@@ -150,7 +150,7 @@ void AILavaDude::Draw(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    int nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
+    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].a);
 
     seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].b);
     ev->pTSprite->ownerActor = nullptr;
@@ -213,7 +213,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    int nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
+    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].a);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     int var_38 = pActor->nFrame;

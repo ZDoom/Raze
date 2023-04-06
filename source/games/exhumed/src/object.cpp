@@ -1889,7 +1889,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 
     if (nSeq > -1)
     {
-        pActor->nIndex = SeqOffsets[nSeq];
+        pActor->nIndex = getSeqFromId(nSeq);
 
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
@@ -2199,7 +2199,7 @@ void DoDrips()
         {
             DExhumedActor* pActor = sDrip[i].pActor;
             if (!pActor) continue;
-            int nSeqOffset = SeqOffsets[kSeqDrips];
+            int nSeqOffset = getSeqFromId(kSeqDrips);
 
             if (!(pActor->sector()->Flag & kSectLava)) {
                 nSeqOffset++;

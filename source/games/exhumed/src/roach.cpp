@@ -110,7 +110,7 @@ void AIRoach::Draw(RunListEvent* ev)
 	if (!pActor) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], pActor->nFrame, RoachSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRoach, RoachSeq[nAction].a), pActor->nFrame, RoachSeq[nAction].b);
     return;
 }
 
@@ -211,7 +211,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[pActor->nAction].a;
+    int nSeq = getSeqFromId(kSeqRoach, RoachSeq[nAction].a);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);

@@ -105,7 +105,7 @@ void AIScorp::Draw(RunListEvent* ev)
 
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, pActor->nFrame, ScorpSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqScorp, ScorpSeq[nAction].a), pActor->nFrame, ScorpSeq[nAction].b);
 }
 
 //---------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void AIScorp::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a;
+    int nSeq = getSeqFromId(kSeqScorp, ScorpSeq[nAction].a);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);

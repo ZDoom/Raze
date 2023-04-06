@@ -77,7 +77,7 @@ static DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector, cons
 //	GrabTimeSlot(3);
 
     pActor->nFrame = 0;
-    pActor->nIndex = SeqOffsets[kSeqBubble] + nSize;
+    pActor->nIndex = getSeqFromId(kSeqBubble, nSize);
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x140000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x140000);
 

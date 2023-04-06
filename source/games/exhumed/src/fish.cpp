@@ -50,7 +50,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     auto pChunkActor = insertActor(pActor->sector(), 99);
 
     pChunkActor->nCount = anim + 40;
-    pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
+    pChunkActor->nFrame = RandomSize(3) % SeqSize[getSeqFromId(kSeqFish, pChunkActor->nCount)];
 
 	pChunkActor->spr.pos = pActor->spr.pos;
     pChunkActor->spr.cstat = 0;
@@ -92,7 +92,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    int nSeq = SeqOffsets[kSeqFish] + pActor->nCount;
+    int nSeq = getSeqFromId(kSeqFish, pActor->nCount);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
@@ -149,7 +149,7 @@ void AIFishLimb::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (pActor == nullptr) return;
-    int nSeq = SeqOffsets[kSeqFish] + pActor->nCount;
+    int nSeq = getSeqFromId(kSeqFish, pActor->nCount);
     seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, 1);
 }
 
@@ -258,7 +258,7 @@ void AIFish::Draw(RunListEvent* ev)
     if (pActor == nullptr) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, pActor->nFrame, FishSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqFish, FishSeq[nAction].a), pActor->nFrame, FishSeq[nAction].b);
     ev->pTSprite->ownerActor = nullptr;
     return;
 }
@@ -362,7 +362,7 @@ void AIFish::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = SeqOffsets[kSeqFish] + FishSeq[nAction].a;
+    int nSeq = getSeqFromId(kSeqFish, FishSeq[nAction].a);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 

@@ -93,7 +93,7 @@ void AILion::Draw(RunListEvent* ev)
     if (!pActor) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqLion] + LionSeq[nAction].a, pActor->nFrame, LionSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqLion, LionSeq[nAction].a), pActor->nFrame, LionSeq[nAction].b);
 }
 
 void AILion::RadialDamage(RunListEvent* ev)
@@ -198,7 +198,7 @@ void AILion::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = SeqOffsets[kSeqLion] + LionSeq[nAction].a;
+    int nSeq = getSeqFromId(kSeqLion, LionSeq[nAction].a);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
