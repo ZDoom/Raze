@@ -51,7 +51,7 @@ int16_t nPilotLightBase;
 int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
 
-int16_t SeqBase[kMaxSequences];
+static int16_t SeqBase[kMaxSequences];
 int16_t SeqSize[kMaxSequences];
 int16_t SeqFlag[kMaxSequences];
 
@@ -160,6 +160,17 @@ static int16_t SeqOffsets[kMaxSEQFiles];
 int getSeqFromId(const int nSeqFileId, const int nSeq)
 {
     return SeqOffsets[nSeqFileId] + nSeq;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrame(const int nSeq, const int nFrame)
+{
+    return SeqBase[nSeq] + nFrame;
 }
 
 //---------------------------------------------------------------------------
@@ -319,7 +330,7 @@ int seq_ReadSequence(const char *seqName)
 int seq_GetFirstSeqPicnum(int nSeq)
 {
     int i = getSeqFromId(nSeq);
-    i = SeqBase[i];
+    i = getSeqFrame(i);
     i = FrameBase[i];
     i = ChunkPict[i];
 
@@ -371,7 +382,7 @@ void seq_LoadSequences()
 
     nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
 
-    nPilotLightBase  = SeqBase[getSeqFromId(kSeqFlamer, 3)];
+    nPilotLightBase  = getSeqFrame(getSeqFromId(kSeqFlamer, 3));
     nPilotLightCount = SeqSize[getSeqFromId(kSeqFlamer, 3)];
     nPilotLightFrame = 0;
 
@@ -394,7 +405,7 @@ void seq_LoadSequences()
 
 int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame)
 {
-    return FrameFlag[SeqBase[val] + nFrame];
+    return FrameFlag[getSeqFrame(val, nFrame)];
 }
 
 //---------------------------------------------------------------------------
@@ -437,7 +448,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 
 int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
 {
-    int nFrame = SeqBase[nSeqOffset] + dx;
+    int nFrame = getSeqFrame(nSeqOffset, dx);
     int nFrameBase = FrameBase[nFrame];
     int nFrameSize = FrameSize[nFrame];
     int frameFlag = FrameFlag[nFrame];
@@ -479,7 +490,7 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
 
 int seq_GetFrameSound(int val, int edx)
 {
-    return FrameSound[SeqBase[val] + edx];
+    return FrameSound[getSeqFrame(val, edx)];
 }
 
 //---------------------------------------------------------------------------
@@ -492,7 +503,7 @@ void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
 {
     assert(nSeq >= 0); // TEMP
 
-    int nSound = FrameSound[SeqBase[nSeq] + nFrame];
+    int nSound = FrameSound[getSeqFrame(nSeq, nFrame)];
     if (nSound == -1) {
         return;
     }
@@ -513,7 +524,7 @@ void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
 
 int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 {
-    int16_t nBase = FrameBase[SeqBase[nSeq] + nFrame];
+    int16_t nBase = FrameBase[getSeqFrame(nSeq, nFrame)];
     return ChunkPict[nBase];
 }
 
@@ -525,8 +536,7 @@ int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 
 int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 {
-    ebx += SeqBase[getSeqFromId(nSeq, edx)];
-    int16_t c = FrameBase[ebx];
+    int16_t c = FrameBase[getSeqFrame(getSeqFromId(nSeq, edx))];
 
     return ChunkPict[c];
 }
@@ -544,7 +554,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 
     int nSeqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
-    int16_t nFrame = SeqBase[nSeqOffset + nSeq] + nVal;
+    int16_t nFrame = getSeqFrame(nSeq + nSeqOffset, nVal);
 
     int16_t nFrameBase = FrameBase[nFrame];
     int16_t nFrameSize = FrameSize[nFrame];
@@ -607,8 +617,8 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         val = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
-    int eax = SeqBase[edx] + nFrame;
-    int edi = SeqBase[edx + val] + nFrame;
+    int eax = getSeqFrame(edx, nFrame);
+    int edi = getSeqFrame(edx + val, nFrame);
 
     int16_t nBase = FrameBase[edi];
     int16_t nSize = FrameSize[edi];

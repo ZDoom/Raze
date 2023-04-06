@@ -121,7 +121,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     const auto ap = ev->pObjActor;
     const int nAction = ap->nAction;
     const int nSeq = getSeqFromId(kSeqAnubis, AnubisSeq[nAction].a);
-    const int nFrame = SeqBase[nSeq] + ap->nFrame;
+    const int nFrame = getSeqFrame(nSeq, ap->nFrame);
     const int nFlag = FrameFlag[nFrame];
     bool bVal = false;
 

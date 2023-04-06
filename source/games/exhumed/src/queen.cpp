@@ -1252,7 +1252,7 @@ void AIQueen::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    int nFlag = FrameFlag[SeqBase[nSeq] + QueenList[nQueen].nFrame];
+    int nFlag = FrameFlag[getSeqFrame(nSeq, QueenList[nQueen].nFrame)];
 
     if (pActor != nullptr)
     {

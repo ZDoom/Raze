@@ -218,7 +218,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     int var_38 = pActor->nFrame;
 
-    int nFlag = FrameFlag[SeqBase[nSeq] + var_38];
+    int nFlag = FrameFlag[getSeqFrame(nSeq, var_38)];
 
     int var_1C = 0;
 
