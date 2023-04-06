@@ -119,7 +119,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 	pActor->clipdist = 31.75;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
+    pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].nSeqId, 0);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -150,9 +150,9 @@ void AILavaDude::Draw(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].nSeqId);
 
-    seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].nFlags);
     ev->pTSprite->ownerActor = nullptr;
     return;
 }
@@ -213,7 +213,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     int var_38 = pActor->nFrame;

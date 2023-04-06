@@ -122,7 +122,7 @@ void AIWasp::Draw(RunListEvent* ev)
     if (!pActor) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqWasp, WaspSeq[nAction].a), pActor->nFrame, WaspSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqWasp, WaspSeq[nAction].nSeqId), pActor->nFrame, WaspSeq[nAction].nFlags);
     return;
 }
 
@@ -214,7 +214,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    int nSeq = getSeqFromId(kSeqWasp, WaspSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqWasp, WaspSeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 

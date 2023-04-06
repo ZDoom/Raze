@@ -139,7 +139,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = getSeqFromId(kSeqMummy, MummySeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqMummy, MummySeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
@@ -419,7 +419,7 @@ void AIMummy::Draw(RunListEvent* ev)
     if (!pActor) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqMummy, MummySeq[nAction].a), pActor->nFrame, MummySeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqMummy, MummySeq[nAction].nSeqId), pActor->nFrame, MummySeq[nAction].nFlags);
     return;
 }
 

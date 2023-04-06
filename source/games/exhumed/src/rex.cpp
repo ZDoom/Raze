@@ -171,7 +171,7 @@ void AIRex::Draw(RunListEvent* ev)
 
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRex, RexSeq[nAction].a), pActor->nFrame, RexSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRex, RexSeq[nAction].nSeqId), pActor->nFrame, RexSeq[nAction].nFlags);
     return;
 }
 
@@ -192,7 +192,7 @@ void AIRex::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = getSeqFromId(kSeqRex, RexSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqRex, RexSeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 

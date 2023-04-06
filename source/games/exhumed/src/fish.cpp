@@ -179,7 +179,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
+    pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].nSeqId, 0);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -258,7 +258,7 @@ void AIFish::Draw(RunListEvent* ev)
     if (pActor == nullptr) return;
     int nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqFish, FishSeq[nAction].a), pActor->nFrame, FishSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqFish, FishSeq[nAction].nSeqId), pActor->nFrame, FishSeq[nAction].nFlags);
     ev->pTSprite->ownerActor = nullptr;
     return;
 }
@@ -362,7 +362,7 @@ void AIFish::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqFish, FishSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqFish, FishSeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 

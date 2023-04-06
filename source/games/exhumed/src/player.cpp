@@ -529,7 +529,7 @@ void AIPlayer::Draw(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto nAction = pPlayer->nAction;
 
-    seq_PlotSequence(ev->nParam, getSeqFromId(pPlayer->nSeq, PlayerSeq[nAction].a), pPlayer->nSeqSize, PlayerSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(pPlayer->nSeq, PlayerSeq[nAction].nSeqId), pPlayer->nSeqSize, PlayerSeq[nAction].nFlags);
 }
 
 //---------------------------------------------------------------------------
@@ -1912,7 +1912,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 static void doPlayerActionSequence(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const auto nSeq = getSeqFromId(pPlayer->nSeq, PlayerSeq[pPlayer->nAction].a);
+    const auto nSeq = getSeqFromId(pPlayer->nSeq, PlayerSeq[pPlayer->nAction].nSeqId);
 
     seq_MoveSequence(pPlayerActor, nSeq, pPlayer->nSeqSize);
     pPlayer->nSeqSize++;
@@ -2007,7 +2007,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
 
-    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].a, pPlayer->nSeqSize);
+    pPlayerActor->spr.picnum = seq_GetSeqPicnum(pPlayer->nSeq, PlayerSeq[nHeightTemplate[pPlayer->nAction]].nSeqId, pPlayer->nSeqSize);
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
     doPlayerCounters(pPlayer);

@@ -542,7 +542,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqQueenEgg, EggSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqQueenEgg, EggSeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pEgg->nFrame);
 
@@ -725,7 +725,7 @@ void AIQueenEgg::Draw(RunListEvent* ev)
 {
     int nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqQueenEgg, EggSeq[pEgg->nAction].a), pEgg->nFrame, EggSeq[pEgg->nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqQueenEgg, EggSeq[pEgg->nAction].nSeqId), pEgg->nFrame, EggSeq[pEgg->nAction].nFlags);
 }
 
 //---------------------------------------------------------------------------
@@ -798,7 +798,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqQueen, HeadSeq[QueenHead.nAction].a);
+    int nSeq = getSeqFromId(kSeqQueen, HeadSeq[QueenHead.nAction].nSeqId);
 
     seq_MoveSequence(pActor, nSeq, QueenHead.nFrame);
 
@@ -1135,8 +1135,8 @@ void AIQueenHead::Draw(RunListEvent* ev)
 
     if (nHead == 0)
     {
-        edx = HeadSeq[nAction].b;
-        nSeq += HeadSeq[nAction].a;
+        edx = HeadSeq[nAction].nFlags;
+        nSeq += HeadSeq[nAction].nSeqId;
     }
     else
     {
@@ -1239,7 +1239,7 @@ void AIQueen::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqQueen, QueenSeq[nAction].a);
+    int nSeq = getSeqFromId(kSeqQueen, QueenSeq[nAction].nSeqId);
 
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, QueenList[nQueen].nFrame);
 
@@ -1572,7 +1572,7 @@ void AIQueen::Draw(RunListEvent* ev)
     int nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     int nAction = QueenList[nQueen].nAction;
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqQueen, QueenSeq[nAction].a), QueenList[nQueen].nFrame, QueenSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqQueen, QueenSeq[nAction].nSeqId), QueenList[nQueen].nFrame, QueenSeq[nAction].nFlags);
 }
 
 END_PS_NS

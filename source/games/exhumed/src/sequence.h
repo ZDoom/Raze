@@ -104,8 +104,8 @@ enum {
 
 struct actionSeq
 {
-    int16_t a;
-    int16_t b;
+    int16_t nSeqId;
+    int16_t nFlags;
 };
 
 struct SeqFrameChunk
