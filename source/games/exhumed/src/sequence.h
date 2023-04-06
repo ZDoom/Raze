@@ -116,9 +116,6 @@ extern int16_t nFlameHeight;
 extern int16_t nPilotLightFrame;
 extern int16_t nPilotLightCount;
 
-extern int16_t ChunkFlag[];
-
-
 void seq_LoadSequences();
 int seq_GetFrameSound(int val, int edx);
 void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame);
@@ -141,6 +138,7 @@ int getSeqFrameChunkCount(const int nFrame);
 int getSeqFrameChunkPosX(const int nChunk);
 int getSeqFrameChunkPosY(const int nChunk);
 int getSeqFrameChunkPicnum(const int nChunk);
+int getSeqFrameChunkFlags(const int nChunk);
 
 END_PS_NS
 

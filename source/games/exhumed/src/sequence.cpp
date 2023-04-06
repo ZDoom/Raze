@@ -63,7 +63,7 @@ static int16_t FrameFlag[kMaxSEQFrames];
 static int16_t ChunkYpos[kMaxSEQChunks];
 static int16_t ChunkXpos[kMaxSEQChunks];
 static int16_t ChunkPict[kMaxSEQChunks];
-int16_t ChunkFlag[kMaxSEQChunks];
+static int16_t ChunkFlag[kMaxSEQChunks];
 
 
 const char *SeqNames[kMaxSEQFiles] =
@@ -248,6 +248,17 @@ int getSeqFrameChunkPosY(const int nChunk)
 int getSeqFrameChunkPicnum(const int nChunk)
 {
     return ChunkPict[nChunk];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameChunkFlags(const int nChunk)
+{
+    return ChunkFlag[nChunk];
 }
 
 //---------------------------------------------------------------------------
@@ -524,10 +535,10 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
         int y = getSeqFrameChunkPosY(nFrameBase) + 100;
 
         int stat = 0;
-        if (ChunkFlag[nFrameBase] & 1)
+        if (getSeqFrameChunkFlags(nFrameBase) & 1)
             stat |= RS_XFLIPHUD;
 
-        if (ChunkFlag[nFrameBase] & 2)
+        if (getSeqFrameChunkFlags(nFrameBase) & 2)
             stat |= RS_YFLIPHUD;
 		
 		if (align) stat |= RS_ALIGN_R;
@@ -637,7 +648,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     pTSprite->shade = nShade;
     pTSprite->statnum = nFrameSize;
 
-    if (ChunkFlag[nFrameBase] & 1)
+    if (getSeqFrameChunkFlags(nFrameBase) & 1)
     {
         pTSprite->xoffset = (int8_t)getSeqFrameChunkPosX(nFrameBase);
         pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
@@ -727,7 +738,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->clipdist = pTSprite->clipdist;
         tsp->statnum = esi;
 
-        if (ChunkFlag[nBase] & 1)
+        if (getSeqFrameChunkFlags(nBase) & 1)
         {
             tsp->xoffset = (int8_t)getSeqFrameChunkPosX(nBase);
             tsp->cstat |= CSTAT_SPRITE_XFLIP; // x-flipped
