@@ -99,7 +99,7 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetStatusSequence)
 
     frameindex += getSeqFrame(nSequence + nStatusSeqOffset);
     if (numret > 0) ret[0].SetInt(getSeqFrameChunk(frameindex));
-    if (numret > 1) ret[1].SetInt(FrameSize[frameindex]);
+    if (numret > 1) ret[1].SetInt(getSeqFrameChunkCount(frameindex));
     return min(numret, 2);
 }
 

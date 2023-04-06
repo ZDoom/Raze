@@ -56,7 +56,7 @@ static int16_t SeqSize[kMaxSequences];
 static int16_t SeqFlag[kMaxSequences]; // not used at all.
 
 int16_t FrameSound[kMaxSEQFrames];
-int16_t FrameSize[kMaxSEQFrames];
+static int16_t FrameSize[kMaxSEQFrames];
 static int16_t FrameBase[kMaxSEQFrames];
 static int16_t FrameFlag[kMaxSEQFrames];
 
@@ -204,6 +204,17 @@ int getSeqFrameChunk(const int nFrame)
 int getSeqFrameFlags(const int nFrame)
 {
     return FrameFlag[nFrame];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameChunkCount(const int nFrame)
+{
+    return FrameSize[nFrame];
 }
 
 //---------------------------------------------------------------------------
@@ -439,7 +450,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
     {
         int16_t nFrame = nPilotLightBase + nPilotLightFrame;
         int16_t nFrameBase = getSeqFrameChunk(nFrame);
-        int16_t nFrameSize = FrameSize[nFrame];
+        int16_t nFrameSize = getSeqFrameChunkCount(nFrame);
 
         while (1)
         {
@@ -467,7 +478,7 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
 {
     int nFrame = getSeqFrame(nSeqOffset, dx);
     int nFrameBase = getSeqFrameChunk(nFrame);
-    int nFrameSize = FrameSize[nFrame];
+    int nFrameSize = getSeqFrameChunkCount(nFrame);
     int frameFlag = getSeqFrameFlags(nFrame);
 
     while (1)
@@ -571,7 +582,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     int16_t nFrame = getSeqFrame(nSeq + nSeqOffset, nVal);
 
     int16_t nFrameBase = getSeqFrameChunk(nFrame);
-    int16_t nFrameSize = FrameSize[nFrame];
+    int16_t nFrameSize = getSeqFrameChunkCount(nFrame);
 
     uint8_t nShade = pTSprite->shade;
     auto nStat = pTSprite->cstat;
@@ -635,7 +646,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     int edi = getSeqFrame(edx + val, nFrame);
 
     int16_t nBase = getSeqFrameChunk(edi);
-    int16_t nSize = FrameSize[edi];
+    int16_t nSize = getSeqFrameChunkCount(edi);
 
     int8_t shade = pTSprite->shade;
 

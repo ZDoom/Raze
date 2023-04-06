@@ -120,7 +120,6 @@ extern int16_t ChunkYpos[];
 extern int16_t ChunkXpos[];
 extern int16_t ChunkPict[];
 extern int16_t ChunkFlag[];
-extern int16_t FrameSize[];
 
 
 void seq_LoadSequences();
@@ -141,6 +140,7 @@ int getSeqFrame(const int nSeq, const int nFrame = 0);
 int getSeqFrameCount(const int nSeq);
 int getSeqFrameChunk(const int nFrame);
 int getSeqFrameFlags(const int nFrame);
+int getSeqFrameChunkCount(const int nFrame);
 
 END_PS_NS
 
