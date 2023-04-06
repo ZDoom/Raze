@@ -159,10 +159,10 @@ int16_t SeqOffsets[kMaxSEQFiles];
 
 int seq_ReadSequence(const char *seqName)
 {
-    int i;
-    FStringf seqfilename("%s.seq", seqName);
+    const int16_t StartFrameCount = frames;
+    const FStringf seqfilename("%s.seq", seqName);
+    const auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
 
-    auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
     if (!hFile.isOpen())
     {
         Printf("Unable to open '%s'!\n", seqfilename.GetChars());
@@ -199,12 +199,10 @@ int seq_ReadSequence(const char *seqName)
     hFile.Read(&SeqSize[sequences], nSeqs * sizeof(SeqSize[0]));
     hFile.Read(&SeqFlag[sequences], nSeqs * sizeof(SeqFlag[0]));
 
-    for (i = 0; i < nSeqs; i++)
+    for (int i = 0; i < nSeqs; i++)
     {
         SeqBase[sequences + i] += frames;
     }
-
-    int16_t vdi = frames;
 
     int16_t nFrames;
     hFile.Read(&nFrames, sizeof(nFrames));
@@ -226,7 +224,7 @@ int seq_ReadSequence(const char *seqName)
     hFile.Read(&FrameFlag[frames], nFrames * sizeof(FrameFlag[0]));
     memset(&FrameSound[frames], -1,  nFrames * sizeof(FrameSound[0]));
 
-    for (i = 0; i < nFrames; i++)
+    for (int i = 0; i < nFrames; i++)
     {
         FrameBase[frames + i] += chunks;
     }
@@ -251,7 +249,7 @@ int seq_ReadSequence(const char *seqName)
     hFile.Read(&ChunkPict[chunks], nChunks * sizeof(ChunkPict[0]));
     hFile.Read(&ChunkFlag[chunks], nChunks * sizeof(ChunkFlag[0]));
 
-    for (i = 0; i < nChunks; i++)
+    for (int i = 0; i < nChunks; i++)
     {
         ChunkXpos[chunks + i] -= centerx;
         ChunkYpos[chunks + i] -= centery;
@@ -270,7 +268,7 @@ int seq_ReadSequence(const char *seqName)
         TArray<char> buffer(var_20 * 10, true);
         memset(buffer.Data(), 0, var_20 * 10);
 
-        for (i = 0; i < var_20; i++)
+        for (int i = 0; i < var_20; i++)
         {
             hFile.Read(&buffer[i * 10], 8);
         }
@@ -278,7 +276,7 @@ int seq_ReadSequence(const char *seqName)
         int16_t var_24;
         hFile.Read(&var_24, sizeof(var_24));
 
-        for (i = 0; i < var_24; i++)
+        for (int i = 0; i < var_24; i++)
         {
             int16_t var_28, var_2C;
             hFile.Read(&var_28, sizeof(var_28));
@@ -293,8 +291,8 @@ int seq_ReadSequence(const char *seqName)
             else
                 hSound = LoadSound(&buffer[ndx*10]);
 
-            assert(vdi + var_28 < 18000);
-            FrameSound[vdi + var_28] = hSound | (var_2C & 0xFE00);
+            assert(StartFrameCount + var_28 < kMaxSEQFrames);
+            FrameSound[StartFrameCount + var_28] = hSound | (var_2C & 0xFE00);
         }
     }
 
