@@ -110,8 +110,6 @@ struct actionSeq
 
 extern int16_t frames;
 
-extern int16_t FrameFlag[];
-
 extern int16_t nShadowWidth;
 extern int16_t nFlameHeight;
 
@@ -134,7 +132,6 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx);
 void seq_DrawStatusSequence(int16_t nSequence, uint16_t edx, int16_t ebx);
 
 int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
-int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame);
 int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx);
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
@@ -143,6 +140,7 @@ int getSeqFromId(const int nSeqFileId, const int nSeq = 0);
 int getSeqFrame(const int nSeq, const int nFrame = 0);
 int getSeqFrameCount(const int nSeq);
 int getSeqFrameChunk(const int nFrame);
+int getSeqFrameFlags(const int nFrame);
 
 END_PS_NS
 

@@ -802,7 +802,7 @@ void AIBullet::Tick(RunListEvent* ev)
     int nSeq = getSeqFromId(BulletList[nBullet].nSeq);
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
-    int nFlag = FrameFlag[getSeqFrame(nSeq, BulletList[nBullet].nFrame)];
+    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, BulletList[nBullet].nFrame));
 
     seq_MoveSequence(pActor, nSeq, BulletList[nBullet].nFrame);
 

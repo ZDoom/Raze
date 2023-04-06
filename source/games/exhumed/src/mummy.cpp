@@ -144,7 +144,7 @@ void AIMummy::Tick(RunListEvent* ev)
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
     int nFrame = getSeqFrame(nSeq, pActor->nFrame);
-    int nFrameFlag = FrameFlag[nFrame];
+    int nFrameFlag = getSeqFrameFlags(nFrame);
 
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 

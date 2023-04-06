@@ -219,7 +219,7 @@ void AIScorp::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    int nFlag = FrameFlag[getSeqFrame(nSeq, pActor->nFrame)];
+    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     pTarget = pActor->pTarget;
 
     switch (nAction)

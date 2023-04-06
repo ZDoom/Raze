@@ -58,7 +58,7 @@ static int16_t SeqFlag[kMaxSequences]; // not used at all.
 int16_t FrameSound[kMaxSEQFrames];
 int16_t FrameSize[kMaxSEQFrames];
 static int16_t FrameBase[kMaxSEQFrames];
-int16_t FrameFlag[kMaxSEQFrames];
+static int16_t FrameFlag[kMaxSEQFrames];
 
 int16_t ChunkYpos[kMaxSEQChunks];
 int16_t ChunkXpos[kMaxSEQChunks];
@@ -193,6 +193,17 @@ int getSeqFrameCount(const int nSeq)
 int getSeqFrameChunk(const int nFrame)
 {
     return FrameBase[nFrame];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameFlags(const int nFrame)
+{
+    return FrameFlag[nFrame];
 }
 
 //---------------------------------------------------------------------------
@@ -420,17 +431,6 @@ void seq_LoadSequences()
 //
 //---------------------------------------------------------------------------
 
-int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame)
-{
-    return FrameFlag[getSeqFrame(val, nFrame)];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
     auto pSect = PlayerList[nLocalPlayer].pPlayerViewSect;
@@ -468,7 +468,7 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
     int nFrame = getSeqFrame(nSeqOffset, dx);
     int nFrameBase = getSeqFrameChunk(nFrame);
     int nFrameSize = FrameSize[nFrame];
-    int frameFlag = FrameFlag[nFrame];
+    int frameFlag = getSeqFrameFlags(nFrame);
 
     while (1)
     {
@@ -585,7 +585,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
         nStat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP);
     }
 
-    if (FrameFlag[nFrame] & 4) {
+    if (getSeqFrameFlags(nFrame) & 4) {
         nShade -= 100;
     }
 
@@ -639,7 +639,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
     int8_t shade = pTSprite->shade;
 
-    if (FrameFlag[eax] & 4)
+    if (getSeqFrameFlags(eax) & 4)
     {
         shade -= 100;
     }

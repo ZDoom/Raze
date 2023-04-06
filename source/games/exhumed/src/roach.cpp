@@ -223,7 +223,7 @@ void AIRoach::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    int nFlag = FrameFlag[getSeqFrame(nSeq, pActor->nFrame)];
+    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     DExhumedActor* pTarget = pActor->pTarget;
 
     if (nAction > 5) {

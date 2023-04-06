@@ -123,7 +123,7 @@ void AISpider::Tick(RunListEvent* ev)
 
     seq_MoveSequence(spp, nSeq, spp->nFrame);
 
-    int nFrameFlag = FrameFlag[getSeqFrame(nSeq, spp->nFrame)];
+    int nFrameFlag = getSeqFrameFlags(getSeqFrame(nSeq, spp->nFrame));
 
     spp->nFrame++;
     if (spp->nFrame >= getSeqFrameCount(nSeq)) {

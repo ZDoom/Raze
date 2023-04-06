@@ -645,7 +645,7 @@ void MoveWeapons(int nPlayer)
 loc_flag:
 
         // loc_27001
-        int nFrameFlag = seq_GetFrameFlag(var_3C, pPlayer->nSeqSize2);
+        int nFrameFlag = getSeqFrameFlags(getSeqFrame(var_3C, pPlayer->nSeqSize2));
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (nFrameFlag & 4))
         {

@@ -215,7 +215,7 @@ void AIRex::Tick(RunListEvent* ev)
         }
     }
 
-    int nFlag = FrameFlag[getSeqFrame(nSeq, pActor->nFrame)];
+    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
 
     DExhumedActor* pTarget = pActor->pTarget;
 

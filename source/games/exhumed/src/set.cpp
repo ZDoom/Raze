@@ -287,7 +287,7 @@ void AISet::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    int nFlag = FrameFlag[getSeqFrame(nSeq, pActor->nFrame)];
+    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     DExhumedActor* pTarget = pActor->pTarget;
 
     if (pTarget && nAction < 10)
