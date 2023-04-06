@@ -53,7 +53,7 @@ int16_t nFlameHeight = 1;
 
 static int16_t SeqBase[kMaxSequences];
 static int16_t SeqSize[kMaxSequences];
-int16_t SeqFlag[kMaxSequences];
+static int16_t SeqFlag[kMaxSequences]; // not used at all.
 
 int16_t FrameSound[kMaxSEQFrames];
 int16_t FrameSize[kMaxSEQFrames];
