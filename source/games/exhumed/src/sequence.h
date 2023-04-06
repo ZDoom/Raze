@@ -123,7 +123,6 @@ extern int16_t ChunkXpos[];
 extern int16_t ChunkPict[];
 extern int16_t ChunkFlag[];
 extern int16_t FrameSize[];
-extern int16_t FrameBase[];
 
 
 void seq_LoadSequences();
@@ -143,6 +142,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 int getSeqFromId(const int nSeqFileId, const int nSeq = 0);
 int getSeqFrame(const int nSeq, const int nFrame = 0);
 int getSeqFrameCount(const int nSeq);
+int getSeqFrameChunk(const int nFrame);
 
 END_PS_NS
 

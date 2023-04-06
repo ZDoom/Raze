@@ -57,7 +57,7 @@ static int16_t SeqFlag[kMaxSequences]; // not used at all.
 
 int16_t FrameSound[kMaxSEQFrames];
 int16_t FrameSize[kMaxSEQFrames];
-int16_t FrameBase[kMaxSEQFrames];
+static int16_t FrameBase[kMaxSEQFrames];
 int16_t FrameFlag[kMaxSEQFrames];
 
 int16_t ChunkYpos[kMaxSEQChunks];
@@ -182,6 +182,17 @@ int getSeqFrame(const int nSeq, const int nFrame)
 int getSeqFrameCount(const int nSeq)
 {
     return SeqSize[nSeq];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameChunk(const int nFrame)
+{
+    return FrameBase[nFrame];
 }
 
 //---------------------------------------------------------------------------
@@ -340,12 +351,7 @@ int seq_ReadSequence(const char *seqName)
 
 int seq_GetFirstSeqPicnum(int nSeq)
 {
-    int i = getSeqFromId(nSeq);
-    i = getSeqFrame(i);
-    i = FrameBase[i];
-    i = ChunkPict[i];
-
-    return i;
+    return ChunkPict[getSeqFrameChunk(getSeqFrame(getSeqFromId(nSeq)))];;
 }
 
 //---------------------------------------------------------------------------
@@ -432,7 +438,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
     if (!(pSect->Flag & kSectUnderwater))
     {
         int16_t nFrame = nPilotLightBase + nPilotLightFrame;
-        int16_t nFrameBase = FrameBase[nFrame];
+        int16_t nFrameBase = getSeqFrameChunk(nFrame);
         int16_t nFrameSize = FrameSize[nFrame];
 
         while (1)
@@ -460,7 +466,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
 {
     int nFrame = getSeqFrame(nSeqOffset, dx);
-    int nFrameBase = FrameBase[nFrame];
+    int nFrameBase = getSeqFrameChunk(nFrame);
     int nFrameSize = FrameSize[nFrame];
     int frameFlag = FrameFlag[nFrame];
 
@@ -535,8 +541,7 @@ void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
 
 int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 {
-    int16_t nBase = FrameBase[getSeqFrame(nSeq, nFrame)];
-    return ChunkPict[nBase];
+    return ChunkPict[getSeqFrameChunk(getSeqFrame(nSeq, nFrame))];
 }
 
 //---------------------------------------------------------------------------
@@ -547,9 +552,7 @@ int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 
 int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 {
-    int16_t c = FrameBase[getSeqFrame(getSeqFromId(nSeq, edx))];
-
-    return ChunkPict[c];
+    return ChunkPict[getSeqFrameChunk(getSeqFrame(getSeqFromId(nSeq, edx)))];
 }
 
 //---------------------------------------------------------------------------
@@ -567,7 +570,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 
     int16_t nFrame = getSeqFrame(nSeq + nSeqOffset, nVal);
 
-    int16_t nFrameBase = FrameBase[nFrame];
+    int16_t nFrameBase = getSeqFrameChunk(nFrame);
     int16_t nFrameSize = FrameSize[nFrame];
 
     uint8_t nShade = pTSprite->shade;
@@ -631,7 +634,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     int eax = getSeqFrame(edx, nFrame);
     int edi = getSeqFrame(edx + val, nFrame);
 
-    int16_t nBase = FrameBase[edi];
+    int16_t nBase = getSeqFrameChunk(edi);
     int16_t nSize = FrameSize[edi];
 
     int8_t shade = pTSprite->shade;
