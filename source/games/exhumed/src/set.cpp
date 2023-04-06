@@ -281,7 +281,7 @@ void AISet::Tick(RunListEvent* ev)
     }
 
     pActor->nFrame++;
-    if (pActor->nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
     {
         pActor->nFrame = 0;
         bVal = true;
@@ -567,7 +567,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pActor->nFrame = SeqSize[nSeq] - 1;
+            pActor->nFrame = getSeqFrameCount(nSeq) - 1;
         }
 
         if (nMov.exbits & kHitAux2)

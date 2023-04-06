@@ -101,7 +101,7 @@ void AIBubble::Tick(RunListEvent* ev)
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
         pActor->nFrame = 0;
 
     pActor->spr.pos.Z = pActor->vel.Z;

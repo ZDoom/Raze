@@ -52,7 +52,7 @@ int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
 
 static int16_t SeqBase[kMaxSequences];
-int16_t SeqSize[kMaxSequences];
+static int16_t SeqSize[kMaxSequences];
 int16_t SeqFlag[kMaxSequences];
 
 int16_t FrameSound[kMaxSEQFrames];
@@ -171,6 +171,17 @@ int getSeqFromId(const int nSeqFileId, const int nSeq)
 int getSeqFrame(const int nSeq, const int nFrame)
 {
     return SeqBase[nSeq] + nFrame;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getSeqFrameCount(const int nSeq)
+{
+    return SeqSize[nSeq];
 }
 
 //---------------------------------------------------------------------------
@@ -383,12 +394,12 @@ void seq_LoadSequences()
     nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
 
     nPilotLightBase  = getSeqFrame(getSeqFromId(kSeqFlamer, 3));
-    nPilotLightCount = SeqSize[getSeqFromId(kSeqFlamer, 3)];
+    nPilotLightCount = getSeqFrameCount(getSeqFromId(kSeqFlamer, 3));
     nPilotLightFrame = 0;
 
     nFontFirstChar = seq_GetFirstSeqPicnum(kSeqFont2);
 
-    int16_t nSize = SeqSize[getSeqFromId(kSeqFont2)];
+    int16_t nSize = getSeqFrameCount(getSeqFromId(kSeqFont2));
 
     for (i = 0; i < nSize; i++)
     {

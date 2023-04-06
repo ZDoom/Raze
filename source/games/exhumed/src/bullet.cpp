@@ -812,7 +812,7 @@ void AIBullet::Tick(RunListEvent* ev)
     }
 
     BulletList[nBullet].nFrame++;
-    if (BulletList[nBullet].nFrame >= SeqSize[nSeq])
+    if (BulletList[nBullet].nFrame >= getSeqFrameCount(nSeq))
     {
         if (!BulletList[nBullet].field_12)
         {

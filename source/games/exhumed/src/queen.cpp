@@ -551,7 +551,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         seq_MoveSequence(pActor, nSeq, pEgg->nFrame);
 
         pEgg->nFrame++;
-        if (pEgg->nFrame >= SeqSize[nSeq])
+        if (pEgg->nFrame >= getSeqFrameCount(nSeq))
         {
             pEgg->nFrame = 0;
             bVal = true;
@@ -805,7 +805,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
     pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, QueenHead.nFrame);
 
     QueenHead.nFrame++;
-    if (QueenHead.nFrame >= SeqSize[nSeq])
+    if (QueenHead.nFrame >= getSeqFrameCount(nSeq))
     {
         QueenHead.nFrame = 0;
         var_14 = 1;
@@ -1246,7 +1246,7 @@ void AIQueen::Tick(RunListEvent* ev)
     seq_MoveSequence(pActor, nSeq, QueenList[nQueen].nFrame);
 
     QueenList[nQueen].nFrame++;
-    if (QueenList[nQueen].nFrame >= SeqSize[nSeq])
+    if (QueenList[nQueen].nFrame >= getSeqFrameCount(nSeq))
     {
         QueenList[nQueen].nFrame = 0;
         bVal = true;

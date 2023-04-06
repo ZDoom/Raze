@@ -1917,7 +1917,7 @@ static void doPlayerActionSequence(Player* const pPlayer)
     seq_MoveSequence(pPlayerActor, nSeq, pPlayer->nSeqSize);
     pPlayer->nSeqSize++;
 
-    if (pPlayer->nSeqSize < SeqSize[nSeq])
+    if (pPlayer->nSeqSize < getSeqFrameCount(nSeq))
         return;
 
     pPlayer->nSeqSize = 0;
@@ -1927,13 +1927,13 @@ static void doPlayerActionSequence(Player* const pPlayer)
     default:
         break;
     case 3:
-        pPlayer->nSeqSize = SeqSize[nSeq] - 1;
+        pPlayer->nSeqSize = getSeqFrameCount(nSeq) - 1;
         break;
     case 4:
         pPlayer->nAction = 0;
         break;
     case 16:
-        pPlayer->nSeqSize = SeqSize[nSeq] - 1;
+        pPlayer->nSeqSize = getSeqFrameCount(nSeq) - 1;
 
         if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
             pPlayerActor->spr.pos.Z++;

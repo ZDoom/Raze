@@ -110,7 +110,6 @@ struct actionSeq
 
 extern int16_t frames;
 
-extern int16_t SeqSize[];
 extern int16_t FrameFlag[];
 
 extern int16_t nShadowWidth;
@@ -143,6 +142,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
 int getSeqFromId(const int nSeqFileId, const int nSeq = 0);
 int getSeqFrame(const int nSeq, const int nFrame = 0);
+int getSeqFrameCount(const int nSeq);
 
 END_PS_NS
 

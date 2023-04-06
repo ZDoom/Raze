@@ -133,7 +133,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     ap->spr.picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
     ap->nFrame++;
 
-    if (ap->nFrame >= SeqSize[nSeq])
+    if (ap->nFrame >= getSeqFrameCount(nSeq))
     {
         ap->nFrame = 0;
         bVal = true;

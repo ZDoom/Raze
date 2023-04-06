@@ -50,7 +50,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     auto pChunkActor = insertActor(pActor->sector(), 99);
 
     pChunkActor->nCount = anim + 40;
-    pChunkActor->nFrame = RandomSize(3) % SeqSize[getSeqFromId(kSeqFish, pChunkActor->nCount)];
+    pChunkActor->nFrame = RandomSize(3) % getSeqFrameCount(getSeqFromId(kSeqFish, pChunkActor->nCount));
 
 	pChunkActor->spr.pos = pActor->spr.pos;
     pChunkActor->spr.cstat = 0;
@@ -100,7 +100,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
@@ -369,7 +369,7 @@ void AIFish::Tick(RunListEvent* ev)
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= SeqSize[nSeq]) {
+    if (pActor->nFrame >= getSeqFrameCount(nSeq)) {
         pActor->nFrame = 0;
     }
 

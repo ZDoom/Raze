@@ -151,7 +151,7 @@ void AIMummy::Tick(RunListEvent* ev)
     bool bVal = false;
 
     pActor->nFrame++;
-    if (pActor->nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
     {
         pActor->nFrame = 0;
 

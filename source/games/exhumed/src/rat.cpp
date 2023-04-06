@@ -250,7 +250,7 @@ void AIRat::Tick(RunListEvent* ev)
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
     {
         bVal = true;
         pActor->nFrame = 0;

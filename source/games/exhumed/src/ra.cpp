@@ -223,7 +223,7 @@ void AIRa::Tick(RunListEvent* ev)
         seq_MoveSequence(pActor, nSeq, Ra[nPlayer].nFrame);
 
         Ra[nPlayer].nFrame++;
-        if (Ra[nPlayer].nFrame >= SeqSize[nSeq])
+        if (Ra[nPlayer].nFrame >= getSeqFrameCount(nSeq))
         {
             Ra[nPlayer].nFrame = 0;
             bVal = true;

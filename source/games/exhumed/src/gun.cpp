@@ -393,7 +393,7 @@ void MoveWeapons(int nPlayer)
             dword_96E22 = 0;
         }
 
-        if (pPlayer->nSeqSize2 >= SeqSize[var_3C])
+        if (pPlayer->nSeqSize2 >= getSeqFrameCount(var_3C))
         {
             if (pPlayer->nNextWeapon == -1)
             {
@@ -471,7 +471,7 @@ void MoveWeapons(int nPlayer)
                             }
                             else
                             {
-                                pPlayer->nSeqSize2 = SeqSize[var_3C] - 1;
+                                pPlayer->nSeqSize2 = getSeqFrameCount(var_3C) - 1;
                                 continue;
                             }
                         }
@@ -568,7 +568,7 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(nPlayer);
                                 pPlayer->nState = 5;
 
-                                pPlayer->nSeqSize2 = SeqSize[getSeqFromId(nSeq, WeaponInfo[kWeaponGrenade].b[0])] - 1; // CHECKME
+                                pPlayer->nSeqSize2 = getSeqFrameCount(getSeqFromId(nSeq, WeaponInfo[kWeaponGrenade].b[0])) - 1; // CHECKME
                                 goto loc_flag; // FIXME
                             }
                         }
@@ -640,7 +640,7 @@ void MoveWeapons(int nPlayer)
                 pPlayer->nSeqSize2 = 0;
                 continue;
             }
-        } // end of if (pPlayer->field_34 >= SeqSize[var_3C])
+        } // end of if (pPlayer->field_34 >= getSeqFrameCount(var_3C))
 
 loc_flag:
 

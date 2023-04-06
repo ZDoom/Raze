@@ -296,11 +296,11 @@ void AIGrenade::Tick(RunListEvent* ev)
 
         if (ebp < 0)
         {
-            pActor->nHealth += SeqSize[nSeq] << 8;
+            pActor->nHealth += getSeqFrameCount(nSeq) << 8;
         }
         else
         {
-            if (ebp >= SeqSize[nSeq])
+            if (ebp >= getSeqFrameCount(nSeq))
             {
                 if (pActor->nFrame)
                 {

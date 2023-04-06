@@ -718,7 +718,7 @@ void UpdateCreepySounds()
     {
         if (nCreaturesKilled < nCreaturesTotal && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
         {
-            int vsi = seq_GetFrameSound(getSeqFromId(kSeqCreepy), totalmoves % SeqSize[getSeqFromId(kSeqCreepy)]);
+            int vsi = seq_GetFrameSound(getSeqFromId(kSeqCreepy), totalmoves % getSeqFrameCount(getSeqFromId(kSeqCreepy)));
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)
             {
 				DVector2 adder;

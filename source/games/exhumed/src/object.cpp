@@ -1893,7 +1893,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
-            pActor->nFrame = RandomSize(4) % (SeqSize[pActor->nIndex] - 1);
+            pActor->nFrame = RandomSize(4) % (getSeqFrameCount(pActor->nIndex) - 1);
         }
 
         auto  pActor2 = insertActor(pActor->sector(), 0);
@@ -1963,7 +1963,7 @@ void AIObject::Tick(RunListEvent* ev)
     if (bx != -1)
     {
         pActor->nFrame++;
-        if (pActor->nFrame >= SeqSize[bx]) {
+        if (pActor->nFrame >= getSeqFrameCount(bx)) {
             pActor->nFrame = 0;
         }
 
@@ -2205,7 +2205,7 @@ void DoDrips()
                 nSeqOffset++;
             }
 
-            seq_MoveSequence(pActor, nSeqOffset, RandomSize(2) % SeqSize[nSeqOffset]);
+            seq_MoveSequence(pActor, nSeqOffset, RandomSize(2) % getSeqFrameCount(nSeqOffset));
 
             sDrip[i].nCount = RandomSize(8) + 90;
         }

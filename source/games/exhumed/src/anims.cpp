@@ -223,7 +223,7 @@ void AIAnim::Tick(RunListEvent* ev)
     }
 
     pActor->nIndex++;
-    if (pActor->nIndex >= SeqSize[nSeq])
+    if (pActor->nIndex >= getSeqFrameCount(nSeq))
     {
         if (pActor->nAction & 0x10)
         {

@@ -213,7 +213,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
     {
         pActor->nFrame = 0;
         bVal = true;

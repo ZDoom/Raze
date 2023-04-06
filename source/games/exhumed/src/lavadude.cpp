@@ -227,7 +227,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         seq_MoveSequence(pActor, nSeq, var_38);
 
         pActor->nFrame++;
-        if (pActor->nFrame >= SeqSize[nSeq])
+        if (pActor->nFrame >= getSeqFrameCount(nSeq))
         {
             var_1C = 1;
             pActor->nFrame = 0;
