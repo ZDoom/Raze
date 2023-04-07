@@ -77,7 +77,7 @@ class DukeGreenSlime : DukeActor
 					let k = dlevel.SpawnActor(self.sector, self.pos, pieces[j % 3], -32, (0.5625, 0.5625), a, vel, zvel, self, STAT_MISC);
 					if (k) k.pal = 1;
 				}
-				p.actors_killed++;
+				self.addkill();
 				self.PlayActorSound("GLASS_BREAKING");
 				self.Destroy();
 			}
@@ -131,7 +131,7 @@ class DukeGreenSlime : DukeActor
 						let spawned = self.spawn("DukeBloodPool");
 						if (spawned) spawned.pal = 0;
 					}
-					p.actors_killed++;
+					self.addkill();
 					self.temp_data[0] = -3;
 					if (p.somethingonplayer == self)
 						p.somethingonplayer = nullptr;
@@ -217,7 +217,7 @@ class DukeGreenSlime : DukeActor
 				self.temp_data[0] = -5; self.temp_data[3] = 0;
 				return;
 			}
-			p.actors_killed++;
+			self.addkill();
 
 			if (random(0, 255) < 32)
 			{

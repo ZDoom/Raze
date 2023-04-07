@@ -240,6 +240,8 @@ class DukeActor : CoreActor native
 	native void insertspriteq();
 	native void operateforcefields(int tag);
 	native void restoreloc();
+	native void addkill();
+	native void subkill();
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags

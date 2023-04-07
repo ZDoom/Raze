@@ -357,9 +357,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-			if (actorfella(act))
-				ps[myconnectindex].max_actors_killed++;
-
 			if (actj)
 			{
 				act->timetosleep = 0;

@@ -188,6 +188,7 @@ enum ESpriteBits2
 	CSTAT2_SPRITE_FULLBRIGHT = 16,	// always draw fullbright with shade -127
 	CSTAT2_SPRITE_NOANIMATE = 32,	// disable texture animation
 	CSTAT2_SPRITE_NOMODEL = 64,		// disable models and voxels for this tsprite
+	CSTAT2_SPRITE_COUNTKILL = 128	// internal tracking of SFLAG_KILLCOUNT, thanks to non-existent automation in Duke.
 };
 
 // tsprite flags use the otherwise unused clipdist field.
@@ -198,7 +199,7 @@ enum ETSprFlags
 	TSPR_MDLROTATE = 4,			// rotate if this is a model or voxel.
 	TSPR_SLOPESPRITE = 8,       // render as sloped sprite
 	TSPR_ROTATE8FRAMES = 16,	// do an 8 frame rotation
-	TSPR_ROTATE12FRAMES = 32,	// do an 12 frame rotation
+	TSPR_ROTATE12FRAMES = 32,	// do a 12 frame rotation
 	TSPR_NOFLOORPAL = 64,		// ignore the floorpal
 };
 

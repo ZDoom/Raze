@@ -1204,10 +1204,10 @@ int ConCompiler::parsecommand()
 		if (tw == concmd_useractor)
 		{
 			if (j & 1)
-				gs.actorinfo[lnum].flags |= SFLAG_BADGUY;
+				gs.actorinfo[lnum].flags |= SFLAG_BADGUY | SFLAG_KILLCOUNT;
 
 			if (j & 2)
-				gs.actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
+				gs.actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_KILLCOUNT | SFLAG_BADGUYSTAYPUT);
 		}
 
 		for (j = 0; j < 4; j++)

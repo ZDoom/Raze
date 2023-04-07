@@ -681,6 +681,21 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, restoreloc, DukeActor_restoreloc)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, addkill, addkill)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	addkill(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, subkill, subkill)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	subkill(self);
+	return 0;
+}
+
+
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
 {
@@ -837,8 +852,6 @@ DEFINE_FIELD_X(DukePlayer, player_struct, palookup)
 DEFINE_FIELD_X(DukePlayer, player_struct, quick_kick_msg)
 DEFINE_FIELD_X(DukePlayer, player_struct, max_secret_rooms)
 DEFINE_FIELD_X(DukePlayer, player_struct, secret_rooms)
-DEFINE_FIELD_X(DukePlayer, player_struct, max_actors_killed)
-DEFINE_FIELD_X(DukePlayer, player_struct, actors_killed)
 DEFINE_FIELD_X(DukePlayer, player_struct, stairs)
 DEFINE_FIELD_X(DukePlayer, player_struct, detonate_count)
 //DEFINE_FIELD_X(DukePlayer, player_struct, noise.X)

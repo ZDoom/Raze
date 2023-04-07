@@ -325,8 +325,7 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 
 		self->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-		if (!isRR() && actorflag(self, SFLAG_KILLCOUNT))
-			ps[myconnectindex].max_actors_killed++;
+		addtokills(self);
 
 		self->timetosleep = 0;
 		if (!self->mapSpawned)

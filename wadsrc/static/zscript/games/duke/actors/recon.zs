@@ -66,7 +66,7 @@ class DukeRecon : DukeActor
 					self.RANDOMSCRAP();
 				self.PlayActorSound("LASERTRIP_EXPLODE");
 				let spawned = self.spawn(spawntype);
-				Duke.GetLocalPlayer().actors_killed++;
+				self.addkill();
 				self.Destroy();
 			}
 			return;
