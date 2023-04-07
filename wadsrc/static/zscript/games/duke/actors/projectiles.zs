@@ -714,6 +714,20 @@ class DukeFireball : DukeProjectile // WorldTour only
 		}
 		return false;
 	}
+
+	override void posthiteffect(CollisionData coll)
+	{
+		if (self.detail != 1)
+		{
+			let spawned = self.spawn('DukeExplosion2');
+			if (spawned)
+			{
+				let scale = self.scale.X * 0.5;
+				spawned.scale = (scale,scale);
+			}
+		}
+		Super.postHitEffect(coll);
+	}
 	
 	override bool animate(tspritetype tspr)
 	{
