@@ -2544,9 +2544,8 @@ void actInit(TArray<DBloodActor*>& actors)
 static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector3& pos, double damage)
 {
 	auto vect = actor->spr.pos - pos;
-
-	double dist2 = vect.LengthSquared() + 0x4000;
-	damage *= 0x4000 / dist2;
+	double dist2 = vect.LengthSquared() + 0x400;
+	damage *= 0x400 / dist2;
 
 	if (actor->spr.flags & kPhysMove)
 	{
