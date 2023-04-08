@@ -302,14 +302,18 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 {
 	if (!self->mapSpawned) self->spr.lotag = 0;
 
-	//  Init the size. This is different for internal and user enemies.
-	if (actorflag(self, SFLAG_INTERNAL_BADGUY))
+	if (gs.actorinfo[self->spr.picnum].scriptaddress)	// default scale only applies to actors with a CON part. Note: needs fixing later!
 	{
-		self->spr.scale = DVector2(0.625, 0.625);
-	}
-	else if (self->spr.scale.X == 0 || self->spr.scale.Y == 0)
-	{
-		self->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
+		//  Init the size. This is different for internal and user enemies.
+		if (actorflag(self, SFLAG_INTERNAL_BADGUY))
+		{
+			self->spr.scale = DVector2(0.625, 0.625);
+			self->clipdist = 20;
+		}
+		else if (self->spr.scale.X == 0 || self->spr.scale.Y == 0)
+		{
+			self->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
+		}
 	}
 
 	if ((self->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
