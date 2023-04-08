@@ -406,8 +406,8 @@ void dokneeattack(int snum)
 				}
 				else if (badguy(p->actorsqu))
 				{
-					p->actorsqu->Destroy();
 					addkill(p->actorsqu);
+					p->actorsqu->Destroy();
 				}
 				else p->actorsqu->Destroy();
 			}
