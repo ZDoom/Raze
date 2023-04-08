@@ -332,6 +332,21 @@ DEFINE_PROPERTY(statnum, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
+DEFINE_PROPERTY(scale, Ff, CoreActor)
+{
+	PROP_FLOAT_PARM(x, 0);
+	bag.Info->ActorInfo()->DefaultScale = { x,x };
+	if (PROP_PARM_COUNT > 1)
+	{
+		PROP_FLOAT_PARM(y, 0);
+		bag.Info->ActorInfo()->DefaultScale.Y = y;
+	}
+	bag.Info->ActorInfo()->DefaultFlags |= DEFF_SCALE;
+}
+
+//==========================================================================
+//
+//==========================================================================
 DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 {
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;	// this also overrides the map's picnum

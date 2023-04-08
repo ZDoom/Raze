@@ -15,6 +15,7 @@ enum EDefaultFlags
 {
 	DEFF_PICNUM = 1,
 	DEFF_STATNUM = 2,
+	DEFF_SCALE = 4,
 };
 
 struct FActorInfo
@@ -23,6 +24,7 @@ struct FActorInfo
 	TArray<int> SpriteSet;
 	PClassActor *Replacement = nullptr;
 	PClassActor *Replacee = nullptr;
+	DVector2 DefaultScale = { 0, 0 };
 	int TypeNum = -1;
 	int DefaultFlags = 0;
 	int DefaultCstat = 0;
@@ -40,6 +42,7 @@ struct FActorInfo
 		DefaultFlags = other.DefaultFlags;
 		DefaultCstat = other.DefaultCstat;
 		SpriteSetNames = other.SpriteSetNames;
+		DefaultScale = other.DefaultScale;
 	}
 
 	void ResolveTextures(const char* clsname, DCoreActor *defaults);
