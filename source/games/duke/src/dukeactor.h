@@ -22,15 +22,15 @@ inline int player_struct::GetPlayerNum()
 DDukeActor* spawn(DDukeActor* spawner, int type);
 DDukeActor* spawn(DDukeActor* actj, PClassActor* pname);
 
-
+// return type is int for scripting - the value must still be true or false!
 inline int badguy(DDukeActor* pSprite)
 {
-	return pSprite->flags1 & (SFLAG_BADGUY | SFLAG_INTERNAL_BADGUY);
+	return !!(pSprite->flags1 & (SFLAG_BADGUY | SFLAG_INTERNAL_BADGUY));
 }
 
 inline int bossguy(DDukeActor* pSprite)
 {
-	return pSprite->flags1 & SFLAG_BOSS;
+	return !!(pSprite->flags1 & SFLAG_BOSS);
 }
 
 // old interface versions of already changed functions

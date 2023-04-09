@@ -166,7 +166,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 	if ((proj->spr.picnum == DTILE_FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
 	{
-		if (badguy(targ) == 1)
+		if (badguy(targ))
 		{
 			if (isWorldTour() && targ->spr.picnum == DTILE_FIREFLY && targ->spr.scale.X < 0.75)
 				return;
