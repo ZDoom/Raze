@@ -857,7 +857,7 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 			ChangeActorStat(act, STAT_MISC);
 		else
 			ChangeActorStat(act, STAT_PLAYER);
-		CallInitialize(act);
+		//CallInitialize(act);
 	}
 	return act;
 }
