@@ -202,7 +202,7 @@ class DukeSeriousSam : DukeActor
 {
 	default
 	{
-		pic "SERIOSSAM";
+		pic "SERIOUSSAM";
 		statnum STAT_ZOMBIEACTOR;
 	}
 	
