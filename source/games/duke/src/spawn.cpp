@@ -304,11 +304,11 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 
 	if (gs.actorinfo[self->spr.picnum].scriptaddress)	// default scale only applies to actors with a CON part. Note: needs fixing later!
 	{
+		self->clipdist = 20;
 		//  Init the size. This is different for internal and user enemies.
 		if (actorflag(self, SFLAG_INTERNAL_BADGUY))
 		{
 			self->spr.scale = DVector2(0.625, 0.625);
-			self->clipdist = 20;
 		}
 		else if (self->spr.scale.X == 0 || self->spr.scale.Y == 0)
 		{
