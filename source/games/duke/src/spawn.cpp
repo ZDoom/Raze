@@ -322,7 +322,6 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 
 		addtokills(self);
 
-		self->flags1 &= ~SFLAG_KILLCOUNT;
 		self->timetosleep = 0;
 		if (!self->mapSpawned)
 		{
