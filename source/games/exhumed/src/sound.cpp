@@ -505,7 +505,7 @@ void GameInterface::UpdateSounds()
     DAngle ang;
     if (nSnakeCam > -1)
     {
-        Snake *pSnake = &SnakeList[nSnakeCam];
+        Snake* pSnake = &SnakeList[nSnakeCam];
         pos = pSnake->pSprites[0]->spr.pos;
         ang = pSnake->pSprites[0]->spr.Angles.Yaw;
     }
@@ -514,6 +514,7 @@ void GameInterface::UpdateSounds()
         pos = pActor->spr.pos;
         ang = pActor->spr.Angles.Yaw;
     }
+    else pos.Zero();
     SoundListener listener;
     listener.angle = float(-ang.Radians()); // Build uses a period of 2048.
     listener.velocity.Zero();
