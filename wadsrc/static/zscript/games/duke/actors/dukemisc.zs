@@ -283,6 +283,7 @@ class DukeNewBeast : DukeActor
 		+KILLCOUNT;
 		+GREENSLIMEFOOD;
 		+GREENBLOOD;
+		+SKILLFILTER;
 	}
 }
 
@@ -312,6 +313,7 @@ class DukeTank : DukeActor
 		+KILLCOUNT;
 		+NODAMAGEPUSH;
 		+NORADIUSPUSH;
+		+SKILLFILTER;
 	}
 }
 
