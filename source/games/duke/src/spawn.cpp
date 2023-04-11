@@ -314,7 +314,7 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 		}
 	}
 
-	if ((self->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
+	if (ud.monsters_off == 1)
 	{
 		self->spr.scale.Zero();
 		ChangeActorStat(self, STAT_MISC);
@@ -842,6 +842,16 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 	}
 	else if (!act->isPlayer())
 	{
+		if (act->flags1 & (SFLAG_INTERNAL_BADGUY | SFLAG_SKILLFILTER))
+		{
+			if (act->spr.lotag > ud.player_skill)
+			{
+				act->spr.scale.Zero();
+				ChangeActorStat(act, STAT_MISC);
+				return nullptr;
+			}
+		}
+
 		if (!badguy(act) || commonEnemySetup(act, actj))
 			CallInitialize(act);
 	}

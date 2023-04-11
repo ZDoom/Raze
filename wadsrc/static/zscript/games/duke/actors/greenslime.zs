@@ -422,7 +422,7 @@ class DukeEgg : DukeActor
 	default
 	{
 		pic "EGG";
-		+INTERNAL_BADGUY;
+		+BADGUY;
 	}
 	
 	override void Initialize()
@@ -434,6 +434,7 @@ class DukeEgg : DukeActor
 		}
 		else
 		{
+			self.scale = (0.625, 0.625);
 			self.clipdist = 6;
 			self.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			self.ChangeStat(STAT_ZOMBIEACTOR);
