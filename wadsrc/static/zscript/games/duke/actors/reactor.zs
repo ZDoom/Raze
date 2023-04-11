@@ -164,7 +164,7 @@ class DukeReactorSpark : DukeActor
 	}
 }
 
-class DukeReactor2Spark : DukeActor
+class DukeReactor2Spark : DukeReactorSpark
 {
 	default
 	{
