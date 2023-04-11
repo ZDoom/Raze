@@ -422,7 +422,6 @@ class DukeEgg : DukeActor
 	default
 	{
 		pic "EGG";
-		+BADGUY;
 	}
 	
 	override void Initialize()
@@ -434,7 +433,7 @@ class DukeEgg : DukeActor
 		}
 		else
 		{
-			self.scale = (0.625, 0.625);
+			self.bINTERNAL_BADGUY = true; // the egg needs this flag, but it should not run through the monster init code.
 			self.clipdist = 6;
 			self.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			self.ChangeStat(STAT_ZOMBIEACTOR);
