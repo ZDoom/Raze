@@ -194,7 +194,6 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 void addspritetodelete(int spnum=0);
 void checkavailinven(player_struct* p);
 bool initspriteforspawn(DDukeActor* spn);
-bool commonEnemySetup(DDukeActor* self, DDukeActor* owner);
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors);
 int startrts(int lumpNum, int localPlayer);

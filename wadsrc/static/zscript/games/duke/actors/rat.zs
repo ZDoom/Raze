@@ -13,25 +13,17 @@ class DukeRat : DukeActor
 	{
 		if (!self.mapSpawned) self.lotag = 0;
 
-		if ((self.lotag > ud.player_skill) || ud.monsters_off == 1)
-		{
-			self.scale = (0, 0);
-			self.ChangeStat(STAT_MISC);
-		}
-		else
-		{
-			self.makeitfall();
-			self.angle = frandom(0, 360);
-			self.cstat = 0;
+		self.makeitfall();
+		self.angle = frandom(0, 360);
+		self.cstat = 0;
 
-			if (!self.mapSpawned && self.ownerActor)
-			{
-				self.timetosleep = 0;
-				self.ChangeStat(STAT_ACTOR);
-				if (Raze.isRR()) self.shade = self.ownerActor.shade;
-			}
-			else self.ChangeStat(STAT_ZOMBIEACTOR);
+		if (!self.mapSpawned && self.ownerActor)
+		{
+			self.timetosleep = 0;
+			self.ChangeStat(STAT_ACTOR);
+			if (Raze.isRR()) self.shade = self.ownerActor.shade;
 		}
+		else self.ChangeStat(STAT_ZOMBIEACTOR);
 		self. clipdist = 10;
 		self. scale = (0.75, 0.75);
 	}

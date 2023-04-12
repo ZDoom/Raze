@@ -1,14 +1,14 @@
 
 spawnclasses
 {
-	5163 = DukeFireball
-	5736 = DukeGenericDestructible, "WTGLASS1", "", "GLASS_BREAKING", spawnglass
-	5737 = DukeGenericDestructible, "WTGLASS2", "", "GLASS_BREAKING", spawnglass
-	5294 = DeveloperCommentary
-	1891 = DukeFlamethrowerFlame
-	5296 = DukeFireflyFlyingEffect
-	5304 = DukeLavaPool
-	5207 = DukeLavaPoolBubble
+	5163 = DukeFireball, noskill
+	5736 = DukeGenericDestructible, noskill, "WTGLASS1", "", "GLASS_BREAKING", spawnglass
+	5737 = DukeGenericDestructible, noskill, "WTGLASS2", "", "GLASS_BREAKING", spawnglass
+	5294 = DeveloperCommentary, noskill
+	1891 = DukeFlamethrowerFlame, noskill
+	5296 = DukeFireflyFlyingEffect, noskill
+	5304 = DukeLavaPool, noskill
+	5207 = DukeLavaPoolBubble, noskill
 	
 	5310 = DukeBoss5
 	5311 = DukeBoss5Stayput
@@ -16,9 +16,9 @@ spawnclasses
 
 	5134 = DukeFlamethrowerSprite
 	5135 = DukeFlamethrowerAmmo
-	5143 = DukeOnFire
+	5143 = DukeOnFire, noskill
 	5152 = DukeOnFireSmoke
-	5268 = DukeWhispySmoke
-	5846 = DukeSeriousSam
+	5268 = DukeWhispySmoke, noskill
+	5846 = DukeSeriousSam, noskill
 	5173 = DukeBurnedCorpse
 }

@@ -206,12 +206,6 @@ class DukeTripBombPlaced : DukeTripBomb
 {
 	override void Initialize()
 	{
-		if (self.lotag > ud.player_skill)
-		{
-			self.scale = (0, 0);
-			self.ChangeStat(STAT_MISC);
-			return;
-		}
 		Super.Initialize();
 
 		self.ownerActor = self;

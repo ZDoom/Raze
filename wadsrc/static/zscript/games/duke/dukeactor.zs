@@ -245,19 +245,10 @@ class DukeActor : CoreActor native
 				self.scale = (REPEAT_SCALE, REPEAT_SCALE);
 			}
 
-			if (self.lotag > ud.player_skill)
-			{
-				self.scale = (0, 0);
-				self.ChangeStat(STAT_MISC);
-			}
-			else
-			{
-				self.clipdist = 10;
-				self.ownerActor = self;
-				self.ChangeStat(STAT_ACTOR);
-			}
+			self.clipdist = 10;
+			self.ownerActor = self;
+			self.ChangeStat(STAT_ACTOR);
 		}
-		
 	}
 	
 	
@@ -282,7 +273,7 @@ class DukeActor : CoreActor native
 			self.cstat = 0;
 		}
 
-		if ((ud.multimode < 2 && self.pal != 0) || (self.lotag > ud.player_skill))
+		if (ud.multimode < 2 && self.pal != 0)
 		{
 			self.scale = (0, 0);
 			self.ChangeStat(STAT_MISC);

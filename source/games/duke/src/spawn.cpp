@@ -296,7 +296,7 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 //
 //---------------------------------------------------------------------------
 
-bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
+static void commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 {
 	if (!self->mapSpawned) self->spr.lotag = 0;
 
@@ -314,30 +314,20 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 		}
 	}
 
-	if (ud.monsters_off == 1)
+	makeitfall(self);
+
+	self->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+
+	addtokills(self);
+
+	self->timetosleep = 0;
+	if (!self->mapSpawned)
 	{
-		self->spr.scale.Zero();
-		ChangeActorStat(self, STAT_MISC);
-		return false;
+		CallPlayFTASound(self);
+		ChangeActorStat(self, STAT_ACTOR);
+		if (owner && !(self->flags1 & SFLAG_INTERNAL_BADGUY)) self->spr.Angles.Yaw = owner->spr.Angles.Yaw;
 	}
-	else
-	{
-		makeitfall(self);
-
-		self->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-		addtokills(self);
-
-		self->timetosleep = 0;
-		if (!self->mapSpawned)
-		{
-			CallPlayFTASound(self);
-			ChangeActorStat(self, STAT_ACTOR);
-			if (owner && !(self->flags1 & SFLAG_INTERNAL_BADGUY)) self->spr.Angles.Yaw = owner->spr.Angles.Yaw;
-		}
-		else ChangeActorStat(self, STAT_ZOMBIEACTOR);
-		return true;
-	}
+	else ChangeActorStat(self, STAT_ZOMBIEACTOR);
 }
 
 
@@ -842,7 +832,7 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 	}
 	else if (!act->isPlayer())
 	{
-		if (act->flags1 & (SFLAG_INTERNAL_BADGUY | SFLAG_SKILLFILTER))
+		if (act->flags1 & SFLAG_SKILLFILTER)
 		{
 			if (act->spr.lotag > ud.player_skill)
 			{
@@ -851,9 +841,17 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 				return nullptr;
 			}
 		}
-
-		if (!badguy(act) || commonEnemySetup(act, actj))
-			CallInitialize(act);
+		if (badguy(act))
+		{
+			if (ud.monsters_off == 1)
+			{
+				act->spr.scale.Zero();
+				ChangeActorStat(act, STAT_MISC);
+				return nullptr;
+			}
+			commonEnemySetup(act, actj);
+		}
+		CallInitialize(act);
 	}
 	else
 	{

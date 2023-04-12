@@ -284,6 +284,7 @@ void FMapInfoParser::ParseSpawnClasses()
 		}
 		ParseAssign();
 		sc.MustGetString();
+
 		actor = PClass::FindActor(sc.String);
 		if (actor == nullptr)
 		{
@@ -295,6 +296,13 @@ void FMapInfoParser::ParseSpawnClasses()
 		{
 			// prefixing the texture names here with a '*' will render them fullbright.
 			sc.MustGetString();
+			if (sc.Compare("noskill"))
+			{
+				flags |= 0x8000;
+				if (sc.CheckString(","))
+					sc.MustGetString();
+				else goto out;
+			}
 			const char* p = sc.String;
 			if (*p == '*') { fullbright |= 1; p++; }
 			basetex = tileForName(p);
@@ -339,6 +347,7 @@ void FMapInfoParser::ParseSpawnClasses()
 				}
 			}
 		}
+		out:
 		if (actor != 0 && num >= 0)
 		{
 			// todo: check for proper base class

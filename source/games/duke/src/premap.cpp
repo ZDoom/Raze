@@ -988,6 +988,12 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 		auto actor = static_cast<DDukeActor*>(InsertActor(cls? cls : RUNTIME_CLASS(DDukeActor), sprt->sectp, sprt->statnum));
 		if (actor)
 		{
+			// for consistency with the original setup we should not eliminate filtered objects here but merely flag them for handling in spawninit.
+			if (cls && cls != RUNTIME_CLASS(DDukeActor))
+			{
+				if (!(info->flags & 0x8000)) actor->flags1 |= SFLAG_SKILLFILTER;
+			}
+
 			spawns[j++] = actor;
 			actor->initFromSprite(&sprites.sprites[i]);
 			setFromSpawnRec(actor, info);
