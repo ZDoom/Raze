@@ -283,7 +283,7 @@ spawnclasses
 	48 = DukeAmmoLots
 	51 = DukeCola
 	53 = DukeFirstAid
-	60 = DukeAccessCard
+	60 = DukeAccessCard, noskill
 	
 	41 = DukeBatteryAmmo
 	52 = DukeSixpak
