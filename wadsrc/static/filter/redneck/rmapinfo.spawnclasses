@@ -160,7 +160,7 @@ spawnclasses
 	51 = RedneckBeer
 	53 = RedneckWhiskey
 	43 = RedneckSawAmmo
-	60 = RedneckDoorKey
+	60 = RedneckDoorKey, noskill
 	41 = RedneckRifleAmmo
 	52 = RedneckPorkRinds
 	5595 = RedneckGoogooCluster
