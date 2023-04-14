@@ -841,58 +841,45 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 //
 //---------------------------------------------------------------------------
 
-int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
+int seq_PlotSequence(int nSprite, int16_t nSeq, int16_t nFrame, int16_t nFlags)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
 
-    int val;
+    int nSeqOffset = 0;
 
-    if (ecx & 1)
-    {
-        val = 0;
-    }
-    else
+    if (!(nFlags & 1))
     {
         DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
-        val = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
+        nSeqOffset = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
-    int eax = getSeqFrame(edx, nFrame);
-    int edi = getSeqFrame(edx + val, nFrame);
+    int nBaseFrame = getSeqFrame(nSeq, nFrame);
+    int nOffsetFrame = getSeqFrame(nSeq + nSeqOffset, nFrame);
 
-    int16_t nBase = getSeqFrameChunk(edi);
-    int16_t nSize = getSeqFrameChunkCount(edi);
+    int16_t nBase = getSeqFrameChunk(nOffsetFrame);
+    int16_t nSize = getSeqFrameChunkCount(nOffsetFrame);
 
     int8_t shade = pTSprite->shade;
 
-    if (getSeqFrameFlags(eax) & 4)
+    if (getSeqFrameFlags(nBaseFrame) & 4)
     {
         shade -= 100;
     }
 
     int16_t nPict = getSeqFrameChunkPicnum(nBase);
 
-    if (ecx & 0x100)
-    {
-        edx = -3;
-    }
-    else
-    {
-        edx = 100;
-    }
+    int nStatOffset = (nFlags & 0x100) ? -3 : 100;
+    int nStat = nSize + 1;
+    nStat += nStatOffset;
 
-    int esi = nSize + 1;
-    esi += edx;
-
-    int var_14 = edx + 1;
-    auto pOwner = pTSprite->ownerActor;
+    int nMinStat = nStatOffset + 1;
 
     while (1)
     {
-        esi--;
+        nStat--;
         nSize--;
 
-        if (esi < var_14) {
+        if (nStat < nMinStat) {
             break;
         }
 
@@ -907,7 +894,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->sectp = pTSprite->sectp;
         tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
         tsp->clipdist = pTSprite->clipdist;
-        tsp->statnum = esi;
+        tsp->statnum = nStat;
 
         if (getSeqFrameChunkFlags(nBase) & 1)
         {
@@ -925,30 +912,28 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         nBase++;
     }
 
-    if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pOwner->spr.statnum == 100 && nNetPlayerCount))
+    if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTSprite->ownerActor->spr.statnum == 100 && nNetPlayerCount))
     {
         pTSprite->ownerActor = nullptr;
     }
     else
     {
-        auto pSector =pTSprite->sectp;
-        double nFloorZ = pSector->floorz;
+        const auto pSector = pTSprite->sectp;
+        const double nFloorZ = pSector->floorz;
 
-        if (nFloorZ <= PlayerList[nLocalPlayer].pActor->viewzoffset + PlayerList[nLocalPlayer].pActor->spr.pos.Z) {
+        if (nFloorZ <= PlayerList[nLocalPlayer].pActor->viewzoffset + PlayerList[nLocalPlayer].pActor->spr.pos.Z)
+        {
             pTSprite->ownerActor = nullptr;
         }
         else
         {
             pTSprite->picnum = nShadowPic;
 
-            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.);
-            if (edx < 1) {
-                edx = 1;
-            }
+            const auto nScale = max(((tileWidth(nPict) << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
             pTSprite->pos.Z = pSector->floorz;
-			pTSprite->scale = DVector2(edx * REPEAT_SCALE, edx * REPEAT_SCALE);
+			pTSprite->scale = DVector2(nScale, nScale);
             pTSprite->statnum = -3;
             pTSprite->pal = 0;
         }
