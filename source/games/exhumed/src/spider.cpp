@@ -122,7 +122,7 @@ void AISpider::Tick(RunListEvent* ev)
     const auto& spiderSeq = getSequence(spp->nSeqFile, SpiderSeq[nAction].nSeqId);
     const auto& seqFrame = spiderSeq[spp->nFrame];
 
-    spp->spr.picnum = seqFrame.chunks[0].picnum;
+    spp->spr.picnum = spp->nFrame < 9 ? seqFrame.chunks[0].picnum : -1;
 
     playFrameSound(spp, seqFrame);
 
