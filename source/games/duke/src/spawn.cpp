@@ -236,7 +236,7 @@ bool initspriteforspawn(DDukeActor* act)
 		auto sa = &ScriptCode[coninf->scriptaddress];
 		act->curAction = &actions[sa[1]];
 		act->curMove = &moves[sa[2]];
-		int s3 = ScriptCode[sa[3]];
+		int s3 = sa[3];
 		if (s3 && act->spr.hitag == 0)
 			act->spr.hitag = s3;
 	}
