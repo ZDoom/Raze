@@ -46,8 +46,6 @@ int16_t chunks = 0;
 int16_t nPilotLightFrame;
 int16_t nPilotLightCount;
 
-int16_t nPilotLightBase;
-
 int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
 
@@ -647,8 +645,7 @@ void seq_LoadSequences()
 
     nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
 
-    nPilotLightBase  = getSeqFrame(getSeqFromId(kSeqFlamer, 3));
-    nPilotLightCount = getSeqFrameCount(getSeqFromId(kSeqFlamer, 3));
+    nPilotLightCount = getSequence("flamer", 3).Size();
     nPilotLightFrame = 0;
 
     nFontFirstChar = seq_GetFirstSeqPicnum(kSeqFont2);
@@ -674,22 +671,16 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 
     if (!(pSect->Flag & kSectUnderwater))
     {
-        int16_t nFrame = nPilotLightBase + nPilotLightFrame;
-        int16_t nFrameBase = getSeqFrameChunk(nFrame);
-        int16_t nFrameSize = getSeqFrameChunkCount(nFrame);
+        const auto& pilotlightSeq = getSequence("flamer", 3);
+        const auto& seqFrame = pilotlightSeq[0];
 
-        while (1)
+        for (unsigned i = 0; i < seqFrame.chunks.Size(); i++)
         {
-            nFrameSize--;
-            if (nFrameSize < 0)
-                return;
+            const auto& frameChunk = seqFrame.chunks[i];
+            const double x = frameChunk.xpos + (160 + xOffset);
+            const double y = frameChunk.ypos + (100 + yOffset);
 
-            int16_t nTile = getSeqFrameChunkPicnum(nFrameBase);
-            double x = getSeqFrameChunkPosX(nFrameBase) + (160 + xOffset);
-            double y = getSeqFrameChunkPosY(nFrameBase) + (100 + yOffset);
-
-            hud_drawsprite(x, y, 65536, PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw.Normalized180().Degrees() * 2., nTile, 0, 0, 1);
-            nFrameBase++;
+            hud_drawsprite(x, y, 65536, PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw.Normalized180().Degrees() * 2., frameChunk.picnum, 0, 0, 1);
         }
     }
 }
@@ -954,7 +945,6 @@ void SerializeSequence(FSerializer& arc)
     {
         arc("pilotlightframe", nPilotLightFrame)
             ("pilotlightcount", nPilotLightCount)
-            ("pilotlightbase", nPilotLightBase)
             ("shadowwidth", nShadowWidth)
             ("flameheight", nFlameHeight)
             .EndObject();
