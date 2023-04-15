@@ -43,6 +43,10 @@ class DukeProjectile : DukeActor
 
 	property SpawnSound: SpawnSound;
 	
+	override void Initialize()
+	{
+		// do not call the parent's function here.
+	}
 	// this large batch of subsequently called virtuals is owed to the spaghetti-like implementation of the orignal moveprojectiles function.
 	
 	virtual bool premoveeffect()
