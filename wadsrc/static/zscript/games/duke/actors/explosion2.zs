@@ -53,12 +53,12 @@ class RedneckExplosion3 : DukeExplosion2
 	
 	override void Initialize()
 	{
+		Super.Initialize();
 		self.scale = (2, 2);
 	}
 	
 	override bool animate(tspritetype t)
 	{
-		t.shade = -127;
 		return false;
 	}
 }
