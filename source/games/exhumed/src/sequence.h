@@ -144,7 +144,7 @@ void seq_DrawStatusSequence(int16_t nSequence, uint16_t edx, int16_t ebx);
 
 int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
 void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags);
-int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal);
+void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
 int getSeqFromId(const int nSeqFileId, const int nSeq = 0);

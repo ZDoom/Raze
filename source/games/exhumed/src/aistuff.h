@@ -61,8 +61,8 @@ struct bulletInfo
     int16_t nDamage; // 0
     int16_t field_2; // 2
     int field_4;   // 4
-    int16_t field_8; // 8
-    int16_t nSeq; // 10
+    FName initSeq; // 8
+    FName seqFile; // 10
     FName animFile; // 12
     int16_t nFlags;
     int16_t nRadius; // damage radius

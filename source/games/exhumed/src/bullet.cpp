@@ -37,8 +37,8 @@ struct Bullet
     TObjPtr<DExhumedActor*> pActor;
     TObjPtr<DExhumedActor*> pEnemy;
 
-    int16_t nSeq;
-    int16_t nFrame;
+    FName seqFile;
+    uint16_t nFrame;
     int16_t nRunRec;
     int16_t nRunRec2;
     int16_t nType;
@@ -76,7 +76,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
     }
     if (arc.BeginObject(keyname))
     {
-        arc("seq", w.nSeq, def->nSeq)
+        arc("seq", w.seqFile, def->seqFile)
             ("frame", w.nFrame, def->nFrame)
             ("sprite", w.pActor, def->pActor)
             ("type", w.nType, def->nType)
@@ -107,23 +107,23 @@ void SerializeBullet(FSerializer& arc)
 }
 
 bulletInfo BulletInfo[] = {
-    { 25,   1,    20, -1, -1, "kapow", 0,  0, -1 },
-    { 25,  -1, 65000, -1, 31, "poof2", 0,  0, -1 },
-    { 15,  -1, 60000, -1, 31, "poof2", 0,  0, -1 },
-    { 5,   15,  2000, -1, 14, "firepoof", 4,  5,  3 },
-    { 250, 100, 2000, -1, 33, "grenboom", 4, 20, -1 },
-    { 200, -1,  2000, -1, 20, "cobrapow", 4, 10, -1 },
-    { 200, -1, 60000, 68, 68, NAME_None, -1, 0, -1 },
-    { 300,  1,     0, -1, -1, NAME_None, 0, 50, -1 },
-    { 18,  -1,  2000, -1, 18, "anupoof", 4,  0, -1 },
-    { 20,  -1,  2000, 37, 11, "skulpoof", 4,  0, -1 },
-    { 25,  -1,  3000, -1, 44, "grenpow", 4, 15, 90 },
-    { 30,  -1,  1000, -1, 52, "setgblow", 4, 20, 48 },
-    { 20,  -1,  3500, -1, 54, "bizzpoof", 4, 30, -1 },
-    { 10,  -1,  5000, -1, 57, "rochfire", 4,  0, -1 },
-    { 40,  -1,  1500, -1, 63, "firepoof", 4, 10, 40 },
-    { 20,  -1,  2000, -1, 60, "poof", 0,  0, -1 },
-    { 5,   -1, 60000, -1, 31, "rochfire", 0,  0, -1 }
+    { 25,   1,    20, NAME_None, NAME_None, "kapow", 0,  0, -1 },
+    { 25,  -1, 65000, NAME_None, "bullet", "poof2", 0,  0, -1 },
+    { 15,  -1, 60000, NAME_None, "bullet", "poof2", 0,  0, -1 },
+    { 5,   15,  2000, NAME_None, "fireball", "firepoof", 4,  5,  3 },
+    { 250, 100, 2000, NAME_None, "grenroll", "grenboom", 4, 20, -1 },
+    { 200, -1,  2000, NAME_None, "snakehed", "cobrapow", 4, 10, -1 },
+    { 200, -1, 60000, NAME_None, "eyehit", NAME_None, -1, 0, -1 },
+    { 300,  1,     0, NAME_None, NAME_None, NAME_None, 0, 50, -1 },
+    { 18,  -1,  2000, NAME_None, "anuball", "anupoof", 4,  0, -1 },
+    { 20,  -1,  2000, "skulstrt", "skull", "skulpoof", 4,  0, -1 },
+    { 25,  -1,  3000, NAME_None, "lavashot", "grenpow", 4, 15, 90 },
+    { 30,  -1,  1000, NAME_None, "setghost", "setgblow", 4, 20, 48 },
+    { 20,  -1,  3500, NAME_None, "bizztail", "bizzpoof", 4, 30, -1 },
+    { 10,  -1,  5000, NAME_None, "roacshot", "rochfire", 4,  0, -1 },
+    { 40,  -1,  1500, NAME_None, "firetrap", "firepoof", 4, 10, 40 },
+    { 20,  -1,  2000, NAME_None, "arrow", "poof", 0,  0, -1 },
+    { 5,   -1, 60000, NAME_None, "bullet", "rochfire", 0,  0, -1 }
 };
 
 
@@ -357,7 +357,7 @@ int MoveBullet(int nBullet)
 
                 if (pBullet->field_E == 3)
                 {
-                    pBullet->nSeq = 45;
+                    pBullet->seqFile = "smokebal";
                     pBullet->nFrame = 0;
                     pActor->spr.scale = DVector2(0.625, 0.625);
                     pActor->spr.shade = 0;
@@ -654,24 +654,24 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     pBullet->field_E = pBulletInfo->field_2;
     pBullet->nFrame  = 0;
 
-    int nSeq;
-
-    if (pBulletInfo->field_8 != -1)
+    if (pBulletInfo->initSeq != NAME_None)
     {
         pBullet->field_12 = 0;
-        nSeq = pBulletInfo->field_8;
+        pBullet->seqFile = pBulletInfo->initSeq;
+        pBulletActor->spr.picnum = getSequence(pBullet->seqFile)[0].chunks[0].picnum;
+    }
+    else if (pBulletInfo->seqFile != NAME_None)
+    {
+        pBullet->field_12 = 1;
+        pBullet->seqFile = pBulletInfo->seqFile;
+        pBulletActor->spr.picnum = getSequence(pBullet->seqFile)[0].chunks[0].picnum;
     }
     else
     {
-        pBullet->field_12 = 1;
-        nSeq = pBulletInfo->nSeq;
+        pBullet->seqFile = NAME_None;
     }
 
-    pBullet->nSeq = nSeq;
-
-    pBulletActor->spr.picnum = seq_GetSeqPicnum(nSeq, 0, 0);
-
-    if (nSeq == kSeqBullet) {
+    if (pBullet->seqFile == FName("bullet")) {
         pBulletActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
@@ -797,31 +797,35 @@ void AIBullet::Tick(RunListEvent* ev)
     int nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
-    int nSeq = getSeqFromId(BulletList[nBullet].nSeq);
+    const auto pBullet = &BulletList[nBullet];
+
+    if (pBullet->seqFile == NAME_None)
+        return;
+
+    const auto& bulletSeq = getSequence(pBullet->seqFile);
+    const auto& seqFrame = bulletSeq[pBullet->nFrame];
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, BulletList[nBullet].nFrame));
+    playFrameSound(pActor, seqFrame);
 
-    seq_MoveSequence(pActor, nSeq, BulletList[nBullet].nFrame);
-
-    if (nFlag & 0x80)
+    if (seqFrame.flags & 0x80)
     {
         BuildAnim(nullptr, "smokebal", 0, pActor->spr.pos, pActor->sector(), pActor->spr.scale.X, 0);
     }
 
-    BulletList[nBullet].nFrame++;
-    if (BulletList[nBullet].nFrame >= getSeqFrameCount(nSeq))
+    pBullet->nFrame++;
+    if (pBullet->nFrame >= bulletSeq.Size())
     {
-        if (!BulletList[nBullet].field_12)
+        if (!pBullet->field_12)
         {
-            BulletList[nBullet].nSeq = BulletInfo[BulletList[nBullet].nType].nSeq;
-            BulletList[nBullet].field_12++;
+            pBullet->seqFile = BulletInfo[pBullet->nType].seqFile;
+            pBullet->field_12++;
         }
 
-        BulletList[nBullet].nFrame = 0;
+        pBullet->nFrame = 0;
     }
 
-    if (BulletList[nBullet].field_E != -1 && --BulletList[nBullet].field_E == 0)
+    if (pBullet->field_E != -1 && --pBullet->field_E == 0)
     {
         DestroyBullet(nBullet);
     }
@@ -842,17 +846,20 @@ void AIBullet::Draw(RunListEvent* ev)
     int nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
-    int nSeq = getSeqFromId(BulletList[nBullet].nSeq);
+    const auto pBullet = &BulletList[nBullet];
+
+    if (pBullet->seqFile == NAME_None)
+        return;
 
     ev->pTSprite->statnum = 1000;
 
     if (BulletList[nBullet].nType == 15)
     {
-        seq_PlotArrowSequence(ev->nParam, nSeq, BulletList[nBullet].nFrame);
+        seq_PlotArrowSequence(ev->nParam, pBullet->seqFile, 0, BulletList[nBullet].nFrame);
     }
     else
     {
-        //seq_PlotSequence(ev->nParam, nSeq, BulletList[nBullet].nFrame, 0);
+        seq_PlotSequence(ev->nParam, pBullet->seqFile, 0, BulletList[nBullet].nFrame, 0);
         ev->pTSprite->ownerActor = nullptr;
     }
 }

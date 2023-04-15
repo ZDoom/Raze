@@ -821,52 +821,41 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 //
 //---------------------------------------------------------------------------
 
-int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
+void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
 
-    int nSeqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
+    const DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
+    const int seqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
-    int16_t nFrame = getSeqFrame(nSeq + nSeqOffset, nVal);
+    const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset)[frameIndex];
+    const auto& frameChunk = seqFrame.chunks[0];
 
-    int16_t nFrameBase = getSeqFrameChunk(nFrame);
-    int16_t nFrameSize = getSeqFrameChunkCount(nFrame);
+    auto nStat = pTSprite->cstat | CSTAT_SPRITE_YCENTER;
 
-    uint8_t nShade = pTSprite->shade;
-    auto nStat = pTSprite->cstat;
-
-    nStat |= CSTAT_SPRITE_YCENTER;
-
-    if (nSeqOffset & 3) {
+    if (seqOffset & 3) {
         nStat |= CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP;
     }
     else {
         nStat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP);
     }
 
-    if (getSeqFrameFlags(nFrame) & 4) {
-        nShade -= 100;
-    }
-
     pTSprite->cstat = nStat;
-    pTSprite->shade = nShade;
-    pTSprite->statnum = nFrameSize;
+    pTSprite->shade = (seqFrame.flags & 4) ? pTSprite->shade - 100 : pTSprite->shade;
+    pTSprite->statnum = seqFrame.chunks.Size();
 
-    if (getSeqFrameChunkFlags(nFrameBase) & 1)
+    if (frameChunk.flags & 1)
     {
-        pTSprite->xoffset = (int8_t)getSeqFrameChunkPosX(nFrameBase);
+        pTSprite->xoffset = (int8_t)frameChunk.xpos;
         pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
     }
     else
     {
-        pTSprite->xoffset = (int8_t)-getSeqFrameChunkPosX(nFrameBase);
+        pTSprite->xoffset = (int8_t)-frameChunk.xpos;
     }
 
-    pTSprite->yoffset = -getSeqFrameChunkPosY(nFrameBase);
-    pTSprite->picnum = getSeqFrameChunkPicnum(nFrameBase);
-
-    return getSeqFrameChunkPicnum(nFrameBase);
+    pTSprite->yoffset = -frameChunk.ypos;
+    pTSprite->picnum = frameChunk.picnum;
 }
 
 //---------------------------------------------------------------------------
