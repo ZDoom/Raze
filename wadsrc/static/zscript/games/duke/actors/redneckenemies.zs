@@ -455,11 +455,11 @@ class RedneckVixen : DukeActor
 	{
 		if (self.pal == 34)
 		{
-			self.SetScale(0.34375, 0.328125);
+			self.scale = (0.34375, 0.328125);
 		}
 		else
 		{
-			self.SetScale(0.34375, 0.3125);
+			self.scale = (0.34375, 0.3125);
 		}
 		self.setClipDistFromTile();
 	}
