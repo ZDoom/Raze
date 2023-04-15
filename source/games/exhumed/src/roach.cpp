@@ -216,7 +216,7 @@ void AIRoach::Tick(RunListEvent* ev)
     const auto& seqFrame = roachSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
-    playFrameSound(pActor, seqFrame);
+    seqFrame.playSound(pActor);
 
     pActor->nFrame++;
     if (pActor->nFrame >= roachSeq.frames.Size())

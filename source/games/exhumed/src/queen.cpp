@@ -550,7 +550,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
 
     if (nAction != 4)
     {
-        playFrameSound(pActor, seqFrame);
+        seqFrame.playSound(pActor);
 
         pEgg->nFrame++;
         if (pEgg->nFrame >= eggSeq.frames.Size())
@@ -805,7 +805,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
     const auto& queenSeq = getSequence(pActor->nSeqFile, HeadSeq[QueenHead.nAction].nSeqId);
     const auto& seqFrame = queenSeq.frames[QueenHead.nFrame];
 
-    playFrameSound(pActor, seqFrame);
+    seqFrame.playSound(pActor);
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
@@ -1240,7 +1240,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
-    playFrameSound(pActor, seqFrame);
+    seqFrame.playSound(pActor);
 
     QueenList[nQueen].nFrame++;
     if (QueenList[nQueen].nFrame >= queenSeq.frames.Size())

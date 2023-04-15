@@ -2180,7 +2180,7 @@ void DoDrips()
             if (!pActor) continue;
 
             const auto& dripSeq = getSequence("drips", !(pActor->sector()->Flag & kSectLava));
-            playFrameSound(pActor, dripSeq.frames[RandomSize(2) % dripSeq.frames.Size()]);
+            dripSeq.frames[RandomSize(2) % dripSeq.frames.Size()].playSound(pActor);
 
             sDrip[i].nCount = RandomSize(8) + 90;
         }

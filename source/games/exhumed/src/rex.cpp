@@ -206,7 +206,7 @@ void AIRex::Tick(RunListEvent* ev)
     // moves the mouth open and closed as it's idle?
     while (--ecx != -1)
     {
-        playFrameSound(pActor, seqFrame);
+        seqFrame.playSound(pActor);
 
         pActor->nFrame++;
         if (pActor->nFrame >= rexSeq.frames.Size())

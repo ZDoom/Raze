@@ -1918,7 +1918,7 @@ static void doPlayerActionSequence(Player* const pPlayer)
     const auto& seqFrame = playerSeq.frames[pPlayerActor->nFrame];
     const auto seqSize = playerSeq.frames.Size();
 
-    playFrameSound(pPlayerActor, seqFrame);
+    seqFrame.playSound(pPlayerActor);
     pPlayerActor->nFrame++;
 
     if (pPlayerActor->nFrame < seqSize)

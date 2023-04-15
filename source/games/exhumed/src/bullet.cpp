@@ -806,7 +806,7 @@ void AIBullet::Tick(RunListEvent* ev)
     const auto& seqFrame = bulletSeq.frames[pBullet->nFrame];
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
-    playFrameSound(pActor, seqFrame);
+    seqFrame.playSound(pActor);
 
     if (seqFrame.flags & 0x80)
     {

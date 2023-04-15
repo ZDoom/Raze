@@ -224,7 +224,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     if (nAction)
     {
-        playFrameSound(pActor, seqFrame);
+        seqFrame.playSound(pActor);
 
         pActor->nFrame++;
         if (pActor->nFrame >= lavadudeSeq.frames.Size())

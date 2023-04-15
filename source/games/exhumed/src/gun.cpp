@@ -381,7 +381,7 @@ void MoveWeapons(int nPlayer)
 
     for (frames = var_1C; frames > 0; frames--)
     {
-        playFrameSound(pPlayerActor, seqFrame.get());
+        seqFrame.get().playSound(pPlayerActor);
 
         pPlayer->nWeapFrame++;
 

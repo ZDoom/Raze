@@ -124,7 +124,7 @@ void AISpider::Tick(RunListEvent* ev)
 
     spp->spr.picnum = spp->nFrame < 9 ? seqFrame.getFirstPicnum() : -1;
 
-    playFrameSound(spp, seqFrame);
+    seqFrame.playSound(spp);
 
     spp->nFrame++;
     if (spp->nFrame >= spiderSeq.frames.Size()) {

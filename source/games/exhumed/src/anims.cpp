@@ -139,7 +139,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
     if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        playFrameSound(pActor, animSeq.frames[nFrame]);
+        animSeq.frames[nFrame].playSound(pActor);
     }
 
     if (pActor->spr.statnum == kStatIgnited)

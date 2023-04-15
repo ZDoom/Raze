@@ -98,7 +98,7 @@ void AIBubble::Tick(RunListEvent* ev)
 
     const auto& bubbSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
 
-    playFrameSound(pActor, bubbSeq.frames[pActor->nFrame]);
+    bubbSeq.frames[pActor->nFrame].playSound(pActor);
 
     pActor->nFrame++;
 

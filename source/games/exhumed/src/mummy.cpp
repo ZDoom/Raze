@@ -146,7 +146,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
-    playFrameSound(pActor, seqFrame);
+    seqFrame.playSound(pActor);
 
     bool bVal = false;
 

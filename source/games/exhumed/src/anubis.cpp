@@ -130,7 +130,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     if (nAction < 11)
         Gravity(ap);
 
-    playFrameSound(ap, seqFrame);
+    seqFrame.playSound(ap);
 
     ap->spr.picnum = seqFrame.getFirstPicnum();
     ap->nFrame++;

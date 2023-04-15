@@ -126,6 +126,21 @@ struct SeqFrame
     {
         return chunks[0].picnum;
     }
+
+    const void playSound(DExhumedActor* const pActor) const
+    {
+        if (sound == -1)
+            return;
+
+        if (pActor)
+        {
+            D3PlayFX(sound, pActor);
+        }
+        else
+        {
+            PlayLocalSound(sound, 0);
+        }
+    }
 };
 
 struct Seq
@@ -164,7 +179,6 @@ int getSeqFrameChunkPicnum(const int nChunk);
 int getSeqFrameChunkFlags(const int nChunk);
 
 TArray<Seq>* getFileSeqs(const FName nSeqFile);
-void playFrameSound(DExhumedActor* actor, const SeqFrame& seqFrame);
 
 inline const Seq& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
 {

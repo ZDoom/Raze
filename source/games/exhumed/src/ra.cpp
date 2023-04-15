@@ -223,7 +223,7 @@ void AIRa::Tick(RunListEvent* ev)
 
     if (Ra[nPlayer].nAction)
     {
-        playFrameSound(pActor, seqFrame);
+        seqFrame.playSound(pActor);
 
         Ra[nPlayer].nFrame++;
         if (Ra[nPlayer].nFrame >= raSeq.frames.Size())

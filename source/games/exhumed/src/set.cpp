@@ -145,7 +145,7 @@ void AISoul::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    playFrameSound(pActor, getSequence("set", 75).frames[0]);
+    getSequence("set", 75).frames[0].playSound(pActor);
 
     if (pActor->spr.scale.X < 0.5)
     {
@@ -275,7 +275,7 @@ void AISet::Tick(RunListEvent* ev)
     const auto& seqFrame = setSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
-    playFrameSound(pActor, seqFrame);
+    seqFrame.playSound(pActor);
 
     if (nAction == 3)
     {

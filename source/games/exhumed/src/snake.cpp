@@ -339,7 +339,7 @@ void AISnake::Tick(RunListEvent* ev)
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0];
     if (!pActor) return;
 
-    playFrameSound(pActor, getSequence("snakehed").frames[0]);
+    getSequence("snakehed").frames[0].playSound(pActor);
 
     DExhumedActor* pEnemySprite = SnakeList[nSnake].pEnemy;
 
