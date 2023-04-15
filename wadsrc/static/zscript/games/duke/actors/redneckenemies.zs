@@ -91,7 +91,7 @@ class RedneckCheerleader : DukeActor
 }
 	override void Initialize()
 	{
-		self.scale = (0.34375, 0.3125);
+		self.scale = (0.3125, 0.3125);
 		self.setClipDistFromTile();
 	}
 }
@@ -450,6 +450,20 @@ class RedneckVixen : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 	}
+
+	override void Initialize()
+	{
+		if (self.pal == 34)
+		{
+			self.SetScale(0.34375, 0.328125);
+		}
+		else
+		{
+			self.SetScale(0.34375, 0.3125);
+		}
+		self.setClipDistFromTile();
+	}
+
 }
 
 // only new thing in Route 66.

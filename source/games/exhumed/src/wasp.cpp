@@ -61,7 +61,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
 
     if (bEggWasp)
     {
-        pActor->spr.scale = DVector2(0.34375, 0.3125);
+        pActor->spr.scale = DVector2(0.3125, 0.3125);
     }
     else
     {
