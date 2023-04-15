@@ -218,6 +218,8 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->spr.xoffset = 0;
     pPlayerActor->spr.yoffset = 0;
     pPlayerActor->nSeqFile = "joe";
+    pPlayerActor->nAction = 0;
+    pPlayerActor->nFrame = 0;
     pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, 18)[0].getFirstPicnum();
     pPlayerActor->spr.hitag = 0;
     pPlayerActor->spr.extra = -1;
@@ -276,9 +278,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->pPlayerFloorSprite = pFloorSprite;
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
     pPlayer->nPlayer = nPlayer;
-    pPlayer->nAction = 0;
     pPlayer->nHealth = 800; // TODO - define
-	pPlayer->nSeqSize = 0;
     pPlayer->Angles = {};
     pPlayer->Angles.initialize(pPlayerActor);
 	pPlayer->bIsMummified = false;
@@ -289,7 +289,6 @@ void RestartPlayer(int nPlayer)
 	pPlayer->nWeapFrame = 0;
 	pPlayer->nState = 0;
 	pPlayer->nDouble = 0;
-	pPlayer->nSeq = kSeqJoe;
 	pPlayer->nPlayerPushSound = -1;
 	pPlayer->nNextWeapon = -1;
 	pPlayer->nLastWeapon = 0;
@@ -400,8 +399,8 @@ void StartDeathSeq(int nPlayer, int nVal)
     pPlayer->dVertPan = 15;
     pPlayer->nDeathType = pPlayerSect->Damage <= 0 ? nVal : 2;
     pPlayer->ototalvel = pPlayer->totalvel = 0;
-    pPlayer->nSeqSize = 0;
-    pPlayer->nAction = (nVal || !(pPlayerSect->Flag & kSectUnderwater)) ? ((nVal * 2) + 17) : 16;
+    pPlayerActor->nFrame = 0;
+    pPlayerActor->nAction = (nVal || !(pPlayerSect->Flag & kSectUnderwater)) ? ((nVal * 2) + 17) : 16;
     pPlayerActor->PrevAngles.Pitch = pPlayerActor->spr.Angles.Pitch = nullAngle;
     pPlayerActor->oviewzoffset = pPlayerActor->viewzoffset = -55;
     pPlayerActor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_BLOCK_ALL);
@@ -459,18 +458,16 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 
     if ((pPlayer->bIsMummified = bIsMummified))
     {
-        pPlayer->nAction = 13;
-        pPlayer->nSeq = kSeqMummy;
+        pPlayerActor->nAction = 13;
         pPlayerActor->nSeqFile = "mummy";
     }
     else
     {
-        pPlayer->nAction = 0;
-        pPlayer->nSeq = kSeqJoe;
+        pPlayerActor->nAction = 0;
         pPlayerActor->nSeqFile = "joe";
     }
 
-    pPlayer->nSeqSize = 0;
+    pPlayerActor->nFrame = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -482,11 +479,11 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 void ShootStaff(int nPlayer)
 {
     const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayerActor = pPlayer->pActor;
 
-    pPlayer->nAction = 15;
-    pPlayer->nSeqSize = 0;
-    pPlayer->nSeq = kSeqJoe;
-    pPlayer->pActor->nSeqFile = "joe";
+    pPlayerActor->nAction = 15;
+    pPlayerActor->nFrame = 0;
+    pPlayerActor->nSeqFile = "joe";
 }
 
 //---------------------------------------------------------------------------
@@ -532,8 +529,8 @@ void AIPlayer::Draw(RunListEvent* ev)
 
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
-    const auto playerSeq = &PlayerSeq[pPlayer->nAction];
-    seq_PlotSequence(ev->nParam, pPlayerActor->nSeqFile, playerSeq->nSeqId, pPlayer->nSeqSize, playerSeq->nFlags);
+    const auto playerSeq = &PlayerSeq[pPlayerActor->nAction];
+    seq_PlotSequence(ev->nParam, pPlayerActor->nSeqFile, playerSeq->nSeqId, pPlayerActor->nFrame, playerSeq->nFlags);
 }
 
 //---------------------------------------------------------------------------
@@ -591,14 +588,14 @@ void AIPlayer::Damage(RunListEvent* ev)
             if (pPlayer->invincibility)
                 return;
 
-            const auto nAction = pPlayer->nAction;
+            const auto nAction = pPlayerActor->nAction;
 
             if (pPlayerActor->sector()->Flag & kSectUnderwater)
             {
                 if (nAction != 12)
                 {
-                    pPlayer->nSeqSize = 0;
-                    pPlayer->nAction = 12;
+                    pPlayerActor->nFrame = 0;
+                    pPlayerActor->nAction = 12;
                     return;
                 }
             }
@@ -606,8 +603,8 @@ void AIPlayer::Damage(RunListEvent* ev)
             {
                 if (nAction != 4)
                 {
-                    pPlayer->nSeqSize = 0;
-                    pPlayer->nAction = 4;
+                    pPlayerActor->nFrame = 0;
+                    pPlayerActor->nAction = 4;
 
                     if (pDamageActor)
                     {
@@ -1218,7 +1215,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
 static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    int nextAction = pPlayer->nAction;
+    int nextAction = pPlayerActor->nAction;
 
     if (!pPlayer->bIsMummified)
     {
@@ -1231,7 +1228,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                 pPlayerActor->vel.Z = -8;
                 nextAction = 10;
             }
-            else if (bTouchFloor && (pPlayer->nAction < 6 || pPlayer->nAction > 8))
+            else if (bTouchFloor && (pPlayerActor->nAction < 6 || pPlayerActor->nAction > 8))
             {
                 pPlayerActor->vel.Z = -14;
                 nextAction = 3;
@@ -1259,7 +1256,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
             if (pPlayer->nHealth > 0)
             {
-                pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayer->nAction] - pPlayerActor->viewzoffset) * 0.5;
+                pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayerActor->nAction] - pPlayerActor->viewzoffset) * 0.5;
 
                 if (bUnderwater)
                 {
@@ -1288,15 +1285,15 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
             }
         }
     }
-    else if (pPlayer->nAction != 15)
+    else if (pPlayerActor->nAction != 15)
     {
         nextAction = 14 - (pPlayer->totalvel <= 1);
     }
 
-    if (nextAction != pPlayer->nAction && pPlayer->nAction != 4)
+    if (nextAction != pPlayerActor->nAction && pPlayerActor->nAction != 4)
     {
-        pPlayer->nAction = nextAction;
-        pPlayer->nSeqSize = 0;
+        pPlayerActor->nAction = nextAction;
+        pPlayerActor->nFrame = 0;
     }
 }
 
@@ -1869,7 +1866,7 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
 
 static bool doPlayerDeathRestart(Player* const pPlayer)
 {
-    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->nAction < 16)
+    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->pActor->nAction < 16)
         return true;
 
     pPlayer->input.actions &= ~SB_OPEN;
@@ -1885,7 +1882,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 
     if (pPlayer->nLives && nNetTime)
     {
-        if (pPlayer->nAction != 20)
+        if (pPlayer->pActor->nAction != 20)
         {
             const auto pPlayerActor = pPlayer->pActor;
             pPlayerActor->spr.picnum = getSequence("joe", 120)[0].getFirstPicnum();
@@ -1917,30 +1914,30 @@ static void doPlayerActionSequence(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
 
-    const auto& playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayer->nAction].nSeqId);
-    const auto& seqFrame = playerSeq[pPlayer->nSeqSize];
+    const auto& playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
+    const auto& seqFrame = playerSeq[pPlayerActor->nFrame];
     const auto seqSize = playerSeq.Size();
 
     playFrameSound(pPlayerActor, seqFrame);
-    pPlayer->nSeqSize++;
+    pPlayerActor->nFrame++;
 
-    if (pPlayer->nSeqSize < seqSize)
+    if (pPlayerActor->nFrame < seqSize)
         return;
 
-    pPlayer->nSeqSize = 0;
+    pPlayerActor->nFrame = 0;
 
-    switch (pPlayer->nAction)
+    switch (pPlayerActor->nAction)
     {
     default:
         break;
     case 3:
-        pPlayer->nSeqSize = seqSize - 1;
+        pPlayerActor->nFrame = seqSize - 1;
         break;
     case 4:
-        pPlayer->nAction = 0;
+        pPlayerActor->nAction = 0;
         break;
     case 16:
-        pPlayer->nSeqSize = seqSize - 1;
+        pPlayerActor->nFrame = seqSize - 1;
 
         if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
             pPlayerActor->spr.pos.Z++;
@@ -1953,11 +1950,11 @@ static void doPlayerActionSequence(Player* const pPlayer)
         }
         break;
     case 17:
-        pPlayer->nAction = 18;
+        pPlayerActor->nAction = 18;
         break;
     case 19:
         pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-        pPlayer->nAction = 20;
+        pPlayerActor->nAction = 20;
         break;
     }
 }
@@ -2014,7 +2011,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
 
-    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayer->nAction]].nSeqId)[0].getFirstPicnum();
+    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)[0].getFirstPicnum();
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
     doPlayerCounters(pPlayer);
@@ -2062,14 +2059,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
     if (arc.BeginObject(keyname))
     {
         arc("health", w.nHealth)
-            ("at2", w.nSeqSize)
-            ("action", w.nAction)
             ("sprite", w.pActor)
             ("mummy", w.bIsMummified)
             ("invincible", w.invincibility)
             ("air", w.nAir)
-            ("seq", w.nSeq)
-            ("seqfile", w.nSeqFile)
             ("item", w.nItem)
             ("maskamount", w.nMaskAmount)
             ("keys", w.keys)
@@ -2155,13 +2148,10 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nSeqSize);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nAction);
 DEFINE_FIELD_X(ExhumedPlayer, Player, pActor);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
 DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nSeq);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nMaskAmount);
 DEFINE_FIELD_X(ExhumedPlayer, Player, keys);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
@@ -2169,7 +2159,6 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
 DEFINE_FIELD_X(ExhumedPlayer, Player, items);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons? 
 DEFINE_FIELD_X(ExhumedPlayer, Player, nPlayerWeapons);
-
 DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nWeapFrame);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);

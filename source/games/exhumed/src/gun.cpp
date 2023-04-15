@@ -652,7 +652,7 @@ loc_flag:
 
         if (seqFrame.get().flags & 0x80)
         {
-            int nAction = pPlayer->nAction;
+            int nAction = pPlayerActor->nAction;
 
             int var_38 = 1;
 

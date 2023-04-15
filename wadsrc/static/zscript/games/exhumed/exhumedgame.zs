@@ -39,13 +39,10 @@ struct ExhumedPlayer native
 	native int16 nDouble;
 	native int16 nInvisible;
 	native int16 nTorch;
-	native int16 nSeqSize;
-	native int16 nAction;
 	//native int16 nSprite;
 	native int16 bIsMummified;
 	native int16 invincibility;
 	native int16 nAir;
-	native int16 nSeq;
 	native int16 nMaskAmount;
 	native uint16 keys;
 	native int16 nMagic;
