@@ -273,7 +273,7 @@ void AISet::Tick(RunListEvent* ev)
     const auto& setSeq = getSequence(pActor->nSeqFile, SetSeq[nAction].nSeqId);
     const auto& seqFrame = setSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
     playFrameSound(pActor, seqFrame);
 
     if (nAction == 3)

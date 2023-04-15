@@ -218,7 +218,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     const auto& lavadudeSeq = getSequence(pActor->nSeqFile, LavadudeSeq[nAction].nSeqId);
     const auto& seqFrame = lavadudeSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     int var_1C = 0;
 

@@ -215,7 +215,7 @@ void AIRoach::Tick(RunListEvent* ev)
     const auto& roachSeq = getSequence(pActor->nSeqFile, RoachSeq[nAction].nSeqId);
     const auto& seqFrame = roachSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
     playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;

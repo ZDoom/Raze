@@ -219,7 +219,7 @@ void AIRa::Tick(RunListEvent* ev)
     bool bVal = false;
 
     Ra[nPlayer].pTarget = PlayerList[nPlayer].pTarget;
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     if (Ra[nPlayer].nAction)
     {

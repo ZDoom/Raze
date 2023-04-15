@@ -249,7 +249,7 @@ void AIRat::Tick(RunListEvent* ev)
     const auto& ratSeq = getSequence(pActor->nSeqFile, RatSeq[nAction].nSeqId);
     const auto& seqFrame = ratSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     playFrameSound(pActor, seqFrame);
 

@@ -132,7 +132,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 
     playFrameSound(ap, seqFrame);
 
-    ap->spr.picnum = seqFrame.chunks[0].picnum;
+    ap->spr.picnum = seqFrame.getFirstPicnum();
     ap->nFrame++;
 
     if (ap->nFrame >= anubisSeq.Size())

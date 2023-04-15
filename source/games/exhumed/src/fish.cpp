@@ -90,7 +90,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
     const auto& fishSeq = getSequence(pActor->nSeqFile, pActor->nCount);
 
-    pActor->spr.picnum = fishSeq[pActor->nFrame].chunks[0].picnum;
+    pActor->spr.picnum = fishSeq[pActor->nFrame].getFirstPicnum();
 
     Gravity(pActor);
 
@@ -362,7 +362,7 @@ void AIFish::Tick(RunListEvent* ev)
     const auto& fishSeq = getSequence(pActor->nSeqFile, FishSeq[nAction].nSeqId);
     const auto& seqFrame = fishSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     playFrameSound(pActor, seqFrame);
 

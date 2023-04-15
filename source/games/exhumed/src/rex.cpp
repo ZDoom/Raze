@@ -195,7 +195,7 @@ void AIRex::Tick(RunListEvent* ev)
     const auto& rexSeq = getSequence(pActor->nSeqFile, RexSeq[nAction].nSeqId);
     const auto& seqFrame = rexSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     int ecx = 2;
 

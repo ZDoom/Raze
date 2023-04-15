@@ -218,7 +218,7 @@ void AIWasp::Tick(RunListEvent* ev)
     const auto& waspSeq = getSequence(pActor->nSeqFile, WaspSeq[nAction].nSeqId);
     const auto& seqFrame = waspSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     playFrameSound(pActor, seqFrame);
 

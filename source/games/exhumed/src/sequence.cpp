@@ -594,22 +594,9 @@ int seq_ReadSequence(const char *seqName)
 //
 //---------------------------------------------------------------------------
 
-int seq_GetFirstSeqPicnum(int nSeq)
-{
-    return getSeqFrameChunkPicnum(getSeqFrameChunk(getSeqFrame(getSeqFromId(nSeq))));
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void seq_LoadSequences()
 {
-    int i;
-
-    for (i = 0; i < kMaxSEQFiles; i++)
+    for (unsigned i = 0; i < kMaxSEQFiles; i++)
     {
         SeqOffsets[i] = sequences;
 
@@ -638,21 +625,20 @@ void seq_LoadSequences()
     fclose(f);
 #endif
 
-    nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
+    nShadowPic = getSequence("shadow")[0].getFirstPicnum();
     nShadowWidth = tileWidth(nShadowPic);
 
-    nFlameHeight = tileHeight(seq_GetFirstSeqPicnum(kSeqFirePoof));
+    nFlameHeight = tileHeight(getSequence("firepoof")[0].getFirstPicnum());
 
-    nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
+    nBackgroundPic = getSequence("backgrnd")[0].getFirstPicnum();
 
     nPilotLightCount = getSequence("flamer", 3).Size();
     nPilotLightFrame = 0;
 
-    nFontFirstChar = seq_GetFirstSeqPicnum(kSeqFont2);
+    const auto& fontSeq = getSequence("font2");
+    nFontFirstChar = fontSeq[0].getFirstPicnum();
 
-    int16_t nSize = getSeqFrameCount(getSeqFromId(kSeqFont2));
-
-    for (i = 0; i < nSize; i++)
+    for (unsigned i = 0; i < fontSeq.Size(); i++)
     {
         auto tex = tileGetTexture(nFontFirstChar + i);
         tex->SetOffsets(0, 0);
@@ -723,11 +709,6 @@ void seq_DrawGunSequence(const SeqFrameArray& weapSeq, int16_t frameIndex, doubl
     }
 }
 
-int seq_GetFrameSound(int val, int edx)
-{
-    return getSeqFrameSound(getSeqFrame(val, edx));
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -772,17 +753,6 @@ void playFrameSound(DExhumedActor* actor, const SeqFrame& seqFrame)
     {
         PlayLocalSound(nSound, 0);
     }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
-{
-    return getSeqFrameChunkPicnum(getSeqFrameChunk(getSeqFrame(nSeq, nFrame)));
 }
 
 //---------------------------------------------------------------------------
@@ -912,7 +882,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         {
             pTSprite->picnum = nShadowPic;
 
-            const auto nPict = drawFrame.chunks[0].picnum;
+            const auto nPict = drawFrame.getFirstPicnum();
             const auto nScale = max(((tileWidth(nPict) << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;

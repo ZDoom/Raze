@@ -1962,7 +1962,7 @@ void AIObject::Tick(RunListEvent* ev)
         if (++pActor->nFrame >= nSeqFrames.Size())
             pActor->nFrame = 0;
 
-        pActor->spr.picnum = nSeqFrames[pActor->nFrame].chunks[0].picnum;
+        pActor->spr.picnum = nSeqFrames[pActor->nFrame].getFirstPicnum();
     }
 
     if (pActor->nHealth >= 0) {

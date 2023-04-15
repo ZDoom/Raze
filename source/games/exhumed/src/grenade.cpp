@@ -262,7 +262,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     const auto& seqFrame = grenadeSeq[pActor->nHealth >> 8];
 
     playFrameSound(pActor, seqFrame);
-    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     pActor->nIndex2--;
     if (!pActor->nIndex2)
