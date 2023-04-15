@@ -9641,7 +9641,7 @@ int DoMicro(DSWActor* actor)
 
         SetOwner(GetOwner(actor), actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.scale = DVector2(0.34375, 0.3125);
+        actorNew->spr.scale = DVector2(0.3125, 0.3125);
         actorNew->opos = actor->opos;
         actorNew->vel.Z = -actor->vel.Z;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -16218,7 +16218,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.scale = DVector2(0.34375, 0.3125);
+    actorNew->spr.scale = DVector2(0.3125, 0.3125);
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -16233,7 +16233,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.scale = DVector2(0.34375, 0.3125);
+    actorNew->spr.scale = DVector2(0.3125, 0.3125);
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -17001,7 +17001,7 @@ int InitEnemyFireball(DSWActor* actor)
                         DVector3(actor->spr.pos, nz), actor->spr.Angles.Yaw, GORO_FIREBALL_VELOCITY);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
-        actorNew->spr.scale = DVector2(0.34375, 0.3125);
+        actorNew->spr.scale = DVector2(0.3125, 0.3125);
         actorNew->spr.shade = -40;
 
         SetOwner(actor, actorNew);

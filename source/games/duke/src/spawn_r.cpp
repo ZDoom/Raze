@@ -275,7 +275,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->spr.scale = DVector2(0.34375, 0.3125);
+				act->spr.scale = DVector2(0.3125, 0.3125);
 			}
 			act->setClipDistFromTile();
 			break;
@@ -392,7 +392,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case RTILE_CHEER:
 		case RTILE_CHEERSTAYPUT:
-			act->spr.scale = DVector2(0.34375, 0.3125);
+			act->spr.scale = DVector2(0.3125, 0.3125);
 			act->setClipDistFromTile();
 			break;
 		case RTILE_MAKEOUT:
@@ -626,7 +626,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case RTILE_RPG2SPRITE:
 			if (!isRRRA()) goto default_case;
-			act->spr.scale = DVector2(0.34375, 0.3125);
+			act->spr.scale = DVector2(0.3125, 0.3125);
 			break;
 		case RTILE_RIPSAWSPRITE:
 			act->spr.scale = DVector2(0.34375, 0.203125);
