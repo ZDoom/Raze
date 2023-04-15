@@ -31,6 +31,8 @@ class RazeStatusBar : StatusBarCore
 	virtual void Tick() {}
 	virtual void Reset() {}
 	virtual void UpdateStatusBar(SummaryInfo info) {}
+	virtual void AltHUDOverlay(SummaryInfo summary) {}
+
 
 	void drawStatText(Font statFont, double x, double y, String text, double scale)
 	{
