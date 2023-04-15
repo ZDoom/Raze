@@ -1190,8 +1190,6 @@ DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, baseorder);
 DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, loop);
 DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, handle);
 
-extern ZSMap<FName, DObject* > AllServices;
-
 DEFINE_GLOBAL_NAMED(PClass::AllClasses, AllClasses)
 
 DEFINE_GLOBAL(AllServices)
