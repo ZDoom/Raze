@@ -202,6 +202,11 @@ void UpdateStatusBar(SummaryInfo* info)
 	if (hud_size == Hud_Althud)
 	{
 		DrawAltHUD(info);
+		IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, AltHUDOverlay)
+		{
+			VMValue params[] = { StatusBar, info };
+			VMCall(func, params, 2, nullptr, 0);
+		}
 		return;
 	}
 	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, UpdateStatusBar)
