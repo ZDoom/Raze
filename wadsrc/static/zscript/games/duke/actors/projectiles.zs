@@ -42,6 +42,10 @@ class DukeProjectile : DukeActor
 	double velx, vely;	// holds the actual velocity for the current move. This can differ from the actor's internal values.
 	Sound SpawnSound;
 	
+	override void Initialize()
+	{
+		// do not call the parent's function here.
+	}
 	// this large batch of subsequently called virtuals is owed to the spaghetti-like implementation of the orignal moveprojectiles function.
 	
 	virtual bool premoveeffect()
