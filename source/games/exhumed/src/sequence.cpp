@@ -149,6 +149,7 @@ const char *SeqNames[kMaxSEQFiles] =
 };
 
 static int16_t SeqOffsets[kMaxSEQFiles];
+static TMap<FName, TArray<TArray<SeqFrame>>> FileSeqMap;
 
 
 //---------------------------------------------------------------------------
@@ -270,6 +271,164 @@ int getSeqFrameChunkPicnum(const int nChunk)
 int getSeqFrameChunkFlags(const int nChunk)
 {
     return ChunkFlag[nChunk];
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int addSeq(const char *seqName)
+{
+    const FStringf seqfilename("%s.seq", seqName);
+    const auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
+
+    if (!hFile.isOpen())
+    {
+        Printf("Unable to open '%s'!\n", seqfilename.GetChars());
+        return 0;
+    }
+
+    uint16_t tag;
+    hFile.Read(&tag, sizeof(tag));
+    if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
+    {
+        Printf("Unsupported sequence version!\n");
+        return 0;
+    }
+
+    int16_t CenterX, CenterY, nSeqs;
+    hFile.Read(&CenterX, sizeof(CenterX));
+    hFile.Read(&CenterY, sizeof(CenterY));
+    hFile.Read(&nSeqs, sizeof(nSeqs));
+
+    if (nSeqs <= 0)
+    {
+        Printf("Invalid sequence count!\n");
+        return 0;
+    }
+
+    TArray<int16_t> nSeqFrames(nSeqs, true);
+    TArray<int16_t> nSeqFrameCount(nSeqs, true);
+    TArray<int16_t> nSeqFlags(nSeqs, true);
+    hFile.Read(nSeqFrames.Data(), nSeqs * sizeof(int16_t));
+    hFile.Read(nSeqFrameCount.Data(), nSeqs * sizeof(int16_t));
+    hFile.Read(nSeqFlags.Data(), nSeqs * sizeof(int16_t));
+
+    int16_t nFrames;
+    hFile.Read(&nFrames, sizeof(nFrames));
+
+    if (nFrames <= 0 )
+    {
+        Printf("Invalid frame count!\n");
+        return 0;
+    }
+
+    TArray<int16_t> nSeqFrameChunks(nFrames, true);
+    TArray<int16_t> nSeqFrameChunkCount(nFrames, true);
+    TArray<int16_t> nSeqFrameFlags(nFrames, true);
+    TArray<int16_t> nSeqFrameSounds(nFrames, true);
+    hFile.Read(nSeqFrameChunks.Data(), nFrames * sizeof(int16_t));
+    hFile.Read(nSeqFrameChunkCount.Data(), nFrames * sizeof(int16_t));
+    hFile.Read(nSeqFrameFlags.Data(), nFrames * sizeof(int16_t));
+    memset(nSeqFrameSounds.Data(), -1, nFrames * sizeof(int16_t));
+
+    int16_t nChunks;
+    hFile.Read(&nChunks, sizeof(nChunks));
+
+    if (nChunks <= 0)
+    {
+        Printf("Invalid chunk count!\n");
+        return 0;
+    }
+
+    TArray<int16_t> nSeqFrameChunkPosX(nChunks, true);
+    TArray<int16_t> nSeqFrameChunkPosY(nChunks, true);
+    TArray<int16_t> nSeqFrameChunkPicnum(nChunks, true);
+    TArray<int16_t> nSeqFrameChunkFlags(nChunks, true);
+    hFile.Read(nSeqFrameChunkPosX.Data(), nChunks * sizeof(int16_t));
+    hFile.Read(nSeqFrameChunkPosY.Data(), nChunks * sizeof(int16_t));
+    hFile.Read(nSeqFrameChunkPicnum.Data(), nChunks * sizeof(int16_t));
+    hFile.Read(nSeqFrameChunkFlags.Data(), nChunks * sizeof(int16_t));
+
+    if (tag == MAKE_ID('D', 'S', 0, 0))
+    {
+        int16_t nSounds;
+        hFile.Read(&nSounds, sizeof(nSounds));
+        TArray<char> buffer(nSounds * 10, true);
+        memset(buffer.Data(), 0, nSounds * 10);
+
+        for (int i = 0; i < nSounds; i++)
+        {
+            hFile.Read(&buffer[i * 10], 8);
+        }
+
+        int16_t nSounds2;
+        hFile.Read(&nSounds2, sizeof(nSounds2));
+
+        for (int i = 0; i < nSounds2; i++)
+        {
+            int16_t nSeqFrame, nSndIndex;
+            hFile.Read(&nSeqFrame, sizeof(nSeqFrame));
+            hFile.Read(&nSndIndex, sizeof(nSndIndex));
+
+            int ndx = (nSndIndex & 0x1FF);
+            int hSound = 0;
+
+            if (ndx >= nSounds)
+            {
+                Printf("Invalid sound index %d in %s, maximum is %d\n", ndx, seqfilename.GetChars(), nSounds);
+            }
+            else
+            {
+                hSound = LoadSound(&buffer[ndx * 10]);
+            }
+
+            nSeqFrameSounds[nSeqFrame] = hSound | (nSndIndex & 0xFE00);
+        }
+    }
+
+    // Add hastable entry for the amount of sequences this file contains.
+    auto& gSequences = FileSeqMap.Insert(FName(seqName), TArray<TArray<SeqFrame>>(nSeqs, true));
+
+    // Read all this data into something sane.
+    for (int nSeq = 0; nSeq < nSeqs; nSeq++)
+    {
+        // Determine where we are in our frame array.
+        const int firstFrame = nSeqFrames[nSeq];
+        const int lastFrame = nSeqFrameCount[nSeq] + firstFrame;
+
+        // Get sequence's frame array and resize.
+        auto& gSeqFrames = gSequences[nSeq];
+        gSeqFrames.Resize(lastFrame - firstFrame);
+
+        // Build out frame array.
+        for (int nFrame = firstFrame; nFrame < lastFrame; nFrame++)
+        {
+            // Store reference to this frame and start filling.
+            auto& gSeqFrame = gSeqFrames[nFrame - firstFrame];
+            gSeqFrame.sound = nSeqFrameSounds[nFrame];
+            gSeqFrame.flags = nSeqFrameFlags[nFrame];
+
+            // Determine where we are in our chunk array.
+            const int firstChunk = nSeqFrameChunks[nFrame];
+            const int lastChunk = nSeqFrameChunkCount[nFrame] + firstChunk;
+
+            // Build out chunk array.
+            for (int nChunk = firstChunk; nChunk < lastChunk; nChunk++)
+            {
+                gSeqFrame.chunks.Push({
+                    (int16_t)(nSeqFrameChunkPosX[nChunk] - CenterX),
+                    (int16_t)(nSeqFrameChunkPosY[nChunk] - CenterY),
+                    nSeqFrameChunkPicnum[nChunk],
+                    nSeqFrameChunkFlags[nChunk],
+                });
+            }
+        }
+    }
+
+    return nSeqs;
 }
 
 //---------------------------------------------------------------------------
@@ -445,7 +604,8 @@ void seq_LoadSequences()
     {
         SeqOffsets[i] = sequences;
 
-        if (seq_ReadSequence(SeqNames[i]) == 0) {
+        if (seq_ReadSequence(SeqNames[i]) == 0 || addSeq(SeqNames[i]) == 0)
+        {
             Printf("Error loading '%s'\n", SeqNames[i]);
         }
     }

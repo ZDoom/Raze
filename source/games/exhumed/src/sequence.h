@@ -108,6 +108,21 @@ struct actionSeq
     int16_t b;
 };
 
+struct SeqFrameChunk
+{
+    int16_t xpos;
+    int16_t ypos;
+    int16_t picnum;
+    int16_t flags;
+};
+
+struct SeqFrame
+{
+    int16_t sound;
+    int16_t flags;
+    TArray<SeqFrameChunk> chunks;
+};
+
 extern int16_t frames;
 
 extern int16_t nShadowWidth;
