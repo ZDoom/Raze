@@ -120,14 +120,14 @@ void AISpider::Tick(RunListEvent* ev)
     }
 
     const auto& spiderSeq = getSequence(spp->nSeqFile, SpiderSeq[nAction].nSeqId);
-    const auto& seqFrame = spiderSeq[spp->nFrame];
+    const auto& seqFrame = spiderSeq.frames[spp->nFrame];
 
     spp->spr.picnum = spp->nFrame < 9 ? seqFrame.getFirstPicnum() : -1;
 
     playFrameSound(spp, seqFrame);
 
     spp->nFrame++;
-    if (spp->nFrame >= spiderSeq.Size()) {
+    if (spp->nFrame >= spiderSeq.frames.Size()) {
         spp->nFrame = 0;
     }
 
@@ -421,7 +421,7 @@ void AISpider::Damage(RunListEvent* ev)
 
         for (int i = 0; i < 7; i++)
         {
-            BuildCreatureChunk(spp, getSequence("spider", i + 41)[0].getFirstPicnum());
+            BuildCreatureChunk(spp, getSequence("spider", i + 41).getFirstPicnum());
         }
     }
 }

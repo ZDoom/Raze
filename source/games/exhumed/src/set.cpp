@@ -116,7 +116,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->nSeqFile = "set";
-    pActor->spr.picnum = getSequence(pActor->nSeqFile, 75)[0].getFirstPicnum();
+    pActor->spr.picnum = getSequence(pActor->nSeqFile, 75).getFirstPicnum();
     pActor->spr.Angles.Yaw = RandomAngle();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -145,7 +145,7 @@ void AISoul::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    playFrameSound(pActor, getSequence("set", 75)[0]);
+    playFrameSound(pActor, getSequence("set", 75).frames[0]);
 
     if (pActor->spr.scale.X < 0.5)
     {
@@ -272,7 +272,7 @@ void AISet::Tick(RunListEvent* ev)
     Gravity(pActor);
 
     const auto& setSeq = getSequence(pActor->nSeqFile, SetSeq[nAction].nSeqId);
-    const auto& seqFrame = setSeq[pActor->nFrame];
+    const auto& seqFrame = setSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
     playFrameSound(pActor, seqFrame);
@@ -285,7 +285,7 @@ void AISet::Tick(RunListEvent* ev)
     }
 
     pActor->nFrame++;
-    if (pActor->nFrame >= setSeq.Size())
+    if (pActor->nFrame >= setSeq.frames.Size())
     {
         pActor->nFrame = 0;
         bVal = true;
@@ -570,7 +570,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pActor->nFrame = setSeq.Size() - 1;
+            pActor->nFrame = setSeq.frames.Size() - 1;
         }
 
         if (nMov.exbits & kHitAux2)
@@ -609,7 +609,7 @@ void AISet::Tick(RunListEvent* ev)
         if (seqFrame.flags & 0x80)
         {
             pActor->spr.pos.Z -= GetActorHeight(pActor);
-            BuildCreatureChunk(pActor, getSequence("set", 76)[0].getFirstPicnum());
+            BuildCreatureChunk(pActor, getSequence("set", 76).getFirstPicnum());
 			pActor->spr.pos.Z += GetActorHeight(pActor);
         }
 

@@ -124,7 +124,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     const int nAction = ap->nAction;
 
     const auto& anubisSeq = getSequence(ap->nSeqFile, AnubisSeq[nAction].nSeqId);
-    const auto& seqFrame = anubisSeq[ap->nFrame];
+    const auto& seqFrame = anubisSeq.frames[ap->nFrame];
     bool bVal = false;
 
     if (nAction < 11)
@@ -135,7 +135,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     ap->spr.picnum = seqFrame.getFirstPicnum();
     ap->nFrame++;
 
-    if (ap->nFrame >= anubisSeq.Size())
+    if (ap->nFrame >= anubisSeq.frames.Size())
     {
         ap->nFrame = 0;
         bVal = true;

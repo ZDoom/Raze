@@ -147,7 +147,7 @@ const char *SeqNames[kMaxSEQFiles] =
 };
 
 static int16_t SeqOffsets[kMaxSEQFiles];
-static TMap<FName, SeqArray> FileSeqMap;
+static TMap<FName, TArray<Seq>> FileSeqMap;
 
 
 //---------------------------------------------------------------------------
@@ -277,7 +277,7 @@ int getSeqFrameChunkFlags(const int nChunk)
 //
 //---------------------------------------------------------------------------
 
-SeqArray* getFileSeqs(const FName nSeqFile)
+TArray<Seq>* getFileSeqs(const FName nSeqFile)
 {
     return FileSeqMap.CheckKey(nSeqFile);
 }
@@ -399,17 +399,21 @@ int addSeq(const char *seqName)
     }
 
     // Add hastable entry for the amount of sequences this file contains.
-    auto& gSequences = FileSeqMap.Insert(FName(seqName), SeqArray(nSeqs, true));
+    auto& gSequences = FileSeqMap.Insert(FName(seqName), TArray<Seq>(nSeqs, true));
 
     // Read all this data into something sane.
     for (int nSeq = 0; nSeq < nSeqs; nSeq++)
     {
+        // Store unused sequence flags, they may be used with future expansion.
+        auto& gSeq = gSequences[nSeq];
+        gSeq.flags = nSeqFlags[nSeq];
+
         // Determine where we are in our frame array.
         const int firstFrame = nSeqFrames[nSeq];
         const int lastFrame = nSeqFrameCount[nSeq] + firstFrame;
 
         // Get sequence's frame array and resize.
-        auto& gSeqFrames = gSequences[nSeq];
+        auto& gSeqFrames = gSeq.frames;
         gSeqFrames.Resize(lastFrame - firstFrame);
 
         // Build out frame array.
@@ -625,20 +629,20 @@ void seq_LoadSequences()
     fclose(f);
 #endif
 
-    nShadowPic = getSequence("shadow")[0].getFirstPicnum();
+    nShadowPic = getSequence("shadow").getFirstPicnum();
     nShadowWidth = tileWidth(nShadowPic);
 
-    nFlameHeight = tileHeight(getSequence("firepoof")[0].getFirstPicnum());
+    nFlameHeight = tileHeight(getSequence("firepoof").getFirstPicnum());
 
-    nBackgroundPic = getSequence("backgrnd")[0].getFirstPicnum();
+    nBackgroundPic = getSequence("backgrnd").getFirstPicnum();
 
-    nPilotLightCount = getSequence("flamer", 3).Size();
+    nPilotLightCount = getSequence("flamer", 3).frames.Size();
     nPilotLightFrame = 0;
 
     const auto& fontSeq = getSequence("font2");
-    nFontFirstChar = fontSeq[0].getFirstPicnum();
+    nFontFirstChar = fontSeq.getFirstPicnum();
 
-    for (unsigned i = 0; i < fontSeq.Size(); i++)
+    for (unsigned i = 0; i < fontSeq.frames.Size(); i++)
     {
         auto tex = tileGetTexture(nFontFirstChar + i);
         tex->SetOffsets(0, 0);
@@ -658,7 +662,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
     if (!(pSect->Flag & kSectUnderwater))
     {
         const auto& pilotlightSeq = getSequence("flamer", 3);
-        const auto& seqFrame = pilotlightSeq[0];
+        const auto& seqFrame = pilotlightSeq.frames[0];
 
         for (unsigned i = 0; i < seqFrame.chunks.Size(); i++)
         {
@@ -677,9 +681,9 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 //
 //---------------------------------------------------------------------------
 
-void seq_DrawGunSequence(const SeqFrameArray& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
+void seq_DrawGunSequence(const Seq& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
 {
-    const auto& seqFrame = weapSeq[frameIndex];
+    const auto& seqFrame = weapSeq.frames[frameIndex];
 
     if (seqFrame.flags & 4)
         nShade = -100;
@@ -768,7 +772,7 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
     const DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
     const int seqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
-    const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset)[frameIndex];
+    const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset).frames[frameIndex];
     const auto& frameChunk = seqFrame.chunks[0];
 
     auto nStat = pTSprite->cstat | CSTAT_SPRITE_YCENTER;
@@ -817,8 +821,8 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
     }
 
     const auto fileSeqs = getFileSeqs(seqFile);
-    const auto& baseFrame = fileSeqs->operator[](seqIndex)[frameIndex];
-    const auto& drawFrame = fileSeqs->operator[](seqIndex + seqOffset)[frameIndex];
+    const auto& baseFrame = fileSeqs->operator[](seqIndex).frames[frameIndex];
+    const auto& drawFrame = fileSeqs->operator[](seqIndex + seqOffset).frames[frameIndex];
     const auto chunkCount = drawFrame.chunks.Size();
 
     const auto nShade = (baseFrame.flags & 4) ? pTSprite->shade - 100 : pTSprite->shade;

@@ -67,7 +67,7 @@ void InitRats()
 
     for (int i = 122; i <= 131; i++)
     {
-        int nPic = getSequence("joe", i)[0].getFirstPicnum();
+        int nPic = getSequence("joe", i).getFirstPicnum();
 
         if (nPic < nMinChunk)
             nMinChunk = nPic;
@@ -76,7 +76,7 @@ void InitRats()
             nMaxChunk = nPic;
     }
 
-    nPlayerPic = getSequence("joe", 120)[0].getFirstPicnum();
+    nPlayerPic = getSequence("joe", 120).getFirstPicnum();
 }
 
 void SetRatVel(DExhumedActor* pActor)
@@ -247,14 +247,14 @@ void AIRat::Tick(RunListEvent* ev)
     bool bVal = false;
 
     const auto& ratSeq = getSequence(pActor->nSeqFile, RatSeq[nAction].nSeqId);
-    const auto& seqFrame = ratSeq[pActor->nFrame];
+    const auto& seqFrame = ratSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= ratSeq.Size())
+    if (pActor->nFrame >= ratSeq.frames.Size())
     {
         bVal = true;
         pActor->nFrame = 0;

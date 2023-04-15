@@ -208,14 +208,14 @@ void AIScorp::Tick(RunListEvent* ev)
     }
 
     const auto& scorpSeq = getSequence(pActor->nSeqFile, ScorpSeq[nAction].nSeqId);
-    const auto& seqFrame = scorpSeq[pActor->nFrame];
+    const auto& seqFrame = scorpSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
     playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= scorpSeq.Size())
+    if (pActor->nFrame >= scorpSeq.frames.Size())
     {
         pActor->nFrame = 0;
         bVal = true;

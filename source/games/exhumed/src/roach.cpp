@@ -213,13 +213,13 @@ void AIRoach::Tick(RunListEvent* ev)
     Gravity(pActor);
 
     const auto& roachSeq = getSequence(pActor->nSeqFile, RoachSeq[nAction].nSeqId);
-    const auto& seqFrame = roachSeq[pActor->nFrame];
+    const auto& seqFrame = roachSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
     playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= roachSeq.Size())
+    if (pActor->nFrame >= roachSeq.frames.Size())
     {
         bVal = true;
         pActor->nFrame = 0;

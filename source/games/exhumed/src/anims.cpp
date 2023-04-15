@@ -139,7 +139,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
     if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        playFrameSound(pActor, animSeq[nFrame]);
+        playFrameSound(pActor, animSeq.frames[nFrame]);
     }
 
     if (pActor->spr.statnum == kStatIgnited)
@@ -202,7 +202,7 @@ void AIAnim::Tick(RunListEvent* ev)
     }
 
     pActor->nFrame++;
-    if (pActor->nFrame >= animSeq.Size())
+    if (pActor->nFrame >= animSeq.frames.Size())
     {
         if (pActor->nFlags & kAnimLoop)
         {

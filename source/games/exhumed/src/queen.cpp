@@ -252,7 +252,7 @@ void BlowChunks(DExhumedActor* pActor)
 {
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(pActor, getSequence("spider", i + 41)[0].getFirstPicnum());
+        BuildCreatureChunk(pActor, getSequence("spider", i + 41).getFirstPicnum());
     }
 }
 
@@ -275,7 +275,7 @@ void DestroyEgg(int nEgg)
     {
         for (int i = 0; i < 4; i++)
         {
-            BuildCreatureChunk(pActor, getSequence("queenegg", (i % 2) + 24)[0].getFirstPicnum());
+            BuildCreatureChunk(pActor, getSequence("queenegg", (i % 2) + 24).getFirstPicnum());
         }
     }
 
@@ -544,7 +544,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
     }
 
     const auto& eggSeq = getSequence(pActor->nSeqFile, EggSeq[nAction].nSeqId);
-    const auto& seqFrame = eggSeq[pEgg->nFrame];
+    const auto& seqFrame = eggSeq.frames[pEgg->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
@@ -553,7 +553,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         playFrameSound(pActor, seqFrame);
 
         pEgg->nFrame++;
-        if (pEgg->nFrame >= eggSeq.Size())
+        if (pEgg->nFrame >= eggSeq.frames.Size())
         {
             pEgg->nFrame = 0;
             bVal = true;
@@ -803,14 +803,14 @@ void AIQueenHead::Tick(RunListEvent* ev)
     }
 
     const auto& queenSeq = getSequence(pActor->nSeqFile, HeadSeq[QueenHead.nAction].nSeqId);
-    const auto& seqFrame = queenSeq[QueenHead.nFrame];
+    const auto& seqFrame = queenSeq.frames[QueenHead.nFrame];
 
     playFrameSound(pActor, seqFrame);
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     QueenHead.nFrame++;
-    if (QueenHead.nFrame >= queenSeq.Size())
+    if (QueenHead.nFrame >= queenSeq.frames.Size())
     {
         QueenHead.nFrame = 0;
         var_14 = 1;
@@ -1236,14 +1236,14 @@ void AIQueen::Tick(RunListEvent* ev)
     }
 
     const auto& queenSeq = getSequence(pActor->nSeqFile, QueenSeq[nAction].nSeqId);
-    const auto& seqFrame = queenSeq[QueenList[nQueen].nFrame];
+    const auto& seqFrame = queenSeq.frames[QueenList[nQueen].nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
     playFrameSound(pActor, seqFrame);
 
     QueenList[nQueen].nFrame++;
-    if (QueenList[nQueen].nFrame >= queenSeq.Size())
+    if (QueenList[nQueen].nFrame >= queenSeq.frames.Size())
     {
         QueenList[nQueen].nFrame = 0;
         bVal = true;
@@ -1435,7 +1435,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 if (QueenList[nQueen].nIndex <= 0)
                 {
                     pActor->spr.cstat = 0;
-                    const auto queenPicnum = getSequence("queen", 57)[0].getFirstPicnum();
+                    const auto queenPicnum = getSequence("queen", 57).getFirstPicnum();
 
                     for (int i = 0; i < 20; i++)
                     {

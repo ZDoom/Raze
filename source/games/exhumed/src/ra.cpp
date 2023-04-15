@@ -214,7 +214,7 @@ void AIRa::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     const auto& raSeq = getSequence(Ra[nPlayer].pActor->nSeqFile, RaSeq[Ra[nPlayer].nAction].nSeqId);
-    const auto& seqFrame = raSeq[Ra[nPlayer].nFrame];
+    const auto& seqFrame = raSeq.frames[Ra[nPlayer].nFrame];
 
     bool bVal = false;
 
@@ -226,7 +226,7 @@ void AIRa::Tick(RunListEvent* ev)
         playFrameSound(pActor, seqFrame);
 
         Ra[nPlayer].nFrame++;
-        if (Ra[nPlayer].nFrame >= raSeq.Size())
+        if (Ra[nPlayer].nFrame >= raSeq.frames.Size())
         {
             Ra[nPlayer].nFrame = 0;
             bVal = true;

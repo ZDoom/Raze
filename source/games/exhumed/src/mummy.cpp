@@ -142,7 +142,7 @@ void AIMummy::Tick(RunListEvent* ev)
     Gravity(pActor);
 
     const auto& mummySeq = getSequence(pActor->nSeqFile, MummySeq[nAction].nSeqId);
-    const auto& seqFrame = mummySeq[pActor->nFrame];
+    const auto& seqFrame = mummySeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
@@ -151,7 +151,7 @@ void AIMummy::Tick(RunListEvent* ev)
     bool bVal = false;
 
     pActor->nFrame++;
-    if (pActor->nFrame >= mummySeq.Size())
+    if (pActor->nFrame >= mummySeq.frames.Size())
     {
         pActor->nFrame = 0;
 

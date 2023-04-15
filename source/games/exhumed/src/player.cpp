@@ -220,7 +220,7 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->nSeqFile = "joe";
     pPlayerActor->nAction = 0;
     pPlayerActor->nFrame = 0;
-    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, 18)[0].getFirstPicnum();
+    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, 18).getFirstPicnum();
     pPlayerActor->spr.hitag = 0;
     pPlayerActor->spr.extra = -1;
     pPlayerActor->spr.lotag = runlist_HeadRun() + 1;
@@ -642,7 +642,7 @@ void AIPlayer::Damage(RunListEvent* ev)
         {
             for (int i = 122; i <= 131; i++)
             {
-                BuildCreatureChunk(pPlayerActor, getSequence("joe", i)[0].getFirstPicnum());
+                BuildCreatureChunk(pPlayerActor, getSequence("joe", i).getFirstPicnum());
             }
 
             StartDeathSeq(nPlayer, 1);
@@ -1885,7 +1885,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
         if (pPlayer->pActor->nAction != 20)
         {
             const auto pPlayerActor = pPlayer->pActor;
-            pPlayerActor->spr.picnum = getSequence("joe", 120)[0].getFirstPicnum();
+            pPlayerActor->spr.picnum = getSequence("joe", 120).getFirstPicnum();
             pPlayerActor->spr.cstat = 0;
             pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
@@ -1915,8 +1915,8 @@ static void doPlayerActionSequence(Player* const pPlayer)
     const auto pPlayerActor = pPlayer->pActor;
 
     const auto& playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
-    const auto& seqFrame = playerSeq[pPlayerActor->nFrame];
-    const auto seqSize = playerSeq.Size();
+    const auto& seqFrame = playerSeq.frames[pPlayerActor->nFrame];
+    const auto seqSize = playerSeq.frames.Size();
 
     playFrameSound(pPlayerActor, seqFrame);
     pPlayerActor->nFrame++;
@@ -2011,7 +2011,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
 
-    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)[0].getFirstPicnum();
+    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId).getFirstPicnum();
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
     doPlayerCounters(pPlayer);

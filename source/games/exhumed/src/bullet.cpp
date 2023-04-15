@@ -658,13 +658,13 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     {
         pBullet->field_12 = 0;
         pBullet->seqFile = pBulletInfo->initSeq;
-        pBulletActor->spr.picnum = getSequence(pBullet->seqFile)[0].chunks[0].picnum;
+        pBulletActor->spr.picnum = getSequence(pBullet->seqFile).getFirstPicnum();
     }
     else if (pBulletInfo->seqFile != NAME_None)
     {
         pBullet->field_12 = 1;
         pBullet->seqFile = pBulletInfo->seqFile;
-        pBulletActor->spr.picnum = getSequence(pBullet->seqFile)[0].chunks[0].picnum;
+        pBulletActor->spr.picnum = getSequence(pBullet->seqFile).getFirstPicnum();
     }
     else
     {
@@ -803,7 +803,7 @@ void AIBullet::Tick(RunListEvent* ev)
         return;
 
     const auto& bulletSeq = getSequence(pBullet->seqFile);
-    const auto& seqFrame = bulletSeq[pBullet->nFrame];
+    const auto& seqFrame = bulletSeq.frames[pBullet->nFrame];
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
     playFrameSound(pActor, seqFrame);
@@ -814,7 +814,7 @@ void AIBullet::Tick(RunListEvent* ev)
     }
 
     pBullet->nFrame++;
-    if (pBullet->nFrame >= bulletSeq.Size())
+    if (pBullet->nFrame >= bulletSeq.frames.Size())
     {
         if (!pBullet->field_12)
         {

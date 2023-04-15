@@ -374,7 +374,7 @@ void MoveWeapons(int nPlayer)
 
     const auto nSeqFile = WeaponInfo[nWeapon].nSeqFile;
     auto weapSeq = std::ref(getSequence(nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]));
-    auto seqFrame = std::ref(weapSeq.get()[pPlayer->nWeapFrame]);
+    auto seqFrame = std::ref(weapSeq.get().frames[pPlayer->nWeapFrame]);
 
     int var_1C = (pPlayer->nDouble > 0) + 1;
     int frames = var_1C - 1;
@@ -390,7 +390,7 @@ void MoveWeapons(int nPlayer)
             dword_96E22 = 0;
         }
 
-        if (pPlayer->nWeapFrame >= weapSeq.get().Size())
+        if (pPlayer->nWeapFrame >= weapSeq.get().frames.Size())
         {
             if (pPlayer->nNextWeapon == -1)
             {
@@ -468,7 +468,7 @@ void MoveWeapons(int nPlayer)
                             }
                             else
                             {
-                                pPlayer->nWeapFrame = weapSeq.get().Size() - 1;
+                                pPlayer->nWeapFrame = weapSeq.get().frames.Size() - 1;
                                 continue;
                             }
                         }
@@ -565,7 +565,7 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(nPlayer);
                                 pPlayer->nState = 5;
 
-                                pPlayer->nWeapFrame = getSequence(nSeqFile, WeaponInfo[kWeaponGrenade].b[0]).Size() - 1; // CHECKME
+                                pPlayer->nWeapFrame = getSequence(nSeqFile, WeaponInfo[kWeaponGrenade].b[0]).frames.Size() - 1; // CHECKME
                                 goto loc_flag; // FIXME
                             }
                         }
@@ -639,7 +639,7 @@ void MoveWeapons(int nPlayer)
         }
 
 loc_flag:
-        seqFrame = std::ref(weapSeq.get()[pPlayer->nWeapFrame]);
+        seqFrame = std::ref(weapSeq.get().frames[pPlayer->nWeapFrame]);
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (seqFrame.get().flags & 4))
         {

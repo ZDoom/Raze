@@ -193,7 +193,7 @@ void AIRex::Tick(RunListEvent* ev)
     Gravity(pActor);
 
     const auto& rexSeq = getSequence(pActor->nSeqFile, RexSeq[nAction].nSeqId);
-    const auto& seqFrame = rexSeq[pActor->nFrame];
+    const auto& seqFrame = rexSeq.frames[pActor->nFrame];
 
     pActor->spr.picnum = seqFrame.getFirstPicnum();
 
@@ -209,7 +209,7 @@ void AIRex::Tick(RunListEvent* ev)
         playFrameSound(pActor, seqFrame);
 
         pActor->nFrame++;
-        if (pActor->nFrame >= rexSeq.Size())
+        if (pActor->nFrame >= rexSeq.frames.Size())
         {
             pActor->nFrame = 0;
             bVal = true;

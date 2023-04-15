@@ -1890,7 +1890,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     {
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
-            pActor->nFrame = RandomSize(4) % (getSequence(pActor->nSeqFile).Size() - 1);
+            pActor->nFrame = RandomSize(4) % (getSequence(pActor->nSeqFile).frames.Size() - 1);
         }
 
         auto pActor2 = insertActor(pActor->sector(), 0);
@@ -1957,7 +1957,7 @@ void AIObject::Tick(RunListEvent* ev)
     // do animation
     if (pActor->nSeqFile != NAME_None)
     {
-        const auto& nSeqFrames = getSequence(pActor->nSeqFile);
+        const auto& nSeqFrames = getSequence(pActor->nSeqFile).frames;
 
         if (++pActor->nFrame >= nSeqFrames.Size())
             pActor->nFrame = 0;
@@ -2007,7 +2007,7 @@ void AIObject::Tick(RunListEvent* ev)
         if (nStat == kStatExplodeTrigger)
         {
             for (int i = 4; i < 8; i++) {
-                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 2) + 1)[0].getFirstPicnum(), true);
+                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 2) + 1).getFirstPicnum(), true);
             }
 
             runlist_RadialDamageEnemy(pActor, 200, 20);
@@ -2015,7 +2015,7 @@ void AIObject::Tick(RunListEvent* ev)
         else if (nStat == kStatExplodeTarget)
         {
             for (int i = 0; i < 8; i++) {
-                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 1) + 3)[0].getFirstPicnum(), true);
+                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 1) + 3).getFirstPicnum(), true);
             }
         }
 
@@ -2180,7 +2180,7 @@ void DoDrips()
             if (!pActor) continue;
 
             const auto& dripSeq = getSequence("drips", !(pActor->sector()->Flag & kSectLava));
-            playFrameSound(pActor, dripSeq[RandomSize(2) % dripSeq.Size()]);
+            playFrameSound(pActor, dripSeq.frames[RandomSize(2) % dripSeq.frames.Size()]);
 
             sDrip[i].nCount = RandomSize(8) + 90;
         }
