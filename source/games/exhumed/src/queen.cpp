@@ -252,7 +252,7 @@ void BlowChunks(DExhumedActor* pActor)
 {
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(pActor, seq_GetSeqPicnum(16, i + 41, 0));
+        BuildCreatureChunk(pActor, getSequence("spider", i + 41)[0].getFirstPicnum());
     }
 }
 
@@ -275,7 +275,7 @@ void DestroyEgg(int nEgg)
     {
         for (int i = 0; i < 4; i++)
         {
-            BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueenEgg, (i % 2) + 24, 0));
+            BuildCreatureChunk(pActor, getSequence("queenegg", (i % 2) + 24)[0].getFirstPicnum());
         }
     }
 
@@ -1435,16 +1435,17 @@ void AIQueen::Tick(RunListEvent* ev)
                 if (QueenList[nQueen].nIndex <= 0)
                 {
                     pActor->spr.cstat = 0;
+                    const auto queenPicnum = getSequence("queen", 57)[0].getFirstPicnum();
 
                     for (int i = 0; i < 20; i++)
                     {
-                        auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
+                        auto pChunkActor = BuildCreatureChunk(pActor, queenPicnum);
 
                         pChunkActor->spr.picnum = kQueenChunk + (i % 3);
 						pChunkActor->spr.scale = DVector2(1.5625, 1.5625);
                     }
 
-                    auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
+                    auto pChunkActor = BuildCreatureChunk(pActor, queenPicnum);
 
                     pChunkActor->spr.picnum = kTile3126;
 					pChunkActor->spr.scale = DVector2(1.5625, 1.5625);

@@ -144,8 +144,6 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
-int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx);
-
 int getSeqFromId(const int nSeqFileId, const int nSeq = 0);
 int getSeqFrame(const int nSeq, const int nFrame = 0);
 int getSeqFrameCount(const int nSeq);

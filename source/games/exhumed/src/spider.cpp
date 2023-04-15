@@ -421,7 +421,7 @@ void AISpider::Damage(RunListEvent* ev)
 
         for (int i = 0; i < 7; i++)
         {
-            BuildCreatureChunk(spp, seq_GetSeqPicnum(kSeqSpider, i + 41, 0));
+            BuildCreatureChunk(spp, getSequence("spider", i + 41)[0].getFirstPicnum());
         }
     }
 }

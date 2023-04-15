@@ -164,7 +164,7 @@ void BuildSnake(int nPlayer, double zVal)
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
-    int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
+    int nPic = getSequence("snakbody", 0)[0].getFirstPicnum();
 
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 

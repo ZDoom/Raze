@@ -761,17 +761,6 @@ void playFrameSound(DExhumedActor* actor, const SeqFrame& seqFrame)
 //
 //---------------------------------------------------------------------------
 
-int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
-{
-    return getSeqFrameChunkPicnum(getSeqFrameChunk(getSeqFrame(getSeqFromId(nSeq, edx))));
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);

@@ -123,7 +123,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->nSeqFile = "lavag";
-    pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].nSeqId, 0);
+    pActor->spr.picnum = getSequence(pActor->nSeqFile, LavadudeSeq[3].nSeqId)[0].getFirstPicnum();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;

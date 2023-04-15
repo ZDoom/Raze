@@ -64,7 +64,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.yoffset = 0;
     pChunkActor->vel.Z = ((-(RandomByte() + 512)) * 2) / 256.;
 
-    seq_GetSeqPicnum(kSeqFish, pChunkActor->nCount, 0);
+    //getSequence(pChunkActor->nSeqFile, pChunkActor->nCount)[0].getFirstPicnum();
 
     pChunkActor->spr.picnum = anim;
     pChunkActor->spr.lotag = runlist_HeadRun() + 1;
@@ -175,7 +175,8 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].nSeqId, 0);
+    pActor->nSeqFile = "fish";
+    pActor->spr.picnum = getSequence(pActor->nSeqFile, FishSeq[0].nSeqId)[0].getFirstPicnum();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -194,8 +195,6 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x120000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x120000);
-
-    pActor->nSeqFile = "fish";
 
     nCreaturesTotal++;
 }

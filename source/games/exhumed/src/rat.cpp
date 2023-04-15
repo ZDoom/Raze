@@ -67,7 +67,7 @@ void InitRats()
 
     for (int i = 122; i <= 131; i++)
     {
-        int nPic = seq_GetSeqPicnum(kSeqJoe, i, 0);
+        int nPic = getSequence("joe", i)[0].getFirstPicnum();
 
         if (nPic < nMinChunk)
             nMinChunk = nPic;
@@ -76,7 +76,7 @@ void InitRats()
             nMaxChunk = nPic;
     }
 
-    nPlayerPic = seq_GetSeqPicnum(kSeqJoe, 120, 0);
+    nPlayerPic = getSequence("joe", 120)[0].getFirstPicnum();
 }
 
 void SetRatVel(DExhumedActor* pActor)

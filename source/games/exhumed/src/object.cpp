@@ -2007,7 +2007,7 @@ void AIObject::Tick(RunListEvent* ev)
         if (nStat == kStatExplodeTrigger)
         {
             for (int i = 4; i < 8; i++) {
-                BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqFirePot, (i >> 2) + 1, 0), true);
+                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 2) + 1)[0].getFirstPicnum(), true);
             }
 
             runlist_RadialDamageEnemy(pActor, 200, 20);
@@ -2015,7 +2015,7 @@ void AIObject::Tick(RunListEvent* ev)
         else if (nStat == kStatExplodeTarget)
         {
             for (int i = 0; i < 8; i++) {
-                BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqFirePot, (i >> 1) + 3, 0), true);
+                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 1) + 3)[0].getFirstPicnum(), true);
             }
         }
 

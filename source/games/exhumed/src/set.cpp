@@ -115,7 +115,8 @@ void BuildSoul(DExhumedActor* pSet)
 	pActor->clipdist = 1.25;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
+    pActor->nSeqFile = "set";
+    pActor->spr.picnum = getSequence(pActor->nSeqFile, 75)[0].getFirstPicnum();
     pActor->spr.Angles.Yaw = RandomAngle();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -608,7 +609,7 @@ void AISet::Tick(RunListEvent* ev)
         if (seqFrame.flags & 0x80)
         {
             pActor->spr.pos.Z -= GetActorHeight(pActor);
-            BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));
+            BuildCreatureChunk(pActor, getSequence("set", 76)[0].getFirstPicnum());
 			pActor->spr.pos.Z += GetActorHeight(pActor);
         }
 
