@@ -145,7 +145,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     pActor->pTarget = nOwner;
 
-    BuildAnim(nullptr, 23, 0, pActor->spr.pos, pActor->sector(), 0.625, 4);
+    BuildAnim(nullptr, "cobrapow", 0, pActor->spr.pos, pActor->sector(), 0.625, 4);
 
     AddFlash(pActor->sector(), pActor->spr.pos, 128);
 

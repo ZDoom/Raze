@@ -776,6 +776,29 @@ void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
 //
 //---------------------------------------------------------------------------
 
+void playFrameSound(DExhumedActor* actor, const SeqFrame& seqFrame)
+{
+    const int nSound = seqFrame.sound;
+
+    if (nSound == -1)
+        return;
+
+    if (actor)
+    {
+        D3PlayFX(nSound, actor);
+    }
+    else
+    {
+        PlayLocalSound(nSound, 0);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 {
     return getSeqFrameChunkPicnum(getSeqFrameChunk(getSeqFrame(nSeq, nFrame)));

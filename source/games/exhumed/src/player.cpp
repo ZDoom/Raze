@@ -1946,7 +1946,7 @@ static void doPlayerActionSequence(Player* const pPlayer)
         {
             sectortype* mouthSect;
             const auto pos = WheresMyMouth(pPlayer->nPlayer, &mouthSect);
-            BuildAnim(nullptr, 71, 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
+            BuildAnim(nullptr, "blood", 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
         }
         break;
     case 17:

@@ -77,7 +77,8 @@ static DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector, cons
 //	GrabTimeSlot(3);
 
     pActor->nFrame = 0;
-    pActor->nSeq = getSeqFromId(kSeqBubble, nSize);
+    pActor->nSeqFile = "bubble";
+    pActor->nSeq = nSize;
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x140000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x140000);
 
@@ -95,13 +96,13 @@ void AIBubble::Tick(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    const int nSeq = pActor->nSeq;
+    const auto& bubbSeq = getSequence(pActor->nSeqFile, pActor->nSeq);
 
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    playFrameSound(pActor, bubbSeq[pActor->nFrame]);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= bubbSeq.Size())
         pActor->nFrame = 0;
 
     pActor->spr.pos.Z = pActor->vel.Z;
@@ -113,7 +114,7 @@ void AIBubble::Tick(RunListEvent* ev)
         auto pSectAbove = pSector->pAbove;
 
         if (pActor->spr.hitag > -1 && pSectAbove != nullptr)
-            BuildAnim(nullptr, 70, 0, DVector3(pActor->spr.pos.XY(), pSectAbove->floorz), pSectAbove, 1., 0);
+            BuildAnim(nullptr, "seebubbl", 0, DVector3(pActor->spr.pos.XY(), pSectAbove->floorz), pSectAbove, 1., 0);
 
         DestroyBubble(pActor);
     }
@@ -127,11 +128,11 @@ void AIBubble::Tick(RunListEvent* ev)
 
 void AIBubble::Draw(RunListEvent* ev)
 {
-    const auto pActor = ev->pObjActor;
-    if (!pActor) return;
-
-    //seq_PlotSequence(ev->nParam, pActor->nSeq, pActor->nFrame, 1);
-    ev->pTSprite->ownerActor = nullptr;
+    if (const auto pActor = ev->pObjActor)
+    {
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, pActor->nSeq, pActor->nFrame, 1);
+        ev->pTSprite->ownerActor = nullptr;
+    }
 }
 
 

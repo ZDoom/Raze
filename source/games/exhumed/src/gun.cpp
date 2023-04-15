@@ -758,7 +758,7 @@ loc_flag:
                                     else if (pActor2->spr.statnum == 102)
                                     {
                                         // loc_27370:
-                                        BuildAnim(nullptr, 12, 0, thePos, pSectorB, 0.46875, 0);
+                                        BuildAnim(nullptr, "poof", 0, thePos, pSectorB, 0.46875, 0);
                                     }
                                     else if (pActor2->spr.statnum == kStatExplodeTrigger) {
                                         var_28 += 2;
@@ -770,7 +770,7 @@ loc_flag:
                                 else
                                 {
                                     // loc_27370:
-                                    BuildAnim(nullptr, 12, 0, thePos, pSectorB, 0.46875, 0);
+                                    BuildAnim(nullptr, "poof", 0, thePos, pSectorB, 0.46875, 0);
                                 }
                             }
                         }

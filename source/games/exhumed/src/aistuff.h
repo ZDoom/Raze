@@ -33,9 +33,8 @@ enum
     kAnimLoop  = (1 << 4)
 };
 
-void InitAnims();
 void DestroyAnim(DExhumedActor* nAnim);
-DExhumedActor* BuildAnim(DExhumedActor* actor, int nSeq, int nOffset, const DVector3& pos, sectortype* pSector, double nScale, int nFlag);
+DExhumedActor* BuildAnim(DExhumedActor* actor, const FName seqFile, int seqIndex, const DVector3& pos, sectortype* pSector, double nScale, int nFlag);
 void UnlinkIgnitedAnim(DExhumedActor* pActor);
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
@@ -64,7 +63,7 @@ struct bulletInfo
     int field_4;   // 4
     int16_t field_8; // 8
     int16_t nSeq; // 10
-    int16_t field_C; // 12
+    FName animFile; // 12
     int16_t nFlags;
     int16_t nRadius; // damage radius
     int16_t xyRepeat;

@@ -78,11 +78,6 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->nSeqFile = "fish";
 }
 
-void BuildBlood(const DVector3& pos, sectortype* pSector)
-{
-    BuildAnim(nullptr, kSeqFish, 36, pos, pSector, 1.171875, 128);
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -106,7 +101,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
-            BuildBlood(pActor->spr.pos, pActor->sector());
+            BuildAnim(nullptr, pActor->nSeqFile, 36, pActor->spr.pos, pActor->sector(), 1.171875, 128);
         }
     }
 

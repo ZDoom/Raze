@@ -159,6 +159,7 @@ int getSeqFrameChunkPicnum(const int nChunk);
 int getSeqFrameChunkFlags(const int nChunk);
 
 const SeqFrameArray& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0);
+void playFrameSound(DExhumedActor* actor, const SeqFrame& seqFrame);
 
 END_PS_NS
 

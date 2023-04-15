@@ -1998,20 +1998,9 @@ void AIObject::Tick(RunListEvent* ev)
     }
     else
     {
-        int var_18;
-
-        // red branch
-        if ((nStat == kStatExplodeTarget) || (pActor->spr.pos.Z < pActor->sector()->floorz))
-        {
-            var_18 = 36;
-        }
-        else
-        {
-            var_18 = 34;
-        }
-
+        const FName animFile = (nStat == kStatExplodeTarget) || (pActor->spr.pos.Z < pActor->sector()->floorz) ? "grenpow" : "grenboom";
         AddFlash(pActor->sector(), pActor->spr.pos, 128);
-        BuildAnim(nullptr, var_18, 0, DVector3(pActor->spr.pos.XY(), pActor->sector()->floorz), pActor->sector(), 3.75, 4);
+        BuildAnim(nullptr, animFile, 0, DVector3(pActor->spr.pos.XY(), pActor->sector()->floorz), pActor->sector(), 3.75, 4);
 
         //				int edi = nSprite | 0x4000;
 
