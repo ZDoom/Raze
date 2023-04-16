@@ -3269,7 +3269,8 @@ bool execute(DDukeActor *actor,int p,double xx)
 	s.g_ac = actor;
 	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
 	auto insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
-	if (insptr != s.insptr)	Printf("%s: %p vs. %p\n", insptr, s.insptr);
+	if (insptr != s.insptr)	
+		Printf("%s: %p vs. %p\n", actor->GetClass()->TypeName.GetChars(), insptr, s.insptr);
 	s.killit_flag = 0;
 
 	int done;
