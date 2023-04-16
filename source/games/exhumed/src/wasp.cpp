@@ -213,7 +213,7 @@ void AIWasp::Tick(RunListEvent* ev)
     const auto& waspSeq = getSequence(pActor->nSeqFile, WaspSeq[nAction].nSeqId);
     const auto& seqFrame = waspSeq.frames[pActor->nFrame];
 
-    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
+    pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 

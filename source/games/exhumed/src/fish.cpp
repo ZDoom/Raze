@@ -90,7 +90,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
     const auto& fishSeq = getSequence(pActor->nSeqFile, pActor->nCount);
 
-    pActor->spr.setspritetexture(fishSeq.frames[pActor->nFrame].getFirstTexID());
+    pActor->spr.setspritetexture(fishSeq.frames[pActor->nFrame].getFirstChunkTexture());
 
     Gravity(pActor);
 
@@ -176,7 +176,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->nSeqFile = "fish";
-    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, FishSeq[0].nSeqId).getFirstTexID());
+    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, FishSeq[0].nSeqId).getFirstFrameTexture());
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -361,7 +361,7 @@ void AIFish::Tick(RunListEvent* ev)
     const auto& fishSeq = getSequence(pActor->nSeqFile, FishSeq[nAction].nSeqId);
     const auto& seqFrame = fishSeq.frames[pActor->nFrame];
 
-    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
+    pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 

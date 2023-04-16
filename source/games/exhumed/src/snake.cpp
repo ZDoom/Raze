@@ -163,7 +163,7 @@ void BuildSnake(int nPlayer, double zVal)
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
-    auto nPic = getSequence("snakbody", 0).getFirstTexID();
+    auto nPic = getSequence("snakbody", 0).getFirstFrameTexture();
 
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 

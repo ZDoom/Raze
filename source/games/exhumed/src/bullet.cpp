@@ -658,13 +658,13 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     {
         pBullet->field_12 = 0;
         pBullet->seqFile = pBulletInfo->initSeq;
-        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile).getFirstTexID());
+        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile).getFirstFrameTexture());
     }
     else if (pBulletInfo->seqFile != NAME_None)
     {
         pBullet->field_12 = 1;
         pBullet->seqFile = pBulletInfo->seqFile;
-        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile).getFirstTexID());
+        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile).getFirstFrameTexture());
     }
     else
     {

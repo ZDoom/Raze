@@ -41,7 +41,7 @@ struct SeqFrame
     int16_t flags;
     TArray<SeqFrameChunk> chunks;
 
-    const FTextureID getFirstTexID() const
+    const FTextureID getFirstChunkTexture() const
     {
         return chunks.Size() ? chunks[0].tex : FNullTextureID();
     }
@@ -67,9 +67,9 @@ struct Seq
     int16_t flags;
     TArray<SeqFrame> frames;
 
-    const FTextureID getFirstTexID() const
+    const FTextureID getFirstFrameTexture() const
     {
-        return frames[0].getFirstTexID();
+        return frames[0].getFirstChunkTexture();
     }
 };
 

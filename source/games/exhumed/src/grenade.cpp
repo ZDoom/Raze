@@ -262,7 +262,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     const auto& seqFrame = grenadeSeq.frames[pActor->nHealth >> 8];
 
     seqFrame.playSound(pActor);
-    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
+    pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     pActor->nIndex2--;
     if (!pActor->nIndex2)

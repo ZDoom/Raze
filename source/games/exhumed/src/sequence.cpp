@@ -317,16 +317,16 @@ void seq_LoadSequences()
         }
     }
 
-    nShadowPic = getSequence("shadow").getFirstTexID();
+    nShadowPic = getSequence("shadow").getFirstFrameTexture();
     nShadowWidth = (int16_t)TexMan.GetGameTexture(nShadowPic)->GetDisplayWidth();
 
-    nFlameHeight = (int16_t)TexMan.GetGameTexture(getSequence("firepoof").getFirstTexID())->GetDisplayHeight();
+    nFlameHeight = (int16_t)TexMan.GetGameTexture(getSequence("firepoof").getFirstFrameTexture())->GetDisplayHeight();
 
     nPilotLightCount = getSequence("flamer", 3).frames.Size();
     nPilotLightFrame = 0;
 
     const auto& fontSeq = getSequence("font2");
-    const int nFontFirstChar = legacyTileNum(fontSeq.getFirstTexID());
+    const int nFontFirstChar = legacyTileNum(fontSeq.getFirstFrameTexture());
 
     for (unsigned i = 0; i < fontSeq.frames.Size(); i++)
     {
@@ -515,7 +515,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         {
             pTSprite->setspritetexture(nShadowPic);
 
-            const auto nTexWidth = (int)TexMan.GetGameTexture(drawFrame.getFirstTexID())->GetDisplayWidth();
+            const auto nTexWidth = (int)TexMan.GetGameTexture(drawFrame.getFirstChunkTexture())->GetDisplayWidth();
             const auto nScale = max(((nTexWidth << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;

@@ -58,7 +58,7 @@ void SerializeRat(FSerializer& arc)
 
 void InitRats()
 {
-    nPlayerPic = getSequence("joe", 120).getFirstTexID();
+    nPlayerPic = getSequence("joe", 120).getFirstFrameTexture();
 }
 
 void SetRatVel(DExhumedActor* pActor)
@@ -231,7 +231,7 @@ void AIRat::Tick(RunListEvent* ev)
     const auto& ratSeq = getSequence(pActor->nSeqFile, RatSeq[nAction].nSeqId);
     const auto& seqFrame = ratSeq.frames[pActor->nFrame];
 
-    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
+    pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 
