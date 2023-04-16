@@ -406,4 +406,3 @@ class WW2GIChaingunShot : DukeChaingunShot
 		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 11.25, true, self.WW2GIAimAngle(p));
 	}
 }
-+
