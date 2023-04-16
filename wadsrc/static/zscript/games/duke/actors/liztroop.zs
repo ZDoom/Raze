@@ -12,7 +12,6 @@ class DukeLizTrooper : DukeActor
 	
 	override void Initialize()
 	{
-		Super.Initialize();
 		if (pal == 0) pal = 22;
 	}
 	
