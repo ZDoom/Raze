@@ -32,9 +32,6 @@ BEGIN_PS_NS
 
 int nPushBlocks;
 
-// TODO - moveme?
-sectortype* overridesect;
-
 enum
 {
     kMaxPushBlocks = 100,
@@ -84,7 +81,6 @@ void SerializeMove(FSerializer& arc)
             .Array("blocks", sBlockInfo, nPushBlocks)
             ("chunkcount", nCurChunkNum)
             .Array("chunks", nChunkSprite, kMaxMoveChunks)
-            ("overridesect", overridesect)
             .Array("bodysprite", nBodySprite, countof(nBodySprite))
             ("curbodygun", nCurBodyGunNum)
             .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
@@ -237,7 +233,7 @@ void clipwall()
 
 }
 
-int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
+int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, sectortype** overridesect)
 {
     auto pSector = pActor->sector();
     int z = pActor->spr.pos.Z;
@@ -295,7 +291,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
     if (z2 < pActor->spr.pos.Z)
     {
         pActor->spr.pos.Z = z2;
-        overridesect = pSector;
+        *overridesect = pSector;
         pActor->spr.zvel = 0;
 
         bTouchFloor = true;
@@ -308,12 +304,18 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
     }
 }
 
-Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist, sectortype** overridesect)
 {
     auto pSector = pActor->sector();
     assert(pSector);
 
-    overridesect = pSector;
+    *overridesect = pSector;
     auto pSect2 = pSector;
 
     // backup cstat
@@ -470,7 +472,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (pActor->spr.statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, pActor->spr.pos.X, pActor->spr.pos.Y, clipdist + (clipdist / 2));
+        nRet.exbits |= BelowNear(pActor, pActor->spr.pos.X, pActor->spr.pos.Y, clipdist + (clipdist / 2), overridesect);
     }
 
     return nRet;
@@ -510,7 +512,8 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         dy >>= 1;
     }
 
-    Collision nRet = movespritez(pActor, dz, nSpriteHeight, flordist, nClipDist);
+    sectortype* overridesect;
+    Collision nRet = movespritez(pActor, dz, nSpriteHeight, flordist, nClipDist, &overridesect);
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
