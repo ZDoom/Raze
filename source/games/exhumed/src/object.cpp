@@ -2004,10 +2004,12 @@ void AIObject::Tick(RunListEvent* ev)
 
         //				int edi = nSprite | 0x4000;
 
+        const auto firepotSeqs = getFileSeqs("firepot");
+
         if (nStat == kStatExplodeTrigger)
         {
             for (int i = 4; i < 8; i++) {
-                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 2) + 1).getFirstTexID(), true);
+                BuildCreatureChunk(pActor, firepotSeqs->operator[]((i >> 2) + 1).getFirstTexID(), true);
             }
 
             runlist_RadialDamageEnemy(pActor, 200, 20);
@@ -2015,7 +2017,7 @@ void AIObject::Tick(RunListEvent* ev)
         else if (nStat == kStatExplodeTarget)
         {
             for (int i = 0; i < 8; i++) {
-                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 1) + 3).getFirstTexID(), true);
+                BuildCreatureChunk(pActor, firepotSeqs->operator[]((i >> 1) + 3).getFirstTexID(), true);
             }
         }
 

@@ -638,9 +638,11 @@ void AIPlayer::Damage(RunListEvent* ev)
 
         if (ev->isRadialEvent())
         {
+            const auto joeSeqs = getFileSeqs("joe");
+
             for (int i = 122; i <= 131; i++)
             {
-                BuildCreatureChunk(pPlayerActor, getSequence("joe", i).getFirstTexID());
+                BuildCreatureChunk(pPlayerActor, joeSeqs->operator[](i).getFirstTexID());
             }
 
             StartDeathSeq(nPlayer, 1);

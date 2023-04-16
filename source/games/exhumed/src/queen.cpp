@@ -250,9 +250,11 @@ int GrabEgg()
 
 void BlowChunks(DExhumedActor* pActor)
 {
+    const auto spiderSeqs = getFileSeqs("spider");
+
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(pActor, getSequence("spider", i + 41).getFirstTexID());
+        BuildCreatureChunk(pActor, spiderSeqs->operator[](i + 41).getFirstTexID());
     }
 }
 
@@ -273,9 +275,11 @@ void DestroyEgg(int nEgg)
     }
     else
     {
+        const auto queeneggSeqs = getFileSeqs("queenegg");
+
         for (int i = 0; i < 4; i++)
         {
-            BuildCreatureChunk(pActor, getSequence("queenegg", (i % 2) + 24).getFirstTexID());
+            BuildCreatureChunk(pActor, queeneggSeqs->operator[]((i % 2) + 24).getFirstTexID());
         }
     }
 

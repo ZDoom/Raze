@@ -419,9 +419,11 @@ void AISpider::Damage(RunListEvent* ev)
 
         nCreaturesKilled++;
 
+        const auto spiderSeqs = getFileSeqs("spider");
+
         for (int i = 0; i < 7; i++)
         {
-            BuildCreatureChunk(spp, getSequence("spider", i + 41).getFirstTexID());
+            BuildCreatureChunk(spp, spiderSeqs->operator[](i + 41).getFirstTexID());
         }
     }
 }
