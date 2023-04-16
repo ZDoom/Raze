@@ -210,21 +210,23 @@ void AIRa::Tick(RunListEvent* ev)
     int nPlayer = RunData[ev->nRun].nObjIndex;
     int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-    int nSeq = getSeqFromId(kSeqEyeHit, RaSeq[Ra[nPlayer].nAction].nSeqId);
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
+
+    const auto& raSeq = getSequence(Ra[nPlayer].pActor->nSeqFile, RaSeq[Ra[nPlayer].nAction].nSeqId);
+    const auto& seqFrame = raSeq[Ra[nPlayer].nFrame];
 
     bool bVal = false;
 
     Ra[nPlayer].pTarget = PlayerList[nPlayer].pTarget;
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
     if (Ra[nPlayer].nAction)
     {
-        seq_MoveSequence(pActor, nSeq, Ra[nPlayer].nFrame);
+        playFrameSound(pActor, seqFrame);
 
         Ra[nPlayer].nFrame++;
-        if (Ra[nPlayer].nFrame >= getSeqFrameCount(nSeq))
+        if (Ra[nPlayer].nFrame >= raSeq.Size())
         {
             Ra[nPlayer].nFrame = 0;
             bVal = true;

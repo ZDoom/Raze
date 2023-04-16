@@ -141,19 +141,17 @@ void AIMummy::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = getSeqFromId(kSeqMummy, MummySeq[nAction].nSeqId);
+    const auto& mummySeq = getSequence(pActor->nSeqFile, MummySeq[nAction].nSeqId);
+    const auto& seqFrame = mummySeq[pActor->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
-    int nFrame = getSeqFrame(nSeq, pActor->nFrame);
-    int nFrameFlag = getSeqFrameFlags(nFrame);
-
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    playFrameSound(pActor, seqFrame);
 
     bool bVal = false;
 
     pActor->nFrame++;
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= mummySeq.Size())
     {
         pActor->nFrame = 0;
 
@@ -316,7 +314,7 @@ void AIMummy::Tick(RunListEvent* ev)
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
             }
-            else if (nFrameFlag & 0x80)
+            else if (seqFrame.flags & 0x80)
             {
                 runlist_DamageEnemy(pTarget, pActor, 5);
             }
@@ -334,7 +332,7 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->pTarget = nullptr;
             return;
         }
-        else if (nFrameFlag & 0x80)
+        else if (seqFrame.flags & 0x80)
         {
             SetQuake(pActor, 100);
 

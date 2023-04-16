@@ -200,20 +200,20 @@ void AILion::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqLion, LionSeq[nAction].nSeqId);
+    const auto& lionSeq = getSequence(pActor->nSeqFile, LionSeq[nAction].nSeqId);
+    const auto& seqFrame = lionSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= lionSeq.Size())
     {
         pActor->nFrame = 0;
         bVal = true;
     }
 
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     DExhumedActor* pTarget = pActor->pTarget;
 
     auto nMov = MoveCreatureWithCaution(pActor);
@@ -338,7 +338,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 2;
             }
-            else if (nFlag & 0x80)
+            else if (seqFrame.flags & 0x80)
             {
                 runlist_DamageEnemy(pTarget, pActor, 10);
             }

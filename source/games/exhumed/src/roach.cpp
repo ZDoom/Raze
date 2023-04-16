@@ -212,19 +212,19 @@ void AIRoach::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = getSeqFromId(kSeqRoach, RoachSeq[nAction].nSeqId);
+    const auto& roachSeq = getSequence(pActor->nSeqFile, RoachSeq[nAction].nSeqId);
+    const auto& seqFrame = roachSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= roachSeq.Size())
     {
         bVal = true;
         pActor->nFrame = 0;
     }
 
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     DExhumedActor* pTarget = pActor->pTarget;
 
     if (nAction > 5) {
@@ -364,7 +364,7 @@ void AIRoach::Tick(RunListEvent* ev)
         }
         else
         {
-            if (nFlag & 0x80)
+            if (seqFrame.flags & 0x80)
             {
                 BuildBullet(pActor, 13, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
             }

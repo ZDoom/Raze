@@ -214,21 +214,20 @@ void AILavaDude::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     int nAction = pActor->nAction;
-    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].nSeqId);
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
-    int var_38 = pActor->nFrame;
+    const auto& lavadudeSeq = getSequence(pActor->nSeqFile, LavadudeSeq[nAction].nSeqId);
+    const auto& seqFrame = lavadudeSeq[pActor->nFrame];
 
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, var_38));
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
     int var_1C = 0;
 
     if (nAction)
     {
-        seq_MoveSequence(pActor, nSeq, var_38);
+        playFrameSound(pActor, seqFrame);
 
         pActor->nFrame++;
-        if (pActor->nFrame >= getSeqFrameCount(nSeq))
+        if (pActor->nFrame >= lavadudeSeq.Size())
         {
             var_1C = 1;
             pActor->nFrame = 0;
@@ -341,7 +340,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     case 3:
     {
-        if ((nFlag & 0x80) && pTarget)
+        if ((seqFrame.flags & 0x80) && pTarget)
         {
              BuildBullet(pActor, 10, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
         }
@@ -368,7 +367,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     case 5:
     {
-        if (nFlag & 0x40)
+        if (seqFrame.flags & 0x40)
         {
             auto pLimbSprite = BuildLavaLimb(pActor, pActor->nFrame, 250);
             D3PlayFX(StaticSound[kSound26], pLimbSprite);
@@ -376,7 +375,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
         if (pActor->nFrame)
         {
-            if (nFlag & 0x80)
+            if (seqFrame.flags & 0x80)
             {
                 int ecx = 0;
                 do

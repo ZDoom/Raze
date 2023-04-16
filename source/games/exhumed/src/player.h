@@ -55,7 +55,7 @@ struct Player
     int16_t nDouble;
     int16_t nInvisible;
     int16_t nTorch;
-    int16_t nSeqSize;
+    uint16_t nSeqSize;
     int16_t nAction;
     int16_t bIsMummified;
     int16_t invincibility;

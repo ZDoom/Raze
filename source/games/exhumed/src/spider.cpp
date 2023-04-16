@@ -119,16 +119,15 @@ void AISpider::Tick(RunListEvent* ev)
         }
     }
 
-    int nSeq = getSeqFromId(kSeqSpider, SpiderSeq[nAction].nSeqId);
+    const auto& spiderSeq = getSequence(spp->nSeqFile, SpiderSeq[nAction].nSeqId);
+    const auto& seqFrame = spiderSeq[spp->nFrame];
 
-    spp->spr.picnum = seq_GetSeqPicnum2(nSeq, spp->nFrame);
+    spp->spr.picnum = seqFrame.chunks[0].picnum;
 
-    seq_MoveSequence(spp, nSeq, spp->nFrame);
-
-    int nFrameFlag = getSeqFrameFlags(getSeqFrame(nSeq, spp->nFrame));
+    playFrameSound(spp, seqFrame);
 
     spp->nFrame++;
-    if (spp->nFrame >= getSeqFrameCount(nSeq)) {
+    if (spp->nFrame >= spiderSeq.Size()) {
         spp->nFrame = 0;
     }
 
@@ -253,7 +252,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (pTarget)
             {
-                if (nFrameFlag & 0x80)
+                if (seqFrame.flags & 0x80)
                 {
                     runlist_DamageEnemy(pTarget, spp, 3);
                     D3PlayFX(StaticSound[kSound38], spp);

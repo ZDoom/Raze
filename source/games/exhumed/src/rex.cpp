@@ -192,9 +192,10 @@ void AIRex::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = getSeqFromId(kSeqRex, RexSeq[nAction].nSeqId);
+    const auto& rexSeq = getSequence(pActor->nSeqFile, RexSeq[nAction].nSeqId);
+    const auto& seqFrame = rexSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
     int ecx = 2;
 
@@ -205,17 +206,15 @@ void AIRex::Tick(RunListEvent* ev)
     // moves the mouth open and closed as it's idle?
     while (--ecx != -1)
     {
-        seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+        playFrameSound(pActor, seqFrame);
 
         pActor->nFrame++;
-        if (pActor->nFrame >= getSeqFrameCount(nSeq))
+        if (pActor->nFrame >= rexSeq.Size())
         {
             pActor->nFrame = 0;
             bVal = true;
         }
     }
-
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
 
     DExhumedActor* pTarget = pActor->pTarget;
 
@@ -405,7 +404,7 @@ void AIRex::Tick(RunListEvent* ev)
         {
             if (PlotCourseToSprite(pActor, pTarget) < 48)
             {
-                if (nFlag & 0x80)
+                if (seqFrame.flags & 0x80)
                 {
                     runlist_DamageEnemy(pTarget, pActor, 15);
                 }

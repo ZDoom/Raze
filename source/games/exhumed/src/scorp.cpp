@@ -207,20 +207,20 @@ void AIScorp::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqScorp, ScorpSeq[nAction].nSeqId);
+    const auto& scorpSeq = getSequence(pActor->nSeqFile, ScorpSeq[nAction].nSeqId);
+    const auto& seqFrame = scorpSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= scorpSeq.Size())
     {
         pActor->nFrame = 0;
         bVal = true;
     }
 
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     pTarget = pActor->pTarget;
 
     switch (nAction)
@@ -313,7 +313,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 1;
             }
-            else if (nFlag & 0x80)
+            else if (seqFrame.flags & 0x80)
             {
                 runlist_DamageEnemy(pTarget, pActor, 7);
             }
@@ -338,7 +338,7 @@ void AIScorp::Tick(RunListEvent* ev)
             }
         }
 
-        if (!(nFlag & 0x80)) {
+        if (!(seqFrame.flags & 0x80)) {
             return;
         }
 

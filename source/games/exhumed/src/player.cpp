@@ -1916,12 +1916,15 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 static void doPlayerActionSequence(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const auto nSeq = getSeqFromId(pPlayer->nSeq, PlayerSeq[pPlayer->nAction].nSeqId);
 
-    seq_MoveSequence(pPlayerActor, nSeq, pPlayer->nSeqSize);
+    const auto& playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayer->nAction].nSeqId);
+    const auto& seqFrame = playerSeq[pPlayer->nSeqSize];
+    const auto seqSize = playerSeq.Size();
+
+    playFrameSound(pPlayerActor, seqFrame);
     pPlayer->nSeqSize++;
 
-    if (pPlayer->nSeqSize < getSeqFrameCount(nSeq))
+    if (pPlayer->nSeqSize < seqSize)
         return;
 
     pPlayer->nSeqSize = 0;
@@ -1931,13 +1934,13 @@ static void doPlayerActionSequence(Player* const pPlayer)
     default:
         break;
     case 3:
-        pPlayer->nSeqSize = getSeqFrameCount(nSeq) - 1;
+        pPlayer->nSeqSize = seqSize - 1;
         break;
     case 4:
         pPlayer->nAction = 0;
         break;
     case 16:
-        pPlayer->nSeqSize = getSeqFrameCount(nSeq) - 1;
+        pPlayer->nSeqSize = seqSize - 1;
 
         if (pPlayerActor->spr.pos.Z < pPlayerActor->sector()->floorz) 
             pPlayerActor->spr.pos.Z++;

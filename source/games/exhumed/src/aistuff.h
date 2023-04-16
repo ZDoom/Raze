@@ -302,7 +302,7 @@ struct RA
     TObjPtr<DExhumedActor*> pTarget;
 
     int16_t nAction;
-    int16_t nFrame;
+    uint16_t nFrame;
     int16_t nRun;
     int16_t nState;
     int nPlayer;

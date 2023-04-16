@@ -122,20 +122,20 @@ void AIAnubis::Tick(RunListEvent* ev)
 {
     const auto ap = ev->pObjActor;
     const int nAction = ap->nAction;
-    const int nSeq = getSeqFromId(kSeqAnubis, AnubisSeq[nAction].nSeqId);
-    const int nFrame = getSeqFrame(nSeq, ap->nFrame);
-    const int nFlag = getSeqFrameFlags(nFrame);
+
+    const auto& anubisSeq = getSequence(ap->nSeqFile, AnubisSeq[nAction].nSeqId);
+    const auto& seqFrame = anubisSeq[ap->nFrame];
     bool bVal = false;
 
     if (nAction < 11)
         Gravity(ap);
 
-    seq_MoveSequence(ap, nSeq, ap->nFrame);
+    playFrameSound(ap, seqFrame);
 
-    ap->spr.picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
+    ap->spr.picnum = seqFrame.chunks[0].picnum;
     ap->nFrame++;
 
-    if (ap->nFrame >= getSeqFrameCount(nSeq))
+    if (ap->nFrame >= anubisSeq.Size())
     {
         ap->nFrame = 0;
         bVal = true;
@@ -247,7 +247,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             {
                 ap->nAction = 1;
             }
-            else if (nFlag & 0x80)
+            else if (seqFrame.flags & 0x80)
             {
                 runlist_DamageEnemy(pTarget, ap, 7);
             }
@@ -263,7 +263,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
             ap->nFrame = 0;
         }
-        else if (nFlag & 0x80)
+        else if (seqFrame.flags & 0x80)
         {
             BuildBullet(ap, 8, INT_MAX, ap->spr.Angles.Yaw, pTarget, 1);
         }

@@ -258,10 +258,11 @@ void AIGrenade::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    int nSeq = pActor->nFrame ? getSeqFromId(kSeqGrenBoom) : getSeqFromId(kSeqGrenRoll, pActor->nIndex);
+    const auto& grenadeSeq = pActor->nFrame ? getSequence("grenboom") : getSequence("grenroll", pActor->nIndex);
+    const auto& seqFrame = grenadeSeq[pActor->nHealth >> 8];
 
-    seq_MoveSequence(pActor, nSeq, pActor->nHealth >> 8);
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nHealth >> 8);
+    playFrameSound(pActor, seqFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
     pActor->nIndex2--;
     if (!pActor->nIndex2)
@@ -301,11 +302,11 @@ void AIGrenade::Tick(RunListEvent* ev)
 
         if (ebp < 0)
         {
-            pActor->nHealth += getSeqFrameCount(nSeq) << 8;
+            pActor->nHealth += grenadeSeq.Size() << 8;
         }
         else
         {
-            if (ebp >= getSeqFrameCount(nSeq))
+            if (ebp >= (signed)grenadeSeq.Size())
             {
                 if (pActor->nFrame)
                 {

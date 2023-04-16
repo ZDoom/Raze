@@ -144,7 +144,7 @@ void AISoul::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    seq_MoveSequence(pActor, getSeqFromId(kSeqSet, 75), 0);
+    playFrameSound(pActor, getSequence("set", 75)[0]);
 
     if (pActor->spr.scale.X < 0.5)
     {
@@ -270,9 +270,11 @@ void AISet::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSeq = getSeqFromId(kSeqSet, SetSeq[nAction].nSeqId);
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    const auto& setSeq = getSequence(pActor->nSeqFile, SetSeq[nAction].nSeqId);
+    const auto& seqFrame = setSeq[pActor->nFrame];
+
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+    playFrameSound(pActor, seqFrame);
 
     if (nAction == 3)
     {
@@ -282,13 +284,12 @@ void AISet::Tick(RunListEvent* ev)
     }
 
     pActor->nFrame++;
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= setSeq.Size())
     {
         pActor->nFrame = 0;
         bVal = true;
     }
 
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, pActor->nFrame));
     DExhumedActor* pTarget = pActor->pTarget;
 
     if (pTarget && nAction < 10)
@@ -378,7 +379,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (pTarget != nullptr)
         {
-            if ((nFlag & 0x10) && (nMov.exbits & kHitAux2))
+            if ((seqFrame.flags & 0x10) && (nMov.exbits & kHitAux2))
             {
                 SetQuake(pActor, 100);
             }
@@ -506,7 +507,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 3;
             }
-            else if (nFlag & 0x80)
+            else if (seqFrame.flags & 0x80)
             {
                 runlist_DamageEnemy(pTarget, pActor, 5);
             }
@@ -527,7 +528,7 @@ void AISet::Tick(RunListEvent* ev)
 
     case 6:
     {
-        if (nFlag & 0x80)
+        if (seqFrame.flags & 0x80)
         {
             auto pBullet = BuildBullet(pActor, 11, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
             if (pBullet)
@@ -568,7 +569,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pActor->nFrame = getSeqFrameCount(nSeq) - 1;
+            pActor->nFrame = setSeq.Size() - 1;
         }
 
         if (nMov.exbits & kHitAux2)
@@ -604,7 +605,7 @@ void AISet::Tick(RunListEvent* ev)
 
     case 10:
     {
-        if (nFlag & 0x80)
+        if (seqFrame.flags & 0x80)
         {
             pActor->spr.pos.Z -= GetActorHeight(pActor);
             BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));

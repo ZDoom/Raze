@@ -2178,13 +2178,9 @@ void DoDrips()
         {
             DExhumedActor* pActor = sDrip[i].pActor;
             if (!pActor) continue;
-            int nSeqOffset = getSeqFromId(kSeqDrips);
 
-            if (!(pActor->sector()->Flag & kSectLava)) {
-                nSeqOffset++;
-            }
-
-            seq_MoveSequence(pActor, nSeqOffset, RandomSize(2) % getSeqFrameCount(nSeqOffset));
+            const auto& dripSeq = getSequence("drips", !(pActor->sector()->Flag & kSectLava));
+            playFrameSound(pActor, dripSeq[RandomSize(2) % dripSeq.Size()]);
 
             sDrip[i].nCount = RandomSize(8) + 90;
         }

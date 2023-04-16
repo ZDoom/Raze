@@ -718,8 +718,9 @@ void UpdateCreepySounds()
     {
         if (nCreaturesKilled < nCreaturesTotal && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
         {
-            int vsi = seq_GetFrameSound(getSeqFromId(kSeqCreepy), totalmoves % getSeqFrameCount(getSeqFromId(kSeqCreepy)));
-            if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)
+            const auto& creepySeq = getSequence("creepy");
+            const auto seqFrameSound = creepySeq[totalmoves % creepySeq.Size()].sound;
+            if (seqFrameSound >= 0 && (seqFrameSound & 0x1ff) < kMaxSounds)
             {
 				DVector2 adder;
                 adder.X = ((totalmoves + 32) & 31) / 16.;
@@ -732,7 +733,7 @@ void UpdateCreepySounds()
                 auto sp = PlayerList[nLocalPlayer].pActor->spr.pos + adder;
                 creepy = GetSoundPos(sp);
 
-                auto soundid = FSoundID::fromInt((vsi & 0x1ff) + 1);
+                auto soundid = FSoundID::fromInt((seqFrameSound & 0x1ff) + 1);
 
                 if (!soundEngine->isValidSoundId(soundid))
                 {
@@ -740,8 +741,7 @@ void UpdateCreepySounds()
                 }
 
                 int nVolume = 255;
-                int v10 = (vsi & 0xe00) >> 9;
-                vsi &= 0x1ff;
+                int v10 = (seqFrameSound & 0xe00) >> 9;
 
                 int nPitch = 0;
                 if (v10) nPitch = -(totalmoves & ((1 << v10) - 1)) * 16;

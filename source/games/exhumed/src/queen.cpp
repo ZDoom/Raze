@@ -73,7 +73,7 @@ struct Queen
     TObjPtr<DExhumedActor*> pActor;
     TObjPtr<DExhumedActor*> pTarget;
     int16_t nHealth;
-    int16_t nFrame;
+    uint16_t nFrame;
     int16_t nAction;
     int16_t nAction2;
     int16_t nIndex;
@@ -86,7 +86,7 @@ struct Egg
     TObjPtr<DExhumedActor*> pActor;
     TObjPtr<DExhumedActor*> pTarget;
     int16_t nHealth;
-    int16_t nFrame;
+    uint16_t nFrame;
     int16_t nAction;
     int16_t nRun;
     int16_t nCounter;
@@ -97,7 +97,7 @@ struct Head
     TObjPtr<DExhumedActor*> pActor;
     TObjPtr<DExhumedActor*> pTarget;
     int16_t nHealth;
-    int16_t nFrame;
+    uint16_t nFrame;
     int16_t nAction;
     int16_t nRun;
     int16_t nIndex;
@@ -543,16 +543,17 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqQueenEgg, EggSeq[nAction].nSeqId);
+    const auto& eggSeq = getSequence(pActor->nSeqFile, EggSeq[nAction].nSeqId);
+    const auto& seqFrame = eggSeq[pEgg->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pEgg->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
     if (nAction != 4)
     {
-        seq_MoveSequence(pActor, nSeq, pEgg->nFrame);
+        playFrameSound(pActor, seqFrame);
 
         pEgg->nFrame++;
-        if (pEgg->nFrame >= getSeqFrameCount(nSeq))
+        if (pEgg->nFrame >= eggSeq.Size())
         {
             pEgg->nFrame = 0;
             bVal = true;
@@ -801,14 +802,15 @@ void AIQueenHead::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqQueen, HeadSeq[QueenHead.nAction].nSeqId);
+    const auto& queenSeq = getSequence(pActor->nSeqFile, HeadSeq[QueenHead.nAction].nSeqId);
+    const auto& seqFrame = queenSeq[QueenHead.nFrame];
 
-    seq_MoveSequence(pActor, nSeq, QueenHead.nFrame);
+    playFrameSound(pActor, seqFrame);
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, QueenHead.nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
     QueenHead.nFrame++;
-    if (QueenHead.nFrame >= getSeqFrameCount(nSeq))
+    if (QueenHead.nFrame >= queenSeq.Size())
     {
         QueenHead.nFrame = 0;
         var_14 = 1;
@@ -1233,20 +1235,19 @@ void AIQueen::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqQueen, QueenSeq[nAction].nSeqId);
+    const auto& queenSeq = getSequence(pActor->nSeqFile, QueenSeq[nAction].nSeqId);
+    const auto& seqFrame = queenSeq[QueenList[nQueen].nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, QueenList[nQueen].nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
-    seq_MoveSequence(pActor, nSeq, QueenList[nQueen].nFrame);
+    playFrameSound(pActor, seqFrame);
 
     QueenList[nQueen].nFrame++;
-    if (QueenList[nQueen].nFrame >= getSeqFrameCount(nSeq))
+    if (QueenList[nQueen].nFrame >= queenSeq.Size())
     {
         QueenList[nQueen].nFrame = 0;
         bVal = true;
     }
-
-    int nFlag = getSeqFrameFlags(getSeqFrame(nSeq, QueenList[nQueen].nFrame));
 
     if (pActor != nullptr)
     {
@@ -1392,7 +1393,7 @@ void AIQueen::Tick(RunListEvent* ev)
         }
         else
         {
-            if (nFlag & 0x80)
+            if (seqFrame.flags & 0x80)
             {
                 QueenList[nQueen].nIndex2--;
 

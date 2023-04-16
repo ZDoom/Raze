@@ -246,13 +246,15 @@ void AIRat::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    int nSeq = getSeqFromId(kSeqRat, RatSeq[nAction].nSeqId);
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    const auto& ratSeq = getSequence(pActor->nSeqFile, RatSeq[nAction].nSeqId);
+    const auto& seqFrame = ratSeq[pActor->nFrame];
 
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
+
+    playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= ratSeq.Size())
     {
         bVal = true;
         pActor->nFrame = 0;

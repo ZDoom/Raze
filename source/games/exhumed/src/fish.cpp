@@ -49,8 +49,9 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 {
     auto pChunkActor = insertActor(pActor->sector(), 99);
 
+    pChunkActor->nSeqFile = "fish";
     pChunkActor->nCount = anim + 40;
-    pChunkActor->nFrame = RandomSize(3) % getSeqFrameCount(getSeqFromId(kSeqFish, pChunkActor->nCount));
+    pChunkActor->nFrame = RandomSize(3) % getSequence(pChunkActor->nSeqFile, pChunkActor->nCount).Size();
 
 	pChunkActor->spr.pos = pActor->spr.pos;
     pChunkActor->spr.cstat = 0;
@@ -74,8 +75,6 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.extra = -1;
     pChunkActor->spr.intowner = runlist_AddRunRec(pChunkActor->spr.lotag - 1, pChunkActor, 0x200000);
     pChunkActor->spr.hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
-
-    pChunkActor->nSeqFile = "fish";
 }
 
 //---------------------------------------------------------------------------
@@ -89,15 +88,15 @@ void AIFishLimb::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    int nSeq = getSeqFromId(kSeqFish, pActor->nCount);
+    const auto& fishSeq = getSequence(pActor->nSeqFile, pActor->nCount);
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = fishSeq[pActor->nFrame].chunks[0].picnum;
 
     Gravity(pActor);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= getSeqFrameCount(nSeq))
+    if (pActor->nFrame >= fishSeq.Size())
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
@@ -360,14 +359,15 @@ void AIFish::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    int nSeq = getSeqFromId(kSeqFish, FishSeq[nAction].nSeqId);
+    const auto& fishSeq = getSequence(pActor->nSeqFile, FishSeq[nAction].nSeqId);
+    const auto& seqFrame = fishSeq[pActor->nFrame];
 
-    pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    pActor->spr.picnum = seqFrame.chunks[0].picnum;
 
-    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+    playFrameSound(pActor, seqFrame);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= getSeqFrameCount(nSeq)) {
+    if (pActor->nFrame >= fishSeq.Size()) {
         pActor->nFrame = 0;
     }
 
