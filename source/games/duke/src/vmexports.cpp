@@ -703,7 +703,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_POINTER(weapon, DDukeActor);
-	ACTION_RETURN_POINTER(aim_(self, weapon));
+	PARAM_FLOAT(aimangle)
+	ACTION_RETURN_POINTER(aim_(self, weapon, aimangle));
 }
 
 

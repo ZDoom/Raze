@@ -332,10 +332,10 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force)
 }
 
 // This is what aim should be. 
-DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon)
+DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle)
 {
 	if (!weapon || (weapon->flags1 & SFLAG_NOAUTOAIM)) return nullptr;
-	return aim(actor, int(weapon->FloatVar(NAME_autoaimangle) * (512 / 90.)), (weapon->flags1 & SFLAG_FORCEAUTOAIM));
+	return aim(actor, int((aimangle > 0 ? aimangle : weapon->FloatVar(NAME_autoaimangle)) * (512 / 90.)), (weapon->flags1 & SFLAG_FORCEAUTOAIM));
 }
 
 //---------------------------------------------------------------------------

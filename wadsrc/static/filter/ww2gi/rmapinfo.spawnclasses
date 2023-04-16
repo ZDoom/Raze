@@ -1,0 +1,7 @@
+spawnclasses
+{
+	2595 = WW2GIShotSpark, noskill
+	2613 = WW2GIShotgunShot, noskill
+	2536 = WW2GIChaingunShot, noskill
+}
+

@@ -35,7 +35,7 @@ extend class DukeActor
 	//
 	//---------------------------------------------------------------------------
 
-	bool HitscanAttack(DukeActor actor, DukePlayer p, Vector3 pos, double ang, double hspread, double vspread, double enemyspread, bool forcespread, bool waterhalfhitchance = false, class<DukeActor> sparktype = "DukeShotSpark") const
+	bool HitscanAttack(DukeActor actor, DukePlayer p, Vector3 pos, double ang, double hspread, double vspread, double enemyspread, bool forcespread, double aimangle = -1, bool waterhalfhitchance = false, class<DukeActor> sparktype = "DukeShotSpark") const
 	{
 		let sectp = actor.sector;
 		double vel = 1024, zvel = 0;
@@ -45,7 +45,7 @@ extend class DukeActor
 
 		if (p != null)
 		{
-			let aimed = actor.aim(self);
+			let aimed = actor.aim(self, aimangle);
 			if (aimed)
 			{
 				double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5) + aimed.sparkoffset;
@@ -331,7 +331,7 @@ class RedneckShotgunShot : DukeShotgunShot
 {
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
-		return HitscanAttack(actor, p, pos, ang, 22.5, 4, 11.25, true, true);
+		return HitscanAttack(actor, p, pos, ang, 22.5, 4, 11.25, true, -1, true);
 	}
 }
 
@@ -344,12 +344,65 @@ class RedneckChaingunShot : DukeChaingunShot
 	}
 }
 
-// WW2GI uses different spread settings for its pistol
+extend class DukeActor
+{
+	// Todo: once we have real weapons, this should be cleaned up.
+	double WW2GIAimAngle(DukePlayer p)
+	{
+		if (p == null) return -1;
+		int lAmount = p.GetGameVar("PLR_MORALE", -1);
+		if (lAmount >= 40) return -1;
+		return 7.91015625;
+	}
+	
+	double, double WW2GIGetShotRange(DukePlayer p)
+	{
+		// the logic here looks very broken...
+		if (p == null) return 5.625, 4;
+		int lAmount = p.GetGameVar("PLR_MORALE", -1);
+		
+		if (lAmount < 25) return 11.25, 4;
+		if (lAmount > 70) switch(p.curr_weapon)
+		{
+			case DukeWpn.PISTOL_WEAPON:
+				return 5.626, 4;
+			case DukeWpn.CHAINGUN_WEAPON:
+				return 2.8175, 2;
+			case DukeWpn.SHRINKER_WEAPON:
+				return 11.25, 8;
+			default:
+				return 2.8175, 4;
+		}
+		return 5.625, 4;
+	}
+}
+		
+
+// WW2GI has different settings.
 class WW2GIShotSpark : DukeShotSpark
 {
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
-		return HitscanAttack(actor, p, pos, ang, 0.3515625, 0.25, 5.625, true);
+		let [hspread, vspread] = self.WW2GIGetShotRange(p);
+		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 5.625, true, self.WW2GIAimAngle(p));
 	}
 }
 
+class WW2GIShotgunShot : DukeShotgunShot
+{
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
+	{
+		let [hspread, vspread] = self.WW2GIGetShotRange(p);
+		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 5.625, true, self.WW2GIAimAngle(p));
+	}
+}
+
+
+class WW2GIChaingunShot : DukeChaingunShot
+{
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
+	{
+		let [hspread, vspread] = self.WW2GIGetShotRange(p);
+		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 5.625, true, self.WW2GIAimAngle(p));
+	}
+}

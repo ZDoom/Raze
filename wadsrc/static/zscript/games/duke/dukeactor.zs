@@ -204,7 +204,7 @@ class DukeActor : CoreActor native
 	native void operatesectors(sectortype sec);
 	native int SpriteWidth();
 	native int SpriteHeight();
-	native DukeActor aim(readonly<DukeActor> weapon);
+	native DukeActor aim(readonly<DukeActor> weapon, double aimangle = -1);
 
 	virtual native void Tick();
 

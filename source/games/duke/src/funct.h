@@ -107,7 +107,7 @@ void playerLookDown(int snum, ESyncBits actions);
 void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
 DDukeActor* aim(DDukeActor* s, int aang, bool force = true);
-DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon);
+DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle);
 void checkweapons(player_struct* const p);
 int findotherplayer(int p, double* d);
 void quickkill(player_struct* p);
