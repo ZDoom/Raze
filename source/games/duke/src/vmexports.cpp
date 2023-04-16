@@ -587,7 +587,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, badguy, badguy)
 	ACTION_RETURN_INT(badguy(self));
 }
 
-int duke_scripted(DDukeActor* act)
+int duke_scripted(const DDukeActor* act)
 {
 	return act->conInfo() != nullptr;
 }
