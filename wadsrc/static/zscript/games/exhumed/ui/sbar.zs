@@ -825,7 +825,7 @@ class ExhumedStatusBar : RazeStatusBar
 		
 		SetMagicFrame(pp);
 		
-		stats.armoricons.Push(GetStatusSequenceName(nItemSeq, nItemFrame));
+		if (nItemSeq >= 0) stats.armoricons.Push(GetStatusSequenceName(nItemSeq, nItemFrame));
 		stats.armorvalues.Push(pp.nMagic / 10);
 
 		if (pp.isUnderwater())
