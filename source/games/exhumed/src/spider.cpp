@@ -263,15 +263,15 @@ void AISpider::Tick(RunListEvent* ev)
                 }
 
                 spp->nAction = 1;
+                spp->nFrame = 0;
             }
             else
             {
                 spp->nAction = 0;
+                spp->nFrame = 0;
                 spp->vel.X = 0;
                 spp->vel.Y = 0;
             }
-
-            spp->nFrame = 0;
             break;
         }
         }

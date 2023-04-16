@@ -305,6 +305,7 @@ void AIScorp::Tick(RunListEvent* ev)
         if (pTarget == nullptr)
         {
             pActor->nAction = 0;
+            pActor->nFrame = 0;
             pActor->nCount = 5;
         }
         else
@@ -312,6 +313,7 @@ void AIScorp::Tick(RunListEvent* ev)
             if (PlotCourseToSprite(pActor, pTarget) >= 48)
             {
                 pActor->nAction = 1;
+                pActor->nFrame = 0;
             }
             else if (seqFrame.flags & 0x80)
             {
@@ -377,6 +379,7 @@ void AIScorp::Tick(RunListEvent* ev)
         {
             pActor->nAction = RandomBit() + 6;
         }
+        pActor->nFrame = 0;
 
         return;
     }

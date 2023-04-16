@@ -264,6 +264,7 @@ void AIRa::Tick(RunListEvent* ev)
         {
             if (bVal) {
                 Ra[nPlayer].nAction = 2;
+                Ra[nPlayer].nFrame = 0;
             }
 
             MoveRaToEnemy(nPlayer);

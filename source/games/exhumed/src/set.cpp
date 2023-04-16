@@ -500,6 +500,7 @@ void AISet::Tick(RunListEvent* ev)
         if (pTarget == nullptr)
         {
             pActor->nAction = 0;
+            pActor->nFrame = 0;
             pActor->nCount = 50;
         }
         else
@@ -507,6 +508,7 @@ void AISet::Tick(RunListEvent* ev)
             if (PlotCourseToSprite(pActor, pTarget) >= 48)
             {
                 pActor->nAction = 3;
+                pActor->nFrame = 0;
             }
             else if (seqFrame.flags & 0x80)
             {
@@ -522,6 +524,7 @@ void AISet::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->nAction = 0;
+            pActor->nFrame = 0;
             pActor->nCount = 15;
         }
         return;

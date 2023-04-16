@@ -394,6 +394,7 @@ void AIRex::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->nAction = 2;
+            pActor->nFrame = 0;
         }
         return;
     }
@@ -414,6 +415,7 @@ void AIRex::Tick(RunListEvent* ev)
         }
 
         pActor->nAction = 1;
+        pActor->nFrame = 0;
         break;
     }
 
@@ -422,6 +424,7 @@ void AIRex::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->nAction = 1;
+            pActor->nFrame = 0;
             pActor->nCount = 15;
         }
         return;

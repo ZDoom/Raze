@@ -166,13 +166,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
         if (pActor->nHealth > 0)
         {
-            if (!RandomSize(4))
-            {
-                pActor->nAction = 3;
-                pActor->nFrame = 0;
-            }
-
-            pActor->nAction = 1;
+            pActor->nAction = !RandomSize(4) ? 3 : 1;
 			pActor->spr.Angles.Yaw += DAngle45 + DAngle90 + RandomAngle9();
             pActor->norm_ang();
 
@@ -195,6 +189,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             nCreaturesKilled++;
         }
+        pActor->nFrame = 0;
     }
     return;
 }
@@ -238,6 +233,7 @@ void AIWasp::Tick(RunListEvent* ev)
             // goto pink
             pActor->pTarget = nullptr;
             pActor->nAction = 0;
+            pActor->nFrame = 0;
             pActor->nCount = RandomSize(6);
             return;
         }
@@ -291,6 +287,7 @@ void AIWasp::Tick(RunListEvent* ev)
         if (pActor->nCount <= 0)
         {
             pActor->nAction = 0;
+            pActor->nFrame = 0;
             pActor->nCount = RandomSize(6);
             return;
         }
@@ -333,6 +330,7 @@ void AIWasp::Tick(RunListEvent* ev)
             pActor->vel.Z = ((-20) - RandomSize(6)) / 256.;
 
             pActor->nAction = 1;
+            pActor->nFrame = 0;
             pActor->nVel = 3000;
         }
         return;

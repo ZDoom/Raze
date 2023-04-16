@@ -572,6 +572,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         {
             pEgg->pTarget = nullptr;
             pEgg->nAction = 0;
+            pEgg->nFrame = 0;
         }
         else
         {
@@ -626,6 +627,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (bVal)
         {
             pEgg->nAction = 3;
+            pEgg->nFrame = 0;
             pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
         }
         break;
@@ -1262,6 +1264,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 pTarget = nullptr;
                 QueenList[nQueen].pTarget = nullptr;
                 QueenList[nQueen].nAction = 0;
+                QueenList[nQueen].nFrame = 0;
             }
         }
     }
@@ -1292,6 +1295,7 @@ void AIQueen::Tick(RunListEvent* ev)
         {
             BuildQueenEgg(nQueen, 1);
             QueenList[nQueen].nAction = 3;
+            QueenList[nQueen].nFrame = 0;
             QueenList[nQueen].nIndex = RandomSize(6) + 60;
         }
 
@@ -1393,6 +1397,7 @@ void AIQueen::Tick(RunListEvent* ev)
         if (bVal && QueenList[nQueen].nIndex2 <= 0)
         {
             QueenList[nQueen].nAction = 0;
+            QueenList[nQueen].nFrame = 0;
             QueenList[nQueen].nIndex = 15;
         }
         else

@@ -375,6 +375,7 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nAction = 0;
+            pActor->nFrame = 0;
             pActor->nHealth = 300;
             pActor->pTarget = nullptr;
 

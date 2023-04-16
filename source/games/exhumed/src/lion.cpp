@@ -297,6 +297,7 @@ void AILion::Tick(RunListEvent* ev)
                 if (pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
                 {
                     pActor->nAction = 9;
+                    pActor->nFrame = 0;
                     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
                     pActor->vel.X = 0;
                     pActor->vel.Y = 0;
@@ -307,10 +308,9 @@ void AILion::Tick(RunListEvent* ev)
                     if (nAngDiff < DAngle22_5 / 2)
                     {
                         pActor->nAction = 3;
+                        pActor->nFrame = 0;
                     }
                 }
-
-                pActor->nFrame = 0;
                 break;
             }
             else
@@ -330,6 +330,7 @@ void AILion::Tick(RunListEvent* ev)
         if (pTarget == nullptr)
         {
             pActor->nAction = 1;
+            pActor->nFrame = 0;
             pActor->nCount = 50;
         }
         else
@@ -337,6 +338,7 @@ void AILion::Tick(RunListEvent* ev)
             if (PlotCourseToSprite(pActor, pTarget) >= 48)
             {
                 pActor->nAction = 2;
+                pActor->nFrame = 0;
             }
             else if (seqFrame.flags & 0x80)
             {
@@ -399,7 +401,7 @@ void AILion::Tick(RunListEvent* ev)
             }
 
             pActor->spr.Angles.Yaw = nAngle;
-
+            pActor->nFrame = 0;
             pActor->nAction = 6;
 			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (1024 - 128);
 			D3PlayFX(StaticSound[kSound24], pActor);
@@ -420,6 +422,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             pActor->nAction = 7;
+            pActor->nFrame = 0;
             pActor->spr.Angles.Yaw = (nMov.hitWall->normalAngle() + DAngle180).Normalized360();
             pActor->nCount = RandomSize(4);
             return;
@@ -464,7 +467,7 @@ void AILion::Tick(RunListEvent* ev)
             }
 
             pActor->vel.Z = -1000 / 256.;
-
+            pActor->nFrame = 0;
             pActor->nAction = 6;
 			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (1024 - 128);
             D3PlayFX(StaticSound[kSound24], pActor);
