@@ -76,7 +76,7 @@ extend class DukeActor
 			else
 			{
 				// one of those lousy hacks in Duke.
-				ang = (j.actor.pos.XY - pos.XY).Angle() + enemyspread / 4 - frandom(0, enemyspread / 2);
+				ang = (j.actor.pos.XY - pos.XY).Angle() + enemyspread - frandom(0, enemyspread * 2);
 			}
 		}
 
@@ -287,7 +287,7 @@ class DukeShotSpark : DukeActor
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
-		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 5.625, false);
+		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, false);
 	}
 }
 
@@ -300,7 +300,7 @@ class DukeShotgunShot : DukeActor
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
-		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 5.625, true);
+		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, true);
 	}
 }
 
@@ -313,7 +313,7 @@ class DukeChaingunShot : DukeActor
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
-		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 5.625, true);
+		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, true);
 	}
 }
 
@@ -384,7 +384,7 @@ class WW2GIShotSpark : DukeShotSpark
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		let [hspread, vspread] = self.WW2GIGetShotRange(p);
-		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 5.625, true, self.WW2GIAimAngle(p));
+		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 11.25, true, self.WW2GIAimAngle(p));
 	}
 }
 
@@ -393,7 +393,7 @@ class WW2GIShotgunShot : DukeShotgunShot
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		let [hspread, vspread] = self.WW2GIGetShotRange(p);
-		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 5.625, true, self.WW2GIAimAngle(p));
+		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 11.25, true, self.WW2GIAimAngle(p));
 	}
 }
 
@@ -403,6 +403,7 @@ class WW2GIChaingunShot : DukeChaingunShot
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		let [hspread, vspread] = self.WW2GIGetShotRange(p);
-		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 5.625, true, self.WW2GIAimAngle(p));
+		return HitscanAttack(actor, p, pos, ang, hspread, vspread, 11.25, true, self.WW2GIAimAngle(p));
 	}
 }
++
