@@ -73,7 +73,6 @@ struct Seq
     }
 };
 
-extern int16_t nShadowWidth;
 extern int16_t nFlameHeight;
 
 extern int16_t nPilotLightFrame;

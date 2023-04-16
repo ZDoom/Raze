@@ -99,9 +99,6 @@ extern int nNetTime;
 
 extern int nTotalPlayers;
 
-extern FTextureID nBackgroundPic;
-extern FTextureID nShadowPic;
-
 extern int nCreaturesTotal, nCreaturesKilled;
 
 extern int lLocalButtons;

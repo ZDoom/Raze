@@ -116,9 +116,6 @@ void MySetView(int x1, int y1, int x2, int y2);
 
 char sHollyStr[40];
 
-FTextureID nBackgroundPic;
-FTextureID nShadowPic;
-
 int nCreaturesKilled = 0, nCreaturesTotal = 0;
 
 int nFreeze;

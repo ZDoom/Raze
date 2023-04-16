@@ -40,7 +40,8 @@ enum
 int16_t nPilotLightFrame;
 int16_t nPilotLightCount;
 
-int16_t nShadowWidth = 1;
+static FTextureID nShadowPic;
+static int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
 
 const char *SeqNames[kMaxSEQFiles] =
@@ -320,8 +321,6 @@ void seq_LoadSequences()
     nShadowWidth = (int16_t)TexMan.GetGameTexture(nShadowPic)->GetDisplayWidth();
 
     nFlameHeight = (int16_t)TexMan.GetGameTexture(getSequence("firepoof").getFirstTexID())->GetDisplayHeight();
-
-    nBackgroundPic = getSequence("backgrnd").getFirstTexID();
 
     nPilotLightCount = getSequence("flamer", 3).frames.Size();
     nPilotLightFrame = 0;
