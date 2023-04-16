@@ -126,8 +126,6 @@ struct SeqFrame
 using SeqFrameArray = TArray<SeqFrame>;
 using SeqArray = TArray<SeqFrameArray>;
 
-extern int16_t frames;
-
 extern int16_t nShadowWidth;
 extern int16_t nFlameHeight;
 
@@ -142,7 +140,7 @@ int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame);
 int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx);
 void seq_DrawStatusSequence(int16_t nSequence, uint16_t edx, int16_t ebx);
 
-int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
+void seq_DrawGunSequence(const SeqFrameArray& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
 void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags);
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
@@ -158,8 +156,13 @@ int getSeqFrameChunkPosY(const int nChunk);
 int getSeqFrameChunkPicnum(const int nChunk);
 int getSeqFrameChunkFlags(const int nChunk);
 
-const SeqFrameArray& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0);
+SeqArray* getFileSeqs(const FName nSeqFile);
 void playFrameSound(DExhumedActor* actor, const SeqFrame& seqFrame);
+
+inline const SeqFrameArray& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
+{
+    return getFileSeqs(nSeqFile)->operator[](nSeqIndex);
+}
 
 END_PS_NS
 

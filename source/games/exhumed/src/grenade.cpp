@@ -272,7 +272,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         if (pActor->nTurn < 0)
         {
             PlayerList[nPlayer].nState = 0;
-            PlayerList[nPlayer].nSeqSize2 = 0;
+            PlayerList[nPlayer].nWeapFrame = 0;
 
             if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
             {

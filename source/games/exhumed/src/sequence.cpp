@@ -277,9 +277,9 @@ int getSeqFrameChunkFlags(const int nChunk)
 //
 //---------------------------------------------------------------------------
 
-const SeqFrameArray& getSequence(const FName nSeqFile, const unsigned nSeqIndex)
+SeqArray* getFileSeqs(const FName nSeqFile)
 {
-    return FileSeqMap.CheckKey(nSeqFile)->operator[](nSeqIndex);
+    return FileSeqMap.CheckKey(nSeqFile);
 }
 
 //---------------------------------------------------------------------------
@@ -691,46 +691,36 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 //
 //---------------------------------------------------------------------------
 
-int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
+void seq_DrawGunSequence(const SeqFrameArray& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
 {
-    int nFrame = getSeqFrame(nSeqOffset, dx);
-    int nFrameBase = getSeqFrameChunk(nFrame);
-    int nFrameSize = getSeqFrameChunkCount(nFrame);
-    int frameFlag = getSeqFrameFlags(nFrame);
+    const auto& seqFrame = weapSeq[frameIndex];
 
-    while (1)
+    if (seqFrame.flags & 4)
+        nShade = -100;
+
+    for (unsigned i = 0; i < seqFrame.chunks.Size(); i++)
     {
-        nFrameSize--;
-        if (nFrameSize < 0)
-            break;
+        const auto& frameChunk = seqFrame.chunks[i];
 
-        int x = getSeqFrameChunkPosX(nFrameBase) + 160;
-        int y = getSeqFrameChunkPosY(nFrameBase) + 100;
+        int x = frameChunk.xpos + 160;
+        int y = frameChunk.ypos + 100;
 
         int stat = 0;
-        if (getSeqFrameChunkFlags(nFrameBase) & 1)
+        if (frameChunk.flags & 1)
             stat |= RS_XFLIPHUD;
 
-        if (getSeqFrameChunkFlags(nFrameBase) & 2)
+        if (frameChunk.flags & 2)
             stat |= RS_YFLIPHUD;
 		
 		if (align) stat |= RS_ALIGN_R;
-
-        int16_t nTile = getSeqFrameChunkPicnum(nFrameBase);
-
-        if (frameFlag & 4)
-            nShade = -100;
 
         double alpha = 1;
         if (PlayerList[nLocalPlayer].nInvisible) {
             alpha = 0.3;
         }
 
-        hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Degrees(), nTile, nShade, nPal, stat, alpha);
-        nFrameBase++;
+        hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Degrees(), frameChunk.picnum, nShade, nPal, stat, alpha);
     }
-
-    return frameFlag;
 }
 
 int seq_GetFrameSound(int val, int edx)
@@ -867,8 +857,9 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         seqOffset = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
-    const auto& baseFrame = getSequence(seqFile, seqIndex)[frameIndex];
-    const auto& drawFrame = getSequence(seqFile, seqIndex + seqOffset)[frameIndex];
+    const auto fileSeqs = getFileSeqs(seqFile);
+    const auto& baseFrame = fileSeqs->operator[](seqIndex)[frameIndex];
+    const auto& drawFrame = fileSeqs->operator[](seqIndex + seqOffset)[frameIndex];
     const auto chunkCount = drawFrame.chunks.Size();
 
     const auto nShade = (baseFrame.flags & 4) ? pTSprite->shade - 100 : pTSprite->shade;

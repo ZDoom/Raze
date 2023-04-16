@@ -32,17 +32,17 @@ BEGIN_PS_NS
 
 
 Weapon WeaponInfo[] = {
-    { kSeqSword,   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, true },
-    { kSeqPistol,  { 0, 3, 2,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  1, 0, 1, false },
-    { kSeqM60,     { 0, 5, 6, 16, -1, 21,  0, 0, 0, 0, 0, 0 },  2, 0, 1, false },
-    { kSeqFlamer,  { 0, 2, 5,  5,  6,  1,  0, 0, 0, 0, 0, 0 },  3, 4, 1, false },
-    { kSeqGrenade, { 0, 2, 3,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  4, 0, 1, true },
-    { kSeqCobra,   { 0, 1, 2,  2, -1,  4,  0, 0, 0, 0, 0, 0 },  5, 0, 1, true },
-    { kSeqRavolt,  { 0, 1, 2,  3, -1,  4,  0, 0, 0, 0, 0, 0 },  6, 0, 1, true },
-    { kSeqRothands,{ 0, 1, 2, -1, -1, -1,  0, 0, 0, 0, 0, 0 },  7, 0, 0, true },
-    { kSeqDead,    { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
-    { kSeqDeadEx,  { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
-    { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false }
+    { "sword",   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, true },
+    { "pistol",  { 0, 3, 2,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  1, 0, 1, false },
+    { "m_60",     { 0, 5, 6, 16, -1, 21,  0, 0, 0, 0, 0, 0 },  2, 0, 1, false },
+    { "flamer",  { 0, 2, 5,  5,  6,  1,  0, 0, 0, 0, 0, 0 },  3, 4, 1, false },
+    { "grenade", { 0, 2, 3,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  4, 0, 1, true },
+    { "cobra",   { 0, 1, 2,  2, -1,  4,  0, 0, 0, 0, 0, 0 },  5, 0, 1, true },
+    { "ravolt",  { 0, 1, 2,  3, -1,  4,  0, 0, 0, 0, 0, 0 },  6, 0, 1, true },
+    { "rothands",{ 0, 1, 2, -1, -1, -1,  0, 0, 0, 0, 0, 0 },  7, 0, 0, true },
+    { "dead",    { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
+    { "deadex",  { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
+    { "deadbrn", { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false }
 };
 
 static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
@@ -123,7 +123,7 @@ void ResetPlayerWeapons(int nPlayer)
 
     PlayerList[nPlayer].nCurrentWeapon = 0;
     PlayerList[nPlayer].nState = 0;
-    PlayerList[nPlayer].nSeqSize2 = 0;
+    PlayerList[nPlayer].nWeapFrame = 0;
 
     PlayerList[nPlayer].pPlayerGrenade = nullptr;
     PlayerList[nPlayer].nPlayerWeapons = 0x1; // turn on bit 1 only
@@ -149,7 +149,7 @@ void SetNewWeapon(int nPlayer, int nWeapon)
         PlayerList[nPlayer].nState = 5;
         SetPlayerMummified(nPlayer, true);
 
-        PlayerList[nPlayer].nSeqSize2 = 0;
+        PlayerList[nPlayer].nWeapFrame = 0;
     }
     else
     {
@@ -170,7 +170,7 @@ void SetNewWeapon(int nPlayer, int nWeapon)
             else
             {
                 PlayerList[nPlayer].nCurrentWeapon = nWeapon;
-                PlayerList[nPlayer].nSeqSize2 = 0;
+                PlayerList[nPlayer].nWeapFrame = 0;
             }
         }
         else {
@@ -193,7 +193,7 @@ void SetNewWeaponImmediate(int nPlayer, int nWeapon)
 
     PlayerList[nPlayer].nCurrentWeapon = nWeapon;
     PlayerList[nPlayer].nNextWeapon = -1;
-    PlayerList[nPlayer].nSeqSize2 = 0;
+    PlayerList[nPlayer].nWeapFrame = 0;
     PlayerList[nPlayer].nState = 0;
 }
 
@@ -365,35 +365,32 @@ void MoveWeapons(int nPlayer)
         {
             pPlayer->nCurrentWeapon = pPlayer->nNextWeapon;
             pPlayer->nState = 0;
-            pPlayer->nSeqSize2 = 0;
+            pPlayer->nWeapFrame = 0;
             pPlayer->nNextWeapon = -1;
         }
 
         return;
     }
 
-    // loc_26ACC
-    int eax = pPlayer->nState;
-    int nSeq = WeaponInfo[nWeapon].nSeq;
-
-    int var_3C = getSeqFromId(nSeq, WeaponInfo[nWeapon].b[eax]);
+    const auto nSeqFile = WeaponInfo[nWeapon].nSeqFile;
+    auto weapSeq = std::ref(getSequence(nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]));
+    auto seqFrame = std::ref(weapSeq.get()[pPlayer->nWeapFrame]);
 
     int var_1C = (pPlayer->nDouble > 0) + 1;
-
-    frames = var_1C - 1;
+    int frames = var_1C - 1;
 
     for (frames = var_1C; frames > 0; frames--)
     {
-        seq_MoveSequence(pPlayerActor, var_3C, pPlayer->nSeqSize2);
+        playFrameSound(pPlayerActor, seqFrame.get());
 
-        pPlayer->nSeqSize2++;
+        pPlayer->nWeapFrame++;
 
         dword_96E22++;
         if (dword_96E22 >= 15) {
             dword_96E22 = 0;
         }
 
-        if (pPlayer->nSeqSize2 >= getSeqFrameCount(var_3C))
+        if (pPlayer->nWeapFrame >= weapSeq.get().Size())
         {
             if (pPlayer->nNextWeapon == -1)
             {
@@ -457,7 +454,7 @@ void MoveWeapons(int nPlayer)
                         if (nWeapon == kWeaponPistol && pPlayer->nPistolClip <= 0)
                         {
                             pPlayer->nState = 3;
-                            pPlayer->nSeqSize2 = 0;
+                            pPlayer->nWeapFrame = 0;
 
                             pPlayer->nPistolClip = min<int>(6, pPlayer->nAmmo[kWeaponPistol]);
                             break;
@@ -471,7 +468,7 @@ void MoveWeapons(int nPlayer)
                             }
                             else
                             {
-                                pPlayer->nSeqSize2 = getSeqFrameCount(var_3C) - 1;
+                                pPlayer->nWeapFrame = weapSeq.get().Size() - 1;
                                 continue;
                             }
                         }
@@ -568,7 +565,7 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(nPlayer);
                                 pPlayer->nState = 5;
 
-                                pPlayer->nSeqSize2 = getSeqFrameCount(getSeqFromId(nSeq, WeaponInfo[kWeaponGrenade].b[0])) - 1; // CHECKME
+                                pPlayer->nWeapFrame = getSequence(nSeqFile, WeaponInfo[kWeaponGrenade].b[0]).Size() - 1; // CHECKME
                                 goto loc_flag; // FIXME
                             }
                         }
@@ -617,9 +614,8 @@ void MoveWeapons(int nPlayer)
                     }
                 }
 
-                // loc_26FC5
-                var_3C = getSeqFromId(WeaponInfo[nWeapon].nSeq, WeaponInfo[nWeapon].b[pPlayer->nState]);
-                pPlayer->nSeqSize2 = 0;
+                weapSeq = std::ref(getSequence(WeaponInfo[nWeapon].nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]));
+                pPlayer->nWeapFrame = 0;
             }
             else
             {
@@ -637,17 +633,15 @@ void MoveWeapons(int nPlayer)
                     pPlayer->nState = 5;
                 }
 
-                pPlayer->nSeqSize2 = 0;
+                pPlayer->nWeapFrame = 0;
                 continue;
             }
-        } // end of if (pPlayer->field_34 >= getSeqFrameCount(var_3C))
+        }
 
 loc_flag:
+        seqFrame = std::ref(weapSeq.get()[pPlayer->nWeapFrame]);
 
-        // loc_27001
-        int nFrameFlag = getSeqFrameFlags(getSeqFrame(var_3C, pPlayer->nSeqSize2));
-
-        if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (nFrameFlag & 4))
+        if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (seqFrame.get().flags & 4))
         {
             BuildFlash(nPlayer, 512);
             AddFlash(
@@ -656,7 +650,7 @@ loc_flag:
                 0);
         }
 
-        if (nFrameFlag & 0x80)
+        if (seqFrame.get().flags & 0x80)
         {
             int nAction = pPlayer->nAction;
 
@@ -678,7 +672,7 @@ loc_flag:
                 {
                     pPlayer->nTemperature = 0;
                     pPlayer->nState = 4;
-                    pPlayer->nSeqSize2 = 0;
+                    pPlayer->nWeapFrame = 0;
                 }
             }
 
@@ -714,13 +708,13 @@ loc_flag:
 
                     thePos.Z += nHeight;
 
-                    int var_28;
+                    int newState;
 
                     if (pPlayer->nState == 2) {
-                        var_28 = 6;
+                        newState = 6;
                     }
                     else {
-                        var_28 = 9;
+                        newState = 9;
                     }
 
                     auto cRange = CheckCloseRange(nPlayer, thePos, &pSectorB);
@@ -738,7 +732,7 @@ loc_flag:
                             if (cRange.type == kHitWall)
                             {
                                 // loc_2730E:
-                                var_28 += 2;
+                                newState += 2;
                             }
                             else if (cRange.type == kHitSprite)
                             {
@@ -746,14 +740,14 @@ loc_flag:
 
                                 if (pActor2->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
                                 {
-                                    var_28 += 2;
+                                    newState += 2;
                                 }
                                 else if (pActor2->spr.statnum > 90 && pActor2->spr.statnum <= 199)
                                 {
                                     runlist_DamageEnemy(pActor2, pPlayerActor, nDamage);
 
                                     if (pActor2->spr.statnum < 102) {
-                                        var_28++;
+                                        newState++;
                                     }
                                     else if (pActor2->spr.statnum == 102)
                                     {
@@ -761,10 +755,10 @@ loc_flag:
                                         BuildAnim(nullptr, "poof", 0, thePos, pSectorB, 0.46875, 0);
                                     }
                                     else if (pActor2->spr.statnum == kStatExplodeTrigger) {
-                                        var_28 += 2;
+                                        newState += 2;
                                     }
                                     else {
-                                        var_28++;
+                                        newState++;
                                     }
                                 }
                                 else
@@ -777,8 +771,8 @@ loc_flag:
                     }
 
                     // loc_27399:
-                    pPlayer->nState = var_28;
-                    pPlayer->nSeqSize2 = 0;
+                    pPlayer->nState = newState;
+                    pPlayer->nWeapFrame = 0;
                     break;
                 }
                 case kWeaponFlamer:
@@ -787,7 +781,7 @@ loc_flag:
                     {
                         DoBubbles(nPlayer);
                         pPlayer->nState = 1;
-                        pPlayer->nSeqSize2 = 0;
+                        pPlayer->nWeapFrame = 0;
                         StopActorSound(pPlayerActor);
                         break;
                     }
@@ -887,7 +881,7 @@ loc_flag:
                     if (nWeapon == kWeaponM60 && pPlayer->nPlayerClip <= 0)
                     {
                         pPlayer->nState = 3;
-                        pPlayer->nSeqSize2 = 0;
+                        pPlayer->nWeapFrame = 0;
                         // goto loc_27609:
                     }
                 }
@@ -917,11 +911,9 @@ void DrawWeapons(double interpfrac)
     if (nWeapon < -1) {
         return;
     }
-    int var_34 = PlayerList[nLocalPlayer].nState;
 
-    int var_30 = getSeqFromId(WeaponInfo[nWeapon].nSeq);
-
-    int var_28 = var_30 + WeaponInfo[nWeapon].b[var_34];
+    int nState = PlayerList[nLocalPlayer].nState;
+    const auto weapSeqs = getFileSeqs(WeaponInfo[nWeapon].nSeqFile);
 
     int8_t nShade = PlayerList[nLocalPlayer].pActor->sector()->ceilingshade;
 
@@ -959,7 +951,7 @@ void DrawWeapons(double interpfrac)
 
         yOffset = nVal * fabs(BobVal(nBobAngle)) * (1. / 16.);
 
-        if (var_34 == 1)
+        if (nState == 1)
         {
             xOffset = nVal * BobVal(nBobAngle + 512) * (1. / 8.);
         }
@@ -969,7 +961,7 @@ void DrawWeapons(double interpfrac)
         obobangle = bobangle = 512;
     }
 
-    if (nWeapon == 3 && var_34 == 1) {
+    if (nWeapon == 3 && nState == 1) {
         seq_DrawPilotLightSeq(xOffset, yOffset);
     }
 	else if (nWeapon == 8 || nWeapon == 9)
@@ -986,18 +978,26 @@ void DrawWeapons(double interpfrac)
     xOffset += weaponOffsets.first.X;
     yOffset += weaponOffsets.first.Y;
 
-    seq_DrawGunSequence(var_28, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal, angle, screenalign);
+    seq_DrawGunSequence(weapSeqs->operator[](WeaponInfo[nWeapon].b[nState]), PlayerList[nLocalPlayer].nWeapFrame, xOffset, yOffset, nShade, nPal, angle, screenalign);
 
     if (nWeapon != kWeaponM60)
         return;
 
-    switch (var_34)
+    switch (nState)
     {
         default:
             return;
 
         case 0:
+        case 5:
         {
+            static constexpr int offsetTable[2][4] = {
+                {1,   2,  3,  4},
+                {20, 19, 18, 17}
+            };
+
+            const auto& offsets = offsetTable[nState == 5];
+
             int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
             if (nClip <= 0)
@@ -1007,121 +1007,58 @@ void DrawWeapons(double interpfrac)
 
             if (nClip <= 3)
             {
-                nSeqOffset = var_30 + 1;
+                nSeqOffset = offsets[0];
             }
             else if (nClip <= 6)
             {
-                nSeqOffset = var_30 + 2;
+                nSeqOffset = offsets[1];
             }
             else if (nClip <= 25)
             {
-                nSeqOffset = var_30 + 3;
+                nSeqOffset = offsets[2];
             }
             else //if (nClip > 25)
             {
-                nSeqOffset = var_30 + 4;
+                nSeqOffset = offsets[3];
             }
 
-            seq_DrawGunSequence(nSeqOffset, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](nSeqOffset), PlayerList[nLocalPlayer].nWeapFrame, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
         case 1:
-        {
-            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
-
-            int edx = (nClip % 3) * 4;
-
-            if (nClip <= 0) {
-                return;
-            }
-
-            seq_DrawGunSequence(var_30 + 8, edx, xOffset, yOffset, nShade, nPal, angle);
-
-            if (nClip <= 3) {
-                return;
-            }
-
-            seq_DrawGunSequence(var_30 + 9, edx, xOffset, yOffset, nShade, nPal, angle);
-
-            if (nClip <= 6) {
-                return;
-            }
-
-            seq_DrawGunSequence(var_30 + 10, edx, xOffset, yOffset, nShade, nPal, angle);
-
-            if (nClip <= 25) {
-                return;
-            }
-
-            seq_DrawGunSequence(var_30 + 11, edx, xOffset, yOffset, nShade, nPal, angle);
-            return;
-        }
         case 2:
         {
             int nClip = PlayerList[nLocalPlayer].nPlayerClip;
-
-            int dx = PlayerList[nLocalPlayer].nSeqSize2;
+            int nFrame = nState == 1 ? (nClip % 3) * 4 : PlayerList[nLocalPlayer].nWeapFrame;
 
             if (nClip <= 0) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 8, dx, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](8), nFrame, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 3) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 9, dx, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](9), nFrame, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 6) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 10, dx, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](10), nFrame, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 25) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 11, dx, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](11), nFrame, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
-
         case 3:
         case 4:
-            return;
-
-        case 5:
         {
-            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
-
-            int ax = PlayerList[nLocalPlayer].nSeqSize2;
-
-            if (nClip <= 0) {
-                return;
-            }
-
-            int nSeqOffset;
-
-            if (nClip <= 3)
-            {
-                nSeqOffset = var_30 + 20;
-            }
-            else if (nClip <= 6)
-            {
-                nSeqOffset = var_30 + 19;
-            }
-            else if (nClip <= 25)
-            {
-                nSeqOffset = var_30 + 18;
-            }
-            else
-            {
-                nSeqOffset = var_30 + 17;
-            }
-
-            seq_DrawGunSequence(nSeqOffset, ax, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
     }

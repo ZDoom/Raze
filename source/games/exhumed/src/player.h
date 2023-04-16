@@ -70,7 +70,7 @@ struct Player
     int16_t nAmmo[7]; // TODO - kMaxWeapons?
 
     int16_t nCurrentWeapon;
-    int16_t nSeqSize2;
+    uint16_t nWeapFrame;
     int16_t bIsFiring;
     int16_t nNextWeapon;
     int16_t nState;

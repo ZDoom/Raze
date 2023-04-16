@@ -118,7 +118,7 @@ enum
 
 struct Weapon
 {
-    int16_t nSeq;
+    FName nSeqFile;
     int16_t b[12]; // seq offsets?
     int16_t nAmmoType;
     int16_t c;

@@ -286,7 +286,7 @@ void RestartPlayer(int nPlayer)
 	pPlayer->nMaskAmount = 0;
 	pPlayer->nInvisible = 0;
 	pPlayer->bIsFiring = 0;
-	pPlayer->nSeqSize2 = 0;
+	pPlayer->nWeapFrame = 0;
 	pPlayer->nState = 0;
 	pPlayer->nDouble = 0;
 	pPlayer->nSeq = kSeqJoe;
@@ -2078,7 +2078,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             .Array("ammo", w.nAmmo, countof(w.nAmmo))
             ("weapon", w.nCurrentWeapon)
             ("isfiring", w.bIsFiring)
-            ("field3f", w.nSeqSize2)
+            ("field3f", w.nWeapFrame)
             ("field38", w.nNextWeapon)
             ("field3a", w.nState)
             ("field3c", w.nLastWeapon)
@@ -2171,7 +2171,7 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons?
 DEFINE_FIELD_X(ExhumedPlayer, Player, nPlayerWeapons);
 
 DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nSeqSize2);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nWeapFrame);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nNextWeapon);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nState);

@@ -55,7 +55,7 @@ struct ExhumedPlayer native
 	native int16 nPlayerWeapons;
 
 	native int16 nCurrentWeapon;
-	native int16 nSeqSize2;
+	native int16 nWeapFrame;
 	native int16 nNextWeapon;
 	native int16 nState;
 	native int16 nLastWeapon;
