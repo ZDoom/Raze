@@ -43,7 +43,7 @@ struct SeqFrame
 
     const FTextureID getFirstTexID() const
     {
-        return chunks[0].tex;
+        return chunks.Size() ? chunks[0].tex : FNullTextureID();
     }
 
     const void playSound(DExhumedActor* const pActor) const

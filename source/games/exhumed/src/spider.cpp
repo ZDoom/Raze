@@ -122,7 +122,7 @@ void AISpider::Tick(RunListEvent* ev)
     const auto& spiderSeq = getSequence(spp->nSeqFile, SpiderSeq[nAction].nSeqId);
     const auto& seqFrame = spiderSeq.frames[spp->nFrame];
 
-    spp->spr.setspritetexture(spp->nFrame < 9 ? seqFrame.getFirstTexID() : FNullTextureID());
+    spp->spr.setspritetexture(seqFrame.getFirstTexID());
 
     seqFrame.playSound(spp);
 
