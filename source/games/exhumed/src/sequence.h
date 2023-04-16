@@ -113,6 +113,7 @@ struct SeqFrameChunk
     int16_t xpos;
     int16_t ypos;
     int16_t picnum;
+    FTextureID tex; // FIXME (native wants picnum, statusbar wants texid)
     int16_t flags;
 };
 

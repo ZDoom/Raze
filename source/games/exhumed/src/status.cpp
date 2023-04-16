@@ -50,58 +50,11 @@ void InitStatus()
     nStatusSeqOffset = getSeqFromId(kSeqStatus);
 }
 
-
-//---------------------------------------------------------------------------
-//
-// This is to hide the dirt from the script code.
-// These sequence arrays later need to be refactored 
-// if this is ever supposed to become a useful feature, 
-// so hide the dirty internals behind a handful of functions.
-//
-//---------------------------------------------------------------------------
-
-struct ChunkFrame
-{
-    FTextureID tex;
-    int x, y;
-    int flags;
-
-    void GetChunkFrame(int nFrameBase)
-    {
-        x = getSeqFrameChunkPosX(nFrameBase);
-        y = getSeqFrameChunkPosY(nFrameBase);
-        auto ttex = tileGetTexture(getSeqFrameChunkPicnum(nFrameBase));
-        if (ttex) tex = ttex->GetID();
-        else tex.SetInvalid();
-        flags = getSeqFrameChunkFlags(nFrameBase);
-    }
-};
-
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
-
-DEFINE_ACTION_FUNCTION(_ChunkFrame, GetChunkFrame)
-{
-    PARAM_SELF_STRUCT_PROLOGUE(ChunkFrame);
-    PARAM_INT(index);
-    self->GetChunkFrame(index);
-    return 0;
-}
-
-DEFINE_ACTION_FUNCTION(_Exhumed, GetStatusSequence)
-{
-    PARAM_PROLOGUE;
-    PARAM_INT(nSequence);
-    PARAM_INT(frameindex);
-
-    frameindex += getSeqFrame(nSequence + nStatusSeqOffset);
-    if (numret > 0) ret[0].SetInt(getSeqFrameChunk(frameindex));
-    if (numret > 1) ret[1].SetInt(getSeqFrameChunkCount(frameindex));
-    return min(numret, 2);
-}
 
 DEFINE_ACTION_FUNCTION(_Exhumed, MoveStatusSequence)
 {

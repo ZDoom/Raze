@@ -19,15 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-struct ChunkFrame // this wraps the internal (mis-)representation of the chunk data.
-{
-    TextureID tex;
-    int x, y;
-    int flags;
-
-    native void GetChunkFrame(int nFrameBase);
-}
-
 class ExhumedStatusBar : RazeStatusBar
 {
 	HUDFont textfont, numberFont;
@@ -99,17 +90,15 @@ class ExhumedStatusBar : RazeStatusBar
 
     void DrawStatusSequence(int nSequence, int frameindex, double yoffset, double xoffset = 0, bool trueadjust = false)
     {
-		int nFrameBase, nFrameSize;
-		[nFrameBase, nFrameSize] = Exhumed.GetStatusSequence(nSequence, frameindex);
+		let seqFrame = Exhumed.GetStatusSequence(nSequence).getFrame(frameindex);
 
-        for(; nFrameSize > 0; nFrameSize--, nFrameBase++)
+        for (uint i = 0; i < seqFrame.Size(); i++)
         {
+            let frameChunk = seqFrame.getChunk(i);
             int flags = 0;
-            ChunkFrame chunk;
-            chunk.GetChunkFrame(nFrameBase);
 
-            double x = chunk.x + xoffset;
-            double y = chunk.y + yoffset;
+            double x = frameChunk.xpos + xoffset;
+            double y = frameChunk.ypos + yoffset;
 
             if (hud_size <= Hud_StbarOverlay)
             {
@@ -131,14 +120,14 @@ class ExhumedStatusBar : RazeStatusBar
                 y -= 100;
             }
 
-            if (chunk.flags & 3)
+            if (frameChunk.flags & 3)
             {
                 // This is hard to align with bad offsets, so skip that treatment for mirrored elements.
                 flags |= DI_ITEM_RELCENTER;
             }
             else
             {
-				let tsiz = TexMan.GetScaledSize(chunk.tex);
+				let tsiz = TexMan.GetScaledSize(frameChunk.tex);
 				if (trueadjust)
 				{
 					x -= tsiz.x * 0.5;
@@ -152,12 +141,12 @@ class ExhumedStatusBar : RazeStatusBar
                 flags |= DI_ITEM_OFFSETS;
             }
 
-            if (chunk.flags & 1)
+            if (frameChunk.flags & 1)
                 flags |= DI_MIRROR;
-            if (chunk.flags & 2)
+            if (frameChunk.flags & 2)
                 flags |= DI_MIRRORY;
 
-            DrawTexture(chunk.tex, (x, y), flags);
+            DrawTexture(frameChunk.tex, (x, y), flags);
         }
     }
 
@@ -169,10 +158,7 @@ class ExhumedStatusBar : RazeStatusBar
 
     TextureID GetStatusSequencePic(int nSequence, int frameindex)
     {
-		int nFrameBase = Exhumed.GetStatusSequence(nSequence, frameindex);
-		ChunkFrame chunk;
-		chunk.GetChunkFrame(nFrameBase);
-        return chunk.tex;
+        return Exhumed.GetStatusSequence(nSequence).getFrame(frameindex).getChunk(0).tex;
     }
 
     String GetStatusSequenceName(int nSequence, int frameindex)

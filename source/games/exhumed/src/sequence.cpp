@@ -435,6 +435,7 @@ int addSeq(const char *seqName)
                     (int16_t)(nSeqFrameChunkPosX[nChunk] - CenterX),
                     (int16_t)(nSeqFrameChunkPosY[nChunk] - CenterY),
                     nSeqFrameChunkPicnum[nChunk],
+                    tileGetTexture(nSeqFrameChunkPicnum[nChunk])->GetID(),
                     nSeqFrameChunkFlags[nChunk],
                 });
             }
@@ -862,6 +863,68 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
             pTSprite->pal = 0;
         }
     }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DEFINE_FIELD_X(SeqFrameChunk, SeqFrameChunk, xpos);
+DEFINE_FIELD_X(SeqFrameChunk, SeqFrameChunk, ypos);
+DEFINE_FIELD_X(SeqFrameChunk, SeqFrameChunk, tex);
+DEFINE_FIELD_X(SeqFrameChunk, SeqFrameChunk, flags);
+
+DEFINE_FIELD_X(SeqFrame, SeqFrame, sound);
+DEFINE_FIELD_X(SeqFrame, SeqFrame, flags);
+
+DEFINE_FIELD_X(Seq, Seq, flags);
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DEFINE_ACTION_FUNCTION(_SeqFrame, playSound)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(SeqFrame);
+    self->playSound(PlayerList[nLocalPlayer].pActor);
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_SeqFrame, Size)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(SeqFrame);
+    ACTION_RETURN_INT(self->chunks.Size());
+}
+
+DEFINE_ACTION_FUNCTION(_SeqFrame, getChunk)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(SeqFrame);
+    PARAM_INT(chunkId);
+    ACTION_RETURN_POINTER(self->chunks.Data(chunkId));
+}
+
+DEFINE_ACTION_FUNCTION(_Seq, Size)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(Seq);
+    ACTION_RETURN_INT(self->frames.Size());
+}
+
+DEFINE_ACTION_FUNCTION(_Seq, getFrame)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(Seq);
+    PARAM_INT(frameId);
+    ACTION_RETURN_POINTER(self->frames.Data(frameId));
+}
+
+DEFINE_ACTION_FUNCTION(_Exhumed, GetStatusSequence)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(seqId);
+    ACTION_RETURN_POINTER(getFileSeqs("status")->Data(seqId));
 }
 
 //---------------------------------------------------------------------------

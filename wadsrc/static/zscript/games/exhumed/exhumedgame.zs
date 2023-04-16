@@ -7,7 +7,7 @@ struct Exhumed native
 	native static bool LocalSoundPlaying();
 	native static void playCDTrack(int track, bool looped);
 	native static void DrawPlasma();
-	native static int, int GetStatusSequence(int seq, int index);
+	native static Seq GetStatusSequence(int seqId);
 	native static int MoveStatusSequence(int s1, int s2);
 	native static int SizeOfStatusSequence(int s1);
 	native static ExhumedPlayer GetViewPlayer();
@@ -30,6 +30,32 @@ struct Exhumed native
 		y -= (int(size.y) >> 1) + int(offs.y);
 	    Screen.DrawTexture(tex, false, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, Raze.shadeToLight(shade));
 	}
+}
+
+struct SeqFrameChunk native
+{
+    native int16 xpos;
+    native int16 ypos;
+    native TextureID tex;
+    native int16 flags;
+}
+
+struct SeqFrame native
+{
+    native int16 sound;
+    native int16 flags;
+
+    native uint Size();
+    native SeqFrameChunk getChunk(int chunkId);
+    native void playSound();
+}
+
+struct Seq native
+{
+    native int16 flags;
+
+    native uint Size();
+    native SeqFrame getFrame(int frameId);
 }
 
 struct ExhumedPlayer native
