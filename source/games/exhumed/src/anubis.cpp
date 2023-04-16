@@ -226,6 +226,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                 {
                     // Don't let Anubis get stuck in this state and allow him to acquire a new target.
                     ap->nAction = 0;
+                    ap->nFrame = 0;
                     ap->nCount = 50;
                 }
             }
@@ -239,6 +240,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         if (pTarget == nullptr)
         {
             ap->nAction = 0;
+            ap->nFrame = 0;
             ap->nCount = 50;
         }
         else
@@ -246,6 +248,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             if (PlotCourseToSprite(ap, pTarget) >= 48)
             {
                 ap->nAction = 1;
+                ap->nFrame = 0;
             }
             else if (seqFrame.flags & 0x80)
             {
@@ -342,7 +345,11 @@ void AIAnubis::Draw(RunListEvent* ev)
     if (const auto ap = ev->pObjActor)
     {
         const auto anubisSeq = &AnubisSeq[ap->nAction];
-        seq_PlotSequence(ev->nParam, ap->nSeqFile, anubisSeq->nSeqId, ap->nFrame, anubisSeq->nFlags);
+
+        if (anubisSeq->nSeqId >= 0)
+        {
+            seq_PlotSequence(ev->nParam, ap->nSeqFile, anubisSeq->nSeqId, ap->nFrame, anubisSeq->nFlags);
+        }
     }
 }
 
