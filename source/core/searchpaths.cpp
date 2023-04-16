@@ -111,9 +111,16 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE" WOW64 "GOG.com\\GOGCREDNECKRIDESAGAIN", L"PATH", nullptr },
 	{ L"SOFTWARE" WOW64 "GOG.com\\GOGONEUNITONEBLOOD", L"PATH", nullptr},
 	{ L"SOFTWARE" WOW64 "GOG.com\\GOGSHADOWARRIOR", L"PATH", nullptr},
-	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1374469660", L"path", bloodfs},
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1207658730", L"path", nullptr}, // Duke Nukem 3D Atomic Edition
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1207658856", L"path", nullptr}, // Blood: One Unit Whole Blood
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1207659142", L"path", nullptr}, // Shadow Warrior Classic Complete
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1374469660", L"path", bloodfs}, // Blood: Fresh Supply
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1740836875", L"path", nullptr},
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\2132611980", L"path", nullptr}, // Powerslave
+	//{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1207658674", L"path", nullptr}, // Redneck Rampage Collection
+	//{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1575726518", L"path", nullptr}, // NAM
+	//{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1618073558", L"path", nullptr}, // Shadow Warrior Classic Redux
+	
 
 	{ L"SOFTWARE" WOW64 "ZOOM PLATFORM\\Duke Nukem 3D - Atomic Edition", L"InstallPath", dukezoom },
 
