@@ -32,9 +32,6 @@ BEGIN_PS_NS
 
 int nPushBlocks;
 
-// TODO - moveme?
-sectortype* overridesect;
-
 enum
 {
     kMaxPushBlocks = 100,
@@ -88,7 +85,6 @@ void SerializeMove(FSerializer& arc)
             .Array("blocks", sBlockInfo, nPushBlocks)
             ("chunkcount", nCurChunkNum)
             .Array("chunks", nChunkSprite, kMaxMoveChunks)
-            ("overridesect", overridesect)
             .Array("bodysprite", nBodySprite, countof(nBodySprite))
             ("curbodygun", nCurBodyGunNum)
             .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
@@ -151,7 +147,7 @@ void MoveThings()
 //
 //---------------------------------------------------------------------------
 
-int BelowNear(DExhumedActor* pActor, double walldist)
+static int BelowNear(DExhumedActor* pActor, double walldist, sectortype** overridesect)
 {
     auto pSector = pActor->sector();
     double z = pActor->spr.pos.Z;
@@ -208,7 +204,7 @@ int BelowNear(DExhumedActor* pActor, double walldist)
     if (z2 < pActor->spr.pos.Z)
     {
         pActor->spr.pos.Z = z2;
-        overridesect = pSector;
+        *overridesect = pSector;
         pActor->vel.Z = 0;
 
         bTouchFloor = true;
@@ -227,12 +223,12 @@ int BelowNear(DExhumedActor* pActor, double walldist)
 //
 //---------------------------------------------------------------------------
 
-Collision movespritez(DExhumedActor* pActor, double z, double height, double clipdist)
+Collision movespritez(DExhumedActor* pActor, double z, double height, double clipdist, sectortype** overridesect)
 {
     auto pSector = pActor->sector();
     assert(pSector);
 
-    overridesect = pSector;
+    *overridesect = pSector;
     auto pSect2 = pSector;
 
     // backup cstat
@@ -390,7 +386,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
     if (pActor->spr.statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, clipdist * 1.5);
+        nRet.exbits |= BelowNear(pActor, clipdist * 1.5, overridesect);
     }
 
     return nRet;
@@ -436,7 +432,8 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
         vect *= 0.5;
     }
 
-    Collision nRet = movespritez(pActor, dz, nSpriteHeight, pActor->clipdist);
+    sectortype* overridesect;
+    Collision nRet = movespritez(pActor, dz, nSpriteHeight, pActor->clipdist, &overridesect);
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
