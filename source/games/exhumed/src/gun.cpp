@@ -933,6 +933,9 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
     double xPos = 160 + weaponOffsets.first.X;
     double yPos = 100 + weaponOffsets.first.Y;
 
+    double nFlameAng = interpolatedvalue(lastavel, pPlayer->input.avel, interpfrac);
+    lastavel = pPlayer->input.avel;
+
     if (cl_weaponsway)
     {
         double nBobAngle = bobangle, nTotalVel = pPlayer->totalvel;
@@ -943,8 +946,12 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
             nTotalVel = interpolatedvalue<double>(pPlayer->ototalvel, pPlayer->totalvel, interpfrac);
         }
 
-        xPos += nTotalVel * BobVal(nBobAngle + 512) * (1. / 8.) * (nState == 1);
-        yPos += nTotalVel * fabs(BobVal(nBobAngle)) * (1. / 16.);
+        const auto xBob = nTotalVel * BobVal(nBobAngle + 512) * (1. / 16.) * (nState == 1);
+        const auto yBob = nTotalVel * fabs(BobVal(nBobAngle)) * (1. / 16.);
+
+        nFlameAng += xBob;
+        xPos += xBob * 2.;
+        yPos += yBob;
     }
     else
     {
@@ -957,8 +964,7 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
     {
         if (!(pPlayer->pPlayerViewSect->Flag & kSectUnderwater))
         {
-            seq_DrawPilotLightSeq(xPos, yPos, interpolatedvalue(lastavel, pPlayer->input.avel, interpfrac) * 2.);
-            lastavel = pPlayer->input.avel;
+            seq_DrawPilotLightSeq(xPos, yPos, nFlameAng);
         }
     }
 	else if (nWeapon == 8 || nWeapon == 9)
