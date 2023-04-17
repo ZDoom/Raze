@@ -116,7 +116,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->nSeqFile = "set";
-    pActor->spr.picnum = getSequence(pActor->nSeqFile, 75).getFirstPicnum();
+    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, 75).getFirstTexID());
     pActor->spr.Angles.Yaw = RandomAngle();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -274,7 +274,7 @@ void AISet::Tick(RunListEvent* ev)
     const auto& setSeq = getSequence(pActor->nSeqFile, SetSeq[nAction].nSeqId);
     const auto& seqFrame = setSeq.frames[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
     seqFrame.playSound(pActor);
 
     if (nAction == 3)
@@ -609,7 +609,7 @@ void AISet::Tick(RunListEvent* ev)
         if (seqFrame.flags & 0x80)
         {
             pActor->spr.pos.Z -= GetActorHeight(pActor);
-            BuildCreatureChunk(pActor, getSequence("set", 76).getFirstPicnum());
+            BuildCreatureChunk(pActor, getSequence("set", 76).getFirstTexID());
 			pActor->spr.pos.Z += GetActorHeight(pActor);
         }
 

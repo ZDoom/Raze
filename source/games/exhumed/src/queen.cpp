@@ -252,7 +252,7 @@ void BlowChunks(DExhumedActor* pActor)
 {
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(pActor, getSequence("spider", i + 41).getFirstPicnum());
+        BuildCreatureChunk(pActor, getSequence("spider", i + 41).getFirstTexID());
     }
 }
 
@@ -275,7 +275,7 @@ void DestroyEgg(int nEgg)
     {
         for (int i = 0; i < 4; i++)
         {
-            BuildCreatureChunk(pActor, getSequence("queenegg", (i % 2) + 24).getFirstPicnum());
+            BuildCreatureChunk(pActor, getSequence("queenegg", (i % 2) + 24).getFirstTexID());
         }
     }
 
@@ -546,7 +546,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
     const auto& eggSeq = getSequence(pActor->nSeqFile, EggSeq[nAction].nSeqId);
     const auto& seqFrame = eggSeq.frames[pEgg->nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     if (nAction != 4)
     {
@@ -807,7 +807,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
     seqFrame.playSound(pActor);
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     QueenHead.nFrame++;
     if (QueenHead.nFrame >= queenSeq.frames.Size())
@@ -1238,7 +1238,7 @@ void AIQueen::Tick(RunListEvent* ev)
     const auto& queenSeq = getSequence(pActor->nSeqFile, QueenSeq[nAction].nSeqId);
     const auto& seqFrame = queenSeq.frames[QueenList[nQueen].nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     seqFrame.playSound(pActor);
 
@@ -1435,7 +1435,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 if (QueenList[nQueen].nIndex <= 0)
                 {
                     pActor->spr.cstat = 0;
-                    const auto queenPicnum = getSequence("queen", 57).getFirstPicnum();
+                    const auto queenPicnum = getSequence("queen", 57).getFirstTexID();
 
                     for (int i = 0; i < 20; i++)
                     {

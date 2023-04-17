@@ -144,7 +144,7 @@ void AIMummy::Tick(RunListEvent* ev)
     const auto& mummySeq = getSequence(pActor->nSeqFile, MummySeq[nAction].nSeqId);
     const auto& seqFrame = mummySeq.frames[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     seqFrame.playSound(pActor);
 

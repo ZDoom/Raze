@@ -1962,7 +1962,7 @@ void AIObject::Tick(RunListEvent* ev)
         if (++pActor->nFrame >= nSeqFrames.Size())
             pActor->nFrame = 0;
 
-        pActor->spr.picnum = nSeqFrames[pActor->nFrame].getFirstPicnum();
+        pActor->spr.setspritetexture(nSeqFrames[pActor->nFrame].getFirstTexID());
     }
 
     if (pActor->nHealth >= 0) {
@@ -2007,7 +2007,7 @@ void AIObject::Tick(RunListEvent* ev)
         if (nStat == kStatExplodeTrigger)
         {
             for (int i = 4; i < 8; i++) {
-                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 2) + 1).getFirstPicnum(), true);
+                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 2) + 1).getFirstTexID(), true);
             }
 
             runlist_RadialDamageEnemy(pActor, 200, 20);
@@ -2015,7 +2015,7 @@ void AIObject::Tick(RunListEvent* ev)
         else if (nStat == kStatExplodeTarget)
         {
             for (int i = 0; i < 8; i++) {
-                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 1) + 3).getFirstPicnum(), true);
+                BuildCreatureChunk(pActor, getSequence("firepot", (i >> 1) + 3).getFirstTexID(), true);
             }
         }
 

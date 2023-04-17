@@ -1159,7 +1159,7 @@ DExhumedActor* GrabChunkSprite()
 //
 //---------------------------------------------------------------------------
 
-DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
+DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, FTextureID nPic, bool bSpecial)
 {
     auto pActor = GrabChunkSprite();
 
@@ -1188,7 +1188,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     pActor->spr.scale = DVector2(1, 1);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.picnum = nPic;
+    pActor->spr.setspritetexture(nPic);
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->clipdist = 10;
 

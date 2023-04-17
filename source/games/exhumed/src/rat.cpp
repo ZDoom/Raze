@@ -25,9 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-int nMinChunk;
-int nPlayerPic;
-int nMaxChunk;
+FTextureID nPlayerPic;
 
 static actionSeq RatSeq[] = {
     {0, 1},
@@ -47,9 +45,7 @@ void SerializeRat(FSerializer& arc)
 {
     if (arc.BeginObject("rat"))
     {
-        arc("minchunk", nMinChunk)
-            ("maxchunk", nMaxChunk)
-            ("playerpic", nPlayerPic)
+        arc("playerpic", nPlayerPic)
             .EndObject();
     }
 }
@@ -62,21 +58,7 @@ void SerializeRat(FSerializer& arc)
 
 void InitRats()
 {
-    nMinChunk = 9999;
-    nMaxChunk = -1;
-
-    for (int i = 122; i <= 131; i++)
-    {
-        int nPic = getSequence("joe", i).getFirstPicnum();
-
-        if (nPic < nMinChunk)
-            nMinChunk = nPic;
-
-        if (nPic > nMaxChunk)
-            nMaxChunk = nPic;
-    }
-
-    nPlayerPic = getSequence("joe", 120).getFirstPicnum();
+    nPlayerPic = getSequence("joe", 120).getFirstTexID();
 }
 
 void SetRatVel(DExhumedActor* pActor)
@@ -167,7 +149,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     DExhumedActor* pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
     if (pActor2 != nullptr)
     {
-        if (nPlayerPic == pActor2->spr.picnum)
+        if (legacyTileNum(nPlayerPic) == pActor2->spr.picnum)
         {
             if (cansee(pActor->spr.pos, pSector, pActor2->spr.pos, pActor2->sector())) {
                 return pActor2;
@@ -249,7 +231,7 @@ void AIRat::Tick(RunListEvent* ev)
     const auto& ratSeq = getSequence(pActor->nSeqFile, RatSeq[nAction].nSeqId);
     const auto& seqFrame = ratSeq.frames[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     seqFrame.playSound(pActor);
 

@@ -163,7 +163,7 @@ void BuildSnake(int nPlayer, double zVal)
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
-    int nPic = getSequence("snakbody", 0).getFirstPicnum();
+    auto nPic = getSequence("snakbody", 0).getFirstTexID();
 
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 
@@ -207,7 +207,7 @@ void BuildSnake(int nPlayer, double zVal)
 
 			pActor->pTarget = pPlayerActor;
             //pActor->spr.intowner = nPlayerSprite;
-            pActor->spr.picnum = nPic;
+            pActor->spr.setspritetexture(nPic);
 
             if (i == 0)
             {

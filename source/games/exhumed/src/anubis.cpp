@@ -132,7 +132,7 @@ void AIAnubis::Tick(RunListEvent* ev)
 
     seqFrame.playSound(ap);
 
-    ap->spr.picnum = seqFrame.getFirstPicnum();
+    ap->spr.setspritetexture(seqFrame.getFirstTexID());
     ap->nFrame++;
 
     if (ap->nFrame >= anubisSeq.frames.Size())

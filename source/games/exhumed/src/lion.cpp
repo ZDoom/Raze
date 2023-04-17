@@ -203,7 +203,7 @@ void AILion::Tick(RunListEvent* ev)
     const auto& lionSeq = getSequence(pActor->nSeqFile, LionSeq[nAction].nSeqId);
     const auto& seqFrame = lionSeq.frames[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     seqFrame.playSound(pActor);
 

@@ -99,9 +99,8 @@ extern int nNetTime;
 
 extern int nTotalPlayers;
 
-extern int nFontFirstChar;
-extern int nBackgroundPic;
-extern int nShadowPic;
+extern FTextureID nBackgroundPic;
+extern FTextureID nShadowPic;
 
 extern int nCreaturesTotal, nCreaturesKilled;
 

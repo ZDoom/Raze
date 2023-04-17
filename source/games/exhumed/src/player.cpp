@@ -218,7 +218,7 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->nSeqFile = "joe";
     pPlayerActor->nAction = 0;
     pPlayerActor->nFrame = 0;
-    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, 18).getFirstPicnum();
+    pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, 18).getFirstTexID());
     pPlayerActor->spr.hitag = 0;
     pPlayerActor->spr.extra = -1;
     pPlayerActor->spr.lotag = runlist_HeadRun() + 1;
@@ -640,7 +640,7 @@ void AIPlayer::Damage(RunListEvent* ev)
         {
             for (int i = 122; i <= 131; i++)
             {
-                BuildCreatureChunk(pPlayerActor, getSequence("joe", i).getFirstPicnum());
+                BuildCreatureChunk(pPlayerActor, getSequence("joe", i).getFirstTexID());
             }
 
             StartDeathSeq(nPlayer, 1);
@@ -1883,7 +1883,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
         if (pPlayer->pActor->nAction != 20)
         {
             const auto pPlayerActor = pPlayer->pActor;
-            pPlayerActor->spr.picnum = getSequence("joe", 120).getFirstPicnum();
+            pPlayerActor->spr.setspritetexture(getSequence("joe", 120).getFirstTexID());
             pPlayerActor->spr.cstat = 0;
             pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
@@ -2009,7 +2009,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
 
-    pPlayerActor->spr.picnum = getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId).getFirstPicnum();
+    pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId).getFirstTexID());
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
     doPlayerCounters(pPlayer);

@@ -47,7 +47,7 @@ BEGIN_PS_NS
 
 void UpdateFrame()
 {
-    auto tex = tileGetTexture(nBackgroundPic);
+    auto tex = TexMan.GetGameTexture(nBackgroundPic);
 
     twod->AddFlatFill(0, 0, twod->GetWidth(), viewport3d.Top() - 3, tex);
     twod->AddFlatFill(0, viewport3d.Bottom() + 3, twod->GetWidth(), twod->GetHeight(), tex);

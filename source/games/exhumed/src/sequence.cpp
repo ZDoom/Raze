@@ -290,8 +290,7 @@ int addSeq(const char *seqName)
                 gSeqFrame.chunks.Push({
                     (int16_t)(nSeqFrameChunkPosX[nChunk] - CenterX),
                     (int16_t)(nSeqFrameChunkPosY[nChunk] - CenterY),
-                    nSeqFrameChunkPicnum[nChunk],
-                    tileGetTexture(nSeqFrameChunkPicnum[nChunk])->GetID(),
+                    tileGetTextureID(nSeqFrameChunkPicnum[nChunk]),
                     nSeqFrameChunkFlags[nChunk],
                 });
             }
@@ -317,18 +316,18 @@ void seq_LoadSequences()
         }
     }
 
-    nShadowPic = getSequence("shadow").getFirstPicnum();
-    nShadowWidth = tileWidth(nShadowPic);
+    nShadowPic = getSequence("shadow").getFirstTexID();
+    nShadowWidth = (int16_t)TexMan.GetGameTexture(nShadowPic)->GetDisplayWidth();
 
-    nFlameHeight = tileHeight(getSequence("firepoof").getFirstPicnum());
+    nFlameHeight = (int16_t)TexMan.GetGameTexture(getSequence("firepoof").getFirstTexID())->GetDisplayHeight();
 
-    nBackgroundPic = getSequence("backgrnd").getFirstPicnum();
+    nBackgroundPic = getSequence("backgrnd").getFirstTexID();
 
     nPilotLightCount = getSequence("flamer", 3).frames.Size();
     nPilotLightFrame = 0;
 
     const auto& fontSeq = getSequence("font2");
-    nFontFirstChar = fontSeq.getFirstPicnum();
+    const int nFontFirstChar = legacyTileNum(fontSeq.getFirstTexID());
 
     for (unsigned i = 0; i < fontSeq.frames.Size(); i++)
     {
@@ -358,7 +357,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
             const double x = frameChunk.xpos + (160 + xOffset);
             const double y = frameChunk.ypos + (100 + yOffset);
 
-            hud_drawsprite(x, y, 65536, PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw.Normalized180().Degrees() * 2., frameChunk.picnum, 0, 0, 1);
+            hud_drawsprite(x, y, 65536, PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw.Normalized180().Degrees() * 2., legacyTileNum(frameChunk.tex), 0, 0, 1);
         }
     }
 }
@@ -397,7 +396,7 @@ void seq_DrawGunSequence(const Seq& weapSeq, int16_t frameIndex, double xOffs, d
             alpha = 0.3;
         }
 
-        hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Degrees(), frameChunk.picnum, nShade, nPal, stat, alpha);
+        hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Degrees(), legacyTileNum(frameChunk.tex), nShade, nPal, stat, alpha);
     }
 }
 
@@ -441,7 +440,7 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
     }
 
     pTSprite->yoffset = -frameChunk.ypos;
-    pTSprite->picnum = frameChunk.picnum;
+    pTSprite->setspritetexture(frameChunk.tex);
 }
 
 //---------------------------------------------------------------------------
@@ -497,7 +496,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         }
 
         tsp->yoffset = -seqFrameChunk.ypos;
-        tsp->picnum = seqFrameChunk.picnum;
+        tsp->setspritetexture(seqFrameChunk.tex);
     }
 
     if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTSprite->ownerActor->spr.statnum == 100 && nNetPlayerCount))
@@ -515,10 +514,10 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         }
         else
         {
-            pTSprite->picnum = nShadowPic;
+            pTSprite->setspritetexture(nShadowPic);
 
-            const auto nPict = drawFrame.getFirstPicnum();
-            const auto nScale = max(((tileWidth(nPict) << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
+            const auto nTexWidth = (int)TexMan.GetGameTexture(drawFrame.getFirstTexID())->GetDisplayWidth();
+            const auto nScale = max(((nTexWidth << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
             pTSprite->pos.Z = pSector->floorz;

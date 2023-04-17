@@ -222,7 +222,7 @@ DExhumedActor* GrabBodyGunSprite();
 void FuncCreatureChunk(int a, int, int nRun);
 DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage = false);
 
-DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
+DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, FTextureID nPic, bool bSpecial = false);
 double PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy);
 void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& vel);

@@ -219,7 +219,7 @@ void AIRa::Tick(RunListEvent* ev)
     bool bVal = false;
 
     Ra[nPlayer].pTarget = PlayerList[nPlayer].pTarget;
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
 
     if (Ra[nPlayer].nAction)
     {

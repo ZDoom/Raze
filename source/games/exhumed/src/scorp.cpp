@@ -210,7 +210,7 @@ void AIScorp::Tick(RunListEvent* ev)
     const auto& scorpSeq = getSequence(pActor->nSeqFile, ScorpSeq[nAction].nSeqId);
     const auto& seqFrame = scorpSeq.frames[pActor->nFrame];
 
-    pActor->spr.picnum = seqFrame.getFirstPicnum();
+    pActor->spr.setspritetexture(seqFrame.getFirstTexID());
     seqFrame.playSound(pActor);
 
     pActor->nFrame++;

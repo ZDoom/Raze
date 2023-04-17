@@ -31,8 +31,7 @@ struct SeqFrameChunk
 {
     int16_t xpos;
     int16_t ypos;
-    int16_t picnum;
-    FTextureID tex; // FIXME (native wants picnum, statusbar wants texid)
+    FTextureID tex;
     int16_t flags;
 };
 
@@ -42,9 +41,9 @@ struct SeqFrame
     int16_t flags;
     TArray<SeqFrameChunk> chunks;
 
-    const int getFirstPicnum() const
+    const FTextureID getFirstTexID() const
     {
-        return chunks[0].picnum;
+        return chunks[0].tex;
     }
 
     const void playSound(DExhumedActor* const pActor) const
@@ -68,9 +67,9 @@ struct Seq
     int16_t flags;
     TArray<SeqFrame> frames;
 
-    const int getFirstPicnum() const
+    const FTextureID getFirstTexID() const
     {
-        return frames[0].getFirstPicnum();
+        return frames[0].getFirstTexID();
     }
 };
 
