@@ -145,7 +145,7 @@ TArray<Seq>* getFileSeqs(const FName nSeqFile)
 //
 //---------------------------------------------------------------------------
 
-int addSeq(const char *seqName)
+static int addSeq(const char *seqName)
 {
     const FStringf seqfilename("%s.seq", seqName);
     const auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
@@ -156,9 +156,12 @@ int addSeq(const char *seqName)
         return 0;
     }
 
+    constexpr auto id1 = MAKE_ID('I', 'H', 0, 0);
+    constexpr auto id2 = MAKE_ID('D', 'S', 0, 0);
+
     uint16_t tag;
     hFile.Read(&tag, sizeof(tag));
-    if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
+    if (tag < id1 || (tag > id1 && tag != id2))
     {
         Printf("Unsupported sequence version!\n");
         return 0;
@@ -185,20 +188,20 @@ int addSeq(const char *seqName)
     int16_t nFrames;
     hFile.Read(&nFrames, sizeof(nFrames));
 
-    if (nFrames <= 0 )
+    if (nFrames <= 0)
     {
         Printf("Invalid frame count!\n");
         return 0;
     }
 
-    TArray<int16_t> nSeqFrameChunks(nFrames, true);
-    TArray<int16_t> nSeqFrameChunkCount(nFrames, true);
-    TArray<int16_t> nSeqFrameFlags(nFrames, true);
-    TArray<int16_t> nSeqFrameSounds(nFrames, true);
-    hFile.Read(nSeqFrameChunks.Data(), nFrames * sizeof(int16_t));
-    hFile.Read(nSeqFrameChunkCount.Data(), nFrames * sizeof(int16_t));
-    hFile.Read(nSeqFrameFlags.Data(), nFrames * sizeof(int16_t));
-    memset(nSeqFrameSounds.Data(), -1, nFrames * sizeof(int16_t));
+    TArray<int16_t> nFrameChunks(nFrames, true);
+    TArray<int16_t> nFrameChunkCount(nFrames, true);
+    TArray<int16_t> nFrameFlags(nFrames, true);
+    TArray<int16_t> nFrameSounds(nFrames, true);
+    hFile.Read(nFrameChunks.Data(), nFrames * sizeof(int16_t));
+    hFile.Read(nFrameChunkCount.Data(), nFrames * sizeof(int16_t));
+    hFile.Read(nFrameFlags.Data(), nFrames * sizeof(int16_t));
+    memset(nFrameSounds.Data(), -1, nFrames * sizeof(int16_t));
 
     int16_t nChunks;
     hFile.Read(&nChunks, sizeof(nChunks));
@@ -209,16 +212,16 @@ int addSeq(const char *seqName)
         return 0;
     }
 
-    TArray<int16_t> nSeqFrameChunkPosX(nChunks, true);
-    TArray<int16_t> nSeqFrameChunkPosY(nChunks, true);
-    TArray<int16_t> nSeqFrameChunkPicnum(nChunks, true);
-    TArray<int16_t> nSeqFrameChunkFlags(nChunks, true);
-    hFile.Read(nSeqFrameChunkPosX.Data(), nChunks * sizeof(int16_t));
-    hFile.Read(nSeqFrameChunkPosY.Data(), nChunks * sizeof(int16_t));
-    hFile.Read(nSeqFrameChunkPicnum.Data(), nChunks * sizeof(int16_t));
-    hFile.Read(nSeqFrameChunkFlags.Data(), nChunks * sizeof(int16_t));
+    TArray<int16_t> nChunkPosX(nChunks, true);
+    TArray<int16_t> nChunkPosY(nChunks, true);
+    TArray<int16_t> nChunkPicnum(nChunks, true);
+    TArray<int16_t> nChunkFlags(nChunks, true);
+    hFile.Read(nChunkPosX.Data(), nChunks * sizeof(int16_t));
+    hFile.Read(nChunkPosY.Data(), nChunks * sizeof(int16_t));
+    hFile.Read(nChunkPicnum.Data(), nChunks * sizeof(int16_t));
+    hFile.Read(nChunkFlags.Data(), nChunks * sizeof(int16_t));
 
-    if (tag == MAKE_ID('D', 'S', 0, 0))
+    if (tag == id2)
     {
         int16_t nSounds;
         hFile.Read(&nSounds, sizeof(nSounds));
@@ -235,23 +238,21 @@ int addSeq(const char *seqName)
 
         for (int i = 0; i < nSounds2; i++)
         {
-            int16_t nSeqFrame, nSndIndex;
+            int16_t nSeqFrame, nSoundVal;
             hFile.Read(&nSeqFrame, sizeof(nSeqFrame));
-            hFile.Read(&nSndIndex, sizeof(nSndIndex));
+            hFile.Read(&nSoundVal, sizeof(nSoundVal));
 
-            int ndx = (nSndIndex & 0x1FF);
-            int hSound = 0;
+            const int nSndIndex = nSoundVal & 0x1FF;
+            const int nSndFlags = nSoundVal & 0xFE00;
 
-            if (ndx >= nSounds)
+            if (nSndIndex < nSounds)
             {
-                Printf("Invalid sound index %d in %s, maximum is %d\n", ndx, seqfilename.GetChars(), nSounds);
+                nFrameSounds[nSeqFrame] = LoadSound(&buffer[nSndIndex * 10]) | nSndFlags;
             }
             else
             {
-                hSound = LoadSound(&buffer[ndx * 10]);
+                Printf("Invalid sound index %d in %s, maximum is %d\n", nSndIndex, seqfilename.GetChars(), nSounds);
             }
-
-            nSeqFrameSounds[nSeqFrame] = hSound | (nSndIndex & 0xFE00);
         }
     }
 
@@ -278,21 +279,21 @@ int addSeq(const char *seqName)
         {
             // Store reference to this frame and start filling.
             auto& gSeqFrame = gSeqFrames[nFrame - firstFrame];
-            gSeqFrame.sound = nSeqFrameSounds[nFrame];
-            gSeqFrame.flags = nSeqFrameFlags[nFrame];
+            gSeqFrame.sound = nFrameSounds[nFrame];
+            gSeqFrame.flags = nFrameFlags[nFrame];
 
             // Determine where we are in our chunk array.
-            const int firstChunk = nSeqFrameChunks[nFrame];
-            const int lastChunk = nSeqFrameChunkCount[nFrame] + firstChunk;
+            const int firstChunk = nFrameChunks[nFrame];
+            const int lastChunk = nFrameChunkCount[nFrame] + firstChunk;
 
             // Build out chunk array.
             for (int nChunk = firstChunk; nChunk < lastChunk; nChunk++)
             {
                 gSeqFrame.chunks.Push({
-                    (int16_t)(nSeqFrameChunkPosX[nChunk] - CenterX),
-                    (int16_t)(nSeqFrameChunkPosY[nChunk] - CenterY),
-                    tileGetTextureID(nSeqFrameChunkPicnum[nChunk]),
-                    nSeqFrameChunkFlags[nChunk],
+                    (int16_t)(nChunkPosX[nChunk] - CenterX),
+                    (int16_t)(nChunkPosY[nChunk] - CenterY),
+                    tileGetTextureID(nChunkPicnum[nChunk]),
+                    nChunkFlags[nChunk],
                 });
             }
         }
