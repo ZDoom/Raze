@@ -98,6 +98,7 @@ static const char * bloodfs[] = { "", R"(/addons/Cryptic Passage)", nullptr};
 static const char * sw[] = { "/Shadow Warrior", nullptr};
 static const char * redneck[] = { "/Redneck", "/AGAIN", "/HUNTIN", nullptr };
 static const char * dukezoom[] = { "/", "/AddOns", nullptr };
+static const char * powerslave[] = { "/PWRSLAVE", nullptr};
 
 #ifndef _WIN64
 #define WOW64 "\\"
@@ -134,6 +135,7 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225160", L"InstallLocation", swaddons }, // Shadow Warrior Classic Redux - Steam
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 238070", L"InstallLocation", gameroot}, // Shadow Warrior Classic (1997) - Steam
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 358400", L"InstallLocation", sw},
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 1260020",L"InstallLocation", powerslave},
 
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 565550", L"InstallLocation", redneck},
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 580940", L"InstallLocation", redneck},
