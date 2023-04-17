@@ -1605,7 +1605,7 @@ static void updatePlayerDoppleActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_pos, const DVector3& spr_vel, const bool bUnderwater)
+static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel, const bool bUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const auto pPlayerSect = pPlayerActor->sector();
@@ -1617,7 +1617,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
     {
         const auto pos = pPlayerActor->spr.pos;
         const auto fz = pViewSect->floorz - 20;
-        pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
+        pPlayerActor->spr.pos = DVector3(pPlayerActor->opos.XY(), fz);
         ChangeActorSect(pPlayerActor, pViewSect);
 
         if (movesprite(pPlayerActor, spr_vel.XY(), 0, 0, CLIPMASK0).type == kHitWall)
@@ -1636,8 +1636,6 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 
     if (nLocalPlayer == pPlayer->nPlayer)
         CheckAmbience(pPlayer->pPlayerViewSect);
-
-    pPlayer->nPlayerD = pPlayerActor->spr.pos - spr_pos;
 }
 
 //---------------------------------------------------------------------------
@@ -1675,7 +1673,7 @@ static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, const DVector3& spr_pos, const DVector3& spr_vel, sectortype* const spr_sect)
+static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel, sectortype* const spr_sect)
 {
     const auto pPlayerActor = pPlayer->pActor;
     sectortype* sect;
@@ -1712,7 +1710,7 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
         }
         else
         {
-            pPlayerActor->spr.pos = spr_pos;
+            pPlayerActor->spr.pos = pPlayerActor->opos;
             ChangeActorSect(pPlayerActor, spr_sect);
         }
 
@@ -1740,7 +1738,6 @@ static bool doPlayerInput(Player* const pPlayer)
 
     const auto pPlayerActor = pPlayer->pActor;
     const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
-    const auto spr_pos = pPlayerActor->spr.pos;
     const auto spr_sect = pPlayerActor->sector();
 
     if (pPlayerActor->vel.Z > 32)
@@ -1771,7 +1768,7 @@ static bool doPlayerInput(Player* const pPlayer)
         if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
         {
             ChangeActorSect(pPlayerActor, spr_sect);
-            pPlayerActor->spr.pos.XY() = spr_pos.XY();
+            pPlayerActor->spr.pos.XY() = pPlayerActor->opos.XY();
 
             if (nStartVelZ < pPlayerActor->vel.Z)
                 pPlayerActor->vel.Z = nStartVelZ;
@@ -1797,10 +1794,10 @@ static bool doPlayerInput(Player* const pPlayer)
             doPlayerFloorDamage(pPlayer, nStartVelZ);
 
         if (nMove.type == kHitSector || nMove.type == kHitWall)
-            doPlayerMovingBlocks(pPlayer, nMove, spr_pos, spr_vel, spr_sect);
+            doPlayerMovingBlocks(pPlayer, nMove, spr_vel, spr_sect);
     }
 
-    const auto posdelta = spr_pos - pPlayerActor->spr.pos;
+    const auto posdelta = pPlayerActor->opos - pPlayerActor->spr.pos;
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int(posdelta.XY().Length() * worldtoint);
 
@@ -1809,7 +1806,7 @@ static bool doPlayerInput(Player* const pPlayer)
 
     // Most-move updates. Input bit funcs are here because
     // updatePlayerAction() needs access to bUnderwater.
-    updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
+    updatePlayerViewSector(pPlayer, nMove, spr_vel, bUnderwater);
     updatePlayerFloorActor(pPlayer);
     updatePlayerInventory(pPlayer);
     updatePlayerWeapon(pPlayer);
@@ -2085,8 +2082,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("deathtype", w.nDeathType)
             ("score", w.nPlayerScore)
             ("color", w.nPlayerColor)
-            ("dx", w.nPlayerD.X)
-            ("dy", w.nPlayerD.Y)
             ("pistolclip", w.nPistolClip)
             ("thrustx", w.nThrust.X)
             ("thrusty", w.nThrust.Y)

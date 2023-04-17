@@ -85,7 +85,6 @@ struct Player
     int16_t nPlayerScore;
     int16_t nPlayerColor;
     int16_t nPistolClip;
-    DVector2 nPlayerD;
     DVector2 nThrust;
     int16_t nPlayerOldWeapon;
     int16_t nPlayerClip;

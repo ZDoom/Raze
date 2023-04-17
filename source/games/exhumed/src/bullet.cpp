@@ -740,7 +740,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
                     int nPlayer = GetPlayerFromActor(pTarget);
                     if (nPlayer > -1)
                     {
-                        xy += PlayerList[nPlayer].nPlayerD * (15. / 16.);
+                        xy += (pTarget->spr.pos.XY() - pTarget->opos.XY()) * (15. / 16.);
                     }
                 }
 
