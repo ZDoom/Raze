@@ -1811,7 +1811,6 @@ static bool doPlayerInput(Player* const pPlayer)
     // updatePlayerAction() needs access to bUnderwater.
     updatePlayerViewSector(pPlayer, nMove, spr_pos, spr_vel, bUnderwater);
     updatePlayerFloorActor(pPlayer);
-    updatePlayerTarget(pPlayer);
     updatePlayerInventory(pPlayer);
     updatePlayerWeapon(pPlayer);
     updatePlayerAction(pPlayer, bUnderwater);

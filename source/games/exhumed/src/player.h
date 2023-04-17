@@ -122,6 +122,7 @@ int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
+void updatePlayerTarget(Player* const pPlayer);
 
 inline void doPlayerVertPanning(Player* const pPlayer, const double nDestVertPan)
 {

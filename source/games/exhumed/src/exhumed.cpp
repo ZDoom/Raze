@@ -354,6 +354,7 @@ void GameInterface::Ticker()
             const auto pPlayer = &PlayerList[i];
             pPlayer->Angles.resetCameraAngles();
             pPlayer->input = playercmds[i].ucmd;
+            updatePlayerTarget(pPlayer);
         }
 
         GameMove();
