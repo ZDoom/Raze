@@ -1273,9 +1273,17 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                 {
                     nextAction = 7 - (pPlayer->totalvel < 1);
                 }
+                else if (pPlayer->totalvel <= 1)
+                {
+                    nextAction = bUnderwater;
+                }
+                else if (pPlayer->totalvel <= 30)
+                {
+                    nextAction = 2;
+                }
                 else
                 {
-                    nextAction = (pPlayer->totalvel <= 1) ? bUnderwater : (pPlayer->totalvel <= 30) ? 2 : 1;
+                    nextAction = 1;
                 }
             }
 
