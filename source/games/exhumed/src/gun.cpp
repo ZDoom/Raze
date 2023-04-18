@@ -46,6 +46,7 @@ Weapon WeaponInfo[] = {
 };
 
 static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
+static float lastavel;
 int isRed = 0;
 
 
@@ -956,7 +957,8 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
     {
         if (!(pPlayer->pPlayerViewSect->Flag & kSectUnderwater))
         {
-            seq_DrawPilotLightSeq(xPos, yPos, pPlayerActor->spr.Angles.Yaw.Normalized180().Degrees() * 2.);
+            seq_DrawPilotLightSeq(xPos, yPos, interpolatedvalue(lastavel, pPlayer->input.avel, interpfrac) * 2.);
+            lastavel = pPlayer->input.avel;
         }
     }
 	else if (nWeapon == 8 || nWeapon == 9)
