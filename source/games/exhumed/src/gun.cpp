@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <assert.h>
 #include "v_2ddrawer.h"
 #include "sequence.h"
+#include "gamehud.h"
 
 BEGIN_PS_NS
 
@@ -900,26 +901,22 @@ loc_flag:
 //
 //---------------------------------------------------------------------------
 
-void DrawWeapons(double interpfrac)
+void DrawWeapons(Player* const pPlayer, double interpfrac)
 {
-    if (bCamera) {
-        return;
-    }
+    const auto pPlayerActor = pPlayer->pActor;
+    const int nWeapon = pPlayer->nCurrentWeapon;
 
-    int nWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
-    if (nWeapon < -1) {
+    if (bCamera || nWeapon < -1)
         return;
-    }
 
-    int nState = PlayerList[nLocalPlayer].nState;
+    const int nState = pPlayer->nState;
+    const int nShade = nWeapon < 0 ? pPlayerActor->spr.shade : pPlayerActor->sector()->ceilingshade;
+    const double nAlpha = pPlayer->nInvisible ? 0.3 : 1;
     const auto weapSeqs = getFileSeqs(WeaponInfo[nWeapon].nSeqFile);
 
-    int8_t nShade = PlayerList[nLocalPlayer].pActor->sector()->ceilingshade;
-
-    int nDouble = PlayerList[nLocalPlayer].nDouble;
     int nPal = kPalNormal;
 
-    if (nDouble)
+    if (pPlayer->nDouble)
     {
         if (isRed) {
             nPal = kPalRedBrite;
@@ -930,63 +927,55 @@ void DrawWeapons(double interpfrac)
 
     nPal = RemapPLU(nPal);
 
-    double xOffset = 0, yOffset = 0;
-	bool screenalign = false;
+    const auto weaponOffsets = pPlayer->Angles.getWeaponOffsets(interpfrac);
+    const auto nAngle = weaponOffsets.second;
+    double xPos = 160 + weaponOffsets.first.X;
+    double yPos = 100 + weaponOffsets.first.Y;
 
     if (cl_weaponsway)
     {
-        double nBobAngle, nVal;
+        double nBobAngle = bobangle, nTotalVel = pPlayer->totalvel;
 
         if (cl_hudinterpolation)
         {
             nBobAngle = interpolatedvalue<double>(obobangle, bobangle, interpfrac);
-            nVal = interpolatedvalue<double>(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, interpfrac);
-        }
-        else
-        {
-            nBobAngle = bobangle;
-            nVal = PlayerList[nLocalPlayer].totalvel;
+            nTotalVel = interpolatedvalue<double>(pPlayer->ototalvel, pPlayer->totalvel, interpfrac);
         }
 
-        yOffset = nVal * fabs(BobVal(nBobAngle)) * (1. / 16.);
-
-        if (nState == 1)
-        {
-            xOffset = nVal * BobVal(nBobAngle + 512) * (1. / 8.);
-        }
+        xPos += nTotalVel * BobVal(nBobAngle + 512) * (1. / 8.) * (nState == 1);
+        yPos += nTotalVel * fabs(BobVal(nBobAngle)) * (1. / 16.);
     }
     else
     {
         obobangle = bobangle = 512;
     }
 
-    if (nWeapon == 3 && nState == 1) {
-        seq_DrawPilotLightSeq(xOffset, yOffset);
+    int nStat = false;
+
+    if (nWeapon == 3 && nState == 1)
+    {
+        if (!(pPlayer->pPlayerViewSect->Flag & kSectUnderwater))
+        {
+            seq_DrawPilotLightSeq(xPos, yPos, pPlayerActor->spr.Angles.Yaw.Normalized180().Degrees() * 2.);
+        }
     }
 	else if (nWeapon == 8 || nWeapon == 9)
 	{
-		screenalign = true;
+		nStat |= RS_ALIGN_R;
 	}
 
-    if (nWeapon < 0) {
-        nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
-    }
+    int nSeqOffset = WeaponInfo[nWeapon].b[nState];
+    int nFrame = pPlayer->nWeapFrame;
 
-    const auto weaponOffsets = PlayerList[nLocalPlayer].Angles.getWeaponOffsets(interpfrac);
-    const auto angle = weaponOffsets.second;
-    xOffset += weaponOffsets.first.X;
-    yOffset += weaponOffsets.first.Y;
+    seq_DrawGunSequence(weapSeqs->operator[](nSeqOffset).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha, nStat);
 
-    seq_DrawGunSequence(weapSeqs->operator[](WeaponInfo[nWeapon].b[nState]), PlayerList[nLocalPlayer].nWeapFrame, xOffset, yOffset, nShade, nPal, angle, screenalign);
+    int nClip = pPlayer->nPlayerClip;
 
-    if (nWeapon != kWeaponM60)
+    if (nWeapon != kWeaponM60 || nClip <= 0)
         return;
 
     switch (nState)
     {
-        default:
-            return;
-
         case 0:
         case 5:
         {
@@ -996,13 +985,6 @@ void DrawWeapons(double interpfrac)
             };
 
             const auto& offsets = offsetTable[nState == 5];
-
-            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
-
-            if (nClip <= 0)
-                return;
-
-            int nSeqOffset;
 
             if (nClip <= 3)
             {
@@ -1021,42 +1003,37 @@ void DrawWeapons(double interpfrac)
                 nSeqOffset = offsets[3];
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](nSeqOffset), PlayerList[nLocalPlayer].nWeapFrame, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](nSeqOffset).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
             return;
         }
         case 1:
         case 2:
         {
-            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
-            int nFrame = nState == 1 ? (nClip % 3) * 4 : PlayerList[nLocalPlayer].nWeapFrame;
+            if (nState == 1)
+                nFrame = (nClip % 3) * 4;
 
-            if (nClip <= 0) {
-                return;
-            }
-
-            seq_DrawGunSequence(weapSeqs->operator[](8), nFrame, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](8).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
 
             if (nClip <= 3) {
                 return;
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](9), nFrame, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](9).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
 
             if (nClip <= 6) {
                 return;
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](10), nFrame, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](10).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
 
             if (nClip <= 25) {
                 return;
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](11), nFrame, xOffset, yOffset, nShade, nPal, angle);
+            seq_DrawGunSequence(weapSeqs->operator[](11).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
             return;
         }
-        case 3:
-        case 4:
+        default:
         {
             return;
         }

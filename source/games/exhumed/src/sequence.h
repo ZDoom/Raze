@@ -79,10 +79,10 @@ extern int16_t nPilotLightFrame;
 extern int16_t nPilotLightCount;
 
 void seq_LoadSequences();
-void seq_DrawGunSequence(const Seq& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
+void seq_DrawGunSequence(const SeqFrame& seqFrame, double xPos, double yPos, int nShade, int nPal, DAngle nAngle, double nAlpha, int nStat = 0);
 void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags);
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
-void seq_DrawPilotLightSeq(double xOffset, double yOffset);
+void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle);
 
 TArray<Seq>* getFileSeqs(const FName nSeqFile);
 

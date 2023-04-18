@@ -184,7 +184,7 @@ void DrawView(double interpfrac, bool sceneonly)
         }
 
         if (!nFreeze && !sceneonly)
-            DrawWeapons(interpfrac);
+            DrawWeapons(pPlayer, interpfrac);
         render_drawrooms(nullptr, nCamerapos, pSector, nCameraangles, interpfrac);
 
         if (HavePLURemap())

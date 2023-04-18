@@ -341,23 +341,17 @@ void seq_LoadSequences()
 //
 //---------------------------------------------------------------------------
 
-void seq_DrawPilotLightSeq(double xOffset, double yOffset)
+void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle)
 {
-    auto pSect = PlayerList[nLocalPlayer].pPlayerViewSect;
+    const auto& seqFrameChunks = getSequence("flamer", 3).frames[0].chunks;
 
-    if (!(pSect->Flag & kSectUnderwater))
+    for (unsigned i = 0; i < seqFrameChunks.Size(); i++)
     {
-        const auto& pilotlightSeq = getSequence("flamer", 3);
-        const auto& seqFrame = pilotlightSeq.frames[0];
+        const auto& frameChunk = seqFrameChunks[i];
+        const double x = xPos + frameChunk.xpos;
+        const double y = yPos + frameChunk.ypos;
 
-        for (unsigned i = 0; i < seqFrame.chunks.Size(); i++)
-        {
-            const auto& frameChunk = seqFrame.chunks[i];
-            const double x = frameChunk.xpos + (160 + xOffset);
-            const double y = frameChunk.ypos + (100 + yOffset);
-
-            hud_drawsprite(x, y, 65536, PlayerList[nLocalPlayer].pActor->spr.Angles.Yaw.Normalized180().Degrees() * 2., legacyTileNum(frameChunk.tex), 0, 0, 1);
-        }
+        hud_drawsprite(x, y, 65536, nAngle, legacyTileNum(frameChunk.tex), 0, 0, 1);
     }
 }
 
@@ -367,35 +361,19 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 //
 //---------------------------------------------------------------------------
 
-void seq_DrawGunSequence(const Seq& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
+void seq_DrawGunSequence(const SeqFrame& seqFrame, double xPos, double yPos, int nShade, int nPal, DAngle nAngle, double nAlpha, int nStat)
 {
-    const auto& seqFrame = weapSeq.frames[frameIndex];
-
     if (seqFrame.flags & 4)
         nShade = -100;
 
     for (unsigned i = 0; i < seqFrame.chunks.Size(); i++)
     {
         const auto& frameChunk = seqFrame.chunks[i];
+        const double x = xPos + frameChunk.xpos;
+        const double y = yPos + frameChunk.ypos;
+        const int frameStat = nStat | (RS_XFLIPHUD * !!(frameChunk.flags & 1)) | (RS_YFLIPHUD * !!(frameChunk.flags & 2));
 
-        int x = frameChunk.xpos + 160;
-        int y = frameChunk.ypos + 100;
-
-        int stat = 0;
-        if (frameChunk.flags & 1)
-            stat |= RS_XFLIPHUD;
-
-        if (frameChunk.flags & 2)
-            stat |= RS_YFLIPHUD;
-		
-		if (align) stat |= RS_ALIGN_R;
-
-        double alpha = 1;
-        if (PlayerList[nLocalPlayer].nInvisible) {
-            alpha = 0.3;
-        }
-
-        hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Degrees(), legacyTileNum(frameChunk.tex), nShade, nPal, stat, alpha);
+        hud_drawsprite(x, y, 65536, nAngle.Degrees(), legacyTileNum(frameChunk.tex), nShade, nPal, frameStat, nAlpha);
     }
 }
 
@@ -415,18 +393,20 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
     const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset).frames[frameIndex];
     const auto& frameChunk = seqFrame.chunks[0];
 
-    auto nStat = pTSprite->cstat | CSTAT_SPRITE_YCENTER;
+    if (seqFrame.flags & 4)
+        pTSprite->shade -= 100;
 
-    if (seqOffset & 3) {
-        nStat |= CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP;
-    }
-    else {
-        nStat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP);
-    }
-
-    pTSprite->cstat = nStat;
-    pTSprite->shade = (seqFrame.flags & 4) ? pTSprite->shade - 100 : pTSprite->shade;
     pTSprite->statnum = seqFrame.chunks.Size();
+    pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
+
+    if (seqOffset & 3)
+    {
+        pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP;
+    }
+    else
+    {
+        pTSprite->cstat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP);
+    }
 
     if (frameChunk.flags & 1)
     {
@@ -461,16 +441,15 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
     }
 
     const auto fileSeqs = getFileSeqs(seqFile);
-    const auto& baseFrame = fileSeqs->operator[](seqIndex).frames[frameIndex];
-    const auto& drawFrame = fileSeqs->operator[](seqIndex + seqOffset).frames[frameIndex];
-    const auto chunkCount = drawFrame.chunks.Size();
+    const auto& seqFrame = fileSeqs->operator[](seqIndex + seqOffset).frames[frameIndex];
+    const auto chunkCount = seqFrame.chunks.Size();
 
-    const auto nShade = (baseFrame.flags & 4) ? pTSprite->shade - 100 : pTSprite->shade;
+    const auto nShade = pTSprite->shade - (100 * !!(fileSeqs->operator[](seqIndex).frames[frameIndex].flags & 4));
     const auto nStatnum = (nFlags & 0x100) ? -3 : 100;
 
     for (unsigned i = 0; i < chunkCount; i++)
     {
-        const auto& seqFrameChunk = drawFrame.chunks[i];
+        const auto& seqFrameChunk = seqFrame.chunks[i];
 
         tspritetype* tsp = mytspriteArray->newTSprite();
         tsp->pos = pTSprite->pos;
@@ -513,11 +492,10 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         }
         else
         {
-            pTSprite->setspritetexture(nShadowPic);
-
-            const auto nTexWidth = (int)TexMan.GetGameTexture(drawFrame.getFirstChunkTexture())->GetDisplayWidth();
+            const auto nTexWidth = (int)TexMan.GetGameTexture(seqFrame.getFirstChunkTexture())->GetDisplayWidth();
             const auto nScale = max(((nTexWidth << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
 
+            pTSprite->setspritetexture(nShadowPic);
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
             pTSprite->pos.Z = pSector->floorz;
 			pTSprite->scale = DVector2(nScale, nScale);
