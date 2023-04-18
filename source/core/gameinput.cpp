@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //---------------------------------------------------------------------------
 
-EXTERN_CVAR(Float, m_sensitivity_x)
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
@@ -187,18 +186,16 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 
 	if (canTurn)
 	{
-		// Cancel out micro-movement
-		mouseInput.X *= fabs(mouseInput.X) >= (m_sensitivity_x * 2.f);
-
 		const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 		const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
 		const auto hidLeft = mouseInput.X < 0 || joyAxes[JOYAXIS_Yaw] > 0;
 		const auto hidRight = mouseInput.X > 0 || joyAxes[JOYAXIS_Yaw] < 0;
 		const auto kbdDir = kbdRight - kbdLeft;
 		const auto turnVel = (!attenuate && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
+		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
 
 		thisInput.avel += turnVel * -joyAxes[JOYAXIS_Yaw] + turnVel * kbdDir;
-		thisInput.avel += sqrtf(abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw);
+		thisInput.avel += ((mouseVel > 1) ? sqrtf(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw);
 		thisInput.avel *= scaleAdjust;
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
