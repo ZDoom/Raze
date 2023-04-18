@@ -344,11 +344,14 @@ void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doPitchKeys(InputPacket* const input)
+void PlayerAngles::doPitchInput(InputPacket* const input)
 {
-	// Cancel return to center if conditions met.
+	// Add player's mouse/device input.
 	if (input->horz)
+	{
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(input->horz * SyncInput());
 		input->actions &= ~SB_CENTERVIEW;
+	}
 
 	// Set up a myriad of bools.
 	const auto aimingUp = (input->actions & SB_LOOK_UP) == SB_AIM_UP;
@@ -390,8 +393,11 @@ void PlayerAngles::doPitchKeys(InputPacket* const input)
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doYawKeys(InputPacket* const input)
+void PlayerAngles::doYawInput(InputPacket* const input)
 {
+	// Add player's mouse/device input.
+	pActor->spr.Angles.Yaw += DAngle::fromDeg(input->avel * SyncInput());
+
 	if (input->actions & SB_TURNAROUND)
 	{
 		if (YawSpin == nullAngle)

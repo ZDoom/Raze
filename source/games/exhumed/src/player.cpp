@@ -1534,43 +1534,6 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerPitch(Player* const pPlayer)
-{
-    const auto pInput = &pPlayer->input;
-
-    if (SyncInput())
-    {
-        pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
-    }
-
-    pPlayer->Angles.doPitchKeys(pInput);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void doPlayerYaw(Player* const pPlayer)
-{
-    const auto pInput = &pPlayer->input;
-
-    if (SyncInput())
-    {
-        pPlayer->pActor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
-    }
-
-    pPlayer->Angles.doYawKeys(pInput);
-    pPlayer->Angles.doViewYaw(pInput);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertPan)
 {
     const auto pPlayerActor = pPlayer->pActor;
@@ -1835,8 +1798,10 @@ static bool doPlayerInput(Player* const pPlayer)
         return false;
 
     // update player yaw here as per the original workflow.
-    doPlayerYaw(pPlayer);
-    doPlayerPitch(pPlayer);
+    const auto pInput = &pPlayer->input;
+    pPlayer->Angles.doViewYaw(pInput);
+    pPlayer->Angles.doYawInput(pInput);
+    pPlayer->Angles.doPitchInput(pInput);
 
     if (nMove.type || nMove.exbits)
     {

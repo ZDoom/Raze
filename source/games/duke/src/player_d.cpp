@@ -1775,15 +1775,12 @@ void processinput_d(int snum)
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
 
-	p->Angles.doYawKeys(&p->sync);
-
 	// Shrinking code
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
 		underwater(snum, actions, floorz, ceilingz);
 	}
-
 	else if (p->jetpack_on)
 	{
 		operateJetpack(snum, actions, psectlotag, floorz, ceilingz, shrunk);
@@ -1800,16 +1797,15 @@ void processinput_d(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
+		p->sync.avel = 0;
 		setForcedSyncInput(snum);
 	}
-	else if (SyncInput())
+	else
 	{
-		//p->ang += syncangvel * constant
-		//ENGINE calculates angvel for you
-		// may still be needed later for demo recording
-
-		p->GetActor()->spr.Angles.Yaw += p->adjustavel(PlayerInputAngVel(snum));
+		p->sync.avel = p->adjustavel(PlayerInputAngVel(snum));
 	}
+
+	p->Angles.doYawInput(&p->sync);
 
 	purplelavacheck(p);
 
@@ -2020,12 +2016,7 @@ HORIZONLY:
 		playerAimDown(snum, actions);
 	}
 
-	if (SyncInput())
-	{
-		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
-	}
-
-	p->Angles.doPitchKeys(&p->sync);
+	p->Angles.doPitchInput(&p->sync);
 
 	p->checkhardlanding();
 

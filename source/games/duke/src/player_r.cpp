@@ -2562,8 +2562,6 @@ void processinput_r(int snum)
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
 
-	p->Angles.doYawKeys(&p->sync);
-
 	// Shrinking code
 
 	if (psectlotag == ST_17_PLATFORM_UP || (isRRRA() && psectlotag == ST_18_ELEVATOR_DOWN))
@@ -2578,13 +2576,13 @@ void processinput_r(int snum)
 		else
 			S_StopSound(432);
 	}
+
 	if (isRRRA() && p->sea_sick_stat)
 	{
 		p->pycount += 32;
 		p->pycount &= 2047;
 		p->pyoff = BobVal(p->pycount) * (p->SeaSick? 32 : 1);
 	}
-
 	if (psectlotag == ST_2_UNDERWATER)
 	{
 		underwater(snum, actions, floorz, ceilingz);
@@ -2601,16 +2599,15 @@ void processinput_r(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
+		p->sync.avel = 0;
 		setForcedSyncInput(snum);
 	}
-	else if (SyncInput())
+	else
 	{
-		//p->ang += syncangvel * constant
-		//ENGINE calculates angvel for you
-		// may still be needed later for demo recording
-
-		p->GetActor()->spr.Angles.Yaw += p->adjustavel(PlayerInputAngVel(snum));
+		p->sync.avel = p->adjustavel(PlayerInputAngVel(snum));
 	}
+
+	p->Angles.doYawInput(&p->sync);
 
 	purplelavacheck(p);
 
@@ -2948,12 +2945,7 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
-	if (SyncInput())
-	{
-		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
-	}
-
-	p->Angles.doPitchKeys(&p->sync);
+	p->Angles.doPitchInput(&p->sync);
 
 	p->checkhardlanding();
 

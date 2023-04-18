@@ -86,8 +86,8 @@ struct PlayerAngles
 	friend void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 
 	// Prototypes.
-	void doPitchKeys(InputPacket* const input);
-	void doYawKeys(InputPacket* const input);
+	void doPitchInput(InputPacket* const input);
+	void doYawInput(InputPacket* const input);
 	void doViewPitch(const bool canslopetilt, const bool climbing = false);
 	void doViewYaw(InputPacket* const input);
 

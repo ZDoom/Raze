@@ -356,9 +356,9 @@ struct player_struct
 	void checkhardlanding();
 	void playerweaponsway(double xvel);
 
-	DAngle adjustavel(float avel)
+	float adjustavel(float avel)
 	{
-		return DAngle::fromDeg((psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel);
+		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
 	}
 
 	void setCursector(sectortype* sect)

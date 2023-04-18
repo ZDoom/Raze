@@ -1574,13 +1574,7 @@ void ProcessInput(PLAYER* pPlayer)
 	}
 
 	pPlayer->Angles.doViewYaw(pInput);
-
-	if (SyncInput())
-	{
-		pPlayer->actor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
-	}
-
-	pPlayer->Angles.doYawKeys(pInput);
+	pPlayer->Angles.doYawInput(pInput);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;
@@ -1704,14 +1698,9 @@ void ProcessInput(PLAYER* pPlayer)
 		pInput->actions &= ~SB_OPEN;
 	}
 
-	if (SyncInput())
-	{
-		pPlayer->actor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
-	}
-
 	const int florhit = pPlayer->actor->hit.florhit.type;
 	pPlayer->Angles.doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
-	pPlayer->Angles.doPitchKeys(pInput);
+	pPlayer->Angles.doPitchInput(pInput);
 
 	pPlayer->slope = pPlayer->actor->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)

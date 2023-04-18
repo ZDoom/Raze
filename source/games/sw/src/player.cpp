@@ -2025,13 +2025,7 @@ void DoPlayerMove(PLAYER* pp)
     SlipSlope(pp);
 
     pp->Angles.doViewYaw(&pp->input);
-
-    if (SyncInput())
-    {
-        pp->actor->spr.Angles.Yaw += DAngle::fromDeg(pp->input.avel);
-    }
-
-    pp->Angles.doYawKeys(&pp->input);
+    pp->Angles.doYawInput(&pp->input);
     UpdatePlayerSpriteAngle(pp);
 
     pp->lastcursector = pp->cursector;
@@ -2150,13 +2144,8 @@ void DoPlayerMove(PLAYER* pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    if (SyncInput())
-    {
-        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
-    }
-
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchKeys(&pp->input);
+    pp->Angles.doPitchInput(&pp->input);
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -2722,13 +2711,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     OperateSectorObject(pp->sop, pp->actor->spr.Angles.Yaw, pp->actor->spr.pos.XY());
     pp->cursector = save_sect; // for speed
 
-    if (SyncInput())
-    {
-        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
-    }
-
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchKeys(&pp->input);
+    pp->Angles.doPitchInput(&pp->input);
 
     DoTankTreads(pp);
 }
@@ -2757,13 +2741,8 @@ void DoPlayerMoveTurret(PLAYER* pp)
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
-    if (SyncInput())
-    {
-        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
-    }
-
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchKeys(&pp->input);
+    pp->Angles.doPitchInput(&pp->input);
 }
 
 //---------------------------------------------------------------------------
@@ -3354,13 +3333,8 @@ void DoPlayerClimb(PLAYER* pp)
     // setsprite to players location
     ChangeActorSect(pp->actor, pp->cursector);
 
-    if (SyncInput())
-    {
-        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
-    }
-
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchKeys(&pp->input);
+    pp->Angles.doPitchInput(&pp->input);
 
     if (FAF_ConnectArea(pp->cursector))
     {
