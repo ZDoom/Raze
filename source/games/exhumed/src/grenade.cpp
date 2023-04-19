@@ -86,7 +86,7 @@ void ThrowGrenade(int nPlayer, double dz, double push1)
 
     if (push1 <= 23.4375)
     {
-        int nVel = PlayerList[nPlayer].totalvel << 5;
+        int nVel = (int)(PlayerList[nPlayer].totalvel * 512.);
 
         pActor->nTurn = ((90 - pActor->nIndex2) * (90 - pActor->nIndex2)) + nVel;
         pActor->vel.Z = ((32. * push1) - 17);

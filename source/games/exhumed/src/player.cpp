@@ -1258,7 +1258,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
             else
             {
                 scaleViewZ(-32.5);
-                nextAction = 7 - (pPlayer->totalvel < 1);
+                nextAction = 7 - (pPlayer->totalvel < 0.0625);
             }
         }
         else
@@ -1286,17 +1286,17 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
                 if (bUnderwater)
                 {
-                    nextAction = 10 - (pPlayer->totalvel <= 1);
+                    nextAction = 10 - (pPlayer->totalvel <= 0.0625);
                 }
                 else if (bTallerThanSector)
                 {
-                    nextAction = 7 - (pPlayer->totalvel < 1);
+                    nextAction = 7 - (pPlayer->totalvel < 0.0625);
                 }
-                else if (pPlayer->totalvel <= 1)
+                else if (pPlayer->totalvel <= 0.0625)
                 {
                     nextAction = bUnderwater;
                 }
-                else if (pPlayer->totalvel <= 30)
+                else if (pPlayer->totalvel <= 1.875)
                 {
                     nextAction = 2;
                 }
@@ -1321,7 +1321,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
     }
     else if (pPlayerActor->nAction != 15)
     {
-        nextAction = 14 - (pPlayer->totalvel <= 1);
+        nextAction = 14 - (pPlayer->totalvel <= 0.0625);
     }
 
     if (nextAction != pPlayerActor->nAction && pPlayerActor->nAction != 4)
@@ -1477,7 +1477,7 @@ static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
     else
     {
         const auto pPlayerSect = pPlayerActor->sector();
-        const auto highSpeed = pPlayer->totalvel > 25;
+        const auto highSpeed = pPlayer->totalvel > 1.5625;
         const auto belowFloor = pPlayerActor->spr.pos.Z > pPlayerSect->floorz;
 
         if (highSpeed && belowFloor && pPlayerSect->Depth && !pPlayerSect->Speed && !pPlayerSect->Damage)
@@ -1833,7 +1833,7 @@ static bool doPlayerInput(Player* const pPlayer)
 
     const auto posdelta = pPlayerActor->opos - pPlayerActor->spr.pos;
     pPlayer->ototalvel = pPlayer->totalvel;
-    pPlayer->totalvel = int(posdelta.XY().Length() * worldtoint);
+    pPlayer->totalvel = posdelta.XY().Length();
 
     // Effects such as slope tilting, view bobbing, etc.
     // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?

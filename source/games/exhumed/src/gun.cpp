@@ -946,8 +946,8 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
             nTotalVel = interpolatedvalue<double>(pPlayer->ototalvel, pPlayer->totalvel, interpfrac);
         }
 
-        const auto xBob = nTotalVel * BobVal(nBobAngle + 512) * (1. / 16.) * (nState == 1);
-        const auto yBob = nTotalVel * fabs(BobVal(nBobAngle)) * (1. / 16.);
+        const auto xBob = nTotalVel * BobVal(nBobAngle + 512) * (nState == 1);
+        const auto yBob = nTotalVel * fabs(BobVal(nBobAngle));
 
         nFlameAng += xBob;
         xPos += xBob * 2.;

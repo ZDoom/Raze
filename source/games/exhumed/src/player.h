@@ -97,8 +97,8 @@ struct Player
     int16_t nTemperature;
     double nStandHeight;
     PlayerSave sPlayerSave;
-    int ototalvel;
-    int totalvel;
+    double ototalvel;
+    double totalvel;
     bool crouch_toggle;
     bool bTouchFloor;
     bool bJumping;
