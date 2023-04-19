@@ -1036,6 +1036,10 @@ OptionMenu GameplayOptions protected
 		Option "$PLRMNU_DUKEPITCHHARDLAND", "cl_dukepitchhardlanding", "OnOff"
 		Option "$PLRMNU_DUKEPITCHLANDRET", "cl_dukepitchlandingrecenter", "OnOff"
 	}
+	ifgame(Exhumed)
+	{
+		Option "$PLRMNU_EXJUMPREBOUND", "cl_exjumprebound", "OnOff"
+	}
 	// Option "Record Demo", "m_recstat", "OnOff"
 	// Submenu "Cheats" "CheatsMenu
 }
@@ -1082,6 +1086,20 @@ OptionValue "Precision"
 	1, "$OPTVAL_QUALITY"
 }
 
+OptionValue "ViewBobbing"
+{
+	0, "$OPTVAL_OFF"
+	1, "$DSPLYMNU_VIEWBOBPSE"
+	2, "$DSPLYMNU_VIEWBOBDUKE"
+}
+
+OptionValue "ViewTilting"
+{
+	0, "$OPTVAL_OFF"
+	1, "$DSPLYMNU_VIEWTILTPSE"
+	2, "$DSPLYMNU_VIEWTILTQUAKE"
+}
+
 OptionMenu "VideoOptions" protected
 {
 	Title "$DSPLYMNU_TITLE"
@@ -1107,6 +1125,14 @@ OptionMenu "VideoOptions" protected
 	ifnotgame(Blood, Exhumed)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
+	}
+	ifgame(Exhumed)
+	{
+		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"ViewBobbing"
+		Slider "$DSPLYMNU_VIEWBOBSPEED",			"cl_exviewbobspeed",			0.0, 10.0, 0.1
+		Slider "$DSPLYMNU_VIEWBOBHEIGHT",			"cl_exviewbobheight",			0.0, 20.0, 0.1
+		Option "$DSPLYMNU_VIEWTILTING",				"cl_exviewtilting",				"ViewTilting"
+		Slider "$DSPLYMNU_VIEWTILTSCALE",			"cl_extiltscale",				0.0, 2.0, 0.05
 	}
 	ifgame(Blood)
 	{
