@@ -29,7 +29,6 @@ void DrawView(double interpfrac, bool sceneonly = false);
 void ResetView();
 
 extern DVector3 nCamerapos;
-extern bool bTouchFloor;
 extern int nChunkTotal;
 
 extern tspriteArray* mytspriteArray;

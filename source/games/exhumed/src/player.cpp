@@ -1235,7 +1235,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                 pPlayerActor->vel.Z = -8;
                 nextAction = 10;
             }
-            else if (bTouchFloor && (pPlayerActor->nAction < 6 || pPlayerActor->nAction > 8))
+            else if (pPlayer->bTouchFloor && (pPlayerActor->nAction < 6 || pPlayerActor->nAction > 8))
             {
                 pPlayerActor->vel.Z = -14;
                 nextAction = 3;
@@ -1706,7 +1706,7 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
     {
         return;
     }
-    else if ((sect->hitag == 45) && bTouchFloor && absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180) <= DAngle45)
+    else if ((sect->hitag == 45) && pPlayer->bTouchFloor && absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180) <= DAngle45)
     {
         pPlayer->pPlayerPushSect = sect;
         DVector2 vel = pPlayer->vel;
@@ -1794,7 +1794,7 @@ static bool doPlayerInput(Player* const pPlayer)
         pPlayer->nThrust *= 0.5;
 
     // Trigger Ramses?
-    if ((pPlayerSect->Flag & 0x8000) && bTouchFloor)
+    if ((pPlayerSect->Flag & 0x8000) && pPlayer->bTouchFloor)
         return false;
 
     // update player yaw here as per the original workflow.
@@ -1805,7 +1805,7 @@ static bool doPlayerInput(Player* const pPlayer)
 
     if (nMove.type || nMove.exbits)
     {
-        if (bTouchFloor)
+        if (pPlayer->bTouchFloor)
             doPlayerFloorDamage(pPlayer, nStartVelZ);
 
         if (nMove.type == kHitSector || nMove.type == kHitWall)
@@ -1842,7 +1842,7 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
     const auto pPlayerActor = pPlayer->pActor;
     const auto pPlayerSect = pPlayerActor->sector();
 
-    if (bTouchFloor && pPlayerSect->lotag > 0)
+    if (pPlayer->bTouchFloor && pPlayerSect->lotag > 0)
         runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::TouchFloor);
 
     if (pStartSect != pPlayerSect)

@@ -206,7 +206,8 @@ static int BelowNear(DExhumedActor* pActor, double walldist, sectortype** overri
         *overridesect = pSector;
         pActor->vel.Z = 0;
 
-        bTouchFloor = true;
+        if (pActor->spr.statnum == 100)
+            PlayerList[GetPlayerFromActor(pActor)].bTouchFloor = true;
 
         return kHitAux2;
     }
@@ -229,6 +230,9 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
     *overridesect = pSector;
     auto pSect2 = pSector;
+
+    if (pActor->spr.statnum == 100)
+        PlayerList[GetPlayerFromActor(pActor)].bTouchFloor = false;
 
     // backup cstat
     auto cstat = pActor->spr.cstat;
@@ -300,7 +304,8 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
     {
         if (z > 0)
         {
-            bTouchFloor = true;
+            if (pActor->spr.statnum == 100)
+                PlayerList[GetPlayerFromActor(pActor)].bTouchFloor = true;
 
             if (loHit.type == kHitSprite)
             {
@@ -417,8 +422,6 @@ DExhumedActor* insertActor(sectortype* s, int st)
 
 Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flordist, unsigned int clipmask)
 {
-    bTouchFloor = false;
-
 	auto spos = pActor->spr.pos;
     double nSpriteHeight = GetActorHeight(pActor);
     auto pSector = pActor->sector();

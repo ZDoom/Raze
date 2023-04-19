@@ -336,7 +336,6 @@ void SerializeView(FSerializer& arc)
     if (arc.BeginObject("view"))
     {
         arc("camerapos", nCamerapos)
-            ("touchfloor", bTouchFloor)
             ("chunktotal", nChunkTotal)
             ("camera", bCamera)
             .EndObject();
