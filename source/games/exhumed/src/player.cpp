@@ -42,6 +42,7 @@ CUSTOM_CVAR(Int, cl_exviewtilting, 0, CVAR_ARCHIVE)
     else if (self > 2) self = 2;
 }
 CVAR(Float, cl_extiltscale, 1.f, CVAR_ARCHIVE);
+CVAR(Bool, cl_exjumprebound, false, CVAR_ARCHIVE);
 
 BEGIN_PS_NS
 
@@ -1224,6 +1225,11 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
     const auto pPlayerActor = pPlayer->pActor;
     int nextAction = pPlayerActor->nAction;
 
+    const auto scaleViewZ = [&](const double target)
+    {
+        pPlayerActor->viewzoffset += (target - pPlayerActor->viewzoffset) * 0.5;
+    };
+
     if (!pPlayer->bIsMummified)
     {
         processCrouchToggle(pPlayer->crouch_toggle, pPlayer->input.actions, !bUnderwater, bUnderwater);
@@ -1237,6 +1243,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
             }
             else if (pPlayer->bTouchFloor && (pPlayerActor->nAction < 6 || pPlayerActor->nAction > 8))
             {
+                pPlayer->bJumping = true;
                 pPlayerActor->vel.Z = -14;
                 nextAction = 3;
             }
@@ -1250,9 +1257,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
             }
             else
             {
-                if (pPlayerActor->viewzoffset < -32.5)
-                    pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
-
+                scaleViewZ(-32.5);
                 nextAction = 7 - (pPlayer->totalvel < 1);
             }
         }
@@ -1263,7 +1268,21 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
             if (pPlayer->nHealth > 0)
             {
-                pPlayerActor->viewzoffset += (nActionEyeLevel[pPlayerActor->nAction] - pPlayerActor->viewzoffset) * 0.5;
+                if (pPlayer->bJumping && pPlayer->bTouchFloor)
+                {
+                    pPlayer->bJumping = false;
+                    pPlayer->bRebound = cl_exjumprebound;
+                }
+
+                if (pPlayer->bRebound)
+                {
+                    scaleViewZ(-32.5);
+                    if (pPlayerActor->viewzoffset > -37.5) pPlayer->bRebound = false;
+                }
+                else
+                {
+                    scaleViewZ(nActionEyeLevel[pPlayerActor->nAction]);
+                }
 
                 if (bUnderwater)
                 {

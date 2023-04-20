@@ -101,6 +101,8 @@ struct Player
     int totalvel;
     bool crouch_toggle;
     bool bTouchFloor;
+    bool bJumping;
+    bool bRebound;
     TObjPtr<DExhumedActor*> pPlayerGrenade;
     TObjPtr<DExhumedActor*> pPlayerFloorSprite;
     TObjPtr<DExhumedActor*> pDoppleSprite;

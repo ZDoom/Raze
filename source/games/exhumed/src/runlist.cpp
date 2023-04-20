@@ -1790,6 +1790,9 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
                 if (pActor->vel.Z < -14)
 					pActor->vel.Z = -14;
+
+                if (pActor->spr.statnum == 100)
+                    PlayerList[GetPlayerFromActor(pActor)].bJumping = true;
             }
         }
 
