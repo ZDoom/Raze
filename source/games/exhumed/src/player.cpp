@@ -36,6 +36,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <string.h>
 
+CUSTOM_CVAR(Int, cl_exviewtilting, 0, CVAR_ARCHIVE)
+{
+    if (self < 0) self = 0;
+    else if (self > 2) self = 2;
+}
+CVAR(Float, cl_extiltscale, 1.f, CVAR_ARCHIVE);
+
 BEGIN_PS_NS
 
 static constexpr actionSeq PlayerSeq[] = {
@@ -1519,7 +1526,7 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerPitch(Player* const pPlayer, const double nDestVertPan)
+static void doPlayerPitch(Player* const pPlayer)
 {
     const auto pInput = &pPlayer->input;
 
@@ -1528,7 +1535,6 @@ static void doPlayerPitch(Player* const pPlayer, const double nDestVertPan)
         pPlayer->pActor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
     }
 
-    doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
     pPlayer->Angles.doPitchKeys(pInput);
 }
 
@@ -1549,6 +1555,41 @@ static void doPlayerYaw(Player* const pPlayer)
 
     pPlayer->Angles.doYawKeys(pInput);
     pPlayer->Angles.doViewYaw(pInput);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertPan)
+{
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pInput = &pPlayer->input;
+    static double rollreturnrate;
+
+    // Pitch tilting when player's Z changes (stairs, jumping, etc).
+    doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
+
+    // Roll tilting effect, either console or Quake-style.
+    if (cl_exviewtilting == 1)
+    {
+        // Console-like yaw rolling. Adjustment == (90/32) for keyboard turning. Clamp is 1.5x this value.
+        const auto adjustment = DAngle::fromDeg(pInput->avel * (48779.f / 150000.f) * cl_extiltscale);
+        const auto adjmaximum = DAngle::fromDeg((11553170. / 1347146.) * cl_extiltscale);
+        pPlayerActor->spr.Angles.Roll = clamp(pPlayerActor->spr.Angles.Roll + adjustment, -adjmaximum, adjmaximum);
+        rollreturnrate = GameTicRate * 0.5;
+    }
+    else if (cl_exviewtilting == 2)
+    {
+        // Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
+        pPlayerActor->spr.Angles.Roll += DAngle::fromDeg(pInput->svel * (1563154.f / 4358097.f) * cl_extiltscale);
+        rollreturnrate = GameTicRate * 0.25;
+    }
+
+    // Always scale roll back to zero in case the functionality is disabled mid-roll.
+    scaletozero(pPlayerActor->spr.Angles.Roll, rollreturnrate);
 }
 
 //---------------------------------------------------------------------------
@@ -1787,6 +1828,7 @@ static bool doPlayerInput(Player* const pPlayer)
 
     // update player yaw here as per the original workflow.
     doPlayerYaw(pPlayer);
+    doPlayerPitch(pPlayer);
 
     if (nMove.type || nMove.exbits)
     {
@@ -1801,8 +1843,9 @@ static bool doPlayerInput(Player* const pPlayer)
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = int(posdelta.XY().Length() * worldtoint);
 
+    // Effects such as slope tilting, view bobbing, etc.
     // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
-    doPlayerPitch(pPlayer, -posdelta.Z * 2.);
+    doPlayerCameraEffects(pPlayer, -posdelta.Z * 2.);
 
     // Most-move updates. Input bit funcs are here because
     // updatePlayerAction() needs access to bUnderwater.

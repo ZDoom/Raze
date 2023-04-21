@@ -54,12 +54,12 @@ GameInput gameInput{};
 //
 //---------------------------------------------------------------------------
 
-static inline DAngle getscaledangle(const DAngle angle, const double scale, const DAngle push)
+static inline DAngle getscaledangle(const DAngle angle, const double scale, const double push)
 {
-	return (angle.Normalized180() * getTicrateScale(scale)) + push;
+	return (angle.Normalized180() * getTicrateScale(scale)) + DAngle::fromDeg(push);
 }
 
-static inline bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(32. / 465.))
+bool scaletozero(DAngle& angle, const double scale, const double push)
 {
 	const auto sgn = angle.Sgn();
 
