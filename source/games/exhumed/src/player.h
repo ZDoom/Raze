@@ -102,6 +102,8 @@ struct Player
     double nPrevBobZ;
     double nBobZ;
     double nIdxBobZ;
+    double nPrevWeapBob;
+    double nWeapBob;
     bool crouch_toggle;
     bool bTouchFloor;
     bool bJumping;
@@ -116,8 +118,6 @@ struct Player
 extern int PlayerCount;
 
 extern Player PlayerList[kMaxPlayers];
-
-extern int obobangle, bobangle;
 
 extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;

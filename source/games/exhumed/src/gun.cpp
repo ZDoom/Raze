@@ -662,7 +662,7 @@ loc_flag:
             }
 
             if (nPlayer == nLocalPlayer) {
-                obobangle = bobangle = 512;
+                pPlayer->nPrevWeapBob = pPlayer->nWeapBob = 512;
             }
 
             if (nWeapon == kWeaponFlamer && (!(nSectFlag & kSectUnderwater)))
@@ -938,11 +938,11 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
 
     if (cl_weaponsway)
     {
-        double nBobAngle = bobangle, nTotalVel = pPlayer->totalvel;
+        double nBobAngle = pPlayer->nWeapBob, nTotalVel = pPlayer->totalvel;
 
         if (cl_hudinterpolation)
         {
-            nBobAngle = interpolatedvalue<double>(obobangle, bobangle, interpfrac);
+            nBobAngle = interpolatedvalue<double>(pPlayer->nPrevWeapBob, pPlayer->nWeapBob, interpfrac);
             nTotalVel = interpolatedvalue<double>(pPlayer->ototalvel, pPlayer->totalvel, interpfrac);
         }
 
@@ -955,7 +955,7 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
     }
     else
     {
-        obobangle = bobangle = 512;
+        pPlayer->nPrevWeapBob = pPlayer->nWeapBob = 512;
     }
 
     int nStat = false;

@@ -372,7 +372,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
 
     double zz = pActor->pitch.Sin() * veclen;
 
-    return movesprite(pActor, vec, zz * 16 + BobVal(bobangle) * 2, 0, CLIPMASK1);
+    return movesprite(pActor, vec, zz * 16 + BobVal(PlayerList[GetPlayerFromActor(pActor)].nWeapBob) * 2, 0, CLIPMASK1);
 }
 
 //---------------------------------------------------------------------------

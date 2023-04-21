@@ -74,7 +74,6 @@ static constexpr int16_t nItemText[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
-int obobangle = 0, bobangle  = 0;
 int nLocalPlayer = 0;
 Player PlayerList[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
@@ -1608,6 +1607,10 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
     {
         pPlayer->nPrevBobZ = pPlayer->nBobZ = 0;
     }
+
+    // Update weapon bobbing.
+    pPlayer->nPrevWeapBob = pPlayer->nWeapBob;
+    pPlayer->nWeapBob = (pPlayer->nWeapBob + 56) * (pPlayer->totalvel != 0);
 }
 
 //---------------------------------------------------------------------------
@@ -2182,8 +2185,7 @@ void SerializePlayer(FSerializer& arc)
 {
     if (arc.BeginObject("player"))
     {
-        arc ("bobangle", bobangle)
-            ("playercount", PlayerCount)
+        arc ("playercount", PlayerCount)
             ("netstartsprites", nNetStartSprites)
             ("localplayer", nLocalPlayer)
             ("curstartsprite", nCurStartSprite)

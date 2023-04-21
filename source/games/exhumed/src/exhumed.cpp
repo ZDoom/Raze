@@ -315,17 +315,6 @@ static void GameMove(void)
     // YELLOW SECTION
     MoveThings();
 
-    obobangle = bobangle;
-
-    if (PlayerList[nLocalPlayer].totalvel == 0)
-    {
-        bobangle = 0;
-    }
-    else
-    {
-        bobangle += 56;
-    }
-
     UpdateCreepySounds();
 
     // loc_120E9:
