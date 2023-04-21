@@ -21,87 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum {
-    kSeqRothands = 0,
-    kSeqSword,
-    kSeqPistol,
-    kSeqM60,
-    kSeqFlamer,
-    kSeqGrenade,
-    kSeqCobra,
-    kSeqBoneSaw,
-    kSeqScramble,
-    kSeqGlove,
-    kSeqMummy,
-    kSeqSkull,
-    kSeqPoof,
-    kSeqKapow,
-    kSeqFireball,
-    kSeqBubble,
-    kSeqSpider,
-    kSeqAnubis,
-    kSeqAnuBall,
-    kSeqFish,
-    kSeqSnakehed,
-    kSeqSnakBody,
-    kSeqWasp,
-    kSeqCobraPow,
-    kSeqScorp,
-    kSeqJoe, // player pic
-    kSeqStatus,
-    kSeqDead,
-    kSeqDeadEx,
-    kSeqAnuPoof,
-    kSeqSkulPoof,
-    kSeqBullet,
-    kSeqShadow,
-    kSeqGrenRoll,
-    kSeqGrenBoom,
-    kSeqSplash,
-    kSeqGrenPow,
-    kSeqSkulSrt,
-    kSeqFirePoof,
-    kSeqBloodHit,
-    kSeqLion,
-    kSeqItems,
-    kSeqLavag,
-    kSeqLsplash,
-    kSeqLavaShot,
-    kSeqSmokeBal,
-    kSeqFirePot,
-    kSeqRex,
-    kSeqSet,
-    kSeqQueen,
-    kSeqRoach,
-    kSeqHawk,
-    kSeqSetGhost,
-    kSeqSetGBlow,
-    kSeqBizzTail,
-    kSeqBizzPoof,
-    kSeqQueenEgg,
-    kSeqRoacShot,
-    kSeqBackgrnd,
-    kSeqScreens,
-    kSeqArrow,
-    kSeqFonts,
-    kSeqDrips,
-    kSeqFireTrap,
-    kSeqMagic2,
-    kSeqCreepy,
-    kSeqSlider,
-    kSeqRavolt, // 67
-    kSeqEyeHit,
-    kSeqFont2,
-    kSeqSeeBubbl,
-    kSeqBlood,
-    kSeqDrum,
-    kSeqPoof2,
-    kSeqDeadBrn, // 74
-    kSeqGrenBubb,
-    kSeqRochfire,
-    kSeqRat
-};
-
 struct actionSeq
 {
     int16_t nSeqId;
@@ -162,22 +81,10 @@ extern int16_t nPilotLightFrame;
 extern int16_t nPilotLightCount;
 
 void seq_LoadSequences();
-void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame);
 void seq_DrawGunSequence(const Seq& weapSeq, int16_t frameIndex, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
 void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags);
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
-
-int getSeqFromId(const int nSeqFileId, const int nSeq = 0);
-int getSeqFrame(const int nSeq, const int nFrame = 0);
-int getSeqFrameCount(const int nSeq);
-int getSeqFrameChunk(const int nFrame);
-int getSeqFrameFlags(const int nFrame);
-int getSeqFrameChunkCount(const int nFrame);
-int getSeqFrameChunkPosX(const int nChunk);
-int getSeqFrameChunkPosY(const int nChunk);
-int getSeqFrameChunkPicnum(const int nChunk);
-int getSeqFrameChunkFlags(const int nChunk);
 
 TArray<Seq>* getFileSeqs(const FName nSeqFile);
 

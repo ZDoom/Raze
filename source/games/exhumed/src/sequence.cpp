@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include <stdio.h>
 
-// TEMP
-#include <assert.h>
-
 BEGIN_PS_NS
 
 enum
@@ -40,29 +37,11 @@ enum
 	kMaxSEQChunks	= 21000
 };
 
-int16_t sequences = 0;
-int16_t frames = 0;
-int16_t chunks = 0;
 int16_t nPilotLightFrame;
 int16_t nPilotLightCount;
 
 int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
-
-static int16_t SeqBase[kMaxSequences];
-static int16_t SeqSize[kMaxSequences];
-static int16_t SeqFlag[kMaxSequences]; // not used at all.
-
-static int16_t FrameSound[kMaxSEQFrames];
-static int16_t FrameSize[kMaxSEQFrames];
-static int16_t FrameBase[kMaxSEQFrames];
-static int16_t FrameFlag[kMaxSEQFrames];
-
-static int16_t ChunkYpos[kMaxSEQChunks];
-static int16_t ChunkXpos[kMaxSEQChunks];
-static int16_t ChunkPict[kMaxSEQChunks];
-static int16_t ChunkFlag[kMaxSEQChunks];
-
 
 const char *SeqNames[kMaxSEQFiles] =
 {
@@ -146,130 +125,7 @@ const char *SeqNames[kMaxSEQFiles] =
   "rat"
 };
 
-static int16_t SeqOffsets[kMaxSEQFiles];
 static TMap<FName, TArray<Seq>> FileSeqMap;
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFromId(const int nSeqFileId, const int nSeq)
-{
-    return SeqOffsets[nSeqFileId] + nSeq;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrame(const int nSeq, const int nFrame)
-{
-    return SeqBase[nSeq] + nFrame;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameCount(const int nSeq)
-{
-    return SeqSize[nSeq];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameChunk(const int nFrame)
-{
-    return FrameBase[nFrame];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameFlags(const int nFrame)
-{
-    return FrameFlag[nFrame];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameSound(const int nFrame)
-{
-    return FrameSound[nFrame];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameChunkCount(const int nFrame)
-{
-    return FrameSize[nFrame];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameChunkPosX(const int nChunk)
-{
-    return ChunkXpos[nChunk];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameChunkPosY(const int nChunk)
-{
-    return ChunkYpos[nChunk];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameChunkPicnum(const int nChunk)
-{
-    return ChunkPict[nChunk];
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int getSeqFrameChunkFlags(const int nChunk)
-{
-    return ChunkFlag[nChunk];
-}
 
 //---------------------------------------------------------------------------
 //
@@ -451,184 +307,15 @@ int addSeq(const char *seqName)
 //
 //---------------------------------------------------------------------------
 
-int seq_ReadSequence(const char *seqName)
-{
-    const int16_t StartFrameCount = frames;
-    const FStringf seqfilename("%s.seq", seqName);
-    const auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
-
-    if (!hFile.isOpen())
-    {
-        Printf("Unable to open '%s'!\n", seqfilename.GetChars());
-        return 0;
-    }
-
-    uint16_t tag;
-    hFile.Read(&tag, sizeof(tag));
-    if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
-    {
-        Printf("Unsupported sequence version!\n");
-        return 0;
-    }
-
-    int16_t centerx, centery; // TODO - are global vars?
-    int16_t nSeqs;
-    hFile.Read(&centerx, sizeof(centerx));
-    hFile.Read(&centery, sizeof(centery));
-    hFile.Read(&nSeqs, sizeof(nSeqs));
-
-    if (nSeqs <= 0 || sequences + nSeqs >= kMaxSequences)
-    {
-        if (nSeqs < 0)
-        {
-            Printf("Invalid sequence count!\n");
-            return 0;
-        }
-        else {
-            I_Error("Not enough sequences available!  Increase array!\n");
-        }
-    }
-
-    hFile.Read(&SeqBase[sequences], nSeqs * sizeof(SeqBase[0]));
-    hFile.Read(&SeqSize[sequences], nSeqs * sizeof(SeqSize[0]));
-    hFile.Read(&SeqFlag[sequences], nSeqs * sizeof(SeqFlag[0]));
-
-    for (int i = 0; i < nSeqs; i++)
-    {
-        SeqBase[sequences + i] += frames;
-    }
-
-    int16_t nFrames;
-    hFile.Read(&nFrames, sizeof(nFrames));
-
-    if (nFrames <= 0 || frames + nFrames >= kMaxSEQFrames)
-    {
-        if (nFrames < 0 )
-        {
-            Printf("Invalid frame count!\n");
-            return 0;
-        }
-        else {
-            I_Error("Not enough frames available!  Increase FRAMEMAX!\n");
-        }
-    }
-
-    hFile.Read(&FrameBase[frames], nFrames * sizeof(FrameBase[0]));
-    hFile.Read(&FrameSize[frames], nFrames * sizeof(FrameSize[0]));
-    hFile.Read(&FrameFlag[frames], nFrames * sizeof(FrameFlag[0]));
-    memset(&FrameSound[frames], -1,  nFrames * sizeof(FrameSound[0]));
-
-    for (int i = 0; i < nFrames; i++)
-    {
-        FrameBase[frames + i] += chunks;
-    }
-
-    int16_t nChunks;
-    hFile.Read(&nChunks, sizeof(nChunks));
-
-    if (nChunks < 0 || chunks + nChunks >= kMaxSEQChunks)
-    {
-        if (nChunks < 0 )
-        {
-            Printf("Invalid chunk count!\n");
-            return 0;
-        }
-        else {
-            I_Error("Not enough chunks available!  Increase CHUNKMAX!\n");
-        }
-    }
-
-    hFile.Read(&ChunkXpos[chunks], nChunks * sizeof(ChunkXpos[0]));
-    hFile.Read(&ChunkYpos[chunks], nChunks * sizeof(ChunkYpos[0]));
-    hFile.Read(&ChunkPict[chunks], nChunks * sizeof(ChunkPict[0]));
-    hFile.Read(&ChunkFlag[chunks], nChunks * sizeof(ChunkFlag[0]));
-
-    for (int i = 0; i < nChunks; i++)
-    {
-        ChunkXpos[chunks + i] -= centerx;
-        ChunkYpos[chunks + i] -= centery;
-    }
-
-    sequences += nSeqs;
-    FrameBase[frames + nFrames] = chunks + nChunks;
-    frames += nFrames;
-    SeqBase[sequences] = frames;
-    chunks += nChunks;
-
-    if (tag == MAKE_ID('D', 'S', 0, 0))
-    {
-        int16_t var_20;
-        hFile.Read(&var_20, sizeof(var_20));
-        TArray<char> buffer(var_20 * 10, true);
-        memset(buffer.Data(), 0, var_20 * 10);
-
-        for (int i = 0; i < var_20; i++)
-        {
-            hFile.Read(&buffer[i * 10], 8);
-        }
-
-        int16_t var_24;
-        hFile.Read(&var_24, sizeof(var_24));
-
-        for (int i = 0; i < var_24; i++)
-        {
-            int16_t var_28, var_2C;
-            hFile.Read(&var_28, sizeof(var_28));
-            hFile.Read(&var_2C, sizeof(var_2C));
-
-            int ndx = (var_2C & 0x1FF);
-            int hSound = 0;
-            if (ndx >= var_20)
-            {
-                Printf("bad sound index %d in %s, maximum is %d\n", ndx, seqfilename.GetChars(), var_20);
-            }
-            else
-                hSound = LoadSound(&buffer[ndx*10]);
-
-            assert(StartFrameCount + var_28 < kMaxSEQFrames);
-            FrameSound[StartFrameCount + var_28] = hSound | (var_2C & 0xFE00);
-        }
-    }
-
-    return nSeqs;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void seq_LoadSequences()
 {
     for (unsigned i = 0; i < kMaxSEQFiles; i++)
     {
-        SeqOffsets[i] = sequences;
-
-        if (seq_ReadSequence(SeqNames[i]) == 0 || addSeq(SeqNames[i]) == 0)
+        if (addSeq(SeqNames[i]) == 0)
         {
             Printf("Error loading '%s'\n", SeqNames[i]);
         }
     }
-
-#if 0
-    FILE* f = fopen("seq.dump", "wb");
-
-    fwrite(SeqBase, 1, sizeof(SeqBase), f);
-    fwrite(SeqSize, 1, sizeof(SeqSize), f);
-    fwrite(SeqFlag, 1, sizeof(SeqFlag), f);
-    fwrite("++++++++++++++++", 1, 16, f);
-    fwrite(FrameSound, 1, sizeof(FrameSound), f);
-    fwrite("++++++++++++++++", 1, 16, f);
-    fwrite(FrameSize, 1, sizeof(FrameSize), f);
-    fwrite(FrameBase, 1, sizeof(FrameBase), f);
-    fwrite(FrameFlag, 1, sizeof(FrameFlag), f);
-    fwrite(ChunkYpos, 1, sizeof(ChunkYpos), f);
-    fwrite(ChunkXpos, 1, sizeof(ChunkXpos), f);
-    fwrite(ChunkPict, 1, sizeof(ChunkPict), f);
-    fwrite(ChunkFlag, 1, sizeof(ChunkFlag), f);
-    fclose(f);
-#endif
 
     nShadowPic = getSequence("shadow").getFirstPicnum();
     nShadowWidth = tileWidth(nShadowPic);
@@ -711,29 +398,6 @@ void seq_DrawGunSequence(const Seq& weapSeq, int16_t frameIndex, double xOffs, d
         }
 
         hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Degrees(), frameChunk.picnum, nShade, nPal, stat, alpha);
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t nFrame)
-{
-    assert(nSeq >= 0); // TEMP
-
-    int nSound = getSeqFrameSound(getSeqFrame(nSeq, nFrame));
-    if (nSound == -1) {
-        return;
-    }
-
-    if (actor) {
-        D3PlayFX(nSound, actor);
-    }
-    else {
-        PlayLocalSound(nSound, 0);
     }
 }
 

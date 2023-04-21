@@ -23,16 +23,16 @@ class ExhumedStatusBar : RazeStatusBar
 {
 	HUDFont textfont, numberFont;
 
-	int keyanims[4];
+	uint keyanims[4];
 	int airframe, lungframe;
 
 	int nSelectedItem;
 	int nHealthLevel;
 	int nMagicLevel;
 	int nMeterRange;
-	int nHurt;
-	int nHealthFrame;
-	int nMagicFrame;
+	uint nHurt;
+	uint nHealthFrame;
+	uint nMagicFrame;
 	int nItemAltSeq;
 	int nItemSeq;
 	int nItemFrames;
@@ -494,7 +494,7 @@ class ExhumedStatusBar : RazeStatusBar
 
 		nItemFrame = 0;
 		nItemSeq = nItemSeqOffset[nItem] + nItemAltSeq;
-		nItemFrames = Exhumed.SizeofStatusSequence(nItemSeq);
+		nItemFrames = Exhumed.GetStatusSequence(nItemSeq).Size();
 	}
 
 	//---------------------------------------------------------------------------
@@ -524,7 +524,7 @@ class ExhumedStatusBar : RazeStatusBar
 		if (nHurt)
 		{
 			nHurt++;
-			if (nHurt > Exhumed.SizeofStatusSequence(4)) nHurt = 0;
+			if (nHurt > Exhumed.GetStatusSequence(4).Size()) nHurt = 0;
 		}
 
 		int healthperline = 800 / nMeterRange;
@@ -635,16 +635,16 @@ class ExhumedStatusBar : RazeStatusBar
 
 					nItemFrame = 0;
 					nItemSeq += nItemAltSeq;
-					nItemFrames = Exhumed.SizeofStatusSequence(nItemSeq);
+					nItemFrames = Exhumed.GetStatusSequence(nItemSeq).Size();
 				}
 			}
 		}
 
 		nHealthFrame++;
-		if (nHealthFrame >= Exhumed.SizeofStatusSequence(1)) nHealthFrame = 0;
+		if (nHealthFrame >= Exhumed.GetStatusSequence(1).Size()) nHealthFrame = 0;
 
 		nMagicFrame++;
-		if (nMagicFrame >= Exhumed.SizeofStatusSequence(129)) nMagicFrame = 0;
+		if (nMagicFrame >= Exhumed.GetStatusSequence(129).Size()) nMagicFrame = 0;
 
 		if (nCounter == nCounterDest)
 		{
@@ -751,12 +751,13 @@ class ExhumedStatusBar : RazeStatusBar
 		MoveStatus(pp);
 		for (int i = 0; i < 4; i++)
 		{
-			int seq = KeySeq + 2 * i;
 			if (pp.keys & (4096 << i))
 			{
-				if (keyanims[i] < Exhumed.SizeofStatusSequence(seq) - 1)
+				let keySeq = Exhumed.GetStatusSequence(KeySeq + 2 * i);
+
+				if (keyanims[i] < keySeq.Size() - 1)
 				{
-					Exhumed.MoveStatusSequence(seq, 0);   // this plays the pickup sound.
+					keySeq.getFrame(0).playSound();   // this plays the pickup sound.
 					keyanims[i]++;
 				}
 			}
@@ -768,8 +769,7 @@ class ExhumedStatusBar : RazeStatusBar
 
 		if (pp.isUnderwater())
 		{
-
-			int nAirFrames = Exhumed.SizeofStatusSequence(133);
+			int nAirFrames = Exhumed.GetStatusSequence(133).Size();
 			int airperline = 100 / nAirFrames;
 
 			airframe = pp.nAir / airperline;
@@ -786,7 +786,7 @@ class ExhumedStatusBar : RazeStatusBar
 		}
 		else
 		{
-			int size = Exhumed.SizeofStatusSequence(132);
+			int size = Exhumed.GetStatusSequence(132).Size();
 			if (++lungframe == size) lungframe = 0;
 		}
 	}

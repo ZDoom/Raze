@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "engine.h"
 #include "player.h"
-#include "status.h"
 #include "exhumed.h"
 #include "sequence.h"
 #include "names.h"
@@ -39,43 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 
 BEGIN_PS_NS
-
-
-
-// All this must be moved into the status bar once it is made persistent!
-int nStatusSeqOffset;
-
-void InitStatus()
-{
-    nStatusSeqOffset = getSeqFromId(kSeqStatus);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-DEFINE_ACTION_FUNCTION(_Exhumed, MoveStatusSequence)
-{
-    PARAM_PROLOGUE;
-    PARAM_INT(s1);
-    PARAM_INT(s2);
-    seq_MoveSequence(nullptr, nStatusSeqOffset + s1, s2);
-    ACTION_RETURN_INT(getSeqFrameCount(nStatusSeqOffset + s1));
-}
-
-int SizeOfStatusSequence(int s1)
-{
-    return getSeqFrameCount(nStatusSeqOffset + s1);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Exhumed, SizeOfStatusSequence, SizeOfStatusSequence)
-{
-    PARAM_PROLOGUE;
-    PARAM_INT(s1);
-    ACTION_RETURN_INT(getSeqFrameCount(nStatusSeqOffset + s1));
-}
 
 //---------------------------------------------------------------------------
 //

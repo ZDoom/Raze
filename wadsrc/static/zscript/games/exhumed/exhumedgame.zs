@@ -8,8 +8,6 @@ struct Exhumed native
 	native static void playCDTrack(int track, bool looped);
 	native static void DrawPlasma();
 	native static Seq GetStatusSequence(int seqId);
-	native static int MoveStatusSequence(int s1, int s2);
-	native static int SizeOfStatusSequence(int s1);
 	native static ExhumedPlayer GetViewPlayer();
 	native static int GetPistolClip();
 	native static int GetPlayerClip();

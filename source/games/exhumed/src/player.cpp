@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "sequence.h"
 #include "view.h"
-#include "status.h"
 #include "sound.h"
 #include "sound.h"
 #include "buildtiles.h"
@@ -65,7 +64,6 @@ static constexpr int16_t nItemText[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
-extern int nStatusSeqOffset;
 int obobangle = 0, bobangle  = 0;
 int nLocalPlayer = 0;
 Player PlayerList[kMaxPlayers];

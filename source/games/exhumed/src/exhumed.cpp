@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "sound.h"
 #include "view.h"
-#include "status.h"
 #include "version.h"
 #include "aistuff.h"
 #include "mapinfo.h"
@@ -459,7 +458,6 @@ void GameInterface::app_init()
 
     InitFX();
     seq_LoadSequences();
-    InitStatus();
 
     GrabPalette();
 

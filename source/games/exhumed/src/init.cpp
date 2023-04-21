@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "gamecontrol.h"
 #include "v_video.h"
-#include "status.h"
 #include <stdio.h>
 #include <string.h>
 #include "statusbar.h"
