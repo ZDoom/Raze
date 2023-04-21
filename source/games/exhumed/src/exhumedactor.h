@@ -24,7 +24,9 @@ public:
 	int16_t nPhase;
 
 	int16_t nHealth;
+	int16_t nSeq;
 	int16_t nFrame;
+	int16_t nFlags;
 	int16_t nAction;
 	int16_t nCount;
 	int16_t nRun;

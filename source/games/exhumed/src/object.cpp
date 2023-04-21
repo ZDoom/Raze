@@ -1889,11 +1889,11 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 
     if (nSeq > -1)
     {
-        pActor->nIndex = getSeqFromId(nSeq);
+        pActor->nSeq = getSeqFromId(nSeq);
 
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
-            pActor->nFrame = RandomSize(4) % (getSeqFrameCount(pActor->nIndex) - 1);
+            pActor->nFrame = RandomSize(4) % (getSeqFrameCount(pActor->nSeq) - 1);
         }
 
         auto  pActor2 = insertActor(pActor->sector(), 0);
@@ -1906,7 +1906,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     else
     {
         pActor->nFrame = 0;
-        pActor->nIndex = -1;
+        pActor->nSeq = -1;
 
         if (pActor->spr.statnum == kStatDestructibleSprite) {
             pActor->nIndex2 = -1;
@@ -1949,7 +1949,7 @@ void AIObject::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     int nStat = pActor->spr.statnum;
-    int bx = pActor->nIndex;
+    int nSeq = pActor->nSeq;
 
     if (nStat == 97 || (!(pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))) {
         return;
@@ -1960,14 +1960,14 @@ void AIObject::Tick(RunListEvent* ev)
     }
 
     // do animation
-    if (bx != -1)
+    if (nSeq != -1)
     {
         pActor->nFrame++;
-        if (pActor->nFrame >= getSeqFrameCount(bx)) {
+        if (pActor->nFrame >= getSeqFrameCount(nSeq)) {
             pActor->nFrame = 0;
         }
 
-        pActor->spr.picnum = seq_GetSeqPicnum2(bx, pActor->nFrame);
+        pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     }
 
     if (pActor->nHealth >= 0) {
@@ -2102,11 +2102,11 @@ void AIObject::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    int bx = pActor->nIndex;
+    int nSeq = pActor->nSeq;
 
-    if (bx > -1)
+    if (nSeq > -1)
     {
-        seq_PlotSequence(ev->nParam, bx, pActor->nFrame, 1);
+        seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, 1);
     }
     return;
 }

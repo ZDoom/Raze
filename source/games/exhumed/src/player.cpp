@@ -1015,9 +1015,9 @@ void doPlayerItemPickups(Player* const pPlayer)
         case 59: // Scarab (Checkpoint)
             if (nLocalPlayer == pPlayer->nPlayer)
             {
-                pPickupActor->nIndex2++;
-                pPickupActor->nAction &= 0xEF;
-                pPickupActor->nIndex = 0;
+                pPickupActor->nSeq++;
+                pPickupActor->nFlags &= 0xEF;
+                pPickupActor->nFrame = 0;
                 ChangeActorStat(pPickupActor, 899);
             }
             SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);

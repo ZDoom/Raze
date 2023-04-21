@@ -133,11 +133,10 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int nSeq, int nOffset, const DVe
     pActor->spr.intowner = -1;
     pActor->spr.extra = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x100000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x100000);
-    pActor->nAction = nFlag;
-    pActor->nIndex = 0;
-    pActor->nIndex2 = getSeqFromId(nSeq, nOffset);
+    pActor->nFlags = nFlag;
+    pActor->nFrame = 0;
+    pActor->nSeq = getSeqFromId(nSeq, nOffset);
     pActor->pTarget = nullptr;
-    pActor->nDamage = pActor->nRun;
     pActor->nPhase = ITEM_MAGIC;
     pActor->backuppos();
 
@@ -155,8 +154,8 @@ void AIAnim::Tick(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    const int nSeq = pActor->nIndex2;
-    const int nFrame = pActor->nIndex;
+    const int nSeq = pActor->nSeq;
+    const int nFrame = pActor->nFrame;
 
     if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
@@ -222,25 +221,25 @@ void AIAnim::Tick(RunListEvent* ev)
         }
     }
 
-    pActor->nIndex++;
-    if (pActor->nIndex >= getSeqFrameCount(nSeq))
+    pActor->nFrame++;
+    if (pActor->nFrame >= getSeqFrameCount(nSeq))
     {
-        if (pActor->nAction & 0x10)
+        if (pActor->nFlags & kAnimLoop)
         {
-            pActor->nIndex = 0;
+            pActor->nFrame = 0;
         }
         else if (nSeq == nPreMagicSeq)
         {
-            pActor->nIndex = 0;
-            pActor->nIndex2 = nMagicSeq;
-            pActor->nAction |= 0x10;
+            pActor->nFrame = 0;
+            pActor->nSeq = nMagicSeq;
+            pActor->nFlags |= kAnimLoop;
             pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
         else if (nSeq == nSavePointSeq)
         {
-            pActor->nIndex = 0;
-            pActor->nIndex2++;
-            pActor->nAction |= 0x10;
+            pActor->nFrame = 0;
+            pActor->nSeq++;
+            pActor->nFlags |= kAnimLoop;
         }
         else
         {
@@ -260,7 +259,7 @@ void AIAnim::Draw(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    seq_PlotSequence(ev->nParam, pActor->nIndex2, pActor->nIndex, 0x101);
+    seq_PlotSequence(ev->nParam, pActor->nSeq, pActor->nFrame, 0x101);
     ev->pTSprite->ownerActor = nullptr;
 }
 
