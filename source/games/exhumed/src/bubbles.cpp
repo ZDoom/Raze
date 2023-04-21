@@ -78,7 +78,7 @@ static DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector, cons
 
     pActor->nFrame = 0;
     pActor->nSeqFile = "bubble";
-    pActor->nSeq = nSize;
+    pActor->nSeqIndex = nSize;
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x140000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x140000);
 
@@ -96,7 +96,7 @@ void AIBubble::Tick(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    const auto& bubbSeq = getSequence(pActor->nSeqFile, pActor->nSeq);
+    const auto& bubbSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
 
     playFrameSound(pActor, bubbSeq[pActor->nFrame]);
 
@@ -130,7 +130,7 @@ void AIBubble::Draw(RunListEvent* ev)
 {
     if (const auto pActor = ev->pObjActor)
     {
-        seq_PlotSequence(ev->nParam, pActor->nSeqFile, pActor->nSeq, pActor->nFrame, 1);
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, pActor->nSeqIndex, pActor->nFrame, 1);
         ev->pTSprite->ownerActor = nullptr;
     }
 }

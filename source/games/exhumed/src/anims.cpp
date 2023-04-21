@@ -115,7 +115,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, const FName seqFile, int seqInde
     pActor->nFlags = nFlag;
     pActor->nFrame = 0;
     pActor->nSeqFile = seqFile;
-    pActor->nSeq = seqIndex;
+    pActor->nSeqIndex = seqIndex;
     pActor->pTarget = nullptr;
     pActor->nPhase = ITEM_MAGIC;
     pActor->backuppos();
@@ -134,7 +134,7 @@ void AIAnim::Tick(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor || pActor->nSeqFile == NAME_None) return;
 
-    const auto& animSeq = getSequence(pActor->nSeqFile, pActor->nSeq);
+    const auto& animSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
     const int nFrame = pActor->nFrame;
 
     if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -208,18 +208,18 @@ void AIAnim::Tick(RunListEvent* ev)
         {
             pActor->nFrame = 0;
         }
-        else if (pActor->nSeqFile == FName("magic2") && pActor->nSeq == 0)
+        else if (pActor->nSeqFile == FName("magic2") && pActor->nSeqIndex == 0)
         {
             pActor->nFrame = 0;
             pActor->nSeqFile = "items";
-            pActor->nSeq = 21;
+            pActor->nSeqIndex = 21;
             pActor->nFlags |= kAnimLoop;
             pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
-        else if (pActor->nSeqFile == FName("items") && pActor->nSeq == 12)
+        else if (pActor->nSeqFile == FName("items") && pActor->nSeqIndex == 12)
         {
             pActor->nFrame = 0;
-            pActor->nSeq++;
+            pActor->nSeqIndex++;
             pActor->nFlags |= kAnimLoop;
         }
         else
@@ -240,7 +240,7 @@ void AIAnim::Draw(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor || pActor->nSeqFile == NAME_None) return;
 
-    seq_PlotSequence(ev->nParam, pActor->nSeqFile, pActor->nSeq, pActor->nFrame, 0x101);
+    seq_PlotSequence(ev->nParam, pActor->nSeqFile, pActor->nSeqIndex, pActor->nFrame, 0x101);
     ev->pTSprite->ownerActor = nullptr;
 }
 

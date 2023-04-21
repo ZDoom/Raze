@@ -22,13 +22,7 @@ public:
 	TObjPtr<DExhumedActor*> pTarget;
 
 	int16_t nPhase;
-
 	int16_t nHealth;
-	int16_t nSeq;
-	FName nSeqFile;
-	uint16_t nFrame;
-	int16_t nFlags;
-	int16_t nAction;
 	int16_t nCount;
 	int16_t nRun;
 	union { int16_t nIndex; int16_t nAngle; };	// angle is for wasp.
@@ -40,6 +34,15 @@ public:
 	// for the grenade.
 	int nTurn;
 	DVector2 vec;
+
+	// for sequences.
+	FName nSeqFile;
+	uint16_t nFrame;
+	int16_t nAction;
+
+	// for anims.
+	int16_t nSeqIndex;
+	int16_t nFlags;
 
 
 	DExhumedActor() = default;
