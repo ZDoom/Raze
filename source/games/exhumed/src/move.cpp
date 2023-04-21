@@ -137,6 +137,7 @@ void MoveThings()
         }
     }
 
+    UpdateCreepySounds();
     thinktime.Unclock();
 }
 

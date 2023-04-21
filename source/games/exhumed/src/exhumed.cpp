@@ -275,11 +275,10 @@ void DoGameOverScene(bool finallevel)
 static void GameMove(void)
 {
     UpdateInterpolations();
-
     FixPalette();
 
 	ExhumedSpriteIterator it;
-    while (auto ac = it.Next())
+    while (const auto ac = it.Next())
     {
 		ac->backuploc();
     }
@@ -291,33 +290,19 @@ static void GameMove(void)
             DoGameOverScene(true);
             return;
         }
-        // Pink section
+
+        nButtonColor--;
         lCountDown--;
         DrawClock();
 
-        if (nRedTicks)
-        {
-            nRedTicks--;
+        if (nRedTicks && --nRedTicks <= 0)
+            DoRedAlert(0);
 
-            if (nRedTicks <= 0) {
-                DoRedAlert(0);
-            }
-        }
-
-        nAlarmTicks--;
-        nButtonColor--;
-
-        if (nAlarmTicks <= 0) {
+        if (--nAlarmTicks <= 0)
             DoRedAlert(1);
-        }
     }
 
-    // YELLOW SECTION
     MoveThings();
-
-    UpdateCreepySounds();
-
-    // loc_120E9:
     totalmoves++;
 }
 
