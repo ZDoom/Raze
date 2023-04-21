@@ -69,7 +69,11 @@ CVARD(Bool, cl_idplayers, true, CVAR_ARCHIVE, "enable/disable name display when 
 CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable player weapon swaying")
 
 // Todo: Consolidate these to be consistent across games?
-CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable player head bobbing")
+CUSTOM_CVARD(Int, cl_viewbob, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable player head bobbing")
+{
+	if (self < 0) self = 0;
+	else if (self > 2) self = 2;
+}
 CVARD(Bool, cl_viewhbob, true, CVAR_ARCHIVE, "enable/disable view horizontal bobbing") // Only implemented in Blood
 CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE, "enable/disable view vertical bobbing") // Only implemented in Blood
 

@@ -99,6 +99,9 @@ struct Player
     PlayerSave sPlayerSave;
     double ototalvel;
     double totalvel;
+    double nPrevBobZ;
+    double nBobZ;
+    double nIdxBobZ;
     bool crouch_toggle;
     bool bTouchFloor;
     bool bJumping;

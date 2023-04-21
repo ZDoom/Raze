@@ -43,6 +43,8 @@ CUSTOM_CVAR(Int, cl_exviewtilting, 0, CVAR_ARCHIVE)
 }
 CVAR(Float, cl_extiltscale, 1.f, CVAR_ARCHIVE);
 CVAR(Bool, cl_exjumprebound, false, CVAR_ARCHIVE);
+CVAR(Float, cl_exviewbobspeed, 4.f, CVAR_ARCHIVE);
+CVAR(Float, cl_exviewbobheight, 5.f, CVAR_ARCHIVE);
 
 BEGIN_PS_NS
 
@@ -1126,6 +1128,12 @@ static void updatePlayerVelocity(Player* const pPlayer)
         }
     }
 
+    if (pPlayer->vel.Length() < 0.09375 && !pPlayer->vel.isZero())
+    {
+        pPlayer->vel.Zero();
+        pPlayer->nIdxBobZ = 0;
+    }
+
     pPlayerActor->vel.XY() = pPlayer->vel;
 }
 
@@ -1580,6 +1588,26 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
 
     // Always scale roll back to zero in case the functionality is disabled mid-roll.
     scaletozero(pPlayerActor->spr.Angles.Roll, rollreturnrate);
+
+    // Update Z bobbing.
+    if (cl_viewbob)
+    {
+        // Increment index, attenuating by bob speed, type and whether we're underwater.
+        const int nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
+        pPlayer->nPrevBobZ = pPlayer->nBobZ;
+        pPlayer->nIdxBobZ += (2048. / 90.) * cl_exviewbobspeed / cl_viewbob / (nUnderwater + 1);
+        pPlayer->nIdxBobZ *= !pPlayerActor->vel.Z;
+
+        // Increment bob value with index's sine, amplifed by player velocity, bob type and bob height CVAR.
+        const auto nBobVel = (pPlayer->vel.Length() < 0.09375 && nUnderwater) ? (61. / 12.) : pPlayer->totalvel;
+        const auto nBobAmp = nBobVel * 0.05 * cl_viewbob * cl_exviewbobheight;        
+        const auto newBobZ = BobVal(pPlayer->nIdxBobZ) * nBobAmp;
+        pPlayer->nBobZ = (cl_viewbob == 2) ? (abs(newBobZ) - nBobAmp * 0.5 * !nUnderwater) : (newBobZ);
+    }
+    else
+    {
+        pPlayer->nPrevBobZ = pPlayer->nBobZ = 0;
+    }
 }
 
 //---------------------------------------------------------------------------

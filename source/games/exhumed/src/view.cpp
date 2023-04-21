@@ -145,6 +145,10 @@ void DrawView(double interpfrac, bool sceneonly)
                 calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraangles, interpfrac, 96.);
             }
         }
+        else
+        {
+            nCamerapos.Z += interpolatedvalue(pPlayer->nPrevBobZ, pPlayer->nBobZ, interpfrac);
+        }
     }
 
     if (pSector != nullptr)
