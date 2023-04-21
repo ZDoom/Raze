@@ -106,6 +106,8 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x1E0000);
 
+    pActor->nSeqFile = "wasp";
+
     nCreaturesTotal++;
     return pActor;
 }
@@ -118,12 +120,11 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
 
 void AIWasp::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqWasp, WaspSeq[nAction].nSeqId), pActor->nFrame, WaspSeq[nAction].nFlags);
-    return;
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto waspSeq = &WaspSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, waspSeq->nSeqId, pActor->nFrame, waspSeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

@@ -74,6 +74,8 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.extra = -1;
     pChunkActor->spr.intowner = runlist_AddRunRec(pChunkActor->spr.lotag - 1, pChunkActor, 0x200000);
     pChunkActor->spr.hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
+
+    pChunkActor->nSeqFile = "fish";
 }
 
 void BuildBlood(const DVector3& pos, sectortype* pSector)
@@ -147,10 +149,10 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
 void AIFishLimb::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (pActor == nullptr) return;
-    int nSeq = getSeqFromId(kSeqFish, pActor->nCount);
-    seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, 1);
+    if (const auto pActor = ev->pObjActor)
+    {
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, pActor->nCount, pActor->nFrame, 1);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -198,6 +200,8 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x120000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x120000);
+
+    pActor->nSeqFile = "fish";
 
     nCreaturesTotal++;
 }
@@ -254,13 +258,12 @@ void DestroyFish(DExhumedActor* pActor)
 
 void AIFish::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (pActor == nullptr) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqFish, FishSeq[nAction].nSeqId), pActor->nFrame, FishSeq[nAction].nFlags);
-    ev->pTSprite->ownerActor = nullptr;
-    return;
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto fishSeq = &FishSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, fishSeq->nSeqId, pActor->nFrame, fishSeq->nFlags);
+        ev->pTSprite->ownerActor = nullptr;
+    }
 }
 
 //---------------------------------------------------------------------------

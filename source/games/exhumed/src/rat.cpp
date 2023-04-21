@@ -135,6 +135,8 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x240000);
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x240000);
+
+    pActor->nSeqFile = "rat";
 }
 
 //---------------------------------------------------------------------------
@@ -220,11 +222,11 @@ void AIRat::Damage(RunListEvent* ev)
 
 void AIRat::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRat, RatSeq[nAction].nSeqId), pActor->nFrame, RatSeq[nAction].nFlags);
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto ratSeq = &RatSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, ratSeq->nSeqId, pActor->nFrame, ratSeq->nFlags);
+    }
 }
 
 

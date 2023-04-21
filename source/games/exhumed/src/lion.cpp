@@ -84,16 +84,18 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x130000);
 
+    pActor->nSeqFile = "lion";
+
     nCreaturesTotal++;
 }
 
 void AILion::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqLion, LionSeq[nAction].nSeqId), pActor->nFrame, LionSeq[nAction].nFlags);
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto lionSeq = &LionSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, lionSeq->nSeqId, pActor->nFrame, lionSeq->nFlags);
+    }
 }
 
 void AILion::RadialDamage(RunListEvent* ev)

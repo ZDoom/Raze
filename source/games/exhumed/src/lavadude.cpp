@@ -62,6 +62,8 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, double height)
     pLimbActor->spr.intowner = runlist_AddRunRec(pLimbActor->spr.lotag - 1, pLimbActor, 0x160000);
     pLimbActor->spr.hitag = runlist_AddRunRec(NewRun, pLimbActor, 0x160000);
 
+    pLimbActor->nSeqFile = "lavag";
+
     return pLimbActor;
 }
 
@@ -90,9 +92,10 @@ void AILavaDudeLimb::Tick(RunListEvent* ev)
 
 void AILavaDudeLimb::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqLavag, 30) + pActor->spr.picnum, 0, 1);
+    if (const auto pActor = ev->pObjActor)
+    {
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, 30 + pActor->spr.picnum, 0, 1);
+    }
 }
 
 
@@ -119,6 +122,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 	pActor->clipdist = 31.75;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
+    pActor->nSeqFile = "lavag";
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].nSeqId, 0);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -146,15 +150,12 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
 void AILavaDude::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-
-    int nAction = pActor->nAction;
-    int nSeq = getSeqFromId(kSeqLavag, LavadudeSeq[nAction].nSeqId);
-
-    seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].nFlags);
-    ev->pTSprite->ownerActor = nullptr;
-    return;
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto lavadudeSeq = &LavadudeSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, lavadudeSeq->nSeqId, pActor->nFrame, lavadudeSeq->nFlags);
+        ev->pTSprite->ownerActor = nullptr;
+    }
 }
 
 void AILavaDude::Damage(RunListEvent* ev)

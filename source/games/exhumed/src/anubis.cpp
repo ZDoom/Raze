@@ -106,6 +106,8 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
 
     ap->spr.intowner = runlist_AddRunRec(ap->spr.lotag - 1, ap, 0x90000);
 
+    ap->nSeqFile = "anubis";
+
     runlist_AddRunRec(NewRun, ap, 0x90000);
     nCreaturesTotal++;
 }
@@ -337,10 +339,11 @@ void AIAnubis::Tick(RunListEvent* ev)
 
 void AIAnubis::Draw(RunListEvent* ev)
 {
-    const auto ap = ev->pObjActor;
-    if (!ap) return;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqAnubis, AnubisSeq[ap->nAction].nSeqId), ap->nFrame, AnubisSeq[ap->nAction].nFlags);
+    if (const auto ap = ev->pObjActor)
+    {
+        const auto anubisSeq = &AnubisSeq[ap->nAction];
+        seq_PlotSequence(ev->nParam, ap->nSeqFile, anubisSeq->nSeqId, ap->nFrame, anubisSeq->nFlags);
+    }
 }
 
 void AIAnubis::RadialDamage(RunListEvent* ev)

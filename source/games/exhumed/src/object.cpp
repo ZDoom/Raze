@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-static const int8_t ObjectSeq[] = {
-    46, -1, 72, -1
+static const FName ObjectSeq[] = {
+    "firepot", NAME_None, "drum", NAME_None
 };
 
 static const int16_t ObjectStatnum[] = {
@@ -1884,19 +1884,16 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     }
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x170000);
+    pActor->nSeqFile = ObjectSeq[nOjectType];
 
-    int nSeq = ObjectSeq[nOjectType];
-
-    if (nSeq > -1)
+    if (pActor->nSeqFile != NAME_None)
     {
-        pActor->nSeq = getSeqFromId(nSeq);
-
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
-            pActor->nFrame = RandomSize(4) % (getSeqFrameCount(pActor->nSeq) - 1);
+            pActor->nFrame = RandomSize(4) % (getSequence(pActor->nSeqFile).Size() - 1);
         }
 
-        auto  pActor2 = insertActor(pActor->sector(), 0);
+        auto pActor2 = insertActor(pActor->sector(), 0);
         pActor->pTarget = pActor2;
         pActor->nIndex2 = -1;
 
@@ -1906,7 +1903,6 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     else
     {
         pActor->nFrame = 0;
-        pActor->nSeq = -1;
 
         if (pActor->spr.statnum == kStatDestructibleSprite) {
             pActor->nIndex2 = -1;
@@ -1949,7 +1945,6 @@ void AIObject::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     int nStat = pActor->spr.statnum;
-    int nSeq = pActor->nSeq;
 
     if (nStat == 97 || (!(pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))) {
         return;
@@ -1960,14 +1955,14 @@ void AIObject::Tick(RunListEvent* ev)
     }
 
     // do animation
-    if (nSeq != -1)
+    if (pActor->nSeqFile != NAME_None)
     {
-        pActor->nFrame++;
-        if (pActor->nFrame >= getSeqFrameCount(nSeq)) {
-            pActor->nFrame = 0;
-        }
+        const auto& nSeqFrames = getSequence(pActor->nSeqFile);
 
-        pActor->spr.picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+        if (++pActor->nFrame >= nSeqFrames.Size())
+            pActor->nFrame = 0;
+
+        pActor->spr.picnum = nSeqFrames[pActor->nFrame].chunks[0].picnum;
     }
 
     if (pActor->nHealth >= 0) {
@@ -2100,15 +2095,10 @@ void AIObject::Damage(RunListEvent* ev)
 
 void AIObject::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-    int nSeq = pActor->nSeq;
-
-    if (nSeq > -1)
+    if (ev->pObjActor && ev->pObjActor->nSeqFile != NAME_None)
     {
-        seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, 1);
+        seq_PlotSequence(ev->nParam, ev->pObjActor->nSeqFile, 0, ev->pObjActor->nFrame, 1);
     }
-    return;
 }
 
 //---------------------------------------------------------------------------

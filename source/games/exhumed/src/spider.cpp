@@ -85,6 +85,8 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
 
     spp->nRun = runlist_AddRunRec(NewRun, spp, 0xC0000);
 
+    spp->nSeqFile = "spider";
+
     nCreaturesTotal++;
 
     return spp;
@@ -349,12 +351,11 @@ void AISpider::Tick(RunListEvent* ev)
 
 void AISpider::Draw(RunListEvent* ev)
 {
-    auto spp = ev->pObjActor;
-    if (!spp) return;
-
-    int nAction = spp->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqSpider, SpiderSeq[nAction].nSeqId), spp->nFrame, SpiderSeq[nAction].nFlags);
+    if (const auto spp = ev->pObjActor)
+    {
+        const auto spiderSeq = &SpiderSeq[spp->nAction];
+        seq_PlotSequence(ev->nParam, spp->nSeqFile, spiderSeq->nSeqId, spp->nFrame, spiderSeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

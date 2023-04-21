@@ -25,7 +25,8 @@ public:
 
 	int16_t nHealth;
 	int16_t nSeq;
-	int16_t nFrame;
+	FName nSeqFile;
+	uint16_t nFrame;
 	int16_t nFlags;
 	int16_t nAction;
 	int16_t nCount;

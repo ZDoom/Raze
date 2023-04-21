@@ -228,6 +228,7 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->vel.Z = 0;
     pPlayerActor->spr.Angles.Pitch = nullAngle;
     pPlayerActor->spr.intowner = runlist_AddRunRec(pPlayerActor->spr.lotag - 1, nPlayer, 0xA0000);
+    pPlayerActor->nSeqFile = "joe";
     ChangeActorStat(pPlayerActor, 100);
 
 	if (nTotalPlayers > 1)
@@ -460,11 +461,13 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
     {
         pPlayer->nAction = 13;
         pPlayer->nSeq = kSeqMummy;
+        pPlayerActor->nSeqFile = "mummy";
     }
     else
     {
         pPlayer->nAction = 0;
         pPlayer->nSeq = kSeqJoe;
+        pPlayerActor->nSeqFile = "joe";
     }
 
     pPlayer->nSeqSize = 0;
@@ -483,6 +486,7 @@ void ShootStaff(int nPlayer)
     pPlayer->nAction = 15;
     pPlayer->nSeqSize = 0;
     pPlayer->nSeq = kSeqJoe;
+    pPlayer->pActor->nSeqFile = "joe";
 }
 
 //---------------------------------------------------------------------------
@@ -527,9 +531,9 @@ void AIPlayer::Draw(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto nAction = pPlayer->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(pPlayer->nSeq, PlayerSeq[nAction].nSeqId), pPlayer->nSeqSize, PlayerSeq[nAction].nFlags);
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto playerSeq = &PlayerSeq[pPlayer->nAction];
+    seq_PlotSequence(ev->nParam, pPlayerActor->nSeqFile, playerSeq->nSeqId, pPlayer->nSeqSize, playerSeq->nFlags);
 }
 
 //---------------------------------------------------------------------------
@@ -2062,6 +2066,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("invincible", w.invincibility)
             ("air", w.nAir)
             ("seq", w.nSeq)
+            ("seqfile", w.nSeqFile)
             ("item", w.nItem)
             ("maskamount", w.nMaskAmount)
             ("keys", w.keys)
@@ -2074,7 +2079,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("field38", w.nNextWeapon)
             ("field3a", w.nState)
             ("field3c", w.nLastWeapon)
-            ("seq", w.nSeq)
             ("angles", w.Angles)
             ("lives", w.nLives)
             ("double", w.nDouble)

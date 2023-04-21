@@ -259,7 +259,7 @@ void AIAnim::Draw(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    seq_PlotSequence(ev->nParam, pActor->nSeq, pActor->nFrame, 0x101);
+    //seq_PlotSequence(ev->nParam, pActor->nSeq, pActor->nFrame, 0x101);
     ev->pTSprite->ownerActor = nullptr;
 }
 

@@ -90,6 +90,8 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x1C0000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x1C0000);
 
+    pActor->nSeqFile = "roach";
+
     nCreaturesTotal++;
 }
 
@@ -106,12 +108,11 @@ void GoRoach(DExhumedActor* pActor)
 
 void AIRoach::Draw(RunListEvent* ev)
 {
-	auto pActor = ev->pObjActor;
-	if (!pActor) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRoach, RoachSeq[nAction].nSeqId), pActor->nFrame, RoachSeq[nAction].nFlags);
-    return;
+	if (const auto pActor = ev->pObjActor)
+    {
+        const auto roachSeq = &RoachSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, roachSeq->nSeqId, pActor->nFrame, roachSeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

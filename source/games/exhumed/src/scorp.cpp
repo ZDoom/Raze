@@ -89,6 +89,8 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x220000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x220000);
 
+    pActor->nSeqFile = "scorp";
+
     nCreaturesTotal++;
 }
 
@@ -100,12 +102,11 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 
 void AIScorp::Draw(RunListEvent* ev)
 {
-	auto pActor = ev->pObjActor;
-	if (!pActor) return;
-
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqScorp, ScorpSeq[nAction].nSeqId), pActor->nFrame, ScorpSeq[nAction].nFlags);
+	if (const auto pActor = ev->pObjActor)
+    {
+        const auto scorpSeq = &ScorpSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, scorpSeq->nSeqId, pActor->nFrame, scorpSeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

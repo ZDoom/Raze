@@ -149,7 +149,7 @@ const char *SeqNames[kMaxSEQFiles] =
 };
 
 static int16_t SeqOffsets[kMaxSEQFiles];
-static TMap<FName, TArray<TArray<SeqFrame>>> FileSeqMap;
+static TMap<FName, SeqArray> FileSeqMap;
 
 
 //---------------------------------------------------------------------------
@@ -279,6 +279,17 @@ int getSeqFrameChunkFlags(const int nChunk)
 //
 //---------------------------------------------------------------------------
 
+const SeqFrameArray& getSequence(const FName nSeqFile, const unsigned nSeqIndex)
+{
+    return FileSeqMap.CheckKey(nSeqFile)->operator[](nSeqIndex);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int addSeq(const char *seqName)
 {
     const FStringf seqfilename("%s.seq", seqName);
@@ -390,7 +401,7 @@ int addSeq(const char *seqName)
     }
 
     // Add hastable entry for the amount of sequences this file contains.
-    auto& gSequences = FileSeqMap.Insert(FName(seqName), TArray<TArray<SeqFrame>>(nSeqs, true));
+    auto& gSequences = FileSeqMap.Insert(FName(seqName), SeqArray(nSeqs, true));
 
     // Read all this data into something sane.
     for (int nSeq = 0; nSeq < nSeqs; nSeq++)
@@ -841,52 +852,32 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 //
 //---------------------------------------------------------------------------
 
-int seq_PlotSequence(int nSprite, int16_t nSeq, int16_t nFrame, int16_t nFlags)
+void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
 
-    int nSeqOffset = 0;
+    int seqOffset = 0;
 
     if (!(nFlags & 1))
     {
-        DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
-        nSeqOffset = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
+        const DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
+        seqOffset = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
-    int nBaseFrame = getSeqFrame(nSeq, nFrame);
-    int nOffsetFrame = getSeqFrame(nSeq + nSeqOffset, nFrame);
+    const auto& baseFrame = getSequence(seqFile, seqIndex)[frameIndex];
+    const auto& drawFrame = getSequence(seqFile, seqIndex + seqOffset)[frameIndex];
+    const auto chunkCount = drawFrame.chunks.Size();
 
-    int16_t nBase = getSeqFrameChunk(nOffsetFrame);
-    int16_t nSize = getSeqFrameChunkCount(nOffsetFrame);
+    const auto nShade = (baseFrame.flags & 4) ? pTSprite->shade - 100 : pTSprite->shade;
+    const auto nStatnum = (nFlags & 0x100) ? -3 : 100;
 
-    int8_t shade = pTSprite->shade;
-
-    if (getSeqFrameFlags(nBaseFrame) & 4)
+    for (unsigned i = 0; i < chunkCount; i++)
     {
-        shade -= 100;
-    }
-
-    int16_t nPict = getSeqFrameChunkPicnum(nBase);
-
-    int nStatOffset = (nFlags & 0x100) ? -3 : 100;
-    int nStat = nSize + 1;
-    nStat += nStatOffset;
-
-    int nMinStat = nStatOffset + 1;
-
-    while (1)
-    {
-        nStat--;
-        nSize--;
-
-        if (nStat < nMinStat) {
-            break;
-        }
+        const auto& seqFrameChunk = drawFrame.chunks[i];
 
         tspritetype* tsp = mytspriteArray->newTSprite();
         tsp->pos = pTSprite->pos;
-
-        tsp->shade = shade;
+        tsp->shade = nShade;
         tsp->pal = pTSprite->pal;
         tsp->scale = pTSprite->scale;
         tsp->Angles.Yaw = pTSprite->Angles.Yaw;
@@ -894,22 +885,20 @@ int seq_PlotSequence(int nSprite, int16_t nSeq, int16_t nFrame, int16_t nFlags)
         tsp->sectp = pTSprite->sectp;
         tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
         tsp->clipdist = pTSprite->clipdist;
-        tsp->statnum = nStat;
+        tsp->statnum = chunkCount - i + nStatnum + 1;
 
-        if (getSeqFrameChunkFlags(nBase) & 1)
+        if (seqFrameChunk.flags & 1)
         {
-            tsp->xoffset = (int8_t)getSeqFrameChunkPosX(nBase);
+            tsp->xoffset = (int8_t)seqFrameChunk.xpos;
             tsp->cstat |= CSTAT_SPRITE_XFLIP; // x-flipped
         }
         else
         {
-            tsp->xoffset = -getSeqFrameChunkPosX(nBase);
+            tsp->xoffset = -seqFrameChunk.xpos;
         }
 
-        tsp->yoffset = -getSeqFrameChunkPosY(nBase);
-        tsp->picnum = getSeqFrameChunkPicnum(nBase);
-
-        nBase++;
+        tsp->yoffset = -seqFrameChunk.ypos;
+        tsp->picnum = seqFrameChunk.picnum;
     }
 
     if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTSprite->ownerActor->spr.statnum == 100 && nNetPlayerCount))
@@ -929,6 +918,7 @@ int seq_PlotSequence(int nSprite, int16_t nSeq, int16_t nFrame, int16_t nFlags)
         {
             pTSprite->picnum = nShadowPic;
 
+            const auto nPict = drawFrame.chunks[0].picnum;
             const auto nScale = max(((tileWidth(nPict) << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.), 1) * REPEAT_SCALE;
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
@@ -938,8 +928,6 @@ int seq_PlotSequence(int nSprite, int16_t nSeq, int16_t nFrame, int16_t nFlags)
             pTSprite->pal = 0;
         }
     }
-
-    return nPict;
 }
 
 //---------------------------------------------------------------------------

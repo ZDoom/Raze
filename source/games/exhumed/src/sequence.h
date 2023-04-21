@@ -123,6 +123,9 @@ struct SeqFrame
     TArray<SeqFrameChunk> chunks;
 };
 
+using SeqFrameArray = TArray<SeqFrame>;
+using SeqArray = TArray<SeqFrameArray>;
+
 extern int16_t frames;
 
 extern int16_t nShadowWidth;
@@ -140,7 +143,7 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx);
 void seq_DrawStatusSequence(int16_t nSequence, uint16_t edx, int16_t ebx);
 
 int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align = false);
-int seq_PlotSequence(int nSprite, int16_t nSeq, int16_t nFrame, int16_t nFlags);
+void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags);
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
@@ -154,6 +157,8 @@ int getSeqFrameChunkPosX(const int nChunk);
 int getSeqFrameChunkPosY(const int nChunk);
 int getSeqFrameChunkPicnum(const int nChunk);
 int getSeqFrameChunkFlags(const int nChunk);
+
+const SeqFrameArray& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0);
 
 END_PS_NS
 

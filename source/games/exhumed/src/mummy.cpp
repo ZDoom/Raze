@@ -85,6 +85,8 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0xE0000);
 
+    pActor->nSeqFile = "mummy";
+
     nCreaturesTotal++;
 }
 
@@ -415,12 +417,11 @@ void AIMummy::Tick(RunListEvent* ev)
 
 void AIMummy::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqMummy, MummySeq[nAction].nSeqId), pActor->nFrame, MummySeq[nAction].nFlags);
-    return;
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto mummySeq = &MummySeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, mummySeq->nSeqId, pActor->nFrame, mummySeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

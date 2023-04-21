@@ -424,15 +424,8 @@ void AISnake::Tick(RunListEvent* ev)
 
 void AISnake::Draw(RunListEvent* ev)
 {
-    int nSnake = RunData[ev->nRun].nObjIndex;
-    int nSprite = ev->nParam;
-
-    if ((nSnake & 0xFF) == 0) {
-        seq_PlotSequence(nSprite, getSeqFromId(kSeqSnakehed), 0, 0);
-    }
-    else {
-        seq_PlotSequence(nSprite, getSeqFromId(kSeqSnakBody), 0, 0);
-    }
+    const int nSnake = RunData[ev->nRun].nObjIndex;
+    seq_PlotSequence(ev->nParam, (nSnake & 0xFF) == 0 ? "snakehed" : "snakbody", 0, 0, 0);
 
     ev->pTSprite->ownerActor = nullptr;
 }

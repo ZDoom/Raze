@@ -123,6 +123,7 @@ void BuildRa(int nPlayer)
     pActor->spr.pal = 1;
     pActor->spr.scale = DVector2(1, 1);
     pActor->spr.pos = pPlayerActor->spr.pos;
+    pActor->nSeqFile = "eyehit";
 
 //	GrabTimeSlot(3);
 
@@ -335,10 +336,9 @@ void AIRa::Tick(RunListEvent* ev)
 
 void AIRa::Draw(RunListEvent* ev)
 {
-    int nPlayer = RunData[ev->nRun].nObjIndex;
-    int nSeq = getSeqFromId(kSeqEyeHit, RaSeq[Ra[nPlayer].nAction].nSeqId);
-
-    seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);
+    const auto nPlayer = RunData[ev->nRun].nObjIndex;
+    const auto pRa = &Ra[nPlayer];
+    seq_PlotSequence(ev->nParam, "eyehit", RaSeq[pRa->nAction].nSeqId, pRa->nFrame, 1);
     ev->pTSprite->ownerActor = nullptr;
 }
 

@@ -580,6 +580,7 @@ void DExhumedActor::Serialize(FSerializer& arc)
         ("channel", nChannel)
         ("damage", nDamage)
         ("seq", nSeq)
+        ("seqfile", nSeqFile)
         ("flags", nFlags)
         ("angle2", pitch)
 

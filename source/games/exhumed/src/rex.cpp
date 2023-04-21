@@ -86,6 +86,8 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
 
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x180000);
 
+    pActor->nSeqFile = "rex";
+
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x180000);
 
@@ -166,13 +168,11 @@ void AIRex::Damage(RunListEvent* ev)
 
 void AIRex::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqRex, RexSeq[nAction].nSeqId), pActor->nFrame, RexSeq[nAction].nFlags);
-    return;
+    if (const auto pActor = ev->pObjActor)
+    {
+        const auto rexSeq = &RexSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, rexSeq->nSeqId, pActor->nFrame, rexSeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

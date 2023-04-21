@@ -90,6 +90,8 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
 
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x190000);
 
+    pActor->nSeqFile = "set";
+
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x190000);
 
@@ -244,12 +246,11 @@ void AISet::Damage(RunListEvent* ev)
 
 void AISet::Draw(RunListEvent* ev)
 {
-	auto pActor = ev->pObjActor;
-	if (!pActor) return;
-    int nAction = pActor->nAction;
-
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqSet, SetSeq[nAction].nSeqId), pActor->nFrame, SetSeq[nAction].nFlags);
-    return;
+	if (const auto pActor = ev->pObjActor)
+    {
+        const auto setSeq = &SetSeq[pActor->nAction];
+        seq_PlotSequence(ev->nParam, pActor->nSeqFile, setSeq->nSeqId, pActor->nFrame, setSeq->nFlags);
+    }
 }
 
 //---------------------------------------------------------------------------

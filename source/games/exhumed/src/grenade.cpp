@@ -234,13 +234,18 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
 void AIGrenade::Draw(RunListEvent* ev)
 {
-    auto pActor = ev->pObjActor;
-    if (!pActor) return;
-
-    int nSeq = pActor->nFrame ? getSeqFromId(kSeqGrenBoom) : getSeqFromId(kSeqGrenRoll, pActor->nIndex);
-    seq_PlotSequence(ev->nParam, nSeq, pActor->nHealth >> 8, 1);
+    if (const auto pActor = ev->pObjActor)
+    {
+        if (pActor->nFrame)
+        {
+            seq_PlotSequence(ev->nParam, "grenboom", 0, pActor->nHealth >> 8, 1);
+        }
+        else
+        {
+            seq_PlotSequence(ev->nParam, "grenroll", pActor->nIndex, pActor->nHealth >> 8, 1);
+        }
+    }
 }
-
 
 //---------------------------------------------------------------------------
 //

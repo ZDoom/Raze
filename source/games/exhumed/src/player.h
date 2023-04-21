@@ -61,6 +61,7 @@ struct Player
     int16_t invincibility;
     int16_t nAir;
     int16_t nSeq;
+    FName nSeqFile;
     int16_t nMaskAmount;
     uint16_t keys;
     int16_t nMagic;

@@ -494,6 +494,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.lotag = runlist_HeadRun() + 1;
     pActor2->spr.extra = -1;
     pActor2->spr.hitag = 0;
+    pActor2->nSeqFile = "queenegg";
 
     GrabTimeSlot(3);
 
@@ -723,9 +724,10 @@ void AIQueenEgg::Damage(RunListEvent* ev)
 
 void AIQueenEgg::Draw(RunListEvent* ev)
 {
-    int nEgg = RunData[ev->nRun].nObjIndex;
-    Egg* pEgg = &QueenEgg[nEgg];
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqQueenEgg, EggSeq[pEgg->nAction].nSeqId), pEgg->nFrame, EggSeq[pEgg->nAction].nFlags);
+    const auto nEgg = RunData[ev->nRun].nObjIndex;
+    const auto pEgg = &QueenEgg[nEgg];
+    const auto eggSeq = &EggSeq[pEgg->nAction];
+    seq_PlotSequence(ev->nParam, pEgg->pActor->nSeqFile, eggSeq->nSeqId, pEgg->nFrame, eggSeq->nFlags);
 }
 
 //---------------------------------------------------------------------------
@@ -762,6 +764,7 @@ void BuildQueenHead(int nQueen)
     pActor2->spr.lotag = runlist_HeadRun() + 1;
     pActor2->spr.hitag = 0;
     pActor2->spr.extra = -1;
+    pActor2->nSeqFile = "queen";
 
     GrabTimeSlot(3);
 
@@ -1126,25 +1129,15 @@ void AIQueenHead::Damage(RunListEvent* ev)
 
 void AIQueenHead::Draw(RunListEvent* ev)
 {
-    int nHead = RunData[ev->nRun].nObjIndex;
-    int nAction = QueenHead.nAction;
-
-    int nSeq = getSeqFromId(kSeqQueen);
-
-    int edx;
-
-    if (nHead == 0)
+    if (RunData[ev->nRun].nObjIndex == 0)
     {
-        edx = HeadSeq[nAction].nFlags;
-        nSeq += HeadSeq[nAction].nSeqId;
+        const auto headSeq = &HeadSeq[QueenHead.nAction];
+        seq_PlotSequence(ev->nParam, QueenHead.pActor->nSeqFile, headSeq->nSeqId, QueenHead.nFrame, headSeq->nFlags);
     }
     else
     {
-        edx = 1;
-        nSeq += 73;
+        seq_PlotSequence(ev->nParam, QueenHead.pActor->nSeqFile, 73, QueenHead.nFrame, 1);
     }
-
-    seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
 }
 
 //---------------------------------------------------------------------------
@@ -1189,6 +1182,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
     pActor->spr.hitag = 0;
+    pActor->nSeqFile = "queen";
 
     GrabTimeSlot(3);
 
@@ -1569,10 +1563,12 @@ void AIQueen::Damage(RunListEvent* ev)
 
 void AIQueen::Draw(RunListEvent* ev)
 {
-    int nQueen = RunData[ev->nRun].nObjIndex;
+    const int nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
-    int nAction = QueenList[nQueen].nAction;
-    seq_PlotSequence(ev->nParam, getSeqFromId(kSeqQueen, QueenSeq[nAction].nSeqId), QueenList[nQueen].nFrame, QueenSeq[nAction].nFlags);
+
+    const auto thisQueen = &QueenList[nQueen];
+    const auto queenSeq = &QueenSeq[thisQueen->nAction];
+    seq_PlotSequence(ev->nParam, thisQueen->pActor->nSeqFile, queenSeq->nSeqId, thisQueen->nFrame, queenSeq->nFlags);
 }
 
 END_PS_NS
