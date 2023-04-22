@@ -104,7 +104,6 @@ struct Player
     double nIdxBobZ;
     double nPrevWeapBob;
     double nWeapBob;
-    double nStrafeRoll;
     bool crouch_toggle;
     bool bTouchFloor;
     bool bJumping;

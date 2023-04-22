@@ -1630,6 +1630,10 @@ void processinput_d(int snum)
 
 	ESyncBits& actions = p->sync.actions;
 
+	// Get strafe value before it's rotated by the angle.
+	const auto strafeVel = PlayerInputSideVel(snum);
+	constexpr auto maxVel = (117351124. / 10884538.);
+
 	processinputvel(snum);
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
@@ -1872,6 +1876,7 @@ void processinput_d(int snum)
 
 		p->vel.X += sb_fvel * doubvel * (5. / 16.);
 		p->vel.Y += sb_svel * doubvel * (5. / 16.);
+		p->Angles.StrafeVel += strafeVel * doubvel * (5. / 16.);
 
 		bool check;
 
@@ -1880,27 +1885,36 @@ void processinput_d(int snum)
 		if (check)
 		{
 			p->vel.XY() *= gs.playerfriction - 0.125;
+			p->Angles.StrafeVel *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
 				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
+				p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
+				p->Angles.StrafeVel *= gs.playerfriction;
 			}
 		}
 
 		if (abs(p->vel.X) < 1/128. && abs(p->vel.Y) < 1 / 128.)
+		{
 			p->vel.X = p->vel.Y = 0;
+			p->Angles.StrafeVel = 0;
+		}
 
 		if (shrunk)
 		{
 			p->vel.XY() *= gs.playerfriction * 0.75;
+			p->Angles.StrafeVel *= gs.playerfriction * 0.75;
 		}
 	}
+
+	p->Angles.doViewTilting(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 

@@ -1837,6 +1837,7 @@ struct PLAYER
     char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
     int cookieTime;
     double height;
+    double svel;
 
     uint8_t WpnReloadState;
 

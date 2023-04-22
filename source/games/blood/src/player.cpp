@@ -1571,10 +1571,14 @@ void ProcessInput(PLAYER* pPlayer)
 		const double& fvAccel = pInput->fvel > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		const double& svAccel = pPosture->sideAccel;
 		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
+		pPlayer->Angles.StrafeVel += pInput->svel * svAccel * speed;
 	}
 
 	pPlayer->Angles.doViewYaw(pInput);
 	pPlayer->Angles.doYawInput(pInput);
+
+	constexpr auto maxVel = (36211. / 3000.);
+	pPlayer->Angles.doViewTilting(pInput, actor->vel.XY(), maxVel, pPlayer->posture == kPostureSwim);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;

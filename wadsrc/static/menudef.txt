@@ -1132,14 +1132,14 @@ OptionMenu "VideoOptions" protected
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"ViewBobbing"
 		Slider "$DSPLYMNU_VIEWBOBSPEED",			"cl_exviewbobspeed",			0.0, 10.0, 0.1
 		Slider "$DSPLYMNU_VIEWBOBHEIGHT",			"cl_exviewbobheight",			0.0, 20.0, 0.1
-		Option "$DSPLYMNU_VIEWTILTING",				"cl_exviewtilting",				"ViewTilting"
-		Slider "$DSPLYMNU_VIEWTILTSCALE",			"cl_extiltscale",				0.0, 2.0, 0.05
 	}
 	ifgame(Blood)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewvbob",					"OnOff"
 		Option "$DSPLYMNU_VIEWSWAY",				"cl_viewhbob",					"OnOff"
 	}
+	Option "$DSPLYMNU_VIEWTILTING",				"cl_viewtilting",				"ViewTilting"
+	Slider "$DSPLYMNU_VIEWTILTSCALE",			"cl_viewtiltscale",				0.0, 2.0, 0.05
 	Slider "$DSPLYMNU_FOV",						"r_fov",						60, 130, 10, 1
 
 	StaticText ""

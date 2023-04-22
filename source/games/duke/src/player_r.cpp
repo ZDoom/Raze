@@ -2335,6 +2335,10 @@ void processinput_r(int snum)
 
 	ESyncBits& actions = p->sync.actions;
 
+	// Get strafe value before it's rotated by the angle.
+	const auto strafeVel = PlayerInputSideVel(snum);
+	constexpr auto maxVel = (117351124. / 10884538.);
+
 	auto psectp = p->cursector;
 	if (p->OnMotorcycle && pact->spr.extra > 0)
 	{
@@ -2689,20 +2693,24 @@ void processinput_r(int snum)
 
 		p->vel.X += sb_fvel * doubvel * (5. / 16.);
 		p->vel.Y += sb_svel * doubvel * (5. / 16.);
+		p->Angles.StrafeVel += strafeVel * doubvel * (5. / 16.);
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
 			p->vel.XY() *= gs.playerfriction - 0.125;
+			p->Angles.StrafeVel *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
 				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
+				p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
+				p->Angles.StrafeVel *= gs.playerfriction;
 			}
 		}
 
@@ -2724,6 +2732,7 @@ void processinput_r(int snum)
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
+				p->Angles.StrafeVel *= gs.playerfriction;
 			}
 		}
 		else if (tilesurface(psectp->floortexture) == TSURF_MUDDY)
@@ -2733,6 +2742,7 @@ void processinput_r(int snum)
 				if (p->on_ground)
 				{
 					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
+					p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 			}
 			else
@@ -2741,17 +2751,24 @@ void processinput_r(int snum)
 				else
 				{
 					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
+					p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 		}
 
 		if (abs(p->vel.X) < 1 / 128. && abs(p->vel.Y) < 1 / 128.)
+		{
 			p->vel.X = p->vel.Y = 0;
+			p->Angles.StrafeVel = 0;
+		}
 
 		if (shrunk)
 		{
 			p->vel.XY() *= gs.playerfriction * 0.75;
+			p->Angles.StrafeVel *= gs.playerfriction * 0.75;
 		}
 	}
+
+	p->Angles.doViewTilting(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 

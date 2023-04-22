@@ -78,6 +78,9 @@ struct PlayerAngles
 	// Player viewing angles, separate from the camera.
 	DRotator PrevViewAngles, ViewAngles;
 
+	// Strafe roll counter, to be incremented/managed by the game's velocity handler.
+	double PrevStrafeVel, StrafeVel;
+
 	// Holder of current yaw spin state for the 180 degree turn.
 	DAngle YawSpin;
 
@@ -90,6 +93,7 @@ struct PlayerAngles
 	void doYawInput(InputPacket* const input);
 	void doViewPitch(const bool canslopetilt, const bool climbing = false);
 	void doViewYaw(InputPacket* const input);
+	void doViewTilting(InputPacket* const pInput, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater);
 
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
@@ -149,6 +153,7 @@ private:
 	DCoreActor* pActor;
 
 	// Constants used throughout input functions.
+	static constexpr double ROLL_TILTRETURN = 15.;
 	static constexpr double YAW_LOOKINGSPEED = 801.5625;
 	static constexpr double YAW_ROTATESPEED = 63.28125;
 	static constexpr double YAW_LOOKRETURN = 7.5;

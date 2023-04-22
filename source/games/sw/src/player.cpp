@@ -2038,9 +2038,11 @@ void DoPlayerMove(PLAYER* pp)
     DoPlayerSlide(pp);
 
     pp->ovect = pp->vect;
+    pp->Angles.PrevStrafeVel = pp->Angles.StrafeVel;
 
     pp->vect.X += pp->input.fvel * INPUT_SCALE;
     pp->vect.Y += pp->input.svel * INPUT_SCALE;
+    pp->Angles.StrafeVel += pp->svel * INPUT_SCALE;
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -2049,22 +2051,31 @@ void DoPlayerMove(PLAYER* pp)
     }
 
 	pp->vect *= FixedToFloat(friction);
+    pp->Angles.StrafeVel *= FixedToFloat(friction);
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
         pp->vect = (pp->vect + (pp->ovect*1))/2;
+        pp->Angles.StrafeVel = (pp->Angles.StrafeVel + (pp->Angles.PrevStrafeVel*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
         pp->vect = (pp->vect + (pp->ovect*2))/3;
+        pp->Angles.StrafeVel = (pp->Angles.StrafeVel + (pp->Angles.PrevStrafeVel*2))/3;
     }
 
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
+    {
         pp->vect.Zero();
+        pp->Angles.StrafeVel = 0;
+    }
 
 	actor->vel.X = pp->vect.Length();
+
+    constexpr auto maxVel = (380401538. / 36022361.);
+    pp->Angles.doViewTilting(&pp->input, pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {
@@ -6970,6 +6981,9 @@ void domovethings(void)
         // do for moving sectors
         DoPlayerSectorUpdatePreMove(pp);
         ChopsCheck(pp);
+
+        // Get strafe value before it's rotated by the angle.
+        pp->svel = pp->input.svel;
 
         // convert fvel/svel into a vector before performing actions.
         const auto velvect = DVector2(pp->input.fvel, pp->input.svel).Rotated(pp->actor->spr.Angles.Yaw);

@@ -5153,8 +5153,16 @@ void MoveDude(DBloodActor* actor)
 		actor->vel.X += FixedToFloat(-mulscale16r(FloatToFixed(actor->vel.X), nDrag));
 		actor->vel.Y += FixedToFloat(-mulscale16r(FloatToFixed(actor->vel.Y), nDrag));
 
+		if (pPlayer)
+		{
+			pPlayer->Angles.StrafeVel += FixedToFloat(-mulscale16r(FloatToFixed(pPlayer->Angles.StrafeVel), nDrag));
+		}
+
 		if (actor->vel.XY().Length() < 0.0625)
+		{
 			actor->vel.XY().Zero();
+			if (pPlayer) pPlayer->Angles.StrafeVel = 0;
+		}
 	}
 }
 
