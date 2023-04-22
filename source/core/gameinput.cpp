@@ -515,34 +515,31 @@ void PlayerAngles::doViewYaw(InputPacket* const input)
 void PlayerAngles::doViewTilting(InputPacket* const pInput, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater)
 {
 	// Scale/attenuate tilting based on player actions.
+	const auto rollAmp = cl_viewtiltscale / (bUnderwater + 1);
 	const auto runScale = 1. / (!(pInput->actions & SB_RUN) + 1);
-	const auto waterScale = 1. / (bUnderwater + 1);
 	const auto strafeScale = !!pInput->svel + 1;
 
 	if (cl_viewtilting == 1)
 	{
 		// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
-		const auto rollAdj = DAngle::fromDeg(pInput->avel * cl_viewtiltscale);
-		const auto rollAmp = DAngle::fromDeg(ROLL_TILTAVELSCALE * waterScale);
+		const auto rollAdj = DAngle::fromDeg(pInput->avel * ROLL_TILTAVELSCALE * rollAmp);
 		const auto rollMax = DAngle::fromDeg((90. / 32. * 1.5) * cl_viewtiltscale);
 		scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
-		pActor->spr.Angles.Roll = clamp(pActor->spr.Angles.Roll + rollAdj * rollAmp, -rollMax, rollMax);
+		pActor->spr.Angles.Roll = clamp(pActor->spr.Angles.Roll + rollAdj, -rollMax, rollMax);
 	}
 	else if (cl_viewtilting == 2)
 	{
 		// Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
-		const auto rollAdj = StrafeVel * cl_viewtiltscale;
-		const auto rollAmp = strafeScale * waterScale;
+		const auto rollAdj = StrafeVel * strafeScale * rollAmp;
 		const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
-		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (1.875 / nMaxVel));
+		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj, -rollMax, rollMax) * (1.875 / nMaxVel));
 	}
 	else if (cl_viewtilting == 3)
 	{
 		// Movement rolling from player's velocity. Adjustment == (90/48) for running keyboard strafe.
-		const auto rollAdj = nVelVect.Rotated(-pActor->spr.Angles.Yaw).Y * cl_viewtiltscale;
-		const auto rollAmp = strafeScale * waterScale;
+		const auto rollAdj = nVelVect.Rotated(-pActor->spr.Angles.Yaw).Y * strafeScale * rollAmp;
 		const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
-		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (1.875 / nMaxVel));
+		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj, -rollMax, rollMax) * (1.875 / nMaxVel));
 	}
 	else
 	{
