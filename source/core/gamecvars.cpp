@@ -252,11 +252,12 @@ ADD_STAT(coord)
 	FString out;
 	if (const auto pActor = gi->getConsoleActor())
 	{
-		out.AppendFormat("X: %.4f ", pActor->spr.pos.X);
-		out.AppendFormat("Y: %.4f ", pActor->spr.pos.Y);
-		out.AppendFormat("Z: %.4f ", pActor->spr.pos.Z);
-		out.AppendFormat("Yaw: %.4f ", pActor->spr.Angles.Yaw.Degrees());
-		out.AppendFormat("Pitch: %.4f\n", pActor->spr.Angles.Pitch.Degrees());
+		out.AppendFormat("X: %.4f  ", pActor->spr.pos.X);
+		out.AppendFormat("Y: %.4f  ", pActor->spr.pos.Y);
+		out.AppendFormat("Z: %.4f\n", pActor->spr.pos.Z);
+		out.AppendFormat("Yaw: %.4f  ", pActor->spr.Angles.Yaw.Degrees());
+		out.AppendFormat("Pitch: %.4f  ", pActor->spr.Angles.Pitch.Degrees());
+		out.AppendFormat("Roll: %.4f\n", pActor->spr.Angles.Roll.Degrees());
 	}
 	return out;
 }
