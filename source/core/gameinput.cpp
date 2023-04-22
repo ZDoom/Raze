@@ -516,17 +516,18 @@ void PlayerAngles::doViewTilting(InputPacket* const pInput, const DVector2& nVel
 {
 	// Scale/attenuate tilting based on player actions.
 	const auto runScale = 1. / (!(pInput->actions & SB_RUN) + 1);
+	const auto avelScale = (1966426. / 12000000.);
 	const auto waterScale = 1. / (bUnderwater + 1);
 	const auto strafeScale = !!pInput->svel + 1;
 
 	if (cl_viewtilting == 1)
 	{
-		// Console-like yaw rolling. Adjustment == (90/32) for keyboard turning. Clamp is 1.5x this value.
-		const auto rollAdj = pActor->spr.Angles.Roll.Degrees() + pInput->avel * (48779.f / 150000.f) * cl_viewtiltscale;
-		const auto rollAmp = waterScale;
-		const auto rollMax = (11553170. / 1347146.) * cl_viewtiltscale;
-		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax));
+		// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
+		const auto rollAdj = DAngle::fromDeg(pInput->avel * cl_viewtiltscale);
+		const auto rollAmp = DAngle::fromDeg(avelScale * waterScale);
+		const auto rollMax = DAngle::fromDeg((90. / 32. * 1.5) * cl_viewtiltscale);
 		scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
+		pActor->spr.Angles.Roll = clamp(pActor->spr.Angles.Roll + rollAdj * rollAmp, -rollMax, rollMax);
 	}
 	else if (cl_viewtilting == 2)
 	{
