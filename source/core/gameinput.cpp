@@ -39,8 +39,8 @@ CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, cl_viewtiltscale, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE);
 CUSTOM_CVAR(Int, cl_viewtilting, 0, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 {
-    if (self < 0) self = 0;
-    else if (self > 3) self = 3;
+	if (self < 0) self = 0;
+	else if (self > 3) self = 3;
 }
 
 
@@ -519,36 +519,36 @@ void PlayerAngles::doViewTilting(InputPacket* const pInput, const DVector2& nVel
 	const auto waterScale = 1. / (bUnderwater + 1);
 	const auto strafeScale = !!pInput->svel + 1;
 
-    if (cl_viewtilting == 1)
-    {
-        // Console-like yaw rolling. Adjustment == (90/32) for keyboard turning. Clamp is 1.5x this value.
-        const auto rollAdj = pActor->spr.Angles.Roll.Degrees() + pInput->avel * (48779.f / 150000.f) * cl_viewtiltscale;
-        const auto rollAmp = waterScale;
-        const auto rollMax = (11553170. / 1347146.) * cl_viewtiltscale;
-        pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax));
-        scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
-    }
-    else if (cl_viewtilting == 2)
-    {
-        // Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
-        const auto rollAdj = StrafeVel * cl_viewtiltscale;
-        const auto rollAmp = strafeScale * waterScale;
-        const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
-        pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (1.875 / nMaxVel));
-    }
-    else if (cl_viewtilting == 3)
-    {
-        // Movement rolling from player's velocity. Adjustment == (90/48) for running keyboard strafe.
-        const auto rollAdj = nVelVect.Rotated(-pActor->spr.Angles.Yaw).Y * cl_viewtiltscale;
-        const auto rollAmp = strafeScale * waterScale;
-        const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
-        pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (1.875 / nMaxVel));
-    }
-    else
-    {
-    	// Always reset roll if we're not tilting at all.
-        pActor->spr.Angles.Roll = nullAngle;
-    }
+	if (cl_viewtilting == 1)
+	{
+		// Console-like yaw rolling. Adjustment == (90/32) for keyboard turning. Clamp is 1.5x this value.
+		const auto rollAdj = pActor->spr.Angles.Roll.Degrees() + pInput->avel * (48779.f / 150000.f) * cl_viewtiltscale;
+		const auto rollAmp = waterScale;
+		const auto rollMax = (11553170. / 1347146.) * cl_viewtiltscale;
+		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax));
+		scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
+	}
+	else if (cl_viewtilting == 2)
+	{
+		// Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
+		const auto rollAdj = StrafeVel * cl_viewtiltscale;
+		const auto rollAmp = strafeScale * waterScale;
+		const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
+		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (1.875 / nMaxVel));
+	}
+	else if (cl_viewtilting == 3)
+	{
+		// Movement rolling from player's velocity. Adjustment == (90/48) for running keyboard strafe.
+		const auto rollAdj = nVelVect.Rotated(-pActor->spr.Angles.Yaw).Y * cl_viewtiltscale;
+		const auto rollAmp = strafeScale * waterScale;
+		const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
+		pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (1.875 / nMaxVel));
+	}
+	else
+	{
+		// Always reset roll if we're not tilting at all.
+		pActor->spr.Angles.Roll = nullAngle;
+	}
 }
 
 
