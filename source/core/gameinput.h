@@ -174,4 +174,3 @@ extern GameInput gameInput;
 class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle);
-bool scaletozero(DAngle& angle, const double scale, const double push = (7646143. / 110386328.));
