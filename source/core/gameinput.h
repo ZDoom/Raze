@@ -153,6 +153,7 @@ private:
 	DCoreActor* pActor;
 
 	// Constants used throughout input functions.
+	static constexpr double ROLL_TILTAVELSCALE = (1966426. / 12000000.);
 	static constexpr double ROLL_TILTRETURN = 15.;
 	static constexpr double YAW_LOOKINGSPEED = 801.5625;
 	static constexpr double YAW_ROTATESPEED = 63.28125;
@@ -164,7 +165,7 @@ private:
 	static constexpr double PITCH_CENTERSPEED = 10.7375;
 	static constexpr double PITCH_HORIZOFFSPEED = 4.375;
 	static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
-	static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
+	static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-127076387. / 3344227.);
 	static constexpr double PITCH_HORIZOFFPUSH = (14115687. / 31535389.);
 };
 
