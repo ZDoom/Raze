@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 CUSTOM_CVAR(Int, cl_exviewtilting, 0, CVAR_ARCHIVE)
 {
     if (self < 0) self = 0;
-    else if (self > 2) self = 2;
+    else if (self > 3) self = 3;
 }
 CVAR(Float, cl_extiltscale, 1.f, CVAR_ARCHIVE);
 CVAR(Bool, cl_exjumprebound, false, CVAR_ARCHIVE);
@@ -1124,6 +1124,8 @@ static void updatePlayerVelocity(Player* const pPlayer)
         {
             pPlayer->vel += inputvect;
             pPlayer->vel *= 0.953125;
+            pPlayer->nStrafeRoll += pInput->svel * 0.375;
+            pPlayer->nStrafeRoll *= 0.953125;
         }
     }
 
@@ -1131,6 +1133,7 @@ static void updatePlayerVelocity(Player* const pPlayer)
     {
         pPlayer->vel.Zero();
         pPlayer->nIdxBobZ = 0;
+        pPlayer->nStrafeRoll = 0;
     }
 
     pPlayerActor->vel.XY() = pPlayer->vel;
@@ -1564,7 +1567,10 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
 {
     const auto pPlayerActor = pPlayer->pActor;
     const auto pInput = &pPlayer->input;
-    static double rollreturnrate;
+    const auto pAngles = &pPlayerActor->spr.Angles;
+    const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
+    const auto waterScale = 1. / (nUnderwater + 1);
+    constexpr auto maxVel = 15.25;
 
     // Pitch tilting when player's Z changes (stairs, jumping, etc).
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
@@ -1573,32 +1579,42 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
     if (cl_exviewtilting == 1)
     {
         // Console-like yaw rolling. Adjustment == (90/32) for keyboard turning. Clamp is 1.5x this value.
-        const auto adjustment = DAngle::fromDeg(pInput->avel * (48779.f / 150000.f) * cl_extiltscale);
-        const auto adjmaximum = DAngle::fromDeg((11553170. / 1347146.) * cl_extiltscale);
-        pPlayerActor->spr.Angles.Roll = clamp(pPlayerActor->spr.Angles.Roll + adjustment, -adjmaximum, adjmaximum);
-        rollreturnrate = GameTicRate * 0.5;
+        const auto rollAdj = pAngles->Roll.Degrees() + pInput->avel * (48779.f / 150000.f) * cl_extiltscale;
+        const auto rollMax = (11553170. / 1347146.) * cl_extiltscale;
+        pAngles->Roll = DAngle::fromDeg(clamp(rollAdj * waterScale, -rollMax, rollMax));
+        scaletozero(pAngles->Roll, GameTicRate * 0.5);
     }
     else if (cl_exviewtilting == 2)
     {
         // Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
-        pPlayerActor->spr.Angles.Roll += DAngle::fromDeg(pInput->svel * (1563154.f / 4358097.f) * cl_extiltscale);
-        rollreturnrate = GameTicRate * 0.25;
+        const auto rollAdj = pPlayer->nStrafeRoll * cl_extiltscale;
+        const auto rollAmp = (!!pInput->svel + 1.) * waterScale;
+        const auto rollMax = maxVel / (!(pInput->actions & SB_RUN) + 1) * cl_extiltscale;
+        pAngles->Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (15. / 122.));
     }
-
-    // Always scale roll back to zero in case the functionality is disabled mid-roll.
-    scaletozero(pPlayerActor->spr.Angles.Roll, rollreturnrate);
+    else if (cl_exviewtilting == 3)
+    {
+        // Movement rolling. Adjustment == (90/48) for running keyboard strafe.
+        const auto rollAdj = pPlayerActor->vel.XY().Rotated(-pAngles->Yaw).Y * cl_extiltscale;
+        const auto rollAmp = (!!pInput->svel + 1.) * waterScale;
+        const auto rollMax = maxVel / (!(pInput->actions & SB_RUN) + 1) * cl_extiltscale;
+        pAngles->Roll = DAngle::fromDeg(clamp(rollAdj * rollAmp, -rollMax, rollMax) * (15. / 122.));
+    }
+    else
+    {
+        pAngles->Roll = nullAngle;
+    }
 
     // Update Z bobbing.
     if (cl_viewbob)
     {
         // Increment index, attenuating by bob speed, type and whether we're underwater.
-        const int nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
         pPlayer->nPrevBobZ = pPlayer->nBobZ;
-        pPlayer->nIdxBobZ += (2048. / 90.) * cl_exviewbobspeed / cl_viewbob / (nUnderwater + 1);
+        pPlayer->nIdxBobZ += (2048. / 90.) * cl_exviewbobspeed / cl_viewbob * waterScale;
         pPlayer->nIdxBobZ *= !pPlayerActor->vel.Z;
 
         // Increment bob value with index's sine, amplifed by player velocity, bob type and bob height CVAR.
-        const auto nBobVel = (pPlayer->vel.Length() < 0.09375 && nUnderwater) ? (61. / 12.) : pPlayer->totalvel;
+        const auto nBobVel = (pPlayer->vel.Length() < 0.09375 && nUnderwater) ? (maxVel / 3.) : pPlayer->totalvel;
         const auto nBobAmp = nBobVel * 0.05 * cl_viewbob * cl_exviewbobheight;        
         const auto newBobZ = BobVal(pPlayer->nIdxBobZ) * nBobAmp;
         pPlayer->nBobZ = (cl_viewbob == 2) ? (abs(newBobZ) - nBobAmp * 0.5 * !nUnderwater) : (newBobZ);

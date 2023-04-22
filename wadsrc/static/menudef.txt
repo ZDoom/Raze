@@ -1096,8 +1096,9 @@ OptionValue "ViewBobbing"
 OptionValue "ViewTilting"
 {
 	0, "$OPTVAL_OFF"
-	1, "$DSPLYMNU_VIEWTILTPSE"
-	2, "$DSPLYMNU_VIEWTILTQUAKE"
+	1, "$DSPLYMNU_VIEWTILTTURN"
+	2, "$DSPLYMNU_VIEWTILTSTRAFE"
+	2, "$DSPLYMNU_VIEWTILTMOVEMENT"
 }
 
 OptionMenu "VideoOptions" protected
