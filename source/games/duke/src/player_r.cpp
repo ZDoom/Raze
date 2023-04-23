@@ -1329,11 +1329,10 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 static void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 {
-	auto p = &ps[snum];
-	auto pact = p->GetActor();
+	const auto p = &ps[snum];
+	const auto pact = p->GetActor();
 
 	p->jumping_counter = 0;
-
 	p->pycount += 32;
 	p->pycount &= 2047;
 	p->pyoff = BobVal(p->pycount);
@@ -1372,25 +1371,24 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 	if (p->vel.Z > 8)
 		p->vel.Z *= 0.5;
 
-	p->GetActor()->spr.pos.Z += p->vel.Z;
+	pact->spr.pos.Z += p->vel.Z;
 
-	if (p->GetActor()->getOffsetZ() > floorz - 15)
-		p->GetActor()->spr.pos.Z += ((floorz - 15) - p->GetActor()->getOffsetZ()) * 0.5;
+	if (pact->getOffsetZ() > floorz - 15)
+		pact->spr.pos.Z += ((floorz - 15) - pact->getOffsetZ()) * 0.5;
 
-	if (p->GetActor()->getOffsetZ() < ceilingz + 4)
+	if (pact->getOffsetZ() < ceilingz + 4)
 	{
-		p->GetActor()->spr.pos.Z = ceilingz + 4 + gs.playerheight;
+		pact->spr.pos.Z = ceilingz + 4 + gs.playerheight;
 		p->vel.Z = 0;
 	}
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		auto j = spawn(pact, DukeWaterBubbleClass);
-		if (j)
+		if (const auto j = spawn(pact, DukeWaterBubbleClass))
 		{
-			j->spr.pos += (p->GetActor()->spr.Angles.Yaw.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
+			j->spr.pos += (pact->spr.Angles.Yaw.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.03125);
-			j->spr.pos.Z = p->GetActor()->getOffsetZ() + 8;
+			j->spr.pos.Z = pact->getOffsetZ() + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
