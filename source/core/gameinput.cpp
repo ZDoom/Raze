@@ -109,39 +109,52 @@ void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const float turnscale)
 {
-	// open up input packet for this session.
-	InputPacket thisInput{};
-
 	// set up variables.
+	InputPacket thisInput{};
 	const auto keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
 	const auto hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
-	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) - buttonMap.ButtonDown(gamefunc_Turn_Left);
-	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + joyAxes[JOYAXIS_Forward] * scaleAdjust;
-	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - joyAxes[JOYAXIS_Side] * scaleAdjust;
 
-	// process player angle input.
+	// get all input amounts.
+	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) -
+		buttonMap.ButtonDown(gamefunc_Turn_Left);
+
+	const auto moving = buttonMap.ButtonDown(gamefunc_Move_Forward) -
+		buttonMap.ButtonDown(gamefunc_Move_Backward) +
+		joyAxes[JOYAXIS_Forward] * scaleAdjust;
+
+	const auto strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) -
+		buttonMap.ButtonDown(gamefunc_Strafe_Left) -
+		joyAxes[JOYAXIS_Side] * scaleAdjust;
+
+	// process player yaw input.
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
-		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
-		thisInput.avel += mouseInput.X * (1.f / 16.f) * m_yaw - (joyAxes[JOYAXIS_Yaw] * hidspeed - turndir * turnspeed) * scaleAdjust;
+		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) / (!isTurboTurnTime() * 2.8 + 1));
+		thisInput.avel += mouseInput.X * MOUSE_SCALE * m_yaw;
+		thisInput.avel -= joyAxes[JOYAXIS_Yaw] * hidspeed * scaleAdjust;
+		thisInput.avel += turndir * turnscale * turnspeed * scaleAdjust;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
-		thisInput.svel += mouseInput.X * (1.f / 16.f) * m_side - (joyAxes[JOYAXIS_Yaw] - turning) * keymove * scaleAdjust;
+		thisInput.svel += mouseInput.X * MOUSE_SCALE * m_side;
+		thisInput.svel -= joyAxes[JOYAXIS_Yaw] * keymove * scaleAdjust;
+		thisInput.svel += turning * turnscale * keymove * scaleAdjust;
 	}
 
 	// process player pitch input.
 	if (!(inputBuffer.actions & SB_AIMMODE))
 	{
-		thisInput.horz -= mouseInput.Y * (1.f / 16.f) * m_pitch + joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
+		thisInput.horz -= mouseInput.Y * MOUSE_SCALE * m_pitch;
+		thisInput.horz -= joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
 	}
 	else
 	{
-		thisInput.fvel += mouseInput.Y * (1.f / 16.f) * m_forward + joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
+		thisInput.fvel += mouseInput.Y * MOUSE_SCALE * m_forward;
+		thisInput.fvel += joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
 	}
 
 	// process movement input.
@@ -150,7 +163,9 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 
 	// process RR's drunk state.
 	if (isRR() && drink_amt >= 66 && drink_amt <= 87)
+	{
 		thisInput.svel += drink_amt & 1 ? -thisInput.fvel : thisInput.fvel;
+	}
 
 	// add collected input to game's local input accumulation packet.
 	inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -(float)keymove, (float)keymove);
@@ -187,21 +202,30 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
 		thisInput.fvel = kbdForwards - kbdBackward + joyAxes[JOYAXIS_Forward];
+
+		// This sync bit is the brake key.
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
 	}
 
 	if (canTurn)
 	{
+		// Keyboard turning.
 		const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 		const auto kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+		const auto kbdDir = kbdRight - kbdLeft;
+
+		// Input device turning.
 		const auto hidLeft = mouseInput.X < 0 || joyAxes[JOYAXIS_Yaw] > 0;
 		const auto hidRight = mouseInput.X > 0 || joyAxes[JOYAXIS_Yaw] < 0;
-		const auto kbdDir = kbdRight - kbdLeft;
+
+		// Velocity setup.
 		const auto turnVel = (!attenuate && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
 		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
 
-		thisInput.avel += turnVel * -joyAxes[JOYAXIS_Yaw] + turnVel * kbdDir;
+		// Apply inputs.
 		thisInput.avel += ((mouseVel > 1) ? sqrtf(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw);
+		thisInput.avel -= turnVel * joyAxes[JOYAXIS_Yaw];
+		thisInput.avel += turnVel * kbdDir;
 		thisInput.avel *= scaleAdjust;
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
@@ -210,6 +234,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		turnheldtime = 0;
 	}
 
+	// add collected input to game's local input accumulation packet.
 	inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -1.00f, 1.00f);
 	inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -179.f, 179.f);
 

@@ -17,7 +17,7 @@ class GameInput
 	};
 
 	static constexpr double YAW_TURNSPEEDS[3] = { 234.375 * (360. / 2048.), 890.625 * (360. / 2048.), 1548.75 * (360. / 2048.) };
-	static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
+	static constexpr float MOUSE_SCALE = (1.f / 16.f);
 
 	// Input received from the OS.
 	float joyAxes[NUM_JOYAXIS];
@@ -68,7 +68,7 @@ public:
 	}
 
 	// Prototypes for large member functions.
-	void processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
+	void processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const float turnscale = 1.f);
 	void processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 	void getInput(const double scaleAdjust, InputPacket* packet = nullptr);
 };
@@ -85,7 +85,7 @@ struct PlayerAngles
 	DAngle YawSpin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-	friend void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale);
+	friend void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const float turnscale);
 	friend void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 
 	// Prototypes.

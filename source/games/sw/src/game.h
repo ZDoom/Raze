@@ -1892,7 +1892,7 @@ struct GameInterface : public ::GameInterface
     void doPlayerMovement(const float scaleAdjust) override
     {
         const auto pp = &Player[myconnectindex];
-        gameInput.processMovement(&pp->Angles, scaleAdjust, 0, !pp->sop, pp->sop_control ? (3. / 1.40625) : 1.);
+        gameInput.processMovement(&pp->Angles, scaleAdjust, 0, !pp->sop, pp->sop_control ? (3.f / 1.40625f) : 1.f);
     }
 
 
