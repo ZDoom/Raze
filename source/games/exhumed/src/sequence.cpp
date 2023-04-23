@@ -29,14 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum
-{
-	kMaxSequences	= 4096,
-	kMaxSEQFiles	= 78,
-	kMaxSEQFrames	= 18000,
-	kMaxSEQChunks	= 21000
-};
-
 int16_t nPilotLightFrame;
 int16_t nPilotLightCount;
 
@@ -44,7 +36,7 @@ static FTextureID nShadowPic;
 static int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
 
-const char *SeqNames[kMaxSEQFiles] =
+constexpr const char *SeqNames[] =
 {
   "rothands",
   "sword",
@@ -310,7 +302,7 @@ static int addSeq(const char *seqName)
 
 void seq_LoadSequences()
 {
-    for (unsigned i = 0; i < kMaxSEQFiles; i++)
+    for (unsigned i = 0; i < countof(SeqNames); i++)
     {
         if (addSeq(SeqNames[i]) == 0)
         {
