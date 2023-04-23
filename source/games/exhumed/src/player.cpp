@@ -1560,7 +1560,6 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertPan)
 {
     const auto pPlayerActor = pPlayer->pActor;
-    const auto pInput = &pPlayer->input;
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
     constexpr auto maxVel = 15.25;
 
@@ -1568,7 +1567,7 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->Angles.doViewTilting(pInput, pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->Angles.doViewTilting(&pPlayer->input, pPlayerActor->vel.XY(), maxVel, nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)
