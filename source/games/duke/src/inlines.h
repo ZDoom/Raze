@@ -292,11 +292,6 @@ inline void processinputvel(int snum)
 	p->sync.svel = (float)velvect.Y;
 }
 
-inline ActorInfo* GetActorInfo(DDukeActor* actor)
-{
-	auto cls = static_cast<PClassActor*>(actor->GetClass());
-	return &gs.actorinfo[cls->ActorInfo()->TypeNum];
-}
 
 inline const ActorInfo* DDukeActor::conInfo() const
 {

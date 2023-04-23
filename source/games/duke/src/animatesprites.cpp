@@ -109,7 +109,7 @@ bool RRRAFullbrightHack(tspritetype* t, int k)
 
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang)
 {
-	if (GetActorInfo(h)->scriptaddress && !(h->flags2 & SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+	if (!(h->flags2 & SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
 		DAngle kang;
 		auto action = h->curAction;
@@ -212,8 +212,8 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 			if (h->dispictex.isValid())
 				h->dispictex = t->spritetexture();
 		}
-		else if (display_mirror == 1)
-			t->cstat |= CSTAT_SPRITE_XFLIP;
+		if (display_mirror == 1)
+			t->cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 }
 END_DUKE_NS

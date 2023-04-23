@@ -1477,7 +1477,6 @@ static void processweapon(int snum, ESyncBits actions)
 						// throw away the remaining clip
 						p->ammo_amount[p->curr_weapon] -=
 							p->ammo_amount[p->curr_weapon] % aplWeaponClip(p->curr_weapon, snum);
-						//				p->kickback_pic = aplWeaponFireDelay(p->curr_weapon, snum)+1;	// animate, but don't shoot...
 						p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, snum) + 1;	// animate, but don't shoot...
 						actions &= ~SB_FIRE; // not firing...
 					}
@@ -1804,7 +1803,7 @@ void processinput_d(int snum)
 		}
 		else
 		{
-			if (psectlotag == 2)
+			if (psectlotag == ST_2_UNDERWATER)
 			{
 				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
 				p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1400);
