@@ -578,13 +578,14 @@ void checkweapons_d(player_struct* p)
 
 static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double floorz, double ceilingz, int shrunk)
 {
-	auto p = &ps[snum];
-	auto pact = p->GetActor();
+	const auto p = &ps[snum];
+	const auto pact = p->GetActor();
+	const double dist = shrunk ? 2 : 8;
+
 	p->on_ground = 0;
 	p->jumping_counter = 0;
 	p->hard_landing = 0;
 	p->falling_counter = 0;
-
 	p->pycount += 32;
 	p->pycount &= 2047;
 	p->pyoff = BobVal(p->pycount);
@@ -592,23 +593,21 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
-		p->GetActor()->spr.pos.Z -= p->jetpack_on * 0.5; //Goin up
+		pact->spr.pos.Z -= p->jetpack_on * 0.5; //Goin up
 	}
 	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pact, DUKE_JETPACK_IDLE))
+	{
 		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
-
-	double dist;
-	if (shrunk) dist = 2;
-	else dist = 8;
+	}
 
 	if (actions & SB_JUMP)                            //A (soar high)
 	{
 		// jump
-		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-		OnEvent(EVENT_SOARUP, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, snum);
+		OnEvent(EVENT_SOARUP, snum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 		{
-			p->GetActor()->spr.pos.Z -= dist;
+			pact->spr.pos.Z -= dist;
 			p->crack_time = CRACK_TIME;
 		}
 	}
@@ -616,26 +615,24 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (actions & SB_CROUCH)                            //Z (soar low)
 	{
 		// crouch
-		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-		OnEvent(EVENT_SOARDOWN, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, snum);
+		OnEvent(EVENT_SOARDOWN, snum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 		{
-			p->GetActor()->spr.pos.Z += dist;
+			pact->spr.pos.Z += dist;
 			p->crack_time = CRACK_TIME;
 		}
 	}
 
-	int k;
-	if (shrunk == 0 && (psectlotag == ST_0_NO_EFFECT || psectlotag == ST_2_UNDERWATER)) k = 32;
-	else k = 16;
+	const int k = shrunk == 0 && (psectlotag == ST_0_NO_EFFECT || psectlotag == ST_2_UNDERWATER) ? 32 : 16;
 
 	if (psectlotag != 2 && p->scuba_on == 1)
 		p->scuba_on = 0;
 
-	if (p->GetActor()->getOffsetZ() > floorz - k)
-		p->GetActor()->spr.pos.Z += ((floorz - k) - p->GetActor()->getOffsetZ()) * 0.5;
-	if (p->GetActor()->getOffsetZ() < pact->ceilingz + 18)
-		p->GetActor()->spr.pos.Z = pact->ceilingz + 18 + gs.playerheight;
+	if (pact->getOffsetZ() > floorz - k)
+		pact->spr.pos.Z += ((floorz - k) - pact->getOffsetZ()) * 0.5;
+	if (pact->getOffsetZ() < pact->ceilingz + 18)
+		pact->spr.pos.Z = pact->ceilingz + 18 + gs.playerheight;
 
 }
 
