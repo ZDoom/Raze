@@ -128,6 +128,10 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 		buttonMap.ButtonDown(gamefunc_Strafe_Left) -
 		joyAxes[JOYAXIS_Side] * scaleAdjust;
 
+	const auto soaring = buttonMap.ButtonDown(gamefunc_Move_Up) -
+		buttonMap.ButtonDown(gamefunc_Move_Down) +
+		joyAxes[JOYAXIS_Up] * scaleAdjust;
+
 	// process player yaw input.
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
@@ -160,6 +164,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	// process movement input.
 	thisInput.fvel += moving * keymove;
 	thisInput.svel += strafing * keymove * allowstrafe;
+	thisInput.uvel += soaring; // this isn't scaled by running.
 
 	// process RR's drunk state.
 	if (isRR() && drink_amt >= 66 && drink_amt <= 87)
@@ -170,6 +175,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	// add collected input to game's local input accumulation packet.
 	inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -(float)keymove, (float)keymove);
 	inputBuffer.svel = clamp(inputBuffer.svel + thisInput.svel, -(float)keymove, (float)keymove);
+	inputBuffer.uvel = clamp(inputBuffer.uvel + thisInput.uvel, -1.00f, 1.00f);
 	inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -179.f, 179.f);
 	inputBuffer.horz = clamp(inputBuffer.horz + thisInput.horz, -179.f, 179.f);
 

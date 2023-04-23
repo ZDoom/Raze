@@ -600,26 +600,28 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
 	}
 
-	if (actions & SB_JUMP)                            //A (soar high)
+	if ((actions & SB_JUMP) || p->sync.uvel > 0)                            //A (soar high)
 	{
 		// jump
 		SetGameVarID(g_iReturnVarID, 0, pact, snum);
 		OnEvent(EVENT_SOARUP, snum, pact, -1);
 		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 		{
-			pact->spr.pos.Z -= dist;
+			pact->spr.pos.Z -= dist * !!(actions & SB_JUMP);
+			pact->spr.pos.Z -= dist * p->sync.uvel;
 			p->crack_time = CRACK_TIME;
 		}
 	}
 
-	if (actions & SB_CROUCH)                            //Z (soar low)
+	if ((actions & SB_CROUCH) || p->sync.uvel < 0)                            //Z (soar low)
 	{
 		// crouch
 		SetGameVarID(g_iReturnVarID, 0, pact, snum);
 		OnEvent(EVENT_SOARDOWN, snum, pact, -1);
 		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 		{
-			pact->spr.pos.Z += dist;
+			pact->spr.pos.Z += dist * !!(actions & SB_CROUCH);
+			pact->spr.pos.Z -= dist * p->sync.uvel;
 			p->crack_time = CRACK_TIME;
 		}
 	}

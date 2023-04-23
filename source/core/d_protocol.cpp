@@ -167,6 +167,8 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 			ucmd->fvel = ReadFloat(stream);
 		if (flags & UCMDF_SIDEMOVE)
 			ucmd->svel = ReadFloat(stream);
+		if (flags & UCMDF_UPMOVE)
+			ucmd->uvel = ReadFloat(stream);
 	}
 
 	return int(*stream - start);
@@ -213,6 +215,11 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 		flags |= UCMDF_SIDEMOVE;
 		WriteFloat (ucmd->svel, stream);
 	}
+	if (ucmd->uvel != basis->uvel)
+	{
+		flags |= UCMDF_UPMOVE;
+		WriteFloat (ucmd->uvel, stream);
+	}
 
 	// Write the packing bits
 	WriteByte (flags, &temp);
@@ -239,7 +246,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, InputPacket &cmd, Inpu
 			("horz", cmd.horz)
 			("avel", cmd.avel)
 			("fvel", cmd.fvel)
-			("svwl", cmd.svel)
+			("svel", cmd.svel)
+			("uvel", cmd.uvel)
 			.EndObject();
 	}
 	return arc;
@@ -253,7 +261,8 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 			ucmd->horz != 0 ||
 			ucmd->avel != 0 ||
 			ucmd->fvel != 0 ||
-			ucmd->svel != 0)
+			ucmd->svel != 0 ||
+			ucmd->uvel != 0)
 		{
 			WriteByte (DEM_USERCMD, stream);
 			return PackUserCmd (ucmd, basis, stream) + 1;
@@ -264,7 +273,8 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 		ucmd->horz != basis->horz ||
 		ucmd->avel != basis->avel ||
 		ucmd->fvel != basis->fvel ||
-		ucmd->svel != basis->svel)
+		ucmd->svel != basis->svel ||
+		ucmd->uvel != basis->uvel)
 	{
 		WriteByte (DEM_USERCMD, stream);
 		return PackUserCmd (ucmd, basis, stream) + 1;

@@ -110,6 +110,8 @@ void SetupGameButtons()
 		"Dpad_Aiming",
 		"Toggle_Crouch",
 		"Quick_Kick",
+		"Move_Up",
+		"Move_Down",
 		"AM_PanLeft",
 		"AM_PanRight",
 		"AM_PanUp",

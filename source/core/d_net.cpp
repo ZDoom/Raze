@@ -1034,6 +1034,7 @@ void NetUpdate (void)
 
 				float svel = 0;
 				float fvel = 0;
+				float uvel = 0;
 				float avel = 0;
 				float horz = 0;
 
@@ -1042,12 +1043,14 @@ void NetUpdate (void)
 					modp = (mod + tic) % LOCALCMDTICS;
 					svel += localcmds[modp].ucmd.svel;
 					fvel += localcmds[modp].ucmd.fvel;
+					uvel += localcmds[modp].ucmd.uvel;
 					avel += localcmds[modp].ucmd.avel;
 					horz += localcmds[modp].ucmd.horz;
 				}
 
 				svel /= ticdup;
 				fvel /= ticdup;
+				uvel /= ticdup;
 				avel /= ticdup;
 				horz /= ticdup;
 
@@ -1056,6 +1059,7 @@ void NetUpdate (void)
 					modp = (mod + tic) % LOCALCMDTICS;
 					localcmds[modp].ucmd.svel = svel;
 					localcmds[modp].ucmd.fvel = fvel;
+					localcmds[modp].ucmd.uvel = uvel;
 					localcmds[modp].ucmd.avel = avel;
 					localcmds[modp].ucmd.horz = horz;
 				}

@@ -88,6 +88,8 @@ enum GameFunction_t
 	gamefunc_Dpad_Aiming,
 	gamefunc_Toggle_Crouch,
 	gamefunc_Quick_Kick,
+	gamefunc_Move_Up,
+	gamefunc_Move_Down,
 	gamefunc_AM_PanLeft,
 	gamefunc_AM_PanRight,
 	gamefunc_AM_PanUp,

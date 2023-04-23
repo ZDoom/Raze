@@ -72,6 +72,7 @@ struct InputPacket
 {
     float svel;
     float fvel;
+    float uvel;
     float avel;
     float horz;
     ESyncBits actions;
