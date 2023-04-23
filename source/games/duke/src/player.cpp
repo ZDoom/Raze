@@ -1515,7 +1515,7 @@ void playerreset(player_struct* p, DDukeActor* g_ac)
 		g_ac->movflag = 0;
 		g_ac->tempval = 0;
 		g_ac->actorstayput = nullptr;
-		g_ac->dispicnum = 0;
+		g_ac->dispictex = FNullTextureID();
 		g_ac->SetHitOwner(p->GetActor());
 		g_ac->temp_data[4] = 0;
 

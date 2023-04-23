@@ -801,7 +801,7 @@ void tspritetype_setSpritePic(tspritetype* targ, DCoreActor* self, unsigned z)
 	}
 	else if (z == ~0)
 	{
-		targ->picnum = self->dispicnum;
+		targ->setspritetexture(self->dispictex);
 	}
 }
 

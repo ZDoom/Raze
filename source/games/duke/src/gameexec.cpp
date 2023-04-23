@@ -1268,10 +1268,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) act->actorstayput = toSect(lValue);
 		else SetGameVarID(lVar2, fromSect(act->actorstayput), sActor, sPlayer);
 		break;
-	case ACTOR_HTDISPICNUM:
-		if (bSet) act->dispicnum = lValue;
-		else SetGameVarID(lVar2, act->dispicnum, sActor, sPlayer);
-		break;
 	case ACTOR_HTTIMETOSLEEP:
 		if (bSet) act->timetosleep = lValue;
 		else SetGameVarID(lVar2, act->timetosleep, sActor, sPlayer);

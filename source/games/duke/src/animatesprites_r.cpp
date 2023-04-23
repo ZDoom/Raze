@@ -109,8 +109,8 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (res)
 		{
-			if (h->dispicnum >= 0)
-				h->dispicnum = t->picnum;
+			if (h->dispictex.isValid())
+				h->dispictex = t->spritetexture();
 			continue;
 		}
 
@@ -238,7 +238,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			drawshadows(tsprites, t, h);
 		}
 
-		h->dispicnum = t->picnum;
+		h->dispictex = t->spritetexture();
 		if (t->sectp->floortexture == mirrortex)
 			t->scale = DVector2(0, 0);
 	}

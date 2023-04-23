@@ -621,7 +621,7 @@ void DCoreActor::Serialize(FSerializer& arc)
 		("yvel", vel.Y)
 		("zvel", vel.Z)
 		("viewzoffset", viewzoffset)
-		("dispicnum", dispicnum);
+		("dispicnum", dispictex);
 
 	if (arc.isReading())
 	{

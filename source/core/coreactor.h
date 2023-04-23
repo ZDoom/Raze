@@ -50,7 +50,7 @@ public:
 
 	int time;
 	int16_t spritesetindex;
-	int16_t dispicnum;
+	FTextureID dispictex;
 
 
 	DCoreActor() = default;
