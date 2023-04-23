@@ -1,283 +1,332 @@
-class DukeRobotmouse: DukeActor
+class DukeRobotmouse : DukeActor // ROBOTMOUSE (4407)
 {
+	const ROBOTMOUSESTRENGTH = 45;
+
 	default
 	{
 		pic "ROBOTMOUSE";
+		Strength ROBOTMOUSESTRENGTH;
 	}
+	
 }
 
 
-class DukeBurger: DukeActor
+// these virtuals need to be on DukeActor to ensure that ChangeType is safe for breakables.
+extend class DukeActor
+{
+	virtual void BrkKilled(DukePlayer p, double pdist) {}
+	virtual void BrkHit() {}
+}
+
+class DukeScriptedBreakable : DukeActor
+{
+	const PIRATEGALSTRENGTH = 200;
+	const DOLPHINSTRENGTH = 50;
+
+
+	
+}
+
+class DukeBurger : DukeScriptedBreakable // DUKEBURGER (4570)
 {
 	default
 	{
 		pic "DUKEBURGER";
+		Strength PIRATEGALSTRENGTH;
+//		action "ABURGERROTS", 0, 1, 5;
+//		StartAction "ABURGERROTS";
 	}
+	
 }
 
-class DukeMop : DukeActor // (4497)
+class DukeMop : DukeScriptedBreakable // MOP (4497)
 {
 	default
 	{
 		pic "MOP";
+		Strength WEAK;
 	}
 }
 
-class DukeBroom : DukeActor // (4496)
+class DukeBroom : DukeScriptedBreakable // BROOM (4496)
 {
 	default
 	{
 		pic "BROOM";
+		Strength WEAK;
 	}
 }
-
-class DukeWetFloor : DukeActor // (4495)
+class DukeWetFloor : DukeScriptedBreakable // WETFLOOR (4495)
 {
 	default
 	{
 		pic "WETFLOOR";
+		Strength WEAK;
 	}
 }
-
-class DukeDeskLamp : DukeActor // (4370)
+class DukeDeskLamp : DukeScriptedBreakable // DESKLAMP (4370)
 {
 	default
 	{
 		pic "DESKLAMP";
+		Strength WEAK;
 	}
 }
-
-class DukeHatRack : DukeActor // (4367)
+class DukeHatRack : DukeScriptedBreakable // HATRACK (4367)
 {
 	default
 	{
 		pic "HATRACK";
+		Strength WEAK;
 	}
 }
-
-class DukeCoffeeMachine : DukeActor // (4372)
+class DukeCoffeeMachine : DukeScriptedBreakable // COFFEEMACHINE (4372)
 {
 	default
 	{
 		pic "COFFEEMACHINE";
+		Strength WEAK;
 	}
 }
-
-class DukeGunpowderbarrel: DukeActor
+class DukeGunpowderbarrel : DukeScriptedBreakable // GUNPOWDERBARREL (4360)
 {
 	default
 	{
 		pic "GUNPOWDERBARREL";
+		Strength TOUGH;
 	}
+	
 }
-
-class DukeFoodObject1 : DukeActor // (4530)
+class DukeFoodObject1 : DukeScriptedBreakable // FOODOBJECT1 (4530)
 {
 	default
 	{
 		pic "FOODOBJECT1";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject2: DukeActor
+class DukeFoodObject2 : DukeScriptedBreakable // FOODOBJECT2 (4531)
 {
 	default
 	{
 		pic "FOODOBJECT2";
+		Strength WEAK;
+		+NOGRAVITY;
 	}
 }
-
-class DukeFoodObject3 : DukeActor // (4532)
+class DukeFoodObject3 : DukeScriptedBreakable // FOODOBJECT3 (4532)
 {
 	default
 	{
 		pic "FOODOBJECT3";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject4 : DukeActor // (4533)
+class DukeFoodObject4 : DukeScriptedBreakable // FOODOBJECT4 (4533)
 {
 	default
 	{
 		pic "FOODOBJECT4";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject5 : DukeActor // (4534)
+class DukeFoodObject5 : DukeScriptedBreakable // FOODOBJECT5 (4534)
 {
 	default
 	{
 		pic "FOODOBJECT5";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject6: DukeActor
+class DukeFoodObject6 : DukeScriptedBreakable // FOODOBJECT11 (4540)
 {
 	default
 	{
 		pic "FOODOBJECT6";
+		Strength WEAK;
+		+NOGRAVITY;
 	}
-}
 
-class DukeFoodObject7 : DukeActor // (4536)
+}
+class DukeFoodObject7 : DukeScriptedBreakable // FOODOBJECT7 (4536)
 {
 	default
 	{
 		pic "FOODOBJECT7";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject8 : DukeActor // (4537)
+class DukeFoodObject8 : DukeScriptedBreakable // FOODOBJECT8 (4537)
 {
 	default
 	{
 		pic "FOODOBJECT8";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject9 : DukeActor // (4538)
+class DukeFoodObject9 : DukeScriptedBreakable // FOODOBJECT9 (4538)
 {
 	default
 	{
 		pic "FOODOBJECT9";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject10 : DukeActor // (4539)
+class DukeFoodObject10 : DukeScriptedBreakable // FOODOBJECT10 (4539)
 {
 	default
 	{
 		pic "FOODOBJECT10";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject11: DukeActor
+class DukeFoodObject11 : DukeScriptedBreakable // FOODOBJECT11 (4540)
 {
 	default
 	{
 		pic "FOODOBJECT11";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject12: DukeActor
+class DukeFoodObject12 : DukeFoodObject11 // FOODOBJECT12 (4541)
 {
 	default
 	{
 		pic "FOODOBJECT12";
+		Strength WEAK;
 	}
 }
-class DukeFoodObject13: DukeActor
+class DukeFoodObject13 : DukeFoodObject11 // FOODOBJECT13 (4542)
 {
 	default
 	{
 		pic "FOODOBJECT13";
+		Strength WEAK;
 	}
 }
-class DukeFoodObject14: DukeActor
+class DukeFoodObject14 : DukeFoodObject11 // FOODOBJECT14 (4543)
 {
 	default
 	{
 		pic "FOODOBJECT14";
+		Strength WEAK;
 	}
 }
-class DukeFoodObject15: DukeActor
+class DukeFoodObject15 : DukeFoodObject11 // FOODOBJECT15 (4544)
 {
 	default
 	{
 		pic "FOODOBJECT15";
+		Strength WEAK;
 	}
 }
-class DukeFoodObject16: DukeActor
+class DukeFoodObject16 : DukeFoodObject11 // FOODOBJECT16 (4545)
 {
 	default
 	{
 		pic "FOODOBJECT16";
+		Strength WEAK;
 	}
 }
-class DukeFoodObject17: DukeActor
+class DukeFoodObject17 : DukeFoodObject11 // FOODOBJECT17 (4546)
 {
 	default
 	{
 		pic "FOODOBJECT17";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject18 : DukeActor // (4547)
+class DukeFoodObject18 : DukeScriptedBreakable // FOODOBJECT18 (4547)
 {
 	default
 	{
 		pic "FOODOBJECT18";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject19 : DukeActor // (4548)
+class DukeFoodObject19 : DukeScriptedBreakable // FOODOBJECT19 (4548)
 {
 	default
 	{
 		pic "FOODOBJECT19";
+		Strength WEAK;
 	}
 }
-
-class DukeFoodObject20 : DukeActor // (4549)
+class DukeFoodObject20 : DukeScriptedBreakable // FOODOBJECT20 (4549)
 {
 	default
 	{
 		pic "FOODOBJECT20";
+		Strength WEAK;
 	}
 }
-
-class DukeSkinnedChicken: DukeActor
+class DukeSkinnedChicken : DukeFoodObject6 // SKINNEDCHICKEN (4554)
 {
 	default
 	{
 		pic "SKINNEDCHICKEN";
+		Strength WEAK;
 	}
 }
-class DukeFeatheredChicken: DukeActor
+class DukeFeatheredChicken : DukeFoodObject6 // FEATHEREDCHICKEN (4555)
 {
 	default
 	{
 		pic "FEATHEREDCHICKEN";
+		Strength WEAK;
 	}
 }
-class DukeTopSecret: DukeActor
+class DukeTopSecret : DukeScriptedBreakable // TOPSECRET (4396)
 {
 	default
 	{
 		pic "TOPSECRET";
+		Strength WEAK;
+		+NOGRAVITY;
 	}
+
 }
 
-class DukeDolphin1: DukeActor
+class DukeDolphin1 : DukeScriptedBreakable // DOLPHIN1 (4591)
 {
 	default
 	{
 		pic "DOLPHIN1";
+		Strength DOLPHINSTRENGTH;
+		+NOGRAVITY;
 	}
-}
 
-class DukeDolphin2: DukeActor
+}
+class DukeDolphin2 : DukeDolphin1 // DOLPHIN2 (4592)
 {
 	default
 	{
 		pic "DOLPHIN2";
 	}
+
 }
 
-class DukeRobotDog2: DukeActor
+class DukeRobotDog2 : DukeScriptedBreakable // ROBOTDOG2 (4560)
 {
 	default
 	{
 		pic "ROBOTDOG2";
+		Strength TOUGH;
 	}
+	
+	
 }
 
-class DukeClock: DukeActor
+class DukeClock : DukeScriptedBreakable // CLOCK (1060)
 {
 	default
 	{
 		pic "CLOCK";
+		Strength WEAK;
+		+NOGRAVITY;
 	}
+	
+	
 }
 
 class DukeBrokenClock: DukeActor
@@ -288,260 +337,265 @@ class DukeBrokenClock: DukeActor
 	}
 }
 
-class DukeTeddybear: DukeActor
+class DukeTeddybear : DukeScriptedBreakable // TEDDYBEAR (4400)
 {
 	default
 	{
 		pic "TEDDYBEAR";
+		Strength WEAK;
 	}
+	
 }
-class DukePirate1A: DukeActor
+class DukePirate1A : DukeScriptedBreakable // PIRATE1A (4510)
 {
 	default
 	{
 		pic "PIRATE1A";
+		Strength PIRATEGALSTRENGTH;
 	}
 }
-
-class DukePirate2A: DukeActor
+class DukePirate2A : DukePirate1A // PIRATE2A (4512)
 {
 	default
 	{
 		pic "PIRATE2A";
 	}
 }
-
-class DukePirate3A: DukeActor
+class DukePirate3A : DukePirate1A // PIRATE3A (4514)
 {
 	default
 	{
 		pic "PIRATE3A";
 	}
 }
-
-class DukePirate4A: DukeActor
+class DukePirate4A : DukePirate1A // PIRATE4A (4511)
 {
 	default
 	{
 		pic "PIRATE4A";
 	}
 }
-
-class DukePirate5A: DukeActor
+class DukePirate5A : DukePirate1A // PIRATE5A (4513)
 {
 	default
 	{
 		pic "PIRATE5A";
 	}
 }
-
-class DukePirate6A: DukeActor
+class DukePirate6A : DukePirate1A // PIRATE6A (4515)
 {
 	default
 	{
 		pic "PIRATE6A";
 	}
 }
-
-class DukeMan: DukeActor
+class DukeMan : DukePirate1A // MAN (4871)
 {
 	default
 	{
 		pic "MAN";
+		Strength PIRATEGALSTRENGTH;
 	}
 }
-
-class DukeMan2: DukeActor
+class DukeMan2 : DukePirate1A // MAN2 (4872)
 {
 	default
 	{
 		pic "MAN2";
+		Strength PIRATEGALSTRENGTH;
 	}
 }
-
-class DukeWoman : DukeActor // (4874)
+class DukeWoman : DukeScriptedBreakable // WOMAN (4874)
 {
 	default
 	{
 		pic "WOMAN";
+		Strength PIRATEGALSTRENGTH;
 	}
 }
-
-class DukeRobotpirate: DukeActor
+class DukeRobotpirate : DukeScriptedBreakable // ROBOTPIRATE (4404)
 {
 	default
 	{
 		pic "ROBOTPIRATE";
+		Strength PIRATEGALSTRENGTH;
 	}
 }
-
-class DukePirateHalf : DukeActor // (4516)
+class DukePirateHalf : DukeScriptedBreakable // PIRATEHALF (4516)
 {
 	default
 	{
 		pic "PIRATEHALF";
+		Strength TOUGH;
 	}
 }
-
-class DukeChestOfGold : DukeActor // (4520)
+class DukeChestOfGold : DukeScriptedBreakable // CHESTOFGOLD (4520)
 {
 	default
 	{
 		pic "CHESTOFGOLD";
+		Strength WEAK;
 	}
 }
-
-class DukeRobotDog : DukeActor // (4402)
+class DukeRobotDog : DukeScriptedBreakable // ROBOTDOG (4402)
 {
 	default
 	{
 		pic "ROBOTDOG";
+		Strength PIRATEGALSTRENGTH;
 	}
 }
-
-class DukePleaseWait : DukeActor // (4887)
+class DukePleaseWait : DukeScriptedBreakable // PLEASEWAIT (4887)
 {
 	default
 	{
 		pic "PLEASEWAIT";
 	}
 }
-class DukeJollyMeal: DukeActor
+class DukeJollyMeal : DukeScriptedBreakable // JOLLYMEAL (4569)
 {
 	default
 	{
 		pic "JOLLYMEAL";
+		Strength WEAK;
 	}
 }
-
-class DukeGumballMachine: DukeActor
+class DukeGumballMachine : DukeScriptedBreakable // GUMBALLMACHINE (4458)
 {
 	default
 	{
 		pic "GUMBALLMACHINE";
+		Strength WEAK;
 	}
 }
-
-class DukeGumballMachineBroke: DukeActor
+class DukeGumballMachineBroke : DukeScriptedBreakable // GUMBALLMACHINEBROKE (4459)
 {
 	default
 	{
 		pic "GUMBALLMACHINEBROKE";
+		Strength WEAK;
 	}
 }
-
-class DukePoliceLightPole: DukeActor
+class DukePoliceLightPole : DukeScriptedBreakable // POLICELIGHTPOLE (4377)
 {
 	default
 	{
 		pic "POLICELIGHTPOLE";
+		Strength TOUGH;
 	}
 }
-
-class DukeMailbag: DukeActor
+class DukeMailbag : DukeScriptedBreakable // MAILBAG (4413)
 {
 	default
 	{
 		pic "MAILBAG";
+		Strength WEAK;
 	}
 }
-
-class DukeHeadLamp : DukeActor // (4550)
+class DukeHeadLamp : DukeScriptedBreakable // HEADLAMP (4550)
 {
 	default
 	{
 		pic "HEADLAMP";
+		Strength WEAK;
 	}
 }
-
-class DukeSnakep: DukeActor
+class DukeSnakep : DukeScriptedBreakable // SNAKEP (4590)
 {
 	default
 	{
 		pic "SNAKEP";
+		Strength MEDIUMSTRENGTH;
 	}
 }
-
-class DukeDonuts: DukeActor
+class DukeDonuts : DukeScriptedBreakable // DONUTS (1045)
 {
 	default
 	{
 		pic "DONUTS";
+		Strength WEAK;
 	}
 }
-class DukeGavals : DukeActor // (4374)
+class DukeGavals : DukeScriptedBreakable // GAVALS (4374)
 {
 	default
 	{
 		pic "GAVALS";
+		Strength WEAK;
 	}
 }
-
-class DukeGavals2 : DukeActor // (4375)
+class DukeGavals2 : DukeScriptedBreakable // GAVALS2 (4375)
 {
 	default
 	{
 		pic "GAVALS2";
+		Strength WEAK;
 	}
 }
-
-class DukeCups : DukeActor // (4373)
+class DukeCups : DukeScriptedBreakable // CUPS (4373)
 {
 	default
 	{
 		pic "CUPS";
+		Strength WEAK;
 	}
 }
-
-class DukeDonuts2: DukeActor
+class DukeDonuts2 : DukeScriptedBreakable // DONUTS2 (4440)
 {
 	default
 	{
 		pic "DONUTS2";
+		Strength WEAK;
 	}
 }
-
-class DukeFloorbasket: DukeActor
+class DukeFloorbasket : DukeScriptedBreakable // FLOORBASKET (4388)
 {
 	default
 	{
 		pic "FLOORBASKET";
+		Strength WEAK;
 	}
+	
+
 }
-class DukeMeter : DukeActor // (4453)
+class DukeMeter : DukeScriptedBreakable // METER (4453)
 {
 	default
 	{
 		pic "METER";
+		Strength WEAK;
 	}
 }
-class DukeDeskPhone : DukeActor // (4454)
+class DukeDeskPhone : DukeScriptedBreakable // DESKPHONE (4454)
 {
 	default
 	{
 		pic "DESKPHONE";
+		Strength WEAK;
 	}
 }
-
-class DukeMace : DukeActor // (4464)
+class DukeMace : DukeScriptedBreakable // MACE (4464)
 {
 	default
 	{
 		pic "MACE";
+		Strength WEAK;
 	}
 }
-class DukeShoppingCart: DukeActor
+class DukeShoppingCart : DukeScriptedBreakable // SHOPPINGCART (4576)
 {
 	default
 	{
 		pic "SHOPPINGCART";
+		Strength WEAK;
 	}
 }
-class DukeCoffeeMug : DukeActor // (4438)
+class DukeCoffeeMug : DukeScriptedBreakable // COFFEEMUG (4438)
 {
 	default
 	{
 		pic "COFFEEMUG";
+		Strength WEAK;
 	}
 }
 
