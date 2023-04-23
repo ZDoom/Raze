@@ -35,3 +35,48 @@ class DukeForceRipple : DukeActor
 		+FORCERUNCON;
 	}
 }
+
+
+class DukeBurnedCorpse : DukeActor
+{
+	default
+	{
+		pic "BURNEDCORPSE";
+		+FORCERUNCON;
+	}
+}
+
+class DukeSpeaker : DukeActor
+{
+	default
+	{
+		pic "SPEAKER";
+		+NOFALLER;
+	}
+}
+class DukeFem6Pad: DukeActor
+{
+	default
+	{
+		pic "FEM6PAD";
+	}
+}
+
+
+
+class DukeHotMeat : DukeActor // (4427)
+{
+	default
+	{
+		pic "HOTMEAT";
+	}
+}
+
+class DukeLavaBubble : DukeActor // (4340)
+{
+	default
+	{
+		pic "LAVABUBBLE";
+	}
+}
+
