@@ -1577,9 +1577,9 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
         pPlayer->nIdxBobZ += (2048. / 90.) * cl_exviewbobspeed / cl_viewbob / (nUnderwater + 1);
         pPlayer->nIdxBobZ *= !pPlayerActor->vel.Z;
 
-        // Increment bob value with index's sine, amplifed by player velocity, bob type and bob height CVAR.
+        // Increment bob value with index's sine, amplified by player velocity, bob type and bob height CVAR.
         const auto nBobVel = (pPlayer->vel.Length() < 0.09375 && nUnderwater) ? (maxVel / 3.) : pPlayer->totalvel;
-        const auto nBobAmp = nBobVel * 0.05 * cl_viewbob * cl_exviewbobheight;        
+        const auto nBobAmp = nBobVel * 0.05 * cl_viewbob * cl_exviewbobheight;
         const auto newBobZ = BobVal(pPlayer->nIdxBobZ) * nBobAmp;
         pPlayer->nBobZ = (cl_viewbob == 2) ? (abs(newBobZ) - nBobAmp * 0.5 * !nUnderwater) : (newBobZ);
     }
