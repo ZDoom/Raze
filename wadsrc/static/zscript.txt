@@ -160,6 +160,7 @@ version "4.10"
 #include "zscript/games/duke/actors/dukeenemies/tank.zs"
 #include "zscript/games/duke/actors/dukeenemies/turret.zs"
 
+#include "zscript/games/duke/actors/dukestuff/blimp.zs"
 #include "zscript/games/duke/actors/redneckcstuff/airplane.zs"
 #include "zscript/games/duke/actors/redneckcstuff/balloons.zs"
 #include "zscript/games/duke/actors/redneckcstuff/bowling.zs"

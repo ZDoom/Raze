@@ -163,22 +163,6 @@ class RedneckBlood : DukeBlood
 }
 		
 
-class DukeBlimp : DukeActor
-{
-	default
-	{
-		pic "BLIMP";
-		+SPAWNWEAPONDEBRIS;
-	}
-	
-	override void Initialize()
-	{
-		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		self.clipdist = 32;
-		self.ChangeStat(STAT_ACTOR);
-	}
-}		
-
 class DukeMike : DukeActor
 {
 	default
