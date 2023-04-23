@@ -888,7 +888,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		if (const auto j = spawn(pact, DukeWaterBubbleClass))
 		{
 			j->spr.pos += (pact->spr.Angles.Yaw.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
-			j->spr.scale = DVector2(0.046875, 0.3125);
+			j->spr.scale = DVector2(0.046875, 0.03125);
 			j->spr.pos.Z = pact->getOffsetZ() + 8;
 		}
 	}
