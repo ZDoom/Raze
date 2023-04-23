@@ -187,21 +187,27 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 			}
 
 			k += action->offset + l * h->curframe;
-			t->picnum += k;
+			int texid = t->spritetexture().GetIndex() + k; // we cannot work with texture IDs here because their arithmetics are limited.
 
 			if (isRRRA() && RRRAFullbrightHack(t, k)) t->shade = -127;
 
+			FGameTexture* tex = TexMan.GameByIndex(texid);
 			if (l > 0)
 			{
-				while (t->picnum >= 0 && t->picnum < MAXTILES && !tileGetTexture(t->picnum)->isValid())
-					t->picnum -= l;       //back up one frame if this one is invald.
+				while(1)
+				{
+					if (!tex || tex->isValid()) break;
+					texid -= l;       //back up one frame if this one is invald.
+					tex = TexMan.GameByIndex(texid);
+				}
 			}
 
-			if (t->picnum < 0 || t->picnum >= MAXTILES)
+			if (!tex)
 			{
-				t->picnum = 0;
+				t->setspritetexture(FNullTextureID());
 				t->scale = DVector2(0, 0);
 			}
+			else t->setspritetexture(tex->GetID());
 
 			if (h->dispictex.isValid())
 				h->dispictex = t->spritetexture();
