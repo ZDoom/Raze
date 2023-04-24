@@ -600,22 +600,19 @@ void AIPlayer::Damage(RunListEvent* ev)
                     return;
                 }
             }
-            else
+            else if (nAction != 4)
             {
-                if (nAction != 4)
+                pPlayerActor->nFrame = 0;
+                pPlayerActor->nAction = 4;
+
+                if (pDamageActor)
                 {
-                    pPlayerActor->nFrame = 0;
-                    pPlayerActor->nAction = 4;
+                    pPlayer->nPlayerSwear--;
 
-                    if (pDamageActor)
+                    if (pPlayer->nPlayerSwear <= 0)
                     {
-                        pPlayer->nPlayerSwear--;
-
-                        if (pPlayer->nPlayerSwear <= 0)
-                        {
-                            D3PlayFX(StaticSound[kSound52], pPlayer->pDoppleSprite);
-                            pPlayer->nPlayerSwear = RandomSize(3) + 4;
-                        }
+                        D3PlayFX(StaticSound[kSound52], pPlayer->pDoppleSprite);
+                        pPlayer->nPlayerSwear = RandomSize(3) + 4;
                     }
                 }
             }
@@ -694,7 +691,7 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nMag
             }
         }
 
-        if ((nWalls--) < 0)
+        if (--nWalls < 0)
             return pPickupActor;
 
         pSector = startwall->nextSector();
@@ -1601,19 +1598,18 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
 
 static void updatePlayerFloorActor(Player* const pPlayer)
 {
-    if (nTotalPlayers > 1)
-    {
-        if (DExhumedActor* const pFloorActor = pPlayer->pPlayerFloorSprite)
-        {
-            const auto pPlayerActor = pPlayer->pActor;
-            const auto pPlayerSect = pPlayerActor->sector();
-            pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
-            pFloorActor->spr.pos.Z = pPlayerSect->floorz;
+    DExhumedActor* const pFloorActor = pPlayer->pPlayerFloorSprite;
 
-            if (pFloorActor->sector() != pPlayerSect)
-                ChangeActorSect(pFloorActor, pPlayerSect);
-        }
-    }
+    if (nTotalPlayers <= 1 || !pFloorActor)
+        return;
+
+    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerSect = pPlayerActor->sector();
+    pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
+    pFloorActor->spr.pos.Z = pPlayerSect->floorz;
+
+    if (pFloorActor->sector() != pPlayerSect)
+        ChangeActorSect(pFloorActor, pPlayerSect);
 }
 
 //---------------------------------------------------------------------------
