@@ -210,6 +210,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
 		thisInput.fvel = kbdForwards - kbdBackward + joyAxes[JOYAXIS_Forward];
+		inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -1.f, 1.f);
 
 		// This sync bit is the brake key.
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
@@ -235,16 +236,13 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		thisInput.avel -= turnVel * joyAxes[JOYAXIS_Yaw];
 		thisInput.avel += turnVel * kbdDir;
 		thisInput.avel *= scaleAdjust;
+		inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -turnVel * 1.5f, turnVel * 1.5f);
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
 		turnheldtime = 0;
 	}
-
-	// add collected input to game's local input accumulation packet.
-	inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -1.00f, 1.00f);
-	inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -179.f, 179.f);
 
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
