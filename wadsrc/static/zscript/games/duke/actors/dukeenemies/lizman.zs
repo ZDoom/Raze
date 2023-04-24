@@ -10,7 +10,7 @@ class DukeLizMan : DukeActor
 		+GREENSLIMEFOOD;
 		+DONTENTERWATER;
 		+RANDOMANGLEONWATER;
-		precacheclass "DukeLizmanHead", "DukeLizmanArm", "DukeLizmanLeg"
+		precacheclass "DukeLizmanHead", "DukeLizmanArm", "DukeLizmanLeg";
 		Strength LIZSTRENGTH;
 
 	}
