@@ -619,7 +619,7 @@ void checkweapons_r(player_struct* p)
 			p->GetActor()->spr.Angles.Pitch = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
-			p->TiltStatus = 0;
+			p->TiltStatus = nullAngle;
 			p->moto_drink = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
@@ -638,7 +638,7 @@ void checkweapons_r(player_struct* p)
 			p->GetActor()->spr.Angles.Pitch = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
-			p->TiltStatus = 0;
+			p->TiltStatus = nullAngle;
 			p->moto_drink = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
@@ -723,8 +723,9 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 
 static void doVehicleTilting(player_struct* const p, const int turndir, const bool canTilt)
 {
+	constexpr auto amt = DAngle::fromBuild(1);
 	p->oTiltStatus = p->TiltStatus;
-	p->TiltStatus = clamp(p->TiltStatus + (turndir && canTilt ? turndir : -Sgn(p->TiltStatus)), -10, 10);
+	p->TiltStatus = clamp(p->TiltStatus + (turndir && canTilt ? amt : -amt * p->TiltStatus.Sgn()), -amt, amt);
 }
 
 //---------------------------------------------------------------------------
@@ -1435,7 +1436,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->GetActor()->spr.Angles.Yaw;
+				DAngle ang = p->TiltStatus * 20 + p->GetActor()->spr.Angles.Yaw;
 				movesprite_ex(victim, DVector3(ang.ToVector() * 4, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
@@ -1469,7 +1470,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->GetActor()->spr.Angles.Yaw;
+				DAngle ang = p->TiltStatus * 20 + p->GetActor()->spr.Angles.Yaw;
 				movesprite_ex(victim, DVector3(ang.ToVector() * 2, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
@@ -2975,7 +2976,7 @@ void OffMotorcycle(player_struct *p)
 		p->GetActor()->spr.Angles.Pitch = nullAngle;
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
-		p->TiltStatus = 0;
+		p->TiltStatus = nullAngle;
 		p->moto_drink = 0;
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
@@ -3029,7 +3030,7 @@ void OffBoat(player_struct *p)
 		p->GetActor()->spr.Angles.Pitch = nullAngle;
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
-		p->TiltStatus = 0;
+		p->TiltStatus = nullAngle;
 		p->moto_drink = 0;
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;

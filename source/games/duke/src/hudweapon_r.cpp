@@ -107,7 +107,8 @@ inline static void ShowBoat(double x, double y, int tilenum, int shade, int orie
 
 void displayweapon_r(int snum, double interpfrac)
 {
-	double weapon_sway, gun_pos, hard_landing, TiltStatus;
+	double weapon_sway, gun_pos, hard_landing;
+	DAngle TiltStatus;
 
 	auto p = &ps[snum];
 	auto kb = &p->kickback_pic;
@@ -119,7 +120,7 @@ void displayweapon_r(int snum, double interpfrac)
 		weapon_sway = interpolatedvalue<double>(p->oweapon_sway, p->weapon_sway, interpfrac);
 		hard_landing = interpolatedvalue<double>(p->ohard_landing, p->hard_landing, interpfrac);
 		gun_pos = 80 - interpolatedvalue<double>(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, interpfrac);
-		TiltStatus = interpolatedvalue<double>(p->oTiltStatus, p->TiltStatus, interpfrac);
+		TiltStatus = interpolatedvalue(p->oTiltStatus, p->TiltStatus, interpfrac);
 	}
 	else
 	{
@@ -150,7 +151,6 @@ void displayweapon_r(int snum, double interpfrac)
 
 	if (p->OnMotorcycle)
 	{
-		angle = DAngle::fromBuild(-TiltStatus);
 		int temp_kb;
 		if (numplayers == 1)
 		{
@@ -199,15 +199,14 @@ void displayweapon_r(int snum, double interpfrac)
 				temp_kb = RTILE_MOTOHIT;
 		}
 
-		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, angle * 5);
+		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, -TiltStatus * 5);
 		return;
 	}
 	if (p->OnBoat)
 	{
-		angle = DAngle::fromBuild(-TiltStatus);
 		int temp2, temp_kb, temp3;
 		temp2 = 0;
-		if (TiltStatus > 0)
+		if (TiltStatus.Sgn() > 0)
 		{
 			if (*kb == 0)
 				temp_kb = RTILE_BOATHIT+1;
@@ -224,7 +223,7 @@ void displayweapon_r(int snum, double interpfrac)
 			else
 				temp_kb = RTILE_BOATHIT+1;
 		}
-		else if (TiltStatus < 0)
+		else if (TiltStatus.Sgn() < 0)
 		{
 			if (*kb == 0)
 				temp_kb = RTILE_BOATHIT+2;
@@ -267,7 +266,7 @@ void displayweapon_r(int snum, double interpfrac)
 		if (temp2)
 			shade = -96;
 
-		ShowBoat(160 + offsets.X, temp3, temp_kb, shade, 0, pal, angle);
+		ShowBoat(160 + offsets.X, temp3, temp_kb, shade, 0, pal, -TiltStatus);
 		return;
 	}
 

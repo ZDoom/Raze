@@ -216,7 +216,7 @@ void resetplayerstats(int snum)
 	p->MotoOnGround = 1;
 	p->moto_underwater = 0;
 	p->MotoSpeed = 0;
-	p->TiltStatus = 0;
+	p->TiltStatus = nullAngle;
 	p->moto_drink = 0;
 	p->VBumpTarget = 0;
 	p->VBumpNow  =0;
