@@ -1908,7 +1908,7 @@ inline bool SectorIsDiveArea(sectortype* sect)
 
 inline bool SectorIsUnderwaterArea(sectortype* sect)
 {
-    return sect ? sect->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2) : false;
+    return sect && sect->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2);
 }
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)

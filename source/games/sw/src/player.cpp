@@ -3142,7 +3142,7 @@ void DoPlayerFall(PLAYER* pp)
                     return;
             }
 
-            if (pp->input.actions & SB_CROUCH)
+            if ((pp->input.actions & SB_CROUCH) || pp->input.uvel < 0)
             {
                 StackedWaterSplash(pp);
                 DoPlayerBeginCrawl(pp);
@@ -3546,7 +3546,7 @@ void DoPlayerCrawl(PLAYER* pp)
         }
 
     }
-    else if (!(pp->input.actions & SB_CROUCH) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+    else if (!(pp->input.actions & SB_CROUCH) && pp->input.uvel >= 0 && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
     {
         // Let off of crawl to get up
         pp->Flags &= ~PF_CRAWLING;
@@ -3648,24 +3648,9 @@ void DoPlayerFly(PLAYER* pp)
         return;
     }
 
-    if (pp->input.actions & SB_CROUCH)
-    {
-        pp->z_speed += PLAYER_FLY_INC;
-
-        if (pp->z_speed > PLAYER_FLY_MAX_SPEED)
-            pp->z_speed = PLAYER_FLY_MAX_SPEED;
-    }
-
-    if (pp->input.actions & SB_JUMP)
-    {
-        pp->z_speed -= PLAYER_FLY_INC;
-
-        if (pp->z_speed < -PLAYER_FLY_MAX_SPEED)
-            pp->z_speed = -PLAYER_FLY_MAX_SPEED;
-    }
-
-    pp->z_speed *= FixedToFloat(58000);
-
+    const auto kbdDir = !!(pp->input.actions & SB_CROUCH) - !!(pp->input.actions & SB_JUMP);
+    const double velZ = clamp(PLAYER_FLY_INC * kbdDir - PLAYER_FLY_INC * pp->input.uvel, -PLAYER_FLY_INC, PLAYER_FLY_INC);
+    pp->z_speed = clamp(pp->z_speed + velZ, -PLAYER_FLY_MAX_SPEED, PLAYER_FLY_MAX_SPEED) * FixedToFloat(58000);
     pp->actor->spr.pos.Z += pp->z_speed;
 
     // Make the min distance from the ceiling/floor match bobbing amount
@@ -3863,13 +3848,15 @@ int PlayerCanDive(PLAYER* pp)
     if (Prediction)
         return false;
 
+    const double velZ = clamp(20. * !!(pp->input.actions & SB_CROUCH) - 20. * pp->input.uvel, -20., 20.);
+
     // Crawl - check for diving
-    if ((pp->input.actions & SB_CROUCH) || pp->jump_speed > 0)
+    if (velZ > 0 || pp->jump_speed > 0)
     {
         if (PlayerInDiveArea(pp))
         {
-            pp->actor->spr.pos.Z += 20;
-            pp->z_speed = 20;
+            pp->actor->spr.pos.Z += velZ;
+            pp->z_speed = velZ;
             pp->jump_speed = 0;
 
             if (pp->actor->getOffsetZ() > pp->loz - pp->WadeDepth - 2)
@@ -4540,23 +4527,9 @@ void DoPlayerDive(PLAYER* pp)
         }
     }
 
-    if (pp->input.actions & SB_CROUCH)
-    {
-        pp->z_speed += PLAYER_DIVE_INC;
-
-        if (pp->z_speed > PLAYER_DIVE_MAX_SPEED)
-            pp->z_speed = PLAYER_DIVE_MAX_SPEED;
-    }
-
-    if (pp->input.actions & SB_JUMP)
-    {
-        pp->z_speed -= PLAYER_DIVE_INC;
-
-        if (pp->z_speed < -PLAYER_DIVE_MAX_SPEED)
-            pp->z_speed = -PLAYER_DIVE_MAX_SPEED;
-    }
-
-    pp->z_speed *= FixedToFloat(58000);
+    const auto kbdDir = !!(pp->input.actions & SB_CROUCH) - !!(pp->input.actions & SB_JUMP);
+    const double velZ = clamp(PLAYER_DIVE_INC * kbdDir - PLAYER_DIVE_INC * pp->input.uvel, -PLAYER_DIVE_INC, PLAYER_DIVE_INC);
+    pp->z_speed = clamp(pp->z_speed + velZ, -PLAYER_DIVE_MAX_SPEED, PLAYER_DIVE_MAX_SPEED) * FixedToFloat(58000);
 
     if (abs(pp->z_speed) < 1./16)
         pp->z_speed = 0;
@@ -4869,7 +4842,7 @@ void DoPlayerWade(PLAYER* pp)
     }
 
     // Crawl Commanded
-    if ((pp->input.actions & SB_CROUCH) && pp->WadeDepth <= PLAYER_CRAWL_WADE_DEPTH)
+    if (((pp->input.actions & SB_CROUCH) || pp->input.uvel < 0) && pp->WadeDepth <= PLAYER_CRAWL_WADE_DEPTH)
     {
         DoPlayerBeginCrawl(pp);
         return;
@@ -6476,7 +6449,7 @@ void DoPlayerRun(PLAYER* pp)
     }
 
     // Crawl Commanded
-    if (pp->input.actions & SB_CROUCH)
+    if ((pp->input.actions & SB_CROUCH) || pp->input.uvel < 0)
     {
         DoPlayerBeginCrawl(pp);
         return;
@@ -6986,7 +6959,9 @@ void domovethings(void)
         pp->svel = pp->input.svel;
 
         // convert fvel/svel into a vector before performing actions.
-        const auto velvect = DVector2(pp->input.fvel, pp->input.svel).Rotated(pp->actor->spr.Angles.Yaw);
+        const auto fvel = pp->input.fvel + pp->input.uvel * (pp->DoPlayerAction == DoPlayerClimb);
+        const auto svel = pp->input.svel;
+        const auto velvect = DVector2(fvel, svel).Rotated(pp->actor->spr.Angles.Yaw);
         pp->input.fvel = (float)velvect.X;
         pp->input.svel = (float)velvect.Y;
 
