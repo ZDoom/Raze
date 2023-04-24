@@ -1140,6 +1140,10 @@ OptionMenu "VideoOptions" protected
 	}
 	Option "$DSPLYMNU_VIEWTILTING",				"cl_viewtilting",				"ViewTilting"
 	Slider "$DSPLYMNU_VIEWTILTSCALE",			"cl_viewtiltscale",				0.0, 2.0, 0.05
+	ifgame (RedneckRides)
+	{
+		Option "$DSPLYMNU_VEHTILTING",			"cl_rrvehicletilting",			"OnOff"
+	}
 	Slider "$DSPLYMNU_FOV",						"r_fov",						60, 130, 10, 1
 
 	StaticText ""

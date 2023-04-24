@@ -32,6 +32,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "dukeactor.h"
 
+CVAR(Bool, cl_rrvehicletilting, false, CVAR_ARCHIVE);
+
 BEGIN_DUKE_NS 
 
 
@@ -723,9 +725,14 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 
 static void doVehicleTilting(player_struct* const p, const bool canTilt)
 {
+	const auto pact = p->GetActor();
+	const auto adj = DAngle::fromDeg(p->sync.avel * 0.375 * canTilt);
 	p->oTiltStatus = p->TiltStatus;
-	p->TiltStatus += DAngle::fromDeg(p->sync.avel * 0.375 * canTilt);
+
+	p->TiltStatus += adj;
+	pact->spr.Angles.Roll += adj * cl_rrvehicletilting;
 	scaletozero(p->TiltStatus, 10.);
+	scaletozero(pact->spr.Angles.Roll, 10.);
 }
 
 //---------------------------------------------------------------------------
@@ -2694,7 +2701,10 @@ void processinput_r(int snum)
 		}
 	}
 
-	p->Angles.doRollInput(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	if (!p->OnMotorcycle && !p->OnBoat)
+	{
+		p->Angles.doRollInput(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	}
 
 HORIZONLY:
 
