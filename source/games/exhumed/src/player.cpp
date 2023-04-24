@@ -1194,14 +1194,15 @@ static void updatePlayerWeapon(Player* const pPlayer)
 
     if (const auto weapDir = (newWeap == WeaponSel_Next) - (newWeap == WeaponSel_Prev))
     {
-        int nextWeap = getWrappedIndex(pPlayer->nCurrentWeapon + weapDir, kMaxWeapons);
-        int haveWeap = pPlayer->nPlayerWeapons & (1 << nextWeap);
+        int nextWeap = pPlayer->nCurrentWeapon;
+        int haveWeap;
 
-        while (nextWeap && (!haveWeap || (haveWeap && !pPlayer->nAmmo[nextWeap])))
+        do
         {
             nextWeap = getWrappedIndex(nextWeap + weapDir, kMaxWeapons);
             haveWeap = pPlayer->nPlayerWeapons & (1 << nextWeap);
         }
+        while (nextWeap && (!haveWeap || (haveWeap && !pPlayer->nAmmo[nextWeap])));
 
         SetNewWeapon(pPlayer->nPlayer, nextWeap);
     }
