@@ -580,7 +580,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 {
 	const auto p = &ps[snum];
 	const auto pact = p->GetActor();
+	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
+	const double velZ = clamp(dist * kbdDir + dist * p->sync.uvel, -dist, dist);
 
 	p->on_ground = 0;
 	p->jumping_counter = 0;
@@ -600,28 +602,26 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
 	}
 
-	if ((actions & SB_JUMP) || p->sync.uvel > 0)                            //A (soar high)
+	if (velZ > 0) //A (soar high)
 	{
 		// jump
 		SetGameVarID(g_iReturnVarID, 0, pact, snum);
 		OnEvent(EVENT_SOARUP, snum, pact, -1);
 		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 		{
-			pact->spr.pos.Z -= dist * !!(actions & SB_JUMP);
-			pact->spr.pos.Z -= dist * p->sync.uvel;
+			pact->spr.pos.Z -= velZ;
 			p->crack_time = CRACK_TIME;
 		}
 	}
 
-	if ((actions & SB_CROUCH) || p->sync.uvel < 0)                            //Z (soar low)
+	if (velZ < 0) //Z (soar low)
 	{
 		// crouch
 		SetGameVarID(g_iReturnVarID, 0, pact, snum);
 		OnEvent(EVENT_SOARDOWN, snum, pact, -1);
 		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 		{
-			pact->spr.pos.Z += dist * !!(actions & SB_CROUCH);
-			pact->spr.pos.Z -= dist * p->sync.uvel;
+			pact->spr.pos.Z -= velZ;
 			p->crack_time = CRACK_TIME;
 		}
 	}
@@ -767,7 +767,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if (actions & SB_CROUCH)
+		if ((actions & SB_CROUCH) || p->sync.uvel < 0)
 		{
 			playerCrouch(snum);
 		}

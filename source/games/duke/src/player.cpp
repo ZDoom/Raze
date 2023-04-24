@@ -663,13 +663,15 @@ int timedexit(int snum)
 
 void playerCrouch(int snum)
 {
-	auto p = &ps[snum];
-	// crouching
-	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+	const auto p = &ps[snum];
+	const auto pact = p->GetActor();
+	const auto nVelMoveDown = abs(p->sync.uvel * (p->sync.uvel < 0));
+	constexpr double vel = 8 + 3;
+	SetGameVarID(g_iReturnVarID, 0, pact, snum);
+	OnEvent(EVENT_CROUCH, snum, pact, -1);
+	if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 	{
-		p->GetActor()->spr.pos.Z += 8 + 3;
+		pact->spr.pos.Z += clamp(vel * !!(p->sync.actions & SB_CROUCH) + vel * nVelMoveDown, -vel, vel);
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -1570,6 +1572,9 @@ void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 {
 	const auto p = &ps[snum];
 	const auto pact = p->GetActor();
+	constexpr double dist = (348. / 256.);
+	const auto kbdDir = ((actions & SB_JUMP) && !p->OnMotorcycle) - ((actions & SB_CROUCH) || p->OnMotorcycle);
+	const auto velZ = clamp(dist * kbdDir + dist * p->sync.uvel, -dist, dist);
 
 	p->jumping_counter = 0;
 	p->pycount += 32;
@@ -1579,16 +1584,16 @@ void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pact);
 
-	if ((actions & SB_JUMP) && !p->OnMotorcycle)
+	if (velZ > 0)
 	{
 		if (p->vel.Z > 0) p->vel.Z = 0;
-		p->vel.Z -= (348 / 256.);
+		p->vel.Z -= velZ;
 		if (p->vel.Z < -6) p->vel.Z = -6;
 	}
-	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
+	else if (velZ < 0)
 	{
 		if (p->vel.Z < 0) p->vel.Z = 0;
-		p->vel.Z += (348 / 256.);
+		p->vel.Z -= velZ;
 		if (p->vel.Z > 6) p->vel.Z = 6;
 	}
 	else

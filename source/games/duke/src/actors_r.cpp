@@ -310,8 +310,8 @@ void movetransports_r(void)
 					else break;
 
 					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) < 24)
-						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
-							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
+						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].sync.uvel > 0)) ||
+							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) || ps[p].sync.uvel < 0)))
 						{
 							ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 							ps[p].GetActor()->backupvec2();

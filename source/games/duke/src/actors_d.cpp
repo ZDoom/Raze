@@ -335,8 +335,8 @@ void movetransports_d(void)
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
 					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) < 24)
-						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
-							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
+						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].sync.uvel > 0)) ||
+							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) || ps[p].sync.uvel < 0)))
 						{
 							ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 							ps[p].GetActor()->backupvec2();
@@ -376,7 +376,7 @@ void movetransports_d(void)
 					}
 
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].sync.uvel < 0 || ps[p].vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;

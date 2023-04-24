@@ -1269,7 +1269,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if ((actions & SB_CROUCH) && !p->OnMotorcycle)
+		if (((actions & SB_CROUCH) || p->sync.uvel < 0) && !p->OnMotorcycle)
 		{
 			playerCrouch(snum);
 		}
