@@ -1242,15 +1242,15 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
         if (velZ < 0)
         {
-            pPlayerActor->vel.Z = velZ;
-
             if (bUnderwater)
             {
+                pPlayerActor->vel.Z = velZ;
                 nextAction = 10;
             }
             else if (pPlayer->bTouchFloor && (pPlayerActor->nAction < 6 || pPlayerActor->nAction > 8))
             {
                 pPlayer->bJumping = true;
+                pPlayerActor->vel.Z = velZ;
                 nextAction = 3;
             }
         }
