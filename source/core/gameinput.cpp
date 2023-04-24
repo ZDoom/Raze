@@ -65,7 +65,7 @@ static inline DAngle getscaledangle(const DAngle angle, const double scale, cons
 	return (angle.Normalized180() * getTicrateScale(scale)) + DAngle::fromDeg(push);
 }
 
-static bool scaletozero(DAngle& angle, const double scale, const double push = (7646143. / 110386328.))
+bool scaletozero(DAngle& angle, const double scale, const double push)
 {
 	const auto sgn = angle.Sgn();
 

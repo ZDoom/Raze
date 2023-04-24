@@ -721,11 +721,11 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleTilting(player_struct* const p, const int turndir, const bool canTilt)
+static void doVehicleTilting(player_struct* const p, const bool canTilt)
 {
-	constexpr auto amt = DAngle::fromBuild(1);
 	p->oTiltStatus = p->TiltStatus;
-	p->TiltStatus = clamp(p->TiltStatus + (turndir && canTilt ? amt : -amt * p->TiltStatus.Sgn()), -amt, amt);
+	p->TiltStatus += DAngle::fromDeg(p->sync.avel * 0.375 * canTilt);
+	scaletozero(p->TiltStatus, 10.);
 }
 
 //---------------------------------------------------------------------------
@@ -958,7 +958,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 
 	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, Sgn(p->sync.avel) * Sgn(p->MotoSpeed), !p->on_ground || p->sync.avel);
+	doVehicleTilting(p, !p->on_ground || p->sync.avel);
 
 	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
@@ -1054,7 +1054,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->MotoSpeed = 0;
 
 	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, Sgn(p->sync.avel), (p->MotoSpeed != 0 && (p->sync.avel || p->moto_drink)) || !p->NotOnWater); 
+	doVehicleTilting(p, (p->MotoSpeed != 0 && (p->sync.avel || p->moto_drink)) || !p->NotOnWater); 
 	doVehicleSounds(p, pact, flags, 87, 88, 89, 90);
 
 	if (!p->NotOnWater)
