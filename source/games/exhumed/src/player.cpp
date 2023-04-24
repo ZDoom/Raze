@@ -1225,6 +1225,10 @@ static void updatePlayerWeapon(Player* const pPlayer)
 static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 {
     const auto pPlayerActor = pPlayer->pActor;
+    const auto pInput = &pPlayer->input;
+    const auto kbdDir = !!(pInput->actions & SB_CROUCH) - !!(pInput->actions & SB_JUMP);
+    const double dist = bUnderwater ? 8 : 14;
+    const double velZ = clamp(dist * kbdDir - dist * pInput->uvel, -dist, dist);
     int nextAction = pPlayerActor->nAction;
 
     const auto scaleViewZ = [&](const double target)
@@ -1234,27 +1238,27 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
     if (!pPlayer->bIsMummified)
     {
-        processCrouchToggle(pPlayer->crouch_toggle, pPlayer->input.actions, !bUnderwater, bUnderwater);
+        processCrouchToggle(pPlayer->crouch_toggle, pInput->actions, !bUnderwater, bUnderwater);
 
-        if (pPlayer->input.actions & SB_JUMP)
+        if (velZ < 0)
         {
+            pPlayerActor->vel.Z = velZ;
+
             if (bUnderwater)
             {
-                pPlayerActor->vel.Z = -8;
                 nextAction = 10;
             }
             else if (pPlayer->bTouchFloor && (pPlayerActor->nAction < 6 || pPlayerActor->nAction > 8))
             {
                 pPlayer->bJumping = true;
-                pPlayerActor->vel.Z = -14;
                 nextAction = 3;
             }
         }
-        else if (pPlayer->input.actions & SB_CROUCH)
+        else if (velZ > 0)
         {
             if (bUnderwater)
             {
-                pPlayerActor->vel.Z = 8;
+                pPlayerActor->vel.Z = velZ;
                 nextAction = 10;
             }
             else
@@ -1308,7 +1312,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                 }
             }
 
-            if (!bTallerThanSector && (pPlayer->input.actions & SB_FIRE)) // was var_38
+            if (!bTallerThanSector && (pInput->actions & SB_FIRE)) // was var_38
             {
                 if (bUnderwater)
                 {
