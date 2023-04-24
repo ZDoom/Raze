@@ -688,12 +688,12 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		footprints(snum);
 	}
 
-	if (p->GetActor()->getOffsetZ() < floorz - i) //falling
+	if (pact->getOffsetZ() < floorz - i) //falling
 	{
 
 		// not jumping or crouching
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->GetActor()->getOffsetZ() >= (floorz - i - 16))
-			p->GetActor()->spr.pos.Z = floorz - i + gs.playerheight;
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && pact->getOffsetZ() >= (floorz - i - 16))
+			pact->spr.pos.Z = floorz - i + gs.playerheight;
 		else
 		{
 			p->on_ground = 0;
@@ -706,7 +706,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->GetActor()->getOffsetZ() + p->vel.Z  >= floorz - i) // hit the ground
+			if (pact->getOffsetZ() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -750,17 +750,17 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		{
 			//Smooth on the ground
 
-			double k = (floorz - i - p->GetActor()->getOffsetZ()) * 0.5;
-			p->GetActor()->spr.pos.Z += k;
+			double k = (floorz - i - pact->getOffsetZ()) * 0.5;
+			pact->spr.pos.Z += k;
 			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->GetActor()->spr.pos.Z += ((floorz - i * 0.5) - p->GetActor()->getOffsetZ()) * 0.5; //Smooth on the water
-			if (p->on_warping_sector == 0 && p->GetActor()->getOffsetZ() > floorz - 16)
+			pact->spr.pos.Z += ((floorz - i * 0.5) - pact->getOffsetZ()) * 0.5; //Smooth on the water
+			if (p->on_warping_sector == 0 && pact->getOffsetZ() > floorz - 16)
 			{
-				p->GetActor()->spr.pos.Z = floorz - 16 + gs.playerheight;
+				pact->spr.pos.Z = floorz - 16 + gs.playerheight;
 				p->vel.Z *= 0.5;
 			}
 		}
@@ -811,15 +811,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 	}
 
-	p->GetActor()->spr.pos.Z += p->vel.Z;
+	pact->spr.pos.Z += p->vel.Z;
 
-	if (p->GetActor()->getOffsetZ() < ceilingz + 4)
+	if (pact->getOffsetZ() < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 0.5;
-		p->GetActor()->spr.pos.Z = ceilingz + 4 + gs.playerheight;
+		pact->spr.pos.Z = ceilingz + 4 + gs.playerheight;
 	}
 }
 
