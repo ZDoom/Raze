@@ -179,15 +179,15 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 
 	switch (predict.posture)
 	{
-	case 1:
+	case kPostureSwim:
 		if (predict.jump)
 			predict.zvel -= pPosture->normalJumpZ;//0x5b05;
 		if (pInput->actions & SB_CROUCH)
 			predict.zvel += pPosture->normalJumpZ;//0x5b05;
 		break;
-	case 2:
+	case kPostureCrouch:
 		if (!(pInput->actions & SB_CROUCH))
-			predict.posture = 0;
+			predict.posture = kPostureStand;
 		break;
 	default:
 		if (!predict.cantJump && predict.jump && predict.floordist == 0) {
@@ -196,7 +196,7 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 			predict.cantJump = 1;
 		}
 		if (pInput->actions & SB_CROUCH)
-			predict.posture = 2;
+			predict.posture = kPostureCrouch;
 		break;
 	}
 

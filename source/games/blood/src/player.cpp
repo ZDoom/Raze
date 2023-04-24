@@ -1586,15 +1586,16 @@ void ProcessInput(PLAYER* pPlayer)
 	processCrouchToggle(pPlayer->crouch_toggle, pInput->actions, pPlayer->posture != kPostureSwim, pPlayer->posture == kPostureSwim);
 
 	switch (pPlayer->posture) {
-	case 1:
-		if (pInput->actions & SB_JUMP)
-			actor->vel.Z -= pPosture->normalJumpZ;//0x5b05;
-		if (pInput->actions & SB_CROUCH)
-			actor->vel.Z += pPosture->normalJumpZ;//0x5b05;
+	case kPostureSwim:
+	{
+		const auto kbdDir = !!(pInput->actions & SB_JUMP) - !!(pInput->actions & SB_CROUCH);
+		const double dist = pPosture->normalJumpZ;
+		actor->vel.Z -= clamp(dist * kbdDir + dist * pInput->uvel, -dist, dist);
 		break;
-	case 2:
+	}
+	case kPostureCrouch:
 		if (!(pInput->actions & SB_CROUCH))
-			pPlayer->posture = 0;
+			pPlayer->posture = kPostureStand;
 		break;
 	default:
 		if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && actor->xspr.height == 0) {
@@ -1609,7 +1610,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 
 		if (pInput->actions & SB_CROUCH)
-			pPlayer->posture = 2;
+			pPlayer->posture = kPostureCrouch;
 		break;
 	}
 	if (pInput->actions & SB_OPEN)
