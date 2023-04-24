@@ -75,6 +75,7 @@ struct InputPacket
     float uvel;
     float avel;
     float horz;
+    float roll;
     ESyncBits actions;
 
 

@@ -2075,7 +2075,7 @@ void DoPlayerMove(PLAYER* pp)
 	actor->vel.X = pp->vect.Length();
 
     constexpr auto maxVel = (380401538. / 36022361.);
-    pp->Angles.doViewTilting(&pp->input, pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
+    pp->Angles.doRollInput(&pp->input, pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {

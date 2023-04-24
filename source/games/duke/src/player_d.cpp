@@ -1828,7 +1828,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	p->Angles.doViewTilting(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	p->Angles.doRollInput(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 

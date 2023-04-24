@@ -1578,7 +1578,7 @@ void ProcessInput(PLAYER* pPlayer)
 	pPlayer->Angles.doYawInput(pInput);
 
 	constexpr auto maxVel = (36211. / 3000.);
-	pPlayer->Angles.doViewTilting(pInput, actor->vel.XY(), maxVel, pPlayer->posture == kPostureSwim);
+	pPlayer->Angles.doRollInput(pInput, actor->vel.XY(), maxVel, pPlayer->posture == kPostureSwim);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;

@@ -1037,6 +1037,7 @@ void NetUpdate (void)
 				float uvel = 0;
 				float avel = 0;
 				float horz = 0;
+				float roll = 0;
 
 				for (tic = 0; tic < ticdup; ++tic)
 				{
@@ -1046,6 +1047,7 @@ void NetUpdate (void)
 					uvel += localcmds[modp].ucmd.uvel;
 					avel += localcmds[modp].ucmd.avel;
 					horz += localcmds[modp].ucmd.horz;
+					roll += localcmds[modp].ucmd.roll;
 				}
 
 				svel /= ticdup;
@@ -1053,6 +1055,7 @@ void NetUpdate (void)
 				uvel /= ticdup;
 				avel /= ticdup;
 				horz /= ticdup;
+				roll /= ticdup;
 
 				for (tic = 0; tic < ticdup; ++tic)
 				{
@@ -1062,6 +1065,7 @@ void NetUpdate (void)
 					localcmds[modp].ucmd.uvel = uvel;
 					localcmds[modp].ucmd.avel = avel;
 					localcmds[modp].ucmd.horz = horz;
+					localcmds[modp].ucmd.roll = roll;
 				}
 
 				Net_NewMakeTic ();

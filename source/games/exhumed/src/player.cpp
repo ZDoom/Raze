@@ -1569,7 +1569,7 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->Angles.doViewTilting(&pPlayer->input, pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->Angles.doRollInput(&pPlayer->input, pPlayerActor->vel.XY(), maxVel, nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)

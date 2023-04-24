@@ -93,7 +93,7 @@ struct PlayerAngles
 	void doYawInput(InputPacket* const input);
 	void doViewPitch(const bool canslopetilt, const bool climbing = false);
 	void doViewYaw(InputPacket* const input);
-	void doViewTilting(InputPacket* const pInput, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater);
+	void doRollInput(InputPacket* const input, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater);
 
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
