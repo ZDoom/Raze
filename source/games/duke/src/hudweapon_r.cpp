@@ -199,7 +199,7 @@ void displayweapon_r(int snum, double interpfrac)
 				temp_kb = RTILE_MOTOHIT;
 		}
 
-		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, -TiltStatus * 5);
+		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, -TiltStatus);
 		return;
 	}
 	if (p->OnBoat)

@@ -32,6 +32,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "dukeactor.h"
 
+EXTERN_CVAR(Float, cl_viewtiltscale);
 CVAR(Bool, cl_rrvehicletilting, false, CVAR_ARCHIVE);
 
 BEGIN_DUKE_NS 
@@ -726,7 +727,9 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 static void doVehicleTilting(player_struct* const p, const bool canTilt)
 {
 	const auto pact = p->GetActor();
-	const auto adj = DAngle::fromDeg(p->sync.avel * 0.375 * canTilt);
+	auto adj = DAngle::fromDeg(p->sync.avel * 0.279625 * canTilt);
+	if (p->OnMotorcycle) adj *= 5;
+	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
 
 	p->TiltStatus += adj;
