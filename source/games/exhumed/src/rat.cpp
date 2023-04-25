@@ -275,6 +275,12 @@ void AIRat::Tick(RunListEvent* ev)
         pActor->nCount = RandomSize(5) + 4;
         pActor->nPhase--;
 
+        if (pActor->nFrame >= ratSeq.frames.Size())
+        {
+            bVal = true;
+            pActor->nFrame = 0;
+        }
+
         if (pActor->nPhase <= 0)
         {
             auto pFoodSprite = FindFood(pActor);
