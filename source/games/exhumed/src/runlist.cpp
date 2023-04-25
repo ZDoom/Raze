@@ -1784,8 +1784,8 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
                 if (pActor->spr.statnum == 100)
                 {
-                    // The player's max vel is 15.25, so this at least 40.
-                    pActor->vel.XY() += nVel.XY() * 0.125 * cl_exdamagepush;
+                    // The player's max vel is 15.25 for reference.
+                    pActor->vel.XY() += nVel.XY() * 0.1875 * cl_exdamagepush;
                     PlayerList[GetPlayerFromActor(pActor)].bJumping = true;
                 }
                 else
