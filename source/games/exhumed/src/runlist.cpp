@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include <assert.h>
 
+CVARD(Bool, cl_exdamagepush, false, CVAR_ARCHIVE, "enables player damage pushback from explosions, etc.")
+
 BEGIN_PS_NS
 
 enum
@@ -1774,7 +1776,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         {
             if ((nPush = max((nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius, 0.)) > 20)
             {
-                const auto nVel = DVector3(pos.Angle().ToVector() * 128., -24 * (1. / 256.)) * nPush;
+                const auto nVel = DVector3(pos.Angle().ToVector(), -24 * (1. / 256.)) * nPush;
                 pActor->vel.Z += nVel.Z;
 
                 if (pActor->vel.Z < -14)
@@ -1782,11 +1784,13 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
                 if (pActor->spr.statnum == 100)
                 {
+                    // The player's max vel is 15.25, so this at least 40.
+                    pActor->vel.XY() += nVel.XY() * 0.125 * cl_exdamagepush;
                     PlayerList[GetPlayerFromActor(pActor)].bJumping = true;
                 }
                 else
                 {
-                    pActor->vel.XY() += nVel.XY();
+                    pActor->vel.XY() += nVel.XY() * 128.;
                 }
             }
         }
