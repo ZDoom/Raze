@@ -260,7 +260,7 @@ void AIRat::Tick(RunListEvent* ev)
 
 		auto delta = pActor->spr.pos.XY() - pTarget->spr.pos.XY();
 
-        if (abs(delta.X) > CHECK_DIST || abs(delta.Y) >= CHECK_DIST)
+        if (abs(delta.X) > CHECK_DIST || abs(delta.Y) > CHECK_DIST)
         {
             pActor->nAction = 2;
             pActor->nFrame = 0;
@@ -318,7 +318,7 @@ void AIRat::Tick(RunListEvent* ev)
 
 		auto delta = pActor->spr.pos.XY() - pTarget->spr.pos.XY();
 
-		if (abs(delta.X) > CHECK_DIST || abs(delta.Y) >= CHECK_DIST)
+		if (abs(delta.X) > CHECK_DIST || abs(delta.Y) > CHECK_DIST)
         {
             pActor->nCount--;
             if (pActor->nCount < 0)
