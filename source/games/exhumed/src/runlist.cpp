@@ -1783,16 +1783,20 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
             }
             else if (edi > 20)
             {
-                auto nAngle = pos.Angle();
-				pActor->vel.XY() += nAngle.ToVector() * edi * 128;
-
-                pActor->vel.Z = (- edi * 24) / 256.;
+                const auto nVel = DVector3(pos.Angle().ToVector() * 128., -24 * (1. / 256.)) * edi;
+                pActor->vel.Z += nVel.Z;
 
                 if (pActor->vel.Z < -14)
 					pActor->vel.Z = -14;
 
                 if (pActor->spr.statnum == 100)
+                {
                     PlayerList[GetPlayerFromActor(pActor)].bJumping = true;
+                }
+                else
+                {
+                    pActor->vel.XY() += nVel.XY();
+                }
             }
         }
 

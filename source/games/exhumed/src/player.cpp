@@ -296,7 +296,6 @@ void RestartPlayer(int nPlayer)
 	pPlayer->nAir = 100;
     pPlayer->pPlayerGrenade = nullptr;
     pPlayer->dVertPan = 0;
-    pPlayer->vel.Zero();
     pPlayer->nThrust.Zero();
     pPlayer->nBreathTimer = 90;
     pPlayer->nTauntTimer = RandomSize(3) + 3;
@@ -1113,21 +1112,19 @@ static void updatePlayerVelocity(Player* const pPlayer)
 
         for (int i = 0; i < 4; i++)
         {
-            pPlayer->vel += inputvect;
-            pPlayer->vel *= 0.953125;
+            pPlayerActor->vel.XY() += inputvect;
+            pPlayerActor->vel.XY() *= 0.953125;
             pPlayer->Angles.StrafeVel += pInput->svel * 0.375;
             pPlayer->Angles.StrafeVel *= 0.953125;
         }
     }
 
-    if (pPlayer->vel.Length() < 0.09375 && !pPlayer->vel.isZero())
+    if (pPlayerActor->vel.XY().Length() < 0.09375 && !pPlayerActor->vel.XY().isZero())
     {
-        pPlayer->vel.Zero();
+        pPlayerActor->vel.Zero();
         pPlayer->nIdxBobZ = 0;
         pPlayer->Angles.StrafeVel = 0;
     }
-
-    pPlayerActor->vel.XY() = pPlayer->vel;
 }
 
 //---------------------------------------------------------------------------
@@ -1521,7 +1518,6 @@ static void doPlayerRamses(Player* const pPlayer)
     if (nTotalPlayers <= 1)
     {
         pPlayer->pActor->vel.Zero();
-        pPlayer->vel.Zero();
 
         if (nFreeze < 1)
         {
@@ -1580,7 +1576,7 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
         pPlayer->nIdxBobZ *= !pPlayerActor->vel.Z;
 
         // Increment bob value with index's sine, amplified by player velocity, bob type and bob height CVAR.
-        const auto nBobVel = (pPlayer->vel.Length() < 0.09375 && nUnderwater) ? (maxVel / 3.) : pPlayer->totalvel;
+        const auto nBobVel = (pPlayerActor->vel.XY().Length() < 0.09375 && nUnderwater) ? (maxVel / 3.) : pPlayer->totalvel;
         const auto nBobAmp = nBobVel * 0.05 * cl_viewbob * cl_exviewbobheight;
         const auto newBobZ = BobVal(pPlayer->nIdxBobZ) * nBobAmp;
         pPlayer->nBobZ = (cl_viewbob == 2) ? (abs(newBobZ) - nBobAmp * 0.5 * !nUnderwater) : (newBobZ);
@@ -1740,7 +1736,7 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
     else if ((sect->hitag == 45) && pPlayer->bTouchFloor && absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180) <= DAngle45)
     {
         pPlayer->pPlayerPushSect = sect;
-        DVector2 vel = pPlayer->vel;
+        DVector2 vel = pPlayerActor->vel.XY();
         const auto nMyAngle = vel.Angle().Normalized360();
 
         setsectinterpolate(sect);
