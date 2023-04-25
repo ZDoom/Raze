@@ -713,7 +713,7 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 	flags += VEH_REVERSE * (p->sync.fvel < 0);
 	flags += VEH_TURNLEFT * (p->sync.avel < 0);
 	flags += VEH_TURNRIGHT * (p->sync.avel > 0);
-	flags += VEH_BRAKING * !!(actions & SB_CROUCH);
+	flags += VEH_BRAKING * (!!(actions & SB_CROUCH) || (p->sync.fvel < 0 && p->MotoSpeed > 0));
 	actions &= ~SB_CROUCH;
 	return flags;
 }
@@ -728,7 +728,7 @@ static void doVehicleTilting(player_struct* const p, const bool canTilt)
 {
 	const auto pact = p->GetActor();
 	auto adj = DAngle::fromDeg(p->sync.avel * 0.279625 * canTilt);
-	if (p->OnMotorcycle) adj *= 5;
+	if (p->OnMotorcycle) adj *= 5 * Sgn(p->MotoSpeed);
 	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
 
@@ -906,7 +906,9 @@ static void doVehicleThrottling(player_struct* p, DDukeActor* pact, unsigned& fl
 		}
 		else if ((flags & VEH_BRAKING) && p->MotoSpeed > 0)
 		{
-			p->MotoSpeed -= brakeSpeed;
+			const auto kbdBraking = brakeSpeed * !!(flags & VEH_BRAKING);
+			const auto hidBraking = brakeSpeed * p->sync.fvel * (p->sync.fvel < 0);
+			p->MotoSpeed -= clamp<double>(kbdBraking - hidBraking, -brakeSpeed, brakeSpeed);
 			if (p->MotoSpeed < 0)
 				p->MotoSpeed = 0;
 			p->VBumpTarget = vBmpBrake;
