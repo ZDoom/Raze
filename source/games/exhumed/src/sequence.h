@@ -84,7 +84,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle);
 
-TArray<Seq>* getFileSeqs(const FName nSeqFile);
+const TArray<Seq>* const getFileSeqs(const FName nSeqFile);
 
 inline const Seq& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
 {
