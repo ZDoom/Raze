@@ -1121,7 +1121,7 @@ static void updatePlayerVelocity(Player* const pPlayer)
 
     if (pPlayerActor->vel.XY().Length() < 0.09375 && !pPlayerActor->vel.XY().isZero())
     {
-        pPlayerActor->vel.Zero();
+        pPlayerActor->vel.XY().Zero();
         pPlayer->nIdxBobZ = 0;
         pPlayer->Angles.StrafeVel = 0;
     }
