@@ -374,7 +374,13 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
         if ((destZ - height) < sprceiling && (hiHit.type == kHitSprite || pActor->sector()->pAbove == nullptr))
         {
             destZ = sprceiling + height;
+            pActor->spr.pos.Z = pActor->opos.Z = destZ;
+            pActor->spr.pos.Z += z;
             nRet.exbits |= kHitAux1;
+        }
+        else
+        {
+            pActor->spr.pos.Z = destZ;
         }
     }
 
@@ -387,7 +393,6 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
     }
 
     pActor->spr.cstat = cstat; // restore cstat
-    pActor->spr.pos.Z = destZ;
 
     if (pActor->spr.statnum == 100)
     {
