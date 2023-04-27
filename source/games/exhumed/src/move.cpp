@@ -226,36 +226,36 @@ static int BelowNear(DExhumedActor* pActor, const Collision& loHit, double walld
 
 Collision movespritez(DExhumedActor* pActor, double z, double height, double clipdist, sectortype** overridesect)
 {
-    auto pSector = pActor->sector();
+    const auto pSector = pActor->sector();
     assert(pSector);
 
     *overridesect = pSector;
-    auto pSect2 = pSector;
+    const auto pSect2 = pSector;
 
     if (pActor->spr.statnum == 100)
         PlayerList[GetPlayerFromActor(pActor)].bTouchFloor = false;
 
     // backup cstat
-    auto cstat = pActor->spr.cstat;
+    const auto cstat = pActor->spr.cstat;
 
     pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 
     Collision nRet;
     nRet.setNone();
 
-    int nSectFlags = pSector->Flag;
+    const bool bUnderwater = pSector->Flag & kSectUnderwater;
 
-    if (nSectFlags & kSectUnderwater) {
+    if (bUnderwater) {
         z *= 0.5;
     }
 
-    double spriteZ = pActor->spr.pos.Z;
-    double floorZ = pSector->floorz;
+    const double spriteZ = pActor->spr.pos.Z;
+    const double floorZ = pSector->floorz;
 
     double destZ = spriteZ + z;
-    double highestZ = pSector->ceilingz + (height * 0.5);
+    const double highestZ = pSector->ceilingz + (height * 0.5);
 
-    if ((nSectFlags & kSectUnderwater) && destZ < highestZ) {
+    if (bUnderwater && destZ < highestZ) {
         destZ = highestZ;
     }
 
@@ -315,8 +315,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
                 if (pActor->spr.statnum == 100 && pFloorActor->spr.statnum != 0 && pFloorActor->spr.statnum < 100)
                 {
-                    int nDamage = int(z * 0.5);
-                    if (nDamage)
+                    if (int nDamage = int(z * 0.5))
                     {
                         runlist_DamageEnemy(loHit.actor(), pActor, nDamage << 1);
                     }
@@ -337,59 +336,49 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
                     pActor->vel.Z = 0;
                 }
             }
-            else
+            else if (pActor->sector()->pBelow == nullptr)
             {
                 // Path B
-                if (pActor->sector()->pBelow == nullptr)
+                nRet.exbits |= kHitAux2;
+
+                if (int nSectDamage = pActor->sector()->Damage)
                 {
-                    nRet.exbits |= kHitAux2;
-
-                    int nSectDamage = pActor->sector()->Damage;
-
-                    if (nSectDamage != 0)
+                    if (pActor->spr.hitag < 15)
                     {
-                        if (pActor->spr.hitag < 15)
-                        {
-                            IgniteSprite(pActor);
-                            pActor->spr.hitag = 20;
-                        }
-                        nSectDamage >>= 2;
-                        nSectDamage = nSectDamage - (nSectDamage>>2);
-                        if (nSectDamage) {
-                            runlist_DamageEnemy(pActor, nullptr, nSectDamage);
-                        }
+                        IgniteSprite(pActor);
+                        pActor->spr.hitag = 20;
                     }
 
-                    pActor->vel.Z = 0;
+                    nSectDamage >>= 2;
+
+                    if ((nSectDamage = nSectDamage - (nSectDamage>>2)))
+                    {
+                        runlist_DamageEnemy(pActor, nullptr, nSectDamage);
+                    }
                 }
+
+                pActor->vel.Z = 0;
             }
         }
 
-        // loc_1543B:
         destZ = mySprfloor;
         pActor->spr.pos.Z = mySprfloor;
     }
+    else if ((destZ - height) < sprceiling && (hiHit.type == kHitSprite || pActor->sector()->pAbove == nullptr))
+    {
+        destZ = sprceiling + height;
+        pActor->spr.pos.Z = pActor->opos.Z = destZ;
+        pActor->spr.pos.Z += z;
+        nRet.exbits |= kHitAux1;
+    }
     else
     {
-        if ((destZ - height) < sprceiling && (hiHit.type == kHitSprite || pActor->sector()->pAbove == nullptr))
-        {
-            destZ = sprceiling + height;
-            pActor->spr.pos.Z = pActor->opos.Z = destZ;
-            pActor->spr.pos.Z += z;
-            nRet.exbits |= kHitAux1;
-        }
-        else
-        {
-            pActor->spr.pos.Z = destZ;
-        }
+        pActor->spr.pos.Z = destZ;
     }
 
-    if (spriteZ <= floorZ && destZ > floorZ)
+    if (spriteZ <= floorZ && destZ > floorZ && ((pSector->Depth != 0) || (pSect2 != pSector && (pSect2->Flag & kSectUnderwater))))
     {
-        if ((pSector->Depth != 0) || (pSect2 != pSector && (pSect2->Flag & kSectUnderwater)))
-        {
-            BuildSplash(pActor, pSector);
-        }
+        BuildSplash(pActor, pSector);
     }
 
     pActor->spr.cstat = cstat; // restore cstat
