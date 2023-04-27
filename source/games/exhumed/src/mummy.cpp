@@ -141,8 +141,8 @@ void AIMummy::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    const auto& mummySeq = getSequence(pActor->nSeqFile, MummySeq[nAction].nSeqId);
-    const auto& seqFrame = mummySeq.frames[pActor->nFrame];
+    const auto mummySeq = getSequence(pActor->nSeqFile, MummySeq[nAction].nSeqId);
+    const auto& seqFrame = mummySeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
@@ -151,7 +151,7 @@ void AIMummy::Tick(RunListEvent* ev)
     bool bVal = false;
 
     pActor->nFrame++;
-    if (pActor->nFrame >= mummySeq.frames.Size())
+    if (pActor->nFrame >= mummySeq->frames.Size())
     {
         pActor->nFrame = 0;
 

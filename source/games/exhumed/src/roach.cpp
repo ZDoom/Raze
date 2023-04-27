@@ -212,14 +212,14 @@ void AIRoach::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    const auto& roachSeq = getSequence(pActor->nSeqFile, RoachSeq[nAction].nSeqId);
-    const auto& seqFrame = roachSeq.frames[pActor->nFrame];
+    const auto roachSeq = getSequence(pActor->nSeqFile, RoachSeq[nAction].nSeqId);
+    const auto& seqFrame = roachSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
     seqFrame.playSound(pActor);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= roachSeq.frames.Size())
+    if (pActor->nFrame >= roachSeq->frames.Size())
     {
         bVal = true;
         pActor->nFrame = 0;

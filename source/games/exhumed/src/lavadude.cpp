@@ -123,7 +123,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->nSeqFile = "lavag";
-    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, LavadudeSeq[3].nSeqId).getFirstFrameTexture());
+    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, LavadudeSeq[3].nSeqId)->getFirstFrameTexture());
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -215,8 +215,8 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     int nAction = pActor->nAction;
 
-    const auto& lavadudeSeq = getSequence(pActor->nSeqFile, LavadudeSeq[nAction].nSeqId);
-    const auto& seqFrame = lavadudeSeq.frames[pActor->nFrame];
+    const auto lavadudeSeq = getSequence(pActor->nSeqFile, LavadudeSeq[nAction].nSeqId);
+    const auto& seqFrame = lavadudeSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
@@ -227,7 +227,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         seqFrame.playSound(pActor);
 
         pActor->nFrame++;
-        if (pActor->nFrame >= lavadudeSeq.frames.Size())
+        if (pActor->nFrame >= lavadudeSeq->frames.Size())
         {
             var_1C = 1;
             pActor->nFrame = 0;

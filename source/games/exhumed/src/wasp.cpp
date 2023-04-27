@@ -210,15 +210,15 @@ void AIWasp::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    const auto& waspSeq = getSequence(pActor->nSeqFile, WaspSeq[nAction].nSeqId);
-    const auto& seqFrame = waspSeq.frames[pActor->nFrame];
+    const auto waspSeq = getSequence(pActor->nSeqFile, WaspSeq[nAction].nSeqId);
+    const auto& seqFrame = waspSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= waspSeq.frames.Size())
+    if (pActor->nFrame >= waspSeq->frames.Size())
     {
         pActor->nFrame = 0;
         bVal = true;

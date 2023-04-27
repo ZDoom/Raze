@@ -374,15 +374,15 @@ void MoveWeapons(int nPlayer)
     }
 
     const auto nSeqFile = WeaponInfo[nWeapon].nSeqFile;
-    auto weapSeq = std::ref(getSequence(nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]));
-    auto seqFrame = std::ref(weapSeq.get().frames[pPlayer->nWeapFrame]);
+    auto weapSeq = getSequence(nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]);
+    auto seqFrame = weapSeq->frames.Data(pPlayer->nWeapFrame);
 
     int var_1C = (pPlayer->nDouble > 0) + 1;
     int frames = var_1C - 1;
 
     for (frames = var_1C; frames > 0; frames--)
     {
-        seqFrame.get().playSound(pPlayerActor);
+        seqFrame->playSound(pPlayerActor);
 
         pPlayer->nWeapFrame++;
 
@@ -391,7 +391,7 @@ void MoveWeapons(int nPlayer)
             dword_96E22 = 0;
         }
 
-        if (pPlayer->nWeapFrame >= weapSeq.get().frames.Size())
+        if (pPlayer->nWeapFrame >= weapSeq->frames.Size())
         {
             if (pPlayer->nNextWeapon == -1)
             {
@@ -469,7 +469,7 @@ void MoveWeapons(int nPlayer)
                             }
                             else
                             {
-                                pPlayer->nWeapFrame = weapSeq.get().frames.Size() - 1;
+                                pPlayer->nWeapFrame = weapSeq->frames.Size() - 1;
                                 continue;
                             }
                         }
@@ -566,7 +566,7 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(nPlayer);
                                 pPlayer->nState = 5;
 
-                                pPlayer->nWeapFrame = getSequence(nSeqFile, WeaponInfo[kWeaponGrenade].b[0]).frames.Size() - 1; // CHECKME
+                                pPlayer->nWeapFrame = getSequence(nSeqFile, WeaponInfo[kWeaponGrenade].b[0])->frames.Size() - 1; // CHECKME
                                 goto loc_flag; // FIXME
                             }
                         }
@@ -615,7 +615,7 @@ void MoveWeapons(int nPlayer)
                     }
                 }
 
-                weapSeq = std::ref(getSequence(WeaponInfo[nWeapon].nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]));
+                weapSeq = getSequence(WeaponInfo[nWeapon].nSeqFile, WeaponInfo[nWeapon].b[pPlayer->nState]);
                 pPlayer->nWeapFrame = 0;
             }
             else
@@ -640,9 +640,9 @@ void MoveWeapons(int nPlayer)
         }
 
 loc_flag:
-        seqFrame = std::ref(weapSeq.get().frames[pPlayer->nWeapFrame]);
+        seqFrame = weapSeq->frames.Data(pPlayer->nWeapFrame);
 
-        if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (seqFrame.get().flags & 4))
+        if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (seqFrame->flags & 4))
         {
             BuildFlash(nPlayer, 512);
             AddFlash(
@@ -651,7 +651,7 @@ loc_flag:
                 0);
         }
 
-        if (seqFrame.get().flags & 0x80)
+        if (seqFrame->flags & 0x80)
         {
             int nAction = pPlayerActor->nAction;
 
@@ -975,7 +975,7 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
     int nSeqOffset = WeaponInfo[nWeapon].b[nState];
     int nFrame = pPlayer->nWeapFrame;
 
-    seq_DrawGunSequence(weapSeqs->operator[](nSeqOffset).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha, nStat);
+    seq_DrawGunSequence(weapSeqs->Data(nSeqOffset)->frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha, nStat);
 
     int nClip = pPlayer->nPlayerClip;
 
@@ -1011,7 +1011,7 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
                 nSeqOffset = offsets[3];
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](nSeqOffset).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
+            seq_DrawGunSequence(weapSeqs->Data(nSeqOffset)->frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
             return;
         }
         case 1:
@@ -1020,25 +1020,25 @@ void DrawWeapons(Player* const pPlayer, double interpfrac)
             if (nState == 1)
                 nFrame = (nClip % 3) * 4;
 
-            seq_DrawGunSequence(weapSeqs->operator[](8).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
+            seq_DrawGunSequence(weapSeqs->Data(8)->frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
 
             if (nClip <= 3) {
                 return;
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](9).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
+            seq_DrawGunSequence(weapSeqs->Data(9)->frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
 
             if (nClip <= 6) {
                 return;
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](10).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
+            seq_DrawGunSequence(weapSeqs->Data(10)->frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
 
             if (nClip <= 25) {
                 return;
             }
 
-            seq_DrawGunSequence(weapSeqs->operator[](11).frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
+            seq_DrawGunSequence(weapSeqs->Data(11)->frames[nFrame], xPos, yPos, nShade, nPal, nAngle, nAlpha);
             return;
         }
         default:

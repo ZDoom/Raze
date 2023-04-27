@@ -86,9 +86,9 @@ void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle);
 
 const TArray<Seq>* const getFileSeqs(const FName nSeqFile);
 
-inline const Seq& getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
+inline const Seq* const getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
 {
-    return getFileSeqs(nSeqFile)->operator[](nSeqIndex);
+    return getFileSeqs(nSeqFile)->Data(nSeqIndex);
 }
 
 END_PS_NS

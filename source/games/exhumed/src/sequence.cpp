@@ -140,16 +140,19 @@ const TArray<Seq>* const getFileSeqs(const FName nSeqFile)
 static void fixSeqs()
 {
     // Seq file "skulstrt" has one sprite face with 20 frames instead of 24.
-    if (auto skulstrt = FileSeqMap.CheckKey("skulstrt"))
+    if (const auto skulstrt = FileSeqMap.CheckKey("skulstrt"))
     {
-        // Get sequence and store last frame.
-        auto& seq = skulstrt->operator[](4);
-        const auto lastframe = seq.frames.Last();
-
-        // Repeat last frame another four times.
-        for (unsigned i = 20; i < 24; i++)
+        // Get 5th sequence with missing frames.
+        if (const auto seq = skulstrt->Data(4))
         {
-            seq.frames.Push(lastframe);
+            // Store last frame.
+            const auto lastframe = seq->frames.Last();
+
+            // Repeat last frame another four times.
+            for (unsigned i = 20; i < 24; i++)
+            {
+                seq->frames.Push(lastframe);
+            }
         }
     }
 }
@@ -336,18 +339,18 @@ void seq_LoadSequences()
     // Perform sequence post-processing for where original assets are malformed.
     fixSeqs();
 
-    nShadowPic = getSequence("shadow").getFirstFrameTexture();
+    nShadowPic = getSequence("shadow")->getFirstFrameTexture();
     nShadowWidth = (int16_t)TexMan.GetGameTexture(nShadowPic)->GetDisplayWidth();
 
-    nFlameHeight = (int16_t)TexMan.GetGameTexture(getSequence("firepoof").getFirstFrameTexture())->GetDisplayHeight();
+    nFlameHeight = (int16_t)TexMan.GetGameTexture(getSequence("firepoof")->getFirstFrameTexture())->GetDisplayHeight();
 
-    nPilotLightCount = getSequence("flamer", 3).frames.Size();
+    nPilotLightCount = getSequence("flamer", 3)->frames.Size();
     nPilotLightFrame = 0;
 
-    const auto& fontSeq = getSequence("font2");
-    const int nFontFirstChar = legacyTileNum(fontSeq.getFirstFrameTexture());
+    const auto fontSeq = getSequence("font2");
+    const int nFontFirstChar = legacyTileNum(fontSeq->getFirstFrameTexture());
 
-    for (unsigned i = 0; i < fontSeq.frames.Size(); i++)
+    for (unsigned i = 0; i < fontSeq->frames.Size(); i++)
     {
         auto tex = tileGetTexture(nFontFirstChar + i);
         tex->SetOffsets(0, 0);
@@ -362,7 +365,7 @@ void seq_LoadSequences()
 
 void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle)
 {
-    const auto& seqFrameChunks = getSequence("flamer", 3).frames[0].chunks;
+    const auto& seqFrameChunks = getSequence("flamer", 3)->frames[0].chunks;
 
     for (unsigned i = 0; i < seqFrameChunks.Size(); i++)
     {
@@ -409,7 +412,7 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
     const DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
     const int seqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
-    const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset).frames[frameIndex];
+    const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset)->frames[frameIndex];
     const auto& frameChunk = seqFrame.chunks[0];
 
     if (seqFrame.flags & 4)
@@ -460,15 +463,15 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
     }
 
     const auto fileSeqs = getFileSeqs(seqFile);
-    const auto& seqFrame = fileSeqs->operator[](seqIndex + seqOffset).frames[frameIndex];
+    const auto& seqFrame = fileSeqs->Data(seqIndex + seqOffset)->frames[frameIndex];
     const auto chunkCount = seqFrame.chunks.Size();
 
-    const auto nShade = pTSprite->shade - (100 * !!(fileSeqs->operator[](seqIndex).frames[frameIndex].flags & 4));
+    const auto nShade = pTSprite->shade - (100 * !!(fileSeqs->Data(seqIndex)->frames[frameIndex].flags & 4));
     const auto nStatnum = (nFlags & 0x100) ? -3 : 100;
 
     for (unsigned i = 0; i < chunkCount; i++)
     {
-        const auto& seqFrameChunk = seqFrame.chunks[i];
+        const auto& frameChunk = seqFrame.chunks[i];
 
         tspritetype* tsp = mytspriteArray->newTSprite();
         tsp->pos = pTSprite->pos;
@@ -482,18 +485,18 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         tsp->clipdist = pTSprite->clipdist;
         tsp->statnum = chunkCount - i + nStatnum + 1;
 
-        if (seqFrameChunk.flags & 1)
+        if (frameChunk.flags & 1)
         {
-            tsp->xoffset = (int8_t)seqFrameChunk.xpos;
+            tsp->xoffset = (int8_t)frameChunk.xpos;
             tsp->cstat |= CSTAT_SPRITE_XFLIP; // x-flipped
         }
         else
         {
-            tsp->xoffset = -seqFrameChunk.xpos;
+            tsp->xoffset = -frameChunk.xpos;
         }
 
-        tsp->yoffset = -seqFrameChunk.ypos;
-        tsp->setspritetexture(seqFrameChunk.tex);
+        tsp->yoffset = -frameChunk.ypos;
+        tsp->setspritetexture(frameChunk.tex);
     }
 
     if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTSprite->ownerActor->spr.statnum == 100 && nNetPlayerCount))
@@ -583,7 +586,7 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetStatusSequence)
 {
     PARAM_PROLOGUE;
     PARAM_INT(seqId);
-    ACTION_RETURN_POINTER(getFileSeqs("status")->Data(seqId));
+    ACTION_RETURN_CONST_POINTER(getSequence("status", seqId));
 }
 
 //---------------------------------------------------------------------------

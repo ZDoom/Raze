@@ -207,15 +207,15 @@ void AIScorp::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    const auto& scorpSeq = getSequence(pActor->nSeqFile, ScorpSeq[nAction].nSeqId);
-    const auto& seqFrame = scorpSeq.frames[pActor->nFrame];
+    const auto scorpSeq = getSequence(pActor->nSeqFile, ScorpSeq[nAction].nSeqId);
+    const auto& seqFrame = scorpSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
     seqFrame.playSound(pActor);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= scorpSeq.frames.Size())
+    if (pActor->nFrame >= scorpSeq->frames.Size())
     {
         pActor->nFrame = 0;
         bVal = true;

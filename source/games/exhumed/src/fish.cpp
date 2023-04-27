@@ -51,7 +51,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 
     pChunkActor->nSeqFile = "fish";
     pChunkActor->nCount = anim + 40;
-    pChunkActor->nFrame = RandomSize(3) % getSequence(pChunkActor->nSeqFile, pChunkActor->nCount).frames.Size();
+    pChunkActor->nFrame = RandomSize(3) % getSequence(pChunkActor->nSeqFile, pChunkActor->nCount)->frames.Size();
 
 	pChunkActor->spr.pos = pActor->spr.pos;
     pChunkActor->spr.cstat = 0;
@@ -64,7 +64,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.yoffset = 0;
     pChunkActor->vel.Z = ((-(RandomByte() + 512)) * 2) / 256.;
 
-    //getSequence(pChunkActor->nSeqFile, pChunkActor->nCount).getFirstTexID();
+    //getSequence(pChunkActor->nSeqFile, pChunkActor->nCount)->getFirstTexID();
 
     pChunkActor->spr.picnum = anim;
     pChunkActor->spr.lotag = runlist_HeadRun() + 1;
@@ -88,15 +88,15 @@ void AIFishLimb::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    const auto& fishSeq = getSequence(pActor->nSeqFile, pActor->nCount);
+    const auto fishSeq = getSequence(pActor->nSeqFile, pActor->nCount);
 
-    pActor->spr.setspritetexture(fishSeq.frames[pActor->nFrame].getFirstChunkTexture());
+    pActor->spr.setspritetexture(fishSeq->frames[pActor->nFrame].getFirstChunkTexture());
 
     Gravity(pActor);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= fishSeq.frames.Size())
+    if (pActor->nFrame >= fishSeq->frames.Size())
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
@@ -176,7 +176,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->nSeqFile = "fish";
-    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, FishSeq[0].nSeqId).getFirstFrameTexture());
+    pActor->spr.setspritetexture(getSequence(pActor->nSeqFile, FishSeq[0].nSeqId)->getFirstFrameTexture());
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -358,15 +358,15 @@ void AIFish::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    const auto& fishSeq = getSequence(pActor->nSeqFile, FishSeq[nAction].nSeqId);
-    const auto& seqFrame = fishSeq.frames[pActor->nFrame];
+    const auto fishSeq = getSequence(pActor->nSeqFile, FishSeq[nAction].nSeqId);
+    const auto& seqFrame = fishSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= fishSeq.frames.Size()) {
+    if (pActor->nFrame >= fishSeq->frames.Size()) {
         pActor->nFrame = 0;
     }
 

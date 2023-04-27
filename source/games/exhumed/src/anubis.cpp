@@ -123,8 +123,8 @@ void AIAnubis::Tick(RunListEvent* ev)
     const auto ap = ev->pObjActor;
     const int nAction = ap->nAction;
 
-    const auto& anubisSeq = getSequence(ap->nSeqFile, AnubisSeq[nAction].nSeqId);
-    const auto& seqFrame = anubisSeq.frames[ap->nFrame];
+    const auto anubisSeq = getSequence(ap->nSeqFile, AnubisSeq[nAction].nSeqId);
+    const auto& seqFrame = anubisSeq->frames[ap->nFrame];
     bool bVal = false;
 
     if (nAction < 11)
@@ -135,7 +135,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     ap->spr.setspritetexture(seqFrame.getFirstChunkTexture());
     ap->nFrame++;
 
-    if (ap->nFrame >= anubisSeq.frames.Size())
+    if (ap->nFrame >= anubisSeq->frames.Size())
     {
         ap->nFrame = 0;
         bVal = true;

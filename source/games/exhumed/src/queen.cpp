@@ -254,7 +254,7 @@ void BlowChunks(DExhumedActor* pActor)
 
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(pActor, spiderSeqs->operator[](i + 41).getFirstFrameTexture());
+        BuildCreatureChunk(pActor, spiderSeqs->Data(i + 41)->getFirstFrameTexture());
     }
 }
 
@@ -279,7 +279,7 @@ void DestroyEgg(int nEgg)
 
         for (int i = 0; i < 4; i++)
         {
-            BuildCreatureChunk(pActor, queeneggSeqs->operator[]((i % 2) + 24).getFirstFrameTexture());
+            BuildCreatureChunk(pActor, queeneggSeqs->Data((i % 2) + 24)->getFirstFrameTexture());
         }
     }
 
@@ -547,8 +547,8 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    const auto& eggSeq = getSequence(pActor->nSeqFile, EggSeq[nAction].nSeqId);
-    const auto& seqFrame = eggSeq.frames[pEgg->nFrame];
+    const auto eggSeq = getSequence(pActor->nSeqFile, EggSeq[nAction].nSeqId);
+    const auto& seqFrame = eggSeq->frames[pEgg->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
@@ -557,7 +557,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         seqFrame.playSound(pActor);
 
         pEgg->nFrame++;
-        if (pEgg->nFrame >= eggSeq.frames.Size())
+        if (pEgg->nFrame >= eggSeq->frames.Size())
         {
             pEgg->nFrame = 0;
             bVal = true;
@@ -808,15 +808,15 @@ void AIQueenHead::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    const auto& queenSeq = getSequence(pActor->nSeqFile, HeadSeq[QueenHead.nAction].nSeqId);
-    const auto& seqFrame = queenSeq.frames[QueenHead.nFrame];
+    const auto queenSeq = getSequence(pActor->nSeqFile, HeadSeq[QueenHead.nAction].nSeqId);
+    const auto& seqFrame = queenSeq->frames[QueenHead.nFrame];
 
     seqFrame.playSound(pActor);
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     QueenHead.nFrame++;
-    if (QueenHead.nFrame >= queenSeq.frames.Size())
+    if (QueenHead.nFrame >= queenSeq->frames.Size())
     {
         QueenHead.nFrame = 0;
         var_14 = 1;
@@ -1241,15 +1241,15 @@ void AIQueen::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    const auto& queenSeq = getSequence(pActor->nSeqFile, QueenSeq[nAction].nSeqId);
-    const auto& seqFrame = queenSeq.frames[QueenList[nQueen].nFrame];
+    const auto queenSeq = getSequence(pActor->nSeqFile, QueenSeq[nAction].nSeqId);
+    const auto& seqFrame = queenSeq->frames[QueenList[nQueen].nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 
     QueenList[nQueen].nFrame++;
-    if (QueenList[nQueen].nFrame >= queenSeq.frames.Size())
+    if (QueenList[nQueen].nFrame >= queenSeq->frames.Size())
     {
         QueenList[nQueen].nFrame = 0;
         bVal = true;
@@ -1444,7 +1444,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 if (QueenList[nQueen].nIndex <= 0)
                 {
                     pActor->spr.cstat = 0;
-                    const auto queenPicnum = getSequence("queen", 57).getFirstFrameTexture();
+                    const auto queenPicnum = getSequence("queen", 57)->getFirstFrameTexture();
 
                     for (int i = 0; i < 20; i++)
                     {

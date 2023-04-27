@@ -163,7 +163,7 @@ void BuildSnake(int nPlayer, double zVal)
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
-    auto nPic = getSequence("snakbody", 0).getFirstFrameTexture();
+    auto nPic = getSequence("snakbody", 0)->getFirstFrameTexture();
 
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 
@@ -338,7 +338,7 @@ void AISnake::Tick(RunListEvent* ev)
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0];
     if (!pActor) return;
 
-    getSequence("snakehed").frames[0].playSound(pActor);
+    getSequence("snakehed")->frames[0].playSound(pActor);
 
     DExhumedActor* pEnemySprite = SnakeList[nSnake].pEnemy;
 

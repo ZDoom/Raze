@@ -658,13 +658,13 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     {
         pBullet->field_12 = 0;
         pBullet->seqFile = pBulletInfo->initSeq;
-        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile).getFirstFrameTexture());
+        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile)->getFirstFrameTexture());
     }
     else if (pBulletInfo->seqFile != NAME_None)
     {
         pBullet->field_12 = 1;
         pBullet->seqFile = pBulletInfo->seqFile;
-        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile).getFirstFrameTexture());
+        pBulletActor->spr.setspritetexture(getSequence(pBullet->seqFile)->getFirstFrameTexture());
     }
     else
     {
@@ -802,8 +802,8 @@ void AIBullet::Tick(RunListEvent* ev)
     if (pBullet->seqFile == NAME_None)
         return;
 
-    const auto& bulletSeq = getSequence(pBullet->seqFile);
-    const auto& seqFrame = bulletSeq.frames[pBullet->nFrame];
+    const auto bulletSeq = getSequence(pBullet->seqFile);
+    const auto& seqFrame = bulletSeq->frames[pBullet->nFrame];
     DExhumedActor* pActor = BulletList[nBullet].pActor;
 
     seqFrame.playSound(pActor);
@@ -814,7 +814,7 @@ void AIBullet::Tick(RunListEvent* ev)
     }
 
     pBullet->nFrame++;
-    if (pBullet->nFrame >= bulletSeq.frames.Size())
+    if (pBullet->nFrame >= bulletSeq->frames.Size())
     {
         if (!pBullet->field_12)
         {

@@ -192,8 +192,8 @@ void AIRex::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    const auto& rexSeq = getSequence(pActor->nSeqFile, RexSeq[nAction].nSeqId);
-    const auto& seqFrame = rexSeq.frames[pActor->nFrame];
+    const auto rexSeq = getSequence(pActor->nSeqFile, RexSeq[nAction].nSeqId);
+    const auto& seqFrame = rexSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
@@ -209,7 +209,7 @@ void AIRex::Tick(RunListEvent* ev)
         seqFrame.playSound(pActor);
 
         pActor->nFrame++;
-        if (pActor->nFrame >= rexSeq.frames.Size())
+        if (pActor->nFrame >= rexSeq->frames.Size())
         {
             pActor->nFrame = 0;
             bVal = true;

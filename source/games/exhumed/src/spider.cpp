@@ -119,15 +119,15 @@ void AISpider::Tick(RunListEvent* ev)
         }
     }
 
-    const auto& spiderSeq = getSequence(spp->nSeqFile, SpiderSeq[nAction].nSeqId);
-    const auto& seqFrame = spiderSeq.frames[spp->nFrame];
+    const auto spiderSeq = getSequence(spp->nSeqFile, SpiderSeq[nAction].nSeqId);
+    const auto& seqFrame = spiderSeq->frames[spp->nFrame];
 
     spp->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(spp);
 
     spp->nFrame++;
-    if (spp->nFrame >= spiderSeq.frames.Size()) {
+    if (spp->nFrame >= spiderSeq->frames.Size()) {
         spp->nFrame = 0;
     }
 
@@ -423,7 +423,7 @@ void AISpider::Damage(RunListEvent* ev)
 
         for (int i = 0; i < 7; i++)
         {
-            BuildCreatureChunk(spp, spiderSeqs->operator[](i + 41).getFirstFrameTexture());
+            BuildCreatureChunk(spp, spiderSeqs->Data(i + 41)->getFirstFrameTexture());
         }
     }
 }

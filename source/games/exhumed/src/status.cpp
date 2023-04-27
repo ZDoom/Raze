@@ -47,7 +47,7 @@ BEGIN_PS_NS
 
 void UpdateFrame()
 {
-    static const auto tex = TexMan.GetGameTexture(getSequence("backgrnd").getFirstFrameTexture());
+    static const auto tex = TexMan.GetGameTexture(getSequence("backgrnd")->getFirstFrameTexture());
 
     twod->AddFlatFill(0, 0, twod->GetWidth(), viewport3d.Top() - 3, tex);
     twod->AddFlatFill(0, viewport3d.Bottom() + 3, twod->GetWidth(), twod->GetHeight(), tex);

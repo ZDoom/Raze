@@ -258,8 +258,8 @@ void AIGrenade::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    const auto& grenadeSeq = pActor->nFrame ? getSequence("grenboom") : getSequence("grenroll", pActor->nIndex);
-    const auto& seqFrame = grenadeSeq.frames[pActor->nHealth >> 8];
+    const auto grenadeSeq = pActor->nFrame ? getSequence("grenboom") : getSequence("grenroll", pActor->nIndex);
+    const auto& seqFrame = grenadeSeq->frames[pActor->nHealth >> 8];
 
     seqFrame.playSound(pActor);
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
@@ -302,11 +302,11 @@ void AIGrenade::Tick(RunListEvent* ev)
 
         if (ebp < 0)
         {
-            pActor->nHealth += grenadeSeq.frames.Size() << 8;
+            pActor->nHealth += grenadeSeq->frames.Size() << 8;
         }
         else
         {
-            if (ebp >= (signed)grenadeSeq.frames.Size())
+            if (ebp >= (signed)grenadeSeq->frames.Size())
             {
                 if (pActor->nFrame)
                 {

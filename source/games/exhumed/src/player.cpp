@@ -221,7 +221,7 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->nSeqFile = "joe";
     pPlayerActor->nAction = 0;
     pPlayerActor->nFrame = 0;
-    pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, 18).getFirstFrameTexture());
+    pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, 18)->getFirstFrameTexture());
     pPlayerActor->spr.hitag = 0;
     pPlayerActor->spr.extra = -1;
     pPlayerActor->spr.lotag = runlist_HeadRun() + 1;
@@ -641,7 +641,7 @@ void AIPlayer::Damage(RunListEvent* ev)
 
             for (int i = 122; i <= 131; i++)
             {
-                BuildCreatureChunk(pPlayerActor, joeSeqs->operator[](i).getFirstFrameTexture());
+                BuildCreatureChunk(pPlayerActor, joeSeqs->Data(i)->getFirstFrameTexture());
             }
 
             StartDeathSeq(nPlayer, 1);
@@ -1924,7 +1924,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
         if (pPlayer->pActor->nAction != 20)
         {
             const auto pPlayerActor = pPlayer->pActor;
-            pPlayerActor->spr.setspritetexture(getSequence("joe", 120).getFirstFrameTexture());
+            pPlayerActor->spr.setspritetexture(getSequence("joe", 120)->getFirstFrameTexture());
             pPlayerActor->spr.cstat = 0;
             pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
@@ -1953,9 +1953,9 @@ static void doPlayerActionSequence(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
 
-    const auto& playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
-    const auto& seqFrame = playerSeq.frames[pPlayerActor->nFrame];
-    const auto seqSize = playerSeq.frames.Size();
+    const auto playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
+    const auto& seqFrame = playerSeq->frames[pPlayerActor->nFrame];
+    const auto seqSize = playerSeq->frames.Size();
 
     seqFrame.playSound(pPlayerActor);
     pPlayerActor->nFrame++;
@@ -2050,7 +2050,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const auto pPlayer = &PlayerList[nPlayer];
     const auto pPlayerActor = pPlayer->pActor;
 
-    pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId).getFirstFrameTexture());
+    pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)->getFirstFrameTexture());
     pPlayer->pDoppleSprite->spr.picnum = pPlayerActor->spr.picnum;
 
     doPlayerCounters(pPlayer);

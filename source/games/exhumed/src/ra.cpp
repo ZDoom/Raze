@@ -213,8 +213,8 @@ void AIRa::Tick(RunListEvent* ev)
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
 
-    const auto& raSeq = getSequence(Ra[nPlayer].pActor->nSeqFile, RaSeq[Ra[nPlayer].nAction].nSeqId);
-    const auto& seqFrame = raSeq.frames[Ra[nPlayer].nFrame];
+    const auto raSeq = getSequence(Ra[nPlayer].pActor->nSeqFile, RaSeq[Ra[nPlayer].nAction].nSeqId);
+    const auto& seqFrame = raSeq->frames[Ra[nPlayer].nFrame];
 
     bool bVal = false;
 
@@ -226,7 +226,7 @@ void AIRa::Tick(RunListEvent* ev)
         seqFrame.playSound(pActor);
 
         Ra[nPlayer].nFrame++;
-        if (Ra[nPlayer].nFrame >= raSeq.frames.Size())
+        if (Ra[nPlayer].nFrame >= raSeq->frames.Size())
         {
             Ra[nPlayer].nFrame = 0;
             bVal = true;

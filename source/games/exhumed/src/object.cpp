@@ -1890,7 +1890,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     {
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
-            pActor->nFrame = RandomSize(4) % (getSequence(pActor->nSeqFile).frames.Size() - 1);
+            pActor->nFrame = RandomSize(4) % (getSequence(pActor->nSeqFile)->frames.Size() - 1);
         }
 
         auto pActor2 = insertActor(pActor->sector(), 0);
@@ -1957,7 +1957,7 @@ void AIObject::Tick(RunListEvent* ev)
     // do animation
     if (pActor->nSeqFile != NAME_None)
     {
-        const auto& nSeqFrames = getSequence(pActor->nSeqFile).frames;
+        const auto& nSeqFrames = getSequence(pActor->nSeqFile)->frames;
 
         if (++pActor->nFrame >= nSeqFrames.Size())
             pActor->nFrame = 0;
@@ -2004,20 +2004,22 @@ void AIObject::Tick(RunListEvent* ev)
 
         //				int edi = nSprite | 0x4000;
 
-        const auto firepotSeqs = getFileSeqs("firepot");
-
         if (nStat == kStatExplodeTrigger)
         {
+            const auto firepotSeqs = getFileSeqs("firepot");
+
             for (int i = 4; i < 8; i++) {
-                BuildCreatureChunk(pActor, firepotSeqs->operator[]((i >> 2) + 1).getFirstFrameTexture(), true);
+                BuildCreatureChunk(pActor, firepotSeqs->Data((i >> 2) + 1)->getFirstFrameTexture(), true);
             }
 
             runlist_RadialDamageEnemy(pActor, 200, 20);
         }
         else if (nStat == kStatExplodeTarget)
         {
+            const auto firepotSeqs = getFileSeqs("firepot");
+
             for (int i = 0; i < 8; i++) {
-                BuildCreatureChunk(pActor, firepotSeqs->operator[]((i >> 1) + 3).getFirstFrameTexture(), true);
+                BuildCreatureChunk(pActor, firepotSeqs->Data((i >> 1) + 3)->getFirstFrameTexture(), true);
             }
         }
 
@@ -2181,8 +2183,8 @@ void DoDrips()
             DExhumedActor* pActor = sDrip[i].pActor;
             if (!pActor) continue;
 
-            const auto& dripSeq = getSequence("drips", !(pActor->sector()->Flag & kSectLava));
-            dripSeq.frames[RandomSize(2) % dripSeq.frames.Size()].playSound(pActor);
+            const auto dripSeq = getSequence("drips", !(pActor->sector()->Flag & kSectLava));
+            dripSeq->frames[RandomSize(2) % dripSeq->frames.Size()].playSound(pActor);
 
             sDrip[i].nCount = RandomSize(8) + 90;
         }

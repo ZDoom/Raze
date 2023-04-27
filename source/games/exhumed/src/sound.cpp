@@ -718,8 +718,8 @@ void UpdateCreepySounds()
     {
         if (nCreaturesKilled < nCreaturesTotal && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
         {
-            const auto& creepySeq = getSequence("creepy");
-            const auto seqFrameSound = creepySeq.frames[totalmoves % creepySeq.frames.Size()].sound;
+            const auto creepySeq = getSequence("creepy");
+            const auto seqFrameSound = creepySeq->frames[totalmoves % creepySeq->frames.Size()].sound;
             if (seqFrameSound >= 0 && (seqFrameSound & 0x1ff) < kMaxSounds)
             {
 				DVector2 adder;

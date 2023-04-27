@@ -200,15 +200,15 @@ void AILion::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    const auto& lionSeq = getSequence(pActor->nSeqFile, LionSeq[nAction].nSeqId);
-    const auto& seqFrame = lionSeq.frames[pActor->nFrame];
+    const auto lionSeq = getSequence(pActor->nSeqFile, LionSeq[nAction].nSeqId);
+    const auto& seqFrame = lionSeq->frames[pActor->nFrame];
 
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     seqFrame.playSound(pActor);
 
     pActor->nFrame++;
-    if (pActor->nFrame >= lionSeq.frames.Size())
+    if (pActor->nFrame >= lionSeq->frames.Size())
     {
         pActor->nFrame = 0;
         bVal = true;

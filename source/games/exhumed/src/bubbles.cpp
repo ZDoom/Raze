@@ -96,13 +96,13 @@ void AIBubble::Tick(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    const auto& bubbSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
+    const auto bubbSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
 
-    bubbSeq.frames[pActor->nFrame].playSound(pActor);
+    bubbSeq->frames[pActor->nFrame].playSound(pActor);
 
     pActor->nFrame++;
 
-    if (pActor->nFrame >= bubbSeq.frames.Size())
+    if (pActor->nFrame >= bubbSeq->frames.Size())
         pActor->nFrame = 0;
 
     pActor->spr.pos.Z = pActor->vel.Z;

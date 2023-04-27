@@ -134,12 +134,12 @@ void AIAnim::Tick(RunListEvent* ev)
     const auto pActor = ev->pObjActor;
     if (!pActor || pActor->nSeqFile == NAME_None) return;
 
-    const auto& animSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
+    const auto animSeq = getSequence(pActor->nSeqFile, pActor->nSeqIndex);
     const int nFrame = pActor->nFrame;
 
     if (!(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        animSeq.frames[nFrame].playSound(pActor);
+        animSeq->frames[nFrame].playSound(pActor);
     }
 
     if (pActor->spr.statnum == kStatIgnited)
@@ -202,7 +202,7 @@ void AIAnim::Tick(RunListEvent* ev)
     }
 
     pActor->nFrame++;
-    if (pActor->nFrame >= animSeq.frames.Size())
+    if (pActor->nFrame >= animSeq->frames.Size())
     {
         if (pActor->nFlags & kAnimLoop)
         {
