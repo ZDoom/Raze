@@ -44,7 +44,7 @@ BlockInfo sBlockInfo[kMaxPushBlocks];
 TObjPtr<DExhumedActor*> nBodyGunSprite[50];
 int nCurBodyGunNum;
 
-Collision loHit, hiHit;
+Collision hiHit;
 
 // think this belongs in init.c?
 
@@ -147,7 +147,7 @@ void MoveThings()
 //
 //---------------------------------------------------------------------------
 
-static int BelowNear(DExhumedActor* pActor, double walldist, sectortype** overridesect)
+static int BelowNear(DExhumedActor* pActor, const Collision& loHit, double walldist, sectortype** overridesect)
 {
     auto pSector = pActor->sector();
     double z = pActor->spr.pos.Z;
@@ -292,8 +292,8 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
     double sprceiling, sprfloor;
 
-    auto pos = pActor->spr.pos.plusZ(-1);
-    getzrange(pos, pActor->sector(), &sprceiling, hiHit, &sprfloor, loHit, 8., CLIPMASK0);
+    Collision loHit;
+    getzrange(pActor->spr.pos.plusZ(-1), pActor->sector(), &sprceiling, hiHit, &sprfloor, loHit, 8., CLIPMASK0);
 
     double mySprfloor = sprfloor;
 
@@ -391,7 +391,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
     if (pActor->spr.statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, clipdist * 1.5, overridesect);
+        nRet.exbits |= BelowNear(pActor, loHit, clipdist * 1.5, overridesect);
     }
 
     return nRet;
