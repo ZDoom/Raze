@@ -78,7 +78,7 @@ void displaymasks_r(int snum, int p, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-void DrawMotorCycle(int const kb, DVector2 offsets, DAngle angle, int shade, int pal)
+void DrawMotorCycle(int const kb, const DVector2& offsets, DAngle angle, int shade, int pal)
 {
 	const char* temp_kb;
 	if (numplayers == 1)
@@ -136,7 +136,7 @@ void DrawMotorCycle(int const kb, DVector2 offsets, DAngle angle, int shade, int
 //
 //---------------------------------------------------------------------------
 
-void DrawBoat(int const kb, DVector2 offsets, DAngle angle, int shade, int pal, bool notonwater)
+void DrawBoat(int const kb, const DVector2& offsets, DAngle angle, int shade, int pal, bool notonwater)
 {
 	const char* temp_kb;
 	int temp2, temp3;
