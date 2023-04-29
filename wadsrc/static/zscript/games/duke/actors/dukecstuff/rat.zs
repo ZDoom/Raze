@@ -21,7 +21,7 @@ class DukeRat : DukeActor
 		{
 			self.timetosleep = 0;
 			self.ChangeStat(STAT_ACTOR);
-			if (Raze.isRR()) self.shade = self.ownerActor.shade;
+			if (isRR()) self.shade = self.ownerActor.shade;
 		}
 		else self.ChangeStat(STAT_ZOMBIEACTOR);
 		self. clipdist = 10;

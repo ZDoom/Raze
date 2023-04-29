@@ -7,7 +7,7 @@ class DukeShrinker : DukeActor
 		if (shooter.extra >= 0) shooter.shade = -96;
 		if (p != null)
 		{
-			let aimed = Raze.IsNamWW2GI()? null : shooter.aim(self);
+			let aimed = IsNamWW2GI()? null : shooter.aim(self);
 			if (aimed)
 			{
 				double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5); // note the incorrect scale this uses!
