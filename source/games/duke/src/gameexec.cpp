@@ -70,7 +70,6 @@ struct ParseState
 {
 	int g_p;
 	int g_x;
-	uint8_t killit_flag;
 	DDukeActor *g_ac;
 	int* insptr;
 	Collision coll;
@@ -1480,7 +1479,7 @@ int ParseState::parse(void)
 {
 	int j, l;
 
-	if(killit_flag) return 1;
+	if(g_ac->killit_flag) return 1;
 
 	switch (*insptr)
 	{
@@ -1786,7 +1785,7 @@ int ParseState::parse(void)
 		return 1;
 	case concmd_addammo:
 		insptr++;
-		if (!playeraddammo(&ps[g_p], *insptr, *(insptr + 1))) killit_flag = 2;
+		if (!playeraddammo(&ps[g_p], *insptr, *(insptr + 1))) g_ac->killit_flag = 2;
 		insptr += 2;
 		break;
 	case concmd_money:
@@ -1820,11 +1819,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_killit:
 		insptr++;
-		killit_flag = 1;
+		g_ac->killit_flag = 1;
 		break;
 	case concmd_addweapon:
 		insptr++;
-		if (!playeraddweapon(&ps[g_p], *insptr, *(insptr + 1))) killit_flag = 2;
+		if (!playeraddweapon(&ps[g_p], *insptr, *(insptr + 1))) g_ac->killit_flag = 2;
 		insptr+=2;
 		break;
 	case concmd_debug:
@@ -3164,7 +3163,7 @@ int ParseState::parse(void)
 	default:
 		Printf(TEXTCOLOR_RED "Unrecognized PCode of %d  in parse.  Killing current sprite.\n",*insptr);
 		Printf(TEXTCOLOR_RED "Offset=%0X\n",int(insptr-ScriptCode.Data()));
-		killit_flag = 1;
+		g_ac->killit_flag = 1;
 		break;
 	}
 	return 0;
@@ -3190,7 +3189,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	auto addr = coninf->loadeventscriptptr;
 	if (addr == 0) return;
 
-	s.killit_flag = 0;
+	actor->killit_flag = 0;
 
 	if(!actor->insector())
 	{
@@ -3201,7 +3200,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 		done = s.parse();
 	while (done == 0);
 
-	if (s.killit_flag == 1)
+	if (actor->killit_flag == 1)
 	{
 		actor->Destroy();
 	}
@@ -3224,14 +3223,14 @@ bool execute(DDukeActor *actor,int p,double pdist)
 	s.g_x = int(pdist / maptoworld);	// ??
 	s.g_ac = actor;
 	s.insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
-	s.killit_flag = 0;
+	actor->killit_flag = 0;
 
 	int done;
 	do
 		done = s.parse();
 	while( done == 0 );
 
-	if(s.killit_flag == 1)
+	if(actor->killit_flag == 1)
 	{
 		// if player was set to squish, first stop that..
 		if(ps[p].actorsqu == actor)
@@ -3294,7 +3293,7 @@ void OnEvent(int iEventID, int p, DDukeActor *actor, int x)
 
 	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 
-	s.killit_flag = 0;
+	actor->killit_flag = 0;
 	do
 		done = s.parse();
 	while (done == 0);
