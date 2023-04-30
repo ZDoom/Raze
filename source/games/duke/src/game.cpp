@@ -305,6 +305,11 @@ void GameInterface::loadPalette()
 {
 	paletteLoadFromDisk();
 	genspriteremaps();
+
+	// Not exactly palette stuff, but this needs to be done before the LoadScripts call and here's a convenient place for that.
+	moves.Push({});		// make sure the first entry in 'moves' is a null move.
+	actions.Push({});	// make sure the first entry in 'actions' is a null action.
+	ais.Push({});	// make sure the first entry in 'actions' is a null action.
 }
 
 int GameInterface::GetCurrentSkill()
@@ -405,9 +410,6 @@ void GameInterface::app_init()
 	ud.m_monsters_off = userConfig.nomonsters;
 	ps[0].aim_mode = 1;
 	ud.cameraactor = nullptr;
-	moves.Push({});		// make sure the first entry in 'moves' is a null move.
-	actions.Push({});	// make sure the first entry in 'actions' is a null action.
-	ais.Push({});	// make sure the first entry in 'actions' is a null action.
 
 	if (fileSystem.FileExists("DUKESW.BIN"))
 		g_gameType |= GAMEFLAG_SHAREWARE;
