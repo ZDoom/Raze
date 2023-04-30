@@ -170,6 +170,18 @@ public:
 using HitInfo = THitInfo<DDukeActor>;
 using Collision = TCollision<DDukeActor>;
 
+
+// This is to satisfy the CON-based requirement of 'killit' immediately aborting all script code execution.
+class CDukeKillEvent : public std::exception
+{
+	int Type_;
+public:
+	CDukeKillEvent(int type): Type_(type) {}
+	int Type() const { return Type_; }
+	// to print a meaningful message if killit got called from the wrong place.
+	const char* what() const override { return "killit called from outside RunState!"; }
+};
+
 struct animwalltype
 {
 	walltype* wall;

@@ -498,7 +498,7 @@ void GameInterface::FinalizeSetup()
 
 			}
 		}
-		//ScriptCode[actinf.scriptaddress] = 0; // ignore strength values for hashing the script code. (later, we still need this.)
+		ScriptCode[actinf.scriptaddress] = 0; // ignore strength values for hashing the script code.
 		// todo: hash the entire script code and compare against precalculated value for the current game.
 		// If identical, remove all ScriptAddresses from the class list.
 

@@ -448,6 +448,8 @@ enum sflags4_t
 {
 	SFLAG4_DOUBLEHITDAMAGE = 0x00000001,
 	SFLAG4_NODAMAGETURN = 0x00000002,
+	SFLAG4_CONOVERRIDE = 0x00000004,	// this is strictly internal
+	SFLAG4_INRUNSTATE = 0x00000008,		// exception throwing guard.
 };
 
 using EDukeFlags4 = TFlags<sflags4_t, uint32_t>;

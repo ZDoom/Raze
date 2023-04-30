@@ -293,7 +293,7 @@ DEFINE_FIELD(DDukeActor, curAction)
 DEFINE_FIELD(DDukeActor, curMove)
 DEFINE_FIELD(DDukeActor, curAI)
 DEFINE_FIELD(DDukeActor, actioncounter)
-DEFINE_FIELD(DDukeActor, killit_flag)
+//DEFINE_FIELD(DDukeActor, killit_flag)
 
 void TickActor(DDukeActor*);
 DEFINE_ACTION_FUNCTION(DDukeActor, Tick)
@@ -604,7 +604,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, badguy, badguy)
 
 int duke_scripted(const DDukeActor* act)
 {
-	return act->conInfo() != nullptr;
+	return act->conInfo() != nullptr || (act->flags4 & SFLAG4_CONOVERRIDE);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, scripted, duke_scripted)
@@ -924,6 +924,23 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, subkill, subkill)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	subkill(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DDukeActor, killit)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	if (self->flags4 & SFLAG4_INRUNSTATE)
+	{
+		// this has to be done the hard way. The original CON interpreter stops running commands once an actor is set to be killed.
+		// The only safe way to handle this in native code while exiting all nested functions is throwing an exception.
+		throw CDukeKillEvent(1);
+	}
+	else
+	{
+		// if it is something else than the currently ticked actor we can outright destroy it.
+		self->Destroy();
+	}
 	return 0;
 }
 
