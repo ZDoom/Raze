@@ -836,19 +836,19 @@ DEFINE_PROPERTY(ai, SSSi, DukeActor)
 DEFINE_PROPERTY(startaction, S, DukeActor)
 {
 	PROP_STRING_PARM(n, 0);
-	bag.DefaultAction = n;
+	info->ActorInfo()->DefaultAction = n;
 }
 
 DEFINE_PROPERTY(startmove, S, DukeActor)
 {
 	PROP_STRING_PARM(n, 0);
-	bag.DefaultMove = n;
+	info->ActorInfo()->DefaultMove = n;
 }
 
 DEFINE_PROPERTY(moveflags, I, DukeActor)
 {
 	PROP_INT_PARM(n, 0);
-	bag.moveflags = n;
+	info->ActorInfo()->DefaultMoveflags = n;
 }
 
 CCMD(changewalltexture)

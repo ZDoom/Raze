@@ -32,6 +32,10 @@ struct FActorInfo
 	int NumMoves = 0;
 	int FirstAI = -1;
 	int NumAIs = 0;
+	FName DefaultAction = NAME_Null;	// 'none' is valíd content here so use 'null' as 'not set'.
+	FName DefaultMove = NAME_Null;
+	int DefaultMoveflags = 0;
+
 	int DefaultFlags = 0;
 	int DefaultCstat = 0;
 	FName DamageType = NAME_None;	// damage type this item inflicts

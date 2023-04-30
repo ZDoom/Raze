@@ -100,9 +100,6 @@ struct Baggage
 	PClassActor *Info;
 	int Lumpnum;
 	VersionInfo Version;
-	FName DefaultAction;
-	FName DefaultMove;
-	int moveflags;
 
 	FScriptPosition ScriptPosition;
 };
