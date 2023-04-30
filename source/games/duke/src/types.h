@@ -152,6 +152,7 @@ public:
 			// It sucks having to do this but the game heavily depends on being able to swap out the class type and often uses this to manage actor state.
 			// We'll allow this only for classes that do not add their own data, though.
 			SetClass(newtype);
+			spr.setspritetexture(GetDefaultByType(newtype)->spr.spritetexture());
 		}
 	}
 	
