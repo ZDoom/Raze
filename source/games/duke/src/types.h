@@ -175,7 +175,7 @@ public:
 	CDukeKillEvent(int type): Type_(type) {}
 	int Type() const { return Type_; }
 	// to print a meaningful message if killit got called from the wrong place.
-	const char* what() const override { return "killit called from outside RunState!"; }
+	const char* what() const noexcept override { return "killit called from outside RunState!"; }
 };
 
 struct animwalltype
