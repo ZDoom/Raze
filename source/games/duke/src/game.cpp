@@ -503,6 +503,21 @@ void GameInterface::FinalizeSetup()
 		// If identical, remove all ScriptAddresses from the class list.
 
 	}
+
+	// flag all actors which override RunState so we can quickly check for this in the game,
+	auto VIndex = GetVirtualIndex(RUNTIME_CLASS(DDukeActor), "RunState");
+	assert(VIndex != ~0u);
+	auto RunState = RUNTIME_CLASS(DDukeActor)->Virtuals[VIndex];
+
+	for (auto& cls : PClassActor::AllActorClasses)
+	{
+		if (cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && cls->Virtuals[VIndex] != RunState)
+		{
+			auto def = static_cast<DDukeActor*>(GetDefaultByType(cls));
+			def->flags4 |= SFLAG4_CONOVERRIDE;
+		}
+	}
+
 }
 
 
