@@ -110,10 +110,6 @@ public:
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 	TArray<GameVarValue> uservars;
 
-	// these two variables are only valid while RunState is executed. They are explicitly nulled right afterward and only accessible throgh the CON emulation interface.
-	struct player_struct* state_player;
-	double state_dist;
-
 	DDukeActor() = default;
 	size_t PropagateMark() override;
 	const ActorInfo* conInfo() const;

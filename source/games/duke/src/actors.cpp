@@ -135,15 +135,13 @@ void TickActor(DDukeActor* self)
 		bool conres = execute(self, p, pdist);
 		if (!conres && (self->flags4 & SFLAG4_CONOVERRIDE))
 		{
-			self->state_player = &ps[p];
-			self->state_dist = pdist;
 			self->flags4 |= SFLAG4_INRUNSTATE;
 			IFVIRTUALPTR(self, DDukeActor, RunState)
 			{
-				VMValue val[] = { self };
+				VMValue val[] = { self, &ps[p], pdist};
 				try
 				{
-					VMCall(func, val, 1, nullptr, 0);
+					VMCall(func, val, 3, nullptr, 0);
 				}
 				catch(const CDukeKillEvent& ev)
 				{ 
@@ -155,8 +153,6 @@ void TickActor(DDukeActor* self)
 				}
 			}
 			self->flags4 &= ~SFLAG4_INRUNSTATE;
-			self->state_player = nullptr;
-			self->state_dist = -1;
 			conres = true;
 		}
 		// moveactor gets only called for actors with a scripted runner.
