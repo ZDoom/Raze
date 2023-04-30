@@ -135,7 +135,6 @@ void TickActor(DDukeActor* self)
 		bool conres = execute(self, p, pdist);
 		if (!conres && (self->flags4 & SFLAG4_CONOVERRIDE))
 		{
-			Printf("CON substituted for %s\n", self->GetClass()->TypeName);
 			self->state_player = &ps[p];
 			self->state_dist = pdist;
 			self->flags4 |= SFLAG4_INRUNSTATE;
