@@ -802,7 +802,7 @@ DEFINE_PROPERTY(move, Sii, DukeActor)
 		if (PROP_PARM_COUNT > 2)
 		{
 			PROP_INT_PARM(v2, 2);
-			move->movex = v2 / 16.f;
+			move->movez = v2 / 16.f;
 		}
 	}
 }
@@ -822,7 +822,7 @@ DEFINE_PROPERTY(movef, Sff, DukeActor)
 		if (PROP_PARM_COUNT > 2)
 		{
 			PROP_FLOAT_PARM(v2, 2);
-			move->movex = v2;
+			move->movez = v2;
 		}
 	}
 }
