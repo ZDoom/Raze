@@ -196,7 +196,6 @@ DDukeActor* dospawnsprite(DDukeActor* actj, int pn);
 void spriteinit(DDukeActor*, TArray<DDukeActor*>& actors);
 DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
 
-void addspritetodelete(int spnum=0);
 void checkavailinven(player_struct* p);
 bool initspriteforspawn(DDukeActor* spn);
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);

@@ -49,6 +49,40 @@ This file is a combination of code from the following sources:
 
 BEGIN_DUKE_NS
 
+
+void moveactor(DDukeActor* actor, int p, double pdist)
+{
+	if (actor->killit_flag == 1)
+	{
+		// if player was set to squish, first stop that..
+		if (ps[p].actorsqu == actor)
+			ps[p].actorsqu = nullptr;
+		actor->flags2 |= SFLAG2_DIENOW;
+	}
+	else
+	{
+		move(actor, p, pdist);
+
+		if (actor->spr.statnum == STAT_ACTOR)
+		{
+			if (badguy(actor))
+			{
+				if (actor->spr.scale.X > 0.9375) return;
+				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) return;
+			}
+			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) return;
+		}
+
+		if (actor->spr.statnum == STAT_ACTOR || (actor->spr.statnum == STAT_STANDABLE && (actor->flags1 & SFLAG_CHECKSLEEP)))
+		{
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
+		}
+	}
+
+}
 //---------------------------------------------------------------------------
 //
 // this is the implementation of DDukeActor::Tick. It is native so that
@@ -97,18 +131,37 @@ void TickActor(DDukeActor* self)
 				self->curframe = 0;
 		}
 
-		if (!execute(self, p, pdist))
+		self->killit_flag = 0;
+		bool conres = execute(self, p, pdist);
+		if (!conres && (self->flags4 & SFLAG4_CONOVERRIDE))
 		{
+			Printf("CON substituted for %s\n", self->GetClass()->TypeName);
 			self->state_player = &ps[p];
 			self->state_dist = pdist;
+			self->flags4 |= SFLAG4_INRUNSTATE;
 			IFVIRTUALPTR(self, DDukeActor, RunState)
 			{
 				VMValue val[] = { self };
-				VMCall(func, val, 1, nullptr, 0);
+				try
+				{
+					VMCall(func, val, 1, nullptr, 0);
+				}
+				catch(const CDukeKillEvent& ev)
+				{ 
+					if (ev.Type() == 1)
+					{
+						self->Destroy();
+						return;
+					}
+				}
 			}
+			self->flags4 &= ~SFLAG4_INRUNSTATE;
 			self->state_player = nullptr;
 			self->state_dist = -1;
+			conres = true;
 		}
+		// moveactor gets only called for actors with a scripted runner.
+		if (conres) moveactor(self, p, pdist);
 	}
 }
 
@@ -868,6 +921,13 @@ void tickstat(int stat, bool deleteinvalid)
 		else if (stat != STAT_ACTOR || !badguy(act) || !monsterCheatCheck(act))
 		{
 			CallTick(act);
+
+			// check if DIENOW was set by Tick()
+			if ((act->flags2 & SFLAG2_DIENOW))
+			{
+				addkill(act);
+				act->Destroy();
+			}
 		}
 	}
 }
@@ -3984,6 +4044,9 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 //---------------------------------------------------------------------------
 //
 // special checks for RR's extended sector types, now available everywhere
+// 
+//  note that we cannot kill stuff in here, we have to defer this until the
+//  end of the Tick() function.
 //
 //---------------------------------------------------------------------------
 
@@ -3998,7 +4061,7 @@ static int fallspecial(DDukeActor* actor, int playernum)
 			{
 				spawn(actor, RedneckRock2Class);
 				spawn(actor, RedneckRock2Class);
-				addspritetodelete();
+				actor->flags2 |= SFLAG2_DIENOW;
 			}
 			return 0;
 		}
@@ -4008,14 +4071,14 @@ static int fallspecial(DDukeActor* actor, int playernum)
 			{
 				spawnguts(actor, DukeJibs6Class, 5);
 				S_PlayActorSound(SQUISHED, actor);
-				addspritetodelete();
+				actor->flags2 |= SFLAG2_DIENOW;
 			}
 			return 0;
 		}
 		else if (actor->sector()->lotag == ST_803_KILLROCKS)
 		{
 			if (actor->GetClass() == RedneckRock2Class)
-				addspritetodelete();
+				actor->flags2 |= SFLAG2_DIENOW;
 			return 0;
 		}
 	}
@@ -4034,7 +4097,7 @@ static int fallspecial(DDukeActor* actor, int playernum)
 			else if (!actor->isPlayer())
 			{
 				if (!actor->spriteextra)
-					addspritetodelete();
+					actor->flags2 |= SFLAG2_DIENOW;
 				return 0;
 			}
 			actor->attackertype = DukeShotSparkClass;

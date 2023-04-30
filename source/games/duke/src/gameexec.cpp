@@ -79,12 +79,6 @@ struct ParseState
 };
 
 int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, DVector2& pos);
-bool killthesprite = false;
-
-void addspritetodelete(int spnum)
-{
-	killthesprite = true;
-}
 
 sectortype* toSect(int index)
 {
@@ -3186,6 +3180,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_x = x;	// ??
 	s.g_ac = actor;
 
+	if ((actor->flags4 & SFLAG4_CONOVERRIDE) && overridecon) return;
 	auto coninf = actor->conInfo();
 	if (coninf == nullptr) return;
 	auto addr = coninf->loadeventscriptptr;
@@ -3216,6 +3211,8 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 bool execute(DDukeActor *actor,int p,double pdist)
 {
+	if ((actor->flags4 & SFLAG4_CONOVERRIDE) && overridecon) return false;
+
 	auto coninf = actor->conInfo();
 	if (coninf == nullptr) 
 		return false;
@@ -3225,45 +3222,12 @@ bool execute(DDukeActor *actor,int p,double pdist)
 	s.g_x = int(pdist / maptoworld);	// ??
 	s.g_ac = actor;
 	s.insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
-	actor->killit_flag = 0;
 
 	int done;
 	do
 		done = s.parse();
 	while( done == 0 );
 
-	if(actor->killit_flag == 1)
-	{
-		// if player was set to squish, first stop that..
-		if(ps[p].actorsqu == actor)
-			ps[p].actorsqu = nullptr;
-		killthesprite = true;
-	}
-	else
-	{
-		move(actor, p, pdist);
-
-		if (actor->spr.statnum == STAT_ACTOR)
-		{
-			if (badguy(actor))
-			{
-				if (actor->spr.scale.X > 0.9375 ) goto quit;
-				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) goto quit;
-			}
-			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) goto quit;
-		}
-
-		if (actor->spr.statnum == STAT_ACTOR || (actor->spr.statnum == STAT_STANDABLE && (actor->flags1 & SFLAG_CHECKSLEEP)))
-		{
-			if (actor->timetosleep > 1)
-				actor->timetosleep--;
-			else if (actor->timetosleep == 1)
-				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
-		}
-	}
-quit:
-	if (killthesprite) actor->Destroy();
-	killthesprite = false;
 	return true;
 }
 
