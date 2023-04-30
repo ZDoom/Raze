@@ -529,7 +529,7 @@ void GameInterface::FinalizeSetup()
 					int newmove = LookupMove(cls, nm);
 					if (newmove == 0)
 					{
-						Printf("Invalid move '%s' in AI '%s' for class '%s'\n", nm.GetChars(), ai->name.GetChars(), cls->TypeName.GetChars());
+						Printf(TEXTCOLOR_RED "Invalid move '%s' in AI '%s' for class '%s'\n", nm.GetChars(), ai->name.GetChars(), cls->TypeName.GetChars());
 					}
 					ai->move = newmove;
 				}
@@ -539,7 +539,7 @@ void GameInterface::FinalizeSetup()
 					int newaction = LookupAction(cls, nm);
 					if (newaction == 0)
 					{
-						Printf("Invalid action '%s' in AI '%s' for class '%s'\n", nm.GetChars(), ai->name.GetChars(), cls->TypeName.GetChars());
+						Printf(TEXTCOLOR_RED "Invalid action '%s' in AI '%s' for class '%s'\n", nm.GetChars(), ai->name.GetChars(), cls->TypeName.GetChars());
 					}
 					ai->action = newaction;
 				}
