@@ -71,6 +71,40 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 
 //---------------------------------------------------------------------------
 //
+// set default pointers for scripted animation data
+//
+//---------------------------------------------------------------------------
+EXTERN_CVAR(Bool, overridecon)	// This is for debugging the CON replacement code only.
+
+static void initanimations(DDukeActor* act)
+{
+	auto coninf = act->conInfo();
+
+	if ((!coninf || overridecon) && (act->flags4 & SFLAG4_CONOVERRIDE))
+	{
+		auto ainf = static_cast<PClassActor*>(act->GetClass())->ActorInfo();
+		int ndx = LookupAction(act->GetClass(),ainf->DefaultAction);
+		act->curAction = &actions[ndx];
+		act->actioncounter = act->curframe = 0;
+
+		ndx = LookupMove(act->GetClass(), ainf->DefaultMove);
+		act->curMove = &moves[ndx];
+		if (ainf->DefaultMoveflags && act->spr.hitag == 0)
+			act->spr.hitag = ainf->DefaultMoveflags;
+	}
+	else if (coninf)
+	{
+		auto sa = &ScriptCode[coninf->scriptaddress];
+		act->curAction = &actions[sa[1]];
+		act->curMove = &moves[sa[2]];
+		int s3 = sa[3];
+		if (s3 && act->spr.hitag == 0)
+			act->spr.hitag = s3;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // this creates a new actor but does not run any init code on it
 // direct calls should only be done for very simple things.
 //
@@ -115,24 +149,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	}
 
 	memset(act->temp_data, 0, sizeof(act->temp_data));
-	auto coninf = act->conInfo();
-	if (coninf)
-	{
-		auto sa = &ScriptCode[coninf->scriptaddress];
-		act->curAction = &actions[sa[1]];
-		act->curMove = &moves[sa[2]];
-		act->spr.hitag = sa[3];
-
-		// remove script info if it is completely empty and no animation is set.
-		if (act->curAction->name == NAME_Name && act->curMove->name == NAME_Name && *sa == concmd_enda)
-		{
-			sa = nullptr;
-		}
-	}
-	else
-	{
-		act->spr.hitag = 0;
-	}
+	initanimations(act);
 	act->spr.extra = act->IntVar(NAME_strength);
 
 	if (show2dsector[act->sectno()]) act->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
@@ -222,18 +239,9 @@ bool initspriteforspawn(DDukeActor* act)
 
 	if (act->spr.cstat & CSTAT_SPRITE_BLOCK) act->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
+	initanimations(act);
 	act->spr.extra = act->IntVar(NAME_strength);
 
-	auto coninf = act->conInfo();
-	if (coninf)
-	{
-		auto sa = &ScriptCode[coninf->scriptaddress];
-		act->curAction = &actions[sa[1]];
-		act->curMove = &moves[sa[2]];
-		int s3 = sa[3];
-		if (s3 && act->spr.hitag == 0)
-			act->spr.hitag = s3;
-	}
 	return true;
 }
 

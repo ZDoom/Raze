@@ -3175,6 +3175,8 @@ int ParseState::parse(void)
 //
 //---------------------------------------------------------------------------
 
+CVAR(Bool, overridecon, false, 0)	// This is for debugging the CON replacement code only.
+
 void LoadActor(DDukeActor *actor, int p, int x)
 {
 	int done;
