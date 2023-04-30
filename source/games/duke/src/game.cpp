@@ -517,6 +517,36 @@ void GameInterface::FinalizeSetup()
 		{
 			auto def = static_cast<DDukeActor*>(GetDefaultByType(cls));
 			def->flags4 |= SFLAG4_CONOVERRIDE;
+
+			auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
+			for (int i = 0; i < ainf->NumAIs; i++)
+			{
+				auto ai = &ais[ainf->FirstAI + i];
+
+				if (ai->move & 0x80000000)
+				{
+					auto nm = FName(ENamedName(ai->move & ~0x80000000));
+					int newmove = LookupMove(cls, nm);
+					if (newmove == 0)
+					{
+						Printf("Invalid move '%s' in AI '%s' for class '%s'\n", nm.GetChars(), ai->name.GetChars(), cls->TypeName.GetChars());
+					}
+					ai->move = newmove;
+				}
+				if (ai->action & 0x80000000)
+				{
+					auto nm = FName(ENamedName(ai->action & ~0x80000000));
+					int newaction = LookupAction(cls, nm);
+					if (newaction == 0)
+					{
+						Printf("Invalid action '%s' in AI '%s' for class '%s'\n", nm.GetChars(), ai->name.GetChars(), cls->TypeName.GetChars());
+					}
+					ai->action = newaction;
+				}
+			}
+
+
+
 		}
 	}
 
@@ -544,7 +574,7 @@ int LookupMove(PClass* cls, FName name)
 		auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
 		for (int i = 0; i < ainf->NumMoves; i++)
 		{
-			if (actions[ainf->FirstMove + i].name == name) return ainf->FirstMove + i;
+			if (moves[ainf->FirstMove + i].name == name) return ainf->FirstMove + i;
 		}
 		if (cls == RUNTIME_CLASS(DDukeActor)) return 0;
 		cls = cls->ParentClass;
@@ -558,7 +588,7 @@ int LookupAI(PClass* cls, FName name)
 		auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
 		for (int i = 0; i < ainf->NumAIs; i++)
 		{
-			if (actions[ainf->FirstAI + i].name == name) return ainf->FirstAI + i;
+			if (ais[ainf->FirstAI + i].name == name) return ainf->FirstAI + i;
 		}
 		if (cls == RUNTIME_CLASS(DDukeActor)) return 0;
 		cls = cls->ParentClass;
@@ -753,7 +783,7 @@ DEFINE_PROPERTY(setgamedefaults, 0, DukeActor)
 
 //==========================================================================
 //
-// The 3 major CPN related properties - moves, actions, ais.
+// The 3 major CON related properties - moves, actions, ais.
 // 
 //==========================================================================
 
@@ -839,10 +869,10 @@ DEFINE_PROPERTY(ai, SSSi, DukeActor)
 	ai->moveflags = 0;
 	PROP_STRING_PARM(n, 0);
 	ai->name = n;
-	PROP_STRING_PARM(a, 1);
-	ai->action = FName(a).GetIndex() | 0x80000000;	// don't look it up yet.
-	PROP_STRING_PARM(m, 2);
-	ai->move = FName(m).GetIndex() | 0x80000000;	// don't look it up yet.
+	PROP_NAME_PARM(na, 1);
+	ai->action = na == NAME_None? 0 : na.GetIndex() | 0x80000000;	// don't look it up yet if not 'none'
+	PROP_NAME_PARM(nm, 2);
+	ai->move = nm == NAME_None ? 0 : nm.GetIndex() | 0x80000000;	// don't look it up yet if not 'none'
 	if (PROP_PARM_COUNT > 3)
 	{
 		PROP_INT_PARM(v3, 3);

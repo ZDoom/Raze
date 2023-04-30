@@ -218,6 +218,9 @@ int MatchString (const char *in, const char **strings);
 #define PROP_STRING_PARM(var, no) \
 	const char *var = params[(no)+1].s;
 
+#define PROP_NAME_PARM(var, no) \
+	FName var = params[(no)+1].s;
+
 #define PROP_EXP_PARM(var, no) \
 	FxExpression *var = params[(no)+1].exp;
 

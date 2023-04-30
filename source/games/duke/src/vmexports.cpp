@@ -747,10 +747,13 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetMove, Duke_SetMove)
 void Duke_SetAI(DDukeActor* self, int intname)
 {
 	int ndx = LookupAI(self->GetClass(), FName(ENamedName(intname)));
-	self->curMove = &moves[ais[ndx].move];
-	self->curAction = &actions[ais[ndx].action];
-	self->spr.hitag = ais[ndx].moveflags;
-	self->curAI = ais[ndx].name;
+	auto ai = &ais[ndx];
+	assert(!(ai->move & 0x80000000));
+	assert(!(ai->action & 0x80000000));
+	self->curMove = &moves[ai->move];
+	self->curAction = &actions[ai->action];
+	self->spr.hitag = ai->moveflags;
+	self->curAI = ai->name;
 	self->actioncounter = self->curframe = 0;
 	self->counter = 0;
 	if (self->spr.hitag & random_angle)
