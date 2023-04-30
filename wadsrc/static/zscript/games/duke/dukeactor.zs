@@ -125,6 +125,7 @@ class DukeActor : CoreActor native
 		landmovefactor 1;
 		watermovefactor 1;
 		gravityfactor 1;
+		move "RESPAWN_ACTOR_FLAG";
 	}
 	enum EStatnums
 	{
