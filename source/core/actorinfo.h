@@ -53,6 +53,9 @@ struct FActorInfo
 		DefaultCstat = other.DefaultCstat;
 		SpriteSetNames = other.SpriteSetNames;
 		DefaultScale = other.DefaultScale;
+		DefaultAction = other.DefaultAction;
+		DefaultMove = other.DefaultMove;
+		DefaultMoveflags = other.DefaultMoveflags;
 	}
 
 	void ResolveTextures(const char* clsname, DCoreActor *defaults);
