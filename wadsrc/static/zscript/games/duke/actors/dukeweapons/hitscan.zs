@@ -284,12 +284,46 @@ class DukeShotSpark : DukeActor
 		+FORCERUNCON;
 		+LIGHTDAMAGE;
 		statnum STAT_MISC;
+		action "WEAP2FRAMES", 0, 4, 1, 1, 6;
 		Strength PISTOL_WEAPON_STRENGTH;
+		startAction "WEAP2FRAMES";
 	}
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, false);
+	}
+	
+	override void RunState(DukePlayer p, double pdist)
+	{
+		if (self.extra < 0 || self.actioncounter >= 4)
+		{
+			self.killit();
+		}
+		else
+		{
+			if (self.actioncounter >= 3)
+			{
+				if (self.sector.lotag == ST_2_UNDERWATER)
+				{
+					self.spawn('DukeWaterBubble');
+				}
+			}
+			else if (self.counter < 2)
+			{
+				if (abs(self.pos.Z - self.sector.floorz) < 32 && self.sector.lotag == ST_1_ABOVE_WATER)
+				{
+					self.spawn('DukeWatersplash');
+				}
+			}
+			else
+			{
+				if (abs(self.pos.Z - self.sector.floorz) < 32 && Raze.tilesurface(self.sector.floortexture) == Duke.TSURF_MUDDY)
+				{
+					self.spawn('RedneckMudSplash');
+				}
+			}
+		}
 	}
 	
 }

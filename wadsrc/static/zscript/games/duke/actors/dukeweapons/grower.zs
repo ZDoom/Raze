@@ -85,4 +85,18 @@ class DukeGrowSpark : DukeActor
 		t.setSpritePic(self, (PlayClock >> 4) & 3);
 		return true;
 	}
+	
+	override void RunState(DukePlayer p, double pdist)
+	{
+		if (self.counter >= 18)
+		{
+			self.killit();
+		}
+		else
+		{
+			double dest = self.counter >= 9? 0 : 0.4375;
+			for(int i = 0; i < 4; i++) self.actorsizeto(dest, dest);
+		}
+	}
+	
 }

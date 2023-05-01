@@ -97,6 +97,8 @@ class DukeShrinkerExplosion : DukeActor
 		spriteset "SHRINKEREXPLOSION";
 		+FULLBRIGHT;
 		+FORCERUNCON;
+		action "SHRINKERFRAMES", 0, 4, 1, 1, 10;
+		StartAction "SHRINKERFRAMES";
 	}
 	
 	override void Initialize()
@@ -113,6 +115,14 @@ class DukeShrinkerExplosion : DukeActor
 		self.shade = -64;
 		self.scale = (0.5, 0.5);
 		self.ChangeStat(STAT_MISC);
+	}
+
+	override void RunState(DukePlayer p, double pdist)
+	{
+		if (self.actioncounter >= 4)
+		{
+			self.killit();
+		}
 	}
 	
 }
