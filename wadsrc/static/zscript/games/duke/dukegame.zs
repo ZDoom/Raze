@@ -182,10 +182,7 @@ struct Duke native
 	static native bool isshootableswitch(TextureID tex);
 	static native bool CheckSprite(class<DukeActor> tex);
 	static native bool setnextmap(bool checksecret);
-	static int rnd(int val)
-	{
-		return (random(0, 255) >= (255 - (val)));
-	}
+	static native int rnd(int val);
 
 	static void PlayBonusMusic()
 	{
