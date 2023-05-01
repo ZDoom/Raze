@@ -6,6 +6,12 @@ class NWinterWoodSlats : DukeScriptedBreakable // WOODSLATS (3757)
 		Strength MEDIUMSTRENGTH;
 	}
 	
+	override void BrkKilled(DukePlayer p, double pdist)
+	{
+		self.PlayActorSound("GLASS_HEAVYBREAK");
+		self.spawndebris(DukeScrap.Scrap3, 5);
+		self.spawndebris(DukeScrap.Scrap4, 3);
+	}
 }
 class NWinterRibbon : DukeScriptedBreakable // RIBBON (930)
 {
@@ -15,6 +21,12 @@ class NWinterRibbon : DukeScriptedBreakable // RIBBON (930)
 		Strength WEAK;
 	}
 	
+	override void BrkKilled(DukePlayer p, double pdist)
+	{
+		self.PlayActorSound("GLASS_HEAVYBREAK");
+		self.spawndebris(DukeScrap.Scrap3, 5);
+		self.spawndebris(DukeScrap.Scrap4, 3);
+	}
 }
 class NWinterSSpeaker : DukeScriptedBreakable // SSPEAKER (589)
 {
@@ -24,6 +36,10 @@ class NWinterSSpeaker : DukeScriptedBreakable // SSPEAKER (589)
 		Strength WEAK;
 	}
 	
+	override void BrkKilled(DukePlayer p, double pdist)
+	{
+		self.spawndebris(DukeScrap.Scrap4, 3);
+	}
 }
 class NWinterMybox : NWinterRibbon // MYBOX (3666)
 {
@@ -41,6 +57,13 @@ class NWinterDrunkElf : DukeScriptedBreakable // DRUNKELF (3592)
 		Strength WEAK;
 	}
 	
+	override void BrkKilled(DukePlayer p, double pdist)
+	{
+		self.PlayActorSound("PRED_DYING");
+		self.spawnguts('DukeJibs6', 2);
+		self.spawnguts('DukeJibs6', 3);
+		self.spawnguts('DukeJibs6', 4);
+	}
 }
 class NWinterHalfBitch : NWinterDrunkElf // HALFBITCH (3627)
 {
@@ -65,6 +88,13 @@ class NWinterChoochooslut : DukeScriptedBreakable // CHOOCHOOSLUT (3779)
 		pic "CHOOCHOOSLUT";
 		Strength WEAK;
 	}
+	
+	override void BrkKilled(DukePlayer p, double pdist)
+	{
+		self.PlayActorSound("GLASS_HEAVYBREAK");
+		self.spawndebris(DukeScrap.Scrap3, 5);
+		self.spawndebris(DukeScrap.Scrap4, 3);
+	}
 }
 class NWinterHorsepower : NWinterChoochooslut // HORSEPOWER (3783)
 {
@@ -88,5 +118,33 @@ class NWinterTreeWithSomething : DukeScriptedBreakable // TREEWITHSOMETHING (364
 	{
 		pic "TREEWITHSOMETHING";
 		Strength TOUGH;
+	}
+	
+	override void BrkKilled(DukePlayer p, double pdist)
+	{
+		self.PlayActorSound("GLASS_HEAVYBREAK");
+		self.spawndebris(DukeScrap.Scrap3, 5);
+		if (Duke.rnd(96))
+		{
+			if (Duke.rnd(64))
+			{
+				self.spawn('DukeAtomicHealth');
+			}
+			else
+			{
+				self.spawn('DukeShield');
+			}
+		}
+		else
+		{
+			if (Duke.rnd(128))
+			{
+				self.spawn('DukeSteroids');
+			}
+			else
+			{
+				self.spawn('DukeFeces');
+			}
+		}
 	}
 }
