@@ -34,7 +34,7 @@ class DukeFemBase : DukeActor
 
 	override void Initialize()
 	{
-		self.yvel = act->spr.hitag;
+		self.yint = self.hitag;
 		self.hitag = -1;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
