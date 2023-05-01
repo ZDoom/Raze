@@ -1,6 +1,9 @@
 #pragma once
+#include "ns.h"
 #include "textureid.h"
 
+
+BEGIN_PS_NS
 #define x(a) kTex##a,
 
 enum ETextureIDs
@@ -28,3 +31,5 @@ inline void InitTextureIDs()
 		aTexIds[i] = TexMan.CheckForTexture(texlistnames[i], ETextureType::Any);
 	}
 }
+
+END_PS_NS
