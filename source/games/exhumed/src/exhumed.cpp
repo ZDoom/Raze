@@ -50,7 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "interpolate.h"
 #include "tilesetbuilder.h"
 #include "psky.h"
-#include "texids.h"
 
 BEGIN_PS_NS
 

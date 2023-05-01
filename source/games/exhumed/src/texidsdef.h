@@ -24,4 +24,5 @@ x(WeaponSpriteM60)
 x(WeaponSpriteFlamethrower)
 x(AmmoSpriteGrenade)
 x(WeaponSpriteCobra)
-
+x(ExhumedLogo)
+x(PowerslaveLogo)

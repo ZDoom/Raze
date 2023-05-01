@@ -496,8 +496,7 @@ void GameInterface::Ticker()
 void GameInterface::DrawBackground()
 {
 	twod->ClearScreen();
-	auto tex = TexMan.CheckForTexture("titlescreen", ETextureType::Any);
-	DrawTexture(twod, TexMan.GetGameTexture(tex), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+	DrawTexture(twod, TexMan.GetGameTexture(aTexIds[kTexTitlescreen]), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 }
 
 
@@ -598,7 +597,7 @@ void GameInterface::app_init()
 	levelLoadDefaults();
 
 	//---------
-	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
+	C_InitConback(aTexIds[kTexBACKTILE], true, 0.25);
 
 	Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");
 	viewInit();
