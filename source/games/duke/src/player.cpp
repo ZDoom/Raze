@@ -209,7 +209,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force)
 		{
 			// Some fudging to avoid aim randomization when autoaim is off.
 			// This is a reimplementation of how it was solved in RedNukem.
-			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
+			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI() && 0)
 			{
 				double vel = 1024, zvel = 0;
 				setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
