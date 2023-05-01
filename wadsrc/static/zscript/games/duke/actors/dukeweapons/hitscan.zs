@@ -45,10 +45,17 @@ extend class DukeActor
 
 		if (p != null)
 		{
-			let aimed = actor.aim(self, aimangle);
+			let [aimed, direct] = actor.aim(self, aimangle);
 			if (aimed)
 			{
-				[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 16.);
+				// if we already aim directly at the target, use the shooter's actual pitch for the hitscan instead of re-aiming.
+				if (direct) [vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 16.);
+				else
+				{
+					double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5) + aimed.sparkoffset;
+					double dist = (p.actor.pos.XY - aimed.pos.XY).Length();
+					zvel = ((aimed.pos.Z - pos.Z - dal) * 16) / dist;
+				}
 				ang = (aimed.pos - pos).Angle();
 			}
 			

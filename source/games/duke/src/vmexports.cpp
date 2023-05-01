@@ -716,8 +716,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_POINTER(weapon, DDukeActor);
-	PARAM_FLOAT(aimangle)
-	ACTION_RETURN_POINTER(aim_(self, weapon, aimangle));
+	PARAM_FLOAT(aimangle);
+	bool b = false;
+	auto result = aim_(self, weapon, aimangle, &b);
+	if (numret > 0) ret[0].SetPointer(result);
+	if (numret > 1) ret[1].SetInt(b);
+	return min(numret, 2);
 }
 
 void Duke_SetAction(DDukeActor* self, int intname)
