@@ -17,7 +17,7 @@ class DukeRotateGun : DukeActor
 		+NOHITJIBS;
 		+NOSHOTGUNBLOOD;
 		
-		sparkoffset -8;
+		sparkoffset -3;
 		aimoffset 32;
 		shootzoffset 0;
 	}

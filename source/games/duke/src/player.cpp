@@ -191,7 +191,7 @@ double hitawall(player_struct* p, walltype** hitw)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* aim(DDukeActor* actor, int abase, bool force)
+DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 {
 	DAngle aang = mapangle(abase);
 
@@ -205,24 +205,29 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force)
 	{
 		auto* plr = &ps[actor->PlayerIndex()];
 		int autoaim = force? 1 : Autoaim(actor->PlayerIndex());
-		if (!autoaim)
+
+		// Some fudging to avoid aim randomization when autoaim is off.
+		// This is a reimplementation of how it was solved in RedNukem.
+		if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
 		{
-			// Some fudging to avoid aim randomization when autoaim is off.
-			// This is a reimplementation of how it was solved in RedNukem.
-			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI() && 0)
+			double vel = 1024, zvel = 0;
+			setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
+
+			HitInfo hit{};
+			hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
+
+			if (hit.actor() != nullptr)
 			{
-				double vel = 1024, zvel = 0;
-				setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
-
-				HitInfo hit{};
-				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
-
-				if (hit.actor() != nullptr)
+				if (isIn(hit.actor()->spr.statnum, { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR }))
 				{
-					if (isIn(hit.actor()->spr.statnum, { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR }))
-						return hit.actor();
+					if (b) *b = true;
+					return hit.actor();
 				}
 			}
+		}
+
+		if (!autoaim)
+		{
 			// The chickens in RRRA are homing and must always autoaim.
 			if (!isRRRA() || plr->curr_weapon != CHICKEN_WEAPON)
 				return nullptr;
@@ -332,10 +337,10 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force)
 }
 
 // This is what aim should be. 
-DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle)
+DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle, bool* b)
 {
 	if (!weapon || (weapon->flags1 & SFLAG_NOAUTOAIM)) return nullptr;
-	return aim(actor, int((aimangle > 0 ? aimangle : weapon->FloatVar(NAME_autoaimangle)) * (512 / 90.)), (weapon->flags1 & SFLAG_FORCEAUTOAIM));
+	return aim(actor, int((aimangle > 0 ? aimangle : weapon->FloatVar(NAME_autoaimangle)) * (512 / 90.)), (weapon->flags1 & SFLAG_FORCEAUTOAIM), b);
 }
 
 //---------------------------------------------------------------------------
