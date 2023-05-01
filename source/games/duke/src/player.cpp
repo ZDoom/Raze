@@ -206,9 +206,12 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 		auto* plr = &ps[actor->PlayerIndex()];
 		int autoaim = force? 1 : Autoaim(actor->PlayerIndex());
 
+		bool ww2gipistol = (plr->curr_weapon == PISTOL_WEAPON && isWW2GI());
+		bool otherpistol = (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI());
+
 		// Some fudging to avoid aim randomization when autoaim is off.
 		// This is a reimplementation of how it was solved in RedNukem.
-		if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
+		if (!ww2gipistol && (autoaim || otherpistol))
 		{
 			double vel = 1024, zvel = 0;
 			setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
