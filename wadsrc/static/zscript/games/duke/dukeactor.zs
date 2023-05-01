@@ -127,6 +127,7 @@ class DukeActor : CoreActor native
 		gravityfactor 1;
 		move "SHRUNKVELS", 32;
 		move "RESPAWN_ACTOR_FLAG";
+		action "ANULLACTION", 0;
 	}
 	enum EStatnums
 	{
@@ -293,7 +294,8 @@ class DukeActor : CoreActor native
 	native DukeActor ownerActor, hitOwnerActor;
 	native uint8 cgg;
 	native uint8 spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	native int16 hitextra, movflag;
+	native int16 hitextra;
+	native uint16 movflag;
 	native int16 tempval; /*, dispicnum;*/
 	native int16 timetosleep;
 	native bool mapSpawned;
