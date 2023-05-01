@@ -48,9 +48,7 @@ extend class DukeActor
 			let aimed = actor.aim(self, aimangle);
 			if (aimed)
 			{
-				double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5) + aimed.sparkoffset;
-				double dist = (p.actor.pos.XY - aimed.pos.XY).Length();
-				zvel = ((aimed.pos.Z - pos.Z - dal) * 16) / dist;
+				[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 16.);
 				ang = (aimed.pos - pos).Angle();
 			}
 			
