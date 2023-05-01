@@ -741,6 +741,7 @@ void Duke_SetMove(DDukeActor* self, int intname, int flags)
 	int ndx = LookupMove(self->GetClass(), FName(ENamedName(intname)));
 	self->curMove = &moves[ndx];
 	self->spr.hitag = flags;
+	self->counter = 0;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetMove, Duke_SetMove)
