@@ -251,6 +251,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, setnextmap, setnextmap)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, rnd, rnd)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	ACTION_RETURN_BOOL(rnd(v));
+	return 0;
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
