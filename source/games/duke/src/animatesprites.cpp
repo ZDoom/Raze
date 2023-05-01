@@ -212,8 +212,8 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 			if (h->dispictex.isValid())
 				h->dispictex = t->spritetexture();
 		}
-		if (display_mirror == 1)
-			t->cstat ^= CSTAT_SPRITE_XFLIP;
+		else if (display_mirror == 1)
+			t->cstat |= CSTAT_SPRITE_XFLIP;
 	}
 }
 END_DUKE_NS
