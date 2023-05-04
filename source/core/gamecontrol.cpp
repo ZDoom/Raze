@@ -1084,6 +1084,10 @@ int RunGame()
 		cl_weaponswitch->SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
 	}
+	if (isExhumed())
+	{
+		cl_viewbob->SetGenericRepDefault(0, CVAR_Int);	// Exhumed never had this feature, make it optional.
+	}
 	if (g_gameType & (GAMEFLAG_BLOOD|GAMEFLAG_RR))
 	{
 		am_nameontop->SetGenericRepDefault(true, CVAR_Bool);	// Blood and RR show the map name on the top of the screen by default.
