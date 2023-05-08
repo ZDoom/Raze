@@ -729,16 +729,13 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 
 static void doVehicleTilting(player_struct* const p, const bool canTilt)
 {
-	const auto pact = p->GetActor();
-	auto adj = DAngle::fromDeg(p->sync.avel * 0.279625 * canTilt);
+	auto adj = DAngle::fromDeg(p->sync.avel * (545943. / 3200000.) * canTilt);
 	if (p->OnMotorcycle) adj *= 5 * Sgn(p->MotoSpeed);
 	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
 
-	p->TiltStatus += adj;
-	pact->spr.Angles.Roll += adj * cl_rrvehicletilting;
 	scaletozero(p->TiltStatus, 10.);
-	scaletozero(pact->spr.Angles.Roll, 10.);
+	p->GetActor()->spr.Angles.Roll = (p->TiltStatus += adj) * cl_rrvehicletilting;
 }
 
 //---------------------------------------------------------------------------
