@@ -424,8 +424,8 @@ class DukeActor : CoreActor native
 			}
 
 			self.clipdist = 10;
-			if (self.ownerActor == null) self.ownerActor = self;
-			else self.angle = self.ownerActor.angle;
+			if (self.ownerActor != null) self.angle = self.ownerActor.angle;
+			self.ownerActor = self;
 			self.ChangeStat(STAT_ACTOR);
 		}
 	}
