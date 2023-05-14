@@ -8,7 +8,7 @@ class RedneckCootplay : DukeActor
 		+NORADIUSPUSH;
 		Strength 10000;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.375, 0.28128);
 		self.setClipDistFromTile();
@@ -27,7 +27,7 @@ class RedneckBillyPlay : DukeActor
 		+NORADIUSPUSH;
 		Strength 10000;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.390625, 0.328125);
 		self.setClipDistFromTile();

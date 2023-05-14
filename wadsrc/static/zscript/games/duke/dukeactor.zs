@@ -412,7 +412,7 @@ class DukeActor : CoreActor native
 
 	
 	
-	virtual void Initialize()
+	virtual void Initialize(DukeActor spawner)
 	{
 		if (!self.bSIMPLEINIT && !self.badguy() && self.scripted())
 		{
@@ -424,17 +424,16 @@ class DukeActor : CoreActor native
 			}
 
 			self.clipdist = 10;
-			if (self.ownerActor != null) self.angle = self.ownerActor.angle;
+			if (spawner != null) self.angle = spawner.angle;
 			self.ownerActor = self;
 			self.ChangeStat(STAT_ACTOR);
 		}
 	}
 	
 	
-	void commonItemSetup(Vector2 scale = (0.5, 0.5), int usefloorshade = -1, bool noinitialmove = false)
+	void commonItemSetup(DukeActor spawner, Vector2 scale = (0.5, 0.5), int usefloorshade = -1, bool noinitialmove = false)
 	{
-		let owner = self.ownerActor;
-		if (owner != self)
+		if (spawner && spawner != self)
 		{
 			self.lotag = 0;
 			if (!noinitialmove)
@@ -463,7 +462,7 @@ class DukeActor : CoreActor native
 		self.shade = -17;
 		self.scale = scale;
 
-		if (owner != self) self.ChangeStat(STAT_ACTOR);
+		if (spawner && spawner != self) self.ChangeStat(STAT_ACTOR);
 		else
 		{
 			self.ChangeStat(STAT_ZOMBIEACTOR);

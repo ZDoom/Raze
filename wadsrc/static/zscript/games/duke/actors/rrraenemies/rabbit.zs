@@ -9,7 +9,7 @@ class RedneckRabbit : DukeActor
 		Strength 50;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.28125, 0.28125);
 	}

@@ -28,7 +28,7 @@ class DukeCrane : DukeActor
 	//
 	//---------------------------------------------------------------------------
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		let sect = self.sector;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;

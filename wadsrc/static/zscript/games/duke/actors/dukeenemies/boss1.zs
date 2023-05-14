@@ -12,11 +12,10 @@ class DukeBossBase : DukeActor
 
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner && owner is 'DukeRespawnController')
-			self.pal = owner.pal;
+		if (spawner && spawner is 'DukeRespawnController')
+			self.pal = spawner.pal;
 		
 		if (self.pal != 0 && (!isWorldTour() || !(currentLevel.gameflags & MapRecord.LEVEL_WT_BOSSSPAWN) || self.pal != 22))
 		{

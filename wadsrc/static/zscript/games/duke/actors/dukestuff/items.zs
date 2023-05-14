@@ -16,9 +16,9 @@ class DukeItemBase : DukeActor
 
 
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup();
+		commonItemSetup(spawner);
 	}	
 	
 	
@@ -103,7 +103,7 @@ class DukeAccessCard : DukeItemBase
 		pic "ACCESSCARD";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (ud.multimode > 1 && ud.coop != 1)
 		{
@@ -131,9 +131,9 @@ class DukeAmmo : DukeItemBase
 		pic "AMMO";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.25, 0.25));
+		commonItemSetup(spawner, (0.25, 0.25));
 	}
 
 }
@@ -194,9 +194,9 @@ class DukeBatteryAmmo : DukeItemBase
 		pic "BATTERYAMMO";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup();
+		commonItemSetup(spawner);
 	}
 
 }
@@ -268,9 +268,9 @@ class DukeAtomicHealth : DukeItemBase
 		+NOFLOORPAL;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup();
+		commonItemSetup(spawner);
 		self.cstat |= CSTAT_SPRITE_YCENTER;
 	}
 	

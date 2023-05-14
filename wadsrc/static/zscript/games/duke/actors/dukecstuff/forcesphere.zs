@@ -7,7 +7,7 @@ class DukeForceSphere : DukeActor
 	}
 	
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (self.mapSpawned)
 		{

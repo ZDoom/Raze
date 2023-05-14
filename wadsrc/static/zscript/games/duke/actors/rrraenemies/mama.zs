@@ -6,7 +6,7 @@ class RedneckMamaCloud : DukeActor
 		Strength 10000;
 		+NORADIUSPUSH;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (1, 1);
 		self.cstat = CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
@@ -32,7 +32,7 @@ class RedneckMama : DukeActor
 		Strength 2000;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (self.pal == 30)
 		{

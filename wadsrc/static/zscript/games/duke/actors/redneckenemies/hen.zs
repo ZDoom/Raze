@@ -11,7 +11,7 @@ class RedneckHen : DukeActor
 		Strength HEN_TOUGHER_STRENGTH;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (self.pal == 35)
 		{

@@ -18,7 +18,7 @@ class DukeTouchPlate : DukeActor
 		return true;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		let sectp = self.sector;
 		self.temp_pos.Z = sectp.floorz;

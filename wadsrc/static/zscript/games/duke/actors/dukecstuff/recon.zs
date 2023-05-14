@@ -23,7 +23,7 @@ class DukeRecon : DukeActor
 	int shift;
 	class<DukeActor> spawntype;
 	
-	override void initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.temp_data[0] = 0;
 		self.extra = 130;
@@ -246,7 +246,7 @@ class RedneckUFO1 : DukeRecon
 		-NOFLOORPAL;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.ChangeStat(STAT_ZOMBIEACTOR);
 		
@@ -276,9 +276,9 @@ class RedneckUFO2 : RedneckUFO1
 		Pic "UFO2";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		SpawnType = "RedneckCoot";
 	}
 }
@@ -290,9 +290,9 @@ class RedneckUFO3 : RedneckUFO1
 		Pic "UFO3";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		SpawnType = "RedneckCow";
 	}
 }
@@ -304,9 +304,9 @@ class RedneckUFO4 : RedneckUFO1
 		Pic "UFO4";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		SpawnType = "RedneckPig";
 	}
 }
@@ -318,9 +318,9 @@ class RedneckUFO5 : RedneckUFO1
 		Pic "UFO5";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		SpawnType = "RedneckBillyRay";
 	}
 }
@@ -332,9 +332,9 @@ class RedneckUFORRRA : RedneckUFO1
 		Pic "UFO1_RRRA";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		if (ud.ufospawnsminion) SpawnType = "RedneckMinion";
 	}
 }
@@ -345,7 +345,7 @@ class RedneckUfoSpawnerToggle : DukeActor
 	{
 		statnum STAT_MISC;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		//case RRTILE8192:
 		self.scale = (0, 0);

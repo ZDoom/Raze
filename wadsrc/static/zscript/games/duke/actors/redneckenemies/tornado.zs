@@ -8,7 +8,7 @@ class RedneckTornado : DukeActor
 		+NOHITSCANHIT;
 		Strength MEGASTRENGTH;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (1, 2);
 		self.setClipDistFromTile();

@@ -276,11 +276,11 @@ class DukeOnFire : DukeActor
 		Strength 0;
 	}
 
-	override void  Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		if (!self.mapspawned)
+		if (spawner)
 		{
-			self.Angle = self.ownerActor.Angle;
+			self.Angle = spawner.Angle;
 			self.shade = -64;
 			self.cstat = randomXFlip();
 
@@ -330,7 +330,7 @@ class DukeWhispySmoke : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.pos.X += frandom(-8, 8);
 		self.pos.Y += frandom(-8, 8);
@@ -371,10 +371,9 @@ class DukeLavaPoolBubble : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner.scale.X < 0.46875)
+		if (spawner.scale.X < 0.46875)
 		{
 			self.scale = (0, 0); 
 			return;
@@ -403,7 +402,7 @@ class DukeLavaPool : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		bool away = self.isAwayFromWall(6.75);
 		
@@ -423,7 +422,7 @@ class DukeLavaPool : DukeActor
 		double c, f;
 		[c, f] = self.sector.getslopes(self.pos.XY);
 		self.pos.Z = f - 0.78125;
-		if (self != self.ownerActor)
+		if (!self.mapSpawned)
 			self.scale = (REPEAT_SCALE, REPEAT_SCALE);
 	}
 	

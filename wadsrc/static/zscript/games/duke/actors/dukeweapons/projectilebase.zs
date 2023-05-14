@@ -43,7 +43,7 @@ class DukeProjectile : DukeActor
 
 	property SpawnSound: SpawnSound;
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		// do not call the parent's function here.
 	}
@@ -364,13 +364,13 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 		Strength COOL_EXPLOSION_STRENGTH;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!bSIMPLEINIT)
 		{
 			// looks like this case is never used anywhere.
 			self.cstat = CSTAT_SPRITE_YCENTER | self.randomXFlip();
-			self.angle = self.ownerActor.angle;
+			if (spawner) self.angle = spawner.angle;
 			self.shade = -64;
 
 			double c, f;

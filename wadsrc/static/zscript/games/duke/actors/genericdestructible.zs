@@ -22,7 +22,7 @@ class DukeGenericDestructible : DukeActor
 	
 	virtual bool DestroyAction() { return false; }	// for customized subclasses
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (self.inittype & f_solid) self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.SetBroken(false);

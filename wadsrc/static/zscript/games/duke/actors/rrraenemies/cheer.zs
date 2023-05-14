@@ -11,7 +11,7 @@ class RedneckCheerleader : DukeActor
 		jumptoplayer_factor 1.6;
 		Strength 200;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.3125, 0.3125);
 		self.setClipDistFromTile();

@@ -12,7 +12,7 @@ class DukeQueball : DukeActor
 		+HITRADIUSCHECK;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.clipdist = 2;
 		self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;

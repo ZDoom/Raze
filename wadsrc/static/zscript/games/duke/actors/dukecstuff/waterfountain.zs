@@ -14,7 +14,7 @@ class DukeWaterFountain : DukeActor
 	//
 	//---------------------------------------------------------------------------
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.setSpritesetImage(0);
 		self.lotag = 1;
@@ -101,7 +101,7 @@ class DukeWaterFountainBroke : DukeActor
 		pic "WATERFOUNTAINBROKE";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.ChangeStat(STAT_STANDABLE);
 	}

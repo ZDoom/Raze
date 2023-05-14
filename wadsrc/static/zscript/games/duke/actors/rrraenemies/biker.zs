@@ -9,7 +9,7 @@ class RedneckBiker : DukeActor
 		+LOOKALLAROUND;
 		Strength 150;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.4375, 0.34375);
 		self.setClipDistFromTile();

@@ -1,6 +1,6 @@
 class RedneckRabbitSpawner : DukeActor
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.extra = 0;

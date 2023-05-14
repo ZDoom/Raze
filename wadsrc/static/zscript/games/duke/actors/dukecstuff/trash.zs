@@ -5,7 +5,7 @@ class DukeTrash : DukeActor
 		pic "TRASH";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.Scale = (0.375, 0.375);
 		self.angle = frandom(0, 360);

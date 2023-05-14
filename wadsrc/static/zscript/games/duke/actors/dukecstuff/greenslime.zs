@@ -12,7 +12,7 @@ class DukeGreenSlime : DukeActor
 		sparkoffset -3;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.625, 0.625);
 		self.clipdist = 20;

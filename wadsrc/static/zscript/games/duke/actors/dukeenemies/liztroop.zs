@@ -17,7 +17,7 @@ class DukeLizTrooper : DukeActor
 		
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (self.pal == 0 || self.pal == 2) self.pal = 22;
 	}

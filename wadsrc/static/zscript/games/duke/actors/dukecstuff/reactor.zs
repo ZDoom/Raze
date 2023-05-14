@@ -6,7 +6,7 @@ class DukeReactor : DukeActor
 	}
 		
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.extra = gs.impact_damage;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable

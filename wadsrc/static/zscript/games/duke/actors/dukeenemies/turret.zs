@@ -19,7 +19,7 @@ class DukeTurret : DukeActor
 		self.PlayActorSound("TURR_RECOG");
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_YCENTER;
 	}

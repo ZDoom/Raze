@@ -51,7 +51,7 @@ class RedneckChickenArrow : RedneckDynamiteArrow
 		DukeProjectile.SpawnSound "CHICKENBOW_FIRE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.hitag = 0;
 		self.lotsofstuff("RedneckFeather", random(1, 4));

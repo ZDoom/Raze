@@ -6,7 +6,7 @@ class DukeMoney : DukeActor
 		spriteset "MONEY", "MONEY1";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.125, 0.125);
 		self.counter = random(0, 2047);

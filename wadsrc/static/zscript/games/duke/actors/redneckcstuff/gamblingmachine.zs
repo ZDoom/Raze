@@ -12,7 +12,7 @@ class RedneckGamblingMachine : DukeActor
 	meta Sound winsound;
 	property winsound: winsound;
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.lotag = 1;
 		self.clipdist = 0;

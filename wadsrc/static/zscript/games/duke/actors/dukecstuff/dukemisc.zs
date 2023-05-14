@@ -6,7 +6,7 @@ class DukePlug : DukeActor
 		pic "PLUG";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.lotag = 9999;
 		self.ChangeStat(STAT_STANDABLE);
@@ -28,7 +28,7 @@ class DukeFemMag : DukeActor
 		pic "FEMMAG1";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		self.ChangeStat(STAT_DEFAULT);
@@ -42,7 +42,7 @@ class DukeTag : DukeActor
 		pic "DUKETAG";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (ud.multimode < 2 && self.pal)
 		{
@@ -60,7 +60,7 @@ class DukeMaskWall : DukeActor
 		pic "MASKWALL1";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		let j = self.cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 		self.cstat = j | CSTAT_SPRITE_BLOCK;
@@ -76,7 +76,7 @@ class DukeFootprints : DukeActor
 		+SE24_REMOVE;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!self.mapSpawned)
 		{
@@ -114,7 +114,7 @@ class DukeBulletHole : DukeActor
 		+NOTELEPORT;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		self.insertspriteq();
@@ -136,7 +136,7 @@ class DukeGenericPole : DukeActor
 		pic "GENERICPOLE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (ud.multimode < 2 && self.pal != 0)
 		{
@@ -154,12 +154,12 @@ class DukeCameraPole : DukeGenericPole
 		pic "CAMERAPOLE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (gs.camerashitable) self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else self.cstat = 0;
 		self.extra = 1;
-		super.Initialize();
+		super.Initialize(spawner);
 	}
 }
 
@@ -170,7 +170,7 @@ class DukeNeon : DukeActor
 		pic "NEON1";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.ChangeStat(STAT_MISC);
@@ -290,7 +290,7 @@ class DukeNaturalLightning : DukeActor
 		+FULLBRIGHT;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		self.cstat |= CSTAT_SPRITE_INVISIBLE;

@@ -10,7 +10,7 @@ class DukeBlimp : DukeActor
 		+SPAWNWEAPONDEBRIS;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 32;

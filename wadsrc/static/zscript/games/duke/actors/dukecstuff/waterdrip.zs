@@ -5,13 +5,12 @@ class DukeWaterDrip : DukeActor
 		pic "WATERDRIP";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (!self.mapSpawned && owner && (owner.statnum == STAT_PLAYER || owner.statnum == STAT_ACTOR))
+		if (spawner && (spawner.statnum == STAT_PLAYER || spawner.statnum == STAT_ACTOR))
 		{
 			self.shade = 32;
-			if (owner.pal != 1)
+			if (spawner.pal != 1)
 			{
 				self.pal = 2;
 				self.pos.Z -= 18;

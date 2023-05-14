@@ -9,7 +9,7 @@ class RedneckDestructo : DukeActor
 		
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		// do NOT run the default init code for this one.
 	}
@@ -29,7 +29,7 @@ class RedneckDestroyTags : DukeActor
 		pic "DESTROYTAGS";
 		+DESTRUCTOIMMUNE;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_INVISIBLE;
 		self.scale = (REPEAT_SCALE, REPEAT_SCALE);

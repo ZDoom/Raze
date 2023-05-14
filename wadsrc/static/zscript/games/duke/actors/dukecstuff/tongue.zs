@@ -6,10 +6,10 @@ class DukeTongue : DukeActor
 		pic "TONGUE";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		if (self.ownerActor && !self.mapSpawned)
-			self.angle = self.ownerActor.angle;
+		if (spawner)
+			self.angle = spawner.angle;
 		self.pos.Z -= gs.playerheight;
 		self.vel.Z = 1 - frandom(0, 2);
 		self.vel.X = 4 - frandom(0, 8);

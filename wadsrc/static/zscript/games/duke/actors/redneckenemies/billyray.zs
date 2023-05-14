@@ -18,7 +18,7 @@ class RedneckBillyRay : DukeActor
 		else self.PlayActorSound("FART1");
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.390625, 0.328125);
 		self.setClipDistFromTile();

@@ -18,7 +18,7 @@ class RedneckMosquito : DukeActor
 		floating_ceilingdist 50;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.21875, 0.109375);
 		self.clipdist = 32;

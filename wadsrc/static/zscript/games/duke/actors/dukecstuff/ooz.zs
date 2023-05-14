@@ -5,7 +5,7 @@ class DukeOoz : DukeActor
 		pic "OOZ";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.shade = -12;
 

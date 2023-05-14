@@ -28,7 +28,7 @@ class DukeFireflyFlyingEffect : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.25, 0.25);
 		self.ChangeStat(STAT_MISC);
@@ -105,7 +105,7 @@ class DukeFirefly : DukeLizTrooper // recycles part of the Liztrooper code and d
 		return true;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 	}
 	

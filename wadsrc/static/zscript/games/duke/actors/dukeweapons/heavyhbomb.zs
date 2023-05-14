@@ -12,7 +12,7 @@ class DukePipeBomb : DukeActor
 		// do not add anything here!
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		// This is only for placed items, not for armed weapons!
 		if (self.mapSpawned)

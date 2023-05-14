@@ -22,7 +22,7 @@ class DukeRotateGun : DukeActor
 		shootzoffset 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.vel.Z = 0;
 	}

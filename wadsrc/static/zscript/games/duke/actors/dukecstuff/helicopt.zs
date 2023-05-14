@@ -5,7 +5,7 @@ class DukeCar : DukeActor
 		pic "DUKECAR";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.extra = 1;
 		self.clipdist = 32;

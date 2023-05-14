@@ -16,11 +16,11 @@ class DukePlayerOnWater : DukeActor
 		+ALWAYSROTATE1;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		if (!mapSpawned && self.ownerActor)
+		if (spawner)
 		{
-				self.scale = self.ownerActor.scale;
+				self.scale = spawner.scale;
 				self.vel.Z = 0.5;
 				if (self.sector.lotag != ST_2_UNDERWATER)
 					self.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -30,9 +30,9 @@ class DukePlayerOnWater : DukeActor
 
 	override void OnHit(DukeActor proj)
 	{
-		// propagate the hit to its owner.
-		let owner = self.ownerActor;
-		if (owner && self != owner) owner.OnHit(proj);
+		// propagate the hit to its Owner.
+		let Owner = self.OwnerActor;
+		if (Owner && self != Owner) Owner.OnHit(proj);
 	}
 
 }
@@ -46,14 +46,13 @@ class DukePlayerLyingDead : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner && owner.isPlayer())
+		if (spawner && spawner.isPlayer())
 		{
-			self.scale = owner.scale;
-			self.shade = owner.shade;
-			self.pal = owner.GetPlayer().palookup;
+			self.scale = spawner.scale;
+			self.shade = spawner.shade;
+			self.pal = spawner.GetPlayer().palookup;
 		}
 		self.vel.X = 292 / 16.;
 		self.vel.Z = 360 / 256.;

@@ -10,7 +10,7 @@ class RedneckCow : DukeActor
 		Strength COWSTRENGTH;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.5, 0.5);
 		self.setClipDistFromTile();

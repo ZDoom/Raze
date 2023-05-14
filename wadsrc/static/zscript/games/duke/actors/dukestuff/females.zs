@@ -20,6 +20,15 @@ class DukeFemBase : DukeActor
 	const FREEZEANIM2 = 64;
 	
 
+	override void Initialize(DukeActor spawner)
+	{
+		self.yint = self.hitag;
+		self.hitag = -1;
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_ZOMBIEACTOR);
+	}
+	
 }
 
 
@@ -33,7 +42,7 @@ class DukeBloodyPole : DukeFemBase
 		StartAction 'none';
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -172,7 +181,12 @@ class DukePodFemale : DukeFemBase
 		DukeFemBase.femflags GROWSCRAP | FREEZEANIM2 | KILLME;
 	}
 	
-
+	override void Initialize(DukeActor spawner)
+	{
+		Super.Initialize(spawner);
+		self.extra <<= 1;
+	}
+	
 }
 
 class DukeFem6Pad: DukeActor

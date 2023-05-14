@@ -597,12 +597,12 @@ int LookupAI(PClass* cls, FName name)
 
 
 
-void CallInitialize(DDukeActor* actor)
+void CallInitialize(DDukeActor* actor, DDukeActor* spawner)
 {
 	IFVIRTUALPTR(actor, DDukeActor, Initialize)
 	{
-		VMValue val = actor;
-		VMCall(func, &val, 1, nullptr, 0);
+		VMValue val[] = { actor, spawner };
+		VMCall(func, val, 2, nullptr, 0);
 	}
 }
 

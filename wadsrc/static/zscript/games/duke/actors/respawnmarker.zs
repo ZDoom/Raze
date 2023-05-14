@@ -8,7 +8,7 @@ class DukeRespawnMarker : DukeActor
 		+NOFLOORPAL;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!self.mapSpawned && ownerActor != null) self.pos.Z = ownerActor.floorZ;
 		self.scale = (0.375, 0.375);
@@ -45,7 +45,7 @@ class RedneckRespawnMarker : DukeRespawnMarker
 			"RESPAWNMARKER8", "RESPAWNMARKER9", "RESPAWNMARKER10", "RESPAWNMARKER11", "RESPAWNMARKER12", "RESPAWNMARKER13", "RESPAWNMARKER14";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.125, 0.125);
 	}

@@ -11,7 +11,7 @@ class RedneckMinionBoat : DukeActor
 		landmovefactor 0.5;
 		Strength 150;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.25, 0.25);
 		self.setClipDistFromTile();

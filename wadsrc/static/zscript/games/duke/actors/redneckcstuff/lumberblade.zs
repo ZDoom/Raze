@@ -6,7 +6,7 @@ class RedneckLumberBlade : DukeActor
 		spriteset "LUMBERBLADE1", "LUMBERBLADE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.ChangeStat(STAT_LUMBERMILL);
 		self.extra = 0;
@@ -67,7 +67,7 @@ Class RedneckKegHolder : DukeActor
 		pic "KEGHOLDER";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.ChangeStat(STAT_LUMBERMILL);

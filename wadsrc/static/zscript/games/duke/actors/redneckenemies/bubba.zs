@@ -7,7 +7,7 @@ class RedneckBubbaStand : DukeActor
 		Strength 100;
 	}
 	
-	override void initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
 		self.scale = (0.390625, 0.328125);

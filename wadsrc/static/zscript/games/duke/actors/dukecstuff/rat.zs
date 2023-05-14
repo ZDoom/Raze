@@ -9,7 +9,7 @@ class DukeRat : DukeActor
 		+ALWAYSROTATE1;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!self.mapSpawned) self.lotag = 0;
 
@@ -17,11 +17,11 @@ class DukeRat : DukeActor
 		self.angle = frandom(0, 360);
 		self.cstat = 0;
 
-		if (!self.mapSpawned && self.ownerActor)
+		if (spawner)
 		{
 			self.timetosleep = 0;
 			self.ChangeStat(STAT_ACTOR);
-			if (isRR()) self.shade = self.ownerActor.shade;
+			if (isRR()) self.shade = spawner.shade;
 		}
 		else self.ChangeStat(STAT_ZOMBIEACTOR);
 		self. clipdist = 10;

@@ -6,11 +6,11 @@ class DukeFrameEffect : DukeActor
 	}
 	
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		if (!self.mapSpawned && self.ownerActor)
+		if (spawner)
 		{
-			self.scale = self.ownerActor.scale;
+			self.scale = spawner.scale;
 		}
 		else
 		{

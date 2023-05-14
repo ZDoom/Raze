@@ -7,7 +7,7 @@ class RedneckDog : DukeActor
 		+KILLCOUNT;
 		Strength 200;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.25, 0.25);
 		self.setClipDistFromTile();

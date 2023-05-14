@@ -6,16 +6,15 @@ class DukeShell : DukeActor
 		spriteset "SHELL", "SHELL1";
 	}
 
-	void initshell(bool isshell, double direction)
+	void initshell(DukeActor spawner, bool isshell, double direction)
 	{
-		let Owner = self.OwnerActor;
-		if (Owner && !self.mapSpawned)
+		if (spawner)
 		{
 			double ang;
 
-			if (Owner.isPlayer())
+			if (spawner.isPlayer())
 			{
-				let plr = Owner.GetPlayer();
+				let plr = spawner.GetPlayer();
 				let pactor = plr.actor;
 				ang = pactor.angle - Raze.BAngToDegree * (random(8, 71));  //Fine tune
 
@@ -26,10 +25,10 @@ class DukeShell : DukeActor
 			else
 			{
 				ang = self.angle;
-				self.pos.Z = Owner.pos.Z - gs.playerheight + 3;
+				self.pos.Z = spawner.pos.Z - gs.playerheight + 3;
 			}
 
-			self.pos.XY = Owner.pos.XY + ang.ToVector() * 8;
+			self.pos.XY = spawner.pos.XY + ang.ToVector() * 8;
 			self.opos = self.pos;
 
 			if (direction > 0)
@@ -51,9 +50,9 @@ class DukeShell : DukeActor
 		self.ChangeStat(STAT_MISC);
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		initshell(true, -1.25);
+		initshell(spawner, true, -1.25);
 	}
 
 	override void Tick()
@@ -114,9 +113,9 @@ class DukeShell : DukeActor
 
 class NamShell : DukeShell
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		initshell(true, 1.875);
+		initshell(spawner, true, 1.875);
 	}
 }
 

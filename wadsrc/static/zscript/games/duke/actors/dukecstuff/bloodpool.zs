@@ -26,7 +26,7 @@ class DukeBloodPool : DukeActor
 		}
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!checkLocationForFloorSprite(6.75)) return;
 		SetPalette();

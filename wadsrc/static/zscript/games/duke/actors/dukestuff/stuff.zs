@@ -7,7 +7,7 @@ class DukeSimpleItem : DukeActor
 		+MOVEFTA_MAKESTANDABLE;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!self.mapSpawned)
 			self.scale = (0.5, 0.5);
@@ -82,7 +82,7 @@ class DukeWaterbubbleMaker : DukeSimpleItem
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.hitag = 0;
 		self.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -109,13 +109,12 @@ class DukeWaterBubble : DukeActor
 
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner && owner.isPlayer())
+		if (spawner && spawner.isPlayer())
 			self.pos.Z -= 16;
-		if (owner != self) 
-			self.angle = owner.angle;
+		if (spawner && spawner != self) 
+			self.angle = spawner.angle;
 
 		self.scale = (0.0625, 0.0625);
 		self.ChangeStat(STAT_MISC);
@@ -225,7 +224,7 @@ class DukeFeces : DukeActor
 		+BROWNBLOOD;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!mapSpawned)
 			self.scale = (REPEAT_SCALE, REPEAT_SCALE);
@@ -248,7 +247,7 @@ class DukeStatue : DukeActor
 		+HITRADIUSCHECK;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.clipdist = 32;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
@@ -293,7 +292,7 @@ class DukeMike : DukeActor
 		pic "MIKE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.yint = self.hitag;
 		self.ChangeStat(STAT_ACTOR);
@@ -346,7 +345,7 @@ class DukeWaterdripSplash : DukeActor
 		pic "WATERDRIPSPLASH";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.375, 0.375);
 		self.ChangeStat(STAT_STANDABLE);
@@ -367,7 +366,7 @@ class DukeSeriousSam : DukeActor
 		statnum STAT_ZOMBIEACTOR;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.extra = 150;

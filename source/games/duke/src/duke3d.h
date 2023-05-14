@@ -97,7 +97,7 @@ struct Dispatcher
 
 extern Dispatcher fi;
 
-void CallInitialize(DDukeActor* actor);
+void CallInitialize(DDukeActor* actor, DDukeActor* spawner);
 void CallTick(DDukeActor* actor);
 bool CallOperate(DDukeActor* actor, int plnum);
 void CallAction(DDukeActor* actor);

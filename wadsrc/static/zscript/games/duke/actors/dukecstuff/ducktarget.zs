@@ -6,7 +6,7 @@ class DukeLetter : DukeActor
 		+NOFALLER;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.ChangeStat(STAT_ACTOR);

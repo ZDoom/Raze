@@ -5,7 +5,7 @@ class RedneckPiano : DukeActor
 		spriteset "PIANO", "PIANOBUST";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.lotag = 5;
 		self.clipdist = 0;

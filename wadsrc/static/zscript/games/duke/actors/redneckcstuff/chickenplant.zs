@@ -6,7 +6,7 @@ class RedneckChickenSpawner1 : DukeActor
 		pic "CHICKENASPAWN";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.clipdist = 0;
@@ -188,7 +188,7 @@ class RedneckChickenA : DukeActor
 		spriteset "CHICKENA", "CHICKENB", "CHICKENC";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		self.vel.X = 2;
@@ -260,7 +260,7 @@ class RedneckChickenLoaf : DukeActor
 		pic "CHICKENLOAF";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		self.vel.X = 2;
@@ -307,7 +307,7 @@ class RedneckRoastedChicken : RedneckChickenLoaf
 		pic "ROASTEDCHICKEN";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.vel.X = 1;
 		self.Scale = (0.203125, 0.203125);
@@ -323,7 +323,7 @@ class RedneckChickenNugget : RedneckChickenLoaf
 		pic "CHICKENNUGGET";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.vel.X = 1;
 		self.Scale = (0.125, 0.09375);
@@ -339,7 +339,7 @@ class RedneckBonelessChicken : RedneckChickenLoaf
 		pic "BONELESSCHICKEN";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.vel.X = 2;
 		self.Scale = (0.265625, 0.1875);
@@ -355,7 +355,7 @@ class RedneckChickenHead : DukeActor
 		pic "CHICKENHEAD";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.vel.X = 0;
 		self.Scale = (0.203125, 0.15625);
@@ -391,7 +391,7 @@ class RedneckChickenplantButton : DukeActor
 		spriteset "CHICKENPLANTBUTTON", "CHICKENPLANTBUTTONON";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		ud.chickenplant = 1;
 	}

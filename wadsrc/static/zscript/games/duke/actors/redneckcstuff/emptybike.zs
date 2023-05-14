@@ -7,7 +7,7 @@ class RedneckEmptyBike : DukeActor
 		+ALWAYSROTATE2;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (ud.multimode < 2 && self.pal == 1)
 		{
@@ -57,7 +57,7 @@ class RedneckEmptyBoat : DukeActor
 		falladjustz 6;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (ud.multimode < 2 && self.pal == 1)
 		{

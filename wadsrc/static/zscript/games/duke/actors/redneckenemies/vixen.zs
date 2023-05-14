@@ -21,7 +21,7 @@ class RedneckVixen : DukeActor
 		
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (self.pal == 34)
 		{

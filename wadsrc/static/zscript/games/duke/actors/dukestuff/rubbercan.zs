@@ -9,7 +9,7 @@ class DukeRubberCan : DukeActor
 		+MOVEFTA_MAKESTANDABLE;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (!self.mapSpawned)
 			self.scale = (0.5, 0.5);

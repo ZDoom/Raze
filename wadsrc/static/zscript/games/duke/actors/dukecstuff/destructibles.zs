@@ -28,7 +28,7 @@ class DukeHangLight : DukeGenericPole2
 		pic "HANGLIGHT";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.clipdist = 8;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
@@ -45,7 +45,7 @@ class DukeBottle10 : DukeActor
 		pic "BOTTLE10";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -68,7 +68,7 @@ class DukeVase : DukeActor
 		pic "VASE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -91,7 +91,7 @@ class DukeFanSprite : DukeActor
 		spriteset "FANSPRITE", "FANSPRITEBROKE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -119,7 +119,7 @@ class DukeSatellite : DukeActor
 		pic "SATELITE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -176,7 +176,7 @@ class DukeFetus : DukeActor
 		spriteset "FETUS", "FETUSBROKE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -259,7 +259,7 @@ class DukeHydrant : DukeActor
 		+BREAKMIRRORS;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -283,7 +283,7 @@ class DukePipe1 : DukeActor
 		spriteset "PIPE1", "PIPE1B";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
@@ -349,7 +349,7 @@ class DukeSpaceMarine : DukeActor
 		+HITRADIUSCHECK;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.extra = 20;
@@ -394,7 +394,7 @@ class DukeMonk : DukeSpaceMarine
 		-HITRADIUSCHECK;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;

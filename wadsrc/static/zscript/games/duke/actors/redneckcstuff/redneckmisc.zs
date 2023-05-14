@@ -20,7 +20,7 @@ class RedneckMusicNotes : DukeActor
 		pic "MUSICNOTES";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.lotag = -1;
 		self.clipdist = 0;
@@ -41,7 +41,7 @@ class RedneckJoe9000 : DukeActor
 		pic "JOE9000";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.lotag = 1;
 		self.clipdist = 0;

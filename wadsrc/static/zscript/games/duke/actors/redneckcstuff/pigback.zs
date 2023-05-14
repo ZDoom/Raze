@@ -6,7 +6,7 @@ class RedneckPigDisplay : DukeActor
 		spriteset "PIGBACK", "PIGBACK1", "PIGBACK2", "PIGBACK3", "PIGBACK4";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		cstat = 0;
 		self.scale = (0.25, 0.25);

@@ -14,7 +14,7 @@ class RedneckSoundFX : DukeActor
 	}
 	
 	// this actor needs to start on STAT_DEFAULT.
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.ChangeStat(STAT_ZOMBIEACTOR);
 	}

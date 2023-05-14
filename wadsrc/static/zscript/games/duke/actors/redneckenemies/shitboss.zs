@@ -15,7 +15,7 @@ class RedneckShitBoss : DukeActor
 		Strength 2500;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.75, 0.75);
 		self.setClipDistFromTile();

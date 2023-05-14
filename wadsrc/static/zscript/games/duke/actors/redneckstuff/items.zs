@@ -28,9 +28,9 @@ class RedneckMoonshine : DukeItemBase
 		pic "STEROIDS";
 		+INVENTORY;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.203125, 0.140625));
+		commonItemSetup(spawner, (0.203125, 0.140625));
 	}
 }
 class RedneckHipWader : DukeItemBase
@@ -48,9 +48,9 @@ class RedneckCowpie : DukeItemBase
 		pic "COWPIE";
 		+INVENTORY;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.125, 0.09375));
+		commonItemSetup(spawner, (0.125, 0.09375));
 	}
 }
 class RedneckBeer : DukeItemBase
@@ -59,9 +59,9 @@ class RedneckBeer : DukeItemBase
 	{
 		pic "BEER";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.078125, 0.0625));
+		commonItemSetup(spawner, (0.078125, 0.0625));
 	}
 }
 class RedneckSnorkel : DukeItemBase
@@ -72,16 +72,16 @@ class RedneckSnorkel : DukeItemBase
 		+INVENTORY;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.296875, 0.25));
+		commonItemSetup(spawner, (0.296875, 0.25));
 	}
 }
 class RedneckDoorkey : DukeAccessCard
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		super.Initialize();
+		super.Initialize(spawner);
 		self.Scale = (0.171875, 0.1875);
 	}
 }
@@ -92,9 +92,9 @@ class RedneckAmmo : DukeItemBase
 		pic "AMMO";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.140625, 0.140625));
+		commonItemSetup(spawner, (0.140625, 0.140625));
 	}
 
 }
@@ -111,9 +111,9 @@ class RedneckSawAmmo : DukeItemBase
 	{
 		pic "SAWAMMO";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.1875, 0.109375));
+		commonItemSetup(spawner, (0.1875, 0.109375));
 	}
 }
 class RedneckShotgunammo : DukeItemBase
@@ -122,9 +122,9 @@ class RedneckShotgunammo : DukeItemBase
 	{
 		pic "SHOTGUNAMMO";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.28125, 0.265625));
+		commonItemSetup(spawner, (0.28125, 0.265625));
 		if (isRRRA()) self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 	}
 }
@@ -136,9 +136,9 @@ class RedneckRifleAmmo : DukeItemBase
 		pic "BATTERYAMMO";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.234375, 0.234375));
+		commonItemSetup(spawner, (0.234375, 0.234375));
 	}
 }
 class RedneckBlaster : DukeItemBase
@@ -148,9 +148,9 @@ class RedneckBlaster : DukeItemBase
 		pic "ALIENBLASTERSPRITE";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.28125, 0.265625));
+		commonItemSetup(spawner, (0.28125, 0.265625));
 	}
 }
 class RedneckBlasterammo : DukeItemBase
@@ -160,9 +160,9 @@ class RedneckBlasterammo : DukeItemBase
 		pic "DEVISTATORAMMO";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.15625, 0.140625));
+		commonItemSetup(spawner, (0.15625, 0.140625));
 	}
 }
 
@@ -174,9 +174,9 @@ class RedneckBowlingBallsprite : DukeItemBase
 		strength BOWLINGBALL_WEAPON_STRENGTH;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.171875, 0.171875), -1, true);
+		commonItemSetup(spawner, (0.171875, 0.171875), -1, true);
 	}
 }
 class RedneckDynamiteAmmo : DukeItemBase
@@ -192,9 +192,9 @@ class RedneckCrossbow : DukeItemBase
 	{
 		pic "CROSSBOWSPRITE";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.25, 0.21875));
+		commonItemSetup(spawner, (0.25, 0.21875));
 	}
 }
 class RedneckShotgun : DukeItemBase
@@ -211,9 +211,9 @@ class RedneckRipsaw : DukeItemBase
 		pic "RIPSAWSPRITE";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.34375, 0.203125));
+		commonItemSetup(spawner, (0.34375, 0.203125));
 	}
 }
 class RedneckTitgun : DukeItemBase
@@ -223,9 +223,9 @@ class RedneckTitgun : DukeItemBase
 		pic "TITSPRITE";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.265625, 0.25));
+		commonItemSetup(spawner, (0.265625, 0.25));
 	}
 }
 class RedneckPorkRinds : DukeItemBase
@@ -235,9 +235,9 @@ class RedneckPorkRinds : DukeItemBase
 		pic "SIXPAK";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.203125, 0.140625));
+		commonItemSetup(spawner, (0.203125, 0.140625));
 		if (isRRRA()) self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 	}
 }
@@ -251,9 +251,9 @@ class RedneckGoogooCluster : DukeItemBase
 		+NOFLOORPAL;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.125, 0.125));
+		commonItemSetup(spawner, (0.125, 0.125));
 		self.cstat |= CSTAT_SPRITE_YCENTER;
 	}
 	
@@ -270,9 +270,9 @@ class RedneckWhiskey : DukeItemBase
 		pic "FIRSTAID";
 		+INVENTORY;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.125, 0.125));
+		commonItemSetup(spawner, (0.125, 0.125));
 	}
 }
 class RedneckRevolver : DukeItemBase
@@ -281,9 +281,9 @@ class RedneckRevolver : DukeItemBase
 	{
 		pic "FIRSTGUNSPRITE";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup(((0.25, 0.25)));
+		commonItemSetup(spawner, ((0.25, 0.25)));
 	}
 }
 class RedneckPowderKeg : DukeItemBase
@@ -337,9 +337,9 @@ class RedneckMotoAmmo : DukeItemBase
 	{
 		pic "MOTOAMMO";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.359375, 0.359375));
+		commonItemSetup(spawner, (0.359375, 0.359375));
 	}
 }
 class RedneckBoatAmmo : DukeItemBase
@@ -348,9 +348,9 @@ class RedneckBoatAmmo : DukeItemBase
 	{
 		pic "BOATAMMO";
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.359375, 0.359375));
+		commonItemSetup(spawner, (0.359375, 0.359375));
 	}
 }
 class RedneckChickenArrows : DukeItemBase
@@ -360,8 +360,8 @@ class RedneckChickenArrows : DukeItemBase
 		pic "RPG2SPRITE";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		commonItemSetup((0.34375, 0.3125));
+		commonItemSetup(spawner, (0.34375, 0.3125));
 	}
 }

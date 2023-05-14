@@ -6,7 +6,7 @@ class RedneckTeleportDest : DukeActor
 		pic "RRTELEPORTDEST";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self. Scale = (1, 1);
 		self.clipdist = 16;

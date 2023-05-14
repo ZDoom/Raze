@@ -5,7 +5,7 @@ class RedneckAirplane : DukeActor
 		pic "AIRPLANE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.extra = self.lotag;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;

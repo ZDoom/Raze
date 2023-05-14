@@ -846,12 +846,8 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 			}
 			commonEnemySetup(act, actj);
 		}
-		else if (!(act->flags3 & SFLAG3_SIMPLEINIT))
-		{
-			act->ownerActor = actj;
-		}
 
-		CallInitialize(act);
+		CallInitialize(act, actj);
 	}
 	else
 	{
@@ -863,7 +859,7 @@ DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* ac
 			ChangeActorStat(act, STAT_MISC);
 		else
 			ChangeActorStat(act, STAT_PLAYER);
-		//CallInitialize(act);
+		CallInitialize(act, nullptr);
 	}
 	return act;
 }

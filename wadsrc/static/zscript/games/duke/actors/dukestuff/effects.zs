@@ -9,7 +9,7 @@ class DukeToiletWater : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.shade = -16;
 		self.changeStat(STAT_STANDABLE);
@@ -40,13 +40,11 @@ class DukeExplosion2 : DukeActor
 		return false;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-
-		if (owner && owner != self)
+		if (spawner && spawner != self)
 		{
-			self.Angle = owner.Angle;
+			self.Angle = spawner.Angle;
 			self.cstat = randomXFlip();
 
 			double c,f;
@@ -90,9 +88,9 @@ class RedneckExplosion3 : DukeExplosion2
 		pic "EXPLOSION3";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		self.scale = (2, 2);
 	}
 	
@@ -119,7 +117,7 @@ class DukeFloorFlame : DukeActor
 		Strength 0;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.shade = -127;
 		self.ChangeStat(STAT_STANDABLE);
@@ -162,27 +160,26 @@ class DukeTransporterStar : DukeActor
 		//StartAction "TRANSFOWARD";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner == nullptr || owner == self) 
+		if (spawner == nullptr || spawner == self) 
 		{
 			scale = (0, 0);
 			return;
 		}
-		if (owner.statnum == STAT_PROJECTILE)
+		if (spawner.statnum == STAT_PROJECTILE)
 		{
 			self.scale = (0.125, 0.125);
 		}
 		else
 		{
 			self.scale = (0.75, 1);
-			if (owner.statnum == STAT_PLAYER || owner.badguy())
+			if (spawner.statnum == STAT_PLAYER || spawner.badguy())
 				self.pos.Z -= 32;
 		}
 
 		self.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-		self.angle = owner.angle;
+		self.angle = spawner.angle;
 
 		self.vel.X = 8;
 		self.DoMove(CLIPMASK0);
@@ -209,19 +206,18 @@ class DukeTransporterBeam : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner == nullptr || owner == self) 
+		if (spawner == nullptr || spawner == self) 
 		{
 			scale = (0, 0);
 			return;
 		}
 		self.scale = (0.484375, REPEAT_SCALE);
-		self.pos.Z = owner.sector.floorz - gs.playerheight;
+		self.pos.Z = spawner.sector.floorz - gs.playerheight;
 
 		self.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-		self.angle = owner.angle;
+		self.angle = spawner.angle;
 
 		self.vel.X = 8;
 		self.DoMove(CLIPMASK0);
@@ -266,7 +262,7 @@ class DukeSteam : DukeSteamBase
 		pic "STEAM";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		let owner = self.ownerActor;
 
@@ -297,13 +293,11 @@ class DukeSmallSmoke : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-
-		if (owner && owner != self)
+		if (spawner && spawner != self)
 		{
-			self.Angle = owner.Angle;
+			self.Angle = spawner.Angle;
 			self.cstat = randomXFlip();
 
 			double c,f;
@@ -332,10 +326,10 @@ class DukeBlood : DukeActor
 		Strength 0;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.pos.Z -= 26;
-		if (!mapSpawned && self.ownerActor && self.ownerActor.pal == 6)
+		if (spawner && spawner.pal == 6)
 			self.pal = 6;
 		self.scale = (0.25, 0.25);
 		temp_pos.Z = 72 * REPEAT_SCALE;
@@ -345,9 +339,9 @@ class DukeBlood : DukeActor
 
 class RedneckBlood : DukeBlood
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		self.scale = (0.0625, 0.0625);
 		temp_pos.Z = 48 * REPEAT_SCALE;
 	}

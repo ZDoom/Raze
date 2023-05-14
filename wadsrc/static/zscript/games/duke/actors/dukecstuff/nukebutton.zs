@@ -6,7 +6,7 @@ class DukeNukeButton : DukeActor
 		spriteset "NUKEBUTTON", "NUKEBUTTON1",  "NUKEBUTTON2",  "NUKEBUTTON3";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.ChangeStat(STAT_MISC);
 	}

@@ -20,7 +20,7 @@ class RedneckCoot : DukeActor
 			self.PlayActorSound("CT_GET");
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.375, 0.28125);
 		self.setClipDistFromTile();

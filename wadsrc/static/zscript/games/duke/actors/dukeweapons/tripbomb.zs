@@ -26,7 +26,7 @@ class DukeTripBomb : DukeActor
 		+NOTELEPORT;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.0625, 0.078125);
 		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
@@ -204,9 +204,9 @@ class DukeTripBomb : DukeActor
 // the map-spawned and player-spawned trip bombs are different so let's spawn two distinct types for them.
 class DukeTripBombPlaced : DukeTripBomb
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 
 		self.ownerActor = self;
 		self.vel.X = 1;
@@ -238,7 +238,7 @@ class DukeLaserLine : DukeActor
 		+NOFLOORPAL;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.5, 0.09375);
 
@@ -251,8 +251,7 @@ class DukeLaserLine : DukeActor
 			self.scale = (0, 0);
 		}
 
-		let owner = self.ownerActor;
-		if (owner) self.angle = owner.temp_angle + 90;
+		if (spawner) self.angle = spawner.temp_angle + 90;
 		self.ChangeStat(STAT_MISC);
 	}
 

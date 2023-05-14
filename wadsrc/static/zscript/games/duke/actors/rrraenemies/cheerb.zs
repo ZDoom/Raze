@@ -10,7 +10,7 @@ class RedneckCheerleaderB : DukeActor
 		gravityfactor 0.25;
 		Strength 150;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.4375, 0.34375);
 		self.clipdist = 18;

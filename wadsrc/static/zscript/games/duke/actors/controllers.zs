@@ -1,7 +1,7 @@
 
 class DukeActivator : DukeActor
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.ChangeStat(STAT_ACTIVATOR);
@@ -59,7 +59,7 @@ class DukeActivator : DukeActor
 
 class DukeLocator : DukeActor
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.ChangeStat(STAT_LOCATOR);
@@ -68,7 +68,7 @@ class DukeLocator : DukeActor
 
 class DukeActivatorLocked : DukeActor
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		if (!isRR()) self.sector.lotag |= 16384;

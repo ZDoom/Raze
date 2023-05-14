@@ -189,7 +189,7 @@ class DukeBounceMine : DukeMortar
 		Strength BOUNCEMINE_WEAPON_STRENGTH;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		// This is only for placed items, not for armed weapons!
 		// Although this can be shot, it doesn't really work for that.

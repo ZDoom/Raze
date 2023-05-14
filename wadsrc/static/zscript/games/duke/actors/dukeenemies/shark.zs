@@ -13,7 +13,7 @@ class DukeShark : DukeActor
 		Strength SHARKSTRENGTH;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		// override some defaults.
 		self.scale = (0.9375, 0.9375);

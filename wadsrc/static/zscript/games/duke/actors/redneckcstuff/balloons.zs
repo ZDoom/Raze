@@ -6,7 +6,7 @@ class RedneckBalloons1 : DukeActor
 		Spriteset "BALLOONS1", "BALLOONS1BROKE";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.Scale = (0.5, 0.5);

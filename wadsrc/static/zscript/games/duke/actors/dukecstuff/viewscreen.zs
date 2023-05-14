@@ -9,7 +9,7 @@ class DukeViewscreen : DukeActor
 
 	const VIEWSCR_DIST = 1024;	// was originally 2048, was increased to 8192 by EDuke32 and RedNukem, but with high resolutions the resulting 512 map units are still too low.
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.ownerActor = self;
 		self.lotag = 1;
@@ -100,7 +100,7 @@ class DukeCamera : DukeActor
 		+ALWAYSROTATE1;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (gs.camerashitable) self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else self.cstat = 0;

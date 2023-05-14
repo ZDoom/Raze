@@ -6,7 +6,7 @@ class RedneckRock : DukeActor
 		+INTERNAL_BADGUY;
 		Strength 200;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (1, 1);
 		self.setClipDistFromTile();

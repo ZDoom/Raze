@@ -6,7 +6,7 @@ class DukeBolt1 : DukeActor
 		spritesetindex 0;
 		+SE24_NOCARRY;
 	}
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.temp_pos.XY = self.scale;
 		self.yint = 0;

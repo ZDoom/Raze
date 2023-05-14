@@ -15,13 +15,13 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 		DukeProjectile.SpawnSound "MORTAR";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		
 		self.extra = 10;
 		self.vel.Z = -10;
 		self.vel.X *= 2;
-		super.Initialize();
+		super.Initialize(spawner);
 	}
 
 	override bool premoveeffect()

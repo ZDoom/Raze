@@ -6,13 +6,12 @@ class DukeWatersplash : DukeActor
 		+NOTELEPORT;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let Owner = self.ownerActor;
 		let sectp = self.sector;
-		if (Owner && !self.mapSpawned)
+		if (spawner)
 		{
-			self.SetPosition(Owner.pos);
+			self.SetPosition(spawner.pos);
 			double s = 0.125 + random(0, 7) * REPEAT_SCALE;
 			self.scale = (s, s);
 		}
@@ -24,16 +23,16 @@ class DukeWatersplash : DukeActor
 
 		self.shade = -16;
 		self.cstat |= CSTAT_SPRITE_YCENTER;
-		if (Owner)
+		if (spawner)
 		{
 			double c, f;
 			[c, f] = self.sector.getSlopes(self.pos.XY);
-			if (Owner.sector.lotag == ST_2_UNDERWATER)
+			if (spawner.sector.lotag == ST_2_UNDERWATER)
 			{
 				self.pos.Z = c + 16;
 				self.cstat |= CSTAT_SPRITE_YFLIP;
 			}
-			else if (Owner.sector.lotag == ST_1_ABOVE_WATER)
+			else if (spawner.sector.lotag == ST_1_ABOVE_WATER)
 				self.pos.Z = f;
 		}
 
@@ -85,9 +84,9 @@ class RedneckMudSplash : DukeWatersplash
 		+NOTELEPORT;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 	}
 

@@ -7,7 +7,7 @@ class DukeFireext : DukeActor
 		+EXPLOSIVE;
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		self.extra = gs.impact_damage << 2;

@@ -11,7 +11,7 @@ class DukeOozFilter : DukeActor
 		+GREENBLOOD;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.shade = -16;
 		if (self.scale.X <= 0.125)

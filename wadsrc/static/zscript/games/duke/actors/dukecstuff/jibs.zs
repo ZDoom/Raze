@@ -217,7 +217,7 @@ class DukeJibs2 : DukeJibs1
 		pic "JIBS2";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale *= 0.25; // only Duke needs this.
 	}
@@ -262,7 +262,7 @@ class DukeJibs6 : DukeJibs1
 		spritesetindex 1;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (isRR()) self.scale *= 0.5; // only RR needs this.
 		self.setSpriteSetImage(1);
@@ -561,7 +561,7 @@ class RedneckRabbitJibA : DukeJibs1
 		pic "RABBITJIBA";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.Scale = (0.28125, 0.28125);
 	}
@@ -574,7 +574,7 @@ class RedneckRabbitJibB : DukeJibs1
 		pic "RABBITJIBB";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.Scale = (0.5625, 0.5625);
 	}
@@ -587,7 +587,7 @@ class RedneckRabbitJibC : DukeJibs1
 		pic "RABBITJIBC";
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.Scale = (0.84375, 0.84375);
 	}

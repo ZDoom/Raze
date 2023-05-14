@@ -14,7 +14,7 @@ class RedneckMinion : DukeActor
 		+TRANSFERPALTOJIBS;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.scale = (0.25, 0.25);
 		self.setClipDistFromTile();

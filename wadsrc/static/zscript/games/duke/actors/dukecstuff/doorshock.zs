@@ -5,7 +5,7 @@ class DukeDoorShock : DukeActor
 		pic "DOORSHOCK";
 	}
 
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.shade = -12;

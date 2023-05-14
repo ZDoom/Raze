@@ -99,12 +99,11 @@ class DukeShrinkerExplosion : DukeActor
 		+FORCERUNCON;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		let owner = self.ownerActor;
-		if (owner != self)
+		if (spawner != self)
 		{
-			self.Angle = owner.Angle;
+			self.Angle = spawner.Angle;
 			self.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 			double c,f;
 			[c, f] = self.sector.getSlopes(self.pos.XY);

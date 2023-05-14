@@ -2,7 +2,7 @@
 
 class DukeSoundController : DukeActor
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		if (ud.multimode < 2 && self.pal == 1)
 		{

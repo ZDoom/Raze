@@ -11,7 +11,7 @@ class RedneckBowlingPin : DukeActor
 	meta int behavior;
 	property behavior: behavior;
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 12;
@@ -129,9 +129,9 @@ class RedneckHenstand : RedneckBowlingPin
 		-HITRADIUSCHECK;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
-		Super.Initialize();
+		Super.Initialize(spawner);
 		self.scale.Y = 234375;
 	}
 	
@@ -160,7 +160,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 		-HITRADIUSCHECK;
 	}
 	
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.clipdist = 16;
 		self.scale = (0.171875, 0.140625);
@@ -247,7 +247,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 
 class RedneckBowlingController : DukeActor
 {
-	override void Initialize()
+	override void Initialize(DukeActor spawner)
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.clipdist = 0;
