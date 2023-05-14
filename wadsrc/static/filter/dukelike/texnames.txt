@@ -1035,7 +1035,7 @@
 
 // Vacation's required sprite names
 2165 = "BEACHBABE"
-2400 = "BEACHBALL"
+3400 = "BEACHBALL"
 1312 = "BEACHBATHER"
 2120 = "DRAGON"
 1638 = "SEAGULLSHIT"
