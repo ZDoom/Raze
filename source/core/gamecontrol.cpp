@@ -378,6 +378,7 @@ void UserConfig::ProcessOptions()
 			gamegrp = v;
 		}
 	}
+	FixPathSeperator(gamegrp);
 
 	Args->CollectFiles("-rts", ".rts");
 	auto rts = Args->CheckValue("-rts");
