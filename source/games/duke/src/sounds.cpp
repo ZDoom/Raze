@@ -771,6 +771,7 @@ void S_WorldTourMappingsForOldSounds()
 			{
 				auto newsfx = soundEngine->AllocateSound();
 				*newsfx = *sfx;
+				newsfx->ResourceId = -1;
 				newsfx->name = fname;
 				newsfx->lumpnum = lump;
 				sfx->UserData[kWorldTourMapping] = soundEngine->GetNumSounds() - 1;
