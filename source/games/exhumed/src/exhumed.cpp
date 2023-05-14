@@ -334,6 +334,7 @@ void GameInterface::Ticker()
         GameMove();
 
         PlayClock += 4;
+        if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
         r_NoInterpolate = false;
     }
 	else
@@ -514,7 +515,7 @@ void EraseScreen(int nVal)
 
 bool GameInterface::CanSave()
 {
-    return !bRecord && !bPlayback && !bInDemo && nTotalPlayers == 1 && nFreeze == 0;
+    return gamestate == GS_LEVEL && !bRecord && !bPlayback && !bInDemo && nTotalPlayers == 1 && nFreeze == 0;
 }
 
 ::GameStats GameInterface::getStats()

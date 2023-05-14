@@ -86,7 +86,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 bool GameInterface::CanSave()
 {
-    return (!CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !(Player[myconnectindex].Flags & PF_DEAD));
+    return (gamestate == GS_LEVEL && !CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !(Player[myconnectindex].Flags & PF_DEAD));
 }
 
 //---------------------------------------------------------------------------
