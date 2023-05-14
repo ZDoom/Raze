@@ -1028,8 +1028,6 @@ void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy,
 	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
 }
 
-int display_mirror;
-
 void GameInterface::EnterPortal(DCoreActor* viewer, int type)
 {
 	if (type == PORTAL_WALL_MIRROR)
