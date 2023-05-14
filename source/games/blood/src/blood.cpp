@@ -270,6 +270,8 @@ void StartLevel(MapRecord* level, bool newgame)
 	STAT_NewLevel(currentLevel->fileName);
 	TITLE_InformName(currentLevel->name);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
+	gHitInfo.hitSector = nullptr;
+	gHitInfo.hitWall = nullptr;
 	gKillMgr.Clear();
 	gSecretMgr.Clear();
 	automapping = 1;
