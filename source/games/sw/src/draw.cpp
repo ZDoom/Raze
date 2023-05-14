@@ -64,7 +64,6 @@ extern DCoreActor* wall_to_sprite_actors[8];
 
 BEGIN_SW_NS
 
-int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;

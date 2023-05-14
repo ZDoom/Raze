@@ -85,7 +85,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
 				auto camera = camsprite->GetOwner();
-				display_mirror = 1; // should really be 'display external view'.
+				display_mirror = 2; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 				render_camtex(camera, camera->spr.pos, camera->sector(), DRotator(maphoriz(-camera->spr.shade), camera->interpolatedyaw(smoothratio), nullAngle), tex, rect, smoothratio);

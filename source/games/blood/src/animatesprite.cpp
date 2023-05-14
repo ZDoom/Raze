@@ -961,8 +961,6 @@ void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view,
 	viewProcessSprites(tsprites, view, viewang, interpfrac);
 }
 
-int display_mirror;
-
 void GameInterface::EnterPortal(DCoreActor* viewer, int type)
 {
 	if (type == PORTAL_WALL_MIRROR)
