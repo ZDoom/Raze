@@ -205,6 +205,7 @@ static void GameTicker()
 			gameaction = ga_level;
 			gi->NextLevel(g_nextmap, g_nextskill);
 			ResetStatusBar();
+			if (!isBlood()) M_Autosave();
 			break;
 
 		case ga_newgame:

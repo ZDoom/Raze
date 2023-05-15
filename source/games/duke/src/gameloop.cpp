@@ -105,7 +105,6 @@ void GameInterface::Ticker()
 
 		r_NoInterpolate = false;
 		PlayClock+= 4;		// This must be at the end of this block so that the first tic receives a value of 0!
-		if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
 
 	}
 	else r_NoInterpolate = true;
