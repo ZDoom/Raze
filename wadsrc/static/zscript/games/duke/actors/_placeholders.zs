@@ -12,6 +12,11 @@ class DukePlayerBase : DukeActor
 		pic "APLAYER";
 		+DESTRUCTOIMMUNE;
 	}
+
+	override void Initialize(DukeActor spawner)
+	{
+		// do not call the base class here.
+	}
 }
 
 class RedneckMotoHit : DukeActor
