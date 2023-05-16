@@ -14,6 +14,7 @@ class DukeFreezeBlast : DukeProjectile
 		+FREEZEDAMAGE;
 		+REFLECTIVE;
 		+NOHITJIBS;
+		+CANHURTSHOOTER;
 	}
 	
 	override bool postmoveeffect(CollisionData coll)
