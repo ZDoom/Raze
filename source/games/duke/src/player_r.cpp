@@ -604,7 +604,8 @@ void checkweapons_r(player_struct* p)
 {
 	static  PClassActor* const* const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &RedneckRevolverClass, &RedneckShotgunClass,
 		&RedneckRiflegunClass, &RedneckDynamiteClass, &RedneckCrossbowClass, &RedneckRipsawClass, &RedneckBlasterClass,
-			&RedneckPowderKegClass, &RedneckBowlingBallClass, &RedneckTitgunClass, &RedneckDynamiteClass };
+			&RedneckPowderKegClass, &RedneckTitgunClass, &RedneckDynamiteClass, &RedneckRipsawClass, &RedneckBowlingBallClass, 
+			nullptr, nullptr, nullptr, &RedneckCrossbowClass };
 
 	if (isRRRA())
 	{
@@ -651,7 +652,10 @@ void checkweapons_r(player_struct* p)
 	if (p->curr_weapon > 0)
 	{
 		if (krand() & 1)
-			spawn(p->GetActor(), *weapon_sprites[p->curr_weapon]);
+		{
+			auto weap = weapon_sprites[p->curr_weapon];
+			if (weap && *weap) spawn(p->GetActor(), *weap);
+		}
 		else switch (p->curr_weapon)
 		{
 		case CHICKEN_WEAPON:
