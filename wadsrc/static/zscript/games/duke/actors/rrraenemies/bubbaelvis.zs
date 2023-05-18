@@ -2,7 +2,7 @@ class RedneckBubbaelvis : RedneckBubbaStand
 {
 	default
 	{
-		pic "SBSWIPE";
+		pic "BUBBAELVIS";
 		+BADGUYSTAYPUT;
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
