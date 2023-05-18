@@ -84,7 +84,7 @@ class RedneckOWhip : RedneckUWhip
 //
 //---------------------------------------------------------------------------
 
-class RedneckVixenShot : DukeActor
+class RedneckVixenShot : DukeProjectile
 {
 	default
 	{
