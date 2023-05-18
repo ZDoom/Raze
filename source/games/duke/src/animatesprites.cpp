@@ -38,7 +38,7 @@ BEGIN_DUKE_NS
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 {
-	if (r_shadows && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
+	if (r_shadows && !(h->flags1 & SFLAG_NOSHADOW) && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
 	{
 		auto sectp = t->sectp;
 		double floorz;

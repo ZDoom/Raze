@@ -6,6 +6,7 @@ class RedneckTornado : DukeActor
 		+DESTRUCTOIMMUNE;
 		+INTERNAL_BADGUY;
 		+NOHITSCANHIT;
+		+NOSHADOW;
 		Strength MEGASTRENGTH;
 	}
 	override void Initialize(DukeActor spawner)

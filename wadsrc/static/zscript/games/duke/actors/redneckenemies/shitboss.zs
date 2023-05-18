@@ -12,6 +12,7 @@ class RedneckShitBoss : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+NORADIUSPUSH;
+		+NOSHADOW;
 		Strength 2500;
 	}
 
