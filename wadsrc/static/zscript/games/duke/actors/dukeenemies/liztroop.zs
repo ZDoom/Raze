@@ -138,6 +138,7 @@ class DukeLizTrooperStayput : DukeLizTrooper
 	{
 		pic "LIZTROOPSTAYPUT";
 		+BADGUYSTAYPUT;
+		+BADGUYSTAYPUT;
 	}
 	
 	override void PlayFTASound(int mode)

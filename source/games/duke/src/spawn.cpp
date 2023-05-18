@@ -295,6 +295,11 @@ static void commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 {
 	if (!self->mapSpawned) self->spr.lotag = 0;
 
+	if (self->flags1 & SFLAG_BADGUYSTAYPUT)
+	{
+		self->actorstayput = self->spr.sectp;
+	}
+
 	if (gs.actorinfo[self->spr.picnum].scriptaddress)	// default scale only applies to actors with a CON part. Note: needs fixing later!
 	{
 		//  Init the size. This is different for internal and user enemies.
