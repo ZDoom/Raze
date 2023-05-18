@@ -9,11 +9,6 @@ class RedneckDestructo : DukeActor
 		
 	}
 	
-	override void Initialize(DukeActor spawner)
-	{
-		// do NOT run the default init code for this one.
-	}
-	
 	override bool animate(tspritetype t)
 	{
 		t.cstat |= CSTAT_SPRITE_INVISIBLE;
