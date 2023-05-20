@@ -373,7 +373,7 @@ void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle)
         const double x = xPos + frameChunk.xpos;
         const double y = yPos + frameChunk.ypos;
 
-        hud_drawsprite(x, y, 65536, nAngle, legacyTileNum(frameChunk.tex), 0, 0, 1);
+        hud_drawsprite(x, y, 1, nAngle, frameChunk.tex, 0, 0, 1);
     }
 }
 
@@ -395,7 +395,7 @@ void seq_DrawGunSequence(const SeqFrame& seqFrame, double xPos, double yPos, int
         const double y = yPos + frameChunk.ypos;
         const int frameStat = nStat | (RS_XFLIPHUD * !!(frameChunk.flags & 1)) | (RS_YFLIPHUD * !!(frameChunk.flags & 2));
 
-        hud_drawsprite(x, y, 65536, nAngle.Degrees(), legacyTileNum(frameChunk.tex), nShade, nPal, frameStat, nAlpha);
+        hud_drawsprite(x, y, 1, nAngle.Degrees(), frameChunk.tex, nShade, nPal, frameStat, nAlpha);
     }
 }
 

@@ -239,7 +239,7 @@ void DrawClock()
         int v2 = nVal & 0xF;
         auto texid = tileGetTextureID(v2 + kClockSymbol1);
         auto tex = TexMan.GetGameTexture(texid);
-        int yPos = 32 - tileHeight(v2 + kClockSymbol1) / 2;
+        int yPos = 32 - tex->GetTexelHeight() / 2;
 
         CopyTileToBitmap(texid, tileGetTextureID(kTile3603), ebp - tex->GetTexelWidth() / 2, yPos);
 
