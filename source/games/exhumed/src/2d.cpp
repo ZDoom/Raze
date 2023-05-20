@@ -51,22 +51,17 @@ BEGIN_PS_NS
 //
 //---------------------------------------------------------------------------
 
-void DrawAbs(int tile, double x, double y, int shade = 0)
+void DrawAbs(FGameTexture* tex, double x, double y, int shade = 0)
 {
-    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
+    DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
-void DrawRel(FGameTexture* tex, double x, double y, int shade = 0)
+void DrawRel(FGameTexture* tex, double x, double y, int shade)
 {
     // This is slightly different than what the backend does here, but critical for some graphics.
     int offx = (int(tex->GetDisplayWidth()) >> 1) + int(tex->GetDisplayLeftOffset());
     int offy = (int(tex->GetDisplayHeight()) >> 1) + int(tex->GetDisplayTopOffset());
     DrawTexture(twod, tex, x - offx, y - offy, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
-}
-
-void DrawRel(int tile, double x, double y, int shade)
-{
-    DrawRel(tileGetTexture(tile), x, y, shade);
 }
 
 enum
@@ -75,6 +70,18 @@ enum
     kPlasmaHeight = 80,
 };
 
+void DrawLogo()
+{
+    const auto pLogoTex = TexMan.GetGameTexture(GameLogo());
+    DrawRel(pLogoTex, 160, 40);
+
+    // draw the fire urn/lamp thingies
+    const int urnclock = (I_GetBuildTime() / 16) & 3;
+    static int urnidx[] = { kTexUrn1, kTexUrn2, kTexUrn3, kTexUrn4, kTexUrn1, kTexUrn2 };
+    DrawRel(TexMan.GetGameTexture(aTexIds[urnidx[urnclock]]), 50, 150);
+    DrawRel(TexMan.GetGameTexture(aTexIds[urnidx[urnclock + 2]]), 270, 150);
+
+}
 //---------------------------------------------------------------------------
 //
 //
@@ -84,7 +91,8 @@ enum
 void menu_DoPlasma()
 {
     static uint8_t* PlasmaBuffer;
-    static int nPlasmaTile;
+    static FGameTexture* nPlasmaTile;
+    static FGameTexture* nPlasmaTileAlt;
     static int nSmokeBottom;
     static int nSmokeRight;
     static int nSmokeTop;
@@ -97,7 +105,8 @@ void menu_DoPlasma()
 
     if (!nPlasmaTile)
     {
-        nPlasmaTile = kTile4092;
+        nPlasmaTile = TexMan.GetGameTexture(aTexIds[kTexPlasmaTile1]);
+        nPlasmaTileAlt = TexMan.GetGameTexture(aTexIds[kTexPlasmaTile2]);
         plasma_A[5] = {};
         plasma_B[5] = {};
         plasma_C[5] = {};
@@ -107,7 +116,7 @@ void menu_DoPlasma()
     const auto pLogoTex = TexMan.GetGameTexture(nLogoTexid);
     const int logowidth = (int)pLogoTex->GetDisplayWidth();
     const int logoheight = (int)pLogoTex->GetDisplayHeight();
-    const int ptile = nPlasmaTile;
+    const auto ptile = nPlasmaTile;
     const int pclock = I_GetBuildTime();
 
     while (pclock >= nextPlasmaTic || !PlasmaBuffer)
@@ -116,10 +125,10 @@ void menu_DoPlasma()
 
         if (!PlasmaBuffer)
         {
-            auto pixels = GetWritablePixels(tileGetTextureID(kTile4092));
+            auto pixels = GetWritablePixels(tileGetTextureID(kPlasmaTile1));
             memset(pixels, 96, kPlasmaWidth * kPlasmaHeight);
 
-            PlasmaBuffer = GetWritablePixels(tileGetTextureID(kTile4093));
+            PlasmaBuffer = GetWritablePixels(tileGetTextureID(kPlasmaTile2));
             memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
             nSmokeLeft = 160 - logowidth / 2;
@@ -139,9 +148,9 @@ void menu_DoPlasma()
             }
         }
 
-        uint8_t* plasmapix = GetWritablePixels(tileGetTextureID(nPlasmaTile));
+        uint8_t* plasmapix = GetWritablePixels(nPlasmaTile->GetID());
         uint8_t* r_ebx = plasmapix + 81;
-        const uint8_t* r_edx = GetWritablePixels(tileGetTextureID(nPlasmaTile ^ 1)) + 81; // flip between value of 4092 and 4093 with xor
+        const uint8_t* r_edx = GetWritablePixels(nPlasmaTileAlt->GetID()) + 81; // flip between two instances
 
         for (int x = 0; x < kPlasmaWidth - 2; x++)
         {
@@ -270,24 +279,12 @@ void menu_DoPlasma()
             v28[nSmokeOffset] = 175;
         }
 
-        // flip between tile 4092 and 4093
-        if (nPlasmaTile == kTile4092)
-        {
-            nPlasmaTile = kTile4093;
-        }
-        else if (nPlasmaTile == kTile4093)
-        {
-            nPlasmaTile = kTile4092;
-        }
+        // flip between both instances
+        std::swap(nPlasmaTile, nPlasmaTileAlt);
     }
 
     DrawAbs(ptile, 0, 0);
-    DrawRel(pLogoTex, 160, 40);
-
-    // draw the fire urn/lamp thingies
-    const int urnclock = (pclock / 16) & 3;
-    DrawRel(kTile3512 + urnclock, 50, 150);
-    DrawRel(kTile3512 + ((urnclock + 2) & 3), 270, 150);
+    DrawLogo();
 }
 
 

@@ -164,3 +164,11 @@ x(Playermarker8, 3578)
 
 x(WeaponSpriteSword, 57)
 x(WeaponSpriteMummy, 3455)
+
+x(PlasmaTile1, 4092)
+x(PlasmaTile2, 4093)
+x(ClockTile, 3603)
+x(Urn1, 3512)
+x(Urn2, 3513)
+x(Urn3, 3514)
+x(Urn4, 3515)

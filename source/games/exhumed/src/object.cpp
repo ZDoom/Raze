@@ -2590,7 +2590,7 @@ void PostProcess()
     }
     else // nMap == kMap20)
     {
-        auto texid3603 = tileGetTextureID(kTile3603);
+        auto texid3603 = tileGetTextureID(kClockTile);
         for(auto& sect: sector)
         {
             sect.pSoundSect = &sect;

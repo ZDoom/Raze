@@ -107,13 +107,9 @@ void GameInterface::DrawBackground()
 
     twod->ClearScreen();
 
-    DrawRel(kSkullHead, 160, 100, 0);
-    DrawRel(kSkullJaw, 161, 130, 0);
-    DrawRel(TexMan.GetGameTexture(nLogoTile), 160, 40, 0);
-
-    // draw the fire urn/lamp thingies
-    DrawRel(kTile3512 + dword_9AB5F, 50, 150, 0);
-    DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 0);
+    DrawRel(TexMan.GetGameTexture(aTexIds[kTexSkullHead]), 160, 100, 0);
+    DrawRel(TexMan.GetGameTexture(aTexIds[kTexSkullJaw]), 161, 130, 0);
+    DrawLogo();
 }
 
 //---------------------------------------------------------------------------

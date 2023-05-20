@@ -222,7 +222,7 @@ void DrawClock()
 {
     int ebp = 49;
 
-	auto pixels = GetWritablePixels(tileGetTextureID(kTile3603));
+	auto pixels = GetWritablePixels(tileGetTextureID(kClockTile));
 
     memset(pixels, TRANSPARENT_INDEX, 4096);
 
@@ -241,7 +241,7 @@ void DrawClock()
         auto tex = TexMan.GetGameTexture(texid);
         int yPos = 32 - tex->GetTexelHeight() / 2;
 
-        CopyTileToBitmap(texid, tileGetTextureID(kTile3603), ebp - tex->GetTexelWidth() / 2, yPos);
+        CopyTileToBitmap(texid, tileGetTextureID(kClockTile), ebp - tex->GetTexelWidth() / 2, yPos);
 
         ebp -= 15;
 
@@ -390,16 +390,13 @@ static void SetTileNames(TilesetBuildInfo& info)
 void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
     SetTileNames(info);
-    info.CreateWritable(kTile4092, kPlasmaWidth, kPlasmaHeight);
-    info.CreateWritable(kTile4093, kPlasmaWidth, kPlasmaHeight);
+    info.CreateWritable(kPlasmaTile1, kPlasmaWidth, kPlasmaHeight);
+    info.CreateWritable(kPlasmaTile2, kPlasmaWidth, kPlasmaHeight);
     info.CreateWritable(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
     info.MakeWritable(kTileLoboLaptop);
-    for(int i = kTile3603; i < kClockSymbol1 + 145; i++)
-    info.MakeWritable(kTile3603);
+    info.MakeWritable(kClockTile);
     info.MakeWritable(kEnergy1);
     info.MakeWritable(kEnergy2);
-    for (int i = 0; i < 16; i++)
-        info.MakeWritable(kClockSymbol1);
 }
 
 //---------------------------------------------------------------------------
@@ -576,7 +573,7 @@ void SerializeState(FSerializer& arc)
             ("creatureskilled", nCreaturesKilled)
             ("freeze", nFreeze)
             ("snakecam", nSnakeCam)
-            ("clockval", nClockVal)  // kTile3603
+            ("clockval", nClockVal)
             ("redticks", nRedTicks)
             ("alarmticks", nAlarmTicks)
             ("buttoncolor", nButtonColor)

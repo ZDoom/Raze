@@ -18,16 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once 
 
-enum
-{
-kTile3000 = 3000,
-kTile3512 = 3512,
-kTile3593 = 3593,
-kTile3603 = 3603,
-kTile4092 = 4092,
-kTile4093 = 4093,
-};
-
 BEGIN_PS_NS
 
 #define x(a, b) k##a = b,
