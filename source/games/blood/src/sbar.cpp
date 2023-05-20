@@ -52,7 +52,7 @@ BEGIN_BLD_NS
 
 static void UpdateFrame(void)
 {
-	auto tex = tileGetTexture(kBackTile);
+	auto tex = TexMan.GetGameTexture(aTexIds[kTexBACKTILE]);
 	int width = twod->GetWidth();
 	int height = twod->GetHeight();
 
