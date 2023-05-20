@@ -307,7 +307,7 @@ void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view,
         pTSprite->pal = RemapPLU(pTSprite->pal);
 
         // PowerSlaveGDX: Torch bouncing fix
-        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
+        if ((pTSprite->spritetexture() == aTexIds[kTexTorch1] || pTSprite->spritetexture() == aTexIds[kTexTorch2]) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
         {
             pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
             auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());

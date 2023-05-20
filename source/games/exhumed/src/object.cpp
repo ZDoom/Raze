@@ -1398,7 +1398,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
     if (nVal >= 2)
     {
-        pSpark->spr.setspritetexture(aTexIds[kTexENERGY2]);
+        pSpark->spr.setspritetexture(aTexIds[kTexEnergy2]);
         nSmokeSparks++;
 
         if (nVal == 3)
@@ -1466,7 +1466,7 @@ void AISpark::Tick(RunListEvent* ev)
             BuildSpark(pActor, 2);
         }
 
-        if (pActor->spr.spritetexture() == aTexIds[kTexENERGY2]) {
+        if (pActor->spr.spritetexture() == aTexIds[kTexEnergy2]) {
             return;
         }
 
@@ -1486,7 +1486,7 @@ void AISpark::Tick(RunListEvent* ev)
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
 
-    if (pActor->spr.spritetexture() == aTexIds[kTexENERGY2]) {
+    if (pActor->spr.spritetexture() == aTexIds[kTexEnergy2]) {
         nSmokeSparks--;
     }
 
@@ -2590,7 +2590,7 @@ void PostProcess()
     }
     else // nMap == kMap20)
     {
-        auto texid3603 = tileGetTextureID(kClockTile);
+        auto clocktile = aTexIds[kTexClockTile];
         for(auto& sect: sector)
         {
             sect.pSoundSect = &sect;
@@ -2598,7 +2598,7 @@ void PostProcess()
 
             for(auto& wal : sect.walls)
             {
-                if (wal.walltexture == texid3603)
+                if (wal.walltexture == clocktile)
                 {
                     wal.pal = 1;
                     auto pActor = insertActor(&sect, 407);
@@ -2610,7 +2610,7 @@ void PostProcess()
         ExhumedSpriteIterator it;
         while (auto act = it.Next())
         {
-            if (act->spr.statnum < kMaxStatus && act->spr.spritetexture() == texid3603)
+            if (act->spr.statnum < kMaxStatus && act->spr.spritetexture() == clocktile)
             {
                 ChangeActorStat(act, 407);
                 act->spr.pal = 1;

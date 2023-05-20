@@ -125,10 +125,10 @@ void menu_DoPlasma()
 
         if (!PlasmaBuffer)
         {
-            auto pixels = GetWritablePixels(tileGetTextureID(kPlasmaTile1));
+            auto pixels = GetWritablePixels(aTexIds[kTexPlasmaTile1]);
             memset(pixels, 96, kPlasmaWidth * kPlasmaHeight);
 
-            PlasmaBuffer = GetWritablePixels(tileGetTextureID(kPlasmaTile2));
+            PlasmaBuffer = GetWritablePixels(aTexIds[kTexPlasmaTile2]);
             memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
             nSmokeLeft = 160 - logowidth / 2;

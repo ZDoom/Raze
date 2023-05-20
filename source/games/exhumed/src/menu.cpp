@@ -91,8 +91,8 @@ void DoEnergyTile()
 {
     nButtonColor += nButtonColor < 0 ? 8 : 0;
 
-    auto energy1 = GetWritablePixels(tileGetTextureID(kEnergy1));
-    auto energy2 = GetWritablePixels(tileGetTextureID(kEnergy2));
+    auto energy1 = GetWritablePixels(aTexIds[kTexEnergy1]);
+    auto energy2 = GetWritablePixels(aTexIds[kTexEnergy2]);
     uint8_t* ptr1 = energy1 + 1984;
     uint8_t* ptr2 = energy1 + 2048;
 

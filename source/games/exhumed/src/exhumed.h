@@ -91,7 +91,7 @@ void InitEnergyTile();
 void setvalidpic(DExhumedActor* actor)
 {
     // all we want here is setting it to something that passes renderer validation. This is never used to draw the sprite.
-    actor->spr.setspritetexture(tileGetTextureID(1));
+    actor->spr.setspritetexture(aTexIds[kTexTorch1]);
 }
 
 extern int EndLevel;

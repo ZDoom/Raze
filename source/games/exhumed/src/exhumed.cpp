@@ -222,7 +222,7 @@ void DrawClock()
 {
     int ebp = 49;
 
-	auto pixels = GetWritablePixels(tileGetTextureID(kClockTile));
+	auto pixels = GetWritablePixels(aTexIds[kTexClockTile]);
 
     memset(pixels, TRANSPARENT_INDEX, 4096);
 
@@ -237,11 +237,11 @@ void DrawClock()
     while (nVal)
     {
         int v2 = nVal & 0xF;
-        auto texid = tileGetTextureID(v2 + kClockSymbol1);
+        auto texid = aTexIds[v2 + kTexClockSymbol1];
         auto tex = TexMan.GetGameTexture(texid);
         int yPos = 32 - tex->GetTexelHeight() / 2;
 
-        CopyTileToBitmap(texid, tileGetTextureID(kClockTile), ebp - tex->GetTexelWidth() / 2, yPos);
+        CopyTileToBitmap(texid, aTexIds[kTexClockTile], ebp - tex->GetTexelWidth() / 2, yPos);
 
         ebp -= 15;
 
@@ -389,6 +389,18 @@ static void SetTileNames(TilesetBuildInfo& info)
 
 void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
+    // This is the ONLY place that should use tile indices!
+    enum
+    {
+        kPlasmaTile1 = 4092,
+        kPlasmaTile2 = 4093,
+        kClockTile = 3603,
+        kEnergy1 = 3604,
+        kEnergy2 = 3605,
+        kTileLoboLaptop = 3623,
+        kTileRamsesWorkTile = 591,
+    };
+
     SetTileNames(info);
     info.CreateWritable(kPlasmaTile1, kPlasmaWidth, kPlasmaHeight);
     info.CreateWritable(kPlasmaTile2, kPlasmaWidth, kPlasmaHeight);

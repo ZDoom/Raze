@@ -463,7 +463,7 @@ HITSPRITE:
         else if (pHitWall != nullptr)
         {
         HITWALL:
-            if (pHitWall->walltexture == tileGetTextureID(kEnergy1))
+            if (pHitWall->walltexture == aTexIds[kTexEnergy1])
             {
                 if (pHitWall->twoSided())
                 {

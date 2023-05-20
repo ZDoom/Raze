@@ -75,8 +75,8 @@ void InitSpiritHead()
         }
     }
 
-	auto pTile = GetRawPixels(tileGetTextureID(kTileRamsesNormal)); // Ramses Normal Head
-	auto pGold = GetRawPixels(tileGetTextureID(kTileRamsesGold));
+	auto pTile = GetRawPixels(aTexIds[kTexTileRamsesNormal1]); // Ramses Normal Head
+	auto pGold = GetRawPixels(aTexIds[kTexTileRamsesGold]);
     for (int x = 0; x < 97; x++)
     {
         for (int y = 0; y < 106; y++)
@@ -117,7 +117,7 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	auto Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
+	auto Worktile = GetWritablePixels(aTexIds[kTexTileRamsesWorkTile]);
 
     pSpiritSpr->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
@@ -171,7 +171,7 @@ void DimSector(sectortype* pSector)
 
 void CopyHeadToWorkTile(int nTile, uint8_t* Worktile)
 {
-	const uint8_t* pSrc = GetRawPixels(tileGetTextureID(nTile));
+	const uint8_t* pSrc = GetRawPixels(aTexIds[nTile]);
     uint8_t *pDest = &Worktile[212 * 49 + 53];
 
     for (unsigned i = 0; i < kSpiritY; i++)
@@ -193,7 +193,7 @@ void DoSpiritHead()
 {
     static int dimSectCount = 0;
     auto pSpiritSpr = pSpiritSprite;
-    auto Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
+    auto Worktile = GetWritablePixels(aTexIds[kTexTileRamsesWorkTile]);
 
     const auto pPlayer = &PlayerList[0];
     const auto pPlayerActor = pPlayer->pActor;
@@ -242,10 +242,10 @@ void DoSpiritHead()
             word_964E8 = RandomSize(5) + 4;
         }
 
-        int tilenum = kTileRamsesNormal;
+        int tilenum = kTexTileRamsesNormal1;
         if (--word_964EC < 3) 
         {
-            tilenum = 593;
+            tilenum = kTexTileRamsesNormal2;
             if (word_964EC <= 0)
                 word_964EC = RandomSize(6) + 4;
         }
@@ -262,7 +262,7 @@ void DoSpiritHead()
 
         if (nMouthTile != 0) 
         {
-            FTextureID srctile = tileGetTextureID(nMouthTile + 598);
+            FTextureID srctile = aTexIds[nMouthTile + kTexTileRamsesMouth1];
             auto src = GetRawPixels(srctile);
             auto tex = TexMan.GetGameTexture(srctile);
             int sizx = tex->GetTexelWidth();
@@ -424,7 +424,7 @@ void DoSpiritHead()
             }
 
             if (PlayClock - lHeadStartClock > 600)
-                CopyHeadToWorkTile(590, Worktile);
+                CopyHeadToWorkTile(kTexTileRamsesGold, Worktile);
 
             if (nCount < (15 * nPixels) / 16) {
                 SoundBigEntrance();
@@ -432,7 +432,7 @@ void DoSpiritHead()
                 AddFlash(pSpiritSpr->sector(), pSpiritSpr->spr.pos, 128);
                 nHeadStage = 3;
                 TintPalette(255, 255, 255);
-                CopyHeadToWorkTile(kTileRamsesNormal, Worktile);
+                CopyHeadToWorkTile(kTexTileRamsesNormal1, Worktile);
             }
         }
         break;
