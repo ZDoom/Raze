@@ -86,23 +86,23 @@ static const int effectDetail[kViewEffectMax] = {
 struct WEAPONICON {
 	int16_t nTile;
 	uint8_t zOffset;
-	FTextureID textureID() const { return tileGetTextureID(nTile); }
+	FTextureID textureID() const { return aTexIds[nTile]; }
 };
 
 static const WEAPONICON gWeaponIcon[] = {
 	{ -1, 0 },
 	{ -1, 0 }, // 1: pitchfork
-	{ kICONFLAREGUN, 6 }, // 2: flare gun
-	{ kICONSHOTGUN, 6 }, // 3: shotgun
-	{ kICONTOMMY, 8 }, // 4: tommy gun
-	{ kICONNAPALM, 6 }, // 5: napalm launcher
-	{ kAmmoIcon5, 11 }, // 6: dynamite
-	{ kAmmoIcon6, 11 }, // 7: spray can
-	{ kICONTESLA, 6 }, // 8: tesla gun
-	{ kICONLEECH, 0 }, // 9: life leech
-	{ kAmmoIcon9, 11 }, // 10: voodoo doll
-	{ kAmmoIcon10, 11 }, // 11: proxy bomb
-	{ kAmmoIcon11, 11 }, // 12: remote bomb
+	{ kTexICONFLAREGUN, 6 }, // 2: flare gun
+	{ kTexICONSHOTGUN, 6 }, // 3: shotgun
+	{ kTexICONTOMMY, 8 }, // 4: tommy gun
+	{ kTexICONNAPALM, 6 }, // 5: napalm launcher
+	{ kTexAmmoIcon5, 11 }, // 6: dynamite
+	{ kTexAmmoIcon6, 11 }, // 7: spray can
+	{ kTexICONTESLA, 6 }, // 8: tesla gun
+	{ kTexICONLEECH, 0 }, // 9: life leech
+	{ kTexAmmoIcon9, 11 }, // 10: voodoo doll
+	{ kTexAmmoIcon10, 11 }, // 11: proxy bomb
+	{ kTexAmmoIcon11, 11 }, // 12: remote bomb
 	{ -1, 0 },
 };
 

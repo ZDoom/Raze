@@ -61,14 +61,6 @@ enum VIEWPOS {
 	VIEWPOS_1
 };
 
-#define x(a, b) k##a = b,
-enum
-{
-#include "namelist.h"
-};
-#undef x
-
-
 enum { kFontNum = 5 };
 
 extern FFont* gFont[kFontNum];
