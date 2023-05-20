@@ -680,6 +680,11 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) || actor->spr.scale.X == 0 || actor->spr.scale.Y == 0) // skip invisible sprites
 				continue;
 
+			auto tex = actor->spr.spritetexture();
+			if (!tex.isValid()) continue;
+			auto tx = TexMan.GetGameTexture(tex);
+			if (tx->GetUseType() == ETextureType::FirstDefined) continue;
+
 			auto viewvec = actor->spr.pos.XY() - DVector2(viewx, -viewy); // note that viewy is in render coordinates
 
 			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.

@@ -292,8 +292,7 @@ void HWDrawInfo::DispatchSprites()
 		}
 		if (tspr->cstat2 & CSTAT2_SPRITE_FULLBRIGHT)
 			tspr->shade = -127;
-		tspr->picnum = legacyTileNum(texid);
-		int tilenum = tspr->picnum;
+		tspr->setspritetexture(texid);
 
 		if (!(actor->sprext.renderflags & SPREXT_NOTMD) && !(tspr->cstat2 & CSTAT2_SPRITE_NOMODEL))
 		{

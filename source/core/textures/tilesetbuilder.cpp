@@ -293,7 +293,7 @@ void ConstructTileset()
 		FStringf tname("#%05d", i);
 		if (info.tile[i].tileimage == nullptr)
 		{
-			if (info.tile[i].imported == nullptr)
+			if (info.tile[i].imported == nullptr || i == 0)
 			{
 				ftex = nulltex->GetTexture();
 				gtex = MakeGameTexture(ftex, tname, ETextureType::Null);
@@ -308,7 +308,7 @@ void ConstructTileset()
 		{
 			if (info.tile[i].imported) ftex = info.tile[i].imported->GetTexture();
 			else ftex = new FImageTexture(info.tile[i].tileimage);
-			gtex = MakeGameTexture(ftex, tname, ETextureType::Any);
+			gtex = MakeGameTexture(ftex, tname, i == 0? ETextureType::FirstDefined : ETextureType::Any);
 			gtex->SetOffsets(info.tile[i].leftOffset, info.tile[i].topOffset);
 		}
 		if (info.tile[i].extinfo.picanm.sf & PICANM_NOFULLBRIGHT_BIT)

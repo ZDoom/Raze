@@ -550,14 +550,6 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
-		// skip tile 0 on face sprites. tile 0 is a simple wall texture in Blood, 
-		// but there are maps that use 0 on some operator sprites that may show up in portals as a result.
-		// Since the wall texture is perfectly fine for wall and floor sprites, these will be allowed to pass.
-		if (legacyTileNum(nTex) == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
-		{
-			pTSprite->scale = DVector2(0, 0);
-			continue;
-		}
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{

@@ -241,8 +241,6 @@ inline int pushmove(DVector2& pos, double z, sectortype** pSect, double walldist
 int FindBestSector(const DVector3& pos);
 
 
-tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
-
 void setWallSectors();
 void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, bool render = false);
 void GetFlatSpritePosition(DCoreActor* spr, const DVector2& pos, DVector2* out, double* outz = nullptr, bool render = false);
