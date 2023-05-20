@@ -80,7 +80,7 @@ CCMD(tilecrc)
 		FGameTexture* tex;
 		if (tile >= 0 && tile < MAXTILES && !*p)
 		{
-			// tex = tileGetTexture(tile);
+			tex = TexMan.GetGameTexture(tileGetTextureID(tile));
 		}
 		else
 		{
