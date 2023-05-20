@@ -523,7 +523,7 @@ int testpointinquad(const DVector2& pt, const DVector2* quad)
 //
 //==========================================================================
 
-double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
+double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor, double tolerance = 0)
 {
 	auto end = start + direction;
 	if (direction.XY().isZero()) return false;
@@ -537,12 +537,17 @@ double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3&
 	auto sprwidth = tex->GetDisplayWidth() * actor->spr.scale.X * 0.5;
 	auto point = start + direction * factor;
 
+	if (actor->time == 283)
+	{
+		int a = 0;
+	}
+
 	// Using proper distance here, Build originally used the sum of x- and y-distance
 	if ((point.XY() - actor->spr.pos.XY()).LengthSquared() > sprwidth * sprwidth * 0.5) return -1; // too far away
 
 	double siz, hitz = actor->spr.pos.Z + actor->GetOffsetAndHeight(siz);
 
-	if (point.Z < hitz - siz || point.Z > hitz)
+	if (point.Z < hitz - siz - tolerance || point.Z > hitz + tolerance)
 		return -1;
 
 	result = point;
@@ -1123,7 +1128,7 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 				if (checkTag(&actor->spr))
 				{
 					DVector3 spot;
-					double newfactor = intersectSprite(actor, pos, v, spot, factor - 1. / 65536.);
+					double newfactor = intersectSprite(actor, pos, v, spot, factor - 1. / 65536., 1);
 					if (newfactor > 0)
 					{
 						factor = newfactor;
