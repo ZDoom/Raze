@@ -419,7 +419,7 @@ static int DoStatic(int a, int b)
     const int bottom = y + a;
     const int right = left + b;
 
-    const auto pixels = GetWritablePixels(tileGetTextureID(kTileLoboLaptop), true);
+    const auto pixels = GetWritablePixels(aTexIds[kTexTileLoboLaptop], true);
     auto pTile = (pixels + (200 * y)) + left;
 
     for(;y < bottom; y++)
@@ -432,12 +432,12 @@ static int DoStatic(int a, int b)
             *pixel++ = RandomBit() * 16;
         }
     }
-    return tileGetTexture(kTileLoboLaptop)->GetID().GetIndex();
+    return aTexIds[kTexTileLoboLaptop].GetIndex();
 }
 
 static int UndoStatic()
 {
-    const auto texid = tileGetTextureID(kTileLoboLaptop);
+    const auto texid = aTexIds[kTexTileLoboLaptop];
     GetWritablePixels(texid, true);
     return texid.GetIndex();
 }
