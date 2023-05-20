@@ -50,17 +50,6 @@ inline static double getavel(int snum)
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
-{
-	hud_drawsprite(x, y, 65536, angle.Degrees(), tilenum, shade, p, orientation);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 inline static void hud_drawpal(double x, double y, const char* tilenum, int shade, int orientation, int p, DAngle angle)
 {
 	hud_drawsprite(x, y, 1., angle.Degrees(), TexMan.CheckForTexture(tilenum, ETextureType::Any), shade, p, orientation);

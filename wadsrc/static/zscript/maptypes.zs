@@ -319,7 +319,6 @@ struct tspritetype native
 	native double angle;
 	native sectortype sector;
 	native int16 cstat;
-	//native int16 picnum;
 	native int16 statnum;
 	//native int16 ang;
 	/* these are not needed for tsprites

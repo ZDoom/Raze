@@ -83,7 +83,7 @@ class DukeScrap : DukeActor
 	{
 		if (self.spriteextra == Scrap1 && self.yint > 0)
 		{
-			tspr.setWeaponOrAmmoSprite(self.yint - 1); // needed so that we don't have to export 'picnum' to scripting.
+			tspr.setWeaponOrAmmoSprite(self.yint - 1); // needed so that we don't have to export 'pic num' to scripting.
 		}
 		else 
 		{

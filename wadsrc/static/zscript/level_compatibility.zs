@@ -27,7 +27,7 @@ class LevelCompatibility : LevelPostProcessor
 				break;
 				
 			case 'd7bf49213531cd2607e0459b950ac454':	// RR E2L7.map
-				// need to add a sprite with picnum 11 (RRJAILDOOR) lotag = 48, hitag = 32, sector = 534
+				// need to add a sprite with texture (RRJAILDOOR) lotag = 48, hitag = 32, sector = 534
 				// see premap_r.cpp, line 477.
 				break;
 

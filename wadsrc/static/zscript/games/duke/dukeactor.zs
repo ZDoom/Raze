@@ -331,7 +331,7 @@ class DukeActor : CoreActor native
 	native bool CheckAnyActorSoundPlaying();
 	native void StopSound(Sound snd, int flags = 0);
 	native DukeActor spawn(class<DukeActor> type);
-	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
+	native DukeActor spawnsprite(int type);	// for cases where the map has a tilenum stored. Avoid when possible.
 	native void lotsofglass(int count, walltype wal = null);
 	native void lotsofcolourglass(int count, walltype wal = null);
 	native void makeitfall();

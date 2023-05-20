@@ -463,13 +463,13 @@ class AltHud ui
 	{
 		double trans = weapon == currentstats.weaponselect? 0.85 : 0.4;
 
-		TextureID picnum = TexMan.CheckForTexture(currentstats.weaponicons[weapon]);
+		TextureID texid = TexMan.CheckForTexture(currentstats.weaponicons[weapon]);
 
-		if (picnum.isValid())
+		if (texid.isValid())
 		{
 			// don't draw tall sprites too small.
 			int w, h;
-			[w, h] = TexMan.GetSize(picnum);
+			[w, h] = TexMan.GetSize(texid);
 			int rh;
 			if (w > h) rh = 8;
 			else 
@@ -477,7 +477,7 @@ class AltHud ui
 				rh = 16;
 				y -= 8;	
 			}
-			DrawImageToBox(picnum, x-24, y, 20, rh, trans);
+			DrawImageToBox(texid, x-24, y, 20, rh, trans);
 			y-=10;
 		}
 	}

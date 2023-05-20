@@ -256,7 +256,7 @@ void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 	if (SpriteSet.Size() > 0)
 	{
 		if (defaults->spritesetindex < 0 || defaults->spritesetindex >= (int)SpriteSet.Size()) defaults->spritesetindex = 0;
-		defaults->spr.setspritetexture(SpriteSet[defaults->spritesetindex]); // Unless picnum is specified it will be set to the given image of the sprite set.
+		defaults->spr.setspritetexture(SpriteSet[defaults->spritesetindex]);
 	}
 	SpriteSetNames.Reset();
 }

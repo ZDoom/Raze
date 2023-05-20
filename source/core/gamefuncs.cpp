@@ -1322,7 +1322,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 
 	tspr->pos = actor->spr.pos;
 	tspr->cstat = actor->spr.cstat;
-	tspr->picnum = actor->spr.picnum;
+	tspr->setspritetexture(actor->spr.spritetexture());
 	tspr->shade = actor->spr.shade;
 	tspr->pal = actor->spr.pal;
 	tspr->clipdist = 0;
