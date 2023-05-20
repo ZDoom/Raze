@@ -40,22 +40,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-static struct {
-	int16_t nTile;
-	uint8_t nStat;
-	uint8_t nPal;
+static const struct {
 	int nScale;
 	int16_t nX, nY;
 } burnTable[9] = {
-	 { 2101, 2, 0, 118784, 10, 220 },
-	 { 2101, 2, 0, 110592, 40, 220 },
-	 { 2101, 2, 0, 81920, 85, 220 },
-	 { 2101, 2, 0, 69632, 120, 220 },
-	 { 2101, 2, 0, 61440, 160, 220 },
-	 { 2101, 2, 0, 73728, 200, 220 },
-	 { 2101, 2, 0, 77824, 235, 220 },
-	 { 2101, 2, 0, 110592, 275, 220 },
-	 { 2101, 2, 0, 122880, 310, 220 }
+	 { 118784, 10, 220 },
+	 { 110592, 40, 220 },
+	 { 81920, 85, 220 },
+	 { 69632, 120, 220 },
+	 { 61440, 160, 220 },
+	 { 73728, 200, 220 },
+	 { 77824, 235, 220 },
+	 { 110592, 275, 220 },
+	 { 122880, 310, 220 }
 };
 
 
@@ -88,17 +85,12 @@ static void viewBurnTime(int gScale)
 
 	for (int i = 0; i < 9; i++)
 	{
-		int nTile = burnTable[i].nTile;
-		// This is needed because hud_drawsprite still works with tilenums.
-		FTextureID nID = tileGetTextureID(nTile);
-		tileUpdatePicnum(nID);
-		nTile = legacyTileNum(nID);
 		int nScale = burnTable[i].nScale;
 		if (gScale < 600)
 		{
 			nScale = Scale(nScale, gScale, 600);
 		}
-		hud_drawsprite(burnTable[i].nX, burnTable[i].nY, nScale, 0, nTile, 0, 0, RS_STRETCH, 1);
+		hud_drawsprite(burnTable[i].nX, burnTable[i].nY, nScale, 0, aTexIds[kTexTORCHEFFECT], 0, 0, RS_STRETCH, 1);
 	}
 }
 
