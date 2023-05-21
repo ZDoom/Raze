@@ -970,6 +970,7 @@ set (PCH_SOURCES
 	core/statistics.cpp
 	core/secrets.cpp
 	core/savegamehelp.cpp
+	core/states.cpp
 	core/precache.cpp
 	core/psky.cpp
 	core/quotes.cpp
