@@ -359,7 +359,7 @@ DEFINE_PROPERTY(clearcstat, 0, CoreActor)
 //==========================================================================
 DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 {
-	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;	// this also overrides the map's picnum
+	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;	// this also overrides the map's pic
 	info->ActorInfo()->SpriteSetNames.Clear();
 	for (int i = 0; i < PROP_PARM_COUNT; ++i)
 	{

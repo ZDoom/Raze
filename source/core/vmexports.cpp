@@ -819,7 +819,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setSpritePic, tspritetype_setSpriteP
 DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat, cstat)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat2, cstat2)
-DEFINE_FIELD_NAMED(DCoreActor, spr.picnum, picnum)
 DEFINE_FIELD_NAMED(DCoreActor, spr.statnum, statnum)
 DEFINE_FIELD_NAMED(DCoreActor, spr.intangle, intangle)
 DEFINE_FIELD_NAMED(DCoreActor, spr.pos, pos)
