@@ -537,11 +537,6 @@ double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3&
 	auto sprwidth = tex->GetDisplayWidth() * actor->spr.scale.X * 0.5;
 	auto point = start + direction * factor;
 
-	if (actor->time == 283)
-	{
-		int a = 0;
-	}
-
 	// Using proper distance here, Build originally used the sum of x- and y-distance
 	if ((point.XY() - actor->spr.pos.XY()).LengthSquared() > sprwidth * sprwidth * 0.5) return -1; // too far away
 
