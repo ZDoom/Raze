@@ -739,15 +739,9 @@ void DoAutoSize(tspritetype* tspr)
 }
 
 // Rotation angles for sprites
-short rotang = 0;
 
 void JAnalyzeSprites(tspritetype* tspr)
 {
-    rotang += 4;
-    if (rotang > 2047)
-        rotang = 0;
-
-
     // Take care of autosizing
     DoAutoSize(tspr);
 
