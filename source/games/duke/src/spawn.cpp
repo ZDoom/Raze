@@ -198,7 +198,7 @@ bool initspriteforspawn(DDukeActor* act)
 
 	IFVIRTUALPTR(act, DDukeActor, TriggerSwitch)
 	{
-		if (func->PrintableName.CompareNoCase("DukeActor.TriggerSwitch") != 0)
+		if (stricmp(func->PrintableName, "DukeActor.TriggerSwitch") != 0)
 			overrideswitch = true;
 	}
 

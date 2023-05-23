@@ -450,7 +450,7 @@ public:
 	FName Name;
 	const uint8_t *RegTypes = nullptr;
 	TArray<TypedVMValue> DefaultArgs;
-	FString PrintableName;	// so that the VM can print meaningful info if something in this function goes wrong.
+	const char * PrintableName = nullptr;	// so that the VM can print meaningful info if something in this function goes wrong. (allocated from the memory arena)
 
 	class PPrototype *Proto;
 	TArray<uint32_t> ArgFlags;		// Should be the same length as Proto->ArgumentTypes
