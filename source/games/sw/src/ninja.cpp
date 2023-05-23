@@ -177,14 +177,6 @@ ATTRIBUTE InvisibleNinjaAttrib =
     }
 };
 
-ATTRIBUTE DefaultAttrib =
-{
-    {60, 80, 100, 130},                 // Speeds
-    {3, 0, -2, -3},                     // Tic Adjusts
-    3,                                  // MaxWeapons;
-    {0, 0, 0}
-};
-
 //////////////////////
 //
 // NINJA RUN
@@ -2449,7 +2441,6 @@ static saveable_data saveable_ninja_data[] =
 
     SAVE_DATA(NinjaAttrib),
     SAVE_DATA(InvisibleNinjaAttrib),
-    SAVE_DATA(DefaultAttrib),
 
     SAVE_DATA(s_NinjaRun),
     SAVE_DATA(sg_NinjaRun),

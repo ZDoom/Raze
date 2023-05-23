@@ -66,8 +66,6 @@ struct ATTRIBUTE
     /*ATTRIB_SNDS*/ int Sounds[MAXATTRIBSNDS];  // JBF: ATTRIB_SNDS? Somehow I don't think this is what was intended...
 };
 
-extern ATTRIBUTE DefaultAttrib;
-
 // AI.C functions
 bool ActorMoveHitReact(DSWActor* actor);
 int ChooseActionNumber(int16_t decision[]);
