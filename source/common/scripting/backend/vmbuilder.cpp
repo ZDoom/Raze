@@ -790,7 +790,7 @@ VMFunction *FFunctionBuildList::AddFunction(PNamespace *gnspc, const VersionInfo
 	it.PrintableName = name;
 	it.Function = new VMScriptFunction;
 	it.Function->Name = functype->SymbolName;
-	it.Function->PrintableName = name;
+	it.Function->PrintableName = ClassDataAllocator.Strdup(name);
 	it.Function->ImplicitArgs = functype->GetImplicitArgs();
 	it.Proto = nullptr;
 	it.FromDecorate = fromdecorate;
