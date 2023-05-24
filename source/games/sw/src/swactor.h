@@ -54,7 +54,7 @@ public:
 	bool hasState(FName label, int substate = 0);
 	void callAction();
 	void callStateAction();
-	void callFunction(VMFunction* func);
+	int callFunction(VMFunction* func);
 
 
 };

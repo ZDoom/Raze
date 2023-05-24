@@ -1091,11 +1091,11 @@ bool DSWActor::hasState(FName label, int subl)
     return getLegacyState(a, label, subl) != nullptr;
 }
 
-void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = DoActorDecide; }
+void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = *AF(DoActorDecide); }
 
 void DSWActor::callAction()
 {
-    (*user.__legacyState.ActorActionFunc)(this);
+    callFunction(user.__legacyState.ActorActionFunc);
 }
 
 void DSWActor::callStateAction()
@@ -1104,13 +1104,14 @@ void DSWActor::callStateAction()
 		callFunction(*user.__legacyState.State->Animator);
 }
 
-void DSWActor::callFunction(VMFunction* func)
+int DSWActor::callFunction(VMFunction* func)
 {
     if (func)
     {
         VMValue param[] = { this };
         VMCall(func, param, 1, nullptr, 0);
     }
+    return 0;
 }
 
 END_SW_NS

@@ -46,7 +46,6 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop);
 void DoTornadoObject(SECTOR_OBJECT* sop);
 int PickJumpSpeed(DSWActor*, int pix_height);
 DSWActor* FindNearSprite(DSWActor, short);
-ANIMATOR NinjaJumpActionFunc;
 
 #define ACTOR_STD_JUMP (-384)
 DAngle GlobSpeedSO;
@@ -1288,7 +1287,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sectp->hitag = 0;
 
         if (sop->max_damage <= 0)
-            VehicleSetSmoke(sop, SpawnVehicleSmoke);
+            VehicleSetSmoke(sop, *AF(SpawnVehicleSmoke));
 
         break;
     }
@@ -2565,7 +2564,7 @@ void PlaceSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
 
-void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
+void VehicleSetSmoke(SECTOR_OBJECT* sop, VMFunction* animator)
 {
     sectortype* *sectp;
 
@@ -2911,7 +2910,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->user.jump_speed = -tpoint->tag_high;
 
             DoActorBeginJump(actor);
-            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
         }
 
         break;
@@ -2957,7 +2956,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
 
             DoActorBeginJump(actor);
-            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
 
             return false;
         }
@@ -2982,7 +2981,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
 
             DoActorBeginJump(actor);
-            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
             return false;
         }
 
@@ -3012,7 +3011,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
             InitActorDuck(actor);
-            actor->user.__legacyState.ActorActionFunc = DoActorDuck;
+            actor->user.__legacyState.ActorActionFunc = *AF(DoActorDuck);
             return false;
         }
 
@@ -3436,7 +3435,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 actor->spr.pos.Z += actor->user.pos.Y;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
-                actor->user.__legacyState.ActorActionFunc = NinjaJumpActionFunc;
+                actor->user.__legacyState.ActorActionFunc = *AF(NinjaJumpActionFunc);
                 actor->user.jump_speed = -650;
                 DoActorBeginJump(actor);
 

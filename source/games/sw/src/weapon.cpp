@@ -55,7 +55,6 @@ struct MISSILE_PLACEMENT
 void SpawnZombie2(DSWActor*);
 Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYER*);
-void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
 
 void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez);
 void ScaleSpriteVector(DSWActor* actor, int scale);
@@ -4961,7 +4960,7 @@ int SopCheckKill(SECTOR_OBJECT* sop)
         killed = TestKillSectorObject(sop);
         if (!killed)
         {
-            VehicleSetSmoke(sop, SpawnVehicleSmoke);
+            VehicleSetSmoke(sop, *AF(SpawnVehicleSmoke));
             sop->flags |= (SOBJ_BROKEN);
         }
     }
@@ -11145,7 +11144,7 @@ int DoMirv(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
+bool MissileSetPos(DSWActor* actor, VMFunction* DoWeapon, int dist)
 {
     bool retval = false;
 
@@ -11162,7 +11161,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 	UpdateChange(actor);
 
     actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
-    if ((*DoWeapon)(actor))
+    if (actor->callFunction(DoWeapon))
         retval = true;
     actor->user.Flags &= ~(SPR_SET_POS_DONT_KILL);
 
@@ -11183,7 +11182,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 //
 //---------------------------------------------------------------------------
 
-bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, double zvel)
+bool TestMissileSetPos(DSWActor* actor, VMFunction* DoWeapon, int dist, double zvel)
 {
     bool retval = false;
 
@@ -11201,7 +11200,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, double zve
     actor->user.change.Z = zvel;
 
     actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
-    if ((*DoWeapon)(actor))
+    if (actor->callFunction(DoWeapon))
         retval = true;
     actor->user.Flags &= ~(SPR_SET_POS_DONT_KILL);
 
@@ -11540,7 +11539,7 @@ int InitLavaThrow(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-    MissileSetPos(actorNew, DoLavaBoulder, 1200);
+    MissileSetPos(actorNew, *AF(DoLavaBoulder), 1200);
 
     // find the distance to the target (player)
     SetZVelFromTarget(actorNew, actor, true);
@@ -11754,7 +11753,7 @@ void InitSpellNapalm(PLAYER* pp)
 
 		UpdateChange(actor);
 
-        if (MissileSetPos(actor, DoNapalm, mp[i].dist_out))
+        if (MissileSetPos(actor, *AF(DoNapalm), mp[i].dist_out))
         {
             plActor->clipdist = oclipdist;
             KillActor(actor);
@@ -11832,7 +11831,7 @@ int InitEnemyNapalm(DSWActor* actor)
 
 		UpdateChange(actorNew);
 
-        MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
+        MissileSetPos(actorNew, *AF(DoNapalm), mp[i].dist_out);
 
         actor->clipdist = oclipdist;
 
@@ -11877,7 +11876,7 @@ int InitSpellMirv(PLAYER* pp)
 
 	UpdateChange(actorNew);
 
-    MissileSetPos(actorNew, DoMirv, 600);
+    MissileSetPos(actorNew, *AF(DoMirv), 600);
     plActor->clipdist = oclipdist;
 
     actorNew->user.Counter = 0;
@@ -11913,7 +11912,7 @@ int InitEnemyMirv(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-    MissileSetPos(actorNew, DoMirv, 600);
+    MissileSetPos(actorNew, *AF(DoMirv), 600);
 
     // find the distance to the target (player)
     SetZVelFromTarget(actorNew, actor, true);
@@ -12343,7 +12342,7 @@ int InitSumoNapalm(DSWActor* actor)
 
 			UpdateChange(actorNew);
 
-            MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
+            MissileSetPos(actorNew, *AF(DoNapalm), mp[i].dist_out);
 
             actor->clipdist = oclipdist;
 
@@ -12751,7 +12750,7 @@ int InitStar(PLAYER* pp)
     // the horizon was tilted.  Never figured out why.
     actorNew->vel.Z = zvel * 0.5;
     double act2zvel = actorNew->vel.Z;
-    if (MissileSetPos(actorNew, DoStar, 1000))
+    if (MissileSetPos(actorNew, *AF(DoStar), 1000))
     {
         KillActor(actorNew);
         return 0;
@@ -12791,7 +12790,7 @@ int InitStar(PLAYER* pp)
 
         actorNew2->vel.Z = act2zvel;
 
-        if (MissileSetPos(actorNew2, DoStar, 1000))
+        if (MissileSetPos(actorNew2, *AF(DoStar), 1000))
         {
             KillActor(actorNew2);
             return 0;
@@ -12851,7 +12850,7 @@ void InitHeartAttack(PLAYER* pp)
 
 	UpdateChange(actorNew);
 
-    MissileSetPos(actorNew, DoBloodWorm, mp[i].dist_out);
+    MissileSetPos(actorNew, *AF(DoBloodWorm), mp[i].dist_out);
 
     plActor->clipdist = oclipdist;
     actorNew->user.Counter = 0;
@@ -13164,25 +13163,25 @@ int InitLaser(PLAYER* pp)
 
     // the slower the missile travels the less of a zvel it needs
     // move it 1200 dist in increments - works better
-    if (MissileSetPos(actorNew, DoLaserStart, 300))
+    if (MissileSetPos(actorNew, *AF(DoLaserStart), 300))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
-    if (MissileSetPos(actorNew, DoLaserStart, 300))
+    if (MissileSetPos(actorNew, *AF(DoLaserStart), 300))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
-    if (MissileSetPos(actorNew, DoLaserStart, 300))
+    if (MissileSetPos(actorNew, *AF(DoLaserStart), 300))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
-    if (MissileSetPos(actorNew, DoLaserStart, 300))
+    if (MissileSetPos(actorNew, *AF(DoLaserStart), 300))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -13261,7 +13260,7 @@ int InitRail(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew, *AF(DoRailStart), 1200, zvel))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -13334,7 +13333,7 @@ int InitZillaRail(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew, *AF(DoRailStart), 1200, zvel))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -13442,7 +13441,7 @@ int InitRocket(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, *AF(DoRocket), 1200, zvel))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -13546,7 +13545,7 @@ int InitBunnyRocket(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, *AF(DoRocket), 1200, zvel))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -13639,7 +13638,7 @@ int InitNuke(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, *AF(DoRocket), 1200, zvel))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -13716,7 +13715,7 @@ int InitEnemyNuke(DSWActor* actor)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, *AF(DoRocket), 1200, zvel))
     {
         KillActor(actorNew);
         return 0;
@@ -13827,7 +13826,7 @@ int InitMicro(PLAYER* pp)
 
         // cancel smoke trail
         actorNew->user.Counter = 1;
-        if (MissileSetPos(actorNew, DoMicro, 700))
+        if (MissileSetPos(actorNew, *AF(DoMicro), 700))
         {
             actor->clipdist = oclipdist;
             KillActor(actorNew);
@@ -14236,7 +14235,7 @@ int InitSerpSpell(DSWActor* actor)
 
 		UpdateChange(actorNew);
 
-        MissileSetPos(actorNew, DoMirvMissile, 400);
+        MissileSetPos(actorNew, *AF(DoMirvMissile), 400);
         actor->clipdist = oclipdist;
 
         if (actor->user.Flags & (SPR_UNDERWATER))
@@ -14338,7 +14337,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 
 		UpdateChange(actorNew);
 
-        MissileSetPos(actorNew, DoMirvMissile, 400);
+        MissileSetPos(actorNew, *AF(DoMirvMissile), 400);
         actor->clipdist = oclipdist;
 
         if (actor->user.Flags & (SPR_UNDERWATER))
@@ -14410,7 +14409,7 @@ int InitEnemyRocket(DSWActor* actor)
         actorNew->spr.pal = actorNew->user.spal = 20; // Yellow
     }
 
-    MissileSetPos(actorNew, DoBoltThinMan, 400);
+    MissileSetPos(actorNew, *AF(DoBoltThinMan), 400);
 
     // find the distance to the target (player)
     SetZVelFromTarget(actorNew, actor, true);
@@ -14483,7 +14482,7 @@ int InitEnemyRail(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 600, actorNew->vel.Z))
+    if (TestMissileSetPos(actorNew, *AF(DoRailStart), 600, actorNew->vel.Z))
     {
         KillActor(actorNew);
         return 0;
@@ -14558,7 +14557,7 @@ int InitZillaRocket(DSWActor* actor)
             actorNew->spr.Angles.Yaw -= mp[i].ang;
         }
 
-        MissileSetPos(actorNew, DoBoltThinMan, mp[i].dist_out);
+        MissileSetPos(actorNew, *AF(DoBoltThinMan), mp[i].dist_out);
 
         // find the distance to the target (player)
         SetZVelFromTarget(actorNew, actor, true);
@@ -14593,7 +14592,7 @@ int InitEnemyStar(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-    MissileSetPos(actorNew, DoStar, 400);
+    MissileSetPos(actorNew, *AF(DoStar), 400);
 
     // find the distance to the target (player)
     SetZVelFromTarget(actorNew, actor, true);
@@ -14633,7 +14632,7 @@ int InitEnemyCrossbow(DSWActor* actor)
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
-    MissileSetPos(actorNew, DoStar, 400);
+    MissileSetPos(actorNew, *AF(DoStar), 400);
 
     // find the distance to the target (player)
     SetZVelFromTarget(actorNew, actor, true);
@@ -14673,7 +14672,7 @@ int InitSkelSpell(DSWActor* actor)
     // find the distance to the target (player)
     SetZVelFromTarget(actorNew, actor, false, ActorSizeZ(actor) * 0.5);
 	UpdateChange(actorNew);
-    MissileSetPos(actorNew, DoElectro, 400);
+    MissileSetPos(actorNew, *AF(DoElectro), 400);
 
     return 0;
 }
@@ -15002,7 +15001,7 @@ int InitTracerUzi(PLAYER* pp)
         HelpMissileLateral(actorNew, lat_dist[0]);
     actorNew->spr.Angles.Yaw -= DAngle90;
 
-    if (MissileSetPos(actorNew, DoTracerStart, 800))
+    if (MissileSetPos(actorNew, *AF(DoTracerStart), 800))
     {
         plActor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -16455,7 +16454,7 @@ int InitGrenade(PLAYER* pp)
 
     // don't do smoke for this movement
     actorNew->user.Flags |= (SPR_BOUNCE);
-    MissileSetPos(actorNew, DoGrenade, 1000);
+    MissileSetPos(actorNew, *AF(DoGrenade), 1000);
     actorNew->user.Flags &= ~(SPR_BOUNCE);
 
     actor->clipdist = oclipdist;
@@ -16526,7 +16525,7 @@ int InitSpriteGrenade(DSWActor* actor)
 
     // don't do smoke for this movement
     actorNew->user.Flags |= (SPR_BOUNCE);
-    MissileSetPos(actorNew, DoGrenade, 400);
+    MissileSetPos(actorNew, *AF(DoGrenade), 400);
     actorNew->user.Flags &= ~(SPR_BOUNCE);
 
     return 0;
@@ -16573,7 +16572,7 @@ int InitMine(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    MissileSetPos(actorNew, DoMine, 800);
+    MissileSetPos(actorNew, *AF(DoMine), 800);
 
 	UpdateChange(actorNew, 0.5);
 
@@ -16622,9 +16621,9 @@ int InitEnemyMine(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    MissileSetPos(actorNew, DoMine, 300);
+    MissileSetPos(actorNew, *AF(DoMine), 300);
     actorNew->spr.Angles.Yaw -= DAngle90;
-    MissileSetPos(actorNew, DoMine, 300);
+    MissileSetPos(actorNew, *AF(DoMine), 300);
     actorNew->spr.Angles.Yaw += DAngle90;
 
     actorNew->user.change. Z = -5000 / 256.;
@@ -16709,7 +16708,7 @@ int InitFireball(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoFireball, 1200, zvel * (1375. / 2048.)))
+    if (TestMissileSetPos(actorNew, *AF(DoFireball), 1200, zvel * (1375. / 2048.)))
     {
         actor->clipdist = oclipdist;
         KillActor(actorNew);
@@ -16776,7 +16775,7 @@ int InitEnemyFireball(DSWActor* actor)
 
         actorNew->user.change.XY() = change;
 
-        MissileSetPos(actorNew, DoFireball, 700);
+        MissileSetPos(actorNew, *AF(DoFireball), 700);
 
         if (i == 0)
         {

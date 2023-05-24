@@ -341,7 +341,6 @@ struct PANEL_SPRITE;
 struct ANIM;
 class DSWActor;
 
-typedef int ANIMATOR (DSWActor* actor);
 typedef void pANIMATOR (PANEL_SPRITE*);
 typedef void (*soANIMATORp) (SECTOR_OBJECT*);
 
@@ -711,7 +710,7 @@ struct USER
         STATE** StateFallOverride; // a bit kludgy - override std fall state
         ACTOR_ACTION_SET* ActorActionSet;
         int16_t RotNum;
-        ANIMATOR* ActorActionFunc;
+        VMFunction* ActorActionFunc;
         PERSONALITY* Personality;
         ATTRIBUTE* Attrib;
 
@@ -1436,8 +1435,6 @@ inline int PlayerSound(int num, int flags, PLAYER* pp) { return _PlayerSound(num
 void StopPlayerSound(PLAYER* pp, int which = -1);
  bool SoundValidAndActive(DSWActor* spr, int channel);
 
-
-ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
 struct BREAK_INFO;
 int SpawnShrap(DSWActor*, DSWActor*, int = -1, BREAK_INFO* breakinfo = nullptr);
@@ -2446,6 +2443,31 @@ DEF_ANIMATOR(InitRipper2Hang)
 DEF_ANIMATOR(InitRipperHang)
 DEF_ANIMATOR(InitActorRunToward)
 DEF_ANIMATOR(InitActorSetDecide)
+DEF_ANIMATOR(DoActorDecide)
+DEF_ANIMATOR(DoActorMoveJump)
+DEF_ANIMATOR(DoActorDuck)
+DEF_ANIMATOR(NinjaJumpActionFunc)
+DEF_ANIMATOR(DoActorMoveCloser)
+DEF_ANIMATOR(DoActorAttack)
+DEF_ANIMATOR(DoActorReposition)
+DEF_ANIMATOR(DoCoolgCircle)
+DEF_ANIMATOR(DoHornetCircle)
+DEF_ANIMATOR(GenerateDrips)
+DEF_ANIMATOR(DoSpawnSpot)
+DEF_ANIMATOR(DoGrating)
+DEF_ANIMATOR(DoVator)
+DEF_ANIMATOR(DoVatorAuto)
+DEF_ANIMATOR(DoRotator)
+DEF_ANIMATOR(DoActorPause)
+DEF_ANIMATOR(DoSlidor)
+DEF_ANIMATOR(DoSpike)
+DEF_ANIMATOR(DoSpikeAuto)
+DEF_ANIMATOR(DoLavaErupt)
+DEF_ANIMATOR(SpawnVehicleSmoke)
+DEF_ANIMATOR(DoLaserStart)
+DEF_ANIMATOR(DoTracerStart)
+DEF_ANIMATOR(DoRailStart)
+
 END_SW_NS
 
 #endif

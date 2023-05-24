@@ -1235,7 +1235,7 @@ void Ripper2Hatch(DSWActor* actor)
         actorNew->user.Flags |= (SPR_ACTIVE);
 
         actorNew->setStateGroup(NAME_Jump);
-        actorNew->user.__legacyState.ActorActionFunc = DoActorMoveJump;
+        actorNew->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 

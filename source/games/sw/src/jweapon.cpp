@@ -1275,7 +1275,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     plActor->clipdist = 0;
     actorNew->clipdist = 0;
 
-    MissileSetPos(actorNew, DoChemBomb, 1000);
+    MissileSetPos(actorNew, *AF(DoChemBomb), 1000);
 
     plActor->clipdist = oclipdist;
     actorNew->clipdist = 5;
@@ -1645,7 +1645,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     plActor->clipdist = 0;
     actorNew->clipdist = 0;
 
-    MissileSetPos(actorNew, DoCaltrops, 1000);
+    MissileSetPos(actorNew, *AF(DoCaltrops), 1000);
 
     plActor->clipdist = oclipdist;
     actorNew->clipdist = 5;

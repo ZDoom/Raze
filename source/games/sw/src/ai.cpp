@@ -687,7 +687,7 @@ int DoActorDecide(DSWActor* actor)
 
 int InitActorMoveCloser(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorMoveCloser;
+    actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveCloser);
 
     if (!actor->checkStateGroup(NAME_Run))
         actor->setStateGroup(NAME_Run);
@@ -1040,7 +1040,7 @@ int InitActorAttack(DSWActor* actor)
         return 0;
     }
 
-    actor->user.__legacyState.ActorActionFunc = DoActorAttack;
+    actor->user.__legacyState.ActorActionFunc = *AF(DoActorAttack);
 
     // move into standing frame
     //actor->setStateGroup(NAME_Stand);
@@ -1211,7 +1211,7 @@ int InitActorDuck(DSWActor* actor)
         return 0;
     }
 
-    actor->user.__legacyState.ActorActionFunc = DoActorDuck;
+    actor->user.__legacyState.ActorActionFunc = *AF(DoActorDuck);
     actor->setStateGroup(NAME_Duck);
 
 	double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).LengthSquared();
@@ -1562,7 +1562,7 @@ int InitActorReposition(DSWActor* actor)
     }
 
 
-    actor->user.__legacyState.ActorActionFunc = DoActorReposition;
+    actor->user.__legacyState.ActorActionFunc = *AF(DoActorReposition);
     if (!(actor->user.Flags & SPR_SWIMMING))
         actor->setStateGroup(NAME_Run);
 
@@ -1608,7 +1608,7 @@ int DoActorReposition(DSWActor* actor)
 
 int InitActorPause(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorPause;
+    actor->user.__legacyState.ActorActionFunc = *AF(DoActorPause);
 
     actor->callAction();
 

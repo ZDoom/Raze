@@ -95,8 +95,6 @@ pANIMATOR pNullAnimator;
 int InitStar(PLAYER*);
 int ChangeWeapon(PLAYER*);
 
-ANIMATOR InitFire;
-
 int NullAnimator(DSWActor*)
 {
     return 0;

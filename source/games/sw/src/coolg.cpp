@@ -695,7 +695,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
 int InitCoolgCircle(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoCoolgCircle;
+    actor->user.__legacyState.ActorActionFunc = *AF(DoCoolgCircle);
 
     actor->setStateGroup(NAME_Run);
 
