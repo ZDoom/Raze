@@ -40,6 +40,7 @@ public:
 	}
 
 	void Serialize(FSerializer& arc) override;
+
 	// wrappers to static class data. Must be stored in the meta data, but will require better means of access than what's currently available.
 	Personality* getPersonality();
 	int16_t* getCloseAttackPercent() { return CloseAttackPercent; }

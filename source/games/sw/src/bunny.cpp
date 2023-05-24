@@ -1178,7 +1178,7 @@ void BunnyHatch(DSWActor* actor)
 
         actorNew->user.ShellNum = 0; // Not Pregnant right now
 
-        NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
+        actorNew->setStateGroup(NAME_Jump);
         actorNew->user.__legacyState.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
@@ -1226,7 +1226,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 
     actorNew->user.ShellNum = 0; // Not Pregnant right now
 
-    NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
+    actorNew->setStateGroup(NAME_Jump);
     actorNew->user.__legacyState.ActorActionFunc = DoActorMoveJump;
     DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(actor))

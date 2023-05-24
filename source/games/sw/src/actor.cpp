@@ -39,6 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "sprite.h"
 #include "gamefuncs.h"
+#include "ai.h"
 
 BEGIN_SW_NS
 
@@ -535,7 +536,7 @@ void KeepActorOnFloor(DSWActor* actor)
     {
         if (actor->user.Flags & (SPR_SWIMMING))
         {
-            if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Run && actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Swim && actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Stand)
+            if (!actor->checkStateGroup(NAME_Run) && !actor->checkStateGroup(NAME_Swim) && !actor->checkStateGroup(NAME_Stand))
             {
                 // was swimming but have now stopped
                 actor->user.Flags &= ~(SPR_SWIMMING);
@@ -544,7 +545,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 return;
             }
 
-            if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Run)
+            if (actor->checkStateGroup(NAME_Run))
             {
                 actor->setStateGroup(NAME_Swim);
             }
@@ -555,7 +556,7 @@ void KeepActorOnFloor(DSWActor* actor)
         else
         {
             // only start swimming if you are running
-            if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Run || actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Swim)
+            if (actor->checkStateGroup(NAME_Run) || actor->checkStateGroup(NAME_Swim))
             {
                 actor->setStateGroup(NAME_Swim);
                 actor->spr.pos.Z = actor->user.oz = actor->user.loz - depth;
@@ -1076,9 +1077,6 @@ static STATE** getLegacyState(ACTOR_ACTION_SET* a, FName label, int subl)
     return nullptr;
 }
 
-int DoActorDecide(DSWActor* actor);
-void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = DoActorDecide; }
-
 void DSWActor::setStateGroup(FName label, int subl)
 {
     auto a = user.__legacyState.ActorActionSet;
@@ -1098,5 +1096,7 @@ bool DSWActor::hasState(FName label, int subl)
     if (!a) return false;
     return getLegacyState(a, label, subl) != nullptr;
 }
+
+void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = DoActorDecide; }
 
 END_SW_NS

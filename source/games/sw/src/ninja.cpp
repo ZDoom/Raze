@@ -2427,7 +2427,7 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos, const DAngle startan
     actor->spr.pal = PALETTE_PLAYER0 + pp->pnum;
     actor->user.spal = actor->spr.pal;
 
-    NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Run);
+    pp->actor->setStateGroup(NAME_Run);
 
     pp->PlayerUnderActor = nullptr;
 

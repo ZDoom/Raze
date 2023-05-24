@@ -3000,7 +3000,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_DUCK:
 
-        if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Duck)
+        if (!actor->checkStateGroup(NAME_Duck))
         {
             actor->spr.Angles.Yaw = tpoint->angle;
 
@@ -3024,7 +3024,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         HitInfo near{};
         double z[2];
 
-        if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Sit || actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Stand)
+        if (actor->checkStateGroup(NAME_Sit) || actor->checkStateGroup(NAME_Stand))
             return false;
 
         actor->spr.Angles.Yaw = tpoint->angle;
@@ -3093,14 +3093,14 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_CRAWL:
-        if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Crawl)
+        if (!actor->checkStateGroup(NAME_Crawl))
             actor->setStateGroup(NAME_Crawl);
         else
             actor->setStateGroup(NAME_Rise);
         break;
 
     case TRACK_ACTOR_SWIM:
-        if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Swim)
+        if (!actor->checkStateGroup(NAME_Swim))
             actor->setStateGroup(NAME_Swim);
         else
             actor->setStateGroup(NAME_Rise);

@@ -1061,10 +1061,7 @@ void DoPlayerSpriteThrow(PLAYER* pp)
         if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->actor->user.__legacyState.Rot != sg_PlayerNinjaSword)
             NewStateGroup(pp->actor, sg_PlayerNinjaSword);
         else
-            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->actor->user.__legacyState.Rot != sg_PlayerNinjaPunch)
             NewStateGroup(pp->actor, sg_PlayerNinjaPunch);
-        //else
-        //    NewStateGroup(pp->actor, sg_PlayerNinjaThrow);
     }
 }
 
@@ -1085,13 +1082,13 @@ int DoPlayerSpriteReset(DSWActor* actor)
 
     // need to figure out what frames to put sprite into
     if (pp->DoPlayerAction == DoPlayerCrawl)
-        NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Crawl);
+        pp->actor->setStateGroup(NAME_Crawl);
     else
     {
         if (pp->Flags & (PF_PLAYER_MOVED))
-            NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Run);
+            pp->actor->setStateGroup(NAME_Run);
         else
-            NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Stand);
+            pp->actor->setStateGroup(NAME_Stand);
     }
 
     return 0;
@@ -1423,7 +1420,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         DoPlayerBeginRun(pp);
         pp->DoPlayerAction = DoPlayerTeleportPause;
 
-        NewStateGroup(ppActor, ppActor->user.__legacyState.ActorActionSet->Stand);
+        ppActor->setStateGroup(NAME_Stand);
 
         UpdatePlayerSprite(pp);
         DoSpawnTeleporterEffect(ppActor);
@@ -2789,7 +2786,7 @@ void DoPlayerBeginJump(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Jump);
+    plActor->setStateGroup(NAME_Jump);
 }
 
 //---------------------------------------------------------------------------
@@ -2816,7 +2813,7 @@ void DoPlayerBeginForceJump(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Jump);
+    plActor->setStateGroup(NAME_Jump);
 }
 
 //---------------------------------------------------------------------------
@@ -2992,7 +2989,7 @@ void DoPlayerBeginFall(PLAYER* pp)
     // Only change to falling frame if you were in the jump frame
     // Otherwise an animation may be messed up such as Running Jump Kick
     if (plActor->user.__legacyState.Rot == plActor->user.__legacyState.ActorActionSet->Jump)
-        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Fall);
+        plActor->setStateGroup(NAME_Fall);
 }
 
 //---------------------------------------------------------------------------
@@ -3196,9 +3193,6 @@ void DoPlayerBeginClimb(PLAYER* pp)
     pp->Flags |= (PF_CLIMBING|PF_WEAPON_DOWN);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    //DamageData[plActor->user.WeaponNum].Init(pp);
-
-    //NewStateGroup(pp->actor, pp->actor->user.__legacyState.ActorActionSet->Climb);
     NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
 }
 
@@ -3464,7 +3458,7 @@ void DoPlayerBeginCrawl(PLAYER* pp)
 
     //pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Crawl);
+    plActor->setStateGroup(NAME_Crawl);
 }
 
 //---------------------------------------------------------------------------
@@ -3571,7 +3565,7 @@ void DoPlayerCrawl(PLAYER* pp)
 
     if (!(pp->Flags & PF_PLAYER_MOVED))
     {
-        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Crawl);
+        plActor->setStateGroup(NAME_Crawl);
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
@@ -4304,7 +4298,7 @@ void DoPlayerBeginDive(PLAYER* pp)
     DoPlayerMove(pp); // needs to be called to reset the pp->loz/hiz variable
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Dive);
+    plActor->setStateGroup(NAME_Dive);
 
     DoPlayerDive(pp);
 }
@@ -4357,7 +4351,7 @@ void DoPlayerBeginDiveNoWarp(PLAYER* pp)
     pp->DiveDamageTics = 0;
     DoPlayerMove(pp); // needs to be called to reset the pp->loz/hiz variable
     ///DamageData[plActor->user.WeaponNum].Init(pp);
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Dive);
+    plActor->setStateGroup(NAME_Dive);
     DoPlayerDive(pp);
 }
 
@@ -4796,7 +4790,7 @@ void DoPlayerBeginWade(PLAYER* pp)
 
     ASSERT(plActor->user.__legacyState.ActorActionSet->Run);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
+    plActor->setStateGroup(NAME_Run);
 }
 
 
@@ -4890,12 +4884,12 @@ void DoPlayerWade(PLAYER* pp)
     if (pp->Flags & (PF_PLAYER_MOVED))
     {
         if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Run)
-            NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
+            plActor->setStateGroup(NAME_Run);
     }
     else
     {
         if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Stand)
-            NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
+            plActor->setStateGroup(NAME_Stand);
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
@@ -4967,7 +4961,7 @@ void DoPlayerBeginOperateVehicle(PLAYER* pp)
 
     ASSERT(plActor->user.__legacyState.ActorActionSet->Stand);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
+    plActor->setStateGroup(NAME_Stand);
 }
 
 //---------------------------------------------------------------------------
@@ -4992,7 +4986,7 @@ void DoPlayerBeginOperateTurret(PLAYER* pp)
 
     ASSERT(plActor->user.__legacyState.ActorActionSet->Stand);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
+    plActor->setStateGroup(NAME_Stand);
 }
 
 //---------------------------------------------------------------------------
@@ -5755,7 +5749,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->sop = nullptr;
     pp->Flags &= ~(PF_TWO_UZI);
 
-    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
+    plActor->setStateGroup(NAME_Run);
     pWeaponForceRest(pp);
 
     switch (pp->DeathType)
@@ -5977,7 +5971,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
             InitBloodSpray(plActor,true,-1);
         }
 
-        NewStateGroup(plActor, plActor->user.__legacyState.ActorActionSet->Stand);
+        plActor->setStateGroup(NAME_Stand);
         plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
         plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
@@ -6420,9 +6414,9 @@ void DoPlayerBeginRun(PLAYER* pp)
     ASSERT(plActor->user.__legacyState.ActorActionSet->Run);
 
     if (pp->Flags & (PF_PLAYER_MOVED))
-        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
+        plActor->setStateGroup(NAME_Run);
     else
-        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
+        plActor->setStateGroup(NAME_Stand);
 }
 
 //---------------------------------------------------------------------------
@@ -6550,12 +6544,12 @@ void DoPlayerRun(PLAYER* pp)
         if (pp->Flags & (PF_PLAYER_MOVED))
         {
             if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Run)
-                NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
+                plActor->setStateGroup(NAME_Run);
         }
         else
         {
             if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Stand)
-                NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
+                plActor->setStateGroup(NAME_Stand);
         }
     }
 

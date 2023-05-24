@@ -421,7 +421,7 @@ int DoActorOperate(DSWActor* actor)
     if (actor->user.ID == HORNET_RUN_R0 || actor->user.ID == EEL_RUN_R0 || actor->user.ID == BUNNY_RUN_R0)
         return false;
 
-    if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Sit || actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Stand)
+    if (actor->checkStateGroup(NAME_Sit) || actor->checkStateGroup(NAME_Stand))
         return false;
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
@@ -816,7 +816,7 @@ int InitActorMoveCloser(DSWActor* actor)
 {
     actor->user.__legacyState.ActorActionFunc = DoActorMoveCloser;
 
-    if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Run)
+    if (!actor->checkStateGroup(NAME_Run))
         actor->setStateGroup(NAME_Run);
 
     (*actor->user.__legacyState.ActorActionFunc)(actor);
