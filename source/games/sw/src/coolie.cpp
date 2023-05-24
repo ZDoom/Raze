@@ -473,8 +473,6 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
 
 int SetupCoolie(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,COOLIE_RUN_R0,s_CoolieRun[0]);

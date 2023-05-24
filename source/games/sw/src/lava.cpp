@@ -217,8 +217,6 @@ STATE* sg_LavaRun[] =
 //////////////////////
 
 #define LAVA_THROW_RATE 9
-ANIMATOR InitActorDecide;
-ANIMATOR InitLavaThrow;
 
 STATE s_LavaThrow[5][10] =
 {
@@ -302,7 +300,6 @@ STATE* sg_LavaThrow[] =
 //////////////////////
 
 #define LAVA_FLAME_RATE 18
-ANIMATOR InitLavaFlame;
 
 STATE s_LavaFlame[5][8] =
 {
@@ -457,8 +454,6 @@ ACTOR_ACTION_SET LavaActionSet =
 
 int SetupLava(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, LAVA_RUN_R0, s_LavaRun[0]);

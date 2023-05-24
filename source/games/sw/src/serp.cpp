@@ -180,8 +180,6 @@ STATE* sg_SerpRun[] =
 //////////////////////
 
 #define SERP_SLASH_RATE 9
-ANIMATOR InitActorDecide;
-ANIMATOR InitSerpSlash;
 
 STATE s_SerpSlash[5][10] =
 {
@@ -265,8 +263,6 @@ STATE* sg_SerpSlash[] =
 //////////////////////
 
 #define SERP_SKULL_SPELL_RATE 18
-ANIMATOR InitSerpSkullSpell;
-ANIMATOR InitSerpRing;
 
 STATE s_SerpSkullSpell[5][8] =
 {
@@ -341,7 +337,6 @@ STATE* sg_SerpSkullSpell[] =
 //////////////////////
 
 #define SERP_SPELL_RATE 18
-ANIMATOR InitSerpSpell;
 
 STATE s_SerpSpell[5][8] =
 {
@@ -412,8 +407,6 @@ STATE* sg_SerpSpell[] =
 // SERP SPELL MONSTER
 //
 //////////////////////
-
-ANIMATOR InitSerpMonstSpell;
 
 STATE s_SerpMonstSpell[5][8] =
 {
@@ -487,7 +480,6 @@ STATE* sg_SerpMonstSpell[] =
 //////////////////////
 
 #define SERP_SPELL_RATE 18
-ANIMATOR InitSerpRapidSpell;
 
 STATE s_SerpRapidSpell[5][10] =
 {
@@ -607,7 +599,6 @@ STATE* sg_SerpStand[] =
 //////////////////////
 
 #define SERP_DIE_RATE 20
-ANIMATOR DoDeathSpecial;
 
 STATE s_SerpDie[] =
 {
@@ -693,8 +684,6 @@ ACTOR_ACTION_SET SerpActionSet =
 
 int SetupSerp(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SERP_RUN_R0,s_SerpRun[0]);

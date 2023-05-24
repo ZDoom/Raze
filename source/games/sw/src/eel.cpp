@@ -81,8 +81,6 @@ DECISION EelCloseRange[] =
     {1024,  InitActorReposition            }
 };
 
-ANIMATOR InitEelFire;
-
 DECISION EelTouchTarget[] =
 {
     {1024,  InitActorAttack            },
@@ -379,8 +377,6 @@ void EelCommon(DSWActor* actor)
 
 int SetupEel(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,EEL_RUN_R0,s_EelRun[0]);

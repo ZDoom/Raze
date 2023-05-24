@@ -203,7 +203,6 @@ STATE* sg_ZombieStand[] =
 //////////////////////
 
 #define ZOMBIE_PAIN_RATE 15
-ANIMATOR DoZombiePain;
 
 STATE s_ZombiePain[5][2] =
 {
@@ -245,7 +244,6 @@ STATE* sg_ZombiePain[] =
 //////////////////////
 
 #define ZOMBIE_NUKE_RATE 18
-ANIMATOR InitEnemyNuke;
 
 STATE s_ZombieNuke[5][6] =
 {
@@ -308,7 +306,6 @@ STATE* sg_ZombieNuke[] =
 //////////////////////
 
 #define ZOMBIE_ROCKET_RATE 14
-ANIMATOR InitEnemyRocket;
 
 STATE s_ZombieRocket[5][5] =
 {
@@ -366,7 +363,6 @@ STATE* sg_ZombieRocket[] =
 //////////////////////
 
 #define ZOMBIE_RAIL_RATE 14
-ANIMATOR InitEnemyRail;
 
 STATE s_ZombieRail[5][5] =
 {
@@ -424,7 +420,6 @@ STATE* sg_ZombieRail[] =
 //////////////////////
 
 #define ZOMBIE_ROCKET_RATE 14
-ANIMATOR InitSpriteGrenade;
 
 STATE s_ZombieGrenade[5][5] =
 {
@@ -483,7 +478,6 @@ STATE* sg_ZombieGrenade[] =
 //////////////////////
 
 #define ZOMBIE_FLASHBOMB_RATE 14
-ANIMATOR InitFlashBomb;
 
 STATE s_ZombieFlashBomb[5][5] =
 {
@@ -753,7 +747,6 @@ ACTOR_ACTION_SET ZombieActionSet =
 
 int SetupZombie(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
 
     actor->user.Health = 100;
     actor->user.__legacyState.StateEnd = &s_ZombiePain[0][0];

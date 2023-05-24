@@ -430,7 +430,6 @@ STATE* sg_GirlNinjaFall[] =
 //////////////////////
 
 #define GIRLNINJA_PAIN_RATE 15
-ANIMATOR DoGirlNinjaPain;
 
 STATE s_GirlNinjaPain[5][1] =
 {
@@ -529,7 +528,6 @@ STATE* sg_GirlNinjaSticky[] =
 //////////////////////
 
 #define GIRLNINJA_CROSSBOW_RATE 14
-ANIMATOR InitEnemyCrossbow;
 
 STATE s_GirlNinjaCrossbow[5][5] =
 {
@@ -589,7 +587,6 @@ STATE* sg_GirlNinjaCrossbow[] =
 //////////////////////
 
 #define GIRLNINJA_DIE_RATE 30
-ANIMATOR DoGirlNinjaSpecial;
 
 STATE s_GirlNinjaDie[] =
 {
@@ -714,8 +711,6 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
 
 int SetupGirlNinja(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);

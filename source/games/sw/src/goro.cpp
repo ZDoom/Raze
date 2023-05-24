@@ -169,8 +169,6 @@ STATE* sg_GoroRun[] =
 //////////////////////
 
 #define GORO_CHOP_RATE 14
-ANIMATOR InitActorDecide;
-ANIMATOR InitGoroChop;
 
 STATE s_GoroChop[5][7] =
 {
@@ -359,7 +357,6 @@ STATE* sg_GoroStand[] =
 //////////////////////
 
 #define GORO_PAIN_RATE 12
-ANIMATOR DoGoroPain;
 
 STATE s_GoroPain[5][1] =
 {
@@ -487,8 +484,6 @@ ACTOR_ACTION_SET GoroActionSet =
 
 int SetupGoro(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, GORO_RUN_R0,s_GoroRun[0]);

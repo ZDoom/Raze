@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR InitZillaCharge;
 
 DECISION ZillaBattle[] =
 {
@@ -253,7 +252,6 @@ STATE* sg_ZillaPain[] =
 //////////////////////
 
 #define ZILLA_RAIL_RATE 12
-ANIMATOR InitZillaRail;
 
 STATE s_ZillaRail[5][14] =
 {
@@ -355,7 +353,6 @@ STATE* sg_ZillaRail[] =
 //////////////////////
 
 #define ZILLA_ROCKET_RATE 12
-ANIMATOR InitZillaRocket;
 
 STATE s_ZillaRocket[5][7] =
 {
@@ -422,7 +419,6 @@ STATE* sg_ZillaRocket[] =
 //////////////////////
 
 #define ZILLA_UZI_RATE 8
-ANIMATOR InitEnemyUzi;
 
 STATE s_ZillaUzi[5][17] =
 {
@@ -541,7 +537,6 @@ STATE* sg_ZillaUzi[] =
 //////////////////////
 
 #define ZILLA_DIE_RATE 30
-ANIMATOR DoZillaDeathMelt;
 
 STATE s_ZillaDie[] =
 {
@@ -607,8 +602,6 @@ ACTOR_ACTION_SET ZillaActionSet =
 
 int SetupZilla(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, ZILLA_RUN_R0, s_ZillaRun[0]);

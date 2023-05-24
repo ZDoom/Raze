@@ -176,8 +176,6 @@ STATE* sg_SkelRun[] =
 //////////////////////
 
 #define SKEL_SLASH_RATE 20
-ANIMATOR InitActorDecide;
-ANIMATOR InitSkelSlash;
 
 STATE s_SkelSlash[5][7] =
 {
@@ -313,7 +311,6 @@ STATE* sg_SkelSpell[] =
 //////////////////////
 
 #define SKEL_PAIN_RATE 38
-ANIMATOR DoSkelPain;
 
 STATE s_SkelPain[5][1] =
 {
@@ -504,8 +501,6 @@ ACTOR_ACTION_SET SkelActionSet =
 
 int SetupSkel(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SKEL_RUN_R0,s_SkelRun[0]);

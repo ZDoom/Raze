@@ -256,7 +256,6 @@ STATE* sg_SumoPain[] =
 //////////////////////
 
 #define SUMO_FART_RATE 12
-ANIMATOR InitSumoFart;
 
 STATE s_SumoFart[5][6] =
 {
@@ -318,7 +317,6 @@ STATE* sg_SumoFart[] =
 //////////////////////
 
 #define SUMO_CLAP_RATE 12
-ANIMATOR InitSumoClap;
 
 STATE s_SumoClap[5][6] =
 {
@@ -544,8 +542,6 @@ ACTOR_ACTION_SET MiniSumoActionSet =
 
 int SetupSumo(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SUMO_RUN_R0,s_SumoRun[0]);

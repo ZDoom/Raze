@@ -60,10 +60,6 @@ void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
 void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez);
 void ScaleSpriteVector(DSWActor* actor, int scale);
 
-ANIMATOR DoBettyBeginDeath;
-ANIMATOR DoSkullBeginDeath;
-ANIMATOR DoRipperGrow;
-
 constexpr DAngle FacingAngle = mapangle(150);
 
 //
@@ -177,8 +173,6 @@ STATE s_DeadLoWang[] =
 // BREAKABLE STATES
 //
 //////////////////////
-
-ANIMATOR DoDefaultStat;
 
 #define BREAK_LIGHT_RATE 18
 STATE s_BreakLight[] =
@@ -419,7 +413,6 @@ STATE s_UziSmoke[] =
 
 #define SHOTGUN_SMOKE_RATE 16
 #define SHOTGUN_SMOKE UZI_SMOKE+1
-ANIMATOR DoShotgunSmoke;
 STATE s_ShotgunSmoke[] =
 {
     {UZI_SMOKE + 0, SHOTGUN_SMOKE_RATE, AF(DoShotgunSmoke), &s_ShotgunSmoke[1]},
@@ -431,7 +424,6 @@ STATE s_ShotgunSmoke[] =
 
 #define UZI_BULLET_RATE 100
 #define UZI_BULLET 717 // actually a bubble
-ANIMATOR DoUziBullet;
 
 STATE s_UziBullet[] =
 {
@@ -462,7 +454,6 @@ STATE s_UziPowerSpark[] =
 
 #define BUBBLE 716
 #define BUBBLE_RATE 100
-ANIMATOR DoBubble;
 
 STATE s_Bubble[] =
 {
@@ -1308,7 +1299,6 @@ STATE s_PlasmaDone[] =
 
 #define TELEPORT_EFFECT 3240
 #define TELEPORT_EFFECT_RATE 6
-ANIMATOR DoTeleportEffect;
 STATE s_TeleportEffect[] =
 {
     {TELEPORT_EFFECT + 0, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[1]},
@@ -1333,7 +1323,6 @@ STATE s_TeleportEffect[] =
 };
 
 // Spawn a RIPPER teleport effect
-ANIMATOR DoTeleRipper;
 STATE s_TeleportEffect2[] =
 {
     {TELEPORT_EFFECT + 0, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[1]},
@@ -1359,7 +1348,6 @@ STATE s_TeleportEffect2[] =
 };
 
 
-ANIMATOR DoElectro;
 #define ELECTRO_SNAKE 2073
 #define ELECTRO_PLAYER (ELECTRO)
 #define ELECTRO_ENEMY (ELECTRO + 1)
@@ -1768,7 +1756,6 @@ STATE s_BreakFlames[] =
 //
 //////////////////////
 
-#if 1
 #define FIREBALL_RATE 8
 #define GORO_FIREBALL FIREBALL+1
 
@@ -1780,12 +1767,6 @@ STATE s_Fireball[] =
     {FIREBALL + 3, 12, AF(DoFireball), &s_Fireball[0]}
 };
 
-#else
-#endif
-
-#if 0
-#else
-ANIMATOR DoRing;
 
 STATE s_Ring[] =
 {
@@ -1794,7 +1775,6 @@ STATE s_Ring[] =
     {FIREBALL + 2, 12, AF(DoRing), &s_Ring[3]},
     {FIREBALL + 3, 12, AF(DoRing), &s_Ring[0]}
 };
-#endif
 
 STATE s_Ring2[] =
 {
@@ -1804,8 +1784,6 @@ STATE s_Ring2[] =
     {2031 + 3, 12, AF(DoRing), &s_Ring2[0]}
 };
 
-ANIMATOR DoNapalm;
-
 STATE s_Napalm[] =
 {
     {FIREBALL + 0, 12, AF(DoNapalm), &s_Napalm[1]},
@@ -1814,8 +1792,6 @@ STATE s_Napalm[] =
     {FIREBALL + 3, 12, AF(DoNapalm), &s_Napalm[0]}
 };
 
-
-ANIMATOR DoBloodWorm;
 
 #if 1
 #define BLOOD_WORM 2106
@@ -1863,8 +1839,6 @@ STATE s_PlasmaExp[] =
 #endif
 
 
-ANIMATOR DoMirv;
-
 STATE s_Mirv[] =
 {
     {FIREBALL + 0, 12, AF(DoMirv), &s_Mirv[1]},
@@ -1872,8 +1846,6 @@ STATE s_Mirv[] =
     {FIREBALL + 2, 12, AF(DoMirv), &s_Mirv[3]},
     {FIREBALL + 3, 12, AF(DoMirv), &s_Mirv[0]}
 };
-
-ANIMATOR DoMirvMissile;
 
 STATE s_MirvMissile[] =
 {
@@ -2090,7 +2062,6 @@ STATE s_GoreFlame[] =
     {GORE_Flame + 7, GORE_Flame_RATE, AF(DoFastShrapJumpFall), &s_GoreFlame[0]},
 };
 
-ANIMATOR DoTracerShrap;
 STATE s_TracerShrap[] =
 {
     {GORE_Flame + 0, GORE_Flame_RATE, AF(DoTracerShrap), &s_TracerShrap[1]},
@@ -2105,7 +2076,6 @@ STATE s_TracerShrap[] =
 
 #define UZI_SHELL 2152
 #define UZISHELL_RATE 8
-//ANIMATOR DoShellShrap;
 STATE s_UziShellShrap[] =
 {
     {UZI_SHELL + 0, UZISHELL_RATE, AF(DoShrapJumpFall), &s_UziShellShrap[1]},
@@ -2954,14 +2924,6 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
     };
 
 #define WALL_FLOOR_SHRAP 4097
-    ANIMATOR DoShrapWallFloor;
-#if 0
-    static SHRAP SectorExpShrap[] =
-    {
-        {nullptr, WALL_FLOOR_SHRAP, 1, Z_BOT, 550, 800, 200, 400, true, 512},
-        {nullptr,0,0,0,0,0,0,0,0,0},
-    };
-#endif
 
     double hZ[3];
     DAngle dangl = nullAngle;
@@ -17729,7 +17691,6 @@ enum
     FOOTPRINT3 = 2492,
     FOOTPRINT_RATE = 30,
 };
-ANIMATOR DoFootPrint;
 STATE s_FootPrint1[] =
 {
     {FOOTPRINT1, FOOTPRINT_RATE, nullptr,  &s_FootPrint1[0]},
@@ -17857,7 +17818,6 @@ enum
     WALLBLOOD4 = 2503,
     WALLBLOOD_RATE = 1,
 };
-ANIMATOR DoWallBlood;
 STATE s_WallBlood1[] =
 {
     {WALLBLOOD1, SF_QUICK_CALL, AF(DoWallBlood), &s_WallBlood1[1]},

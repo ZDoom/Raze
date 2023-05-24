@@ -37,11 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR InitRipper2Hang;
-ANIMATOR DoRipper2MoveJump;
-ANIMATOR DoRipper2HangJF;
-ANIMATOR DoRipper2QuickJump;
-ANIMATOR InitRipper2Charge;
+ANIMATOR InitRipper2Hang, InitRipper2Charge;
 
 DECISION Ripper2Battle[] =
 {
@@ -260,8 +256,6 @@ STATE* sg_Ripper2Stand[] =
 //////////////////////
 
 #define RIPPER2_SWIPE_RATE 14
-ANIMATOR InitActorDecide;
-ANIMATOR InitRipperSlash;
 
 STATE s_Ripper2Swipe[5][8] =
 {
@@ -334,7 +328,6 @@ STATE* sg_Ripper2Swipe[] =
 //////////////////////
 
 #define RIPPER2_MEKONG_RATE 18
-ANIMATOR ChestRipper2;
 
 STATE s_Ripper2Kong[5][7] =
 {
@@ -403,7 +396,6 @@ STATE* sg_Ripper2Kong[] =
 //////////////////////
 
 #define RIPPER2_HEART_RATE 20
-ANIMATOR DoRipper2StandHeart;
 
 STATE s_Ripper2Heart[5][4] =
 {
@@ -446,7 +438,6 @@ STATE* sg_Ripper2Heart[] =
 //////////////////////
 
 #define RIPPER2_HANG_RATE 14
-ANIMATOR DoRipper2Hang;
 
 STATE s_Ripper2Hang[5][4] =
 {
@@ -485,7 +476,6 @@ STATE* sg_Ripper2Hang[] =
 //////////////////////
 
 #define RIPPER2_PAIN_RATE 38
-ANIMATOR DoRipper2Pain;
 
 STATE s_Ripper2Pain[5][1] =
 {
@@ -886,8 +876,6 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
 
 int SetupRipper2(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, RIPPER2_RUN_R0, s_Ripper2Run[0]);
@@ -1039,6 +1027,7 @@ int DoRipper2MoveHang(DSWActor* actor)
 // 
 //
 //---------------------------------------------------------------------------
+int DoRipper2QuickJump(DSWActor* actor);
 
 int DoRipper2HangJF(DSWActor* actor)
 {
@@ -1356,7 +1345,6 @@ static saveable_code saveable_ripper2_code[] =
 
     SAVE_CODE(DoRipper2BeginJumpAttack),
     SAVE_CODE(DoRipper2MoveJump),
-    SAVE_CODE(DoRipper2QuickJump),
     SAVE_CODE(NullRipper2),
     SAVE_CODE(DoRipper2Pain),
     SAVE_CODE(DoRipper2RipHeart),

@@ -386,7 +386,6 @@ enum  FOOT_TYPE
 {WATER_FOOT, BLOOD_FOOT};
 
 extern FOOT_TYPE FootMode;
-ANIMATOR QueueFloorBlood;                // Weapon.c
 int QueueFootPrint(DSWActor*);                 // Weapon.c
 void QueueLoWangs(DSWActor*);                   // Weapon.c
 int SpawnShell(DSWActor* actor, int ShellNum);     // JWeapon.c
@@ -1390,8 +1389,6 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 // Prototypes
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
-
-ANIMATOR NullAnimator;
 
 int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
 DVector3 SectorMidPoint(sectortype* sectp);

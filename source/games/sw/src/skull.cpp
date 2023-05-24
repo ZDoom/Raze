@@ -47,10 +47,8 @@ int InitCaltrops(DSWActor* actor);
 
 
 extern DAMAGE_DATA DamageData[];
-ANIMATOR DoSkullMove,DoActorDebris;
 
 #define SKULL_RATE 10
-ANIMATOR DoSkullWait;
 
 STATE s_SkullWait[5][1] =
 {
@@ -98,8 +96,6 @@ ATTRIBUTE SkullAttrib =
 //
 //////////////////////
 
-ANIMATOR DoSerpRing;
-
 STATE s_SkullRing[5][1] =
 {
     {
@@ -136,8 +132,6 @@ STATE* sg_SkullRing[] =
 // SKULL Jump
 //
 //////////////////////
-
-ANIMATOR DoSkullJump;
 
 STATE s_SkullJump[5][1] =
 {
@@ -213,8 +207,6 @@ STATE* sg_SkullExplode[] =
 
 int SetupSkull(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,SKULL_R0,s_SkullWait[0]);
@@ -566,8 +558,6 @@ ATTRIBUTE BettyAttrib =
 //
 //////////////////////
 
-ANIMATOR DoBettyJump;
-
 STATE s_BettyJump[5][1] =
 {
     {
@@ -606,8 +596,6 @@ STATE* sg_BettyJump[] =
 
 #define BETTY_EXPLODE_RATE 11
 #define BETTY_EXPLODE BETTY_R0
-ANIMATOR DoSuicide;
-ANIMATOR DoBettySpawnShrap;
 
 STATE s_BettyExplode[] =
 {
@@ -629,8 +617,6 @@ STATE* sg_BettyExplode[] =
 
 int SetupBetty(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,BETTY_R0,s_BettyWait[0]);

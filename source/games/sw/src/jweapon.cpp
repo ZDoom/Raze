@@ -43,11 +43,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR DoSuicide;
-ANIMATOR DoBloodSpray;
 void SpawnFlashBombOnActor(DSWActor* actor);
 
-ANIMATOR DoPuff;
 extern STATE s_Puff[];
 extern STATE s_FireballFlames[];
 extern STATE s_GoreFloorSplash[];

@@ -287,8 +287,6 @@ int DoHornetMatchPlayerZ(DSWActor* actor);
 
 int SetupHornet(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,HORNET_RUN_R0,s_HornetRun[0]);
