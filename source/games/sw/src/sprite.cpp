@@ -120,22 +120,22 @@ int DirArr[] = {NORTH, NE, EAST, SE, SOUTH, SW, WEST, NW, NORTH, NE, EAST, SE, S
 
 STATE s_DebrisNinja[] =
 {
-    {NINJA_DIE + 3, 100, AF(DoActorDebris), &s_DebrisNinja[0]},
+    {NINJA_DIE + 3, 100, &AF(DoActorDebris), &s_DebrisNinja[0]},
 };
 
 STATE s_DebrisRat[] =
 {
-    {750, 100, AF(DoActorDebris), &s_DebrisRat[0]},
+    {750, 100, &AF(DoActorDebris), &s_DebrisRat[0]},
 };
 
 STATE s_DebrisCrab[] =
 {
-    {423, 100, AF(DoActorDebris), &s_DebrisCrab[0]},
+    {423, 100, &AF(DoActorDebris), &s_DebrisCrab[0]},
 };
 
 STATE s_DebrisStarFish[] =
 {
-    {426, 100, AF(DoActorDebris), &s_DebrisStarFish[0]},
+    {426, 100, &AF(DoActorDebris), &s_DebrisStarFish[0]},
 };
 
 // temporary
@@ -143,59 +143,59 @@ STATE s_DebrisStarFish[] =
 #define REPAIR_KIT_RATE 1100
 STATE s_RepairKit[] =
 {
-    {ICON_REPAIR_KIT + 0, REPAIR_KIT_RATE, AF(DoGet), &s_RepairKit[0]}
+    {ICON_REPAIR_KIT + 0, REPAIR_KIT_RATE, &AF(DoGet), &s_RepairKit[0]}
 };
 
 STATE s_GoldSkelKey[] =
 {
-    {GOLD_SKELKEY, 100, AF(DoGet), &s_GoldSkelKey[0]}
+    {GOLD_SKELKEY, 100, &AF(DoGet), &s_GoldSkelKey[0]}
 };
 STATE s_BlueKey[] =
 {
-    {BLUE_KEY, 100, AF(DoGet), &s_BlueKey[0]}
+    {BLUE_KEY, 100, &AF(DoGet), &s_BlueKey[0]}
 };
 STATE s_BlueCard[] =
 {
-    {BLUE_CARD, 100, AF(DoGet), &s_BlueCard[0]}
+    {BLUE_CARD, 100, &AF(DoGet), &s_BlueCard[0]}
 };
 
 STATE s_SilverSkelKey[] =
 {
-    {SILVER_SKELKEY, 100, AF(DoGet), &s_SilverSkelKey[0]}
+    {SILVER_SKELKEY, 100, &AF(DoGet), &s_SilverSkelKey[0]}
 };
 STATE s_RedKey[] =
 {
-    {RED_KEY, 100, AF(DoGet), &s_RedKey[0]}
+    {RED_KEY, 100, &AF(DoGet), &s_RedKey[0]}
 };
 STATE s_RedCard[] =
 {
-    {RED_CARD, 100, AF(DoGet), &s_RedCard[0]}
+    {RED_CARD, 100, &AF(DoGet), &s_RedCard[0]}
 };
 
 STATE s_BronzeSkelKey[] =
 {
-    {BRONZE_SKELKEY, 100, AF(DoGet), &s_BronzeSkelKey[0]}
+    {BRONZE_SKELKEY, 100, &AF(DoGet), &s_BronzeSkelKey[0]}
 };
 STATE s_GreenKey[] =
 {
-    {GREEN_KEY, 100, AF(DoGet), &s_GreenKey[0]}
+    {GREEN_KEY, 100, &AF(DoGet), &s_GreenKey[0]}
 };
 STATE s_GreenCard[] =
 {
-    {GREEN_CARD, 100, AF(DoGet), &s_GreenCard[0]}
+    {GREEN_CARD, 100, &AF(DoGet), &s_GreenCard[0]}
 };
 
 STATE s_RedSkelKey[] =
 {
-    {RED_SKELKEY, 100, AF(DoGet), &s_RedSkelKey[0]}
+    {RED_SKELKEY, 100, &AF(DoGet), &s_RedSkelKey[0]}
 };
 STATE s_YellowKey[] =
 {
-    {YELLOW_KEY, 100, AF(DoGet), &s_YellowKey[0]}
+    {YELLOW_KEY, 100, &AF(DoGet), &s_YellowKey[0]}
 };
 STATE s_YellowCard[] =
 {
-    {YELLOW_CARD, 100, AF(DoGet), &s_YellowCard[0]}
+    {YELLOW_CARD, 100, &AF(DoGet), &s_YellowCard[0]}
 };
 
 STATE* s_Key[] =
@@ -225,267 +225,267 @@ STATE* s_Key[] =
 #define GREEN_COIN_RATE 6
 STATE s_RedCoin[] =
 {
-    {Red_COIN + 0, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[1]},
-    {Red_COIN + 1, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[2]},
-    {Red_COIN + 2, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[3]},
-    {Red_COIN + 3, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[4]},
-    {Red_COIN + 4, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[5]},
-    {Red_COIN + 5, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[6]},
-    {Red_COIN + 6, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[7]},
-    {Red_COIN + 7, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[0]},
+    {Red_COIN + 0, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[1]},
+    {Red_COIN + 1, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[2]},
+    {Red_COIN + 2, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[3]},
+    {Red_COIN + 3, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[4]},
+    {Red_COIN + 4, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[5]},
+    {Red_COIN + 5, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[6]},
+    {Red_COIN + 6, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[7]},
+    {Red_COIN + 7, RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[0]},
 };
 
 // !JIM! Frank, I made coins go progressively faster
 STATE s_YellowCoin[] =
 {
-    {Yellow_COIN + 0, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[1]},
-    {Yellow_COIN + 1, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[2]},
-    {Yellow_COIN + 2, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[3]},
-    {Yellow_COIN + 3, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[4]},
-    {Yellow_COIN + 4, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[5]},
-    {Yellow_COIN + 5, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[6]},
-    {Yellow_COIN + 6, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[7]},
-    {Yellow_COIN + 7, YELLOW_COIN_RATE, AF(DoCoin), &s_YellowCoin[0]},
+    {Yellow_COIN + 0, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[1]},
+    {Yellow_COIN + 1, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[2]},
+    {Yellow_COIN + 2, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[3]},
+    {Yellow_COIN + 3, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[4]},
+    {Yellow_COIN + 4, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[5]},
+    {Yellow_COIN + 5, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[6]},
+    {Yellow_COIN + 6, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[7]},
+    {Yellow_COIN + 7, YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[0]},
 };
 
 STATE s_GreenCoin[] =
 {
-    {Green_COIN + 0, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[1]},
-    {Green_COIN + 1, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[2]},
-    {Green_COIN + 2, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[3]},
-    {Green_COIN + 3, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[4]},
-    {Green_COIN + 4, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[5]},
-    {Green_COIN + 5, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[6]},
-    {Green_COIN + 6, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[7]},
-    {Green_COIN + 7, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[0]},
+    {Green_COIN + 0, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[1]},
+    {Green_COIN + 1, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[2]},
+    {Green_COIN + 2, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[3]},
+    {Green_COIN + 3, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[4]},
+    {Green_COIN + 4, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[5]},
+    {Green_COIN + 5, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[6]},
+    {Green_COIN + 6, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[7]},
+    {Green_COIN + 7, GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[0]},
 };
 
 STATE s_FireFly[] =
 {
-    {FIRE_FLY0, FIRE_FLY_RATE * 4, AF(DoFireFly), &s_FireFly[0]}
+    {FIRE_FLY0, FIRE_FLY_RATE * 4, &AF(DoFireFly), &s_FireFly[0]}
 };
 
 
 STATE s_IconStar[] =
 {
-    {ICON_STAR, 100, AF(DoGet), &s_IconStar[0]}
+    {ICON_STAR, 100, &AF(DoGet), &s_IconStar[0]}
 };
 
 STATE s_IconUzi[] =
 {
-    {ICON_UZI, 100, AF(DoGet), &s_IconUzi[0]}
+    {ICON_UZI, 100, &AF(DoGet), &s_IconUzi[0]}
 };
 
 STATE s_IconLgUziAmmo[] =
 {
-    {ICON_LG_UZI_AMMO, 100, AF(DoGet), &s_IconLgUziAmmo[0]}
+    {ICON_LG_UZI_AMMO, 100, &AF(DoGet), &s_IconLgUziAmmo[0]}
 };
 
 STATE s_IconUziFloor[] =
 {
-    {ICON_UZIFLOOR, 100, AF(DoGet), &s_IconUziFloor[0]}
+    {ICON_UZIFLOOR, 100, &AF(DoGet), &s_IconUziFloor[0]}
 };
 
 STATE s_IconRocket[] =
 {
-    {ICON_ROCKET, 100, AF(DoGet), &s_IconRocket[0]}
+    {ICON_ROCKET, 100, &AF(DoGet), &s_IconRocket[0]}
 };
 
 STATE s_IconLgRocket[] =
 {
-    {ICON_LG_ROCKET, 100, AF(DoGet), &s_IconLgRocket[0]}
+    {ICON_LG_ROCKET, 100, &AF(DoGet), &s_IconLgRocket[0]}
 };
 
 STATE s_IconShotgun[] =
 {
-    {ICON_SHOTGUN, 100, AF(DoGet), &s_IconShotgun[0]}
+    {ICON_SHOTGUN, 100, &AF(DoGet), &s_IconShotgun[0]}
 };
 
 STATE s_IconLgShotshell[] =
 {
-    {ICON_LG_SHOTSHELL, 100, AF(DoGet), &s_IconLgShotshell[0]}
+    {ICON_LG_SHOTSHELL, 100, &AF(DoGet), &s_IconLgShotshell[0]}
 };
 
 STATE s_IconAutoRiot[] =
 {
-    {ICON_AUTORIOT, 100, AF(DoGet), &s_IconAutoRiot[0]}
+    {ICON_AUTORIOT, 100, &AF(DoGet), &s_IconAutoRiot[0]}
 };
 
 STATE s_IconGrenadeLauncher[] =
 {
-    {ICON_GRENADE_LAUNCHER, 100, AF(DoGet), &s_IconGrenadeLauncher[0]}
+    {ICON_GRENADE_LAUNCHER, 100, &AF(DoGet), &s_IconGrenadeLauncher[0]}
 };
 
 STATE s_IconLgGrenade[] =
 {
-    {ICON_LG_GRENADE, 100, AF(DoGet), &s_IconLgGrenade[0]}
+    {ICON_LG_GRENADE, 100, &AF(DoGet), &s_IconLgGrenade[0]}
 };
 
 
 STATE s_IconLgMine[] =
 {
-    {ICON_LG_MINE, 100, AF(DoGet), &s_IconLgMine[0]}
+    {ICON_LG_MINE, 100, &AF(DoGet), &s_IconLgMine[0]}
 };
 
 STATE s_IconGuardHead[] =
 {
-    {ICON_GUARD_HEAD + 0, 15, AF(DoGet), &s_IconGuardHead[0]},
+    {ICON_GUARD_HEAD + 0, 15, &AF(DoGet), &s_IconGuardHead[0]},
 };
 
 
 #define FIREBALL_LG_AMMO_RATE 12
 STATE s_IconFireballLgAmmo[] =
 {
-    {ICON_FIREBALL_LG_AMMO + 0, FIREBALL_LG_AMMO_RATE, AF(DoGet), &s_IconFireballLgAmmo[1]},
-    {ICON_FIREBALL_LG_AMMO + 1, FIREBALL_LG_AMMO_RATE, AF(DoGet), &s_IconFireballLgAmmo[2]},
-    {ICON_FIREBALL_LG_AMMO + 2, FIREBALL_LG_AMMO_RATE, AF(DoGet), &s_IconFireballLgAmmo[0]},
+    {ICON_FIREBALL_LG_AMMO + 0, FIREBALL_LG_AMMO_RATE, &AF(DoGet), &s_IconFireballLgAmmo[1]},
+    {ICON_FIREBALL_LG_AMMO + 1, FIREBALL_LG_AMMO_RATE, &AF(DoGet), &s_IconFireballLgAmmo[2]},
+    {ICON_FIREBALL_LG_AMMO + 2, FIREBALL_LG_AMMO_RATE, &AF(DoGet), &s_IconFireballLgAmmo[0]},
 };
 
 STATE s_IconHeart[] =
 {
-    {ICON_HEART + 0, 25, AF(DoGet), &s_IconHeart[1]},
-    {ICON_HEART + 1, 25, AF(DoGet), &s_IconHeart[0]},
+    {ICON_HEART + 0, 25, &AF(DoGet), &s_IconHeart[1]},
+    {ICON_HEART + 1, 25, &AF(DoGet), &s_IconHeart[0]},
 };
 
 #define HEART_LG_AMMO_RATE 12
 STATE s_IconHeartLgAmmo[] =
 {
-    {ICON_HEART_LG_AMMO + 0, HEART_LG_AMMO_RATE, AF(DoGet), &s_IconHeartLgAmmo[1]},
-    {ICON_HEART_LG_AMMO + 1, HEART_LG_AMMO_RATE, AF(DoGet), &s_IconHeartLgAmmo[0]},
+    {ICON_HEART_LG_AMMO + 0, HEART_LG_AMMO_RATE, &AF(DoGet), &s_IconHeartLgAmmo[1]},
+    {ICON_HEART_LG_AMMO + 1, HEART_LG_AMMO_RATE, &AF(DoGet), &s_IconHeartLgAmmo[0]},
 };
 
 STATE s_IconMicroGun[] =
 {
-    {ICON_MICRO_GUN, 100, AF(DoGet), &s_IconMicroGun[0]}
+    {ICON_MICRO_GUN, 100, &AF(DoGet), &s_IconMicroGun[0]}
 };
 
 STATE s_IconMicroBattery[] =
 {
-    {ICON_MICRO_BATTERY, 100, AF(DoGet), &s_IconMicroBattery[0]}
+    {ICON_MICRO_BATTERY, 100, &AF(DoGet), &s_IconMicroBattery[0]}
 };
 
 // !JIM!  Added rail crap
 STATE s_IconRailGun[] =
 {
-    {ICON_RAIL_GUN, 100, AF(DoGet), &s_IconRailGun[0]}
+    {ICON_RAIL_GUN, 100, &AF(DoGet), &s_IconRailGun[0]}
 };
 
 STATE s_IconRailAmmo[] =
 {
-    {ICON_RAIL_AMMO, 100, AF(DoGet), &s_IconRailAmmo[0]}
+    {ICON_RAIL_AMMO, 100, &AF(DoGet), &s_IconRailAmmo[0]}
 };
 
 
 STATE s_IconElectro[] =
 {
-    {ICON_ELECTRO + 0, 25, AF(DoGet), &s_IconElectro[1]},
-    {ICON_ELECTRO + 1, 25, AF(DoGet), &s_IconElectro[0]},
+    {ICON_ELECTRO + 0, 25, &AF(DoGet), &s_IconElectro[1]},
+    {ICON_ELECTRO + 1, 25, &AF(DoGet), &s_IconElectro[0]},
 };
 
 #define ICON_SPELL_RATE 8
 
 STATE s_IconSpell[] =
 {
-    {ICON_SPELL + 0, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[1]},
-    {ICON_SPELL + 1, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[2]},
-    {ICON_SPELL + 2, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[3]},
-    {ICON_SPELL + 3, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[4]},
-    {ICON_SPELL + 4, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[5]},
-    {ICON_SPELL + 5, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[6]},
-    {ICON_SPELL + 6, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[7]},
-    {ICON_SPELL + 7, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[8]},
-    {ICON_SPELL + 8, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[9]},
-    {ICON_SPELL + 9, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[10]},
-    {ICON_SPELL + 10, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[11]},
-    {ICON_SPELL + 11, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[12]},
-    {ICON_SPELL + 12, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[13]},
-    {ICON_SPELL + 13, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[14]},
-    {ICON_SPELL + 14, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[15]},
-    {ICON_SPELL + 15, ICON_SPELL_RATE, AF(DoGet), &s_IconSpell[0]},
+    {ICON_SPELL + 0, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[1]},
+    {ICON_SPELL + 1, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[2]},
+    {ICON_SPELL + 2, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[3]},
+    {ICON_SPELL + 3, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[4]},
+    {ICON_SPELL + 4, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[5]},
+    {ICON_SPELL + 5, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[6]},
+    {ICON_SPELL + 6, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[7]},
+    {ICON_SPELL + 7, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[8]},
+    {ICON_SPELL + 8, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[9]},
+    {ICON_SPELL + 9, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[10]},
+    {ICON_SPELL + 10, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[11]},
+    {ICON_SPELL + 11, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[12]},
+    {ICON_SPELL + 12, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[13]},
+    {ICON_SPELL + 13, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[14]},
+    {ICON_SPELL + 14, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[15]},
+    {ICON_SPELL + 15, ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[0]},
 };
 
 STATE s_IconArmor[] =
 {
-    {ICON_ARMOR + 0, 15, AF(DoGet), &s_IconArmor[0]},
+    {ICON_ARMOR + 0, 15, &AF(DoGet), &s_IconArmor[0]},
 };
 
 STATE s_IconMedkit[] =
 {
-    {ICON_MEDKIT + 0, 15, AF(DoGet), &s_IconMedkit[0]},
+    {ICON_MEDKIT + 0, 15, &AF(DoGet), &s_IconMedkit[0]},
 };
 
 STATE s_IconChemBomb[] =
 {
-    {ICON_CHEMBOMB, 15, AF(DoGet), &s_IconChemBomb[0]},
+    {ICON_CHEMBOMB, 15, &AF(DoGet), &s_IconChemBomb[0]},
 };
 
 STATE s_IconFlashBomb[] =
 {
-    {ICON_FLASHBOMB, 15, AF(DoGet), &s_IconFlashBomb[0]},
+    {ICON_FLASHBOMB, 15, &AF(DoGet), &s_IconFlashBomb[0]},
 };
 
 STATE s_IconNuke[] =
 {
-    {ICON_NUKE, 15, AF(DoGet), &s_IconNuke[0]},
+    {ICON_NUKE, 15, &AF(DoGet), &s_IconNuke[0]},
 };
 
 STATE s_IconCaltrops[] =
 {
-    {ICON_CALTROPS, 15, AF(DoGet), &s_IconCaltrops[0]},
+    {ICON_CALTROPS, 15, &AF(DoGet), &s_IconCaltrops[0]},
 };
 
 #define ICON_SM_MEDKIT 1802
 STATE s_IconSmMedkit[] =
 {
-    {ICON_SM_MEDKIT + 0, 15, AF(DoGet), &s_IconSmMedkit[0]},
+    {ICON_SM_MEDKIT + 0, 15, &AF(DoGet), &s_IconSmMedkit[0]},
 };
 
 #define ICON_BOOSTER 1810
 STATE s_IconBooster[] =
 {
-    {ICON_BOOSTER + 0, 15, AF(DoGet), &s_IconBooster[0]},
+    {ICON_BOOSTER + 0, 15, &AF(DoGet), &s_IconBooster[0]},
 };
 
 #define ICON_HEAT_CARD 1819
 STATE s_IconHeatCard[] =
 {
-    {ICON_HEAT_CARD + 0, 15, AF(DoGet), &s_IconHeatCard[0]},
+    {ICON_HEAT_CARD + 0, 15, &AF(DoGet), &s_IconHeatCard[0]},
 };
 
 #if 0
 STATE s_IconEnvironSuit[] =
 {
-    {ICON_ENVIRON_SUIT + 0, 20, AF(DoGet), &s_IconEnvironSuit[0]},
+    {ICON_ENVIRON_SUIT + 0, 20, &AF(DoGet), &s_IconEnvironSuit[0]},
 };
 #endif
 
 STATE s_IconCloak[] =
 {
-    {ICON_CLOAK + 0, 20, AF(DoGet), &s_IconCloak[0]},
+    {ICON_CLOAK + 0, 20, &AF(DoGet), &s_IconCloak[0]},
 };
 
 STATE s_IconFly[] =
 {
-    {ICON_FLY + 0, 20, AF(DoGet), &s_IconFly[1]},
-    {ICON_FLY + 1, 20, AF(DoGet), &s_IconFly[2]},
-    {ICON_FLY + 2, 20, AF(DoGet), &s_IconFly[3]},
-    {ICON_FLY + 3, 20, AF(DoGet), &s_IconFly[4]},
-    {ICON_FLY + 4, 20, AF(DoGet), &s_IconFly[5]},
-    {ICON_FLY + 5, 20, AF(DoGet), &s_IconFly[6]},
-    {ICON_FLY + 6, 20, AF(DoGet), &s_IconFly[7]},
-    {ICON_FLY + 7, 20, AF(DoGet), &s_IconFly[0]}
+    {ICON_FLY + 0, 20, &AF(DoGet), &s_IconFly[1]},
+    {ICON_FLY + 1, 20, &AF(DoGet), &s_IconFly[2]},
+    {ICON_FLY + 2, 20, &AF(DoGet), &s_IconFly[3]},
+    {ICON_FLY + 3, 20, &AF(DoGet), &s_IconFly[4]},
+    {ICON_FLY + 4, 20, &AF(DoGet), &s_IconFly[5]},
+    {ICON_FLY + 5, 20, &AF(DoGet), &s_IconFly[6]},
+    {ICON_FLY + 6, 20, &AF(DoGet), &s_IconFly[7]},
+    {ICON_FLY + 7, 20, &AF(DoGet), &s_IconFly[0]}
 };
 
 STATE s_IconNightVision[] =
 {
-    {ICON_NIGHT_VISION + 0, 20, AF(DoGet), &s_IconNightVision[0]},
+    {ICON_NIGHT_VISION + 0, 20, &AF(DoGet), &s_IconNightVision[0]},
 };
 
 STATE s_IconFlag[] =
 {
-    {ICON_FLAG + 0, 32, AF(DoGet), &s_IconFlag[1]},
-    {ICON_FLAG + 1, 32, AF(DoGet), &s_IconFlag[2]},
-    {ICON_FLAG + 2, 32, AF(DoGet), &s_IconFlag[0]}
+    {ICON_FLAG + 0, 32, &AF(DoGet), &s_IconFlag[1]},
+    {ICON_FLAG + 1, 32, &AF(DoGet), &s_IconFlag[2]},
+    {ICON_FLAG + 2, 32, &AF(DoGet), &s_IconFlag[0]}
 };
 
 //---------------------------------------------------------------------------
@@ -1468,7 +1468,7 @@ void SpriteSetupPost(void)
             jActor->user.ceiling_dist = 4;
             jActor->user.floor_dist = -2;
 
-            jActor->user.__legacyState.ActorActionFunc = *AF(DoActorDebris);
+            jActor->user.__legacyState.ActorActionFunc = AF(DoActorDebris);
 
             jActor->spr.cstat |= CSTAT_SPRITE_BREAKABLE;
             jActor->spr.extra |= SPRX_BREAKABLE;
@@ -1960,18 +1960,18 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoVator);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoVator);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoVator);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoVator);
                         break;
                     case 2:
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoVatorAuto);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoVatorAuto);
                         break;
                     case 3:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoVatorAuto);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoVatorAuto);
                         break;
                     }
 
@@ -2068,11 +2068,11 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoRotator);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoRotator);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoRotator);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoRotator);
                         break;
                     }
 
@@ -2113,11 +2113,11 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoSlidor);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoSlidor);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoSlidor);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoSlidor);
                         break;
                     }
 
@@ -2161,18 +2161,18 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoSpike);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoSpike);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoSpike);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoSpike);
                         break;
                     case 2:
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoSpikeAuto);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoSpikeAuto);
                         break;
                     case 3:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = *AF(DoSpikeAuto);
+                        actor->user.__legacyState.ActorActionFunc = AF(DoSpikeAuto);
                         break;
                     }
 
@@ -2349,7 +2349,7 @@ void SpriteSetup(void)
                     SpawnUser(actor, ST1, nullptr);
 
                     change_actor_stat(actor, STAT_NO_STATE);
-                    actor->user.__legacyState.ActorActionFunc = *AF(DoLavaErupt);
+                    actor->user.__legacyState.ActorActionFunc = AF(DoLavaErupt);
 
                     // interval between erupts
                     if (SP_TAG10(actor) == 0)

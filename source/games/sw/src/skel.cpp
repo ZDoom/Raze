@@ -36,17 +36,17 @@ BEGIN_SW_NS
 
 DECISION SkelBattle[] =
 {
-    {600,   AF(InitActorMoveCloser)         },
-    {602,   AF(InitActorSetDecide)         },
-    {700,   AF(InitActorRunAway   )         },
-    {1024,  AF(InitActorAttack    )         }
+    {600,   &AF(InitActorMoveCloser)         },
+    {602,   &AF(InitActorSetDecide)         },
+    {700,   &AF(InitActorRunAway   )         },
+    {1024,  &AF(InitActorAttack    )         }
 };
 
 DECISION SkelOffense[] =
 {
-    {700,   AF(InitActorMoveCloser)         },
-    {702,   AF(InitActorSetDecide)         },
-    {1024,  AF(InitActorAttack    )         }
+    {700,   &AF(InitActorMoveCloser)         },
+    {702,   &AF(InitActorSetDecide)         },
+    {1024,  &AF(InitActorAttack    )         }
 };
 
 DECISIONB SkelBroadcast[] =
@@ -58,27 +58,27 @@ DECISIONB SkelBroadcast[] =
 
 DECISION SkelSurprised[] =
 {
-    {701,   AF(InitActorMoveCloser)         },
-    {1024,  AF(InitActorDecide    )        }
+    {701,   &AF(InitActorMoveCloser)         },
+    {1024,  &AF(InitActorDecide    )        }
 };
 
 DECISION SkelEvasive[] =
 {
-    {22,     AF(InitActorDuck )            },
-    {30,     AF(InitActorEvade)            },
+    {22,     &AF(InitActorDuck )            },
+    {30,     &AF(InitActorEvade)            },
     {1024,   nullptr                      },
 };
 
 DECISION SkelLostTarget[] =
 {
-    {900,   AF(InitActorFindPlayer  )       },
-    {1024,  AF(InitActorWanderAround)       }
+    {900,   &AF(InitActorFindPlayer  )       },
+    {1024,  &AF(InitActorWanderAround)       }
 };
 
 DECISION SkelCloseRange[] =
 {
-    {800,  AF(InitActorAttack    )         },
-    {1024, AF(InitActorReposition)            }
+    {800,  &AF(InitActorAttack    )         },
+    {1024, &AF(InitActorReposition)            }
 };
 
 PERSONALITY SkelPersonality =
@@ -118,44 +118,44 @@ ATTRIBUTE SkelAttrib =
 STATE s_SkelRun[5][6] =
 {
     {
-        {SKEL_RUN_R0 + 0, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[0][1]},
-        {SKEL_RUN_R0 + 1, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[0][2]},
-        {SKEL_RUN_R0 + 2, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[0][3]},
-        {SKEL_RUN_R0 + 3, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[0][4]},
-        {SKEL_RUN_R0 + 4, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[0][5]},
-        {SKEL_RUN_R0 + 5, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[0][0]},
+        {SKEL_RUN_R0 + 0, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[0][1]},
+        {SKEL_RUN_R0 + 1, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][2]},
+        {SKEL_RUN_R0 + 2, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][3]},
+        {SKEL_RUN_R0 + 3, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[0][4]},
+        {SKEL_RUN_R0 + 4, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][5]},
+        {SKEL_RUN_R0 + 5, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][0]},
     },
     {
-        {SKEL_RUN_R1 + 0, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[1][1]},
-        {SKEL_RUN_R1 + 1, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[1][2]},
-        {SKEL_RUN_R1 + 2, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[1][3]},
-        {SKEL_RUN_R1 + 3, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[1][4]},
-        {SKEL_RUN_R1 + 4, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[1][5]},
-        {SKEL_RUN_R1 + 5, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[1][0]},
+        {SKEL_RUN_R1 + 0, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[1][1]},
+        {SKEL_RUN_R1 + 1, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[1][2]},
+        {SKEL_RUN_R1 + 2, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[1][3]},
+        {SKEL_RUN_R1 + 3, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[1][4]},
+        {SKEL_RUN_R1 + 4, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[1][5]},
+        {SKEL_RUN_R1 + 5, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[1][0]},
     },
     {
-        {SKEL_RUN_R2 + 0, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[2][1]},
-        {SKEL_RUN_R2 + 1, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[2][2]},
-        {SKEL_RUN_R2 + 2, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[2][3]},
-        {SKEL_RUN_R2 + 3, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[2][4]},
-        {SKEL_RUN_R2 + 4, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[2][5]},
-        {SKEL_RUN_R2 + 5, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[2][0]},
+        {SKEL_RUN_R2 + 0, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[2][1]},
+        {SKEL_RUN_R2 + 1, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[2][2]},
+        {SKEL_RUN_R2 + 2, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[2][3]},
+        {SKEL_RUN_R2 + 3, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[2][4]},
+        {SKEL_RUN_R2 + 4, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[2][5]},
+        {SKEL_RUN_R2 + 5, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[2][0]},
     },
     {
-        {SKEL_RUN_R3 + 0, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[3][1]},
-        {SKEL_RUN_R3 + 1, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[3][2]},
-        {SKEL_RUN_R3 + 2, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[3][3]},
-        {SKEL_RUN_R3 + 3, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[3][4]},
-        {SKEL_RUN_R3 + 4, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[3][5]},
-        {SKEL_RUN_R3 + 5, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[3][0]},
+        {SKEL_RUN_R3 + 0, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[3][1]},
+        {SKEL_RUN_R3 + 1, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[3][2]},
+        {SKEL_RUN_R3 + 2, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[3][3]},
+        {SKEL_RUN_R3 + 3, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[3][4]},
+        {SKEL_RUN_R3 + 4, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[3][5]},
+        {SKEL_RUN_R3 + 5, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[3][0]},
     },
     {
-        {SKEL_RUN_R4 + 0, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[4][1]},
-        {SKEL_RUN_R4 + 1, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[4][2]},
-        {SKEL_RUN_R4 + 2, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[4][3]},
-        {SKEL_RUN_R4 + 3, SKEL_RUN_RATE+4, AF(DoSkelMove), &s_SkelRun[4][4]},
-        {SKEL_RUN_R4 + 4, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[4][5]},
-        {SKEL_RUN_R4 + 5, SKEL_RUN_RATE, AF(DoSkelMove), &s_SkelRun[4][0]},
+        {SKEL_RUN_R4 + 0, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[4][1]},
+        {SKEL_RUN_R4 + 1, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[4][2]},
+        {SKEL_RUN_R4 + 2, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[4][3]},
+        {SKEL_RUN_R4 + 3, SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[4][4]},
+        {SKEL_RUN_R4 + 4, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[4][5]},
+        {SKEL_RUN_R4 + 5, SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[4][0]},
     }
 };
 
@@ -180,49 +180,49 @@ STATE* sg_SkelRun[] =
 STATE s_SkelSlash[5][7] =
 {
     {
-        {SKEL_SLASH_R0 + 0, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[0][1]},
-        {SKEL_SLASH_R0 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[0][2]},
-        {SKEL_SLASH_R0 + 2, 0|SF_QUICK_CALL, AF(InitSkelSlash), &s_SkelSlash[0][3]},
-        {SKEL_SLASH_R0 + 2, SKEL_SLASH_RATE*2, AF(NullSkel), &s_SkelSlash[0][4]},
-        {SKEL_SLASH_R0 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[0][5]},
-        {SKEL_SLASH_R0 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSlash[0][6]},
-        {SKEL_SLASH_R0 + 1, SKEL_SLASH_RATE, AF(DoSkelMove), &s_SkelSlash[0][6]},
+        {SKEL_SLASH_R0 + 0, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[0][1]},
+        {SKEL_SLASH_R0 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[0][2]},
+        {SKEL_SLASH_R0 + 2, 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[0][3]},
+        {SKEL_SLASH_R0 + 2, SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[0][4]},
+        {SKEL_SLASH_R0 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[0][5]},
+        {SKEL_SLASH_R0 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[0][6]},
+        {SKEL_SLASH_R0 + 1, SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[0][6]},
     },
     {
-        {SKEL_SLASH_R1 + 0, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[1][1]},
-        {SKEL_SLASH_R1 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[1][2]},
-        {SKEL_SLASH_R1 + 2, 0|SF_QUICK_CALL, AF(InitSkelSlash), &s_SkelSlash[1][3]},
-        {SKEL_SLASH_R1 + 2, SKEL_SLASH_RATE*2, AF(NullSkel), &s_SkelSlash[1][4]},
-        {SKEL_SLASH_R1 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[1][5]},
-        {SKEL_SLASH_R1 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSlash[1][6]},
-        {SKEL_SLASH_R1 + 1, SKEL_SLASH_RATE, AF(DoSkelMove), &s_SkelSlash[1][6]},
+        {SKEL_SLASH_R1 + 0, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[1][1]},
+        {SKEL_SLASH_R1 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[1][2]},
+        {SKEL_SLASH_R1 + 2, 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[1][3]},
+        {SKEL_SLASH_R1 + 2, SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[1][4]},
+        {SKEL_SLASH_R1 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[1][5]},
+        {SKEL_SLASH_R1 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[1][6]},
+        {SKEL_SLASH_R1 + 1, SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[1][6]},
     },
     {
-        {SKEL_SLASH_R2 + 0, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[2][1]},
-        {SKEL_SLASH_R2 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[2][2]},
-        {SKEL_SLASH_R2 + 2, 0|SF_QUICK_CALL, AF(InitSkelSlash), &s_SkelSlash[2][3]},
-        {SKEL_SLASH_R2 + 2, SKEL_SLASH_RATE*2, AF(NullSkel), &s_SkelSlash[2][4]},
-        {SKEL_SLASH_R2 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[2][5]},
-        {SKEL_SLASH_R2 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSlash[2][6]},
-        {SKEL_SLASH_R2 + 1, SKEL_SLASH_RATE, AF(DoSkelMove), &s_SkelSlash[2][6]},
+        {SKEL_SLASH_R2 + 0, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[2][1]},
+        {SKEL_SLASH_R2 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[2][2]},
+        {SKEL_SLASH_R2 + 2, 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[2][3]},
+        {SKEL_SLASH_R2 + 2, SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[2][4]},
+        {SKEL_SLASH_R2 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[2][5]},
+        {SKEL_SLASH_R2 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[2][6]},
+        {SKEL_SLASH_R2 + 1, SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[2][6]},
     },
     {
-        {SKEL_SLASH_R3 + 0, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[3][1]},
-        {SKEL_SLASH_R3 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[3][2]},
-        {SKEL_SLASH_R3 + 2, 0|SF_QUICK_CALL, AF(InitSkelSlash), &s_SkelSlash[3][3]},
-        {SKEL_SLASH_R3 + 2, SKEL_SLASH_RATE*2, AF(NullSkel), &s_SkelSlash[3][4]},
-        {SKEL_SLASH_R3 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[3][5]},
-        {SKEL_SLASH_R3 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSlash[3][6]},
-        {SKEL_SLASH_R3 + 1, SKEL_SLASH_RATE, AF(DoSkelMove), &s_SkelSlash[3][6]},
+        {SKEL_SLASH_R3 + 0, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[3][1]},
+        {SKEL_SLASH_R3 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[3][2]},
+        {SKEL_SLASH_R3 + 2, 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[3][3]},
+        {SKEL_SLASH_R3 + 2, SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[3][4]},
+        {SKEL_SLASH_R3 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[3][5]},
+        {SKEL_SLASH_R3 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[3][6]},
+        {SKEL_SLASH_R3 + 1, SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[3][6]},
     },
     {
-        {SKEL_SLASH_R4 + 0, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[4][1]},
-        {SKEL_SLASH_R4 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[4][2]},
-        {SKEL_SLASH_R4 + 2, 0|SF_QUICK_CALL, AF(InitSkelSlash), &s_SkelSlash[4][3]},
-        {SKEL_SLASH_R4 + 2, SKEL_SLASH_RATE*2, AF(NullSkel), &s_SkelSlash[4][4]},
-        {SKEL_SLASH_R4 + 1, SKEL_SLASH_RATE, AF(NullSkel), &s_SkelSlash[4][5]},
-        {SKEL_SLASH_R4 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSlash[4][6]},
-        {SKEL_SLASH_R4 + 1, SKEL_SLASH_RATE, AF(DoSkelMove), &s_SkelSlash[4][6]},
+        {SKEL_SLASH_R4 + 0, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[4][1]},
+        {SKEL_SLASH_R4 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[4][2]},
+        {SKEL_SLASH_R4 + 2, 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[4][3]},
+        {SKEL_SLASH_R4 + 2, SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[4][4]},
+        {SKEL_SLASH_R4 + 1, SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[4][5]},
+        {SKEL_SLASH_R4 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[4][6]},
+        {SKEL_SLASH_R4 + 1, SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[4][6]},
     }
 };
 
@@ -248,49 +248,49 @@ STATE* sg_SkelSlash[] =
 STATE s_SkelSpell[5][7] =
 {
     {
-        {SKEL_SPELL_R0 + 0, SKEL_SPELL_RATE+9, AF(NullSkel), &s_SkelSpell[0][1]},
-        {SKEL_SPELL_R0 + 1, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[0][2]},
-        {SKEL_SPELL_R0 + 2, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[0][3]},
-        {SKEL_SPELL_R0 + 3, SKEL_SPELL_RATE*2, AF(NullSkel), &s_SkelSpell[0][4]},
-        {SKEL_SPELL_R0 + 3, 0|SF_QUICK_CALL, AF(InitSkelSpell), &s_SkelSpell[0][5]},
-        {SKEL_SPELL_R0 + 3, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSpell[0][6]},
-        {SKEL_SPELL_R0 + 3, SKEL_SPELL_RATE, AF(DoSkelMove), &s_SkelSpell[0][6]},
+        {SKEL_SPELL_R0 + 0, SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[0][1]},
+        {SKEL_SPELL_R0 + 1, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[0][2]},
+        {SKEL_SPELL_R0 + 2, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[0][3]},
+        {SKEL_SPELL_R0 + 3, SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[0][4]},
+        {SKEL_SPELL_R0 + 3, 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[0][5]},
+        {SKEL_SPELL_R0 + 3, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[0][6]},
+        {SKEL_SPELL_R0 + 3, SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[0][6]},
     },
     {
-        {SKEL_SPELL_R1 + 0, SKEL_SPELL_RATE+9, AF(NullSkel), &s_SkelSpell[1][1]},
-        {SKEL_SPELL_R1 + 1, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[1][2]},
-        {SKEL_SPELL_R1 + 2, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[1][3]},
-        {SKEL_SPELL_R1 + 3, SKEL_SPELL_RATE*2, AF(NullSkel), &s_SkelSpell[1][4]},
-        {SKEL_SPELL_R1 + 3, 0|SF_QUICK_CALL, AF(InitSkelSpell), &s_SkelSpell[1][5]},
-        {SKEL_SPELL_R1 + 3, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSpell[1][6]},
-        {SKEL_SPELL_R1 + 3, SKEL_SPELL_RATE, AF(DoSkelMove), &s_SkelSpell[1][6]},
+        {SKEL_SPELL_R1 + 0, SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[1][1]},
+        {SKEL_SPELL_R1 + 1, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[1][2]},
+        {SKEL_SPELL_R1 + 2, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[1][3]},
+        {SKEL_SPELL_R1 + 3, SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[1][4]},
+        {SKEL_SPELL_R1 + 3, 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[1][5]},
+        {SKEL_SPELL_R1 + 3, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[1][6]},
+        {SKEL_SPELL_R1 + 3, SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[1][6]},
     },
     {
-        {SKEL_SPELL_R2 + 0, SKEL_SPELL_RATE+9, AF(NullSkel), &s_SkelSpell[2][1]},
-        {SKEL_SPELL_R2 + 1, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[2][2]},
-        {SKEL_SPELL_R2 + 2, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[2][3]},
-        {SKEL_SPELL_R2 + 3, SKEL_SPELL_RATE*2, AF(NullSkel), &s_SkelSpell[2][4]},
-        {SKEL_SPELL_R2 + 3, 0|SF_QUICK_CALL, AF(InitSkelSpell), &s_SkelSpell[2][5]},
-        {SKEL_SPELL_R2 + 3, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSpell[2][6]},
-        {SKEL_SPELL_R2 + 3, SKEL_SPELL_RATE, AF(DoSkelMove), &s_SkelSpell[2][6]},
+        {SKEL_SPELL_R2 + 0, SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[2][1]},
+        {SKEL_SPELL_R2 + 1, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[2][2]},
+        {SKEL_SPELL_R2 + 2, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[2][3]},
+        {SKEL_SPELL_R2 + 3, SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[2][4]},
+        {SKEL_SPELL_R2 + 3, 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[2][5]},
+        {SKEL_SPELL_R2 + 3, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[2][6]},
+        {SKEL_SPELL_R2 + 3, SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[2][6]},
     },
     {
-        {SKEL_SPELL_R3 + 0, SKEL_SPELL_RATE+9, AF(NullSkel), &s_SkelSpell[3][1]},
-        {SKEL_SPELL_R3 + 1, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[3][2]},
-        {SKEL_SPELL_R3 + 2, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[3][3]},
-        {SKEL_SPELL_R3 + 3, SKEL_SPELL_RATE*2, AF(NullSkel), &s_SkelSpell[3][4]},
-        {SKEL_SPELL_R3 + 3, 0|SF_QUICK_CALL, AF(InitSkelSpell), &s_SkelSpell[3][5]},
-        {SKEL_SPELL_R3 + 3, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSpell[3][6]},
-        {SKEL_SPELL_R3 + 3, SKEL_SPELL_RATE, AF(DoSkelMove), &s_SkelSpell[3][6]},
+        {SKEL_SPELL_R3 + 0, SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[3][1]},
+        {SKEL_SPELL_R3 + 1, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[3][2]},
+        {SKEL_SPELL_R3 + 2, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[3][3]},
+        {SKEL_SPELL_R3 + 3, SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[3][4]},
+        {SKEL_SPELL_R3 + 3, 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[3][5]},
+        {SKEL_SPELL_R3 + 3, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[3][6]},
+        {SKEL_SPELL_R3 + 3, SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[3][6]},
     },
     {
-        {SKEL_SPELL_R4 + 0, SKEL_SPELL_RATE+9, AF(NullSkel), &s_SkelSpell[4][1]},
-        {SKEL_SPELL_R4 + 1, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[4][2]},
-        {SKEL_SPELL_R4 + 2, SKEL_SPELL_RATE, AF(NullSkel), &s_SkelSpell[4][3]},
-        {SKEL_SPELL_R4 + 3, SKEL_SPELL_RATE*2, AF(NullSkel), &s_SkelSpell[4][4]},
-        {SKEL_SPELL_R4 + 3, 0|SF_QUICK_CALL, AF(InitSkelSpell), &s_SkelSpell[4][5]},
-        {SKEL_SPELL_R4 + 3, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelSpell[4][6]},
-        {SKEL_SPELL_R4 + 3, SKEL_SPELL_RATE, AF(DoSkelMove), &s_SkelSpell[4][6]},
+        {SKEL_SPELL_R4 + 0, SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[4][1]},
+        {SKEL_SPELL_R4 + 1, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[4][2]},
+        {SKEL_SPELL_R4 + 2, SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[4][3]},
+        {SKEL_SPELL_R4 + 3, SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[4][4]},
+        {SKEL_SPELL_R4 + 3, 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[4][5]},
+        {SKEL_SPELL_R4 + 3, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[4][6]},
+        {SKEL_SPELL_R4 + 3, SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[4][6]},
     }
 };
 
@@ -315,19 +315,19 @@ STATE* sg_SkelSpell[] =
 STATE s_SkelPain[5][1] =
 {
     {
-        {SKEL_PAIN_R0 + 0, SKEL_PAIN_RATE, AF(DoSkelPain), &s_SkelPain[0][0]},
+        {SKEL_PAIN_R0 + 0, SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[0][0]},
     },
     {
-        {SKEL_PAIN_R1 + 0, SKEL_PAIN_RATE, AF(DoSkelPain), &s_SkelPain[1][0]},
+        {SKEL_PAIN_R1 + 0, SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[1][0]},
     },
     {
-        {SKEL_PAIN_R2 + 0, SKEL_PAIN_RATE, AF(DoSkelPain), &s_SkelPain[2][0]},
+        {SKEL_PAIN_R2 + 0, SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[2][0]},
     },
     {
-        {SKEL_PAIN_R3 + 0, SKEL_PAIN_RATE, AF(DoSkelPain), &s_SkelPain[3][0]},
+        {SKEL_PAIN_R3 + 0, SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[3][0]},
     },
     {
-        {SKEL_PAIN_R4 + 0, SKEL_PAIN_RATE, AF(DoSkelPain), &s_SkelPain[4][0]},
+        {SKEL_PAIN_R4 + 0, SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[4][0]},
     }
 };
 
@@ -353,7 +353,7 @@ STATE* sg_SkelPain[] =
 STATE s_SkelTeleport[] =
 {
     {SKEL_TELEPORT + 0,  1,                  nullptr,  &s_SkelTeleport[1]},
-    {SKEL_TELEPORT + 0,  0|SF_QUICK_CALL,    AF(DoSkelInitTeleport), &s_SkelTeleport[2]},
+    {SKEL_TELEPORT + 0,  0|SF_QUICK_CALL,    &AF(DoSkelInitTeleport), &s_SkelTeleport[2]},
     {SKEL_TELEPORT + 0,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[3]},
     {SKEL_TELEPORT + 1,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[4]},
     {SKEL_TELEPORT + 2,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[5]},
@@ -361,16 +361,16 @@ STATE s_SkelTeleport[] =
     {SKEL_TELEPORT + 4,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[7]},
     {SKEL_TELEPORT + 5,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[8]},
 
-    {SKEL_TELEPORT + 5,  0|SF_QUICK_CALL,    AF(DoSkelTeleport), &s_SkelTeleport[9]},
+    {SKEL_TELEPORT + 5,  0|SF_QUICK_CALL,    &AF(DoSkelTeleport), &s_SkelTeleport[9]},
 
     {SKEL_TELEPORT + 5,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[10]},
     {SKEL_TELEPORT + 4,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[11]},
     {SKEL_TELEPORT + 3,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[12]},
     {SKEL_TELEPORT + 2,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[13]},
     {SKEL_TELEPORT + 1,  SKEL_TELEPORT_RATE, nullptr,  &s_SkelTeleport[14]},
-    {SKEL_TELEPORT + 0,  SKEL_TELEPORT_RATE, AF(DoSkelTermTeleport), &s_SkelTeleport[15]},
-    {SKEL_TELEPORT + 0,  0|SF_QUICK_CALL, AF(InitActorDecide), &s_SkelTeleport[16]},
-    {SKEL_TELEPORT + 0,  SKEL_TELEPORT_RATE, AF(DoSkelMove), &s_SkelTeleport[16]},
+    {SKEL_TELEPORT + 0,  SKEL_TELEPORT_RATE, &AF(DoSkelTermTeleport), &s_SkelTeleport[15]},
+    {SKEL_TELEPORT + 0,  0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelTeleport[16]},
+    {SKEL_TELEPORT + 0,  SKEL_TELEPORT_RATE, &AF(DoSkelMove), &s_SkelTeleport[16]},
 };
 
 STATE* sg_SkelTeleport[] =
@@ -393,19 +393,19 @@ STATE* sg_SkelTeleport[] =
 STATE s_SkelStand[5][1] =
 {
     {
-        {SKEL_RUN_R0 + 0, SKEL_STAND_RATE, AF(DoSkelMove), &s_SkelStand[0][0]},
+        {SKEL_RUN_R0 + 0, SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[0][0]},
     },
     {
-        {SKEL_RUN_R1 + 0, SKEL_STAND_RATE, AF(DoSkelMove), &s_SkelStand[1][0]},
+        {SKEL_RUN_R1 + 0, SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[1][0]},
     },
     {
-        {SKEL_RUN_R2 + 0, SKEL_STAND_RATE, AF(DoSkelMove), &s_SkelStand[2][0]},
+        {SKEL_RUN_R2 + 0, SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[2][0]},
     },
     {
-        {SKEL_RUN_R3 + 0, SKEL_STAND_RATE, AF(DoSkelMove), &s_SkelStand[3][0]},
+        {SKEL_RUN_R3 + 0, SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[3][0]},
     },
     {
-        {SKEL_RUN_R4 + 0, SKEL_STAND_RATE, AF(DoSkelMove), &s_SkelStand[4][0]},
+        {SKEL_RUN_R4 + 0, SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[4][0]},
     },
 };
 
@@ -434,7 +434,7 @@ STATE s_SkelDie[] =
     {SKEL_DIE + 2, SKEL_DIE_RATE, nullptr,  &s_SkelDie[3]},
     {SKEL_DIE + 3, SKEL_DIE_RATE, nullptr,  &s_SkelDie[4]},
     {SKEL_DIE + 4, SKEL_DIE_RATE, nullptr,  &s_SkelDie[5]},
-    {SKEL_DIE + 5, SKEL_DIE_RATE, AF(DoSuicide),   &s_SkelDie[5]},
+    {SKEL_DIE + 5, SKEL_DIE_RATE, &AF(DoSuicide),   &s_SkelDie[5]},
 };
 
 STATE* sg_SkelDie[] =

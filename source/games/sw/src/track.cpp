@@ -1277,7 +1277,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sectp->hitag = 0;
 
         if (sop->max_damage <= 0)
-            VehicleSetSmoke(sop, *AF(SpawnVehicleSmoke));
+            VehicleSetSmoke(sop, AF(SpawnVehicleSmoke));
 
         break;
     }
@@ -2910,7 +2910,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->user.jump_speed = -tpoint->tag_high;
 
             DoActorBeginJump(actor);
-            actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
+            actor->user.__legacyState.ActorActionFunc = AF(DoActorMoveJump);
         }
 
         break;
@@ -2956,7 +2956,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
 
             DoActorBeginJump(actor);
-            actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
+            actor->user.__legacyState.ActorActionFunc = AF(DoActorMoveJump);
 
             return false;
         }
@@ -2981,7 +2981,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
 
             DoActorBeginJump(actor);
-            actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveJump);
+            actor->user.__legacyState.ActorActionFunc = AF(DoActorMoveJump);
             return false;
         }
 
@@ -3011,7 +3011,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
             InitActorDuck(actor);
-            actor->user.__legacyState.ActorActionFunc = *AF(DoActorDuck);
+            actor->user.__legacyState.ActorActionFunc = AF(DoActorDuck);
             return false;
         }
 
@@ -3435,7 +3435,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 actor->spr.pos.Z += actor->user.pos.Y;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
-                actor->user.__legacyState.ActorActionFunc = *AF(NinjaJumpActionFunc);
+                actor->user.__legacyState.ActorActionFunc = AF(NinjaJumpActionFunc);
                 actor->user.jump_speed = -650;
                 DoActorBeginJump(actor);
 

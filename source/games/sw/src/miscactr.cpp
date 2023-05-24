@@ -57,8 +57,8 @@ ATTRIBUTE ToiletGirlAttrib =
 
 STATE s_ToiletGirlStand[2] =
 {
-    {TOILETGIRL_R0 + 0, TOILETGIRL_RATE, AF(DoToiletGirl), &s_ToiletGirlStand[1]},
-    {TOILETGIRL_R0 + 1, TOILETGIRL_RATE, AF(DoToiletGirl), &s_ToiletGirlStand[0]}
+    {TOILETGIRL_R0 + 0, TOILETGIRL_RATE, &AF(DoToiletGirl), &s_ToiletGirlStand[1]},
+    {TOILETGIRL_R0 + 1, TOILETGIRL_RATE, &AF(DoToiletGirl), &s_ToiletGirlStand[0]}
 };
 
 //////////////////////
@@ -72,8 +72,8 @@ STATE s_ToiletGirlStand[2] =
 
 STATE s_ToiletGirlPain[2] =
 {
-    {TOILETGIRL_PAIN_R0 + 0, TOILETGIRL_PAIN_RATE, AF(ToiletGirlPain), &s_ToiletGirlPain[1]},
-    {TOILETGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_ToiletGirlPain[0]}
+    {TOILETGIRL_PAIN_R0 + 0, TOILETGIRL_PAIN_RATE, &AF(ToiletGirlPain), &s_ToiletGirlPain[1]},
+    {TOILETGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_ToiletGirlPain[0]}
 };
 
 //////////////////////
@@ -87,22 +87,22 @@ STATE s_ToiletGirlPain[2] =
 
 STATE s_ToiletGirlUzi[16] =
 {
-    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[1]},
-    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[2]},
-    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[3]},
-    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[4]},
-    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[5]},
-    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[6]},
-    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[7]},
-    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[8]},
-    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[9]},
-    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[10]},
-    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[11]},
-    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[12]},
-    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[13]},
-    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[14]},
-    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, AF(ToiletGirlUzi), &s_ToiletGirlUzi[15]},
-    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ToiletGirlUzi[0]},
+    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[1]},
+    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[2]},
+    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[3]},
+    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[4]},
+    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[5]},
+    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[6]},
+    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[7]},
+    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[8]},
+    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[9]},
+    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[10]},
+    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[11]},
+    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[12]},
+    {TOILETGIRL_FIRE_R0 + 0, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[13]},
+    {TOILETGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[14]},
+    {TOILETGIRL_FIRE_R0 + 1, TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[15]},
+    {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -299,15 +299,15 @@ ATTRIBUTE WashGirlAttrib =
 
 STATE s_WashGirlStand[2] =
 {
-    {WASHGIRL_R0 + 0, WASHGIRL_RATE, AF(DoWashGirl), &s_WashGirlStand[1]},
-    {WASHGIRL_R0 + 1, WASHGIRL_RATE, AF(DoWashGirl), &s_WashGirlStand[0]}
+    {WASHGIRL_R0 + 0, WASHGIRL_RATE, &AF(DoWashGirl), &s_WashGirlStand[1]},
+    {WASHGIRL_R0 + 1, WASHGIRL_RATE, &AF(DoWashGirl), &s_WashGirlStand[0]}
 };
 
 #define WASHGIRL_RATE2 20
 STATE s_WashGirlStandScrub[2] =
 {
-    {WASHGIRL_R0 + 0, WASHGIRL_RATE2, AF(DoWashGirl), &s_WashGirlStandScrub[1]},
-    {WASHGIRL_R0 + 1, WASHGIRL_RATE2, AF(DoWashGirl), &s_WashGirlStandScrub[0]}
+    {WASHGIRL_R0 + 0, WASHGIRL_RATE2, &AF(DoWashGirl), &s_WashGirlStandScrub[1]},
+    {WASHGIRL_R0 + 1, WASHGIRL_RATE2, &AF(DoWashGirl), &s_WashGirlStandScrub[0]}
 };
 
 //////////////////////
@@ -321,8 +321,8 @@ STATE s_WashGirlStandScrub[2] =
 
 STATE s_WashGirlPain[2] =
 {
-    {WASHGIRL_PAIN_R0 + 0, WASHGIRL_PAIN_RATE, AF(WashGirlPain), &s_WashGirlPain[1]},
-    {WASHGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_WashGirlPain[0]}
+    {WASHGIRL_PAIN_R0 + 0, WASHGIRL_PAIN_RATE, &AF(WashGirlPain), &s_WashGirlPain[1]},
+    {WASHGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_WashGirlPain[0]}
 };
 
 
@@ -337,22 +337,22 @@ STATE s_WashGirlPain[2] =
 
 STATE s_WashGirlUzi[16] =
 {
-    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[1]},
-    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[2]},
-    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[3]},
-    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[4]},
-    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[5]},
-    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[6]},
-    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[7]},
-    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[8]},
-    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[9]},
-    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[10]},
-    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[11]},
-    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[12]},
-    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[13]},
-    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[14]},
-    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, AF(WashGirlUzi), &s_WashGirlUzi[15]},
-    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_WashGirlUzi[0]},
+    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[1]},
+    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[2]},
+    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[3]},
+    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[4]},
+    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[5]},
+    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[6]},
+    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[7]},
+    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[8]},
+    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[9]},
+    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[10]},
+    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[11]},
+    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[12]},
+    {WASHGIRL_FIRE_R0 + 0, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[13]},
+    {WASHGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[14]},
+    {WASHGIRL_FIRE_R0 + 1, WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[15]},
+    {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -557,7 +557,7 @@ ATTRIBUTE TrashCanAttrib =
 
 STATE s_TrashCanStand[1] =
 {
-    {TRASHCAN_R0 + 0, TRASHCAN_RATE, AF(DoTrashCan), &s_TrashCanStand[0]}
+    {TRASHCAN_R0 + 0, TRASHCAN_RATE, &AF(DoTrashCan), &s_TrashCanStand[0]}
 };
 
 //////////////////////
@@ -571,13 +571,13 @@ STATE s_TrashCanStand[1] =
 
 STATE s_TrashCanPain[7] =
 {
-    {TRASHCAN_PAIN_R0 + 0, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[1]},
-    {TRASHCAN_PAIN_R0 + 1, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[2]},
-    {TRASHCAN_PAIN_R0 + 2, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[3]},
-    {TRASHCAN_PAIN_R0 + 3, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[4]},
-    {TRASHCAN_PAIN_R0 + 4, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[5]},
-    {TRASHCAN_PAIN_R0 + 5, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[6]},
-    {TRASHCAN_PAIN_R0 + 6, TRASHCAN_PAIN_RATE, AF(TrashCanPain), &s_TrashCanPain[0]}
+    {TRASHCAN_PAIN_R0 + 0, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[1]},
+    {TRASHCAN_PAIN_R0 + 1, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[2]},
+    {TRASHCAN_PAIN_R0 + 2, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[3]},
+    {TRASHCAN_PAIN_R0 + 3, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[4]},
+    {TRASHCAN_PAIN_R0 + 4, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[5]},
+    {TRASHCAN_PAIN_R0 + 5, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[6]},
+    {TRASHCAN_PAIN_R0 + 6, TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[0]}
 };
 
 //---------------------------------------------------------------------------
@@ -682,12 +682,12 @@ STATE s_PachinkoLightStand[] =
 
 STATE s_PachinkoLightOperate[] =
 {
-    {PACHINKOLIGHT_R0 - 0, 12, AF(PachinkoLightOperate), &s_PachinkoLightOperate[1]},
-    {PACHINKOLIGHT_R0 - 1, 12, AF(PachinkoLightOperate), &s_PachinkoLightOperate[2]},
-    {PACHINKOLIGHT_R0 - 2, 12, AF(PachinkoLightOperate), &s_PachinkoLightOperate[3]},
-    {PACHINKOLIGHT_R0 - 3, 12, AF(PachinkoLightOperate), &s_PachinkoLightOperate[4]},
-    {PACHINKOLIGHT_R0 - 4, 12, AF(PachinkoLightOperate), &s_PachinkoLightOperate[5]},
-    {PACHINKOLIGHT_R0 - 5, 12, AF(PachinkoLightOperate), &s_PachinkoLightOperate[0]},
+    {PACHINKOLIGHT_R0 - 0, 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[1]},
+    {PACHINKOLIGHT_R0 - 1, 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[2]},
+    {PACHINKOLIGHT_R0 - 2, 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[3]},
+    {PACHINKOLIGHT_R0 - 3, 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[4]},
+    {PACHINKOLIGHT_R0 - 4, 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[5]},
+    {PACHINKOLIGHT_R0 - 5, 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -767,29 +767,29 @@ STATE s_Pachinko1Stand[] =
 
 STATE s_Pachinko1Operate[] =
 {
-    {PACHINKO1_R0 + 0, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[1]},
-    {PACHINKO1_R0 + 1, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[2]},
-    {PACHINKO1_R0 + 2, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[3]},
-    {PACHINKO1_R0 + 3, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[4]},
-    {PACHINKO1_R0 + 4, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[5]},
-    {PACHINKO1_R0 + 5, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[6]},
-    {PACHINKO1_R0 + 6, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[7]},
-    {PACHINKO1_R0 + 7, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[8]},
-    {PACHINKO1_R0 + 8, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[9]},
-    {PACHINKO1_R0 + 9, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[10]},
-    {PACHINKO1_R0 + 10, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[11]},
-    {PACHINKO1_R0 + 11, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[12]},
-    {PACHINKO1_R0 + 12, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[13]},
-    {PACHINKO1_R0 + 13, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[14]},
-    {PACHINKO1_R0 + 14, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[15]},
-    {PACHINKO1_R0 + 15, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[16]},
-    {PACHINKO1_R0 + 16, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[17]},
-    {PACHINKO1_R0 + 17, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[18]},
-    {PACHINKO1_R0 + 18, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[19]},
-    {PACHINKO1_R0 + 19, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[20]},
-    {PACHINKO1_R0 + 20, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[21]},
-    {PACHINKO1_R0 + 21, 12, AF(Pachinko1Operate), &s_Pachinko1Operate[22]},
-    {PACHINKO1_R0 + 22, SF_QUICK_CALL, AF(PachinkoCheckWin), &s_Pachinko1Stand[0]}
+    {PACHINKO1_R0 + 0, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[1]},
+    {PACHINKO1_R0 + 1, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[2]},
+    {PACHINKO1_R0 + 2, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[3]},
+    {PACHINKO1_R0 + 3, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[4]},
+    {PACHINKO1_R0 + 4, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[5]},
+    {PACHINKO1_R0 + 5, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[6]},
+    {PACHINKO1_R0 + 6, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[7]},
+    {PACHINKO1_R0 + 7, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[8]},
+    {PACHINKO1_R0 + 8, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[9]},
+    {PACHINKO1_R0 + 9, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[10]},
+    {PACHINKO1_R0 + 10, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[11]},
+    {PACHINKO1_R0 + 11, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[12]},
+    {PACHINKO1_R0 + 12, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[13]},
+    {PACHINKO1_R0 + 13, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[14]},
+    {PACHINKO1_R0 + 14, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[15]},
+    {PACHINKO1_R0 + 15, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[16]},
+    {PACHINKO1_R0 + 16, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[17]},
+    {PACHINKO1_R0 + 17, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[18]},
+    {PACHINKO1_R0 + 18, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[19]},
+    {PACHINKO1_R0 + 19, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[20]},
+    {PACHINKO1_R0 + 20, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[21]},
+    {PACHINKO1_R0 + 21, 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[22]},
+    {PACHINKO1_R0 + 22, SF_QUICK_CALL, &AF(PachinkoCheckWin), &s_Pachinko1Stand[0]}
 };
 
 //---------------------------------------------------------------------------
@@ -937,29 +937,29 @@ STATE s_Pachinko2Stand[] =
 
 STATE s_Pachinko2Operate[] =
 {
-    {PACHINKO2_R0 + 0, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[1]},
-    {PACHINKO2_R0 + 1, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[2]},
-    {PACHINKO2_R0 + 2, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[3]},
-    {PACHINKO2_R0 + 3, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[4]},
-    {PACHINKO2_R0 + 4, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[5]},
-    {PACHINKO2_R0 + 5, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[6]},
-    {PACHINKO2_R0 + 6, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[7]},
-    {PACHINKO2_R0 + 7, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[8]},
-    {PACHINKO2_R0 + 8, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[9]},
-    {PACHINKO2_R0 + 9, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[10]},
-    {PACHINKO2_R0 + 10, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[11]},
-    {PACHINKO2_R0 + 11, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[12]},
-    {PACHINKO2_R0 + 12, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[13]},
-    {PACHINKO2_R0 + 13, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[14]},
-    {PACHINKO2_R0 + 14, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[15]},
-    {PACHINKO2_R0 + 15, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[16]},
-    {PACHINKO2_R0 + 16, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[17]},
-    {PACHINKO2_R0 + 17, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[18]},
-    {PACHINKO2_R0 + 18, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[19]},
-    {PACHINKO2_R0 + 19, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[20]},
-    {PACHINKO2_R0 + 20, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[21]},
-    {PACHINKO2_R0 + 21, 12, AF(Pachinko1Operate), &s_Pachinko2Operate[22]},
-    {PACHINKO2_R0 + 22, SF_QUICK_CALL, AF(PachinkoCheckWin), &s_Pachinko2Stand[0]}
+    {PACHINKO2_R0 + 0, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[1]},
+    {PACHINKO2_R0 + 1, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[2]},
+    {PACHINKO2_R0 + 2, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[3]},
+    {PACHINKO2_R0 + 3, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[4]},
+    {PACHINKO2_R0 + 4, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[5]},
+    {PACHINKO2_R0 + 5, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[6]},
+    {PACHINKO2_R0 + 6, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[7]},
+    {PACHINKO2_R0 + 7, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[8]},
+    {PACHINKO2_R0 + 8, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[9]},
+    {PACHINKO2_R0 + 9, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[10]},
+    {PACHINKO2_R0 + 10, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[11]},
+    {PACHINKO2_R0 + 11, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[12]},
+    {PACHINKO2_R0 + 12, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[13]},
+    {PACHINKO2_R0 + 13, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[14]},
+    {PACHINKO2_R0 + 14, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[15]},
+    {PACHINKO2_R0 + 15, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[16]},
+    {PACHINKO2_R0 + 16, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[17]},
+    {PACHINKO2_R0 + 17, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[18]},
+    {PACHINKO2_R0 + 18, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[19]},
+    {PACHINKO2_R0 + 19, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[20]},
+    {PACHINKO2_R0 + 20, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[21]},
+    {PACHINKO2_R0 + 21, 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[22]},
+    {PACHINKO2_R0 + 22, SF_QUICK_CALL, &AF(PachinkoCheckWin), &s_Pachinko2Stand[0]}
 };
 
 //---------------------------------------------------------------------------
@@ -1019,29 +1019,29 @@ STATE s_Pachinko3Stand[] =
 
 STATE s_Pachinko3Operate[] =
 {
-    {PACHINKO3_R0 + 0, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[1]},
-    {PACHINKO3_R0 + 1, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[2]},
-    {PACHINKO3_R0 + 2, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[3]},
-    {PACHINKO3_R0 + 3, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[4]},
-    {PACHINKO3_R0 + 4, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[5]},
-    {PACHINKO3_R0 + 5, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[6]},
-    {PACHINKO3_R0 + 6, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[7]},
-    {PACHINKO3_R0 + 7, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[8]},
-    {PACHINKO3_R0 + 8, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[9]},
-    {PACHINKO3_R0 + 9, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[10]},
-    {PACHINKO3_R0 + 10, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[11]},
-    {PACHINKO3_R0 + 11, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[12]},
-    {PACHINKO3_R0 + 12, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[13]},
-    {PACHINKO3_R0 + 13, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[14]},
-    {PACHINKO3_R0 + 14, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[15]},
-    {PACHINKO3_R0 + 15, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[16]},
-    {PACHINKO3_R0 + 16, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[17]},
-    {PACHINKO3_R0 + 17, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[18]},
-    {PACHINKO3_R0 + 18, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[19]},
-    {PACHINKO3_R0 + 19, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[20]},
-    {PACHINKO3_R0 + 20, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[21]},
-    {PACHINKO3_R0 + 21, 12, AF(Pachinko1Operate), &s_Pachinko3Operate[22]},
-    {PACHINKO3_R0 + 22, SF_QUICK_CALL, AF(PachinkoCheckWin), &s_Pachinko3Stand[0]}
+    {PACHINKO3_R0 + 0, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[1]},
+    {PACHINKO3_R0 + 1, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[2]},
+    {PACHINKO3_R0 + 2, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[3]},
+    {PACHINKO3_R0 + 3, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[4]},
+    {PACHINKO3_R0 + 4, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[5]},
+    {PACHINKO3_R0 + 5, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[6]},
+    {PACHINKO3_R0 + 6, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[7]},
+    {PACHINKO3_R0 + 7, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[8]},
+    {PACHINKO3_R0 + 8, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[9]},
+    {PACHINKO3_R0 + 9, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[10]},
+    {PACHINKO3_R0 + 10, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[11]},
+    {PACHINKO3_R0 + 11, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[12]},
+    {PACHINKO3_R0 + 12, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[13]},
+    {PACHINKO3_R0 + 13, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[14]},
+    {PACHINKO3_R0 + 14, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[15]},
+    {PACHINKO3_R0 + 15, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[16]},
+    {PACHINKO3_R0 + 16, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[17]},
+    {PACHINKO3_R0 + 17, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[18]},
+    {PACHINKO3_R0 + 18, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[19]},
+    {PACHINKO3_R0 + 19, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[20]},
+    {PACHINKO3_R0 + 20, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[21]},
+    {PACHINKO3_R0 + 21, 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[22]},
+    {PACHINKO3_R0 + 22, SF_QUICK_CALL, &AF(PachinkoCheckWin), &s_Pachinko3Stand[0]}
 };
 
 //---------------------------------------------------------------------------
@@ -1102,29 +1102,29 @@ STATE s_Pachinko4Stand[] =
 
 STATE s_Pachinko4Operate[] =
 {
-    {PACHINKO4_R0 + 0, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[1]},
-    {PACHINKO4_R0 + 1, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[2]},
-    {PACHINKO4_R0 + 2, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[3]},
-    {PACHINKO4_R0 + 3, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[4]},
-    {PACHINKO4_R0 + 4, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[5]},
-    {PACHINKO4_R0 + 5, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[6]},
-    {PACHINKO4_R0 + 6, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[7]},
-    {PACHINKO4_R0 + 7, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[8]},
-    {PACHINKO4_R0 + 8, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[9]},
-    {PACHINKO4_R0 + 9, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[10]},
-    {PACHINKO4_R0 + 10, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[11]},
-    {PACHINKO4_R0 + 11, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[12]},
-    {PACHINKO4_R0 + 12, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[13]},
-    {PACHINKO4_R0 + 13, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[14]},
-    {PACHINKO4_R0 + 14, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[15]},
-    {PACHINKO4_R0 + 15, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[16]},
-    {PACHINKO4_R0 + 16, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[17]},
-    {PACHINKO4_R0 + 17, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[18]},
-    {PACHINKO4_R0 + 18, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[19]},
-    {PACHINKO4_R0 + 19, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[20]},
-    {PACHINKO4_R0 + 20, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[21]},
-    {PACHINKO4_R0 + 21, 12, AF(Pachinko1Operate), &s_Pachinko4Operate[22]},
-    {PACHINKO4_R0 + 22, SF_QUICK_CALL, AF(PachinkoCheckWin), &s_Pachinko4Stand[0]}
+    {PACHINKO4_R0 + 0, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[1]},
+    {PACHINKO4_R0 + 1, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[2]},
+    {PACHINKO4_R0 + 2, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[3]},
+    {PACHINKO4_R0 + 3, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[4]},
+    {PACHINKO4_R0 + 4, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[5]},
+    {PACHINKO4_R0 + 5, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[6]},
+    {PACHINKO4_R0 + 6, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[7]},
+    {PACHINKO4_R0 + 7, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[8]},
+    {PACHINKO4_R0 + 8, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[9]},
+    {PACHINKO4_R0 + 9, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[10]},
+    {PACHINKO4_R0 + 10, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[11]},
+    {PACHINKO4_R0 + 11, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[12]},
+    {PACHINKO4_R0 + 12, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[13]},
+    {PACHINKO4_R0 + 13, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[14]},
+    {PACHINKO4_R0 + 14, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[15]},
+    {PACHINKO4_R0 + 15, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[16]},
+    {PACHINKO4_R0 + 16, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[17]},
+    {PACHINKO4_R0 + 17, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[18]},
+    {PACHINKO4_R0 + 18, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[19]},
+    {PACHINKO4_R0 + 19, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[20]},
+    {PACHINKO4_R0 + 20, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[21]},
+    {PACHINKO4_R0 + 21, 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[22]},
+    {PACHINKO4_R0 + 22, SF_QUICK_CALL, &AF(PachinkoCheckWin), &s_Pachinko4Stand[0]}
 };
 
 //---------------------------------------------------------------------------
@@ -1185,8 +1185,8 @@ ATTRIBUTE CarGirlAttrib =
 
 STATE s_CarGirlStand[2] =
 {
-    {CARGIRL_R0 + 0, CARGIRL_RATE, AF(DoCarGirl), &s_CarGirlStand[1]},
-    {CARGIRL_R0 + 1, CARGIRL_RATE, AF(DoCarGirl), &s_CarGirlStand[0]}
+    {CARGIRL_R0 + 0, CARGIRL_RATE, &AF(DoCarGirl), &s_CarGirlStand[1]},
+    {CARGIRL_R0 + 1, CARGIRL_RATE, &AF(DoCarGirl), &s_CarGirlStand[0]}
 };
 
 //////////////////////
@@ -1200,8 +1200,8 @@ STATE s_CarGirlStand[2] =
 
 STATE s_CarGirlPain[2] =
 {
-    {CARGIRL_PAIN_R0 + 0, CARGIRL_PAIN_RATE, AF(CarGirlPain), &s_CarGirlPain[1]},
-    {CARGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_CarGirlPain[0]}
+    {CARGIRL_PAIN_R0 + 0, CARGIRL_PAIN_RATE, &AF(CarGirlPain), &s_CarGirlPain[1]},
+    {CARGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CarGirlPain[0]}
 };
 
 //////////////////////
@@ -1215,22 +1215,22 @@ STATE s_CarGirlPain[2] =
 
 STATE s_CarGirlUzi[16] =
 {
-    {CARGIRL_FIRE_R0 + 0, 240, AF(CarGirlUzi), &s_CarGirlUzi[1]},
-    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[2]},
-    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[3]},
-    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[4]},
-    {CARGIRL_FIRE_R0 + 0, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[5]},
-    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[6]},
-    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[7]},
-    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[8]},
-    {CARGIRL_FIRE_R0 + 0, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[9]},
-    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[10]},
-    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[11]},
-    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[12]},
-    {CARGIRL_FIRE_R0 + 0, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[13]},
-    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[14]},
-    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, AF(CarGirlUzi), &s_CarGirlUzi[15]},
-    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_CarGirlUzi[0]},
+    {CARGIRL_FIRE_R0 + 0, 240, &AF(CarGirlUzi), &s_CarGirlUzi[1]},
+    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[2]},
+    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[3]},
+    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[4]},
+    {CARGIRL_FIRE_R0 + 0, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[5]},
+    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[6]},
+    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[7]},
+    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[8]},
+    {CARGIRL_FIRE_R0 + 0, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[9]},
+    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[10]},
+    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[11]},
+    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[12]},
+    {CARGIRL_FIRE_R0 + 0, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[13]},
+    {CARGIRL_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[14]},
+    {CARGIRL_FIRE_R0 + 1, CARGIRL_UZI_RATE, &AF(CarGirlUzi), &s_CarGirlUzi[15]},
+    {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -1426,8 +1426,8 @@ ATTRIBUTE MechanicGirlAttrib =
 
 STATE s_MechanicGirlStand[2] =
 {
-    {MECHANICGIRL_R0 + 0, MECHANICGIRL_RATE, AF(DoMechanicGirl), &s_MechanicGirlStand[1]},
-    {MECHANICGIRL_R0 + 1, MECHANICGIRL_RATE, AF(DoMechanicGirl), &s_MechanicGirlStand[0]}
+    {MECHANICGIRL_R0 + 0, MECHANICGIRL_RATE, &AF(DoMechanicGirl), &s_MechanicGirlStand[1]},
+    {MECHANICGIRL_R0 + 1, MECHANICGIRL_RATE, &AF(DoMechanicGirl), &s_MechanicGirlStand[0]}
 };
 
 //////////////////////
@@ -1441,8 +1441,8 @@ STATE s_MechanicGirlStand[2] =
 
 STATE s_MechanicGirlPain[2] =
 {
-    {MECHANICGIRL_PAIN_R0 + 0, MECHANICGIRL_PAIN_RATE, AF(MechanicGirlPain), &s_MechanicGirlPain[1]},
-    {MECHANICGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_MechanicGirlPain[0]}
+    {MECHANICGIRL_PAIN_R0 + 0, MECHANICGIRL_PAIN_RATE, &AF(MechanicGirlPain), &s_MechanicGirlPain[1]},
+    {MECHANICGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_MechanicGirlPain[0]}
 };
 
 //////////////////////
@@ -1456,8 +1456,8 @@ STATE s_MechanicGirlPain[2] =
 
 STATE s_MechanicGirlDrill[2] =
 {
-    {MECHANICGIRL_DRILL_R0 + 0, MECHANICGIRL_DRILL_RATE, AF(MechanicGirlDrill), &s_MechanicGirlDrill[1]},
-    {MECHANICGIRL_DRILL_R0 + 1, MECHANICGIRL_DRILL_RATE, AF(MechanicGirlDrill), &s_MechanicGirlDrill[0]},
+    {MECHANICGIRL_DRILL_R0 + 0, MECHANICGIRL_DRILL_RATE, &AF(MechanicGirlDrill), &s_MechanicGirlDrill[1]},
+    {MECHANICGIRL_DRILL_R0 + 1, MECHANICGIRL_DRILL_RATE, &AF(MechanicGirlDrill), &s_MechanicGirlDrill[0]},
 };
 
 
@@ -1653,8 +1653,8 @@ ATTRIBUTE SailorGirlAttrib =
 
 STATE s_SailorGirlStand[2] =
 {
-    {SAILORGIRL_R0 + 0, SAILORGIRL_RATE, AF(DoSailorGirl), &s_SailorGirlStand[1]},
-    {SAILORGIRL_R0 + 1, SAILORGIRL_RATE, AF(DoSailorGirl), &s_SailorGirlStand[0]}
+    {SAILORGIRL_R0 + 0, SAILORGIRL_RATE, &AF(DoSailorGirl), &s_SailorGirlStand[1]},
+    {SAILORGIRL_R0 + 1, SAILORGIRL_RATE, &AF(DoSailorGirl), &s_SailorGirlStand[0]}
 };
 
 //////////////////////
@@ -1668,8 +1668,8 @@ STATE s_SailorGirlStand[2] =
 
 STATE s_SailorGirlPain[2] =
 {
-    {SAILORGIRL_PAIN_R0 + 0, SAILORGIRL_PAIN_RATE, AF(SailorGirlPain), &s_SailorGirlPain[1]},
-    {SAILORGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_SailorGirlPain[0]}
+    {SAILORGIRL_PAIN_R0 + 0, SAILORGIRL_PAIN_RATE, &AF(SailorGirlPain), &s_SailorGirlPain[1]},
+    {SAILORGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SailorGirlPain[0]}
 };
 
 //////////////////////
@@ -1683,7 +1683,7 @@ STATE s_SailorGirlPain[2] =
 
 STATE s_SailorGirlThrow[] =
 {
-    {SAILORGIRL_FIRE_R0 + 0, SAILORGIRL_UZI_RATE, AF(SailorGirlThrow), &s_SailorGirlThrow[0]},
+    {SAILORGIRL_FIRE_R0 + 0, SAILORGIRL_UZI_RATE, &AF(SailorGirlThrow), &s_SailorGirlThrow[0]},
 };
 
 short alreadythrew;
@@ -1892,8 +1892,8 @@ ATTRIBUTE PruneGirlAttrib =
 
 STATE s_PruneGirlStand[2] =
 {
-    {PRUNEGIRL_R0 + 0, PRUNEGIRL_RATE, AF(DoPruneGirl), &s_PruneGirlStand[1]},
-    {PRUNEGIRL_R0 + 1, PRUNEGIRL_RATE, AF(DoPruneGirl), &s_PruneGirlStand[0]}
+    {PRUNEGIRL_R0 + 0, PRUNEGIRL_RATE, &AF(DoPruneGirl), &s_PruneGirlStand[1]},
+    {PRUNEGIRL_R0 + 1, PRUNEGIRL_RATE, &AF(DoPruneGirl), &s_PruneGirlStand[0]}
 };
 
 //////////////////////
@@ -1907,8 +1907,8 @@ STATE s_PruneGirlStand[2] =
 
 STATE s_PruneGirlPain[2] =
 {
-    {PRUNEGIRL_PAIN_R0 + 0, PRUNEGIRL_PAIN_RATE, AF(PruneGirlPain), &s_PruneGirlPain[1]},
-    {PRUNEGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_PruneGirlPain[0]}
+    {PRUNEGIRL_PAIN_R0 + 0, PRUNEGIRL_PAIN_RATE, &AF(PruneGirlPain), &s_PruneGirlPain[1]},
+    {PRUNEGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_PruneGirlPain[0]}
 };
 
 //---------------------------------------------------------------------------

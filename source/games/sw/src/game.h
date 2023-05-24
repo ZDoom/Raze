@@ -352,7 +352,7 @@ typedef void (*soANIMATORp) (SECTOR_OBJECT*);
         auto self = (DSWActor *)(param[0].a); \
         ACTION_RETURN_INT(func(self)); \
     }
-#define AF(func) &DSWActor_##func##_VMPtr
+#define AF(func) DSWActor_##func##_VMPtr
 
 struct STATE
 {

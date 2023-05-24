@@ -427,9 +427,9 @@ int DoActorOperate(DSWActor* actor)
 
 DECISION GenericFlaming[] =
 {
-    {30, AF(InitActorAttack)},
-    {512, AF(InitActorRunToward)},
-    {1024, AF(InitActorRunAway)},
+    {30, &AF(InitActorAttack)},
+    {512, &AF(InitActorRunToward)},
+    {1024, &AF(InitActorRunAway)},
 };
 
 /*
@@ -454,7 +454,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
     ASSERT(actor->user.__legacyState.Personality);
 
     actor->user.Dist = 0;
-    action = *AF(InitActorDecide);
+    action = AF(InitActorDecide);
 
     // target is gone.
     if (actor->user.targetActor == nullptr)
@@ -527,7 +527,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
                 // knows, its not a
                 // target any more
                 if (actor->hasState(NAME_Duck) && RANDOM_P2(1024<<8)>>8 < 100)
-                    action = *AF(InitActorDuck);
+                    action = AF(InitActorDuck);
                 else
                 {
                     if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -607,7 +607,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
         }
     }
 
-    //CON_Message("Couldn't resolve decide, AF(InitActorDecide)");
+    //CON_Message("Couldn't resolve decide, &AF(InitActorDecide)");
     return action;
 }
 
@@ -644,7 +644,7 @@ int DoActorDecide(DSWActor* actor)
     actor_action = DoActorActionDecide(actor);
 
     // Fix for the GenericFlaming bug for actors that don't have attack states
-    if (actor_action == *AF(InitActorAttack) && actor->user.WeaponNum == 0)
+    if (actor_action == AF(InitActorAttack) && actor->user.WeaponNum == 0)
         return 0;   // Just let the actor do as it was doing before in this case
 
     // Target is gone.
@@ -652,7 +652,7 @@ int DoActorDecide(DSWActor* actor)
         return 0;
 
     // zombie is attacking a player
-    if (actor_action == *AF(InitActorAttack) && actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->user.PlayerP)
+    if (actor_action == AF(InitActorAttack) && actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->user.PlayerP)
     {
         // Don't let zombies shoot at master
         if (GetOwner(actor) == actor->user.targetActor)
@@ -665,7 +665,7 @@ int DoActorDecide(DSWActor* actor)
 
     ASSERT(actor_action != nullptr);
 
-    if (actor_action != *AF(InitActorDecide))
+    if (actor_action != AF(InitActorDecide))
     {
         // NOT staying put
         actor->callFunction(actor_action);
@@ -687,7 +687,7 @@ int DoActorDecide(DSWActor* actor)
 
 int InitActorMoveCloser(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = *AF(DoActorMoveCloser);
+    actor->user.__legacyState.ActorActionFunc = AF(DoActorMoveCloser);
 
     if (!actor->checkStateGroup(NAME_Run))
         actor->setStateGroup(NAME_Run);
@@ -1040,7 +1040,7 @@ int InitActorAttack(DSWActor* actor)
         return 0;
     }
 
-    actor->user.__legacyState.ActorActionFunc = *AF(DoActorAttack);
+    actor->user.__legacyState.ActorActionFunc = AF(DoActorAttack);
 
     // move into standing frame
     //actor->setStateGroup(NAME_Stand);
@@ -1211,7 +1211,7 @@ int InitActorDuck(DSWActor* actor)
         return 0;
     }
 
-    actor->user.__legacyState.ActorActionFunc = *AF(DoActorDuck);
+    actor->user.__legacyState.ActorActionFunc = AF(DoActorDuck);
     actor->setStateGroup(NAME_Duck);
 
 	double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).LengthSquared();
@@ -1562,7 +1562,7 @@ int InitActorReposition(DSWActor* actor)
     }
 
 
-    actor->user.__legacyState.ActorActionFunc = *AF(DoActorReposition);
+    actor->user.__legacyState.ActorActionFunc = AF(DoActorReposition);
     if (!(actor->user.Flags & SPR_SWIMMING))
         actor->setStateGroup(NAME_Run);
 
@@ -1608,7 +1608,7 @@ int DoActorReposition(DSWActor* actor)
 
 int InitActorPause(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = *AF(DoActorPause);
+    actor->user.__legacyState.ActorActionFunc = AF(DoActorPause);
 
     actor->callAction();
 

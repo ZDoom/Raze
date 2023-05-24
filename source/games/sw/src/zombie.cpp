@@ -44,14 +44,14 @@ BEGIN_SW_NS
 
 DECISION ZombieBattle[] =
 {
-    {399, AF(InitActorMoveCloser)},
-    {1024, AF(InitActorAttack)}
+    {399, &AF(InitActorMoveCloser)},
+    {1024, &AF(InitActorAttack)}
 };
 
 DECISION ZombieOffense[] =
 {
-    {399, AF(InitActorMoveCloser)},
-    {1024, AF(InitActorAttack)}
+    {399, &AF(InitActorMoveCloser)},
+    {1024, &AF(InitActorAttack)}
 };
 
 DECISIONB ZombieBroadcast[] =
@@ -62,26 +62,26 @@ DECISIONB ZombieBroadcast[] =
 
 DECISION ZombieSurprised[] =
 {
-    {701, AF(InitActorMoveCloser)},
-    {1024, AF(InitActorDecide)}
+    {701, &AF(InitActorMoveCloser)},
+    {1024, &AF(InitActorDecide)}
 };
 
 DECISION ZombieEvasive[] =
 {
-    {400,   AF(InitActorDuck)},
+    {400,   &AF(InitActorDuck)},
     {1024,  nullptr}
 };
 
 DECISION ZombieLostTarget[] =
 {
-    {900, AF(InitActorFindPlayer)},
-    {1024, AF(InitActorWanderAround)}
+    {900, &AF(InitActorFindPlayer)},
+    {1024, &AF(InitActorWanderAround)}
 };
 
 DECISION ZombieCloseRange[] =
 {
-    {800,   AF(InitActorAttack    )         },
-    {1024,  AF(InitActorReposition)         }
+    {800,   &AF(InitActorAttack    )         },
+    {1024,  &AF(InitActorReposition)         }
 };
 
 PERSONALITY ZombiePersonality =
@@ -120,34 +120,34 @@ ATTRIBUTE ZombieAttrib =
 STATE s_ZombieRun[5][4] =
 {
     {
-        {PLAYER_NINJA_RUN_R0 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[0][1]},
-        {PLAYER_NINJA_RUN_R0 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[0][2]},
-        {PLAYER_NINJA_RUN_R0 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[0][3]},
-        {PLAYER_NINJA_RUN_R0 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[0][0]},
+        {PLAYER_NINJA_RUN_R0 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][1]},
+        {PLAYER_NINJA_RUN_R0 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][2]},
+        {PLAYER_NINJA_RUN_R0 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][3]},
+        {PLAYER_NINJA_RUN_R0 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][0]},
     },
     {
-        {PLAYER_NINJA_RUN_R1 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[1][1]},
-        {PLAYER_NINJA_RUN_R1 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[1][2]},
-        {PLAYER_NINJA_RUN_R1 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[1][3]},
-        {PLAYER_NINJA_RUN_R1 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[1][0]},
+        {PLAYER_NINJA_RUN_R1 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[1][1]},
+        {PLAYER_NINJA_RUN_R1 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[1][2]},
+        {PLAYER_NINJA_RUN_R1 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[1][3]},
+        {PLAYER_NINJA_RUN_R1 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[1][0]},
     },
     {
-        {PLAYER_NINJA_RUN_R2 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[2][1]},
-        {PLAYER_NINJA_RUN_R2 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[2][2]},
-        {PLAYER_NINJA_RUN_R2 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[2][3]},
-        {PLAYER_NINJA_RUN_R2 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[2][0]},
+        {PLAYER_NINJA_RUN_R2 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[2][1]},
+        {PLAYER_NINJA_RUN_R2 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[2][2]},
+        {PLAYER_NINJA_RUN_R2 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[2][3]},
+        {PLAYER_NINJA_RUN_R2 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[2][0]},
     },
     {
-        {PLAYER_NINJA_RUN_R3 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[3][1]},
-        {PLAYER_NINJA_RUN_R3 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[3][2]},
-        {PLAYER_NINJA_RUN_R3 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[3][3]},
-        {PLAYER_NINJA_RUN_R3 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[3][0]},
+        {PLAYER_NINJA_RUN_R3 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[3][1]},
+        {PLAYER_NINJA_RUN_R3 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[3][2]},
+        {PLAYER_NINJA_RUN_R3 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[3][3]},
+        {PLAYER_NINJA_RUN_R3 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[3][0]},
     },
     {
-        {PLAYER_NINJA_RUN_R4 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[4][1]},
-        {PLAYER_NINJA_RUN_R4 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[4][2]},
-        {PLAYER_NINJA_RUN_R4 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[4][3]},
-        {PLAYER_NINJA_RUN_R4 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, AF(DoZombieMove), &s_ZombieRun[4][0]},
+        {PLAYER_NINJA_RUN_R4 + 0, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[4][1]},
+        {PLAYER_NINJA_RUN_R4 + 1, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[4][2]},
+        {PLAYER_NINJA_RUN_R4 + 2, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[4][3]},
+        {PLAYER_NINJA_RUN_R4 + 3, ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[4][0]},
     },
 };
 
@@ -171,19 +171,19 @@ STATE* sg_ZombieRun[] =
 STATE s_ZombieStand[5][1] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_STAND_RATE, AF(NullZombie), &s_ZombieStand[0][0]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[0][0]},
     },
     {
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_STAND_RATE, AF(NullZombie), &s_ZombieStand[1][0]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[1][0]},
     },
     {
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_STAND_RATE, AF(NullZombie), &s_ZombieStand[2][0]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[2][0]},
     },
     {
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_STAND_RATE, AF(NullZombie), &s_ZombieStand[3][0]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[3][0]},
     },
     {
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_STAND_RATE, AF(NullZombie), &s_ZombieStand[4][0]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[4][0]},
     },
 };
 
@@ -207,24 +207,24 @@ STATE* sg_ZombieStand[] =
 STATE s_ZombiePain[5][2] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[0][1]},
-        {PLAYER_NINJA_STAND_R0 + 1, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[0][1]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[0][1]},
+        {PLAYER_NINJA_STAND_R0 + 1, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[0][1]},
     },
     {
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[1][1]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[1][1]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[1][1]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[1][1]},
     },
     {
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[2][1]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[2][1]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[2][1]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[2][1]},
     },
     {
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[3][1]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[3][1]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[3][1]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[3][1]},
     },
     {
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[4][1]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_PAIN_RATE, AF(DoZombiePain), &s_ZombiePain[4][1]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[4][1]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[4][1]},
     },
 };
 
@@ -248,44 +248,44 @@ STATE* sg_ZombiePain[] =
 STATE s_ZombieNuke[5][6] =
 {
     {
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[0][1]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE, AF(NullZombie), &s_ZombieNuke[0][2]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyNuke), &s_ZombieNuke[0][3]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[0][4]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieNuke[0][5]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE, AF(DoZombieMove), &s_ZombieNuke[0][5]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[0][1]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[0][2]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[0][3]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[0][4]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[0][5]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[0][5]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[1][1]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE, AF(NullZombie), &s_ZombieNuke[1][2]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyNuke), &s_ZombieNuke[1][3]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[1][4]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieNuke[1][5]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE, AF(DoZombieMove), &s_ZombieNuke[1][5]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[1][1]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[1][2]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[1][3]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[1][4]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[1][5]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[1][5]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[2][1]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, AF(NullZombie), &s_ZombieNuke[2][2]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyNuke), &s_ZombieNuke[2][3]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[2][4]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieNuke[2][5]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, AF(DoZombieMove), &s_ZombieNuke[2][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[2][1]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[2][2]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[2][3]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[2][4]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[2][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[2][5]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[3][1]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, AF(NullZombie), &s_ZombieNuke[3][2]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyNuke), &s_ZombieNuke[3][3]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[3][4]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieNuke[3][5]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, AF(DoZombieMove), &s_ZombieNuke[3][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[3][1]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[3][2]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[3][3]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[3][4]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[3][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[3][5]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[4][1]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, AF(NullZombie), &s_ZombieNuke[4][2]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyNuke), &s_ZombieNuke[4][3]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, AF(NullZombie), &s_ZombieNuke[4][4]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieNuke[4][5]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, AF(DoZombieMove), &s_ZombieNuke[4][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[4][1]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[4][2]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[4][3]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[4][4]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[4][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[4][5]},
     },
 };
 
@@ -310,39 +310,39 @@ STATE* sg_ZombieNuke[] =
 STATE s_ZombieRocket[5][5] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieRocket[0][1]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRocket), &s_ZombieRocket[0][2]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieRocket[0][3]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRocket[0][4]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieRocket[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[0][1]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[0][2]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[0][3]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[0][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieRocket[1][1]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRocket), &s_ZombieRocket[1][2]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieRocket[1][3]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRocket[1][4]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieRocket[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[1][1]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[1][2]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[1][3]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[1][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieRocket[2][1]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRocket), &s_ZombieRocket[2][2]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieRocket[2][3]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRocket[2][4]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieRocket[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[2][1]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[2][2]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[2][3]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[2][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieRocket[3][1]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRocket), &s_ZombieRocket[3][2]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieRocket[3][3]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRocket[3][4]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieRocket[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[3][1]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[3][2]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[3][3]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[3][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieRocket[4][1]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRocket), &s_ZombieRocket[4][2]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieRocket[4][3]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRocket[4][4]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieRocket[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[4][1]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[4][2]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[4][3]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[4][4]},
     },
 };
 
@@ -367,39 +367,39 @@ STATE* sg_ZombieRocket[] =
 STATE s_ZombieRail[5][5] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_RAIL_RATE * 2, AF(NullZombie), &s_ZombieRail[0][1]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRail), &s_ZombieRail[0][2]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_RAIL_RATE, AF(NullZombie), &s_ZombieRail[0][3]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRail[0][4]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_RAIL_RATE, AF(DoZombieMove), &s_ZombieRail[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[0][1]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[0][2]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[0][3]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[0][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_RAIL_RATE * 2, AF(NullZombie), &s_ZombieRail[1][1]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRail), &s_ZombieRail[1][2]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_RAIL_RATE, AF(NullZombie), &s_ZombieRail[1][3]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRail[1][4]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_RAIL_RATE, AF(DoZombieMove), &s_ZombieRail[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[1][1]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[1][2]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[1][3]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[1][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_RAIL_RATE * 2, AF(NullZombie), &s_ZombieRail[2][1]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRail), &s_ZombieRail[2][2]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_RAIL_RATE, AF(NullZombie), &s_ZombieRail[2][3]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRail[2][4]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_RAIL_RATE, AF(DoZombieMove), &s_ZombieRail[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[2][1]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[2][2]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[2][3]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[2][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_RAIL_RATE * 2, AF(NullZombie), &s_ZombieRail[3][1]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRail), &s_ZombieRail[3][2]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_RAIL_RATE, AF(NullZombie), &s_ZombieRail[3][3]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRail[3][4]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_RAIL_RATE, AF(DoZombieMove), &s_ZombieRail[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[3][1]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[3][2]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[3][3]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[3][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_RAIL_RATE * 2, AF(NullZombie), &s_ZombieRail[4][1]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyRail), &s_ZombieRail[4][2]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_RAIL_RATE, AF(NullZombie), &s_ZombieRail[4][3]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieRail[4][4]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_RAIL_RATE, AF(DoZombieMove), &s_ZombieRail[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[4][1]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[4][2]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[4][3]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[4][4]},
     },
 };
 
@@ -424,39 +424,39 @@ STATE* sg_ZombieRail[] =
 STATE s_ZombieGrenade[5][5] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieGrenade[0][1]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitSpriteGrenade), &s_ZombieGrenade[0][2]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieGrenade[0][3]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieGrenade[0][4]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieGrenade[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[0][1]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[0][2]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[0][3]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[0][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieGrenade[1][1]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitSpriteGrenade), &s_ZombieGrenade[1][2]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieGrenade[1][3]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieGrenade[1][4]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieGrenade[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[1][1]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[1][2]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[1][3]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[1][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieGrenade[2][1]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitSpriteGrenade), &s_ZombieGrenade[2][2]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieGrenade[2][3]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieGrenade[2][4]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieGrenade[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[2][1]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[2][2]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[2][3]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[2][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieGrenade[3][1]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitSpriteGrenade), &s_ZombieGrenade[3][2]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieGrenade[3][3]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieGrenade[3][4]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieGrenade[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[3][1]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[3][2]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[3][3]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[3][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE * 2, AF(NullZombie), &s_ZombieGrenade[4][1]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitSpriteGrenade), &s_ZombieGrenade[4][2]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, AF(NullZombie), &s_ZombieGrenade[4][3]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieGrenade[4][4]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, AF(DoZombieMove), &s_ZombieGrenade[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[4][1]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[4][2]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[4][3]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[4][4]},
     },
 };
 
@@ -482,39 +482,39 @@ STATE* sg_ZombieGrenade[] =
 STATE s_ZombieFlashBomb[5][5] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_FLASHBOMB_RATE * 2, AF(NullZombie), &s_ZombieFlashBomb[0][1]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitFlashBomb), &s_ZombieFlashBomb[0][2]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_FLASHBOMB_RATE, AF(NullZombie), &s_ZombieFlashBomb[0][3]},
-        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieFlashBomb[0][4]},
-        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_FLASHBOMB_RATE, AF(DoZombieMove), &s_ZombieFlashBomb[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[0][1]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[0][2]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[0][3]},
+        {PLAYER_NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[0][4]},
+        {PLAYER_NINJA_STAND_R0 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[0][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_FLASHBOMB_RATE * 2, AF(NullZombie), &s_ZombieFlashBomb[1][1]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitFlashBomb), &s_ZombieFlashBomb[1][2]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_FLASHBOMB_RATE, AF(NullZombie), &s_ZombieFlashBomb[1][3]},
-        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieFlashBomb[1][4]},
-        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_FLASHBOMB_RATE, AF(DoZombieMove), &s_ZombieFlashBomb[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[1][1]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[1][2]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[1][3]},
+        {PLAYER_NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[1][4]},
+        {PLAYER_NINJA_STAND_R1 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[1][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_FLASHBOMB_RATE * 2, AF(NullZombie), &s_ZombieFlashBomb[2][1]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitFlashBomb), &s_ZombieFlashBomb[2][2]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_FLASHBOMB_RATE, AF(NullZombie), &s_ZombieFlashBomb[2][3]},
-        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieFlashBomb[2][4]},
-        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_FLASHBOMB_RATE, AF(DoZombieMove), &s_ZombieFlashBomb[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[2][1]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[2][2]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[2][3]},
+        {PLAYER_NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[2][4]},
+        {PLAYER_NINJA_STAND_R2 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[2][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_FLASHBOMB_RATE * 2, AF(NullZombie), &s_ZombieFlashBomb[3][1]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitFlashBomb), &s_ZombieFlashBomb[3][2]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_FLASHBOMB_RATE, AF(NullZombie), &s_ZombieFlashBomb[3][3]},
-        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieFlashBomb[3][4]},
-        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_FLASHBOMB_RATE, AF(DoZombieMove), &s_ZombieFlashBomb[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[3][1]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[3][2]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[3][3]},
+        {PLAYER_NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[3][4]},
+        {PLAYER_NINJA_STAND_R3 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[3][4]},
     },
     {
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_FLASHBOMB_RATE * 2, AF(NullZombie), &s_ZombieFlashBomb[4][1]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitFlashBomb), &s_ZombieFlashBomb[4][2]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_FLASHBOMB_RATE, AF(NullZombie), &s_ZombieFlashBomb[4][3]},
-        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieFlashBomb[4][4]},
-        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_FLASHBOMB_RATE, AF(DoZombieMove), &s_ZombieFlashBomb[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[4][1]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[4][2]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[4][3]},
+        {PLAYER_NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[4][4]},
+        {PLAYER_NINJA_STAND_R4 + 0, ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[4][4]},
     },
 };
 
@@ -539,99 +539,99 @@ STATE* sg_ZombieFlashBomb[] =
 STATE s_ZombieUzi[5][17] =
 {
     {
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][1]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(CheckFire), &s_ZombieUzi[0][2]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][3]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][4]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][5]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][6]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][7]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][8]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][9]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][10]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][11]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][12]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][13]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][14]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[0][15]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[0][16]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieUzi[0][16]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][1]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[0][2]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][3]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][4]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][5]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][6]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][7]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][8]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][9]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][10]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][11]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][12]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][13]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][14]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][15]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][16]},
+        {PLAYER_NINJA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[0][16]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][1]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(CheckFire), &s_ZombieUzi[1][2]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][3]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][4]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][5]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][6]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][7]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][8]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][9]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][10]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][11]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][12]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][13]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][14]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[1][15]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[1][16]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieUzi[1][16]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][1]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[1][2]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][3]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][4]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][5]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][6]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][7]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][8]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][9]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][10]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][11]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][12]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][13]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][14]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1][15]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[1][16]},
+        {PLAYER_NINJA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[1][16]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][1]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(CheckFire), &s_ZombieUzi[2][2]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][3]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][4]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][5]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][6]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][7]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][8]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][9]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][10]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][11]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][12]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][13]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][14]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[2][15]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[2][16]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieUzi[2][16]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][1]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[2][2]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][3]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][4]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][5]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][6]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][7]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][8]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][9]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][10]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][11]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][12]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][13]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][14]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[2][15]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[2][16]},
+        {PLAYER_NINJA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[2][16]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][1]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(CheckFire), &s_ZombieUzi[3][2]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][3]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][4]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][5]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][6]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][7]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][8]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][9]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][10]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][11]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][12]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][13]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][14]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[3][15]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[3][16]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieUzi[3][16]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][1]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[3][2]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][3]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][4]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][5]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][6]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][7]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][8]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][9]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][10]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][11]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][12]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][13]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][14]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3][15]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[3][16]},
+        {PLAYER_NINJA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[3][16]},
     },
     {
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][1]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(CheckFire), &s_ZombieUzi[4][2]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][3]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][4]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][5]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][6]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][7]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][8]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][9]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][10]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][11]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][12]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][13]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][14]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, AF(NullZombie), &s_ZombieUzi[4][15]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZombieUzi[4][16]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZombieUzi[4][16]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][1]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[4][2]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][3]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][4]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][5]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][6]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][7]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][8]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][9]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][10]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][11]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][12]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][13]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][14]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[4][15]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4][16]},
+        {PLAYER_NINJA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[4][16]},
     },
 };
 
@@ -656,19 +656,19 @@ STATE* sg_ZombieUzi[] =
 STATE s_ZombieFall[5][1] =
 {
     {
-        {PLAYER_NINJA_JUMP_R0 + 3, ZOMBIE_FALL_RATE, AF(DoZombieMove), &s_ZombieFall[0][0]},
+        {PLAYER_NINJA_JUMP_R0 + 3, ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[0][0]},
     },
     {
-        {PLAYER_NINJA_JUMP_R1 + 3, ZOMBIE_FALL_RATE, AF(DoZombieMove), &s_ZombieFall[1][0]},
+        {PLAYER_NINJA_JUMP_R1 + 3, ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[1][0]},
     },
     {
-        {PLAYER_NINJA_JUMP_R2 + 3, ZOMBIE_FALL_RATE, AF(DoZombieMove), &s_ZombieFall[2][0]},
+        {PLAYER_NINJA_JUMP_R2 + 3, ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[2][0]},
     },
     {
-        {PLAYER_NINJA_JUMP_R3 + 3, ZOMBIE_FALL_RATE, AF(DoZombieMove), &s_ZombieFall[3][0]},
+        {PLAYER_NINJA_JUMP_R3 + 3, ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[3][0]},
     },
     {
-        {PLAYER_NINJA_JUMP_R4 + 3, ZOMBIE_FALL_RATE, AF(DoZombieMove), &s_ZombieFall[4][0]},
+        {PLAYER_NINJA_JUMP_R4 + 3, ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[4][0]},
     }
 };
 
