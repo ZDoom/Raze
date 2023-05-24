@@ -350,8 +350,7 @@ typedef void (*soANIMATORp) (SECTOR_OBJECT*);
     DEFINE_ACTION_FUNCTION_NATIVE(DSWActor, func, func) \
     { \
         auto self = (DSWActor *)(param[0].a); \
-        func(self); \
-        return 0; \
+        ACTION_RETURN_INT(func(self)); \
     }
 #define AF(func) &DSWActor_##func##_VMPtr
 

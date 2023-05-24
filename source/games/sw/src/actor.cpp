@@ -1106,12 +1106,14 @@ void DSWActor::callStateAction()
 
 int DSWActor::callFunction(VMFunction* func)
 {
+    int ret = 0;
     if (func)
     {
         VMValue param[] = { this };
-        VMCall(func, param, 1, nullptr, 0);
+        VMReturn r(&ret);
+        VMCall(func, param, 1, &r, 1);
     }
-    return 0;
+    return ret;
 }
 
 END_SW_NS
