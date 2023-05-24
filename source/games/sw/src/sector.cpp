@@ -58,7 +58,6 @@ enum
     SINE_SLOPED = BIT(3),
 };
 
-ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYER*);
 
 sectortype* FindNextSectorByTag(sectortype* sect, int tag);

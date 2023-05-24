@@ -37,8 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR InitRipper2Hang, InitRipper2Charge;
-
 DECISION Ripper2Battle[] =
 {
     {879, AF(InitRipper2Charge)},

@@ -725,8 +725,6 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
 
 int SetupBunny(DSWActor* actor)
 {
-    ANIMATOR DoActorDecide;
-
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor, BUNNY_RUN_R0, s_BunnyRun[0]);

@@ -51,8 +51,6 @@ bool bosswasseen[3];
 DSWActor* BossSpriteNum[3];
 
 
-ANIMATOR InitSumoCharge;
-
 DECISION SumoBattle[] =
 {
     {690,   AF(InitActorMoveCloser)   },

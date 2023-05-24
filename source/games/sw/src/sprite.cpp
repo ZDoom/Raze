@@ -228,7 +228,6 @@ STATE* s_Key[] =
 #define RED_COIN_RATE 10
 #define YELLOW_COIN_RATE 8
 #define GREEN_COIN_RATE 6
-ANIMATOR DoCoin;
 STATE s_RedCoin[] =
 {
     {Red_COIN + 0, RED_COIN_RATE, AF(DoCoin), &s_RedCoin[1]},
@@ -265,9 +264,6 @@ STATE s_GreenCoin[] =
     {Green_COIN + 6, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[7]},
     {Green_COIN + 7, GREEN_COIN_RATE, AF(DoCoin), &s_GreenCoin[0]},
 };
-
-ANIMATOR DoFireFly;
-
 
 STATE s_FireFly[] =
 {
@@ -1929,23 +1925,6 @@ void SpriteSetup(void)
                     break;
                 }
 
-#if 0
-                case SECT_DEBRIS_SEWER:
-                {
-                    ANIMATOR DoGenerateSewerDebris;
-
-                    SpawnUser(actor, 0, nullptr);
-
-                    ASSERT(actor->hasU());
-                    actor->user.__legacyState.RotNum = 0;
-                    actor->user.WaitTics = actor->spr.lotag * 120;
-
-                    actor->user.__legacyState.ActorActionFunc = DoGenerateSewerDebris;
-
-                    change_actor_stat(actor, STAT_NO_STATE);
-                    break;
-                }
-#endif
 
                 case SECT_VATOR:
                 {

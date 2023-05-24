@@ -38,8 +38,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR InitRipperHang;
-
 DECISION RipperBattle[] =
 {
     {748, AF(InitActorMoveCloser)},

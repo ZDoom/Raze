@@ -37,9 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR DoHornetCircle, InitHornetCircle;
-
-
 DECISION HornetBattle[] =
 {
     {50,    AF(InitHornetCircle   )       },
@@ -85,8 +82,6 @@ DECISION HornetCloseRange[] =
     {900,   AF(InitActorMoveCloser)         },
     {1024,  AF(InitActorReposition)         }
 };
-
-ANIMATOR InitHornetSting;
 
 DECISION HornetTouchTarget[] =
 {

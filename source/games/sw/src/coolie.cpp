@@ -37,8 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR InitCoolieCharge;
-
 DECISION CoolieBattle[] =
 {
     {700,   AF(InitCoolieCharge    )     },
