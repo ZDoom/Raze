@@ -1071,7 +1071,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     {
                         change_actor_stat(actor, STAT_NO_STATE);
                         SpawnUser(actor, 0, nullptr);
-                        actor->user.__legacyState.ActorActionFunc = nullptr;
+                        actor->clearActionFunc();
                     }
                     break;
 
@@ -2897,7 +2897,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_STAND:
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
+        actor->setStateGroup(NAME_Stand);
         break;
 
     case TRACK_ACTOR_JUMP:
@@ -3045,7 +3045,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                     else
                         actor->user.WaitTics = tpoint->tag_high * 128;
 
-                    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
+                    actor->setStateGroup(NAME_Stand);
                 }
             }
         }
@@ -3059,7 +3059,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 else
                     actor->user.WaitTics = tpoint->tag_high * 128;
 
-                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
+                actor->setStateGroup(NAME_Sit);
             }
         }
 
@@ -3094,20 +3094,20 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_CRAWL:
         if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Crawl)
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Crawl);
+            actor->setStateGroup(NAME_Crawl);
         else
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Rise);
+            actor->setStateGroup(NAME_Rise);
         break;
 
     case TRACK_ACTOR_SWIM:
         if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Swim)
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Swim);
+            actor->setStateGroup(NAME_Swim);
         else
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Rise);
+            actor->setStateGroup(NAME_Rise);
         break;
 
     case TRACK_ACTOR_FLY:
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Fly);
+        actor->setStateGroup(NAME_Fly);
         break;
 
     case TRACK_ACTOR_SIT:
@@ -3119,7 +3119,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             else
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
+            actor->setStateGroup(NAME_Sit);
         }
 
         break;
@@ -3128,7 +3128,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.__legacyState.ActorActionSet->Death2)
         {
             actor->user.WaitTics = 4 * 120;
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Death1);
+            actor->setStateGroup(NAME_Death1);
         }
         break;
 
@@ -3137,7 +3137,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.__legacyState.ActorActionSet->Death2)
         {
             actor->user.WaitTics = 4 * 120;
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Death2);
+            actor->setStateGroup(NAME_Death2);
         }
 
         break;
@@ -3150,7 +3150,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             actor->vel.X *= 2;
             actor->user.jump_speed = -495;
             DoActorBeginJump(actor);
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->DeathJump);
+            actor->setStateGroup(NAME_DeathJump);
         }
 
         break;
@@ -3164,7 +3164,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             else
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[0]);
+            actor->setStateGroup(NAME_CloseAttack, 0);
         }
 
         break;
@@ -3178,7 +3178,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             else
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[1]);
+            actor->setStateGroup(NAME_CloseAttack, 1);
         }
 
         break;
@@ -3290,7 +3290,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             //
 
             actor->user.Flags |= (SPR_CLIMBING);
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Climb);
+            actor->setStateGroup(NAME_Climb);
 
             actor->vel.Z -= 1;
         }
@@ -3356,7 +3356,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         if (actor->user.WaitTics <= 0)
         {
             actor->user.Flags &= ~(SPR_DONT_UPDATE_ANG);
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+            actor->setStateGroup(NAME_Run);
             actor->user.WaitTics = 0;
         }
 

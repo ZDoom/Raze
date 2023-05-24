@@ -1017,7 +1017,7 @@ int DoRipperMoveHang(DSWActor* actor)
     {
         if (actor->user.coll.type == kHitWall)
         {
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Special[1]);
+            actor->setStateGroup(NAME_Special);
             actor->user.WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall

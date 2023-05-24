@@ -4,6 +4,7 @@
 
 BEGIN_SW_NS
 
+struct Personality;
 
 class DSWActor : public DCoreActor
 {
@@ -17,6 +18,10 @@ public:
 	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
 	TObjPtr<DSWActor*> ownerActor;
 	FTextureID texparam, texparam2;	// some special variants of ST1 need this...
+
+	// These should probably be elsewhere later but for now this is most convenient.
+	int16_t CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
+	int16_t AttackPercent[MAX_ACTOR_ATTACK];
 
 	DSWActor() = default;
 
@@ -35,7 +40,20 @@ public:
 	}
 
 	void Serialize(FSerializer& arc) override;
+	// wrappers to static class data. Must be stored in the meta data, but will require better means of access than what's currently available.
+	Personality* getPersonality();
+	int16_t* getCloseAttackPercent() { return CloseAttackPercent; }
+	int16_t* getAttackPercent() { return AttackPercent; }
+
+	// wrappers that hide legacy implementation details.
 	void ChangeStateEnd();
+	void clearActionFunc() { user.__legacyState.ActorActionFunc = nullptr; }
+	void setActionDecide();
+	void setStateGroup(FName label, int substate = 0);	// substate is only valid for Attack and CloseAttack
+	bool checkStateGroup(FName label, int substate = 0);
+	bool hasState(FName label, int substate = 0);
+
+
 };
 
 inline void UpdateChangeXY(DSWActor* actor)

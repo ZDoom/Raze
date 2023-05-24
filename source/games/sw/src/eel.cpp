@@ -564,7 +564,7 @@ int DoEelDeath(DSWActor* actor)
             actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Dead);
+        actor->setStateGroup(NAME_Dead);
         return 0;
     }
 
@@ -582,7 +582,7 @@ int DoEelMove(DSWActor* actor)
     ASSERT(actor->user.__legacyState.Rot != nullptr);
 
     if (SpriteOverlap(actor, actor->user.targetActor))
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[0]);
+        actor->setStateGroup(NAME_CloseAttack, 0);
 
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);

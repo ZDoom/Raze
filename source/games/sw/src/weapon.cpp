@@ -5237,7 +5237,7 @@ int ActorPain(DSWActor* actor)
         {
             ActorLeaveTrack(actor);
             actor->user.WaitTics = 60;
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Pain);
+            actor->setStateGroup(NAME_Pain);
             return true;
         }
     }
@@ -5258,7 +5258,7 @@ int ActorPainPlasma(DSWActor* actor)
         if (actor->user.__legacyState.ActorActionSet && actor->user.__legacyState.ActorActionSet->Pain)
         {
             actor->user.WaitTics = PLASMA_FOUNTAIN_TIME;
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Pain);
+            actor->setStateGroup(NAME_Pain);
             return true;
         }
         else

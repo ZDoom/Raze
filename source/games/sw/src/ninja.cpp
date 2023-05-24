@@ -1941,7 +1941,7 @@ int DoNinjaHariKari(DSWActor* actor)
     actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->user.floor_dist = (40);
     actor->user.__legacyState.RotNum = 0;
-    actor->user.__legacyState.ActorActionFunc = nullptr;
+    actor->clearActionFunc();
 
     actor->spr.extra |= (SPRX_BREAKABLE);
     actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
@@ -1976,7 +1976,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
         actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
         actor->user.floor_dist = (40);
         actor->user.__legacyState.RotNum = 0;
-        actor->user.__legacyState.ActorActionFunc = nullptr;
+        actor->clearActionFunc();
 
         actor->spr.extra |= (SPRX_BREAKABLE);
         actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);

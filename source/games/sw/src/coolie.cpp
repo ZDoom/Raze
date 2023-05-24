@@ -468,9 +468,9 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     if (!action)
         return;
 
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+    actor->setStateGroup(NAME_Run);
 
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     // find the number of long range attacks
     for (wpn = wpn_cnt = 0; wpn < SIZ(actor->user.__legacyState.ActorActionSet->Attack); wpn++)

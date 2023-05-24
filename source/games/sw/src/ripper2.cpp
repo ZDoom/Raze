@@ -1022,7 +1022,7 @@ int DoRipper2MoveHang(DSWActor* actor)
             if (abs(actor->spr.pos.Z - actor->user.targetActor->spr.pos.Z) > 250)
                 return 0;
 
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Special[1]);
+            actor->setStateGroup(NAME_Special);
             if (RANDOM_P2(1024<<8)>>8 > 500)
                 actor->user.WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
             else

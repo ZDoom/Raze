@@ -27,7 +27,31 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef AI_H
 
 #define AI_H
+
+class VMFunction;
 BEGIN_SW_NS
+
+
+// Call functions based on a random range value
+struct Decision
+{
+    int range;
+    VMFunction* action;
+};
+
+// Personality structure
+struct Personality
+{
+    Decision* Battle;
+    Decision* Offense;
+    Decision* Broadcast;
+    Decision* Surprised;
+    Decision* Evasive;
+    Decision* LostTarget;
+    Decision* CloseRange;
+    Decision* TouchTarget;
+};
+
 
 // Call functions based on a random range value
 struct DECISION

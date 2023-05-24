@@ -441,7 +441,7 @@ int DoActorOperate(DSWActor* actor)
         {
             actor->user.WaitTics = 2 * 120;
 
-            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
+            actor->setStateGroup(NAME_Sit);
         }
     }
 
@@ -649,7 +649,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
 
 int InitActorDecide(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
     return DoActorDecide(actor);
 }
 
@@ -697,7 +697,7 @@ int DoActorDecide(DSWActor* actor)
     else
     {
         // Actually staying put
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
+        actor->setStateGroup(NAME_Stand);
         //CON_Message("DoActorDecide: Staying put");
     }
 
@@ -719,7 +719,7 @@ int sw_snd_scratch = 0;
 int InitActorAlertNoise(DSWActor* actor)
 {
     sw_snd_scratch = 1;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -728,7 +728,7 @@ int InitActorAlertNoise(DSWActor* actor)
 int InitActorAmbientNoise(DSWActor* actor)
 {
     sw_snd_scratch = 2;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -736,7 +736,7 @@ int InitActorAmbientNoise(DSWActor* actor)
 int InitActorAttackNoise(DSWActor* actor)
 {
     sw_snd_scratch = 3;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -744,7 +744,7 @@ int InitActorAttackNoise(DSWActor* actor)
 int InitActorPainNoise(DSWActor* actor)
 {
     sw_snd_scratch = 4;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -752,7 +752,7 @@ int InitActorPainNoise(DSWActor* actor)
 int InitActorDieNoise(DSWActor* actor)
 {
     sw_snd_scratch = 5;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -760,7 +760,7 @@ int InitActorDieNoise(DSWActor* actor)
 int InitActorExtra1Noise(DSWActor* actor)
 {
     sw_snd_scratch = 6;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -768,7 +768,7 @@ int InitActorExtra1Noise(DSWActor* actor)
 int InitActorExtra2Noise(DSWActor* actor)
 {
     sw_snd_scratch = 7;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -776,7 +776,7 @@ int InitActorExtra2Noise(DSWActor* actor)
 int InitActorExtra3Noise(DSWActor* actor)
 {
     sw_snd_scratch = 8;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -784,7 +784,7 @@ int InitActorExtra3Noise(DSWActor* actor)
 int InitActorExtra4Noise(DSWActor* actor)
 {
     sw_snd_scratch = 9;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -792,7 +792,7 @@ int InitActorExtra4Noise(DSWActor* actor)
 int InitActorExtra5Noise(DSWActor* actor)
 {
     sw_snd_scratch = 10;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -800,7 +800,7 @@ int InitActorExtra5Noise(DSWActor* actor)
 int InitActorExtra6Noise(DSWActor* actor)
 {
     sw_snd_scratch = 11;
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+    actor->setActionDecide();
 
     return 0;
 }
@@ -817,7 +817,7 @@ int InitActorMoveCloser(DSWActor* actor)
     actor->user.__legacyState.ActorActionFunc = DoActorMoveCloser;
 
     if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Run)
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+        actor->setStateGroup(NAME_Run);
 
     (*actor->user.__legacyState.ActorActionFunc)(actor);
 
@@ -842,8 +842,8 @@ int DoActorCantMoveCloser(DSWActor* actor)
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
-        actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+        actor->setActionDecide();
+        actor->setStateGroup(NAME_Run);
     }
     else
     {
@@ -1078,8 +1078,8 @@ int FindWanderTrack(DSWActor* actor)
 
 int InitActorRunAway(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+    actor->setActionDecide();
+    actor->setStateGroup(NAME_Run);
 
     actor->user.track = FindTrackAwayFromPlayer(actor);
 
@@ -1107,8 +1107,8 @@ int InitActorRunAway(DSWActor* actor)
 
 int InitActorRunToward(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+    actor->setActionDecide();
+    actor->setStateGroup(NAME_Run);
 
     InitActorReposition(actor);
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -1170,7 +1170,7 @@ int InitActorAttack(DSWActor* actor)
     actor->user.__legacyState.ActorActionFunc = DoActorAttack;
 
     // move into standing frame
-    //NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
+    //actor->setStateGroup(NAME_Stand);
 
     // face player when attacking
     actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
@@ -1191,8 +1191,8 @@ int InitActorAttack(DSWActor* actor)
         {
             if (CHOOSE2(100))
             {
-                actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Death2);
+                actor->setActionDecide();
+                actor->setStateGroup(NAME_Death2);
                 return 0;
             }
         }
@@ -1224,7 +1224,7 @@ int DoActorAttack(DSWActor* actor)
     {
         rand_num = ChooseActionNumber(actor->user.__legacyState.ActorActionSet->CloseAttackPercent);
 
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[rand_num]);
+        actor->setStateGroup(NAME_CloseAttack, rand_num);
     }
     else
     {
@@ -1234,11 +1234,9 @@ int DoActorAttack(DSWActor* actor)
 
         ASSERT(rand_num < actor->user.WeaponNum);
 
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Attack[rand_num]);
-        actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+        actor->setStateGroup(NAME_Attack, rand_num);
+        actor->setActionDecide();
     }
-
-    //actor->user.__legacyState.ActorActionFunc = DoActorDecide;
 
     return 0;
 }
@@ -1254,8 +1252,8 @@ int InitActorEvade(DSWActor* actor)
     // Evade is same thing as run away except when you get to the end of the track
     // you stop and take up the fight again.
 
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+    actor->setActionDecide();
+    actor->setStateGroup(NAME_Run);
 
     actor->user.track = FindTrackAwayFromPlayer(actor);
 
@@ -1279,8 +1277,8 @@ int InitActorEvade(DSWActor* actor)
 
 int InitActorWanderAround(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+    actor->setActionDecide();
+    actor->setStateGroup(NAME_Run);
 
     DoActorPickClosePlayer(actor);
 
@@ -1304,8 +1302,8 @@ int InitActorWanderAround(DSWActor* actor)
 
 int InitActorFindPlayer(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+    actor->setActionDecide();
+    actor->setStateGroup(NAME_Run);
 
     actor->user.track = FindTrackToPlayer(actor);
 
@@ -1316,8 +1314,8 @@ int InitActorFindPlayer(DSWActor* actor)
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
-        actor->user.__legacyState.ActorActionFunc = DoActorDecide;
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+        actor->setActionDecide();
+        actor->setStateGroup(NAME_Run);
     }
     else
     {
@@ -1336,12 +1334,12 @@ int InitActorDuck(DSWActor* actor)
 {
     if (!actor->user.__legacyState.ActorActionSet->Duck)
     {
-        actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+        actor->setActionDecide();
         return 0;
     }
 
     actor->user.__legacyState.ActorActionFunc = DoActorDuck;
-    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Duck);
+    actor->setStateGroup(NAME_Duck);
 
 	double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).LengthSquared();
 
@@ -1371,8 +1369,8 @@ int DoActorDuck(DSWActor* actor)
 {
     if ((actor->user.WaitTics -= ACTORMOVETICS) < 0)
     {
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Rise);
-        actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+        actor->setStateGroup(NAME_Rise);
+        actor->setActionDecide();
         actor->user.Flags &= ~(SPR_TARGETED);
     }
 
@@ -1693,7 +1691,7 @@ int InitActorReposition(DSWActor* actor)
 
     actor->user.__legacyState.ActorActionFunc = DoActorReposition;
     if (!(actor->user.Flags & SPR_SWIMMING))
-        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
+        actor->setStateGroup(NAME_Run);
 
     (*actor->user.__legacyState.ActorActionFunc)(actor);
 
@@ -1756,7 +1754,7 @@ int DoActorPause(DSWActor* actor)
     // WaitTics is used by too much other actor code and causes problems here
     if ((actor->user.Vis -= ACTORMOVETICS) < 0)
     {
-        actor->user.__legacyState.ActorActionFunc = DoActorDecide;
+        actor->setActionDecide();
         actor->user.Flags &= ~(SPR_TARGETED);
     }
 
