@@ -40,7 +40,7 @@ BEGIN_SW_NS
 DECISION SerpBattle[] =
 {
     {670,   AF(InitActorMoveCloser  )       },
-    {700,   AF(InitActorAmbientNoise)         },
+    {700,   AF(InitActorSetDecide)         },
     {710,   AF(InitActorRunAway     )       },
     {1024,  AF(InitActorAttack      )       }
 };
@@ -48,14 +48,14 @@ DECISION SerpBattle[] =
 DECISION SerpOffense[] =
 {
     {775,   AF(InitActorMoveCloser  )       },
-    {800,   AF(InitActorAmbientNoise)         },
+    {800,   AF(InitActorSetDecide)         },
     {1024,  AF(InitActorAttack      )       }
 };
 
-DECISION SerpBroadcast[] =
+DECISIONB SerpBroadcast[] =
 {
-    {10,    AF(InitActorAmbientNoise)       },
-    {1024,  AF(InitActorDecide      )       }
+    {10,    attr_ambient       },
+    {1024,  0   }
 };
 
 DECISION SerpSurprised[] =
@@ -73,7 +73,7 @@ DECISION SerpEvasive[] =
 DECISION SerpLostTarget[] =
 {
     {900,   AF(InitActorFindPlayer  )       },
-    {921,   AF(InitActorAmbientNoise)       },
+    {921,   AF(InitActorSetDecide)       },
     {1024,  AF(InitActorWanderAround)       }
 };
 

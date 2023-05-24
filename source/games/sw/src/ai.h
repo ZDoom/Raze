@@ -39,12 +39,18 @@ struct DECISION
     VMNativeFunction** action;
 };
 
+struct DECISIONB
+{
+    int range;
+    int noise;
+};
+
 // Personality structure
 struct PERSONALITY
 {
     DECISION* Battle;
     DECISION* Offense;
-    DECISION* Broadcast;
+    DECISIONB* Broadcast;
     DECISION* Surprised;
     DECISION* Evasive;
     DECISION* LostTarget;
@@ -56,7 +62,7 @@ enum ActorStates { SLOW_SPEED, NORM_SPEED, MID_SPEED, FAST_SPEED, MAX_SPEED};
 
 enum ATTRIB_SNDS
 {
-    attr_ambient, attr_alert, attr_attack, attr_pain, attr_die,
+    attr_ambient = 1, attr_alert, attr_attack, attr_pain, attr_die,
     attr_extra1, attr_extra2, attr_extra3,attr_extra4,attr_extra5,
     attr_extra6, MAXATTRIBSNDS
 };
@@ -76,17 +82,6 @@ bool CanSeePlayer(DSWActor* actor);
 int DoActorPickClosePlayer(DSWActor* actor);
 int InitActorDecide(DSWActor* actor);
 int DoActorDecide(DSWActor* actor);
-int InitActorAlertNoise(DSWActor* actor);
-int InitActorAmbientNoise(DSWActor* actor);
-int InitActorAttackNoise(DSWActor* actor);
-int InitActorPainNoise(DSWActor* actor);
-int InitActorDieNoise(DSWActor* actor);
-int InitActorExtra1Noise(DSWActor* actor);
-int InitActorExtra2Noise(DSWActor* actor);
-int InitActorExtra3Noise(DSWActor* actor);
-int InitActorExtra4Noise(DSWActor* actor);
-int InitActorExtra5Noise(DSWActor* actor);
-int InitActorExtra6Noise(DSWActor* actor);
 int InitActorMoveCloser(DSWActor* actor);
 int DoActorCantMoveCloser(DSWActor* actor);
 int DoActorMoveCloser(DSWActor* actor);

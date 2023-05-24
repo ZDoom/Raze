@@ -138,6 +138,23 @@ VMFunction* ChooseAction(DECISION decision[])
     }
 }
 
+int ChooseNoise(DECISIONB decision[])
+{
+    // !JIM! Here is an opportunity for some AI, instead of randomness!
+    int random_value = RANDOM_P2(1024 << 5) >> 5;
+
+    for (int i = 0; true; i++)
+    {
+        ASSERT(i < 10);
+
+        if (random_value <= decision[i].range)
+        {
+            return decision[i].noise;
+        }
+    }
+}
+
+
 //---------------------------------------------------------------------------
 /*
   !AIC - Sometimes just want the offset of the action
@@ -163,54 +180,14 @@ int ChooseActionNumber(int16_t decision[])
 //
 //---------------------------------------------------------------------------
 
-int DoActorNoise(VMFunction* Action, DSWActor* actor)
+int DoActorNoise(DSWActor* actor, int noise)
 {
-    if (Action == *AF(InitActorAmbientNoise))
+    if (noise == attr_alert)
     {
-        PlaySpriteSound(actor, attr_ambient, v3df_follow);
+        if (!actor->hasU() || actor->user.DidAlert) // This only allowed once
+            return 0;
     }
-    else if (Action == *AF(InitActorAlertNoise))
-    {
-        if (actor->hasU() && !actor->user.DidAlert) // This only allowed once
-            PlaySpriteSound(actor, attr_alert, v3df_follow);
-    }
-    else if (Action == *AF(InitActorAttackNoise))
-    {
-        PlaySpriteSound(actor, attr_attack, v3df_follow);
-    }
-    else if (Action == *AF(InitActorPainNoise))
-    {
-        PlaySpriteSound(actor, attr_pain, v3df_follow);
-    }
-    else if (Action == *AF(InitActorDieNoise))
-    {
-        PlaySpriteSound(actor, attr_die, v3df_none);
-    }
-    else if (Action == *AF(InitActorExtra1Noise))
-    {
-        PlaySpriteSound(actor, attr_extra1, v3df_follow);
-    }
-    else if (Action == *AF(InitActorExtra2Noise))
-    {
-        PlaySpriteSound(actor, attr_extra2, v3df_follow);
-    }
-    else if (Action == *AF(InitActorExtra3Noise))
-    {
-        PlaySpriteSound(actor, attr_extra3, v3df_follow);
-    }
-    else if (Action == *AF(InitActorExtra4Noise))
-    {
-        PlaySpriteSound(actor, attr_extra4, v3df_follow);
-    }
-    else if (Action == *AF(InitActorExtra5Noise))
-    {
-        PlaySpriteSound(actor, attr_extra5, v3df_follow);
-    }
-    else if (Action == *AF(InitActorExtra6Noise))
-     {
-        PlaySpriteSound(actor, attr_extra6, v3df_follow);
-    }
-
+    PlaySpriteSound(actor, noise, v3df_follow);
     return 0;
 }
 
@@ -614,7 +591,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
                 //CON_Message("Surprised");
                 if (!actor->user.DidAlert && ICanSee)
                 {
-                    DoActorNoise(*AF(InitActorAlertNoise), actor);
+                    DoActorNoise(actor, attr_alert);
                     actor->user.DidAlert = true;
                 }
                 return action;
@@ -624,8 +601,8 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
             {
                 // Player has not seen actor, to be fair let him know actor
                 // are there
-                DoActorNoise(ChooseAction(actor->user.__legacyState.Personality->Broadcast),actor);
-                //CON_Message("Actor Noise");
+                ;
+                DoActorNoise(actor, ChooseNoise(actor->user.__legacyState.Personality->Broadcast));
                 return action;
             }
         }
@@ -645,6 +622,12 @@ int InitActorDecide(DSWActor* actor)
 {
     actor->setActionDecide();
     return DoActorDecide(actor);
+}
+
+int InitActorSetDecide(DSWActor* actor)
+{
+    actor->setActionDecide();
+    return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -696,108 +679,6 @@ int DoActorDecide(DSWActor* actor)
 
     return 0;
 }
-
-// Important note: The functions below are being checked for as state identifiers.
-// But they are all identical content wise which makes MSVC merge them together into one.
-// Assigning 'sw_snd_scratch' different values makes them different so that merging does not occur.
-int sw_snd_scratch = 0;
-
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-int InitActorAlertNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 1;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-
-int InitActorAmbientNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 2;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorAttackNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 3;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorPainNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 4;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorDieNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 5;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorExtra1Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 6;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorExtra2Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 7;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorExtra3Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 8;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorExtra4Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 9;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorExtra5Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 10;
-    actor->setActionDecide();
-
-    return 0;
-}
-
-int InitActorExtra6Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 11;
-    actor->setActionDecide();
-
-    return 0;
-}
-
 
 //---------------------------------------------------------------------------
 /*
@@ -865,7 +746,7 @@ int DoActorMoveCloser(DSWActor* actor)
     }
 
     // Do a noise if ok
-    DoActorNoise(ChooseAction(actor->user.__legacyState.Personality->Broadcast), actor);
+    DoActorNoise(actor, ChooseNoise(actor->user.__legacyState.Personality->Broadcast));
 
     // after moving a ways check to see if player is still in sight
     if (actor->user.DistCheck > 34.375)
@@ -1207,7 +1088,7 @@ int DoActorAttack(DSWActor* actor)
 {
     int rand_num;
 
-    DoActorNoise(ChooseAction(actor->user.__legacyState.Personality->Broadcast),actor);
+    DoActorNoise(actor, ChooseNoise(actor->user.__legacyState.Personality->Broadcast));
 
     double dist =(actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
@@ -1766,17 +1647,6 @@ static saveable_code saveable_ai_code[] =
 {
     SAVE_CODE(InitActorDecide),
     SAVE_CODE(DoActorDecide),
-    SAVE_CODE(InitActorAlertNoise),
-    SAVE_CODE(InitActorAmbientNoise),
-    SAVE_CODE(InitActorAttackNoise),
-    SAVE_CODE(InitActorPainNoise),
-    SAVE_CODE(InitActorDieNoise),
-    SAVE_CODE(InitActorExtra1Noise),
-    SAVE_CODE(InitActorExtra2Noise),
-    SAVE_CODE(InitActorExtra3Noise),
-    SAVE_CODE(InitActorExtra4Noise),
-    SAVE_CODE(InitActorExtra5Noise),
-    SAVE_CODE(InitActorExtra6Noise),
     SAVE_CODE(InitActorMoveCloser),
     SAVE_CODE(DoActorMoveCloser),
     SAVE_CODE(FindTrackToPlayer),

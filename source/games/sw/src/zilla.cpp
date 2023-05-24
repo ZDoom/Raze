@@ -42,7 +42,7 @@ DECISION ZillaBattle[] =
 {
     {100,   AF(InitActorRunAway   )   },
     {690,   AF(InitActorMoveCloser)   },
-    {692,   AF(InitActorAlertNoise)   },
+    {692,   AF(InitActorSetDecide)   },
     {1024,  AF(InitActorAttack    )   }
 };
 
@@ -50,21 +50,21 @@ DECISION ZillaOffense[] =
 {
     {100,   AF(InitActorRunAway   )   },
     {690,   AF(InitActorMoveCloser)   },
-    {692,   AF(InitActorAlertNoise)   },
+    {692,   AF(InitActorSetDecide)   },
     {1024,  AF(InitActorAttack    )   }
 };
 
-DECISION ZillaBroadcast[] =
+DECISIONB ZillaBroadcast[] =
 {
-    {2,     AF(InitActorAlertNoise  ) },
-    {4,     AF(InitActorAmbientNoise)  },
-    {1024,  AF(InitActorDecide      ) }
+    {2,     attr_alert },
+    {4,     attr_ambient  },
+    {1024,  0 }
 };
 
 DECISION ZillaSurprised[] =
 {
     {700,   AF(InitActorMoveCloser)   },
-    {703,   AF(InitActorAlertNoise)   },
+    {703,   AF(InitActorSetDecide)   },
     {1024,  AF(InitActorDecide    )   }
 };
 

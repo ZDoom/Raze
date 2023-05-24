@@ -39,22 +39,22 @@ BEGIN_SW_NS
 DECISION EelBattle[] =
 {
     {649,   AF(InitActorMoveCloser)         },
-    {650,   AF(InitActorAlertNoise)         },
+    {650,   AF(InitActorSetDecide)      },
     {1024,  AF(InitActorMoveCloser)         }
 };
 
 DECISION EelOffense[] =
 {
     {649,   AF(InitActorMoveCloser)         },
-    {750,   AF(InitActorAlertNoise)         },
+    {750,   AF(InitActorSetDecide)     },
     {1024,  AF(InitActorMoveCloser)         }
 };
 
-DECISION EelBroadcast[] =
+DECISIONB EelBroadcast[] =
 {
-    {3,    AF(InitActorAlertNoise  )       },
-    {6,    AF(InitActorAmbientNoise)       },
-    {1024, AF( InitActorDecide     )       }
+    {3,    attr_alert       },
+    {6,    attr_ambient  },
+    {1024, 0   }
 };
 
 DECISION EelSurprised[] =

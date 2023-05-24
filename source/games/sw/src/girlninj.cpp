@@ -52,10 +52,10 @@ DECISION GirlNinjaOffense[] =
     {1024, AF(InitActorAttack)}
 };
 
-DECISION GirlNinjaBroadcast[] =
+DECISIONB GirlNinjaBroadcast[] =
 {
-    {6, AF(InitActorAmbientNoise)},
-    {1024, AF(InitActorDecide)}
+    {6, attr_ambient},
+    {1024, 0}
 };
 
 DECISION GirlNinjaSurprised[] =

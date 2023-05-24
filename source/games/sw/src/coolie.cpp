@@ -43,7 +43,7 @@ DECISION CoolieBattle[] =
 {
     {700,   AF(InitCoolieCharge    )     },
     {990,   AF(InitActorMoveCloser )        },
-    {1000,  AF(InitActorAttackNoise)        },
+    {1000,  AF(InitActorSetDecide)},
     {1024,  AF(InitActorRunAway    )       }
 };
 
@@ -51,19 +51,19 @@ DECISION CoolieOffense[] =
 {
     {700,   AF(InitCoolieCharge    )     },
     {1015,  AF(InitActorMoveCloser )        },
-    {1024,  AF(InitActorAttackNoise)        }
+    {1024,  AF(InitActorSetDecide) }
 };
 
-DECISION CoolieBroadcast[] =
+DECISIONB CoolieBroadcast[] =
 {
-    {16,    AF(InitActorAmbientNoise)          },
-    {1024,  AF(InitActorDecide)            }
+    {16, attr_ambient          },
+    {1024,  0 }
 };
 
 DECISION CoolieSurprised[] =
 {
     {700,   AF(InitActorMoveCloser  )       },
-    {703,   AF(InitActorAmbientNoise)        },
+    {703,   AF(InitActorSetDecide) },
     {1024,  AF(InitActorDecide      )      }
 };
 

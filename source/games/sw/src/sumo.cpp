@@ -56,28 +56,28 @@ ANIMATOR InitSumoCharge;
 DECISION SumoBattle[] =
 {
     {690,   AF(InitActorMoveCloser)   },
-    {692,   AF(InitActorAlertNoise)   },
+    {692,   AF(InitActorSetDecide)   },
     {1024,  AF(InitActorAttack    )   }
 };
 
 DECISION SumoOffense[] =
 {
     {690,   AF(InitActorMoveCloser)   },
-    {692,   AF(InitActorAlertNoise)   },
+    {692,   AF(InitActorSetDecide)   },
     {1024,  AF(InitActorAttack    )   }
 };
 
-DECISION SumoBroadcast[] =
+DECISIONB SumoBroadcast[] =
 {
-    {2,    AF(InitActorAlertNoise  ) },
-    {4,    AF(InitActorAmbientNoise)  },
-    {1024, AF(InitActorDecide      ) }
+    {2,    attr_alert },
+    {4,    attr_ambient  },
+    {1024, 0 }
 };
 
 DECISION SumoSurprised[] =
 {
     {700,   AF(InitActorMoveCloser)   },
-    {703,   AF(InitActorAlertNoise)   },
+    {703,   AF(InitActorSetDecide)   },
     {1024,  AF(InitActorDecide    )   }
 };
 

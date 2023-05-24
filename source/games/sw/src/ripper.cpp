@@ -43,23 +43,23 @@ ANIMATOR InitRipperHang;
 DECISION RipperBattle[] =
 {
     {748, AF(InitActorMoveCloser)},
-    {750, AF(InitActorAlertNoise)},
-    {755, AF(InitActorAttackNoise)},
+    {750, AF(InitActorSetDecide)},
+    {755, AF(InitActorSetDecide)},
     {1024, AF(InitActorAttack)}
 };
 
 DECISION RipperOffense[] =
 {
     {700, AF(InitActorMoveCloser)},
-    {710, AF(InitActorAlertNoise)},
+    {710, AF(InitActorSetDecide)},
     {1024, AF(InitActorAttack)}
 };
 
-DECISION RipperBroadcast[] =
+DECISIONB RipperBroadcast[] =
 {
-    {3, AF(InitActorAlertNoise)},
-    {6, AF(InitActorAmbientNoise)},
-    {1024, AF(InitActorDecide)}
+    {3, attr_alert},
+    {6, attr_ambient},
+    {1024, 0}
 };
 
 DECISION RipperSurprised[] =

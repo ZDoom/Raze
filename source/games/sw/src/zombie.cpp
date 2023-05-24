@@ -54,10 +54,10 @@ DECISION ZombieOffense[] =
     {1024, AF(InitActorAttack)}
 };
 
-DECISION ZombieBroadcast[] =
+DECISIONB ZombieBroadcast[] =
 {
-    {6, AF(InitActorAmbientNoise)},
-    {1024, AF(InitActorDecide)}
+    {6, attr_ambient},
+    {1024, 0}
 };
 
 DECISION ZombieSurprised[] =

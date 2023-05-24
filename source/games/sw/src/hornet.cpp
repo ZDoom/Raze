@@ -44,21 +44,21 @@ DECISION HornetBattle[] =
 {
     {50,    AF(InitHornetCircle   )       },
     {798,   AF(InitActorMoveCloser)         },
-    {800,   AF(InitActorAlertNoise)        },
+    {800,   AF(InitActorSetDecide)        },
     {1024,  AF(InitActorRunAway   )         }
 };
 
 DECISION HornetOffense[] =
 {
     {1022,  AF(InitActorMoveCloser)        },
-    {1024,  AF(InitActorAlertNoise)        }
+    {1024,  AF(InitActorSetDecide)        }
 };
 
-DECISION HornetBroadcast[] =
+DECISIONB HornetBroadcast[] =
 {
-    {3,    AF(InitActorAlertNoise  )      },
-    {6,    AF(InitActorAmbientNoise)          },
-    {1024, AF( InitActorDecide     )        }
+    {3,    attr_alert      },
+    {6,    attr_ambient          },
+    {1024, 0   }
 };
 
 DECISION HornetSurprised[] =

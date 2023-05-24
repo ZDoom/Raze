@@ -44,21 +44,21 @@ BEGIN_SW_NS
 DECISION GoroBattle[] =
 {
     {697,   AF(InitActorMoveCloser  )       },
-    {700,   AF(InitActorAmbientNoise)         },
+    {700,   AF(InitActorSetDecide)        },
     {1024,  AF(InitActorAttack      )       }
 };
 
 DECISION GoroOffense[] =
 {
     {797,   AF(InitActorMoveCloser )        },
-    {800,   AF(InitActorAttackNoise)        },
+    {800,   AF(InitActorSetDecide)       },
     {1024,  AF(InitActorAttack     )        }
 };
 
-DECISION GoroBroadcast[] =
+DECISIONB GoroBroadcast[] =
 {
-    {3,    AF(InitActorAmbientNoise)          },
-    {1024, AF( InitActorDecide     )       }
+    {3,    attr_ambient          },
+    {1024, 0  }
 };
 
 DECISION GoroSurprised[] =

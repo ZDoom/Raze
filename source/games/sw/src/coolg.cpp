@@ -54,10 +54,10 @@ DECISION CoolgOffense[] =
     {1024,  AF(InitActorAttack    )         }
 };
 
-DECISION CoolgBroadcast[] =
+DECISIONB CoolgBroadcast[] =
 {
-    {1,    AF(InitActorAmbientNoise)       },
-    {1024, AF(InitActorDecide)             }
+    {1,    attr_ambient       },
+    {1024, 0            }
 };
 
 DECISION CoolgSurprised[] =

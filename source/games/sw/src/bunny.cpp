@@ -44,23 +44,30 @@ int Bunny_Count = 0;
 DECISION BunnyBattle[] =
 {
     {748, AF(InitActorMoveCloser)},
-    {750, AF(InitActorAlertNoise)},
-    {760, AF(InitActorAttackNoise)},
+    {750, AF(InitActorSetDecide)},
+    {760, AF(InitActorSetDecide)},
     {1024, AF(InitActorMoveCloser)}
 };
 
 DECISION BunnyOffense[] =
 {
     {600, AF(InitActorMoveCloser)},
-    {700, AF(InitActorAlertNoise)},
+    {700, AF(InitActorSetDecide)},
     {1024, AF(InitActorMoveCloser)}
 };
 
-DECISION BunnyBroadcast[] =
+DECISIONB BunnyBroadcast[] =
 {
-    {21, AF(InitActorAlertNoise)},
-    {51, AF(InitActorAmbientNoise)},
-    {1024, AF(InitActorDecide)}
+    {21, attr_alert},
+    {51, attr_ambient},
+    {1024, 0}
+};
+
+DECISIONB BunnyBroadcast2[] =
+{
+    {500,  0},
+    {1020, 0},
+    {1024, attr_ambient}
 };
 
 DECISION BunnySurprised[] =
@@ -74,7 +81,7 @@ DECISION BunnyEvasive[] =
 {
     {500,  AF(InitActorWanderAround)},
     {1020, AF(InitActorRunAway)},
-    {1024, AF(InitActorAmbientNoise)}
+    {1024, AF(InitActorSetDecide)}
 };
 
 DECISION BunnyLostTarget[] =
@@ -109,7 +116,7 @@ PERSONALITY BunnyPersonality =
 {
     BunnyEvasive,
     BunnyEvasive,
-    BunnyEvasive,
+    BunnyBroadcast2,
     BunnyWander,
     BunnyWander,
     BunnyWander,

@@ -42,7 +42,7 @@ ANIMATOR InitRipper2Hang, InitRipper2Charge;
 DECISION Ripper2Battle[] =
 {
     {879, AF(InitRipper2Charge)},
-    {883, AF(InitActorAttackNoise)},
+    {883, AF(InitActorSetDecide)},
     {900, AF(InitRipper2Hang)},
     {1024, AF(InitActorAttack)}
 };
@@ -50,15 +50,15 @@ DECISION Ripper2Battle[] =
 DECISION Ripper2Offense[] =
 {
     {789, AF(InitActorMoveCloser)},
-    {790, AF(InitActorAttackNoise)},
+    {790, AF(InitActorSetDecide)},
     {800, AF(InitRipper2Hang)},
     {1024, AF(InitActorAttack)}
 };
 
-DECISION Ripper2Broadcast[] =
+DECISIONB Ripper2Broadcast[] =
 {
-    {3, AF(InitActorAmbientNoise)},
-    {1024, AF(InitActorDecide)}
+    {3, attr_ambient},
+    {1024, 0}
 };
 
 DECISION Ripper2Surprised[] =

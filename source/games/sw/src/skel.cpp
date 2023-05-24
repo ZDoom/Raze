@@ -37,7 +37,7 @@ BEGIN_SW_NS
 DECISION SkelBattle[] =
 {
     {600,   AF(InitActorMoveCloser)         },
-    {602,   AF(InitActorAlertNoise)         },
+    {602,   AF(InitActorSetDecide)         },
     {700,   AF(InitActorRunAway   )         },
     {1024,  AF(InitActorAttack    )         }
 };
@@ -45,15 +45,15 @@ DECISION SkelBattle[] =
 DECISION SkelOffense[] =
 {
     {700,   AF(InitActorMoveCloser)         },
-    {702,   AF(InitActorAlertNoise)         },
+    {702,   AF(InitActorSetDecide)         },
     {1024,  AF(InitActorAttack    )         }
 };
 
-DECISION SkelBroadcast[] =
+DECISIONB SkelBroadcast[] =
 {
-    {3,    AF(InitActorAlertNoise  )      },
-    {6,    AF(InitActorAmbientNoise)      },
-    {1024, AF( InitActorDecide     )       }
+    {3,    attr_alert      },
+    {6,    attr_ambient      },
+    {1024, 0  }
 };
 
 DECISION SkelSurprised[] =

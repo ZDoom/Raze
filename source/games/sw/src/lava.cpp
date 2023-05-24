@@ -39,7 +39,7 @@ BEGIN_SW_NS
 DECISION LavaBattle[] =
 {
     {600,   AF(InitActorMoveCloser)         },
-    {700,   AF(InitActorAlertNoise)         },
+    {700,   AF(InitActorSetDecide)         },
     {710,   AF(InitActorRunAway   )         },
     {1024,  AF(InitActorAttack    )         }
 };
@@ -47,15 +47,15 @@ DECISION LavaBattle[] =
 DECISION LavaOffense[] =
 {
     {700,   AF(InitActorMoveCloser)         },
-    {800,   AF(InitActorAlertNoise)         },
+    {800,   AF(InitActorSetDecide)         },
     {1024,  AF(InitActorAttack    )         }
 };
 
-DECISION LavaBroadcast[] =
+DECISIONB LavaBroadcast[] =
 {
-    {21,    AF(InitActorAlertNoise  )      },
-    {51,    AF(InitActorAmbientNoise)      },
-    {1024,  AF(InitActorDecide      )      }
+    {21,    attr_alert      },
+    {51,    attr_ambient      },
+    {1024,  0    }
 };
 
 DECISION LavaSurprised[] =

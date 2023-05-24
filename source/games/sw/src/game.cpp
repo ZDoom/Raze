@@ -149,8 +149,6 @@ void markgcroots()
 
 void pClearSpriteList(PLAYER* pp);
 
-extern int sw_snd_scratch;
-
 int GameVersion = 20;
 
 bool NoMeters = false;
@@ -277,8 +275,7 @@ void GameInterface::app_init()
     else
         Printf("SHADOW WARRIOR(tm) Version 1.2\n");
 
-    if (sw_snd_scratch == 0)    // This is always 0 at this point - this check is only here to prevent whole program optimization from eliminating the variable.
-        Printf("Copyright (c) 1997 3D Realms Entertainment\n");
+    Printf("Copyright (c) 1997 3D Realms Entertainment\n");
 
     registerosdcommands();
 

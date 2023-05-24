@@ -66,10 +66,10 @@ DECISION NinjaOffense[] =
     {1024, AF(InitActorAttack)}
 };
 
-DECISION NinjaBroadcast[] =
+DECISIONB NinjaBroadcast[] =
 {
-    {6, AF(InitActorAmbientNoise)},
-    {1024, AF(InitActorDecide)}
+    {6, attr_ambient},
+    {1024, 0}
 };
 
 DECISION NinjaSurprised[] =
@@ -118,13 +118,19 @@ PERSONALITY NinjaPersonality =
 DECISION NinjaSniperRoam[] =
 {
     {1023, AF(InitActorDuck)},
-    {1024, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorSetDecide)},
+};
+
+DECISIONB NinjaSniperBroadcast2[] =
+{
+    {1023, 0},
+    {1024, attr_ambient},
 };
 
 DECISION NinjaSniperBattle[] =
 {
     {499, AF(InitActorDuck)},
-    {500, AF(InitActorAmbientNoise)},
+    {500, AF(InitActorSetDecide)},
     {1024, AF(InitActorAttack)}
 };
 
@@ -132,7 +138,7 @@ PERSONALITY NinjaSniperPersonality =
 {
     NinjaSniperBattle,
     NinjaSniperBattle,
-    NinjaSniperRoam,
+    NinjaSniperBroadcast2,
     NinjaSniperRoam,
     NinjaSniperRoam,
     NinjaSniperRoam,
