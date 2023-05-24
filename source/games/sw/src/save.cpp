@@ -745,7 +745,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("StateEnd", w.__legacyState.StateEnd, def->__legacyState.StateEnd)
 			("StateFallOverride", w.__legacyState.StateFallOverride, def->__legacyState.StateFallOverride)
 			("ActorActionSet", w.__legacyState.ActorActionSet, def->__legacyState.ActorActionSet)
-			("Personality", w.__legacyState.Personality, def->__legacyState.Personality)
+			("Personality", w.Personality, def->Personality)
 			("Attrib", w.__legacyState.Attrib, def->__legacyState.Attrib)
 			("sop_parent", w.sop_parent, def->sop_parent)
 			("flags", w.Flags, def->Flags)
@@ -826,7 +826,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("filler", w.filler, def->filler)
 			("wallshade", w.WallShade)
 			("rotator", w.rotator)
-			("actoractionfunc", w.__legacyState.ActorActionFunc)
+			("actoractionfunc", w.ActorActionFunc)
 			("oz", w.oz, def->oz);
 
 		arc.EndObject();

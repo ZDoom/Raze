@@ -183,7 +183,7 @@ void JS_SpriteSetup(void)
                 itActor->user.__legacyState.RotNum = 0;
                 itActor->user.WaitTics = itActor->spr.lotag * 120;
 
-                itActor->user.__legacyState.ActorActionFunc = AF(GenerateDrips);
+                itActor->user.ActorActionFunc = AF(GenerateDrips);
 
                 change_actor_stat(itActor, STAT_NO_STATE);
                 itActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;

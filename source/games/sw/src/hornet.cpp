@@ -413,7 +413,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
 int InitHornetCircle(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = AF(DoHornetCircle);
+    actor->user.ActorActionFunc = AF(DoHornetCircle);
 
     actor->setStateGroup(NAME_Run);
 

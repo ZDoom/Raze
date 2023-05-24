@@ -1468,7 +1468,7 @@ void SpriteSetupPost(void)
             jActor->user.ceiling_dist = 4;
             jActor->user.floor_dist = -2;
 
-            jActor->user.__legacyState.ActorActionFunc = AF(DoActorDebris);
+            jActor->user.ActorActionFunc = AF(DoActorDebris);
 
             jActor->spr.cstat |= CSTAT_SPRITE_BREAKABLE;
             jActor->spr.extra |= SPRX_BREAKABLE;
@@ -1960,18 +1960,18 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoVator);
+                        actor->user.ActorActionFunc = AF(DoVator);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoVator);
+                        actor->user.ActorActionFunc = AF(DoVator);
                         break;
                     case 2:
-                        actor->user.__legacyState.ActorActionFunc = AF(DoVatorAuto);
+                        actor->user.ActorActionFunc = AF(DoVatorAuto);
                         break;
                     case 3:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoVatorAuto);
+                        actor->user.ActorActionFunc = AF(DoVatorAuto);
                         break;
                     }
 
@@ -2068,11 +2068,11 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoRotator);
+                        actor->user.ActorActionFunc = AF(DoRotator);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoRotator);
+                        actor->user.ActorActionFunc = AF(DoRotator);
                         break;
                     }
 
@@ -2113,11 +2113,11 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoSlidor);
+                        actor->user.ActorActionFunc = AF(DoSlidor);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoSlidor);
+                        actor->user.ActorActionFunc = AF(DoSlidor);
                         break;
                     }
 
@@ -2161,18 +2161,18 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoSpike);
+                        actor->user.ActorActionFunc = AF(DoSpike);
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoSpike);
+                        actor->user.ActorActionFunc = AF(DoSpike);
                         break;
                     case 2:
-                        actor->user.__legacyState.ActorActionFunc = AF(DoSpikeAuto);
+                        actor->user.ActorActionFunc = AF(DoSpikeAuto);
                         break;
                     case 3:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.__legacyState.ActorActionFunc = AF(DoSpikeAuto);
+                        actor->user.ActorActionFunc = AF(DoSpikeAuto);
                         break;
                     }
 
@@ -2349,7 +2349,7 @@ void SpriteSetup(void)
                     SpawnUser(actor, ST1, nullptr);
 
                     change_actor_stat(actor, STAT_NO_STATE);
-                    actor->user.__legacyState.ActorActionFunc = AF(DoLavaErupt);
+                    actor->user.ActorActionFunc = AF(DoLavaErupt);
 
                     // interval between erupts
                     if (SP_TAG10(actor) == 0)

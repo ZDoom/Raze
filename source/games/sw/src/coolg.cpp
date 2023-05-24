@@ -552,7 +552,7 @@ int NewCoolg(DSWActor* actor)
     actorNew->user.__legacyState.ActorActionSet = &CoolgActionSet;
 
     actorNew->spr.shade = actor->spr.shade;
-    actorNew->user.__legacyState.Personality = &CoolgPersonality;
+    actorNew->user.Personality = &CoolgPersonality;
     actorNew->user.__legacyState.Attrib = &CoolgAttrib;
 
     // special case
@@ -695,7 +695,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
 int InitCoolgCircle(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = AF(DoCoolgCircle);
+    actor->user.ActorActionFunc = AF(DoCoolgCircle);
 
     actor->setStateGroup(NAME_Run);
 

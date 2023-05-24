@@ -66,7 +66,7 @@ bool ActorMoveHitReact(DSWActor* actor)
         {
             // if you ran into a player - call close range functions
             DoActorPickClosePlayer(actor);
-            auto action = ChooseAction(actor->user.__legacyState.Personality->TouchTarget);
+            auto action = ChooseAction(actor->user.Personality->TouchTarget);
             actor->callFunction(action);
         }
     }
@@ -451,7 +451,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
     // REMINDER: This function is not even called if SpriteControl doesn't let
     // it get called
 
-    ASSERT(actor->user.__legacyState.Personality);
+    ASSERT(actor->user.Personality);
 
     actor->user.Dist = 0;
     action = AF(InitActorDecide);
@@ -497,7 +497,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
             actor->user.Flags &= ~(SPR_ACTIVE);
 
             // You've lost the player - now decide what to do
-            action = ChooseAction(actor->user.__legacyState.Personality->LostTarget);
+            action = ChooseAction(actor->user.Personality->LostTarget);
             //CON_Message("LostTarget");
             return action;
         }
@@ -509,9 +509,9 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
             (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST && actor->user.ID != RIPPER2_RUN_R0 && actor->user.ID != RIPPER_RUN_R0))
         {
             if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
-                action = ChooseAction(actor->user.__legacyState.Personality->Evasive);
+                action = ChooseAction(actor->user.Personality->Evasive);
             else
-                action = ChooseAction(actor->user.__legacyState.Personality->CloseRange);
+                action = ChooseAction(actor->user.Personality->CloseRange);
             //CON_Message("CloseRange");
             return action;
         }
@@ -531,9 +531,9 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
                 else
                 {
                     if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
-                        action = ChooseAction(actor->user.__legacyState.Personality->Evasive);
+                        action = ChooseAction(actor->user.Personality->Evasive);
                     else
-                        action = ChooseAction(actor->user.__legacyState.Personality->Battle);
+                        action = ChooseAction(actor->user.Personality->Battle);
                 }
                 //CON_Message("Battle 1");
                 return action;
@@ -543,9 +543,9 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
             else
             {
                 if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
-                    action = ChooseAction(actor->user.__legacyState.Personality->Evasive);
+                    action = ChooseAction(actor->user.Personality->Evasive);
                 else
-                    action = ChooseAction(actor->user.__legacyState.Personality->Battle);
+                    action = ChooseAction(actor->user.Personality->Battle);
                 //CON_Message("Battle 2");
                 return action;
             }
@@ -555,16 +555,16 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
         else if (ICanSee)
         {
             if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
-                action = ChooseAction(actor->user.__legacyState.Personality->Evasive);
+                action = ChooseAction(actor->user.Personality->Evasive);
             else
-                action = ChooseAction(actor->user.__legacyState.Personality->Offense);
+                action = ChooseAction(actor->user.Personality->Offense);
             //CON_Message("Offense");
             return action;
         }
         else
         {
             // You've lost the player - now decide what to do
-            action = ChooseAction(actor->user.__legacyState.Personality->LostTarget);
+            action = ChooseAction(actor->user.Personality->LostTarget);
             //CON_Message("Close but cant see, LostTarget");
             return action;
         }
@@ -586,7 +586,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
                 DoActorOperate(actor);
 
                 // Don't let player completely sneek up behind you
-                action = ChooseAction(actor->user.__legacyState.Personality->Surprised);
+                action = ChooseAction(actor->user.Personality->Surprised);
                 //CON_Message("Surprised");
                 if (!actor->user.DidAlert && ICanSee)
                 {
@@ -601,7 +601,7 @@ VMFunction* DoActorActionDecide(DSWActor* actor)
                 // Player has not seen actor, to be fair let him know actor
                 // are there
                 ;
-                DoActorNoise(actor, ChooseNoise(actor->user.__legacyState.Personality->Broadcast));
+                DoActorNoise(actor, ChooseNoise(actor->user.Personality->Broadcast));
                 return action;
             }
         }
@@ -687,7 +687,7 @@ int DoActorDecide(DSWActor* actor)
 
 int InitActorMoveCloser(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = AF(DoActorMoveCloser);
+    actor->user.ActorActionFunc = AF(DoActorMoveCloser);
 
     if (!actor->checkStateGroup(NAME_Run))
         actor->setStateGroup(NAME_Run);
@@ -745,7 +745,7 @@ int DoActorMoveCloser(DSWActor* actor)
     }
 
     // Do a noise if ok
-    DoActorNoise(actor, ChooseNoise(actor->user.__legacyState.Personality->Broadcast));
+    DoActorNoise(actor, ChooseNoise(actor->user.Personality->Broadcast));
 
     // after moving a ways check to see if player is still in sight
     if (actor->user.DistCheck > 34.375)
@@ -1040,7 +1040,7 @@ int InitActorAttack(DSWActor* actor)
         return 0;
     }
 
-    actor->user.__legacyState.ActorActionFunc = AF(DoActorAttack);
+    actor->user.ActorActionFunc = AF(DoActorAttack);
 
     // move into standing frame
     //actor->setStateGroup(NAME_Stand);
@@ -1087,7 +1087,7 @@ int DoActorAttack(DSWActor* actor)
 {
     int rand_num;
 
-    DoActorNoise(actor, ChooseNoise(actor->user.__legacyState.Personality->Broadcast));
+    DoActorNoise(actor, ChooseNoise(actor->user.Personality->Broadcast));
 
     double dist =(actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
@@ -1211,7 +1211,7 @@ int InitActorDuck(DSWActor* actor)
         return 0;
     }
 
-    actor->user.__legacyState.ActorActionFunc = AF(DoActorDuck);
+    actor->user.ActorActionFunc = AF(DoActorDuck);
     actor->setStateGroup(NAME_Duck);
 
 	double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).LengthSquared();
@@ -1562,7 +1562,7 @@ int InitActorReposition(DSWActor* actor)
     }
 
 
-    actor->user.__legacyState.ActorActionFunc = AF(DoActorReposition);
+    actor->user.ActorActionFunc = AF(DoActorReposition);
     if (!(actor->user.Flags & SPR_SWIMMING))
         actor->setStateGroup(NAME_Run);
 
@@ -1608,7 +1608,7 @@ int DoActorReposition(DSWActor* actor)
 
 int InitActorPause(DSWActor* actor)
 {
-    actor->user.__legacyState.ActorActionFunc = AF(DoActorPause);
+    actor->user.ActorActionFunc = AF(DoActorPause);
 
     actor->callAction();
 

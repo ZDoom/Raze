@@ -1071,11 +1071,11 @@ bool DSWActor::hasState(FName label, int subl)
     return getLegacyState(a, label, subl) != nullptr;
 }
 
-void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = AF(DoActorDecide); }
+void DSWActor::setActionDecide() { user.ActorActionFunc = AF(DoActorDecide); }
 
 void DSWActor::callAction()
 {
-    callFunction(user.__legacyState.ActorActionFunc);
+    callFunction(user.ActorActionFunc);
 }
 
 void DSWActor::callStateAction()

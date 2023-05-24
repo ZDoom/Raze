@@ -699,6 +699,8 @@ struct USER
     TArray<int8_t> WallShade;
 
     walltype* WallP; // operate on wall instead of sprite
+    VMFunction* ActorActionFunc;
+    PERSONALITY* Personality;
 
     struct LegacyState
     {
@@ -709,8 +711,6 @@ struct USER
         STATE** StateFallOverride; // a bit kludgy - override std fall state
         ACTOR_ACTION_SET* ActorActionSet;
         int16_t RotNum;
-        VMFunction* ActorActionFunc;
-        PERSONALITY* Personality;
         ATTRIBUTE* Attrib;
 
     };

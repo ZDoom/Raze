@@ -1785,14 +1785,14 @@ int SetupNinja(DSWActor* actor)
             {
                 actor->user.__legacyState.Attrib = &NinjaAttrib;
                 actor->user.__legacyState.ActorActionSet = &NinjaActionSet;
-                actor->user.__legacyState.Personality = &NinjaPersonality;
+                actor->user.Personality = &NinjaPersonality;
                 ChangeState(actor, s_NinjaCeiling[0]);
             }
             else
             {
                 actor->user.__legacyState.Attrib = &NinjaAttrib;
                 actor->user.__legacyState.ActorActionSet = &NinjaSniperActionSet;
-                actor->user.__legacyState.Personality = &NinjaSniperPersonality;
+                actor->user.Personality = &NinjaSniperPersonality;
                 ChangeState(actor, s_NinjaDuck[0]);
             }
         }
@@ -1810,14 +1810,14 @@ int SetupNinja(DSWActor* actor)
             {
                 actor->user.__legacyState.Attrib = &NinjaAttrib;
                 actor->user.__legacyState.ActorActionSet = &NinjaActionSet;
-                actor->user.__legacyState.Personality = &NinjaPersonality;
+                actor->user.Personality = &NinjaPersonality;
                 ChangeState(actor, s_NinjaCeiling[0]);
             }
             else
             {
                 actor->user.__legacyState.Attrib = &NinjaAttrib;
                 actor->user.__legacyState.ActorActionSet = &NinjaSniperActionSet;
-                actor->user.__legacyState.Personality = &NinjaSniperPersonality;
+                actor->user.Personality = &NinjaSniperPersonality;
                 ChangeState(actor, s_NinjaDuck[0]);
             }
         }
@@ -1849,7 +1849,7 @@ int SetupNinja(DSWActor* actor)
         {
             actor->user.__legacyState.Attrib = &NinjaAttrib;
             actor->user.__legacyState.ActorActionSet = &NinjaSniperActionSet;
-            actor->user.__legacyState.Personality = &NinjaSniperPersonality;
+            actor->user.Personality = &NinjaSniperPersonality;
             ChangeState(actor, s_NinjaDuck[0]);
         }
     }

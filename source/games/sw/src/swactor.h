@@ -47,7 +47,7 @@ public:
 
 	// wrappers that hide legacy implementation details.
 	void ChangeStateEnd();
-	void clearActionFunc() { user.__legacyState.ActorActionFunc = nullptr; }
+	void clearActionFunc() { user.ActorActionFunc = nullptr; }
 	void setActionDecide();
 	void setStateGroup(FName label, int substate = 0);	// substate is only valid for Attack and CloseAttack
 	bool checkStateGroup(FName label, int substate = 0);

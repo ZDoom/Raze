@@ -412,7 +412,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     actor->spr.picnum = actor->user.__legacyState.State->Pic;
     change_actor_stat(actor, STAT_ENEMY);
 
-    actor->user.__legacyState.Personality = person;
+    actor->user.Personality = person;
     actor->user.__legacyState.ActorActionSet = action;
 
     DoActorZrange(actor);

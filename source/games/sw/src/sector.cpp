@@ -1008,7 +1008,7 @@ void DoSpawnSpotsForKill(short match)
         if (actor->spr.hitag == SPAWN_SPOT && actor->spr.lotag == match)
         {
             change_actor_stat(actor, STAT_NO_STATE);
-            actor->user.__legacyState.ActorActionFunc = AF(DoSpawnSpot);
+            actor->user.ActorActionFunc = AF(DoSpawnSpot);
             actor->user.WaitTics = SP_TAG5(actor) * 15;
             SetActorZ(actor, actor->spr.pos);
             // setting for Killed
@@ -1035,7 +1035,7 @@ void DoSpawnSpotsForDamage(short match)
         if (actor->spr.hitag == SPAWN_SPOT && actor->spr.lotag == match)
         {
             change_actor_stat(actor, STAT_NO_STATE);
-            actor->user.__legacyState.ActorActionFunc = AF(DoSpawnSpot);
+            actor->user.ActorActionFunc = AF(DoSpawnSpot);
             actor->user.WaitTics = SP_TAG7(actor) * 15;
             // setting for Damaged
             actor->user.LastDamage = 0;
@@ -1778,7 +1778,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         SpawnUser(actor, 0, nullptr);
 
-        actor->user.__legacyState.ActorActionFunc = AF(DoGrating);
+        actor->user.ActorActionFunc = AF(DoGrating);
 
         actor->spr.lotag = 0;
         actor->spr.hitag /= 2;
