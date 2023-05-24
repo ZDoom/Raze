@@ -769,7 +769,7 @@ int DoGirlNinjaMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
     }
 
     // stay on floor unless doing certain things

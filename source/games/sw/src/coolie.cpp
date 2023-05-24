@@ -475,7 +475,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     // find the number of long range attacks
     for (wpn = wpn_cnt = 0; wpn < SIZ(actor->user.__legacyState.ActorActionSet->Attack); wpn++)
     {
-        if (actor->user.__legacyState.ActorActionSet->Attack[wpn])
+        if (actor->hasState(NAME_Attack, wpn))
             wpn_cnt++;
         else
             break;
@@ -588,7 +588,7 @@ int DoCoolieMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
 
     KeepActorOnFloor(actor);
 

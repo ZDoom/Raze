@@ -1297,7 +1297,7 @@ int DoBunnyMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
 
     // stay on floor unless doing certain things
     if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))

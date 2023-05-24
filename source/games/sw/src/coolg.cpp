@@ -735,7 +735,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 120;
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }
@@ -901,7 +901,7 @@ int DoCoolgMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
     }
 
     if (RANDOM_P2(1024) < 32 && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))

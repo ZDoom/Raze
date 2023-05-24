@@ -154,7 +154,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         {
         case BIT(TT_DUCK_N_SHOOT):
         {
-            if (!actor->user.__legacyState.ActorActionSet->Duck)
+            if (!actor->hasState(NAME_Duck))
                 return -1;
 
             end_point[1] = 0;
@@ -164,7 +164,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         // for ladders only look at first track point
         case BIT(TT_LADDER):
         {
-            if (!actor->user.__legacyState.ActorActionSet->Climb)
+            if (!actor->hasState(NAME_Climb))
                 return -1;
 
             end_point[1] = 0;
@@ -174,7 +174,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         case BIT(TT_JUMP_UP):
         case BIT(TT_JUMP_DOWN):
         {
-            if (!actor->user.__legacyState.ActorActionSet->Jump)
+            if (!actor->hasState(NAME_Jump))
                 return -1;
 
             end_point[1] = 0;
@@ -183,7 +183,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
 
         case BIT(TT_TRAVERSE):
         {
-            if (!actor->user.__legacyState.ActorActionSet->Crawl || !actor->user.__legacyState.ActorActionSet->Jump)
+            if (!actor->hasState(NAME_Crawl) || !!actor->hasState(NAME_Jump))
                 return -1;
 
             break;
@@ -2901,7 +2901,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_JUMP:
-        if (actor->user.__legacyState.ActorActionSet->Jump)
+        if (actor->hasState(NAME_Jump))
         {
             actor->spr.Angles.Yaw = tpoint->angle;
 
@@ -2918,7 +2918,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_JUMP:
     case TRACK_ACTOR_QUICK_SUPER_JUMP:
-        if (actor->user.__legacyState.ActorActionSet->Jump)
+        if (actor->hasState(NAME_Jump))
         {
             int zdiff;
             HitInfo hit{};
@@ -2966,7 +2966,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_JUMP_DOWN:
 
-        if (actor->user.__legacyState.ActorActionSet->Jump)
+        if (actor->hasState(NAME_Jump))
         {
             actor->spr.Angles.Yaw = tpoint->angle;
 
@@ -2990,7 +2990,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_SCAN:
 
-        if (actor->user.__legacyState.ActorActionSet->Jump)
+        if (actor->hasState(NAME_Jump))
         {
             ActorLeaveTrack(actor);
             return false;
@@ -3067,7 +3067,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     }
 
     case TRACK_ACTOR_JUMP_IF_FORWARD:
-        if (actor->user.__legacyState.ActorActionSet->Jump && actor->user.track_dir == 1)
+        if (actor->hasState(NAME_Jump) && actor->user.track_dir == 1)
         {
             if (!tpoint->tag_high)
                 actor->user.jump_speed = ACTOR_STD_JUMP;
@@ -3080,7 +3080,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_JUMP_IF_REVERSE:
-        if (actor->user.__legacyState.ActorActionSet->Jump && actor->user.track_dir == -1)
+        if (actor->hasState(NAME_Jump) && actor->user.track_dir == -1)
         {
             if (!tpoint->tag_high)
                 actor->user.jump_speed = ACTOR_STD_JUMP;
@@ -3112,7 +3112,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_SIT:
 
-        if (actor->user.__legacyState.ActorActionSet->Sit)
+        if (actor->hasState(NAME_Sit))
         {
             if (!tpoint->tag_high)
                 actor->user.WaitTics = 3 * 120;
@@ -3125,7 +3125,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_DEATH1:
-        if (actor->user.__legacyState.ActorActionSet->Death2)
+        if (actor->hasState(NAME_Death2))
         {
             actor->user.WaitTics = 4 * 120;
             actor->setStateGroup(NAME_Death1);
@@ -3134,7 +3134,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_DEATH2:
 
-        if (actor->user.__legacyState.ActorActionSet->Death2)
+        if (actor->hasState(NAME_Death2))
         {
             actor->user.WaitTics = 4 * 120;
             actor->setStateGroup(NAME_Death2);
@@ -3144,7 +3144,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_DEATH_JUMP:
 
-        if (actor->user.__legacyState.ActorActionSet->DeathJump)
+        if (actor->hasState(NAME_DeathJump))
         {
             actor->user.Flags |= (SPR_DEAD);
             actor->vel.X *= 2;
@@ -3157,7 +3157,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_CLOSE_ATTACK1:
 
-        if (actor->user.__legacyState.ActorActionSet->CloseAttack[0])
+        if (actor->hasState(NAME_CloseAttack, 0))
         {
             if (!tpoint->tag_high)
                 actor->user.WaitTics = 2 * 120;
@@ -3171,7 +3171,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_CLOSE_ATTACK2:
 
-        if (actor->user.__legacyState.ActorActionSet->CloseAttack[1])
+        if (actor->hasState(NAME_CloseAttack, 1))
         {
             if (!tpoint->tag_high)
                 actor->user.WaitTics = 4 * 120;
@@ -3221,7 +3221,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_CLIMB_LADDER:
 
-        if (actor->user.__legacyState.ActorActionSet->Jump)
+        if (actor->hasState(NAME_Jump))
         {
             HitInfo near;
 

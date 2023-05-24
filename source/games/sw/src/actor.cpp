@@ -184,7 +184,6 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         actor->user.__legacyState.RotNum = 0;
 
         actor->clearActionFunc();
-        //actor->user.__legacyState.ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
             actor->spr.Angles.Yaw = weapActor->spr.Angles.Yaw;
         break;
@@ -532,7 +531,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
     if ((sectp->extra & SECTFX_SINK) &&
         depth > 35 &&
-        actor->user.__legacyState.ActorActionSet && actor->user.__legacyState.ActorActionSet->Swim)
+        actor->hasState(NAME_Swim))
     {
         if (actor->user.Flags & (SPR_SWIMMING))
         {
@@ -657,13 +656,11 @@ int DoActorBeginJump(DSWActor* actor)
     actor->user.jump_grav = ACTOR_GRAVITY;
 
     // Change sprites state to jumping
-    if (actor->user.__legacyState.ActorActionSet)
-    {
-        if (actor->user.Flags & (SPR_DEAD))
-            actor->setStateGroup(NAME_DeathJump);
-        else
-            actor->setStateGroup(NAME_Jump);
-    }
+    if (actor->user.Flags & (SPR_DEAD))
+        actor->setStateGroup(NAME_DeathJump);
+    else
+        actor->setStateGroup(NAME_Jump);
+
     actor->user.__legacyState.StateFallOverride = nullptr;
 
     //DO NOT CALL DoActorJump! DoActorStopFall can cause an infinite loop and
@@ -729,19 +726,16 @@ int DoActorBeginFall(DSWActor* actor)
     actor->user.jump_grav = ACTOR_GRAVITY;
 
     // Change sprites state to falling
-    if (actor->user.__legacyState.ActorActionSet)
+    if (actor->user.Flags & (SPR_DEAD))
     {
-        if (actor->user.Flags & (SPR_DEAD))
-        {
-            actor->setStateGroup(NAME_DeathFall);
-        }
-        else
-            actor->setStateGroup(NAME_Fall);
+        actor->setStateGroup(NAME_DeathFall);
+    }
+    else
+        actor->setStateGroup(NAME_Fall);
 
-        if (actor->user.__legacyState.StateFallOverride)
-        {
-            NewStateGroup(actor, actor->user.__legacyState.StateFallOverride);
-        }
+    if (actor->user.__legacyState.StateFallOverride)
+    {
+        NewStateGroup(actor, actor->user.__legacyState.StateFallOverride);
     }
 
     DoActorFall(actor);
@@ -810,7 +804,7 @@ int DoActorStopFall(DSWActor* actor)
 
             actor->setStateGroup(NAME_Run);
 
-            if ((actor->user.track >= 0) && (actor->user.jump_speed) > 800 && (actor->user.__legacyState.ActorActionSet->Sit))
+            if ((actor->user.track >= 0) && (actor->user.jump_speed) > 800 && (actor->hasState(NAME_Sit)))
             {
                 actor->user.WaitTics = 80;
                 actor->setStateGroup(NAME_Sit);
@@ -1099,4 +1093,8 @@ bool DSWActor::hasState(FName label, int subl)
 
 void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = DoActorDecide; }
 
+void DSWActor::callStateAction()
+{
+    (*user.__legacyState.ActorActionFunc)(this);
+}
 END_SW_NS

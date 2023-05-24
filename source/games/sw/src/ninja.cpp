@@ -2031,7 +2031,7 @@ int DoNinjaMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
     }
 
     // stay on floor unless doing certain things
@@ -2532,7 +2532,7 @@ static saveable_data saveable_ninja_data[] =
 
     SAVE_DATA(NinjaAttrib),
     SAVE_DATA(InvisibleNinjaAttrib),
-
+    
     SAVE_DATA(s_NinjaRun),
     SAVE_DATA(sg_NinjaRun),
     SAVE_DATA(s_NinjaStand),

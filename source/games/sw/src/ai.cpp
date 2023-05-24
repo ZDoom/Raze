@@ -111,11 +111,9 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 
     actor->user.speed = speed;
 
-    int vel;
+    int vel = actor->user.__legacyState.Attrib->Speed[speed];
     if (ActorFlaming(actor))
-        vel = actor->user.__legacyState.Attrib->Speed[speed] + (actor->user.__legacyState.Attrib->Speed[speed] >> 1);
-    else
-        vel = actor->user.__legacyState.Attrib->Speed[speed];
+        vel = (vel * 3) >> 1;
 
     actor->vel.X = vel * maptoworld;
 }
@@ -556,7 +554,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
                 actor->user.Flags &= ~(SPR_TARGETED);        // as far as actor
                 // knows, its not a
                 // target any more
-                if (actor->user.__legacyState.ActorActionSet->Duck && RANDOM_P2(1024<<8)>>8 < 100)
+                if (actor->hasState(NAME_Duck) && RANDOM_P2(1024<<8)>>8 < 100)
                     action = InitActorDuck;
                 else
                 {
@@ -819,7 +817,7 @@ int InitActorMoveCloser(DSWActor* actor)
     if (!actor->checkStateGroup(NAME_Run))
         actor->setStateGroup(NAME_Run);
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }
@@ -1183,7 +1181,7 @@ int InitActorAttack(DSWActor* actor)
     }
 
     // Hari Kari for Ninja's
-    if (actor->user.__legacyState.ActorActionSet->Death2)
+    if (actor->hasState(NAME_Death2))
     {
         const int SUICIDE_HEALTH_VALUE = 38;
 
@@ -1199,7 +1197,7 @@ int InitActorAttack(DSWActor* actor)
     }
 
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }
@@ -1332,7 +1330,7 @@ int InitActorFindPlayer(DSWActor* actor)
 
 int InitActorDuck(DSWActor* actor)
 {
-    if (!actor->user.__legacyState.ActorActionSet->Duck)
+    if (!actor->hasState(NAME_Duck))
     {
         actor->setActionDecide();
         return 0;
@@ -1354,7 +1352,7 @@ int InitActorDuck(DSWActor* actor)
     }
 
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }
@@ -1693,7 +1691,7 @@ int InitActorReposition(DSWActor* actor)
     if (!(actor->user.Flags & SPR_SWIMMING))
         actor->setStateGroup(NAME_Run);
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }
@@ -1737,7 +1735,7 @@ int InitActorPause(DSWActor* actor)
 {
     actor->user.__legacyState.ActorActionFunc = DoActorPause;
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }

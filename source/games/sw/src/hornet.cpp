@@ -450,7 +450,7 @@ int InitHornetCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
 
-    (*actor->user.__legacyState.ActorActionFunc)(actor);
+    actor->callStateAction();
 
     return 0;
 }
@@ -616,7 +616,7 @@ int DoHornetMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
 
     DoHornetMatchPlayerZ(actor);
 

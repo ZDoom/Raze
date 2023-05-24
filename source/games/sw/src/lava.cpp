@@ -514,7 +514,7 @@ int DoLavaMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.__legacyState.ActorActionFunc)(actor);
+        actor->callStateAction();
 
     KeepActorOnFloor(actor);
 

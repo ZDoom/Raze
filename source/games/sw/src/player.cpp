@@ -4883,12 +4883,12 @@ void DoPlayerWade(PLAYER* pp)
 
     if (pp->Flags & (PF_PLAYER_MOVED))
     {
-        if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Run)
+        if (plActor->checkStateGroup(NAME_Run))
             plActor->setStateGroup(NAME_Run);
     }
     else
     {
-        if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Stand)
+        if (plActor->checkStateGroup(NAME_Stand))
             plActor->setStateGroup(NAME_Stand);
     }
 
@@ -5973,7 +5973,6 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
 
         plActor->setStateGroup(NAME_Stand);
         plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
-        plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
 
         //DoSpawnTeleporterEffect(plActor);
@@ -6543,12 +6542,12 @@ void DoPlayerRun(PLAYER* pp)
     {
         if (pp->Flags & (PF_PLAYER_MOVED))
         {
-            if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Run)
+            if (plActor->checkStateGroup(NAME_Run))
                 plActor->setStateGroup(NAME_Run);
         }
         else
         {
-            if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Stand)
+            if (plActor->checkStateGroup(NAME_Stand))
                 plActor->setStateGroup(NAME_Stand);
         }
     }
