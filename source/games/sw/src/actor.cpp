@@ -1093,8 +1093,18 @@ bool DSWActor::hasState(FName label, int subl)
 
 void DSWActor::setActionDecide() { user.__legacyState.ActorActionFunc = DoActorDecide; }
 
-void DSWActor::callStateAction()
+void DSWActor::callAction()
 {
     (*user.__legacyState.ActorActionFunc)(this);
 }
+
+void DSWActor::callStateAction()
+{
+    if (user.__legacyState.State && user.__legacyState.State->Animator)
+    {
+        VMValue param[] = { this };
+        VMCall(*user.__legacyState.State->Animator, param, 1, nullptr, 0);
+    }
+}
+
 END_SW_NS

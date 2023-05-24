@@ -118,39 +118,37 @@ ATTRIBUTE GoroAttrib =
 
 #define GORO_RUN_RATE 18
 
-ANIMATOR DoGoroMove,NullGoro,DoActorDebris,InitEnemyFireball;
-
 STATE s_GoroRun[5][4] =
 {
     {
-        {GORO_RUN_R0 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[0][1]},
-        {GORO_RUN_R0 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[0][2]},
-        {GORO_RUN_R0 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[0][3]},
-        {GORO_RUN_R0 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[0][0]},
+        {GORO_RUN_R0 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[0][1]},
+        {GORO_RUN_R0 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[0][2]},
+        {GORO_RUN_R0 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[0][3]},
+        {GORO_RUN_R0 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[0][0]},
     },
     {
-        {GORO_RUN_R1 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[1][1]},
-        {GORO_RUN_R1 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[1][2]},
-        {GORO_RUN_R1 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[1][3]},
-        {GORO_RUN_R1 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[1][0]},
+        {GORO_RUN_R1 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[1][1]},
+        {GORO_RUN_R1 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[1][2]},
+        {GORO_RUN_R1 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[1][3]},
+        {GORO_RUN_R1 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[1][0]},
     },
     {
-        {GORO_RUN_R2 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[2][1]},
-        {GORO_RUN_R2 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[2][2]},
-        {GORO_RUN_R2 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[2][3]},
-        {GORO_RUN_R2 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[2][0]},
+        {GORO_RUN_R2 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[2][1]},
+        {GORO_RUN_R2 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[2][2]},
+        {GORO_RUN_R2 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[2][3]},
+        {GORO_RUN_R2 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[2][0]},
     },
     {
-        {GORO_RUN_R3 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[3][1]},
-        {GORO_RUN_R3 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[3][2]},
-        {GORO_RUN_R3 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[3][3]},
-        {GORO_RUN_R3 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[3][0]},
+        {GORO_RUN_R3 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[3][1]},
+        {GORO_RUN_R3 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[3][2]},
+        {GORO_RUN_R3 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[3][3]},
+        {GORO_RUN_R3 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[3][0]},
     },
     {
-        {GORO_RUN_R4 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[4][1]},
-        {GORO_RUN_R4 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[4][2]},
-        {GORO_RUN_R4 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[4][3]},
-        {GORO_RUN_R4 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, DoGoroMove, &s_GoroRun[4][0]},
+        {GORO_RUN_R4 + 0, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[4][1]},
+        {GORO_RUN_R4 + 1, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[4][2]},
+        {GORO_RUN_R4 + 2, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[4][3]},
+        {GORO_RUN_R4 + 3, GORO_RUN_RATE|SF_TIC_ADJUST, AF(DoGoroMove), &s_GoroRun[4][0]},
     }
 };
 
@@ -177,49 +175,49 @@ ANIMATOR InitGoroChop;
 STATE s_GoroChop[5][7] =
 {
     {
-        {GORO_CHOP_R0 + 0, GORO_CHOP_RATE, NullGoro, &s_GoroChop[0][1]},
-        {GORO_CHOP_R0 + 1, GORO_CHOP_RATE, NullGoro, &s_GoroChop[0][2]},
-        {GORO_CHOP_R0 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[0][3]},
-        {GORO_CHOP_R0 + 2, 0|SF_QUICK_CALL, InitGoroChop, &s_GoroChop[0][4]},
-        {GORO_CHOP_R0 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[0][5]},
-        {GORO_CHOP_R0 + 2, 0|SF_QUICK_CALL, InitActorDecide, &s_GoroChop[0][6]},
-        {GORO_CHOP_R0 + 2, GORO_CHOP_RATE, DoGoroMove, &s_GoroChop[0][6]},
+        {GORO_CHOP_R0 + 0, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[0][1]},
+        {GORO_CHOP_R0 + 1, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[0][2]},
+        {GORO_CHOP_R0 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[0][3]},
+        {GORO_CHOP_R0 + 2, 0|SF_QUICK_CALL, AF(InitGoroChop), &s_GoroChop[0][4]},
+        {GORO_CHOP_R0 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[0][5]},
+        {GORO_CHOP_R0 + 2, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_GoroChop[0][6]},
+        {GORO_CHOP_R0 + 2, GORO_CHOP_RATE, AF(DoGoroMove), &s_GoroChop[0][6]},
     },
     {
-        {GORO_CHOP_R1 + 0, GORO_CHOP_RATE, NullGoro, &s_GoroChop[1][1]},
-        {GORO_CHOP_R1 + 1, GORO_CHOP_RATE, NullGoro, &s_GoroChop[1][2]},
-        {GORO_CHOP_R1 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[1][3]},
-        {GORO_CHOP_R1 + 2, 0|SF_QUICK_CALL, InitGoroChop, &s_GoroChop[1][4]},
-        {GORO_CHOP_R1 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[1][5]},
-        {GORO_CHOP_R1 + 2, 0|SF_QUICK_CALL, InitActorDecide, &s_GoroChop[1][6]},
-        {GORO_CHOP_R1 + 2, GORO_CHOP_RATE, DoGoroMove, &s_GoroChop[1][6]},
+        {GORO_CHOP_R1 + 0, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[1][1]},
+        {GORO_CHOP_R1 + 1, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[1][2]},
+        {GORO_CHOP_R1 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[1][3]},
+        {GORO_CHOP_R1 + 2, 0|SF_QUICK_CALL, AF(InitGoroChop), &s_GoroChop[1][4]},
+        {GORO_CHOP_R1 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[1][5]},
+        {GORO_CHOP_R1 + 2, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_GoroChop[1][6]},
+        {GORO_CHOP_R1 + 2, GORO_CHOP_RATE, AF(DoGoroMove), &s_GoroChop[1][6]},
     },
     {
-        {GORO_CHOP_R2 + 0, GORO_CHOP_RATE, NullGoro, &s_GoroChop[2][1]},
-        {GORO_CHOP_R2 + 1, GORO_CHOP_RATE, NullGoro, &s_GoroChop[2][2]},
-        {GORO_CHOP_R2 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[2][3]},
-        {GORO_CHOP_R2 + 2, 0|SF_QUICK_CALL, InitGoroChop, &s_GoroChop[2][4]},
-        {GORO_CHOP_R2 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[2][5]},
-        {GORO_CHOP_R2 + 2, 0|SF_QUICK_CALL, InitActorDecide, &s_GoroChop[2][6]},
-        {GORO_CHOP_R2 + 2, GORO_CHOP_RATE, DoGoroMove, &s_GoroChop[2][6]},
+        {GORO_CHOP_R2 + 0, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[2][1]},
+        {GORO_CHOP_R2 + 1, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[2][2]},
+        {GORO_CHOP_R2 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[2][3]},
+        {GORO_CHOP_R2 + 2, 0|SF_QUICK_CALL, AF(InitGoroChop), &s_GoroChop[2][4]},
+        {GORO_CHOP_R2 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[2][5]},
+        {GORO_CHOP_R2 + 2, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_GoroChop[2][6]},
+        {GORO_CHOP_R2 + 2, GORO_CHOP_RATE, AF(DoGoroMove), &s_GoroChop[2][6]},
     },
     {
-        {GORO_CHOP_R3 + 0, GORO_CHOP_RATE, NullGoro, &s_GoroChop[3][1]},
-        {GORO_CHOP_R3 + 1, GORO_CHOP_RATE, NullGoro, &s_GoroChop[3][2]},
-        {GORO_CHOP_R3 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[3][3]},
-        {GORO_CHOP_R3 + 2, 0|SF_QUICK_CALL, InitGoroChop, &s_GoroChop[3][4]},
-        {GORO_CHOP_R3 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[3][5]},
-        {GORO_CHOP_R3 + 2, 0|SF_QUICK_CALL, InitActorDecide, &s_GoroChop[3][6]},
-        {GORO_CHOP_R3 + 2, GORO_CHOP_RATE, DoGoroMove, &s_GoroChop[3][6]},
+        {GORO_CHOP_R3 + 0, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[3][1]},
+        {GORO_CHOP_R3 + 1, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[3][2]},
+        {GORO_CHOP_R3 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[3][3]},
+        {GORO_CHOP_R3 + 2, 0|SF_QUICK_CALL, AF(InitGoroChop), &s_GoroChop[3][4]},
+        {GORO_CHOP_R3 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[3][5]},
+        {GORO_CHOP_R3 + 2, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_GoroChop[3][6]},
+        {GORO_CHOP_R3 + 2, GORO_CHOP_RATE, AF(DoGoroMove), &s_GoroChop[3][6]},
     },
     {
-        {GORO_CHOP_R4 + 0, GORO_CHOP_RATE, NullGoro, &s_GoroChop[4][1]},
-        {GORO_CHOP_R4 + 1, GORO_CHOP_RATE, NullGoro, &s_GoroChop[4][2]},
-        {GORO_CHOP_R4 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[4][3]},
-        {GORO_CHOP_R4 + 2, 0|SF_QUICK_CALL, InitGoroChop, &s_GoroChop[4][4]},
-        {GORO_CHOP_R4 + 2, GORO_CHOP_RATE, NullGoro, &s_GoroChop[4][5]},
-        {GORO_CHOP_R4 + 2, 0|SF_QUICK_CALL, InitActorDecide, &s_GoroChop[4][6]},
-        {GORO_CHOP_R4 + 2, GORO_CHOP_RATE, DoGoroMove, &s_GoroChop[4][6]},
+        {GORO_CHOP_R4 + 0, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[4][1]},
+        {GORO_CHOP_R4 + 1, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[4][2]},
+        {GORO_CHOP_R4 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[4][3]},
+        {GORO_CHOP_R4 + 2, 0|SF_QUICK_CALL, AF(InitGoroChop), &s_GoroChop[4][4]},
+        {GORO_CHOP_R4 + 2, GORO_CHOP_RATE, AF(NullGoro), &s_GoroChop[4][5]},
+        {GORO_CHOP_R4 + 2, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_GoroChop[4][6]},
+        {GORO_CHOP_R4 + 2, GORO_CHOP_RATE, AF(DoGoroMove), &s_GoroChop[4][6]},
     }
 };
 
@@ -246,64 +244,64 @@ STATE* sg_GoroChop[] =
 STATE s_GoroSpell[5][10] =
 {
     {
-        {GORO_SPELL_R0 + 0, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[0][1]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[0][2]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[0][3]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[0][4]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[0][5]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[0][6]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[0][7]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[0][8]},
-        {GORO_SPELL_R0 + 1, 0|SF_QUICK_CALL, InitActorDecide,   &s_GoroSpell[0][9]},
-        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, DoGoroMove,        &s_GoroSpell[0][9]},
+        {GORO_SPELL_R0 + 0, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[0][1]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[0][2]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[0][3]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[0][4]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[0][5]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[0][6]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[0][7]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[0][8]},
+        {GORO_SPELL_R0 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide),   &s_GoroSpell[0][9]},
+        {GORO_SPELL_R0 + 1, GORO_SPELL_RATE, AF(DoGoroMove),        &s_GoroSpell[0][9]},
     },
     {
-        {GORO_SPELL_R1 + 0, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[1][1]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[1][2]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[1][3]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[1][4]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[1][5]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[1][6]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[1][7]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[1][8]},
-        {GORO_SPELL_R1 + 1, 0|SF_QUICK_CALL, InitActorDecide,   &s_GoroSpell[1][9]},
-        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, DoGoroMove,        &s_GoroSpell[1][9]},
+        {GORO_SPELL_R1 + 0, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[1][1]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[1][2]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[1][3]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[1][4]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[1][5]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[1][6]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[1][7]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[1][8]},
+        {GORO_SPELL_R1 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide),   &s_GoroSpell[1][9]},
+        {GORO_SPELL_R1 + 1, GORO_SPELL_RATE, AF(DoGoroMove),        &s_GoroSpell[1][9]},
     },
     {
-        {GORO_SPELL_R2 + 0, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[2][1]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[2][2]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[2][3]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[2][4]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[2][5]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[2][6]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[2][7]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[2][8]},
-        {GORO_SPELL_R2 + 1, 0|SF_QUICK_CALL, InitActorDecide,   &s_GoroSpell[2][9]},
-        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, DoGoroMove,        &s_GoroSpell[2][9]},
+        {GORO_SPELL_R2 + 0, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[2][1]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[2][2]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[2][3]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[2][4]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[2][5]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[2][6]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[2][7]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[2][8]},
+        {GORO_SPELL_R2 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide),   &s_GoroSpell[2][9]},
+        {GORO_SPELL_R2 + 1, GORO_SPELL_RATE, AF(DoGoroMove),        &s_GoroSpell[2][9]},
     },
     {
-        {GORO_SPELL_R3 + 0, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[3][1]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[3][2]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[3][3]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[3][4]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[3][5]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[3][6]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[3][7]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[3][8]},
-        {GORO_SPELL_R3 + 1, 0|SF_QUICK_CALL, InitActorDecide,   &s_GoroSpell[3][9]},
-        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, DoGoroMove,        &s_GoroSpell[3][9]},
+        {GORO_SPELL_R3 + 0, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[3][1]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[3][2]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[3][3]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[3][4]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[3][5]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[3][6]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[3][7]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[3][8]},
+        {GORO_SPELL_R3 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide),   &s_GoroSpell[3][9]},
+        {GORO_SPELL_R3 + 1, GORO_SPELL_RATE, AF(DoGoroMove),        &s_GoroSpell[3][9]},
     },
     {
-        {GORO_SPELL_R4 + 0, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[4][1]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[4][2]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[4][3]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[4][4]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[4][5]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, NullGoro,      &s_GoroSpell[4][6]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, InitEnemyFireball, &s_GoroSpell[4][7]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_PAUSE, NullGoro,      &s_GoroSpell[4][8]},
-        {GORO_SPELL_R4 + 1, 0|SF_QUICK_CALL, InitActorDecide,   &s_GoroSpell[4][9]},
-        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, DoGoroMove,        &s_GoroSpell[4][9]},
+        {GORO_SPELL_R4 + 0, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[4][1]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[4][2]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[4][3]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[4][4]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[4][5]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, AF(NullGoro),      &s_GoroSpell[4][6]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, AF(InitEnemyFireball), &s_GoroSpell[4][7]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_PAUSE, AF(NullGoro),      &s_GoroSpell[4][8]},
+        {GORO_SPELL_R4 + 1, 0|SF_QUICK_CALL, AF(InitActorDecide),   &s_GoroSpell[4][9]},
+        {GORO_SPELL_R4 + 1, GORO_SPELL_RATE, AF(DoGoroMove),        &s_GoroSpell[4][9]},
     }
 };
 
@@ -328,19 +326,19 @@ STATE* sg_GoroSpell[] =
 STATE s_GoroStand[5][1] =
 {
     {
-        {GORO_STAND_R0 + 0, GORO_STAND_RATE, DoGoroMove, &s_GoroStand[0][0]},
+        {GORO_STAND_R0 + 0, GORO_STAND_RATE, AF(DoGoroMove), &s_GoroStand[0][0]},
     },
     {
-        {GORO_STAND_R1 + 0, GORO_STAND_RATE, DoGoroMove, &s_GoroStand[1][0]},
+        {GORO_STAND_R1 + 0, GORO_STAND_RATE, AF(DoGoroMove), &s_GoroStand[1][0]},
     },
     {
-        {GORO_STAND_R2 + 0, GORO_STAND_RATE, DoGoroMove, &s_GoroStand[2][0]},
+        {GORO_STAND_R2 + 0, GORO_STAND_RATE, AF(DoGoroMove), &s_GoroStand[2][0]},
     },
     {
-        {GORO_STAND_R3 + 0, GORO_STAND_RATE, DoGoroMove, &s_GoroStand[3][0]},
+        {GORO_STAND_R3 + 0, GORO_STAND_RATE, AF(DoGoroMove), &s_GoroStand[3][0]},
     },
     {
-        {GORO_STAND_R4 + 0, GORO_STAND_RATE, DoGoroMove, &s_GoroStand[4][0]},
+        {GORO_STAND_R4 + 0, GORO_STAND_RATE, AF(DoGoroMove), &s_GoroStand[4][0]},
     },
 };
 
@@ -366,19 +364,19 @@ ANIMATOR DoGoroPain;
 STATE s_GoroPain[5][1] =
 {
     {
-        {GORO_PAIN_R0 + 0, GORO_PAIN_RATE, DoGoroPain, &s_GoroPain[0][0]},
+        {GORO_PAIN_R0 + 0, GORO_PAIN_RATE, AF(DoGoroPain), &s_GoroPain[0][0]},
     },
     {
-        {GORO_PAIN_R1 + 0, GORO_PAIN_RATE, DoGoroPain, &s_GoroPain[1][0]},
+        {GORO_PAIN_R1 + 0, GORO_PAIN_RATE, AF(DoGoroPain), &s_GoroPain[1][0]},
     },
     {
-        {GORO_PAIN_R2 + 0, GORO_PAIN_RATE, DoGoroPain, &s_GoroPain[2][0]},
+        {GORO_PAIN_R2 + 0, GORO_PAIN_RATE, AF(DoGoroPain), &s_GoroPain[2][0]},
     },
     {
-        {GORO_PAIN_R3 + 0, GORO_PAIN_RATE, DoGoroPain, &s_GoroPain[3][0]},
+        {GORO_PAIN_R3 + 0, GORO_PAIN_RATE, AF(DoGoroPain), &s_GoroPain[3][0]},
     },
     {
-        {GORO_PAIN_R4 + 0, GORO_PAIN_RATE, DoGoroPain, &s_GoroPain[4][0]},
+        {GORO_PAIN_R4 + 0, GORO_PAIN_RATE, AF(DoGoroPain), &s_GoroPain[4][0]},
     },
 };
 
@@ -402,22 +400,22 @@ STATE* sg_GoroPain[] =
 
 STATE s_GoroDie[] =
 {
-    {GORO_DIE + 0, GORO_DIE_RATE, NullGoro, &s_GoroDie[1]},
-    {GORO_DIE + 1, GORO_DIE_RATE, NullGoro, &s_GoroDie[2]},
-    {GORO_DIE + 2, GORO_DIE_RATE, NullGoro, &s_GoroDie[3]},
-    {GORO_DIE + 3, GORO_DIE_RATE, NullGoro, &s_GoroDie[4]},
-    {GORO_DIE + 4, GORO_DIE_RATE, NullGoro, &s_GoroDie[5]},
-    {GORO_DIE + 5, GORO_DIE_RATE, NullGoro, &s_GoroDie[6]},
-    {GORO_DIE + 6, GORO_DIE_RATE, NullGoro, &s_GoroDie[7]},
-    {GORO_DIE + 7, GORO_DIE_RATE, NullGoro, &s_GoroDie[8]},
-    {GORO_DIE + 8, GORO_DIE_RATE, NullGoro, &s_GoroDie[9]},
-    {GORO_DEAD, SF_QUICK_CALL, QueueFloorBlood, &s_GoroDie[10]},
-    {GORO_DEAD,    GORO_DIE_RATE, DoActorDebris, &s_GoroDie[10]},
+    {GORO_DIE + 0, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[1]},
+    {GORO_DIE + 1, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[2]},
+    {GORO_DIE + 2, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[3]},
+    {GORO_DIE + 3, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[4]},
+    {GORO_DIE + 4, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[5]},
+    {GORO_DIE + 5, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[6]},
+    {GORO_DIE + 6, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[7]},
+    {GORO_DIE + 7, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[8]},
+    {GORO_DIE + 8, GORO_DIE_RATE, AF(NullGoro), &s_GoroDie[9]},
+    {GORO_DEAD, SF_QUICK_CALL, AF(QueueFloorBlood), &s_GoroDie[10]},
+    {GORO_DEAD,    GORO_DIE_RATE, AF(DoActorDebris), &s_GoroDie[10]},
 };
 
 STATE s_GoroDead[] =
 {
-    {GORO_DEAD, GORO_DIE_RATE, DoActorDebris, &s_GoroDead[0]},
+    {GORO_DEAD, GORO_DIE_RATE, AF(DoActorDebris), &s_GoroDead[0]},
 };
 
 STATE* sg_GoroDie[] =
@@ -557,7 +555,7 @@ int DoGoroMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        actor->callStateAction();
+        actor->callAction();
 
     KeepActorOnFloor(actor);
 

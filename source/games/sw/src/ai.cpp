@@ -817,7 +817,7 @@ int InitActorMoveCloser(DSWActor* actor)
     if (!actor->checkStateGroup(NAME_Run))
         actor->setStateGroup(NAME_Run);
 
-    actor->callStateAction();
+    actor->callAction();
 
     return 0;
 }
@@ -1197,7 +1197,7 @@ int InitActorAttack(DSWActor* actor)
     }
 
 
-    actor->callStateAction();
+    actor->callAction();
 
     return 0;
 }
@@ -1352,7 +1352,7 @@ int InitActorDuck(DSWActor* actor)
     }
 
 
-    actor->callStateAction();
+    actor->callAction();
 
     return 0;
 }
@@ -1691,7 +1691,7 @@ int InitActorReposition(DSWActor* actor)
     if (!(actor->user.Flags & SPR_SWIMMING))
         actor->setStateGroup(NAME_Run);
 
-    actor->callStateAction();
+    actor->callAction();
 
     return 0;
 }
@@ -1735,7 +1735,7 @@ int InitActorPause(DSWActor* actor)
 {
     actor->user.__legacyState.ActorActionFunc = DoActorPause;
 
-    actor->callStateAction();
+    actor->callAction();
 
     return 0;
 }

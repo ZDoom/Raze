@@ -40,7 +40,6 @@ public:
 	}
 
 	void Serialize(FSerializer& arc) override;
-
 	// wrappers to static class data. Must be stored in the meta data, but will require better means of access than what's currently available.
 	Personality* getPersonality();
 	int16_t* getCloseAttackPercent() { return CloseAttackPercent; }
@@ -53,6 +52,7 @@ public:
 	void setStateGroup(FName label, int substate = 0);	// substate is only valid for Attack and CloseAttack
 	bool checkStateGroup(FName label, int substate = 0);
 	bool hasState(FName label, int substate = 0);
+	void callAction();
 	void callStateAction();
 
 

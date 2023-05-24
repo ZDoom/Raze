@@ -124,29 +124,27 @@ ATTRIBUTE HornetAttrib =
 
 #define HORNET_RUN_RATE 7
 
-ANIMATOR DoHornetMove,NullHornet,DoStayOnFloor, DoActorDebris, NullHornet, DoHornetBirth;
-
 STATE s_HornetRun[5][2] =
 {
     {
-        {HORNET_RUN_R0 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[0][1]},
-        {HORNET_RUN_R0 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[0][0]},
+        {HORNET_RUN_R0 + 0, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[0][1]},
+        {HORNET_RUN_R0 + 1, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[0][0]},
     },
     {
-        {HORNET_RUN_R1 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[1][1]},
-        {HORNET_RUN_R1 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[1][0]},
+        {HORNET_RUN_R1 + 0, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[1][1]},
+        {HORNET_RUN_R1 + 1, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[1][0]},
     },
     {
-        {HORNET_RUN_R2 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[2][1]},
-        {HORNET_RUN_R2 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[2][0]},
+        {HORNET_RUN_R2 + 0, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[2][1]},
+        {HORNET_RUN_R2 + 1, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[2][0]},
     },
     {
-        {HORNET_RUN_R3 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[3][1]},
-        {HORNET_RUN_R3 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[3][0]},
+        {HORNET_RUN_R3 + 0, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[3][1]},
+        {HORNET_RUN_R3 + 1, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[3][0]},
     },
     {
-        {HORNET_RUN_R4 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[4][1]},
-        {HORNET_RUN_R4 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[4][0]},
+        {HORNET_RUN_R4 + 0, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[4][1]},
+        {HORNET_RUN_R4 + 1, HORNET_RUN_RATE, AF(DoHornetMove), &s_HornetRun[4][0]},
     }
 };
 
@@ -170,24 +168,24 @@ STATE* sg_HornetRun[] =
 STATE s_HornetStand[5][2] =
 {
     {
-        {HORNET_RUN_R0 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[0][1]},
-        {HORNET_RUN_R0 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[0][0]}
+        {HORNET_RUN_R0 + 0, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[0][1]},
+        {HORNET_RUN_R0 + 1, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[0][0]}
     },
     {
-        {HORNET_RUN_R1 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[1][1]},
-        {HORNET_RUN_R1 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[1][0]}
+        {HORNET_RUN_R1 + 0, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[1][1]},
+        {HORNET_RUN_R1 + 1, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[1][0]}
     },
     {
-        {HORNET_RUN_R2 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[2][1]},
-        {HORNET_RUN_R2 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[2][0]}
+        {HORNET_RUN_R2 + 0, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[2][1]},
+        {HORNET_RUN_R2 + 1, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[2][0]}
     },
     {
-        {HORNET_RUN_R3 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[3][1]},
-        {HORNET_RUN_R3 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[3][0]}
+        {HORNET_RUN_R3 + 0, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[3][1]},
+        {HORNET_RUN_R3 + 1, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[3][0]}
     },
     {
-        {HORNET_RUN_R4 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[4][1]},
-        {HORNET_RUN_R4 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[4][0]}
+        {HORNET_RUN_R4 + 0, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[4][1]},
+        {HORNET_RUN_R4 + 1, HORNET_STAND_RATE, AF(DoHornetMove), &s_HornetStand[4][0]}
     }
 };
 
@@ -207,15 +205,9 @@ STATE* sg_HornetStand[] =
 //////////////////////
 
 #define HORNET_DIE_RATE 20
-ANIMATOR DoHornetDeath;
 STATE s_HornetDie[] =
 {
-#if 0
-    {HORNET_DIE + 0, HORNET_DIE_RATE, NullHornet, &s_HornetDie[1]},
-    {HORNET_DEAD,    HORNET_DIE_RATE, DoActorDebris, &s_HornetDie[1]},
-#else
-    {HORNET_DIE + 0, HORNET_DIE_RATE, DoHornetDeath, &s_HornetDie[0]},
-#endif
+    {HORNET_DIE + 0, HORNET_DIE_RATE, AF(DoHornetDeath), &s_HornetDie[0]},
 };
 
 STATE* sg_HornetDie[] =
@@ -225,7 +217,7 @@ STATE* sg_HornetDie[] =
 
 STATE s_HornetDead[] =
 {
-    {HORNET_DEAD, HORNET_DIE_RATE, DoActorDebris, &s_HornetDead[0]},
+    {HORNET_DEAD, HORNET_DIE_RATE, AF(DoActorDebris), &s_HornetDead[0]},
 };
 
 STATE* sg_HornetDead[] =
@@ -450,7 +442,7 @@ int InitHornetCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
 
-    actor->callStateAction();
+    actor->callAction();
 
     return 0;
 }
@@ -616,7 +608,7 @@ int DoHornetMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        actor->callStateAction();
+        actor->callAction();
 
     DoHornetMatchPlayerZ(actor);
 

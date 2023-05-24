@@ -117,51 +117,47 @@ ATTRIBUTE ZillaAttrib =
 
 #define ZILLA_RATE 48
 
-ANIMATOR DoZillaMove,NullZilla,DoStayOnFloor,
-         DoActorDebris, SpawnZillaExp, DoZillaStomp,
-         SpawnCoolg;
-
 STATE s_ZillaRun[5][6] =
 {
     {
-        {ZILLA_RUN_R0 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaRun[0][1]},
-        {ZILLA_RUN_R0 + 1, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[0][2]},
-        {ZILLA_RUN_R0 + 1, ZILLA_RATE, DoZillaMove, &s_ZillaRun[0][3]},
-        {ZILLA_RUN_R0 + 2, ZILLA_RATE, DoZillaMove, &s_ZillaRun[0][4]},
-        {ZILLA_RUN_R0 + 3, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[0][5]},
-        {ZILLA_RUN_R0 + 3, ZILLA_RATE, DoZillaMove, &s_ZillaRun[0][0]}
+        {ZILLA_RUN_R0 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[0][1]},
+        {ZILLA_RUN_R0 + 1, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[0][2]},
+        {ZILLA_RUN_R0 + 1, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[0][3]},
+        {ZILLA_RUN_R0 + 2, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[0][4]},
+        {ZILLA_RUN_R0 + 3, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[0][5]},
+        {ZILLA_RUN_R0 + 3, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[0][0]}
     },
     {
-        {ZILLA_RUN_R1 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaRun[1][1]},
-        {ZILLA_RUN_R1 + 1, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[1][2]},
-        {ZILLA_RUN_R1 + 1, ZILLA_RATE, DoZillaMove, &s_ZillaRun[1][3]},
-        {ZILLA_RUN_R1 + 2, ZILLA_RATE, DoZillaMove, &s_ZillaRun[1][4]},
-        {ZILLA_RUN_R1 + 3, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[1][5]},
-        {ZILLA_RUN_R1 + 3, ZILLA_RATE, DoZillaMove, &s_ZillaRun[1][0]}
+        {ZILLA_RUN_R1 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[1][1]},
+        {ZILLA_RUN_R1 + 1, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[1][2]},
+        {ZILLA_RUN_R1 + 1, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[1][3]},
+        {ZILLA_RUN_R1 + 2, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[1][4]},
+        {ZILLA_RUN_R1 + 3, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[1][5]},
+        {ZILLA_RUN_R1 + 3, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[1][0]}
     },
     {
-        {ZILLA_RUN_R2 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaRun[2][1]},
-        {ZILLA_RUN_R2 + 1, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[2][2]},
-        {ZILLA_RUN_R2 + 1, ZILLA_RATE, DoZillaMove, &s_ZillaRun[2][3]},
-        {ZILLA_RUN_R2 + 2, ZILLA_RATE, DoZillaMove, &s_ZillaRun[2][4]},
-        {ZILLA_RUN_R2 + 3, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[2][5]},
-        {ZILLA_RUN_R2 + 3, ZILLA_RATE, DoZillaMove, &s_ZillaRun[2][0]}
+        {ZILLA_RUN_R2 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[2][1]},
+        {ZILLA_RUN_R2 + 1, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[2][2]},
+        {ZILLA_RUN_R2 + 1, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[2][3]},
+        {ZILLA_RUN_R2 + 2, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[2][4]},
+        {ZILLA_RUN_R2 + 3, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[2][5]},
+        {ZILLA_RUN_R2 + 3, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[2][0]}
     },
     {
-        {ZILLA_RUN_R3 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaRun[3][1]},
-        {ZILLA_RUN_R3 + 1, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[3][2]},
-        {ZILLA_RUN_R3 + 1, ZILLA_RATE, DoZillaMove, &s_ZillaRun[3][3]},
-        {ZILLA_RUN_R3 + 2, ZILLA_RATE, DoZillaMove, &s_ZillaRun[3][4]},
-        {ZILLA_RUN_R3 + 3, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[3][5]},
-        {ZILLA_RUN_R3 + 3, ZILLA_RATE, DoZillaMove, &s_ZillaRun[3][0]}
+        {ZILLA_RUN_R3 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[3][1]},
+        {ZILLA_RUN_R3 + 1, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[3][2]},
+        {ZILLA_RUN_R3 + 1, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[3][3]},
+        {ZILLA_RUN_R3 + 2, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[3][4]},
+        {ZILLA_RUN_R3 + 3, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[3][5]},
+        {ZILLA_RUN_R3 + 3, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[3][0]}
     },
     {
-        {ZILLA_RUN_R4 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaRun[4][1]},
-        {ZILLA_RUN_R4 + 1, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[4][2]},
-        {ZILLA_RUN_R4 + 1, ZILLA_RATE, DoZillaMove, &s_ZillaRun[4][3]},
-        {ZILLA_RUN_R4 + 2, ZILLA_RATE, DoZillaMove, &s_ZillaRun[4][4]},
-        {ZILLA_RUN_R4 + 3, SF_QUICK_CALL, DoZillaStomp, &s_ZillaRun[4][5]},
-        {ZILLA_RUN_R4 + 3, ZILLA_RATE, DoZillaMove, &s_ZillaRun[4][0]}
+        {ZILLA_RUN_R4 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[4][1]},
+        {ZILLA_RUN_R4 + 1, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[4][2]},
+        {ZILLA_RUN_R4 + 1, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[4][3]},
+        {ZILLA_RUN_R4 + 2, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[4][4]},
+        {ZILLA_RUN_R4 + 3, SF_QUICK_CALL, AF(DoZillaStomp), &s_ZillaRun[4][5]},
+        {ZILLA_RUN_R4 + 3, ZILLA_RATE, AF(DoZillaMove), &s_ZillaRun[4][0]}
     }
 };
 
@@ -184,19 +180,19 @@ STATE* sg_ZillaRun[] =
 STATE s_ZillaStand[5][1] =
 {
     {
-        {ZILLA_RUN_R0 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaStand[0][0]}
+        {ZILLA_RUN_R0 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaStand[0][0]}
     },
     {
-        {ZILLA_RUN_R1 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaStand[1][0]}
+        {ZILLA_RUN_R1 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaStand[1][0]}
     },
     {
-        {ZILLA_RUN_R2 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaStand[2][0]}
+        {ZILLA_RUN_R2 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaStand[2][0]}
     },
     {
-        {ZILLA_RUN_R3 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaStand[3][0]}
+        {ZILLA_RUN_R3 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaStand[3][0]}
     },
     {
-        {ZILLA_RUN_R4 + 0, ZILLA_RATE, DoZillaMove, &s_ZillaStand[4][0]}
+        {ZILLA_RUN_R4 + 0, ZILLA_RATE, AF(DoZillaMove), &s_ZillaStand[4][0]}
     }
 };
 
@@ -220,24 +216,24 @@ STATE* sg_ZillaStand[] =
 STATE s_ZillaPain[5][2] =
 {
     {
-        {ZILLA_PAIN_R0 + 0, ZILLA_PAIN_RATE, NullZilla, &s_ZillaPain[0][1]},
-        {ZILLA_PAIN_R0 + 0, 0|SF_QUICK_CALL, InitActorDecide, &s_ZillaPain[0][0]}
+        {ZILLA_PAIN_R0 + 0, ZILLA_PAIN_RATE, AF(NullZilla), &s_ZillaPain[0][1]},
+        {ZILLA_PAIN_R0 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaPain[0][0]}
     },
     {
-        {ZILLA_PAIN_R1 + 0, ZILLA_PAIN_RATE, NullZilla, &s_ZillaPain[1][1]},
-        {ZILLA_PAIN_R1 + 0, 0|SF_QUICK_CALL, InitActorDecide, &s_ZillaPain[1][0]}
+        {ZILLA_PAIN_R1 + 0, ZILLA_PAIN_RATE, AF(NullZilla), &s_ZillaPain[1][1]},
+        {ZILLA_PAIN_R1 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaPain[1][0]}
     },
     {
-        {ZILLA_PAIN_R2 + 0, ZILLA_PAIN_RATE, NullZilla, &s_ZillaPain[2][1]},
-        {ZILLA_PAIN_R2 + 0, 0|SF_QUICK_CALL, InitActorDecide, &s_ZillaPain[2][0]}
+        {ZILLA_PAIN_R2 + 0, ZILLA_PAIN_RATE, AF(NullZilla), &s_ZillaPain[2][1]},
+        {ZILLA_PAIN_R2 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaPain[2][0]}
     },
     {
-        {ZILLA_PAIN_R3 + 0, ZILLA_PAIN_RATE, NullZilla, &s_ZillaPain[3][1]},
-        {ZILLA_PAIN_R3 + 0, 0|SF_QUICK_CALL, InitActorDecide, &s_ZillaPain[3][0]}
+        {ZILLA_PAIN_R3 + 0, ZILLA_PAIN_RATE, AF(NullZilla), &s_ZillaPain[3][1]},
+        {ZILLA_PAIN_R3 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaPain[3][0]}
     },
     {
-        {ZILLA_PAIN_R4 + 0, ZILLA_PAIN_RATE, NullZilla, &s_ZillaPain[4][1]},
-        {ZILLA_PAIN_R4 + 0, 0|SF_QUICK_CALL, InitActorDecide, &s_ZillaPain[4][0]}
+        {ZILLA_PAIN_R4 + 0, ZILLA_PAIN_RATE, AF(NullZilla), &s_ZillaPain[4][1]},
+        {ZILLA_PAIN_R4 + 0, 0|SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaPain[4][0]}
     }
 };
 
@@ -262,84 +258,84 @@ ANIMATOR InitZillaRail;
 STATE s_ZillaRail[5][14] =
 {
     {
-        {ZILLA_RAIL_R0 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][1]},
-        {ZILLA_RAIL_R0 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][2]},
-        {ZILLA_RAIL_R0 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][3]},
-        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[0][4]},
-        {ZILLA_RAIL_R0 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][5]},
-        {ZILLA_RAIL_R0 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][6]},
-        {ZILLA_RAIL_R0 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][7]},
-        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[0][8]},
-        {ZILLA_RAIL_R0 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][9]},
-        {ZILLA_RAIL_R0 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][10]},
-        {ZILLA_RAIL_R0 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][11]},
-        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[0][12]},
-        {ZILLA_RAIL_R0 + 3, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[0][13]},
-        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRail[0][0]}
+        {ZILLA_RAIL_R0 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][1]},
+        {ZILLA_RAIL_R0 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][2]},
+        {ZILLA_RAIL_R0 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][3]},
+        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[0][4]},
+        {ZILLA_RAIL_R0 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][5]},
+        {ZILLA_RAIL_R0 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][6]},
+        {ZILLA_RAIL_R0 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][7]},
+        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[0][8]},
+        {ZILLA_RAIL_R0 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][9]},
+        {ZILLA_RAIL_R0 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][10]},
+        {ZILLA_RAIL_R0 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][11]},
+        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[0][12]},
+        {ZILLA_RAIL_R0 + 3, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[0][13]},
+        {ZILLA_RAIL_R0 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRail[0][0]}
     },
     {
-        {ZILLA_RAIL_R1 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][1]},
-        {ZILLA_RAIL_R1 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][2]},
-        {ZILLA_RAIL_R1 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][3]},
-        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[1][4]},
-        {ZILLA_RAIL_R1 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][5]},
-        {ZILLA_RAIL_R1 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][6]},
-        {ZILLA_RAIL_R1 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][7]},
-        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[1][8]},
-        {ZILLA_RAIL_R1 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][9]},
-        {ZILLA_RAIL_R1 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][10]},
-        {ZILLA_RAIL_R1 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][11]},
-        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[1][12]},
-        {ZILLA_RAIL_R1 + 3, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[1][13]},
-        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRail[1][0]}
+        {ZILLA_RAIL_R1 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][1]},
+        {ZILLA_RAIL_R1 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][2]},
+        {ZILLA_RAIL_R1 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][3]},
+        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[1][4]},
+        {ZILLA_RAIL_R1 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][5]},
+        {ZILLA_RAIL_R1 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][6]},
+        {ZILLA_RAIL_R1 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][7]},
+        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[1][8]},
+        {ZILLA_RAIL_R1 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][9]},
+        {ZILLA_RAIL_R1 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][10]},
+        {ZILLA_RAIL_R1 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][11]},
+        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[1][12]},
+        {ZILLA_RAIL_R1 + 3, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[1][13]},
+        {ZILLA_RAIL_R1 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRail[1][0]}
     },
     {
-        {ZILLA_RAIL_R2 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][1]},
-        {ZILLA_RAIL_R2 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][2]},
-        {ZILLA_RAIL_R2 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][3]},
-        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[2][4]},
-        {ZILLA_RAIL_R2 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][5]},
-        {ZILLA_RAIL_R2 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][6]},
-        {ZILLA_RAIL_R2 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][7]},
-        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[2][8]},
-        {ZILLA_RAIL_R2 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][9]},
-        {ZILLA_RAIL_R2 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][10]},
-        {ZILLA_RAIL_R2 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][11]},
-        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[2][12]},
-        {ZILLA_RAIL_R2 + 3, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[2][13]},
-        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRail[2][0]}
+        {ZILLA_RAIL_R2 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][1]},
+        {ZILLA_RAIL_R2 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][2]},
+        {ZILLA_RAIL_R2 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][3]},
+        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[2][4]},
+        {ZILLA_RAIL_R2 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][5]},
+        {ZILLA_RAIL_R2 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][6]},
+        {ZILLA_RAIL_R2 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][7]},
+        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[2][8]},
+        {ZILLA_RAIL_R2 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][9]},
+        {ZILLA_RAIL_R2 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][10]},
+        {ZILLA_RAIL_R2 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][11]},
+        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[2][12]},
+        {ZILLA_RAIL_R2 + 3, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[2][13]},
+        {ZILLA_RAIL_R2 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRail[2][0]}
     },
     {
-        {ZILLA_RAIL_R3 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][1]},
-        {ZILLA_RAIL_R3 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][2]},
-        {ZILLA_RAIL_R3 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][3]},
-        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[3][4]},
-        {ZILLA_RAIL_R3 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][5]},
-        {ZILLA_RAIL_R3 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][6]},
-        {ZILLA_RAIL_R3 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][7]},
-        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[3][8]},
-        {ZILLA_RAIL_R3 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][9]},
-        {ZILLA_RAIL_R3 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][10]},
-        {ZILLA_RAIL_R3 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][11]},
-        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[3][12]},
-        {ZILLA_RAIL_R3 + 3, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[3][13]},
-        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRail[3][0]}
+        {ZILLA_RAIL_R3 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][1]},
+        {ZILLA_RAIL_R3 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][2]},
+        {ZILLA_RAIL_R3 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][3]},
+        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[3][4]},
+        {ZILLA_RAIL_R3 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][5]},
+        {ZILLA_RAIL_R3 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][6]},
+        {ZILLA_RAIL_R3 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][7]},
+        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[3][8]},
+        {ZILLA_RAIL_R3 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][9]},
+        {ZILLA_RAIL_R3 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][10]},
+        {ZILLA_RAIL_R3 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][11]},
+        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[3][12]},
+        {ZILLA_RAIL_R3 + 3, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[3][13]},
+        {ZILLA_RAIL_R3 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRail[3][0]}
     },
     {
-        {ZILLA_RAIL_R4 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][1]},
-        {ZILLA_RAIL_R4 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][2]},
-        {ZILLA_RAIL_R4 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][3]},
-        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[4][4]},
-        {ZILLA_RAIL_R4 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][5]},
-        {ZILLA_RAIL_R4 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][6]},
-        {ZILLA_RAIL_R4 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][7]},
-        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[4][8]},
-        {ZILLA_RAIL_R4 + 0, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][9]},
-        {ZILLA_RAIL_R4 + 1, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][10]},
-        {ZILLA_RAIL_R4 + 2, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][11]},
-        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, InitZillaRail, &s_ZillaRail[4][12]},
-        {ZILLA_RAIL_R4 + 3, ZILLA_RAIL_RATE, NullZilla, &s_ZillaRail[4][13]},
-        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRail[4][0]}
+        {ZILLA_RAIL_R4 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][1]},
+        {ZILLA_RAIL_R4 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][2]},
+        {ZILLA_RAIL_R4 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][3]},
+        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[4][4]},
+        {ZILLA_RAIL_R4 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][5]},
+        {ZILLA_RAIL_R4 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][6]},
+        {ZILLA_RAIL_R4 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][7]},
+        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[4][8]},
+        {ZILLA_RAIL_R4 + 0, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][9]},
+        {ZILLA_RAIL_R4 + 1, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][10]},
+        {ZILLA_RAIL_R4 + 2, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][11]},
+        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, AF(InitZillaRail), &s_ZillaRail[4][12]},
+        {ZILLA_RAIL_R4 + 3, ZILLA_RAIL_RATE, AF(NullZilla), &s_ZillaRail[4][13]},
+        {ZILLA_RAIL_R4 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRail[4][0]}
     }
 };
 
@@ -364,49 +360,49 @@ ANIMATOR InitZillaRocket;
 STATE s_ZillaRocket[5][7] =
 {
     {
-        {ZILLA_ROCKET_R0 + 0, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[0][1]},
-        {ZILLA_ROCKET_R0 + 1, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[0][2]},
-        {ZILLA_ROCKET_R0 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[0][3]},
-        {ZILLA_ROCKET_R0 + 2, SF_QUICK_CALL, InitZillaRocket, &s_ZillaRocket[0][4]},
-        {ZILLA_ROCKET_R0 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[0][5]},
-        {ZILLA_ROCKET_R0 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRocket[0][6]},
-        {ZILLA_ROCKET_R0 + 3, ZILLA_ROCKET_RATE*10, NullZilla, &s_ZillaRocket[0][5]}
+        {ZILLA_ROCKET_R0 + 0, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[0][1]},
+        {ZILLA_ROCKET_R0 + 1, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[0][2]},
+        {ZILLA_ROCKET_R0 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[0][3]},
+        {ZILLA_ROCKET_R0 + 2, SF_QUICK_CALL, AF(InitZillaRocket), &s_ZillaRocket[0][4]},
+        {ZILLA_ROCKET_R0 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[0][5]},
+        {ZILLA_ROCKET_R0 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRocket[0][6]},
+        {ZILLA_ROCKET_R0 + 3, ZILLA_ROCKET_RATE*10, AF(NullZilla), &s_ZillaRocket[0][5]}
     },
     {
-        {ZILLA_ROCKET_R1 + 0, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[1][1]},
-        {ZILLA_ROCKET_R1 + 1, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[1][2]},
-        {ZILLA_ROCKET_R1 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[1][3]},
-        {ZILLA_ROCKET_R1 + 2, SF_QUICK_CALL, InitZillaRocket, &s_ZillaRocket[1][4]},
-        {ZILLA_ROCKET_R1 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[1][5]},
-        {ZILLA_ROCKET_R1 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRocket[1][6]},
-        {ZILLA_ROCKET_R1 + 3, ZILLA_ROCKET_RATE*10, NullZilla, &s_ZillaRocket[1][5]}
+        {ZILLA_ROCKET_R1 + 0, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[1][1]},
+        {ZILLA_ROCKET_R1 + 1, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[1][2]},
+        {ZILLA_ROCKET_R1 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[1][3]},
+        {ZILLA_ROCKET_R1 + 2, SF_QUICK_CALL, AF(InitZillaRocket), &s_ZillaRocket[1][4]},
+        {ZILLA_ROCKET_R1 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[1][5]},
+        {ZILLA_ROCKET_R1 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRocket[1][6]},
+        {ZILLA_ROCKET_R1 + 3, ZILLA_ROCKET_RATE*10, AF(NullZilla), &s_ZillaRocket[1][5]}
     },
     {
-        {ZILLA_ROCKET_R2 + 0, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[2][1]},
-        {ZILLA_ROCKET_R2 + 1, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[2][2]},
-        {ZILLA_ROCKET_R2 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[2][3]},
-        {ZILLA_ROCKET_R2 + 2, SF_QUICK_CALL, InitZillaRocket, &s_ZillaRocket[2][4]},
-        {ZILLA_ROCKET_R2 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[2][5]},
-        {ZILLA_ROCKET_R2 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRocket[2][6]},
-        {ZILLA_ROCKET_R2 + 3, ZILLA_ROCKET_RATE*10, NullZilla, &s_ZillaRocket[2][5]}
+        {ZILLA_ROCKET_R2 + 0, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[2][1]},
+        {ZILLA_ROCKET_R2 + 1, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[2][2]},
+        {ZILLA_ROCKET_R2 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[2][3]},
+        {ZILLA_ROCKET_R2 + 2, SF_QUICK_CALL, AF(InitZillaRocket), &s_ZillaRocket[2][4]},
+        {ZILLA_ROCKET_R2 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[2][5]},
+        {ZILLA_ROCKET_R2 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRocket[2][6]},
+        {ZILLA_ROCKET_R2 + 3, ZILLA_ROCKET_RATE*10, AF(NullZilla), &s_ZillaRocket[2][5]}
     },
     {
-        {ZILLA_ROCKET_R3 + 0, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[3][1]},
-        {ZILLA_ROCKET_R3 + 1, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[3][2]},
-        {ZILLA_ROCKET_R3 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[3][3]},
-        {ZILLA_ROCKET_R3 + 2, SF_QUICK_CALL, InitZillaRocket, &s_ZillaRocket[3][4]},
-        {ZILLA_ROCKET_R3 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[3][5]},
-        {ZILLA_ROCKET_R3 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRocket[3][6]},
-        {ZILLA_ROCKET_R3 + 3, ZILLA_ROCKET_RATE*10, NullZilla, &s_ZillaRocket[3][5]}
+        {ZILLA_ROCKET_R3 + 0, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[3][1]},
+        {ZILLA_ROCKET_R3 + 1, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[3][2]},
+        {ZILLA_ROCKET_R3 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[3][3]},
+        {ZILLA_ROCKET_R3 + 2, SF_QUICK_CALL, AF(InitZillaRocket), &s_ZillaRocket[3][4]},
+        {ZILLA_ROCKET_R3 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[3][5]},
+        {ZILLA_ROCKET_R3 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRocket[3][6]},
+        {ZILLA_ROCKET_R3 + 3, ZILLA_ROCKET_RATE*10, AF(NullZilla), &s_ZillaRocket[3][5]}
     },
     {
-        {ZILLA_ROCKET_R4 + 0, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[4][1]},
-        {ZILLA_ROCKET_R4 + 1, ZILLA_ROCKET_RATE, NullZilla, &s_ZillaRocket[4][2]},
-        {ZILLA_ROCKET_R4 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[4][3]},
-        {ZILLA_ROCKET_R4 + 2, SF_QUICK_CALL, InitZillaRocket, &s_ZillaRocket[4][4]},
-        {ZILLA_ROCKET_R4 + 2, ZILLA_ROCKET_RATE*4, NullZilla, &s_ZillaRocket[4][5]},
-        {ZILLA_ROCKET_R4 + 3, SF_QUICK_CALL, InitActorDecide, &s_ZillaRocket[4][6]},
-        {ZILLA_ROCKET_R4 + 3, ZILLA_ROCKET_RATE*10, NullZilla, &s_ZillaRocket[4][5]}
+        {ZILLA_ROCKET_R4 + 0, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[4][1]},
+        {ZILLA_ROCKET_R4 + 1, ZILLA_ROCKET_RATE, AF(NullZilla), &s_ZillaRocket[4][2]},
+        {ZILLA_ROCKET_R4 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[4][3]},
+        {ZILLA_ROCKET_R4 + 2, SF_QUICK_CALL, AF(InitZillaRocket), &s_ZillaRocket[4][4]},
+        {ZILLA_ROCKET_R4 + 2, ZILLA_ROCKET_RATE*4, AF(NullZilla), &s_ZillaRocket[4][5]},
+        {ZILLA_ROCKET_R4 + 3, SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaRocket[4][6]},
+        {ZILLA_ROCKET_R4 + 3, ZILLA_ROCKET_RATE*10, AF(NullZilla), &s_ZillaRocket[4][5]}
     }
 };
 
@@ -431,99 +427,99 @@ ANIMATOR InitEnemyUzi;
 STATE s_ZillaUzi[5][17] =
 {
     {
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][1]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][2]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][3]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][4]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][5]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][6]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][7]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][8]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][9]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][10]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][11]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][12]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][13]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][14]},
-        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[0][15]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[0][16]},
-        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, InitActorDecide, &s_ZillaUzi[0][16]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][1]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][2]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][3]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][4]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][5]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][6]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][7]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][8]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][9]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][10]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][11]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][12]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][13]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][14]},
+        {ZILLA_SHOOT_R0 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[0][15]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[0][16]},
+        {ZILLA_SHOOT_R0 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaUzi[0][16]},
     },
     {
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][1]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][2]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][3]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][4]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][5]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][6]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][7]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][8]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][9]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][10]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][11]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][12]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][13]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][14]},
-        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[1][15]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[1][16]},
-        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, InitActorDecide, &s_ZillaUzi[1][16]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][1]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][2]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][3]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][4]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][5]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][6]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][7]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][8]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][9]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][10]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][11]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][12]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][13]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][14]},
+        {ZILLA_SHOOT_R1 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[1][15]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[1][16]},
+        {ZILLA_SHOOT_R1 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaUzi[1][16]},
     },
     {
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][1]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][2]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][3]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][4]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][5]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][6]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][7]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][8]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][9]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][10]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][11]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][12]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][13]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][14]},
-        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[2][15]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[2][16]},
-        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, InitActorDecide, &s_ZillaUzi[2][16]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][1]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][2]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][3]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][4]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][5]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][6]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][7]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][8]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][9]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][10]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][11]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][12]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][13]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][14]},
+        {ZILLA_SHOOT_R2 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[2][15]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[2][16]},
+        {ZILLA_SHOOT_R2 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaUzi[2][16]},
     },
     {
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][1]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][2]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][3]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][4]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][5]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][6]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][7]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][8]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][9]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][10]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][11]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][12]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][13]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][14]},
-        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[3][15]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[3][16]},
-        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, InitActorDecide, &s_ZillaUzi[3][16]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][1]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][2]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][3]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][4]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][5]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][6]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][7]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][8]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][9]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][10]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][11]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][12]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][13]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][14]},
+        {ZILLA_SHOOT_R3 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[3][15]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[3][16]},
+        {ZILLA_SHOOT_R3 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaUzi[3][16]},
     },
     {
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][1]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][2]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][3]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][4]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][5]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][6]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][7]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][8]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][9]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][10]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][11]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][12]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][13]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][14]},
-        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, NullZilla, &s_ZillaUzi[4][15]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ZillaUzi[4][16]},
-        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, InitActorDecide, &s_ZillaUzi[4][16]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][1]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][2]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][3]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][4]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][5]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][6]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][7]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][8]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][9]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][10]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][11]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][12]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][13]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][14]},
+        {ZILLA_SHOOT_R4 + 0, ZILLA_UZI_RATE, AF(NullZilla), &s_ZillaUzi[4][15]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitEnemyUzi), &s_ZillaUzi[4][16]},
+        {ZILLA_SHOOT_R4 + 0, 0 | SF_QUICK_CALL, AF(InitActorDecide), &s_ZillaUzi[4][16]},
     },
 };
 
@@ -549,15 +545,15 @@ ANIMATOR DoZillaDeathMelt;
 
 STATE s_ZillaDie[] =
 {
-    {ZILLA_DIE + 0, ZILLA_DIE_RATE*15, DoZillaDeathMelt, &s_ZillaDie[1]},
-    {ZILLA_DIE + 1, ZILLA_DIE_RATE, NullZilla, &s_ZillaDie[2]},
-    {ZILLA_DIE + 2, ZILLA_DIE_RATE, NullZilla, &s_ZillaDie[3]},
-    {ZILLA_DIE + 3, ZILLA_DIE_RATE, NullZilla, &s_ZillaDie[4]},
-    {ZILLA_DIE + 4, ZILLA_DIE_RATE, NullZilla, &s_ZillaDie[5]},
-    {ZILLA_DIE + 5, ZILLA_DIE_RATE, NullZilla, &s_ZillaDie[6]},
-    {ZILLA_DIE + 6, ZILLA_DIE_RATE, NullZilla, &s_ZillaDie[7]},
-    {ZILLA_DIE + 7, ZILLA_DIE_RATE*3, NullZilla, &s_ZillaDie[8]},
-    {ZILLA_DEAD, ZILLA_DIE_RATE, DoActorDebris, &s_ZillaDie[8]}
+    {ZILLA_DIE + 0, ZILLA_DIE_RATE*15, AF(DoZillaDeathMelt), &s_ZillaDie[1]},
+    {ZILLA_DIE + 1, ZILLA_DIE_RATE, AF(NullZilla), &s_ZillaDie[2]},
+    {ZILLA_DIE + 2, ZILLA_DIE_RATE, AF(NullZilla), &s_ZillaDie[3]},
+    {ZILLA_DIE + 3, ZILLA_DIE_RATE, AF(NullZilla), &s_ZillaDie[4]},
+    {ZILLA_DIE + 4, ZILLA_DIE_RATE, AF(NullZilla), &s_ZillaDie[5]},
+    {ZILLA_DIE + 5, ZILLA_DIE_RATE, AF(NullZilla), &s_ZillaDie[6]},
+    {ZILLA_DIE + 6, ZILLA_DIE_RATE, AF(NullZilla), &s_ZillaDie[7]},
+    {ZILLA_DIE + 7, ZILLA_DIE_RATE*3, AF(NullZilla), &s_ZillaDie[8]},
+    {ZILLA_DEAD, ZILLA_DIE_RATE, AF(DoActorDebris), &s_ZillaDie[8]}
 };
 
 STATE* sg_ZillaDie[] =
@@ -567,7 +563,7 @@ STATE* sg_ZillaDie[] =
 
 STATE s_ZillaDead[] =
 {
-    {ZILLA_DEAD, ZILLA_DIE_RATE, DoActorDebris, &s_ZillaDead[0]},
+    {ZILLA_DEAD, ZILLA_DIE_RATE, AF(DoActorDebris), &s_ZillaDead[0]},
 };
 
 STATE* sg_ZillaDead[] =
@@ -684,7 +680,7 @@ int DoZillaMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        actor->callStateAction();
+        actor->callAction();
 
     KeepActorOnFloor(actor);
 
