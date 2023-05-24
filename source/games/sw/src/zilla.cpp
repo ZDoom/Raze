@@ -40,48 +40,48 @@ BEGIN_SW_NS
 
 DECISION ZillaBattle[] =
 {
-    {100,   InitActorRunAway      },
-    {690,   InitActorMoveCloser   },
-    {692,   InitActorAlertNoise   },
-    {1024,  InitActorAttack       }
+    {100,   AF(InitActorRunAway   )   },
+    {690,   AF(InitActorMoveCloser)   },
+    {692,   AF(InitActorAlertNoise)   },
+    {1024,  AF(InitActorAttack    )   }
 };
 
 DECISION ZillaOffense[] =
 {
-    {100,   InitActorRunAway      },
-    {690,   InitActorMoveCloser   },
-    {692,   InitActorAlertNoise   },
-    {1024,  InitActorAttack       }
+    {100,   AF(InitActorRunAway   )   },
+    {690,   AF(InitActorMoveCloser)   },
+    {692,   AF(InitActorAlertNoise)   },
+    {1024,  AF(InitActorAttack    )   }
 };
 
 DECISION ZillaBroadcast[] =
 {
-    {2,     InitActorAlertNoise   },
-    {4,     InitActorAmbientNoise  },
-    {1024,  InitActorDecide       }
+    {2,     AF(InitActorAlertNoise  ) },
+    {4,     AF(InitActorAmbientNoise)  },
+    {1024,  AF(InitActorDecide      ) }
 };
 
 DECISION ZillaSurprised[] =
 {
-    {700,   InitActorMoveCloser   },
-    {703,   InitActorAlertNoise   },
-    {1024,  InitActorDecide       }
+    {700,   AF(InitActorMoveCloser)   },
+    {703,   AF(InitActorAlertNoise)   },
+    {1024,  AF(InitActorDecide    )   }
 };
 
 DECISION ZillaEvasive[] =
 {
-    {1024, InitActorWanderAround }
+    {1024, AF(InitActorWanderAround) }
 };
 
 DECISION ZillaLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION ZillaCloseRange[] =
 {
-    {1024,  InitActorAttack         }
+    {1024,  AF(InitActorAttack)         }
 };
 
 PERSONALITY ZillaPersonality =

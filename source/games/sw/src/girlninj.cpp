@@ -42,50 +42,44 @@ BEGIN_SW_NS
 
 DECISION GirlNinjaBattle[] =
 {
-    {499, InitActorMoveCloser},
-    //{509, InitActorAmbientNoise},
-    //{710, InitActorRunAway},
-    {1024, InitActorAttack}
+    {499, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION GirlNinjaOffense[] =
 {
-    {499, InitActorMoveCloser},
-    //{509, InitActorAmbientNoise},
-    {1024, InitActorAttack}
+    {499, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION GirlNinjaBroadcast[] =
 {
-    //{1, InitActorAlertNoise},
-    {6, InitActorAmbientNoise},
-    {1024, InitActorDecide}
+    {6, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION GirlNinjaSurprised[] =
 {
-    {701, InitActorMoveCloser},
-    {1024, InitActorDecide}
+    {701, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION GirlNinjaEvasive[] =
 {
-    {400,   InitActorDuck}, // 100
-//    {300,   InitActorEvade},
-//    {800,   InitActorRunAway},
+    {400,   AF(InitActorDuck)}, // 100
     {1024,  nullptr}
 };
 
 DECISION GirlNinjaLostTarget[] =
 {
-    {900, InitActorFindPlayer},
-    {1024, InitActorWanderAround}
+    {900, AF(InitActorFindPlayer)},
+    {1024, AF(InitActorWanderAround)}
 };
 
 DECISION GirlNinjaCloseRange[] =
 {
-    {900,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {900,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 /*

@@ -42,50 +42,49 @@ ANIMATOR InitRipperHang;
 
 DECISION RipperBattle[] =
 {
-    {748, InitActorMoveCloser},
-    {750, InitActorAlertNoise},
-//    {900, InitRipperHang},
-    {755, InitActorAttackNoise},
-    {1024, InitActorAttack}
+    {748, AF(InitActorMoveCloser)},
+    {750, AF(InitActorAlertNoise)},
+    {755, AF(InitActorAttackNoise)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION RipperOffense[] =
 {
-    {700, InitActorMoveCloser},
-    {710, InitActorAlertNoise},
-    {1024, InitActorAttack}
+    {700, AF(InitActorMoveCloser)},
+    {710, AF(InitActorAlertNoise)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION RipperBroadcast[] =
 {
-    {3, InitActorAlertNoise},
-    {6, InitActorAmbientNoise},
-    {1024, InitActorDecide}
+    {3, AF(InitActorAlertNoise)},
+    {6, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION RipperSurprised[] =
 {
-    {30, InitRipperHang},
-    {701, InitActorMoveCloser},
-    {1024, InitActorDecide}
+    {30, AF(InitRipperHang)},
+    {701, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION RipperEvasive[] =
 {
-    {6, InitRipperHang},
+    {6, AF(InitRipperHang)},
     {1024, nullptr}
 };
 
 DECISION RipperLostTarget[] =
 {
-    {980, InitActorFindPlayer},
-    {1024, InitActorWanderAround}
+    {980, AF(InitActorFindPlayer)},
+    {1024, AF(InitActorWanderAround)}
 };
 
 DECISION RipperCloseRange[] =
 {
-    {900,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {900,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 PERSONALITY RipperPersonality =

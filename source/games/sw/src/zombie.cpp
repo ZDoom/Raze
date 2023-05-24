@@ -44,44 +44,44 @@ BEGIN_SW_NS
 
 DECISION ZombieBattle[] =
 {
-    {399, InitActorMoveCloser},
-    {1024, InitActorAttack}
+    {399, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION ZombieOffense[] =
 {
-    {399, InitActorMoveCloser},
-    {1024, InitActorAttack}
+    {399, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION ZombieBroadcast[] =
 {
-    {6, InitActorAmbientNoise},
-    {1024, InitActorDecide}
+    {6, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION ZombieSurprised[] =
 {
-    {701, InitActorMoveCloser},
-    {1024, InitActorDecide}
+    {701, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION ZombieEvasive[] =
 {
-    {400,   InitActorDuck},
+    {400,   AF(InitActorDuck)},
     {1024,  nullptr}
 };
 
 DECISION ZombieLostTarget[] =
 {
-    {900, InitActorFindPlayer},
-    {1024, InitActorWanderAround}
+    {900, AF(InitActorFindPlayer)},
+    {1024, AF(InitActorWanderAround)}
 };
 
 DECISION ZombieCloseRange[] =
 {
-    {800,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {800,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 PERSONALITY ZombiePersonality =

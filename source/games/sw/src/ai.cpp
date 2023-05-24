@@ -43,7 +43,7 @@ BEGIN_SW_NS
 ANIMATOR InitActorRunToward;
 bool DropAhead(DSWActor* actor, double min_height);
 
-ANIMATOR* ChooseAction(DECISION decision[]);
+VMFunction* ChooseAction(DECISION decision[]);
 
 
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
@@ -68,11 +68,7 @@ bool ActorMoveHitReact(DSWActor* actor)
             // if you ran into a player - call close range functions
             DoActorPickClosePlayer(actor);
             auto action = ChooseAction(actor->user.__legacyState.Personality->TouchTarget);
-            if (action)
-            {
-                (*action)(actor);
-                return true;
-            }
+            actor->callFunction(action);
         }
     }
     return false;
@@ -126,7 +122,7 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 */
 //---------------------------------------------------------------------------
 
-ANIMATOR* ChooseAction(DECISION decision[])
+VMFunction* ChooseAction(DECISION decision[])
 {
     // !JIM! Here is an opportunity for some AI, instead of randomness!
     int random_value = RANDOM_P2(1024<<5)>>5;
@@ -137,7 +133,7 @@ ANIMATOR* ChooseAction(DECISION decision[])
 
         if (random_value <= decision[i].range)
         {
-            return decision[i].action;
+            return *decision[i].action;
         }
     }
 }
@@ -167,50 +163,50 @@ int ChooseActionNumber(int16_t decision[])
 //
 //---------------------------------------------------------------------------
 
-int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
+int DoActorNoise(VMFunction* Action, DSWActor* actor)
 {
-    if (Action == InitActorAmbientNoise)
+    if (Action == *AF(InitActorAmbientNoise))
     {
         PlaySpriteSound(actor, attr_ambient, v3df_follow);
     }
-    else if (Action == InitActorAlertNoise)
+    else if (Action == *AF(InitActorAlertNoise))
     {
         if (actor->hasU() && !actor->user.DidAlert) // This only allowed once
             PlaySpriteSound(actor, attr_alert, v3df_follow);
     }
-    else if (Action == InitActorAttackNoise)
+    else if (Action == *AF(InitActorAttackNoise))
     {
         PlaySpriteSound(actor, attr_attack, v3df_follow);
     }
-    else if (Action == InitActorPainNoise)
+    else if (Action == *AF(InitActorPainNoise))
     {
         PlaySpriteSound(actor, attr_pain, v3df_follow);
     }
-    else if (Action == InitActorDieNoise)
+    else if (Action == *AF(InitActorDieNoise))
     {
         PlaySpriteSound(actor, attr_die, v3df_none);
     }
-    else if (Action == InitActorExtra1Noise)
+    else if (Action == *AF(InitActorExtra1Noise))
     {
         PlaySpriteSound(actor, attr_extra1, v3df_follow);
     }
-    else if (Action == InitActorExtra2Noise)
+    else if (Action == *AF(InitActorExtra2Noise))
     {
         PlaySpriteSound(actor, attr_extra2, v3df_follow);
     }
-    else if (Action == InitActorExtra3Noise)
+    else if (Action == *AF(InitActorExtra3Noise))
     {
         PlaySpriteSound(actor, attr_extra3, v3df_follow);
     }
-    else if (Action == InitActorExtra4Noise)
+    else if (Action == *AF(InitActorExtra4Noise))
     {
         PlaySpriteSound(actor, attr_extra4, v3df_follow);
     }
-    else if (Action == InitActorExtra5Noise)
+    else if (Action == *AF(InitActorExtra5Noise))
     {
         PlaySpriteSound(actor, attr_extra5, v3df_follow);
     }
-    else if (Action == InitActorExtra6Noise)
+    else if (Action == *AF(InitActorExtra6Noise))
      {
         PlaySpriteSound(actor, attr_extra6, v3df_follow);
     }
@@ -455,9 +451,9 @@ int DoActorOperate(DSWActor* actor)
 
 DECISION GenericFlaming[] =
 {
-    {30, InitActorAttack},
-    {512, InitActorRunToward},
-    {1024, InitActorRunAway},
+    {30, AF(InitActorAttack)},
+    {512, AF(InitActorRunToward)},
+    {1024, AF(InitActorRunAway)},
 };
 
 /*
@@ -471,9 +467,9 @@ DECISION GenericFlaming[] =
  do anymore and then this routine is called again.
 */
 
-ANIMATOR* DoActorActionDecide(DSWActor* actor)
+VMFunction* DoActorActionDecide(DSWActor* actor)
 {
-    ANIMATOR* action;
+    VMFunction* action;
     bool ICanSee=false;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
@@ -482,7 +478,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
     ASSERT(actor->user.__legacyState.Personality);
 
     actor->user.Dist = 0;
-    action = InitActorDecide;
+    action = *AF(InitActorDecide);
 
     // target is gone.
     if (actor->user.targetActor == nullptr)
@@ -555,7 +551,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
                 // knows, its not a
                 // target any more
                 if (actor->hasState(NAME_Duck) && RANDOM_P2(1024<<8)>>8 < 100)
-                    action = InitActorDuck;
+                    action = *AF(InitActorDuck);
                 else
                 {
                     if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -618,7 +614,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
                 //CON_Message("Surprised");
                 if (!actor->user.DidAlert && ICanSee)
                 {
-                    DoActorNoise(InitActorAlertNoise, actor);
+                    DoActorNoise(*AF(InitActorAlertNoise), actor);
                     actor->user.DidAlert = true;
                 }
                 return action;
@@ -635,7 +631,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
         }
     }
 
-    //CON_Message("Couldn't resolve decide, InitActorDecide");
+    //CON_Message("Couldn't resolve decide, AF(InitActorDecide)");
     return action;
 }
 
@@ -659,13 +655,14 @@ int InitActorDecide(DSWActor* actor)
 
 int DoActorDecide(DSWActor* actor)
 {
-    ANIMATOR* actor_action;
+    VMFunction* actor_action;
 
     // See what to do next
+
     actor_action = DoActorActionDecide(actor);
 
     // Fix for the GenericFlaming bug for actors that don't have attack states
-    if (actor_action == InitActorAttack && actor->user.WeaponNum == 0)
+    if (actor_action == *AF(InitActorAttack) && actor->user.WeaponNum == 0)
         return 0;   // Just let the actor do as it was doing before in this case
 
     // Target is gone.
@@ -673,7 +670,7 @@ int DoActorDecide(DSWActor* actor)
         return 0;
 
     // zombie is attacking a player
-    if (actor_action == InitActorAttack && actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->user.PlayerP)
+    if (actor_action == *AF(InitActorAttack) && actor->user.ID == ZOMBIE_RUN_R0 && actor->user.targetActor->user.PlayerP)
     {
         // Don't let zombies shoot at master
         if (GetOwner(actor) == actor->user.targetActor)
@@ -686,17 +683,15 @@ int DoActorDecide(DSWActor* actor)
 
     ASSERT(actor_action != nullptr);
 
-    if (actor_action != InitActorDecide)
+    if (actor_action != *AF(InitActorDecide))
     {
         // NOT staying put
-        (*actor_action)(actor);
-        //CON_Message("DoActorDecide: NOT Staying put");
+        actor->callFunction(actor_action);
     }
     else
     {
         // Actually staying put
         actor->setStateGroup(NAME_Stand);
-        //CON_Message("DoActorDecide: Staying put");
     }
 
     return 0;

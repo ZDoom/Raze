@@ -56,50 +56,44 @@ BEGIN_SW_NS
 
 DECISION NinjaBattle[] =
 {
-    {499, InitActorMoveCloser},
-    //{509, InitActorAmbientNoise},
-    //{710, InitActorRunAway},
-    {1024, InitActorAttack}
+    {499, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION NinjaOffense[] =
 {
-    {499, InitActorMoveCloser},
-    //{509, InitActorAmbientNoise},
-    {1024, InitActorAttack}
+    {499, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorAttack)}
 };
 
 DECISION NinjaBroadcast[] =
 {
-    //{1, InitActorAlertNoise},
-    {6, InitActorAmbientNoise},
-    {1024, InitActorDecide}
+    {6, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION NinjaSurprised[] =
 {
-    {701, InitActorMoveCloser},
-    {1024, InitActorDecide}
+    {701, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION NinjaEvasive[] =
 {
-    {400,   InitActorDuck}, // 100
-//    {300,   InitActorEvade},
-//    {800,   InitActorRunAway},
+    {400,   AF(InitActorDuck)}, // 100
     {1024,  nullptr}
 };
 
 DECISION NinjaLostTarget[] =
 {
-    {900, InitActorFindPlayer},
-    {1024, InitActorWanderAround}
+    {900, AF(InitActorFindPlayer)},
+    {1024, AF(InitActorWanderAround)}
 };
 
 DECISION NinjaCloseRange[] =
 {
-    {700,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {700,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 /*
@@ -123,15 +117,15 @@ PERSONALITY NinjaPersonality =
 // Sniper Ninjas
 DECISION NinjaSniperRoam[] =
 {
-    {1023, InitActorDuck},
-    {1024, InitActorAmbientNoise},
+    {1023, AF(InitActorDuck)},
+    {1024, AF(InitActorAmbientNoise)},
 };
 
 DECISION NinjaSniperBattle[] =
 {
-    {499, InitActorDuck},
-    {500, InitActorAmbientNoise},
-    {1024, InitActorAttack}
+    {499, AF(InitActorDuck)},
+    {500, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorAttack)}
 };
 
 PERSONALITY NinjaSniperPersonality =

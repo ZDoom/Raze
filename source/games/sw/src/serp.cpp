@@ -39,49 +39,48 @@ BEGIN_SW_NS
 
 DECISION SerpBattle[] =
 {
-    {670,   InitActorMoveCloser         },
-    {700,   InitActorAmbientNoise         },
-    {710,   InitActorRunAway            },
-    {1024,  InitActorAttack             }
+    {670,   AF(InitActorMoveCloser  )       },
+    {700,   AF(InitActorAmbientNoise)         },
+    {710,   AF(InitActorRunAway     )       },
+    {1024,  AF(InitActorAttack      )       }
 };
 
 DECISION SerpOffense[] =
 {
-    {775,   InitActorMoveCloser         },
-    {800,   InitActorAmbientNoise         },
-    {1024,  InitActorAttack             }
+    {775,   AF(InitActorMoveCloser  )       },
+    {800,   AF(InitActorAmbientNoise)         },
+    {1024,  AF(InitActorAttack      )       }
 };
 
 DECISION SerpBroadcast[] =
 {
-    //{21,    InitActorAlertNoise         },
-    {10,    InitActorAmbientNoise       },
-    {1024,  InitActorDecide             }
+    {10,    AF(InitActorAmbientNoise)       },
+    {1024,  AF(InitActorDecide      )       }
 };
 
 DECISION SerpSurprised[] =
 {
-    {701,   InitActorMoveCloser        },
-    {1024,  InitActorDecide            }
+    {701,   AF(InitActorMoveCloser)        },
+    {1024,  AF(InitActorDecide    )        }
 };
 
 DECISION SerpEvasive[] =
 {
-    {10,   InitActorEvade  },
+    {10,   AF(InitActorEvade)  },
     {1024, nullptr            }
 };
 
 DECISION SerpLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {921,   InitActorAmbientNoise       },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {921,   AF(InitActorAmbientNoise)       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION SerpCloseRange[] =
 {
-    {700,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {700,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 PERSONALITY SerpPersonality =

@@ -43,56 +43,52 @@ const int COOLG_BOB_AMT = 8;
 
 DECISION CoolgBattle[] =
 {
-    {50,    InitCoolgCircle             },
-    {450,   InitActorMoveCloser         },
-    //{456,   InitActorAmbientNoise        },
-    //{760,   InitActorRunAway            },
-    {1024,  InitActorAttack             }
+    {50,    AF(InitCoolgCircle    )         },
+    {450,   AF(InitActorMoveCloser)         },
+    {1024,  AF(InitActorAttack    )         }
 };
 
 DECISION CoolgOffense[] =
 {
-    {449,   InitActorMoveCloser         },
-    //{554,   InitActorAmbientNoise       },
-    {1024,  InitActorAttack             }
+    {449,   AF(InitActorMoveCloser)         },
+    {1024,  AF(InitActorAttack    )         }
 };
 
 DECISION CoolgBroadcast[] =
 {
-    //{1,    InitActorAlertNoise         },
-    {1,    InitActorAmbientNoise       },
-    {1024, InitActorDecide             }
+    {1,    AF(InitActorAmbientNoise)       },
+    {1024, AF(InitActorDecide)             }
 };
 
 DECISION CoolgSurprised[] =
 {
-    {100,   InitCoolgCircle            },
-    {701,   InitActorMoveCloser        },
-    {1024,  InitActorDecide            }
+    {100,   AF(InitCoolgCircle    )        },
+    {701,   AF(InitActorMoveCloser)        },
+    {1024,  AF(InitActorDecide    )        }
 };
 
 DECISION CoolgEvasive[] =
 {
-    {20,     InitCoolgCircle           },
-    {1024,   InitActorRunAway          },
+    {20,     AF(InitCoolgCircle)           },
+    {1024,   AF(InitActorRunAway)          },
 };
 
 DECISION CoolgLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer   )      },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION CoolgCloseRange[] =
 {
-    {800,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {800,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 DECISION CoolgTouchTarget[] =
 {
     //{50,   InitCoolgCircle            },
-    {1024,  InitActorAttack            },
+    {1024,  AF(InitActorAttack)            },
 };
 
 PERSONALITY CoolgPersonality =

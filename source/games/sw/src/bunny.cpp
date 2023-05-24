@@ -43,55 +43,54 @@ int Bunny_Count = 0;
 
 DECISION BunnyBattle[] =
 {
-    {748, InitActorMoveCloser},
-    {750, InitActorAlertNoise},
-    {760, InitActorAttackNoise},
-    {1024, InitActorMoveCloser}
+    {748, AF(InitActorMoveCloser)},
+    {750, AF(InitActorAlertNoise)},
+    {760, AF(InitActorAttackNoise)},
+    {1024, AF(InitActorMoveCloser)}
 };
 
 DECISION BunnyOffense[] =
 {
-    {600, InitActorMoveCloser},
-    {700, InitActorAlertNoise},
-    {1024, InitActorMoveCloser}
+    {600, AF(InitActorMoveCloser)},
+    {700, AF(InitActorAlertNoise)},
+    {1024, AF(InitActorMoveCloser)}
 };
 
 DECISION BunnyBroadcast[] =
 {
-    {21, InitActorAlertNoise},
-    {51, InitActorAmbientNoise},
-    {1024, InitActorDecide}
+    {21, AF(InitActorAlertNoise)},
+    {51, AF(InitActorAmbientNoise)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION BunnySurprised[] =
 {
-    {500, InitActorRunAway},
-    {701, InitActorMoveCloser},
-    {1024, InitActorDecide}
+    {500, AF(InitActorRunAway)},
+    {701, AF(InitActorMoveCloser)},
+    {1024, AF(InitActorDecide)}
 };
 
 DECISION BunnyEvasive[] =
 {
-    {500,  InitActorWanderAround},
-    {1020, InitActorRunAway},
-    {1024, InitActorAmbientNoise}
+    {500,  AF(InitActorWanderAround)},
+    {1020, AF(InitActorRunAway)},
+    {1024, AF(InitActorAmbientNoise)}
 };
 
 DECISION BunnyLostTarget[] =
 {
-    {900, InitActorFindPlayer},
-    {1024, InitActorWanderAround}
+    {900, AF(InitActorFindPlayer)},
+    {1024, AF(InitActorWanderAround)}
 };
 
 DECISION BunnyCloseRange[] =
 {
-    {1024,  InitActorAttack             },
-//    {1024,  InitActorReposition         }
+    {1024,  AF(InitActorAttack)             },
 };
 
 DECISION BunnyWander[] =
 {
-    {1024, InitActorReposition}
+    {1024, AF(InitActorReposition)}
 };
 
 PERSONALITY WhiteBunnyPersonality =

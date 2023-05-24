@@ -38,48 +38,48 @@ BEGIN_SW_NS
 
 DECISION LavaBattle[] =
 {
-    {600,   InitActorMoveCloser         },
-    {700,   InitActorAlertNoise         },
-    {710,   InitActorRunAway            },
-    {1024,  InitActorAttack             }
+    {600,   AF(InitActorMoveCloser)         },
+    {700,   AF(InitActorAlertNoise)         },
+    {710,   AF(InitActorRunAway   )         },
+    {1024,  AF(InitActorAttack    )         }
 };
 
 DECISION LavaOffense[] =
 {
-    {700,   InitActorMoveCloser         },
-    {800,   InitActorAlertNoise         },
-    {1024,  InitActorAttack             }
+    {700,   AF(InitActorMoveCloser)         },
+    {800,   AF(InitActorAlertNoise)         },
+    {1024,  AF(InitActorAttack    )         }
 };
 
 DECISION LavaBroadcast[] =
 {
-    {21,    InitActorAlertNoise        },
-    {51,    InitActorAmbientNoise      },
-    {1024,  InitActorDecide            }
+    {21,    AF(InitActorAlertNoise  )      },
+    {51,    AF(InitActorAmbientNoise)      },
+    {1024,  AF(InitActorDecide      )      }
 };
 
 DECISION LavaSurprised[] =
 {
-    {701,   InitActorMoveCloser        },
-    {1024,  InitActorDecide            }
+    {701,   AF(InitActorMoveCloser)        },
+    {1024,  AF(InitActorDecide    )        }
 };
 
 DECISION LavaEvasive[] =
 {
-    {10,   InitActorEvade  },
+    {10,   AF(InitActorEvade)  },
     {1024, nullptr            }
 };
 
 DECISION LavaLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION LavaCloseRange[] =
 {
-    {700,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {700,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 PERSONALITY LavaPersonality =

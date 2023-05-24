@@ -55,46 +55,46 @@ ANIMATOR InitSumoCharge;
 
 DECISION SumoBattle[] =
 {
-    {690,   InitActorMoveCloser   },
-    {692,   InitActorAlertNoise   },
-    {1024,  InitActorAttack       }
+    {690,   AF(InitActorMoveCloser)   },
+    {692,   AF(InitActorAlertNoise)   },
+    {1024,  AF(InitActorAttack    )   }
 };
 
 DECISION SumoOffense[] =
 {
-    {690,   InitActorMoveCloser   },
-    {692,   InitActorAlertNoise   },
-    {1024,  InitActorAttack       }
+    {690,   AF(InitActorMoveCloser)   },
+    {692,   AF(InitActorAlertNoise)   },
+    {1024,  AF(InitActorAttack    )   }
 };
 
 DECISION SumoBroadcast[] =
 {
-    {2,     InitActorAlertNoise   },
-    {4,     InitActorAmbientNoise  },
-    {1024,  InitActorDecide       }
+    {2,    AF(InitActorAlertNoise  ) },
+    {4,    AF(InitActorAmbientNoise)  },
+    {1024, AF(InitActorDecide      ) }
 };
 
 DECISION SumoSurprised[] =
 {
-    {700,   InitActorMoveCloser   },
-    {703,   InitActorAlertNoise   },
-    {1024,  InitActorDecide       }
+    {700,   AF(InitActorMoveCloser)   },
+    {703,   AF(InitActorAlertNoise)   },
+    {1024,  AF(InitActorDecide    )   }
 };
 
 DECISION SumoEvasive[] =
 {
-    {1024, InitActorAttack }
+    {1024, AF(InitActorAttack) }
 };
 
 DECISION SumoLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION SumoCloseRange[] =
 {
-    {1024,  InitActorAttack         }
+    {1024,  AF(InitActorAttack)         }
 };
 
 PERSONALITY SumoPersonality =

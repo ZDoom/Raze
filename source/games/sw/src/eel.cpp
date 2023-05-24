@@ -38,52 +38,52 @@ BEGIN_SW_NS
 
 DECISION EelBattle[] =
 {
-    {649,   InitActorMoveCloser         },
-    {650,   InitActorAlertNoise         },
-    {1024,  InitActorMoveCloser         }
+    {649,   AF(InitActorMoveCloser)         },
+    {650,   AF(InitActorAlertNoise)         },
+    {1024,  AF(InitActorMoveCloser)         }
 };
 
 DECISION EelOffense[] =
 {
-    {649,   InitActorMoveCloser         },
-    {750,   InitActorAlertNoise         },
-    {1024,  InitActorMoveCloser         }
+    {649,   AF(InitActorMoveCloser)         },
+    {750,   AF(InitActorAlertNoise)         },
+    {1024,  AF(InitActorMoveCloser)         }
 };
 
 DECISION EelBroadcast[] =
 {
-    {3,    InitActorAlertNoise         },
-    {6,    InitActorAmbientNoise       },
-    {1024,  InitActorDecide            }
+    {3,    AF(InitActorAlertNoise  )       },
+    {6,    AF(InitActorAmbientNoise)       },
+    {1024, AF( InitActorDecide     )       }
 };
 
 DECISION EelSurprised[] =
 {
-    {701,   InitActorMoveCloser        },
-    {1024,  InitActorDecide            }
+    {701,   AF(InitActorMoveCloser)        },
+    {1024,  AF(InitActorDecide    )        }
 };
 
 DECISION EelEvasive[] =
 {
-    { 790,  InitActorRunAway           },
-    {1024,  InitActorMoveCloser        },
+    { 790,  AF(InitActorRunAway   )        },
+    {1024,  AF(InitActorMoveCloser)        },
 };
 
 DECISION EelLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION EelCloseRange[] =
 {
-    {950,   InitActorAttack            },
-    {1024,  InitActorReposition            }
+    {950,   AF(InitActorAttack    )        },
+    {1024,  AF(InitActorReposition)            }
 };
 
 DECISION EelTouchTarget[] =
 {
-    {1024,  InitActorAttack            },
+    {1024,  AF(InitActorAttack)            },
 };
 
 PERSONALITY EelPersonality =

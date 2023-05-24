@@ -1101,9 +1101,15 @@ void DSWActor::callAction()
 void DSWActor::callStateAction()
 {
     if (user.__legacyState.State && user.__legacyState.State->Animator)
+		callFunction(*user.__legacyState.State->Animator);
+}
+
+void DSWActor::callFunction(VMFunction* func)
+{
+    if (func)
     {
         VMValue param[] = { this };
-        VMCall(*user.__legacyState.State->Animator, param, 1, nullptr, 0);
+        VMCall(func, param, 1, nullptr, 0);
     }
 }
 

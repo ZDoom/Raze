@@ -43,46 +43,46 @@ BEGIN_SW_NS
 
 DECISION GoroBattle[] =
 {
-    {697,   InitActorMoveCloser         },
-    {700,   InitActorAmbientNoise         },
-    {1024,  InitActorAttack             }
+    {697,   AF(InitActorMoveCloser  )       },
+    {700,   AF(InitActorAmbientNoise)         },
+    {1024,  AF(InitActorAttack      )       }
 };
 
 DECISION GoroOffense[] =
 {
-    {797,   InitActorMoveCloser         },
-    {800,   InitActorAttackNoise        },
-    {1024,  InitActorAttack             }
+    {797,   AF(InitActorMoveCloser )        },
+    {800,   AF(InitActorAttackNoise)        },
+    {1024,  AF(InitActorAttack     )        }
 };
 
 DECISION GoroBroadcast[] =
 {
-    {3,    InitActorAmbientNoise          },
-    {1024,  InitActorDecide            }
+    {3,    AF(InitActorAmbientNoise)          },
+    {1024, AF( InitActorDecide     )       }
 };
 
 DECISION GoroSurprised[] =
 {
-    {701,   InitActorMoveCloser         },
-    {1024,  InitActorDecide            }
+    {701,   AF(InitActorMoveCloser)         },
+    {1024,  AF(InitActorDecide    )        }
 };
 
 DECISION GoroEvasive[] =
 {
-    {10,    InitActorEvade            },
-    {1024,  InitActorMoveCloser       }
+    {10,    AF(InitActorEvade     )       },
+    {1024,  AF(InitActorMoveCloser)       }
 };
 
 DECISION GoroLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION GoroCloseRange[] =
 {
-    {700,   InitActorAttack             },
-    {1024,  InitActorReposition         }
+    {700,   AF(InitActorAttack    )         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 PERSONALITY GoroPersonality =

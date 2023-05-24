@@ -33,31 +33,10 @@ BEGIN_SW_NS
 
 
 // Call functions based on a random range value
-struct Decision
-{
-    int range;
-    VMFunction* action;
-};
-
-// Personality structure
-struct Personality
-{
-    Decision* Battle;
-    Decision* Offense;
-    Decision* Broadcast;
-    Decision* Surprised;
-    Decision* Evasive;
-    Decision* LostTarget;
-    Decision* CloseRange;
-    Decision* TouchTarget;
-};
-
-
-// Call functions based on a random range value
 struct DECISION
 {
     int range;
-    ANIMATOR* action;
+    VMNativeFunction** action;
 };
 
 // Personality structure

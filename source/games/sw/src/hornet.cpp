@@ -42,56 +42,56 @@ ANIMATOR DoHornetCircle, InitHornetCircle;
 
 DECISION HornetBattle[] =
 {
-    {50,    InitHornetCircle          },
-    {798,   InitActorMoveCloser         },
-    {800,   InitActorAlertNoise        },
-    {1024,  InitActorRunAway            }
+    {50,    AF(InitHornetCircle   )       },
+    {798,   AF(InitActorMoveCloser)         },
+    {800,   AF(InitActorAlertNoise)        },
+    {1024,  AF(InitActorRunAway   )         }
 };
 
 DECISION HornetOffense[] =
 {
-    {1022,  InitActorMoveCloser        },
-    {1024,  InitActorAlertNoise        }
+    {1022,  AF(InitActorMoveCloser)        },
+    {1024,  AF(InitActorAlertNoise)        }
 };
 
 DECISION HornetBroadcast[] =
 {
-    {3,    InitActorAlertNoise        },
-    {6,    InitActorAmbientNoise          },
-    {1024,  InitActorDecide             }
+    {3,    AF(InitActorAlertNoise  )      },
+    {6,    AF(InitActorAmbientNoise)          },
+    {1024, AF( InitActorDecide     )        }
 };
 
 DECISION HornetSurprised[] =
 {
-    {100,   InitHornetCircle           },
-    {701,   InitActorMoveCloser         },
-    {1024,  InitActorDecide             }
+    {100,   AF(InitHornetCircle   )        },
+    {701,   AF(InitActorMoveCloser)         },
+    {1024,  AF(InitActorDecide    )         }
 };
 
 DECISION HornetEvasive[] =
 {
-    {20,     InitHornetCircle          },
+    {20,     AF(InitHornetCircle)          },
     {1024,   nullptr                      },
 };
 
 DECISION HornetLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer)         },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION HornetCloseRange[] =
 {
-    {900,   InitActorMoveCloser         },
-    {1024,  InitActorReposition         }
+    {900,   AF(InitActorMoveCloser)         },
+    {1024,  AF(InitActorReposition)         }
 };
 
 ANIMATOR InitHornetSting;
 
 DECISION HornetTouchTarget[] =
 {
-    {500,   InitHornetCircle            },
-    {1024,  InitHornetSting             }
+    {500,   AF(InitHornetCircle)            },
+    {1024,  AF(InitHornetSting )            }
 };
 
 PERSONALITY HornetPersonality =

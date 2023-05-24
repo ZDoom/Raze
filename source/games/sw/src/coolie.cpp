@@ -41,49 +41,48 @@ ANIMATOR InitCoolieCharge;
 
 DECISION CoolieBattle[] =
 {
-    {700,   InitCoolieCharge         },
-    {990,   InitActorMoveCloser         },
-    {1000,  InitActorAttackNoise        },
-    {1024,  InitActorRunAway           }
+    {700,   AF(InitCoolieCharge    )     },
+    {990,   AF(InitActorMoveCloser )        },
+    {1000,  AF(InitActorAttackNoise)        },
+    {1024,  AF(InitActorRunAway    )       }
 };
 
 DECISION CoolieOffense[] =
 {
-    {700,   InitCoolieCharge         },
-    {1015,  InitActorMoveCloser         },
-    {1024,  InitActorAttackNoise        }
+    {700,   AF(InitCoolieCharge    )     },
+    {1015,  AF(InitActorMoveCloser )        },
+    {1024,  AF(InitActorAttackNoise)        }
 };
 
 DECISION CoolieBroadcast[] =
 {
-    //{1,     InitActorAlertNoise        },
-    {16,    InitActorAmbientNoise          },
-    {1024,  InitActorDecide            }
+    {16,    AF(InitActorAmbientNoise)          },
+    {1024,  AF(InitActorDecide)            }
 };
 
 DECISION CoolieSurprised[] =
 {
-    {700,   InitActorMoveCloser         },
-    {703,   InitActorAmbientNoise        },
-    {1024,  InitActorDecide            }
+    {700,   AF(InitActorMoveCloser  )       },
+    {703,   AF(InitActorAmbientNoise)        },
+    {1024,  AF(InitActorDecide      )      }
 };
 
 DECISION CoolieEvasive[] =
 {
-    {10,   InitActorEvade  },
+    {10,   AF(InitActorEvade)  },
     {1024, nullptr            }
 };
 
 DECISION CoolieLostTarget[] =
 {
-    {900,   InitActorFindPlayer         },
-    {1024,  InitActorWanderAround       }
+    {900,   AF(InitActorFindPlayer  )       },
+    {1024,  AF(InitActorWanderAround)       }
 };
 
 DECISION CoolieCloseRange[] =
 {
-    {400,   InitCoolieCharge         },
-    {1024,  InitActorReposition            }
+    {400,   AF(InitCoolieCharge   )      },
+    {1024,  AF(InitActorReposition)            }
 };
 
 PERSONALITY CooliePersonality =
