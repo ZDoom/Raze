@@ -870,16 +870,34 @@ bool FStateDefinitions::SetLoop()
 //
 //==========================================================================
 
-int FStateDefinitions::AddStates(FState *state, const FScriptPosition &sc)
+int FStateDefinitions::AddStates(FState *state, const char *framechars, const FScriptPosition &sc)
 {
 	bool error = false;
 	int frame = 0;
 	int count = 0;
+	while (*framechars)
+	{
+		bool noframe = false;
 
-	StateArray.Push(*state);
-	SourceLines.Push(sc);
-	++count;
+		if (*framechars == '#')
+			noframe = true;
+		else if (*framechars == '^')
+			frame = '\\' - 'A';
+		else
+			frame = (*framechars & 223) - 'A';
 
+		framechars++;
+		if (frame < 0 || frame > 28)
+		{
+			frame = 0;
+			error = true;
+		}
+
+		state->Frame = frame;
+		StateArray.Push(*state);
+		SourceLines.Push(sc);
+		++count;
+	}
 	laststate = &StateArray[StateArray.Size() - 1];
 	laststatebeforelabel = laststate;
 	return !error ? count : -count;
@@ -1061,4 +1079,13 @@ int GetSpriteIndex(const char * spritename, bool add)
 {
 	return 0;
 }
+
+/*
+DEFINE_ACTION_FUNCTION(FState, ValidateSpriteFrame)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FState);
+	ACTION_RETURN_BOOL(self->Frame < sprites[self->sprite].numframes);
+}
+*/
+
 

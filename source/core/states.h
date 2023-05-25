@@ -90,8 +90,9 @@ struct FState
 {
 	FState		*NextState;
 	VMFunction	*ActionFunc;
-	int32_t		sprite;
+	int16_t		sprite;
 	int16_t		Tics;
+	uint8_t	Frame;
 	uint8_t	StateFlags;
 	uint8_t DefineFlags;
 public:
@@ -238,7 +239,7 @@ public:
 	bool SetStop();
 	bool SetWait();
 	bool SetLoop();
-	int AddStates(FState *state, const FScriptPosition &sc);
+	int AddStates(FState* state, const char* framechars, const FScriptPosition& sc);
 	int GetStateCount() const { return StateArray.Size(); }
 };
 
