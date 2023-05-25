@@ -6,6 +6,16 @@ BEGIN_SW_NS
 
 struct Personality;
 
+FTextureID picFromState(STATE* s)
+{
+	auto& spritedef = SpriteDefs[s->Sprite];
+	unsigned framenum = s->Frame - 'A';
+	if (framenum >= spritedef.numframes) return FNullTextureID();
+	auto& frame = SpriteFrames[spritedef.spriteframes + framenum];
+	return frame.Texture[0];
+}
+
+
 class DSWActor : public DCoreActor
 {
 	DECLARE_CLASS(DSWActor, DCoreActor)
@@ -55,8 +65,7 @@ public:
 	void callAction();
 	void callStateAction();
 	int callFunction(VMFunction* func);
-
-
+	void setPicFromState() { spr.setspritetexture(picFromState(user.__legacyState.State)); }
 };
 
 inline void UpdateChangeXY(DSWActor* actor)

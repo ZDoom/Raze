@@ -173,15 +173,10 @@ int DoDamageTest(DSWActor*);
 
 extern short StatDamageList[STAT_DAMAGE_LIST_SIZE];
 
-#define RADIATION_CLOUD 3258
-#define MUSHROOM_CLOUD 3280
 extern STATE s_NukeMushroom[];
 
 void WallBounce(DSWActor*, DAngle ang);
 
-#define PUFF 1748
-#define CALTROPS 2218
-#define PHOSPHORUS 1397
 
 int PlayerInitChemBomb(DSWPlayer* pp);
 int InitChemBomb(DSWActor*);

@@ -116,47 +116,19 @@ ATTRIBUTE CoolieAttrib =
 
 #define COOLIE_RATE 12
 
-STATE s_CoolieRun[5][4] =
+STATE s_CoolieRun[][4] =
 {
     {
-        {COOLIE_RUN_R0 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][1]},
-        {COOLIE_RUN_R0 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][2]},
-        {COOLIE_RUN_R0 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][3]},
-        {COOLIE_RUN_R0 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][0]}
+        {SPR_COOLIE_RUN, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][1]},
+        {SPR_COOLIE_RUN, 'B', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][2]},
+        {SPR_COOLIE_RUN, 'C', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][3]},
+        {SPR_COOLIE_RUN, 'D', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][0]}
     },
-    {
-        {COOLIE_RUN_R1 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[1][1]},
-        {COOLIE_RUN_R1 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[1][2]},
-        {COOLIE_RUN_R1 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[1][3]},
-        {COOLIE_RUN_R1 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[1][0]}
-    },
-    {
-        {COOLIE_RUN_R2 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[2][1]},
-        {COOLIE_RUN_R2 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[2][2]},
-        {COOLIE_RUN_R2 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[2][3]},
-        {COOLIE_RUN_R2 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[2][0]}
-    },
-    {
-        {COOLIE_RUN_R3 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[3][1]},
-        {COOLIE_RUN_R3 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[3][2]},
-        {COOLIE_RUN_R3 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[3][3]},
-        {COOLIE_RUN_R3 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[3][0]}
-    },
-    {
-        {COOLIE_RUN_R4 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[4][1]},
-        {COOLIE_RUN_R4 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[4][2]},
-        {COOLIE_RUN_R4 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[4][3]},
-        {COOLIE_RUN_R4 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[4][0]},
-    }
 };
 
 STATE* sg_CoolieRun[] =
 {
     &s_CoolieRun[0][0],
-    &s_CoolieRun[1][0],
-    &s_CoolieRun[2][0],
-    &s_CoolieRun[3][0],
-    &s_CoolieRun[4][0]
 };
 
 //////////////////////
@@ -167,47 +139,19 @@ STATE* sg_CoolieRun[] =
 
 #define COOLIE_RATE 12
 
-STATE s_CoolieCharge[5][4] =
+STATE s_CoolieCharge[][4] =
 {
     {
-        {COOLIE_CHARGE_R0 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][1]},
-        {COOLIE_CHARGE_R0 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][2]},
-        {COOLIE_CHARGE_R0 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][3]},
-        {COOLIE_CHARGE_R0 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][0]}
+        {SPR_COOLIE_CHARGE, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][1]},
+        {SPR_COOLIE_CHARGE, 'B', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][2]},
+        {SPR_COOLIE_CHARGE, 'C', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][3]},
+        {SPR_COOLIE_CHARGE, 'D', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][0]}
     },
-    {
-        {COOLIE_CHARGE_R1 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[1][1]},
-        {COOLIE_CHARGE_R1 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[1][2]},
-        {COOLIE_CHARGE_R1 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[1][3]},
-        {COOLIE_CHARGE_R1 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[1][0]}
-    },
-    {
-        {COOLIE_CHARGE_R2 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[2][1]},
-        {COOLIE_CHARGE_R2 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[2][2]},
-        {COOLIE_CHARGE_R2 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[2][3]},
-        {COOLIE_CHARGE_R2 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[2][0]}
-    },
-    {
-        {COOLIE_CHARGE_R3 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[3][1]},
-        {COOLIE_CHARGE_R3 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[3][2]},
-        {COOLIE_CHARGE_R3 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[3][3]},
-        {COOLIE_CHARGE_R3 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[3][0]}
-    },
-    {
-        {COOLIE_CHARGE_R4 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[4][1]},
-        {COOLIE_CHARGE_R4 + 1, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[4][2]},
-        {COOLIE_CHARGE_R4 + 2, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[4][3]},
-        {COOLIE_CHARGE_R4 + 3, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[4][0]},
-    }
 };
 
 STATE* sg_CoolieCharge[] =
 {
     &s_CoolieCharge[0][0],
-    &s_CoolieCharge[1][0],
-    &s_CoolieCharge[2][0],
-    &s_CoolieCharge[3][0],
-    &s_CoolieCharge[4][0]
 };
 
 //////////////////////
@@ -216,32 +160,16 @@ STATE* sg_CoolieCharge[] =
 //
 //////////////////////
 
-STATE s_CoolieStand[5][6] =
+STATE s_CoolieStand[][6] =
 {
     {
-        {COOLIE_RUN_R0 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[0][0]}
+        {SPR_COOLIE_RUN, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[0][0]}
     },
-    {
-        {COOLIE_RUN_R1 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[1][0]}
-    },
-    {
-        {COOLIE_RUN_R2 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[2][0]}
-    },
-    {
-        {COOLIE_RUN_R3 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[3][0]}
-    },
-    {
-        {COOLIE_RUN_R4 + 0, COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[4][0]}
-    }
 };
 
 STATE* sg_CoolieStand[] =
 {
     &s_CoolieStand[0][0],
-    &s_CoolieStand[1][0],
-    &s_CoolieStand[2][0],
-    &s_CoolieStand[3][0],
-    &s_CoolieStand[4][0]
 };
 
 //////////////////////
@@ -252,32 +180,16 @@ STATE* sg_CoolieStand[] =
 
 #define COOLIE_PAIN_RATE 60
 
-STATE s_CooliePain[5][1] =
+STATE s_CooliePain[][1] =
 {
     {
-        {COOLIE_PAIN_R0 + 0, COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[0][0]},
+        {SPR_COOLIE_PAIN, 'A', COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[0][0]},
     },
-    {
-        {COOLIE_PAIN_R1 + 0, COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[1][0]},
-    },
-    {
-        {COOLIE_PAIN_R2 + 0, COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[2][0]},
-    },
-    {
-        {COOLIE_PAIN_R3 + 0, COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[3][0]},
-    },
-    {
-        {COOLIE_PAIN_R4 + 0, COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[4][0]},
-    }
 };
 
 STATE* sg_CooliePain[] =
 {
     &s_CooliePain[0][0],
-    &s_CooliePain[1][0],
-    &s_CooliePain[2][0],
-    &s_CooliePain[3][0],
-    &s_CooliePain[4][0]
 };
 
 //////////////////////
@@ -290,22 +202,22 @@ STATE* sg_CooliePain[] =
 
 STATE s_CoolieDie[] =
 {
-    {COOLIE_DIE + 0, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[1]},
+    {SPR_COOLIE_DIE, 'A', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[1]},
 
-    {COOLIE_DIE + 0, 0|SF_QUICK_CALL, &AF(SpawnCoolieExp), &s_CoolieDie[2]},
+    {SPR_COOLIE_DIE, 'A', 0|SF_QUICK_CALL, &AF(SpawnCoolieExp), &s_CoolieDie[2]},
 
-    {COOLIE_DIE + 1, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[3]},
-    {COOLIE_DIE + 2, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[4]},
-    {COOLIE_DIE + 3, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[5]},
-    {COOLIE_DIE + 4, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[6]},
-    {COOLIE_DIE + 5, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[7]},
-    {COOLIE_DIE + 6, COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[8]},
-    {COOLIE_DIE + 7, COOLIE_DIE_RATE, &AF(DoCoolieWaitBirth), &s_CoolieDie[8]},
+    {SPR_COOLIE_DIE, 'B', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[3]},
+    {SPR_COOLIE_DIE, 'C', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[4]},
+    {SPR_COOLIE_DIE, 'D', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[5]},
+    {SPR_COOLIE_DIE, 'E', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[6]},
+    {SPR_COOLIE_DIE, 'F', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[7]},
+    {SPR_COOLIE_DIE, 'G', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[8]},
+    {SPR_COOLIE_DIE, 'H', COOLIE_DIE_RATE, &AF(DoCoolieWaitBirth), &s_CoolieDie[8]},
 
-    {COOLIE_DIE + 7, COOLIE_DIE_RATE*5, &AF(DoActorDebris), &s_CoolieDie[10]},
-    {COOLIE_DIE + 7, 0|SF_QUICK_CALL, &AF(SpawnCoolg), &s_CoolieDie[11]},
-    {COOLIE_DEAD_NOHEAD, SF_QUICK_CALL, &AF(QueueFloorBlood), &s_CoolieDie[12]},
-    {COOLIE_DEAD_NOHEAD, COOLIE_DIE_RATE, &AF(DoActorDebris), &s_CoolieDie[12]}
+    {SPR_COOLIE_DIE, 'H', COOLIE_DIE_RATE*5, &AF(DoActorDebris), &s_CoolieDie[10]},
+    {SPR_COOLIE_DIE, 'H', 0|SF_QUICK_CALL, &AF(SpawnCoolg), &s_CoolieDie[11]},
+    {SPR_COOLIE_DEAD_NOHEAD, 'A', SF_QUICK_CALL, &AF(QueueFloorBlood), &s_CoolieDie[12]},
+    {SPR_COOLIE_DEAD_NOHEAD, 'A', COOLIE_DIE_RATE, &AF(DoActorDebris), &s_CoolieDie[12]}
 };
 
 STATE* sg_CoolieDie[] =
@@ -315,7 +227,7 @@ STATE* sg_CoolieDie[] =
 
 STATE s_CoolieDead[] =
 {
-    {COOLIE_DEAD, COOLIE_DIE_RATE, &AF(DoActorDebris), &s_CoolieDead[0]},
+    {SPR_COOLIE_DEAD, 'A', COOLIE_DIE_RATE, &AF(DoActorDebris), &s_CoolieDead[0]},
 };
 
 STATE* sg_CoolieDead[] =
@@ -391,7 +303,6 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
 
     actor->user.spal = actor->spr.pal;
 
-    actor->user.__legacyState.RotNum = 5;
     actor->clipdist = 16;
 
     actor->user.zclip = 48;
@@ -409,7 +320,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
-    actor->spr.picnum = actor->user.__legacyState.State->Pic;
+    actor->setPicFromState();
     change_actor_stat(actor, STAT_ENEMY);
 
     actor->user.Personality = person;

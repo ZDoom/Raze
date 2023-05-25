@@ -246,6 +246,11 @@ static void SetTileNames(TilesetBuildInfo& info)
 }
 #undef x
 
+#define x(a) #a,
+static const char* spritenames[] = {
+#include "spritenames.h"
+};
+
 void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
 {
     LoadKVXFromScript(info, "swvoxfil.txt");    // Load voxels from script file
@@ -337,6 +342,7 @@ void GameInterface::app_init()
 
     userConfig.AddDefs.reset();
     S_CacheAllSounds();
+    InitSpriteDefs(spritenames, countof(spritenames));
 }
 
 //---------------------------------------------------------------------------

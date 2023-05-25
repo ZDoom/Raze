@@ -208,48 +208,16 @@ void DSWPlayer::OnDestroy()
 #define PLAYER_NINJA_RATE 14
 
 
-STATE s_PlayerNinjaRun[5][6] =
+STATE s_PlayerNinjaRun[1][6] =
 {
 
     {
-        {PLAYER_NINJA_RUN_R0 + 0, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][1]},
-        {PLAYER_NINJA_RUN_R0 + 1, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][2]},
-        {PLAYER_NINJA_RUN_R0 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[0][3]},
-        {PLAYER_NINJA_RUN_R0 + 2, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][4]},
-        {PLAYER_NINJA_RUN_R0 + 3, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][5]},
-        {PLAYER_NINJA_RUN_R0 + 3, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[0][0]},
-    },
-    {
-        {PLAYER_NINJA_RUN_R1 + 0, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[1][1]},
-        {PLAYER_NINJA_RUN_R1 + 1, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[1][2]},
-        {PLAYER_NINJA_RUN_R1 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[1][3]},
-        {PLAYER_NINJA_RUN_R1 + 2, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[1][4]},
-        {PLAYER_NINJA_RUN_R1 + 3, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[1][5]},
-        {PLAYER_NINJA_RUN_R1 + 3, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[1][0]},
-    },
-    {
-        {PLAYER_NINJA_RUN_R2 + 0, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[2][1]},
-        {PLAYER_NINJA_RUN_R2 + 1, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[2][2]},
-        {PLAYER_NINJA_RUN_R2 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[2][3]},
-        {PLAYER_NINJA_RUN_R2 + 2, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[2][4]},
-        {PLAYER_NINJA_RUN_R2 + 3, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[2][5]},
-        {PLAYER_NINJA_RUN_R2 + 3, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[2][0]},
-    },
-    {
-        {PLAYER_NINJA_RUN_R3 + 0, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[3][1]},
-        {PLAYER_NINJA_RUN_R3 + 1, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[3][2]},
-        {PLAYER_NINJA_RUN_R3 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[3][3]},
-        {PLAYER_NINJA_RUN_R3 + 2, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[3][4]},
-        {PLAYER_NINJA_RUN_R3 + 3, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[3][5]},
-        {PLAYER_NINJA_RUN_R3 + 3, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[3][0]},
-    },
-    {
-        {PLAYER_NINJA_RUN_R4 + 0, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[4][1]},
-        {PLAYER_NINJA_RUN_R4 + 1, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[4][2]},
-        {PLAYER_NINJA_RUN_R4 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[4][3]},
-        {PLAYER_NINJA_RUN_R4 + 2, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[4][4]},
-        {PLAYER_NINJA_RUN_R4 + 3, PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[4][5]},
-        {PLAYER_NINJA_RUN_R4 + 3, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[4][0]},
+        {SPR_PLAYER_NINJA_RUN, 'A', PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][1]},
+        {SPR_PLAYER_NINJA_RUN, 'B', PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][2]},
+        {SPR_PLAYER_NINJA_RUN, 'B', 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[0][3]},
+        {SPR_PLAYER_NINJA_RUN, 'C', PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][4]},
+        {SPR_PLAYER_NINJA_RUN, 'D', PLAYER_NINJA_RATE | SF_TIC_ADJUST, nullptr,  &s_PlayerNinjaRun[0][5]},
+        {SPR_PLAYER_NINJA_RUN, 'D', 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaRun[0][0]},
     },
 
 };
@@ -257,10 +225,6 @@ STATE s_PlayerNinjaRun[5][6] =
 STATE* sg_PlayerNinjaRun[] =
 {
     s_PlayerNinjaRun[0],
-    s_PlayerNinjaRun[1],
-    s_PlayerNinjaRun[2],
-    s_PlayerNinjaRun[3],
-    s_PlayerNinjaRun[4]
 };
 #endif
 
@@ -272,31 +236,15 @@ STATE* sg_PlayerNinjaRun[] =
 
 #define PLAYER_NINJA_STAND_RATE 10
 
-STATE s_PlayerNinjaStand[5][1] =
+STATE s_PlayerNinjaStand[1][1] =
 {
     {
-        {PLAYER_NINJA_STAND_R0 + 0, PLAYER_NINJA_STAND_RATE, nullptr,  &s_PlayerNinjaStand[0][0]},
-    },
-    {
-        {PLAYER_NINJA_STAND_R1 + 0, PLAYER_NINJA_STAND_RATE, nullptr,  &s_PlayerNinjaStand[1][0]},
-    },
-    {
-        {PLAYER_NINJA_STAND_R2 + 0, PLAYER_NINJA_STAND_RATE, nullptr,  &s_PlayerNinjaStand[2][0]},
-    },
-    {
-        {PLAYER_NINJA_STAND_R3 + 0, PLAYER_NINJA_STAND_RATE, nullptr,  &s_PlayerNinjaStand[3][0]},
-    },
-    {
-        {PLAYER_NINJA_STAND_R4 + 0, PLAYER_NINJA_STAND_RATE, nullptr,  &s_PlayerNinjaStand[4][0]},
+        {SPR_PLAYER_NINJA_STAND, 'A', PLAYER_NINJA_STAND_RATE, nullptr,  &s_PlayerNinjaStand[0][0]},
     },
 };
 STATE* sg_PlayerNinjaStand[] =
 {
     s_PlayerNinjaStand[0],
-    s_PlayerNinjaStand[1],
-    s_PlayerNinjaStand[2],
-    s_PlayerNinjaStand[3],
-    s_PlayerNinjaStand[4]
 };
 
 
@@ -307,37 +255,13 @@ int DoPlayerSpriteReset(DSWActor* actor);
 
 
 #if 1
-STATE s_PlayerNinjaThrow[5][4] =
+STATE s_PlayerNinjaThrow[1][4] =
 {
     {
-        {PLAYER_NINJA_SHOOT_R0 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[0][1]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[0][2]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[0][3]},
-        {PLAYER_NINJA_SHOOT_R0 + 0, PLAYER_NINJA_STAR_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaThrow[0][3]},
-    },
-    {
-        {PLAYER_NINJA_SHOOT_R1 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[1][1]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[1][2]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[1][3]},
-        {PLAYER_NINJA_SHOOT_R1 + 0, PLAYER_NINJA_STAR_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaThrow[0][3]},
-    },
-    {
-        {PLAYER_NINJA_SHOOT_R2 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[2][1]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[2][2]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[2][3]},
-        {PLAYER_NINJA_SHOOT_R2 + 0, PLAYER_NINJA_STAR_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaThrow[0][3]},
-    },
-    {
-        {PLAYER_NINJA_SHOOT_R3 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[3][1]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[3][2]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[3][3]},
-        {PLAYER_NINJA_SHOOT_R3 + 0, PLAYER_NINJA_STAR_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaThrow[0][3]},
-    },
-    {
-        {PLAYER_NINJA_SHOOT_R4 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[4][1]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[4][2]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[4][3]},
-        {PLAYER_NINJA_SHOOT_R4 + 0, PLAYER_NINJA_STAR_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaThrow[0][3]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[0][1]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[0][2]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', PLAYER_NINJA_STAR_RATE, nullptr,  &s_PlayerNinjaThrow[0][3]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', PLAYER_NINJA_STAR_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaThrow[0][3]},
     },
 };
 #endif
@@ -345,10 +269,6 @@ STATE s_PlayerNinjaThrow[5][4] =
 STATE* sg_PlayerNinjaThrow[] =
 {
     s_PlayerNinjaThrow[0],
-    s_PlayerNinjaThrow[1],
-    s_PlayerNinjaThrow[2],
-    s_PlayerNinjaThrow[3],
-    s_PlayerNinjaThrow[4]
 };
 
 //////////////////////
@@ -359,37 +279,13 @@ STATE* sg_PlayerNinjaThrow[] =
 
 #define PLAYER_NINJA_JUMP_RATE 24
 
-STATE s_PlayerNinjaJump[5][4] =
+STATE s_PlayerNinjaJump[1][4] =
 {
     {
-        {PLAYER_NINJA_JUMP_R0 + 0, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][1]},
-        {PLAYER_NINJA_JUMP_R0 + 1, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][2]},
-        {PLAYER_NINJA_JUMP_R0 + 2, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][3]},
-        {PLAYER_NINJA_JUMP_R0 + 3, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][3]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R1 + 0, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[1][1]},
-        {PLAYER_NINJA_JUMP_R1 + 1, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[1][2]},
-        {PLAYER_NINJA_JUMP_R1 + 2, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[1][3]},
-        {PLAYER_NINJA_JUMP_R1 + 3, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[1][3]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R2 + 0, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[2][1]},
-        {PLAYER_NINJA_JUMP_R2 + 1, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[2][2]},
-        {PLAYER_NINJA_JUMP_R2 + 2, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[2][3]},
-        {PLAYER_NINJA_JUMP_R2 + 3, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[2][3]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R3 + 0, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[3][1]},
-        {PLAYER_NINJA_JUMP_R3 + 1, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[3][2]},
-        {PLAYER_NINJA_JUMP_R3 + 2, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[3][3]},
-        {PLAYER_NINJA_JUMP_R3 + 3, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[3][3]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R4 + 0, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[4][1]},
-        {PLAYER_NINJA_JUMP_R4 + 1, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[4][2]},
-        {PLAYER_NINJA_JUMP_R4 + 2, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[4][3]},
-        {PLAYER_NINJA_JUMP_R4 + 3, PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[4][3]},
+        {SPR_PLAYER_NINJA_JUMP, 'A', PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][1]},
+        {SPR_PLAYER_NINJA_JUMP, 'B', PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][2]},
+        {SPR_PLAYER_NINJA_JUMP, 'C', PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][3]},
+        {SPR_PLAYER_NINJA_JUMP, 'D', PLAYER_NINJA_JUMP_RATE, nullptr,  &s_PlayerNinjaJump[0][3]},
     },
 };
 
@@ -397,10 +293,6 @@ STATE s_PlayerNinjaJump[5][4] =
 STATE* sg_PlayerNinjaJump[] =
 {
     s_PlayerNinjaJump[0],
-    s_PlayerNinjaJump[1],
-    s_PlayerNinjaJump[2],
-    s_PlayerNinjaJump[3],
-    s_PlayerNinjaJump[4]
 };
 
 
@@ -412,27 +304,11 @@ STATE* sg_PlayerNinjaJump[] =
 
 #define PLAYER_NINJA_FALL_RATE 16
 
-STATE s_PlayerNinjaFall[5][2] =
+STATE s_PlayerNinjaFall[1][2] =
 {
     {
-        {PLAYER_NINJA_JUMP_R0 + 1, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[0][1]},
-        {PLAYER_NINJA_JUMP_R0 + 2, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[0][1]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R1 + 1, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[1][1]},
-        {PLAYER_NINJA_JUMP_R1 + 2, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[1][1]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R2 + 1, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[2][1]},
-        {PLAYER_NINJA_JUMP_R2 + 2, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[2][1]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R3 + 1, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[3][1]},
-        {PLAYER_NINJA_JUMP_R3 + 2, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[3][1]},
-    },
-    {
-        {PLAYER_NINJA_JUMP_R4 + 1, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[4][1]},
-        {PLAYER_NINJA_JUMP_R4 + 2, PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[4][1]},
+        {SPR_PLAYER_NINJA_JUMP, 'B', PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[0][1]},
+        {SPR_PLAYER_NINJA_JUMP, 'C', PLAYER_NINJA_FALL_RATE, nullptr,  &s_PlayerNinjaFall[0][1]},
     },
 };
 
@@ -440,10 +316,6 @@ STATE s_PlayerNinjaFall[5][2] =
 STATE* sg_PlayerNinjaFall[] =
 {
     s_PlayerNinjaFall[0],
-    s_PlayerNinjaFall[1],
-    s_PlayerNinjaFall[2],
-    s_PlayerNinjaFall[3],
-    s_PlayerNinjaFall[4]
 };
 
 //////////////////////
@@ -454,47 +326,19 @@ STATE* sg_PlayerNinjaFall[] =
 
 
 #define PLAYER_NINJA_CLIMB_RATE 20
-STATE s_PlayerNinjaClimb[5][4] =
+STATE s_PlayerNinjaClimb[1][4] =
 {
     {
-        {PLAYER_NINJA_CLIMB_R0 + 0, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][1]},
-        {PLAYER_NINJA_CLIMB_R0 + 1, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][2]},
-        {PLAYER_NINJA_CLIMB_R0 + 2, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][3]},
-        {PLAYER_NINJA_CLIMB_R0 + 3, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][0]},
-    },
-    {
-        {PLAYER_NINJA_CLIMB_R1 + 0, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[1][1]},
-        {PLAYER_NINJA_CLIMB_R1 + 1, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[1][2]},
-        {PLAYER_NINJA_CLIMB_R1 + 2, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[1][3]},
-        {PLAYER_NINJA_CLIMB_R1 + 3, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[1][0]},
-    },
-    {
-        {PLAYER_NINJA_CLIMB_R2 + 0, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[2][1]},
-        {PLAYER_NINJA_CLIMB_R2 + 1, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[2][2]},
-        {PLAYER_NINJA_CLIMB_R2 + 2, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[2][3]},
-        {PLAYER_NINJA_CLIMB_R2 + 3, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[2][0]},
-    },
-    {
-        {PLAYER_NINJA_CLIMB_R3 + 0, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[3][1]},
-        {PLAYER_NINJA_CLIMB_R3 + 1, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[3][2]},
-        {PLAYER_NINJA_CLIMB_R3 + 2, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[3][3]},
-        {PLAYER_NINJA_CLIMB_R3 + 3, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[3][0]},
-    },
-    {
-        {PLAYER_NINJA_CLIMB_R4 + 0, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[4][1]},
-        {PLAYER_NINJA_CLIMB_R4 + 1, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[4][2]},
-        {PLAYER_NINJA_CLIMB_R4 + 2, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[4][3]},
-        {PLAYER_NINJA_CLIMB_R4 + 3, PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[4][0]},
+        {SPR_PLAYER_NINJA_CLIMB, 'A', PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][1]},
+        {SPR_PLAYER_NINJA_CLIMB, 'B', PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][2]},
+        {SPR_PLAYER_NINJA_CLIMB, 'C', PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][3]},
+        {SPR_PLAYER_NINJA_CLIMB, 'D', PLAYER_NINJA_CLIMB_RATE, nullptr,  &s_PlayerNinjaClimb[0][0]},
     },
 };
 
 STATE* sg_PlayerNinjaClimb[] =
 {
     s_PlayerNinjaClimb[0],
-    s_PlayerNinjaClimb[1],
-    s_PlayerNinjaClimb[2],
-    s_PlayerNinjaClimb[3],
-    s_PlayerNinjaClimb[4]
 };
 
 //////////////////////
@@ -505,47 +349,15 @@ STATE* sg_PlayerNinjaClimb[] =
 
 
 #define PLAYER_NINJA_CRAWL_RATE 14
-STATE s_PlayerNinjaCrawl[5][6] =
+STATE s_PlayerNinjaCrawl[1][6] =
 {
     {
-        {PLAYER_NINJA_CRAWL_R0 + 0, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][1]},
-        {PLAYER_NINJA_CRAWL_R0 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][2]},
-        {PLAYER_NINJA_CRAWL_R0 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[0][3]},
-        {PLAYER_NINJA_CRAWL_R0 + 2, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][4]},
-        {PLAYER_NINJA_CRAWL_R0 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][5]},
-        {PLAYER_NINJA_CRAWL_R0 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[0][0]},
-    },
-    {
-        {PLAYER_NINJA_CRAWL_R1 + 0, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[1][1]},
-        {PLAYER_NINJA_CRAWL_R1 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[1][2]},
-        {PLAYER_NINJA_CRAWL_R1 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[1][3]},
-        {PLAYER_NINJA_CRAWL_R1 + 2, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[1][4]},
-        {PLAYER_NINJA_CRAWL_R1 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[1][5]},
-        {PLAYER_NINJA_CRAWL_R1 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[1][0]},
-    },
-    {
-        {PLAYER_NINJA_CRAWL_R2 + 0, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[2][1]},
-        {PLAYER_NINJA_CRAWL_R2 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[2][2]},
-        {PLAYER_NINJA_CRAWL_R2 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[2][3]},
-        {PLAYER_NINJA_CRAWL_R2 + 2, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[2][4]},
-        {PLAYER_NINJA_CRAWL_R2 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[2][5]},
-        {PLAYER_NINJA_CRAWL_R2 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[2][0]},
-    },
-    {
-        {PLAYER_NINJA_CRAWL_R3 + 0, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[3][1]},
-        {PLAYER_NINJA_CRAWL_R3 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[3][2]},
-        {PLAYER_NINJA_CRAWL_R3 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[3][3]},
-        {PLAYER_NINJA_CRAWL_R3 + 2, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[3][4]},
-        {PLAYER_NINJA_CRAWL_R3 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[3][5]},
-        {PLAYER_NINJA_CRAWL_R3 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[3][0]},
-    },
-    {
-        {PLAYER_NINJA_CRAWL_R4 + 0, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[4][1]},
-        {PLAYER_NINJA_CRAWL_R4 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[4][2]},
-        {PLAYER_NINJA_CRAWL_R4 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[4][3]},
-        {PLAYER_NINJA_CRAWL_R4 + 2, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[4][4]},
-        {PLAYER_NINJA_CRAWL_R4 + 1, PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[4][5]},
-        {PLAYER_NINJA_CRAWL_R4 + 1, 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[4][0]},
+        {SPR_PLAYER_NINJA_CRAWL, 'A', PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][1]},
+        {SPR_PLAYER_NINJA_CRAWL, 'B', PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][2]},
+        {SPR_PLAYER_NINJA_CRAWL, 'B', 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[0][3]},
+        {SPR_PLAYER_NINJA_CRAWL, 'C', PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][4]},
+        {SPR_PLAYER_NINJA_CRAWL, 'B', PLAYER_NINJA_CRAWL_RATE, nullptr,  &s_PlayerNinjaCrawl[0][5]},
+        {SPR_PLAYER_NINJA_CRAWL, 'B', 0 | SF_QUICK_CALL, &AF(DoFootPrints), &s_PlayerNinjaCrawl[0][0]},
     },
 };
 
@@ -553,10 +365,6 @@ STATE s_PlayerNinjaCrawl[5][6] =
 STATE* sg_PlayerNinjaCrawl[] =
 {
     s_PlayerNinjaCrawl[0],
-    s_PlayerNinjaCrawl[1],
-    s_PlayerNinjaCrawl[2],
-    s_PlayerNinjaCrawl[3],
-    s_PlayerNinjaCrawl[4]
 };
 
 //////////////////////
@@ -567,37 +375,13 @@ STATE* sg_PlayerNinjaCrawl[] =
 
 
 #define PLAYER_NINJA_SWIM_RATE 22 // Was 18
-STATE s_PlayerNinjaSwim[5][4] =
+STATE s_PlayerNinjaSwim[1][4] =
 {
     {
-        {PLAYER_NINJA_SWIM_R0 + 0, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][1]},
-        {PLAYER_NINJA_SWIM_R0 + 1, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][2]},
-        {PLAYER_NINJA_SWIM_R0 + 2, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][3]},
-        {PLAYER_NINJA_SWIM_R0 + 3, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][0]},
-    },
-    {
-        {PLAYER_NINJA_SWIM_R1 + 0, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[1][1]},
-        {PLAYER_NINJA_SWIM_R1 + 1, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[1][2]},
-        {PLAYER_NINJA_SWIM_R1 + 2, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[1][3]},
-        {PLAYER_NINJA_SWIM_R1 + 3, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[1][0]},
-    },
-    {
-        {PLAYER_NINJA_SWIM_R2 + 0, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[2][1]},
-        {PLAYER_NINJA_SWIM_R2 + 1, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[2][2]},
-        {PLAYER_NINJA_SWIM_R2 + 2, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[2][3]},
-        {PLAYER_NINJA_SWIM_R2 + 3, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[2][0]},
-    },
-    {
-        {PLAYER_NINJA_SWIM_R3 + 0, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[3][1]},
-        {PLAYER_NINJA_SWIM_R3 + 1, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[3][2]},
-        {PLAYER_NINJA_SWIM_R3 + 2, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[3][3]},
-        {PLAYER_NINJA_SWIM_R3 + 3, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[3][0]},
-    },
-    {
-        {PLAYER_NINJA_SWIM_R4 + 0, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[4][1]},
-        {PLAYER_NINJA_SWIM_R4 + 1, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[4][2]},
-        {PLAYER_NINJA_SWIM_R4 + 2, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[4][3]},
-        {PLAYER_NINJA_SWIM_R4 + 3, PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[4][0]},
+        {SPR_PLAYER_NINJA_SWIM, 'A', PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][1]},
+        {SPR_PLAYER_NINJA_SWIM, 'B', PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][2]},
+        {SPR_PLAYER_NINJA_SWIM, 'C', PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][3]},
+        {SPR_PLAYER_NINJA_SWIM, 'D', PLAYER_NINJA_SWIM_RATE, nullptr,  &s_PlayerNinjaSwim[0][0]},
     },
 };
 
@@ -605,224 +389,78 @@ STATE s_PlayerNinjaSwim[5][4] =
 STATE* sg_PlayerNinjaSwim[] =
 {
     s_PlayerNinjaSwim[0],
-    s_PlayerNinjaSwim[1],
-    s_PlayerNinjaSwim[2],
-    s_PlayerNinjaSwim[3],
-    s_PlayerNinjaSwim[4]
 };
 
 
 #define NINJA_HeadHurl_RATE 16
 #define NINJA_Head_RATE 16
-#define NINJA_HeadFly 1134
 #define NINJA_HeadFly_RATE 16
 
-STATE s_PlayerHeadFly[5][8] =
+STATE s_PlayerHeadFly[1][8] =
 {
     {
-        {NINJA_HeadFly + 0, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][1]},
-        {NINJA_HeadFly + 1, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][2]},
-        {NINJA_HeadFly + 2, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][3]},
-        {NINJA_HeadFly + 3, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][4]},
-        {NINJA_HeadFly + 4, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][5]},
-        {NINJA_HeadFly + 5, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][6]},
-        {NINJA_HeadFly + 6, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][7]},
-        {NINJA_HeadFly + 7, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][0]}
-    },
-    {
-        {NINJA_HeadFly + 0, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][1]},
-        {NINJA_HeadFly + 1, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][2]},
-        {NINJA_HeadFly + 2, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][3]},
-        {NINJA_HeadFly + 3, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][4]},
-        {NINJA_HeadFly + 4, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][5]},
-        {NINJA_HeadFly + 5, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][6]},
-        {NINJA_HeadFly + 6, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][7]},
-        {NINJA_HeadFly + 7, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[1][0]}
-    },
-    {
-        {NINJA_HeadFly + 0, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][1]},
-        {NINJA_HeadFly + 1, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][2]},
-        {NINJA_HeadFly + 2, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][3]},
-        {NINJA_HeadFly + 3, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][4]},
-        {NINJA_HeadFly + 4, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][5]},
-        {NINJA_HeadFly + 5, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][6]},
-        {NINJA_HeadFly + 6, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][7]},
-        {NINJA_HeadFly + 7, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[2][0]}
-    },
-    {
-        {NINJA_HeadFly + 0, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][1]},
-        {NINJA_HeadFly + 1, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][2]},
-        {NINJA_HeadFly + 2, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][3]},
-        {NINJA_HeadFly + 3, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][4]},
-        {NINJA_HeadFly + 4, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][5]},
-        {NINJA_HeadFly + 5, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][6]},
-        {NINJA_HeadFly + 6, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][7]},
-        {NINJA_HeadFly + 7, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[3][0]}
-    },
-    {
-        {NINJA_HeadFly + 0, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][1]},
-        {NINJA_HeadFly + 1, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][2]},
-        {NINJA_HeadFly + 2, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][3]},
-        {NINJA_HeadFly + 3, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][4]},
-        {NINJA_HeadFly + 4, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][5]},
-        {NINJA_HeadFly + 5, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][6]},
-        {NINJA_HeadFly + 6, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][7]},
-        {NINJA_HeadFly + 7, NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[4][0]}
+        {SPR_NINJA_HeadFly, 'A', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][1]},
+        {SPR_NINJA_HeadFly, 'B', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][2]},
+        {SPR_NINJA_HeadFly, 'C', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][3]},
+        {SPR_NINJA_HeadFly, 'D', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][4]},
+        {SPR_NINJA_HeadFly, 'E', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][5]},
+        {SPR_NINJA_HeadFly, 'F', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][6]},
+        {SPR_NINJA_HeadFly, 'G', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][7]},
+        {SPR_NINJA_HeadFly, 'H', NINJA_HeadFly_RATE, nullptr,  &s_PlayerHeadFly[0][0]}
     },
 };
 
 STATE* sg_PlayerHeadFly[] =
 {
     s_PlayerHeadFly[0],
-    s_PlayerHeadFly[1],
-    s_PlayerHeadFly[2],
-    s_PlayerHeadFly[3],
-    s_PlayerHeadFly[4]
 };
 
-//#define NINJA_Head_FRAMES 1
-//#define NINJA_Head_R0 1142
-//#define NINJA_Head_R1 NINJA_Head_R0 + (NINJA_Head_FRAMES * 1)
-//#define NINJA_Head_R2 NINJA_Head_R0 + (NINJA_Head_FRAMES * 2)
-//#define NINJA_Head_R3 NINJA_Head_R0 + (NINJA_Head_FRAMES * 3)
-//#define NINJA_Head_R4 NINJA_Head_R0 + (NINJA_Head_FRAMES * 4)
-
-STATE s_PlayerHead[5][1] =
+STATE s_PlayerHead[1][1] =
 {
     {
-        {NINJA_Head_R0 + 0, NINJA_Head_RATE, nullptr,  &s_PlayerHead[0][0]},
-    },
-    {
-        {NINJA_Head_R1 + 0, NINJA_Head_RATE, nullptr,  &s_PlayerHead[1][0]},
-    },
-    {
-        {NINJA_Head_R2 + 0, NINJA_Head_RATE, nullptr,  &s_PlayerHead[2][0]},
-    },
-    {
-        {NINJA_Head_R3 + 0, NINJA_Head_RATE, nullptr,  &s_PlayerHead[3][0]},
-    },
-    {
-        {NINJA_Head_R4 + 0, NINJA_Head_RATE, nullptr,  &s_PlayerHead[4][0]},
+        {SPR_NINJA_Head, 'A', NINJA_Head_RATE, nullptr,  &s_PlayerHead[0][0]},
     },
 };
 
 STATE* sg_PlayerHead[] =
 {
     s_PlayerHead[0],
-    s_PlayerHead[1],
-    s_PlayerHead[2],
-    s_PlayerHead[3],
-    s_PlayerHead[4]
 };
 
-#define NINJA_HeadHurl_FRAMES 1
-#define NINJA_HeadHurl_R0 1147
-#define NINJA_HeadHurl_R1 NINJA_HeadHurl_R0 + (NINJA_HeadHurl_FRAMES * 1)
-#define NINJA_HeadHurl_R2 NINJA_HeadHurl_R0 + (NINJA_HeadHurl_FRAMES * 2)
-#define NINJA_HeadHurl_R3 NINJA_HeadHurl_R0 + (NINJA_HeadHurl_FRAMES * 3)
-#define NINJA_HeadHurl_R4 NINJA_HeadHurl_R0 + (NINJA_HeadHurl_FRAMES * 4)
 
-STATE s_PlayerHeadHurl[5][1] =
+STATE s_PlayerHeadHurl[1][1] =
 {
     {
-        {NINJA_HeadHurl_R0 + 0, NINJA_HeadHurl_RATE, nullptr,  &s_PlayerHeadHurl[0][0]},
-    },
-    {
-        {NINJA_HeadHurl_R1 + 0, NINJA_HeadHurl_RATE, nullptr,  &s_PlayerHeadHurl[1][0]},
-    },
-    {
-        {NINJA_HeadHurl_R2 + 0, NINJA_HeadHurl_RATE, nullptr,  &s_PlayerHeadHurl[2][0]},
-    },
-    {
-        {NINJA_HeadHurl_R3 + 0, NINJA_HeadHurl_RATE, nullptr,  &s_PlayerHeadHurl[3][0]},
-    },
-    {
-        {NINJA_HeadHurl_R4 + 0, NINJA_HeadHurl_RATE, nullptr,  &s_PlayerHeadHurl[4][0]},
+        {SPR_NINJA_HeadHurl, 'A', NINJA_HeadHurl_RATE, nullptr,  &s_PlayerHeadHurl[0][0]},
     },
 };
 
 STATE* sg_PlayerHeadHurl[] =
 {
     s_PlayerHeadHurl[0],
-    s_PlayerHeadHurl[1],
-    s_PlayerHeadHurl[2],
-    s_PlayerHeadHurl[3],
-    s_PlayerHeadHurl[4]
 };
 
 #define PLAYER_NINJA_DIE_RATE 22
 
-STATE s_PlayerDeath[5][10] =
+STATE s_PlayerDeath[1][10] =
 {
     {
-        {PLAYER_NINJA_DIE + 0, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][1]},
-        {PLAYER_NINJA_DIE + 1, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][2]},
-        {PLAYER_NINJA_DIE + 2, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][3]},
-        {PLAYER_NINJA_DIE + 3, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][4]},
-        {PLAYER_NINJA_DIE + 4, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][5]},
-        {PLAYER_NINJA_DIE + 5, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][6]},
-        {PLAYER_NINJA_DIE + 6, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][7]},
-        {PLAYER_NINJA_DIE + 7, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][8]},
-        {PLAYER_NINJA_DIE + 8, 0 | SF_QUICK_CALL, &AF(QueueFloorBlood), &s_PlayerDeath[0][9]},
-        {PLAYER_NINJA_DIE + 8, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][9]},
-    },
-    {
-        {PLAYER_NINJA_DIE + 0, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][1]},
-        {PLAYER_NINJA_DIE + 1, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][2]},
-        {PLAYER_NINJA_DIE + 2, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][3]},
-        {PLAYER_NINJA_DIE + 3, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][4]},
-        {PLAYER_NINJA_DIE + 4, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][5]},
-        {PLAYER_NINJA_DIE + 5, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][6]},
-        {PLAYER_NINJA_DIE + 6, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][7]},
-        {PLAYER_NINJA_DIE + 7, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][8]},
-        {PLAYER_NINJA_DIE + 8, 0 | SF_QUICK_CALL, &AF(QueueFloorBlood), &s_PlayerDeath[1][9]},
-        {PLAYER_NINJA_DIE + 8, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[1][9]},
-    },
-    {
-        {PLAYER_NINJA_DIE + 0, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][1]},
-        {PLAYER_NINJA_DIE + 1, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][2]},
-        {PLAYER_NINJA_DIE + 2, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][3]},
-        {PLAYER_NINJA_DIE + 3, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][4]},
-        {PLAYER_NINJA_DIE + 4, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][5]},
-        {PLAYER_NINJA_DIE + 5, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][6]},
-        {PLAYER_NINJA_DIE + 6, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][7]},
-        {PLAYER_NINJA_DIE + 7, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][8]},
-        {PLAYER_NINJA_DIE + 8, 0 | SF_QUICK_CALL, &AF(QueueFloorBlood), &s_PlayerDeath[2][9]},
-        {PLAYER_NINJA_DIE + 8, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[2][9]},
-    },
-    {
-        {PLAYER_NINJA_DIE + 0, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][1]},
-        {PLAYER_NINJA_DIE + 1, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][2]},
-        {PLAYER_NINJA_DIE + 2, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][3]},
-        {PLAYER_NINJA_DIE + 3, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][4]},
-        {PLAYER_NINJA_DIE + 4, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][5]},
-        {PLAYER_NINJA_DIE + 5, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][6]},
-        {PLAYER_NINJA_DIE + 6, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][7]},
-        {PLAYER_NINJA_DIE + 7, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][8]},
-        {PLAYER_NINJA_DIE + 8, 0 | SF_QUICK_CALL, &AF(QueueFloorBlood), &s_PlayerDeath[3][9]},
-        {PLAYER_NINJA_DIE + 8, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[3][9]},
-    },
-    {
-        {PLAYER_NINJA_DIE + 0, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][1]},
-        {PLAYER_NINJA_DIE + 1, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][2]},
-        {PLAYER_NINJA_DIE + 2, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][3]},
-        {PLAYER_NINJA_DIE + 3, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][4]},
-        {PLAYER_NINJA_DIE + 4, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][5]},
-        {PLAYER_NINJA_DIE + 5, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][6]},
-        {PLAYER_NINJA_DIE + 6, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][7]},
-        {PLAYER_NINJA_DIE + 7, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][8]},
-        {PLAYER_NINJA_DIE + 8, 0 | SF_QUICK_CALL, &AF(QueueFloorBlood), &s_PlayerDeath[4][9]},
-        {PLAYER_NINJA_DIE + 8, PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[4][9]},
+        {SPR_PLAYER_NINJA_DIE, 'A', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][1]},
+        {SPR_PLAYER_NINJA_DIE, 'B', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][2]},
+        {SPR_PLAYER_NINJA_DIE, 'C', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][3]},
+        {SPR_PLAYER_NINJA_DIE, 'D', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][4]},
+        {SPR_PLAYER_NINJA_DIE, 'E', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][5]},
+        {SPR_PLAYER_NINJA_DIE, 'F', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][6]},
+        {SPR_PLAYER_NINJA_DIE, 'G', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][7]},
+        {SPR_PLAYER_NINJA_DIE, 'H', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][8]},
+        {SPR_PLAYER_NINJA_DIE, 'I', 0 | SF_QUICK_CALL, &AF(QueueFloorBlood), &s_PlayerDeath[0][9]},
+        {SPR_PLAYER_NINJA_DIE, 'I', PLAYER_NINJA_DIE_RATE, nullptr,  &s_PlayerDeath[0][9]},
     },
 };
 
 STATE* sg_PlayerDeath[] =
 {
     s_PlayerDeath[0],
-    s_PlayerDeath[1],
-    s_PlayerDeath[2],
-    s_PlayerDeath[3],
-    s_PlayerDeath[4]
 };
 
 //////////////////////
@@ -833,37 +471,13 @@ STATE* sg_PlayerDeath[] =
 
 
 #define PLAYER_NINJA_SWORD_RATE 12
-STATE s_PlayerNinjaSword[5][4] =
+STATE s_PlayerNinjaSword[1][4] =
 {
     {
-        {PLAYER_NINJA_SWORD_R0 + 0, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[0][1]},
-        {PLAYER_NINJA_SWORD_R0 + 1, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[0][2]},
-        {PLAYER_NINJA_SWORD_R0 + 2, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[0][3]},
-        {PLAYER_NINJA_SWORD_R0 + 2, PLAYER_NINJA_SWORD_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaSword[0][0]},
-    },
-    {
-        {PLAYER_NINJA_SWORD_R1 + 0, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[1][1]},
-        {PLAYER_NINJA_SWORD_R1 + 1, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[1][2]},
-        {PLAYER_NINJA_SWORD_R1 + 2, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[1][3]},
-        {PLAYER_NINJA_SWORD_R1 + 2, PLAYER_NINJA_SWORD_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaSword[1][0]},
-    },
-    {
-        {PLAYER_NINJA_SWORD_R2 + 0, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[2][1]},
-        {PLAYER_NINJA_SWORD_R2 + 1, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[2][2]},
-        {PLAYER_NINJA_SWORD_R2 + 2, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[2][3]},
-        {PLAYER_NINJA_SWORD_R2 + 2, PLAYER_NINJA_SWORD_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaSword[2][0]},
-    },
-    {
-        {PLAYER_NINJA_SWORD_R3 + 0, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[3][1]},
-        {PLAYER_NINJA_SWORD_R3 + 1, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[3][2]},
-        {PLAYER_NINJA_SWORD_R3 + 2, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[3][3]},
-        {PLAYER_NINJA_SWORD_R3 + 2, PLAYER_NINJA_SWORD_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaSword[3][0]},
-    },
-    {
-        {PLAYER_NINJA_SWORD_R4 + 0, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[4][1]},
-        {PLAYER_NINJA_SWORD_R4 + 1, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[4][2]},
-        {PLAYER_NINJA_SWORD_R4 + 2, PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[4][3]},
-        {PLAYER_NINJA_SWORD_R4 + 2, PLAYER_NINJA_SWORD_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaSword[4][0]},
+        {SPR_PLAYER_NINJA_SWORD, 'A', PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[0][1]},
+        {SPR_PLAYER_NINJA_SWORD, 'B', PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[0][2]},
+        {SPR_PLAYER_NINJA_SWORD, 'C', PLAYER_NINJA_SWORD_RATE, nullptr,  &s_PlayerNinjaSword[0][3]},
+        {SPR_PLAYER_NINJA_SWORD, 'C', PLAYER_NINJA_SWORD_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaSword[0][0]},
     },
 };
 
@@ -871,10 +485,6 @@ STATE s_PlayerNinjaSword[5][4] =
 STATE* sg_PlayerNinjaSword[] =
 {
     s_PlayerNinjaSword[0],
-    s_PlayerNinjaSword[1],
-    s_PlayerNinjaSword[2],
-    s_PlayerNinjaSword[3],
-    s_PlayerNinjaSword[4]
 };
 
 //////////////////////
@@ -885,32 +495,12 @@ STATE* sg_PlayerNinjaSword[] =
 
 
 #define PLAYER_NINJA_PUNCH_RATE 15
-STATE s_PlayerNinjaPunch[5][4] =
+STATE s_PlayerNinjaPunch[1][4] =
 {
     {
-        {PLAYER_NINJA_PUNCH_R0 + 0, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[0][1]},
-        {PLAYER_NINJA_PUNCH_R0 + 1, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[0][2]},
-        {PLAYER_NINJA_PUNCH_R0 + 1, PLAYER_NINJA_PUNCH_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaPunch[0][2]},
-    },
-    {
-        {PLAYER_NINJA_PUNCH_R1 + 0, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[1][1]},
-        {PLAYER_NINJA_PUNCH_R1 + 1, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[1][2]},
-        {PLAYER_NINJA_PUNCH_R1 + 1, PLAYER_NINJA_PUNCH_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaPunch[1][2]},
-    },
-    {
-        {PLAYER_NINJA_PUNCH_R2 + 0, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[2][1]},
-        {PLAYER_NINJA_PUNCH_R2 + 1, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[2][2]},
-        {PLAYER_NINJA_PUNCH_R2 + 1, PLAYER_NINJA_PUNCH_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaPunch[2][2]},
-    },
-    {
-        {PLAYER_NINJA_PUNCH_R3 + 0, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[3][1]},
-        {PLAYER_NINJA_PUNCH_R3 + 1, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[3][2]},
-        {PLAYER_NINJA_PUNCH_R3 + 1, PLAYER_NINJA_PUNCH_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaPunch[3][2]},
-    },
-    {
-        {PLAYER_NINJA_PUNCH_R4 + 0, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[4][1]},
-        {PLAYER_NINJA_PUNCH_R4 + 1, PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[4][2]},
-        {PLAYER_NINJA_PUNCH_R4 + 1, PLAYER_NINJA_PUNCH_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaPunch[4][2]},
+        {SPR_PLAYER_NINJA_PUNCH, 'A', PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[0][1]},
+        {SPR_PLAYER_NINJA_PUNCH, 'B', PLAYER_NINJA_PUNCH_RATE, nullptr,  &s_PlayerNinjaPunch[0][2]},
+        {SPR_PLAYER_NINJA_PUNCH, 'B', PLAYER_NINJA_PUNCH_RATE | SF_PLAYER_FUNC, &AF(DoPlayerSpriteReset), &s_PlayerNinjaPunch[0][2]},
     },
 };
 
@@ -918,10 +508,6 @@ STATE s_PlayerNinjaPunch[5][4] =
 STATE* sg_PlayerNinjaPunch[] =
 {
     s_PlayerNinjaPunch[0],
-    s_PlayerNinjaPunch[1],
-    s_PlayerNinjaPunch[2],
-    s_PlayerNinjaPunch[3],
-    s_PlayerNinjaPunch[4]
 };
 
 //////////////////////
@@ -932,28 +518,11 @@ STATE* sg_PlayerNinjaPunch[] =
 
 
 #define PLAYER_NINJA_FLY_RATE 15
-#define PLAYER_NINJA_FLY_R0 1200
-#define PLAYER_NINJA_FLY_R1 1200
-#define PLAYER_NINJA_FLY_R2 1200
-#define PLAYER_NINJA_FLY_R3 1200
-#define PLAYER_NINJA_FLY_R4 1200
 
-STATE s_PlayerNinjaFly[5][4] =
+STATE s_PlayerNinjaFly[1][4] =
 {
     {
-        {PLAYER_NINJA_FLY_R0 + 0, PLAYER_NINJA_FLY_RATE, nullptr,  &s_PlayerNinjaFly[0][0]},
-    },
-    {
-        {PLAYER_NINJA_FLY_R1 + 0, PLAYER_NINJA_FLY_RATE, nullptr,  &s_PlayerNinjaFly[1][0]},
-    },
-    {
-        {PLAYER_NINJA_FLY_R2 + 0, PLAYER_NINJA_FLY_RATE, nullptr,  &s_PlayerNinjaFly[2][0]},
-    },
-    {
-        {PLAYER_NINJA_FLY_R3 + 0, PLAYER_NINJA_FLY_RATE, nullptr,  &s_PlayerNinjaFly[3][0]},
-    },
-    {
-        {PLAYER_NINJA_FLY_R4 + 0, PLAYER_NINJA_FLY_RATE, nullptr,  &s_PlayerNinjaFly[4][0]},
+        {SPR_PLAYER_NINJA_FLY, 'A', PLAYER_NINJA_FLY_RATE, nullptr,  &s_PlayerNinjaFly[0][0]},
     },
 };
 
@@ -961,10 +530,6 @@ STATE s_PlayerNinjaFly[5][4] =
 STATE* sg_PlayerNinjaFly[] =
 {
     s_PlayerNinjaFly[0],
-    s_PlayerNinjaFly[1],
-    s_PlayerNinjaFly[2],
-    s_PlayerNinjaFly[3],
-    s_PlayerNinjaFly[4]
 };
 
 //---------------------------------------------------------------------------
@@ -5814,7 +5379,7 @@ void DoPlayerDeathCheckKeys(DSWPlayer* pp)
         }
 
         plActor->setStateGroup(NAME_Stand);
-        plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
+        plActor->setPicFromState();
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
 
         //DoSpawnTeleporterEffect(plActor);
@@ -6448,17 +6013,14 @@ void PlayerStateControl(DSWActor* actor)
                 actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
         }
 
-        if (!actor->user.__legacyState.State->Pic)
+        if (actor->user.__legacyState.State->Sprite == SPR_NULL)
         {
             NewStateGroup(actor, (STATE* *) actor->user.__legacyState.State->NextState);
         }
     }
 
     // Set the correct pic
-    if (actor->user.__legacyState.RotNum > 1)
-        actor->spr.picnum = actor->user.__legacyState.Rot[0]->Pic;
-    else
-        actor->spr.picnum = actor->user.__legacyState.State->Pic;
+    actor->setPicFromState();
 
     // Call the correct animator
     if ((actor->user.__legacyState.State->Tics & SF_PLAYER_FUNC))

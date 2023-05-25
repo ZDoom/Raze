@@ -348,9 +348,22 @@ typedef void (*soANIMATORp) (SECTOR_OBJECT*);
     }
 #define AF(func) DSWActor_##func##_VMPtr
 
+#define x(a) SPR_##a,
+enum spriteindex_t
+{
+    SPR_NULL = 0,
+
+#include "spritenames.h"
+
+    SPR_MAX,
+};
+
+#undef x
+
 struct STATE
 {
-    short     Pic;
+    spriteindex_t     Sprite;
+    char Frame;
     int       Tics;
     VMNativeFunction** Animator;    // go through the scripting interface
 

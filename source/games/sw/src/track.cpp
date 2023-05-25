@@ -801,8 +801,6 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                 if (!itActor->hasU())
                     SpawnUser(itActor, 0, nullptr);
 
-                itActor->user.__legacyState.RotNum = 0;
-
                 itActor->backuppos();
                 itActor->user.oz = itActor->opos.Z;
 
@@ -3124,7 +3122,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_DEATH1:
-        if (actor->hasState(NAME_Death2))
+        if (actor->hasState(NAME_Death1))
         {
             actor->user.WaitTics = 4 * 120;
             actor->setStateGroup(NAME_Death1);

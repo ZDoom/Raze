@@ -58,127 +58,113 @@ extern bool GlobalSkipZrange;
 
 STATE s_BloodSpray[] =
 {
-    {GOREDrip + 0, BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[1]},
-    {GOREDrip + 1, BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[2]},
-    {GOREDrip + 2, BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[3]},
-    {GOREDrip + 3, BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[4]},
-    {GOREDrip + 3, 100, &AF(DoSuicide), &s_BloodSpray[0]}
+    {SPR_GOREDrip, 'A', BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[1]},
+    {SPR_GOREDrip, 'B', BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[2]},
+    {SPR_GOREDrip, 'C', BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[3]},
+    {SPR_GOREDrip, 'D', BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[4]},
+    {SPR_GOREDrip, 'E', 100, &AF(DoSuicide), &s_BloodSpray[0]}
 };
 
 
 #define EXP_RATE 2
 STATE s_PhosphorExp[] =
 {
-    {EXP + 0, EXP_RATE, nullptr,  &s_PhosphorExp[1]},
-    {EXP + 1, EXP_RATE, nullptr,  &s_PhosphorExp[2]},
-    {EXP + 2, EXP_RATE, nullptr,  &s_PhosphorExp[3]},
-    {EXP + 3, EXP_RATE, nullptr,  &s_PhosphorExp[4]},
-    {EXP + 4, EXP_RATE, nullptr,  &s_PhosphorExp[5]},
-    {EXP + 5, EXP_RATE, nullptr,  &s_PhosphorExp[6]},
-    {EXP + 6, EXP_RATE, nullptr,  &s_PhosphorExp[7]},
-    {EXP + 7, EXP_RATE, nullptr,  &s_PhosphorExp[8]},
-    {EXP + 8, EXP_RATE, nullptr,  &s_PhosphorExp[9]},
-    {EXP + 9, EXP_RATE, nullptr,  &s_PhosphorExp[10]},
-    {EXP + 10, EXP_RATE, nullptr,  &s_PhosphorExp[11]},
-    {EXP + 11, EXP_RATE, nullptr,  &s_PhosphorExp[12]},
-    {EXP + 12, EXP_RATE, nullptr,  &s_PhosphorExp[13]},
-    {EXP + 13, EXP_RATE, nullptr,  &s_PhosphorExp[14]},
-    {EXP + 14, EXP_RATE, nullptr,  &s_PhosphorExp[15]},
-    {EXP + 15, EXP_RATE, nullptr,  &s_PhosphorExp[16]},
-    {EXP + 16, EXP_RATE, nullptr,  &s_PhosphorExp[17]},
-    {EXP + 17, EXP_RATE, nullptr,  &s_PhosphorExp[18]},
-    {EXP + 18, EXP_RATE, nullptr,  &s_PhosphorExp[19]},
-    {EXP + 19, EXP_RATE, nullptr,  &s_PhosphorExp[20]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_PhosphorExp[0]}
+    {SPR_EXP, 'A', EXP_RATE, nullptr,  &s_PhosphorExp[1]},
+    {SPR_EXP, 'B', EXP_RATE, nullptr,  &s_PhosphorExp[2]},
+    {SPR_EXP, 'C', EXP_RATE, nullptr,  &s_PhosphorExp[3]},
+    {SPR_EXP, 'D', EXP_RATE, nullptr,  &s_PhosphorExp[4]},
+    {SPR_EXP, 'E', EXP_RATE, nullptr,  &s_PhosphorExp[5]},
+    {SPR_EXP, 'F', EXP_RATE, nullptr,  &s_PhosphorExp[6]},
+    {SPR_EXP, 'G', EXP_RATE, nullptr,  &s_PhosphorExp[7]},
+    {SPR_EXP, 'H', EXP_RATE, nullptr,  &s_PhosphorExp[8]},
+    {SPR_EXP, 'I', EXP_RATE, nullptr,  &s_PhosphorExp[9]},
+    {SPR_EXP, 'J', EXP_RATE, nullptr,  &s_PhosphorExp[10]},
+    {SPR_EXP, 'K', EXP_RATE, nullptr,  &s_PhosphorExp[11]},
+    {SPR_EXP, 'L', EXP_RATE, nullptr,  &s_PhosphorExp[12]},
+    {SPR_EXP, 'M', EXP_RATE, nullptr,  &s_PhosphorExp[13]},
+    {SPR_EXP, 'N', EXP_RATE, nullptr,  &s_PhosphorExp[14]},
+    {SPR_EXP, 'O', EXP_RATE, nullptr,  &s_PhosphorExp[15]},
+    {SPR_EXP, 'P', EXP_RATE, nullptr,  &s_PhosphorExp[16]},
+    {SPR_EXP, 'Q', EXP_RATE, nullptr,  &s_PhosphorExp[17]},
+    {SPR_EXP, 'R', EXP_RATE, nullptr,  &s_PhosphorExp[18]},
+    {SPR_EXP, 'S', EXP_RATE, nullptr,  &s_PhosphorExp[19]},
+    {SPR_EXP, 'T', EXP_RATE, nullptr,  &s_PhosphorExp[20]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_PhosphorExp[0]}
 };
 
 #define MUSHROOM_RATE 25
 
 STATE s_NukeMushroom[] =
 {
-    {MUSHROOM_CLOUD + 0, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[1]},
-    {MUSHROOM_CLOUD + 1, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[2]},
-    {MUSHROOM_CLOUD + 2, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[3]},
-    {MUSHROOM_CLOUD + 3, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[4]},
-    {MUSHROOM_CLOUD + 4, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[5]},
-    {MUSHROOM_CLOUD + 5, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[6]},
-    {MUSHROOM_CLOUD + 6, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[7]},
-    {MUSHROOM_CLOUD + 7, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[8]},
-    {MUSHROOM_CLOUD + 8, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[9]},
-    {MUSHROOM_CLOUD + 9, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[10]},
-    {MUSHROOM_CLOUD + 10, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[11]},
-    {MUSHROOM_CLOUD + 11, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[12]},
-    {MUSHROOM_CLOUD + 12, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[13]},
-    {MUSHROOM_CLOUD + 13, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[14]},
-    {MUSHROOM_CLOUD + 14, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[15]},
-    {MUSHROOM_CLOUD + 15, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[16]},
-    {MUSHROOM_CLOUD + 16, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[17]},
-    {MUSHROOM_CLOUD + 17, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[18]},
-    {MUSHROOM_CLOUD + 18, MUSHROOM_RATE, nullptr,  &s_NukeMushroom[19]},
-    {MUSHROOM_CLOUD + 19, 100, &AF(DoSuicide), &s_NukeMushroom[0]},
+    {SPR_MUSHROOM_CLOUD, 'A', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[1]},
+    {SPR_MUSHROOM_CLOUD, 'B', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[2]},
+    {SPR_MUSHROOM_CLOUD, 'C', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[3]},
+    {SPR_MUSHROOM_CLOUD, 'D', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[4]},
+    {SPR_MUSHROOM_CLOUD, 'E', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[5]},
+    {SPR_MUSHROOM_CLOUD, 'F', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[6]},
+    {SPR_MUSHROOM_CLOUD, 'G', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[7]},
+    {SPR_MUSHROOM_CLOUD, 'H', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[8]},
+    {SPR_MUSHROOM_CLOUD, 'I', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[9]},
+    {SPR_MUSHROOM_CLOUD, 'J', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[10]},
+    {SPR_MUSHROOM_CLOUD, 'K',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[11]},
+    {SPR_MUSHROOM_CLOUD, 'L',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[12]},
+    {SPR_MUSHROOM_CLOUD, 'M',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[13]},
+    {SPR_MUSHROOM_CLOUD, 'N',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[14]},
+    {SPR_MUSHROOM_CLOUD, 'O',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[15]},
+    {SPR_MUSHROOM_CLOUD, 'P',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[16]},
+    {SPR_MUSHROOM_CLOUD, 'Q',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[17]},
+    {SPR_MUSHROOM_CLOUD, 'R',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[18]},
+    {SPR_MUSHROOM_CLOUD, 'S',  MUSHROOM_RATE, nullptr,  &s_NukeMushroom[19]},
+    {SPR_MUSHROOM_CLOUD, 'T',  100, &AF(DoSuicide), &s_NukeMushroom[0]},
 };
 
 #define RADIATION_RATE 16
 
 STATE s_RadiationCloud[] =
 {
-    {RADIATION_CLOUD + 0, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[1]},
-    {RADIATION_CLOUD + 1, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[2]},
-    {RADIATION_CLOUD + 2, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[3]},
-    {RADIATION_CLOUD + 3, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[4]},
-    {RADIATION_CLOUD + 4, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[5]},
-    {RADIATION_CLOUD + 5, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[6]},
-    {RADIATION_CLOUD + 6, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[7]},
-    {RADIATION_CLOUD + 7, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[8]},
-    {RADIATION_CLOUD + 8, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[9]},
-    {RADIATION_CLOUD + 9, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[10]},
-    {RADIATION_CLOUD + 10, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[11]},
-    {RADIATION_CLOUD + 11, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[12]},
-    {RADIATION_CLOUD + 12, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[13]},
-    {RADIATION_CLOUD + 13, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[14]},
-    {RADIATION_CLOUD + 14, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[15]},
-    {RADIATION_CLOUD + 15, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[16]},
-    {RADIATION_CLOUD + 16, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[17]},
-    {RADIATION_CLOUD + 17, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[18]},
-    {RADIATION_CLOUD + 18, RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[19]},
-    {RADIATION_CLOUD + 19, 100, &AF(DoSuicide), &s_RadiationCloud[0]},
+    {SPR_RADIATION_CLOUD, 'A', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[1]},
+    {SPR_RADIATION_CLOUD, 'B', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[2]},
+    {SPR_RADIATION_CLOUD, 'C', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[3]},
+    {SPR_RADIATION_CLOUD, 'D', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[4]},
+    {SPR_RADIATION_CLOUD, 'E', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[5]},
+    {SPR_RADIATION_CLOUD, 'F', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[6]},
+    {SPR_RADIATION_CLOUD, 'G', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[7]},
+    {SPR_RADIATION_CLOUD, 'H', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[8]},
+    {SPR_RADIATION_CLOUD, 'I', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[9]},
+    {SPR_RADIATION_CLOUD, 'J', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[10]},
+    {SPR_RADIATION_CLOUD, 'K',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[11]},
+    {SPR_RADIATION_CLOUD, 'L',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[12]},
+    {SPR_RADIATION_CLOUD, 'M',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[13]},
+    {SPR_RADIATION_CLOUD, 'N',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[14]},
+    {SPR_RADIATION_CLOUD, 'O',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[15]},
+    {SPR_RADIATION_CLOUD, 'P',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[16]},
+    {SPR_RADIATION_CLOUD, 'Q',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[17]},
+    {SPR_RADIATION_CLOUD, 'R',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[18]},
+    {SPR_RADIATION_CLOUD, 'S',  RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[19]},
+    {SPR_RADIATION_CLOUD, 'T',  100, &AF(DoSuicide), &s_RadiationCloud[0]},
 };
 
-#define CHEMBOMB_FRAMES 1
-#define CHEMBOMB_R0 3038
-#define CHEMBOMB_R1 CHEMBOMB_R0 + (CHEMBOMB_FRAMES * 1)
-#define CHEMBOMB_R2 CHEMBOMB_R0 + (CHEMBOMB_FRAMES * 2)
-#define CHEMBOMB_R3 CHEMBOMB_R0 + (CHEMBOMB_FRAMES * 3)
-#define CHEMBOMB_R4 CHEMBOMB_R0 + (CHEMBOMB_FRAMES * 4)
 
-#define CHEMBOMB CHEMBOMB_R0
 #define CHEMBOMB_RATE 8
 
-STATE s_ChemBomb[5] =
+STATE s_ChemBomb[1] =
 {
-    {CHEMBOMB_R0 + 0, CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[1]},
-    {CHEMBOMB_R1 + 0, CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[2]},
-    {CHEMBOMB_R2 + 0, CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[3]},
-    {CHEMBOMB_R3 + 0, CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[4]},
-    {CHEMBOMB_R4 + 0, CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[0]},
+    {SPR_CHEMBOMB, 'A', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[1]},
 };
 
-
-#define CALTROPS_FRAMES 1
-#define CALTROPS_R0 CALTROPS-1
 
 #define CALTROPS_RATE 8
 
 STATE s_Caltrops[] =
 {
-    {CALTROPS_R0 + 0, CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[1]},
-    {CALTROPS_R0 + 1, CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[2]},
-    {CALTROPS_R0 + 2, CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[0]},
+    {SPR_CALTROPSR, 'A', CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[1]},
+    {SPR_CALTROPSR, 'B', CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[2]},
+    {SPR_CALTROPSR, 'C', CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[0]},
 };
 
 STATE s_CaltropsStick[] =
 {
-    {CALTROPS_R0 + 2, CALTROPS_RATE, &AF(DoCaltropsStick), &s_CaltropsStick[0]},
+    {SPR_CALTROPSR, 'C', CALTROPS_RATE, &AF(DoCaltropsStick), &s_CaltropsStick[0]},
 };
 
 //////////////////////
@@ -187,56 +173,52 @@ STATE s_CaltropsStick[] =
 //
 //////////////////////
 
-#undef FLAG
-#define FLAG 2520
 #define FLAG_RATE 16
 
 STATE s_CarryFlag[] =
 {
-    {FLAG + 0, FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[1]},
-    {FLAG + 1, FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[2]},
-    {FLAG + 2, FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[0]}
+    {SPR_FLAG, 'A', FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[1]},
+    {SPR_FLAG, 'B', FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[2]},
+    {SPR_FLAG, 'C', FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[0]}
 };
 
 STATE s_CarryFlagNoDet[] =
 {
-    {FLAG + 0, FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[1]},
-    {FLAG + 1, FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[2]},
-    {FLAG + 2, FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[0]}
+    {SPR_FLAG, 'A', FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[1]},
+    {SPR_FLAG, 'B', FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[2]},
+    {SPR_FLAG, 'C', FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[0]}
 };
 
 STATE s_Flag[] =
 {
-    {FLAG + 0, FLAG_RATE, &AF(DoFlag), &s_Flag[1]},
-    {FLAG + 1, FLAG_RATE, &AF(DoFlag), &s_Flag[2]},
-    {FLAG + 2, FLAG_RATE, &AF(DoFlag), &s_Flag[0]}
+    {SPR_FLAG, 'A', FLAG_RATE, &AF(DoFlag), &s_Flag[1]},
+    {SPR_FLAG, 'B', FLAG_RATE, &AF(DoFlag), &s_Flag[2]},
+    {SPR_FLAG, 'C', FLAG_RATE, &AF(DoFlag), &s_Flag[0]}
 };
 
 #define PHOSPHORUS_RATE 8
 
 STATE s_Phosphorus[] =
 {
-    {PHOSPHORUS + 0, PHOSPHORUS_RATE, &AF(DoPhosphorus), &s_Phosphorus[1]},
-    {PHOSPHORUS + 1, PHOSPHORUS_RATE, &AF(DoPhosphorus), &s_Phosphorus[0]},
+    {SPR_PHOSPHORUS, 'A', PHOSPHORUS_RATE, &AF(DoPhosphorus), &s_Phosphorus[1]},
+    {SPR_PHOSPHORUS, 'B', PHOSPHORUS_RATE, &AF(DoPhosphorus), &s_Phosphorus[0]},
 };
 
-#define CHUNK1 1685
 STATE s_BloodSprayChunk[] =
 {
-    {CHUNK1 + 0, 8, &AF(DoBloodSpray), &s_BloodSprayChunk[1]},
-    {CHUNK1 + 1, 8, &AF(DoBloodSpray), &s_BloodSprayChunk[2]},
-    {CHUNK1 + 2, 8, &AF(DoBloodSpray), &s_BloodSprayChunk[3]},
-    {CHUNK1 + 3, 8, &AF(DoBloodSpray), &s_BloodSprayChunk[4]},
-    {CHUNK1 + 4, 8, &AF(DoBloodSpray), &s_BloodSprayChunk[5]},
-    {CHUNK1 + 5, 8, &AF(DoBloodSpray), &s_BloodSprayChunk[0]},
+    {SPR_CHUNK1, 'A', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[1]},
+    {SPR_CHUNK1, 'B', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[2]},
+    {SPR_CHUNK1, 'C', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[3]},
+    {SPR_CHUNK1, 'D', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[4]},
+    {SPR_CHUNK1, 'E', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[5]},
+    {SPR_CHUNK1, 'F', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[0]},
 };
 
-#define DRIP 1566
 STATE s_BloodSprayDrip[] =
 {
-    {DRIP + 0, PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[1]},
-    {DRIP + 1, PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[2]},
-    {DRIP + 2, PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[0]},
+    {SPR_DRIP, 'A', PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[1]},
+    {SPR_DRIP, 'B', PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[2]},
+    {SPR_DRIP, 'C', PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -1245,7 +1227,7 @@ int PlayerInitChemBomb(DSWPlayer* pp)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, CHEMBOMB_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB_R0, s_ChemBomb, pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, CHEMBOMB_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1314,7 +1296,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, actor->sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB_R0, s_ChemBomb, actor->sector(),
                    actor->spr.pos, actor->spr.Angles.Yaw, CHEMBOMB_VELOCITY);
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);

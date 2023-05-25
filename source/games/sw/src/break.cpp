@@ -397,7 +397,7 @@ BREAK_INFO SpriteBreakInfo[] =
     { NINJA_DEAD1     , -1, SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },
     { NINJA_DEAD_SLICED, -1, SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },  // Evil Ninja cut in half
     { PLAYER_NINJA_DEAD  ,-1,  SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },
-    { NINJA_HeadFly   , -1, SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },
+    { Player_HeadFly   , -1, SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },
     { RIPPER_DEAD    , -1, SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },
     { RIPPER2_DEAD   , -1, SHRAP_GIBS, BF_KILL | BF_TOUGH, 0 },  // Dead Big Ripper
 

@@ -185,50 +185,21 @@ ATTRIBUTE InvisibleNinjaAttrib =
 
 #define NINJA_RATE 18
 
-STATE s_NinjaRun[5][4] =
+STATE s_NinjaRun[1][4] =
 {
 
     {
-        {NINJA_RUN_R0 + 0, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][1]},
-        {NINJA_RUN_R0 + 1, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][2]},
-        {NINJA_RUN_R0 + 2, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][3]},
-        {NINJA_RUN_R0 + 3, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][0]},
+        {SPR_NINJA_RUN, 'A', NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][1]},
+        {SPR_NINJA_RUN, 'B', NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][2]},
+        {SPR_NINJA_RUN, 'C', NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][3]},
+        {SPR_NINJA_RUN, 'D', NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[0][0]},
     },
-    {
-        {NINJA_RUN_R1 + 0, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[1][1]},
-        {NINJA_RUN_R1 + 1, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[1][2]},
-        {NINJA_RUN_R1 + 2, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[1][3]},
-        {NINJA_RUN_R1 + 3, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[1][0]},
-    },
-    {
-        {NINJA_RUN_R2 + 0, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[2][1]},
-        {NINJA_RUN_R2 + 1, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[2][2]},
-        {NINJA_RUN_R2 + 2, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[2][3]},
-        {NINJA_RUN_R2 + 3, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[2][0]},
-    },
-    {
-        {NINJA_RUN_R3 + 0, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[3][1]},
-        {NINJA_RUN_R3 + 1, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[3][2]},
-        {NINJA_RUN_R3 + 2, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[3][3]},
-        {NINJA_RUN_R3 + 3, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[3][0]},
-    },
-    {
-        {NINJA_RUN_R4 + 0, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[4][1]},
-        {NINJA_RUN_R4 + 1, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[4][2]},
-        {NINJA_RUN_R4 + 2, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[4][3]},
-        {NINJA_RUN_R4 + 3, NINJA_RATE | SF_TIC_ADJUST, &AF(DoNinjaMove), &s_NinjaRun[4][0]},
-    },
-
 };
 
 
 STATE* sg_NinjaRun[] =
 {
     s_NinjaRun[0],
-    s_NinjaRun[1],
-    s_NinjaRun[2],
-    s_NinjaRun[3],
-    s_NinjaRun[4]
 };
 
 //////////////////////
@@ -239,22 +210,10 @@ STATE* sg_NinjaRun[] =
 
 #define NINJA_STAND_RATE 10
 
-STATE s_NinjaStand[5][1] =
+STATE s_NinjaStand[1][1] =
 {
     {
-        {NINJA_STAND_R0 + 0, NINJA_STAND_RATE, &AF(DoNinjaMove), &s_NinjaStand[0][0]},
-    },
-    {
-        {NINJA_STAND_R1 + 0, NINJA_STAND_RATE, &AF(DoNinjaMove), &s_NinjaStand[1][0]},
-    },
-    {
-        {NINJA_STAND_R2 + 0, NINJA_STAND_RATE, &AF(DoNinjaMove), &s_NinjaStand[2][0]},
-    },
-    {
-        {NINJA_STAND_R3 + 0, NINJA_STAND_RATE, &AF(DoNinjaMove), &s_NinjaStand[3][0]},
-    },
-    {
-        {NINJA_STAND_R4 + 0, NINJA_STAND_RATE, &AF(DoNinjaMove), &s_NinjaStand[4][0]},
+        {SPR_NINJA_STAND, 'A', NINJA_STAND_RATE, &AF(DoNinjaMove), &s_NinjaStand[0][0]},
     },
 };
 
@@ -262,10 +221,6 @@ STATE s_NinjaStand[5][1] =
 STATE* sg_NinjaStand[] =
 {
     s_NinjaStand[0],
-    s_NinjaStand[1],
-    s_NinjaStand[2],
-    s_NinjaStand[3],
-    s_NinjaStand[4]
 };
 
 //////////////////////
@@ -276,32 +231,12 @@ STATE* sg_NinjaStand[] =
 
 #define NINJA_RISE_RATE 10
 
-STATE s_NinjaRise[5][3] =
+STATE s_NinjaRise[1][3] =
 {
     {
-        {NINJA_KNEEL_R0 + 0, NINJA_RISE_RATE, &AF(NullNinja), &s_NinjaRise[0][1]},
-        {NINJA_STAND_R0 + 0, NINJA_STAND_RATE, &AF(NullNinja), &s_NinjaRise[0][2]},
-        {0, 0, nullptr, (STATE*)sg_NinjaRun},
-    },
-    {
-        {NINJA_KNEEL_R1 + 0, NINJA_RISE_RATE, &AF(NullNinja), &s_NinjaRise[1][1]},
-        {NINJA_STAND_R1 + 0, NINJA_STAND_RATE, &AF(NullNinja), &s_NinjaRise[1][2]},
-        {0, 0, nullptr, (STATE*)sg_NinjaRun},
-    },
-    {
-        {NINJA_KNEEL_R2 + 0, NINJA_RISE_RATE, &AF(NullNinja), &s_NinjaRise[2][1]},
-        {NINJA_STAND_R2 + 0, NINJA_STAND_RATE, &AF(NullNinja), &s_NinjaRise[2][2]},
-        {0, 0, nullptr, (STATE*)sg_NinjaRun},
-    },
-    {
-        {NINJA_KNEEL_R3 + 0, NINJA_RISE_RATE, &AF(NullNinja), &s_NinjaRise[3][1]},
-        {NINJA_STAND_R3 + 0, NINJA_STAND_RATE, &AF(NullNinja), &s_NinjaRise[3][2]},
-        {0, 0, nullptr, (STATE*)sg_NinjaRun},
-    },
-    {
-        {NINJA_KNEEL_R4 + 0, NINJA_RISE_RATE, &AF(NullNinja), &s_NinjaRise[4][1]},
-        {NINJA_STAND_R4 + 0, NINJA_STAND_RATE, &AF(NullNinja), &s_NinjaRise[4][2]},
-        {0, 0, nullptr, (STATE*)sg_NinjaRun},
+        {SPR_NINJA_CRAWL, 'A', NINJA_RISE_RATE, &AF(NullNinja), &s_NinjaRise[0][1]},
+        {SPR_NINJA_STAND, 'A', NINJA_STAND_RATE, &AF(NullNinja), &s_NinjaRise[0][2]},
+        {SPR_NULL, 0, 0, nullptr, (STATE*)sg_NinjaRun},
     },
 };
 
@@ -309,10 +244,6 @@ STATE s_NinjaRise[5][3] =
 STATE* sg_NinjaRise[] =
 {
     s_NinjaRise[0],
-    s_NinjaRise[1],
-    s_NinjaRise[2],
-    s_NinjaRise[3],
-    s_NinjaRise[4]
 };
 
 
@@ -324,37 +255,13 @@ STATE* sg_NinjaRise[] =
 
 
 #define NINJA_CRAWL_RATE 14
-STATE s_NinjaCrawl[5][4] =
+STATE s_NinjaCrawl[1][4] =
 {
     {
-        {NINJA_CRAWL_R0 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][1]},
-        {NINJA_CRAWL_R0 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][2]},
-        {NINJA_CRAWL_R0 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][3]},
-        {NINJA_CRAWL_R0 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][0]},
-    },
-    {
-        {NINJA_CRAWL_R1 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[1][1]},
-        {NINJA_CRAWL_R1 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[1][2]},
-        {NINJA_CRAWL_R1 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[1][3]},
-        {NINJA_CRAWL_R1 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[1][0]},
-    },
-    {
-        {NINJA_CRAWL_R2 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[2][1]},
-        {NINJA_CRAWL_R2 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[2][2]},
-        {NINJA_CRAWL_R2 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[2][3]},
-        {NINJA_CRAWL_R2 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[2][0]},
-    },
-    {
-        {NINJA_CRAWL_R3 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[3][1]},
-        {NINJA_CRAWL_R3 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[3][2]},
-        {NINJA_CRAWL_R3 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[3][3]},
-        {NINJA_CRAWL_R3 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[3][0]},
-    },
-    {
-        {NINJA_CRAWL_R4 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[4][1]},
-        {NINJA_CRAWL_R4 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[4][2]},
-        {NINJA_CRAWL_R4 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[4][3]},
-        {NINJA_CRAWL_R4 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[4][0]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][1]},
+        {SPR_NINJA_CRAWL, 'B', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][2]},
+        {SPR_NINJA_CRAWL, 'C', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][3]},
+        {SPR_NINJA_CRAWL, 'B', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaCrawl[0][0]},
     },
 };
 
@@ -362,10 +269,6 @@ STATE s_NinjaCrawl[5][4] =
 STATE* sg_NinjaCrawl[] =
 {
     s_NinjaCrawl[0],
-    s_NinjaCrawl[1],
-    s_NinjaCrawl[2],
-    s_NinjaCrawl[3],
-    s_NinjaCrawl[4]
 };
 
 //////////////////////
@@ -376,42 +279,14 @@ STATE* sg_NinjaCrawl[] =
 
 #define NINJA_KNEEL_CRAWL_RATE 20
 
-STATE s_NinjaKneelCrawl[5][5] =
+STATE s_NinjaKneelCrawl[1][5] =
 {
     {
-        {NINJA_KNEEL_R0 + 0, NINJA_KNEEL_CRAWL_RATE, &AF(NullNinja), &s_NinjaKneelCrawl[0][1]},
-        {NINJA_CRAWL_R0 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][2]},
-        {NINJA_CRAWL_R0 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][3]},
-        {NINJA_CRAWL_R0 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][4]},
-        {NINJA_CRAWL_R0 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][1]},
-    },
-    {
-        {NINJA_KNEEL_R1 + 0, NINJA_KNEEL_CRAWL_RATE, &AF(NullNinja), &s_NinjaKneelCrawl[1][1]},
-        {NINJA_CRAWL_R1 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[1][2]},
-        {NINJA_CRAWL_R1 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[1][3]},
-        {NINJA_CRAWL_R1 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[1][4]},
-        {NINJA_CRAWL_R1 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[1][1]},
-    },
-    {
-        {NINJA_KNEEL_R2 + 0, NINJA_KNEEL_CRAWL_RATE, &AF(NullNinja), &s_NinjaKneelCrawl[2][1]},
-        {NINJA_CRAWL_R2 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[2][2]},
-        {NINJA_CRAWL_R2 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[2][3]},
-        {NINJA_CRAWL_R2 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[2][4]},
-        {NINJA_CRAWL_R2 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[2][1]},
-    },
-    {
-        {NINJA_KNEEL_R3 + 0, NINJA_KNEEL_CRAWL_RATE, &AF(NullNinja), &s_NinjaKneelCrawl[3][1]},
-        {NINJA_CRAWL_R3 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[3][2]},
-        {NINJA_CRAWL_R3 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[3][3]},
-        {NINJA_CRAWL_R3 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[3][4]},
-        {NINJA_CRAWL_R3 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[3][1]},
-    },
-    {
-        {NINJA_KNEEL_R4 + 0, NINJA_KNEEL_CRAWL_RATE, &AF(NullNinja), &s_NinjaKneelCrawl[4][1]},
-        {NINJA_CRAWL_R4 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[4][2]},
-        {NINJA_CRAWL_R4 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[4][3]},
-        {NINJA_CRAWL_R4 + 2, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[4][4]},
-        {NINJA_CRAWL_R4 + 1, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[4][1]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_KNEEL_CRAWL_RATE, &AF(NullNinja), &s_NinjaKneelCrawl[0][1]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][2]},
+        {SPR_NINJA_CRAWL, 'B', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][3]},
+        {SPR_NINJA_CRAWL, 'C', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][4]},
+        {SPR_NINJA_CRAWL, 'B', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaKneelCrawl[0][1]},
     },
 };
 
@@ -419,10 +294,6 @@ STATE s_NinjaKneelCrawl[5][5] =
 STATE* sg_NinjaKneelCrawl[] =
 {
     s_NinjaKneelCrawl[0],
-    s_NinjaKneelCrawl[1],
-    s_NinjaKneelCrawl[2],
-    s_NinjaKneelCrawl[3],
-    s_NinjaKneelCrawl[4]
 };
 
 
@@ -434,27 +305,11 @@ STATE* sg_NinjaKneelCrawl[] =
 
 #define NINJA_DUCK_RATE 10
 
-STATE s_NinjaDuck[5][2] =
+STATE s_NinjaDuck[1][2] =
 {
     {
-        {NINJA_KNEEL_R0 + 0, NINJA_DUCK_RATE, &AF(NullNinja), &s_NinjaDuck[0][1]},
-        {NINJA_CRAWL_R0 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaDuck[0][1]},
-    },
-    {
-        {NINJA_KNEEL_R1 + 0, NINJA_DUCK_RATE, &AF(NullNinja), &s_NinjaDuck[1][1]},
-        {NINJA_CRAWL_R1 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaDuck[1][1]},
-    },
-    {
-        {NINJA_KNEEL_R2 + 0, NINJA_DUCK_RATE, &AF(NullNinja), &s_NinjaDuck[2][1]},
-        {NINJA_CRAWL_R2 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaDuck[2][1]},
-    },
-    {
-        {NINJA_KNEEL_R3 + 0, NINJA_DUCK_RATE, &AF(NullNinja), &s_NinjaDuck[3][1]},
-        {NINJA_CRAWL_R3 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaDuck[3][1]},
-    },
-    {
-        {NINJA_KNEEL_R4 + 0, NINJA_DUCK_RATE, &AF(NullNinja), &s_NinjaDuck[4][1]},
-        {NINJA_CRAWL_R4 + 0, NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaDuck[4][1]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_DUCK_RATE, &AF(NullNinja), &s_NinjaDuck[0][1]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_CRAWL_RATE, &AF(DoNinjaMove), &s_NinjaDuck[0][1]},
     },
 };
 
@@ -462,10 +317,6 @@ STATE s_NinjaDuck[5][2] =
 STATE* sg_NinjaDuck[] =
 {
     s_NinjaDuck[0],
-    s_NinjaDuck[1],
-    s_NinjaDuck[2],
-    s_NinjaDuck[3],
-    s_NinjaDuck[4]
 };
 
 
@@ -475,22 +326,10 @@ STATE* sg_NinjaDuck[] =
 //
 //////////////////////
 
-STATE s_NinjaSit[5][1] =
+STATE s_NinjaSit[1][1] =
 {
     {
-        {NINJA_KNEEL_R0 + 0, NINJA_RISE_RATE, &AF(DoNinjaMove), &s_NinjaSit[0][0]},
-    },
-    {
-        {NINJA_KNEEL_R1 + 0, NINJA_RISE_RATE, &AF(DoNinjaMove), &s_NinjaSit[1][0]},
-    },
-    {
-        {NINJA_KNEEL_R2 + 0, NINJA_RISE_RATE, &AF(DoNinjaMove), &s_NinjaSit[2][0]},
-    },
-    {
-        {NINJA_KNEEL_R3 + 0, NINJA_RISE_RATE, &AF(DoNinjaMove), &s_NinjaSit[3][0]},
-    },
-    {
-        {NINJA_KNEEL_R4 + 0, NINJA_RISE_RATE, &AF(DoNinjaMove), &s_NinjaSit[4][0]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_RISE_RATE, &AF(DoNinjaMove), &s_NinjaSit[0][0]},
     },
 };
 
@@ -498,10 +337,6 @@ STATE s_NinjaSit[5][1] =
 STATE* sg_NinjaSit[] =
 {
     s_NinjaSit[0],
-    s_NinjaSit[1],
-    s_NinjaSit[2],
-    s_NinjaSit[3],
-    s_NinjaSit[4]
 };
 
 //////////////////////
@@ -510,22 +345,10 @@ STATE* sg_NinjaSit[] =
 //
 //////////////////////
 
-STATE s_NinjaCeiling[5][1] =
+STATE s_NinjaCeiling[1][1] =
 {
     {
-        {NINJA_KNEEL_R0 + 0, NINJA_RISE_RATE, &AF(DoNinjaCeiling), &s_NinjaCeiling[0][0]},
-    },
-    {
-        {NINJA_KNEEL_R1 + 0, NINJA_RISE_RATE, &AF(DoNinjaCeiling), &s_NinjaCeiling[1][0]},
-    },
-    {
-        {NINJA_KNEEL_R2 + 0, NINJA_RISE_RATE, &AF(DoNinjaCeiling), &s_NinjaCeiling[2][0]},
-    },
-    {
-        {NINJA_KNEEL_R3 + 0, NINJA_RISE_RATE, &AF(DoNinjaCeiling), &s_NinjaCeiling[3][0]},
-    },
-    {
-        {NINJA_KNEEL_R4 + 0, NINJA_RISE_RATE, &AF(DoNinjaCeiling), &s_NinjaCeiling[4][0]},
+        {SPR_NINJA_CRAWL, 'A', NINJA_RISE_RATE, &AF(DoNinjaCeiling), &s_NinjaCeiling[0][0]},
     },
 };
 
@@ -533,10 +356,6 @@ STATE s_NinjaCeiling[5][1] =
 STATE* sg_NinjaCeiling[] =
 {
     s_NinjaCeiling[0],
-    s_NinjaCeiling[1],
-    s_NinjaCeiling[2],
-    s_NinjaCeiling[3],
-    s_NinjaCeiling[4]
 };
 
 
@@ -548,27 +367,11 @@ STATE* sg_NinjaCeiling[] =
 
 #define NINJA_JUMP_RATE 24
 
-STATE s_NinjaJump[5][2] =
+STATE s_NinjaJump[1][2] =
 {
     {
-        {NINJA_JUMP_R0 + 0, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[0][1]},
-        {NINJA_JUMP_R0 + 1, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[0][1]},
-    },
-    {
-        {NINJA_JUMP_R1 + 0, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[1][1]},
-        {NINJA_JUMP_R1 + 1, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[1][1]},
-    },
-    {
-        {NINJA_JUMP_R2 + 0, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[2][1]},
-        {NINJA_JUMP_R2 + 1, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[2][1]},
-    },
-    {
-        {NINJA_JUMP_R3 + 0, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[3][1]},
-        {NINJA_JUMP_R3 + 1, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[3][1]},
-    },
-    {
-        {NINJA_JUMP_R4 + 0, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[4][1]},
-        {NINJA_JUMP_R4 + 1, NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[4][1]},
+        {SPR_NINJA_JUMP, 'A', NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[0][1]},
+        {SPR_NINJA_JUMP, 'B', NINJA_JUMP_RATE, &AF(DoNinjaMove), &s_NinjaJump[0][1]},
     },
 };
 
@@ -576,10 +379,6 @@ STATE s_NinjaJump[5][2] =
 STATE* sg_NinjaJump[] =
 {
     s_NinjaJump[0],
-    s_NinjaJump[1],
-    s_NinjaJump[2],
-    s_NinjaJump[3],
-    s_NinjaJump[4]
 };
 
 
@@ -591,27 +390,11 @@ STATE* sg_NinjaJump[] =
 
 #define NINJA_FALL_RATE 16
 
-STATE s_NinjaFall[5][2] =
+STATE s_NinjaFall[1][2] =
 {
     {
-        {NINJA_JUMP_R0 + 1, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[0][1]},
-        {NINJA_JUMP_R0 + 2, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[0][1]},
-    },
-    {
-        {NINJA_JUMP_R1 + 1, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[1][1]},
-        {NINJA_JUMP_R1 + 2, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[1][1]},
-    },
-    {
-        {NINJA_JUMP_R2 + 1, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[2][1]},
-        {NINJA_JUMP_R2 + 2, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[2][1]},
-    },
-    {
-        {NINJA_JUMP_R3 + 1, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[3][1]},
-        {NINJA_JUMP_R3 + 2, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[3][1]},
-    },
-    {
-        {NINJA_JUMP_R4 + 1, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[4][1]},
-        {NINJA_JUMP_R4 + 2, NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[4][1]},
+        {SPR_NINJA_JUMP, 'B', NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[0][1]},
+        {SPR_NINJA_JUMP, 'C', NINJA_FALL_RATE, &AF(DoNinjaMove), &s_NinjaFall[0][1]},
     },
 };
 
@@ -619,10 +402,6 @@ STATE s_NinjaFall[5][2] =
 STATE* sg_NinjaFall[] =
 {
     s_NinjaFall[0],
-    s_NinjaFall[1],
-    s_NinjaFall[2],
-    s_NinjaFall[3],
-    s_NinjaFall[4]
 };
 
 //////////////////////
@@ -633,32 +412,12 @@ STATE* sg_NinjaFall[] =
 
 
 #define NINJA_SWIM_RATE 18
-STATE s_NinjaSwim[5][3] =
+STATE s_NinjaSwim[1][3] =
 {
     {
-        {NINJA_SWIM_R0 + 1, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[0][1]},
-        {NINJA_SWIM_R0 + 2, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[0][2]},
-        {NINJA_SWIM_R0 + 3, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[0][0]},
-    },
-    {
-        {NINJA_SWIM_R1 + 1, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[1][1]},
-        {NINJA_SWIM_R1 + 2, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[1][2]},
-        {NINJA_SWIM_R1 + 3, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[1][0]},
-    },
-    {
-        {NINJA_SWIM_R2 + 1, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[2][1]},
-        {NINJA_SWIM_R2 + 2, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[2][2]},
-        {NINJA_SWIM_R2 + 3, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[2][0]},
-    },
-    {
-        {NINJA_SWIM_R3 + 1, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[3][1]},
-        {NINJA_SWIM_R3 + 2, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[3][2]},
-        {NINJA_SWIM_R3 + 3, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[3][0]},
-    },
-    {
-        {NINJA_SWIM_R4 + 1, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[4][1]},
-        {NINJA_SWIM_R4 + 2, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[4][2]},
-        {NINJA_SWIM_R4 + 3, NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[4][0]},
+        {SPR_NINJA_SWIM, 'B', NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[0][1]},
+        {SPR_NINJA_SWIM, 'C', NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[0][2]},
+        {SPR_NINJA_SWIM, 'D', NINJA_SWIM_RATE, &AF(DoNinjaMove), &s_NinjaSwim[0][0]},
     },
 };
 
@@ -666,10 +425,6 @@ STATE s_NinjaSwim[5][3] =
 STATE* sg_NinjaSwim[] =
 {
     s_NinjaSwim[0],
-    s_NinjaSwim[1],
-    s_NinjaSwim[2],
-    s_NinjaSwim[3],
-    s_NinjaSwim[4]
 };
 
 //////////////////////
@@ -681,47 +436,19 @@ STATE* sg_NinjaSwim[] =
 
 #define NINJA_DIVE_RATE 23
 
-STATE s_NinjaDive[5][4] =
+STATE s_NinjaDive[1][4] =
 {
     {
-        {NINJA_SWIM_R0 + 0, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][1]},
-        {NINJA_SWIM_R0 + 1, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][2]},
-        {NINJA_SWIM_R0 + 2, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][3]},
-        {NINJA_SWIM_R0 + 3, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][0]},
-    },
-    {
-        {NINJA_SWIM_R1 + 0, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[1][1]},
-        {NINJA_SWIM_R1 + 1, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[1][2]},
-        {NINJA_SWIM_R1 + 2, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[1][3]},
-        {NINJA_SWIM_R1 + 3, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[1][0]},
-    },
-    {
-        {NINJA_SWIM_R2 + 0, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[2][1]},
-        {NINJA_SWIM_R2 + 1, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[2][2]},
-        {NINJA_SWIM_R2 + 2, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[2][3]},
-        {NINJA_SWIM_R2 + 3, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[2][0]},
-    },
-    {
-        {NINJA_SWIM_R3 + 0, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[3][1]},
-        {NINJA_SWIM_R3 + 1, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[3][2]},
-        {NINJA_SWIM_R3 + 2, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[3][3]},
-        {NINJA_SWIM_R3 + 3, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[3][0]},
-    },
-    {
-        {NINJA_SWIM_R4 + 0, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[4][1]},
-        {NINJA_SWIM_R4 + 1, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[4][2]},
-        {NINJA_SWIM_R4 + 2, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[4][3]},
-        {NINJA_SWIM_R4 + 3, NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[4][0]},
+        {SPR_NINJA_SWIM, 'A', NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][1]},
+        {SPR_NINJA_SWIM, 'B', NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][2]},
+        {SPR_NINJA_SWIM, 'C', NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][3]},
+        {SPR_NINJA_SWIM, 'D', NINJA_DIVE_RATE, &AF(DoNinjaMove), &s_NinjaDive[0][0]},
     },
 };
 
 STATE* sg_NinjaDive[] =
 {
     s_NinjaDive[0],
-    s_NinjaDive[1],
-    s_NinjaDive[2],
-    s_NinjaDive[3],
-    s_NinjaDive[4]
 };
 
 //////////////////////
@@ -732,47 +459,19 @@ STATE* sg_NinjaDive[] =
 
 
 #define NINJA_CLIMB_RATE 20
-STATE s_NinjaClimb[5][4] =
+STATE s_NinjaClimb[1][4] =
 {
     {
-        {NINJA_CLIMB_R0 + 0, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][1]},
-        {NINJA_CLIMB_R0 + 1, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][2]},
-        {NINJA_CLIMB_R0 + 2, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][3]},
-        {NINJA_CLIMB_R0 + 3, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][0]},
-    },
-    {
-        {NINJA_CLIMB_R1 + 0, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[1][1]},
-        {NINJA_CLIMB_R1 + 1, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[1][2]},
-        {NINJA_CLIMB_R1 + 2, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[1][3]},
-        {NINJA_CLIMB_R1 + 3, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[1][0]},
-    },
-    {
-        {NINJA_CLIMB_R4 + 0, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[2][1]},
-        {NINJA_CLIMB_R4 + 1, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[2][2]},
-        {NINJA_CLIMB_R4 + 2, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[2][3]},
-        {NINJA_CLIMB_R4 + 3, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[2][0]},
-    },
-    {
-        {NINJA_CLIMB_R3 + 0, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[3][1]},
-        {NINJA_CLIMB_R3 + 1, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[3][2]},
-        {NINJA_CLIMB_R3 + 2, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[3][3]},
-        {NINJA_CLIMB_R3 + 3, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[3][0]},
-    },
-    {
-        {NINJA_CLIMB_R2 + 0, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[4][1]},
-        {NINJA_CLIMB_R2 + 1, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[4][2]},
-        {NINJA_CLIMB_R2 + 2, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[4][3]},
-        {NINJA_CLIMB_R2 + 3, NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[4][0]},
+        {SPR_NINJA_CLIMB, 'A', NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][1]},
+        {SPR_NINJA_CLIMB, 'B', NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][2]},
+        {SPR_NINJA_CLIMB, 'C', NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][3]},
+        {SPR_NINJA_CLIMB, 'D', NINJA_CLIMB_RATE, &AF(DoNinjaMove), &s_NinjaClimb[0][0]},
     },
 };
 
 STATE* sg_NinjaClimb[] =
 {
     s_NinjaClimb[0],
-    s_NinjaClimb[1],
-    s_NinjaClimb[2],
-    s_NinjaClimb[3],
-    s_NinjaClimb[4]
 };
 
 
@@ -784,32 +483,16 @@ STATE* sg_NinjaClimb[] =
 
 #define NINJA_FLY_RATE 12
 
-STATE s_NinjaFly[5][1] =
+STATE s_NinjaFly[1][1] =
 {
     {
-        {NINJA_FLY_R0 + 0, NINJA_FLY_RATE, &AF(DoNinjaMove), &s_NinjaFly[0][0]},
-    },
-    {
-        {NINJA_FLY_R1 + 0, NINJA_FLY_RATE, &AF(DoNinjaMove), &s_NinjaFly[1][0]},
-    },
-    {
-        {NINJA_FLY_R2 + 0, NINJA_FLY_RATE, &AF(DoNinjaMove), &s_NinjaFly[2][0]},
-    },
-    {
-        {NINJA_FLY_R3 + 0, NINJA_FLY_RATE, &AF(DoNinjaMove), &s_NinjaFly[3][0]},
-    },
-    {
-        {NINJA_FLY_R4 + 0, NINJA_FLY_RATE, &AF(DoNinjaMove), &s_NinjaFly[4][0]},
+        {SPR_NINJA_FLY, 'A', NINJA_FLY_RATE, &AF(DoNinjaMove), &s_NinjaFly[0][0]},
     },
 };
 
 STATE* sg_NinjaFly[] =
 {
     s_NinjaFly[0],
-    s_NinjaFly[1],
-    s_NinjaFly[2],
-    s_NinjaFly[3],
-    s_NinjaFly[4]
 };
 
 //////////////////////
@@ -820,37 +503,17 @@ STATE* sg_NinjaFly[] =
 
 #define NINJA_PAIN_RATE 15
 
-STATE s_NinjaPain[5][2] =
+STATE s_NinjaPain[1][2] =
 {
     {
-        {NINJA_PAIN_R0 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[0][1]},
-        {NINJA_PAIN_R0 + 1, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[0][1]},
-    },
-    {
-        {NINJA_STAND_R1 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[1][1]},
-        {NINJA_STAND_R1 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[1][1]},
-    },
-    {
-        {NINJA_STAND_R2 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[2][1]},
-        {NINJA_STAND_R2 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[2][1]},
-    },
-    {
-        {NINJA_STAND_R3 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[3][1]},
-        {NINJA_STAND_R3 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[3][1]},
-    },
-    {
-        {NINJA_STAND_R4 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[4][1]},
-        {NINJA_STAND_R4 + 0, NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[4][1]},
+        {SPR_NINJA_PAIN, 'A', NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[0][1]},
+        {SPR_NINJA_PAIN, 'B', NINJA_PAIN_RATE, &AF(DoNinjaPain), &s_NinjaPain[0][1]},
     },
 };
 
 STATE* sg_NinjaPain[] =
 {
     s_NinjaPain[0],
-    s_NinjaPain[1],
-    s_NinjaPain[2],
-    s_NinjaPain[3],
-    s_NinjaPain[4]
 };
 
 //////////////////////
@@ -861,57 +524,21 @@ STATE* sg_NinjaPain[] =
 
 #define NINJA_STAR_RATE 18
 
-STATE s_NinjaStar[5][6] =
+STATE s_NinjaStar[1][6] =
 {
     {
-        {NINJA_THROW_R0 + 0, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[0][1]},
-        {NINJA_THROW_R0 + 0, NINJA_STAR_RATE,       &AF(NullNinja),          &s_NinjaStar[0][2]},
-        {NINJA_THROW_R0 + 1, 0 | SF_QUICK_CALL,         &AF(InitEnemyStar),      &s_NinjaStar[0][3]},
-        {NINJA_THROW_R0 + 1, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[0][4]},
-        {NINJA_THROW_R0 + 2, 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_NinjaStar[0][5]},
-        {NINJA_THROW_R0 + 2, NINJA_STAR_RATE,       &AF(DoNinjaMove),        &s_NinjaStar[0][5]},
-    },
-    {
-        {NINJA_THROW_R1 + 0, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[1][1]},
-        {NINJA_THROW_R1 + 0, NINJA_STAR_RATE,       &AF(NullNinja),          &s_NinjaStar[1][2]},
-        {NINJA_THROW_R1 + 1, 0 | SF_QUICK_CALL,         &AF(InitEnemyStar),      &s_NinjaStar[1][3]},
-        {NINJA_THROW_R1 + 1, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[1][4]},
-        {NINJA_THROW_R1 + 2, 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_NinjaStar[1][5]},
-        {NINJA_THROW_R1 + 2, NINJA_STAR_RATE,       &AF(DoNinjaMove),        &s_NinjaStar[1][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[2][1]},
-        {NINJA_THROW_R2 + 0, NINJA_STAR_RATE,       &AF(NullNinja),          &s_NinjaStar[2][2]},
-        {NINJA_THROW_R2 + 1, 0 | SF_QUICK_CALL,         &AF(InitEnemyStar),      &s_NinjaStar[2][3]},
-        {NINJA_THROW_R2 + 1, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[2][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_NinjaStar[2][5]},
-        {NINJA_THROW_R2 + 2, NINJA_STAR_RATE,       &AF(DoNinjaMove),        &s_NinjaStar[2][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[3][1]},
-        {NINJA_THROW_R2 + 0, NINJA_STAR_RATE,       &AF(NullNinja),          &s_NinjaStar[3][2]},
-        {NINJA_THROW_R2 + 1, 0 | SF_QUICK_CALL,         &AF(InitEnemyStar),      &s_NinjaStar[3][3]},
-        {NINJA_THROW_R2 + 1, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[3][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_NinjaStar[3][5]},
-        {NINJA_THROW_R2 + 2, NINJA_STAR_RATE,       &AF(DoNinjaMove),        &s_NinjaStar[3][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[4][1]},
-        {NINJA_THROW_R2 + 0, NINJA_STAR_RATE,       &AF(NullNinja),          &s_NinjaStar[4][2]},
-        {NINJA_THROW_R2 + 1, 0 | SF_QUICK_CALL,         &AF(InitEnemyStar),      &s_NinjaStar[4][3]},
-        {NINJA_THROW_R2 + 1, NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[4][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_NinjaStar[4][5]},
-        {NINJA_THROW_R2 + 2, NINJA_STAR_RATE,       &AF(DoNinjaMove),        &s_NinjaStar[4][5]},
+        {SPR_NINJA_THROW, 'A', NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[0][1]},
+        {SPR_NINJA_THROW, 'A', NINJA_STAR_RATE,       &AF(NullNinja),          &s_NinjaStar[0][2]},
+        {SPR_NINJA_THROW, 'B', 0 | SF_QUICK_CALL,         &AF(InitEnemyStar),      &s_NinjaStar[0][3]},
+        {SPR_NINJA_THROW, 'B', NINJA_STAR_RATE * 2,     &AF(NullNinja),            &s_NinjaStar[0][4]},
+        {SPR_NINJA_THROW, 'C', 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_NinjaStar[0][5]},
+        {SPR_NINJA_THROW, 'C', NINJA_STAR_RATE,       &AF(DoNinjaMove),        &s_NinjaStar[0][5]},
     },
 };
 
 STATE* sg_NinjaStar[] =
 {
     s_NinjaStar[0],
-    s_NinjaStar[1],
-    s_NinjaStar[2],
-    s_NinjaStar[3],
-    s_NinjaStar[4]
 };
 
 //////////////////////
@@ -922,47 +549,15 @@ STATE* sg_NinjaStar[] =
 
 #define NINJA_MIRV_RATE 18
 
-STATE s_NinjaMirv[5][6] =
+STATE s_NinjaMirv[1][6] =
 {
     {
-        {NINJA_THROW_R0 + 0, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[0][1]},
-        {NINJA_THROW_R0 + 1, NINJA_MIRV_RATE, &AF(NullNinja), &s_NinjaMirv[0][2]},
-        {NINJA_THROW_R0 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyMirv), &s_NinjaMirv[0][3]},
-        {NINJA_THROW_R0 + 2, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[0][4]},
-        {NINJA_THROW_R0 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaMirv[0][5]},
-        {NINJA_THROW_R0 + 2, NINJA_MIRV_RATE, &AF(DoNinjaMove), &s_NinjaMirv[0][5]},
-    },
-    {
-        {NINJA_THROW_R1 + 0, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[1][1]},
-        {NINJA_THROW_R1 + 1, NINJA_MIRV_RATE, &AF(NullNinja), &s_NinjaMirv[1][2]},
-        {NINJA_THROW_R1 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyMirv), &s_NinjaMirv[1][3]},
-        {NINJA_THROW_R1 + 2, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[1][4]},
-        {NINJA_THROW_R1 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaMirv[1][5]},
-        {NINJA_THROW_R1 + 2, NINJA_MIRV_RATE, &AF(DoNinjaMove), &s_NinjaMirv[1][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[2][1]},
-        {NINJA_THROW_R2 + 1, NINJA_MIRV_RATE, &AF(NullNinja), &s_NinjaMirv[2][2]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyMirv), &s_NinjaMirv[2][3]},
-        {NINJA_THROW_R2 + 2, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[2][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaMirv[2][5]},
-        {NINJA_THROW_R2 + 2, NINJA_MIRV_RATE, &AF(DoNinjaMove), &s_NinjaMirv[2][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[3][1]},
-        {NINJA_THROW_R2 + 1, NINJA_MIRV_RATE, &AF(NullNinja), &s_NinjaMirv[3][2]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyMirv), &s_NinjaMirv[3][3]},
-        {NINJA_THROW_R2 + 2, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[3][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaMirv[3][5]},
-        {NINJA_THROW_R2 + 2, NINJA_MIRV_RATE, &AF(DoNinjaMove), &s_NinjaMirv[3][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[4][1]},
-        {NINJA_THROW_R2 + 1, NINJA_MIRV_RATE, &AF(NullNinja), &s_NinjaMirv[4][2]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyMirv), &s_NinjaMirv[4][3]},
-        {NINJA_THROW_R2 + 2, NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[4][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaMirv[4][5]},
-        {NINJA_THROW_R2 + 2, NINJA_MIRV_RATE, &AF(DoNinjaMove), &s_NinjaStar[4][5]},
+        {SPR_NINJA_THROW, 'A', NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[0][1]},
+        {SPR_NINJA_THROW, 'B', NINJA_MIRV_RATE, &AF(NullNinja), &s_NinjaMirv[0][2]},
+        {SPR_NINJA_THROW, 'C', 0 | SF_QUICK_CALL, &AF(InitEnemyMirv), &s_NinjaMirv[0][3]},
+        {SPR_NINJA_THROW, 'C', NINJA_MIRV_RATE * 2, &AF(NullNinja), &s_NinjaMirv[0][4]},
+        {SPR_NINJA_THROW, 'C', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaMirv[0][5]},
+        {SPR_NINJA_THROW, 'C', NINJA_MIRV_RATE, &AF(DoNinjaMove), &s_NinjaMirv[0][5]},
     },
 };
 
@@ -970,10 +565,6 @@ STATE s_NinjaMirv[5][6] =
 STATE* sg_NinjaMirv[] =
 {
     s_NinjaMirv[0],
-    s_NinjaMirv[1],
-    s_NinjaMirv[2],
-    s_NinjaMirv[3],
-    s_NinjaMirv[4]
 };
 
 //////////////////////
@@ -984,47 +575,15 @@ STATE* sg_NinjaMirv[] =
 
 #define NINJA_NAPALM_RATE 18
 
-STATE s_NinjaNapalm[5][6] =
+STATE s_NinjaNapalm[1][6] =
 {
     {
-        {NINJA_THROW_R0 + 0, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[0][1]},
-        {NINJA_THROW_R0 + 1, NINJA_NAPALM_RATE, &AF(NullNinja), &s_NinjaNapalm[0][2]},
-        {NINJA_THROW_R0 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyNapalm), &s_NinjaNapalm[0][3]},
-        {NINJA_THROW_R0 + 2, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[0][4]},
-        {NINJA_THROW_R0 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaNapalm[0][5]},
-        {NINJA_THROW_R0 + 2, NINJA_NAPALM_RATE, &AF(DoNinjaMove), &s_NinjaNapalm[0][5]},
-    },
-    {
-        {NINJA_THROW_R1 + 0, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[1][1]},
-        {NINJA_THROW_R1 + 1, NINJA_NAPALM_RATE, &AF(NullNinja), &s_NinjaNapalm[1][2]},
-        {NINJA_THROW_R1 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyNapalm), &s_NinjaNapalm[1][3]},
-        {NINJA_THROW_R1 + 2, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[1][4]},
-        {NINJA_THROW_R1 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaNapalm[1][5]},
-        {NINJA_THROW_R1 + 2, NINJA_NAPALM_RATE, &AF(DoNinjaMove), &s_NinjaNapalm[1][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[2][1]},
-        {NINJA_THROW_R2 + 1, NINJA_NAPALM_RATE, &AF(NullNinja), &s_NinjaNapalm[2][2]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyNapalm), &s_NinjaNapalm[2][3]},
-        {NINJA_THROW_R2 + 2, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[2][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaNapalm[2][5]},
-        {NINJA_THROW_R2 + 2, NINJA_NAPALM_RATE, &AF(DoNinjaMove), &s_NinjaNapalm[2][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[3][1]},
-        {NINJA_THROW_R2 + 1, NINJA_NAPALM_RATE, &AF(NullNinja), &s_NinjaNapalm[3][2]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyNapalm), &s_NinjaNapalm[3][3]},
-        {NINJA_THROW_R2 + 2, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[3][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaNapalm[3][5]},
-        {NINJA_THROW_R2 + 2, NINJA_NAPALM_RATE, &AF(DoNinjaMove), &s_NinjaNapalm[3][5]},
-    },
-    {
-        {NINJA_THROW_R2 + 0, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[4][1]},
-        {NINJA_THROW_R2 + 1, NINJA_NAPALM_RATE, &AF(NullNinja), &s_NinjaNapalm[4][2]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitEnemyNapalm), &s_NinjaNapalm[4][3]},
-        {NINJA_THROW_R2 + 2, NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[4][4]},
-        {NINJA_THROW_R2 + 2, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaNapalm[4][5]},
-        {NINJA_THROW_R2 + 2, NINJA_NAPALM_RATE, &AF(DoNinjaMove), &s_NinjaNapalm[4][5]},
+        {SPR_NINJA_THROW, 'A', NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[0][1]},
+        {SPR_NINJA_THROW, 'B', NINJA_NAPALM_RATE, &AF(NullNinja), &s_NinjaNapalm[0][2]},
+        {SPR_NINJA_THROW, 'C', 0 | SF_QUICK_CALL, &AF(InitEnemyNapalm), &s_NinjaNapalm[0][3]},
+        {SPR_NINJA_THROW, 'C', NINJA_NAPALM_RATE * 2, &AF(NullNinja), &s_NinjaNapalm[0][4]},
+        {SPR_NINJA_THROW, 'C', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaNapalm[0][5]},
+        {SPR_NINJA_THROW, 'C', NINJA_NAPALM_RATE, &AF(DoNinjaMove), &s_NinjaNapalm[0][5]},
     },
 };
 
@@ -1032,10 +591,6 @@ STATE s_NinjaNapalm[5][6] =
 STATE* sg_NinjaNapalm[] =
 {
     s_NinjaNapalm[0],
-    s_NinjaNapalm[1],
-    s_NinjaNapalm[2],
-    s_NinjaNapalm[3],
-    s_NinjaNapalm[4]
 };
 
 
@@ -1047,42 +602,14 @@ STATE* sg_NinjaNapalm[] =
 
 #define NINJA_ROCKET_RATE 14
 
-STATE s_NinjaRocket[5][5] =
+STATE s_NinjaRocket[1][5] =
 {
     {
-        {NINJA_STAND_R0 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaRocket[0][1]},
-        {NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_NinjaRocket[0][2]},
-        {NINJA_STAND_R0 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaRocket[0][3]},
-        {NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaRocket[0][4]},
-        {NINJA_STAND_R0 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaRocket[0][4]},
-    },
-    {
-        {NINJA_STAND_R1 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaRocket[1][1]},
-        {NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_NinjaRocket[1][2]},
-        {NINJA_STAND_R1 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaRocket[1][3]},
-        {NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaRocket[1][4]},
-        {NINJA_STAND_R1 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaRocket[1][4]},
-    },
-    {
-        {NINJA_STAND_R2 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaRocket[2][1]},
-        {NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_NinjaRocket[2][2]},
-        {NINJA_STAND_R2 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaRocket[2][3]},
-        {NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaRocket[2][4]},
-        {NINJA_STAND_R2 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaRocket[2][4]},
-    },
-    {
-        {NINJA_STAND_R3 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaRocket[3][1]},
-        {NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_NinjaRocket[3][2]},
-        {NINJA_STAND_R3 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaRocket[3][3]},
-        {NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaRocket[3][4]},
-        {NINJA_STAND_R3 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaRocket[3][4]},
-    },
-    {
-        {NINJA_STAND_R4 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaRocket[4][1]},
-        {NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_NinjaRocket[4][2]},
-        {NINJA_STAND_R4 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaRocket[4][3]},
-        {NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaRocket[4][4]},
-        {NINJA_STAND_R4 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaRocket[4][4]},
+        {SPR_NINJA_STAND, 'A', NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaRocket[0][1]},
+        {SPR_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_NinjaRocket[0][2]},
+        {SPR_NINJA_STAND, 'A', NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaRocket[0][3]},
+        {SPR_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaRocket[0][4]},
+        {SPR_NINJA_STAND, 'A', NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaRocket[0][4]},
     },
 };
 
@@ -1090,10 +617,6 @@ STATE s_NinjaRocket[5][5] =
 STATE* sg_NinjaRocket[] =
 {
     s_NinjaRocket[0],
-    s_NinjaRocket[1],
-    s_NinjaRocket[2],
-    s_NinjaRocket[3],
-    s_NinjaRocket[4]
 };
 
 //////////////////////
@@ -1104,42 +627,14 @@ STATE* sg_NinjaRocket[] =
 
 #define NINJA_ROCKET_RATE 14
 
-STATE s_NinjaGrenade[5][5] =
+STATE s_NinjaGrenade[1][5] =
 {
     {
-        {NINJA_STAND_R0 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaGrenade[0][1]},
-        {NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_NinjaGrenade[0][2]},
-        {NINJA_STAND_R0 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaGrenade[0][3]},
-        {NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaGrenade[0][4]},
-        {NINJA_STAND_R0 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaGrenade[0][4]},
-    },
-    {
-        {NINJA_STAND_R1 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaGrenade[1][1]},
-        {NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_NinjaGrenade[1][2]},
-        {NINJA_STAND_R1 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaGrenade[1][3]},
-        {NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaGrenade[1][4]},
-        {NINJA_STAND_R1 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaGrenade[1][4]},
-    },
-    {
-        {NINJA_STAND_R2 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaGrenade[2][1]},
-        {NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_NinjaGrenade[2][2]},
-        {NINJA_STAND_R2 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaGrenade[2][3]},
-        {NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaGrenade[2][4]},
-        {NINJA_STAND_R2 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaGrenade[2][4]},
-    },
-    {
-        {NINJA_STAND_R3 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaGrenade[3][1]},
-        {NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_NinjaGrenade[3][2]},
-        {NINJA_STAND_R3 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaGrenade[3][3]},
-        {NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaGrenade[3][4]},
-        {NINJA_STAND_R3 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaGrenade[3][4]},
-    },
-    {
-        {NINJA_STAND_R4 + 0, NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaGrenade[4][1]},
-        {NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_NinjaGrenade[4][2]},
-        {NINJA_STAND_R4 + 0, NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaGrenade[4][3]},
-        {NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaGrenade[4][4]},
-        {NINJA_STAND_R4 + 0, NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaGrenade[4][4]},
+        {SPR_NINJA_STAND, 'A', NINJA_ROCKET_RATE * 2, &AF(NullNinja), &s_NinjaGrenade[0][1]},
+        {SPR_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_NinjaGrenade[0][2]},
+        {SPR_NINJA_STAND, 'A', NINJA_ROCKET_RATE, &AF(NullNinja), &s_NinjaGrenade[0][3]},
+        {SPR_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaGrenade[0][4]},
+        {SPR_NINJA_STAND, 'A', NINJA_ROCKET_RATE, &AF(DoNinjaMove), &s_NinjaGrenade[0][4]},
     },
 };
 
@@ -1147,10 +642,6 @@ STATE s_NinjaGrenade[5][5] =
 STATE* sg_NinjaGrenade[] =
 {
     s_NinjaGrenade[0],
-    s_NinjaGrenade[1],
-    s_NinjaGrenade[2],
-    s_NinjaGrenade[3],
-    s_NinjaGrenade[4]
 };
 
 
@@ -1162,42 +653,14 @@ STATE* sg_NinjaGrenade[] =
 
 #define NINJA_FLASHBOMB_RATE 14
 
-STATE s_NinjaFlashBomb[5][5] =
+STATE s_NinjaFlashBomb[1][5] =
 {
     {
-        {NINJA_STAND_R0 + 0, NINJA_FLASHBOMB_RATE * 2, &AF(NullNinja), &s_NinjaFlashBomb[0][1]},
-        {NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_NinjaFlashBomb[0][2]},
-        {NINJA_STAND_R0 + 0, NINJA_FLASHBOMB_RATE, &AF(NullNinja), &s_NinjaFlashBomb[0][3]},
-        {NINJA_STAND_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaFlashBomb[0][4]},
-        {NINJA_STAND_R0 + 0, NINJA_FLASHBOMB_RATE, &AF(DoNinjaMove), &s_NinjaFlashBomb[0][4]},
-    },
-    {
-        {NINJA_STAND_R1 + 0, NINJA_FLASHBOMB_RATE * 2, &AF(NullNinja), &s_NinjaFlashBomb[1][1]},
-        {NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_NinjaFlashBomb[1][2]},
-        {NINJA_STAND_R1 + 0, NINJA_FLASHBOMB_RATE, &AF(NullNinja), &s_NinjaFlashBomb[1][3]},
-        {NINJA_STAND_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaFlashBomb[1][4]},
-        {NINJA_STAND_R1 + 0, NINJA_FLASHBOMB_RATE, &AF(DoNinjaMove), &s_NinjaFlashBomb[1][4]},
-    },
-    {
-        {NINJA_STAND_R2 + 0, NINJA_FLASHBOMB_RATE * 2, &AF(NullNinja), &s_NinjaFlashBomb[2][1]},
-        {NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_NinjaFlashBomb[2][2]},
-        {NINJA_STAND_R2 + 0, NINJA_FLASHBOMB_RATE, &AF(NullNinja), &s_NinjaFlashBomb[2][3]},
-        {NINJA_STAND_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaFlashBomb[2][4]},
-        {NINJA_STAND_R2 + 0, NINJA_FLASHBOMB_RATE, &AF(DoNinjaMove), &s_NinjaFlashBomb[2][4]},
-    },
-    {
-        {NINJA_STAND_R3 + 0, NINJA_FLASHBOMB_RATE * 2, &AF(NullNinja), &s_NinjaFlashBomb[3][1]},
-        {NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_NinjaFlashBomb[3][2]},
-        {NINJA_STAND_R3 + 0, NINJA_FLASHBOMB_RATE, &AF(NullNinja), &s_NinjaFlashBomb[3][3]},
-        {NINJA_STAND_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaFlashBomb[3][4]},
-        {NINJA_STAND_R3 + 0, NINJA_FLASHBOMB_RATE, &AF(DoNinjaMove), &s_NinjaFlashBomb[3][4]},
-    },
-    {
-        {NINJA_STAND_R4 + 0, NINJA_FLASHBOMB_RATE * 2, &AF(NullNinja), &s_NinjaFlashBomb[4][1]},
-        {NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_NinjaFlashBomb[4][2]},
-        {NINJA_STAND_R4 + 0, NINJA_FLASHBOMB_RATE, &AF(NullNinja), &s_NinjaFlashBomb[4][3]},
-        {NINJA_STAND_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaFlashBomb[4][4]},
-        {NINJA_STAND_R4 + 0, NINJA_FLASHBOMB_RATE, &AF(DoNinjaMove), &s_NinjaFlashBomb[4][4]},
+        {SPR_NINJA_STAND, 'A', NINJA_FLASHBOMB_RATE * 2, &AF(NullNinja), &s_NinjaFlashBomb[0][1]},
+        {SPR_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_NinjaFlashBomb[0][2]},
+        {SPR_NINJA_STAND, 'A', NINJA_FLASHBOMB_RATE, &AF(NullNinja), &s_NinjaFlashBomb[0][3]},
+        {SPR_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaFlashBomb[0][4]},
+        {SPR_NINJA_STAND, 'A', NINJA_FLASHBOMB_RATE, &AF(DoNinjaMove), &s_NinjaFlashBomb[0][4]},
     },
 };
 
@@ -1205,10 +668,6 @@ STATE s_NinjaFlashBomb[5][5] =
 STATE* sg_NinjaFlashBomb[] =
 {
     s_NinjaFlashBomb[0],
-    s_NinjaFlashBomb[1],
-    s_NinjaFlashBomb[2],
-    s_NinjaFlashBomb[3],
-    s_NinjaFlashBomb[4]
 };
 
 //////////////////////
@@ -1219,102 +678,26 @@ STATE* sg_NinjaFlashBomb[] =
 
 #define NINJA_UZI_RATE 8
 
-STATE s_NinjaUzi[5][17] =
+STATE s_NinjaUzi[1][17] =
 {
     {
-        {NINJA_FIRE_R0 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][1]},
-        {NINJA_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_NinjaUzi[0][2]},
-        {NINJA_FIRE_R0 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][3]},
-        {NINJA_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][4]},
-        {NINJA_FIRE_R0 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][5]},
-        {NINJA_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][6]},
-        {NINJA_FIRE_R0 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][7]},
-        {NINJA_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][8]},
-        {NINJA_FIRE_R0 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][9]},
-        {NINJA_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][10]},
-        {NINJA_FIRE_R0 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][11]},
-        {NINJA_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][12]},
-        {NINJA_FIRE_R0 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][13]},
-        {NINJA_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][14]},
-        {NINJA_FIRE_R0 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][15]},
-        {NINJA_FIRE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][16]},
-        {NINJA_FIRE_R0 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaUzi[0][16]},
-    },
-    {
-        {NINJA_FIRE_R1 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][1]},
-        {NINJA_FIRE_R1 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_NinjaUzi[1][2]},
-        {NINJA_FIRE_R1 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][3]},
-        {NINJA_FIRE_R1 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][4]},
-        {NINJA_FIRE_R1 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][5]},
-        {NINJA_FIRE_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][6]},
-        {NINJA_FIRE_R1 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][7]},
-        {NINJA_FIRE_R1 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][8]},
-        {NINJA_FIRE_R1 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][9]},
-        {NINJA_FIRE_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][10]},
-        {NINJA_FIRE_R1 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][11]},
-        {NINJA_FIRE_R1 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][12]},
-        {NINJA_FIRE_R1 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][13]},
-        {NINJA_FIRE_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][14]},
-        {NINJA_FIRE_R1 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[1][15]},
-        {NINJA_FIRE_R1 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[1][16]},
-        {NINJA_FIRE_R1 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaUzi[1][16]},
-    },
-    {
-        {NINJA_FIRE_R2 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][1]},
-        {NINJA_FIRE_R2 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_NinjaUzi[2][2]},
-        {NINJA_FIRE_R2 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][3]},
-        {NINJA_FIRE_R2 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][4]},
-        {NINJA_FIRE_R2 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][5]},
-        {NINJA_FIRE_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][6]},
-        {NINJA_FIRE_R2 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][7]},
-        {NINJA_FIRE_R2 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][8]},
-        {NINJA_FIRE_R2 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][9]},
-        {NINJA_FIRE_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][10]},
-        {NINJA_FIRE_R2 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][11]},
-        {NINJA_FIRE_R2 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][12]},
-        {NINJA_FIRE_R2 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][13]},
-        {NINJA_FIRE_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][14]},
-        {NINJA_FIRE_R2 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[2][15]},
-        {NINJA_FIRE_R2 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[2][16]},
-        {NINJA_FIRE_R2 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaUzi[2][16]},
-    },
-    {
-        {NINJA_FIRE_R3 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][1]},
-        {NINJA_FIRE_R3 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_NinjaUzi[3][2]},
-        {NINJA_FIRE_R3 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][3]},
-        {NINJA_FIRE_R3 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][4]},
-        {NINJA_FIRE_R3 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][5]},
-        {NINJA_FIRE_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][6]},
-        {NINJA_FIRE_R3 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][7]},
-        {NINJA_FIRE_R3 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][8]},
-        {NINJA_FIRE_R3 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][9]},
-        {NINJA_FIRE_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][10]},
-        {NINJA_FIRE_R3 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][11]},
-        {NINJA_FIRE_R3 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][12]},
-        {NINJA_FIRE_R3 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][13]},
-        {NINJA_FIRE_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][14]},
-        {NINJA_FIRE_R3 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[3][15]},
-        {NINJA_FIRE_R3 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[3][16]},
-        {NINJA_FIRE_R3 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaUzi[3][16]},
-    },
-    {
-        {NINJA_FIRE_R4 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][1]},
-        {NINJA_FIRE_R4 + 0, 0 | SF_QUICK_CALL, &AF(CheckFire), &s_NinjaUzi[4][2]},
-        {NINJA_FIRE_R4 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][3]},
-        {NINJA_FIRE_R4 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][4]},
-        {NINJA_FIRE_R4 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][5]},
-        {NINJA_FIRE_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][6]},
-        {NINJA_FIRE_R4 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][7]},
-        {NINJA_FIRE_R4 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][8]},
-        {NINJA_FIRE_R4 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][9]},
-        {NINJA_FIRE_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][10]},
-        {NINJA_FIRE_R4 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][11]},
-        {NINJA_FIRE_R4 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][12]},
-        {NINJA_FIRE_R4 + 0, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][13]},
-        {NINJA_FIRE_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][14]},
-        {NINJA_FIRE_R4 + 1, NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[4][15]},
-        {NINJA_FIRE_R4 + 1, 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[4][16]},
-        {NINJA_FIRE_R4 + 0, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaUzi[4][16]},
+        {SPR_NINJA_FIRE, 'A', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][1]},
+        {SPR_NINJA_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(CheckFire), &s_NinjaUzi[0][2]},
+        {SPR_NINJA_FIRE, 'B', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][3]},
+        {SPR_NINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][4]},
+        {SPR_NINJA_FIRE, 'A', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][5]},
+        {SPR_NINJA_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][6]},
+        {SPR_NINJA_FIRE, 'B', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][7]},
+        {SPR_NINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][8]},
+        {SPR_NINJA_FIRE, 'A', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][9]},
+        {SPR_NINJA_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][10]},
+        {SPR_NINJA_FIRE, 'B', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][11]},
+        {SPR_NINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][12]},
+        {SPR_NINJA_FIRE, 'A', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][13]},
+        {SPR_NINJA_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][14]},
+        {SPR_NINJA_FIRE, 'B', NINJA_UZI_RATE, &AF(NullNinja), &s_NinjaUzi[0][15]},
+        {SPR_NINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_NinjaUzi[0][16]},
+        {SPR_NINJA_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_NinjaUzi[0][16]},
     },
 };
 
@@ -1322,10 +705,6 @@ STATE s_NinjaUzi[5][17] =
 STATE* sg_NinjaUzi[] =
 {
     s_NinjaUzi[0],
-    s_NinjaUzi[1],
-    s_NinjaUzi[2],
-    s_NinjaUzi[3],
-    s_NinjaUzi[4]
 };
 
 
@@ -1340,26 +719,22 @@ STATE* sg_NinjaUzi[] =
 
 STATE s_NinjaHariKari[] =
 {
-    {NINJA_HARI_KARI_R0 + 0,   NINJA_HARI_KARI_FALL_RATE,      &AF(NullNinja),       &s_NinjaHariKari[1]},
-    {NINJA_HARI_KARI_R0 + 0,   SF_QUICK_CALL,                  &AF(DoNinjaSpecial),       &s_NinjaHariKari[2]},
-    {NINJA_HARI_KARI_R0 + 1,   NINJA_HARI_KARI_WAIT_RATE,      &AF(NullNinja),       &s_NinjaHariKari[3]},
-    {NINJA_HARI_KARI_R0 + 2,   SF_QUICK_CALL,                  &AF(DoNinjaHariKari), &s_NinjaHariKari[4]},
-    {NINJA_HARI_KARI_R0 + 2,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[5]},
-    {NINJA_HARI_KARI_R0 + 3,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[6]},
-    {NINJA_HARI_KARI_R0 + 4,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[7]},
-    {NINJA_HARI_KARI_R0 + 5,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[8]},
-    {NINJA_HARI_KARI_R0 + 6,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[9]},
-    {NINJA_HARI_KARI_R0 + 7,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[10]},
-    {NINJA_HARI_KARI_R0 + 7,   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[10]},
+    {SPR_NINJA_HARI_KARI, 'A',   NINJA_HARI_KARI_FALL_RATE,      &AF(NullNinja),       &s_NinjaHariKari[1]},
+    {SPR_NINJA_HARI_KARI, 'A',   SF_QUICK_CALL,                  &AF(DoNinjaSpecial),       &s_NinjaHariKari[2]},
+    {SPR_NINJA_HARI_KARI, 'B',   NINJA_HARI_KARI_WAIT_RATE,      &AF(NullNinja),       &s_NinjaHariKari[3]},
+    {SPR_NINJA_HARI_KARI, 'C',   SF_QUICK_CALL,                  &AF(DoNinjaHariKari), &s_NinjaHariKari[4]},
+    {SPR_NINJA_HARI_KARI, 'C',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[5]},
+    {SPR_NINJA_HARI_KARI, 'D',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[6]},
+    {SPR_NINJA_HARI_KARI, 'E',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[7]},
+    {SPR_NINJA_HARI_KARI, 'F',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[8]},
+    {SPR_NINJA_HARI_KARI, 'G',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[9]},
+    {SPR_NINJA_HARI_KARI, 'H',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[10]},
+    {SPR_NINJA_HARI_KARI, 'H',   NINJA_HARI_KARI_FALL_RATE,      nullptr,        &s_NinjaHariKari[10]},
 };
 
 STATE* sg_NinjaHariKari[] =
 {
     s_NinjaHariKari,
-    s_NinjaHariKari,
-    s_NinjaHariKari,
-    s_NinjaHariKari,
-    s_NinjaHariKari
 };
 
 
@@ -1370,25 +745,20 @@ STATE* sg_NinjaHariKari[] =
 //////////////////////
 
 #define NINJA_GRAB_THROAT_RATE 32
-#define NINJA_GRAB_THROAT_R0 4237
 
 STATE s_NinjaGrabThroat[] =
 {
-    {NINJA_GRAB_THROAT_R0 + 0,   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[1]},
-    {NINJA_GRAB_THROAT_R0 + 0,   SF_QUICK_CALL,               &AF(DoNinjaSpecial),  &s_NinjaGrabThroat[2]},
-    {NINJA_GRAB_THROAT_R0 + 1,   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[3]},
-    {NINJA_GRAB_THROAT_R0 + 2,   SF_QUICK_CALL,               &AF(DoNinjaGrabThroat), &s_NinjaGrabThroat[4]},
-    {NINJA_GRAB_THROAT_R0 + 2,   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[5]},
-    {NINJA_GRAB_THROAT_R0 + 1,   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[0]},
+    {SPR_NINJA_GRAB_THROAT, 'A',   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[1]},
+    {SPR_NINJA_GRAB_THROAT, 'A',   SF_QUICK_CALL,               &AF(DoNinjaSpecial),  &s_NinjaGrabThroat[2]},
+    {SPR_NINJA_GRAB_THROAT, 'B',   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[3]},
+    {SPR_NINJA_GRAB_THROAT, 'C',   SF_QUICK_CALL,               &AF(DoNinjaGrabThroat), &s_NinjaGrabThroat[4]},
+    {SPR_NINJA_GRAB_THROAT, 'C',   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[5]},
+    {SPR_NINJA_GRAB_THROAT, 'B',   NINJA_GRAB_THROAT_RATE,      &AF(NullNinja),       &s_NinjaGrabThroat[0]},
 };
 
 STATE* sg_NinjaGrabThroat[] =
 {
     s_NinjaGrabThroat,
-    s_NinjaGrabThroat,
-    s_NinjaGrabThroat,
-    s_NinjaGrabThroat,
-    s_NinjaGrabThroat
 };
 
 
@@ -1402,17 +772,17 @@ STATE* sg_NinjaGrabThroat[] =
 
 STATE s_NinjaDie[] =
 {
-    {NINJA_DIE + 0, NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[1]},
-    {NINJA_DIE + 1, NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[2]},
-    {NINJA_DIE + 2, NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[3]},
-    {NINJA_DIE + 3, NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[4]},
-    {NINJA_DIE + 4, NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[5]},
-    {NINJA_DIE + 5, NINJA_DIE_RATE-4, &AF(NullNinja), &s_NinjaDie[6]},
-    {NINJA_DIE + 6, NINJA_DIE_RATE-6, &AF(NullNinja), &s_NinjaDie[7]},
-    {NINJA_DIE + 6, SF_QUICK_CALL, &AF(DoNinjaSpecial), &s_NinjaDie[8]},
-    {NINJA_DIE + 6, NINJA_DIE_RATE-10, &AF(NullNinja), &s_NinjaDie[9]},
-    {NINJA_DIE + 7, SF_QUICK_CALL, &AF(QueueFloorBlood), &s_NinjaDie[10]},
-    {NINJA_DIE + 7, NINJA_DIE_RATE-12, &AF(DoActorDebris), &s_NinjaDie[10]},
+    {SPR_NINJA_DIE, 'A', NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[1]},
+    {SPR_NINJA_DIE, 'B', NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[2]},
+    {SPR_NINJA_DIE, 'C', NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[3]},
+    {SPR_NINJA_DIE, 'D', NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[4]},
+    {SPR_NINJA_DIE, 'E', NINJA_DIE_RATE, &AF(NullNinja), &s_NinjaDie[5]},
+    {SPR_NINJA_DIE, 'F', NINJA_DIE_RATE-4, &AF(NullNinja), &s_NinjaDie[6]},
+    {SPR_NINJA_DIE, 'G', NINJA_DIE_RATE-6, &AF(NullNinja), &s_NinjaDie[7]},
+    {SPR_NINJA_DIE, 'G', SF_QUICK_CALL, &AF(DoNinjaSpecial), &s_NinjaDie[8]},
+    {SPR_NINJA_DIE, 'G', NINJA_DIE_RATE-10, &AF(NullNinja), &s_NinjaDie[9]},
+    {SPR_NINJA_DIE, 'H', SF_QUICK_CALL, &AF(QueueFloorBlood), &s_NinjaDie[10]},
+    {SPR_NINJA_DIE, 'H', NINJA_DIE_RATE-12, &AF(DoActorDebris), &s_NinjaDie[10]},
 };
 
 
@@ -1420,57 +790,57 @@ STATE s_NinjaDie[] =
 
 STATE s_NinjaDieSliced[] =
 {
-    {NINJA_SLICED + 0, NINJA_DIESLICED_RATE*6, &AF(NullNinja), &s_NinjaDieSliced[1]},
-    {NINJA_SLICED + 1, NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSliced[2]},
-    {NINJA_SLICED + 2, NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSliced[3]},
-    {NINJA_SLICED + 3, NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSliced[4]},
-    {NINJA_SLICED + 4, NINJA_DIESLICED_RATE-1, &AF(NullNinja), &s_NinjaDieSliced[5]},
-    {NINJA_SLICED + 5, NINJA_DIESLICED_RATE-2, &AF(NullNinja), &s_NinjaDieSliced[6]},
-    {NINJA_SLICED + 6, NINJA_DIESLICED_RATE-3, &AF(NullNinja), &s_NinjaDieSliced[7]},
-    {NINJA_SLICED + 7, NINJA_DIESLICED_RATE-4, &AF(NullNinja), &s_NinjaDieSliced[8]},
-    {NINJA_SLICED + 7, SF_QUICK_CALL, &AF(DoNinjaSpecial), &s_NinjaDieSliced[9]},
-    {NINJA_SLICED + 8, NINJA_DIESLICED_RATE-5, &AF(NullNinja), &s_NinjaDieSliced[10]},
-    {NINJA_SLICED + 9, SF_QUICK_CALL, &AF(QueueFloorBlood), &s_NinjaDieSliced[11]},
-    {NINJA_SLICED + 9, NINJA_DIESLICED_RATE, &AF(DoActorDebris), &s_NinjaDieSliced[11]},
+    {SPR_NINJA_SLICED, 'A', NINJA_DIESLICED_RATE*6, &AF(NullNinja), &s_NinjaDieSliced[1]},
+    {SPR_NINJA_SLICED, 'B', NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSliced[2]},
+    {SPR_NINJA_SLICED, 'C', NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSliced[3]},
+    {SPR_NINJA_SLICED, 'D', NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSliced[4]},
+    {SPR_NINJA_SLICED, 'E', NINJA_DIESLICED_RATE-1, &AF(NullNinja), &s_NinjaDieSliced[5]},
+    {SPR_NINJA_SLICED, 'F', NINJA_DIESLICED_RATE-2, &AF(NullNinja), &s_NinjaDieSliced[6]},
+    {SPR_NINJA_SLICED, 'G', NINJA_DIESLICED_RATE-3, &AF(NullNinja), &s_NinjaDieSliced[7]},
+    {SPR_NINJA_SLICED, 'H', NINJA_DIESLICED_RATE-4, &AF(NullNinja), &s_NinjaDieSliced[8]},
+    {SPR_NINJA_SLICED, 'H', SF_QUICK_CALL, &AF(DoNinjaSpecial), &s_NinjaDieSliced[9]},
+    {SPR_NINJA_SLICED, 'I', NINJA_DIESLICED_RATE-5, &AF(NullNinja), &s_NinjaDieSliced[10]},
+    {SPR_NINJA_SLICED, 'J', SF_QUICK_CALL, &AF(QueueFloorBlood), &s_NinjaDieSliced[11]},
+    {SPR_NINJA_SLICED, 'J', NINJA_DIESLICED_RATE, &AF(DoActorDebris), &s_NinjaDieSliced[11]},
     };
 
 STATE s_NinjaDieSlicedHack[] =
     {
-    {NINJA_SLICED_HACK + 0, NINJA_DIESLICED_RATE*6, &AF(NullNinja), &s_NinjaDieSlicedHack[1]},
-    {NINJA_SLICED_HACK + 1, NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSlicedHack[2]},
-    {NINJA_SLICED_HACK + 2, NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSlicedHack[3]},
-    {NINJA_SLICED_HACK + 3, NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSlicedHack[4]},
-    {NINJA_SLICED_HACK + 4, NINJA_DIESLICED_RATE-1, &AF(NullNinja), &s_NinjaDieSlicedHack[5]},
-    {NINJA_SLICED_HACK + 4, NINJA_DIESLICED_RATE-2, &AF(NullNinja), &s_NinjaDieSlicedHack[6]},
-    {NINJA_SLICED_HACK + 5, NINJA_DIESLICED_RATE-3, &AF(NullNinja), &s_NinjaDieSlicedHack[7]},
-    {NINJA_SLICED_HACK + 5, NINJA_DIESLICED_RATE-4, &AF(NullNinja), &s_NinjaDieSlicedHack[8]},
-    {NINJA_SLICED_HACK + 6, SF_QUICK_CALL        , &AF(DoNinjaSpecial), &s_NinjaDieSlicedHack[9]},
-    {NINJA_SLICED_HACK + 6, NINJA_DIESLICED_RATE-5, &AF(NullNinja), &s_NinjaDieSlicedHack[10]},
-    {NINJA_SLICED_HACK + 7, SF_QUICK_CALL         , &AF(QueueFloorBlood), &s_NinjaDieSlicedHack[11]},
-    {NINJA_SLICED_HACK + 7, NINJA_DIESLICED_RATE-6, &AF(DoActorDebris), &s_NinjaDieSlicedHack[11]},
+    {SPR_NINJA_SLICED_HACK, 'A', NINJA_DIESLICED_RATE*6, &AF(NullNinja), &s_NinjaDieSlicedHack[1]},
+    {SPR_NINJA_SLICED_HACK, 'B', NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSlicedHack[2]},
+    {SPR_NINJA_SLICED_HACK, 'C', NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSlicedHack[3]},
+    {SPR_NINJA_SLICED_HACK, 'D', NINJA_DIESLICED_RATE,   &AF(NullNinja), &s_NinjaDieSlicedHack[4]},
+    {SPR_NINJA_SLICED_HACK, 'E', NINJA_DIESLICED_RATE-1, &AF(NullNinja), &s_NinjaDieSlicedHack[5]},
+    {SPR_NINJA_SLICED_HACK, 'E', NINJA_DIESLICED_RATE-2, &AF(NullNinja), &s_NinjaDieSlicedHack[6]},
+    {SPR_NINJA_SLICED_HACK, 'F', NINJA_DIESLICED_RATE-3, &AF(NullNinja), &s_NinjaDieSlicedHack[7]},
+    {SPR_NINJA_SLICED_HACK, 'F', NINJA_DIESLICED_RATE-4, &AF(NullNinja), &s_NinjaDieSlicedHack[8]},
+    {SPR_NINJA_SLICED_HACK, 'G', SF_QUICK_CALL        , &AF(DoNinjaSpecial), &s_NinjaDieSlicedHack[9]},
+    {SPR_NINJA_SLICED_HACK, 'G', NINJA_DIESLICED_RATE-5, &AF(NullNinja), &s_NinjaDieSlicedHack[10]},
+    {SPR_NINJA_SLICED_HACK, 'H', SF_QUICK_CALL         , &AF(QueueFloorBlood), &s_NinjaDieSlicedHack[11]},
+    {SPR_NINJA_SLICED_HACK, 'H', NINJA_DIESLICED_RATE-6, &AF(DoActorDebris), &s_NinjaDieSlicedHack[11]},
     };
 
 STATE s_NinjaDead[] =
 {
-    {NINJA_DIE + 5, NINJA_DIE_RATE, &AF(DoActorDebris), &s_NinjaDead[1]},
-    {NINJA_DIE + 6, SF_QUICK_CALL, &AF(DoNinjaSpecial), &s_NinjaDead[2]},
-    {NINJA_DIE + 6, NINJA_DIE_RATE, &AF(DoActorDebris), &s_NinjaDead[3]},
-    {NINJA_DIE + 7, SF_QUICK_CALL, &AF(QueueFloorBlood),&s_NinjaDead[4]},
-    {NINJA_DIE + 7, NINJA_DIE_RATE, &AF(DoActorDebris), &s_NinjaDead[4]},
+    {SPR_NINJA_DIE, 'F', NINJA_DIE_RATE, &AF(DoActorDebris), &s_NinjaDead[1]},
+    {SPR_NINJA_DIE, 'G', SF_QUICK_CALL, &AF(DoNinjaSpecial), &s_NinjaDead[2]},
+    {SPR_NINJA_DIE, 'G', NINJA_DIE_RATE, &AF(DoActorDebris), &s_NinjaDead[3]},
+    {SPR_NINJA_DIE, 'H', SF_QUICK_CALL, &AF(QueueFloorBlood),&s_NinjaDead[4]},
+    {SPR_NINJA_DIE, 'H', NINJA_DIE_RATE, &AF(DoActorDebris), &s_NinjaDead[4]},
 };
 
 
 STATE s_NinjaDeathJump[] =
 {
-    {NINJA_DIE + 0, NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathJump[1]},
-    {NINJA_DIE + 1, NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathJump[2]},
-    {NINJA_DIE + 2, NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathJump[2]},
+    {SPR_NINJA_DIE, 'A', NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathJump[1]},
+    {SPR_NINJA_DIE, 'B', NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathJump[2]},
+    {SPR_NINJA_DIE, 'C', NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathJump[2]},
 };
 
 STATE s_NinjaDeathFall[] =
 {
-    {NINJA_DIE + 3, NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathFall[1]},
-    {NINJA_DIE + 4, NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathFall[1]},
+    {SPR_NINJA_DIE, 'D', NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathFall[1]},
+    {SPR_NINJA_DIE, 'E', NINJA_DIE_RATE, &AF(DoActorDeathMove), &s_NinjaDeathFall[1]},
 };
 
 /*
@@ -1885,7 +1255,7 @@ int DoNinjaHariKari(DSWActor* actor)
     actor->user.Flags |= (SPR_DEAD);
     actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
     actor->user.floor_dist = (40);
-    actor->user.__legacyState.RotNum = 0;
+    
     actor->clearActionFunc();
 
     actor->spr.extra |= (SPRX_BREAKABLE);
@@ -1920,7 +1290,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
         actor->user.Flags |= (SPR_DEAD);
         actor->user.Flags &= ~(SPR_FALLING | SPR_JUMPING);
         actor->user.floor_dist = (40);
-        actor->user.__legacyState.RotNum = 0;
+        
         actor->clearActionFunc();
 
         actor->spr.extra |= (SPRX_BREAKABLE);
@@ -2352,15 +1722,13 @@ void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle star
     actor->user.__legacyState.Rot = sg_NinjaRun;
     actor->user.__legacyState.ActorActionSet = &PlayerNinjaActionSet;
 
-    actor->user.__legacyState.RotNum = 5;
-
     actor->user.Radius = 400;
     actor->user.PlayerP = pp;
     //actor->user.Health = pp->MaxHealth;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
 
-    actor->spr.picnum = actor->user.__legacyState.State->Pic;
+    actor->setPicFromState();
     actor->spr.shade = -60; // was 15
     actor->clipdist = 16;
 
@@ -2419,7 +1787,7 @@ void SpawnPlayerUnderSprite(DSWPlayer* pp)
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
     actor->user.__legacyState.Rot = sg_NinjaRun;
-    actor->user.__legacyState.RotNum = plActor->user.__legacyState.RotNum;
+    actor->user.__legacyState.State = plActor->user.__legacyState.State;
     NewStateGroup(pp->PlayerUnderActor, plActor->user.__legacyState.Rot);
 
     actor->user.Radius = plActor->user.Radius;

@@ -83,6 +83,13 @@ void InitSpriteDefs(const char** names, size_t count)
 				texs[k] = TexMan.CheckForTexture(work.Data(), ETextureType::Any);
 				if (texs[k].isValid()) bits |= (1 << k);
 			}
+			// use the base name without frame extensions if no frame found.
+			if (bits == 0)
+			{
+				texs[0] = TexMan.CheckForTexture(names[i], ETextureType::Any);
+				if (texs[0].isValid()) bits = 1;
+				else continue;
+			}
 			if (bits == 1)
 			{
 				swork[j].Texture[0] = texs[0];

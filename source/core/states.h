@@ -191,6 +191,7 @@ extern FStateLabelStorage StateLabels;
 int GetSpriteIndex(const char * spritename, bool add = true);
 TArray<FName> &MakeStateNameList(const char * fname);
 void AddStateLight(FState *state, const char *lname);
+void InitSpriteDefs(const char** names, size_t count);
 
 
 //==========================================================================

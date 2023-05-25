@@ -605,7 +605,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("flags", w.Flags, def->Flags)
 			("flags2", w.Flags2, def->Flags2)
 			("Tics", w.Tics, def->Tics)
-			("RotNum", w.__legacyState.RotNum, def->__legacyState.RotNum)
 			("ID", w.ID, def->ID)
 			("Health", w.Health, def->Health)
 			("MaxHealth", w.MaxHealth, def->MaxHealth)

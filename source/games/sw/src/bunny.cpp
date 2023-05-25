@@ -156,58 +156,22 @@ ATTRIBUTE WhiteBunnyAttrib =
 
 #define BUNNY_RUN_RATE 10
 
-STATE s_BunnyRun[5][6] =
+STATE s_BunnyRun[][6] =
 {
     {
-        {BUNNY_RUN_R0 + 0, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][1]},
-        {BUNNY_RUN_R0 + 1, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][2]},
-        {BUNNY_RUN_R0 + 2, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][3]},
-        {BUNNY_RUN_R0 + 3, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][4]},
-        {BUNNY_RUN_R0 + 4, SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[0][5]},
-        {BUNNY_RUN_R0 + 4, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][0]},
+        {SPR_BUNNY_RUN, 'A', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][1]},
+        {SPR_BUNNY_RUN, 'B', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][2]},
+        {SPR_BUNNY_RUN, 'C', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][3]},
+        {SPR_BUNNY_RUN, 'D', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][4]},
+        {SPR_BUNNY_RUN, 'E', SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[0][5]},
+        {SPR_BUNNY_RUN, 'F', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0][0]},
     },
-    {
-        {BUNNY_RUN_R1 + 0, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[1][1]},
-        {BUNNY_RUN_R1 + 1, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[1][2]},
-        {BUNNY_RUN_R1 + 2, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[1][3]},
-        {BUNNY_RUN_R1 + 3, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[1][4]},
-        {BUNNY_RUN_R1 + 4, SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[1][5]},
-        {BUNNY_RUN_R1 + 4, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[1][0]},
-    },
-    {
-        {BUNNY_RUN_R2 + 0, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[2][1]},
-        {BUNNY_RUN_R2 + 1, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[2][2]},
-        {BUNNY_RUN_R2 + 2, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[2][3]},
-        {BUNNY_RUN_R2 + 3, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[2][4]},
-        {BUNNY_RUN_R2 + 4, SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[2][5]},
-        {BUNNY_RUN_R2 + 4, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[2][0]},
-    },
-    {
-        {BUNNY_RUN_R3 + 0, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[3][1]},
-        {BUNNY_RUN_R3 + 1, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[3][2]},
-        {BUNNY_RUN_R3 + 2, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[3][3]},
-        {BUNNY_RUN_R3 + 3, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[3][4]},
-        {BUNNY_RUN_R3 + 4, SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[3][5]},
-        {BUNNY_RUN_R3 + 4, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[3][0]},
-    },
-    {
-        {BUNNY_RUN_R4 + 0, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[4][1]},
-        {BUNNY_RUN_R4 + 1, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[4][2]},
-        {BUNNY_RUN_R4 + 2, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[4][3]},
-        {BUNNY_RUN_R4 + 3, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[4][4]},
-        {BUNNY_RUN_R4 + 4, SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[4][5]},
-        {BUNNY_RUN_R4 + 4, BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[4][0]},
-    }
 };
 
 
 STATE* sg_BunnyRun[] =
 {
     &s_BunnyRun[0][0],
-    &s_BunnyRun[1][0],
-    &s_BunnyRun[2][0],
-    &s_BunnyRun[3][0],
-    &s_BunnyRun[4][0]
 };
 
 //////////////////////
@@ -218,32 +182,12 @@ STATE* sg_BunnyRun[] =
 
 #define BUNNY_STAND_RATE 12
 
-STATE s_BunnyStand[5][3] =
+STATE s_BunnyStand[][3] =
 {
     {
-        {BUNNY_STAND_R0 + 0, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[0][1]},
-        {BUNNY_STAND_R0 + 4, SF_QUICK_CALL, &AF(DoBunnyGrowUp), &s_BunnyStand[0][2]},
-        {BUNNY_STAND_R0 + 4, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[0][0]},
-    },
-    {
-        {BUNNY_STAND_R1 + 0, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[1][1]},
-        {BUNNY_STAND_R1 + 4, SF_QUICK_CALL, &AF(DoBunnyGrowUp), &s_BunnyStand[1][2]},
-        {BUNNY_STAND_R1 + 4, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[1][0]},
-    },
-    {
-        {BUNNY_STAND_R2 + 0, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[2][1]},
-        {BUNNY_STAND_R2 + 4, SF_QUICK_CALL, &AF(DoBunnyGrowUp), &s_BunnyStand[2][2]},
-        {BUNNY_STAND_R2 + 4, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[2][0]},
-    },
-    {
-        {BUNNY_STAND_R3 + 0, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[3][1]},
-        {BUNNY_STAND_R3 + 4, SF_QUICK_CALL, &AF(DoBunnyGrowUp), &s_BunnyStand[3][2]},
-        {BUNNY_STAND_R3 + 4, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[3][0]},
-    },
-    {
-        {BUNNY_STAND_R4 + 0, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[4][1]},
-        {BUNNY_STAND_R4 + 4, SF_QUICK_CALL, &AF(DoBunnyGrowUp), &s_BunnyStand[4][2]},
-        {BUNNY_STAND_R4 + 4, BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[4][0]},
+        {SPR_BUNNY_RUN, 'A', BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[0][1]},
+        {SPR_BUNNY_RUN, 'E', SF_QUICK_CALL, &AF(DoBunnyGrowUp), &s_BunnyStand[0][2]},
+        {SPR_BUNNY_RUN, 'E', BUNNY_STAND_RATE, &AF(DoBunnyEat), &s_BunnyStand[0][0]},
     },
 };
 
@@ -251,10 +195,6 @@ STATE s_BunnyStand[5][3] =
 STATE* sg_BunnyStand[] =
 {
     s_BunnyStand[0],
-    s_BunnyStand[1],
-    s_BunnyStand[2],
-    s_BunnyStand[3],
-    s_BunnyStand[4]
 };
 
 //////////////////////
@@ -265,27 +205,11 @@ STATE* sg_BunnyStand[] =
 
 #define BUNNY_SCREW_RATE 16
 
-STATE s_BunnyScrew[5][2] =
+STATE s_BunnyScrew[][2] =
 {
     {
-        {BUNNY_STAND_R0 + 0, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[0][1]},
-        {BUNNY_STAND_R0 + 2, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[0][0]},
-    },
-    {
-        {BUNNY_STAND_R1 + 0, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[1][1]},
-        {BUNNY_STAND_R1 + 2, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[1][0]},
-    },
-    {
-        {BUNNY_STAND_R2 + 0, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[2][1]},
-        {BUNNY_STAND_R2 + 2, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[2][0]},
-    },
-    {
-        {BUNNY_STAND_R3 + 0, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[3][1]},
-        {BUNNY_STAND_R3 + 2, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[3][0]},
-    },
-    {
-        {BUNNY_STAND_R4 + 0, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[4][1]},
-        {BUNNY_STAND_R4 + 2, BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[4][0]},
+        {SPR_BUNNY_RUN, 'A', BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[0][1]},
+        {SPR_BUNNY_RUN, 'C', BUNNY_SCREW_RATE, &AF(DoBunnyScrew), &s_BunnyScrew[0][0]},
     },
 };
 
@@ -293,10 +217,6 @@ STATE s_BunnyScrew[5][2] =
 STATE* sg_BunnyScrew[] =
 {
     s_BunnyScrew[0],
-    s_BunnyScrew[1],
-    s_BunnyScrew[2],
-    s_BunnyScrew[3],
-    s_BunnyScrew[4]
 };
 
 //////////////////////
@@ -307,68 +227,24 @@ STATE* sg_BunnyScrew[] =
 
 #define BUNNY_SWIPE_RATE 8
 
-STATE s_BunnySwipe[5][8] =
+STATE s_BunnySwipe[][8] =
 {
     {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][1]},
-        {BUNNY_SWIPE_R0 + 1, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][2]},
-        {BUNNY_SWIPE_R0 + 1, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[0][3]},
-        {BUNNY_SWIPE_R0 + 2, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][4]},
-        {BUNNY_SWIPE_R0 + 3, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][5]},
-        {BUNNY_SWIPE_R0 + 3, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[0][6]},
-        {BUNNY_SWIPE_R0 + 3, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_BunnySwipe[0][7]},
-        {BUNNY_SWIPE_R0 + 3, BUNNY_SWIPE_RATE, &AF(DoBunnyMove), &s_BunnySwipe[0][7]},
+        {SPR_BUNNY_SWIPE, 'A', BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][1]},
+        {SPR_BUNNY_SWIPE, 'B', BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][2]},
+        {SPR_BUNNY_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[0][3]},
+        {SPR_BUNNY_SWIPE, 'C', BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][4]},
+        {SPR_BUNNY_SWIPE, 'D', BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[0][5]},
+        {SPR_BUNNY_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[0][6]},
+        {SPR_BUNNY_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_BunnySwipe[0][7]},
+        {SPR_BUNNY_SWIPE, 'D', BUNNY_SWIPE_RATE, &AF(DoBunnyMove), &s_BunnySwipe[0][7]},
     },
-    {
-        {BUNNY_SWIPE_R1 + 0, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[1][1]},
-        {BUNNY_SWIPE_R1 + 1, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[1][2]},
-        {BUNNY_SWIPE_R1 + 1, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[1][3]},
-        {BUNNY_SWIPE_R1 + 2, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[1][4]},
-        {BUNNY_SWIPE_R1 + 3, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[1][5]},
-        {BUNNY_SWIPE_R1 + 3, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[1][6]},
-        {BUNNY_SWIPE_R1 + 3, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_BunnySwipe[1][7]},
-        {BUNNY_SWIPE_R1 + 3, BUNNY_SWIPE_RATE, &AF(DoBunnyMove), &s_BunnySwipe[1][7]},
-    },
-    {
-        {BUNNY_SWIPE_R2 + 0, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[2][1]},
-        {BUNNY_SWIPE_R2 + 1, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[2][2]},
-        {BUNNY_SWIPE_R2 + 1, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[2][3]},
-        {BUNNY_SWIPE_R2 + 2, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[2][4]},
-        {BUNNY_SWIPE_R2 + 3, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[2][5]},
-        {BUNNY_SWIPE_R2 + 3, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[2][6]},
-        {BUNNY_SWIPE_R2 + 3, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_BunnySwipe[2][7]},
-        {BUNNY_SWIPE_R2 + 3, BUNNY_SWIPE_RATE, &AF(DoBunnyMove), &s_BunnySwipe[2][7]},
-    },
-    {
-        {BUNNY_SWIPE_R3 + 0, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[3][1]},
-        {BUNNY_SWIPE_R3 + 1, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[3][2]},
-        {BUNNY_SWIPE_R3 + 1, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[3][3]},
-        {BUNNY_SWIPE_R3 + 2, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[3][4]},
-        {BUNNY_SWIPE_R3 + 3, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[3][5]},
-        {BUNNY_SWIPE_R3 + 3, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[3][6]},
-        {BUNNY_SWIPE_R3 + 3, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_BunnySwipe[3][7]},
-        {BUNNY_SWIPE_R3 + 3, BUNNY_SWIPE_RATE, &AF(DoBunnyMove), &s_BunnySwipe[3][7]},
-    },
-    {
-        {BUNNY_SWIPE_R4 + 0, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[4][1]},
-        {BUNNY_SWIPE_R4 + 1, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[4][2]},
-        {BUNNY_SWIPE_R4 + 1, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[4][3]},
-        {BUNNY_SWIPE_R4 + 2, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[4][4]},
-        {BUNNY_SWIPE_R4 + 3, BUNNY_SWIPE_RATE, &AF(NullBunny), &s_BunnySwipe[4][5]},
-        {BUNNY_SWIPE_R4 + 3, 0 | SF_QUICK_CALL, &AF(InitBunnySlash), &s_BunnySwipe[4][6]},
-        {BUNNY_SWIPE_R4 + 3, 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_BunnySwipe[4][7]},
-        {BUNNY_SWIPE_R4 + 3, BUNNY_SWIPE_RATE, &AF(DoBunnyMove), &s_BunnySwipe[4][7]},
-    }
 };
 
 
 STATE* sg_BunnySwipe[] =
 {
     &s_BunnySwipe[0][0],
-    &s_BunnySwipe[1][0],
-    &s_BunnySwipe[2][0],
-    &s_BunnySwipe[3][0],
-    &s_BunnySwipe[4][0]
 };
 
 
@@ -380,33 +256,17 @@ STATE* sg_BunnySwipe[] =
 
 #define BUNNY_HEART_RATE 14
 
-STATE s_BunnyHeart[5][4] =
+STATE s_BunnyHeart[][4] =
 {
     {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_HEART_RATE, &AF(DoBunnyStandKill), &s_BunnyHeart[0][0]},
+        {SPR_BUNNY_SWIPE, 'A', BUNNY_HEART_RATE, &AF(DoBunnyStandKill), &s_BunnyHeart[0][0]},
     },
-    {
-        {BUNNY_SWIPE_R1 + 0, BUNNY_HEART_RATE, &AF(DoBunnyStandKill), &s_BunnyHeart[1][0]},
-    },
-    {
-        {BUNNY_SWIPE_R2 + 0, BUNNY_HEART_RATE, &AF(DoBunnyStandKill), &s_BunnyHeart[2][0]},
-    },
-    {
-        {BUNNY_SWIPE_R3 + 0, BUNNY_HEART_RATE, &AF(DoBunnyStandKill), &s_BunnyHeart[3][0]},
-    },
-    {
-        {BUNNY_SWIPE_R4 + 0, BUNNY_HEART_RATE, &AF(DoBunnyStandKill), &s_BunnyHeart[4][0]},
-    }
 };
 
 
 STATE* sg_BunnyHeart[] =
 {
     &s_BunnyHeart[0][0],
-    &s_BunnyHeart[1][0],
-    &s_BunnyHeart[2][0],
-    &s_BunnyHeart[3][0],
-    &s_BunnyHeart[4][0]
 };
 
 //////////////////////
@@ -417,32 +277,16 @@ STATE* sg_BunnyHeart[] =
 
 #define BUNNY_PAIN_RATE 38
 
-STATE s_BunnyPain[5][1] =
+STATE s_BunnyPain[][1] =
 {
     {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_PAIN_RATE, &AF(DoBunnyPain), &s_BunnyPain[0][0]},
+        {SPR_BUNNY_SWIPE, 'A', BUNNY_PAIN_RATE, &AF(DoBunnyPain), &s_BunnyPain[0][0]},
     },
-    {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_PAIN_RATE, &AF(DoBunnyPain), &s_BunnyPain[1][0]},
-    },
-    {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_PAIN_RATE, &AF(DoBunnyPain), &s_BunnyPain[2][0]},
-    },
-    {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_PAIN_RATE, &AF(DoBunnyPain), &s_BunnyPain[3][0]},
-    },
-    {
-        {BUNNY_SWIPE_R0 + 0, BUNNY_PAIN_RATE, &AF(DoBunnyPain), &s_BunnyPain[4][0]},
-    }
 };
 
 STATE* sg_BunnyPain[] =
 {
     &s_BunnyPain[0][0],
-    &s_BunnyPain[1][0],
-    &s_BunnyPain[2][0],
-    &s_BunnyPain[3][0],
-    &s_BunnyPain[4][0]
 };
 
 //////////////////////
@@ -453,38 +297,18 @@ STATE* sg_BunnyPain[] =
 
 #define BUNNY_JUMP_RATE 25
 
-STATE s_BunnyJump[5][6] =
+STATE s_BunnyJump[][6] =
 {
     {
-        {BUNNY_RUN_R0 + 1, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[0][1]},
-        {BUNNY_RUN_R0 + 2, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[0][1]},
+        {SPR_BUNNY_RUN, 'B', BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[0][1]},
+        {SPR_BUNNY_RUN, 'C', BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[0][1]},
     },
-    {
-        {BUNNY_RUN_R1 + 1, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[1][1]},
-        {BUNNY_RUN_R1 + 2, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[1][1]},
-    },
-    {
-        {BUNNY_RUN_R2 + 1, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[2][1]},
-        {BUNNY_RUN_R2 + 2, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[2][1]},
-    },
-    {
-        {BUNNY_RUN_R3 + 1, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[3][1]},
-        {BUNNY_RUN_R3 + 2, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[3][1]},
-    },
-    {
-        {BUNNY_RUN_R4 + 1, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[4][1]},
-        {BUNNY_RUN_R4 + 2, BUNNY_JUMP_RATE, &AF(DoBunnyMoveJump), &s_BunnyJump[4][1]},
-    }
 };
 
 
 STATE* sg_BunnyJump[] =
 {
     &s_BunnyJump[0][0],
-    &s_BunnyJump[1][0],
-    &s_BunnyJump[2][0],
-    &s_BunnyJump[3][0],
-    &s_BunnyJump[4][0]
 };
 
 
@@ -496,33 +320,17 @@ STATE* sg_BunnyJump[] =
 
 #define BUNNY_FALL_RATE 25
 
-STATE s_BunnyFall[5][6] =
+STATE s_BunnyFall[][6] =
 {
     {
-        {BUNNY_RUN_R0 + 3, BUNNY_FALL_RATE, &AF(DoBunnyMoveJump), &s_BunnyFall[0][0]},
+        {SPR_BUNNY_RUN, 'D', BUNNY_FALL_RATE, &AF(DoBunnyMoveJump), &s_BunnyFall[0][0]},
     },
-    {
-        {BUNNY_RUN_R1 + 3, BUNNY_FALL_RATE, &AF(DoBunnyMoveJump), &s_BunnyFall[1][0]},
-    },
-    {
-        {BUNNY_RUN_R2 + 3, BUNNY_FALL_RATE, &AF(DoBunnyMoveJump), &s_BunnyFall[2][0]},
-    },
-    {
-        {BUNNY_RUN_R3 + 3, BUNNY_FALL_RATE, &AF(DoBunnyMoveJump), &s_BunnyFall[3][0]},
-    },
-    {
-        {BUNNY_RUN_R4 + 3, BUNNY_FALL_RATE, &AF(DoBunnyMoveJump), &s_BunnyFall[4][0]},
-    }
 };
 
 
 STATE* sg_BunnyFall[] =
 {
     &s_BunnyFall[0][0],
-    &s_BunnyFall[1][0],
-    &s_BunnyFall[2][0],
-    &s_BunnyFall[3][0],
-    &s_BunnyFall[4][0]
 };
 
 
@@ -535,43 +343,19 @@ STATE* sg_BunnyFall[] =
 #define BUNNY_JUMP_ATTACK_RATE 35
 int DoBunnyBeginJumpAttack(DSWActor* actor);
 
-STATE s_BunnyJumpAttack[5][6] =
+STATE s_BunnyJumpAttack[][6] =
 {
     {
-        {BUNNY_RUN_R0 + 1, BUNNY_JUMP_ATTACK_RATE, &AF(NullBunny), &s_BunnyJumpAttack[0][1]},
-        {BUNNY_RUN_R0 + 1, 0 | SF_QUICK_CALL, &AF(DoBunnyBeginJumpAttack), &s_BunnyJumpAttack[0][2]},
-        {BUNNY_RUN_R0 + 2, BUNNY_JUMP_ATTACK_RATE, &AF(DoBunnyMoveJump), &s_BunnyJumpAttack[0][2]},
+        {SPR_BUNNY_RUN, 'B', BUNNY_JUMP_ATTACK_RATE, &AF(NullBunny), &s_BunnyJumpAttack[0][1]},
+        {SPR_BUNNY_RUN, 'B', 0 | SF_QUICK_CALL, &AF(DoBunnyBeginJumpAttack), &s_BunnyJumpAttack[0][2]},
+        {SPR_BUNNY_RUN, 'C', BUNNY_JUMP_ATTACK_RATE, &AF(DoBunnyMoveJump), &s_BunnyJumpAttack[0][2]},
     },
-    {
-        {BUNNY_RUN_R1 + 1, BUNNY_JUMP_ATTACK_RATE, &AF(NullBunny), &s_BunnyJumpAttack[1][1]},
-        {BUNNY_RUN_R1 + 1, 0 | SF_QUICK_CALL, &AF(DoBunnyBeginJumpAttack), &s_BunnyJumpAttack[1][2]},
-        {BUNNY_RUN_R1 + 2, BUNNY_JUMP_ATTACK_RATE, &AF(DoBunnyMoveJump), &s_BunnyJumpAttack[1][2]},
-    },
-    {
-        {BUNNY_RUN_R2 + 1, BUNNY_JUMP_ATTACK_RATE, &AF(NullBunny), &s_BunnyJumpAttack[2][1]},
-        {BUNNY_RUN_R2 + 1, 0 | SF_QUICK_CALL, &AF(DoBunnyBeginJumpAttack), &s_BunnyJumpAttack[2][2]},
-        {BUNNY_RUN_R2 + 2, BUNNY_JUMP_ATTACK_RATE, &AF(DoBunnyMoveJump), &s_BunnyJumpAttack[2][2]},
-    },
-    {
-        {BUNNY_RUN_R3 + 1, BUNNY_JUMP_ATTACK_RATE, &AF(NullBunny), &s_BunnyJumpAttack[3][1]},
-        {BUNNY_RUN_R3 + 1, 0 | SF_QUICK_CALL, &AF(DoBunnyBeginJumpAttack), &s_BunnyJumpAttack[3][2]},
-        {BUNNY_RUN_R3 + 2, BUNNY_JUMP_ATTACK_RATE, &AF(DoBunnyMoveJump), &s_BunnyJumpAttack[3][2]},
-    },
-    {
-        {BUNNY_RUN_R4 + 1, BUNNY_JUMP_ATTACK_RATE, &AF(NullBunny), &s_BunnyJumpAttack[4][1]},
-        {BUNNY_RUN_R4 + 1, 0 | SF_QUICK_CALL, &AF(DoBunnyBeginJumpAttack), &s_BunnyJumpAttack[4][2]},
-        {BUNNY_RUN_R4 + 2, BUNNY_JUMP_ATTACK_RATE, &AF(DoBunnyMoveJump), &s_BunnyJumpAttack[4][2]},
-    }
 };
 
 
 STATE* sg_BunnyJumpAttack[] =
 {
     &s_BunnyJumpAttack[0][0],
-    &s_BunnyJumpAttack[1][0],
-    &s_BunnyJumpAttack[2][0],
-    &s_BunnyJumpAttack[3][0],
-    &s_BunnyJumpAttack[4][0]
 };
 
 
@@ -585,24 +369,24 @@ STATE* sg_BunnyJumpAttack[] =
 
 STATE s_BunnyDie[] =
 {
-    {BUNNY_DIE + 0, BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[1]},
-    {BUNNY_DIE + 0, SF_QUICK_CALL,  &AF(BunnySpew), &s_BunnyDie[2]},
-    {BUNNY_DIE + 1, BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[3]},
-    {BUNNY_DIE + 2, BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[4]},
-    {BUNNY_DIE + 2, BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[5]},
-    {BUNNY_DEAD, BUNNY_DIE_RATE, &AF(DoActorDebris), &s_BunnyDie[5]},
+    {SPR_BUNNY_DIE, 'A', BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[1]},
+    {SPR_BUNNY_DIE, 'A', SF_QUICK_CALL,  &AF(BunnySpew), &s_BunnyDie[2]},
+    {SPR_BUNNY_DIE, 'B', BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[3]},
+    {SPR_BUNNY_DIE, 'C', BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[4]},
+    {SPR_BUNNY_DIE, 'C', BUNNY_DIE_RATE, &AF(NullBunny), &s_BunnyDie[5]},
+    {SPR_BUNNY_DEAD, 'A', BUNNY_DIE_RATE, &AF(DoActorDebris), &s_BunnyDie[5]},
 };
 
 #define BUNNY_DEAD_RATE 8
 
 STATE s_BunnyDead[] =
 {
-    {BUNNY_DIE + 0, BUNNY_DEAD_RATE, nullptr,  &s_BunnyDie[1]},
-    {BUNNY_DIE + 0, SF_QUICK_CALL,  &AF(BunnySpew), &s_BunnyDie[2]},
-    {BUNNY_DIE + 1, BUNNY_DEAD_RATE, nullptr,  &s_BunnyDead[3]},
-    {BUNNY_DIE + 2, BUNNY_DEAD_RATE, nullptr,  &s_BunnyDead[4]},
-    {BUNNY_DEAD, SF_QUICK_CALL, &AF(QueueFloorBlood), &s_BunnyDead[5]},
-    {BUNNY_DEAD, BUNNY_DEAD_RATE, &AF(DoActorDebris), &s_BunnyDead[5]},
+    {SPR_BUNNY_DIE, 'A', BUNNY_DEAD_RATE, nullptr,  &s_BunnyDie[1]},
+    {SPR_BUNNY_DIE, 'A', SF_QUICK_CALL,  &AF(BunnySpew), &s_BunnyDie[2]},
+    {SPR_BUNNY_DIE, 'B', BUNNY_DEAD_RATE, nullptr,  &s_BunnyDead[3]},
+    {SPR_BUNNY_DIE, 'C', BUNNY_DEAD_RATE, nullptr,  &s_BunnyDead[4]},
+    {SPR_BUNNY_DEAD, 'A', SF_QUICK_CALL, &AF(QueueFloorBlood), &s_BunnyDead[5]},
+    {SPR_BUNNY_DEAD, 'A', BUNNY_DEAD_RATE, &AF(DoActorDebris), &s_BunnyDead[5]},
 };
 
 STATE* sg_BunnyDie[] =
@@ -617,12 +401,12 @@ STATE* sg_BunnyDead[] =
 
 STATE s_BunnyDeathJump[] =
 {
-    {BUNNY_DIE + 0, BUNNY_DIE_RATE, &AF(DoActorDeathMove), &s_BunnyDeathJump[0]}
+    {SPR_BUNNY_DIE, 'A', BUNNY_DIE_RATE, &AF(DoActorDeathMove), &s_BunnyDeathJump[0]}
 };
 
 STATE s_BunnyDeathFall[] =
 {
-    {BUNNY_DIE + 1, BUNNY_DIE_RATE, &AF(DoActorDeathMove), &s_BunnyDeathFall[0]}
+    {SPR_BUNNY_DIE, 'B', BUNNY_DIE_RATE, &AF(DoActorDeathMove), &s_BunnyDeathFall[0]}
 };
 
 STATE* sg_BunnyDeathJump[] =

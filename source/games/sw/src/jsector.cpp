@@ -178,7 +178,6 @@ void JS_SpriteSetup(void)
             {
                 SpawnUser(itActor, 0, nullptr);
 
-                itActor->user.__legacyState.RotNum = 0;
                 itActor->user.WaitTics = itActor->spr.lotag * 120;
 
                 itActor->user.ActorActionFunc = AF(GenerateDrips);

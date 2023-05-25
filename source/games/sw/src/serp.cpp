@@ -128,48 +128,20 @@ ATTRIBUTE SerpPissedAttrib =
 
 #define SERP_RUN_RATE 24
 
-STATE s_SerpRun[5][4] =
+STATE s_SerpRun[1][4] =
 {
     {
-        {SERP_RUN_R0 + 0, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][1]},
-        {SERP_RUN_R0 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][2]},
-        {SERP_RUN_R0 + 2, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][3]},
-        {SERP_RUN_R0 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][0]},
+        {SPR_SERP_RUN, 'A', SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][1]},
+        {SPR_SERP_RUN, 'B', SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][2]},
+        {SPR_SERP_RUN, 'C', SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][3]},
+        {SPR_SERP_RUN, 'B', SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[0][0]},
     },
-    {
-        {SERP_RUN_R1 + 0, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[1][1]},
-        {SERP_RUN_R1 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[1][2]},
-        {SERP_RUN_R1 + 2, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[1][3]},
-        {SERP_RUN_R1 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[1][0]},
-    },
-    {
-        {SERP_RUN_R2 + 0, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[2][1]},
-        {SERP_RUN_R2 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[2][2]},
-        {SERP_RUN_R2 + 2, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[2][3]},
-        {SERP_RUN_R2 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[2][0]},
-    },
-    {
-        {SERP_RUN_R3 + 0, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[3][1]},
-        {SERP_RUN_R3 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[3][2]},
-        {SERP_RUN_R3 + 2, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[3][3]},
-        {SERP_RUN_R3 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[3][0]},
-    },
-    {
-        {SERP_RUN_R4 + 0, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[4][1]},
-        {SERP_RUN_R4 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[4][2]},
-        {SERP_RUN_R4 + 2, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[4][3]},
-        {SERP_RUN_R4 + 1, SERP_RUN_RATE, &AF(DoSerpMove), &s_SerpRun[4][0]},
-    }
 };
 
 
 STATE* sg_SerpRun[] =
 {
     &s_SerpRun[0][0],
-    &s_SerpRun[1][0],
-    &s_SerpRun[2][0],
-    &s_SerpRun[3][0],
-    &s_SerpRun[4][0]
 };
 
 //////////////////////
@@ -180,78 +152,26 @@ STATE* sg_SerpRun[] =
 
 #define SERP_SLASH_RATE 9
 
-STATE s_SerpSlash[5][10] =
+STATE s_SerpSlash[1][10] =
 {
     {
-        {SERP_SLASH_R0 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][1]},
-        {SERP_SLASH_R0 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][2]},
-        {SERP_SLASH_R0 + 0, SERP_SLASH_RATE*2, &AF(NullSerp), &s_SerpSlash[0][3]},
-        {SERP_SLASH_R0 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][4]},
-        {SERP_SLASH_R0 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][5]},
-        {SERP_SLASH_R0 + 3, SF_QUICK_CALL, &AF(InitSerpSlash), &s_SerpSlash[0][6]},
-        {SERP_SLASH_R0 + 3, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][7]},
-        {SERP_SLASH_R0 + 4, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][8]},
-        {SERP_SLASH_R0 + 4, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSlash[0][9]},
-        {SERP_SLASH_R0 + 4, SERP_SLASH_RATE, &AF(DoSerpMove), &s_SerpSlash[0][9]},
+        {SPR_SERP_SLASH, 'C', SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][1]},
+        {SPR_SERP_SLASH, 'B', SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][2]},
+        {SPR_SERP_SLASH, 'A', SERP_SLASH_RATE*2, &AF(NullSerp), &s_SerpSlash[0][3]},
+        {SPR_SERP_SLASH, 'B', SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][4]},
+        {SPR_SERP_SLASH, 'C', SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][5]},
+        {SPR_SERP_SLASH, 'D', SF_QUICK_CALL, &AF(InitSerpSlash), &s_SerpSlash[0][6]},
+        {SPR_SERP_SLASH, 'D', SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][7]},
+        {SPR_SERP_SLASH, 'E', SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[0][8]},
+        {SPR_SERP_SLASH, 'E', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSlash[0][9]},
+        {SPR_SERP_SLASH, 'E', SERP_SLASH_RATE, &AF(DoSerpMove), &s_SerpSlash[0][9]},
     },
-    {
-        {SERP_SLASH_R1 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[1][1]},
-        {SERP_SLASH_R1 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[1][2]},
-        {SERP_SLASH_R1 + 0, SERP_SLASH_RATE*2, &AF(NullSerp), &s_SerpSlash[1][3]},
-        {SERP_SLASH_R1 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[1][4]},
-        {SERP_SLASH_R1 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[1][5]},
-        {SERP_SLASH_R1 + 3, SF_QUICK_CALL, &AF(InitSerpSlash), &s_SerpSlash[1][6]},
-        {SERP_SLASH_R1 + 3, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[1][7]},
-        {SERP_SLASH_R1 + 4, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[1][8]},
-        {SERP_SLASH_R1 + 4, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSlash[1][9]},
-        {SERP_SLASH_R1 + 4, SERP_SLASH_RATE, &AF(DoSerpMove), &s_SerpSlash[1][9]},
-    },
-    {
-        {SERP_SLASH_R2 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[2][1]},
-        {SERP_SLASH_R2 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[2][2]},
-        {SERP_SLASH_R2 + 0, SERP_SLASH_RATE*2, &AF(NullSerp), &s_SerpSlash[2][3]},
-        {SERP_SLASH_R2 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[2][4]},
-        {SERP_SLASH_R2 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[2][5]},
-        {SERP_SLASH_R2 + 3, SF_QUICK_CALL, &AF(InitSerpSlash), &s_SerpSlash[2][6]},
-        {SERP_SLASH_R2 + 3, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[2][7]},
-        {SERP_SLASH_R2 + 4, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[2][8]},
-        {SERP_SLASH_R2 + 4, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSlash[2][9]},
-        {SERP_SLASH_R2 + 4, SERP_SLASH_RATE, &AF(DoSerpMove), &s_SerpSlash[2][9]},
-    },
-    {
-        {SERP_SLASH_R3 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[3][1]},
-        {SERP_SLASH_R3 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[3][2]},
-        {SERP_SLASH_R3 + 0, SERP_SLASH_RATE*2, &AF(NullSerp), &s_SerpSlash[3][3]},
-        {SERP_SLASH_R3 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[3][4]},
-        {SERP_SLASH_R3 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[3][5]},
-        {SERP_SLASH_R3 + 3, SF_QUICK_CALL, &AF(InitSerpSlash), &s_SerpSlash[3][6]},
-        {SERP_SLASH_R3 + 3, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[3][7]},
-        {SERP_SLASH_R3 + 4, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[3][8]},
-        {SERP_SLASH_R3 + 4, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSlash[3][9]},
-        {SERP_SLASH_R3 + 4, SERP_SLASH_RATE, &AF(DoSerpMove), &s_SerpSlash[3][9]},
-    },
-    {
-        {SERP_SLASH_R4 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[4][1]},
-        {SERP_SLASH_R4 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[4][2]},
-        {SERP_SLASH_R4 + 0, SERP_SLASH_RATE*2, &AF(NullSerp), &s_SerpSlash[4][3]},
-        {SERP_SLASH_R4 + 1, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[4][4]},
-        {SERP_SLASH_R4 + 2, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[4][5]},
-        {SERP_SLASH_R4 + 3, SF_QUICK_CALL, &AF(InitSerpSlash), &s_SerpSlash[4][6]},
-        {SERP_SLASH_R4 + 3, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[4][7]},
-        {SERP_SLASH_R4 + 4, SERP_SLASH_RATE, &AF(NullSerp), &s_SerpSlash[4][8]},
-        {SERP_SLASH_R4 + 4, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSlash[4][9]},
-        {SERP_SLASH_R4 + 4, SERP_SLASH_RATE, &AF(DoSerpMove), &s_SerpSlash[4][9]},
-    }
 };
 
 
 STATE* sg_SerpSlash[] =
 {
     &s_SerpSlash[0][0],
-    &s_SerpSlash[1][0],
-    &s_SerpSlash[2][0],
-    &s_SerpSlash[3][0],
-    &s_SerpSlash[4][0]
 };
 
 
@@ -263,68 +183,24 @@ STATE* sg_SerpSlash[] =
 
 #define SERP_SKULL_SPELL_RATE 18
 
-STATE s_SerpSkullSpell[5][8] =
+STATE s_SerpSkullSpell[1][8] =
 {
     {
-        {SERP_SPELL_R0 + 2, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[0][1]},
-        {SERP_SPELL_R0 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[0][2]},
-        {SERP_SPELL_R0 + 0, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[0][3]},
-        {SERP_SPELL_R0 + 0, SF_QUICK_CALL, &AF(InitSerpRing), &s_SerpSkullSpell[0][4]},
-        {SERP_SPELL_R0 + 0, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[0][5]},
-        {SERP_SPELL_R0 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[0][6]},
-        {SERP_SPELL_R0 + 1, SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpSkullSpell[0][7]},
-        {SERP_SPELL_R0 + 1, SERP_SKULL_SPELL_RATE, &AF(DoSerpMove), &s_SerpSkullSpell[0][7]},
+        {SPR_SERP_SPELL, 'C', SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[0][1]},
+        {SPR_SERP_SPELL, 'B', SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[0][2]},
+        {SPR_SERP_SPELL, 'A', SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[0][3]},
+        {SPR_SERP_SPELL, 'A', SF_QUICK_CALL, &AF(InitSerpRing), &s_SerpSkullSpell[0][4]},
+        {SPR_SERP_SPELL, 'A', SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[0][5]},
+        {SPR_SERP_SPELL, 'B', SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[0][6]},
+        {SPR_SERP_SPELL, 'B', SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpSkullSpell[0][7]},
+        {SPR_SERP_SPELL, 'B', SERP_SKULL_SPELL_RATE, &AF(DoSerpMove), &s_SerpSkullSpell[0][7]},
     },
-    {
-        {SERP_SPELL_R1 + 2, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[1][1]},
-        {SERP_SPELL_R1 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[1][2]},
-        {SERP_SPELL_R1 + 0, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[1][3]},
-        {SERP_SPELL_R1 + 0, SF_QUICK_CALL, &AF(InitSerpRing), &s_SerpSkullSpell[1][4]},
-        {SERP_SPELL_R1 + 0, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[1][5]},
-        {SERP_SPELL_R1 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[1][6]},
-        {SERP_SPELL_R1 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSkullSpell[1][7]},
-        {SERP_SPELL_R1 + 1, SERP_SKULL_SPELL_RATE, &AF(DoSerpMove), &s_SerpSkullSpell[1][7]},
-    },
-    {
-        {SERP_SPELL_R2 + 2, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[2][1]},
-        {SERP_SPELL_R2 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[2][2]},
-        {SERP_SPELL_R2 + 0, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[2][3]},
-        {SERP_SPELL_R2 + 0, SF_QUICK_CALL, &AF(InitSerpRing), &s_SerpSkullSpell[2][4]},
-        {SERP_SPELL_R2 + 0, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[2][5]},
-        {SERP_SPELL_R2 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[2][6]},
-        {SERP_SPELL_R2 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSkullSpell[2][7]},
-        {SERP_SPELL_R2 + 1, SERP_SKULL_SPELL_RATE, &AF(DoSerpMove), &s_SerpSkullSpell[2][7]},
-    },
-    {
-        {SERP_SPELL_R3 + 2, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[3][1]},
-        {SERP_SPELL_R3 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[3][2]},
-        {SERP_SPELL_R3 + 0, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[3][3]},
-        {SERP_SPELL_R3 + 0, SF_QUICK_CALL, &AF(InitSerpRing), &s_SerpSkullSpell[3][4]},
-        {SERP_SPELL_R3 + 0, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[3][5]},
-        {SERP_SPELL_R3 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[3][6]},
-        {SERP_SPELL_R3 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSkullSpell[3][7]},
-        {SERP_SPELL_R3 + 1, SERP_SKULL_SPELL_RATE, &AF(DoSerpMove), &s_SerpSkullSpell[3][7]},
-    },
-    {
-        {SERP_SPELL_R4 + 2, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[4][1]},
-        {SERP_SPELL_R4 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[4][2]},
-        {SERP_SPELL_R4 + 0, SERP_SKULL_SPELL_RATE*2, &AF(NullSerp), &s_SerpSkullSpell[4][3]},
-        {SERP_SPELL_R4 + 0, SF_QUICK_CALL, &AF(InitSerpRing), &s_SerpSkullSpell[4][4]},
-        {SERP_SPELL_R4 + 0, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[4][5]},
-        {SERP_SPELL_R4 + 1, SERP_SKULL_SPELL_RATE, &AF(NullSerp), &s_SerpSkullSpell[4][6]},
-        {SERP_SPELL_R4 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSkullSpell[4][7]},
-        {SERP_SPELL_R4 + 1, SERP_SKULL_SPELL_RATE, &AF(DoSerpMove), &s_SerpSkullSpell[4][7]},
-    }
 };
 
 
 STATE* sg_SerpSkullSpell[] =
 {
     &s_SerpSkullSpell[0][0],
-    &s_SerpSkullSpell[1][0],
-    &s_SerpSkullSpell[2][0],
-    &s_SerpSkullSpell[3][0],
-    &s_SerpSkullSpell[4][0]
 };
 
 
@@ -337,68 +213,24 @@ STATE* sg_SerpSkullSpell[] =
 
 #define SERP_SPELL_RATE 18
 
-STATE s_SerpSpell[5][8] =
+STATE s_SerpSpell[1][8] =
 {
     {
-        {SERP_SPELL_R0 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[0][1]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[0][2]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[0][3]},
-        {SERP_SPELL_R0 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpSpell[0][4]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[0][5]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[0][6]},
-        {SERP_SPELL_R0 + 1, SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpSpell[0][7]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpSpell[0][7]},
+        {SPR_SERP_SPELL, 'C', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[0][1]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[0][2]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[0][3]},
+        {SPR_SERP_SPELL, 'A', SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpSpell[0][4]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[0][5]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[0][6]},
+        {SPR_SERP_SPELL, 'B', SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpSpell[0][7]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpSpell[0][7]},
     },
-    {
-        {SERP_SPELL_R1 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[1][1]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[1][2]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[1][3]},
-        {SERP_SPELL_R1 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpSpell[1][4]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[1][5]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[1][6]},
-        {SERP_SPELL_R1 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSpell[1][7]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpSpell[1][7]},
-    },
-    {
-        {SERP_SPELL_R2 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[2][1]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[2][2]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[2][3]},
-        {SERP_SPELL_R2 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpSpell[2][4]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[2][5]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[2][6]},
-        {SERP_SPELL_R2 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSpell[2][7]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpSpell[2][7]},
-    },
-    {
-        {SERP_SPELL_R3 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[3][1]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[3][2]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[3][3]},
-        {SERP_SPELL_R3 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpSpell[3][4]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[3][5]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[3][6]},
-        {SERP_SPELL_R3 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSpell[3][7]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpSpell[3][7]},
-    },
-    {
-        {SERP_SPELL_R4 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[4][1]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[4][2]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpSpell[4][3]},
-        {SERP_SPELL_R4 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpSpell[4][4]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[4][5]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpSpell[4][6]},
-        {SERP_SPELL_R4 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpSpell[4][7]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpSpell[4][7]},
-    }
 };
 
 
 STATE* sg_SerpSpell[] =
 {
     &s_SerpSpell[0][0],
-    &s_SerpSpell[1][0],
-    &s_SerpSpell[2][0],
-    &s_SerpSpell[3][0],
-    &s_SerpSpell[4][0]
 };
 
 //////////////////////
@@ -407,68 +239,24 @@ STATE* sg_SerpSpell[] =
 //
 //////////////////////
 
-STATE s_SerpMonstSpell[5][8] =
+STATE s_SerpMonstSpell[1][8] =
 {
     {
-        {SERP_SPELL_R0 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[0][1]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[0][2]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[0][3]},
-        {SERP_SPELL_R0 + 0, SF_QUICK_CALL, &AF(InitSerpMonstSpell), &s_SerpMonstSpell[0][4]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[0][5]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[0][6]},
-        {SERP_SPELL_R0 + 1, SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpMonstSpell[0][7]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpMonstSpell[0][7]},
+        {SPR_SERP_SPELL, 'C', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[0][1]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[0][2]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[0][3]},
+        {SPR_SERP_SPELL, 'A', SF_QUICK_CALL, &AF(InitSerpMonstSpell), &s_SerpMonstSpell[0][4]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[0][5]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[0][6]},
+        {SPR_SERP_SPELL, 'B', SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpMonstSpell[0][7]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpMonstSpell[0][7]},
     },
-    {
-        {SERP_SPELL_R1 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[1][1]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[1][2]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[1][3]},
-        {SERP_SPELL_R1 + 0, SF_QUICK_CALL, &AF(InitSerpMonstSpell), &s_SerpMonstSpell[1][4]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[1][5]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[1][6]},
-        {SERP_SPELL_R1 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpMonstSpell[1][7]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpMonstSpell[1][7]},
-    },
-    {
-        {SERP_SPELL_R2 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[2][1]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[2][2]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[2][3]},
-        {SERP_SPELL_R2 + 0, SF_QUICK_CALL, &AF(InitSerpMonstSpell), &s_SerpMonstSpell[2][4]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[2][5]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[2][6]},
-        {SERP_SPELL_R2 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpMonstSpell[2][7]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpMonstSpell[2][7]},
-    },
-    {
-        {SERP_SPELL_R3 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[3][1]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[3][2]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[3][3]},
-        {SERP_SPELL_R3 + 0, SF_QUICK_CALL, &AF(InitSerpMonstSpell), &s_SerpMonstSpell[3][4]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[3][5]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[3][6]},
-        {SERP_SPELL_R3 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpMonstSpell[3][7]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpMonstSpell[3][7]},
-    },
-    {
-        {SERP_SPELL_R4 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[4][1]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[4][2]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpMonstSpell[4][3]},
-        {SERP_SPELL_R4 + 0, SF_QUICK_CALL, &AF(InitSerpMonstSpell), &s_SerpMonstSpell[4][4]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[4][5]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpMonstSpell[4][6]},
-        {SERP_SPELL_R4 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpMonstSpell[4][7]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpMonstSpell[4][7]},
-    }
 };
 
 
 STATE* sg_SerpMonstSpell[] =
 {
     &s_SerpMonstSpell[0][0],
-    &s_SerpMonstSpell[1][0],
-    &s_SerpMonstSpell[2][0],
-    &s_SerpMonstSpell[3][0],
-    &s_SerpMonstSpell[4][0]
 };
 
 
@@ -480,78 +268,26 @@ STATE* sg_SerpMonstSpell[] =
 
 #define SERP_SPELL_RATE 18
 
-STATE s_SerpRapidSpell[5][10] =
+STATE s_SerpRapidSpell[1][10] =
 {
     {
-        {SERP_SPELL_R0 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[0][1]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[0][2]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[0][3]},
-        {SERP_SPELL_R0 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[0][4]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[0][5]},
-        {SERP_SPELL_R0 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[0][6]},
-        {SERP_SPELL_R0 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[0][7]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[0][8]},
-        {SERP_SPELL_R0 + 1, SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpRapidSpell[0][9]},
-        {SERP_SPELL_R0 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpRapidSpell[0][9]},
+        {SPR_SERP_SPELL, 'C', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[0][1]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[0][2]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[0][3]},
+        {SPR_SERP_SPELL, 'A', SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[0][4]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[0][5]},
+        {SPR_SERP_SPELL, 'A', SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[0][6]},
+        {SPR_SERP_SPELL, 'A', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[0][7]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[0][8]},
+        {SPR_SERP_SPELL, 'B', SF_QUICK_CALL,   &AF(InitActorDecide), &s_SerpRapidSpell[0][9]},
+        {SPR_SERP_SPELL, 'B', SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpRapidSpell[0][9]},
     },
-    {
-        {SERP_SPELL_R1 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[1][1]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[1][2]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[1][3]},
-        {SERP_SPELL_R1 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[1][4]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[1][5]},
-        {SERP_SPELL_R1 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[1][6]},
-        {SERP_SPELL_R1 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[1][7]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[1][8]},
-        {SERP_SPELL_R1 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpRapidSpell[1][9]},
-        {SERP_SPELL_R1 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpRapidSpell[1][9]},
-    },
-    {
-        {SERP_SPELL_R2 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[2][1]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[2][2]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[2][3]},
-        {SERP_SPELL_R2 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[2][4]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[2][5]},
-        {SERP_SPELL_R2 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[2][6]},
-        {SERP_SPELL_R2 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[2][7]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[2][8]},
-        {SERP_SPELL_R2 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpRapidSpell[2][9]},
-        {SERP_SPELL_R2 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpRapidSpell[2][9]},
-    },
-    {
-        {SERP_SPELL_R3 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[3][1]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[3][2]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[3][3]},
-        {SERP_SPELL_R3 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[3][4]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[3][5]},
-        {SERP_SPELL_R3 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[3][6]},
-        {SERP_SPELL_R3 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[3][7]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[3][8]},
-        {SERP_SPELL_R3 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpRapidSpell[3][9]},
-        {SERP_SPELL_R3 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpRapidSpell[3][9]},
-    },
-    {
-        {SERP_SPELL_R4 + 2, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[4][1]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[4][2]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[4][3]},
-        {SERP_SPELL_R4 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[4][4]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE*2, &AF(NullSerp), &s_SerpRapidSpell[4][5]},
-        {SERP_SPELL_R4 + 0, SF_QUICK_CALL, &AF(InitSerpSpell), &s_SerpRapidSpell[4][6]},
-        {SERP_SPELL_R4 + 0, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[4][7]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(NullSerp), &s_SerpRapidSpell[4][8]},
-        {SERP_SPELL_R4 + 1, SF_QUICK_CALL, &AF(InitActorDecide), &s_SerpRapidSpell[4][9]},
-        {SERP_SPELL_R4 + 1, SERP_SPELL_RATE, &AF(DoSerpMove), &s_SerpRapidSpell[4][9]},
-    }
 };
 
 
 STATE* sg_SerpRapidSpell[] =
 {
     &s_SerpRapidSpell[0][0],
-    &s_SerpRapidSpell[1][0],
-    &s_SerpRapidSpell[2][0],
-    &s_SerpRapidSpell[3][0],
-    &s_SerpRapidSpell[4][0]
 };
 
 //////////////////////
@@ -562,22 +298,10 @@ STATE* sg_SerpRapidSpell[] =
 
 #define SERP_STAND_RATE 12
 
-STATE s_SerpStand[5][1] =
+STATE s_SerpStand[1][1] =
 {
     {
-        {SERP_RUN_R0 + 0, SERP_STAND_RATE, &AF(DoSerpMove), &s_SerpStand[0][0]},
-    },
-    {
-        {SERP_RUN_R1 + 0, SERP_STAND_RATE, &AF(DoSerpMove), &s_SerpStand[1][0]},
-    },
-    {
-        {SERP_RUN_R2 + 0, SERP_STAND_RATE, &AF(DoSerpMove), &s_SerpStand[2][0]},
-    },
-    {
-        {SERP_RUN_R3 + 0, SERP_STAND_RATE, &AF(DoSerpMove), &s_SerpStand[3][0]},
-    },
-    {
-        {SERP_RUN_R4 + 0, SERP_STAND_RATE, &AF(DoSerpMove), &s_SerpStand[4][0]},
+        {SPR_SERP_RUN, 'A', SERP_STAND_RATE, &AF(DoSerpMove), &s_SerpStand[0][0]},
     },
 };
 
@@ -585,10 +309,6 @@ STATE s_SerpStand[5][1] =
 STATE* sg_SerpStand[] =
 {
     s_SerpStand[0],
-    s_SerpStand[1],
-    s_SerpStand[2],
-    s_SerpStand[3],
-    s_SerpStand[4]
 };
 
 //////////////////////
@@ -601,22 +321,22 @@ STATE* sg_SerpStand[] =
 
 STATE s_SerpDie[] =
 {
-    {SERP_DIE + 0, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[1]},
-    {SERP_DIE + 1, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[2]},
-    {SERP_DIE + 2, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[3]},
-    {SERP_DIE + 3, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[4]},
-    {SERP_DIE + 4, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[5]},
-    {SERP_DIE + 5, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[6]},
-    {SERP_DIE + 6, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[7]},
-    {SERP_DIE + 7, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[8]},
-    {SERP_DIE + 8, SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[9]},
-    {SERP_DIE + 8, SF_QUICK_CALL, &AF(DoDeathSpecial), &s_SerpDie[10]},
-    {SERP_DEAD,    SERP_DIE_RATE, &AF(DoActorDebris), &s_SerpDie[10]}
+    {SPR_SERP_DIE, 'A', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[1]},
+    {SPR_SERP_DIE, 'B', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[2]},
+    {SPR_SERP_DIE, 'C', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[3]},
+    {SPR_SERP_DIE, 'D', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[4]},
+    {SPR_SERP_DIE, 'E', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[5]},
+    {SPR_SERP_DIE, 'F', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[6]},
+    {SPR_SERP_DIE, 'G', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[7]},
+    {SPR_SERP_DIE, 'H', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[8]},
+    {SPR_SERP_DIE, 'I', SERP_DIE_RATE, &AF(NullSerp), &s_SerpDie[9]},
+    {SPR_SERP_DIE, 'I', SF_QUICK_CALL, &AF(DoDeathSpecial), &s_SerpDie[10]},
+    {SPR_SERP_DEAD, 'A',    SERP_DIE_RATE, &AF(DoActorDebris), &s_SerpDie[10]}
 };
 
 STATE s_SerpDead[] =
 {
-    {SERP_DEAD, SERP_DIE_RATE, &AF(DoActorDebris), &s_SerpDead[0]},
+    {SPR_SERP_DEAD, 'A', SERP_DIE_RATE, &AF(DoActorDebris), &s_SerpDead[0]},
 };
 
 STATE* sg_SerpDie[] =

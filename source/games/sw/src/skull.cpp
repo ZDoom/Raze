@@ -50,33 +50,17 @@ extern DAMAGE_DATA DamageData[];
 
 #define SKULL_RATE 10
 
-STATE s_SkullWait[5][1] =
+STATE s_SkullWait[1][1] =
 {
     {
-        {SKULL_R0 + 0, SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[0][0]},
+        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[0][0]},
     },
-    {
-        {SKULL_R1 + 0, SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[1][0]},
-    },
-    {
-        {SKULL_R2 + 0, SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[2][0]},
-    },
-    {
-        {SKULL_R3 + 0, SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[3][0]},
-    },
-    {
-        {SKULL_R4 + 0, SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[4][0]},
-    }
 };
 
 
 STATE* sg_SkullWait[] =
 {
     &s_SkullWait[0][0],
-    &s_SkullWait[1][0],
-    &s_SkullWait[2][0],
-    &s_SkullWait[3][0],
-    &s_SkullWait[4][0]
 };
 
 ATTRIBUTE SkullAttrib =
@@ -96,33 +80,17 @@ ATTRIBUTE SkullAttrib =
 //
 //////////////////////
 
-STATE s_SkullRing[5][1] =
+STATE s_SkullRing[1][1] =
 {
     {
-        {SKULL_R0 + 0, SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[0][0]},
+        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[0][0]},
     },
-    {
-        {SKULL_R1 + 0, SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[1][0]},
-    },
-    {
-        {SKULL_R2 + 0, SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[2][0]},
-    },
-    {
-        {SKULL_R3 + 0, SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[3][0]},
-    },
-    {
-        {SKULL_R4 + 0, SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[4][0]},
-    }
 };
 
 
 STATE* sg_SkullRing[] =
 {
     &s_SkullRing[0][0],
-    &s_SkullRing[1][0],
-    &s_SkullRing[2][0],
-    &s_SkullRing[3][0],
-    &s_SkullRing[4][0]
 };
 
 
@@ -133,33 +101,17 @@ STATE* sg_SkullRing[] =
 //
 //////////////////////
 
-STATE s_SkullJump[5][1] =
+STATE s_SkullJump[1][1] =
 {
     {
-        {SKULL_R0 + 0, SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[0][0]},
+        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[0][0]},
     },
-    {
-        {SKULL_R1 + 0, SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[1][0]},
-    },
-    {
-        {SKULL_R2 + 0, SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[2][0]},
-    },
-    {
-        {SKULL_R3 + 0, SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[3][0]},
-    },
-    {
-        {SKULL_R4 + 0, SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[4][0]},
-    }
 };
 
 
 STATE* sg_SkullJump[] =
 {
     &s_SkullJump[0][0],
-    &s_SkullJump[1][0],
-    &s_SkullJump[2][0],
-    &s_SkullJump[3][0],
-    &s_SkullJump[4][0]
 };
 
 
@@ -173,24 +125,24 @@ STATE* sg_SkullJump[] =
 
 STATE s_SkullExplode[] =
 {
-    {SKULL_EXPLODE + 0, 1,                  nullptr,  &s_SkullExplode[1]},
-    {SKULL_EXPLODE + 0, SF_QUICK_CALL,      &AF(DoDamageTest), &s_SkullExplode[2]},
-    {SKULL_EXPLODE + 0, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[3]},
-    {SKULL_EXPLODE + 1, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[4]},
-    {SKULL_EXPLODE + 2, SF_QUICK_CALL,      &AF(DoSkullSpawnShrap), &s_SkullExplode[5]},
-    {SKULL_EXPLODE + 2, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[6]},
-    {SKULL_EXPLODE + 3, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[7]},
-    {SKULL_EXPLODE + 4, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[8]},
-    {SKULL_EXPLODE + 5, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[9]},
-    {SKULL_EXPLODE + 6, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[10]},
-    {SKULL_EXPLODE + 7, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[11]},
-    {SKULL_EXPLODE + 8, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[12]},
-    {SKULL_EXPLODE + 9, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[13]},
-    {SKULL_EXPLODE +10, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[14]},
-    {SKULL_EXPLODE +11, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[15]},
-    {SKULL_EXPLODE +12, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[16]},
-    {SKULL_EXPLODE +13, SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[17]},
-    {SKULL_EXPLODE +13, SKULL_EXPLODE_RATE, &AF(DoSuicide),    &s_SkullExplode[17]}
+    {SPR_SKULL_EXPLODE, 'A', 1,                  nullptr,  &s_SkullExplode[1]},
+    {SPR_SKULL_EXPLODE, 'A', SF_QUICK_CALL,      &AF(DoDamageTest), &s_SkullExplode[2]},
+    {SPR_SKULL_EXPLODE, 'A', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[3]},
+    {SPR_SKULL_EXPLODE, 'B', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[4]},
+    {SPR_SKULL_EXPLODE, 'C', SF_QUICK_CALL,      &AF(DoSkullSpawnShrap), &s_SkullExplode[5]},
+    {SPR_SKULL_EXPLODE, 'C', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[6]},
+    {SPR_SKULL_EXPLODE, 'D', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[7]},
+    {SPR_SKULL_EXPLODE, 'E', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[8]},
+    {SPR_SKULL_EXPLODE, 'F', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[9]},
+    {SPR_SKULL_EXPLODE, 'G', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[10]},
+    {SPR_SKULL_EXPLODE, 'H', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[11]},
+    {SPR_SKULL_EXPLODE, 'I', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[12]},
+    {SPR_SKULL_EXPLODE, 'J', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[13]},
+    {SPR_SKULL_EXPLODE, 'K', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[14]},
+    {SPR_SKULL_EXPLODE, 'L', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[15]},
+    {SPR_SKULL_EXPLODE, 'M', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[16]},
+    {SPR_SKULL_EXPLODE, 'N', SKULL_EXPLODE_RATE, nullptr,  &s_SkullExplode[17]},
+    {SPR_SKULL_EXPLODE, 'N', SKULL_EXPLODE_RATE, &AF(DoSuicide),    &s_SkullExplode[17]}
 };
 
 STATE* sg_SkullExplode[] =
@@ -341,7 +293,7 @@ int DoSkullBeginDeath(DSWActor* actor)
     }
 
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    actor->user.__legacyState.RotNum = 0;
+    
     actor->user.Tics = 0;
     actor->user.ID = SKULL_R0;
     actor->user.Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusSkull;
@@ -512,43 +464,19 @@ int DoSkullWait(DSWActor* actor)
 
 #define BETTY_RATE 10
 
-STATE s_BettyWait[5][3] =
+STATE s_BettyWait[1][3] =
 {
     {
-        {BETTY_R0 + 0, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][1]},
-        {BETTY_R0 + 1, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][2]},
-        {BETTY_R0 + 2, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][0]},
+        {SPR_BETTY, 'A', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][1]},
+        {SPR_BETTY, 'B', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][2]},
+        {SPR_BETTY, 'C', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][0]},
     },
-    {
-        {BETTY_R1 + 0, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[1][1]},
-        {BETTY_R1 + 1, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[1][2]},
-        {BETTY_R1 + 2, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[1][0]},
-    },
-    {
-        {BETTY_R2 + 0, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[2][1]},
-        {BETTY_R2 + 1, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[2][2]},
-        {BETTY_R2 + 2, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[2][0]},
-    },
-    {
-        {BETTY_R3 + 0, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[3][1]},
-        {BETTY_R3 + 1, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[3][2]},
-        {BETTY_R3 + 2, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[3][0]},
-    },
-    {
-        {BETTY_R4 + 0, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[4][1]},
-        {BETTY_R4 + 1, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[4][2]},
-        {BETTY_R4 + 2, BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[4][0]},
-    }
 };
 
 
 STATE* sg_BettyWait[] =
 {
     &s_BettyWait[0][0],
-    &s_BettyWait[1][0],
-    &s_BettyWait[2][0],
-    &s_BettyWait[3][0],
-    &s_BettyWait[4][0]
 };
 
 ATTRIBUTE BettyAttrib =
@@ -565,33 +493,17 @@ ATTRIBUTE BettyAttrib =
 //
 //////////////////////
 
-STATE s_BettyJump[5][1] =
+STATE s_BettyJump[1][1] =
 {
     {
-        {BETTY_R0 + 0, BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[0][0]},
+        {SPR_BETTY, 'A', BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[0][0]},
     },
-    {
-        {BETTY_R1 + 0, BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[1][0]},
-    },
-    {
-        {BETTY_R2 + 0, BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[2][0]},
-    },
-    {
-        {BETTY_R3 + 0, BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[3][0]},
-    },
-    {
-        {BETTY_R4 + 0, BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[4][0]},
-    }
 };
 
 
 STATE* sg_BettyJump[] =
 {
     &s_BettyJump[0][0],
-    &s_BettyJump[1][0],
-    &s_BettyJump[2][0],
-    &s_BettyJump[3][0],
-    &s_BettyJump[4][0]
 };
 
 
@@ -606,8 +518,8 @@ STATE* sg_BettyJump[] =
 
 STATE s_BettyExplode[] =
 {
-    {BETTY_EXPLODE + 0, SF_QUICK_CALL,      &AF(DoDamageTest), &s_BettyExplode[1]},
-    {BETTY_EXPLODE + 0, BETTY_EXPLODE_RATE, &AF(DoSuicide), &s_BettyExplode[0]}
+    {SPR_BETTY, 'A', SF_QUICK_CALL,      &AF(DoDamageTest), &s_BettyExplode[1]},
+    {SPR_BETTY, 'A', BETTY_EXPLODE_RATE, &AF(DoSuicide), &s_BettyExplode[0]}
 };
 
 STATE* sg_BettyExplode[] =
@@ -746,7 +658,7 @@ int DoBettyBeginDeath(DSWActor* actor)
     }
 
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    actor->user.__legacyState.RotNum = 0;
+    
     actor->user.Tics = 0;
     actor->user.ID = BETTY_R0;
     actor->user.Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusBetty;

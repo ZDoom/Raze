@@ -181,7 +181,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             DoActorBeginJump(actor);
         }
 
-        actor->user.__legacyState.RotNum = 0;
+        
 
         actor->clearActionFunc();
         if (!sw_ninjahack)
@@ -957,8 +957,6 @@ int DoFall(DSWActor* actor)
 void DSWActor::ChangeStateEnd()
 {
     ChangeState(this, user.__legacyState.StateEnd);
-    user.__legacyState.RotNum = 0;
-
 }
 
 Personality* DSWActor::getPersonality()

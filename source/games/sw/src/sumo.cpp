@@ -127,47 +127,19 @@ ATTRIBUTE SumoAttrib =
 
 #define SUMO_RATE 24
 
-STATE s_SumoRun[5][4] =
+STATE s_SumoRun[1][4] =
 {
     {
-        {SUMO_RUN_R0 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][1]},
-        {SUMO_RUN_R0 + 1, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][2]},
-        {SUMO_RUN_R0 + 2, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][3]},
-        {SUMO_RUN_R0 + 3, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][0]}
+        {SPR_SUMO_RUN, 'A', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][1]},
+        {SPR_SUMO_RUN, 'B', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][2]},
+        {SPR_SUMO_RUN, 'C', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][3]},
+        {SPR_SUMO_RUN, 'D', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][0]}
     },
-    {
-        {SUMO_RUN_R1 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[1][1]},
-        {SUMO_RUN_R1 + 1, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[1][2]},
-        {SUMO_RUN_R1 + 2, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[1][3]},
-        {SUMO_RUN_R1 + 3, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[1][0]}
-    },
-    {
-        {SUMO_RUN_R2 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[2][1]},
-        {SUMO_RUN_R2 + 1, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[2][2]},
-        {SUMO_RUN_R2 + 2, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[2][3]},
-        {SUMO_RUN_R2 + 3, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[2][0]}
-    },
-    {
-        {SUMO_RUN_R3 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[3][1]},
-        {SUMO_RUN_R3 + 1, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[3][2]},
-        {SUMO_RUN_R3 + 2, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[3][3]},
-        {SUMO_RUN_R3 + 3, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[3][0]}
-    },
-    {
-        {SUMO_RUN_R4 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[4][1]},
-        {SUMO_RUN_R4 + 1, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[4][2]},
-        {SUMO_RUN_R4 + 2, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[4][3]},
-        {SUMO_RUN_R4 + 3, SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[4][0]},
-    }
 };
 
 STATE* sg_SumoRun[] =
 {
     &s_SumoRun[0][0],
-    &s_SumoRun[1][0],
-    &s_SumoRun[2][0],
-    &s_SumoRun[3][0],
-    &s_SumoRun[4][0]
 };
 
 
@@ -178,32 +150,16 @@ STATE* sg_SumoRun[] =
 //
 //////////////////////
 
-STATE s_SumoStand[5][1] =
+STATE s_SumoStand[1][1] =
 {
     {
-        {SUMO_RUN_R0 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[0][0]}
+        {SPR_SUMO_RUN, 'A', SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[0][0]}
     },
-    {
-        {SUMO_RUN_R1 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[1][0]}
-    },
-    {
-        {SUMO_RUN_R2 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[2][0]}
-    },
-    {
-        {SUMO_RUN_R3 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[3][0]}
-    },
-    {
-        {SUMO_RUN_R4 + 0, SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[4][0]}
-    }
 };
 
 STATE* sg_SumoStand[] =
 {
     &s_SumoStand[0][0],
-    &s_SumoStand[1][0],
-    &s_SumoStand[2][0],
-    &s_SumoStand[3][0],
-    &s_SumoStand[4][0]
 };
 
 //////////////////////
@@ -214,37 +170,17 @@ STATE* sg_SumoStand[] =
 
 #define SUMO_PAIN_RATE 30
 
-STATE s_SumoPain[5][2] =
+STATE s_SumoPain[1][2] =
 {
     {
-        {SUMO_PAIN_R0 + 0, SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[0][1]},
-        {SUMO_PAIN_R0 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[0][0]}
+        {SPR_SUMO_PAIN, 'A', SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[0][1]},
+        {SPR_SUMO_PAIN, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[0][0]}
     },
-    {
-        {SUMO_PAIN_R1 + 0, SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[1][1]},
-        {SUMO_PAIN_R1 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[1][0]}
-    },
-    {
-        {SUMO_PAIN_R2 + 0, SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[2][1]},
-        {SUMO_PAIN_R2 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[2][0]}
-    },
-    {
-        {SUMO_PAIN_R3 + 0, SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[3][1]},
-        {SUMO_PAIN_R3 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[3][0]}
-    },
-    {
-        {SUMO_PAIN_R4 + 0, SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[4][1]},
-        {SUMO_PAIN_R4 + 0, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[4][0]}
-    }
 };
 
 STATE* sg_SumoPain[] =
 {
     &s_SumoPain[0][0],
-    &s_SumoPain[1][0],
-    &s_SumoPain[2][0],
-    &s_SumoPain[3][0],
-    &s_SumoPain[4][0]
 };
 
 //////////////////////
@@ -255,57 +191,21 @@ STATE* sg_SumoPain[] =
 
 #define SUMO_FART_RATE 12
 
-STATE s_SumoFart[5][6] =
+STATE s_SumoFart[1][6] =
 {
     {
-        {SUMO_FART_R0 + 0, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][1]},
-        {SUMO_FART_R0 + 0, SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[0][2]},
-        {SUMO_FART_R0 + 1, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][3]},
-        {SUMO_FART_R0 + 2, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][4]},
-        {SUMO_FART_R0 + 3, SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[0][5]},
-        {SUMO_FART_R0 + 3, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[0][0]}
+        {SPR_SUMO_FART, 'A', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][1]},
+        {SPR_SUMO_FART, 'A', SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[0][2]},
+        {SPR_SUMO_FART, 'B', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][3]},
+        {SPR_SUMO_FART, 'C', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][4]},
+        {SPR_SUMO_FART, 'D', SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[0][5]},
+        {SPR_SUMO_FART, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[0][0]}
     },
-    {
-        {SUMO_FART_R1 + 0, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[1][1]},
-        {SUMO_FART_R1 + 0, SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[1][2]},
-        {SUMO_FART_R1 + 1, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[1][3]},
-        {SUMO_FART_R1 + 2, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[1][4]},
-        {SUMO_FART_R1 + 3, SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[1][5]},
-        {SUMO_FART_R1 + 0, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[1][0]}
-    },
-    {
-        {SUMO_FART_R2 + 0, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[2][1]},
-        {SUMO_FART_R2 + 0, SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[2][2]},
-        {SUMO_FART_R2 + 1, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[2][3]},
-        {SUMO_FART_R2 + 2, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[2][4]},
-        {SUMO_FART_R2 + 3, SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[2][5]},
-        {SUMO_FART_R2 + 0, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[2][0]}
-    },
-    {
-        {SUMO_FART_R3 + 0, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[3][1]},
-        {SUMO_FART_R3 + 0, SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[3][2]},
-        {SUMO_FART_R3 + 1, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[3][3]},
-        {SUMO_FART_R3 + 2, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[3][4]},
-        {SUMO_FART_R3 + 3, SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[3][5]},
-        {SUMO_FART_R3 + 0, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[3][0]}
-    },
-    {
-        {SUMO_FART_R4 + 0, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[4][1]},
-        {SUMO_FART_R4 + 0, SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[4][2]},
-        {SUMO_FART_R4 + 1, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[4][3]},
-        {SUMO_FART_R4 + 2, SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[4][4]},
-        {SUMO_FART_R4 + 3, SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[4][5]},
-        {SUMO_FART_R4 + 0, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[4][0]}
-    }
 };
 
 STATE* sg_SumoFart[] =
 {
     &s_SumoFart[0][0],
-    &s_SumoFart[1][0],
-    &s_SumoFart[2][0],
-    &s_SumoFart[3][0],
-    &s_SumoFart[4][0]
 };
 
 //////////////////////
@@ -316,57 +216,21 @@ STATE* sg_SumoFart[] =
 
 #define SUMO_CLAP_RATE 12
 
-STATE s_SumoClap[5][6] =
+STATE s_SumoClap[1][6] =
 {
     {
-        {SUMO_CLAP_R0 + 0, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][1]},
-        {SUMO_CLAP_R0 + 1, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][2]},
-        {SUMO_CLAP_R0 + 2, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][3]},
-        {SUMO_CLAP_R0 + 2, SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[0][4]},
-        {SUMO_CLAP_R0 + 3, SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[0][5]},
-        {SUMO_CLAP_R0 + 3, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[0][5]}
+        {SPR_SUMO_CLAP, 'A', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][1]},
+        {SPR_SUMO_CLAP, 'B', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][2]},
+        {SPR_SUMO_CLAP, 'C', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][3]},
+        {SPR_SUMO_CLAP, 'C', SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[0][4]},
+        {SPR_SUMO_CLAP, 'D', SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[0][5]},
+        {SPR_SUMO_CLAP, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[0][5]}
     },
-    {
-        {SUMO_CLAP_R1 + 0, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[1][1]},
-        {SUMO_CLAP_R1 + 1, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[1][2]},
-        {SUMO_CLAP_R1 + 2, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[1][3]},
-        {SUMO_CLAP_R1 + 2, SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[1][4]},
-        {SUMO_CLAP_R1 + 3, SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[1][5]},
-        {SUMO_CLAP_R1 + 3, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[1][5]}
-    },
-    {
-        {SUMO_CLAP_R2 + 0, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[2][1]},
-        {SUMO_CLAP_R2 + 1, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[2][2]},
-        {SUMO_CLAP_R2 + 2, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[2][3]},
-        {SUMO_CLAP_R2 + 2, SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[2][4]},
-        {SUMO_CLAP_R2 + 3, SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[2][5]},
-        {SUMO_CLAP_R2 + 3, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[2][5]}
-    },
-    {
-        {SUMO_CLAP_R3 + 0, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[3][1]},
-        {SUMO_CLAP_R3 + 1, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[3][2]},
-        {SUMO_CLAP_R3 + 2, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[3][3]},
-        {SUMO_CLAP_R3 + 2, SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[3][4]},
-        {SUMO_CLAP_R3 + 3, SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[3][5]},
-        {SUMO_CLAP_R3 + 3, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[3][5]}
-    },
-    {
-        {SUMO_CLAP_R4 + 0, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[4][1]},
-        {SUMO_CLAP_R4 + 1, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[4][2]},
-        {SUMO_CLAP_R4 + 2, SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[4][3]},
-        {SUMO_CLAP_R4 + 2, SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[4][4]},
-        {SUMO_CLAP_R4 + 3, SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[4][5]},
-        {SUMO_CLAP_R4 + 3, SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[4][5]}
-    }
 };
 
 STATE* sg_SumoClap[] =
 {
     &s_SumoClap[0][0],
-    &s_SumoClap[1][0],
-    &s_SumoClap[2][0],
-    &s_SumoClap[3][0],
-    &s_SumoClap[4][0]
 };
 
 //////////////////////
@@ -377,48 +241,16 @@ STATE* sg_SumoClap[] =
 
 #define SUMO_STOMP_RATE 30
 
-STATE s_SumoStomp[5][6] =
+STATE s_SumoStomp[1][6] =
 {
     {
-        {SUMO_STOMP_R0 + 0, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[0][1]},
-        {SUMO_STOMP_R0 + 1, SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[0][2]},
-        {SUMO_STOMP_R0 + 2, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[0][3]},
-        {SUMO_STOMP_R0 + 2, 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[0][4]},
-        {SUMO_STOMP_R0 + 2, 8, &AF(NullSumo), &s_SumoStomp[0][5]},
-        {SUMO_STOMP_R0 + 2, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[0][5]}
+        {SPR_SUMO_STOMP, 'A', SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[0][1]},
+        {SPR_SUMO_STOMP, 'B', SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[0][2]},
+        {SPR_SUMO_STOMP, 'C', SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[0][3]},
+        {SPR_SUMO_STOMP, 'C', 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[0][4]},
+        {SPR_SUMO_STOMP, 'C', 8, &AF(NullSumo), &s_SumoStomp[0][5]},
+        {SPR_SUMO_STOMP, 'C', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[0][5]}
     },
-    {
-        {SUMO_STOMP_R1 + 0, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[1][1]},
-        {SUMO_STOMP_R1 + 1, SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[1][2]},
-        {SUMO_STOMP_R1 + 2, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[1][3]},
-        {SUMO_STOMP_R1 + 2, 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[1][4]},
-        {SUMO_STOMP_R1 + 2, 8, &AF(NullSumo), &s_SumoStomp[1][5]},
-        {SUMO_STOMP_R1 + 2, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[1][5]}
-    },
-    {
-        {SUMO_STOMP_R2 + 0, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[2][1]},
-        {SUMO_STOMP_R2 + 1, SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[2][2]},
-        {SUMO_STOMP_R2 + 2, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[2][3]},
-        {SUMO_STOMP_R2 + 2, 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[2][4]},
-        {SUMO_STOMP_R2 + 2, 8, &AF(NullSumo), &s_SumoStomp[2][5]},
-        {SUMO_STOMP_R2 + 2, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[2][5]}
-    },
-    {
-        {SUMO_STOMP_R3 + 0, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[3][1]},
-        {SUMO_STOMP_R3 + 1, SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[3][2]},
-        {SUMO_STOMP_R3 + 2, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[3][3]},
-        {SUMO_STOMP_R3 + 2, 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[3][4]},
-        {SUMO_STOMP_R3 + 2, 8, &AF(NullSumo), &s_SumoStomp[3][5]},
-        {SUMO_STOMP_R3 + 2, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[3][5]}
-    },
-    {
-        {SUMO_STOMP_R4 + 0, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[4][1]},
-        {SUMO_STOMP_R4 + 1, SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[4][2]},
-        {SUMO_STOMP_R4 + 2, SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[4][3]},
-        {SUMO_STOMP_R4 + 2, 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[4][4]},
-        {SUMO_STOMP_R4 + 2, 8, &AF(NullSumo), &s_SumoStomp[4][5]},
-        {SUMO_STOMP_R4 + 2, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[4][5]}
-    }
 };
 
 STATE* sg_SumoStomp[] =
@@ -441,23 +273,23 @@ STATE* sg_SumoStomp[] =
 
 STATE s_SumoDie[] =
 {
-    {SUMO_DIE + 0, SUMO_DIE_RATE*2, &AF(NullSumo), &s_SumoDie[1]},
-    {SUMO_DIE + 1, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[2]},
-    {SUMO_DIE + 2, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[3]},
-    {SUMO_DIE + 3, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[4]},
-    {SUMO_DIE + 4, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[5]},
-    {SUMO_DIE + 5, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[6]},
-    {SUMO_DIE + 6, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[7]},
-    {SUMO_DIE + 6, SUMO_DIE_RATE*3, &AF(NullSumo), &s_SumoDie[8]},
-    {SUMO_DIE + 7, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[9]},
-    {SUMO_DIE + 6, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[10]},
-    {SUMO_DIE + 7, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[11]},
-    {SUMO_DIE + 6, SUMO_DIE_RATE-8, &AF(NullSumo), &s_SumoDie[12]},
-    {SUMO_DIE + 7, SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[13]},
-    {SUMO_DIE + 7, SF_QUICK_CALL, &AF(DoSumoDeathMelt), &s_SumoDie[14]},
-    {SUMO_DIE + 6, SUMO_DIE_RATE-15, &AF(NullSumo), &s_SumoDie[15]},
-    {SUMO_DEAD, SF_QUICK_CALL, &AF(QueueFloorBlood), &s_SumoDie[16]},
-    {SUMO_DEAD, SUMO_DIE_RATE, &AF(DoActorDebris), &s_SumoDie[16]}
+    {SPR_SUMO_DIE, 'A', SUMO_DIE_RATE*2, &AF(NullSumo), &s_SumoDie[1]},
+    {SPR_SUMO_DIE, 'B', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[2]},
+    {SPR_SUMO_DIE, 'C', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[3]},
+    {SPR_SUMO_DIE, 'D', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[4]},
+    {SPR_SUMO_DIE, 'E', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[5]},
+    {SPR_SUMO_DIE, 'F', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[6]},
+    {SPR_SUMO_DIE, 'G', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[7]},
+    {SPR_SUMO_DIE, 'G', SUMO_DIE_RATE*3, &AF(NullSumo), &s_SumoDie[8]},
+    {SPR_SUMO_DIE, 'H', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[9]},
+    {SPR_SUMO_DIE, 'G', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[10]},
+    {SPR_SUMO_DIE, 'H', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[11]},
+    {SPR_SUMO_DIE, 'G', SUMO_DIE_RATE-8, &AF(NullSumo), &s_SumoDie[12]},
+    {SPR_SUMO_DIE, 'H', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[13]},
+    {SPR_SUMO_DIE, 'H', SF_QUICK_CALL, &AF(DoSumoDeathMelt), &s_SumoDie[14]},
+    {SPR_SUMO_DIE, 'G', SUMO_DIE_RATE-15, &AF(NullSumo), &s_SumoDie[15]},
+    {SPR_SUMO_DEAD, 'A', SF_QUICK_CALL, &AF(QueueFloorBlood), &s_SumoDie[16]},
+    {SPR_SUMO_DEAD, 'A', SUMO_DIE_RATE, &AF(DoActorDebris), &s_SumoDie[16]}
 };
 
 STATE* sg_SumoDie[] =
@@ -467,7 +299,7 @@ STATE* sg_SumoDie[] =
 
 STATE s_SumoDead[] =
 {
-    {SUMO_DEAD, SUMO_DIE_RATE, &AF(DoActorDebris), &s_SumoDead[0]},
+    {SPR_SUMO_DEAD, 'A', SUMO_DIE_RATE, &AF(DoActorDebris), &s_SumoDead[0]},
 };
 
 STATE* sg_SumoDead[] =

@@ -154,17 +154,17 @@ short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 // state for sprites that are not restored
 STATE s_NotRestored[] =
 {
-    {2323, 100, nullptr,  &s_NotRestored[0]}
+    {SPR_NOTRESTORED, 'A', 100, nullptr,  &s_NotRestored[0]}
 };
 
 STATE s_Suicide[] =
 {
-    {1, 100, &AF(DoSuicide), &s_Suicide[0]}
+    {SPR_SUICIDES, 'A', 100, &AF(DoSuicide), &s_Suicide[0]}
 };
 
 STATE s_DeadLoWang[] =
 {
-    {1160, 100, nullptr,  &s_DeadLoWang[0]},
+    {SPR_DEADLOWANG, 'A', 100, nullptr,  &s_DeadLoWang[0]},
 };
 
 //////////////////////
@@ -176,191 +176,141 @@ STATE s_DeadLoWang[] =
 #define BREAK_LIGHT_RATE 18
 STATE s_BreakLight[] =
 {
-    {BREAK_LIGHT_ANIM + 0, BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[1]},
-    {BREAK_LIGHT_ANIM + 1, BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[2]},
-    {BREAK_LIGHT_ANIM + 2, BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[3]},
-    {BREAK_LIGHT_ANIM + 3, BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[4]},
-    {BREAK_LIGHT_ANIM + 4, BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[5]},
-    {BREAK_LIGHT_ANIM + 5, BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[5]}
+    {SPR_BREAK_LIGHT_ANIM, 'A', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[1]},
+    {SPR_BREAK_LIGHT_ANIM, 'B', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[2]},
+    {SPR_BREAK_LIGHT_ANIM, 'C', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[3]},
+    {SPR_BREAK_LIGHT_ANIM, 'D', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[4]},
+    {SPR_BREAK_LIGHT_ANIM, 'E', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[5]},
+    {SPR_BREAK_LIGHT_ANIM, 'F', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[5]}
 };
 
 #define BREAK_BARREL_RATE 18
 STATE s_BreakBarrel[] =
 {
-    {BREAK_BARREL + 4, BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[1]},
-    {BREAK_BARREL + 5, BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[2]},
-    {BREAK_BARREL + 6, BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[3]},
-    {BREAK_BARREL + 7, BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[4]},
-    {BREAK_BARREL + 8, BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[5]},
-    {BREAK_BARREL + 9, BREAK_BARREL_RATE, &AF(DoDefaultStat), &s_BreakBarrel[5]},
+    {SPR_BREAK_BARREL, 'E', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[1]},
+    {SPR_BREAK_BARREL, 'F', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[2]},
+    {SPR_BREAK_BARREL, 'G', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[3]},
+    {SPR_BREAK_BARREL, 'H', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[4]},
+    {SPR_BREAK_BARREL, 'I', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[5]},
+    {SPR_BREAK_BARREL, 'J', BREAK_BARREL_RATE, &AF(DoDefaultStat), &s_BreakBarrel[5]},
 };
 
 #define BREAK_PEDISTAL_RATE 28
 STATE s_BreakPedistal[] =
 {
-    {BREAK_PEDISTAL + 1, BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[1]},
-    {BREAK_PEDISTAL + 2, BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[2]},
-    {BREAK_PEDISTAL + 3, BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[3]},
-    {BREAK_PEDISTAL + 4, BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[3]},
+    {SPR_BREAK_PEDISTAL, 'B', BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[1]},
+    {SPR_BREAK_PEDISTAL, 'C', BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[2]},
+    {SPR_BREAK_PEDISTAL, 'D', BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[3]},
+    {SPR_BREAK_PEDISTAL, 'E', BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[3]},
 };
 
 #define BREAK_BOTTLE1_RATE 18
 STATE s_BreakBottle1[] =
 {
-    {BREAK_BOTTLE1 + 1, BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[1]},
-    {BREAK_BOTTLE1 + 2, BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[2]},
-    {BREAK_BOTTLE1 + 3, BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[3]},
-    {BREAK_BOTTLE1 + 4, BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[4]},
-    {BREAK_BOTTLE1 + 5, BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[5]},
-    {BREAK_BOTTLE1 + 6, BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[5]},
+    {SPR_BREAK_BOTTLE1, 'B', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[1]},
+    {SPR_BREAK_BOTTLE1, 'C', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[2]},
+    {SPR_BREAK_BOTTLE1, 'D', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[3]},
+    {SPR_BREAK_BOTTLE1, 'E', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[4]},
+    {SPR_BREAK_BOTTLE1, 'F', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[5]},
+    {SPR_BREAK_BOTTLE1, 'G', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[5]},
 };
 
 #define BREAK_BOTTLE2_RATE 18
 STATE s_BreakBottle2[] =
 {
-    {BREAK_BOTTLE2 + 1, BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[1]},
-    {BREAK_BOTTLE2 + 2, BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[2]},
-    {BREAK_BOTTLE2 + 3, BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[3]},
-    {BREAK_BOTTLE2 + 4, BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[4]},
-    {BREAK_BOTTLE2 + 5, BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[5]},
-    {BREAK_BOTTLE2 + 6, BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[5]},
+    {SPR_BREAK_BOTTLE2, 'B', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[1]},
+    {SPR_BREAK_BOTTLE2, 'C', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[2]},
+    {SPR_BREAK_BOTTLE2, 'D', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[3]},
+    {SPR_BREAK_BOTTLE2, 'E', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[4]},
+    {SPR_BREAK_BOTTLE2, 'F', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[5]},
+    {SPR_BREAK_BOTTLE2, 'G', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[5]},
 };
 
 #define PUFF_RATE 8
 
 STATE s_Puff[] =
 {
-    {PUFF + 0, PUFF_RATE, &AF(DoPuff), &s_Puff[1]},
-    {PUFF + 1, PUFF_RATE, &AF(DoPuff), &s_Puff[2]},
-    {PUFF + 2, PUFF_RATE, &AF(DoPuff), &s_Puff[3]},
-    {PUFF + 3, PUFF_RATE, &AF(DoPuff), &s_Puff[4]},
-    {PUFF + 4, PUFF_RATE, &AF(DoPuff), &s_Puff[5]},
-    {PUFF + 5, PUFF_RATE, &AF(DoPuff), &s_Puff[6]},
-    {PUFF + 5, 100, &AF(DoSuicide), &s_Puff[0]}
+    {SPR_PUFF, 'A', PUFF_RATE, &AF(DoPuff), &s_Puff[1]},
+    {SPR_PUFF, 'B', PUFF_RATE, &AF(DoPuff), &s_Puff[2]},
+    {SPR_PUFF, 'C', PUFF_RATE, &AF(DoPuff), &s_Puff[3]},
+    {SPR_PUFF, 'D', PUFF_RATE, &AF(DoPuff), &s_Puff[4]},
+    {SPR_PUFF, 'E', PUFF_RATE, &AF(DoPuff), &s_Puff[5]},
+    {SPR_PUFF, 'F', PUFF_RATE, &AF(DoPuff), &s_Puff[6]},
+    {SPR_PUFF, 'F', 100, &AF(DoSuicide), &s_Puff[0]}
 };
 
-#define RAIL_PUFF_R0 3969
-#define RAIL_PUFF_R1 3985
-#define RAIL_PUFF_R2 4001
 #define RAIL_PUFF_RATE 6
 
 
 STATE s_RailPuff[3][17] =
 {
     {
-        {RAIL_PUFF_R0 + 0, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][1]},
-        {RAIL_PUFF_R0 + 1, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][2]},
-        {RAIL_PUFF_R0 + 2, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][3]},
-        {RAIL_PUFF_R0 + 3, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][4]},
-        {RAIL_PUFF_R0 + 4, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][5]},
-        {RAIL_PUFF_R0 + 5, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][6]},
-        {RAIL_PUFF_R0 + 6, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][7]},
-        {RAIL_PUFF_R0 + 7, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][8]},
-        {RAIL_PUFF_R0 + 8, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][9]},
-        {RAIL_PUFF_R0 + 9, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][10]},
-        {RAIL_PUFF_R0 + 10, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][11]},
-        {RAIL_PUFF_R0 + 11, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][12]},
-        {RAIL_PUFF_R0 + 12, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][13]},
-        {RAIL_PUFF_R0 + 13, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][14]},
-        {RAIL_PUFF_R0 + 14, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][15]},
-        {RAIL_PUFF_R0 + 15, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][16]},
-        {RAIL_PUFF_R0 + 15, 100, &AF(DoSuicide), &s_RailPuff[0][0]},
+        {SPR_RAIL_PUFF, 'A', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][1]},
+        {SPR_RAIL_PUFF, 'B', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][2]},
+        {SPR_RAIL_PUFF, 'C', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][3]},
+        {SPR_RAIL_PUFF, 'D', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][4]},
+        {SPR_RAIL_PUFF, 'E', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][5]},
+        {SPR_RAIL_PUFF, 'F', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][6]},
+        {SPR_RAIL_PUFF, 'G', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][7]},
+        {SPR_RAIL_PUFF, 'H', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][8]},
+        {SPR_RAIL_PUFF, 'I', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][9]},
+        {SPR_RAIL_PUFF, 'J', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][10]},
+        {SPR_RAIL_PUFF, 'K', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][11]},
+        {SPR_RAIL_PUFF, 'L', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][12]},
+        {SPR_RAIL_PUFF, 'M', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][13]},
+        {SPR_RAIL_PUFF, 'N', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][14]},
+        {SPR_RAIL_PUFF, 'O', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][15]},
+        {SPR_RAIL_PUFF, 'P', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][16]},
+        {SPR_RAIL_PUFF, 'P', 100, &AF(DoSuicide), &s_RailPuff[0][0]},
     },
-    {
-        {RAIL_PUFF_R1 + 0, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][1]},
-        {RAIL_PUFF_R1 + 1, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][2]},
-        {RAIL_PUFF_R1 + 2, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][3]},
-        {RAIL_PUFF_R1 + 3, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][4]},
-        {RAIL_PUFF_R1 + 4, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][5]},
-        {RAIL_PUFF_R1 + 5, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][6]},
-        {RAIL_PUFF_R1 + 6, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][7]},
-        {RAIL_PUFF_R1 + 7, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][8]},
-        {RAIL_PUFF_R1 + 8, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][9]},
-        {RAIL_PUFF_R1 + 9, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][10]},
-        {RAIL_PUFF_R1 + 10, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][11]},
-        {RAIL_PUFF_R1 + 11, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][12]},
-        {RAIL_PUFF_R1 + 12, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][13]},
-        {RAIL_PUFF_R1 + 13, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][14]},
-        {RAIL_PUFF_R1 + 14, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][15]},
-        {RAIL_PUFF_R1 + 15, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1][16]},
-        {RAIL_PUFF_R1 + 15, 100, &AF(DoSuicide), &s_RailPuff[1][0]},
-    },
-    {
-        {RAIL_PUFF_R2 + 0, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][1]},
-        {RAIL_PUFF_R2 + 1, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][2]},
-        {RAIL_PUFF_R2 + 2, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][3]},
-        {RAIL_PUFF_R2 + 3, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][4]},
-        {RAIL_PUFF_R2 + 4, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][5]},
-        {RAIL_PUFF_R2 + 5, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][6]},
-        {RAIL_PUFF_R2 + 6, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][7]},
-        {RAIL_PUFF_R2 + 7, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][8]},
-        {RAIL_PUFF_R2 + 8, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][9]},
-        {RAIL_PUFF_R2 + 9, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][10]},
-        {RAIL_PUFF_R2 + 10, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][11]},
-        {RAIL_PUFF_R2 + 11, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][12]},
-        {RAIL_PUFF_R2 + 12, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][13]},
-        {RAIL_PUFF_R2 + 13, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][14]},
-        {RAIL_PUFF_R2 + 14, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][15]},
-        {RAIL_PUFF_R2 + 15, RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2][16]},
-        {RAIL_PUFF_R2 + 15, 100, &AF(DoSuicide), &s_RailPuff[2][0]},
-    }
 };
 
 
 STATE* sg_RailPuff[] =
 {
     &s_RailPuff[0][0],
-    &s_RailPuff[1][0],
-    &s_RailPuff[2][0],
-    &s_RailPuff[1][0],
-    &s_RailPuff[0][0]
 };
 
-#define LASER_PUFF 3201
 #define LASER_PUFF_RATE 8
 STATE s_LaserPuff[] =
 {
-    {LASER_PUFF + 0, LASER_PUFF_RATE, nullptr, &s_LaserPuff[1]},
-    //{LASER_PUFF + 1, LASER_PUFF_RATE, nullptr, &s_LaserPuff[2]},
-    //{LASER_PUFF + 2, LASER_PUFF_RATE, nullptr, &s_LaserPuff[3]},
-    {LASER_PUFF + 0, 100, &AF(DoSuicide), &s_LaserPuff[0]}
+    {SPR_LASER_PUFF, 'A', LASER_PUFF_RATE, nullptr, &s_LaserPuff[1]},
+    {SPR_LASER_PUFF, 'A', 100, &AF(DoSuicide), &s_LaserPuff[0]}
 };
 
-#define TRACER 3201
 #define TRACER_RATE 6
 
 STATE s_Tracer[] =
 {
-    {TRACER + 0, TRACER_RATE, &AF(DoTracer), &s_Tracer[1]},
-    {TRACER + 1, TRACER_RATE, &AF(DoTracer), &s_Tracer[2]},
-    {TRACER + 2, TRACER_RATE, &AF(DoTracer), &s_Tracer[3]},
-    {TRACER + 3, TRACER_RATE, &AF(DoTracer), &s_Tracer[4]},
-    {TRACER + 4, TRACER_RATE, &AF(DoTracer), &s_Tracer[5]},
-    {TRACER + 5, TRACER_RATE, &AF(DoTracer), &s_Tracer[0]}
+    {SPR_TRACER, 'A', TRACER_RATE, &AF(DoTracer), &s_Tracer[1]},
+    {SPR_TRACER, 'B', TRACER_RATE, &AF(DoTracer), &s_Tracer[2]},
+    {SPR_TRACER, 'C', TRACER_RATE, &AF(DoTracer), &s_Tracer[3]},
+    {SPR_TRACER, 'D', TRACER_RATE, &AF(DoTracer), &s_Tracer[4]},
+    {SPR_TRACER, 'E', TRACER_RATE, &AF(DoTracer), &s_Tracer[5]},
+    {SPR_TRACER, 'F', TRACER_RATE, &AF(DoTracer), &s_Tracer[0]}
 };
 
-#define EMP 2058
 #define EMP_RATE 6
 STATE s_EMP[] =
 {
-    {EMP + 0, EMP_RATE, &AF(DoEMP), &s_EMP[1]},
-    {EMP + 1, EMP_RATE, &AF(DoEMP), &s_EMP[2]},
-    {EMP + 2, EMP_RATE, &AF(DoEMP), &s_EMP[0]}
+    {SPR_EMP, 'A', EMP_RATE, &AF(DoEMP), &s_EMP[1]},
+    {SPR_EMP, 'B', EMP_RATE, &AF(DoEMP), &s_EMP[2]},
+    {SPR_EMP, 'C', EMP_RATE, &AF(DoEMP), &s_EMP[0]}
 };
 
 
 STATE s_EMPBurst[] =
 {
-    {EMP + 0, EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[1]},
-    {EMP + 1, EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[2]},
-    {EMP + 2, EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[0]}
+    {SPR_EMP, 'A', EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[1]},
+    {SPR_EMP, 'B', EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[2]},
+    {SPR_EMP, 'C', EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[0]}
 };
 
 STATE s_EMPShrap[] =
 {
-    {EMP + 0, EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[1]},
-    {EMP + 1, EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[2]},
-    {EMP + 2, EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[0]},
+    {SPR_EMP, 'A', EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[1]},
+    {SPR_EMP, 'B', EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[2]},
+    {SPR_EMP, 'C', EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[0]},
 };
 
 
@@ -369,33 +319,33 @@ STATE s_EMPShrap[] =
 
 STATE s_TankShell[] =
 {
-    {TRACER + 0, 200, &AF(DoTankShell), &s_TankShell[0]}
+    {SPR_TRACER, 'A', 200, &AF(DoTankShell), &s_TankShell[0]}
 };
 
 
 #define VEHICLE_SMOKE_RATE 18
 STATE s_VehicleSmoke[] =
 {
-    {PUFF + 0, VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[1]},
-    {PUFF + 1, VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[2]},
-    {PUFF + 2, VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[3]},
-    {PUFF + 3, VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[4]},
-    {PUFF + 4, VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[5]},
-    {PUFF + 5, VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[6]},
-    {PUFF + 5, 100, &AF(DoSuicide), &s_VehicleSmoke[6]}
+    {SPR_PUFF, 'A', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[1]},
+    {SPR_PUFF, 'B', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[2]},
+    {SPR_PUFF, 'C', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[3]},
+    {SPR_PUFF, 'D', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[4]},
+    {SPR_PUFF, 'E', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[5]},
+    {SPR_PUFF, 'F', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[6]},
+    {SPR_PUFF, 'F', 100, &AF(DoSuicide), &s_VehicleSmoke[6]}
 };
 
 
 #define WATER_SMOKE_RATE 18
 STATE s_WaterSmoke[] =
 {
-    {PUFF + 0, WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[1]},
-    {PUFF + 1, WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[2]},
-    {PUFF + 2, WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[3]},
-    {PUFF + 3, WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[4]},
-    {PUFF + 4, WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[5]},
-    {PUFF + 5, WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[6]},
-    {PUFF + 5, 100, &AF(DoSuicide), &s_WaterSmoke[6]}
+    {SPR_PUFF, 'A', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[1]},
+    {SPR_PUFF, 'B', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[2]},
+    {SPR_PUFF, 'C', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[3]},
+    {SPR_PUFF, 'D', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[4]},
+    {SPR_PUFF, 'E', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[5]},
+    {SPR_PUFF, 'F', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[6]},
+    {SPR_PUFF, 'F', 100, &AF(DoSuicide), &s_WaterSmoke[6]}
 };
 
 constexpr double UZI_SPARK_REPEAT = 0.375;
@@ -403,105 +353,85 @@ constexpr double UZI_SMOKE_REPEAT = 0.375;
 #define UZI_SMOKE_RATE 16 // Was 9
 STATE s_UziSmoke[] =
 {
-    {UZI_SMOKE + 0, UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[1]},
-    {UZI_SMOKE + 1, UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[2]},
-    {UZI_SMOKE + 2, UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[3]},
-    {UZI_SMOKE + 3, UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[4]},
-    {UZI_SMOKE + 3, 100, &AF(DoSuicide), &s_UziSmoke[0]},
+    {SPR_UZI_SMOKE, 'A', UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[1]},
+    {SPR_UZI_SMOKE, 'B', UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[2]},
+    {SPR_UZI_SMOKE, 'C', UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[3]},
+    {SPR_UZI_SMOKE, 'D', UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[4]},
+    {SPR_UZI_SMOKE, 'D', 100, &AF(DoSuicide), &s_UziSmoke[0]},
 };
 
 #define SHOTGUN_SMOKE_RATE 16
 #define SHOTGUN_SMOKE UZI_SMOKE+1
 STATE s_ShotgunSmoke[] =
 {
-    {UZI_SMOKE + 0, SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[1]},
-    {UZI_SMOKE + 1, SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[2]},
-    {UZI_SMOKE + 2, SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[3]},
-    {UZI_SMOKE + 3, SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[4]},
-    {UZI_SMOKE + 3, 100, &AF(DoSuicide), &s_ShotgunSmoke[0]},
+    {SPR_UZI_SMOKE, 'A', SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[1]},
+    {SPR_UZI_SMOKE, 'B', SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[2]},
+    {SPR_UZI_SMOKE, 'C', SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[3]},
+    {SPR_UZI_SMOKE, 'D', SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[4]},
+    {SPR_UZI_SMOKE, 'D', 100, &AF(DoSuicide), &s_ShotgunSmoke[0]},
 };
 
 #define UZI_BULLET_RATE 100
-#define UZI_BULLET 717 // actually a bubble
 
 STATE s_UziBullet[] =
 {
-    {UZI_BULLET + 0, UZI_BULLET_RATE, &AF(DoUziBullet), &s_UziBullet[0]},
+    {SPR_UZI_BULLET, 'A', UZI_BULLET_RATE, &AF(DoUziBullet), &s_UziBullet[0]},
 };
 
 #define UZI_SPARK_RATE 8
 
 STATE s_UziSpark[] =
 {
-    {UZI_SPARK + 0, UZI_SPARK_RATE, nullptr,  &s_UziSpark[1]},
-    {UZI_SPARK + 1, UZI_SPARK_RATE, nullptr,  &s_UziSpark[2]},
-    {UZI_SPARK + 2, UZI_SPARK_RATE, nullptr,  &s_UziSpark[3]},
-    {UZI_SPARK + 3, UZI_SPARK_RATE, nullptr,  &s_UziSpark[4]},
-    {UZI_SPARK + 4, UZI_SPARK_RATE, nullptr,  &s_UziSpark[5]},
-    {UZI_SPARK + 4, 100, &AF(DoSuicide), &s_UziSpark[0]},
+    {SPR_UZI_SPARK, 'A', UZI_SPARK_RATE, nullptr,  &s_UziSpark[1]},
+    {SPR_UZI_SPARK, 'B', UZI_SPARK_RATE, nullptr,  &s_UziSpark[2]},
+    {SPR_UZI_SPARK, 'C', UZI_SPARK_RATE, nullptr,  &s_UziSpark[3]},
+    {SPR_UZI_SPARK, 'D', UZI_SPARK_RATE, nullptr,  &s_UziSpark[4]},
+    {SPR_UZI_SPARK, 'E', UZI_SPARK_RATE, nullptr,  &s_UziSpark[5]},
+    {SPR_UZI_SPARK, 'E', 100, &AF(DoSuicide), &s_UziSpark[0]},
 };
 
 STATE s_UziPowerSpark[] =
 {
-    {UZI_SPARK + 0, UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[1]},
-    {UZI_SPARK + 1, UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[2]},
-    {UZI_SPARK + 2, UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[3]},
-    {UZI_SPARK + 3, UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[4]},
-    {UZI_SPARK + 4, UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[5]},
-    {UZI_SPARK + 4, 100, &AF(DoSuicide), &s_UziSpark[0]},
+    {SPR_UZI_SPARK, 'A', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[1]},
+    {SPR_UZI_SPARK, 'B', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[2]},
+    {SPR_UZI_SPARK, 'C', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[3]},
+    {SPR_UZI_SPARK, 'D', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[4]},
+    {SPR_UZI_SPARK, 'E', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[5]},
+    {SPR_UZI_SPARK, 'E', 100, &AF(DoSuicide), &s_UziSpark[0]},
 };
 
-#define BUBBLE 716
 #define BUBBLE_RATE 100
 
 STATE s_Bubble[] =
 {
-    {BUBBLE + 0, BUBBLE_RATE, &AF(DoBubble), &s_Bubble[0]}
+    {SPR_BUBBLE, 'A', BUBBLE_RATE, &AF(DoBubble), &s_Bubble[0]}
 };
 
 
 //#define SPLASH 2190
-#define SPLASH 772
 #define SPLASH_RATE 10
 
 STATE s_Splash[] =
 {
-    {SPLASH + 0, SPLASH_RATE, nullptr,  &s_Splash[1]},
-    {SPLASH + 1, SPLASH_RATE, nullptr,  &s_Splash[2]},
-    {SPLASH + 2, SPLASH_RATE, nullptr,  &s_Splash[3]},
-    {SPLASH + 3, SPLASH_RATE, nullptr,  &s_Splash[4]},
-    {SPLASH + 4, SPLASH_RATE, nullptr,  &s_Splash[5]},
-    {SPLASH + 4, 100, &AF(DoSuicide), &s_Splash[0]}
+    {SPR_SPLASH, 'A', SPLASH_RATE, nullptr,  &s_Splash[1]},
+    {SPR_SPLASH, 'B', SPLASH_RATE, nullptr,  &s_Splash[2]},
+    {SPR_SPLASH, 'C', SPLASH_RATE, nullptr,  &s_Splash[3]},
+    {SPR_SPLASH, 'D', SPLASH_RATE, nullptr,  &s_Splash[4]},
+    {SPR_SPLASH, 'E', SPLASH_RATE, nullptr,  &s_Splash[5]},
+    {SPR_SPLASH, 'E', 100, &AF(DoSuicide), &s_Splash[0]}
 };
 
-#define CROSSBOLT 2230
 #define CROSSBOLT_RATE 100
-STATE s_CrossBolt[5][1] =
+STATE s_CrossBolt[1][1] =
 {
     {
-        {CROSSBOLT + 0, CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[0][0]},
+        {SPR_CROSSBOLT, 'A', CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[0][0]},
     },
-    {
-        {CROSSBOLT + 2, CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[1][0]},
-    },
-    {
-        {CROSSBOLT + 3, CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[2][0]},
-    },
-    {
-        {CROSSBOLT + 4, CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[3][0]},
-    },
-    {
-        {CROSSBOLT + 1, CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[4][0]},
-    }
 };
 
 STATE* sg_CrossBolt[] =
 {
     &s_CrossBolt[0][0],
-    &s_CrossBolt[1][0],
-    &s_CrossBolt[2][0],
-    &s_CrossBolt[3][0],
-    &s_CrossBolt[4][0]
 };
 
 #undef STAR
@@ -509,29 +439,28 @@ STATE* sg_CrossBolt[] =
 #define STAR_RATE 6
 STATE s_Star[] =
 {
-    {STAR + 0, STAR_RATE, &AF(DoStar), &s_Star[1]},
-    {STAR + 1, STAR_RATE, &AF(DoStar), &s_Star[2]},
-    {STAR + 2, STAR_RATE, &AF(DoStar), &s_Star[3]},
-    {STAR + 3, STAR_RATE, &AF(DoStar), &s_Star[0]}
+    {SPR_STAR, 'A', STAR_RATE, &AF(DoStar), &s_Star[1]},
+    {SPR_STAR, 'B', STAR_RATE, &AF(DoStar), &s_Star[2]},
+    {SPR_STAR, 'C', STAR_RATE, &AF(DoStar), &s_Star[3]},
+    {SPR_STAR, 'D', STAR_RATE, &AF(DoStar), &s_Star[0]}
 };
 
 STATE s_StarStuck[] =
 {
-    {STAR + 0, STAR_RATE, nullptr,  &s_StarStuck[0]},
+    {SPR_STAR, 'A', STAR_RATE, nullptr,  &s_StarStuck[0]},
 };
 
-#define STAR_DOWN 2066
 STATE s_StarDown[] =
 {
-    {STAR_DOWN + 0, STAR_RATE, &AF(DoStar), &s_StarDown[1]},
-    {STAR_DOWN + 1, STAR_RATE, &AF(DoStar), &s_StarDown[2]},
-    {STAR_DOWN + 2, STAR_RATE, &AF(DoStar), &s_StarDown[3]},
-    {STAR_DOWN + 3, STAR_RATE, &AF(DoStar), &s_StarDown[0]}
+    {SPR_STAR_DOWN, 'A', STAR_RATE, &AF(DoStar), &s_StarDown[1]},
+    {SPR_STAR_DOWN, 'B', STAR_RATE, &AF(DoStar), &s_StarDown[2]},
+    {SPR_STAR_DOWN, 'C', STAR_RATE, &AF(DoStar), &s_StarDown[3]},
+    {SPR_STAR_DOWN, 'D', STAR_RATE, &AF(DoStar), &s_StarDown[0]}
 };
 
 STATE s_StarDownStuck[] =
 {
-    {STAR + 0, STAR_RATE, nullptr,  &s_StarDownStuck[0]},
+    {SPR_STAR, 'A', STAR_RATE, nullptr,  &s_StarDownStuck[0]},
 };
 
 //////////////////////
@@ -544,40 +473,40 @@ STATE s_StarDownStuck[] =
 
 STATE s_LavaBoulder[] =
 {
-    {LAVA_BOULDER + 1, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[1]},
-    {LAVA_BOULDER + 2, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[2]},
-    {LAVA_BOULDER + 3, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[3]},
-    {LAVA_BOULDER + 4, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[4]},
-    {LAVA_BOULDER + 5, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[5]},
-    {LAVA_BOULDER + 6, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[6]},
-    {LAVA_BOULDER + 7, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[7]},
-    {LAVA_BOULDER + 8, LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[0]},
+    {SPR_LAVA_BOULDER, 'B', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[1]},
+    {SPR_LAVA_BOULDER, 'C', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[2]},
+    {SPR_LAVA_BOULDER, 'D', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[3]},
+    {SPR_LAVA_BOULDER, 'E', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[4]},
+    {SPR_LAVA_BOULDER, 'F', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[5]},
+    {SPR_LAVA_BOULDER, 'G', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[6]},
+    {SPR_LAVA_BOULDER, 'H', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[7]},
+    {SPR_LAVA_BOULDER, 'I', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[0]},
 };
 
 #define LAVA_SHARD (LAVA_BOULDER+1)
 
 STATE s_LavaShard[] =
 {
-    {LAVA_BOULDER + 1, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[1]},
-    {LAVA_BOULDER + 2, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[2]},
-    {LAVA_BOULDER + 3, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[3]},
-    {LAVA_BOULDER + 4, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[4]},
-    {LAVA_BOULDER + 5, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[5]},
-    {LAVA_BOULDER + 6, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[6]},
-    {LAVA_BOULDER + 7, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[7]},
-    {LAVA_BOULDER + 8, LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[0]},
+    {SPR_LAVA_BOULDER, 'B', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[1]},
+    {SPR_LAVA_BOULDER, 'C', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[2]},
+    {SPR_LAVA_BOULDER, 'D', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[3]},
+    {SPR_LAVA_BOULDER, 'E', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[4]},
+    {SPR_LAVA_BOULDER, 'F', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[5]},
+    {SPR_LAVA_BOULDER, 'G', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[6]},
+    {SPR_LAVA_BOULDER, 'H', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[7]},
+    {SPR_LAVA_BOULDER, 'I', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[0]},
 };
 
 STATE s_VulcanBoulder[] =
 {
-    {LAVA_BOULDER + 1, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[1]},
-    {LAVA_BOULDER + 2, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[2]},
-    {LAVA_BOULDER + 3, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[3]},
-    {LAVA_BOULDER + 4, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[4]},
-    {LAVA_BOULDER + 5, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[5]},
-    {LAVA_BOULDER + 6, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[6]},
-    {LAVA_BOULDER + 7, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[7]},
-    {LAVA_BOULDER + 8, LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[0]},
+    {SPR_LAVA_BOULDER, 'B', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[1]},
+    {SPR_LAVA_BOULDER, 'C', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[2]},
+    {SPR_LAVA_BOULDER, 'D', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[3]},
+    {SPR_LAVA_BOULDER, 'E', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[4]},
+    {SPR_LAVA_BOULDER, 'F', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[5]},
+    {SPR_LAVA_BOULDER, 'G', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[6]},
+    {SPR_LAVA_BOULDER, 'H', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[7]},
+    {SPR_LAVA_BOULDER, 'I', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[0]},
 };
 
 //////////////////////
@@ -588,44 +517,23 @@ STATE s_VulcanBoulder[] =
 
 #if 0
 #else
-#define GRENADE_FRAMES 1
 #define GRENADE_R0 2110
-#define GRENADE_R1 GRENADE_R0 + (GRENADE_FRAMES * 1)
-#define GRENADE_R2 GRENADE_R0 + (GRENADE_FRAMES * 2)
-#define GRENADE_R3 GRENADE_R0 + (GRENADE_FRAMES * 3)
-#define GRENADE_R4 GRENADE_R0 + (GRENADE_FRAMES * 4)
 
 #undef GRENADE
 #define GRENADE GRENADE_R0
 #define GRENADE_RATE 8
 
-STATE s_Grenade[5][1] =
+STATE s_Grenade[1][1] =
 {
     {
-        {GRENADE_R0 + 0, GRENADE_RATE, &AF(DoGrenade), &s_Grenade[0][0]},
+        {SPR_GRENADE, 'A', GRENADE_RATE, &AF(DoGrenade), &s_Grenade[0][0]},
     },
-    {
-        {GRENADE_R1 + 0, GRENADE_RATE, &AF(DoGrenade), &s_Grenade[1][0]},
-    },
-    {
-        {GRENADE_R2 + 0, GRENADE_RATE, &AF(DoGrenade), &s_Grenade[2][0]},
-    },
-    {
-        {GRENADE_R3 + 0, GRENADE_RATE, &AF(DoGrenade), &s_Grenade[3][0]},
-    },
-    {
-        {GRENADE_R4 + 0, GRENADE_RATE, &AF(DoGrenade), &s_Grenade[4][0]},
-    }
 };
 
 
 STATE* sg_Grenade[] =
 {
     &s_Grenade[0][0],
-    &s_Grenade[1][0],
-    &s_Grenade[2][0],
-    &s_Grenade[3][0],
-    &s_Grenade[4][0]
 };
 #endif
 
@@ -642,24 +550,24 @@ STATE* sg_Grenade[] =
 
 STATE s_MineStuck[] =
 {
-    {MINE + 0, MINE_RATE, &AF(DoMineStuck), &s_MineStuck[0]},
+    {SPR_MINE, 'A', MINE_RATE, &AF(DoMineStuck), &s_MineStuck[0]},
 };
 
 STATE s_Mine[] =
 {
-    {MINE + 0, MINE_RATE, &AF(DoMine), &s_Mine[1]},
-    {MINE + 1, MINE_RATE, &AF(DoMine), &s_Mine[0]},
+    {SPR_MINE, 'A', MINE_RATE, &AF(DoMine), &s_Mine[1]},
+    {SPR_MINE, 'B', MINE_RATE, &AF(DoMine), &s_Mine[0]},
 };
 
 
 STATE s_MineSpark[] =
 {
-    {UZI_SPARK + 0, UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[1]},
-    {UZI_SPARK + 1, UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[2]},
-    {UZI_SPARK + 2, UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[3]},
-    {UZI_SPARK + 3, UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[4]},
-    {UZI_SPARK + 4, UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[5]},
-    {UZI_SPARK + 4, 100, &AF(DoSuicide), &s_MineSpark[0]},
+    {SPR_UZI_SPARK, 'A', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[1]},
+    {SPR_UZI_SPARK, 'B', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[2]},
+    {SPR_UZI_SPARK, 'C', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[3]},
+    {SPR_UZI_SPARK, 'D', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[4]},
+    {SPR_UZI_SPARK, 'E', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[5]},
+    {SPR_UZI_SPARK, 'E', 100, &AF(DoSuicide), &s_MineSpark[0]},
 };
 
 //////////////////////
@@ -668,59 +576,26 @@ STATE s_MineSpark[] =
 //
 //////////////////////
 
-#define METEOR_R0 2098
-#define METEOR_R1 2090
-#define METEOR_R2 2094
-#define METEOR_R3 2090
-#define METEOR_R4 2098
 
 
 #define METEOR STAR
 #define METEOR_RATE 8
 
 
-STATE s_Meteor[5][4] =
+STATE s_Meteor[1][4] =
 {
     {
-        {METEOR_R0 + 0, METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][1]},
-        {METEOR_R0 + 1, METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][2]},
-        {METEOR_R0 + 2, METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][3]},
-        {METEOR_R0 + 3, METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][0]},
+        {SPR_METEOR, 'A', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][1]},
+        {SPR_METEOR, 'B', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][2]},
+        {SPR_METEOR, 'C', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][3]},
+        {SPR_METEOR, 'D', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][0]},
     },
-    {
-        {METEOR_R1 + 0, METEOR_RATE, &AF(DoMeteor), &s_Meteor[1][1]},
-        {METEOR_R1 + 1, METEOR_RATE, &AF(DoMeteor), &s_Meteor[1][2]},
-        {METEOR_R1 + 2, METEOR_RATE, &AF(DoMeteor), &s_Meteor[1][3]},
-        {METEOR_R1 + 3, METEOR_RATE, &AF(DoMeteor), &s_Meteor[1][0]},
-    },
-    {
-        {METEOR_R2 + 0, METEOR_RATE, &AF(DoMeteor), &s_Meteor[2][1]},
-        {METEOR_R2 + 1, METEOR_RATE, &AF(DoMeteor), &s_Meteor[2][2]},
-        {METEOR_R2 + 2, METEOR_RATE, &AF(DoMeteor), &s_Meteor[2][3]},
-        {METEOR_R2 + 3, METEOR_RATE, &AF(DoMeteor), &s_Meteor[2][0]},
-    },
-    {
-        {METEOR_R3 + 0, METEOR_RATE, &AF(DoMeteor), &s_Meteor[3][1]},
-        {METEOR_R3 + 1, METEOR_RATE, &AF(DoMeteor), &s_Meteor[3][2]},
-        {METEOR_R3 + 2, METEOR_RATE, &AF(DoMeteor), &s_Meteor[3][3]},
-        {METEOR_R3 + 3, METEOR_RATE, &AF(DoMeteor), &s_Meteor[3][0]},
-    },
-    {
-        {METEOR_R4 + 0, METEOR_RATE, &AF(DoMeteor), &s_Meteor[4][1]},
-        {METEOR_R4 + 1, METEOR_RATE, &AF(DoMeteor), &s_Meteor[4][2]},
-        {METEOR_R4 + 2, METEOR_RATE, &AF(DoMeteor), &s_Meteor[4][3]},
-        {METEOR_R4 + 3, METEOR_RATE, &AF(DoMeteor), &s_Meteor[4][0]},
-    }
 };
 
 
 STATE* sg_Meteor[] =
 {
     &s_Meteor[0][0],
-    &s_Meteor[1][0],
-    &s_Meteor[2][0],
-    &s_Meteor[3][0],
-    &s_Meteor[4][0]
 };
 
 #define METEOR_EXP 2115
@@ -728,128 +603,72 @@ STATE* sg_Meteor[] =
 
 STATE s_MeteorExp[] =
 {
-    {METEOR_EXP + 0, METEOR_EXP_RATE, nullptr,  &s_MeteorExp[1]},
-    {METEOR_EXP + 1, METEOR_EXP_RATE, nullptr,  &s_MeteorExp[2]},
-    {METEOR_EXP + 2, METEOR_EXP_RATE, nullptr,  &s_MeteorExp[3]},
-    {METEOR_EXP + 3, METEOR_EXP_RATE, nullptr,  &s_MeteorExp[4]},
-    {METEOR_EXP + 4, METEOR_EXP_RATE, nullptr,  &s_MeteorExp[5]},
-    {METEOR_EXP + 5, METEOR_EXP_RATE, nullptr,  &s_MeteorExp[6]},
-    {METEOR_EXP + 5, METEOR_EXP_RATE, &AF(DoSuicide), &s_MeteorExp[6]}
+    {SPR_METEOR_EXP, 'A', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[1]},
+    {SPR_METEOR_EXP, 'B', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[2]},
+    {SPR_METEOR_EXP, 'C', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[3]},
+    {SPR_METEOR_EXP, 'D', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[4]},
+    {SPR_METEOR_EXP, 'E', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[5]},
+    {SPR_METEOR_EXP, 'F', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[6]},
+    {SPR_METEOR_EXP, 'F', METEOR_EXP_RATE, &AF(DoSuicide), &s_MeteorExp[6]}
 };
 
-#define MIRV_METEOR METEOR_R0
+#define MIRV_METEOR 2098 //METEOR_R0
 
-STATE s_MirvMeteor[5][4] =
+STATE s_MirvMeteor[1][4] =
 {
     {
-        {METEOR_R0 + 0, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][1]},
-        {METEOR_R0 + 1, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][2]},
-        {METEOR_R0 + 2, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][3]},
-        {METEOR_R0 + 3, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][0]},
+        {SPR_METEOR, 'A', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][1]},
+        {SPR_METEOR, 'B', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][2]},
+        {SPR_METEOR, 'C', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][3]},
+        {SPR_METEOR, 'D', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][0]},
     },
-    {
-        {METEOR_R1 + 0, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[1][1]},
-        {METEOR_R1 + 1, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[1][2]},
-        {METEOR_R1 + 2, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[1][3]},
-        {METEOR_R1 + 3, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[1][0]},
-    },
-    {
-        {METEOR_R2 + 0, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[2][1]},
-        {METEOR_R2 + 1, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[2][2]},
-        {METEOR_R2 + 2, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[2][3]},
-        {METEOR_R2 + 3, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[2][0]},
-    },
-    {
-        {METEOR_R3 + 0, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[3][1]},
-        {METEOR_R3 + 1, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[3][2]},
-        {METEOR_R3 + 2, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[3][3]},
-        {METEOR_R3 + 3, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[3][0]},
-    },
-    {
-        {METEOR_R4 + 0, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[4][1]},
-        {METEOR_R4 + 1, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[4][2]},
-        {METEOR_R4 + 2, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[4][3]},
-        {METEOR_R4 + 3, METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[4][0]},
-    }
 };
 
 
 STATE* sg_MirvMeteor[] =
 {
     &s_MirvMeteor[0][0],
-    &s_MirvMeteor[1][0],
-    &s_MirvMeteor[2][0],
-    &s_MirvMeteor[3][0],
-    &s_MirvMeteor[4][0]
 };
 
 STATE s_MirvMeteorExp[] =
 {
-    {METEOR_EXP + 0, METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[1]},
-    {METEOR_EXP + 1, METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[2]},
-    {METEOR_EXP + 2, METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[3]},
-    {METEOR_EXP + 3, METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[4]},
-    {METEOR_EXP + 4, METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[5]},
-    {METEOR_EXP + 5, METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[6]},
-    {METEOR_EXP + 5, METEOR_EXP_RATE, &AF(DoSuicide), &s_MirvMeteorExp[6]}
+    {SPR_METEOR_EXP, 'A', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[1]},
+    {SPR_METEOR_EXP, 'B', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[2]},
+    {SPR_METEOR_EXP, 'C', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[3]},
+    {SPR_METEOR_EXP, 'D', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[4]},
+    {SPR_METEOR_EXP, 'E', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[5]},
+    {SPR_METEOR_EXP, 'F', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[6]},
+    {SPR_METEOR_EXP, 'F', METEOR_EXP_RATE, &AF(DoSuicide), &s_MirvMeteorExp[6]}
 };
 
-#define SERP_METEOR METEOR_R0+1
+#define SERP_METEOR 2099// METEOR_R0+1
 
-STATE s_SerpMeteor[5][4] =
+STATE s_SerpMeteor[1][4] =
 {
     {
-        {2031 + 0, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][1]},
-        {2031 + 1, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][2]},
-        {2031 + 2, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][3]},
-        {2031 + 3, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][0]},
+        {SPR_SERP_METEOR, 'A', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][1]},
+        {SPR_SERP_METEOR, 'B', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][2]},
+        {SPR_SERP_METEOR, 'C', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][3]},
+        {SPR_SERP_METEOR, 'D', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][0]},
     },
-    {
-        {2031 + 0, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[1][1]},
-        {2031 + 1, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[1][2]},
-        {2031 + 2, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[1][3]},
-        {2031 + 3, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[1][0]},
-    },
-    {
-        {2031 + 0, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[2][1]},
-        {2031 + 1, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[2][2]},
-        {2031 + 2, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[2][3]},
-        {2031 + 3, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[2][0]},
-    },
-    {
-        {2031 + 0, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[3][1]},
-        {2031 + 1, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[3][2]},
-        {2031 + 2, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[3][3]},
-        {2031 + 3, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[3][0]},
-    },
-    {
-        {2031 + 0, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[4][1]},
-        {2031 + 1, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[4][2]},
-        {2031 + 2, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[4][3]},
-        {2031 + 3, METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[4][0]},
-    }
 };
 
 
 STATE* sg_SerpMeteor[] =
 {
     &s_SerpMeteor[0][0],
-    &s_SerpMeteor[1][0],
-    &s_SerpMeteor[2][0],
-    &s_SerpMeteor[3][0],
-    &s_SerpMeteor[4][0]
 };
 
 
 STATE s_SerpMeteorExp[] =
 {
-    {METEOR_EXP + 0, METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[1]},
-    {METEOR_EXP + 1, METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[2]},
-    {METEOR_EXP + 2, METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[3]},
-    {METEOR_EXP + 3, METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[4]},
-    {METEOR_EXP + 4, METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[5]},
-    {METEOR_EXP + 5, METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[6]},
-    {METEOR_EXP + 5, METEOR_EXP_RATE, &AF(DoSuicide), &s_SerpMeteorExp[6]}
+    {SPR_METEOR_EXP, 'A', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[1]},
+    {SPR_METEOR_EXP, 'B', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[2]},
+    {SPR_METEOR_EXP, 'C', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[3]},
+    {SPR_METEOR_EXP, 'D', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[4]},
+    {SPR_METEOR_EXP, 'E', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[5]},
+    {SPR_METEOR_EXP, 'F', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[6]},
+    {SPR_METEOR_EXP, 'F', METEOR_EXP_RATE, &AF(DoSuicide), &s_SerpMeteorExp[6]}
 };
 
 //////////////////////
@@ -861,32 +680,16 @@ STATE s_SerpMeteorExp[] =
 #define SPEAR_RATE 8
 
 
-STATE s_Spear[5][1] =
+STATE s_Spear[1][1] =
 {
     {
-        {SPEAR_R0 + 0, SPEAR_RATE, &AF(DoSpear), s_Spear[0]},
+        {SPR_SPEAR, 'A', SPEAR_RATE, &AF(DoSpear), s_Spear[0]},
     },
-    {
-        {SPEAR_R1 + 0, SPEAR_RATE, &AF(DoSpear), s_Spear[1]},
-    },
-    {
-        {SPEAR_R2 + 0, SPEAR_RATE, &AF(DoSpear), s_Spear[2]},
-    },
-    {
-        {SPEAR_R3 + 0, SPEAR_RATE, &AF(DoSpear), s_Spear[3]},
-    },
-    {
-        {SPEAR_R4 + 0, SPEAR_RATE, &AF(DoSpear), s_Spear[4]},
-    }
 };
 
 STATE* sg_Spear[] =
 {
     s_Spear[0],
-    s_Spear[1],
-    s_Spear[2],
-    s_Spear[3],
-    s_Spear[4]
 };
 
 //////////////////////
@@ -895,42 +698,18 @@ STATE* sg_Spear[] =
 //
 //////////////////////
 
-#define ROCKET_FRAMES 1
-#define ROCKET_R0 2206
-#define ROCKET_R1 ROCKET_R0 + (ROCKET_FRAMES * 2)
-#define ROCKET_R2 ROCKET_R0 + (ROCKET_FRAMES * 3)
-#define ROCKET_R3 ROCKET_R0 + (ROCKET_FRAMES * 4)
-#define ROCKET_R4 ROCKET_R0 + (ROCKET_FRAMES * 1)
-
-
 #define ROCKET_RATE 8
 
-STATE s_Rocket[5][1] =
+STATE s_Rocket[1][1] =
 {
     {
-        {ROCKET_R0 + 0, ROCKET_RATE, &AF(DoRocket), &s_Rocket[0][0]},
+        {SPR_ROCKET, 'A', ROCKET_RATE, &AF(DoRocket), &s_Rocket[0][0]},
     },
-    {
-        {ROCKET_R1 + 0, ROCKET_RATE, &AF(DoRocket), &s_Rocket[1][0]},
-    },
-    {
-        {ROCKET_R2 + 0, ROCKET_RATE, &AF(DoRocket), &s_Rocket[2][0]},
-    },
-    {
-        {ROCKET_R3 + 0, ROCKET_RATE, &AF(DoRocket), &s_Rocket[3][0]},
-    },
-    {
-        {ROCKET_R4 + 0, ROCKET_RATE, &AF(DoRocket), &s_Rocket[4][0]},
-    }
 };
 
 STATE* sg_Rocket[] =
 {
     &s_Rocket[0][0],
-    &s_Rocket[1][0],
-    &s_Rocket[2][0],
-    &s_Rocket[3][0],
-    &s_Rocket[4][0]
 };
 
 //////////////////////
@@ -939,73 +718,33 @@ STATE* sg_Rocket[] =
 //
 //////////////////////
 
-#define BUNNYROCKET_FRAMES 5
-#define BUNNYROCKET_R0 4550
-#define BUNNYROCKET_R1 BUNNYROCKET_R0 + (BUNNYROCKET_FRAMES * 1)
-#define BUNNYROCKET_R2 BUNNYROCKET_R0 + (BUNNYROCKET_FRAMES * 2)
-#define BUNNYROCKET_R3 BUNNYROCKET_R0 + (BUNNYROCKET_FRAMES * 3)
-#define BUNNYROCKET_R4 BUNNYROCKET_R0 + (BUNNYROCKET_FRAMES * 4)
-
-
 #define BUNNYROCKET_RATE 8
 
-STATE s_BunnyRocket[5][1] =
+STATE s_BunnyRocket[1][1] =
 {
     {
-        {BUNNYROCKET_R0 + 2, BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[0][0]},
+        {SPR_BUNNYROCKET, 'A', BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[0][0]},
     },
-    {
-        {BUNNYROCKET_R1 + 2, BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[1][0]},
-    },
-    {
-        {BUNNYROCKET_R2 + 2, BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[2][0]},
-    },
-    {
-        {BUNNYROCKET_R3 + 2, BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[3][0]},
-    },
-    {
-        {BUNNYROCKET_R4 + 2, BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[4][0]},
-    }
 };
 
 STATE* sg_BunnyRocket[] =
 {
     &s_BunnyRocket[0][0],
-    &s_BunnyRocket[1][0],
-    &s_BunnyRocket[2][0],
-    &s_BunnyRocket[3][0],
-    &s_BunnyRocket[4][0]
 };
 
 
 #define RAIL_RATE 8
 
-STATE s_Rail[5][1] =
+STATE s_Rail[1][1] =
 {
     {
-        {ROCKET_R0 + 0, RAIL_RATE, &AF(DoRail), &s_Rail[0][0]},
+        {SPR_ROCKET, 'A', RAIL_RATE, &AF(DoRail), &s_Rail[0][0]},
     },
-    {
-        {ROCKET_R1 + 0, RAIL_RATE, &AF(DoRail), &s_Rail[1][0]},
-    },
-    {
-        {ROCKET_R2 + 0, RAIL_RATE, &AF(DoRail), &s_Rail[2][0]},
-    },
-    {
-        {ROCKET_R3 + 0, RAIL_RATE, &AF(DoRail), &s_Rail[3][0]},
-    },
-    {
-        {ROCKET_R4 + 0, RAIL_RATE, &AF(DoRail), &s_Rail[4][0]},
-    }
 };
 
 STATE* sg_Rail[] =
 {
     &s_Rail[0][0],
-    &s_Rail[1][0],
-    &s_Rail[2][0],
-    &s_Rail[3][0],
-    &s_Rail[4][0]
 };
 
 
@@ -1013,7 +752,7 @@ STATE* sg_Rail[] =
 
 STATE s_Laser[] =
 {
-    {ROCKET_R0 + 0, LASER_RATE, &AF(DoLaser), &s_Laser[0]}
+    {SPR_ROCKET, 'A', LASER_RATE, &AF(DoLaser), &s_Laser[0]}
 };
 
 //////////////////////
@@ -1022,71 +761,31 @@ STATE s_Laser[] =
 //
 //////////////////////
 
-#define MICRO_FRAMES 1
-#define MICRO_R0 2206
-#define MICRO_R1 MICRO_R0 + (MICRO_FRAMES * 2)
-#define MICRO_R2 MICRO_R0 + (MICRO_FRAMES * 3)
-#define MICRO_R3 MICRO_R0 + (MICRO_FRAMES * 4)
-#define MICRO_R4 MICRO_R0 + (MICRO_FRAMES * 1)
-
-
 #define MICRO_RATE 8
 
-STATE s_Micro[5][1] =
+STATE s_Micro[1][1] =
 {
     {
-        {MICRO_R0 + 0, MICRO_RATE, &AF(DoMicro), &s_Micro[0][0]},
+        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicro), &s_Micro[0][0]},
     },
-    {
-        {MICRO_R1 + 0, MICRO_RATE, &AF(DoMicro), &s_Micro[1][0]},
-    },
-    {
-        {MICRO_R2 + 0, MICRO_RATE, &AF(DoMicro), &s_Micro[2][0]},
-    },
-    {
-        {MICRO_R3 + 0, MICRO_RATE, &AF(DoMicro), &s_Micro[3][0]},
-    },
-    {
-        {MICRO_R4 + 0, MICRO_RATE, &AF(DoMicro), &s_Micro[4][0]},
-    }
 };
 
 STATE* sg_Micro[] =
 {
     &s_Micro[0][0],
-    &s_Micro[1][0],
-    &s_Micro[2][0],
-    &s_Micro[3][0],
-    &s_Micro[4][0]
 };
 
 
-STATE s_MicroMini[5][1] =
+STATE s_MicroMini[1][1] =
 {
     {
-        {MICRO_R0 + 0, MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[0][0]},
+        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[0][0]},
     },
-    {
-        {MICRO_R1 + 0, MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[1][0]},
-    },
-    {
-        {MICRO_R2 + 0, MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[2][0]},
-    },
-    {
-        {MICRO_R3 + 0, MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[3][0]},
-    },
-    {
-        {MICRO_R4 + 0, MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[4][0]},
-    }
 };
 
 STATE* sg_MicroMini[] =
 {
     &s_MicroMini[0][0],
-    &s_MicroMini[1][0],
-    &s_MicroMini[2][0],
-    &s_MicroMini[3][0],
-    &s_MicroMini[4][0]
 };
 
 //////////////////////
@@ -1098,89 +797,55 @@ STATE* sg_MicroMini[] =
 #define BOLT_THINMAN_RATE 8
 
 
-STATE s_BoltThinMan[5][1] =
+STATE s_BoltThinMan[1][1] =
 {
     {
-        {BOLT_THINMAN_R0 + 0, BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[0][0]},
+        {SPR_BOLT_THINMAN, 'A', BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[0][0]},
     },
-    {
-        {BOLT_THINMAN_R1 + 0, BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[1][0]},
-    },
-    {
-        {BOLT_THINMAN_R2 + 0, BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[2][0]},
-    },
-    {
-        {BOLT_THINMAN_R3 + 0, BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[3][0]},
-    },
-    {
-        {BOLT_THINMAN_R4 + 0, BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[4][0]},
-    }
 };
 
 STATE* sg_BoltThinMan[] =
 {
     &s_BoltThinMan[0][0],
-    &s_BoltThinMan[1][0],
-    &s_BoltThinMan[2][0],
-    &s_BoltThinMan[3][0],
-    &s_BoltThinMan[4][0]
 };
 
 #define BOLT_SEEKER_RATE 8
 
 
-STATE s_BoltSeeker[5][1] =
+STATE s_BoltSeeker[1][1] =
 {
     {
-        {BOLT_THINMAN_R0 + 0, BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[0][0]},
+        {SPR_BOLT_THINMAN, 'A', BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[0][0]},
     },
-    {
-        {BOLT_THINMAN_R1 + 0, BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[1][0]},
-    },
-    {
-        {BOLT_THINMAN_R2 + 0, BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[2][0]},
-    },
-    {
-        {BOLT_THINMAN_R3 + 0, BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[3][0]},
-    },
-    {
-        {BOLT_THINMAN_R4 + 0, BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[4][0]},
-    }
 };
 
 STATE* sg_BoltSeeker[] =
 {
     &s_BoltSeeker[0][0],
-    &s_BoltSeeker[1][0],
-    &s_BoltSeeker[2][0],
-    &s_BoltSeeker[3][0],
-    &s_BoltSeeker[4][0]
 };
 
 
-#define BOLT_FATMAN STAR
 #define BOLT_FATMAN_RATE 8
 
 
 STATE s_BoltFatMan[] =
 {
-    {BOLT_FATMAN + 0, BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[1]},
-    {BOLT_FATMAN + 1, BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[2]},
-    {BOLT_FATMAN + 2, BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[3]},
-    {BOLT_FATMAN + 3, BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[0]}
+    {SPR_BOLT_FATMAN, 'A', BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[1]},
+    {SPR_BOLT_FATMAN, 'B', BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[2]},
+    {SPR_BOLT_FATMAN, 'C', BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[3]},
+    {SPR_BOLT_FATMAN, 'D', BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[0]}
 };
 
 
-#define BOLT_SHRAPNEL STAR
 #define BOLT_SHRAPNEL_RATE 8
 
 
 STATE s_BoltShrapnel[] =
 {
-    {BOLT_SHRAPNEL + 0, BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[1]},
-    {BOLT_SHRAPNEL + 1, BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[2]},
-    {BOLT_SHRAPNEL + 2, BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[3]},
-    {BOLT_SHRAPNEL + 3, BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[0]}
+    {SPR_BOLT_SHRAPNEL, 'A', BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[1]},
+    {SPR_BOLT_SHRAPNEL, 'B', BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[2]},
+    {SPR_BOLT_SHRAPNEL, 'C', BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[3]},
+    {SPR_BOLT_SHRAPNEL, 'D', BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[0]}
 };
 
 #define COOLG_FIRE 2430
@@ -1190,58 +855,54 @@ STATE s_BoltShrapnel[] =
 
 STATE s_CoolgFire[] =
 {
-    {2031 + 0, COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[1]},
-    {2031 + 1, COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[2]},
-    {2031 + 2, COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[3]},
-    {2031 + 3, COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[0]}
+    {SPR_SERP_METEOR, 'A', COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[1]},
+    {SPR_SERP_METEOR, 'B', COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[2]},
+    {SPR_SERP_METEOR, 'C', COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[3]},
+    {SPR_SERP_METEOR, 'D', COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[0]}
 };
 
-#define COOLG_FIRE_DONE 2410
-//#define COOLG_FIRE_DONE 1466
-//#define COOLG_FIRE_DONE_RATE 8
 #define COOLG_FIRE_DONE_RATE 3
 
 STATE s_CoolgFireDone[] =
 {
-    {COOLG_FIRE_DONE + 0, COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[1]},
-    {COOLG_FIRE_DONE + 1, COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[2]},
-    {COOLG_FIRE_DONE + 2, COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[3]},
-    {COOLG_FIRE_DONE + 3, COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[4]},
-    {COOLG_FIRE_DONE + 4, COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[5]},
-    {COOLG_FIRE_DONE + 4, COOLG_FIRE_DONE_RATE, &AF(DoSuicide), &s_CoolgFireDone[5]}
+    {SPR_COOLG_FIRE_DONE, 'A', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[1]},
+    {SPR_COOLG_FIRE_DONE, 'B', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[2]},
+    {SPR_COOLG_FIRE_DONE, 'C', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[3]},
+    {SPR_COOLG_FIRE_DONE, 'D', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[4]},
+    {SPR_COOLG_FIRE_DONE, 'E', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[5]},
+    {SPR_COOLG_FIRE_DONE, 'E', COOLG_FIRE_DONE_RATE, &AF(DoSuicide), &s_CoolgFireDone[5]}
 };
 
 
 #define COOLG_DRIP 1720
 STATE s_CoolgDrip[] =
 {
-    {COOLG_DRIP + 0, 100, &AF(DoCoolgDrip), &s_CoolgDrip[0]}
+    {SPR_COOLG_DRIP, 'A', 100, &AF(DoCoolgDrip), &s_CoolgDrip[0]}
 };
 
 #define GORE_FLOOR_SPLASH_RATE 8
-#define GORE_FLOOR_SPLASH 1710
 STATE s_GoreFloorSplash[] =
 {
-    {GORE_FLOOR_SPLASH + 0, GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[1]},
-    {GORE_FLOOR_SPLASH + 1, GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[2]},
-    {GORE_FLOOR_SPLASH + 2, GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[3]},
-    {GORE_FLOOR_SPLASH + 3, GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[4]},
-    {GORE_FLOOR_SPLASH + 4, GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[5]},
-    {GORE_FLOOR_SPLASH + 5, GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[6]},
-    {GORE_FLOOR_SPLASH + 5, GORE_FLOOR_SPLASH_RATE, &AF(DoSuicide), &s_GoreFloorSplash[6]}
+    {SPR_GORE_FLOOR_SPLASH, 'A', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[1]},
+    {SPR_GORE_FLOOR_SPLASH, 'B', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[2]},
+    {SPR_GORE_FLOOR_SPLASH, 'C', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[3]},
+    {SPR_GORE_FLOOR_SPLASH, 'D', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[4]},
+    {SPR_GORE_FLOOR_SPLASH, 'E', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[5]},
+    {SPR_GORE_FLOOR_SPLASH, 'F', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[6]},
+    {SPR_GORE_FLOOR_SPLASH, 'F', GORE_FLOOR_SPLASH_RATE, &AF(DoSuicide), &s_GoreFloorSplash[6]}
 };
 
 #define GORE_SPLASH_RATE 8
-#define GORE_SPLASH 2410
+
 STATE s_GoreSplash[] =
 {
-    {GORE_SPLASH + 0, GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[1]},
-    {GORE_SPLASH + 1, GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[2]},
-    {GORE_SPLASH + 2, GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[3]},
-    {GORE_SPLASH + 3, GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[4]},
-    {GORE_SPLASH + 4, GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[5]},
-    {GORE_SPLASH + 5, GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[6]},
-    {GORE_SPLASH + 5, GORE_SPLASH_RATE, &AF(DoSuicide), &s_GoreSplash[6]}
+    {SPR_GORE_SPLASH, 'A', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[1]},
+    {SPR_GORE_SPLASH, 'B', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[2]},
+    {SPR_GORE_SPLASH, 'C', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[3]},
+    {SPR_GORE_SPLASH, 'D', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[4]},
+    {SPR_GORE_SPLASH, 'E', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[5]},
+    {SPR_GORE_SPLASH, 'F', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[6]},
+    {SPR_GORE_SPLASH, 'F', GORE_SPLASH_RATE, &AF(DoSuicide), &s_GoreSplash[6]}
 };
 
 //////////////////////////////////////////////
@@ -1258,31 +919,31 @@ STATE s_GoreSplash[] =
 // regular bolt from heart
 STATE s_Plasma[] =
 {
-    {PLASMA + 0, PLASMA_RATE, &AF(DoPlasma), &s_Plasma[1]},
-    {PLASMA + 1, PLASMA_RATE, &AF(DoPlasma), &s_Plasma[2]},
-    {PLASMA + 2, PLASMA_RATE, &AF(DoPlasma), &s_Plasma[0]}
+    {SPR_PLASMA, 'A', PLASMA_RATE, &AF(DoPlasma), &s_Plasma[1]},
+    {SPR_PLASMA, 'B', PLASMA_RATE, &AF(DoPlasma), &s_Plasma[2]},
+    {SPR_PLASMA, 'C', PLASMA_RATE, &AF(DoPlasma), &s_Plasma[0]}
 };
 
 // follows actor spewing blood
 #define PLASMA_Drip 1562 //2420
 STATE s_PlasmaFountain[] =
 {
-    {PLASMA_Drip + 0, PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[1]},
-    {PLASMA_Drip + 1, PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[2]},
-    {PLASMA_Drip + 2, PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[3]},
-    {PLASMA_Drip + 3, PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[0]},
+    {SPR_PLASMA_Drip, 'A', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[1]},
+    {SPR_PLASMA_Drip, 'B', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[2]},
+    {SPR_PLASMA_Drip, 'C', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[3]},
+    {SPR_PLASMA_Drip, 'D', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[0]},
 };
 
 #define PLASMA_Drip_RATE 12
 STATE s_PlasmaDrip[] =
 {
-    {PLASMA_Drip + 0, PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[1]},
-    {PLASMA_Drip + 1, PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[2]},
-    {PLASMA_Drip + 2, PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[3]},
-    {PLASMA_Drip + 3, PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[4]},
-    {PLASMA_Drip + 4, PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[5]},
-    {PLASMA_Drip + 5, PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[6]},
-    {PLASMA_Drip + 7, PLASMA_Drip_RATE, &AF(DoSuicide), &s_PlasmaDrip[6]}
+    {SPR_PLASMA_Drip, 'A', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[1]},
+    {SPR_PLASMA_Drip, 'B', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[2]},
+    {SPR_PLASMA_Drip, 'C', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[3]},
+    {SPR_PLASMA_Drip, 'D', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[4]},
+    {SPR_PLASMA_Drip, 'E', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[5]},
+    {SPR_PLASMA_Drip, 'F', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[6]},
+    {SPR_PLASMA_Drip, 'H', PLASMA_Drip_RATE, &AF(DoSuicide), &s_PlasmaDrip[6]}
 };
 
 #define PLASMA_DONE 2061
@@ -1291,59 +952,59 @@ STATE s_PlasmaDrip[] =
 
 STATE s_PlasmaDone[] =
 {
-    {PLASMA + 0, PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[1]},
-    {PLASMA + 2, PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[2]},
-    {PLASMA + 1, PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[0]}
+    {SPR_PLASMA, 'A', PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[1]},
+    {SPR_PLASMA, 'C', PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[2]},
+    {SPR_PLASMA, 'B', PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[0]}
 };
 
 #define TELEPORT_EFFECT 3240
 #define TELEPORT_EFFECT_RATE 6
 STATE s_TeleportEffect[] =
 {
-    {TELEPORT_EFFECT + 0, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[1]},
-    {TELEPORT_EFFECT + 1, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[2]},
-    {TELEPORT_EFFECT + 2, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[3]},
-    {TELEPORT_EFFECT + 3, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[4]},
-    {TELEPORT_EFFECT + 4, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[5]},
-    {TELEPORT_EFFECT + 5, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[6]},
-    {TELEPORT_EFFECT + 6, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[7]},
-    {TELEPORT_EFFECT + 7, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[8]},
-    {TELEPORT_EFFECT + 8, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[9]},
-    {TELEPORT_EFFECT + 9, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[10]},
-    {TELEPORT_EFFECT + 10, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[11]},
-    {TELEPORT_EFFECT + 11, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[12]},
-    {TELEPORT_EFFECT + 12, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[13]},
-    {TELEPORT_EFFECT + 13, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[14]},
-    {TELEPORT_EFFECT + 14, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[15]},
-    {TELEPORT_EFFECT + 15, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[16]},
-    {TELEPORT_EFFECT + 16, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[17]},
-    {TELEPORT_EFFECT + 17, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[18]},
-    {TELEPORT_EFFECT + 17, TELEPORT_EFFECT_RATE, &AF(DoSuicide), &s_TeleportEffect[18]},
+    {SPR_TELEPORT_EFFECT, 'A', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[1]},
+    {SPR_TELEPORT_EFFECT, 'B', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[2]},
+    {SPR_TELEPORT_EFFECT, 'C', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[3]},
+    {SPR_TELEPORT_EFFECT, 'D', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[4]},
+    {SPR_TELEPORT_EFFECT, 'E', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[5]},
+    {SPR_TELEPORT_EFFECT, 'F', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[6]},
+    {SPR_TELEPORT_EFFECT, 'G', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[7]},
+    {SPR_TELEPORT_EFFECT, 'H', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[8]},
+    {SPR_TELEPORT_EFFECT, 'I', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[9]},
+    {SPR_TELEPORT_EFFECT, 'J', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[10]},
+    {SPR_TELEPORT_EFFECT, 'K', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[11]},
+    {SPR_TELEPORT_EFFECT, 'L', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[12]},
+    {SPR_TELEPORT_EFFECT, 'M', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[13]},
+    {SPR_TELEPORT_EFFECT, 'N', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[14]},
+    {SPR_TELEPORT_EFFECT, 'O', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[15]},
+    {SPR_TELEPORT_EFFECT, 'P', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[16]},
+    {SPR_TELEPORT_EFFECT, 'Q', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[17]},
+    {SPR_TELEPORT_EFFECT, 'R', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[18]},
+    {SPR_TELEPORT_EFFECT, 'R', TELEPORT_EFFECT_RATE, &AF(DoSuicide), &s_TeleportEffect[18]},
 };
 
 // Spawn a RIPPER teleport effect
 STATE s_TeleportEffect2[] =
 {
-    {TELEPORT_EFFECT + 0, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[1]},
-    {TELEPORT_EFFECT + 1, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[2]},
-    {TELEPORT_EFFECT + 2, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[3]},
-    {TELEPORT_EFFECT + 3, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[4]},
-    {TELEPORT_EFFECT + 4, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[5]},
-    {TELEPORT_EFFECT + 5, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[6]},
-    {TELEPORT_EFFECT + 6, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[7]},
-    {TELEPORT_EFFECT + 7, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[8]},
-    {TELEPORT_EFFECT + 8, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[9]},
-    {TELEPORT_EFFECT + 9, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[10]},
-    {TELEPORT_EFFECT + 10, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[11]},
-    {TELEPORT_EFFECT + 11, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[12]},
-    {TELEPORT_EFFECT + 12, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[13]},
-    {TELEPORT_EFFECT + 13, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[14]},
-    {TELEPORT_EFFECT + 14, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[15]},
-    {TELEPORT_EFFECT + 15, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[16]},
-    {TELEPORT_EFFECT + 16, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[17]},
-    {TELEPORT_EFFECT + 17, TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[18]},
-    {TELEPORT_EFFECT + 17, SF_QUICK_CALL, &AF(DoTeleRipper), &s_TeleportEffect2[19]},
-    {TELEPORT_EFFECT + 17, TELEPORT_EFFECT_RATE, &AF(DoSuicide), &s_TeleportEffect2[19]},
+    {SPR_TELEPORT_EFFECT, 'A', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[1]},
+    {SPR_TELEPORT_EFFECT, 'B', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[2]},
+    {SPR_TELEPORT_EFFECT, 'C', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[3]},
+    {SPR_TELEPORT_EFFECT, 'D', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[4]},
+    {SPR_TELEPORT_EFFECT, 'E', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[5]},
+    {SPR_TELEPORT_EFFECT, 'F', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[6]},
+    {SPR_TELEPORT_EFFECT, 'G', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[7]},
+    {SPR_TELEPORT_EFFECT, 'H', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[8]},
+    {SPR_TELEPORT_EFFECT, 'I', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[9]},
+    {SPR_TELEPORT_EFFECT, 'J', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[10]},
+    {SPR_TELEPORT_EFFECT, 'K', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[11]},
+    {SPR_TELEPORT_EFFECT, 'L', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[12]},
+    {SPR_TELEPORT_EFFECT, 'M', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[13]},
+    {SPR_TELEPORT_EFFECT, 'N', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[14]},
+    {SPR_TELEPORT_EFFECT, 'N', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[15]},
+    {SPR_TELEPORT_EFFECT, 'O', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[16]},
+    {SPR_TELEPORT_EFFECT, 'P', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[17]},
+    {SPR_TELEPORT_EFFECT, 'Q', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[18]},
+    {SPR_TELEPORT_EFFECT, 'R', SF_QUICK_CALL, &AF(DoTeleRipper), &s_TeleportEffect2[19]},
+    {SPR_TELEPORT_EFFECT, 'R', TELEPORT_EFFECT_RATE, &AF(DoSuicide), &s_TeleportEffect2[19]},
 };
 
 
@@ -1354,18 +1015,18 @@ STATE s_TeleportEffect2[] =
 
 STATE s_Electro[] =
 {
-    {ELECTRO + 0, 12, &AF(DoElectro), &s_Electro[1]},
-    {ELECTRO + 1, 12, &AF(DoElectro), &s_Electro[2]},
-    {ELECTRO + 2, 12, &AF(DoElectro), &s_Electro[3]},
-    {ELECTRO + 3, 12, &AF(DoElectro), &s_Electro[0]}
+    {SPR_ELECTRO, 'A', 12, &AF(DoElectro), &s_Electro[1]},
+    {SPR_ELECTRO, 'B', 12, &AF(DoElectro), &s_Electro[2]},
+    {SPR_ELECTRO, 'C', 12, &AF(DoElectro), &s_Electro[3]},
+    {SPR_ELECTRO, 'D', 12, &AF(DoElectro), &s_Electro[0]}
 };
 
 STATE s_ElectroShrap[] =
 {
-    {ELECTRO + 0, 12, &AF(DoShrapDamage), &s_ElectroShrap[1]},
-    {ELECTRO + 1, 12, &AF(DoShrapDamage), &s_ElectroShrap[2]},
-    {ELECTRO + 2, 12, &AF(DoShrapDamage), &s_ElectroShrap[3]},
-    {ELECTRO + 3, 12, &AF(DoShrapDamage), &s_ElectroShrap[0]}
+    {SPR_ELECTRO, 'A', 12, &AF(DoShrapDamage), &s_ElectroShrap[1]},
+    {SPR_ELECTRO, 'B', 12, &AF(DoShrapDamage), &s_ElectroShrap[2]},
+    {SPR_ELECTRO, 'C', 12, &AF(DoShrapDamage), &s_ElectroShrap[3]},
+    {SPR_ELECTRO, 'D', 12, &AF(DoShrapDamage), &s_ElectroShrap[0]}
 };
 
 //////////////////////
@@ -1381,90 +1042,90 @@ STATE s_ElectroShrap[] =
 #else
 STATE s_GrenadeSmallExp[] =
 {
-    {GRENADE_EXP + 0, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[1]},
-    {GRENADE_EXP + 1, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[2]},
-    {GRENADE_EXP + 2, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[3]},
-    {GRENADE_EXP + 3, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[4]},
-    {GRENADE_EXP + 4, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[5]},
-    {GRENADE_EXP + 5, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[6]},
-    {GRENADE_EXP + 6, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[7]},
-    {GRENADE_EXP + 7, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[8]},
-    {GRENADE_EXP + 8, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[9]},
-    {GRENADE_EXP + 9, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[10]},
-    {GRENADE_EXP + 10, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[11]},
-    {GRENADE_EXP + 11, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[12]},
-    {GRENADE_EXP + 12, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[13]},
-    {GRENADE_EXP + 13, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[14]},
-    {GRENADE_EXP + 14, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[15]},
-    {GRENADE_EXP + 15, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[16]},
-    {GRENADE_EXP + 16, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[17]},
-    {GRENADE_EXP + 17, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[18]},
-    {GRENADE_EXP + 18, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[19]},
-    {GRENADE_EXP + 19, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[20]},
-    {GRENADE_EXP + 20, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[21]},
-    {GRENADE_EXP + 21, GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[22]},
-    {GRENADE_EXP + 21, 100, &AF(DoSuicide), &s_GrenadeSmallExp[22]}
+    {SPR_GRENADE_EXP, 'A', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[1]},
+    {SPR_GRENADE_EXP, 'B', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[2]},
+    {SPR_GRENADE_EXP, 'C', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[3]},
+    {SPR_GRENADE_EXP, 'D', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[4]},
+    {SPR_GRENADE_EXP, 'E', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[5]},
+    {SPR_GRENADE_EXP, 'F', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[6]},
+    {SPR_GRENADE_EXP, 'G', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[7]},
+    {SPR_GRENADE_EXP, 'H', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[8]},
+    {SPR_GRENADE_EXP, 'I', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[9]},
+    {SPR_GRENADE_EXP, 'J', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[10]},
+    {SPR_GRENADE_EXP, 'K', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[11]},
+    {SPR_GRENADE_EXP, 'L', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[12]},
+    {SPR_GRENADE_EXP, 'M', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[13]},
+    {SPR_GRENADE_EXP, 'N', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[14]},
+    {SPR_GRENADE_EXP, 'N', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[15]},
+    {SPR_GRENADE_EXP, 'O', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[16]},
+    {SPR_GRENADE_EXP, 'P', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[17]},
+    {SPR_GRENADE_EXP, 'Q', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[18]},
+    {SPR_GRENADE_EXP, 'R', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[19]},
+    {SPR_GRENADE_EXP, 'S', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[20]},
+    {SPR_GRENADE_EXP, 'T', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[21]},
+    {SPR_GRENADE_EXP, 'U', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[22]},
+    {SPR_GRENADE_EXP, 'U', 100, &AF(DoSuicide), &s_GrenadeSmallExp[22]}
 };
 
 STATE s_GrenadeExp[] =
 {
-    {GRENADE_EXP + 0, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[1]},
-    {GRENADE_EXP + 1, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[2]},
-    {GRENADE_EXP + 2, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[3]},
-    {GRENADE_EXP + 3, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[4]},
-    {GRENADE_EXP + 4, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[5]},
-    {GRENADE_EXP + 5, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[6]},
-    {GRENADE_EXP + 6, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[7]},
-    {GRENADE_EXP + 6, SF_QUICK_CALL,     &AF(SpawnGrenadeSmallExp), &s_GrenadeExp[8]},
-    {GRENADE_EXP + 7, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[9]},
-    {GRENADE_EXP + 8, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[10]},
-    {GRENADE_EXP + 9, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[11]},
-    {GRENADE_EXP + 10, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[12]},
-    {GRENADE_EXP + 11, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[13]},
-    {GRENADE_EXP + 12, SF_QUICK_CALL,     &AF(SpawnGrenadeSmallExp), &s_GrenadeExp[14]},
-    {GRENADE_EXP + 12, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[15]},
-    {GRENADE_EXP + 13, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[16]},
-    {GRENADE_EXP + 14, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[17]},
-    {GRENADE_EXP + 15, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[18]},
-    {GRENADE_EXP + 16, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[19]},
-    {GRENADE_EXP + 17, SF_QUICK_CALL,     &AF(SpawnGrenadeSmallExp), &s_GrenadeExp[20]},
-    {GRENADE_EXP + 17, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[21]},
-    {GRENADE_EXP + 18, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[22]},
-    {GRENADE_EXP + 19, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[23]},
-    {GRENADE_EXP + 20, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[24]},
-    {GRENADE_EXP + 21, GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[25]},
-    {GRENADE_EXP + 21, 100, &AF(DoSuicide), &s_GrenadeExp[25]}
+    {SPR_GRENADE_EXP, 'A', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[1]},
+    {SPR_GRENADE_EXP, 'B', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[2]},
+    {SPR_GRENADE_EXP, 'C', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[3]},
+    {SPR_GRENADE_EXP, 'D', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[4]},
+    {SPR_GRENADE_EXP, 'E', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[5]},
+    {SPR_GRENADE_EXP, 'F', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[6]},
+    {SPR_GRENADE_EXP, 'G', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[7]},
+    {SPR_GRENADE_EXP, 'G', SF_QUICK_CALL,     &AF(SpawnGrenadeSmallExp), &s_GrenadeExp[8]},
+    {SPR_GRENADE_EXP, 'H', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[9]},
+    {SPR_GRENADE_EXP, 'I', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[10]},
+    {SPR_GRENADE_EXP, 'J', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[11]},
+    {SPR_GRENADE_EXP, 'K', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[12]},
+    {SPR_GRENADE_EXP, 'L', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[13]},
+    {SPR_GRENADE_EXP, 'M', SF_QUICK_CALL,     &AF(SpawnGrenadeSmallExp), &s_GrenadeExp[14]},
+    {SPR_GRENADE_EXP, 'M', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[15]},
+    {SPR_GRENADE_EXP, 'N', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[16]},
+    {SPR_GRENADE_EXP, 'O', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[17]},
+    {SPR_GRENADE_EXP, 'P', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[18]},
+    {SPR_GRENADE_EXP, 'Q', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[19]},
+    {SPR_GRENADE_EXP, 'R', SF_QUICK_CALL,     &AF(SpawnGrenadeSmallExp), &s_GrenadeExp[20]},
+    {SPR_GRENADE_EXP, 'R', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[21]},
+    {SPR_GRENADE_EXP, 'S', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[22]},
+    {SPR_GRENADE_EXP, 'T', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[23]},
+    {SPR_GRENADE_EXP, 'U', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[24]},
+    {SPR_GRENADE_EXP, 'V', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[25]},
+    {SPR_GRENADE_EXP, 'V', 100, &AF(DoSuicide), &s_GrenadeExp[25]}
 };
 #endif
 
 #define MINE_EXP GRENADE_EXP+1
 STATE s_MineExp[] =
 {
-    {GRENADE_EXP + 0, GRENADE_EXP_RATE, nullptr,  &s_MineExp[1]},
-    {GRENADE_EXP + 1, GRENADE_EXP_RATE, nullptr,  &s_MineExp[2]},
-    {GRENADE_EXP + 2, GRENADE_EXP_RATE, nullptr,  &s_MineExp[3]},
-    {GRENADE_EXP + 3, 0|SF_QUICK_CALL, &AF(DoMineExp), &s_MineExp[4]},
-    {GRENADE_EXP + 3, GRENADE_EXP_RATE, nullptr,  &s_MineExp[5]},
-    {GRENADE_EXP + 4, GRENADE_EXP_RATE, nullptr,  &s_MineExp[6]},
-    {GRENADE_EXP + 5, GRENADE_EXP_RATE, nullptr,  &s_MineExp[7]},
-    {GRENADE_EXP + 6, GRENADE_EXP_RATE, nullptr,  &s_MineExp[8]},
-    {GRENADE_EXP + 7, GRENADE_EXP_RATE, nullptr,  &s_MineExp[9]},
-    {GRENADE_EXP + 8, GRENADE_EXP_RATE, nullptr,  &s_MineExp[10]},
-    {GRENADE_EXP + 9, GRENADE_EXP_RATE, nullptr,  &s_MineExp[11]},
-    {GRENADE_EXP + 10, GRENADE_EXP_RATE, nullptr,  &s_MineExp[12]},
-    {GRENADE_EXP + 11, GRENADE_EXP_RATE, nullptr,  &s_MineExp[13]},
-    {GRENADE_EXP + 12, GRENADE_EXP_RATE, nullptr,  &s_MineExp[14]},
-    {GRENADE_EXP + 13, GRENADE_EXP_RATE, nullptr,  &s_MineExp[15]},
-    {GRENADE_EXP + 14, GRENADE_EXP_RATE, nullptr,  &s_MineExp[16]},
-    {GRENADE_EXP + 15, GRENADE_EXP_RATE, nullptr,  &s_MineExp[17]},
-    {GRENADE_EXP + 16, GRENADE_EXP_RATE, nullptr,  &s_MineExp[18]},
-    {GRENADE_EXP + 17, GRENADE_EXP_RATE, nullptr,  &s_MineExp[19]},
-    {GRENADE_EXP + 17, 0|SF_QUICK_CALL, &AF(DoMineExpMine), &s_MineExp[20]},
-    {GRENADE_EXP + 18, GRENADE_EXP_RATE, nullptr,  &s_MineExp[21]},
-    {GRENADE_EXP + 19, GRENADE_EXP_RATE, nullptr,  &s_MineExp[22]},
-    {GRENADE_EXP + 20, GRENADE_EXP_RATE, nullptr,  &s_MineExp[23]},
-    {GRENADE_EXP + 21, GRENADE_EXP_RATE, nullptr,  &s_MineExp[24]},
-    {GRENADE_EXP + 21, 100, &AF(DoSuicide), &s_MineExp[24]}
+    {SPR_GRENADE_EXP, 'A', GRENADE_EXP_RATE, nullptr,  &s_MineExp[1]},
+    {SPR_GRENADE_EXP, 'B', GRENADE_EXP_RATE, nullptr,  &s_MineExp[2]},
+    {SPR_GRENADE_EXP, 'C', GRENADE_EXP_RATE, nullptr,  &s_MineExp[3]},
+    {SPR_GRENADE_EXP, 'D', 0|SF_QUICK_CALL, &AF(DoMineExp), &s_MineExp[4]},
+    {SPR_GRENADE_EXP, 'D', GRENADE_EXP_RATE, nullptr,  &s_MineExp[5]},
+    {SPR_GRENADE_EXP, 'E', GRENADE_EXP_RATE, nullptr,  &s_MineExp[6]},
+    {SPR_GRENADE_EXP, 'F', GRENADE_EXP_RATE, nullptr,  &s_MineExp[7]},
+    {SPR_GRENADE_EXP, 'G', GRENADE_EXP_RATE, nullptr,  &s_MineExp[8]},
+    {SPR_GRENADE_EXP, 'H', GRENADE_EXP_RATE, nullptr,  &s_MineExp[9]},
+    {SPR_GRENADE_EXP, 'I', GRENADE_EXP_RATE, nullptr,  &s_MineExp[10]},
+    {SPR_GRENADE_EXP, 'J', GRENADE_EXP_RATE, nullptr,  &s_MineExp[11]},
+    {SPR_GRENADE_EXP, 'K', GRENADE_EXP_RATE, nullptr,  &s_MineExp[12]},
+    {SPR_GRENADE_EXP, 'L', GRENADE_EXP_RATE, nullptr,  &s_MineExp[13]},
+    {SPR_GRENADE_EXP, 'M', GRENADE_EXP_RATE, nullptr,  &s_MineExp[14]},
+    {SPR_GRENADE_EXP, 'N', GRENADE_EXP_RATE, nullptr,  &s_MineExp[15]},
+    {SPR_GRENADE_EXP, 'O', GRENADE_EXP_RATE, nullptr,  &s_MineExp[16]},
+    {SPR_GRENADE_EXP, 'P', GRENADE_EXP_RATE, nullptr,  &s_MineExp[17]},
+    {SPR_GRENADE_EXP, 'Q', GRENADE_EXP_RATE, nullptr,  &s_MineExp[18]},
+    {SPR_GRENADE_EXP, 'R', GRENADE_EXP_RATE, nullptr,  &s_MineExp[19]},
+    {SPR_GRENADE_EXP, 'R', 0 | SF_QUICK_CALL, &AF(DoMineExpMine), &s_MineExp[20]},
+    {SPR_GRENADE_EXP, 'S', GRENADE_EXP_RATE, nullptr,  &s_MineExp[21]},
+    {SPR_GRENADE_EXP, 'T', GRENADE_EXP_RATE, nullptr,  &s_MineExp[22]},
+    {SPR_GRENADE_EXP, 'U', GRENADE_EXP_RATE, nullptr,  &s_MineExp[23]},
+    {SPR_GRENADE_EXP, 'V', GRENADE_EXP_RATE, nullptr,  &s_MineExp[24]},
+    {SPR_GRENADE_EXP, 'V', 100, &AF(DoSuicide), &s_MineExp[24]}
 };
 
 #define EXP_RATE_W 7
@@ -1478,56 +1139,56 @@ STATE s_MineExp[] =
 
 STATE s_BasicExp[] =
 {
-    {EXP + 0, EXP_RATE_W, nullptr,  &s_BasicExp[1]},
-    {EXP + 1, EXP_RATE_W, nullptr,  &s_BasicExp[2]},
-    {EXP + 2, EXP_RATE_W, nullptr,  &s_BasicExp[3]},
-    {EXP + 3, EXP_RATE_W, nullptr,  &s_BasicExp[4]},
-    {EXP + 4, EXP_RATE_W, nullptr,  &s_BasicExp[5]},
-    {EXP + 5, EXP_RATE_W, nullptr,  &s_BasicExp[6]},
-    {EXP + 6, EXP_RATE_W, nullptr,  &s_BasicExp[7]},
-    {EXP + 7, EXP_RATE_W, nullptr,  &s_BasicExp[8]},
-    {EXP + 8, EXP_RATE_W, nullptr,  &s_BasicExp[9]},
-    {EXP + 9, EXP_RATE_W, nullptr,  &s_BasicExp[10]},
-    {EXP + 10, EXP_RATE_W, nullptr,  &s_BasicExp[11]},
-    {EXP + 11, EXP_RATE_W, nullptr,  &s_BasicExp[12]},
-    {EXP + 12, EXP_RATE_W, nullptr,  &s_BasicExp[13]},
-    {EXP + 13, EXP_RATE_W, nullptr,  &s_BasicExp[14]},
-    {EXP + 14, EXP_RATE_W, nullptr,  &s_BasicExp[15]},
-    {EXP + 15, EXP_RATE_W, nullptr,  &s_BasicExp[16]},
-    {EXP + 16, EXP_RATE_W, nullptr,  &s_BasicExp[17]},
-    {EXP + 17, EXP_RATE_W, nullptr,  &s_BasicExp[18]},
-    {EXP + 18, EXP_RATE_W, nullptr,  &s_BasicExp[19]},
-    {EXP + 19, EXP_RATE_W, nullptr,  &s_BasicExp[20]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_BasicExp[0]}
+    {SPR_EXP, 'A', EXP_RATE_W, nullptr,  &s_BasicExp[1]},
+    {SPR_EXP, 'B', EXP_RATE_W, nullptr,  &s_BasicExp[2]},
+    {SPR_EXP, 'C', EXP_RATE_W, nullptr,  &s_BasicExp[3]},
+    {SPR_EXP, 'D', EXP_RATE_W, nullptr,  &s_BasicExp[4]},
+    {SPR_EXP, 'E', EXP_RATE_W, nullptr,  &s_BasicExp[5]},
+    {SPR_EXP, 'F', EXP_RATE_W, nullptr,  &s_BasicExp[6]},
+    {SPR_EXP, 'G', EXP_RATE_W, nullptr,  &s_BasicExp[7]},
+    {SPR_EXP, 'H', EXP_RATE_W, nullptr,  &s_BasicExp[8]},
+    {SPR_EXP, 'I', EXP_RATE_W, nullptr,  &s_BasicExp[9]},
+    {SPR_EXP, 'J', EXP_RATE_W, nullptr,  &s_BasicExp[10]},
+    {SPR_EXP, 'K', EXP_RATE_W, nullptr,  &s_BasicExp[11]},
+    {SPR_EXP, 'L', EXP_RATE_W, nullptr,  &s_BasicExp[12]},
+    {SPR_EXP, 'M', EXP_RATE_W, nullptr,  &s_BasicExp[13]},
+    {SPR_EXP, 'N', EXP_RATE_W, nullptr,  &s_BasicExp[14]},
+    {SPR_EXP, 'O', EXP_RATE_W, nullptr,  &s_BasicExp[15]},
+    {SPR_EXP, 'P', EXP_RATE_W, nullptr,  &s_BasicExp[16]},
+    {SPR_EXP, 'Q', EXP_RATE_W, nullptr,  &s_BasicExp[17]},
+    {SPR_EXP, 'R', EXP_RATE_W, nullptr,  &s_BasicExp[18]},
+    {SPR_EXP, 'R', EXP_RATE_W, nullptr,  &s_BasicExp[19]},
+    {SPR_EXP, 'S', EXP_RATE_W, nullptr,  &s_BasicExp[20]},
+    {SPR_EXP, 'T', 100, &AF(DoSuicide), &s_BasicExp[0]}
 };
 
 #define MICRO_EXP_RATE 3
 
 STATE s_MicroExp[] =
 {
-    {EXP + 0, MICRO_EXP_RATE, nullptr,  &s_MicroExp[1]},
-    {EXP + 0, SF_QUICK_CALL,  &AF(DoExpDamageTest),   &s_MicroExp[2]},
-    {EXP + 1, MICRO_EXP_RATE, nullptr,  &s_MicroExp[3]},
-    {EXP + 2, MICRO_EXP_RATE, nullptr,  &s_MicroExp[4]},
-    {EXP + 3, MICRO_EXP_RATE, nullptr,  &s_MicroExp[5]},
-    {EXP + 4, MICRO_EXP_RATE, nullptr,  &s_MicroExp[6]},
-    {EXP + 5, MICRO_EXP_RATE, nullptr,  &s_MicroExp[7]},
-    {EXP + 6, MICRO_EXP_RATE, nullptr,  &s_MicroExp[8]},
-    {EXP + 7, MICRO_EXP_RATE, nullptr,  &s_MicroExp[9]},
-    {EXP + 8, MICRO_EXP_RATE, nullptr,  &s_MicroExp[10]},
-    {EXP + 9, MICRO_EXP_RATE, nullptr,  &s_MicroExp[11]},
-    {EXP + 10, MICRO_EXP_RATE, nullptr,  &s_MicroExp[12]},
-    {EXP + 11, MICRO_EXP_RATE, nullptr,  &s_MicroExp[13]},
-    {EXP + 12, MICRO_EXP_RATE, nullptr,  &s_MicroExp[14]},
-    {EXP + 13, MICRO_EXP_RATE, nullptr,  &s_MicroExp[15]},
-    {EXP + 14, MICRO_EXP_RATE, nullptr,  &s_MicroExp[16]},
-    {EXP + 15, MICRO_EXP_RATE, nullptr,  &s_MicroExp[17]},
-    {EXP + 16, MICRO_EXP_RATE, nullptr,  &s_MicroExp[18]},
-    {EXP + 17, MICRO_EXP_RATE, nullptr,  &s_MicroExp[19]},
-    {EXP + 18, MICRO_EXP_RATE, nullptr,  &s_MicroExp[20]},
-    {EXP + 19, MICRO_EXP_RATE, nullptr,  &s_MicroExp[21]},
-    {EXP + 20, MICRO_EXP_RATE, nullptr,  &s_MicroExp[22]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_MicroExp[22]}
+    {SPR_EXP, 'A', MICRO_EXP_RATE, nullptr,  &s_MicroExp[1]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(DoExpDamageTest),   &s_MicroExp[2]},
+    {SPR_EXP, 'B', MICRO_EXP_RATE, nullptr,  &s_MicroExp[3]},
+    {SPR_EXP, 'C', MICRO_EXP_RATE, nullptr,  &s_MicroExp[4]},
+    {SPR_EXP, 'D', MICRO_EXP_RATE, nullptr,  &s_MicroExp[5]},
+    {SPR_EXP, 'E', MICRO_EXP_RATE, nullptr,  &s_MicroExp[6]},
+    {SPR_EXP, 'F', MICRO_EXP_RATE, nullptr,  &s_MicroExp[7]},
+    {SPR_EXP, 'G', MICRO_EXP_RATE, nullptr,  &s_MicroExp[8]},
+    {SPR_EXP, 'H', MICRO_EXP_RATE, nullptr,  &s_MicroExp[9]},
+    {SPR_EXP, 'I', MICRO_EXP_RATE, nullptr,  &s_MicroExp[10]},
+    {SPR_EXP, 'J', MICRO_EXP_RATE, nullptr,  &s_MicroExp[11]},
+    {SPR_EXP, 'K', MICRO_EXP_RATE, nullptr,  &s_MicroExp[12]},
+    {SPR_EXP, 'L', MICRO_EXP_RATE, nullptr,  &s_MicroExp[13]},
+    {SPR_EXP, 'M', MICRO_EXP_RATE, nullptr,  &s_MicroExp[14]},
+    {SPR_EXP, 'N', MICRO_EXP_RATE, nullptr,  &s_MicroExp[15]},
+    {SPR_EXP, 'O', MICRO_EXP_RATE, nullptr,  &s_MicroExp[16]},
+    {SPR_EXP, 'P', MICRO_EXP_RATE, nullptr,  &s_MicroExp[17]},
+    {SPR_EXP, 'Q', MICRO_EXP_RATE, nullptr,  &s_MicroExp[18]},
+    {SPR_EXP, 'R', MICRO_EXP_RATE, nullptr,  &s_MicroExp[19]},
+    {SPR_EXP, 'S', MICRO_EXP_RATE, nullptr,  &s_MicroExp[20]},
+    {SPR_EXP, 'T', MICRO_EXP_RATE, nullptr,  &s_MicroExp[21]},
+    {SPR_EXP, 'U', MICRO_EXP_RATE, nullptr,  &s_MicroExp[22]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_MicroExp[22]}
 };
 
 
@@ -1535,134 +1196,134 @@ STATE s_MicroExp[] =
 STATE s_BigGunFlame[] =
 {
     // first 3 frames
-    {EXP + 0, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[1]},
-    {EXP + 1, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[2]},
-    {EXP + 2, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[3]},
+    {SPR_EXP, 'A', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[1]},
+    {SPR_EXP, 'B', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[2]},
+    {SPR_EXP, 'C', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[3]},
     // last 4 frames frames
-    {EXP + 17, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[4]},
-    {EXP + 18, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[5]},
-    {EXP + 19, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[6]},
-    {EXP + 20, BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[7]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_BigGunFlame[0]}
+    {SPR_EXP, 'R', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[4]},
+    {SPR_EXP, 'S', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[5]},
+    {SPR_EXP, 'T', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[6]},
+    {SPR_EXP, 'U', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[7]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_BigGunFlame[0]}
 };
 
 STATE s_BoltExp[] =
 {
-    {EXP + 0, EXP_RATE_W, nullptr,  &s_BoltExp[1]},
-    {EXP + 0, SF_QUICK_CALL,  nullptr,   &s_BoltExp[2]},
-    {EXP + 0, SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_BoltExp[3]},
-    {EXP + 1, EXP_RATE_W, nullptr,  &s_BoltExp[4]},
-    {EXP + 2, EXP_RATE_W, nullptr,  &s_BoltExp[5]},
-    {EXP + 3, EXP_RATE_W, nullptr,  &s_BoltExp[6]},
-    {EXP + 4, EXP_RATE_W, nullptr,  &s_BoltExp[7]},
-    {EXP + 5, EXP_RATE_W, nullptr,  &s_BoltExp[8]},
-    {EXP + 6, EXP_RATE_W, nullptr,  &s_BoltExp[9]},
-    {EXP + 7, EXP_RATE_W, nullptr,  &s_BoltExp[10]},
-    {EXP + 7, SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_BoltExp[11]},
-    {EXP + 8, EXP_RATE_W, nullptr,  &s_BoltExp[12]},
-    {EXP + 9, EXP_RATE_W, nullptr,  &s_BoltExp[13]},
-    {EXP + 10, EXP_RATE_W, nullptr,  &s_BoltExp[14]},
-    {EXP + 11, EXP_RATE_W, nullptr,  &s_BoltExp[15]},
-    {EXP + 12, EXP_RATE_W, nullptr,  &s_BoltExp[16]},
-    {EXP + 13, EXP_RATE_W, nullptr,  &s_BoltExp[17]},
-    {EXP + 14, EXP_RATE_W, nullptr,  &s_BoltExp[18]},
-    {EXP + 15, EXP_RATE_W, nullptr,  &s_BoltExp[19]},
-    {EXP + 16, EXP_RATE_W, nullptr,  &s_BoltExp[20]},
-    {EXP + 17, EXP_RATE_W, nullptr,  &s_BoltExp[21]},
-    {EXP + 18, EXP_RATE_W, nullptr,  &s_BoltExp[22]},
-    {EXP + 19, EXP_RATE_W, nullptr,  &s_BoltExp[23]},
-    {EXP + 20, EXP_RATE_W, nullptr,  &s_BoltExp[24]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_BoltExp[0]}
+    {SPR_EXP, 'A', EXP_RATE_W, nullptr,  &s_BoltExp[1]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,   &s_BoltExp[2]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_BoltExp[3]},
+    {SPR_EXP, 'B', EXP_RATE_W, nullptr,  &s_BoltExp[4]},
+    {SPR_EXP, 'C', EXP_RATE_W, nullptr,  &s_BoltExp[5]},
+    {SPR_EXP, 'D', EXP_RATE_W, nullptr,  &s_BoltExp[6]},
+    {SPR_EXP, 'E', EXP_RATE_W, nullptr,  &s_BoltExp[7]},
+    {SPR_EXP, 'F', EXP_RATE_W, nullptr,  &s_BoltExp[8]},
+    {SPR_EXP, 'G', EXP_RATE_W, nullptr,  &s_BoltExp[9]},
+    {SPR_EXP, 'H', EXP_RATE_W, nullptr,  &s_BoltExp[10]},
+    {SPR_EXP, 'H', SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_BoltExp[11]},
+    {SPR_EXP, 'I', EXP_RATE_W, nullptr,  &s_BoltExp[12]},
+    {SPR_EXP, 'J', EXP_RATE_W, nullptr,  &s_BoltExp[13]},
+    {SPR_EXP, 'K', EXP_RATE_W, nullptr,  &s_BoltExp[14]},
+    {SPR_EXP, 'L', EXP_RATE_W, nullptr,  &s_BoltExp[15]},
+    {SPR_EXP, 'M', EXP_RATE_W, nullptr,  &s_BoltExp[16]},
+    {SPR_EXP, 'N', EXP_RATE_W, nullptr,  &s_BoltExp[17]},
+    {SPR_EXP, 'O', EXP_RATE_W, nullptr,  &s_BoltExp[18]},
+    {SPR_EXP, 'P', EXP_RATE_W, nullptr,  &s_BoltExp[19]},
+    {SPR_EXP, 'Q', EXP_RATE_W, nullptr,  &s_BoltExp[20]},
+    {SPR_EXP, 'R', EXP_RATE_W, nullptr,  &s_BoltExp[21]},
+    {SPR_EXP, 'S', EXP_RATE_W, nullptr,  &s_BoltExp[22]},
+    {SPR_EXP, 'T', EXP_RATE_W, nullptr,  &s_BoltExp[23]},
+    {SPR_EXP, 'U', EXP_RATE_W, nullptr,  &s_BoltExp[24]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_BoltExp[0]}
 };
 
 STATE s_TankShellExp[] =
 {
-    {EXP + 0, EXP_RATE_W, nullptr,  &s_TankShellExp[1]},
-    {EXP + 0, SF_QUICK_CALL,  nullptr,   &s_TankShellExp[2]},
-    {EXP + 0, SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_TankShellExp[3]},
-    {EXP + 1, EXP_RATE_W, nullptr,  &s_TankShellExp[4]},
-    {EXP + 2, EXP_RATE_W, nullptr,  &s_TankShellExp[5]},
-    {EXP + 3, EXP_RATE_W, nullptr,  &s_TankShellExp[6]},
-    {EXP + 4, EXP_RATE_W, nullptr,  &s_TankShellExp[7]},
-    {EXP + 5, EXP_RATE_W, nullptr,  &s_TankShellExp[8]},
-    {EXP + 6, EXP_RATE_W, nullptr,  &s_TankShellExp[9]},
-    {EXP + 7, EXP_RATE_W, nullptr,  &s_TankShellExp[10]},
-    {EXP + 7, SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_TankShellExp[11]},
-    {EXP + 8, EXP_RATE_W, nullptr,  &s_TankShellExp[12]},
-    {EXP + 9, EXP_RATE_W, nullptr,  &s_TankShellExp[13]},
-    {EXP + 10, EXP_RATE_W, nullptr,  &s_TankShellExp[14]},
-    {EXP + 11, EXP_RATE_W, nullptr,  &s_TankShellExp[15]},
-    {EXP + 12, EXP_RATE_W, nullptr,  &s_TankShellExp[16]},
-    {EXP + 13, EXP_RATE_W, nullptr,  &s_TankShellExp[17]},
-    {EXP + 14, EXP_RATE_W, nullptr,  &s_TankShellExp[18]},
-    {EXP + 15, EXP_RATE_W, nullptr,  &s_TankShellExp[19]},
-    {EXP + 16, EXP_RATE_W, nullptr,  &s_TankShellExp[20]},
-    {EXP + 17, EXP_RATE_W, nullptr,  &s_TankShellExp[21]},
-    {EXP + 18, EXP_RATE_W, nullptr,  &s_TankShellExp[22]},
-    {EXP + 19, EXP_RATE_W, nullptr,  &s_TankShellExp[23]},
-    {EXP + 20, EXP_RATE_W, nullptr,  &s_TankShellExp[24]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_TankShellExp[0]}
+    {SPR_EXP, 'A', EXP_RATE_W, nullptr,  &s_TankShellExp[1]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,   &s_TankShellExp[2]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_TankShellExp[3]},
+    {SPR_EXP, 'B', EXP_RATE_W, nullptr,  &s_TankShellExp[4]},
+    {SPR_EXP, 'C', EXP_RATE_W, nullptr,  &s_TankShellExp[5]},
+    {SPR_EXP, 'D', EXP_RATE_W, nullptr,  &s_TankShellExp[6]},
+    {SPR_EXP, 'E', EXP_RATE_W, nullptr,  &s_TankShellExp[7]},
+    {SPR_EXP, 'F', EXP_RATE_W, nullptr,  &s_TankShellExp[8]},
+    {SPR_EXP, 'G', EXP_RATE_W, nullptr,  &s_TankShellExp[9]},
+    {SPR_EXP, 'H', EXP_RATE_W, nullptr,  &s_TankShellExp[10]},
+    {SPR_EXP, 'H', SF_QUICK_CALL,  &AF(SpawnShrapX),   &s_TankShellExp[11]},
+    {SPR_EXP, 'I', EXP_RATE_W, nullptr,  &s_TankShellExp[12]},
+    {SPR_EXP, 'J', EXP_RATE_W, nullptr,  &s_TankShellExp[13]},
+    {SPR_EXP, 'K', EXP_RATE_W, nullptr,  &s_TankShellExp[14]},
+    {SPR_EXP, 'L', EXP_RATE_W, nullptr,  &s_TankShellExp[15]},
+    {SPR_EXP, 'M', EXP_RATE_W, nullptr,  &s_TankShellExp[16]},
+    {SPR_EXP, 'N', EXP_RATE_W, nullptr,  &s_TankShellExp[17]},
+    {SPR_EXP, 'O', EXP_RATE_W, nullptr,  &s_TankShellExp[18]},
+    {SPR_EXP, 'P', EXP_RATE_W, nullptr,  &s_TankShellExp[19]},
+    {SPR_EXP, 'Q', EXP_RATE_W, nullptr,  &s_TankShellExp[20]},
+    {SPR_EXP, 'R', EXP_RATE_W, nullptr,  &s_TankShellExp[21]},
+    {SPR_EXP, 'S', EXP_RATE_W, nullptr,  &s_TankShellExp[22]},
+    {SPR_EXP, 'T', EXP_RATE_W, nullptr,  &s_TankShellExp[23]},
+    {SPR_EXP, 'U', EXP_RATE_W, nullptr,  &s_TankShellExp[24]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_TankShellExp[0]}
 };
 
 #define TRACER_EXP_RATE 4
 STATE s_TracerExp[] =
 {
-    {EXP + 0, TRACER_EXP_RATE, nullptr,  &s_TracerExp[1]},
-    {EXP + 0, SF_QUICK_CALL,  nullptr,   &s_TracerExp[2]},
-    {EXP + 0, SF_QUICK_CALL,  nullptr,    &s_TracerExp[3]},
-    {EXP + 1, TRACER_EXP_RATE, nullptr,  &s_TracerExp[4]},
-    {EXP + 2, TRACER_EXP_RATE, nullptr,  &s_TracerExp[5]},
-    {EXP + 3, TRACER_EXP_RATE, nullptr,  &s_TracerExp[6]},
-    {EXP + 4, TRACER_EXP_RATE, nullptr,  &s_TracerExp[7]},
-    {EXP + 5, TRACER_EXP_RATE, nullptr,  &s_TracerExp[8]},
-    {EXP + 6, TRACER_EXP_RATE, nullptr,  &s_TracerExp[9]},
-    {EXP + 7, TRACER_EXP_RATE, nullptr,  &s_TracerExp[10]},
-    {EXP + 7, SF_QUICK_CALL,  nullptr,    &s_TracerExp[11]},
-    {EXP + 8, TRACER_EXP_RATE, nullptr,  &s_TracerExp[12]},
-    {EXP + 9, TRACER_EXP_RATE, nullptr,  &s_TracerExp[13]},
-    {EXP + 10, TRACER_EXP_RATE, nullptr,  &s_TracerExp[14]},
-    {EXP + 11, TRACER_EXP_RATE, nullptr,  &s_TracerExp[15]},
-    {EXP + 12, TRACER_EXP_RATE, nullptr,  &s_TracerExp[16]},
-    {EXP + 13, TRACER_EXP_RATE, nullptr,  &s_TracerExp[17]},
-    {EXP + 14, TRACER_EXP_RATE, nullptr,  &s_TracerExp[18]},
-    {EXP + 15, TRACER_EXP_RATE, nullptr,  &s_TracerExp[19]},
-    {EXP + 16, TRACER_EXP_RATE, nullptr,  &s_TracerExp[20]},
-    {EXP + 17, TRACER_EXP_RATE, nullptr,  &s_TracerExp[21]},
-    {EXP + 18, TRACER_EXP_RATE, nullptr,  &s_TracerExp[22]},
-    {EXP + 19, TRACER_EXP_RATE, nullptr,  &s_TracerExp[23]},
-    {EXP + 20, TRACER_EXP_RATE, nullptr,  &s_TracerExp[24]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_TracerExp[0]}
+    {SPR_EXP, 'A', TRACER_EXP_RATE, nullptr,  &s_TracerExp[1]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,   &s_TracerExp[2]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,    &s_TracerExp[3]},
+    {SPR_EXP, 'B', TRACER_EXP_RATE, nullptr,  &s_TracerExp[4]},
+    {SPR_EXP, 'C', TRACER_EXP_RATE, nullptr,  &s_TracerExp[5]},
+    {SPR_EXP, 'D', TRACER_EXP_RATE, nullptr,  &s_TracerExp[6]},
+    {SPR_EXP, 'E', TRACER_EXP_RATE, nullptr,  &s_TracerExp[7]},
+    {SPR_EXP, 'F', TRACER_EXP_RATE, nullptr,  &s_TracerExp[8]},
+    {SPR_EXP, 'G', TRACER_EXP_RATE, nullptr,  &s_TracerExp[9]},
+    {SPR_EXP, 'H', TRACER_EXP_RATE, nullptr,  &s_TracerExp[10]},
+    {SPR_EXP, 'H', SF_QUICK_CALL,  nullptr,    &s_TracerExp[11]},
+    {SPR_EXP, 'I', TRACER_EXP_RATE, nullptr,  &s_TracerExp[12]},
+    {SPR_EXP, 'J', TRACER_EXP_RATE, nullptr,  &s_TracerExp[13]},
+    {SPR_EXP, 'K', TRACER_EXP_RATE, nullptr,  &s_TracerExp[14]},
+    {SPR_EXP, 'L', TRACER_EXP_RATE, nullptr,  &s_TracerExp[15]},
+    {SPR_EXP, 'M', TRACER_EXP_RATE, nullptr,  &s_TracerExp[16]},
+    {SPR_EXP, 'N', TRACER_EXP_RATE, nullptr,  &s_TracerExp[17]},
+    {SPR_EXP, 'O', TRACER_EXP_RATE, nullptr,  &s_TracerExp[18]},
+    {SPR_EXP, 'P', TRACER_EXP_RATE, nullptr,  &s_TracerExp[19]},
+    {SPR_EXP, 'Q', TRACER_EXP_RATE, nullptr,  &s_TracerExp[20]},
+    {SPR_EXP, 'R', TRACER_EXP_RATE, nullptr,  &s_TracerExp[21]},
+    {SPR_EXP, 'S', TRACER_EXP_RATE, nullptr,  &s_TracerExp[22]},
+    {SPR_EXP, 'T', TRACER_EXP_RATE, nullptr,  &s_TracerExp[23]},
+    {SPR_EXP, 'U', TRACER_EXP_RATE, nullptr,  &s_TracerExp[24]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_TracerExp[0]}
 };
 
 #define EXP_RATE_W 7
 
 STATE s_SectorExp[] =
 {
-    {EXP + 0, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[1]},
-    {EXP + 0, SF_QUICK_CALL,  &AF(SpawnShrapX),  &s_SectorExp[2]},
-    {EXP + 0, SF_QUICK_CALL,  &AF(DoSectorExp),   &s_SectorExp[3]},
-    {EXP + 1, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[4]},
-    {EXP + 2, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[5]},
-    {EXP + 3, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[6]},
-    {EXP + 4, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[7]},
-    {EXP + 5, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[8]},
-    {EXP + 6, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[9]},
-    {EXP + 7, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[10]},
-    {EXP + 7, SF_QUICK_CALL,  &AF(DoSectorExp),  &s_SectorExp[11]},
-    {EXP + 8, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[12]},
-    {EXP + 9, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[13]},
-    {EXP + 10, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[14]},
-    {EXP + 11, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[15]},
-    {EXP + 12, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[16]},
-    {EXP + 13, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[17]},
-    {EXP + 14, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[18]},
-    {EXP + 15, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[19]},
-    {EXP + 16, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[20]},
-    {EXP + 17, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[21]},
-    {EXP + 18, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[22]},
-    {EXP + 19, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[23]},
-    {EXP + 20, EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[24]},
-    {EXP + 20, 100, &AF(DoSuicide), &s_SectorExp[0]}
+    {SPR_EXP, 'A', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[1]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(SpawnShrapX),  &s_SectorExp[2]},
+    {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(DoSectorExp),   &s_SectorExp[3]},
+    {SPR_EXP, 'B', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[4]},
+    {SPR_EXP, 'C', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[5]},
+    {SPR_EXP, 'D', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[6]},
+    {SPR_EXP, 'E', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[7]},
+    {SPR_EXP, 'F', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[8]},
+    {SPR_EXP, 'G', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[9]},
+    {SPR_EXP, 'H', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[10]},
+    {SPR_EXP, 'H', SF_QUICK_CALL,  &AF(DoSectorExp),  &s_SectorExp[11]},
+    {SPR_EXP, 'I', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[12]},
+    {SPR_EXP, 'J', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[13]},
+    {SPR_EXP, 'K', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[14]},
+    {SPR_EXP, 'L', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[15]},
+    {SPR_EXP, 'M', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[16]},
+    {SPR_EXP, 'N', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[17]},
+    {SPR_EXP, 'O', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[18]},
+    {SPR_EXP, 'P', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[19]},
+    {SPR_EXP, 'Q', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[20]},
+    {SPR_EXP, 'R', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[21]},
+    {SPR_EXP, 'S', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[22]},
+    {SPR_EXP, 'T', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[23]},
+    {SPR_EXP, 'U', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[24]},
+    {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_SectorExp[0]}
 };
 
 
@@ -1670,12 +1331,12 @@ STATE s_SectorExp[] =
 #define FIREBALL_DISS_RATE 8
 STATE s_FireballExp[] =
 {
-    {FIREBALL_DISS + 0, FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[1]},
-    {FIREBALL_DISS + 1, FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[2]},
-    {FIREBALL_DISS + 2, FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[3]},
-    {FIREBALL_DISS + 3, FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[4]},
-    {FIREBALL_DISS + 4, FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[5]},
-    {FIREBALL_DISS + 4, 100, &AF(DoSuicide), &s_FireballExp[0]}
+    {SPR_FIREBALL_DISS, 'A', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[1]},
+    {SPR_FIREBALL_DISS, 'B', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[2]},
+    {SPR_FIREBALL_DISS, 'C', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[3]},
+    {SPR_FIREBALL_DISS, 'D', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[4]},
+    {SPR_FIREBALL_DISS, 'E', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[5]},
+    {SPR_FIREBALL_DISS, 'E', 100, &AF(DoSuicide), &s_FireballExp[0]}
 };
 
 #define NAP_EXP (3072)
@@ -1683,70 +1344,70 @@ STATE s_FireballExp[] =
 
 STATE s_NapExp[] =
 {
-    {NAP_EXP + 0,     NAP_EXP_RATE,      nullptr,   &s_NapExp[1]},
-    {NAP_EXP + 0,     0 | SF_QUICK_CALL,       &AF(DoDamageTest),  &s_NapExp[2]},
-    {NAP_EXP + 1,     NAP_EXP_RATE,      nullptr,   &s_NapExp[3]},
-    {NAP_EXP + 2,     NAP_EXP_RATE,      nullptr,   &s_NapExp[4]},
-    {NAP_EXP + 3,     NAP_EXP_RATE,      nullptr,   &s_NapExp[5]},
-    {NAP_EXP + 4,     NAP_EXP_RATE,      nullptr,   &s_NapExp[6]},
-    {NAP_EXP + 5,     NAP_EXP_RATE,      nullptr,   &s_NapExp[7]},
-    {NAP_EXP + 6,     NAP_EXP_RATE,      nullptr,   &s_NapExp[8]},
-    {NAP_EXP + 7,     NAP_EXP_RATE,      nullptr,   &s_NapExp[9]},
-    {NAP_EXP + 8,     NAP_EXP_RATE,      nullptr,   &s_NapExp[10]},
-    {NAP_EXP + 9,     NAP_EXP_RATE,      nullptr,   &s_NapExp[11]},
-    {NAP_EXP + 10,    NAP_EXP_RATE,      nullptr,   &s_NapExp[12]},
-    {NAP_EXP + 11,    NAP_EXP_RATE,      nullptr,   &s_NapExp[13]},
-    {NAP_EXP + 12,    NAP_EXP_RATE,      nullptr,   &s_NapExp[14]},
-    {NAP_EXP + 13,    NAP_EXP_RATE,      nullptr,   &s_NapExp[15]},
-    {NAP_EXP + 14,    NAP_EXP_RATE,      nullptr,   &s_NapExp[16]},
-    {NAP_EXP + 15,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[17]},
-    {NAP_EXP + 16,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[18]},
-    {NAP_EXP + 17,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[19]},
-    {NAP_EXP + 18,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[20]},
-    {NAP_EXP + 19,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[21]},
-    {NAP_EXP + 20,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[22]},
-    {NAP_EXP + 21,    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[23]},
-    {NAP_EXP + 21,    NAP_EXP_RATE-2,    &AF(DoSuicide),     &s_NapExp[23]}
+    {SPR_NAP_EXP, 'A',     NAP_EXP_RATE,      nullptr,   &s_NapExp[1]},
+    {SPR_NAP_EXP, 'A',     0 | SF_QUICK_CALL,       &AF(DoDamageTest),  &s_NapExp[2]},
+    {SPR_NAP_EXP, 'B',     NAP_EXP_RATE,      nullptr,   &s_NapExp[3]},
+    {SPR_NAP_EXP, 'C',     NAP_EXP_RATE,      nullptr,   &s_NapExp[4]},
+    {SPR_NAP_EXP, 'D',     NAP_EXP_RATE,      nullptr,   &s_NapExp[5]},
+    {SPR_NAP_EXP, 'E',     NAP_EXP_RATE,      nullptr,   &s_NapExp[6]},
+    {SPR_NAP_EXP, 'F',     NAP_EXP_RATE,      nullptr,   &s_NapExp[7]},
+    {SPR_NAP_EXP, 'G',     NAP_EXP_RATE,      nullptr,   &s_NapExp[8]},
+    {SPR_NAP_EXP, 'H',     NAP_EXP_RATE,      nullptr,   &s_NapExp[9]},
+    {SPR_NAP_EXP, 'I',     NAP_EXP_RATE,      nullptr,   &s_NapExp[10]},
+    {SPR_NAP_EXP, 'J',     NAP_EXP_RATE,      nullptr,   &s_NapExp[11]},
+    {SPR_NAP_EXP, 'K',    NAP_EXP_RATE,      nullptr,   &s_NapExp[12]},
+    {SPR_NAP_EXP, 'L',    NAP_EXP_RATE,      nullptr,   &s_NapExp[13]},
+    {SPR_NAP_EXP, 'M',    NAP_EXP_RATE,      nullptr,   &s_NapExp[14]},
+    {SPR_NAP_EXP, 'N',    NAP_EXP_RATE,      nullptr,   &s_NapExp[15]},
+    {SPR_NAP_EXP, 'O',    NAP_EXP_RATE,      nullptr,   &s_NapExp[16]},
+    {SPR_NAP_EXP, 'P',    NAP_EXP_RATE - 2,    nullptr,   &s_NapExp[17]},
+    {SPR_NAP_EXP, 'Q',    NAP_EXP_RATE - 2,    nullptr,   &s_NapExp[18]},
+    {SPR_NAP_EXP, 'R',    NAP_EXP_RATE - 2,    nullptr,   &s_NapExp[19]},
+    {SPR_NAP_EXP, 'S',    NAP_EXP_RATE - 2,    nullptr,   &s_NapExp[20]},
+    {SPR_NAP_EXP, 'T',    NAP_EXP_RATE - 2,    nullptr,   &s_NapExp[21]},
+    {SPR_NAP_EXP, 'U',    NAP_EXP_RATE - 2,    nullptr,   &s_NapExp[22]},
+    {SPR_NAP_EXP, 'V',    NAP_EXP_RATE-2,    nullptr,   &s_NapExp[23]},
+    {SPR_NAP_EXP, 'V',    NAP_EXP_RATE - 2,    &AF(DoSuicide),     &s_NapExp[23]}
 };
 
 #define FLAME_RATE 6
 
 STATE s_FireballFlames[] =
 {
-    {FIREBALL_FLAMES + 0, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[1]},
-    {FIREBALL_FLAMES + 1, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[2]},
-    {FIREBALL_FLAMES + 2, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[3]},
-    {FIREBALL_FLAMES + 3, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[4]},
-    {FIREBALL_FLAMES + 4, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[5]},
-    {FIREBALL_FLAMES + 5, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[6]},
-    {FIREBALL_FLAMES + 6, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[7]},
-    {FIREBALL_FLAMES + 7, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[8]},
-    {FIREBALL_FLAMES + 8, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[9]},
-    {FIREBALL_FLAMES + 9, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[10]},
-    {FIREBALL_FLAMES +10, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[11]},
-    {FIREBALL_FLAMES +11, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[12]},
-    {FIREBALL_FLAMES +12, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[13]},
-    {FIREBALL_FLAMES +13, FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[0]},
+    {SPR_FIREBALL_FLAMES, 'A', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[1]},
+    {SPR_FIREBALL_FLAMES, 'B', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[2]},
+    {SPR_FIREBALL_FLAMES, 'C', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[3]},
+    {SPR_FIREBALL_FLAMES, 'D', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[4]},
+    {SPR_FIREBALL_FLAMES, 'E', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[5]},
+    {SPR_FIREBALL_FLAMES, 'F', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[6]},
+    {SPR_FIREBALL_FLAMES, 'G', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[7]},
+    {SPR_FIREBALL_FLAMES, 'H', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[8]},
+    {SPR_FIREBALL_FLAMES, 'I', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[9]},
+    {SPR_FIREBALL_FLAMES, 'J', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[10]},
+    {SPR_FIREBALL_FLAMES, 'K', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[11]},
+    {SPR_FIREBALL_FLAMES, 'L', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[12]},
+    {SPR_FIREBALL_FLAMES, 'M', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[13]},
+    {SPR_FIREBALL_FLAMES, 'N', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[0]},
 };
 
 #define FLAME_RATE 6
 
 STATE s_BreakFlames[] =
 {
-    {FIREBALL_FLAMES + 0, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[1]},
-    {FIREBALL_FLAMES + 1, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[2]},
-    {FIREBALL_FLAMES + 2, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[3]},
-    {FIREBALL_FLAMES + 3, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[4]},
-    {FIREBALL_FLAMES + 4, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[5]},
-    {FIREBALL_FLAMES + 5, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[6]},
-    {FIREBALL_FLAMES + 6, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[7]},
-    {FIREBALL_FLAMES + 7, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[8]},
-    {FIREBALL_FLAMES + 8, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[9]},
-    {FIREBALL_FLAMES + 9, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[10]},
-    {FIREBALL_FLAMES +10, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[11]},
-    {FIREBALL_FLAMES +11, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[12]},
-    {FIREBALL_FLAMES +12, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[13]},
-    {FIREBALL_FLAMES +13, FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[0]},
+    {SPR_FIREBALL_FLAMES, 'A', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[1]},
+    {SPR_FIREBALL_FLAMES, 'B', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[2]},
+    {SPR_FIREBALL_FLAMES, 'C', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[3]},
+    {SPR_FIREBALL_FLAMES, 'D', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[4]},
+    {SPR_FIREBALL_FLAMES, 'E', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[5]},
+    {SPR_FIREBALL_FLAMES, 'F', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[6]},
+    {SPR_FIREBALL_FLAMES, 'G', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[7]},
+    {SPR_FIREBALL_FLAMES, 'H', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[8]},
+    {SPR_FIREBALL_FLAMES, 'I', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[9]},
+    {SPR_FIREBALL_FLAMES, 'J', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[10]},
+    {SPR_FIREBALL_FLAMES, 'K', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[11]},
+    {SPR_FIREBALL_FLAMES, 'L', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[12]},
+    {SPR_FIREBALL_FLAMES, 'M', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[13]},
+    {SPR_FIREBALL_FLAMES, 'N', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[0]},
 };
 
 //////////////////////
@@ -1760,35 +1421,35 @@ STATE s_BreakFlames[] =
 
 STATE s_Fireball[] =
 {
-    {FIREBALL + 0, 12, &AF(DoFireball), &s_Fireball[1]},
-    {FIREBALL + 1, 12, &AF(DoFireball), &s_Fireball[2]},
-    {FIREBALL + 2, 12, &AF(DoFireball), &s_Fireball[3]},
-    {FIREBALL + 3, 12, &AF(DoFireball), &s_Fireball[0]}
+    {SPR_FIREBALL, 'A', 12, &AF(DoFireball), &s_Fireball[1]},
+    {SPR_FIREBALL, 'B', 12, &AF(DoFireball), &s_Fireball[2]},
+    {SPR_FIREBALL, 'C', 12, &AF(DoFireball), &s_Fireball[3]},
+    {SPR_FIREBALL, 'D', 12, &AF(DoFireball), &s_Fireball[0]}
 };
 
 
 STATE s_Ring[] =
 {
-    {FIREBALL + 0, 12, &AF(DoRing), &s_Ring[1]},
-    {FIREBALL + 1, 12, &AF(DoRing), &s_Ring[2]},
-    {FIREBALL + 2, 12, &AF(DoRing), &s_Ring[3]},
-    {FIREBALL + 3, 12, &AF(DoRing), &s_Ring[0]}
+    {SPR_FIREBALL, 'A', 12, &AF(DoRing), &s_Ring[1]},
+    {SPR_FIREBALL, 'B', 12, &AF(DoRing), &s_Ring[2]},
+    {SPR_FIREBALL, 'C', 12, &AF(DoRing), &s_Ring[3]},
+    {SPR_FIREBALL, 'D', 12, &AF(DoRing), &s_Ring[0]}
 };
 
 STATE s_Ring2[] =
 {
-    {2031 + 0, 12, &AF(DoRing), &s_Ring2[1]},
-    {2031 + 1, 12, &AF(DoRing), &s_Ring2[2]},
-    {2031 + 2, 12, &AF(DoRing), &s_Ring2[3]},
-    {2031 + 3, 12, &AF(DoRing), &s_Ring2[0]}
+    {SPR_SERP_METEOR, 'A', 12, &AF(DoRing), &s_Ring2[1]},
+    {SPR_SERP_METEOR, 'B', 12, &AF(DoRing), &s_Ring2[2]},
+    {SPR_SERP_METEOR, 'C', 12, &AF(DoRing), &s_Ring2[3]},
+    {SPR_SERP_METEOR, 'D', 12, &AF(DoRing), &s_Ring2[0]}
 };
 
 STATE s_Napalm[] =
 {
-    {FIREBALL + 0, 12, &AF(DoNapalm), &s_Napalm[1]},
-    {FIREBALL + 1, 12, &AF(DoNapalm), &s_Napalm[2]},
-    {FIREBALL + 2, 12, &AF(DoNapalm), &s_Napalm[3]},
-    {FIREBALL + 3, 12, &AF(DoNapalm), &s_Napalm[0]}
+    {SPR_FIREBALL, 'A', 12, &AF(DoNapalm), &s_Napalm[1]},
+    {SPR_FIREBALL, 'B', 12, &AF(DoNapalm), &s_Napalm[2]},
+    {SPR_FIREBALL, 'C', 12, &AF(DoNapalm), &s_Napalm[3]},
+    {SPR_FIREBALL, 'D', 12, &AF(DoNapalm), &s_Napalm[0]}
 };
 
 
@@ -1796,22 +1457,14 @@ STATE s_Napalm[] =
 #define BLOOD_WORM 2106
 STATE s_BloodWorm[] =
 {
-    {BLOOD_WORM + 0, 12, &AF(DoBloodWorm), &s_BloodWorm[1]},
-    {BLOOD_WORM + 1, 12, &AF(DoBloodWorm), &s_BloodWorm[2]},
-    {BLOOD_WORM + 2, 12, &AF(DoBloodWorm), &s_BloodWorm[3]},
-    {BLOOD_WORM + 3, 12, &AF(DoBloodWorm), &s_BloodWorm[4]},
-    {BLOOD_WORM + 2, 12, &AF(DoBloodWorm), &s_BloodWorm[5]},
-    {BLOOD_WORM + 1, 12, &AF(DoBloodWorm), &s_BloodWorm[0]}
+    {SPR_BLOOD_WORM, 'A', 12, &AF(DoBloodWorm), &s_BloodWorm[1]},
+    {SPR_BLOOD_WORM, 'B', 12, &AF(DoBloodWorm), &s_BloodWorm[2]},
+    {SPR_BLOOD_WORM, 'C', 12, &AF(DoBloodWorm), &s_BloodWorm[3]},
+    {SPR_BLOOD_WORM, 'D', 12, &AF(DoBloodWorm), &s_BloodWorm[4]},
+    {SPR_BLOOD_WORM, 'C', 12, &AF(DoBloodWorm), &s_BloodWorm[5]},
+    {SPR_BLOOD_WORM, 'B', 12, &AF(DoBloodWorm), &s_BloodWorm[0]}
 };
 #else
-#define BLOOD_WORM FIREBALL+5
-STATE s_BloodWorm[] =
-{
-    {FIREBALL + 0, 12, &AF(DoBloodWorm), &s_BloodWorm[1]},
-    {FIREBALL + 1, 12, &AF(DoBloodWorm), &s_BloodWorm[2]},
-    {FIREBALL + 2, 12, &AF(DoBloodWorm), &s_BloodWorm[3]},
-    {FIREBALL + 3, 12, &AF(DoBloodWorm), &s_BloodWorm[0]}
-};
 #endif
 
 #if 1
@@ -1820,19 +1473,19 @@ STATE s_BloodWorm[] =
 
 STATE s_PlasmaExp[] =
 {
-    {BLOOD_WORM + 0, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[1]},
-    {BLOOD_WORM + 1, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[2]},
-    {BLOOD_WORM + 2, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[3]},
-    {BLOOD_WORM + 3, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[4]},
-    {BLOOD_WORM + 2, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[5]},
-    {BLOOD_WORM + 1, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[6]},
-    {BLOOD_WORM + 0, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[7]},
-    {BLOOD_WORM + 1, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[8]},
-    {BLOOD_WORM + 2, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[9]},
-    {BLOOD_WORM + 3, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[10]},
-    {BLOOD_WORM + 2, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[11]},
-    {BLOOD_WORM + 1, PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[12]},
-    {BLOOD_WORM + 0, PLASMA_EXP_RATE, &AF(DoSuicide), &s_PlasmaExp[12]},
+    {SPR_BLOOD_WORM, 'A', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[1]},
+    {SPR_BLOOD_WORM, 'B', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[2]},
+    {SPR_BLOOD_WORM, 'C', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[3]},
+    {SPR_BLOOD_WORM, 'D', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[4]},
+    {SPR_BLOOD_WORM, 'C', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[5]},
+    {SPR_BLOOD_WORM, 'B', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[6]},
+    {SPR_BLOOD_WORM, 'A', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[7]},
+    {SPR_BLOOD_WORM, 'B', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[8]},
+    {SPR_BLOOD_WORM, 'C', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[9]},
+    {SPR_BLOOD_WORM, 'D', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[10]},
+    {SPR_BLOOD_WORM, 'C', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[11]},
+    {SPR_BLOOD_WORM, 'B', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[12]},
+    {SPR_BLOOD_WORM, 'A', PLASMA_EXP_RATE, &AF(DoSuicide), &s_PlasmaExp[12]},
 };
 
 #endif
@@ -1840,18 +1493,18 @@ STATE s_PlasmaExp[] =
 
 STATE s_Mirv[] =
 {
-    {FIREBALL + 0, 12, &AF(DoMirv), &s_Mirv[1]},
-    {FIREBALL + 1, 12, &AF(DoMirv), &s_Mirv[2]},
-    {FIREBALL + 2, 12, &AF(DoMirv), &s_Mirv[3]},
-    {FIREBALL + 3, 12, &AF(DoMirv), &s_Mirv[0]}
+    {SPR_FIREBALL, 'A', 12, &AF(DoMirv), &s_Mirv[1]},
+    {SPR_FIREBALL, 'B', 12, &AF(DoMirv), &s_Mirv[2]},
+    {SPR_FIREBALL, 'C', 12, &AF(DoMirv), &s_Mirv[3]},
+    {SPR_FIREBALL, 'D', 12, &AF(DoMirv), &s_Mirv[0]}
 };
 
 STATE s_MirvMissile[] =
 {
-    {FIREBALL + 0, 12, &AF(DoMirvMissile), &s_MirvMissile[1]},
-    {FIREBALL + 1, 12, &AF(DoMirvMissile), &s_MirvMissile[2]},
-    {FIREBALL + 2, 12, &AF(DoMirvMissile), &s_MirvMissile[3]},
-    {FIREBALL + 3, 12, &AF(DoMirvMissile), &s_MirvMissile[0]}
+    {SPR_FIREBALL, 'A', 12, &AF(DoMirvMissile), &s_MirvMissile[1]},
+    {SPR_FIREBALL, 'B', 12, &AF(DoMirvMissile), &s_MirvMissile[2]},
+    {SPR_FIREBALL, 'C', 12, &AF(DoMirvMissile), &s_MirvMissile[3]},
+    {SPR_FIREBALL, 'D', 12, &AF(DoMirvMissile), &s_MirvMissile[0]}
 };
 
 //#define Vomit1 1740
@@ -1864,17 +1517,17 @@ STATE s_MirvMissile[] =
 
 STATE s_Vomit1[] =
 {
-    {Vomit1 + 0, Vomit_RATE, &AF(DoVomit), &s_Vomit1[0]}
+    {SPR_Vomit1, 'A', Vomit_RATE, &AF(DoVomit), &s_Vomit1[0]}
 };
 
 STATE s_Vomit2[] =
 {
-    {Vomit2 + 0, Vomit_RATE, &AF(DoVomit), &s_Vomit2[0]}
+    {SPR_Vomit2, 'A', Vomit_RATE, &AF(DoVomit), &s_Vomit2[0]}
 };
 
 STATE s_VomitSplash[] =
 {
-    {VomitSplash + 0, Vomit_RATE, &AF(DoVomitSplash), &s_VomitSplash[0]}
+    {SPR_VomitSplash, 'A', Vomit_RATE, &AF(DoVomitSplash), &s_VomitSplash[0]}
 };
 
 #define GORE_Head 1670
@@ -1882,18 +1535,18 @@ STATE s_VomitSplash[] =
 
 STATE s_GoreHead[] =
 {
-    {GORE_Head + 0, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[1]},
-    {GORE_Head + 1, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[2]},
-    {GORE_Head + 2, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[3]},
-    {GORE_Head + 3, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[4]},
-    {GORE_Head + 4, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[5]},
-    {GORE_Head + 5, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[6]},
-    {GORE_Head + 6, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[7]},
-    {GORE_Head + 7, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[8]},
-    {GORE_Head + 8, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[9]},
-    {GORE_Head + 9, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[10]},
-    {GORE_Head + 10, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[11]},
-    {GORE_Head + 11, GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[0]},
+    {SPR_GORE_Head, 'A', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[1]},
+    {SPR_GORE_Head, 'B', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[2]},
+    {SPR_GORE_Head, 'C', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[3]},
+    {SPR_GORE_Head, 'D', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[4]},
+    {SPR_GORE_Head, 'E', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[5]},
+    {SPR_GORE_Head, 'F', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[6]},
+    {SPR_GORE_Head, 'G', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[7]},
+    {SPR_GORE_Head, 'H', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[8]},
+    {SPR_GORE_Head, 'I', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[9]},
+    {SPR_GORE_Head, 'J', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[10]},
+    {SPR_GORE_Head, 'K', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[11]},
+    {SPR_GORE_Head, 'L', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[0]},
 };
 
 #define GORE_Leg 1689
@@ -1901,9 +1554,9 @@ STATE s_GoreHead[] =
 
 STATE s_GoreLeg[] =
 {
-    {GORE_Leg + 0, GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[1]},
-    {GORE_Leg + 1, GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[2]},
-    {GORE_Leg + 2, GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[0]},
+    {SPR_GORE_Leg, 'A', GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[1]},
+    {SPR_GORE_Leg, 'B', GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[2]},
+    {SPR_GORE_Leg, 'C', GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[0]},
 };
 
 #define GORE_Eye 1692
@@ -1911,10 +1564,10 @@ STATE s_GoreLeg[] =
 
 STATE s_GoreEye[] =
 {
-    {GORE_Eye + 0, GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[1]},
-    {GORE_Eye + 1, GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[2]},
-    {GORE_Eye + 2, GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[3]},
-    {GORE_Eye + 3, GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[0]},
+    {SPR_GORE_Eye, 'A', GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[1]},
+    {SPR_GORE_Eye, 'B', GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[2]},
+    {SPR_GORE_Eye, 'C', GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[3]},
+    {SPR_GORE_Eye, 'D', GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[0]},
 };
 
 #define GORE_Torso 1696
@@ -1922,14 +1575,14 @@ STATE s_GoreEye[] =
 
 STATE s_GoreTorso[] =
 {
-    {GORE_Torso + 0, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[1]},
-    {GORE_Torso + 1, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[2]},
-    {GORE_Torso + 2, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[3]},
-    {GORE_Torso + 3, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[4]},
-    {GORE_Torso + 4, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[5]},
-    {GORE_Torso + 5, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[6]},
-    {GORE_Torso + 6, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[7]},
-    {GORE_Torso + 7, GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[0]},
+    {SPR_GORE_Torso, 'A', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[1]},
+    {SPR_GORE_Torso, 'B', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[2]},
+    {SPR_GORE_Torso, 'C', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[3]},
+    {SPR_GORE_Torso, 'D', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[4]},
+    {SPR_GORE_Torso, 'E', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[5]},
+    {SPR_GORE_Torso, 'F', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[6]},
+    {SPR_GORE_Torso, 'G', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[7]},
+    {SPR_GORE_Torso, 'H', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[0]},
 };
 
 
@@ -1938,18 +1591,18 @@ STATE s_GoreTorso[] =
 
 STATE s_GoreArm[] =
 {
-    {GORE_Arm + 0, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[1]},
-    {GORE_Arm + 1, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[2]},
-    {GORE_Arm + 2, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[3]},
-    {GORE_Arm + 3, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[4]},
-    {GORE_Arm + 4, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[5]},
-    {GORE_Arm + 5, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[6]},
-    {GORE_Arm + 6, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[7]},
-    {GORE_Arm + 7, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[8]},
-    {GORE_Arm + 8, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[9]},
-    {GORE_Arm + 9, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[10]},
-    {GORE_Arm + 10, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[11]},
-    {GORE_Arm + 11, GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[0]},
+    {SPR_GORE_Arm, 'A', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[1]},
+    {SPR_GORE_Arm, 'B', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[2]},
+    {SPR_GORE_Arm, 'C', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[3]},
+    {SPR_GORE_Arm, 'D', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[4]},
+    {SPR_GORE_Arm, 'E', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[5]},
+    {SPR_GORE_Arm, 'F', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[6]},
+    {SPR_GORE_Arm, 'G', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[7]},
+    {SPR_GORE_Arm, 'H', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[8]},
+    {SPR_GORE_Arm, 'I', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[9]},
+    {SPR_GORE_Arm, 'J', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[10]},
+    {SPR_GORE_Arm, 'K', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[11]},
+    {SPR_GORE_Arm, 'L', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[0]},
 };
 
 #define GORE_Lung 903
@@ -1957,18 +1610,18 @@ STATE s_GoreArm[] =
 
 STATE s_GoreLung[] =
 {
-    {GORE_Lung + 0, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[1]},
-    {GORE_Lung + 1, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[2]},
-    {GORE_Lung + 2, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[3]},
-    {GORE_Lung + 3, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[4]},
-    {GORE_Lung + 4, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[5]},
-    {GORE_Lung + 5, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[6]},
-    {GORE_Lung + 6, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[7]},
-    {GORE_Lung + 7, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[8]},
-    {GORE_Lung + 8, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[9]},
-    {GORE_Lung + 9, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[10]},
-    {GORE_Lung + 10, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[11]},
-    {GORE_Lung + 11, GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[0]},
+    {SPR_GORE_Lung, 'A', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[1]},
+    {SPR_GORE_Lung, 'B', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[2]},
+    {SPR_GORE_Lung, 'C', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[3]},
+    {SPR_GORE_Lung, 'D', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[4]},
+    {SPR_GORE_Lung, 'E', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[5]},
+    {SPR_GORE_Lung, 'F', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[6]},
+    {SPR_GORE_Lung, 'G', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[7]},
+    {SPR_GORE_Lung, 'H', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[8]},
+    {SPR_GORE_Lung, 'I', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[9]},
+    {SPR_GORE_Lung, 'J', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[10]},
+    {SPR_GORE_Lung, 'K', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[11]},
+    {SPR_GORE_Lung, 'L', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[0]},
 };
 
 #define GORE_Liver 918
@@ -1976,18 +1629,18 @@ STATE s_GoreLung[] =
 
 STATE s_GoreLiver[] =
 {
-    {GORE_Liver + 0, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[1]},
-    {GORE_Liver + 1, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[2]},
-    {GORE_Liver + 2, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[3]},
-    {GORE_Liver + 3, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[4]},
-    {GORE_Liver + 4, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[5]},
-    {GORE_Liver + 5, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[6]},
-    {GORE_Liver + 6, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[7]},
-    {GORE_Liver + 7, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[8]},
-    {GORE_Liver + 8, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[9]},
-    {GORE_Liver + 9, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[10]},
-    {GORE_Liver + 10, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[11]},
-    {GORE_Liver + 11, GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[0]},
+    {SPR_GORE_Liver, 'A', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[1]},
+    {SPR_GORE_Liver, 'B', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[2]},
+    {SPR_GORE_Liver, 'C', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[3]},
+    {SPR_GORE_Liver, 'D', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[4]},
+    {SPR_GORE_Liver, 'E', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[5]},
+    {SPR_GORE_Liver, 'F', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[6]},
+    {SPR_GORE_Liver, 'G', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[7]},
+    {SPR_GORE_Liver, 'H', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[8]},
+    {SPR_GORE_Liver, 'I', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[9]},
+    {SPR_GORE_Liver, 'J', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[10]},
+    {SPR_GORE_Liver, 'K', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[11]},
+    {SPR_GORE_Liver, 'L', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[0]},
 };
 
 #define GORE_SkullCap 933
@@ -1995,18 +1648,18 @@ STATE s_GoreLiver[] =
 
 STATE s_GoreSkullCap[] =
 {
-    {GORE_SkullCap + 0, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[1]},
-    {GORE_SkullCap + 1, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[2]},
-    {GORE_SkullCap + 2, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[3]},
-    {GORE_SkullCap + 3, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[4]},
-    {GORE_SkullCap + 4, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[5]},
-    {GORE_SkullCap + 5, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[6]},
-    {GORE_SkullCap + 6, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[7]},
-    {GORE_SkullCap + 7, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[8]},
-    {GORE_SkullCap + 8, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[9]},
-    {GORE_SkullCap + 9, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[10]},
-    {GORE_SkullCap + 10, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[11]},
-    {GORE_SkullCap + 11, GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[0]},
+    {SPR_GORE_SkullCap, 'A', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[1]},
+    {SPR_GORE_SkullCap, 'B', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[2]},
+    {SPR_GORE_SkullCap, 'C', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[3]},
+    {SPR_GORE_SkullCap, 'D', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[4]},
+    {SPR_GORE_SkullCap, 'E', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[5]},
+    {SPR_GORE_SkullCap, 'F', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[6]},
+    {SPR_GORE_SkullCap, 'G', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[7]},
+    {SPR_GORE_SkullCap, 'H', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[8]},
+    {SPR_GORE_SkullCap, 'I', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[9]},
+    {SPR_GORE_SkullCap, 'J', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[10]},
+    {SPR_GORE_SkullCap, 'K', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[11]},
+    {SPR_GORE_SkullCap, 'L', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[0]},
 };
 
 
@@ -2015,10 +1668,10 @@ STATE s_GoreSkullCap[] =
 
 STATE s_GoreChunkS[] =
 {
-    {GORE_ChunkS + 0, GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[1]},
-    {GORE_ChunkS + 1, GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[2]},
-    {GORE_ChunkS + 2, GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[3]},
-    {GORE_ChunkS + 3, GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[0]},
+    {SPR_GORE_ChunkS, 'A', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[1]},
+    {SPR_GORE_ChunkS, 'B', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[2]},
+    {SPR_GORE_ChunkS, 'C', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[3]},
+    {SPR_GORE_ChunkS, 'D', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[0]},
 };
 
 #define GORE_Drip 1562 //2430
@@ -2026,18 +1679,18 @@ STATE s_GoreChunkS[] =
 
 STATE s_GoreDrip[] =
 {
-    {GORE_Drip + 0, GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[1]},
-    {GORE_Drip + 1, GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[2]},
-    {GORE_Drip + 2, GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[3]},
-    {GORE_Drip + 3, GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[0]},
+    {SPR_GORE_Drip, 'A', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[1]},
+    {SPR_GORE_Drip, 'B', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[2]},
+    {SPR_GORE_Drip, 'C', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[3]},
+    {SPR_GORE_Drip, 'D', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[0]},
 };
 
 STATE s_FastGoreDrip[] =
 {
-    {GORE_Drip + 0, GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[1]},
-    {GORE_Drip + 1, GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[2]},
-    {GORE_Drip + 2, GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[3]},
-    {GORE_Drip + 3, GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[0]},
+    {SPR_GORE_Drip, 'A', GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[1]},
+    {SPR_GORE_Drip, 'B', GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[2]},
+    {SPR_GORE_Drip, 'C', GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[3]},
+    {SPR_GORE_Drip, 'D', GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[0]},
 };
 
 ///////////////////////////////////////////////
@@ -2051,90 +1704,90 @@ STATE s_FastGoreDrip[] =
 
 STATE s_GoreFlame[] =
 {
-    {GORE_Flame + 0, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[1]},
-    {GORE_Flame + 1, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[2]},
-    {GORE_Flame + 2, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[3]},
-    {GORE_Flame + 3, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[4]},
-    {GORE_Flame + 4, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[5]},
-    {GORE_Flame + 5, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[6]},
-    {GORE_Flame + 6, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[7]},
-    {GORE_Flame + 7, GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[0]},
+    {SPR_GORE_Flame, 'A', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[1]},
+    {SPR_GORE_Flame, 'B', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[2]},
+    {SPR_GORE_Flame, 'C', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[3]},
+    {SPR_GORE_Flame, 'D', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[4]},
+    {SPR_GORE_Flame, 'E', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[5]},
+    {SPR_GORE_Flame, 'F', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[6]},
+    {SPR_GORE_Flame, 'G', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[7]},
+    {SPR_GORE_Flame, 'H', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[0]},
 };
 
 STATE s_TracerShrap[] =
 {
-    {GORE_Flame + 0, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[1]},
-    {GORE_Flame + 1, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[2]},
-    {GORE_Flame + 2, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[3]},
-    {GORE_Flame + 3, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[4]},
-    {GORE_Flame + 4, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[5]},
-    {GORE_Flame + 5, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[6]},
-    {GORE_Flame + 6, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[7]},
-    {GORE_Flame + 7, GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[0]},
+    {SPR_GORE_Flame, 'A', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[1]},
+    {SPR_GORE_Flame, 'B', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[2]},
+    {SPR_GORE_Flame, 'C', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[3]},
+    {SPR_GORE_Flame, 'D', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[4]},
+    {SPR_GORE_Flame, 'E', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[5]},
+    {SPR_GORE_Flame, 'F', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[6]},
+    {SPR_GORE_Flame, 'G', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[7]},
+    {SPR_GORE_Flame, 'H', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[0]},
 };
 
 #define UZI_SHELL 2152
 #define UZISHELL_RATE 8
 STATE s_UziShellShrap[] =
 {
-    {UZI_SHELL + 0, UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[1]},
-    {UZI_SHELL + 1, UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[2]},
-    {UZI_SHELL + 2, UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[3]},
-    {UZI_SHELL + 3, UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[4]},
-    {UZI_SHELL + 4, UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[5]},
-    {UZI_SHELL + 5, UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[0]},
+    {SPR_UZI_SHELL, 'A', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[1]},
+    {SPR_UZI_SHELL, 'B', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[2]},
+    {SPR_UZI_SHELL, 'C', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[3]},
+    {SPR_UZI_SHELL, 'D', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[4]},
+    {SPR_UZI_SHELL, 'E', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[5]},
+    {SPR_UZI_SHELL, 'F', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[0]},
 };
 
 STATE s_UziShellShrapStill1[] =
 {
-    {UZI_SHELL + 0, UZISHELL_RATE, nullptr,  &s_UziShellShrapStill1[0]}
+    {SPR_UZI_SHELL, 'A', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill1[0]}
 };
 STATE s_UziShellShrapStill2[] =
 {
-    {UZI_SHELL + 1, UZISHELL_RATE, nullptr,  &s_UziShellShrapStill2[0]}
+    {SPR_UZI_SHELL, 'B', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill2[0]}
 };
 STATE s_UziShellShrapStill3[] =
 {
-    {UZI_SHELL + 2, UZISHELL_RATE, nullptr,  &s_UziShellShrapStill3[0]}
+    {SPR_UZI_SHELL, 'C', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill3[0]}
 };
 STATE s_UziShellShrapStill4[] =
 {
-    {UZI_SHELL + 3, UZISHELL_RATE, nullptr,  &s_UziShellShrapStill4[0]}
+    {SPR_UZI_SHELL, 'D', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill4[0]}
 };
 STATE s_UziShellShrapStill5[] =
 {
-    {UZI_SHELL + 4, UZISHELL_RATE, nullptr,  &s_UziShellShrapStill5[0]}
+    {SPR_UZI_SHELL, 'E', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill5[0]}
 };
 STATE s_UziShellShrapStill6[] =
 {
-    {UZI_SHELL + 5, UZISHELL_RATE, nullptr,  &s_UziShellShrapStill6[0]}
+    {SPR_UZI_SHELL, 'F', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill6[0]}
 };
 
 #define SHOT_SHELL 2180
 #define SHOTSHELL_RATE 8
 STATE s_ShotgunShellShrap[] =
 {
-    {SHOT_SHELL + 0, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[1]},
-    {SHOT_SHELL + 1, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[2]},
-    {SHOT_SHELL + 2, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[3]},
-    {SHOT_SHELL + 3, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[4]},
-    {SHOT_SHELL + 4, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[5]},
-    {SHOT_SHELL + 5, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[6]},
-    {SHOT_SHELL + 6, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[7]},
-    {SHOT_SHELL + 7, SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[0]},
+    {SPR_SHOT_SHELL, 'A', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[1]},
+    {SPR_SHOT_SHELL, 'B', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[2]},
+    {SPR_SHOT_SHELL, 'C', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[3]},
+    {SPR_SHOT_SHELL, 'D', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[4]},
+    {SPR_SHOT_SHELL, 'E', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[5]},
+    {SPR_SHOT_SHELL, 'F', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[6]},
+    {SPR_SHOT_SHELL, 'G', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[7]},
+    {SPR_SHOT_SHELL, 'H', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[0]},
 };
 
 STATE s_ShotgunShellShrapStill1[] =
 {
-    {SHOT_SHELL + 1, SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill1[0]}
+    {SPR_SHOT_SHELL, 'B', SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill1[0]}
 };
 STATE s_ShotgunShellShrapStill2[] =
 {
-    {SHOT_SHELL + 3, SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill2[0]}
+    {SPR_SHOT_SHELL, 'D', SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill2[0]}
 };
 STATE s_ShotgunShellShrapStill3[] =
 {
-    {SHOT_SHELL + 7, SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill3[0]}
+    {SPR_SHOT_SHELL, 'H', SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill3[0]}
 };
 
 #define GORE_FlameChunkA 839
@@ -2142,10 +1795,10 @@ STATE s_ShotgunShellShrapStill3[] =
 
 STATE s_GoreFlameChunkA[] =
 {
-    {GORE_FlameChunkA + 0, GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[1]},
-    {GORE_FlameChunkA + 1, GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[2]},
-    {GORE_FlameChunkA + 2, GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[3]},
-    {GORE_FlameChunkA + 3, GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[0]},
+    {SPR_GORE_FlameChunkA, 'A', GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[1]},
+    {SPR_GORE_FlameChunkA, 'B', GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[2]},
+    {SPR_GORE_FlameChunkA, 'C', GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[3]},
+    {SPR_GORE_FlameChunkA, 'D', GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[0]},
 };
 
 #define GORE_FlameChunkB 843
@@ -2153,10 +1806,10 @@ STATE s_GoreFlameChunkA[] =
 
 STATE s_GoreFlameChunkB[] =
 {
-    {GORE_FlameChunkB + 0, GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[1]},
-    {GORE_FlameChunkB + 1, GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[2]},
-    {GORE_FlameChunkB + 2, GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[3]},
-    {GORE_FlameChunkB + 3, GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[0]},
+    {SPR_GORE_FlameChunkB, 'A', GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[1]},
+    {SPR_GORE_FlameChunkB, 'B', GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[2]},
+    {SPR_GORE_FlameChunkB, 'C', GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[3]},
+    {SPR_GORE_FlameChunkB, 'D', GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[0]},
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -2170,10 +1823,10 @@ STATE s_GoreFlameChunkB[] =
 
 STATE s_CoinShrap[] =
 {
-    {COIN_SHRAP + 0, CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[1]},
-    {COIN_SHRAP + 1, CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[2]},
-    {COIN_SHRAP + 2, CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[3]},
-    {COIN_SHRAP + 3, CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[0]},
+    {SPR_COIN_SHRAP, 'A', CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[1]},
+    {SPR_COIN_SHRAP, 'B', CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[2]},
+    {SPR_COIN_SHRAP, 'C', CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[3]},
+    {SPR_COIN_SHRAP, 'D', CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[0]},
 };
 
 #define MARBEL 5096
@@ -2181,7 +1834,7 @@ STATE s_CoinShrap[] =
 
 STATE s_Marbel[] =
 {
-    {MARBEL, Marbel_RATE, &AF(DoShrapJumpFall), &s_Marbel[0]},
+    {SPR_MARBEL, 'A', Marbel_RATE, &AF(DoShrapJumpFall), &s_Marbel[0]},
 };
 
 //
@@ -2193,14 +1846,14 @@ STATE s_Marbel[] =
 
 STATE s_GlassShrapA[] =
 {
-    {GLASS_SHRAP_A + 0, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[1]},
-    {GLASS_SHRAP_A + 1, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[2]},
-    {GLASS_SHRAP_A + 2, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[3]},
-    {GLASS_SHRAP_A + 3, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[4]},
-    {GLASS_SHRAP_A + 4, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[5]},
-    {GLASS_SHRAP_A + 5, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[6]},
-    {GLASS_SHRAP_A + 6, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[7]},
-    {GLASS_SHRAP_A + 7, GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[0]},
+    {SPR_GLASS_SHRAP_A, 'A', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[1]},
+    {SPR_GLASS_SHRAP_A, 'B', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[2]},
+    {SPR_GLASS_SHRAP_A, 'C', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[3]},
+    {SPR_GLASS_SHRAP_A, 'D', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[4]},
+    {SPR_GLASS_SHRAP_A, 'E', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[5]},
+    {SPR_GLASS_SHRAP_A, 'F', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[6]},
+    {SPR_GLASS_SHRAP_A, 'G', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[7]},
+    {SPR_GLASS_SHRAP_A, 'H', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[0]},
 };
 
 #define GLASS_SHRAP_B 3872
@@ -2208,14 +1861,14 @@ STATE s_GlassShrapA[] =
 
 STATE s_GlassShrapB[] =
 {
-    {GLASS_SHRAP_B + 0, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[1]},
-    {GLASS_SHRAP_B + 1, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[2]},
-    {GLASS_SHRAP_B + 2, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[3]},
-    {GLASS_SHRAP_B + 3, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[4]},
-    {GLASS_SHRAP_B + 4, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[5]},
-    {GLASS_SHRAP_B + 5, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[6]},
-    {GLASS_SHRAP_B + 6, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[7]},
-    {GLASS_SHRAP_B + 7, GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[0]},
+    {SPR_GLASS_SHRAP_B, 'A', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[1]},
+    {SPR_GLASS_SHRAP_B, 'B', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[2]},
+    {SPR_GLASS_SHRAP_B, 'C', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[3]},
+    {SPR_GLASS_SHRAP_B, 'D', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[4]},
+    {SPR_GLASS_SHRAP_B, 'E', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[5]},
+    {SPR_GLASS_SHRAP_B, 'F', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[6]},
+    {SPR_GLASS_SHRAP_B, 'G', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[7]},
+    {SPR_GLASS_SHRAP_B, 'H', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[0]},
 };
 
 #define GLASS_SHRAP_C 3880
@@ -2223,14 +1876,14 @@ STATE s_GlassShrapB[] =
 
 STATE s_GlassShrapC[] =
 {
-    {GLASS_SHRAP_C + 0, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[1]},
-    {GLASS_SHRAP_C + 1, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[2]},
-    {GLASS_SHRAP_C + 2, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[3]},
-    {GLASS_SHRAP_C + 3, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[4]},
-    {GLASS_SHRAP_C + 4, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[5]},
-    {GLASS_SHRAP_C + 5, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[6]},
-    {GLASS_SHRAP_C + 6, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[7]},
-    {GLASS_SHRAP_C + 7, GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[0]},
+    {SPR_GLASS_SHRAP_C, 'A', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[1]},
+    {SPR_GLASS_SHRAP_C, 'B', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[2]},
+    {SPR_GLASS_SHRAP_C, 'C', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[3]},
+    {SPR_GLASS_SHRAP_C, 'D', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[4]},
+    {SPR_GLASS_SHRAP_C, 'E', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[5]},
+    {SPR_GLASS_SHRAP_C, 'F', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[6]},
+    {SPR_GLASS_SHRAP_C, 'G', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[7]},
+    {SPR_GLASS_SHRAP_C, 'H', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[0]},
 };
 
 //
@@ -2242,14 +1895,14 @@ STATE s_GlassShrapC[] =
 
 STATE s_WoodShrapA[] =
 {
-    {WOOD_SHRAP_A + 0, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[1]},
-    {WOOD_SHRAP_A + 1, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[2]},
-    {WOOD_SHRAP_A + 2, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[3]},
-    {WOOD_SHRAP_A + 3, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[4]},
-    {WOOD_SHRAP_A + 4, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[5]},
-    {WOOD_SHRAP_A + 5, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[6]},
-    {WOOD_SHRAP_A + 6, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[7]},
-    {WOOD_SHRAP_A + 7, WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[0]},
+    {SPR_WOOD_SHRAP_A, 'A', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[1]},
+    {SPR_WOOD_SHRAP_A, 'B', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[2]},
+    {SPR_WOOD_SHRAP_A, 'C', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[3]},
+    {SPR_WOOD_SHRAP_A, 'D', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[4]},
+    {SPR_WOOD_SHRAP_A, 'E', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[5]},
+    {SPR_WOOD_SHRAP_A, 'F', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[6]},
+    {SPR_WOOD_SHRAP_A, 'G', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[7]},
+    {SPR_WOOD_SHRAP_A, 'H', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[0]},
 };
 
 #define WOOD_SHRAP_B 3932
@@ -2257,14 +1910,14 @@ STATE s_WoodShrapA[] =
 
 STATE s_WoodShrapB[] =
 {
-    {WOOD_SHRAP_B + 0, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[1]},
-    {WOOD_SHRAP_B + 1, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[2]},
-    {WOOD_SHRAP_B + 2, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[3]},
-    {WOOD_SHRAP_B + 3, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[4]},
-    {WOOD_SHRAP_B + 4, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[5]},
-    {WOOD_SHRAP_B + 5, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[6]},
-    {WOOD_SHRAP_B + 6, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[7]},
-    {WOOD_SHRAP_B + 7, WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[0]},
+    {SPR_WOOD_SHRAP_B, 'A', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[1]},
+    {SPR_WOOD_SHRAP_B, 'B', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[2]},
+    {SPR_WOOD_SHRAP_B, 'C', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[3]},
+    {SPR_WOOD_SHRAP_B, 'D', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[4]},
+    {SPR_WOOD_SHRAP_B, 'E', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[5]},
+    {SPR_WOOD_SHRAP_B, 'F', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[6]},
+    {SPR_WOOD_SHRAP_B, 'G', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[7]},
+    {SPR_WOOD_SHRAP_B, 'H', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[0]},
 };
 
 #define WOOD_SHRAP_C 3941
@@ -2272,14 +1925,14 @@ STATE s_WoodShrapB[] =
 
 STATE s_WoodShrapC[] =
 {
-    {WOOD_SHRAP_C + 0, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[1]},
-    {WOOD_SHRAP_C + 1, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[2]},
-    {WOOD_SHRAP_C + 2, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[3]},
-    {WOOD_SHRAP_C + 3, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[4]},
-    {WOOD_SHRAP_C + 4, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[5]},
-    {WOOD_SHRAP_C + 5, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[6]},
-    {WOOD_SHRAP_C + 6, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[7]},
-    {WOOD_SHRAP_C + 7, WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[0]},
+    {SPR_WOOD_SHRAP_C, 'A', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[1]},
+    {SPR_WOOD_SHRAP_C, 'B', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[2]},
+    {SPR_WOOD_SHRAP_C, 'C', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[3]},
+    {SPR_WOOD_SHRAP_C, 'D', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[4]},
+    {SPR_WOOD_SHRAP_C, 'E', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[5]},
+    {SPR_WOOD_SHRAP_C, 'F', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[6]},
+    {SPR_WOOD_SHRAP_C, 'G', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[7]},
+    {SPR_WOOD_SHRAP_C, 'H', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[0]},
 };
 
 //
@@ -2291,14 +1944,14 @@ STATE s_WoodShrapC[] =
 
 STATE s_StoneShrapA[] =
 {
-    {STONE_SHRAP_A + 0, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[1]},
-    {STONE_SHRAP_A + 1, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[2]},
-    {STONE_SHRAP_A + 2, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[3]},
-    {STONE_SHRAP_A + 3, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[4]},
-    {STONE_SHRAP_A + 4, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[5]},
-    {STONE_SHRAP_A + 5, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[6]},
-    {STONE_SHRAP_A + 6, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[7]},
-    {STONE_SHRAP_A + 7, StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[0]},
+    {SPR_STONE_SHRAP_A, 'A', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[1]},
+    {SPR_STONE_SHRAP_A, 'B', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[2]},
+    {SPR_STONE_SHRAP_A, 'C', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[3]},
+    {SPR_STONE_SHRAP_A, 'D', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[4]},
+    {SPR_STONE_SHRAP_A, 'E', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[5]},
+    {SPR_STONE_SHRAP_A, 'F', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[6]},
+    {SPR_STONE_SHRAP_A, 'G', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[7]},
+    {SPR_STONE_SHRAP_A, 'H', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[0]},
 };
 
 #define STONE_SHRAP_B 3848
@@ -2306,14 +1959,14 @@ STATE s_StoneShrapA[] =
 
 STATE s_StoneShrapB[] =
 {
-    {STONE_SHRAP_B + 0, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[1]},
-    {STONE_SHRAP_B + 1, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[2]},
-    {STONE_SHRAP_B + 2, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[3]},
-    {STONE_SHRAP_B + 3, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[4]},
-    {STONE_SHRAP_B + 4, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[5]},
-    {STONE_SHRAP_B + 5, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[6]},
-    {STONE_SHRAP_B + 6, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[7]},
-    {STONE_SHRAP_B + 7, StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[0]},
+    {SPR_STONE_SHRAP_B, 'A', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[1]},
+    {SPR_STONE_SHRAP_B, 'B', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[2]},
+    {SPR_STONE_SHRAP_B, 'C', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[3]},
+    {SPR_STONE_SHRAP_B, 'D', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[4]},
+    {SPR_STONE_SHRAP_B, 'E', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[5]},
+    {SPR_STONE_SHRAP_B, 'F', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[6]},
+    {SPR_STONE_SHRAP_B, 'G', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[7]},
+    {SPR_STONE_SHRAP_B, 'H', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[0]},
 };
 
 #define STONE_SHRAP_C 3856
@@ -2321,14 +1974,14 @@ STATE s_StoneShrapB[] =
 
 STATE s_StoneShrapC[] =
 {
-    {STONE_SHRAP_C + 0, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[1]},
-    {STONE_SHRAP_C + 1, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[2]},
-    {STONE_SHRAP_C + 2, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[3]},
-    {STONE_SHRAP_C + 3, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[4]},
-    {STONE_SHRAP_C + 4, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[5]},
-    {STONE_SHRAP_C + 5, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[6]},
-    {STONE_SHRAP_C + 6, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[7]},
-    {STONE_SHRAP_C + 7, StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[0]},
+    {SPR_STONE_SHRAP_C, 'A', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[1]},
+    {SPR_STONE_SHRAP_C, 'B', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[2]},
+    {SPR_STONE_SHRAP_C, 'C', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[3]},
+    {SPR_STONE_SHRAP_C, 'D', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[4]},
+    {SPR_STONE_SHRAP_C, 'E', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[5]},
+    {SPR_STONE_SHRAP_C, 'F', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[6]},
+    {SPR_STONE_SHRAP_C, 'G', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[7]},
+    {SPR_STONE_SHRAP_C, 'H', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[0]},
 };
 
 //
@@ -2340,14 +1993,14 @@ STATE s_StoneShrapC[] =
 
 STATE s_MetalShrapA[] =
 {
-    {METAL_SHRAP_A + 0, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[1]},
-    {METAL_SHRAP_A + 1, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[2]},
-    {METAL_SHRAP_A + 2, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[3]},
-    {METAL_SHRAP_A + 3, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[4]},
-    {METAL_SHRAP_A + 4, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[5]},
-    {METAL_SHRAP_A + 5, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[6]},
-    {METAL_SHRAP_A + 6, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[7]},
-    {METAL_SHRAP_A + 7, MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[0]},
+    {SPR_METAL_SHRAP_A, 'A', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[1]},
+    {SPR_METAL_SHRAP_A, 'B', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[2]},
+    {SPR_METAL_SHRAP_A, 'C', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[3]},
+    {SPR_METAL_SHRAP_A, 'D', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[4]},
+    {SPR_METAL_SHRAP_A, 'E', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[5]},
+    {SPR_METAL_SHRAP_A, 'F', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[6]},
+    {SPR_METAL_SHRAP_A, 'G', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[7]},
+    {SPR_METAL_SHRAP_A, 'H', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[0]},
 };
 
 #define METAL_SHRAP_B 3896
@@ -2355,14 +2008,14 @@ STATE s_MetalShrapA[] =
 
 STATE s_MetalShrapB[] =
 {
-    {METAL_SHRAP_B + 0, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[1]},
-    {METAL_SHRAP_B + 1, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[2]},
-    {METAL_SHRAP_B + 2, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[3]},
-    {METAL_SHRAP_B + 3, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[4]},
-    {METAL_SHRAP_B + 4, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[5]},
-    {METAL_SHRAP_B + 5, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[6]},
-    {METAL_SHRAP_B + 6, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[7]},
-    {METAL_SHRAP_B + 7, MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[0]},
+    {SPR_METAL_SHRAP_B, 'A', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[1]},
+    {SPR_METAL_SHRAP_B, 'B', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[2]},
+    {SPR_METAL_SHRAP_B, 'C', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[3]},
+    {SPR_METAL_SHRAP_B, 'D', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[4]},
+    {SPR_METAL_SHRAP_B, 'E', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[5]},
+    {SPR_METAL_SHRAP_B, 'F', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[6]},
+    {SPR_METAL_SHRAP_B, 'G', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[7]},
+    {SPR_METAL_SHRAP_B, 'H', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[0]},
 };
 
 #define METAL_SHRAP_C 3904
@@ -2370,14 +2023,14 @@ STATE s_MetalShrapB[] =
 
 STATE s_MetalShrapC[] =
 {
-    {METAL_SHRAP_C + 0, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[1]},
-    {METAL_SHRAP_C + 1, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[2]},
-    {METAL_SHRAP_C + 2, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[3]},
-    {METAL_SHRAP_C + 3, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[4]},
-    {METAL_SHRAP_C + 4, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[5]},
-    {METAL_SHRAP_C + 5, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[6]},
-    {METAL_SHRAP_C + 6, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[7]},
-    {METAL_SHRAP_C + 7, MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[0]},
+    {SPR_METAL_SHRAP_C, 'A', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[1]},
+    {SPR_METAL_SHRAP_C, 'B', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[2]},
+    {SPR_METAL_SHRAP_C, 'C', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[3]},
+    {SPR_METAL_SHRAP_C, 'D', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[4]},
+    {SPR_METAL_SHRAP_C, 'E', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[5]},
+    {SPR_METAL_SHRAP_C, 'F', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[6]},
+    {SPR_METAL_SHRAP_C, 'G', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[7]},
+    {SPR_METAL_SHRAP_C, 'H', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[0]},
 };
 
 //
@@ -2389,10 +2042,10 @@ STATE s_MetalShrapC[] =
 
 STATE s_PaperShrapA[] =
 {
-    {PAPER_SHRAP_A + 0, PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[1]},
-    {PAPER_SHRAP_A + 1, PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[2]},
-    {PAPER_SHRAP_A + 2, PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[3]},
-    {PAPER_SHRAP_A + 3, PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[0]},
+    {SPR_PAPER_SHRAP_A, 'A', PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[1]},
+    {SPR_PAPER_SHRAP_A, 'B', PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[2]},
+    {SPR_PAPER_SHRAP_A, 'C', PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[3]},
+    {SPR_PAPER_SHRAP_A, 'D', PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[0]},
 };
 
 #define PAPER_SHRAP_B 3932
@@ -2400,10 +2053,10 @@ STATE s_PaperShrapA[] =
 
 STATE s_PaperShrapB[] =
 {
-    {PAPER_SHRAP_B + 0, PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[1]},
-    {PAPER_SHRAP_B + 1, PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[2]},
-    {PAPER_SHRAP_B + 2, PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[3]},
-    {PAPER_SHRAP_B + 3, PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[0]},
+    {SPR_PAPER_SHRAP_B, 'A', PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[1]},
+    {SPR_PAPER_SHRAP_B, 'B', PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[2]},
+    {SPR_PAPER_SHRAP_B, 'C', PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[3]},
+    {SPR_PAPER_SHRAP_B, 'D', PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[0]},
 };
 
 #define PAPER_SHRAP_C 3941
@@ -2411,10 +2064,10 @@ STATE s_PaperShrapB[] =
 
 STATE s_PaperShrapC[] =
 {
-    {PAPER_SHRAP_C + 0, PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[1]},
-    {PAPER_SHRAP_C + 1, PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[2]},
-    {PAPER_SHRAP_C + 2, PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[3]},
-    {PAPER_SHRAP_C + 3, PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[0]},
+    {SPR_PAPER_SHRAP_C, 'A', PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[1]},
+    {SPR_PAPER_SHRAP_C, 'B', PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[2]},
+    {SPR_PAPER_SHRAP_C, 'C', PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[3]},
+    {SPR_PAPER_SHRAP_C, 'D', PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[0]},
 };
 
 bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
@@ -4473,7 +4126,7 @@ int SetSuicide(DSWActor* actor)
     if (actor->hasU())
     {
         actor->user.Flags |= (SPR_SUICIDE);
-        actor->user.__legacyState.RotNum = 0;
+        
     }
     ChangeState(actor, s_Suicide);
     return 0;
@@ -9200,7 +8853,7 @@ int DoRail(DSWActor* actor)
             actorNew->vel.X += RandomRangeF(140 / 16.) - RandomRangeF(140 / 16.);
             actorNew->vel.Z += RandomRangeF(140 / 256.) - RandomRangeF(140 / 256.);
 
-            actorNew->user.__legacyState.RotNum = 5;
+            
             NewStateGroup(actorNew, sg_RailPuff);
 
             actorNew->spr.shade = -40;
@@ -9361,7 +9014,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     actorNew->spr.shade = actor->spr.shade;
     actorNew->copy_clipdist(actor);
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_MicroMini[0]);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = actor->user.Radius;
@@ -11103,7 +10756,7 @@ int DoMirv(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], actor->sector(),
 									   actor->spr.pos, actor->spr.Angles.Yaw + angs[i], 50);
 
-            actorNew->user.__legacyState.RotNum = 5;
+            
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
             actorNew->user.__legacyState.StateEnd = s_MirvMeteorExp;
 
@@ -11383,7 +11036,7 @@ int DoSerpRing(DSWActor* actor)
     auto own = GetOwner(actor);
     // if Owner does not exist or he's dead on the floor
     // kill off all of his skull children
-    if (own == nullptr || own->user.__legacyState.RotNum < 5)
+    if (own == nullptr || own->user.Health < 0)
     {
         UpdateSinglePlayKills(actor);
         DoSkullBeginDeath(actor);
@@ -11626,7 +11279,7 @@ int InitSerpRing(DSWActor* actor)
     const int SERP_RING_DIST = 175;
 
     extern STATE s_SkullExplode[];
-    extern STATE s_SkullRing[5][1];
+    extern STATE s_SkullRing[1][1];
     extern STATE* sg_SkullRing[];
 
     max_missiles = 12;
@@ -12362,7 +12015,7 @@ int InitSumoNapalm(DSWActor* actor)
 int InitSumoSkull(DSWActor* actor)
 {
     extern STATE s_SkullExplode[];
-    extern STATE s_SkullWait[5][1];
+    extern STATE s_SkullWait[1][1];
     extern STATE* sg_SkullWait[];
     extern ATTRIBUTE SkullAttrib;
 
@@ -13236,7 +12889,7 @@ int InitRail(DSWPlayer* pp)
     actorNew->spr.shade = -15;
     setFreeAimVelocity(actorNew->vel.X, zvel, pp->Angles.getPitchWithView(), (HORIZ_MULT + 17) * 0.5);
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13309,7 +12962,7 @@ int InitZillaRail(DSWActor* actor)
     actorNew->spr.shade = -15;
     double zvel = (100 * (HORIZ_MULT+17)) / 256.;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13402,7 +13055,7 @@ int InitRocket(DSWPlayer* pp)
 
     actorNew->clipdist = 4;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13509,7 +13162,7 @@ int InitBunnyRocket(DSWPlayer* pp)
 
     actorNew->clipdist = 4;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_BunnyRocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13613,7 +13266,7 @@ int InitNuke(DSWPlayer* pp)
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13695,7 +13348,7 @@ int InitEnemyNuke(DSWActor* actor)
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13797,7 +13450,7 @@ int InitMicro(DSWPlayer* pp)
         // randomize zvelocity
         actorNew->vel.Z += RandomRangeF(8) - 5;
 
-        actorNew->user.__legacyState.RotNum = 5;
+        
         NewStateGroup(actorNew, &sg_Micro[0]);
 
         actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -14203,7 +13856,7 @@ int InitSerpSpell(DSWActor* actor)
 
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
-        actorNew->user.__legacyState.RotNum = 5;
+        
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         actorNew->user.__legacyState.StateEnd = s_MirvMeteorExp;
 
@@ -14306,7 +13959,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
-        actorNew->user.__legacyState.RotNum = 5;
+        
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         actorNew->user.__legacyState.StateEnd = s_TeleportEffect2;
 
@@ -14395,7 +14048,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
     actorNew->clipdist = 4;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rocket[0]);
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14467,7 +14120,7 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.Radius = 200;
@@ -14533,7 +14186,7 @@ int InitZillaRocket(DSWActor* actor)
         actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
         actorNew->clipdist = 4;
 
-        actorNew->user.__legacyState.RotNum = 5;
+        
         NewStateGroup(actorNew, &sg_Rocket[0]);
         actorNew->user.Radius = 200;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14624,7 +14277,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
     actorNew->clipdist = 4;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
 
 	UpdateChange(actorNew);
@@ -14900,7 +14553,7 @@ void InitBoltTrap(DSWActor* actor)
     actorNew->vel.Z = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rocket[0]);
     actorNew->user.Radius = 200;
 
@@ -14924,7 +14577,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->spr.shade = -25;
     actorNew->clipdist = 4;
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
 
 	UpdateChange(actorNew);
@@ -15516,7 +15169,7 @@ int InitTurretMicro(DSWActor* actor, DSWPlayer* pp)
         actorNew->clipdist = 4;
 
 
-        actorNew->user.__legacyState.RotNum = 5;
+        
         NewStateGroup(actorNew, &sg_Micro[0]);
 
         actorNew->user.WeaponNum = plActor->user.WeaponNum;
@@ -15659,7 +15312,7 @@ int InitTurretRail(DSWActor* actor, DSWPlayer* pp)
     actorNew->spr.shade = -15;
     setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->Angles.getPitchWithView(), HORIZ_MULTF);
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.Radius = 200;
@@ -16422,7 +16075,7 @@ int InitGrenade(DSWPlayer* pp)
         actorNew->vel.Z *= 0.75;
     }
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Grenade[0]);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -16493,7 +16146,7 @@ int InitSpriteGrenade(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], actor->sector(),
                     actor->spr.pos.plusZ(-40), actor->spr.Angles.Yaw, GRENADE_VELOCITY);
 
-    actorNew->user.__legacyState.RotNum = 5;
+    
     NewStateGroup(actorNew, &sg_Grenade[0]);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -17612,8 +17265,8 @@ enum { FLOORBLOOD_RATE = 30 };
 
 STATE s_FloorBlood1[] =
 {
-    {FLOORBLOOD1, SF_QUICK_CALL,   &AF(DoFloorBlood), &s_FloorBlood1[1]},
-    {FLOORBLOOD1, FLOORBLOOD_RATE, nullptr,  &s_FloorBlood1[0]},
+    {SPR_FLOORBLOOD1, 'A', SF_QUICK_CALL,   &AF(DoFloorBlood), &s_FloorBlood1[1]},
+    {SPR_FLOORBLOOD1, 'A', FLOORBLOOD_RATE, nullptr,  &s_FloorBlood1[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -17691,15 +17344,15 @@ enum
 };
 STATE s_FootPrint1[] =
 {
-    {FOOTPRINT1, FOOTPRINT_RATE, nullptr,  &s_FootPrint1[0]},
+    {SPR_FOOTPRINT1, 'A', FOOTPRINT_RATE, nullptr,  &s_FootPrint1[0]},
 };
 STATE s_FootPrint2[] =
 {
-    {FOOTPRINT2, FOOTPRINT_RATE, nullptr,  &s_FootPrint2[0]},
+    {SPR_FOOTPRINT2, 'A', FOOTPRINT_RATE, nullptr,  &s_FootPrint2[0]},
 };
 STATE s_FootPrint3[] =
 {
-    {FOOTPRINT3, FOOTPRINT_RATE, nullptr,  &s_FootPrint3[0]},
+    {SPR_FOOTPRINT3, 'A', FOOTPRINT_RATE, nullptr,  &s_FootPrint3[0]},
 };
 
 //---------------------------------------------------------------------------
@@ -17818,23 +17471,23 @@ enum
 };
 STATE s_WallBlood1[] =
 {
-    {WALLBLOOD1, SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood1[1]},
-    {WALLBLOOD1, WALLBLOOD_RATE, nullptr,  &s_WallBlood1[0]},
+    {SPR_WALLBLOOD1, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood1[1]},
+    {SPR_WALLBLOOD1, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood1[0]},
 };
 STATE s_WallBlood2[] =
 {
-    {WALLBLOOD2, SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood2[1]},
-    {WALLBLOOD2, WALLBLOOD_RATE, nullptr,  &s_WallBlood2[0]},
+    {SPR_WALLBLOOD2, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood2[1]},
+    {SPR_WALLBLOOD2, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood2[0]},
 };
 STATE s_WallBlood3[] =
 {
-    {WALLBLOOD3, SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood3[1]},
-    {WALLBLOOD3, WALLBLOOD_RATE, nullptr,  &s_WallBlood3[0]},
+    {SPR_WALLBLOOD3, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood3[1]},
+    {SPR_WALLBLOOD3, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood3[0]},
 };
 STATE s_WallBlood4[] =
 {
-    {WALLBLOOD4, SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood4[1]},
-    {WALLBLOOD4, WALLBLOOD_RATE, nullptr,  &s_WallBlood4[0]},
+    {SPR_WALLBLOOD4, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood4[1]},
+    {SPR_WALLBLOOD4, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood4[0]},
 };
 
 

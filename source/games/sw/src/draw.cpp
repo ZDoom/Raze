@@ -98,8 +98,7 @@ void ShadeSprite(tspritetype* tsp)
 //
 //
 //---------------------------------------------------------------------------
-
-int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
+int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& viewpos)
 {
     static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
@@ -108,16 +107,33 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
     tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
 
-    if (!ownerActor->hasU() || ownerActor->user.__legacyState.RotNum == 0)
+    if (!ownerActor->hasU() || ownerActor->user.__legacyState.State == nullptr)
         return 0;
+
+    unsigned sprite = ownerActor->user.__legacyState.State->Sprite;
+    unsigned frame = ownerActor->user.__legacyState.State->Frame - 'A';
+
+    if (SpriteDefs.Size() <= sprite) return 0;
+    auto spdef = &SpriteDefs[sprite];
+    if (SpriteFrames.Size() <= spdef->numframes) return 0;
+    auto spframe = &SpriteFrames[spdef->spriteframes + frame];
+    if (spframe->RotMode == 0) return 0;
+    if (spframe->RotMode == 1)
+    {
+        tsp->setspritetexture(spframe->Texture[0]);
+        return 0;
+    }
+
+    if (spframe->RotMode != 5 && spframe->RotMode != 8) return 0;
+
 
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
-    DAngle angle2 = (tsp->pos - view).Angle();
+    DAngle angle2 = (tsp->pos - viewpos).Angle();
     rotation = (tsp->Angles.Yaw + DAngle180 + DAngle22_5 * 0.5 - angle2).Buildang() & 2047;
     rotation = (rotation >> 8) & 7;
 
-    if (ownerActor->user.__legacyState.RotNum == 5)
+    if (spframe->RotMode == 5)
     {
         if ((ownerActor->user.Flags & SPR_XFLIP_TOGGLE))
         {
@@ -153,60 +169,11 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
             ID == SAILORGIRL_R0)
             tsp->cstat &= ~(CSTAT_SPRITE_XFLIP);  // clear x-flipping bit
 
-        return RotTable5[rotation];
+        tsp->setspritetexture(spframe->Texture[RotTable5[rotation]]);
+        return 0;
     }
 
-    return RotTable8[rotation];
-
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-/*
-
-
-!AIC - At draw time this is called for actor rotation.  GetRotation() is more
-complex than needs to be in part because importing of actor rotations and x-flip
-directions was not standardized.
-
-*/
-
-int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& viewpos)
-{
-    tspritetype* tsp = tsprites.get(tSpriteNum);
-    auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
-    int StateOffset, Rotation;
-
-    if (!ownerActor->hasU()) return 0;
-    // don't modify ANY tu vars - back them up!
-    STATE* State = ownerActor->user.__legacyState.State;
-    STATE* StateStart = ownerActor->user.__legacyState.StateStart;
-
-    if (ownerActor->user.__legacyState.RotNum == 0)
-        return 0;
-
-    // Get the offset into the State animation
-    StateOffset = int(State - StateStart);
-
-    // Get the rotation angle
-    Rotation = GetRotation(tsprites, tSpriteNum, viewpos);
-
-    ASSERT(Rotation < 5);
-
-    // Reset the State animation start based on the Rotation
-    StateStart = ownerActor->user.__legacyState.Rot[Rotation];
-
-    // Set the sprites state
-    State = StateStart + StateOffset;
-
-    // set the picnum here - may be redundant, but we just changed states and
-    // thats a big deal
-    tsp->picnum = State->Pic;
-
+    tsp->setspritetexture(spframe->Texture[RotTable8[rotation]]);
     return 0;
 }
 
@@ -512,9 +479,9 @@ void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
     if (abs(zdiff) > 24)
     {
         if (tActor->user.__legacyState.StateStart == s_StarStuck)
-            tsp->picnum = s_StarDownStuck[tActor->user.__legacyState.State - s_StarStuck].Pic;
+            tsp->setspritetexture(picFromState(&s_StarDownStuck[tActor->user.__legacyState.State - s_StarStuck]));
         else
-            tsp->picnum = s_StarDown[tActor->user.__legacyState.State - s_Star].Pic;
+            tsp->setspritetexture(picFromState(&s_StarDown[tActor->user.__legacyState.State - s_Star]));
 
         if (zdiff > 0)
             tsp->cstat |= (CSTAT_SPRITE_YFLIP);
@@ -702,8 +669,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             }
 
             // rotation
-            if (tActor->user.__legacyState.RotNum > 0)
-                SetActorRotation(tsprites, tSpriteNum, viewpos.XY());
+            SetActorRotation(tsprites, tSpriteNum, viewpos.XY());
 
             if (tActor->user.motion_blur_num)
             {
@@ -1099,7 +1065,6 @@ void PreDrawStackedWater(void)
                     actorNew->user.__legacyState.StateEnd = itActor2->user.__legacyState.StateEnd;
                     actorNew->user.Flags = itActor2->user.Flags;
                     actorNew->user.Flags2 = itActor2->user.Flags2;
-                    actorNew->user.__legacyState.RotNum = itActor2->user.__legacyState.RotNum;
                     actorNew->user.ID = itActor2->user.ID;
 
                     actorNew->user.PlayerP = itActor2->user.PlayerP;
