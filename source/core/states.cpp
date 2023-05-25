@@ -40,10 +40,86 @@
 #include "thingdef.h"
 #include "templates.h"
 #include "states.h"
+#include "texturemanager.h"
 
 
 // stores indices for symbolic state labels for some old-style DECORATE functions.
 FStateLabelStorage StateLabels;
+TArray<FSpriteFrame> SpriteFrames;
+TArray<FSpriteDef> SpriteDefs;
+
+void InitSpriteDefs(const char** names, size_t count)
+{
+	SpriteDefs.Clear();
+	SpriteDefs.Push({});
+
+	// allocate one buffer for all sprite names.
+	size_t maxlen = 0;
+	for (size_t i = 0; i < count; i++)
+	{
+		size_t ll = strlen(names[i]);
+		if (ll > maxlen) maxlen = ll;
+	}
+	TArray<char> work(maxlen + 4, true);
+
+	for (size_t i = 0; i < count; i++)
+	{
+		FSpriteFrame swork[26]{};
+		size_t ll = strlen(names[i]);
+		memcpy(work.Data(), names[i], ll);
+		work[ll] = '@';
+
+		int maxframe = -1;
+		for (int j = 0; j < 26; j++)
+		{
+			int bits = 0;
+			FTextureID texs[9];
+			work[ll + 1] = 'A' + j;
+			work[ll + 3] = 0;
+
+			for (int k = 0; k <= 8; k++)
+			{
+				work[ll + 2] = '0' + k;
+				texs[k] = TexMan.CheckForTexture(work.Data(), ETextureType::Any);
+				if (texs[k].isValid()) bits |= (1 << k);
+			}
+			if (bits == 1)
+			{
+				swork[j].Texture[0] = texs[0];
+				swork[j].RotMode = 1;
+				maxframe = j;
+			}
+			else if (bits == 2)
+			{
+				swork[j].Texture[0] = texs[1];
+				swork[j].RotMode = 1;
+				maxframe = j;
+			}
+			else if (bits == 62)
+			{
+				memcpy(swork[j].Texture, &texs[1], 5 * sizeof(FTextureID));
+				swork[j].RotMode = 5;
+				maxframe = j;
+			}
+			else if (bits == 510)
+			{
+				memcpy(swork[j].Texture, &texs[1], 8 * sizeof(FTextureID));
+				swork[j].RotMode = 8;
+				maxframe = j;
+			}
+			else
+			{
+				Printf("Incomplete frames for sprite %s, frame %c\n", names[i], 'A' + j);
+			}
+		}
+		maxframe++;
+		auto pos = SpriteFrames.Reserve(maxframe);
+		memcpy(&SpriteFrames[pos], swork, maxframe * sizeof(FSpriteFrame));
+		FSpriteDef def = { names[i], (uint8_t)maxframe, (uint16_t)pos };
+		SpriteDefs.Push(def);
+	}
+}
+
 
 // Each state is owned by an actor. Actors can own any number of
 // states, but a single state cannot be owned by more than one

@@ -47,6 +47,23 @@ class FStateDefinitions;
 class FInternalLightAssociation;
 struct FState;
 
+struct FSpriteFrame
+{
+	FTextureID Texture[8];
+	uint8_t RotMode;	// 1, 5, 8 are the regular ones. Duke also has mirrored 3 and 7 frame options.
+};
+struct FSpriteDef
+{
+	FName name;
+	uint8_t numframes;
+	uint16_t spriteframes;
+
+	FTextureID GetSpriteFrame(int frame, int rot, DAngle ang, bool* mirror, bool flipagain = false);
+};
+
+extern TArray<FSpriteFrame> SpriteFrames;
+extern TArray<FSpriteDef> SpriteDefs;
+
 enum EStateDefineFlags
 {
 	SDF_NEXT = 0,
@@ -78,13 +95,6 @@ struct FStateParamInfo
 };
 
 
-// Sprites that are fixed in position because they can have special meanings.
-enum
-{
-	SPR_TNT1,		// The empty sprite
-	SPR_FIXED,		// Do not change sprite or frame
-	SPR_NOCHANGE,	// Do not change sprite (frame change is okay)
-};
 
 struct FState
 {
