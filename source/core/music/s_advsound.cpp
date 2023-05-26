@@ -65,6 +65,9 @@ enum SICommands
 	SI_DukeFlags,
 	SI_Loop,
 	SI_BloodRelVol,
+	SI_Volume,
+	SI_Attenuation,
+	SI_Rolloff,
 };
 
 
@@ -101,6 +104,9 @@ static const char *SICommandStrings[] =
 	"$dukeflags",
 	"$loop",
 	"$bloodrelvol",
+	"$volume",
+	"$attenuation",
+	"$rolloff",
 	NULL
 };
 
@@ -334,6 +340,77 @@ static void S_AddSNDINFO (int lump)
 				sfxp->bSingular = true;
 				}
 				break;
+
+			case SI_Volume: {
+				// $volume <logical name> <volume>
+				FSoundID sfx;
+
+				sc.MustGetString();
+				sfx = soundEngine->FindSoundTentative(sc.String);
+				sc.MustGetFloat();
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
+				sfxp->Volume = (float)sc.Float;
+			}
+		  break;
+
+			case SI_Attenuation: {
+				// $attenuation <logical name> <attenuation>
+				FSoundID sfx;
+
+				sc.MustGetString();
+				sfx = soundEngine->FindSoundTentative(sc.String);
+				sc.MustGetFloat();
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
+				sfxp->Attenuation = (float)sc.Float;
+			}
+		   break;
+
+			case SI_Rolloff: {
+				// $rolloff *|<logical name> [linear|log|custom] <min dist> <max dist/rolloff factor>
+				// Using * for the name makes it the default for sounds that don't specify otherwise.
+				FRolloffInfo* rolloff;
+				int type;
+				FSoundID sfx;
+
+				sc.MustGetString();
+				if (sc.Compare("*"))
+				{
+					sfx = INVALID_SOUND;
+					rolloff = &soundEngine->GlobalRolloff();
+				}
+				else
+				{
+					sfx = soundEngine->FindSoundTentative(sc.String);
+					auto sfxp = soundEngine->GetWritableSfx(sfx);
+					rolloff = &sfxp->Rolloff;
+				}
+				type = ROLLOFF_Doom;
+				if (!sc.CheckFloat())
+				{
+					sc.MustGetString();
+					if (sc.Compare("linear"))
+					{
+						rolloff->RolloffType = ROLLOFF_Linear;
+					}
+					else if (sc.Compare("log"))
+					{
+						rolloff->RolloffType = ROLLOFF_Log;
+					}
+					else if (sc.Compare("custom"))
+					{
+						rolloff->RolloffType = ROLLOFF_Custom;
+					}
+					else
+					{
+						sc.ScriptError("Unknown rolloff type '%s'", sc.String);
+					}
+					sc.MustGetFloat();
+				}
+				rolloff->MinDistance = (float)sc.Float;
+				sc.MustGetFloat();
+				rolloff->MaxDistance = (float)sc.Float;
+				break;
+			}
 
 			case SI_PitchSet: {
 				// $pitchset <logical name> <pitch amount as float> [range maximum]
