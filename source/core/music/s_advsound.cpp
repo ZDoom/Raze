@@ -63,6 +63,7 @@ enum SICommands
 	SI_PitchSet,
 	SI_PitchSetDuke,
 	SI_DukeFlags,
+	SI_SWFlags,
 	SI_Loop,
 	SI_BloodRelVol,
 	SI_Volume,
@@ -102,6 +103,7 @@ static const char *SICommandStrings[] =
 	"$pitchset",
 	"$pitchsetduke",
 	"$dukeflags",
+	"$swflags",
 	"$loop",
 	"$bloodrelvol",
 	"$volume",
@@ -157,7 +159,8 @@ static FSoundID S_AddSound(const char* logicalname, int lumpnum, FScanner* sc)
 FSoundID S_AddSound(const char* logicalname, const char* lumpname, FScanner* sc)
 {
 	int lump = fileSystem.CheckNumForFullName(lumpname, true, ns_sounds);
-	if (lump == -1 && sc) sc->ScriptMessage("%s: sound file not found", sc->String);
+	if (lump == -1 && sc) 
+		sc->ScriptMessage("%s: sound file not found", sc->String);
 	return S_AddSound(logicalname, lump, sc);
 }
 
@@ -468,15 +471,18 @@ static void S_AddSNDINFO (int lump)
 			case SI_DukeFlags: {
 				static const char* dukeflags[] = { "LOOP", "MSFX", "TALK", "GLOBAL", nullptr};
 
-				// dukesound <logical name> <flag> <flag> <flag>..
-				// Sets a pitch range for the sound.
+				// dukeflags <logical name> <flag> <flag> <flag>..
 				sc.MustGetString();
 				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
 				int flags = 0;
 				while (sc.GetString())
 				{
 					int bit = sc.MatchString(dukeflags);
-					if (bit == -1) break;
+					if (bit == -1)
+					{
+						sc.UnGet();
+						break;
+					}
 					flags |= 1 << bit;
 				}
 				if (isDukeEngine())
@@ -492,6 +498,40 @@ static void S_AddSNDINFO (int lump)
 				else
 				{
 					sc.ScriptMessage("'$dukeflags' is not available in the current game and will be ignored");
+				}
+				break;
+
+			}
+
+			case SI_SWFlags: {
+				static const char* swflags[] = { "PLAYERVOICE", "PLAYERSPEECH", "LOOP", nullptr };
+
+				// swflags <logical name> <flag> <flag> <flag>..
+				sc.MustGetString();
+				auto sfxid = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
+				int flags = 0;
+				while (sc.GetString())
+				{
+					int bit = sc.MatchString(swflags);
+					if (bit == -1)
+					{
+						sc.UnGet();
+						break;
+					}
+					flags |= 1 << bit;
+				}
+				if (isSWALL())
+				{
+					auto sfx = soundEngine->GetWritableSfx(sfxid);
+					if (sfx->UserData.Size() < 1)
+					{
+						sfx->UserData.Resize(1);
+					}
+					sfx->UserData[0] = flags;
+				}
+				else
+				{
+					sc.ScriptMessage("'$swflags' is not available in the current game and will be ignored");
 				}
 				break;
 

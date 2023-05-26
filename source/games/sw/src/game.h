@@ -1399,20 +1399,20 @@ enum
 
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int _PlaySound(int num, DSWActor* sprite, PLAYER* player, const DVector3 *const pos, int flags, int channel, EChanFlags sndflags);
+int _PlaySound(FSoundID num, DSWActor* sprite, PLAYER* player, const DVector3 *const pos, int flags, int channel, EChanFlags sndflags);
 void InitAmbient(int num, DSWActor* actor);
 
 inline void PlaySound(int num, PLAYER* player, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, nullptr, player, nullptr, flags | v3df_follow, channel, sndflags);
+    _PlaySound(soundEngine->FindSoundByResID(num), nullptr, player, nullptr, flags | v3df_follow, channel, sndflags);
 }
 inline void PlaySound(int num, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, nullptr, nullptr, nullptr, flags, channel, sndflags);
+    _PlaySound(soundEngine->FindSoundByResID(num), nullptr, nullptr, nullptr, flags, channel, sndflags);
 }
 inline void PlaySound(int num, const DVector3 &pos, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-	_PlaySound(num, nullptr, nullptr, &pos, flags, channel, sndflags);
+	_PlaySound(soundEngine->FindSoundByResID(num), nullptr, nullptr, &pos, flags, channel, sndflags);
 }
 
 int _PlayerSound(int num, PLAYER* pp);
@@ -2073,7 +2073,7 @@ inline bool PLAYER_MOVING(PLAYER* pp)
 
 inline void PlaySound(int num, DSWActor* actor, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, actor, nullptr, nullptr, flags, channel, sndflags);
+    _PlaySound(soundEngine->FindSoundByResID(num), actor, nullptr, nullptr, flags, channel, sndflags);
 }
 
 struct ANIM

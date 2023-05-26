@@ -91,8 +91,8 @@ END_BLD_NS
 
 static void SerializeSession(FSerializer& arc)
 {
-	// In Duke and Blood we now have reliable sound names.
-	if (isDukeEngine() || isBlood()) arc.SetUniqueSoundNames();	
+	// Only Exhumed still depends in indexed sounds.
+	if (!isExhumed()) arc.SetUniqueSoundNames();	
 
 	arc.ReadObjects(false);
 	SerializeMap(arc);

@@ -89,7 +89,7 @@ class SWCreditsScreen : SkippableScreenJob
 	override void Start() 
 	{
 		// Lo Wang feel like singing!
-		SW.PlaySound(SWSnd.DIGI_JG95012,  SW.v3df_none, CHAN_VOICE, CHANF_UI);
+		SW.PlaySound("JG95012",  SW.v3df_none, CHAN_VOICE, CHANF_UI);
 	}
 
 	override void OnTick()
@@ -190,13 +190,13 @@ class SWSummaryScreen : SummaryScreenBase
 		switch (random(0, 2))
 		{
 			case 0:
-				anim.Init("BONUS_PUNCH%02d", 15, SWSnd.DIGI_PLAYERYELL3, 8);
+				anim.Init("BONUS_PUNCH%02d", 15, "PLAYERYELL3", 8);
 				break;
 			case 1:
-				anim.Init("BONUS_KICK%02d", 15, SWSnd.DIGI_PLAYERYELL2, 8);
+				anim.Init("BONUS_KICK%02d", 15, "PLAYERYELL2", 8);
 				break;
 			case 2:
-				anim.Init("BONUS_GRAB%02d", 15, SWSnd.DIGI_BONUS_GRAB, 20);
+				anim.Init("BONUS_GRAB%02d", 15, "BONUS_GRAB", 20);
 				break;
 		}
 		rest[0] = TexMan.CheckForTexture("BONUS_PUNCH00", TexMan.Type_Any);
@@ -377,9 +377,9 @@ class SWCutscenes ui
 			SW.PlaySong(0);
 			Array<int> soundinfo;
 			soundinfo.Pushv(
-				1, SWSnd.DIGI_NOMESSWITHWANG,
-				5, SWSnd.DIGI_INTRO_SLASH,
-				15, SWSnd.DIGI_INTRO_WHIRL);
+				1, int(Sound("NOMESSWITHWANG")),
+				5, int(Sound("INTRO_SLASH")),
+				15,int(Sound("INTRO_WHIRL")));
 			runner.Append(new("SWDRealmsScreen").Init());
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("sw.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF | MoviePlayer.NOMUSICCUTOFF, 8, 360, 128)); 
 		}
@@ -395,11 +395,11 @@ class SWCutscenes ui
 	{
 		Array<int> soundinfo;
 		soundinfo.Pushv(
-			1, SWSnd.DIGI_SERPTAUNTWANG,
-			16, SWSnd.DIGI_SHAREND_TELEPORT,
-			35, SWSnd.DIGI_WANGTAUNTSERP1,
-			51, SWSnd.DIGI_SHAREND_UGLY1,
-			64, SWSnd.DIGI_SHAREND_UGLY2);
+			1, int(Sound("SERPTAUNTWANG")),
+			16, int(Sound("SHAREND_TELEPORT")),
+			35, int(Sound("WANGTAUNTSERP1")),
+			51, int(Sound("SHAREND_UGLY1")),
+			64, int(Sound("SHAREND_UGLY2")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("swend.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 16, 16, 140)); 
 	}
 
@@ -413,10 +413,10 @@ class SWCutscenes ui
 	{
 		Array<int> soundinfo;
 		soundinfo.Pushv(
-			2, SWSnd.DIGI_JG41012,
-			30, SWSnd.DIGI_HOTHEADSWITCH,
-			42, SWSnd.DIGI_HOTHEADSWITCH,
-			59, SWSnd.DIGI_JG41028);
+			2,  int(Sound("JG41012")),
+			30, int(Sound("HOTHEADSWITCH")),
+			42, int(Sound("HOTHEADSWITCH")),
+			59, int(Sound("JG41028")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("sumocinm.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 10, 40, 130)); 
 	}
 
@@ -430,22 +430,22 @@ class SWCutscenes ui
 	{
 		Array<int> soundinfo;
 		soundinfo.Pushv(
-			1, SWSnd.DIGI_ZC1,
-			5, SWSnd.DIGI_JG94024,
-			14, SWSnd.DIGI_ZC2,
-			30, SWSnd.DIGI_ZC3,
-			32, SWSnd.DIGI_ZC4,
-			37, SWSnd.DIGI_ZC5,
-			63, SWSnd.DIGI_Z16043,
-			63, SWSnd.DIGI_ZC6,
-			63, SWSnd.DIGI_ZC7,
-			72, SWSnd.DIGI_ZC7,
-			73, SWSnd.DIGI_ZC4,
-			77, SWSnd.DIGI_ZC5,
-			87, SWSnd.DIGI_ZC8,
-			103, SWSnd.DIGI_ZC7,
-			108, SWSnd.DIGI_ZC9,
-			120, SWSnd.DIGI_JG94039);
+			1,  int(Sound("ZC1")),
+			5,  int(Sound("JG94024")),
+			14, int(Sound("ZC2")),
+			30, int(Sound("ZC3")),
+			32, int(Sound("ZC4")),
+			37, int(Sound("ZC5")),
+			63, int(Sound("Z16043")),
+			63, int(Sound("ZC6")),
+			63, int(Sound("ZC7")),
+			72, int(Sound("ZC7")),
+			73, int(Sound("ZC4")),
+			77, int(Sound("ZC5")),
+			87, int(Sound("ZC8")),
+			103,int(Sound("ZC7")),
+			108,int(Sound("ZC9")),
+			120,int(Sound("JG94039")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("zfcin.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 16, 16, 140)); 
 		runner.Append(new("SWCreditsScreen").Init());
 	}
