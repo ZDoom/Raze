@@ -1,5 +1,27 @@
 class SWActor : CoreActor native
 {
+	const MAX_SPEED = 4;
+	const MAX_ACTOR_CLOSE_ATTACK = 2;
+	const MAX_ACTOR_ATTACK = 6;
+
+	meta int16 CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
+	meta int16 AttackPercent[MAX_ACTOR_ATTACK];
+
+	meta int16 Speeds[MAX_SPEED];
+	meta int8 TicAdjust[MAX_SPEED];
+	meta int8 MaxWeapons;
+	meta Sound AmbientSound;
+	meta Sound AlertSound;
+	meta Sound AttackSound;
+	meta Sound PainSound;
+	meta Sound DieSound;
+	meta Sound ExtraSound1;
+	meta Sound ExtraSound2;
+	meta Sound ExtraSound3;
+	meta Sound ExtraSound4;
+	meta Sound ExtraSound5;
+	meta Sound ExtraSound6;
+
 	// all ANIMATORs.
 	native int DoBunnyMove();
 	native int DoBunnyGrowUp();
