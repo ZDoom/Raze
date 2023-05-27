@@ -227,7 +227,7 @@ STATE s_GirlNinjaRise[5][3] =
         {GIRLNINJA_STAND_R0 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[0][2]},
         {0, 0, nullptr, (STATE*)sg_GirlNinjaRun},  // JBF: sg_GirlNinjaRun really is supposed to be the
         // pointer to the state group. See StateControl() where
-        // it says "if (!actor->user.State->Pic)".
+        // it says "if (!actor->user.__legacyState.State->Pic)".
     },
     {
         {GIRLNINJA_KNEEL_R1 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[1][1]},
@@ -726,11 +726,11 @@ int SetupGirlNinja(DSWActor* actor)
         actor->user.Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
     }
 
-    actor->user.StateEnd = s_GirlNinjaDie;
+    actor->user.__legacyState.StateEnd = s_GirlNinjaDie;
     actor->user.__legacyState.Rot = sg_GirlNinjaRun;
 	actor->spr.scale = DVector2(0.796875, 0.671875);
 
-    actor->user.Attrib = &GirlNinjaAttrib;
+    actor->user.__legacyState.Attrib = &GirlNinjaAttrib;
     actor->spr.pal = actor->user.spal = 26;
     EnemyDefaults(actor, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
@@ -769,7 +769,7 @@ int DoGirlNinjaMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things

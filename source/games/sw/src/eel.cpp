@@ -393,9 +393,9 @@ int SetupEel(DSWActor* actor)
     }
 
     ChangeState(actor, s_EelRun[0]);
-    actor->user.Attrib = &EelAttrib;
+    actor->user.__legacyState.Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_EelDie;
+    actor->user.__legacyState.StateEnd = s_EelDie;
     actor->user.__legacyState.Rot = sg_EelRun;
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
@@ -590,7 +590,7 @@ int DoEelMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     DoEelMatchPlayerZ(actor);
 

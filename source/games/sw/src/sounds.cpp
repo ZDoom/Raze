@@ -719,7 +719,7 @@ void Terminate3DSounds(void)
 void PlaySpriteSound(DSWActor* actor, int attrib_ndx, int flags)
 {
     if (actor->hasU())
-        PlaySound(actor->user.Attrib->Sounds[attrib_ndx], actor, flags);
+        PlaySound(actor->user.__legacyState.Attrib->Sounds[attrib_ndx], actor, flags);
 }
 
 //==========================================================================

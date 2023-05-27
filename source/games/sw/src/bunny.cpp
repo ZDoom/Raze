@@ -742,7 +742,7 @@ int SetupBunny(DSWActor* actor)
     Bunny_Count++;
 
     ChangeState(actor, s_BunnyRun[0]);
-    actor->user.StateEnd = s_BunnyDie;
+    actor->user.__legacyState.StateEnd = s_BunnyDie;
     actor->user.__legacyState.Rot = sg_BunnyRun;
     actor->user.ShellNum = 0; // Not Pregnant right now
     actor->user.FlagOwner = 0;
@@ -752,7 +752,7 @@ int SetupBunny(DSWActor* actor)
     if (actor->spr.pal == PALETTE_PLAYER1)
     {
         EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
-        actor->user.Attrib = &WhiteBunnyAttrib;
+        actor->user.__legacyState.Attrib = &WhiteBunnyAttrib;
         actor->spr.scale = DVector2(1.5, 1.40625);
 
         actor->clipdist = 12.5;
@@ -763,7 +763,7 @@ int SetupBunny(DSWActor* actor)
     else if (actor->spr.pal == PALETTE_PLAYER8) // Male Rabbit
     {
         EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
-        actor->user.Attrib = &BunnyAttrib;
+        actor->user.__legacyState.Attrib = &BunnyAttrib;
 
 		if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = 20;
@@ -773,7 +773,7 @@ int SetupBunny(DSWActor* actor)
     {
         // Female Rabbit
         EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
-        actor->user.Attrib = &BunnyAttrib;
+        actor->user.__legacyState.Attrib = &BunnyAttrib;
         actor->user.spal = actor->spr.pal = PALETTE_PLAYER0;
         actor->user.Flag1 = SEC(5);
         //actor->spr.shade = 0; // darker
@@ -1179,7 +1179,7 @@ void BunnyHatch(DSWActor* actor)
         actorNew->user.ShellNum = 0; // Not Pregnant right now
 
         NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
-        actorNew->user.ActorActionFunc = DoActorMoveJump;
+        actorNew->user.__legacyState.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 
@@ -1227,7 +1227,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->user.ShellNum = 0; // Not Pregnant right now
 
     NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
-    actorNew->user.ActorActionFunc = DoActorMoveJump;
+    actorNew->user.__legacyState.ActorActionFunc = DoActorMoveJump;
     DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(actor))
     {
@@ -1297,7 +1297,7 @@ int DoBunnyMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     // stay on floor unless doing certain things
     if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
@@ -1316,7 +1316,7 @@ int DoBunnyMove(DSWActor* actor)
 			actor->spr.Angles.Yaw = RandomAngle();
             actor->user.jump_speed = -350;
             DoActorBeginJump(actor);
-            actor->user.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
         }
     }
 

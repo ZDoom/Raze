@@ -534,9 +534,9 @@ int SetupCoolg(DSWActor* actor)
     }
 
     ChangeState(actor, s_CoolgRun[0]);
-    actor->user.Attrib = &CoolgAttrib;
+    actor->user.__legacyState.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_CoolgDie;
+    actor->user.__legacyState.StateEnd = s_CoolgDie;
     actor->user.__legacyState.Rot = sg_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
@@ -561,15 +561,15 @@ int NewCoolg(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 50/16.);
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
-    actorNew->user.StateEnd = s_CoolgDie;
+    actorNew->user.__legacyState.StateEnd = s_CoolgDie;
     actorNew->user.__legacyState.Rot = sg_CoolgRun;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
 
     actorNew->user.__legacyState.ActorActionSet = &CoolgActionSet;
 
     actorNew->spr.shade = actor->spr.shade;
-    actorNew->user.Personality = &CoolgPersonality;
-    actorNew->user.Attrib = &CoolgAttrib;
+    actorNew->user.__legacyState.Personality = &CoolgPersonality;
+    actorNew->user.__legacyState.Attrib = &CoolgAttrib;
 
     // special case
     TotalKillable++;
@@ -590,11 +590,11 @@ int DoCoolgBirth(DSWActor* actor)
     ANIMATOR DoActorDecide;
 
     actor->user.Health = HEALTH_COOLIE_GHOST;
-    actor->user.Attrib = &CoolgAttrib;
+    actor->user.__legacyState.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
 
     ChangeState(actor, s_CoolgRun[0]);
-    actor->user.StateEnd = s_CoolgDie;
+    actor->user.__legacyState.StateEnd = s_CoolgDie;
     actor->user.__legacyState.Rot = sg_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
@@ -713,7 +713,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
 int InitCoolgCircle(DSWActor* actor)
 {
-    actor->user.ActorActionFunc = DoCoolgCircle;
+    actor->user.__legacyState.ActorActionFunc = DoCoolgCircle;
 
     NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
@@ -735,7 +735,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 120;
 
-    (*actor->user.ActorActionFunc)(actor);
+    (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     return 0;
 }
@@ -901,7 +901,7 @@ int DoCoolgMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
     }
 
     if (RANDOM_P2(1024) < 32 && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))

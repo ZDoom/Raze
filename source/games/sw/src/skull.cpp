@@ -224,9 +224,9 @@ int SetupSkull(DSWActor* actor)
     }
 
     ChangeState(actor, s_SkullWait[0]);
-    actor->user.Attrib = &SkullAttrib;
+    actor->user.__legacyState.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_SkullExplode;
+    actor->user.__legacyState.StateEnd = s_SkullExplode;
     actor->user.__legacyState.Rot = sg_SkullWait;
 
     actor->user.ID = SKULL_R0;
@@ -344,7 +344,7 @@ int DoSkullBeginDeath(DSWActor* actor)
     }
 
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.Tics = 0;
     actor->user.ID = SKULL_R0;
     actor->user.Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusSkull;
@@ -643,9 +643,9 @@ int SetupBetty(DSWActor* actor)
     }
 
     ChangeState(actor, s_BettyWait[0]);
-    actor->user.Attrib = &BettyAttrib;
+    actor->user.__legacyState.Attrib = &BettyAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_BettyExplode;
+    actor->user.__legacyState.StateEnd = s_BettyExplode;
     actor->user.__legacyState.Rot = sg_BettyWait;
 
     actor->user.ID = BETTY_R0;
@@ -751,7 +751,7 @@ int DoBettyBeginDeath(DSWActor* actor)
     }
 
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.Tics = 0;
     actor->user.ID = BETTY_R0;
     actor->user.Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusBetty;

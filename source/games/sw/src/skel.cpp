@@ -517,9 +517,9 @@ int SetupSkel(DSWActor* actor)
     }
 
     ChangeState(actor, s_SkelRun[0]);
-    actor->user.Attrib = &SkelAttrib;
+    actor->user.__legacyState.Attrib = &SkelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_SkelDie;
+    actor->user.__legacyState.StateEnd = s_SkelDie;
     actor->user.__legacyState.Rot = sg_SkelRun;
 
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
@@ -636,7 +636,7 @@ int DoSkelMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

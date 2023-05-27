@@ -758,11 +758,11 @@ int SetupZombie(DSWActor* actor)
     ANIMATOR DoActorDecide;
 
     actor->user.Health = 100;
-    actor->user.StateEnd = &s_ZombiePain[0][0];
+    actor->user.__legacyState.StateEnd = &s_ZombiePain[0][0];
     actor->user.__legacyState.Rot = sg_ZombieRun;
 	actor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
-    actor->user.Attrib = &ZombieAttrib;
+    actor->user.__legacyState.Attrib = &ZombieAttrib;
     EnemyDefaults(actor, &ZombieActionSet, &ZombiePersonality);
 
     ChangeState(actor, s_ZombieRun[0]);
@@ -903,7 +903,7 @@ int DoZombieMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things

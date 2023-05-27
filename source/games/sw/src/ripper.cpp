@@ -831,9 +831,9 @@ int SetupRipper(DSWActor* actor)
     }
 
     ChangeState(actor, s_RipperRun[0]);
-    actor->user.Attrib = &RipperAttrib;
+    actor->user.__legacyState.Attrib = &RipperAttrib;
     DoActorSetSpeed(actor, FAST_SPEED);
-    actor->user.StateEnd = s_RipperDie;
+    actor->user.__legacyState.StateEnd = s_RipperDie;
     actor->user.__legacyState.Rot = sg_RipperRun;
     actor->spr.scale = DVector2(1, 1);
 
@@ -971,7 +971,7 @@ int InitRipperHang(DSWActor* actor)
     }
 
     NewStateGroup(actor, sg_RipperHangJump);
-    actor->user.StateFallOverride = sg_RipperHangFall;
+    actor->user.__legacyState.StateFallOverride = sg_RipperHangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
     PickJumpMaxSpeed(actor, -800);
@@ -1000,7 +1000,7 @@ int DoRipperHang(DSWActor* actor)
 
     NewStateGroup(actor, sg_RipperJumpAttack);
     // move to the 2nd frame - past the pause frame
-    actor->user.Tics += actor->user.State->Tics;
+    actor->user.Tics += actor->user.__legacyState.State->Tics;
     return 0;
 }
 
@@ -1242,7 +1242,7 @@ void RipperHatch(DSWActor* actor)
         actorNew->user.Flags |= (SPR_ACTIVE);
 
         NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
-        actorNew->user.ActorActionFunc = DoActorMoveJump;
+        actorNew->user.__legacyState.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
 
@@ -1294,7 +1294,7 @@ int DoRipperMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     DoActorSectorDamage(actor);
     return 0;

@@ -468,9 +468,9 @@ int SetupLava(DSWActor* actor)
     }
 
     ChangeState(actor, s_LavaRun[0]);
-    actor->user.Attrib = &LavaAttrib;
+    actor->user.__legacyState.Attrib = &LavaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_LavaDie;
+    actor->user.__legacyState.StateEnd = s_LavaDie;
     actor->user.__legacyState.Rot = sg_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
@@ -514,7 +514,7 @@ int DoLavaMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

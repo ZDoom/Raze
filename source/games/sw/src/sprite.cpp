@@ -788,7 +788,7 @@ void ChangeState(DSWActor* actor, STATE* statep)
         return;
 
     actor->user.Tics = 0;
-    actor->user.State = actor->user.StateStart = statep;
+    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = statep;
     actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE; // just in case
 }
 
@@ -859,7 +859,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     PRODUCTION_ASSERT(actor->hasU());
 
     // be careful State can be nullptr
-    actor->user.State = actor->user.StateStart = state;
+    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = state;
 
     change_actor_stat(actor, actor->spr.statnum);
 
@@ -920,9 +920,9 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
     SpawnUser(spawnedActor, id, state);
 
     // be careful State can be nullptr
-    if (spawnedActor->user.State)
+    if (spawnedActor->user.__legacyState.State)
     {
-        spawnedActor->spr.picnum = spawnedActor->user.State->Pic;
+        spawnedActor->spr.picnum = spawnedActor->user.__legacyState.State->Pic;
         spawnedActor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE; // just in case
 
     }
@@ -1562,7 +1562,7 @@ void SpriteSetupPost(void)
             jActor->user.ceiling_dist = 4;
             jActor->user.floor_dist = -2;
 
-            jActor->user.ActorActionFunc = DoActorDebris;
+            jActor->user.__legacyState.ActorActionFunc = DoActorDebris;
 
             jActor->spr.cstat |= CSTAT_SPRITE_BREAKABLE;
             jActor->spr.extra |= SPRX_BREAKABLE;
@@ -2022,10 +2022,10 @@ void SpriteSetup(void)
                     SpawnUser(actor, 0, nullptr);
 
                     ASSERT(actor->hasU());
-                    actor->user.RotNum = 0;
+                    actor->user.__legacyState.RotNum = 0;
                     actor->user.WaitTics = actor->spr.lotag * 120;
 
-                    actor->user.ActorActionFunc = DoGenerateSewerDebris;
+                    actor->user.__legacyState.ActorActionFunc = DoGenerateSewerDebris;
 
                     change_actor_stat(actor, STAT_NO_STATE);
                     break;
@@ -2071,18 +2071,18 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoVator;
+                        actor->user.__legacyState.ActorActionFunc = DoVator;
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoVator;
+                        actor->user.__legacyState.ActorActionFunc = DoVator;
                         break;
                     case 2:
-                        actor->user.ActorActionFunc = DoVatorAuto;
+                        actor->user.__legacyState.ActorActionFunc = DoVatorAuto;
                         break;
                     case 3:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoVatorAuto;
+                        actor->user.__legacyState.ActorActionFunc = DoVatorAuto;
                         break;
                     }
 
@@ -2179,11 +2179,11 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoRotator;
+                        actor->user.__legacyState.ActorActionFunc = DoRotator;
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoRotator;
+                        actor->user.__legacyState.ActorActionFunc = DoRotator;
                         break;
                     }
 
@@ -2224,11 +2224,11 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoSlidor;
+                        actor->user.__legacyState.ActorActionFunc = DoSlidor;
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoSlidor;
+                        actor->user.__legacyState.ActorActionFunc = DoSlidor;
                         break;
                     }
 
@@ -2272,18 +2272,18 @@ void SpriteSetup(void)
                     {
                     case 0:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoSpike;
+                        actor->user.__legacyState.ActorActionFunc = DoSpike;
                         break;
                     case 1:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoSpike;
+                        actor->user.__legacyState.ActorActionFunc = DoSpike;
                         break;
                     case 2:
-                        actor->user.ActorActionFunc = DoSpikeAuto;
+                        actor->user.__legacyState.ActorActionFunc = DoSpikeAuto;
                         break;
                     case 3:
                         actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = DoSpikeAuto;
+                        actor->user.__legacyState.ActorActionFunc = DoSpikeAuto;
                         break;
                     }
 
@@ -2460,7 +2460,7 @@ void SpriteSetup(void)
                     SpawnUser(actor, ST1, nullptr);
 
                     change_actor_stat(actor, STAT_NO_STATE);
-                    actor->user.ActorActionFunc = DoLavaErupt;
+                    actor->user.__legacyState.ActorActionFunc = DoLavaErupt;
 
                     // interval between erupts
                     if (SP_TAG10(actor) == 0)
@@ -4298,11 +4298,11 @@ int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
 
     // Kind of a goofy check, but it should catch alot of invalid states!
     // BTW, 6144 is the max tile number allowed in editart.
-    if (actor->user.State && (actor->user.State->Pic < 0 || actor->user.State->Pic > MAXTILES))    // JBF: verify this!
+    if (actor->user.__legacyState.State && (actor->user.__legacyState.State->Pic < 0 || actor->user.__legacyState.State->Pic > MAXTILES))    // JBF: verify this!
         return 0;
 
     actor->user.__legacyState.Rot = StateGroup;
-    actor->user.State = actor->user.StateStart = StateGroup[0];
+    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = StateGroup[0];
 
     actor->user.Tics = 0;
 
@@ -4796,20 +4796,20 @@ int DoCoin(DSWActor* actor)
 
     if (actor->user.WaitTics < 10*120)
     {
-        if (actor->user.StateStart != s_GreenCoin)
+        if (actor->user.__legacyState.StateStart != s_GreenCoin)
         {
-            offset = int(actor->user.State - actor->user.StateStart);
+            offset = int(actor->user.__legacyState.State - actor->user.__legacyState.StateStart);
             ChangeState(actor, s_GreenCoin);
-            actor->user.State = actor->user.StateStart + offset;
+            actor->user.__legacyState.State = actor->user.__legacyState.StateStart + offset;
         }
     }
     else if (actor->user.WaitTics < 20*120)
     {
-        if (actor->user.StateStart != s_YellowCoin)
+        if (actor->user.__legacyState.StateStart != s_YellowCoin)
         {
-            offset = int(actor->user.State - actor->user.StateStart);
+            offset = int(actor->user.__legacyState.State - actor->user.__legacyState.StateStart);
             ChangeState(actor, s_YellowCoin);
-            actor->user.State = actor->user.StateStart + offset;
+            actor->user.__legacyState.State = actor->user.__legacyState.StateStart + offset;
         }
     }
 
@@ -6018,10 +6018,10 @@ int  StateControl(DSWActor* actor)
 {
     short StateTics;
 
-    if (!actor->user.State)
+    if (!actor->user.__legacyState.State)
     {
-        ASSERT(actor->user.ActorActionFunc);
-        (actor->user.ActorActionFunc)(actor);
+        ASSERT(actor->user.__legacyState.ActorActionFunc);
+        (actor->user.__legacyState.ActorActionFunc)(actor);
         return 0;
     }
 
@@ -6031,30 +6031,30 @@ int  StateControl(DSWActor* actor)
         actor->user.Tics += ACTORMOVETICS;
 
     // Skip states if too much time has passed
-    while (actor->user.Tics >= (actor->user.State->Tics & SF_TICS_MASK))
+    while (actor->user.Tics >= (actor->user.__legacyState.State->Tics & SF_TICS_MASK))
     {
-        StateTics = (actor->user.State->Tics & SF_TICS_MASK);
+        StateTics = (actor->user.__legacyState.State->Tics & SF_TICS_MASK);
 
-        if ((actor->user.State->Tics & SF_TIC_ADJUST))
+        if ((actor->user.__legacyState.State->Tics & SF_TIC_ADJUST))
         {
-            ASSERT(actor->user.Attrib);
+            ASSERT(actor->user.__legacyState.Attrib);
             ASSERT(actor->user.speed < MAX_SPEED);
-            ASSERT(StateTics > -actor->user.Attrib->TicAdjust[actor->user.speed]);
+            ASSERT(StateTics > -actor->user.__legacyState.Attrib->TicAdjust[actor->user.speed]);
 
-            StateTics += actor->user.Attrib->TicAdjust[actor->user.speed];
+            StateTics += actor->user.__legacyState.Attrib->TicAdjust[actor->user.speed];
         }
 
         // Set Tics
         actor->user.Tics -= StateTics;
 
         // Transition to the next state
-        actor->user.State = actor->user.State->NextState;
+        actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
 
         // Look for flags embedded into the Tics variable
-        while ((actor->user.State->Tics & SF_QUICK_CALL))
+        while ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*actor->user.State->Animator)(actor);
+            (*actor->user.__legacyState.State->Animator)(actor);
 
             ASSERT(actor->hasU()); //put this in to see if actor was getting killed with in his QUICK_CALL state
 
@@ -6063,39 +6063,39 @@ int  StateControl(DSWActor* actor)
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if ((actor->user.State->Tics & SF_QUICK_CALL))
-                actor->user.State = actor->user.State->NextState;
+            if ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
+                actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
         }
 
         if (!actor->hasU())
             break;
 
-        if (!actor->user.State->Pic)
+        if (!actor->user.__legacyState.State->Pic)
         {
-            NewStateGroup(actor, (STATE* *) actor->user.State->NextState);
+            NewStateGroup(actor, (STATE* *) actor->user.__legacyState.State->NextState);
         }
     }
 
     if (actor->hasU())
     {
-        ASSERT(actor->user.State);
+        ASSERT(actor->user.__legacyState.State);
         // Set picnum to the correct pic
-        if ((actor->user.State->Tics & SF_WALL_STATE))
+        if ((actor->user.__legacyState.State->Tics & SF_WALL_STATE))
         {
             ASSERT(actor->user.WallP);
-            actor->user.WallP->setwalltexture(tileGetTextureID(actor->user.State->Pic));
+            actor->user.WallP->setwalltexture(tileGetTextureID(actor->user.__legacyState.State->Pic));
         }
         else
         {
-            if (actor->user.RotNum > 1)
+            if (actor->user.__legacyState.RotNum > 1)
                 actor->spr.picnum = actor->user.__legacyState.Rot[0]->Pic;
             else
-                actor->spr.picnum = actor->user.State->Pic;
+                actor->spr.picnum = actor->user.__legacyState.State->Pic;
         }
 
         // Call the correct animator
-        if (actor->user.State->Animator && actor->user.State->Animator != NullAnimator)
-            (*actor->user.State->Animator)(actor);
+        if (actor->user.__legacyState.State->Animator && actor->user.__legacyState.State->Animator != NullAnimator)
+            (*actor->user.__legacyState.State->Animator)(actor);
     }
 
     return 0;
@@ -6191,8 +6191,8 @@ void SpriteControl(void)
     it.Reset(STAT_NO_STATE);
     while (auto actor = it.Next())
     {
-        if (actor->hasU() && actor->user.ActorActionFunc)
-            actor->user.ActorActionFunc(actor);
+        if (actor->hasU() && actor->user.__legacyState.ActorActionFunc)
+            actor->user.__legacyState.ActorActionFunc(actor);
     }
 
     if (MoveSkip8 == 0)
@@ -6231,7 +6231,7 @@ void SpriteControl(void)
         if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
-        actor->user.ActorActionFunc(actor);
+        actor->user.__legacyState.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SPIKE);
@@ -6248,7 +6248,7 @@ void SpriteControl(void)
         if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
-        actor->user.ActorActionFunc(actor);
+        actor->user.__legacyState.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_ROTATOR);
@@ -6265,7 +6265,7 @@ void SpriteControl(void)
         if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
-        actor->user.ActorActionFunc(actor);
+        actor->user.__legacyState.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SLIDOR);
@@ -6282,7 +6282,7 @@ void SpriteControl(void)
         if (!(actor->user.Flags & SPR_ACTIVE))
             continue;
 
-        actor->user.ActorActionFunc(actor);
+        actor->user.__legacyState.ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SUICIDE);

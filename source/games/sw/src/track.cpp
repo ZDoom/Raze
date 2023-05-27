@@ -804,7 +804,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                 if (!itActor->hasU())
                     SpawnUser(itActor, 0, nullptr);
 
-                itActor->user.RotNum = 0;
+                itActor->user.__legacyState.RotNum = 0;
 
                 itActor->backuppos();
                 itActor->user.oz = itActor->opos.Z;
@@ -1071,7 +1071,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     {
                         change_actor_stat(actor, STAT_NO_STATE);
                         SpawnUser(actor, 0, nullptr);
-                        actor->user.ActorActionFunc = nullptr;
+                        actor->user.__legacyState.ActorActionFunc = nullptr;
                     }
                     break;
 
@@ -2595,7 +2595,7 @@ void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
                         DoSoundSpotStopSound(actor->spr.lotag);
                     }
 
-                    actor->user.ActorActionFunc = animator;
+                    actor->user.__legacyState.ActorActionFunc = animator;
                 }
                 break;
             }
@@ -2911,7 +2911,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->user.jump_speed = -tpoint->tag_high;
 
             DoActorBeginJump(actor);
-            actor->user.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
         }
 
         break;
@@ -2957,7 +2957,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
 
             DoActorBeginJump(actor);
-            actor->user.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
 
             return false;
         }
@@ -2982,7 +2982,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
 
             DoActorBeginJump(actor);
-            actor->user.ActorActionFunc = DoActorMoveJump;
+            actor->user.__legacyState.ActorActionFunc = DoActorMoveJump;
             return false;
         }
 
@@ -3012,7 +3012,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
             InitActorDuck(actor);
-            actor->user.ActorActionFunc = DoActorDuck;
+            actor->user.__legacyState.ActorActionFunc = DoActorDuck;
             return false;
         }
 
@@ -3436,7 +3436,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 actor->spr.pos.Z += actor->user.pos.Y;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
-                actor->user.ActorActionFunc = NinjaJumpActionFunc;
+                actor->user.__legacyState.ActorActionFunc = NinjaJumpActionFunc;
                 actor->user.jump_speed = -650;
                 DoActorBeginJump(actor);
 

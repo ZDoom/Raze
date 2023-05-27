@@ -1815,9 +1815,9 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     // add diff to ceiling
     act_under->spr.pos.Z = act_under->sector()->ceilingz + zdiff;
 
-    act_under->user.State = act_over->user.State;
+    act_under->user.__legacyState.State = act_over->user.__legacyState.State;
     act_under->user.__legacyState.Rot = act_over->user.__legacyState.Rot;
-    act_under->user.StateStart = act_over->user.StateStart;
+    act_under->user.__legacyState.StateStart = act_over->user.__legacyState.StateStart;
     act_under->spr.picnum = act_over->spr.picnum;
 }
 
@@ -5978,8 +5978,8 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         }
 
         NewStateGroup(plActor, plActor->user.__legacyState.ActorActionSet->Stand);
-        plActor->spr.picnum = plActor->user.State->Pic;
-        plActor->spr.picnum = plActor->user.State->Pic;
+        plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
+        plActor->spr.picnum = plActor->user.__legacyState.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
 
         //DoSpawnTeleporterEffect(plActor);
@@ -6594,44 +6594,44 @@ void PlayerStateControl(DSWActor* actor)
     actor->user.Tics += synctics;
 
     // Skip states if too much time has passed
-    while (actor->user.Tics >= (actor->user.State->Tics & SF_TICS_MASK))
+    while (actor->user.Tics >= (actor->user.__legacyState.State->Tics & SF_TICS_MASK))
     {
 
         // Set Tics
-        actor->user.Tics -= (actor->user.State->Tics & SF_TICS_MASK);
+        actor->user.Tics -= (actor->user.__legacyState.State->Tics & SF_TICS_MASK);
 
         // Transition to the next state
-        actor->user.State = actor->user.State->NextState;
+        actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
 
         // !JIM! Added this so I can do quick calls in player states!
         // Need this in order for floor blood and footprints to not get called more than once.
-        while ((actor->user.State->Tics & SF_QUICK_CALL))
+        while ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*actor->user.State->Animator)(actor);
+            (*actor->user.__legacyState.State->Animator)(actor);
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if ((actor->user.State->Tics & SF_QUICK_CALL))
-                actor->user.State = actor->user.State->NextState;
+            if ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
+                actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
         }
 
-        if (!actor->user.State->Pic)
+        if (!actor->user.__legacyState.State->Pic)
         {
-            NewStateGroup(actor, (STATE* *) actor->user.State->NextState);
+            NewStateGroup(actor, (STATE* *) actor->user.__legacyState.State->NextState);
         }
     }
 
     // Set picnum to the correct pic
-    if (actor->user.RotNum > 1)
+    if (actor->user.__legacyState.RotNum > 1)
         actor->spr.picnum = actor->user.__legacyState.Rot[0]->Pic;
     else
-        actor->spr.picnum = actor->user.State->Pic;
+        actor->spr.picnum = actor->user.__legacyState.State->Pic;
 
     // Call the correct animator
-    if ((actor->user.State->Tics & SF_PLAYER_FUNC))
-        if (actor->user.State->Animator)
-            (*actor->user.State->Animator)(actor);
+    if ((actor->user.__legacyState.State->Tics & SF_PLAYER_FUNC))
+        if (actor->user.__legacyState.State->Animator)
+            (*actor->user.__legacyState.State->Animator)(actor);
 
     return;
 }

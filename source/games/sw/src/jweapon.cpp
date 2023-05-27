@@ -1268,7 +1268,7 @@ int PlayerInitChemBomb(PLAYER* pp)
         actorNew->vel.X *= 0.75;
     }
 
-//    actorNew->user.RotNum = 5;
+//    actorNew->user.__legacyState.RotNum = 5;
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);

@@ -135,7 +135,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case COOLIE_RUN_R0:
         actor->ChangeStateEnd();
         actor->vel.X *= 2;
-        actor->user.ActorActionFunc = nullptr;
+        actor->user.__legacyState.ActorActionFunc = nullptr;
         actor->spr.Angles.Yaw += DAngle180;
         break;
 
@@ -162,7 +162,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                 }
 
                 actor->ChangeStateEnd();
-                actor->user.ActorActionFunc = nullptr;
+                actor->user.__legacyState.ActorActionFunc = nullptr;
                 actor->vel.X = 12.5 + RandomRangeF(12.5);
                 actor->user.jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
@@ -180,10 +180,10 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             DoActorBeginJump(actor);
         }
 
-        actor->user.RotNum = 0;
+        actor->user.__legacyState.RotNum = 0;
 
-        actor->user.ActorActionFunc = nullptr;
-        //actor->user.ActorActionFunc = NullAnimator;
+        actor->user.__legacyState.ActorActionFunc = nullptr;
+        //actor->user.__legacyState.ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
             actor->spr.Angles.Yaw = weapActor->spr.Angles.Yaw;
         break;
@@ -215,7 +215,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->user.jump_speed = -10 - RandomRange(25);
             DoActorBeginJump(actor);
         }
-        actor->user.ActorActionFunc = nullptr;
+        actor->user.__legacyState.ActorActionFunc = nullptr;
         // Get angle to player
         actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos.Y).Angle() + DAngle180;
         break;
@@ -237,7 +237,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->user.jump_speed = -100 - RandomRange(250);
         }
         DoActorBeginJump(actor);
-        actor->user.ActorActionFunc = nullptr;
+        actor->user.__legacyState.ActorActionFunc = nullptr;
         // Get angle to player
         actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle() + DAngle180;
         break;
@@ -259,7 +259,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             if (RandomRange(1000) > 500)
                 actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
             actor->ChangeStateEnd();
-            actor->user.ActorActionFunc = nullptr;
+            actor->user.__legacyState.ActorActionFunc = nullptr;
             actor->vel.X = 18.75 + RandomRangeF(25);
             actor->user.jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
@@ -663,7 +663,7 @@ int DoActorBeginJump(DSWActor* actor)
         else
             NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Jump);
     }
-    actor->user.StateFallOverride = nullptr;
+    actor->user.__legacyState.StateFallOverride = nullptr;
 
     //DO NOT CALL DoActorJump! DoActorStopFall can cause an infinite loop and
     //stack overflow if it is called.
@@ -737,9 +737,9 @@ int DoActorBeginFall(DSWActor* actor)
         else
             NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Fall);
 
-        if (actor->user.StateFallOverride)
+        if (actor->user.__legacyState.StateFallOverride)
         {
-            NewStateGroup(actor, actor->user.StateFallOverride);
+            NewStateGroup(actor, actor->user.__legacyState.StateFallOverride);
         }
     }
 
@@ -981,8 +981,8 @@ saveable_module saveable_actor =
 
 void DSWActor::ChangeStateEnd()
 {
-    ChangeState(this, user.StateEnd);
-    user.RotNum = 0;
+    ChangeState(this, user.__legacyState.StateEnd);
+    user.__legacyState.RotNum = 0;
 
 }
 

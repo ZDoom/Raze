@@ -741,19 +741,19 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	if (arc.BeginObject(keyname))
 	{
 		arc("WallP", w.WallP, def->WallP)
-			("State", w.State, def->State)
+			("State", w.__legacyState.State, def->__legacyState.State)
 			("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
-			("StateStart", w.StateStart, def->StateStart)
-			("StateEnd", w.StateEnd, def->StateEnd)
-			("StateFallOverride", w.StateFallOverride, def->StateFallOverride)
+			("StateStart", w.__legacyState.StateStart, def->__legacyState.StateStart)
+			("StateEnd", w.__legacyState.StateEnd, def->__legacyState.StateEnd)
+			("StateFallOverride", w.__legacyState.StateFallOverride, def->__legacyState.StateFallOverride)
 			("ActorActionSet", w.__legacyState.ActorActionSet, def->__legacyState.ActorActionSet)
-			("Personality", w.Personality, def->Personality)
-			("Attrib", w.Attrib, def->Attrib)
+			("Personality", w.__legacyState.Personality, def->__legacyState.Personality)
+			("Attrib", w.__legacyState.Attrib, def->__legacyState.Attrib)
 			("sop_parent", w.sop_parent, def->sop_parent)
 			("flags", w.Flags, def->Flags)
 			("flags2", w.Flags2, def->Flags2)
 			("Tics", w.Tics, def->Tics)
-			("RotNum", w.RotNum, def->RotNum)
+			("RotNum", w.__legacyState.RotNum, def->__legacyState.RotNum)
 			("ID", w.ID, def->ID)
 			("Health", w.Health, def->Health)
 			("MaxHealth", w.MaxHealth, def->MaxHealth)
@@ -830,7 +830,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("rotator", w.rotator)
 			("oz", w.oz, def->oz);
 
-		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.ActorActionFunc);
+		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.__legacyState.ActorActionFunc);
 		arc.EndObject();
 
 		if (arc.isReading())

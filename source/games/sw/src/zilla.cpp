@@ -623,9 +623,9 @@ int SetupZilla(DSWActor* actor)
     if (Skill == 1) actor->user.Health = 4000;
 
     ChangeState(actor,s_ZillaRun[0]);
-    actor->user.Attrib = &ZillaAttrib;
+    actor->user.__legacyState.Attrib = &ZillaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_ZillaDie;
+    actor->user.__legacyState.StateEnd = s_ZillaDie;
     actor->user.__legacyState.Rot = sg_ZillaRun;
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
@@ -684,7 +684,7 @@ int DoZillaMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

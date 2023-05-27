@@ -498,9 +498,9 @@ int SetupGoro(DSWActor* actor)
     }
 
     ChangeState(actor, s_GoroRun[0]);
-    actor->user.Attrib = &GoroAttrib;
+    actor->user.__legacyState.Attrib = &GoroAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_GoroDie;
+    actor->user.__legacyState.StateEnd = s_GoroDie;
     actor->user.__legacyState.Rot = sg_GoroRun;
 
 
@@ -557,7 +557,7 @@ int DoGoroMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

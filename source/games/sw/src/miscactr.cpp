@@ -130,10 +130,10 @@ int  SetupToiletGirl(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_ToiletGirlStand);
-    actor->user.Attrib = &ToiletGirlAttrib;
-    actor->user.StateEnd = s_ToiletGirlStand;
+    actor->user.__legacyState.Attrib = &ToiletGirlAttrib;
+    actor->user.__legacyState.StateEnd = s_ToiletGirlStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
     actor->spr.scale = DVector2(0.5, 0.5);
     actor->vel.X = 0;
@@ -385,10 +385,10 @@ int SetupWashGirl(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_WashGirlStand);
-    actor->user.Attrib = &WashGirlAttrib;
-    actor->user.StateEnd = s_WashGirlStand;
+    actor->user.__legacyState.Attrib = &WashGirlAttrib;
+    actor->user.__legacyState.StateEnd = s_WashGirlStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
 	actor->spr.scale = DVector2(0.4374, 0.375);
     actor->vel.X = 0;
@@ -614,10 +614,10 @@ int SetupTrashCan(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_TrashCanStand);
-    actor->user.Attrib = &TrashCanAttrib;
-    actor->user.StateEnd = s_TrashCanStand;
+    actor->user.__legacyState.Attrib = &TrashCanAttrib;
+    actor->user.__legacyState.StateEnd = s_TrashCanStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
 
 	actor->spr.scale = DVector2(0.71875, 0.65625);
@@ -727,10 +727,10 @@ int SetupPachinkoLight(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_PachinkoLightStand);
-    actor->user.Attrib = &PachinkoLightAttrib;
-    actor->user.StateEnd = s_PachinkoLightStand;
+    actor->user.__legacyState.Attrib = &PachinkoLightAttrib;
+    actor->user.__legacyState.StateEnd = s_PachinkoLightStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.ID = PACHINKOLIGHT_R0;
 
     actor->vel.X = 0;
@@ -832,10 +832,10 @@ int SetupPachinko1(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko1Stand);
-    actor->user.Attrib = &Pachinko1Attrib;
-    actor->user.StateEnd = s_Pachinko1Stand;
+    actor->user.__legacyState.Attrib = &Pachinko1Attrib;
+    actor->user.__legacyState.StateEnd = s_Pachinko1Stand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.ID = PACHINKO1;
 
     actor->vel.Z = 0;
@@ -1005,10 +1005,10 @@ int SetupPachinko2(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko2Stand);
-    actor->user.Attrib = &Pachinko2Attrib;
-    actor->user.StateEnd = s_Pachinko2Stand;
+    actor->user.__legacyState.Attrib = &Pachinko2Attrib;
+    actor->user.__legacyState.StateEnd = s_Pachinko2Stand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.ID = PACHINKO2;
 
     actor->vel.Z = 0;
@@ -1090,10 +1090,10 @@ int SetupPachinko3(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko3Stand);
-    actor->user.Attrib = &Pachinko3Attrib;
-    actor->user.StateEnd = s_Pachinko3Stand;
+    actor->user.__legacyState.Attrib = &Pachinko3Attrib;
+    actor->user.__legacyState.StateEnd = s_Pachinko3Stand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.ID = PACHINKO3;
 
     actor->vel.Z = 0;
@@ -1176,10 +1176,10 @@ int SetupPachinko4(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko4Stand);
-    actor->user.Attrib = &Pachinko4Attrib;
-    actor->user.StateEnd = s_Pachinko4Stand;
+    actor->user.__legacyState.Attrib = &Pachinko4Attrib;
+    actor->user.__legacyState.StateEnd = s_Pachinko4Stand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
     actor->user.ID = PACHINKO4;
 
     actor->vel.Z = 0;
@@ -1290,10 +1290,10 @@ int SetupCarGirl(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_CarGirlStand);
-    actor->user.Attrib = &CarGirlAttrib;
-    actor->user.StateEnd = s_CarGirlStand;
+    actor->user.__legacyState.Attrib = &CarGirlAttrib;
+    actor->user.__legacyState.StateEnd = s_CarGirlStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
 	actor->spr.scale = DVector2(0.453125, 0.390625);
     actor->vel.X = 0;
@@ -1525,10 +1525,10 @@ int SetupMechanicGirl(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_MechanicGirlStand);
-    actor->user.Attrib = &MechanicGirlAttrib;
-    actor->user.StateEnd = s_MechanicGirlStand;
+    actor->user.__legacyState.Attrib = &MechanicGirlAttrib;
+    actor->user.__legacyState.StateEnd = s_MechanicGirlStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
 	actor->spr.scale = DVector2(0.421875, 0.40625);
     actor->vel.X = 0;
@@ -1759,10 +1759,10 @@ int SetupSailorGirl(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_SailorGirlStand);
-    actor->user.Attrib = &SailorGirlAttrib;
-    actor->user.StateEnd = s_SailorGirlStand;
+    actor->user.__legacyState.Attrib = &SailorGirlAttrib;
+    actor->user.__legacyState.StateEnd = s_SailorGirlStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
 	actor->spr.scale = DVector2(0.4375, 0.40625);
     actor->vel.X = 0;
@@ -1988,10 +1988,10 @@ int SetupPruneGirl(DSWActor* actor)
     EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_PruneGirlStand);
-    actor->user.Attrib = &PruneGirlAttrib;
-    actor->user.StateEnd = s_PruneGirlStand;
+    actor->user.__legacyState.Attrib = &PruneGirlAttrib;
+    actor->user.__legacyState.StateEnd = s_PruneGirlStand;
     actor->user.__legacyState.Rot = 0;
-    actor->user.RotNum = 0;
+    actor->user.__legacyState.RotNum = 0;
 
 	actor->spr.scale = DVector2(0.515625, 0.4375);
     actor->vel.X = 0;

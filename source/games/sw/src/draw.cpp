@@ -108,7 +108,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
     tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
 
-    if (!ownerActor->hasU() || ownerActor->user.RotNum == 0)
+    if (!ownerActor->hasU() || ownerActor->user.__legacyState.RotNum == 0)
         return 0;
 
     // Get which of the 8 angles of the sprite to draw (0-7)
@@ -117,7 +117,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
     rotation = (tsp->Angles.Yaw + DAngle180 + DAngle22_5 * 0.5 - angle2).Buildang() & 2047;
     rotation = (rotation >> 8) & 7;
 
-    if (ownerActor->user.RotNum == 5)
+    if (ownerActor->user.__legacyState.RotNum == 5)
     {
         if ((ownerActor->user.Flags & SPR_XFLIP_TOGGLE))
         {
@@ -183,10 +183,10 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& vie
 
     if (!ownerActor->hasU()) return 0;
     // don't modify ANY tu vars - back them up!
-    STATE* State = ownerActor->user.State;
-    STATE* StateStart = ownerActor->user.StateStart;
+    STATE* State = ownerActor->user.__legacyState.State;
+    STATE* StateStart = ownerActor->user.__legacyState.StateStart;
 
-    if (ownerActor->user.RotNum == 0)
+    if (ownerActor->user.__legacyState.RotNum == 0)
         return 0;
 
     // Get the offset into the State animation
@@ -511,10 +511,10 @@ void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
 
     if (abs(zdiff) > 24)
     {
-        if (tActor->user.StateStart == s_StarStuck)
-            tsp->picnum = s_StarDownStuck[tActor->user.State - s_StarStuck].Pic;
+        if (tActor->user.__legacyState.StateStart == s_StarStuck)
+            tsp->picnum = s_StarDownStuck[tActor->user.__legacyState.State - s_StarStuck].Pic;
         else
-            tsp->picnum = s_StarDown[tActor->user.State - s_Star].Pic;
+            tsp->picnum = s_StarDown[tActor->user.__legacyState.State - s_Star].Pic;
 
         if (zdiff > 0)
             tsp->cstat |= (CSTAT_SPRITE_YFLIP);
@@ -702,7 +702,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             }
 
             // rotation
-            if (tActor->user.RotNum > 0)
+            if (tActor->user.__legacyState.RotNum > 0)
                 SetActorRotation(tsprites, tSpriteNum, viewpos.XY());
 
             if (tActor->user.motion_blur_num)
@@ -1093,13 +1093,13 @@ void PreDrawStackedWater(void)
 
                     // copy everything reasonable from the user that
                     // analyzesprites() needs to draw the image
-                    actorNew->user.State = itActor2->user.State;
+                    actorNew->user.__legacyState.State = itActor2->user.__legacyState.State;
                     actorNew->user.__legacyState.Rot = itActor2->user.__legacyState.Rot;
-                    actorNew->user.StateStart = itActor2->user.StateStart;
-                    actorNew->user.StateEnd = itActor2->user.StateEnd;
+                    actorNew->user.__legacyState.StateStart = itActor2->user.__legacyState.StateStart;
+                    actorNew->user.__legacyState.StateEnd = itActor2->user.__legacyState.StateEnd;
                     actorNew->user.Flags = itActor2->user.Flags;
                     actorNew->user.Flags2 = itActor2->user.Flags2;
-                    actorNew->user.RotNum = itActor2->user.RotNum;
+                    actorNew->user.__legacyState.RotNum = itActor2->user.__legacyState.RotNum;
                     actorNew->user.ID = itActor2->user.ID;
 
                     actorNew->user.PlayerP = itActor2->user.PlayerP;

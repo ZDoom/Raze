@@ -4712,7 +4712,7 @@ int SetSuicide(DSWActor* actor)
     if (actor->hasU())
     {
         actor->user.Flags |= (SPR_SUICIDE);
-        actor->user.RotNum = 0;
+        actor->user.__legacyState.RotNum = 0;
     }
     ChangeState(actor, s_Suicide);
     return 0;
@@ -4809,7 +4809,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 
     UpdateSinglePlayKills(actor);
 
-    if (actor->user.Attrib)
+    if (actor->user.__legacyState.Attrib)
         PlaySpriteSound(actor,attr_die,v3df_follow);
 
     switch (actor->user.ID)
@@ -5097,7 +5097,7 @@ int ActorHealth(DSWActor* actor, short amt)
         }
     }
 
-    if (actor->user.Attrib && RANDOM_P2(1024) > 850)
+    if (actor->user.__legacyState.Attrib && RANDOM_P2(1024) > 850)
         PlaySpriteSound(actor,attr_pain,v3df_follow|v3df_dontpan);
 
     // keep track of the last damage
@@ -5648,7 +5648,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     if ((weapActor->user.Flags & SPR_SUICIDE))
         return 0;
 
-    if (actor->user.Attrib && RANDOM_P2(1024) > 850)
+    if (actor->user.__legacyState.Attrib && RANDOM_P2(1024) > 850)
         PlaySpriteSound(actor,attr_pain,v3df_follow);
 
     if (actor->user.Flags & (SPR_DEAD))
@@ -9440,7 +9440,7 @@ int DoRail(DSWActor* actor)
             actorNew->vel.X += RandomRangeF(140 / 16.) - RandomRangeF(140 / 16.);
             actorNew->vel.Z += RandomRangeF(140 / 256.) - RandomRangeF(140 / 256.);
 
-            actorNew->user.RotNum = 5;
+            actorNew->user.__legacyState.RotNum = 5;
             NewStateGroup(actorNew, sg_RailPuff);
 
             actorNew->spr.shade = -40;
@@ -9601,7 +9601,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     actorNew->spr.shade = actor->spr.shade;
     actorNew->copy_clipdist(actor);
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_MicroMini[0]);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = actor->user.Radius;
@@ -11343,9 +11343,9 @@ int DoMirv(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], actor->sector(),
 									   actor->spr.pos, actor->spr.Angles.Yaw + angs[i], 50);
 
-            actorNew->user.RotNum = 5;
+            actorNew->user.__legacyState.RotNum = 5;
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
-            actorNew->user.StateEnd = s_MirvMeteorExp;
+            actorNew->user.__legacyState.StateEnd = s_MirvMeteorExp;
 
             SetOwner(actor, actorNew);
             actorNew->spr.shade = -40;
@@ -11623,7 +11623,7 @@ int DoSerpRing(DSWActor* actor)
     auto own = GetOwner(actor);
     // if Owner does not exist or he's dead on the floor
     // kill off all of his skull children
-    if (own == nullptr || own->user.RotNum < 5)
+    if (own == nullptr || own->user.__legacyState.RotNum < 5)
     {
         UpdateSinglePlayKills(actor);
         DoSkullBeginDeath(actor);
@@ -11907,7 +11907,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->user.TargetDist = SERP_RING_DIST;
         actorNew->user.Counter2 = 0;
 
-        actorNew->user.StateEnd = s_SkullExplode;
+        actorNew->user.__legacyState.StateEnd = s_SkullExplode;
         actorNew->user.__legacyState.Rot = sg_SkullRing;
 
         // defaults do change the statnum
@@ -12624,10 +12624,10 @@ int InitSumoSkull(DSWActor* actor)
     actor->user.Flags ^= SPR_BOUNCE;
     actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
-    actorNew->user.StateEnd = s_SkullExplode;
+    actorNew->user.__legacyState.StateEnd = s_SkullExplode;
     actorNew->user.__legacyState.Rot = sg_SkullWait;
 
-    actorNew->user.Attrib = &SkullAttrib;
+    actorNew->user.__legacyState.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actorNew->user.Counter = RANDOM_P2(2048);
     actorNew->user.pos.Z = actorNew->spr.pos.Z;
@@ -13476,7 +13476,7 @@ int InitRail(PLAYER* pp)
     actorNew->spr.shade = -15;
     setFreeAimVelocity(actorNew->vel.X, zvel, pp->Angles.getPitchWithView(), (HORIZ_MULT + 17) * 0.5);
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13549,7 +13549,7 @@ int InitZillaRail(DSWActor* actor)
     actorNew->spr.shade = -15;
     double zvel = (100 * (HORIZ_MULT+17)) / 256.;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13642,7 +13642,7 @@ int InitRocket(PLAYER* pp)
 
     actorNew->clipdist = 4;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13749,7 +13749,7 @@ int InitBunnyRocket(PLAYER* pp)
 
     actorNew->clipdist = 4;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_BunnyRocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13853,7 +13853,7 @@ int InitNuke(PLAYER* pp)
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -13935,7 +13935,7 @@ int InitEnemyNuke(DSWActor* actor)
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -14037,7 +14037,7 @@ int InitMicro(PLAYER* pp)
         // randomize zvelocity
         actorNew->vel.Z += RandomRangeF(8) - 5;
 
-        actorNew->user.RotNum = 5;
+        actorNew->user.__legacyState.RotNum = 5;
         NewStateGroup(actorNew, &sg_Micro[0]);
 
         actorNew->user.WeaponNum = actor->user.WeaponNum;
@@ -14443,9 +14443,9 @@ int InitSerpSpell(DSWActor* actor)
 
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
-        actorNew->user.RotNum = 5;
+        actorNew->user.__legacyState.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
-        actorNew->user.StateEnd = s_MirvMeteorExp;
+        actorNew->user.__legacyState.StateEnd = s_MirvMeteorExp;
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -14546,9 +14546,9 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
-        actorNew->user.RotNum = 5;
+        actorNew->user.__legacyState.RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
-        actorNew->user.StateEnd = s_TeleportEffect2;
+        actorNew->user.__legacyState.StateEnd = s_TeleportEffect2;
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -14635,7 +14635,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
     actorNew->clipdist = 4;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14707,7 +14707,7 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.Radius = 200;
@@ -14773,7 +14773,7 @@ int InitZillaRocket(DSWActor* actor)
         actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
         actorNew->clipdist = 4;
 
-        actorNew->user.RotNum = 5;
+        actorNew->user.__legacyState.RotNum = 5;
         NewStateGroup(actorNew, &sg_Rocket[0]);
         actorNew->user.Radius = 200;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14864,7 +14864,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
     actorNew->clipdist = 4;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
 
 	UpdateChange(actorNew);
@@ -15140,7 +15140,7 @@ void InitBoltTrap(DSWActor* actor)
     actorNew->vel.Z = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
     actorNew->user.Radius = 200;
 
@@ -15164,7 +15164,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->spr.shade = -25;
     actorNew->clipdist = 4;
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
 
 	UpdateChange(actorNew);
@@ -15756,7 +15756,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         actorNew->clipdist = 4;
 
 
-        actorNew->user.RotNum = 5;
+        actorNew->user.__legacyState.RotNum = 5;
         NewStateGroup(actorNew, &sg_Micro[0]);
 
         actorNew->user.WeaponNum = plActor->user.WeaponNum;
@@ -15899,7 +15899,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     actorNew->spr.shade = -15;
     setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->Angles.getPitchWithView(), HORIZ_MULTF);
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
 
     actorNew->user.Radius = 200;
@@ -16662,7 +16662,7 @@ int InitGrenade(PLAYER* pp)
         actorNew->vel.Z *= 0.75;
     }
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Grenade[0]);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
@@ -16733,7 +16733,7 @@ int InitSpriteGrenade(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], actor->sector(),
                     actor->spr.pos.plusZ(-40), actor->spr.Angles.Yaw, GRENADE_VELOCITY);
 
-    actorNew->user.RotNum = 5;
+    actorNew->user.__legacyState.RotNum = 5;
     NewStateGroup(actorNew, &sg_Grenade[0]);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 

@@ -409,7 +409,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
 
     actor->user.spal = actor->spr.pal;
 
-    actor->user.RotNum = 5;
+    actor->user.__legacyState.RotNum = 5;
     actor->clipdist = 16;
 
     actor->user.zclip = 48;
@@ -427,10 +427,10 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
-    actor->spr.picnum = actor->user.State->Pic;
+    actor->spr.picnum = actor->user.__legacyState.State->Pic;
     change_actor_stat(actor, STAT_ENEMY);
 
-    actor->user.Personality = person;
+    actor->user.__legacyState.Personality = person;
     actor->user.__legacyState.ActorActionSet = action;
 
     DoActorZrange(actor);
@@ -470,7 +470,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
 
     NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
-    actor->user.ActorActionFunc = DoActorDecide;
+    actor->user.__legacyState.ActorActionFunc = DoActorDecide;
 
     // find the number of long range attacks
     for (wpn = wpn_cnt = 0; wpn < SIZ(actor->user.__legacyState.ActorActionSet->Attack); wpn++)
@@ -497,9 +497,9 @@ int SetupCoolie(DSWActor* actor)
     }
 
     ChangeState(actor,s_CoolieRun[0]);
-    actor->user.Attrib = &CoolieAttrib;
+    actor->user.__legacyState.Attrib = &CoolieAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_CoolieDie;
+    actor->user.__legacyState.StateEnd = s_CoolieDie;
     actor->user.__legacyState.Rot = sg_CoolieRun;
 
     EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
@@ -588,7 +588,7 @@ int DoCoolieMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

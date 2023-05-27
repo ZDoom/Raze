@@ -617,9 +617,9 @@ int SetupSumo(DSWActor* actor)
     if (Skill == 1) actor->user.Health = 4000;
 
     ChangeState(actor,s_SumoRun[0]);
-    actor->user.Attrib = &SumoAttrib;
+    actor->user.__legacyState.Attrib = &SumoAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_SumoDie;
+    actor->user.__legacyState.StateEnd = s_SumoDie;
     actor->user.__legacyState.Rot = sg_SumoRun;
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
@@ -669,7 +669,7 @@ int DoSumoMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     KeepActorOnFloor(actor);
 

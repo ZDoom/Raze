@@ -304,9 +304,9 @@ int SetupHornet(DSWActor* actor)
     }
 
     ChangeState(actor, s_HornetRun[0]);
-    actor->user.Attrib = &HornetAttrib;
+    actor->user.__legacyState.Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_HornetDie;
+    actor->user.__legacyState.StateEnd = s_HornetDie;
     actor->user.__legacyState.Rot = sg_HornetRun;
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
@@ -428,7 +428,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
 int InitHornetCircle(DSWActor* actor)
 {
-    actor->user.ActorActionFunc = DoHornetCircle;
+    actor->user.__legacyState.ActorActionFunc = DoHornetCircle;
 
     NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
@@ -450,7 +450,7 @@ int InitHornetCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
 
-    (*actor->user.ActorActionFunc)(actor);
+    (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     return 0;
 }
@@ -616,7 +616,7 @@ int DoHornetMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     DoHornetMatchPlayerZ(actor);
 

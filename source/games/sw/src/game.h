@@ -48,6 +48,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gameinput.h"
 #include "serialize_obj.h"
 #include "texturemanager.h"
+#include "states.h"
+#include "vm.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -689,21 +691,23 @@ struct USER
     TArray<int8_t> WallShade;
 
     walltype* WallP; // operate on wall instead of sprite
+
     struct LegacyState
     {
-	    ACTOR_ACTION_SET* ActorActionSet;
-	    STATE* *Rot;
+        STATE* State;
+        STATE** Rot;
+        STATE* StateStart;
+        STATE* StateEnd;
+        STATE** StateFallOverride; // a bit kludgy - override std fall state
+        ACTOR_ACTION_SET* ActorActionSet;
+        int16_t RotNum;
+        ANIMATOR* ActorActionFunc;
+        PERSONALITY* Personality;
+        ATTRIBUTE* Attrib;
+
     };
     LegacyState __legacyState;
-	
-    STATE* State;
-    STATE* StateStart;
-    STATE* StateEnd;
-    STATE* *StateFallOverride; // a bit kludgy - override std fall state
 
-    ANIMATOR* ActorActionFunc;
-    PERSONALITY* Personality;
-    ATTRIBUTE* Attrib;
     SECTOR_OBJECT* sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
@@ -729,7 +733,6 @@ struct USER
     int Flags2;
     int Tics;
 
-    int16_t RotNum;
     int16_t ID;
 
     // Health/Pain related

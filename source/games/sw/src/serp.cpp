@@ -707,9 +707,9 @@ int SetupSerp(DSWActor* actor)
     if (Skill == 1) actor->user.Health = 2200;
 
     ChangeState(actor, s_SerpRun[0]);
-    actor->user.Attrib = &SerpAttrib;
+    actor->user.__legacyState.Attrib = &SerpAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.StateEnd = s_SerpDie;
+    actor->user.__legacyState.StateEnd = s_SerpDie;
     actor->user.__legacyState.Rot = sg_SerpRun;
 
     EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
@@ -760,7 +760,7 @@ int DoSerpMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        (*actor->user.ActorActionFunc)(actor);
+        (*actor->user.__legacyState.ActorActionFunc)(actor);
 
     // serp ring
     if (actor->spr.pal != 16)
