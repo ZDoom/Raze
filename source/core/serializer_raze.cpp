@@ -48,6 +48,7 @@
 #include "actorinfo.h"
 #include "printf.h"
 #include "utf8.h"
+#include "coreactor.h"
 
 #include "serializer_internal.h"
 
