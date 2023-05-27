@@ -727,7 +727,7 @@ int SetupGirlNinja(DSWActor* actor)
     }
 
     actor->user.StateEnd = s_GirlNinjaDie;
-    actor->user.Rot = sg_GirlNinjaRun;
+    actor->user.__legacyState.Rot = sg_GirlNinjaRun;
 	actor->spr.scale = DVector2(0.796875, 0.671875);
 
     actor->user.Attrib = &GirlNinjaAttrib;

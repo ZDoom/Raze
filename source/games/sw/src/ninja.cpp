@@ -1829,7 +1829,7 @@ int SetupNinja(DSWActor* actor)
     }
 
     actor->user.StateEnd = s_NinjaDie;
-    actor->user.Rot = sg_NinjaRun;
+    actor->user.__legacyState.Rot = sg_NinjaRun;
 	actor->spr.scale = DVector2(0.71875, 0.71875);
 
     if (actor->spr.pal == PALETTE_PLAYER5)
@@ -1847,14 +1847,14 @@ int SetupNinja(DSWActor* actor)
             if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
             {
                 actor->user.Attrib = &NinjaAttrib;
-                actor->user.ActorActionSet = &NinjaActionSet;
+                actor->user.__legacyState.ActorActionSet = &NinjaActionSet;
                 actor->user.Personality = &NinjaPersonality;
                 ChangeState(actor, s_NinjaCeiling[0]);
             }
             else
             {
                 actor->user.Attrib = &NinjaAttrib;
-                actor->user.ActorActionSet = &NinjaSniperActionSet;
+                actor->user.__legacyState.ActorActionSet = &NinjaSniperActionSet;
                 actor->user.Personality = &NinjaSniperPersonality;
                 ChangeState(actor, s_NinjaDuck[0]);
             }
@@ -1872,14 +1872,14 @@ int SetupNinja(DSWActor* actor)
             if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
             {
                 actor->user.Attrib = &NinjaAttrib;
-                actor->user.ActorActionSet = &NinjaActionSet;
+                actor->user.__legacyState.ActorActionSet = &NinjaActionSet;
                 actor->user.Personality = &NinjaPersonality;
                 ChangeState(actor, s_NinjaCeiling[0]);
             }
             else
             {
                 actor->user.Attrib = &NinjaAttrib;
-                actor->user.ActorActionSet = &NinjaSniperActionSet;
+                actor->user.__legacyState.ActorActionSet = &NinjaSniperActionSet;
                 actor->user.Personality = &NinjaSniperPersonality;
                 ChangeState(actor, s_NinjaDuck[0]);
             }
@@ -1911,7 +1911,7 @@ int SetupNinja(DSWActor* actor)
         if (pic == NINJA_CRAWL_R0)
         {
             actor->user.Attrib = &NinjaAttrib;
-            actor->user.ActorActionSet = &NinjaSniperActionSet;
+            actor->user.__legacyState.ActorActionSet = &NinjaSniperActionSet;
             actor->user.Personality = &NinjaSniperPersonality;
             ChangeState(actor, s_NinjaDuck[0]);
         }
@@ -2408,8 +2408,8 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos, const DAngle startan
 
     // Grouping items that need to be reset after a LoadLevel
     ChangeState(actor, s_NinjaRun[0]);
-    actor->user.Rot = sg_NinjaRun;
-    actor->user.ActorActionSet = &PlayerNinjaActionSet;
+    actor->user.__legacyState.Rot = sg_NinjaRun;
+    actor->user.__legacyState.ActorActionSet = &PlayerNinjaActionSet;
 
     actor->user.RotNum = 5;
 
@@ -2427,7 +2427,7 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos, const DAngle startan
     actor->spr.pal = PALETTE_PLAYER0 + pp->pnum;
     actor->user.spal = actor->spr.pal;
 
-    NewStateGroup(pp->actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Run);
 
     pp->PlayerUnderActor = nullptr;
 
@@ -2477,16 +2477,16 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
-    actor->user.Rot = sg_NinjaRun;
+    actor->user.__legacyState.Rot = sg_NinjaRun;
     actor->user.RotNum = plActor->user.RotNum;
-    NewStateGroup(pp->PlayerUnderActor, plActor->user.Rot);
+    NewStateGroup(pp->PlayerUnderActor, plActor->user.__legacyState.Rot);
 
     actor->user.Radius = plActor->user.Radius;
     actor->user.PlayerP = pp;
     actor->user.Health = pp->MaxHealth;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
-    actor->user.ActorActionSet = plActor->user.ActorActionSet;
+    actor->user.__legacyState.ActorActionSet = plActor->user.__legacyState.ActorActionSet;
 
     actor->spr.picnum = plActor->spr.picnum;
     actor->copy_clipdist(plActor);

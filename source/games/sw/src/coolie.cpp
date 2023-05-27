@@ -431,7 +431,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     change_actor_stat(actor, STAT_ENEMY);
 
     actor->user.Personality = person;
-    actor->user.ActorActionSet = action;
+    actor->user.__legacyState.ActorActionSet = action;
 
     DoActorZrange(actor);
 
@@ -468,14 +468,14 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     if (!action)
         return;
 
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     actor->user.ActorActionFunc = DoActorDecide;
 
     // find the number of long range attacks
-    for (wpn = wpn_cnt = 0; wpn < SIZ(actor->user.ActorActionSet->Attack); wpn++)
+    for (wpn = wpn_cnt = 0; wpn < SIZ(actor->user.__legacyState.ActorActionSet->Attack); wpn++)
     {
-        if (actor->user.ActorActionSet->Attack[wpn])
+        if (actor->user.__legacyState.ActorActionSet->Attack[wpn])
             wpn_cnt++;
         else
             break;
@@ -500,7 +500,7 @@ int SetupCoolie(DSWActor* actor)
     actor->user.Attrib = &CoolieAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_CoolieDie;
-    actor->user.Rot = sg_CoolieRun;
+    actor->user.__legacyState.Rot = sg_CoolieRun;
 
     EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
 

@@ -531,11 +531,11 @@ void KeepActorOnFloor(DSWActor* actor)
 
     if ((sectp->extra & SECTFX_SINK) &&
         depth > 35 &&
-        actor->user.ActorActionSet && actor->user.ActorActionSet->Swim)
+        actor->user.__legacyState.ActorActionSet && actor->user.__legacyState.ActorActionSet->Swim)
     {
         if (actor->user.Flags & (SPR_SWIMMING))
         {
-            if (actor->user.Rot != actor->user.ActorActionSet->Run && actor->user.Rot != actor->user.ActorActionSet->Swim && actor->user.Rot != actor->user.ActorActionSet->Stand)
+            if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Run && actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Swim && actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Stand)
             {
                 // was swimming but have now stopped
                 actor->user.Flags &= ~(SPR_SWIMMING);
@@ -544,9 +544,9 @@ void KeepActorOnFloor(DSWActor* actor)
                 return;
             }
 
-            if (actor->user.Rot == actor->user.ActorActionSet->Run)
+            if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Run)
             {
-                NewStateGroup(actor, actor->user.ActorActionSet->Swim);
+                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Swim);
             }
 
             // are swimming
@@ -555,9 +555,9 @@ void KeepActorOnFloor(DSWActor* actor)
         else
         {
             // only start swimming if you are running
-            if (actor->user.Rot == actor->user.ActorActionSet->Run || actor->user.Rot == actor->user.ActorActionSet->Swim)
+            if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Run || actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Swim)
             {
-                NewStateGroup(actor, actor->user.ActorActionSet->Swim);
+                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Swim);
                 actor->spr.pos.Z = actor->user.oz = actor->user.loz - depth;
                 actor->user.Flags |= (SPR_SWIMMING);
                 actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -656,12 +656,12 @@ int DoActorBeginJump(DSWActor* actor)
     actor->user.jump_grav = ACTOR_GRAVITY;
 
     // Change sprites state to jumping
-    if (actor->user.ActorActionSet)
+    if (actor->user.__legacyState.ActorActionSet)
     {
         if (actor->user.Flags & (SPR_DEAD))
-            NewStateGroup(actor, actor->user.ActorActionSet->DeathJump);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->DeathJump);
         else
-            NewStateGroup(actor, actor->user.ActorActionSet->Jump);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Jump);
     }
     actor->user.StateFallOverride = nullptr;
 
@@ -728,14 +728,14 @@ int DoActorBeginFall(DSWActor* actor)
     actor->user.jump_grav = ACTOR_GRAVITY;
 
     // Change sprites state to falling
-    if (actor->user.ActorActionSet)
+    if (actor->user.__legacyState.ActorActionSet)
     {
         if (actor->user.Flags & (SPR_DEAD))
         {
-            NewStateGroup(actor, actor->user.ActorActionSet->DeathFall);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->DeathFall);
         }
         else
-            NewStateGroup(actor, actor->user.ActorActionSet->Fall);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Fall);
 
         if (actor->user.StateFallOverride)
         {
@@ -796,23 +796,23 @@ int DoActorStopFall(DSWActor* actor)
     }
 
     // Change sprites state to running
-    if (actor->user.ActorActionSet)
+    if (actor->user.__legacyState.ActorActionSet)
     {
         if (actor->user.Flags & (SPR_DEAD))
         {
-            NewStateGroup(actor, actor->user.ActorActionSet->Dead);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Dead);
             PlaySound(DIGI_ACTORBODYFALL1, actor, v3df_none);
         }
         else
         {
             PlaySound(DIGI_ACTORHITGROUND, actor, v3df_none);
 
-            NewStateGroup(actor, actor->user.ActorActionSet->Run);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
-            if ((actor->user.track >= 0) && (actor->user.jump_speed) > 800 && (actor->user.ActorActionSet->Sit))
+            if ((actor->user.track >= 0) && (actor->user.jump_speed) > 800 && (actor->user.__legacyState.ActorActionSet->Sit))
             {
                 actor->user.WaitTics = 80;
-                NewStateGroup(actor, actor->user.ActorActionSet->Sit);
+                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
             }
         }
     }

@@ -620,7 +620,7 @@ int SetupSumo(DSWActor* actor)
     actor->user.Attrib = &SumoAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_SumoDie;
-    actor->user.Rot = sg_SumoRun;
+    actor->user.__legacyState.Rot = sg_SumoRun;
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
@@ -629,7 +629,7 @@ int SetupSumo(DSWActor* actor)
     {
         // Mini Sumo
         actor->spr.scale = DVector2(0.671875, 0.453125);
-        actor->user.ActorActionSet = &MiniSumoActionSet;
+        actor->user.__legacyState.ActorActionSet = &MiniSumoActionSet;
         actor->user.Health = 500;
     }
     else

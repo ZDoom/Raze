@@ -471,7 +471,7 @@ int SetupLava(DSWActor* actor)
     actor->user.Attrib = &LavaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_LavaDie;
-    actor->user.Rot = sg_LavaRun;
+    actor->user.__legacyState.Rot = sg_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
 	actor->spr.scale = DVector2(1.71875, 1.71875);

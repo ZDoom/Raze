@@ -743,7 +743,7 @@ int SetupBunny(DSWActor* actor)
 
     ChangeState(actor, s_BunnyRun[0]);
     actor->user.StateEnd = s_BunnyDie;
-    actor->user.Rot = sg_BunnyRun;
+    actor->user.__legacyState.Rot = sg_BunnyRun;
     actor->user.ShellNum = 0; // Not Pregnant right now
     actor->user.FlagOwner = 0;
 
@@ -1178,7 +1178,7 @@ void BunnyHatch(DSWActor* actor)
 
         actorNew->user.ShellNum = 0; // Not Pregnant right now
 
-        NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+        NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
         actorNew->user.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);
@@ -1226,7 +1226,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 
     actorNew->user.ShellNum = 0; // Not Pregnant right now
 
-    NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+    NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
     actorNew->user.ActorActionFunc = DoActorMoveJump;
     DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(actor))

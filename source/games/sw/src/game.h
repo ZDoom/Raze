@@ -689,14 +689,19 @@ struct USER
     TArray<int8_t> WallShade;
 
     walltype* WallP; // operate on wall instead of sprite
+    struct LegacyState
+    {
+	    ACTOR_ACTION_SET* ActorActionSet;
+	    STATE* *Rot;
+    };
+    LegacyState __legacyState;
+	
     STATE* State;
-    STATE* *Rot;
     STATE* StateStart;
     STATE* StateEnd;
     STATE* *StateFallOverride; // a bit kludgy - override std fall state
 
     ANIMATOR* ActorActionFunc;
-    ACTOR_ACTION_SET* ActorActionSet;
     PERSONALITY* Personality;
     ATTRIBUTE* Attrib;
     SECTOR_OBJECT* sop_parent;  // denotes that this sprite is a part of the

@@ -759,7 +759,7 @@ int SetupZombie(DSWActor* actor)
 
     actor->user.Health = 100;
     actor->user.StateEnd = &s_ZombiePain[0][0];
-    actor->user.Rot = sg_ZombieRun;
+    actor->user.__legacyState.Rot = sg_ZombieRun;
 	actor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
     actor->user.Attrib = &ZombieAttrib;

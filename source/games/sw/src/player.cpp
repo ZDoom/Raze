@@ -1058,10 +1058,10 @@ void DoPlayerSpriteThrow(PLAYER* pp)
 {
     if (!(pp->Flags & (PF_DIVING|PF_FLYING|PF_CRAWLING)))
     {
-        if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->actor->user.Rot != sg_PlayerNinjaSword)
+        if (pp->CurWpn == pp->Wpn[WPN_SWORD] && pp->actor->user.__legacyState.Rot != sg_PlayerNinjaSword)
             NewStateGroup(pp->actor, sg_PlayerNinjaSword);
         else
-            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->actor->user.Rot != sg_PlayerNinjaPunch)
+            //if (pp->CurWpn == pp->Wpn[WPN_FIST] && pp->actor->user.__legacyState.Rot != sg_PlayerNinjaPunch)
             NewStateGroup(pp->actor, sg_PlayerNinjaPunch);
         //else
         //    NewStateGroup(pp->actor, sg_PlayerNinjaThrow);
@@ -1085,13 +1085,13 @@ int DoPlayerSpriteReset(DSWActor* actor)
 
     // need to figure out what frames to put sprite into
     if (pp->DoPlayerAction == DoPlayerCrawl)
-        NewStateGroup(pp->actor, actor->user.ActorActionSet->Crawl);
+        NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Crawl);
     else
     {
         if (pp->Flags & (PF_PLAYER_MOVED))
-            NewStateGroup(pp->actor, actor->user.ActorActionSet->Run);
+            NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Run);
         else
-            NewStateGroup(pp->actor, actor->user.ActorActionSet->Stand);
+            NewStateGroup(pp->actor, actor->user.__legacyState.ActorActionSet->Stand);
     }
 
     return 0;
@@ -1423,7 +1423,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         DoPlayerBeginRun(pp);
         pp->DoPlayerAction = DoPlayerTeleportPause;
 
-        NewStateGroup(ppActor, ppActor->user.ActorActionSet->Stand);
+        NewStateGroup(ppActor, ppActor->user.__legacyState.ActorActionSet->Stand);
 
         UpdatePlayerSprite(pp);
         DoSpawnTeleporterEffect(ppActor);
@@ -1816,7 +1816,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     act_under->spr.pos.Z = act_under->sector()->ceilingz + zdiff;
 
     act_under->user.State = act_over->user.State;
-    act_under->user.Rot = act_over->user.Rot;
+    act_under->user.__legacyState.Rot = act_over->user.__legacyState.Rot;
     act_under->user.StateStart = act_over->user.StateStart;
     act_under->spr.picnum = act_over->spr.picnum;
 }
@@ -2789,7 +2789,7 @@ void DoPlayerBeginJump(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Jump);
 }
 
 //---------------------------------------------------------------------------
@@ -2816,7 +2816,7 @@ void DoPlayerBeginForceJump(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Jump);
 }
 
 //---------------------------------------------------------------------------
@@ -2991,8 +2991,8 @@ void DoPlayerBeginFall(PLAYER* pp)
 
     // Only change to falling frame if you were in the jump frame
     // Otherwise an animation may be messed up such as Running Jump Kick
-    if (plActor->user.Rot == plActor->user.ActorActionSet->Jump)
-        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Fall);
+    if (plActor->user.__legacyState.Rot == plActor->user.__legacyState.ActorActionSet->Jump)
+        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Fall);
 }
 
 //---------------------------------------------------------------------------
@@ -3198,7 +3198,7 @@ void DoPlayerBeginClimb(PLAYER* pp)
 
     //DamageData[plActor->user.WeaponNum].Init(pp);
 
-    //NewStateGroup(pp->actor, pp->actor->user.ActorActionSet->Climb);
+    //NewStateGroup(pp->actor, pp->actor->user.__legacyState.ActorActionSet->Climb);
     NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
 }
 
@@ -3464,7 +3464,7 @@ void DoPlayerBeginCrawl(PLAYER* pp)
 
     //pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Crawl);
 }
 
 //---------------------------------------------------------------------------
@@ -3571,7 +3571,7 @@ void DoPlayerCrawl(PLAYER* pp)
 
     if (!(pp->Flags & PF_PLAYER_MOVED))
     {
-        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
+        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Crawl);
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
@@ -4304,7 +4304,7 @@ void DoPlayerBeginDive(PLAYER* pp)
     DoPlayerMove(pp); // needs to be called to reset the pp->loz/hiz variable
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Dive);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Dive);
 
     DoPlayerDive(pp);
 }
@@ -4357,7 +4357,7 @@ void DoPlayerBeginDiveNoWarp(PLAYER* pp)
     pp->DiveDamageTics = 0;
     DoPlayerMove(pp); // needs to be called to reset the pp->loz/hiz variable
     ///DamageData[plActor->user.WeaponNum].Init(pp);
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Dive);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Dive);
     DoPlayerDive(pp);
 }
 
@@ -4794,9 +4794,9 @@ void DoPlayerBeginWade(PLAYER* pp)
     if (pp->jump_speed > 0 && pp->jump_speed < 1300)
         pp->jump_speed = 0;
 
-    ASSERT(plActor->user.ActorActionSet->Run);
+    ASSERT(plActor->user.__legacyState.ActorActionSet->Run);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
 }
 
 
@@ -4889,13 +4889,13 @@ void DoPlayerWade(PLAYER* pp)
 
     if (pp->Flags & (PF_PLAYER_MOVED))
     {
-        if (plActor->user.Rot != plActor->user.ActorActionSet->Run)
-            NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
+        if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Run)
+            NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
     }
     else
     {
-        if (plActor->user.Rot != plActor->user.ActorActionSet->Stand)
-            NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
+        if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Stand)
+            NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
@@ -4965,9 +4965,9 @@ void DoPlayerBeginOperateVehicle(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    ASSERT(plActor->user.ActorActionSet->Stand);
+    ASSERT(plActor->user.__legacyState.ActorActionSet->Stand);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
 }
 
 //---------------------------------------------------------------------------
@@ -4990,9 +4990,9 @@ void DoPlayerBeginOperateTurret(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    ASSERT(plActor->user.ActorActionSet->Stand);
+    ASSERT(plActor->user.__legacyState.ActorActionSet->Stand);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
 }
 
 //---------------------------------------------------------------------------
@@ -5755,7 +5755,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->sop = nullptr;
     pp->Flags &= ~(PF_TWO_UZI);
 
-    NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
+    NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
     pWeaponForceRest(pp);
 
     switch (pp->DeathType)
@@ -5977,7 +5977,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
             InitBloodSpray(plActor,true,-1);
         }
 
-        NewStateGroup(plActor, plActor->user.ActorActionSet->Stand);
+        NewStateGroup(plActor, plActor->user.__legacyState.ActorActionSet->Stand);
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
@@ -6417,12 +6417,12 @@ void DoPlayerBeginRun(PLAYER* pp)
 
     ///DamageData[plActor->user.WeaponNum].Init(pp);
 
-    ASSERT(plActor->user.ActorActionSet->Run);
+    ASSERT(plActor->user.__legacyState.ActorActionSet->Run);
 
     if (pp->Flags & (PF_PLAYER_MOVED))
-        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
+        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
     else
-        NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
+        NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
 }
 
 //---------------------------------------------------------------------------
@@ -6545,17 +6545,17 @@ void DoPlayerRun(PLAYER* pp)
     // Move about
     DoPlayerMove(pp);
 
-    if (plActor->user.Rot != sg_PlayerNinjaSword && plActor->user.Rot != sg_PlayerNinjaPunch)
+    if (plActor->user.__legacyState.Rot != sg_PlayerNinjaSword && plActor->user.__legacyState.Rot != sg_PlayerNinjaPunch)
     {
         if (pp->Flags & (PF_PLAYER_MOVED))
         {
-            if (plActor->user.Rot != plActor->user.ActorActionSet->Run)
-                NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
+            if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Run)
+                NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Run);
         }
         else
         {
-            if (plActor->user.Rot != plActor->user.ActorActionSet->Stand)
-                NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
+            if (plActor->user.__legacyState.Rot != plActor->user.__legacyState.ActorActionSet->Stand)
+                NewStateGroup(pp->actor, plActor->user.__legacyState.ActorActionSet->Stand);
         }
     }
 
@@ -6624,7 +6624,7 @@ void PlayerStateControl(DSWActor* actor)
 
     // Set picnum to the correct pic
     if (actor->user.RotNum > 1)
-        actor->spr.picnum = actor->user.Rot[0]->Pic;
+        actor->spr.picnum = actor->user.__legacyState.Rot[0]->Pic;
     else
         actor->spr.picnum = actor->user.State->Pic;
 

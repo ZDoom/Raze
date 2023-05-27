@@ -742,11 +742,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	{
 		arc("WallP", w.WallP, def->WallP)
 			("State", w.State, def->State)
-			("Rot", w.Rot, def->Rot)
+			("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
 			("StateStart", w.StateStart, def->StateStart)
 			("StateEnd", w.StateEnd, def->StateEnd)
 			("StateFallOverride", w.StateFallOverride, def->StateFallOverride)
-			("ActorActionSet", w.ActorActionSet, def->ActorActionSet)
+			("ActorActionSet", w.__legacyState.ActorActionSet, def->__legacyState.ActorActionSet)
 			("Personality", w.Personality, def->Personality)
 			("Attrib", w.Attrib, def->Attrib)
 			("sop_parent", w.sop_parent, def->sop_parent)

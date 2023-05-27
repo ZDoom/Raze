@@ -834,7 +834,7 @@ int SetupRipper(DSWActor* actor)
     actor->user.Attrib = &RipperAttrib;
     DoActorSetSpeed(actor, FAST_SPEED);
     actor->user.StateEnd = s_RipperDie;
-    actor->user.Rot = sg_RipperRun;
+    actor->user.__legacyState.Rot = sg_RipperRun;
     actor->spr.scale = DVector2(1, 1);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
@@ -1017,7 +1017,7 @@ int DoRipperMoveHang(DSWActor* actor)
     {
         if (actor->user.coll.type == kHitWall)
         {
-            NewStateGroup(actor, actor->user.ActorActionSet->Special[1]);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Special[1]);
             actor->user.WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
@@ -1241,7 +1241,7 @@ void RipperHatch(DSWActor* actor)
         // make immediately active
         actorNew->user.Flags |= (SPR_ACTIVE);
 
-        NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+        NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
         actorNew->user.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);

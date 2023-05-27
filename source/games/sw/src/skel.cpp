@@ -520,7 +520,7 @@ int SetupSkel(DSWActor* actor)
     actor->user.Attrib = &SkelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_SkelDie;
-    actor->user.Rot = sg_SkelRun;
+    actor->user.__legacyState.Rot = sg_SkelRun;
 
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 

@@ -198,7 +198,7 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& vie
     ASSERT(Rotation < 5);
 
     // Reset the State animation start based on the Rotation
-    StateStart = ownerActor->user.Rot[Rotation];
+    StateStart = ownerActor->user.__legacyState.Rot[Rotation];
 
     // Set the sprites state
     State = StateStart + StateOffset;
@@ -1094,7 +1094,7 @@ void PreDrawStackedWater(void)
                     // copy everything reasonable from the user that
                     // analyzesprites() needs to draw the image
                     actorNew->user.State = itActor2->user.State;
-                    actorNew->user.Rot = itActor2->user.Rot;
+                    actorNew->user.__legacyState.Rot = itActor2->user.__legacyState.Rot;
                     actorNew->user.StateStart = itActor2->user.StateStart;
                     actorNew->user.StateEnd = itActor2->user.StateEnd;
                     actorNew->user.Flags = itActor2->user.Flags;

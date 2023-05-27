@@ -396,7 +396,7 @@ int SetupEel(DSWActor* actor)
     actor->user.Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_EelDie;
-    actor->user.Rot = sg_EelRun;
+    actor->user.__legacyState.Rot = sg_EelRun;
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
 
@@ -564,7 +564,7 @@ int DoEelDeath(DSWActor* actor)
             actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Dead);
         return 0;
     }
 
@@ -579,10 +579,10 @@ int DoEelDeath(DSWActor* actor)
 
 int DoEelMove(DSWActor* actor)
 {
-    ASSERT(actor->user.Rot != nullptr);
+    ASSERT(actor->user.__legacyState.Rot != nullptr);
 
     if (SpriteOverlap(actor, actor->user.targetActor))
-        NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[0]);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[0]);
 
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);

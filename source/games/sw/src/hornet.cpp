@@ -307,7 +307,7 @@ int SetupHornet(DSWActor* actor)
     actor->user.Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_HornetDie;
-    actor->user.Rot = sg_HornetRun;
+    actor->user.__legacyState.Rot = sg_HornetRun;
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
@@ -430,7 +430,7 @@ int InitHornetCircle(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoHornetCircle;
 
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -542,7 +542,7 @@ int DoHornetDeath(DSWActor* actor)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Dead);
         DeleteNoSoundOwner(actor);
         return 0;
     }

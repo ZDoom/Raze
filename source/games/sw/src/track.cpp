@@ -154,7 +154,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         {
         case BIT(TT_DUCK_N_SHOOT):
         {
-            if (!actor->user.ActorActionSet->Duck)
+            if (!actor->user.__legacyState.ActorActionSet->Duck)
                 return -1;
 
             end_point[1] = 0;
@@ -164,7 +164,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         // for ladders only look at first track point
         case BIT(TT_LADDER):
         {
-            if (!actor->user.ActorActionSet->Climb)
+            if (!actor->user.__legacyState.ActorActionSet->Climb)
                 return -1;
 
             end_point[1] = 0;
@@ -174,7 +174,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         case BIT(TT_JUMP_UP):
         case BIT(TT_JUMP_DOWN):
         {
-            if (!actor->user.ActorActionSet->Jump)
+            if (!actor->user.__legacyState.ActorActionSet->Jump)
                 return -1;
 
             end_point[1] = 0;
@@ -183,7 +183,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
 
         case BIT(TT_TRAVERSE):
         {
-            if (!actor->user.ActorActionSet->Crawl || !actor->user.ActorActionSet->Jump)
+            if (!actor->user.__legacyState.ActorActionSet->Crawl || !actor->user.__legacyState.ActorActionSet->Jump)
                 return -1;
 
             break;
@@ -2897,11 +2897,11 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_STAND:
-        NewStateGroup(actor, actor->user.ActorActionSet->Stand);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
         break;
 
     case TRACK_ACTOR_JUMP:
-        if (actor->user.ActorActionSet->Jump)
+        if (actor->user.__legacyState.ActorActionSet->Jump)
         {
             actor->spr.Angles.Yaw = tpoint->angle;
 
@@ -2918,7 +2918,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_JUMP:
     case TRACK_ACTOR_QUICK_SUPER_JUMP:
-        if (actor->user.ActorActionSet->Jump)
+        if (actor->user.__legacyState.ActorActionSet->Jump)
         {
             int zdiff;
             HitInfo hit{};
@@ -2966,7 +2966,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_JUMP_DOWN:
 
-        if (actor->user.ActorActionSet->Jump)
+        if (actor->user.__legacyState.ActorActionSet->Jump)
         {
             actor->spr.Angles.Yaw = tpoint->angle;
 
@@ -2990,7 +2990,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_SCAN:
 
-        if (actor->user.ActorActionSet->Jump)
+        if (actor->user.__legacyState.ActorActionSet->Jump)
         {
             ActorLeaveTrack(actor);
             return false;
@@ -3000,7 +3000,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_QUICK_DUCK:
 
-        if (actor->user.Rot != actor->user.ActorActionSet->Duck)
+        if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Duck)
         {
             actor->spr.Angles.Yaw = tpoint->angle;
 
@@ -3024,7 +3024,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         HitInfo near{};
         double z[2];
 
-        if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
+        if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Sit || actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Stand)
             return false;
 
         actor->spr.Angles.Yaw = tpoint->angle;
@@ -3045,7 +3045,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                     else
                         actor->user.WaitTics = tpoint->tag_high * 128;
 
-                    NewStateGroup(actor, actor->user.ActorActionSet->Stand);
+                    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
                 }
             }
         }
@@ -3059,7 +3059,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 else
                     actor->user.WaitTics = tpoint->tag_high * 128;
 
-                NewStateGroup(actor, actor->user.ActorActionSet->Sit);
+                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
             }
         }
 
@@ -3067,7 +3067,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     }
 
     case TRACK_ACTOR_JUMP_IF_FORWARD:
-        if (actor->user.ActorActionSet->Jump && actor->user.track_dir == 1)
+        if (actor->user.__legacyState.ActorActionSet->Jump && actor->user.track_dir == 1)
         {
             if (!tpoint->tag_high)
                 actor->user.jump_speed = ACTOR_STD_JUMP;
@@ -3080,7 +3080,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_JUMP_IF_REVERSE:
-        if (actor->user.ActorActionSet->Jump && actor->user.track_dir == -1)
+        if (actor->user.__legacyState.ActorActionSet->Jump && actor->user.track_dir == -1)
         {
             if (!tpoint->tag_high)
                 actor->user.jump_speed = ACTOR_STD_JUMP;
@@ -3093,92 +3093,92 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         break;
 
     case TRACK_ACTOR_CRAWL:
-        if (actor->user.Rot != actor->user.ActorActionSet->Crawl)
-            NewStateGroup(actor, actor->user.ActorActionSet->Crawl);
+        if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Crawl)
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Crawl);
         else
-            NewStateGroup(actor, actor->user.ActorActionSet->Rise);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Rise);
         break;
 
     case TRACK_ACTOR_SWIM:
-        if (actor->user.Rot != actor->user.ActorActionSet->Swim)
-            NewStateGroup(actor, actor->user.ActorActionSet->Swim);
+        if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Swim)
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Swim);
         else
-            NewStateGroup(actor, actor->user.ActorActionSet->Rise);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Rise);
         break;
 
     case TRACK_ACTOR_FLY:
-        NewStateGroup(actor, actor->user.ActorActionSet->Fly);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Fly);
         break;
 
     case TRACK_ACTOR_SIT:
 
-        if (actor->user.ActorActionSet->Sit)
+        if (actor->user.__legacyState.ActorActionSet->Sit)
         {
             if (!tpoint->tag_high)
                 actor->user.WaitTics = 3 * 120;
             else
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, actor->user.ActorActionSet->Sit);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
         }
 
         break;
 
     case TRACK_ACTOR_DEATH1:
-        if (actor->user.ActorActionSet->Death2)
+        if (actor->user.__legacyState.ActorActionSet->Death2)
         {
             actor->user.WaitTics = 4 * 120;
-            NewStateGroup(actor, actor->user.ActorActionSet->Death1);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Death1);
         }
         break;
 
     case TRACK_ACTOR_DEATH2:
 
-        if (actor->user.ActorActionSet->Death2)
+        if (actor->user.__legacyState.ActorActionSet->Death2)
         {
             actor->user.WaitTics = 4 * 120;
-            NewStateGroup(actor, actor->user.ActorActionSet->Death2);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Death2);
         }
 
         break;
 
     case TRACK_ACTOR_DEATH_JUMP:
 
-        if (actor->user.ActorActionSet->DeathJump)
+        if (actor->user.__legacyState.ActorActionSet->DeathJump)
         {
             actor->user.Flags |= (SPR_DEAD);
             actor->vel.X *= 2;
             actor->user.jump_speed = -495;
             DoActorBeginJump(actor);
-            NewStateGroup(actor, actor->user.ActorActionSet->DeathJump);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->DeathJump);
         }
 
         break;
 
     case TRACK_ACTOR_CLOSE_ATTACK1:
 
-        if (actor->user.ActorActionSet->CloseAttack[0])
+        if (actor->user.__legacyState.ActorActionSet->CloseAttack[0])
         {
             if (!tpoint->tag_high)
                 actor->user.WaitTics = 2 * 120;
             else
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[0]);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[0]);
         }
 
         break;
 
     case TRACK_ACTOR_CLOSE_ATTACK2:
 
-        if (actor->user.ActorActionSet->CloseAttack[1])
+        if (actor->user.__legacyState.ActorActionSet->CloseAttack[1])
         {
             if (!tpoint->tag_high)
                 actor->user.WaitTics = 4 * 120;
             else
                 actor->user.WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[1]);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[1]);
         }
 
         break;
@@ -3190,7 +3190,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_ATTACK5:
     case TRACK_ACTOR_ATTACK6:
     {
-        STATE* **ap = &actor->user.ActorActionSet->Attack[0] + (tpoint->tag_low - TRACK_ACTOR_ATTACK1);
+        STATE* **ap = &actor->user.__legacyState.ActorActionSet->Attack[0] + (tpoint->tag_low - TRACK_ACTOR_ATTACK1);
 
 
         if (*ap)
@@ -3221,7 +3221,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
     case TRACK_ACTOR_CLIMB_LADDER:
 
-        if (actor->user.ActorActionSet->Jump)
+        if (actor->user.__legacyState.ActorActionSet->Jump)
         {
             HitInfo near;
 
@@ -3290,7 +3290,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             //
 
             actor->user.Flags |= (SPR_CLIMBING);
-            NewStateGroup(actor, actor->user.ActorActionSet->Climb);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Climb);
 
             actor->vel.Z -= 1;
         }
@@ -3356,7 +3356,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         if (actor->user.WaitTics <= 0)
         {
             actor->user.Flags &= ~(SPR_DONT_UPDATE_ANG);
-            NewStateGroup(actor, actor->user.ActorActionSet->Run);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
             actor->user.WaitTics = 0;
         }
 

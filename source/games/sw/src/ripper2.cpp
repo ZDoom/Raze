@@ -902,7 +902,7 @@ int SetupRipper2(DSWActor* actor)
     actor->user.Attrib = &Ripper2Attrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_Ripper2Die;
-    actor->user.Rot = sg_Ripper2Run;
+    actor->user.__legacyState.Rot = sg_Ripper2Run;
     actor->clipdist = 32;  // This actor is bigger, needs bigger box.
     actor->spr.scale = DVector2(0.859375, 0.859375);
 
@@ -1022,7 +1022,7 @@ int DoRipper2MoveHang(DSWActor* actor)
             if (abs(actor->spr.pos.Z - actor->user.targetActor->spr.pos.Z) > 250)
                 return 0;
 
-            NewStateGroup(actor, actor->user.ActorActionSet->Special[1]);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
                 actor->user.WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
             else
@@ -1251,7 +1251,7 @@ void Ripper2Hatch(DSWActor* actor)
         // make immediately active
         actorNew->user.Flags |= (SPR_ACTIVE);
 
-        NewStateGroup(actorNew, actorNew->user.ActorActionSet->Jump);
+        NewStateGroup(actorNew, actorNew->user.__legacyState.ActorActionSet->Jump);
         actorNew->user.ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(actorNew, -600);

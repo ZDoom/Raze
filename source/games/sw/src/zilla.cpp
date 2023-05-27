@@ -626,7 +626,7 @@ int SetupZilla(DSWActor* actor)
     actor->user.Attrib = &ZillaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_ZillaDie;
-    actor->user.Rot = sg_ZillaRun;
+    actor->user.__legacyState.Rot = sg_ZillaRun;
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 

@@ -501,7 +501,7 @@ int SetupGoro(DSWActor* actor)
     actor->user.Attrib = &GoroAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_GoroDie;
-    actor->user.Rot = sg_GoroRun;
+    actor->user.__legacyState.Rot = sg_GoroRun;
 
 
     EnemyDefaults(actor, &GoroActionSet, &GoroPersonality);

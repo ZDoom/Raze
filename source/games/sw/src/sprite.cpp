@@ -4301,7 +4301,7 @@ int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
     if (actor->user.State && (actor->user.State->Pic < 0 || actor->user.State->Pic > MAXTILES))    // JBF: verify this!
         return 0;
 
-    actor->user.Rot = StateGroup;
+    actor->user.__legacyState.Rot = StateGroup;
     actor->user.State = actor->user.StateStart = StateGroup[0];
 
     actor->user.Tics = 0;
@@ -6088,7 +6088,7 @@ int  StateControl(DSWActor* actor)
         else
         {
             if (actor->user.RotNum > 1)
-                actor->spr.picnum = actor->user.Rot[0]->Pic;
+                actor->spr.picnum = actor->user.__legacyState.Rot[0]->Pic;
             else
                 actor->spr.picnum = actor->user.State->Pic;
         }

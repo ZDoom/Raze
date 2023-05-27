@@ -537,7 +537,7 @@ int SetupCoolg(DSWActor* actor)
     actor->user.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_CoolgDie;
-    actor->user.Rot = sg_CoolgRun;
+    actor->user.__legacyState.Rot = sg_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
 
@@ -562,10 +562,10 @@ int NewCoolg(DSWActor* actor)
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
     actorNew->user.StateEnd = s_CoolgDie;
-    actorNew->user.Rot = sg_CoolgRun;
+    actorNew->user.__legacyState.Rot = sg_CoolgRun;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
 
-    actorNew->user.ActorActionSet = &CoolgActionSet;
+    actorNew->user.__legacyState.ActorActionSet = &CoolgActionSet;
 
     actorNew->spr.shade = actor->spr.shade;
     actorNew->user.Personality = &CoolgPersonality;
@@ -595,7 +595,7 @@ int DoCoolgBirth(DSWActor* actor)
 
     ChangeState(actor, s_CoolgRun[0]);
     actor->user.StateEnd = s_CoolgDie;
-    actor->user.Rot = sg_CoolgRun;
+    actor->user.__legacyState.Rot = sg_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
     // special case
@@ -715,7 +715,7 @@ int InitCoolgCircle(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoCoolgCircle;
 
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -820,7 +820,7 @@ int DoCoolgDeath(DSWActor* actor)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Dead);
         return 0;
     }
 

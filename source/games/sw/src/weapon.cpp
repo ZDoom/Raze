@@ -3553,7 +3553,7 @@ AutoShrap:
     {
         extern STATE* sg_PlayerHeadHurl[];
 
-        if (parentActor->user.Rot == sg_PlayerHeadHurl)
+        if (parentActor->user.__legacyState.Rot == sg_PlayerHeadHurl)
         {
             p = PlayerHeadHurl1;
         }
@@ -5105,7 +5105,7 @@ int ActorHealth(DSWActor* actor, short amt)
         actor->user.LastDamage = -amt;
 
     // Do alternate Death2 if it exists
-    if (actor->user.ActorActionSet && actor->user.ActorActionSet->Death2) // JBF: added null check
+    if (actor->user.__legacyState.ActorActionSet && actor->user.__legacyState.ActorActionSet->Death2) // JBF: added null check
     {
 #define DEATH2_HEALTH_VALUE 15
 
@@ -5233,11 +5233,11 @@ int ActorPain(DSWActor* actor)
 
     if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING)))
     {
-        if (actor->user.ActorActionSet && actor->user.ActorActionSet->Pain)
+        if (actor->user.__legacyState.ActorActionSet && actor->user.__legacyState.ActorActionSet->Pain)
         {
             ActorLeaveTrack(actor);
             actor->user.WaitTics = 60;
-            NewStateGroup(actor, actor->user.ActorActionSet->Pain);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Pain);
             return true;
         }
     }
@@ -5255,10 +5255,10 @@ int ActorPainPlasma(DSWActor* actor)
 {
     if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT)))
     {
-        if (actor->user.ActorActionSet && actor->user.ActorActionSet->Pain)
+        if (actor->user.__legacyState.ActorActionSet && actor->user.__legacyState.ActorActionSet->Pain)
         {
             actor->user.WaitTics = PLASMA_FOUNTAIN_TIME;
-            NewStateGroup(actor, actor->user.ActorActionSet->Pain);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Pain);
             return true;
         }
         else
@@ -11908,7 +11908,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->user.Counter2 = 0;
 
         actorNew->user.StateEnd = s_SkullExplode;
-        actorNew->user.Rot = sg_SkullRing;
+        actorNew->user.__legacyState.Rot = sg_SkullRing;
 
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
@@ -12625,7 +12625,7 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
     actorNew->user.StateEnd = s_SkullExplode;
-    actorNew->user.Rot = sg_SkullWait;
+    actorNew->user.__legacyState.Rot = sg_SkullWait;
 
     actorNew->user.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);

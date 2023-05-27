@@ -710,7 +710,7 @@ int SetupSerp(DSWActor* actor)
     actor->user.Attrib = &SerpAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_SerpDie;
-    actor->user.Rot = sg_SerpRun;
+    actor->user.__legacyState.Rot = sg_SerpRun;
 
     EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
 

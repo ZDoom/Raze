@@ -421,7 +421,7 @@ int DoActorOperate(DSWActor* actor)
     if (actor->user.ID == HORNET_RUN_R0 || actor->user.ID == EEL_RUN_R0 || actor->user.ID == BUNNY_RUN_R0)
         return false;
 
-    if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
+    if (actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Sit || actor->user.__legacyState.Rot == actor->user.__legacyState.ActorActionSet->Stand)
         return false;
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
@@ -441,7 +441,7 @@ int DoActorOperate(DSWActor* actor)
         {
             actor->user.WaitTics = 2 * 120;
 
-            NewStateGroup(actor, actor->user.ActorActionSet->Sit);
+            NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Sit);
         }
     }
 
@@ -556,7 +556,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
                 actor->user.Flags &= ~(SPR_TARGETED);        // as far as actor
                 // knows, its not a
                 // target any more
-                if (actor->user.ActorActionSet->Duck && RANDOM_P2(1024<<8)>>8 < 100)
+                if (actor->user.__legacyState.ActorActionSet->Duck && RANDOM_P2(1024<<8)>>8 < 100)
                     action = InitActorDuck;
                 else
                 {
@@ -697,7 +697,7 @@ int DoActorDecide(DSWActor* actor)
     else
     {
         // Actually staying put
-        NewStateGroup(actor, actor->user.ActorActionSet->Stand);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
         //CON_Message("DoActorDecide: Staying put");
     }
 
@@ -816,8 +816,8 @@ int InitActorMoveCloser(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorMoveCloser;
 
-    if (actor->user.Rot != actor->user.ActorActionSet->Run)
-        NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    if (actor->user.__legacyState.Rot != actor->user.__legacyState.ActorActionSet->Run)
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     (*actor->user.ActorActionFunc)(actor);
 
@@ -843,7 +843,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
         actor->user.ActorActionFunc = DoActorDecide;
-        NewStateGroup(actor, actor->user.ActorActionSet->Run);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
     }
     else
     {
@@ -1079,7 +1079,7 @@ int FindWanderTrack(DSWActor* actor)
 int InitActorRunAway(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     actor->user.track = FindTrackAwayFromPlayer(actor);
 
@@ -1108,7 +1108,7 @@ int InitActorRunAway(DSWActor* actor)
 int InitActorRunToward(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     InitActorReposition(actor);
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -1170,7 +1170,7 @@ int InitActorAttack(DSWActor* actor)
     actor->user.ActorActionFunc = DoActorAttack;
 
     // move into standing frame
-    //NewStateGroup(actor, actor->user.ActorActionSet->Stand);
+    //NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Stand);
 
     // face player when attacking
     actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
@@ -1183,7 +1183,7 @@ int InitActorAttack(DSWActor* actor)
     }
 
     // Hari Kari for Ninja's
-    if (actor->user.ActorActionSet->Death2)
+    if (actor->user.__legacyState.ActorActionSet->Death2)
     {
         const int SUICIDE_HEALTH_VALUE = 38;
 
@@ -1192,7 +1192,7 @@ int InitActorAttack(DSWActor* actor)
             if (CHOOSE2(100))
             {
                 actor->user.ActorActionFunc = DoActorDecide;
-                NewStateGroup(actor, actor->user.ActorActionSet->Death2);
+                NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Death2);
                 return 0;
             }
         }
@@ -1219,22 +1219,22 @@ int DoActorAttack(DSWActor* actor)
     double dist =(actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     auto pActor = GetPlayerSpriteNum(actor);
-    if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, actor->user.targetActor)) ||
+    if ((actor->user.__legacyState.ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, actor->user.targetActor)) ||
         (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST))      // JBF: added null check
     {
-        rand_num = ChooseActionNumber(actor->user.ActorActionSet->CloseAttackPercent);
+        rand_num = ChooseActionNumber(actor->user.__legacyState.ActorActionSet->CloseAttackPercent);
 
-        NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[rand_num]);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->CloseAttack[rand_num]);
     }
     else
     {
         ASSERT(actor->user.WeaponNum != 0);
 
-        rand_num = ChooseActionNumber(actor->user.ActorActionSet->AttackPercent);
+        rand_num = ChooseActionNumber(actor->user.__legacyState.ActorActionSet->AttackPercent);
 
         ASSERT(rand_num < actor->user.WeaponNum);
 
-        NewStateGroup(actor, actor->user.ActorActionSet->Attack[rand_num]);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Attack[rand_num]);
         actor->user.ActorActionFunc = DoActorDecide;
     }
 
@@ -1255,7 +1255,7 @@ int InitActorEvade(DSWActor* actor)
     // you stop and take up the fight again.
 
     actor->user.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     actor->user.track = FindTrackAwayFromPlayer(actor);
 
@@ -1280,7 +1280,7 @@ int InitActorEvade(DSWActor* actor)
 int InitActorWanderAround(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     DoActorPickClosePlayer(actor);
 
@@ -1305,7 +1305,7 @@ int InitActorWanderAround(DSWActor* actor)
 int InitActorFindPlayer(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
-    NewStateGroup(actor, actor->user.ActorActionSet->Run);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     actor->user.track = FindTrackToPlayer(actor);
 
@@ -1317,7 +1317,7 @@ int InitActorFindPlayer(DSWActor* actor)
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
         actor->user.ActorActionFunc = DoActorDecide;
-        NewStateGroup(actor, actor->user.ActorActionSet->Run);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
     }
     else
     {
@@ -1334,14 +1334,14 @@ int InitActorFindPlayer(DSWActor* actor)
 
 int InitActorDuck(DSWActor* actor)
 {
-    if (!actor->user.ActorActionSet->Duck)
+    if (!actor->user.__legacyState.ActorActionSet->Duck)
     {
         actor->user.ActorActionFunc = DoActorDecide;
         return 0;
     }
 
     actor->user.ActorActionFunc = DoActorDuck;
-    NewStateGroup(actor, actor->user.ActorActionSet->Duck);
+    NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Duck);
 
 	double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).LengthSquared();
 
@@ -1371,7 +1371,7 @@ int DoActorDuck(DSWActor* actor)
 {
     if ((actor->user.WaitTics -= ACTORMOVETICS) < 0)
     {
-        NewStateGroup(actor, actor->user.ActorActionSet->Rise);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Rise);
         actor->user.ActorActionFunc = DoActorDecide;
         actor->user.Flags &= ~(SPR_TARGETED);
     }
@@ -1693,7 +1693,7 @@ int InitActorReposition(DSWActor* actor)
 
     actor->user.ActorActionFunc = DoActorReposition;
     if (!(actor->user.Flags & SPR_SWIMMING))
-        NewStateGroup(actor, actor->user.ActorActionSet->Run);
+        NewStateGroup(actor, actor->user.__legacyState.ActorActionSet->Run);
 
     (*actor->user.ActorActionFunc)(actor);
 

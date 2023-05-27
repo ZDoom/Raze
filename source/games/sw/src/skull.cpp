@@ -227,7 +227,7 @@ int SetupSkull(DSWActor* actor)
     actor->user.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_SkullExplode;
-    actor->user.Rot = sg_SkullWait;
+    actor->user.__legacyState.Rot = sg_SkullWait;
 
     actor->user.ID = SKULL_R0;
 
@@ -646,7 +646,7 @@ int SetupBetty(DSWActor* actor)
     actor->user.Attrib = &BettyAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_BettyExplode;
-    actor->user.Rot = sg_BettyWait;
+    actor->user.__legacyState.Rot = sg_BettyWait;
 
     actor->user.ID = BETTY_R0;
 
