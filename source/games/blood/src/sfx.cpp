@@ -149,10 +149,10 @@ void GameInterface::UpdateSounds()
 
 FSoundID getSfx(FSoundID soundId, float& attenuation, int& relvol)
 {
-	auto udata = soundEngine->GetUserData(soundId);
+	auto udata = soundEngine->GetSfx(soundId);
 
 	if (relvol < 0) relvol = 0;
-	else if (relvol == 0) relvol = udata && udata[0] ? udata[0] : 80;
+	else if (relvol == 0) relvol = udata && udata->UserVal ? udata->UserVal : 80;
 	if (relvol > 255) relvol = 255;
 	// Limit the attenuation. More than 2.0 is simply too much.
 	attenuation = relvol > 0 ? clamp(80.f / relvol, 0.f, 2.f) : 1.f;

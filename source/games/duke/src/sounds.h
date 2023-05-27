@@ -26,7 +26,6 @@ enum {
 enum esound_t
 {
 	kVolAdjust,
-	kFlags,
 	kWorldTourMapping,
 	kMaxUserData
 };

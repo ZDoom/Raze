@@ -176,9 +176,9 @@ void S_CacheAllSounds(void)
 int S_GetUserFlags(FSoundID soundid)
 {
 	if (!soundEngine->isValidSoundId(soundid)) return 0;
-	auto const* snd = soundEngine->GetUserData(soundid);
+	auto const* snd = soundEngine->GetSfx(soundid);
 	if (!snd) return 0;
-	return snd[kFlags];
+	return snd->UserVal;
 }
 
 //==========================================================================
@@ -222,15 +222,14 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 			auto& sndinf = sfx->UserData;
 			sndinf[kVolAdjust] = 0;
 			sndinf[kWorldTourMapping] = 0;
-			sndinf[kFlags] = 0;
+			sfx->UserVal = 0;
 		}
 	}
 
 	sfx->ResourceId = index;
 	sfx->UserData.Resize(kMaxUserData);
 	sfx->bExternal = true;
-	auto& sndinf = sfx->UserData;
-	sndinf[kFlags] = (type & SF_CON_MASK);
+	sfx->UserVal = (type & SF_CON_MASK);
 
 	// Take care of backslashes in sound names. Also double backslashes which occur in World Tour.
 	FString fn = filename;
@@ -250,8 +249,8 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 		sfx->DefPitch = (float)pow(2, clamp<int>(minpitch, INT16_MIN, INT16_MAX) / 1200.);
 		sfx->DefPitchMax = (float)pow(2, clamp<int>(maxpitch, INT16_MIN, INT16_MAX) / 1200.);
 	}
-	sndinf[kVolAdjust] = clamp<int>(distance, INT16_MIN, INT16_MAX);
-	sndinf[kWorldTourMapping] = 0;
+	sfx->UserData[kVolAdjust] = clamp<int>(distance, INT16_MIN, INT16_MAX);
+	sfx->UserData[kWorldTourMapping] = 0;
 	sfx->Volume = volume;
 	sfx->bTentative = false;
 	return 0;
@@ -276,9 +275,9 @@ static int GetPositionInfo(DDukeActor* actor, FSoundID soundid, sectortype* sect
 	// However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
 	int orgsndist = 0, sndist = 0;
-	auto const* snd = soundEngine->GetUserData(soundid);
-	int userflags = snd ? snd[kFlags] : 0;
-	int dist_adjust = snd ? snd[kVolAdjust] : 0;
+	auto const* sfx = soundEngine->GetSfx(soundid);
+	int userflags = sfx->UserVal;
+	int dist_adjust = sfx->UserData.Size() ? sfx->UserData[kVolAdjust] : 0;
 
 	FVector3 sndorg = GetSoundPos(pos);
 	FVector3 campos = GetSoundPos(cam);

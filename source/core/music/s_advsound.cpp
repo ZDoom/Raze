@@ -493,7 +493,7 @@ static void S_AddSNDINFO (int lump)
 						sfx->UserData.Resize(Duke3d::kMaxUserData);
 						memset(sfx->UserData.Data(), 0, Duke3d::kMaxUserData * sizeof(int));
 					}
-					sfx->UserData[Duke3d::kFlags] = flags;
+					sfx->UserVal = flags;
 				}
 				else
 				{
@@ -523,11 +523,7 @@ static void S_AddSNDINFO (int lump)
 				if (isSWALL())
 				{
 					auto sfx = soundEngine->GetWritableSfx(sfxid);
-					if (sfx->UserData.Size() < 1)
-					{
-						sfx->UserData.Resize(1);
-					}
-					sfx->UserData[0] = flags;
+					sfx->UserVal = flags;
 				}
 				else
 				{
@@ -560,11 +556,7 @@ static void S_AddSNDINFO (int lump)
 				if (isBlood())
 				{
 					auto sfx = soundEngine->GetWritableSfx(sfxid);
-					if (sfx->UserData.Size() < 1)
-					{
-						sfx->UserData.Resize(1);
-					}
-					sfx->UserData[0] = sc.Number;
+					sfx->UserVal = sc.Number;
 				}
 				else
 				{

@@ -216,7 +216,7 @@ void InitAmbient(int num, DSWActor* actor)
     amb->vocIndex = vnum;
     amb->ChanFlags = CHANF_TRANSIENT;
     if (ambarray[num].ambient_flags & v3df_dontpan) amb->ChanFlags |= EChanFlags::FromInt(CHANEXF_DONTPAN);
-    if (sfx->UserData[0] & SFLAG_LOOP) amb->ChanFlags |= CHANF_LOOP;
+    if (sfx->UserVal & SFLAG_LOOP) amb->ChanFlags |= CHANF_LOOP;
     amb->maxIndex = ambarray[num].maxtics;
     amb->curIndex = 0;
     amb->intermit = !!(ambarray[num].ambient_flags & v3df_intermit);
@@ -432,14 +432,6 @@ void InitFX(void)
 {
 
     auto &S_sfx = soundEngine->GetSounds();
-    for (auto& sfx : S_sfx)
-    {
-        if (sfx.UserData.Size() < 1)
-        {
-            sfx.UserData.Resize(1);
-            sfx.UserData[0] = 0;
-        }
-    }
         
     soundEngine->HashSounds();
     for (auto& sfx : S_sfx)
@@ -632,7 +624,7 @@ int _PlaySound(const FSoundID sndid, DSWActor* actor, PLAYER* pp, const DVector3
 
     //if (flags & v3df_doppler) cflags |= EChanFlags::FromInt(CHANEXF_NODOPPLER);    // intentionally not implemented
     //if (flags & v3df_dontpan) cflags |= EChanFlags::FromInt(CHANEXF_DONTPAN);      // disabled due to poor use
-    if (sfx->UserData[0] & SFLAG_LOOP) cflags |= CHANF_LOOP;                               // with the new sound engine these can just be started and don't have to be stopped ever.
+    if (sfx->UserVal & SFLAG_LOOP) cflags |= CHANF_LOOP;                               // with the new sound engine these can just be started and don't have to be stopped ever.
 
     FVector3 spos = GetSoundPos(pos);
     auto chan = soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, sndid, 1.f, ATTN_NORM);
@@ -772,11 +764,11 @@ int _PlayerSound(int num, PLAYER* pp)
     // If this is a player voice and he's already yacking, forget it.
 
     // Not a player voice, bail.
-    if (!(sfx->UserData[0] & (SFLAG_PLAYERSPEECH|SFLAG_PLAYERVOICE)))
+    if (!(sfx->UserVal & (SFLAG_PLAYERSPEECH|SFLAG_PLAYERVOICE)))
         return 0;
 
     // Don't talk if not allowed to.
-    if ((sfx->UserData[0] & SFLAG_PLAYERSPEECH) && !snd_speech)
+    if ((sfx->UserVal & SFLAG_PLAYERSPEECH) && !snd_speech)
         return 0;
 
     // The surfacing sound should not block other player speech.

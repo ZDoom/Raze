@@ -91,7 +91,6 @@ static void S_AddBloodSFX(int lumpnum)
 		{
 			sfxnum = soundEngine->AddSoundLump(FStringf("SfxSound@%04d", resid), rawlump, 0, resid, 6);	// use a generic name here in case sound replacements are being used.
 			soundfx = soundEngine->GetWritableSfx(sfxnum);
-			soundfx->UserData.Resize(1);
 		}
 		if (sfx->format < 5 || sfx->format > 12)
 		{	// [0..4] + invalid formats
@@ -117,8 +116,7 @@ static void S_AddBloodSFX(int lumpnum)
 		else soundfx->DefPitch = 0;
 		if (sfx->relVol != 80) // 80 is the default
 		{
-			soundfx->UserData.Resize(1);
-			soundfx->UserData[0] = sfx->relVol;
+			soundfx->UserVal = sfx->relVol;
 		}
 	}
 }
@@ -211,8 +209,8 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
 	{
 		if (nVolume < 0)
 		{
-			auto udata = soundEngine->GetUserData(snd);
-			if (udata) nVolume = min(Scale(udata[0], 255, 80), 255);
+			auto udata = soundEngine->GetSfx(snd);
+			if (udata) nVolume = min(Scale(udata->UserVal, 255, 80), 255);
 			else nVolume = 255;
 		}
 		if (bLoop) chanflags |= CHANF_LOOP;
