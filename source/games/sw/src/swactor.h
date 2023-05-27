@@ -35,6 +35,7 @@ public:
 	}
 
 	void Serialize(FSerializer& arc) override;
+	void ChangeStateEnd();
 };
 
 inline void UpdateChangeXY(DSWActor* actor)

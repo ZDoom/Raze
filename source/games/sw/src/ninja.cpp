@@ -1982,7 +1982,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
         actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
 
 
-        ChangeState(actor, actor->user.StateEnd);
+        actor->ChangeStateEnd();
         actor->vel.X = 0;
         PlaySound(DIGI_NINJASCREAM, actor, v3df_follow);
     }

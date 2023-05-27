@@ -114,13 +114,11 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         switch (meansofdeath)
         {
         case WPN_NM_LAVA:
-            ChangeState(actor, actor->user.StateEnd);
-            actor->user.RotNum = 0;
+            actor->ChangeStateEnd();
             break;
 
         case WPN_NM_SECTOR_SQUISH:
-            ChangeState(actor, actor->user.StateEnd);
-            actor->user.RotNum = 0;
+            actor->ChangeStateEnd();
             break;
         }
 
@@ -135,8 +133,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     // Coolie actually explodes himself
     // he is the Sprite AND weapon
     case COOLIE_RUN_R0:
-        ChangeState(actor, actor->user.StateEnd);
-        actor->user.RotNum = 0;
+        actor->ChangeStateEnd();
         actor->vel.X *= 2;
         actor->user.ActorActionFunc = nullptr;
         actor->spr.Angles.Yaw += DAngle180;
@@ -164,8 +161,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                     InitPlasmaFountain(weapActor, actor);
                 }
 
-                ChangeState(actor, actor->user.StateEnd);
-                actor->user.RotNum = 0;
+                actor->ChangeStateEnd();
                 actor->user.ActorActionFunc = nullptr;
                 actor->vel.X = 12.5 + RandomRangeF(12.5);
                 actor->user.jump_speed = -200 - RandomRange(250);
@@ -178,7 +174,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             // test for gibable dead bodies
             if (RandomRange(1000) > 500)
                 actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-            ChangeState(actor, actor->user.StateEnd);
+            actor->ChangeStateEnd();
             actor->vel.X = 0;
             actor->user.jump_speed = 0;
             DoActorBeginJump(actor);
@@ -199,15 +195,13 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case EEL_RUN_R0:
     case STAR1:
     case SUMO_RUN_R0:
-        ChangeState(actor, actor->user.StateEnd);
-        actor->user.RotNum = 0;
+        actor->ChangeStateEnd();
         break;
 
     case UZI_SMOKE:
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        ChangeState(actor, actor->user.StateEnd);
-        actor->user.RotNum = 0;
+        actor->ChangeStateEnd();
         // Rippers still gotta jump or they fall off walls weird
         if (actor->user.ID == RIPPER_RUN_R0 || actor->user.ID == RIPPER2_RUN_R0)
         {
@@ -229,8 +223,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case UZI_SMOKE+1: // Shotgun
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        ChangeState(actor, actor->user.StateEnd);
-        actor->user.RotNum = 0;
+        actor->ChangeStateEnd();
 
         // Rippers still gotta jump or they fall off walls weird
         if (actor->user.ID == RIPPER_RUN_R0 || actor->user.ID == RIPPER2_RUN_R0)
@@ -254,7 +247,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         {
         case SKULL_R0:
         case BETTY_R0:
-            ChangeState(actor, actor->user.StateEnd);
+            actor->ChangeStateEnd();
             break;
 
         default:
@@ -265,8 +258,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 
             if (RandomRange(1000) > 500)
                 actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-            ChangeState(actor, actor->user.StateEnd);
-            actor->user.RotNum = 0;
+            actor->ChangeStateEnd();
             actor->user.ActorActionFunc = nullptr;
             actor->vel.X = 18.75 + RandomRangeF(25);
             actor->user.jump_speed = -300 - RandomRange(350);
@@ -984,5 +976,14 @@ saveable_module saveable_actor =
     // data
     nullptr,0
 };
+
+// helpers
+
+void DSWActor::ChangeStateEnd()
+{
+    ChangeState(this, user.StateEnd);
+    user.RotNum = 0;
+
+}
 
 END_SW_NS
