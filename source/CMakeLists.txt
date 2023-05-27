@@ -965,6 +965,7 @@ set (PCH_SOURCES
 	core/maploader.cpp
 	core/postprocessor.cpp
 	core/searchpaths.cpp
+	core/serializer_raze.cpp
 	core/screenjob.cpp
 	core/initfs.cpp
 	core/statistics.cpp

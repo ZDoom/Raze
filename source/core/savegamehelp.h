@@ -4,6 +4,7 @@
 #include "build.h"
 #include "gamefuncs.h"
 #include "coreactor.h"
+#include "serializer_raze.h"
 
 // Savegame utilities
 class FileReader;
