@@ -72,7 +72,6 @@ void DeleteNoFollowSoundOwner(DSWActor*);
 inline bool CacheSound(int num, int type) { return false; }
 void COVER_SetReverb(int amt);
 void UnInitSound(void);
-void InitFX(void);
 void StopFX(void);
 void StopSound(void);
 void StartAmbientSound(void);

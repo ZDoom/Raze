@@ -34,6 +34,7 @@ int S_LookupSound(const char* fn);
 class FSerializer;
 void S_SerializeSounds(FSerializer& arc);
 int S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6);
+void S_CacheAllSounds(void);
 
 class RazeSoundEngine : public SoundEngine
 {

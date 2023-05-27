@@ -428,20 +428,6 @@ void GameInterface::StartSoundEngine()
     soundEngine = new SWSoundEngine;
 }
 
-void InitFX(void)
-{
-
-    auto &S_sfx = soundEngine->GetSounds();
-        
-    soundEngine->HashSounds();
-    for (auto& sfx : S_sfx)
-    {
-        soundEngine->CacheSound(&sfx);
-    }
-}
-
-
-
 //==========================================================================
 //
 // 

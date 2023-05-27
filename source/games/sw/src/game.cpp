@@ -305,7 +305,7 @@ void GameInterface::app_init()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
 
     userConfig.AddDefs.reset();
-    InitFX();
+    S_CacheAllSounds();
 }
 
 //---------------------------------------------------------------------------

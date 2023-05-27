@@ -45,6 +45,7 @@
 #include "gamecontrol.h"
 #include "build.h"
 #include "coreactor.h"
+#include "g_input.h"
 
 extern ReverbContainer* ForcedEnvironment;
 static int LastReverb;
@@ -271,6 +272,22 @@ void S_SerializeSounds(FSerializer& arc)
 
 	GSnd->Sync(false);
 	GSnd->UpdateSounds();
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void S_CacheAllSounds(void)
+{
+	for (unsigned i = 0; i < soundEngine->GetNumSounds(); i++)
+	{
+		soundEngine->CacheSound(FSoundID::fromInt(i));
+		if ((i & 31) == 0)
+			I_GetEvent();
+	}
 }
 
 //==========================================================================

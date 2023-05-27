@@ -157,22 +157,6 @@ TArray<uint8_t> DukeSoundEngine::ReadSound(int lumpnum)
 //
 //==========================================================================
 
-void S_CacheAllSounds(void)
-{
-	for(unsigned i = 0; i < soundEngine->GetNumSounds(); i++)
-	{
-		soundEngine->CacheSound(FSoundID::fromInt(i));
-		if ((i & 31) == 0)
-			I_GetEvent();
-	}
-}
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
 int S_GetUserFlags(FSoundID soundid)
 {
 	if (!soundEngine->isValidSoundId(soundid)) return 0;

@@ -39,7 +39,6 @@ void S_ChangeSoundPitch(FSoundID soundNum, DDukeActor* spriteNum, int pitchoffse
 int S_CheckActorSoundPlaying(DDukeActor* spriteNum, FSoundID soundNum, int channel = 0);
 int S_CheckSoundPlaying(FSoundID soundNum);
 
-void S_CacheAllSounds(void);
 int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
 void S_WorldTourMappingsForOldSounds();
 void S_MenuSound(void);
