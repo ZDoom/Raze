@@ -59,7 +59,8 @@ struct PANEL_STATE
 {
 	short picndx;                       // for pip stuff in conpic.h
 	int tics;
-	void (*Animator)(DPanelSprite*);    // JBF: return type was long
+	//void (*Animator)(PANEL_SPRITE*);    // JBF: return type was long
+	VMNativeFunction** Animator;
 	PANEL_STATE* NextState;
 	uint32_t flags;
 	uint8_t xvel;
