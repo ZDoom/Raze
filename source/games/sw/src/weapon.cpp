@@ -16107,7 +16107,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             double daz = npos.Z;
 
             // if its not operated by a player
-            if (sop->Animator)
+            if (sop->AnimType == SOType_AutoTurret)
             {
                 // only auto aim for Z
                 daang = DAngle90;

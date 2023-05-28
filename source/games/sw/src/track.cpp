@@ -42,8 +42,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics);
-void DoAutoTurretObject(SECTOR_OBJECT* sop);
-void DoTornadoObject(SECTOR_OBJECT* sop);
 int PickJumpSpeed(DSWActor*, int pix_height);
 DSWActor* FindNearSprite(DSWActor, short);
 
@@ -929,11 +927,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
     // initialize stuff first time through
     if (sop->num_sectors == -1)
     {
-        void DoTornadoObject(SECTOR_OBJECT* sop);
-        void MorphTornado(SECTOR_OBJECT* sop);
-        void MorphFloor(SECTOR_OBJECT* sop);
-        void DoAutoTurretObject(SECTOR_OBJECT* sop);
-
         memset(sop->sectp, 0, sizeof(sop->sectp));
         memset(sop->so_actors, 0, sizeof(sop->so_actors));
         sop->morph_wall_point = nullptr;
@@ -987,8 +980,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->morph_off = { 0,0 };
 
         sop->PreMoveScale = false;
-        sop->PostMoveAnimator = nullptr;
-        sop->Animator = nullptr;
+        sop->AnimType = SOType_None;
     }
 
     switch (tag % 5)
@@ -1074,7 +1066,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
 
                 case SO_AUTO_TURRET:
-                    sop->Animator = DoAutoTurretObject;
+                    sop->AnimType = SOType_AutoTurret;
                     KillActor(actor);
                     break;
 
@@ -1087,9 +1079,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->spin_speed = DAngle22_5 * (1. / 16);
                     sop->last_ang = sop->ang;
                     // animators
-                    sop->Animator = DoTornadoObject;
                     sop->PreMoveScale = true;
-                    sop->PostMoveAnimator = MorphTornado;
+                    sop->AnimType = SOType_Tornado;
                     // clip
                     sop->clipdist = 156.25;
                     // morph point
@@ -1106,7 +1097,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->scale_type = SO_SCALE_NONE;
                     sop->morph_speed = 7.5;
                     sop->morph_z_speed = 7;
-                    sop->PostMoveAnimator = MorphFloor;
+                    sop->AnimType = SOType_Floor;
                     sop->morph_dist_max = 250;
                     sop->morph_rand_freq = 8;
                     KillActor(actor);
@@ -1841,8 +1832,18 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
     MovePoints(sop, delta_ang_from_orig, move);
 
     // do morphing - angle independent
-    if (dynamic && sop->PostMoveAnimator)
-        (*sop->PostMoveAnimator)(sop);
+    if (dynamic)
+    {
+        switch (sop->AnimType)
+        {
+        case SOType_Floor:
+            MorphFloor(sop);
+            break;
+        case SOType_Tornado:
+            MorphTornado(sop);
+            break;
+        }
+    }
 }
 
 void KillSectorObjectSprites(SECTOR_OBJECT* sop)
@@ -3464,23 +3465,5 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
     return true;
 }
 
-
-#include "saveable.h"
-
-static saveable_code saveable_track_code[] =
-{
-    SAVE_CODE(DoTornadoObject),
-    SAVE_CODE(DoAutoTurretObject),
-};
-
-saveable_module saveable_track =
-{
-    // code
-    saveable_track_code,
-    SIZ(saveable_track_code),
-
-    // data
-    nullptr,0
-};
 
 END_SW_NS

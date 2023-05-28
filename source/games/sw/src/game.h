@@ -1209,11 +1209,18 @@ enum
 
 extern TRACK Track[MAX_TRACKS];
 
+enum
+{
+    SOType_None = 0,
+    SOType_Floor = 1,
+    SOType_Tornado = 2,
+    SOType_AutoTurret = 3
+};
+
 struct SECTOR_OBJECT
 {
     bool PreMoveScale;
-    soANIMATORp PostMoveAnimator;
-    soANIMATORp Animator;
+    uint8_t AnimType;
     TObjPtr<DSWActor*> controller;
 
     TObjPtr<DSWActor*> sp_child;  // child sprite that holds info for the sector object

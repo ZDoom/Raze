@@ -533,21 +533,4 @@ void SpikeFloor(SECTOR_OBJECT* sop)
 //
 //---------------------------------------------------------------------------
 
-#include "saveable.h"
-
-static saveable_code saveable_morph_code[] =
-{
-    SAVE_CODE(MorphTornado),
-    SAVE_CODE(MorphFloor),
-};
-
-saveable_module saveable_morph =
-{
-    // code
-    saveable_morph_code,
-    SIZ(saveable_morph_code),
-
-    // data
-    nullptr,0
-};
 END_SW_NS

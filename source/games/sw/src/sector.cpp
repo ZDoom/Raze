@@ -74,6 +74,9 @@ void DoRotatorMatch(PLAYER* pp, short match, bool);
 void DoSlidorOperate(PLAYER*, sectortype*);
 void DoSlidorMatch(PLAYER* pp, short match, bool);
 
+void DoTornadoObject(SECTOR_OBJECT* sop);
+void DoAutoTurretObject(SECTOR_OBJECT* sop);
+
 void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
 int DoTrapMatch(short match);
@@ -392,8 +395,7 @@ void SectorSetup(void)
         memset(&SectorObject[ndx].so_actors, 0, sizeof(SectorObject[0].so_actors));
         SectorObject[ndx].match_event_actor = nullptr;
         SectorObject[ndx].PreMoveScale = false;
-        SectorObject[ndx].PostMoveAnimator = nullptr;
-        SectorObject[ndx].Animator = nullptr;
+        SectorObject[ndx].AnimType = SOType_None;
         SectorObject[ndx].controller = nullptr;
         SectorObject[ndx].sp_child = nullptr;
         SectorObject[ndx].mid_sector = nullptr;
@@ -2933,10 +2935,14 @@ void DoSector(void)
             }
         }
 
-        if (sop->Animator)
+        switch (sop->AnimType)
         {
-            (*sop->Animator)(sop);
-            continue;
+        case SOType_AutoTurret:
+            DoAutoTurretObject(sop);
+            break;
+        case SOType_Tornado:
+            DoTornadoObject(sop);
+            break;
         }
 
         // force sync SOs to be updated regularly
