@@ -893,23 +893,6 @@ int DoBettyWait(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_skull_code[] =
-{
-    SAVE_CODE(DoSkullMove),
-    SAVE_CODE(DoSkullBeginDeath),
-    SAVE_CODE(DoSkullJump),
-    SAVE_CODE(DoSkullBob),
-    SAVE_CODE(DoSkullSpawnShrap),
-    SAVE_CODE(DoSkullWait),
-
-    SAVE_CODE(DoBettyMove),
-    SAVE_CODE(DoBettyBeginDeath),
-    SAVE_CODE(DoBettyJump),
-    SAVE_CODE(DoBettyBob),
-    SAVE_CODE(DoBettySpawnShrap),
-    SAVE_CODE(DoBettyWait),
-};
-
 static saveable_data saveable_skull_data[] =
 {
     SAVE_DATA(s_SkullWait),
@@ -937,8 +920,7 @@ static saveable_data saveable_skull_data[] =
 saveable_module saveable_skull =
 {
     // code
-    saveable_skull_code,
-    SIZ(saveable_skull_code),
+    nullptr, 0,
 
     // data
     saveable_skull_data,

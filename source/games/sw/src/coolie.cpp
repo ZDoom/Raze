@@ -633,26 +633,8 @@ int DoCoolieWaitBirth(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_coolie_code[] =
-{
-    SAVE_CODE(SpawnCoolg),
-    SAVE_CODE(CooliePain),
-    SAVE_CODE(NullCoolie),
-    SAVE_CODE(DoCoolieMove),
-    SAVE_CODE(InitCoolieCharge),
-    SAVE_CODE(DoCoolieWaitBirth),
-};
-
 static saveable_data saveable_coolie_data[] =
 {
-    SAVE_DATA(CoolieBattle),
-    SAVE_DATA(CoolieOffense),
-    SAVE_DATA(CoolieBroadcast),
-    SAVE_DATA(CoolieSurprised),
-    SAVE_DATA(CoolieEvasive),
-    SAVE_DATA(CoolieLostTarget),
-    SAVE_DATA(CoolieCloseRange),
-
     SAVE_DATA(CooliePersonality),
 
     SAVE_DATA(CoolieAttrib),
@@ -676,8 +658,7 @@ static saveable_data saveable_coolie_data[] =
 saveable_module saveable_coolie =
 {
     // code
-    saveable_coolie_code,
-    SIZ(saveable_coolie_code),
+    nullptr, 0,
 
     // data
     saveable_coolie_data,

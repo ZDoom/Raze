@@ -524,22 +524,8 @@ int DoLavaMove(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_lava_code[] =
-{
-    SAVE_CODE(NullLava),
-    SAVE_CODE(DoLavaMove),
-};
-
 static saveable_data saveable_lava_data[] =
 {
-    SAVE_DATA(LavaBattle),
-    SAVE_DATA(LavaOffense),
-    SAVE_DATA(LavaBroadcast),
-    SAVE_DATA(LavaSurprised),
-    SAVE_DATA(LavaEvasive),
-    SAVE_DATA(LavaLostTarget),
-    SAVE_DATA(LavaCloseRange),
-
     SAVE_DATA(LavaPersonality),
 
     SAVE_DATA(LavaAttrib),
@@ -564,8 +550,7 @@ static saveable_data saveable_lava_data[] =
 saveable_module saveable_lava =
 {
     // code
-    saveable_lava_code,
-    SIZ(saveable_lava_code),
+    nullptr, 0,
 
     // data
     saveable_lava_data,

@@ -477,28 +477,4 @@ int DoSpikeAuto(DSWActor* actor)
     return 0;
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-
-#include "saveable.h"
-
-static saveable_code saveable_spike_code[] =
-{
-    SAVE_CODE(DoSpike),
-    SAVE_CODE(DoSpikeAuto),
-};
-
-saveable_module saveable_spike =
-{
-    // code
-    saveable_spike_code,
-    SIZ(saveable_spike_code),
-
-    // data
-    nullptr,0
-};
 END_SW_NS

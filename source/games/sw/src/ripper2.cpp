@@ -1334,35 +1334,9 @@ int ChestRipper2(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_ripper2_code[] =
-{
-    SAVE_CODE(InitRipper2Hang),
-    SAVE_CODE(DoRipper2Hang),
-    SAVE_CODE(DoRipper2MoveHang),
-    SAVE_CODE(DoRipper2HangJF),
-
-    SAVE_CODE(DoRipper2BeginJumpAttack),
-    SAVE_CODE(DoRipper2MoveJump),
-    SAVE_CODE(NullRipper2),
-    SAVE_CODE(DoRipper2Pain),
-    SAVE_CODE(DoRipper2RipHeart),
-    SAVE_CODE(DoRipper2StandHeart),
-    SAVE_CODE(Ripper2Hatch),
-    SAVE_CODE(DoRipper2Move),
-    SAVE_CODE(InitRipper2Charge),
-    SAVE_CODE(ChestRipper2),
-};
 
 static saveable_data saveable_ripper2_data[] =
 {
-    SAVE_DATA(Ripper2Battle),
-    SAVE_DATA(Ripper2Offense),
-    SAVE_DATA(Ripper2Broadcast),
-    SAVE_DATA(Ripper2Surprised),
-    SAVE_DATA(Ripper2Evasive),
-    SAVE_DATA(Ripper2LostTarget),
-    SAVE_DATA(Ripper2CloseRange),
-
     SAVE_DATA(Ripper2Personality),
 
     SAVE_DATA(Ripper2Attrib),
@@ -1409,8 +1383,7 @@ static saveable_data saveable_ripper2_data[] =
 saveable_module saveable_ripper2 =
 {
     // code
-    saveable_ripper2_code,
-    SIZ(saveable_ripper2_code),
+    nullptr, 0,
 
     // data
     saveable_ripper2_data,

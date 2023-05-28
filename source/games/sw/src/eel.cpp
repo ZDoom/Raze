@@ -600,24 +600,8 @@ int DoEelMove(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_eel_code[] =
-{
-    SAVE_CODE(DoEelMatchPlayerZ),
-    SAVE_CODE(DoEelDeath),
-    SAVE_CODE(DoEelMove)
-};
-
 static saveable_data saveable_eel_data[] =
 {
-    SAVE_DATA(EelBattle),
-    SAVE_DATA(EelOffense),
-    SAVE_DATA(EelBroadcast),
-    SAVE_DATA(EelSurprised),
-    SAVE_DATA(EelEvasive),
-    SAVE_DATA(EelLostTarget),
-    SAVE_DATA(EelCloseRange),
-    SAVE_DATA(EelTouchTarget),
-
     SAVE_DATA(EelPersonality),
 
     SAVE_DATA(EelAttrib),
@@ -639,8 +623,7 @@ static saveable_data saveable_eel_data[] =
 saveable_module saveable_eel =
 {
     // code
-    saveable_eel_code,
-    SIZ(saveable_eel_code),
+    nullptr, 0,
 
     // data
     saveable_eel_data,

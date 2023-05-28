@@ -1469,34 +1469,8 @@ int DoBunnyGrowUp(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_bunny_code[] =
-{
-    SAVE_CODE(DoBunnyBeginJumpAttack),
-    SAVE_CODE(DoBunnyMoveJump),
-    SAVE_CODE(DoPickCloseBunny),
-    SAVE_CODE(DoBunnyQuickJump),
-    SAVE_CODE(NullBunny),
-    SAVE_CODE(DoBunnyPain),
-    SAVE_CODE(DoBunnyRipHeart),
-    SAVE_CODE(DoBunnyStandKill),
-    SAVE_CODE(DoBunnyMove),
-    SAVE_CODE(BunnySpew),
-    SAVE_CODE(DoBunnyEat),
-    SAVE_CODE(DoBunnyScrew),
-    SAVE_CODE(DoBunnyGrowUp),
-};
-
 static saveable_data saveable_bunny_data[] =
 {
-    SAVE_DATA(BunnyBattle),
-    SAVE_DATA(BunnyOffense),
-    SAVE_DATA(BunnyBroadcast),
-    SAVE_DATA(BunnySurprised),
-    SAVE_DATA(BunnyEvasive),
-    SAVE_DATA(BunnyLostTarget),
-    SAVE_DATA(BunnyCloseRange),
-    SAVE_DATA(BunnyWander),
-
     SAVE_DATA(WhiteBunnyPersonality),
     SAVE_DATA(BunnyPersonality),
 
@@ -1537,8 +1511,8 @@ static saveable_data saveable_bunny_data[] =
 saveable_module saveable_bunny =
 {
     // code
-    saveable_bunny_code,
-    SIZ(saveable_bunny_code),
+    nullptr,
+    0,
 
     // data
     saveable_bunny_data,

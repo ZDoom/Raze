@@ -2101,47 +2101,6 @@ int PruneGirlPain(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_miscactr_code[] =
-{
-    SAVE_CODE(DoToiletGirl),
-    SAVE_CODE(NullToiletGirl),
-    SAVE_CODE(ToiletGirlUzi),
-    SAVE_CODE(ToiletGirlPain),
-
-    SAVE_CODE(DoWashGirl),
-    SAVE_CODE(NullWashGirl),
-    SAVE_CODE(WashGirlUzi),
-    SAVE_CODE(WashGirlPain),
-
-    SAVE_CODE(DoTrashCan),
-    SAVE_CODE(TrashCanPain),
-
-    SAVE_CODE(PachinkoLightOperate),
-
-    SAVE_CODE(PachinkoCheckWin),
-    SAVE_CODE(Pachinko1Operate),
-
-    SAVE_CODE(DoCarGirl),
-    SAVE_CODE(NullCarGirl),
-    SAVE_CODE(CarGirlUzi),
-    SAVE_CODE(CarGirlPain),
-
-    SAVE_CODE(DoMechanicGirl),
-    SAVE_CODE(NullMechanicGirl),
-    SAVE_CODE(MechanicGirlDrill),
-    SAVE_CODE(MechanicGirlPain),
-
-    SAVE_CODE(DoSailorGirl),
-    SAVE_CODE(NullSailorGirl),
-    SAVE_CODE(SailorGirlThrow),
-    SAVE_CODE(SailorGirlPain),
-
-    SAVE_CODE(DoPruneGirl),
-    SAVE_CODE(NullPruneGirl),
-    SAVE_CODE(PruneGirlUzi),
-    SAVE_CODE(PruneGirlPain),
-};
-
 static saveable_data saveable_miscactr_data[] =
 {
     SAVE_DATA(ToiletGirlAttrib),
@@ -2192,8 +2151,7 @@ static saveable_data saveable_miscactr_data[] =
 saveable_module saveable_miscactr =
 {
     // code
-    saveable_miscactr_code,
-    SIZ(saveable_miscactr_code),
+    nullptr, 0,
 
     // data
     saveable_miscactr_data,

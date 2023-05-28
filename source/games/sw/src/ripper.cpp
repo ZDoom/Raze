@@ -1293,35 +1293,8 @@ int DoRipperMove(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_ripper_code[] =
-{
-
-    SAVE_CODE(InitRipperHang),
-    SAVE_CODE(DoRipperHang),
-    SAVE_CODE(DoRipperMoveHang),
-    SAVE_CODE(DoRipperHangJF),
-
-    SAVE_CODE(DoRipperBeginJumpAttack),
-    SAVE_CODE(DoRipperMoveJump),
-
-    SAVE_CODE(DoRipperQuickJump),
-    SAVE_CODE(NullRipper),
-    SAVE_CODE(DoRipperPain),
-    SAVE_CODE(DoRipperRipHeart),
-    SAVE_CODE(DoRipperStandHeart),
-    SAVE_CODE(DoRipperMove),
-};
-
 static saveable_data saveable_ripper_data[] =
 {
-    SAVE_DATA(RipperBattle),
-    SAVE_DATA(RipperOffense),
-    SAVE_DATA(RipperBroadcast),
-    SAVE_DATA(RipperSurprised),
-    SAVE_DATA(RipperEvasive),
-    SAVE_DATA(RipperLostTarget),
-    SAVE_DATA(RipperCloseRange),
-
     SAVE_DATA(RipperPersonality),
 
     SAVE_DATA(RipperAttrib),
@@ -1366,8 +1339,7 @@ static saveable_data saveable_ripper_data[] =
 saveable_module saveable_ripper =
 {
     // code
-    saveable_ripper_code,
-    SIZ(saveable_ripper_code),
+    nullptr, 0,
 
     // data
     saveable_ripper_data,

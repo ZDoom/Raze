@@ -2467,6 +2467,8 @@ DEF_ANIMATOR(DoLaserStart)
 DEF_ANIMATOR(DoTracerStart)
 DEF_ANIMATOR(DoRailStart)
 
+DEF_ANIMATOR(DoGenerateSewerDebris)
+
 END_SW_NS
 
 #endif

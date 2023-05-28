@@ -567,23 +567,8 @@ int DoGoroMove(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_goro_code[] =
-{
-    SAVE_CODE(NullGoro),
-    SAVE_CODE(DoGoroPain),
-    SAVE_CODE(DoGoroMove),
-};
-
 static saveable_data saveable_goro_data[] =
 {
-    SAVE_DATA(GoroBattle),
-    SAVE_DATA(GoroOffense),
-    SAVE_DATA(GoroBroadcast),
-    SAVE_DATA(GoroSurprised),
-    SAVE_DATA(GoroEvasive),
-    SAVE_DATA(GoroLostTarget),
-    SAVE_DATA(GoroCloseRange),
-
     SAVE_DATA(GoroPersonality),
 
     SAVE_DATA(GoroAttrib),
@@ -609,8 +594,7 @@ static saveable_data saveable_goro_data[] =
 saveable_module saveable_goro =
 {
     // code
-    saveable_goro_code,
-    SIZ(saveable_goro_code),
+    nullptr, 0,
 
     // data
     saveable_goro_data,

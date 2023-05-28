@@ -793,23 +793,8 @@ int DoDeathSpecial(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_serp_code[] =
-{
-    SAVE_CODE(NullSerp),
-    SAVE_CODE(DoSerpMove),
-    SAVE_CODE(DoDeathSpecial),
-};
-
 static saveable_data saveable_serp_data[] =
 {
-    SAVE_DATA(SerpBattle),
-    SAVE_DATA(SerpOffense),
-    SAVE_DATA(SerpBroadcast),
-    SAVE_DATA(SerpSurprised),
-    SAVE_DATA(SerpEvasive),
-    SAVE_DATA(SerpLostTarget),
-    SAVE_DATA(SerpCloseRange),
-
     SAVE_DATA(SerpPersonality),
 
     SAVE_DATA(SerpAttrib),
@@ -840,8 +825,7 @@ static saveable_data saveable_serp_data[] =
 saveable_module saveable_serp =
 {
     // code
-    saveable_serp_code,
-    SIZ(saveable_serp_code),
+    nullptr, 0,
 
     // data
     saveable_serp_data,

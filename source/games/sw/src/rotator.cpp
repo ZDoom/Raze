@@ -412,27 +412,4 @@ int DoRotator(DSWActor* actor)
     return 0;
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-#include "saveable.h"
-
-static saveable_code saveable_rotator_code[] =
-{
-    SAVE_CODE(DoRotator)
-};
-
-saveable_module saveable_rotator =
-{
-    // code
-    saveable_rotator_code,
-    SIZ(saveable_rotator_code),
-
-    // data
-    nullptr,0
-};
-
 END_SW_NS

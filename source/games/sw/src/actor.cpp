@@ -952,26 +952,6 @@ int DoFall(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-#include "saveable.h"
-
-static saveable_code saveable_actor_code[] =
-{
-    SAVE_CODE(DoActorDebris),
-    SAVE_CODE(DoFireFly),
-    SAVE_CODE(DoGenerateSewerDebris),
-    SAVE_CODE(DoActorDeathMove),
-};
-
-saveable_module saveable_actor =
-{
-    // code
-    saveable_actor_code,
-    SIZ(saveable_actor_code),
-
-    // data
-    nullptr,0
-};
-
 // helpers
 
 void DSWActor::ChangeStateEnd()

@@ -973,23 +973,8 @@ int DoZombiePain(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_zombie_code[] =
-{
-    SAVE_CODE(DoZombieMove),
-    SAVE_CODE(NullZombie),
-    SAVE_CODE(DoZombiePain),
-};
-
 static saveable_data saveable_zombie_data[] =
 {
-    SAVE_DATA(ZombieBattle),
-    SAVE_DATA(ZombieOffense),
-    SAVE_DATA(ZombieBroadcast),
-    SAVE_DATA(ZombieSurprised),
-    SAVE_DATA(ZombieEvasive),
-    SAVE_DATA(ZombieLostTarget),
-    SAVE_DATA(ZombieCloseRange),
-
     SAVE_DATA(ZombiePersonality),
 
     SAVE_DATA(ZombieAttrib),
@@ -1021,8 +1006,7 @@ static saveable_data saveable_zombie_data[] =
 saveable_module saveable_zombie =
 {
     // code
-    saveable_zombie_code,
-    SIZ(saveable_zombie_code),
+    nullptr, 0,
 
     // data
     saveable_zombie_data,

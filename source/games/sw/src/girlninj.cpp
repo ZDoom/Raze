@@ -854,25 +854,8 @@ int DoGirlNinjaSpecial(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_girlninj_code[] =
-{
-    SAVE_CODE(DoGirlNinjaMove),
-    SAVE_CODE(GirlNinjaJumpActionFunc),
-    SAVE_CODE(NullGirlNinja),
-    SAVE_CODE(DoGirlNinjaPain),
-    SAVE_CODE(DoGirlNinjaSpecial),
-};
-
 static saveable_data saveable_girlninj_data[] =
 {
-    SAVE_DATA(GirlNinjaBattle),
-    SAVE_DATA(GirlNinjaOffense),
-    SAVE_DATA(GirlNinjaBroadcast),
-    SAVE_DATA(GirlNinjaSurprised),
-    SAVE_DATA(GirlNinjaEvasive),
-    SAVE_DATA(GirlNinjaLostTarget),
-    SAVE_DATA(GirlNinjaCloseRange),
-
     SAVE_DATA(GirlNinjaPersonality),
 
     SAVE_DATA(GirlNinjaAttrib),
@@ -912,9 +895,7 @@ static saveable_data saveable_girlninj_data[] =
 saveable_module saveable_girlninj =
 {
     // code
-    saveable_girlninj_code,
-    SIZ(saveable_girlninj_code),
-
+    nullptr, 0,
     // data
     saveable_girlninj_data,
     SIZ(saveable_girlninj_data)

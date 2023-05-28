@@ -290,5 +290,6 @@ class SWActor : CoreActor native
 	native int DoLaserStart();
 	native int DoTracerStart();
 	native int DoRailStart();
+	native int DoGenerateSewerDebris();
 
 }

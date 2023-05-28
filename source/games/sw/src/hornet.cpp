@@ -619,27 +619,8 @@ int DoHornetMove(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_hornet_code[] =
-{
-    SAVE_CODE(NullHornet),
-    SAVE_CODE(DoHornetMatchPlayerZ),
-    SAVE_CODE(InitHornetCircle),
-    SAVE_CODE(DoHornetCircle),
-    SAVE_CODE(DoHornetDeath),
-    SAVE_CODE(DoCheckSwarm),
-    SAVE_CODE(DoHornetMove),
-};
-
 static saveable_data saveable_hornet_data[] =
 {
-    SAVE_DATA(HornetBattle),
-    SAVE_DATA(HornetOffense),
-    SAVE_DATA(HornetBroadcast),
-    SAVE_DATA(HornetSurprised),
-    SAVE_DATA(HornetEvasive),
-    SAVE_DATA(HornetLostTarget),
-    SAVE_DATA(HornetCloseRange),
-    SAVE_DATA(HornetTouchTarget),
 
     SAVE_DATA(HornetPersonality),
 
@@ -660,8 +641,7 @@ static saveable_data saveable_hornet_data[] =
 saveable_module saveable_hornet =
 {
     // code
-    saveable_hornet_code,
-    SIZ(saveable_hornet_code),
+    nullptr, 0,
 
     // data
     saveable_hornet_data,

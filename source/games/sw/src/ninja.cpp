@@ -2439,31 +2439,8 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
 
 #include "saveable.h"
 
-static saveable_code saveable_ninja_code[] =
-{
-    SAVE_CODE(DoNinjaHariKari),
-    SAVE_CODE(DoNinjaGrabThroat),
-    SAVE_CODE(DoNinjaMove),
-    SAVE_CODE(NinjaJumpActionFunc),
-    SAVE_CODE(NullNinja),
-    SAVE_CODE(DoNinjaPain),
-    SAVE_CODE(DoNinjaSpecial),
-    SAVE_CODE(CheckFire),
-    SAVE_CODE(DoNinjaCeiling)
-};
-
 static saveable_data saveable_ninja_data[] =
 {
-    SAVE_DATA(NinjaBattle),
-    SAVE_DATA(NinjaOffense),
-    SAVE_DATA(NinjaBroadcast),
-    SAVE_DATA(NinjaSurprised),
-    SAVE_DATA(NinjaEvasive),
-    SAVE_DATA(NinjaLostTarget),
-    SAVE_DATA(NinjaCloseRange),
-    SAVE_DATA(NinjaSniperRoam),
-    SAVE_DATA(NinjaSniperBattle),
-
     SAVE_DATA(NinjaPersonality),
     SAVE_DATA(NinjaSniperPersonality),
 
@@ -2543,8 +2520,7 @@ static saveable_data saveable_ninja_data[] =
 saveable_module saveable_ninja =
 {
     // code
-    saveable_ninja_code,
-    SIZ(saveable_ninja_code),
+    nullptr, 0,
 
     // data
     saveable_ninja_data,

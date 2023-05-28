@@ -6660,14 +6660,6 @@ Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ce
 
 #include "saveable.h"
 
-static saveable_code saveable_sprite_code[] =
-{
-    SAVE_CODE(DoGrating),
-    SAVE_CODE(DoKey),
-    SAVE_CODE(DoCoin),
-    SAVE_CODE(DoGet),
-};
-
 static saveable_data saveable_sprite_data[] =
 {
     SAVE_DATA(Track),
@@ -6696,13 +6688,7 @@ static saveable_data saveable_sprite_data[] =
     SAVE_DATA(s_GreenKey),
     SAVE_DATA(s_YellowKey),
     SAVE_DATA(s_Key),
-    /*
-    SAVE_DATA(s_BlueKeyStatue),
-    SAVE_DATA(s_RedKeyStatue),
-    SAVE_DATA(s_GreenKeyStatue),
-    SAVE_DATA(s_YellowKeyStatue),
-    SAVE_DATA(s_KeyStatue),
-    */
+
     SAVE_DATA(s_RedCoin),
     SAVE_DATA(s_YellowCoin),
     SAVE_DATA(s_GreenCoin),
@@ -6738,7 +6724,6 @@ static saveable_data saveable_sprite_data[] =
     SAVE_DATA(s_IconSmMedkit),
     SAVE_DATA(s_IconBooster),
     SAVE_DATA(s_IconHeatCard),
-    //SAVE_DATA(s_IconEnvironSuit),
     SAVE_DATA(s_IconCloak),
     SAVE_DATA(s_IconFly),
     SAVE_DATA(s_IconNightVision),
@@ -6748,8 +6733,7 @@ static saveable_data saveable_sprite_data[] =
 saveable_module saveable_sprite =
 {
     // code
-    saveable_sprite_code,
-    SIZ(saveable_sprite_code),
+    nullptr, 0,
 
     // data
     saveable_sprite_data,

@@ -740,24 +740,8 @@ int DoZillaDeathMelt(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_zilla_code[] =
-{
-    SAVE_CODE(NullZilla),
-    SAVE_CODE(DoZillaMove),
-    SAVE_CODE(DoZillaStomp),
-    SAVE_CODE(DoZillaDeathMelt),
-};
-
 static saveable_data saveable_zilla_data[] =
 {
-    SAVE_DATA(ZillaBattle),
-    SAVE_DATA(ZillaOffense),
-    SAVE_DATA(ZillaBroadcast),
-    SAVE_DATA(ZillaSurprised),
-    SAVE_DATA(ZillaEvasive),
-    SAVE_DATA(ZillaLostTarget),
-    SAVE_DATA(ZillaCloseRange),
-
     SAVE_DATA(ZillaPersonality),
 
     SAVE_DATA(ZillaAttrib),
@@ -785,8 +769,7 @@ static saveable_data saveable_zilla_data[] =
 saveable_module saveable_zilla =
 {
     // code
-    saveable_zilla_code,
-    SIZ(saveable_zilla_code),
+    nullptr, 0,
 
     // data
     saveable_zilla_data,

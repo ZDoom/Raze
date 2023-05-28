@@ -923,28 +923,8 @@ int DoCoolgPain(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_coolg_code[] =
-{
-    SAVE_CODE(DoCoolgBirth),
-    SAVE_CODE(NullCoolg),
-    SAVE_CODE(InitCoolgCircle),
-    SAVE_CODE(DoCoolgCircle),
-    SAVE_CODE(DoCoolgDeath),
-    SAVE_CODE(DoCoolgMove),
-    SAVE_CODE(DoCoolgPain),
-};
-
 static saveable_data saveable_coolg_data[] =
 {
-    SAVE_DATA(CoolgBattle),
-    SAVE_DATA(CoolgOffense),
-    SAVE_DATA(CoolgBroadcast),
-    SAVE_DATA(CoolgSurprised),
-    SAVE_DATA(CoolgEvasive),
-    SAVE_DATA(CoolgLostTarget),
-    SAVE_DATA(CoolgCloseRange),
-    SAVE_DATA(CoolgTouchTarget),
-
     SAVE_DATA(CoolgPersonality),
 
     SAVE_DATA(CoolgAttrib),
@@ -972,8 +952,7 @@ static saveable_data saveable_coolg_data[] =
 saveable_module saveable_coolg =
 {
     // code
-    saveable_coolg_code,
-    SIZ(saveable_coolg_code),
+    nullptr, 0,
 
     // data
     saveable_coolg_data,

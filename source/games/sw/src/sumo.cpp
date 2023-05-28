@@ -845,35 +845,14 @@ void BossHealthMeter(void)
 
 #include "saveable.h"
 
-static saveable_code saveable_sumo_code[] =
-{
-    SAVE_CODE(NullSumo),
-    SAVE_CODE(DoSumoMove),
-    SAVE_CODE(DoSumoRumble),
-    SAVE_CODE(InitSumoFart),
-    SAVE_CODE(InitSumoStomp),
-    SAVE_CODE(InitSumoClap),
-    SAVE_CODE(DoSumoDeathMelt),
-};
-
 static saveable_data saveable_sumo_data[] =
 {
-    SAVE_DATA(SumoBattle),
-    SAVE_DATA(SumoOffense),
-    SAVE_DATA(SumoBroadcast),
-    SAVE_DATA(SumoSurprised),
-    SAVE_DATA(SumoEvasive),
-    SAVE_DATA(SumoLostTarget),
-    SAVE_DATA(SumoCloseRange),
-
     SAVE_DATA(SumoPersonality),
 
     SAVE_DATA(SumoAttrib),
 
     SAVE_DATA(s_SumoRun),
     SAVE_DATA(sg_SumoRun),
-    //SAVE_DATA(s_SumoCharge),
-    //SAVE_DATA(sg_SumoCharge),
     SAVE_DATA(s_SumoStand),
     SAVE_DATA(sg_SumoStand),
     SAVE_DATA(s_SumoPain),
@@ -896,8 +875,7 @@ static saveable_data saveable_sumo_data[] =
 saveable_module saveable_sumo =
 {
     // code
-    saveable_sumo_code,
-    SIZ(saveable_sumo_code),
+    nullptr, 0,
 
     // data
     saveable_sumo_data,

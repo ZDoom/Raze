@@ -2983,30 +2983,4 @@ void DoSector(void)
     DoSpringBoardDown();
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-
-#include "saveable.h"
-
-static saveable_code saveable_sector_code[] =
-{
-    SAVE_CODE(DoSpawnSpot),
-};
-
-saveable_module saveable_sector =
-{
-    // code
-    saveable_sector_code,
-    SIZ(saveable_sector_code),
-
-    // data
-    nullptr,
-    0
-};
-
-
 END_SW_NS

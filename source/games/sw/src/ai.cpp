@@ -1634,51 +1634,5 @@ int DoActorPause(DSWActor* actor)
     return 0;
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 
-#include "saveable.h"
-
-static saveable_code saveable_ai_code[] =
-{
-    SAVE_CODE(InitActorDecide),
-    SAVE_CODE(DoActorDecide),
-    SAVE_CODE(InitActorMoveCloser),
-    SAVE_CODE(DoActorMoveCloser),
-    SAVE_CODE(FindTrackToPlayer),
-    SAVE_CODE(FindTrackAwayFromPlayer),
-    SAVE_CODE(FindWanderTrack),
-    SAVE_CODE(InitActorRunAway),
-    SAVE_CODE(InitActorRunToward),
-    SAVE_CODE(InitActorAttack),
-    SAVE_CODE(DoActorAttack),
-    SAVE_CODE(InitActorEvade),
-    SAVE_CODE(InitActorWanderAround),
-    SAVE_CODE(InitActorFindPlayer),
-    SAVE_CODE(InitActorDuck),
-    SAVE_CODE(DoActorDuck),
-    SAVE_CODE(DoActorMoveJump),
-    SAVE_CODE(InitActorReposition),
-    SAVE_CODE(DoActorReposition),
-    SAVE_CODE(DoActorPause)
-};
-
-static saveable_data saveable_ai_data[] =
-{
-    SAVE_DATA(GenericFlaming)
-};
-
-saveable_module saveable_ai =
-{
-    // code
-    saveable_ai_code,
-    SIZ(saveable_ai_code),
-
-    // data
-    saveable_ai_data,
-    SIZ(saveable_ai_data)
-};
 END_SW_NS

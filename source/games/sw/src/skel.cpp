@@ -645,26 +645,8 @@ int DoSkelMove(DSWActor* actor)
 
 #include "saveable.h"
 
-static saveable_code saveable_skel_code[] =
-{
-    SAVE_CODE(DoSkelInitTeleport),
-    SAVE_CODE(DoSkelTeleport),
-    SAVE_CODE(DoSkelTermTeleport),
-    SAVE_CODE(NullSkel),
-    SAVE_CODE(DoSkelPain),
-    SAVE_CODE(DoSkelMove),
-};
-
 static saveable_data saveable_skel_data[] =
 {
-    SAVE_DATA(SkelBattle),
-    SAVE_DATA(SkelOffense),
-    SAVE_DATA(SkelBroadcast),
-    SAVE_DATA(SkelSurprised),
-    SAVE_DATA(SkelEvasive),
-    SAVE_DATA(SkelLostTarget),
-    SAVE_DATA(SkelCloseRange),
-
     SAVE_DATA(SkelPersonality),
 
     SAVE_DATA(SkelAttrib),
@@ -690,8 +672,7 @@ static saveable_data saveable_skel_data[] =
 saveable_module saveable_skel =
 {
     // code
-    saveable_skel_code,
-    SIZ(saveable_skel_code),
+    nullptr, 0,
 
     // data
     saveable_skel_data,
