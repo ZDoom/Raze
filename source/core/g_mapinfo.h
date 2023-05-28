@@ -77,6 +77,13 @@ using BreakWallMap = TMap<int, BreakWallRec>;
 inline BreakWallMap breakWallMap;
 inline BreakWallMap breakCeilingMap;
 
+struct TextureReplace
+{
+	FName group;
+	TArray<std::pair<FTextureID, FTextureID>> replacements;
+};
+inline TArray<TextureReplace> textureReplace;
+
 struct FMapInfoParser
 {
 	FScanner sc;
@@ -107,6 +114,7 @@ struct FMapInfoParser
 	void ParseTextureFlags();
 	void ParseSurfaceTypes();
 	void ParseSwitches();
+	void ParseReplaceTexture();
 	void ParseConstants();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 

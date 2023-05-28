@@ -28,10 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 //#include "panel.h"
 
-#ifdef MAKE_CONPIC_ENUM
-#define CONPIC_ENTRY(tile,name) ID_ ## name = tile,
-#endif
-
+#if 0
 ////////////////////////////////////////////////////////////////////////////////
 //
 // SWORD
@@ -43,30 +40,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define SWORD_SWING1 2082
 #define SWORD_SWING2 2083
 
-CONPIC_ENTRY(SWORD_REST+0,SwordPresent0)
-
-CONPIC_ENTRY(SWORD_SWING0,SwordSwing0)
-CONPIC_ENTRY(SWORD_SWING1,SwordSwing1)
-CONPIC_ENTRY(SWORD_SWING2,SwordSwing2)
-
-CONPIC_ENTRY(SWORD_SWING0,SwordSwingR0)
-CONPIC_ENTRY(SWORD_SWING1,SwordSwingR1)
-CONPIC_ENTRY(SWORD_SWING2,SwordSwingR2)
-
 #define BLOODYSWORD_REST 4090
 #define BLOODYSWORD_SWING0 4091
 #define BLOODYSWORD_SWING1 4092
 #define BLOODYSWORD_SWING2 4093
 
-CONPIC_ENTRY(BLOODYSWORD_REST,BloodySwordPresent0)
-
-CONPIC_ENTRY(BLOODYSWORD_SWING0,BloodySwordSwing0)
-CONPIC_ENTRY(BLOODYSWORD_SWING1,BloodySwordSwing1)
-CONPIC_ENTRY(BLOODYSWORD_SWING2,BloodySwordSwing2)
-
-CONPIC_ENTRY(BLOODYSWORD_SWING0,BloodySwordSwingR0)
-CONPIC_ENTRY(BLOODYSWORD_SWING1,BloodySwordSwingR1)
-CONPIC_ENTRY(BLOODYSWORD_SWING2,BloodySwordSwingR2)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -74,48 +52,12 @@ CONPIC_ENTRY(BLOODYSWORD_SWING2,BloodySwordSwingR2)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define FIST_REST 4070
-#define FIST_SWING0 4071
-#define FIST_SWING1 4072
-#define FIST_SWING2 4073
-
-CONPIC_ENTRY(FIST_REST+0,FistPresent0)
-
-CONPIC_ENTRY(FIST_SWING0,FistSwing0)
-CONPIC_ENTRY(FIST_SWING1,FistSwing1)
-CONPIC_ENTRY(FIST_SWING2,FistSwing2)
-
-#define BLOODYFIST_REST 4074
-#define BLOODYFIST_SWING0 4075
-#define BLOODYFIST_SWING1 4076
-#define BLOODYFIST_SWING2 4077
-
-#define FIST2_REST 4050
-#define FIST2_SWING0 4051
-#define FIST2_SWING1 4052
-#define FIST2_SWING2 4053
-
-CONPIC_ENTRY(FIST2_REST+0,Fist2Present0)
-
-CONPIC_ENTRY(FIST2_SWING0,Fist2Swing0)
-CONPIC_ENTRY(FIST2_SWING1,Fist2Swing1)
-CONPIC_ENTRY(FIST2_SWING2,Fist2Swing2)
-
-#define BLOODYFIST2_REST 4054
-#define BLOODYFIST2_SWING0 4055
-#define BLOODYFIST2_SWING1 4056
-#define BLOODYFIST2_SWING2 4057
+#define FIST2_SWING_ALT 4058
 
 #define FIST3_REST 4060
 #define FIST3_SWING0 4061
 #define FIST3_SWING1 4062
 #define FIST3_SWING2 4063
-
-CONPIC_ENTRY(FIST3_REST+0,Fist3Present0)
-
-CONPIC_ENTRY(FIST3_SWING0,Fist3Swing0)
-CONPIC_ENTRY(FIST3_SWING1,Fist3Swing1)
-CONPIC_ENTRY(FIST3_SWING2,Fist3Swing2)
 
 #define BLOODYFIST3_REST 4064
 #define BLOODYFIST3_SWING0 4065
@@ -131,9 +73,6 @@ CONPIC_ENTRY(FIST3_SWING2,Fist3Swing2)
 #define KICK0 4080
 #define KICK1 4081
 
-CONPIC_ENTRY(KICK0,Kick0)
-CONPIC_ENTRY(KICK1,Kick1)
-
 #define BLOODYKICK0 4082
 #define BLOODYKICK1 4083
 
@@ -145,18 +84,22 @@ CONPIC_ENTRY(KICK1,Kick1)
 ///////////////////////////////////////////////////////////////////////////////
 
 #define STAR_REST 2130
-#define STAR_THROW 2133
+#define STAR_DOWN0 2131
+#define STAR_DOWN1 2132
+#define STAR_THROW0 2134
+#define STAR_THROW1 2135
+#define STAR_THROW2 2136
+#define STAR_THROW3 2137
+#define STAR_THROW4 2138
 
-CONPIC_ENTRY(STAR_REST+0,StarPresent0)
-
-CONPIC_ENTRY(STAR_REST+1,StarDown0)
-CONPIC_ENTRY(STAR_REST+2,StarDown1)
-
-CONPIC_ENTRY(STAR_THROW+0,ThrowStar0)
-CONPIC_ENTRY(STAR_THROW+1,ThrowStar1)
-CONPIC_ENTRY(STAR_THROW+2,ThrowStar2)
-CONPIC_ENTRY(STAR_THROW+3,ThrowStar3)
-CONPIC_ENTRY(STAR_THROW+4,ThrowStar4)
+#define DART_REST   2510
+#define DART_DOWN0  2511
+#define DART_DOWN1  2512
+#define DART_THROW0 2514
+#define DART_THROW1 2515
+#define DART_THROW2 2516
+#define DART_THROW3 2517
+#define DART_THROW4 2518
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //
@@ -164,59 +107,21 @@ CONPIC_ENTRY(STAR_THROW+4,ThrowStar4)
 //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#if 0
-#define UZI_REST 2000
-#define UZI_FIRE_0 2001
-#define UZI_FIRE_1 2001
-#define UZI_EJECT 2003
-#define UZI_CLIP 2005
-#define UZI_RELOAD 2007
-#else
-// silencer
 #define UZI_REST 2004
 #define UZI_FIRE_0 2006
 #define UZI_FIRE_1 2008
 #define UZI_EJECT 2009
 #define UZI_CLIP 2005
 #define UZI_RELOAD 2007
-#endif
 
-#define CON_UZI_SHELL 2152
+#define CON_UZI_SHELL0 2152
+#define CON_UZI_SHELL1 2153
+#define CON_UZI_SHELL2 2154
+#define CON_UZI_SHELL3 2155
+#define CON_UZI_SHELL4 2156
+#define CON_UZI_SHELL5 2157
 
 
-// RIGHT UZI
-CONPIC_ENTRY(UZI_REST,UziPresent0)
-
-CONPIC_ENTRY(UZI_FIRE_0,UziFire0)
-CONPIC_ENTRY(UZI_FIRE_1,UziFire1)
-
-// LEFT UZI
-CONPIC_ENTRY(UZI_REST,Uzi2Present0)
-
-CONPIC_ENTRY(UZI_FIRE_0,Uzi2Fire0)
-CONPIC_ENTRY(UZI_FIRE_1,Uzi2Fire1)
-//eject
-CONPIC_ENTRY(UZI_EJECT,UziEject0)
-
-//clip
-CONPIC_ENTRY(UZI_CLIP,UziClip0)
-
-//reload
-CONPIC_ENTRY(UZI_RELOAD,UziReload0)
-
-CONPIC_ENTRY(CON_UZI_SHELL+0,UziShell0)
-CONPIC_ENTRY(CON_UZI_SHELL+1,UziShell1)
-CONPIC_ENTRY(CON_UZI_SHELL+2,UziShell2)
-CONPIC_ENTRY(CON_UZI_SHELL+3,UziShell3)
-CONPIC_ENTRY(CON_UZI_SHELL+4,UziShell4)
-CONPIC_ENTRY(CON_UZI_SHELL+5,UziShell5)
-
-CONPIC_ENTRY(CON_UZI_SHELL+0,Uzi2Shell0)
-CONPIC_ENTRY(CON_UZI_SHELL+1,Uzi2Shell1)
-CONPIC_ENTRY(CON_UZI_SHELL+2,Uzi2Shell2)
-CONPIC_ENTRY(CON_UZI_SHELL+3,Uzi2Shell3)
-CONPIC_ENTRY(CON_UZI_SHELL+4,Uzi2Shell4)
-CONPIC_ENTRY(CON_UZI_SHELL+5,Uzi2Shell5)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -225,31 +130,20 @@ CONPIC_ENTRY(CON_UZI_SHELL+5,Uzi2Shell5)
 ////////////////////////////////////////////////////////////////////////////////
 
 #define SHOTGUN_REST 2213
-#define SHOTGUN_FIRE 2214
+#define SHOTGUN_FIRE0 2214
+#define SHOTGUN_FIRE1 2215
 #define SHOTGUN_RELOAD0 2216
 #define SHOTGUN_RELOAD1 2211
 #define SHOTGUN_RELOAD2 2212
 
-CONPIC_ENTRY(SHOTGUN_REST,ShotgunPresent0)
-
-CONPIC_ENTRY(SHOTGUN_REST,ShotgunRest0)
-
-CONPIC_ENTRY(SHOTGUN_RELOAD0,ShotgunReload0)
-CONPIC_ENTRY(SHOTGUN_RELOAD1,ShotgunReload1)
-CONPIC_ENTRY(SHOTGUN_RELOAD2,ShotgunReload2)
-
-CONPIC_ENTRY(SHOTGUN_FIRE+0,ShotgunFire0)
-CONPIC_ENTRY(SHOTGUN_FIRE+1,ShotgunFire1)
-
-#define SHOTGUN_SHELL 2180
-CONPIC_ENTRY(SHOTGUN_SHELL+0,ShotgunShell0)
-CONPIC_ENTRY(SHOTGUN_SHELL+1,ShotgunShell1)
-CONPIC_ENTRY(SHOTGUN_SHELL+2,ShotgunShell2)
-CONPIC_ENTRY(SHOTGUN_SHELL+3,ShotgunShell3)
-CONPIC_ENTRY(SHOTGUN_SHELL+4,ShotgunShell4)
-CONPIC_ENTRY(SHOTGUN_SHELL+5,ShotgunShell5)
-CONPIC_ENTRY(SHOTGUN_SHELL+6,ShotgunShell6)
-CONPIC_ENTRY(SHOTGUN_SHELL+7,ShotgunShell7)
+#define SHOTGUN_SHELL0 2180
+#define SHOTGUN_SHELL1 2181
+#define SHOTGUN_SHELL2 2182
+#define SHOTGUN_SHELL3 2183
+#define SHOTGUN_SHELL4 2184
+#define SHOTGUN_SHELL5 2185
+#define SHOTGUN_SHELL6 2186
+#define SHOTGUN_SHELL7 2187
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -260,40 +154,22 @@ CONPIC_ENTRY(SHOTGUN_SHELL+7,ShotgunShell7)
 #define ROCKET_REST 2211
 #define ROCKET_FIRE 2212
 
-CONPIC_ENTRY(ROCKET_REST+0,RocketPresent0)
-CONPIC_ENTRY(ROCKET_REST+0,RocketRest0)
-
-CONPIC_ENTRY(ROCKET_FIRE+0,RocketFire0)
-CONPIC_ENTRY(ROCKET_FIRE+1,RocketFire1)
-CONPIC_ENTRY(ROCKET_FIRE+2,RocketFire2)
-CONPIC_ENTRY(ROCKET_FIRE+3,RocketFire3)
-CONPIC_ENTRY(ROCKET_FIRE+4,RocketFire4)
-CONPIC_ENTRY(ROCKET_FIRE+5,RocketFire5)
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // RAIL
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define RAIL_REST 2010
-#define RAIL_CHARGE 2015
-#define RAIL_FIRE 2018
-
-CONPIC_ENTRY(RAIL_REST+0,RailPresent0)
-
-CONPIC_ENTRY(RAIL_REST+0,RailRest0)
-CONPIC_ENTRY(RAIL_REST+1,RailRest1)
-CONPIC_ENTRY(RAIL_REST+2,RailRest2)
-CONPIC_ENTRY(RAIL_REST+3,RailRest3)
-CONPIC_ENTRY(RAIL_REST+4,RailRest4)
-
-CONPIC_ENTRY(RAIL_FIRE+0,RailFire0)
-CONPIC_ENTRY(RAIL_FIRE+1,RailFire1)
-
-CONPIC_ENTRY(RAIL_CHARGE+0,RailCharge0)
-CONPIC_ENTRY(RAIL_CHARGE+1,RailCharge1)
-CONPIC_ENTRY(RAIL_CHARGE+2,RailCharge2)
+#define RAIL_REST0 2010
+#define RAIL_REST1 2011
+#define RAIL_REST2 2012
+#define RAIL_REST3 2013
+#define RAIL_REST4 2014
+#define RAIL_CHARGE0 2015
+#define RAIL_CHARGE1 2016
+#define RAIL_CHARGE2 2017
+#define RAIL_FIRE0 2018
+#define RAIL_FIRE1 2019
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -301,42 +177,29 @@ CONPIC_ENTRY(RAIL_CHARGE+2,RailCharge2)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//#define HOTHEAD_REST 2327
-//#define HOTHEAD_ATTACK 2327
 #define HOTHEAD_REST 2048
 #define HOTHEAD_ATTACK 2049
 #define HOTHEAD_CENTER 2327
-#define HOTHEAD_TURN 2314
+#define HOTHEAD_TURN0 2314
+#define HOTHEAD_TURN1 2315
+#define HOTHEAD_TURN2 2316
+#define HOTHEAD_TURN3 2317
 #define HOTHEAD_CHOMP 2318
 
-CONPIC_ENTRY(HOTHEAD_REST+0,HotheadPresent0)
-CONPIC_ENTRY(HOTHEAD_REST+0,HotheadRest0)
-CONPIC_ENTRY(HOTHEAD_ATTACK+0,HotheadAttack0)
 
-CONPIC_ENTRY(HOTHEAD_CENTER+0,HotheadCenter0)
-
-CONPIC_ENTRY(HOTHEAD_TURN+0,HotheadTurn0)
-CONPIC_ENTRY(HOTHEAD_TURN+1,HotheadTurn1)
-CONPIC_ENTRY(HOTHEAD_TURN+2,HotheadTurn2)
-CONPIC_ENTRY(HOTHEAD_TURN+3,HotheadTurn3)
-
-CONPIC_ENTRY(HOTHEAD_CHOMP+0,HotheadChomp0)
-
-#define ON_FIRE 3157
-
-CONPIC_ENTRY(ON_FIRE+0,OnFire0)
-CONPIC_ENTRY(ON_FIRE+1,OnFire1)
-CONPIC_ENTRY(ON_FIRE+2,OnFire2)
-CONPIC_ENTRY(ON_FIRE+3,OnFire3)
-CONPIC_ENTRY(ON_FIRE+4,OnFire4)
-CONPIC_ENTRY(ON_FIRE+5,OnFire5)
-CONPIC_ENTRY(ON_FIRE+6,OnFire6)
-CONPIC_ENTRY(ON_FIRE+7,OnFire7)
-CONPIC_ENTRY(ON_FIRE+8,OnFire8)
-CONPIC_ENTRY(ON_FIRE+9,OnFire9)
-CONPIC_ENTRY(ON_FIRE+10,OnFire10)
-CONPIC_ENTRY(ON_FIRE+11,OnFire11)
-CONPIC_ENTRY(ON_FIRE+12,OnFire12)
+#define ON_FIRE0 3157
+#define ON_FIRE1 3158
+#define ON_FIRE2 3159
+#define ON_FIRE3 3160
+#define ON_FIRE4 3161
+#define ON_FIRE5 3162
+#define ON_FIRE6 3163
+#define ON_FIRE7 3164
+#define ON_FIRE8 3165
+#define ON_FIRE9 3166
+#define ON_FIRE10 3167
+#define ON_FIRE11 3168
+#define ON_FIRE12 3169
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -345,71 +208,11 @@ CONPIC_ENTRY(ON_FIRE+12,OnFire12)
 ////////////////////////////////////////////////////////////////////////////////
 
 #define MICRO_REST 2070
-#define MICRO_FIRE 2071
-#define MICRO_SINGLE_FIRE 2071
+#define MICRO_FIRE0 2071
+#define MICRO_FIRE1 2072
+#define MICRO_FIRE2 2073
+#define MICRO_FIRE3 2074
 
-CONPIC_ENTRY(MICRO_REST+0,MicroPresent0)
-
-CONPIC_ENTRY(MICRO_FIRE+0,MicroFire0)
-CONPIC_ENTRY(MICRO_FIRE+1,MicroFire1)
-CONPIC_ENTRY(MICRO_FIRE+2,MicroFire2)
-CONPIC_ENTRY(MICRO_FIRE+3,MicroFire3)
-
-CONPIC_ENTRY(MICRO_SINGLE_FIRE+0,MicroSingleFire0)
-CONPIC_ENTRY(MICRO_SINGLE_FIRE+1,MicroSingleFire1)
-CONPIC_ENTRY(MICRO_SINGLE_FIRE+2,MicroSingleFire2)
-CONPIC_ENTRY(MICRO_SINGLE_FIRE+3,MicroSingleFire3)
-
-#if 0
-////////////////////////////////////////////////////////////////////////////////
-//
-// NAPALM
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#define NAPALM_REST 2020
-#define NAPALM_FIRE 2021
-
-CONPIC_ENTRY(NAPALM_REST+0,NapalmPresent0)
-
-CONPIC_ENTRY(NAPALM_FIRE+0,NapalmFire0)
-CONPIC_ENTRY(NAPALM_FIRE+1,NapalmFire1)
-CONPIC_ENTRY(NAPALM_FIRE+2,NapalmFire2)
-CONPIC_ENTRY(NAPALM_FIRE+3,NapalmFire3)
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// RING
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#define RING_REST 2020
-#define RING_FIRE 2021
-
-CONPIC_ENTRY(RING_REST+0,RingPresent0)
-
-CONPIC_ENTRY(RING_FIRE+0,RingFire0)
-CONPIC_ENTRY(RING_FIRE+1,RingFire1)
-CONPIC_ENTRY(RING_FIRE+2,RingFire2)
-CONPIC_ENTRY(RING_FIRE+3,RingFire3)
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ELECTRO
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#define ELECTRO_REST 2020
-#define ELECTRO_FIRE 2021
-
-CONPIC_ENTRY(ELECTRO_REST+0,ElectroPresent0)
-
-CONPIC_ENTRY(ELECTRO_FIRE+0,ElectroFire0)
-CONPIC_ENTRY(ELECTRO_FIRE+1,ElectroFire1)
-CONPIC_ENTRY(ELECTRO_FIRE+2,ElectroFire2)
-CONPIC_ENTRY(ELECTRO_FIRE+3,ElectroFire3)
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -418,17 +221,12 @@ CONPIC_ENTRY(ELECTRO_FIRE+3,ElectroFire3)
 ////////////////////////////////////////////////////////////////////////////////
 
 #define GRENADE_REST 2121
-#define GRENADE_FIRE 2122
-#define GRENADE_RELOAD 2125
+#define GRENADE_FIRE0 2122
+#define GRENADE_FIRE1 2123
+#define GRENADE_FIRE2 2124
+#define GRENADE_RELOAD0 2125
+#define GRENADE_RELOAD1 2126
 
-CONPIC_ENTRY(GRENADE_REST+0,GrenadePresent0)
-
-CONPIC_ENTRY(GRENADE_FIRE+0,GrenadeFire0)
-CONPIC_ENTRY(GRENADE_FIRE+1,GrenadeFire1)
-CONPIC_ENTRY(GRENADE_FIRE+2,GrenadeFire2)
-
-CONPIC_ENTRY(GRENADE_RELOAD+0,GrenadeReload0)
-CONPIC_ENTRY(GRENADE_RELOAD+1,GrenadeReload1)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -436,16 +234,9 @@ CONPIC_ENTRY(GRENADE_RELOAD+1,GrenadeReload1)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define MINE_REST 2220
+#define MINE_REST0 2220
+#define MINE_REST1 2221
 #define MINE_THROW 2222
-#define MINE_RELOAD 2222
-
-CONPIC_ENTRY(MINE_REST+0,MinePresent0)
-CONPIC_ENTRY(MINE_REST+1,MinePresent1)
-
-CONPIC_ENTRY(MINE_THROW+0,MineThrow0)
-
-CONPIC_ENTRY(MINE_RELOAD+0,MineReload0)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -453,27 +244,27 @@ CONPIC_ENTRY(MINE_RELOAD+0,MineReload0)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define HEART_REST 2050
+#define HEART_REST0 2050
+#define HEART_REST1 2051
+#define HEART_ATTACK0 2052
+#define HEART_ATTACK1 2053
 
-#define HEART_ATTACK 2052
 
-CONPIC_ENTRY(HEART_REST+0,HeartPresent0)
-CONPIC_ENTRY(HEART_REST+1,HeartPresent1)
+#define HEART_BLOOD0 2420
+#define HEART_BLOOD1 2421
+#define HEART_BLOOD2 2422
+#define HEART_BLOOD3 2423
+#define HEART_BLOOD4 2424
+#define HEART_BLOOD5 2425
 
-CONPIC_ENTRY(HEART_ATTACK+0,HeartAttack0)
-CONPIC_ENTRY(HEART_ATTACK+1,HeartAttack1)
 
-//#define HEART_BLOOD 2430
-#define HEART_BLOOD 2420
-CONPIC_ENTRY(HEART_BLOOD+0,HeartBlood0)
-CONPIC_ENTRY(HEART_BLOOD+1,HeartBlood1)
-CONPIC_ENTRY(HEART_BLOOD+2,HeartBlood2)
-CONPIC_ENTRY(HEART_BLOOD+3,HeartBlood3)
-CONPIC_ENTRY(HEART_BLOOD+4,HeartBlood4)
-CONPIC_ENTRY(HEART_BLOOD+5,HeartBlood5)
-
-#undef CONPIC_ENTRY
+#define PanelEnvironSuit 2397
+#define ChopsRest  2000
+#define ChopsOpen  2001
+#define ChopsClose 2002
 
 
 
 
+
+#endif

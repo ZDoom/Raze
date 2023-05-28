@@ -357,7 +357,7 @@ typedef void (*soANIMATORp) (SECTOR_OBJECT*);
     }
 
 #define x(a) SPR_##a,
-enum spriteindex_t
+enum spriteindex_t : unsigned
 {
     SPR_NULL = 0,
 
@@ -903,7 +903,9 @@ enum
 
 enum ETexFlags
 {
-    TFLAG_BUNNYFRIENDLY = 1, // bunnies like to stay in sectors with this as floor.
+    TFLAG_BUNNYFRIENDLY = 1,    // bunnies like to stay in sectors with this as floor.
+    TFLAG_PANELUSERPAL = 2,     // uses the player's palette when shown as panel sprite
+    TFLAG_FISTFLIP = 4,         // 'temporary hack to fix fist artifacts until a solution is found in the panel system itself' - apparently the solution was never found...
 };
 
 enum ESurfType

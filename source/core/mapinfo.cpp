@@ -42,6 +42,7 @@
 #include "raze_sound.h"
 #include "zstring.h"
 #include "statistics.h"
+#include "g_mapinfo.h"
 
 FString gSkillNames[MAXSKILLS];
 int gDefaultVolume = 0, gDefaultSkill = 1;
@@ -274,4 +275,21 @@ void MapLocals::fillSummary(SummaryInfo& sum)
 	sum.supersecrets = superSecrets.got;
 	sum.time = PlayClock;
 	// todo: centralize the remaining info as well.
+}
+
+
+FTextureID GetTextureReplacement(FTextureID base, FName reason)
+{
+	// this won't become long enough to cover the static overhead of a map
+	for (auto& g : textureReplace)
+	{
+		if (g.group == reason)
+		{
+			for(auto&t : g.replacements)
+			{ 
+				if (base == t.first) return t.second;
+			}
+		}
+	}
+	return base;
 }

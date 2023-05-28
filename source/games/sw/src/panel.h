@@ -57,7 +57,7 @@ enum PanelSpriteIDs
 
 struct PANEL_STATE
 {
-	short picndx;                       // for pip stuff in conpic.h
+	int Sprite;                       // for pip stuff in conpic.h
 	int tics;
 	//void (*Animator)(PANEL_SPRITE*);    // JBF: return type was long
 	VMNativeFunction** Animator;
@@ -120,8 +120,8 @@ public:
 	PANEL_SPRITE_OVERLAY over[8];
 	PANEL_SPRITE_FUNCp PanelSpriteFunc;
 	short ID;                           // id for finding sprite types on the list
-	short picndx;                       // for pip stuff in conpic.h
-	short picnum;                       // bypass pip stuff in conpic.h
+	int Sprite;               // for pip stuff in conpic.h
+	FTextureID texnum;                  // bypass pip stuff in conpic.h
 	short vel, vel_adj;
 	int flags, priority;
 	int scale;

@@ -101,3 +101,8 @@ xx(ExtraSound6)
 xx(CloseAttackPercent)
 xx(AttackPercent)
 xx(BloodMissileBase)
+
+xx(Darts)
+xx(Bloody)
+xx(Shotgun2)
+

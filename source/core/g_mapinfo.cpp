@@ -675,6 +675,36 @@ void FMapInfoParser::ParseSurfaceTypes()
 //
 //==========================================================================
 
+void FMapInfoParser::ParseReplaceTexture()
+{
+	sc.MustGetString();
+	textureReplace.Reserve(1);
+	textureReplace.Last().group = sc.String;
+
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		sc.MustGetString();
+		auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		if (!tex.isValid())
+			sc.ScriptMessage("'%s': Unknown texture", sc.String);
+
+		ParseAssign();
+		sc.MustGetString();
+		auto tex2 = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		if (!tex2.isValid())
+			sc.ScriptMessage("'%s': Unknown texture", sc.String);
+
+		textureReplace.Last().replacements.Push(std::make_pair(tex, tex2));
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void FMapInfoParser::ParseCutscene(CutsceneDef& cdef)
 {
 	FString sound;
@@ -1757,6 +1787,10 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		else if (sc.Compare("surfacetypes"))
 		{
 			ParseSurfaceTypes();
+		}
+		else if (sc.Compare("texturereplace"))
+		{
+			ParseReplaceTexture();
 		}
 		else if (sc.Compare("constants"))
 		{
