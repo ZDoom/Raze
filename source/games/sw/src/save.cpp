@@ -828,9 +828,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("filler", w.filler, def->filler)
 			("wallshade", w.WallShade)
 			("rotator", w.rotator)
+			("actoractionfunc", w.__legacyState.ActorActionFunc)
 			("oz", w.oz, def->oz);
 
-		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.__legacyState.ActorActionFunc);
 		arc.EndObject();
 
 		if (arc.isReading())
