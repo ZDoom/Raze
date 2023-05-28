@@ -1211,7 +1211,7 @@ extern TRACK Track[MAX_TRACKS];
 
 struct SECTOR_OBJECT
 {
-    soANIMATORp PreMoveAnimator;
+    bool PreMoveScale;
     soANIMATORp PostMoveAnimator;
     soANIMATORp Animator;
     TObjPtr<DSWActor*> controller;

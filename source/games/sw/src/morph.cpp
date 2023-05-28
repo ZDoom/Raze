@@ -37,8 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void ScaleSectorObject(SECTOR_OBJECT*);
-
 //---------------------------------------------------------------------------
 //
 //
@@ -57,7 +55,7 @@ short DoSectorObjectSetScale(short match)
         if (sop->match_event == match)
         {
             sop->flags |= (SOBJ_DYNAMIC);
-            sop->PreMoveAnimator = ScaleSectorObject;
+            sop->PreMoveScale = true;
 
             switch (sop->scale_active_type)
             {
@@ -539,10 +537,8 @@ void SpikeFloor(SECTOR_OBJECT* sop)
 
 static saveable_code saveable_morph_code[] =
 {
-    SAVE_CODE(ScaleSectorObject),
     SAVE_CODE(MorphTornado),
     SAVE_CODE(MorphFloor),
-    SAVE_CODE(SpikeFloor),
 };
 
 saveable_module saveable_morph =

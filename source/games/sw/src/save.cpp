@@ -691,9 +691,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			("morph_z_speed", w.morph_z_speed, def->morph_z_speed)
 			("morph_off", w.morph_off, def->morph_off)
 			("limit_ang_center", w.limit_ang_center, def->limit_ang_center)
-			("limit_ang_delta", w.limit_ang_delta, def->limit_ang_delta);
+			("limit_ang_delta", w.limit_ang_delta, def->limit_ang_delta)
+			("premovescale", w.PreMoveScale, def->PreMoveScale);
+			
 
-		SerializeCodePtr(arc, "preanimator", (void**)&w.PreMoveAnimator);
 		SerializeCodePtr(arc, "postanimator", (void**)&w.PostMoveAnimator);
 		SerializeCodePtr(arc, "animator", (void**)&w.Animator);
 

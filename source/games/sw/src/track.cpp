@@ -932,7 +932,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
         void DoTornadoObject(SECTOR_OBJECT* sop);
         void MorphTornado(SECTOR_OBJECT* sop);
         void MorphFloor(SECTOR_OBJECT* sop);
-        void ScaleSectorObject(SECTOR_OBJECT* sop);
         void DoAutoTurretObject(SECTOR_OBJECT* sop);
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
@@ -987,7 +986,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->morph_dist = 0;
         sop->morph_off = { 0,0 };
 
-        sop->PreMoveAnimator = nullptr;
+        sop->PreMoveScale = false;
         sop->PostMoveAnimator = nullptr;
         sop->Animator = nullptr;
     }
@@ -1089,7 +1088,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->last_ang = sop->ang;
                     // animators
                     sop->Animator = DoTornadoObject;
-                    sop->PreMoveAnimator = ScaleSectorObject;
+                    sop->PreMoveScale = true;
                     sop->PostMoveAnimator = MorphTornado;
                     // clip
                     sop->clipdist = 156.25;
@@ -1117,7 +1116,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->flags |= (SOBJ_DYNAMIC);
                     //sop->scale_type = SO_SCALE_CYCLE;
                     sop->scale_type = SO_SCALE_RANDOM_POINT;
-                    sop->PreMoveAnimator = ScaleSectorObject;
+                    sop->PreMoveScale = true;
 
                     memset(sop->scale_point_dist,0,sizeof(sop->scale_point_dist));;
                     sop->scale_point_base_speed = 0.25 + RandomRangeF(0.5);
@@ -1769,8 +1768,8 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
     DAngle delta_ang_from_orig;
 
     // do scaling
-    if (dynamic && sop->PreMoveAnimator)
-        (*sop->PreMoveAnimator)(sop);
+    if (dynamic && sop->PreMoveScale)
+        ScaleSectorObject(sop);
 
     sectortype** sectp;
     int j;
