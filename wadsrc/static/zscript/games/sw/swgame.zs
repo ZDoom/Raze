@@ -120,6 +120,8 @@ struct SW native
 	enum ETexFlags // texture flags
 	{
 		TFLAG_BUNNYFRIENDLY = 1,
+        TFLAG_PANELUSERPAL			= 2,
+	    TFLAG_FISTFLIP				= 4,
 	};
 
 	native static void PlaySound(Sound snd, int flags, int channel = CHAN_AUTO, int cflags = 0);

@@ -359,7 +359,6 @@
 4076 = BLOODYFIST_SWING2           
 
 4050 = FIST2_REST                  
-4051 = BLOODYFIST2_REST            
 4058 = FIST2_SWING_ALT             
 
 4060 = FIST3_REST                  

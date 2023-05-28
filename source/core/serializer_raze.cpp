@@ -61,12 +61,11 @@
 
 FSerializer &FRazeSerializer::Sprite(const char *key, int32_t &spritenum, int32_t *def)
 {
-#if 0
 	if (isWriting())
 	{
 		if (w->inObject() && def != nullptr && *def == spritenum) return *this;
 		WriteKey(key);
-		w->String(sprites[spritenum].name);
+		w->String(SpriteDefs[spritenum].name.GetChars());
 	}
 	else
 	{
@@ -76,9 +75,9 @@ FSerializer &FRazeSerializer::Sprite(const char *key, int32_t &spritenum, int32_
 			if (val->IsString())
 			{
 				FName name = val->GetString();
-				for (auto hint = NumStdSprites; hint-- != 0; )
+				for (auto hint = SpriteDefs.Size(); hint-- != 0; )
 				{
-					if (sprites[hint].dwName == name)
+					if (SpriteDefs[hint].name == name)
 					{
 						spritenum = hint;
 						break;
@@ -87,7 +86,6 @@ FSerializer &FRazeSerializer::Sprite(const char *key, int32_t &spritenum, int32_
 			}
 		}
 	}
-#endif
 	return *this;
 }
 

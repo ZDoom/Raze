@@ -99,9 +99,19 @@ int NullAnimator(DSWActor*)
     return 0;
 }
 
+inline FTextureID GetTextureFromSprite(unsigned sprite, unsigned frame)
+{
+    if (SpriteDefs.Size() <= sprite) return FNullTextureID();
+    auto spdef = &SpriteDefs[sprite];
+    if (SpriteFrames.Size() <= spdef->numframes) return FNullTextureID();
+    auto spframe = &SpriteFrames[spdef->spriteframes + frame];
+    if (spframe->RotMode == 0) return FNullTextureID();
+    return spframe->Texture[0];
+}
+
 inline int pspheight(DPanelSprite* psp)
 {
-    auto tex = tileGetTexture(psp->picndx);
+    auto tex = TexMan.GetGameTexture(GetTextureFromSprite(psp->Sprite, 0));
     return (int)tex->GetDisplayHeight();
 }
 
@@ -868,8 +878,8 @@ void SpawnSwordBlur(DPanelSprite* psp)
     nsp->kill_tics = 9;
     nsp->shade = psp->shade + 10;
 
-    nsp->picndx = -1;
-    nsp->picnum = psp->picndx;
+    nsp->Sprite = SPR_NULL;
+    nsp->texnum = GetTextureFromSprite(psp->Sprite, 0);
 
     if ((psp->State->flags & psf_Xflip))
         nsp->flags |= (PANF_XFLIP);
@@ -907,17 +917,17 @@ extern PANEL_STATE ps_ReloadSword[];
 
 PANEL_STATE ps_PresentSword[] =
 {
-    {ID_SwordPresent0, Sword_BEAT_RATE, &AF(pSwordPresent), &ps_PresentSword[0], 0,0,0}
+    {SPR_SWORD_REST, Sword_BEAT_RATE, &AF(pSwordPresent), &ps_PresentSword[0], 0,0,0}
 };
 
 PANEL_STATE ps_SwordRest[] =
 {
-    {ID_SwordPresent0, Sword_BEAT_RATE, &AF(pSwordRest), &ps_SwordRest[0], 0,0,0}
+    {SPR_SWORD_REST, Sword_BEAT_RATE, &AF(pSwordRest), &ps_SwordRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_SwordHide[] =
 {
-    {ID_SwordPresent0, Sword_BEAT_RATE, &AF(pSwordHide), &ps_SwordHide[0], 0,0,0}
+    {SPR_SWORD_REST, Sword_BEAT_RATE, &AF(pSwordHide), &ps_SwordHide[0], 0,0,0}
 };
 
 #define SWORD_PAUSE_TICS 10
@@ -927,24 +937,24 @@ PANEL_STATE ps_SwordHide[] =
 
 PANEL_STATE ps_SwordSwing[] =
 {
-    {ID_SwordSwing0, SWORD_PAUSE_TICS,                    nullptr,      &ps_SwordSwing[1], 0,0,0},
-    {ID_SwordSwing1, SWORD_SLIDE_TICS, /* start slide */ &AF(pSwordSlide),        &ps_SwordSwing[2], 0,0,0},
-    {ID_SwordSwing1, 0, /* damage */ &AF(pSwordAttack),       &ps_SwordSwing[3], psf_QuickCall, 0,0},
-    {ID_SwordSwing2, SWORD_MID_SLIDE_TICS, /* mid slide */ &AF(pSwordSlideDown),    &ps_SwordSwing[4], 0,0,0},
+    {SPR_SWORD_SWING0, SWORD_PAUSE_TICS,                    nullptr,      &ps_SwordSwing[1], 0,0,0},
+    {SPR_SWORD_SWING1, SWORD_SLIDE_TICS, /* start slide */ &AF(pSwordSlide),        &ps_SwordSwing[2], 0,0,0},
+    {SPR_SWORD_SWING1, 0, /* damage */ &AF(pSwordAttack),       &ps_SwordSwing[3], psf_QuickCall, 0,0},
+    {SPR_SWORD_SWING2, SWORD_MID_SLIDE_TICS, /* mid slide */ &AF(pSwordSlideDown),    &ps_SwordSwing[4], 0,0,0},
 
-    {ID_SwordSwing2, 99, /* end slide */ &AF(pSwordSlideDown),    &ps_SwordSwing[4], 0,0,0},
+    {SPR_SWORD_SWING2, 99, /* end slide */ &AF(pSwordSlideDown),    &ps_SwordSwing[4], 0,0,0},
 
-    {ID_SwordSwingR1, SWORD_SLIDE_TICS, /* start slide */ &AF(pSwordSlideR),       &ps_SwordSwing[6], psf_Xflip, 0,0},
-    {ID_SwordSwingR2, 0, /* damage */ &AF(pSwordAttack),       &ps_SwordSwing[7], psf_QuickCall|psf_Xflip, 0,0},
-    {ID_SwordSwingR2, SWORD_MID_SLIDE_TICS, /* mid slide */ &AF(pSwordSlideDownR),   &ps_SwordSwing[8], psf_Xflip, 0,0},
+    {SPR_SWORD_SWING1, SWORD_SLIDE_TICS, /* start slide */ &AF(pSwordSlideR),       &ps_SwordSwing[6], psf_Xflip, 0,0},
+    {SPR_SWORD_SWING2, 0, /* damage */ &AF(pSwordAttack),       &ps_SwordSwing[7], psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_SWORD_SWING2, SWORD_MID_SLIDE_TICS, /* mid slide */ &AF(pSwordSlideDownR),   &ps_SwordSwing[8], psf_Xflip, 0,0},
 
-    {ID_SwordSwingR2, 99, /* end slide */ &AF(pSwordSlideDownR),   &ps_SwordSwing[8], psf_Xflip, 0,0},
-    {ID_SwordSwingR2, 2, /* end slide */ nullptr,      &ps_SwordSwing[1], psf_Xflip, 0,0},
+    {SPR_SWORD_SWING2, 99, /* end slide */ &AF(pSwordSlideDownR),   &ps_SwordSwing[8], psf_Xflip, 0,0},
+    {SPR_SWORD_SWING2, 2, /* end slide */ nullptr,      &ps_SwordSwing[1], psf_Xflip, 0,0},
 };
 
 PANEL_STATE ps_RetractSword[] =
 {
-    {ID_SwordPresent0, Sword_BEAT_RATE, &AF(pSwordRetract), &ps_RetractSword[0], 0,0,0}
+    {SPR_SWORD_REST, Sword_BEAT_RATE, &AF(pSwordRetract), &ps_RetractSword[0], 0,0,0}
 };
 
 #define SWORD_SWAY_AMT 12
@@ -971,7 +981,7 @@ void SpecialUziRetractFunc(DPanelSprite* psp)
     psp->backupy();
     psp->pos.Y += 4 * synctics;
 
-    auto tex = tileGetTexture(psp->picnum);
+    auto tex = TexMan.GetGameTexture(GetTextureFromSprite(psp->Sprite, 0));
     if (psp->pos.Y >= 200 + (int)tex->GetDisplayHeight())
     {
         pKillSprite(psp);
@@ -1011,7 +1021,7 @@ void RetractCurWpn(DSWPlayer* pp)
                 if (cur->sibling && cur->sibling == pp->CurWpn)
                 {
                     // special case for uzi reload pieces
-                    cur->picnum = cur->picndx;
+                    cur->texnum = GetTextureFromSprite(cur->Sprite, 0);
                     cur->State = nullptr;
                     cur->PanelSpriteFunc = SpecialUziRetractFunc;
                     cur->sibling = nullptr;
@@ -1395,48 +1405,48 @@ extern PANEL_STATE ps_StarThrow[];
 
 PANEL_STATE ps_PresentStar[] =
 {
-    {ID_StarPresent0, PRESENT_STAR_RATE, &AF(pStarPresent), &ps_PresentStar[0], 0,0,0}
+    {SPR_STAR_REST, PRESENT_STAR_RATE, &AF(pStarPresent), &ps_PresentStar[0], 0,0,0}
 };
 
 PANEL_STATE ps_StarHide[] =
 {
-    {ID_StarPresent0, PRESENT_STAR_RATE, &AF(pStarHide), &ps_StarHide[0], 0,0,0}
+    {SPR_STAR_REST, PRESENT_STAR_RATE, &AF(pStarHide), &ps_StarHide[0], 0,0,0}
 };
 
 #define Star_RATE 2  // was 5
 
 PANEL_STATE ps_StarRest[] =
 {
-    {ID_StarPresent0, Star_RATE,        &AF(pStarRest),          &ps_StarRest[0], 0,0,0},
+    {SPR_STAR_REST, Star_RATE,        &AF(pStarRest),          &ps_StarRest[0], 0,0,0},
 };
 
 PANEL_STATE ps_ThrowStar[] =
 {
-    {ID_StarDown0, Star_RATE+3,          nullptr,      &ps_ThrowStar[1], 0,0,0},
-    {ID_StarDown1, Star_RATE+3,          nullptr,      &ps_ThrowStar[2], 0,0,0},
-    {ID_StarDown1, Star_RATE*2,          nullptr,      &ps_ThrowStar[3], psf_Invisible, 0,0},
-    {ID_StarDown1, Star_RATE,            nullptr,      &ps_ThrowStar[4], 0,0,0},
-    {ID_StarDown0, Star_RATE,           nullptr,      &ps_ThrowStar[5], 0,0,0},
-    {ID_ThrowStar0, 1,                  nullptr,       &ps_ThrowStar[6], 0,0,0},
-    {ID_ThrowStar0, Star_RATE,          &AF(pStarThrow),         &ps_ThrowStar[7], psf_QuickCall, 0,0},
-    {ID_ThrowStar0, Star_RATE,          nullptr,      &ps_ThrowStar[8], 0,0,0},
-    {ID_ThrowStar1, Star_RATE,          nullptr,      &ps_ThrowStar[9], 0,0,0},
-    {ID_ThrowStar2, Star_RATE*2,          nullptr,      &ps_ThrowStar[10], 0,0,0},
-    {ID_ThrowStar3, Star_RATE*2,          nullptr,      &ps_ThrowStar[11], 0,0,0},
-    {ID_ThrowStar4, Star_RATE*2,          nullptr,      &ps_ThrowStar[12], 0,0,0},
+    {SPR_STAR_DOWN0, Star_RATE+3,          nullptr,      &ps_ThrowStar[1], 0,0,0},
+    {SPR_STAR_DOWN1, Star_RATE+3,          nullptr,      &ps_ThrowStar[2], 0,0,0},
+    {SPR_STAR_DOWN1, Star_RATE*2,          nullptr,      &ps_ThrowStar[3], psf_Invisible, 0,0},
+    {SPR_STAR_DOWN1, Star_RATE,            nullptr,      &ps_ThrowStar[4], 0,0,0},
+    {SPR_STAR_DOWN0, Star_RATE,           nullptr,      &ps_ThrowStar[5], 0,0,0},
+    {SPR_STAR_THROW0, 1,                  nullptr,       &ps_ThrowStar[6], 0,0,0},
+    {SPR_STAR_THROW0, Star_RATE,          &AF(pStarThrow),         &ps_ThrowStar[7], psf_QuickCall, 0,0},
+    {SPR_STAR_THROW0, Star_RATE,          nullptr,      &ps_ThrowStar[8], 0,0,0},
+    {SPR_STAR_THROW1, Star_RATE,          nullptr,      &ps_ThrowStar[9], 0,0,0},
+    {SPR_STAR_THROW2, Star_RATE*2,          nullptr,      &ps_ThrowStar[10], 0,0,0},
+    {SPR_STAR_THROW3, Star_RATE*2,          nullptr,      &ps_ThrowStar[11], 0,0,0},
+    {SPR_STAR_THROW4, Star_RATE*2,          nullptr,      &ps_ThrowStar[12], 0,0,0},
     // start up
-    {ID_StarDown1, Star_RATE+3,         nullptr,         &ps_ThrowStar[13], 0,0,0},
-    {ID_StarDown0, Star_RATE+3,         nullptr,         &ps_ThrowStar[14], 0,0,0},
-    {ID_StarPresent0, Star_RATE+3,         nullptr,         &ps_ThrowStar[15], 0,0,0},
+    {SPR_STAR_DOWN1, Star_RATE+3,         nullptr,         &ps_ThrowStar[13], 0,0,0},
+    {SPR_STAR_DOWN0, Star_RATE+3,         nullptr,         &ps_ThrowStar[14], 0,0,0},
+    {SPR_STAR_REST, Star_RATE+3,         nullptr,         &ps_ThrowStar[15], 0,0,0},
     // maybe to directly to rest state
-    {ID_StarDown0, 3,                    &AF(pStarRestTest),      &ps_ThrowStar[16], psf_QuickCall, 0,0},
+    {SPR_STAR_DOWN0, 3,                    &AF(pStarRestTest),      &ps_ThrowStar[16], psf_QuickCall, 0,0},
     // if holding the fire key we get to here
-    {ID_ThrowStar4, 3,                    nullptr,      &ps_ThrowStar[5], 0,0,0},
+    {SPR_STAR_THROW4, 3,                    nullptr,      &ps_ThrowStar[5], 0,0,0},
 };
 
 PANEL_STATE ps_RetractStar[] =
 {
-    {ID_StarPresent0, PRESENT_STAR_RATE, &AF(pStarRetract), &ps_RetractStar[0], 0,0,0}
+    {SPR_STAR_REST, PRESENT_STAR_RATE, &AF(pStarRetract), &ps_RetractStar[0], 0,0,0}
 };
 
 //
@@ -1724,23 +1734,23 @@ pANIMATOR pSetVisNorm;
 // Right Uzi
 PANEL_STATE ps_FireUzi[] =
 {
-    {ID_UziPresent0, 3, &AF(pUziRest), &ps_FireUzi[0], 0,0,0},
-    {ID_UziFire0, 1, &AF(pUziAction), &ps_FireUzi[2], psf_ShadeHalf, 0,0},
+    {SPR_UZI_REST, 3, &AF(pUziRest), &ps_FireUzi[0], 0,0,0},
+    {SPR_UZI_FIRE_0, 1, &AF(pUziAction), &ps_FireUzi[2], psf_ShadeHalf, 0,0},
 
-    {ID_UziFire1, 0, &AF(pUziFire), &ps_FireUzi[3], psf_ShadeNone|psf_QuickCall, 0,0},
-    {ID_UziFire1, 4, &AF(pUziAction), &ps_FireUzi[4], psf_ShadeNone, 0,0},
-    {ID_UziFire1, 0, &AF(pSetVisNorm), &ps_FireUzi[5], psf_ShadeNone|psf_QuickCall, 0,0},
-    {ID_UziFire1, 4, &AF(pUziAction), &ps_FireUzi[6], psf_ShadeNone, 0,0},
-    {ID_UziFire1, 0, &AF(pUziFire), &ps_FireUzi[7], psf_ShadeNone|psf_QuickCall, 0,0},
-    {ID_UziFire1, 4, &AF(pUziAction), &ps_FireUzi[8], psf_ShadeNone, 0,0},
-    {ID_UziFire1, 0, &AF(pSetVisNorm), &ps_FireUzi[9], psf_ShadeNone, 0,0},
+    {SPR_UZI_FIRE_1, 0, &AF(pUziFire), &ps_FireUzi[3], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_UZI_FIRE_1, 4, &AF(pUziAction), &ps_FireUzi[4], psf_ShadeNone, 0,0},
+    {SPR_UZI_FIRE_1, 0, &AF(pSetVisNorm), &ps_FireUzi[5], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_UZI_FIRE_1, 4, &AF(pUziAction), &ps_FireUzi[6], psf_ShadeNone, 0,0},
+    {SPR_UZI_FIRE_1, 0, &AF(pUziFire), &ps_FireUzi[7], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_UZI_FIRE_1, 4, &AF(pUziAction), &ps_FireUzi[8], psf_ShadeNone, 0,0},
+    {SPR_UZI_FIRE_1, 0, &AF(pSetVisNorm), &ps_FireUzi[9], psf_ShadeNone, 0,0},
 
-    {ID_UziFire0, 4, &AF(pUziAction), &ps_FireUzi[10], psf_ShadeHalf, 0,0},
-    {ID_UziFire0, 0, &AF(pUziFire), &ps_FireUzi[11], psf_QuickCall, 0,0},
-    {ID_UziFire0, 4, &AF(pUziAction), &ps_FireUzi[12], psf_ShadeHalf, 0,0},
-    {ID_UziFire0, 4, &AF(pUziAction), &ps_FireUzi[13], psf_ShadeHalf, 0,0},
+    {SPR_UZI_FIRE_0, 4, &AF(pUziAction), &ps_FireUzi[10], psf_ShadeHalf, 0,0},
+    {SPR_UZI_FIRE_0, 0, &AF(pUziFire), &ps_FireUzi[11], psf_QuickCall, 0,0},
+    {SPR_UZI_FIRE_0, 4, &AF(pUziAction), &ps_FireUzi[12], psf_ShadeHalf, 0,0},
+    {SPR_UZI_FIRE_0, 4, &AF(pUziAction), &ps_FireUzi[13], psf_ShadeHalf, 0,0},
 
-    {ID_UziFire1, 5, &AF(pUziRest), &ps_FireUzi[0], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_UZI_FIRE_1, 5, &AF(pUziRest), &ps_FireUzi[0], psf_ShadeNone|psf_QuickCall, 0,0},
 };
 
 #define PRESENT_UZI_RATE 6
@@ -1748,101 +1758,101 @@ PANEL_STATE ps_FireUzi[] =
 
 PANEL_STATE ps_UziNull[] =
 {
-    {ID_UziPresent0, PRESENT_UZI_RATE, nullptr, &ps_UziNull[0], 0,0,0}
+    {SPR_UZI_REST, PRESENT_UZI_RATE, nullptr, &ps_UziNull[0], 0,0,0}
 };
 
 PANEL_STATE ps_UziHide[] =
 {
-    {ID_UziPresent0, PRESENT_UZI_RATE, &AF(pUziHide), &ps_UziHide[0], 0,0,0}
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pUziHide), &ps_UziHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_PresentUzi[] =
 {
-    {ID_UziPresent0, PRESENT_UZI_RATE, &AF(pUziPresent), &ps_PresentUzi[0], 0,0,0},
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pUziPresent), &ps_PresentUzi[0], 0,0,0},
 };
 
 // present of secondary uzi for reload needs to be faster
 PANEL_STATE ps_PresentUziReload[] =
 {
-    {ID_UziPresent0, RELOAD_UZI_RATE, &AF(pUziPresentReload), &ps_PresentUziReload[0], 0,0,0},
+    {SPR_UZI_REST, RELOAD_UZI_RATE, &AF(pUziPresentReload), &ps_PresentUziReload[0], 0,0,0},
 };
 
 PANEL_STATE ps_RetractUzi[] =
 {
-    {ID_UziPresent0, PRESENT_UZI_RATE, &AF(pUziRetract), &ps_RetractUzi[0], 0,0,0},
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pUziRetract), &ps_RetractUzi[0], 0,0,0},
 };
 
 // Left Uzi
 
 PANEL_STATE ps_FireUzi2[] =
 {
-    {ID_Uzi2Present0, 3, &AF(pUziRest), &ps_FireUzi2[0], psf_Xflip, 0,0},
-    {ID_Uzi2Fire0, 1, &AF(pUziAction), &ps_FireUzi2[2], psf_ShadeHalf|psf_Xflip, 0,0},
+    {SPR_UZI_REST, 3, &AF(pUziRest), &ps_FireUzi2[0], psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_0, 1, &AF(pUziAction), &ps_FireUzi2[2], psf_ShadeHalf|psf_Xflip, 0,0},
 
-    {ID_Uzi2Fire1, 0, &AF(pUziFire), &ps_FireUzi2[3], psf_ShadeNone|psf_QuickCall|psf_Xflip, 0,0},
-    {ID_Uzi2Fire1, 4, &AF(pUziAction), &ps_FireUzi2[4], psf_ShadeNone|psf_Xflip, 0,0},
-    {ID_Uzi2Fire1, 4, &AF(pUziAction), &ps_FireUzi2[5], psf_ShadeNone|psf_Xflip, 0,0},
-    {ID_Uzi2Fire1, 0, &AF(pUziFire), &ps_FireUzi2[6], psf_ShadeNone|psf_QuickCall|psf_Xflip, 0,0},
-    {ID_Uzi2Fire1, 4, &AF(pUziAction), &ps_FireUzi2[7], psf_ShadeNone|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_1, 0, &AF(pUziFire), &ps_FireUzi2[3], psf_ShadeNone|psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_1, 4, &AF(pUziAction), &ps_FireUzi2[4], psf_ShadeNone|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_1, 4, &AF(pUziAction), &ps_FireUzi2[5], psf_ShadeNone|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_1, 0, &AF(pUziFire), &ps_FireUzi2[6], psf_ShadeNone|psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_1, 4, &AF(pUziAction), &ps_FireUzi2[7], psf_ShadeNone|psf_Xflip, 0,0},
 
-    {ID_Uzi2Fire0, 4, &AF(pUziAction), &ps_FireUzi2[8], psf_ShadeHalf|psf_Xflip, 0,0},
-    {ID_Uzi2Fire0, 0, &AF(pUziFire), &ps_FireUzi2[9], psf_ShadeHalf|psf_QuickCall|psf_Xflip, 0,0},
-    {ID_Uzi2Fire0, 4, &AF(pUziAction), &ps_FireUzi2[10], psf_ShadeHalf|psf_Xflip, 0,0},
-    {ID_Uzi2Fire0, 4, &AF(pUziAction), &ps_FireUzi2[11], psf_ShadeHalf|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_0, 4, &AF(pUziAction), &ps_FireUzi2[8], psf_ShadeHalf|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_0, 0, &AF(pUziFire), &ps_FireUzi2[9], psf_ShadeHalf|psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_0, 4, &AF(pUziAction), &ps_FireUzi2[10], psf_ShadeHalf|psf_Xflip, 0,0},
+    {SPR_UZI_FIRE_0, 4, &AF(pUziAction), &ps_FireUzi2[11], psf_ShadeHalf|psf_Xflip, 0,0},
 
-    {ID_Uzi2Fire1, 5, &AF(pUziRest), &ps_FireUzi2[0], psf_QuickCall, 0,0},
+    {SPR_UZI_FIRE_1, 5, &AF(pUziRest), &ps_FireUzi2[0], psf_QuickCall, 0,0},
 };
 
 
 PANEL_STATE ps_PresentUzi2[] =
 {
-    {ID_Uzi2Present0, PRESENT_UZI_RATE, &AF(pUziPresent), &ps_PresentUzi2[0], psf_Xflip, 0,0},
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pUziPresent), &ps_PresentUzi2[0], psf_Xflip, 0,0},
 };
 
 PANEL_STATE ps_Uzi2Hide[] =
 {
-    {ID_Uzi2Present0, PRESENT_UZI_RATE, &AF(pUziHide), &ps_Uzi2Hide[0], psf_Xflip, 0,0},
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pUziHide), &ps_Uzi2Hide[0], psf_Xflip, 0,0},
 };
 
 PANEL_STATE ps_RetractUzi2[] =
 {
-    {ID_Uzi2Present0, PRESENT_UZI_RATE, &AF(pUziRetract), &ps_RetractUzi2[0], psf_Xflip, 0,0},
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pUziRetract), &ps_RetractUzi2[0], psf_Xflip, 0,0},
 };
 
 PANEL_STATE ps_Uzi2Suicide[] =
 {
-    {ID_Uzi2Present0, PRESENT_UZI_RATE, &AF(pSuicide), &ps_Uzi2Suicide[0], psf_Xflip, 0,0}
+    {SPR_UZI_REST, PRESENT_UZI_RATE, &AF(pSuicide), &ps_Uzi2Suicide[0], psf_Xflip, 0,0}
 };
 
 PANEL_STATE ps_Uzi2Null[] =
 {
-    {ID_Uzi2Present0, PRESENT_UZI_RATE, nullptr, &ps_Uzi2Null[0], psf_Xflip, 0,0}
+    {SPR_UZI_REST, PRESENT_UZI_RATE, nullptr, &ps_Uzi2Null[0], psf_Xflip, 0,0}
 };
 
 PANEL_STATE ps_UziEject[] =
 {
-    {ID_UziPresent0, 1, nullptr, &ps_UziEject[1], 0,0,0},
-    {ID_UziPresent0, RELOAD_UZI_RATE, &AF(pUziEjectDown), &ps_UziEject[1], 0,0,0},
-    {ID_UziEject0, RELOAD_UZI_RATE, &AF(pUziEjectUp), &ps_UziEject[2], 0,0,0},
-    {ID_UziEject0, 1, nullptr, &ps_UziEject[4], 0,0,0},
-    {ID_UziEject0, RELOAD_UZI_RATE, &AF(pSpawnUziClip), &ps_UziEject[5], psf_QuickCall, 0,0},
-    {ID_UziEject0, RELOAD_UZI_RATE, nullptr, &ps_UziEject[5], 0,0,0},
+    {SPR_UZI_REST, 1, nullptr, &ps_UziEject[1], 0,0,0},
+    {SPR_UZI_REST, RELOAD_UZI_RATE, &AF(pUziEjectDown), &ps_UziEject[1], 0,0,0},
+    {SPR_UZI_EJECT, RELOAD_UZI_RATE, &AF(pUziEjectUp), &ps_UziEject[2], 0,0,0},
+    {SPR_UZI_EJECT, 1, nullptr, &ps_UziEject[4], 0,0,0},
+    {SPR_UZI_EJECT, RELOAD_UZI_RATE, &AF(pSpawnUziClip), &ps_UziEject[5], psf_QuickCall, 0,0},
+    {SPR_UZI_EJECT, RELOAD_UZI_RATE, nullptr, &ps_UziEject[5], 0,0,0},
 };
 
 PANEL_STATE ps_UziClip[] =
 {
-    {ID_UziClip0, RELOAD_UZI_RATE, &AF(pUziClip), &ps_UziClip[0], 0,0,0}
+    {SPR_UZI_CLIP, RELOAD_UZI_RATE, &AF(pUziClip), &ps_UziClip[0], 0,0,0}
 };
 
 PANEL_STATE ps_UziReload[] =
 {
-    {ID_UziReload0, RELOAD_UZI_RATE, &AF(pUziReload), &ps_UziReload[0], 0,0,0},
-    {ID_UziReload0, RELOAD_UZI_RATE, &AF(pUziReloadRetract), &ps_UziReload[1], 0,0,0}
+    {SPR_UZI_RELOAD, RELOAD_UZI_RATE, &AF(pUziReload), &ps_UziReload[0], 0,0,0},
+    {SPR_UZI_RELOAD, RELOAD_UZI_RATE, &AF(pUziReloadRetract), &ps_UziReload[1], 0,0,0}
 };
 
 PANEL_STATE ps_UziDoneReload[] =
 {
-    {ID_UziEject0, RELOAD_UZI_RATE, &AF(pUziDoneReload), &ps_UziDoneReload[0], 0,0,0}
+    {SPR_UZI_EJECT, RELOAD_UZI_RATE, &AF(pUziDoneReload), &ps_UziDoneReload[0], 0,0,0}
 };
 
 //---------------------------------------------------------------------------
@@ -2666,22 +2676,22 @@ void pUziShell(DPanelSprite*);
 
 PANEL_STATE ps_UziShell[] =
 {
-    {ID_UziShell0, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[1], 0,0,0},
-    {ID_UziShell1, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[2], 0,0,0},
-    {ID_UziShell2, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[3], 0,0,0},
-    {ID_UziShell3, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[4], 0,0,0},
-    {ID_UziShell4, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[5], 0,0,0},
-    {ID_UziShell5, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[0], 0,0,0},
+    {SPR_CON_UZI_SHELL0, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[1], 0,0,0},
+    {SPR_CON_UZI_SHELL1, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[2], 0,0,0},
+    {SPR_CON_UZI_SHELL2, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[3], 0,0,0},
+    {SPR_CON_UZI_SHELL3, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[4], 0,0,0},
+    {SPR_CON_UZI_SHELL4, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[5], 0,0,0},
+    {SPR_CON_UZI_SHELL5, UZI_SHELL_RATE, &AF(pUziShell), &ps_UziShell[0], 0,0,0},
 };
 
 PANEL_STATE ps_Uzi2Shell[] =
 {
-    {ID_Uzi2Shell0, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[1], psf_Xflip, 0,0},
-    {ID_Uzi2Shell1, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[2], psf_Xflip, 0,0},
-    {ID_Uzi2Shell2, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[3], psf_Xflip, 0,0},
-    {ID_Uzi2Shell3, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[4], psf_Xflip, 0,0},
-    {ID_Uzi2Shell4, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[5], psf_Xflip, 0,0},
-    {ID_Uzi2Shell5, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[0], psf_Xflip, 0,0},
+    {SPR_CON_UZI_SHELL0, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[1], psf_Xflip, 0,0},
+    {SPR_CON_UZI_SHELL1, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[2], psf_Xflip, 0,0},
+    {SPR_CON_UZI_SHELL2, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[3], psf_Xflip, 0,0},
+    {SPR_CON_UZI_SHELL3, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[4], psf_Xflip, 0,0},
+    {SPR_CON_UZI_SHELL4, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[5], psf_Xflip, 0,0},
+    {SPR_CON_UZI_SHELL5, UZI_SHELL_RATE, &AF(pUziShell), &ps_Uzi2Shell[0], psf_Xflip, 0,0},
 };
 
 //---------------------------------------------------------------------------
@@ -2755,14 +2765,14 @@ void pShotgunShell(DPanelSprite*);
 
 PANEL_STATE ps_ShotgunShell[] =
 {
-    {ID_ShotgunShell0, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[1], 0,0,0},
-    {ID_ShotgunShell1, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[2], 0,0,0},
-    {ID_ShotgunShell2, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[3], 0,0,0},
-    {ID_ShotgunShell3, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[4], 0,0,0},
-    {ID_ShotgunShell4, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[5], 0,0,0},
-    {ID_ShotgunShell5, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[6], 0,0,0},
-    {ID_ShotgunShell6, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[7], 0,0,0},
-    {ID_ShotgunShell6, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[0], 0,0,0},
+    {SPR_SHOTGUN_SHELL0, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[1], 0,0,0},
+    {SPR_SHOTGUN_SHELL1, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[2], 0,0,0},
+    {SPR_SHOTGUN_SHELL2, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[3], 0,0,0},
+    {SPR_SHOTGUN_SHELL3, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[4], 0,0,0},
+    {SPR_SHOTGUN_SHELL4, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[5], 0,0,0},
+    {SPR_SHOTGUN_SHELL5, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[6], 0,0,0},
+    {SPR_SHOTGUN_SHELL6, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[7], 0,0,0},
+    {SPR_SHOTGUN_SHELL6, SHOTGUN_SHELL_RATE, &AF(pShotgunShell), &ps_ShotgunShell[0], 0,0,0},
 };
 
 void SpawnShotgunShell(DPanelSprite* psp)
@@ -2822,87 +2832,87 @@ extern PANEL_STATE ps_ShotgunReload[];
 
 PANEL_STATE ps_PresentShotgun[] =
 {
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, &AF(pShotgunPresent), &ps_PresentShotgun[0], 0,0,0}
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, &AF(pShotgunPresent), &ps_PresentShotgun[0], 0,0,0}
 };
 
 PANEL_STATE ps_ShotgunRest[] =
 {
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, &AF(pShotgunRest), &ps_ShotgunRest[0], 0,0,0}
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, &AF(pShotgunRest), &ps_ShotgunRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_ShotgunHide[] =
 {
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, &AF(pShotgunHide), &ps_ShotgunHide[0], 0,0,0}
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, &AF(pShotgunHide), &ps_ShotgunHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_ShotgunRecoil[] =
 {
     // recoil
-    {ID_ShotgunReload0, Shotgun_ACTION_RATE, &AF(pShotgunRecoilDown), &ps_ShotgunRecoil[0], 0,0,0},
-    {ID_ShotgunReload0, Shotgun_ACTION_RATE, &AF(pShotgunRecoilUp), &ps_ShotgunRecoil[1], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, Shotgun_ACTION_RATE, &AF(pShotgunRecoilDown), &ps_ShotgunRecoil[0], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, Shotgun_ACTION_RATE, &AF(pShotgunRecoilUp), &ps_ShotgunRecoil[1], 0,0,0},
     // reload
-    {ID_ShotgunReload0, Shotgun_ACTION_RATE*5,  nullptr,      &ps_ShotgunRecoil[3], 0,0,0},
-    {ID_ShotgunReload1, Shotgun_ACTION_RATE,    nullptr,      &ps_ShotgunRecoil[4], 0,0,0},
-    {ID_ShotgunReload2, Shotgun_ACTION_RATE*5,  nullptr,      &ps_ShotgunRecoil[5], 0,0,0},
-    {ID_ShotgunPresent0,Shotgun_ACTION_RATE,   &AF(pShotgunRestTest),   &ps_ShotgunRecoil[6], 0,0,0},
-    {ID_ShotgunPresent0,Shotgun_ACTION_RATE/2, &AF(pShotgunAction),     &ps_ShotgunRecoil[7], 0,0,0},
-    {ID_ShotgunPresent0,Shotgun_ACTION_RATE/2, &AF(pShotgunAction),     &ps_ShotgunRecoil[8], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, Shotgun_ACTION_RATE*5,  nullptr,      &ps_ShotgunRecoil[3], 0,0,0},
+    {SPR_SHOTGUN_RELOAD1, Shotgun_ACTION_RATE,    nullptr,      &ps_ShotgunRecoil[4], 0,0,0},
+    {SPR_SHOTGUN_RELOAD2, Shotgun_ACTION_RATE*5,  nullptr,      &ps_ShotgunRecoil[5], 0,0,0},
+    {SPR_SHOTGUN_REST,Shotgun_ACTION_RATE,   &AF(pShotgunRestTest),   &ps_ShotgunRecoil[6], 0,0,0},
+    {SPR_SHOTGUN_REST,Shotgun_ACTION_RATE/2, &AF(pShotgunAction),     &ps_ShotgunRecoil[7], 0,0,0},
+    {SPR_SHOTGUN_REST,Shotgun_ACTION_RATE/2, &AF(pShotgunAction),     &ps_ShotgunRecoil[8], 0,0,0},
     // ready to fire again
-    {ID_ShotgunPresent0, 3, nullptr, &ps_ShotgunRest[0], 0,0,0}
+    {SPR_SHOTGUN_REST, 3, nullptr, &ps_ShotgunRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_ShotgunRecoilAuto[] =
 {
     // recoil
-    {ID_ShotgunReload0, 1,    &AF(pShotgunRecoilDown), &ps_ShotgunRecoilAuto[0], 0,0,0},
-    {ID_ShotgunReload0, 1,    &AF(pShotgunRecoilUp),   &ps_ShotgunRecoilAuto[1], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, 1,    &AF(pShotgunRecoilDown), &ps_ShotgunRecoilAuto[0], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, 1,    &AF(pShotgunRecoilUp),   &ps_ShotgunRecoilAuto[1], 0,0,0},
     // Reload
-    {ID_ShotgunReload0, 1,    nullptr,      &ps_ShotgunRecoilAuto[3], 0,0,0},
-    {ID_ShotgunReload0, 1,    nullptr,      &ps_ShotgunRecoilAuto[4], 0,0,0},
-    {ID_ShotgunReload0, 1,    nullptr,      &ps_ShotgunRecoilAuto[5], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, 1,    nullptr,      &ps_ShotgunRecoilAuto[3], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, 1,    nullptr,      &ps_ShotgunRecoilAuto[4], 0,0,0},
+    {SPR_SHOTGUN_RELOAD0, 1,    nullptr,      &ps_ShotgunRecoilAuto[5], 0,0,0},
 
-    {ID_ShotgunPresent0,1,    &AF(pShotgunRestTest),   &ps_ShotgunRecoilAuto[6], 0,0,0},
-    {ID_ShotgunPresent0,1,    &AF(pShotgunAction),     &ps_ShotgunRecoilAuto[7], 0,0,0},
-    {ID_ShotgunPresent0,1,    &AF(pShotgunRest),       &ps_ShotgunRest[0],psf_QuickCall, 0,0},
+    {SPR_SHOTGUN_REST,1,    &AF(pShotgunRestTest),   &ps_ShotgunRecoilAuto[6], 0,0,0},
+    {SPR_SHOTGUN_REST,1,    &AF(pShotgunAction),     &ps_ShotgunRecoilAuto[7], 0,0,0},
+    {SPR_SHOTGUN_REST,1,    &AF(pShotgunRest),       &ps_ShotgunRest[0],psf_QuickCall, 0,0},
 };
 
 PANEL_STATE ps_ShotgunFire[] =
 {
-    {ID_ShotgunFire0,   Shotgun_ACTION_RATE,    &AF(pShotgunAction),     &ps_ShotgunFire[1], psf_ShadeHalf, 0,0},
-    {ID_ShotgunFire1,   Shotgun_ACTION_RATE,    &AF(pShotgunFire),       &ps_ShotgunFire[2], psf_ShadeNone|psf_QuickCall, 0,0},
-    {ID_ShotgunFire1,   Shotgun_ACTION_RATE,    &AF(pShotgunAction),     &ps_ShotgunFire[3], psf_ShadeNone, 0,0},
-    {ID_ShotgunReload0, 0,                      &AF(SpawnShotgunShell),  &ps_ShotgunFire[4], psf_QuickCall, 0,0},
-    {ID_ShotgunReload0, Shotgun_ACTION_RATE,    &AF(pShotgunAction),     &ps_ShotgunRecoil[0], 0,0,0}
+    {SPR_SHOTGUN_FIRE0,   Shotgun_ACTION_RATE,    &AF(pShotgunAction),     &ps_ShotgunFire[1], psf_ShadeHalf, 0,0},
+    {SPR_SHOTGUN_FIRE1,   Shotgun_ACTION_RATE,    &AF(pShotgunFire),       &ps_ShotgunFire[2], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_SHOTGUN_FIRE1,   Shotgun_ACTION_RATE,    &AF(pShotgunAction),     &ps_ShotgunFire[3], psf_ShadeNone, 0,0},
+    {SPR_SHOTGUN_RELOAD0, 0,                      &AF(SpawnShotgunShell),  &ps_ShotgunFire[4], psf_QuickCall, 0,0},
+    {SPR_SHOTGUN_RELOAD0, Shotgun_ACTION_RATE,    &AF(pShotgunAction),     &ps_ShotgunRecoil[0], 0,0,0}
 };
 
 
 #if 1
 PANEL_STATE ps_ShotgunAutoFire[] =
 {
-    {ID_ShotgunFire1,   2,    &AF(pShotgunAction),     &ps_ShotgunAutoFire[1], psf_ShadeHalf, 0,0},
-    {ID_ShotgunFire1,   2,    &AF(pShotgunFire),       &ps_ShotgunAutoFire[2], psf_ShadeNone, 0,0},
-    {ID_ShotgunFire1,   2,    &AF(pShotgunAction),     &ps_ShotgunAutoFire[3], psf_ShadeNone, 0,0},
-    {ID_ShotgunReload0, 0,    &AF(SpawnShotgunShell),  &ps_ShotgunAutoFire[4], psf_QuickCall, 0,0},
-    {ID_ShotgunReload0, 1,    &AF(pShotgunAction),     &ps_ShotgunRecoilAuto[0], 0,0,0}
+    {SPR_SHOTGUN_FIRE1,   2,    &AF(pShotgunAction),     &ps_ShotgunAutoFire[1], psf_ShadeHalf, 0,0},
+    {SPR_SHOTGUN_FIRE1,   2,    &AF(pShotgunFire),       &ps_ShotgunAutoFire[2], psf_ShadeNone, 0,0},
+    {SPR_SHOTGUN_FIRE1,   2,    &AF(pShotgunAction),     &ps_ShotgunAutoFire[3], psf_ShadeNone, 0,0},
+    {SPR_SHOTGUN_RELOAD0, 0,    &AF(SpawnShotgunShell),  &ps_ShotgunAutoFire[4], psf_QuickCall, 0,0},
+    {SPR_SHOTGUN_RELOAD0, 1,    &AF(pShotgunAction),     &ps_ShotgunRecoilAuto[0], 0,0,0}
 };
 #endif
 
 #if 1
 PANEL_STATE ps_ShotgunReload[] =
 {
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, &AF(pShotgunReloadDown), &ps_ShotgunReload[0], 0,0,0},
-    {ID_ShotgunPresent0, 30,            nullptr, &ps_ShotgunReload[2], 0,0,0},
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, &AF(pShotgunReloadDown), &ps_ShotgunReload[0], 0,0,0},
+    {SPR_SHOTGUN_REST, 30,            nullptr, &ps_ShotgunReload[2], 0,0,0},
     // make reload sound here
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, nullptr, &ps_ShotgunReload[3], psf_QuickCall, 0,0},
-    {ID_ShotgunPresent0, 30,            nullptr, &ps_ShotgunReload[4], 0,0,0},
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, &AF(pShotgunReloadUp), &ps_ShotgunReload[4], 0,0,0},
-    {ID_ShotgunPresent0, 3, nullptr, &ps_ShotgunRest[0], 0,0,0}
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, nullptr, &ps_ShotgunReload[3], psf_QuickCall, 0,0},
+    {SPR_SHOTGUN_REST, 30,            nullptr, &ps_ShotgunReload[4], 0,0,0},
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, &AF(pShotgunReloadUp), &ps_ShotgunReload[4], 0,0,0},
+    {SPR_SHOTGUN_REST, 3, nullptr, &ps_ShotgunRest[0], 0,0,0}
 };
 #endif
 
 PANEL_STATE ps_RetractShotgun[] =
 {
-    {ID_ShotgunPresent0, Shotgun_BEAT_RATE, &AF(pShotgunRetract), &ps_RetractShotgun[0], 0,0,0}
+    {SPR_SHOTGUN_REST, Shotgun_BEAT_RATE, &AF(pShotgunRetract), &ps_RetractShotgun[0], 0,0,0}
 };
 
 #define SHOTGUN_YOFF 200
@@ -3149,16 +3159,16 @@ bool pShotgunOverlays(DPanelSprite* psp)
 
 PANEL_STATE ps_ShotgunFlash[] =
 {
-    {SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[1], 0,0,0},
-    {0,            30, nullptr, &ps_ShotgunFlash[2], 0,0,0},
-    {SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[3], 0,0,0},
-    {0,            30, nullptr, &ps_ShotgunFlash[4], 0,0,0},
-    {SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[5], 0,0,0},
-    {0,            30, nullptr, &ps_ShotgunFlash[6], 0,0,0},
-    {SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[7], 0,0,0},
-    {0,            30, nullptr, &ps_ShotgunFlash[8], 0,0,0},
-    {SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[9], 0,0,0},
-    {0,             0, nullptr, nullptr, 0,0,0}
+    {SPR_SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[1], 0,0,0},
+    {SPR_NULL,         30, nullptr, &ps_ShotgunFlash[2], 0,0,0},
+    {SPR_SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[3], 0,0,0},
+    {SPR_NULL,         30, nullptr, &ps_ShotgunFlash[4], 0,0,0},
+    {SPR_SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[5], 0,0,0},
+    {SPR_NULL,         30, nullptr, &ps_ShotgunFlash[6], 0,0,0},
+    {SPR_SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[7], 0,0,0},
+    {SPR_NULL,         30, nullptr, &ps_ShotgunFlash[8], 0,0,0},
+    {SPR_SHOTGUN_AUTO, 30, nullptr, &ps_ShotgunFlash[9], 0,0,0},
+    {SPR_NULL,         0, nullptr, nullptr, 0,0,0}
 };
 
 
@@ -3365,91 +3375,91 @@ bool pRailReloadTest(DPanelSprite* psp);
 
 PANEL_STATE ps_PresentRail[] =
 {
-    {ID_RailPresent0, Rail_BEAT_RATE, &AF(pRailPresent), &ps_PresentRail[0], psf_ShadeNone, 0,0}
+    {SPR_RAIL_REST0, Rail_BEAT_RATE, &AF(pRailPresent), &ps_PresentRail[0], psf_ShadeNone, 0,0}
 };
 
 PANEL_STATE ps_RailRest[] =
 {
-    {ID_RailRest0, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[1], psf_ShadeNone, 0,0},
-    {ID_RailRest1, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[2], psf_ShadeNone, 0,0},
-    {ID_RailRest2, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[3], psf_ShadeNone, 0,0},
-    {ID_RailRest3, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[4], psf_ShadeNone, 0,0},
-    {ID_RailRest4, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[0], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST0, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[1], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST1, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[2], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST2, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[3], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST3, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[4], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST4, Rail_BEAT_RATE, &AF(pRailRest), &ps_RailRest[0], psf_ShadeNone, 0,0},
 };
 
 PANEL_STATE ps_RailHide[] =
 {
-    {ID_RailPresent0, Rail_BEAT_RATE, &AF(pRailHide), &ps_RailHide[0], psf_ShadeNone, 0,0}
+    {SPR_RAIL_REST0, Rail_BEAT_RATE, &AF(pRailHide), &ps_RailHide[0], psf_ShadeNone, 0,0}
 };
 
 PANEL_STATE ps_RailRecoil[] =
 {
     // recoil
-    {ID_RailPresent0, Rail_BEAT_RATE, &AF(pRailRecoilDown), &ps_RailRecoil[0], 0,0,0},
-    {ID_RailPresent0, Rail_BEAT_RATE, &AF(pRailRecoilUp), &ps_RailRecoil[1], 0,0,0},
+    {SPR_RAIL_REST0, Rail_BEAT_RATE, &AF(pRailRecoilDown), &ps_RailRecoil[0], 0,0,0},
+    {SPR_RAIL_REST0, Rail_BEAT_RATE, &AF(pRailRecoilUp), &ps_RailRecoil[1], 0,0,0},
     // ready to fire again
-    {ID_RailPresent0, 3, nullptr, &ps_RailRest[0], 0,0,0}
+    {SPR_RAIL_REST0, 3, nullptr, &ps_RailRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_RailFire[] =
 {
-    {ID_RailCharge0,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[1], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[2], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[3], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[4], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[1], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[2], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[3], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[4], psf_ShadeNone, 0,0},
 
-    {ID_RailFire0,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFire[5], psf_ShadeNone, 0,0},
-    {ID_RailFire1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFire[6], psf_ShadeNone, 0,0},
-    {ID_RailFire1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFire[7], psf_ShadeNone, 0,0},
-    {ID_RailFire1,       0,                &AF(pRailFire),      &ps_RailFire[8], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_RAIL_FIRE0,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFire[5], psf_ShadeNone, 0,0},
+    {SPR_RAIL_FIRE1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFire[6], psf_ShadeNone, 0,0},
+    {SPR_RAIL_FIRE1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFire[7], psf_ShadeNone, 0,0},
+    {SPR_RAIL_FIRE1,       0,                &AF(pRailFire),      &ps_RailFire[8], psf_ShadeNone|psf_QuickCall, 0,0},
 
     // recoil
-    {ID_RailPresent0,      Rail_BEAT_RATE, &AF(pRailRecoilDown),  &ps_RailFire[8], psf_ShadeNone, 0,0},
-    {ID_RailPresent0,      Rail_BEAT_RATE, &AF(pRailRecoilUp),    &ps_RailFire[9], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST0,      Rail_BEAT_RATE, &AF(pRailRecoilDown),  &ps_RailFire[8], psf_ShadeNone, 0,0},
+    {SPR_RAIL_REST0,      Rail_BEAT_RATE, &AF(pRailRecoilUp),    &ps_RailFire[9], psf_ShadeNone, 0,0},
     // !JIM! I added these to introduce firing delay, that looks like a charge down.
-    {ID_RailCharge0,       Rail_CHARGE_RATE, &AF(pRailOkTest),    &ps_RailFire[11], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[12], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE, &AF(pRailOkTest),    &ps_RailFire[13], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[14], psf_ShadeNone, 0,0},
-    {ID_RailCharge0,       Rail_CHARGE_RATE+1, &AF(pRailAction),    &ps_RailFire[15], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE+1, &AF(pRailAction),    &ps_RailFire[16], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE+1, &AF(pRailAction),    &ps_RailFire[17], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE+2, &AF(pRailAction),    &ps_RailFire[18], psf_ShadeNone, 0,0},
-    {ID_RailCharge0,       Rail_CHARGE_RATE+2, &AF(pRailAction),    &ps_RailFire[19], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE+2, &AF(pRailAction),    &ps_RailFire[20], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE+3, &AF(pRailAction),    &ps_RailFire[21], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE+3, &AF(pRailAction),    &ps_RailFire[22], psf_ShadeNone, 0,0},
-    {ID_RailCharge0,       Rail_CHARGE_RATE+4, &AF(pRailAction),    &ps_RailFire[23], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE+4, &AF(pRailAction),    &ps_RailFire[24], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE+4, &AF(pRailAction),    &ps_RailFire[25], psf_ShadeNone, 0,0},
-    {ID_RailCharge0,       Rail_CHARGE_RATE+5, &AF(pRailAction),    &ps_RailFire[26], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE+5, &AF(pRailAction),    &ps_RailFire[27], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE+5, &AF(pRailAction),    &ps_RailFire[28], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE, &AF(pRailOkTest),    &ps_RailFire[11], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[12], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE, &AF(pRailOkTest),    &ps_RailFire[13], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFire[14], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE+1, &AF(pRailAction),    &ps_RailFire[15], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE+1, &AF(pRailAction),    &ps_RailFire[16], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE+1, &AF(pRailAction),    &ps_RailFire[17], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE+2, &AF(pRailAction),    &ps_RailFire[18], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE+2, &AF(pRailAction),    &ps_RailFire[19], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE+2, &AF(pRailAction),    &ps_RailFire[20], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE+3, &AF(pRailAction),    &ps_RailFire[21], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE+3, &AF(pRailAction),    &ps_RailFire[22], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE+4, &AF(pRailAction),    &ps_RailFire[23], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE+4, &AF(pRailAction),    &ps_RailFire[24], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE+4, &AF(pRailAction),    &ps_RailFire[25], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE+5, &AF(pRailAction),    &ps_RailFire[26], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE+5, &AF(pRailAction),    &ps_RailFire[27], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE+5, &AF(pRailAction),    &ps_RailFire[28], psf_ShadeNone, 0,0},
 
-    {ID_RailCharge0,      Rail_ACTION_RATE, &AF(pRailRestTest),  &ps_RailFire[29], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,      Rail_ACTION_RATE, &AF(pRailRest),      &ps_RailRest[0], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,      Rail_ACTION_RATE, &AF(pRailRestTest),  &ps_RailFire[29], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,      Rail_ACTION_RATE, &AF(pRailRest),      &ps_RailRest[0], psf_ShadeNone, 0,0},
 };
 
 PANEL_STATE ps_RailFireEMP[] =
 {
-    {ID_RailCharge0,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[1], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[2], psf_ShadeNone, 0,0},
-    {ID_RailCharge2,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[3], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[4], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[1], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[2], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE2,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[3], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,       Rail_CHARGE_RATE, &AF(pRailAction),    &ps_RailFireEMP[4], psf_ShadeNone, 0,0},
 
-    {ID_RailFire0,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFireEMP[5], psf_ShadeNone, 0,0},
-    {ID_RailFire1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFireEMP[6], psf_ShadeNone, 0,0},
-    {ID_RailFire1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFireEMP[7], psf_ShadeNone, 0,0},
-    {ID_RailFire1,       0,                &AF(pRailFire),      &ps_RailFireEMP[8], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_RAIL_FIRE0,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFireEMP[5], psf_ShadeNone, 0,0},
+    {SPR_RAIL_FIRE1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFireEMP[6], psf_ShadeNone, 0,0},
+    {SPR_RAIL_FIRE1,       Rail_ACTION_RATE, &AF(pRailAction),    &ps_RailFireEMP[7], psf_ShadeNone, 0,0},
+    {SPR_RAIL_FIRE1,       0,                &AF(pRailFire),      &ps_RailFireEMP[8], psf_ShadeNone|psf_QuickCall, 0,0},
 
-    {ID_RailCharge0,      Rail_ACTION_RATE, &AF(pRailRestTest),  &ps_RailFireEMP[9], psf_ShadeNone, 0,0},
-    {ID_RailCharge1,      Rail_ACTION_RATE, &AF(pRailRest),      &ps_RailRest[0], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE0,      Rail_ACTION_RATE, &AF(pRailRestTest),  &ps_RailFireEMP[9], psf_ShadeNone, 0,0},
+    {SPR_RAIL_CHARGE1,      Rail_ACTION_RATE, &AF(pRailRest),      &ps_RailRest[0], psf_ShadeNone, 0,0},
 };
 
 
 PANEL_STATE ps_RetractRail[] =
 {
-    {ID_RailPresent0, Rail_BEAT_RATE, &AF(pRailRetract), &ps_RetractRail[0], psf_ShadeNone, 0,0}
+    {SPR_RAIL_REST0, Rail_BEAT_RATE, &AF(pRailRetract), &ps_RetractRail[0], psf_ShadeNone, 0,0}
 };
 
 #define RAIL_YOFF 200
@@ -3800,108 +3810,108 @@ extern PANEL_STATE ps_HotheadTurn[];
 
 PANEL_STATE ps_PresentHothead[] =
 {
-    {ID_HotheadPresent0, Hothead_BEAT_RATE, &AF(pHotheadPresent), &ps_PresentHothead[0], 0,0,0}
+    {SPR_HOTHEAD_REST, Hothead_BEAT_RATE, &AF(pHotheadPresent), &ps_PresentHothead[0], 0,0,0}
 };
 
 PANEL_STATE ps_HotheadHide[] =
 {
-    {ID_HotheadRest0, Hothead_BEAT_RATE, &AF(pHotheadHide), &ps_HotheadHide[0], 0,0,0}
+    {SPR_HOTHEAD_REST, Hothead_BEAT_RATE, &AF(pHotheadHide), &ps_HotheadHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_RetractHothead[] =
 {
-    {ID_HotheadPresent0, Hothead_BEAT_RATE, &AF(pHotheadRetract), &ps_RetractHothead[0], 0,0,0}
+    {SPR_HOTHEAD_REST, Hothead_BEAT_RATE, &AF(pHotheadRetract), &ps_RetractHothead[0], 0,0,0}
 };
 
 PANEL_STATE ps_HotheadRest[] =
 {
-    {ID_HotheadRest0, Hothead_BEAT_RATE, &AF(pHotheadRest), &ps_HotheadRest[0], 0,0,0}
+    {SPR_HOTHEAD_REST, Hothead_BEAT_RATE, &AF(pHotheadRest), &ps_HotheadRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_HotheadRestRing[] =
 {
-    {ID_HotheadRest0, Hothead_BEAT_RATE, &AF(pHotheadRest), &ps_HotheadRest[0], 0,0,0}
+    {SPR_HOTHEAD_REST, Hothead_BEAT_RATE, &AF(pHotheadRest), &ps_HotheadRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_HotheadRestNapalm[] =
 {
-    {ID_HotheadRest0, Hothead_BEAT_RATE, &AF(pHotheadRest), &ps_HotheadRest[0], 0,0,0}
+    {SPR_HOTHEAD_REST, Hothead_BEAT_RATE, &AF(pHotheadRest), &ps_HotheadRest[0], 0,0,0}
 };
 // Turns - attacks
 
 PANEL_STATE ps_HotheadAttack[] =
 {
-    {ID_HotheadAttack0, Hothead_ACTION_RATE_PRE,  &AF(pHotheadAction), &ps_HotheadAttack[1], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 3,                         &AF(pHotheadAction), &ps_HotheadAttack[2], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadAttack), &ps_HotheadAttack[3], psf_QuickCall, 0,0},
-    {ID_HotheadAttack0, 3,                         &AF(pHotheadAction), &ps_HotheadAttack[4], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadRestTest), &ps_HotheadAttack[4], psf_QuickCall, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadAction), &ps_HotheadAttack[0], psf_ShadeHalf, 0,0}
+    {SPR_HOTHEAD_ATTACK, Hothead_ACTION_RATE_PRE,  &AF(pHotheadAction), &ps_HotheadAttack[1], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 3,                         &AF(pHotheadAction), &ps_HotheadAttack[2], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadAttack), &ps_HotheadAttack[3], psf_QuickCall, 0,0},
+    {SPR_HOTHEAD_ATTACK, 3,                         &AF(pHotheadAction), &ps_HotheadAttack[4], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadRestTest), &ps_HotheadAttack[4], psf_QuickCall, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadAction), &ps_HotheadAttack[0], psf_ShadeHalf, 0,0}
 };
 
 PANEL_STATE ps_HotheadRing[] =
 {
-    {ID_HotheadAttack0, Hothead_ACTION_RATE_PRE,  &AF(pHotheadAction), &ps_HotheadRing[1], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 10,                        &AF(pHotheadAction), &ps_HotheadRing[2], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadAttack), &ps_HotheadRing[3], psf_QuickCall, 0,0},
-    {ID_HotheadAttack0, 40,                        &AF(pHotheadAction), &ps_HotheadRing[4], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadRestTest), &ps_HotheadRing[4], psf_QuickCall, 0,0},
-    {ID_HotheadAttack0, 3,                         &AF(pHotheadAction), &ps_HotheadRing[0], psf_ShadeHalf, 0,0}
+    {SPR_HOTHEAD_ATTACK, Hothead_ACTION_RATE_PRE,  &AF(pHotheadAction), &ps_HotheadRing[1], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 10,                        &AF(pHotheadAction), &ps_HotheadRing[2], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadAttack), &ps_HotheadRing[3], psf_QuickCall, 0,0},
+    {SPR_HOTHEAD_ATTACK, 40,                        &AF(pHotheadAction), &ps_HotheadRing[4], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadRestTest), &ps_HotheadRing[4], psf_QuickCall, 0,0},
+    {SPR_HOTHEAD_ATTACK, 3,                         &AF(pHotheadAction), &ps_HotheadRing[0], psf_ShadeHalf, 0,0}
 };
 
 PANEL_STATE ps_HotheadNapalm[] =
 {
-    {ID_HotheadAttack0, Hothead_ACTION_RATE_PRE,  &AF(pHotheadAction), &ps_HotheadNapalm[1], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 3,                        &AF(pHotheadAction), &ps_HotheadNapalm[2], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadAttack), &ps_HotheadNapalm[3], psf_QuickCall, 0,0},
-    {ID_HotheadAttack0, 50,                        &AF(pHotheadAction), &ps_HotheadNapalm[4], psf_ShadeHalf, 0,0},
-    {ID_HotheadAttack0, 0,                         &AF(pHotheadRestTest), &ps_HotheadNapalm[4], psf_QuickCall, 0,0},
-    {ID_HotheadAttack0, 3,                         &AF(pHotheadAction), &ps_HotheadNapalm[0], psf_ShadeHalf, 0,0}
+    {SPR_HOTHEAD_ATTACK, Hothead_ACTION_RATE_PRE,  &AF(pHotheadAction), &ps_HotheadNapalm[1], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 3,                        &AF(pHotheadAction), &ps_HotheadNapalm[2], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadAttack), &ps_HotheadNapalm[3], psf_QuickCall, 0,0},
+    {SPR_HOTHEAD_ATTACK, 50,                        &AF(pHotheadAction), &ps_HotheadNapalm[4], psf_ShadeHalf, 0,0},
+    {SPR_HOTHEAD_ATTACK, 0,                         &AF(pHotheadRestTest), &ps_HotheadNapalm[4], psf_QuickCall, 0,0},
+    {SPR_HOTHEAD_ATTACK, 3,                         &AF(pHotheadAction), &ps_HotheadNapalm[0], psf_ShadeHalf, 0,0}
 };
 
 // Turns - can do three different turns
 
 PANEL_STATE ps_HotheadTurn[] =
 {
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[1], 0,0,0},
-    {ID_HotheadTurn1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[2], 0,0,0},
-    {ID_HotheadTurn2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[3], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[4], 0,0,0},
-    {ID_HotheadChomp0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[5], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[6], 0,0,0},
-    {ID_HotheadChomp0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[7], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[8], 0,0,0},
-    {ID_HotheadTurn2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[9], 0,0,0},
-    {ID_HotheadTurn1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[10], 0,0,0},
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[11], 0,0,0},
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadRest[0], 0,0,0}
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[1], 0,0,0},
+    {SPR_HOTHEAD_TURN1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[2], 0,0,0},
+    {SPR_HOTHEAD_TURN2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[3], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[4], 0,0,0},
+    {SPR_HOTHEAD_CHOMP, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[5], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[6], 0,0,0},
+    {SPR_HOTHEAD_CHOMP, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[7], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[8], 0,0,0},
+    {SPR_HOTHEAD_TURN2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[9], 0,0,0},
+    {SPR_HOTHEAD_TURN1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[10], 0,0,0},
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurn[11], 0,0,0},
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_HotheadTurnRing[] =
 {
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[1], 0,0,0},
-    {ID_HotheadTurn1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[2], 0,0,0},
-    {ID_HotheadTurn2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[3], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[4], 0,0,0},
-    {ID_HotheadChomp0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[5], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[6], 0,0,0},
-    {ID_HotheadTurn2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[7], 0,0,0},
-    {ID_HotheadTurn1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[8], 0,0,0},
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[9], 0,0,0},
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadRestRing[0], 0,0,0}
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[1], 0,0,0},
+    {SPR_HOTHEAD_TURN1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[2], 0,0,0},
+    {SPR_HOTHEAD_TURN2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[3], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[4], 0,0,0},
+    {SPR_HOTHEAD_CHOMP, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[5], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[6], 0,0,0},
+    {SPR_HOTHEAD_TURN2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[7], 0,0,0},
+    {SPR_HOTHEAD_TURN1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[8], 0,0,0},
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnRing[9], 0,0,0},
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadRestRing[0], 0,0,0}
 };
 
 PANEL_STATE ps_HotheadTurnNapalm[] =
 {
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[1], 0,0,0},
-    {ID_HotheadTurn1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[2], 0,0,0},
-    {ID_HotheadTurn2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[3], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[4], 0,0,0},
-    {ID_HotheadTurn3, Hothead_BEAT_RATE*2, nullptr, &ps_HotheadTurnNapalm[5], 0,0,0},
-    {ID_HotheadTurn2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[6], 0,0,0},
-    {ID_HotheadTurn1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[7], 0,0,0},
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[8], 0,0,0},
-    {ID_HotheadTurn0, Hothead_BEAT_RATE, nullptr, &ps_HotheadRestNapalm[0], 0,0,0}
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[1], 0,0,0},
+    {SPR_HOTHEAD_TURN1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[2], 0,0,0},
+    {SPR_HOTHEAD_TURN2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[3], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[4], 0,0,0},
+    {SPR_HOTHEAD_TURN3, Hothead_BEAT_RATE*2, nullptr, &ps_HotheadTurnNapalm[5], 0,0,0},
+    {SPR_HOTHEAD_TURN2, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[6], 0,0,0},
+    {SPR_HOTHEAD_TURN1, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[7], 0,0,0},
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadTurnNapalm[8], 0,0,0},
+    {SPR_HOTHEAD_TURN0, Hothead_BEAT_RATE, nullptr, &ps_HotheadRestNapalm[0], 0,0,0}
 };
 
 
@@ -4101,7 +4111,7 @@ void pHotheadBobSetup(DPanelSprite* psp)
 
 void pHotheadHide(DPanelSprite* psp)
 {
-    auto tex = tileGetTexture(psp->picndx);
+    auto tex = TexMan.GetGameTexture(GetTextureFromSprite(psp->Sprite, 0));
 
     psp->backupx();
     psp->pos.X += 3 * synctics;
@@ -4242,19 +4252,19 @@ void pOnFire(DPanelSprite*);
 
 PANEL_STATE ps_OnFire[] =
 {
-    {ID_OnFire0, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[1], 0,0,0},
-    {ID_OnFire1, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[2], 0,0,0},
-    {ID_OnFire2, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[3], 0,0,0},
-    {ID_OnFire3, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[4], 0,0,0},
-    {ID_OnFire4, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[5], 0,0,0},
-    {ID_OnFire5, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[6], 0,0,0},
-    {ID_OnFire6, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[7], 0,0,0},
-    {ID_OnFire7, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[8], 0,0,0},
-    {ID_OnFire8, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[9], 0,0,0},
-    {ID_OnFire9, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[10], 0,0,0},
-    {ID_OnFire10, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[11], 0,0,0},
-    {ID_OnFire11, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[12], 0,0,0},
-    {ID_OnFire12, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[0], 0,0,0},
+    {SPR_ON_FIRE0, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[1], 0,0,0},
+    {SPR_ON_FIRE1, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[2], 0,0,0},
+    {SPR_ON_FIRE2, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[3], 0,0,0},
+    {SPR_ON_FIRE3, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[4], 0,0,0},
+    {SPR_ON_FIRE4, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[5], 0,0,0},
+    {SPR_ON_FIRE5, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[6], 0,0,0},
+    {SPR_ON_FIRE6, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[7], 0,0,0},
+    {SPR_ON_FIRE7, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[8], 0,0,0},
+    {SPR_ON_FIRE8, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[9], 0,0,0},
+    {SPR_ON_FIRE9, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[10], 0,0,0},
+    {SPR_ON_FIRE10, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[11], 0,0,0},
+    {SPR_ON_FIRE11, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[12], 0,0,0},
+    {SPR_ON_FIRE12, ON_FIRE_RATE, &AF(pOnFire), &ps_OnFire[0], 0,0,0},
 };
 
 #define ON_FIRE_Y_TOP 190
@@ -4275,7 +4285,7 @@ void SpawnOnFire(DSWPlayer* pp)
     {
         fire = pSpawnSprite(pp, &ps_OnFire[RANDOM_P2(8<<8)>>8], PRI_FRONT, x, ON_FIRE_Y_BOT);
         fire->flags |= PANF_WEAPON_SPRITE;
-        auto tex = tileGetTexture(fire->picndx);
+        auto tex = TexMan.GetGameTexture(GetTextureFromSprite(fire->Sprite, 0));
         x += (int)tex->GetDisplayWidth();
     }
 }
@@ -4348,57 +4358,57 @@ extern PANEL_STATE ps_MicroReload[];
 
 PANEL_STATE ps_PresentMicro[] =
 {
-    {ID_MicroPresent0, Micro_REST_RATE, &AF(pMicroPresent), &ps_PresentMicro[0], 0,0,0}
+    {SPR_MICRO_REST, Micro_REST_RATE, &AF(pMicroPresent), &ps_PresentMicro[0], 0,0,0}
 };
 
 PANEL_STATE ps_MicroRest[] =
 {
-    {ID_MicroPresent0, Micro_REST_RATE, &AF(pMicroRest), &ps_MicroRest[0], 0,0,0}
+    {SPR_MICRO_REST, Micro_REST_RATE, &AF(pMicroRest), &ps_MicroRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_MicroHide[] =
 {
-    {ID_MicroPresent0, Micro_REST_RATE, &AF(pMicroHide), &ps_MicroHide[0], 0,0,0}
+    {SPR_MICRO_REST, Micro_REST_RATE, &AF(pMicroHide), &ps_MicroHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_InitNuke[] =
 {
-    {ID_MicroPresent0, Micro_ACTION_RATE,&AF(pNukeAction),  &ps_InitNuke[1], 0,0,0},
-    {ID_MicroPresent0, 0,               &AF(pMicroStandBy),  &ps_InitNuke[2], psf_QuickCall, 0,0},
-    {ID_MicroPresent0, 120*2,           &AF(pNukeAction), &ps_InitNuke[3], 0,0,0},
-    {ID_MicroPresent0, 0,               &AF(pMicroCount),  &ps_InitNuke[4], psf_QuickCall, 0,0},
-    {ID_MicroPresent0, 120*3,           &AF(pNukeAction), &ps_InitNuke[5], 0,0,0},
-    {ID_MicroPresent0, 0,               &AF(pMicroReady),  &ps_InitNuke[6], psf_QuickCall, 0,0},
-    {ID_MicroPresent0, 120*2,           &AF(pNukeAction), &ps_InitNuke[7], 0,0,0},
-    {ID_MicroPresent0, 3,               &AF(pNukeAction), &ps_MicroRest[0], 0,0,0}
+    {SPR_MICRO_REST, Micro_ACTION_RATE,&AF(pNukeAction),  &ps_InitNuke[1], 0,0,0},
+    {SPR_MICRO_REST, 0,               &AF(pMicroStandBy),  &ps_InitNuke[2], psf_QuickCall, 0,0},
+    {SPR_MICRO_REST, 120*2,           &AF(pNukeAction), &ps_InitNuke[3], 0,0,0},
+    {SPR_MICRO_REST, 0,               &AF(pMicroCount),  &ps_InitNuke[4], psf_QuickCall, 0,0},
+    {SPR_MICRO_REST, 120*3,           &AF(pNukeAction), &ps_InitNuke[5], 0,0,0},
+    {SPR_MICRO_REST, 0,               &AF(pMicroReady),  &ps_InitNuke[6], psf_QuickCall, 0,0},
+    {SPR_MICRO_REST, 120*2,           &AF(pNukeAction), &ps_InitNuke[7], 0,0,0},
+    {SPR_MICRO_REST, 3,               &AF(pNukeAction), &ps_MicroRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_MicroRecoil[] =
 {
     // recoil
-    {ID_MicroPresent0, Micro_ACTION_RATE, &AF(pMicroRecoilDown), &ps_MicroRecoil[0], 0,0,0},
-    {ID_MicroPresent0, Micro_ACTION_RATE, &AF(pMicroRecoilUp),   &ps_MicroRecoil[1], 0,0,0},
+    {SPR_MICRO_REST, Micro_ACTION_RATE, &AF(pMicroRecoilDown), &ps_MicroRecoil[0], 0,0,0},
+    {SPR_MICRO_REST, Micro_ACTION_RATE, &AF(pMicroRecoilUp),   &ps_MicroRecoil[1], 0,0,0},
 
     // Firing delay.
-    {ID_MicroPresent0, 30, nullptr,   &ps_MicroRecoil[3], 0,0,0},
+    {SPR_MICRO_REST, 30, nullptr,   &ps_MicroRecoil[3], 0,0,0},
     // ready to fire again
-    {ID_MicroPresent0, 3, nullptr, &ps_MicroRest[0], 0,0,0}
+    {SPR_MICRO_REST, 3, nullptr, &ps_MicroRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_MicroFire[] =
 {
-    {ID_MicroFire0, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[1], psf_ShadeNone, 0,0},
-    {ID_MicroFire1, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[2], psf_ShadeNone, 0,0},
-    {ID_MicroFire2, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[3], psf_ShadeHalf, 0,0},
-    {ID_MicroFire3, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[4], psf_ShadeHalf, 0,0},
-    {ID_MicroPresent0, 0,              &AF(pMicroFire), &ps_MicroFire[5], psf_ShadeNone|psf_QuickCall, 0,0},
-
+    {SPR_MICRO_FIRE0, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[1], psf_ShadeNone, 0,0},
+    {SPR_MICRO_FIRE1, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[2], psf_ShadeNone, 0,0},
+    {SPR_MICRO_FIRE2, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[3], psf_ShadeHalf, 0,0},
+    {SPR_MICRO_FIRE3, Micro_ACTION_RATE, &AF(pMicroAction), &ps_MicroFire[4], psf_ShadeHalf, 0,0},
+    {SPR_MICRO_REST, 0,              &AF(pMicroFire), &ps_MicroFire[5], psf_ShadeNone|psf_QuickCall, 0,0},
+     
 
     // !JIM! After firing delay so rockets can't fire so fast!
     // Putting a BIG blast radius for rockets, this is better than small and fast for this weap.
-    {ID_MicroPresent0, 120, &AF(pMicroAction), &ps_MicroFire[6], 0,0,0},
+    {SPR_MICRO_REST, 120, &AF(pMicroAction), &ps_MicroFire[6], 0,0,0},
 
-    {ID_MicroPresent0, 3, &AF(pMicroAction), &ps_MicroRecoil[0], 0,0,0}
+    {SPR_MICRO_REST, 3, &AF(pMicroAction), &ps_MicroRecoil[0], 0,0,0}
 };
 
 #define Micro_SINGLE_RATE 8
@@ -4406,21 +4416,21 @@ PANEL_STATE ps_MicroFire[] =
 
 PANEL_STATE ps_MicroSingleFire[] =
 {
-    {ID_MicroSingleFire0, Micro_SINGLE_RATE,    &AF(pMicroAction),   &ps_MicroSingleFire[1], psf_ShadeHalf, 0,0},
-    {ID_MicroSingleFire1, Micro_SINGLE_RATE,    &AF(pMicroAction),   &ps_MicroSingleFire[2], psf_ShadeNone, 0,0},
-    {ID_MicroSingleFire1, 0,                    &AF(pMicroFire),     &ps_MicroSingleFire[3], psf_ShadeNone|psf_QuickCall, 0,0},
-    {ID_MicroSingleFire2, Micro_DISSIPATE_RATE, &AF(pMicroAction),   &ps_MicroSingleFire[4], psf_ShadeNone, 0,0},
-    {ID_MicroSingleFire3, Micro_DISSIPATE_RATE, &AF(pMicroAction),   &ps_MicroSingleFire[5], psf_ShadeHalf, 0,0},
+    {SPR_MICRO_FIRE0, Micro_SINGLE_RATE,    &AF(pMicroAction),   &ps_MicroSingleFire[1], psf_ShadeHalf, 0,0},
+    {SPR_MICRO_FIRE1, Micro_SINGLE_RATE,    &AF(pMicroAction),   &ps_MicroSingleFire[2], psf_ShadeNone, 0,0},
+    {SPR_MICRO_FIRE1, 0,                    &AF(pMicroFire),     &ps_MicroSingleFire[3], psf_ShadeNone|psf_QuickCall, 0,0},
+    {SPR_MICRO_FIRE2, Micro_DISSIPATE_RATE, &AF(pMicroAction),   &ps_MicroSingleFire[4], psf_ShadeNone, 0,0},
+    {SPR_MICRO_FIRE3, Micro_DISSIPATE_RATE, &AF(pMicroAction),   &ps_MicroSingleFire[5], psf_ShadeHalf, 0,0},
 
     // !JIM! Put in firing delay.
-    //{ID_MicroPresent0, 60, &AF(pMicroAction),   &ps_MicroSingleFire[6]},
+    //{SPR_MICRO_REST, 60, &AF(pMicroAction),   &ps_MicroSingleFire[6]},
 
-    {ID_MicroPresent0,    3,                    &AF(pMicroAction),   &ps_MicroRecoil[0], 0,0,0}
+    {SPR_MICRO_REST,    3,                    &AF(pMicroAction),   &ps_MicroRecoil[0], 0,0,0}
 };
 
 PANEL_STATE ps_RetractMicro[] =
 {
-    {ID_MicroPresent0, Micro_REST_RATE, &AF(pMicroRetract), &ps_RetractMicro[0], 0,0,0}
+    {SPR_MICRO_REST, Micro_REST_RATE, &AF(pMicroRetract), &ps_RetractMicro[0], 0,0,0}
 };
 
 //---------------------------------------------------------------------------
@@ -4703,30 +4713,30 @@ bool pMicroOverlays(DPanelSprite* psp)
 
 PANEL_STATE ps_MicroHeatFlash[] =
 {
-    {MICRO_HEAT, 30, nullptr, &ps_MicroHeatFlash[1], 0,0,0},
-    {0,             30, nullptr, &ps_MicroHeatFlash[2], 0,0,0},
-    {MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[3], 0,0,0},
-    {0,             30, nullptr, &ps_MicroHeatFlash[4], 0,0,0},
-    {MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[5], 0,0,0},
-    {0,             30, nullptr, &ps_MicroHeatFlash[6], 0,0,0},
-    {MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[7], 0,0,0},
-    {0,             30, nullptr, &ps_MicroHeatFlash[8], 0,0,0},
-    {MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[9], 0,0,0},
-    {0,              0, nullptr, nullptr, 0,0,0}
+    {SPR_MICRO_HEAT, 30, nullptr, &ps_MicroHeatFlash[1], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroHeatFlash[2], 0,0,0},
+    {SPR_MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[3], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroHeatFlash[4], 0,0,0},
+    {SPR_MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[5], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroHeatFlash[6], 0,0,0},
+    {SPR_MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[7], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroHeatFlash[8], 0,0,0},
+    {SPR_MICRO_HEAT,    30, nullptr, &ps_MicroHeatFlash[9], 0,0,0},
+    {SPR_NULL,       0, nullptr, nullptr, 0,0,0}
 };
 
 PANEL_STATE ps_MicroNukeFlash[] =
 {
-    {MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[1], 0,0,0},
-    {0,             30, nullptr, &ps_MicroNukeFlash[2], 0,0,0},
-    {MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[3], 0,0,0},
-    {0,             30, nullptr, &ps_MicroNukeFlash[4], 0,0,0},
-    {MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[5], 0,0,0},
-    {0,             30, nullptr, &ps_MicroNukeFlash[6], 0,0,0},
-    {MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[7], 0,0,0},
-    {0,             30, nullptr, &ps_MicroNukeFlash[8], 0,0,0},
-    {MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[9], 0,0,0},
-    {0,              0, nullptr, nullptr, 0,0,0}
+    {SPR_MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[1], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroNukeFlash[2], 0,0,0},
+    {SPR_MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[3], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroNukeFlash[4], 0,0,0},
+    {SPR_MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[5], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroNukeFlash[6], 0,0,0},
+    {SPR_MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[7], 0,0,0},
+    {SPR_NULL,      30, nullptr, &ps_MicroNukeFlash[8], 0,0,0},
+    {SPR_MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[9], 0,0,0},
+    {SPR_NULL,       0, nullptr, nullptr, 0,0,0}
 };
 
 //---------------------------------------------------------------------------
@@ -4943,44 +4953,44 @@ extern PANEL_STATE ps_ReloadHeart[];
 
 PANEL_STATE ps_PresentHeart[] =
 {
-    {ID_HeartPresent0, Heart_BEAT_RATE, &AF(pHeartPresent), &ps_PresentHeart[1], 0,0,0},
-    {ID_HeartPresent1, Heart_BEAT_RATE, &AF(pHeartPresent), &ps_PresentHeart[0], 0,0,0}
+    {SPR_HEART_REST0, Heart_BEAT_RATE, &AF(pHeartPresent), &ps_PresentHeart[1], 0,0,0},
+    {SPR_HEART_REST1, Heart_BEAT_RATE, &AF(pHeartPresent), &ps_PresentHeart[0], 0,0,0}
 };
 
 PANEL_STATE ps_HeartRest[] =
 {
-    {ID_HeartPresent0, Heart_BEAT_RATE, &AF(pHeartRest), &ps_HeartRest[1], 0,0,0},
-    {ID_HeartPresent1, Heart_BEAT_RATE, &AF(pHeartRest), &ps_HeartRest[2], 0,0,0},
-    {ID_HeartPresent1, Heart_BEAT_RATE, &AF(SpawnSmallHeartBlood), &ps_HeartRest[3], psf_QuickCall, 0,0},
-    {ID_HeartPresent1, 0,               &AF(pHeartRest), &ps_HeartRest[0], 0,0,0},
+    {SPR_HEART_REST0, Heart_BEAT_RATE, &AF(pHeartRest), &ps_HeartRest[1], 0,0,0},
+    {SPR_HEART_REST1, Heart_BEAT_RATE, &AF(pHeartRest), &ps_HeartRest[2], 0,0,0},
+    {SPR_HEART_REST1, Heart_BEAT_RATE, &AF(SpawnSmallHeartBlood), &ps_HeartRest[3], psf_QuickCall, 0,0},
+    {SPR_HEART_REST1, 0,               &AF(pHeartRest), &ps_HeartRest[0], 0,0,0},
 };
 
 PANEL_STATE ps_HeartHide[] =
 {
-    {ID_HeartPresent0, Heart_BEAT_RATE, &AF(pHeartHide), &ps_HeartHide[1], 0,0,0},
-    {ID_HeartPresent1, Heart_BEAT_RATE, &AF(pHeartHide), &ps_HeartHide[0], 0,0,0}
+    {SPR_HEART_REST0, Heart_BEAT_RATE, &AF(pHeartHide), &ps_HeartHide[1], 0,0,0},
+    {SPR_HEART_REST1, Heart_BEAT_RATE, &AF(pHeartHide), &ps_HeartHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_HeartAttack[] =
 {
     // squeeze
-    {ID_HeartAttack0, Heart_ACTION_RATE, &AF(pHeartActionBlood), &ps_HeartAttack[1], psf_ShadeHalf, 0,0},
-    {ID_HeartAttack1, Heart_ACTION_RATE, &AF(pHeartActionBlood), &ps_HeartAttack[2], psf_ShadeNone, 0,0},
-    {ID_HeartAttack1, Heart_ACTION_RATE, &AF(pHeartActionBlood), &ps_HeartAttack[3], psf_ShadeNone, 0,0},
+    {SPR_HEART_ATTACK0, Heart_ACTION_RATE, &AF(pHeartActionBlood), &ps_HeartAttack[1], psf_ShadeHalf, 0,0},
+    {SPR_HEART_ATTACK1, Heart_ACTION_RATE, &AF(pHeartActionBlood), &ps_HeartAttack[2], psf_ShadeNone, 0,0},
+    {SPR_HEART_ATTACK1, Heart_ACTION_RATE, &AF(pHeartActionBlood), &ps_HeartAttack[3], psf_ShadeNone, 0,0},
     // attack
-    {ID_HeartAttack1, Heart_ACTION_RATE, &AF(pHeartAttack) , &ps_HeartAttack[4], psf_QuickCall, 0,0},
+    {SPR_HEART_ATTACK1, Heart_ACTION_RATE, &AF(pHeartAttack) , &ps_HeartAttack[4], psf_QuickCall, 0,0},
     // unsqueeze
-    {ID_HeartAttack1, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartAttack[5], psf_ShadeNone, 0,0},
-    {ID_HeartAttack1, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartAttack[6], psf_ShadeNone, 0,0},
-    {ID_HeartAttack0, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartAttack[7], psf_ShadeHalf, 0,0},
+    {SPR_HEART_ATTACK1, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartAttack[5], psf_ShadeNone, 0,0},
+    {SPR_HEART_ATTACK1, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartAttack[6], psf_ShadeNone, 0,0},
+    {SPR_HEART_ATTACK0, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartAttack[7], psf_ShadeHalf, 0,0},
 
-    {ID_HeartAttack0, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartRest[0], psf_ShadeHalf, 0,0},
+    {SPR_HEART_ATTACK0, Heart_ACTION_RATE, &AF(pHeartAction), &ps_HeartRest[0], psf_ShadeHalf, 0,0},
 };
 
 PANEL_STATE ps_RetractHeart[] =
 {
-    {ID_HeartPresent0, Heart_BEAT_RATE, &AF(pHeartRetract), &ps_RetractHeart[1], 0,0,0},
-    {ID_HeartPresent1, Heart_BEAT_RATE, &AF(pHeartRetract), &ps_RetractHeart[0], 0,0,0}
+    {SPR_HEART_REST0, Heart_BEAT_RATE, &AF(pHeartRetract), &ps_RetractHeart[1], 0,0,0},
+    {SPR_HEART_REST1, Heart_BEAT_RATE, &AF(pHeartRetract), &ps_RetractHeart[0], 0,0,0}
 };
 
 #define HEART_YOFF 212
@@ -5234,26 +5244,26 @@ void pHeartBlood(DPanelSprite*);
 
 PANEL_STATE ps_HeartBlood[] =
 {
-    {ID_HeartBlood0, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[1], 0,0,0},
-    {ID_HeartBlood1, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[2], 0,0,0},
-    {ID_HeartBlood2, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[3], 0,0,0},
-    {ID_HeartBlood3, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[4], 0,0,0},
-    {ID_HeartBlood4, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[5], 0,0,0},
-    {ID_HeartBlood5, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[6], 0,0,0},
-    {ID_HeartBlood5, HEART_BLOOD_RATE, &AF(pSuicide), &ps_HeartBlood[6], 0,0,0},
+    {SPR_HEART_BLOOD0, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[1], 0,0,0},
+    {SPR_HEART_BLOOD1, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[2], 0,0,0},
+    {SPR_HEART_BLOOD2, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[3], 0,0,0},
+    {SPR_HEART_BLOOD3, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[4], 0,0,0},
+    {SPR_HEART_BLOOD4, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[5], 0,0,0},
+    {SPR_HEART_BLOOD5, HEART_BLOOD_RATE, &AF(pHeartBlood), &ps_HeartBlood[6], 0,0,0},
+    {SPR_HEART_BLOOD5, HEART_BLOOD_RATE, &AF(pSuicide), &ps_HeartBlood[6], 0,0,0},
 };
 
 #define HEART_BLOOD_SMALL_RATE 7
 
 PANEL_STATE ps_HeartBloodSmall[] =
 {
-    {ID_HeartBlood0, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[1], 0,0,0},
-    {ID_HeartBlood1, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[2], 0,0,0},
-    {ID_HeartBlood2, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[3], 0,0,0},
-    {ID_HeartBlood3, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[4], 0,0,0},
-    {ID_HeartBlood4, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[5], 0,0,0},
-    {ID_HeartBlood5, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[6], 0,0,0},
-    {ID_HeartBlood5, HEART_BLOOD_SMALL_RATE, &AF(pSuicide), &ps_HeartBlood[6], 0,0,0},
+    {SPR_HEART_BLOOD0, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[1], 0,0,0},
+    {SPR_HEART_BLOOD1, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[2], 0,0,0},
+    {SPR_HEART_BLOOD2, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[3], 0,0,0},
+    {SPR_HEART_BLOOD3, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[4], 0,0,0},
+    {SPR_HEART_BLOOD4, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[5], 0,0,0},
+    {SPR_HEART_BLOOD5, HEART_BLOOD_SMALL_RATE, &AF(pHeartBlood), &ps_HeartBlood[6], 0,0,0},
+    {SPR_HEART_BLOOD5, HEART_BLOOD_SMALL_RATE, &AF(pSuicide), &ps_HeartBlood[6], 0,0,0},
 };
 
 //---------------------------------------------------------------------------
@@ -5476,44 +5486,44 @@ extern PANEL_STATE ps_GrenadeRecoil[];
 
 PANEL_STATE ps_PresentGrenade[] =
 {
-    {ID_GrenadePresent0, Grenade_REST_RATE, &AF(pGrenadePresent), &ps_PresentGrenade[0], 0,0,0}
+    {SPR_GRENADE_REST, Grenade_REST_RATE, &AF(pGrenadePresent), &ps_PresentGrenade[0], 0,0,0}
 };
 
 PANEL_STATE ps_GrenadeRest[] =
 {
-    {ID_GrenadePresent0, Grenade_REST_RATE, &AF(pGrenadeRest), &ps_GrenadeRest[0], 0,0,0}
+    {SPR_GRENADE_REST, Grenade_REST_RATE, &AF(pGrenadeRest), &ps_GrenadeRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_GrenadeHide[] =
 {
-    {ID_GrenadePresent0, Grenade_REST_RATE, &AF(pGrenadeHide), &ps_GrenadeHide[0], 0,0,0}
+    {SPR_GRENADE_REST, Grenade_REST_RATE, &AF(pGrenadeHide), &ps_GrenadeHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_GrenadeFire[] =
 {
-    {ID_GrenadeFire0, Grenade_ACTION_RATE, &AF(pGrenadeAction), &ps_GrenadeFire[1], psf_ShadeHalf, 0,0},
-    {ID_GrenadeFire1, Grenade_ACTION_RATE, &AF(pGrenadeAction), &ps_GrenadeFire[2], psf_ShadeNone, 0,0},
-    {ID_GrenadeFire2, Grenade_ACTION_RATE, &AF(pGrenadeAction), &ps_GrenadeFire[3], psf_ShadeNone, 0,0},
+    {SPR_GRENADE_FIRE0, Grenade_ACTION_RATE, &AF(pGrenadeAction), &ps_GrenadeFire[1], psf_ShadeHalf, 0,0},
+    {SPR_GRENADE_FIRE1, Grenade_ACTION_RATE, &AF(pGrenadeAction), &ps_GrenadeFire[2], psf_ShadeNone, 0,0},
+    {SPR_GRENADE_FIRE2, Grenade_ACTION_RATE, &AF(pGrenadeAction), &ps_GrenadeFire[3], psf_ShadeNone, 0,0},
 
-    {ID_GrenadePresent0, 0, &AF(pGrenadeFire), &ps_GrenadeFire[4], psf_QuickCall, 0,0},
-    {ID_GrenadePresent0, 3, &AF(pGrenadeAction), &ps_GrenadeRecoil[0], 0,0,0}
+    {SPR_GRENADE_REST, 0, &AF(pGrenadeFire), &ps_GrenadeFire[4], psf_QuickCall, 0,0},
+    {SPR_GRENADE_REST, 3, &AF(pGrenadeAction), &ps_GrenadeRecoil[0], 0,0,0}
 };
 
 PANEL_STATE ps_GrenadeRecoil[] =
 {
     // recoil
-    {ID_GrenadePresent0, Grenade_REST_RATE, &AF(pGrenadeRecoilDown), &ps_GrenadeRecoil[0], 0,0,0},
-    {ID_GrenadePresent0, Grenade_REST_RATE, &AF(pGrenadeRecoilUp), &ps_GrenadeRecoil[1], 0,0,0},
+    {SPR_GRENADE_REST, Grenade_REST_RATE, &AF(pGrenadeRecoilDown), &ps_GrenadeRecoil[0], 0,0,0},
+    {SPR_GRENADE_REST, Grenade_REST_RATE, &AF(pGrenadeRecoilUp), &ps_GrenadeRecoil[1], 0,0,0},
     // reload
-    {ID_GrenadeReload0, Grenade_REST_RATE/2, nullptr, &ps_GrenadeRecoil[3], 0,0,0},
-    {ID_GrenadeReload1, Grenade_REST_RATE/2, nullptr, &ps_GrenadeRecoil[4], 0,0,0},
+    {SPR_GRENADE_RELOAD0, Grenade_REST_RATE/2, nullptr, &ps_GrenadeRecoil[3], 0,0,0},
+    {SPR_GRENADE_RELOAD1, Grenade_REST_RATE/2, nullptr, &ps_GrenadeRecoil[4], 0,0,0},
     // ready to fire again
-    {ID_GrenadePresent0, 3, nullptr, &ps_GrenadeRest[0], 0,0,0}
+    {SPR_GRENADE_REST, 3, nullptr, &ps_GrenadeRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_RetractGrenade[] =
 {
-    {ID_GrenadePresent0, Grenade_REST_RATE, &AF(pGrenadeRetract), &ps_RetractGrenade[0], 0,0,0}
+    {SPR_GRENADE_REST, Grenade_REST_RATE, &AF(pGrenadeRetract), &ps_RetractGrenade[0], 0,0,0}
 };
 
 //---------------------------------------------------------------------------
@@ -5810,35 +5820,35 @@ void pMineUpSound(DPanelSprite* psp);
 
 PANEL_STATE ps_PresentMine[] =
 {
-    {ID_MinePresent0, Mine_REST_RATE, &AF(pMinePresent), &ps_PresentMine[0], 0,0,0}
+    {SPR_MINE_REST0, Mine_REST_RATE, &AF(pMinePresent), &ps_PresentMine[0], 0,0,0}
 };
 
 PANEL_STATE ps_MineRest[] =
 {
-    {ID_MinePresent0, 36,               &AF(pMineRest),      &ps_MineRest[1], 0,0,0},
-    {ID_MinePresent0, 0,                &AF(pMineUpSound),   &ps_MineRest[2], psf_QuickCall, 0,0},
-    {ID_MinePresent1, Mine_REST_RATE,   &AF(pMineRest),      &ps_MineRest[2], 0,0,0},
+    {SPR_MINE_REST0, 36,               &AF(pMineRest),      &ps_MineRest[1], 0,0,0},
+    {SPR_MINE_REST0, 0,                &AF(pMineUpSound),   &ps_MineRest[2], psf_QuickCall, 0,0},
+    {SPR_MINE_REST1, Mine_REST_RATE,   &AF(pMineRest),      &ps_MineRest[2], 0,0,0},
 };
 
 PANEL_STATE ps_MineHide[] =
 {
-    {ID_MinePresent0, Mine_REST_RATE, &AF(pMineHide), &ps_MineHide[0], 0,0,0}
+    {SPR_MINE_REST0, Mine_REST_RATE, &AF(pMineHide), &ps_MineHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_MineThrow[] =
 {
-    {ID_MineThrow0,   3,                nullptr,  &ps_MineThrow[1], 0,0,0},
-    {ID_MineThrow0, Mine_ACTION_RATE, &AF(pMineThrow),       &ps_MineThrow[2],psf_QuickCall, 0,0},
-    {ID_MineThrow0, Mine_ACTION_RATE, &AF(pMineLower),       &ps_MineThrow[2], 0,0,0},
-    {ID_MineThrow0, Mine_ACTION_RATE*5, nullptr,  &ps_MineThrow[4], 0,0,0},
-    {ID_MinePresent0, Mine_ACTION_RATE, &AF(pMineRaise),     &ps_MineThrow[4], 0,0,0},
-    {ID_MinePresent0, Mine_ACTION_RATE, nullptr,  &ps_MineThrow[6], 0,0,0},
-    {ID_MinePresent0, 3, &AF(pMineAction), &ps_MineRest[0], 0,0,0}
+    {SPR_MINE_THROW,   3,                nullptr,  &ps_MineThrow[1], 0,0,0},
+    {SPR_MINE_THROW, Mine_ACTION_RATE, &AF(pMineThrow),       &ps_MineThrow[2],psf_QuickCall, 0,0},
+    {SPR_MINE_THROW, Mine_ACTION_RATE, &AF(pMineLower),       &ps_MineThrow[2], 0,0,0},
+    {SPR_MINE_THROW, Mine_ACTION_RATE*5, nullptr,  &ps_MineThrow[4], 0,0,0},
+    {SPR_MINE_REST0, Mine_ACTION_RATE, &AF(pMineRaise),     &ps_MineThrow[4], 0,0,0},
+    {SPR_MINE_REST0, Mine_ACTION_RATE, nullptr,  &ps_MineThrow[6], 0,0,0},
+    {SPR_MINE_REST0, 3, &AF(pMineAction), &ps_MineRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_RetractMine[] =
 {
-    {ID_MinePresent0, Mine_REST_RATE, &AF(pMineRetract), &ps_RetractMine[0], 0,0,0}
+    {SPR_MINE_REST0, Mine_REST_RATE, &AF(pMineRetract), &ps_RetractMine[0], 0,0,0}
 };
 
 //---------------------------------------------------------------------------
@@ -6103,76 +6113,73 @@ void pChopsRetract(DPanelSprite* psp);
 #define Chops_REST_RATE 24
 #define Chops_ACTION_RATE 6
 
-#define ID_ChopsRest  2000
-#define ID_ChopsOpen  2001
-#define ID_ChopsClose 2002
 
 PANEL_STATE ps_ChopsAttack1[] =
 {
-    {ID_ChopsRest,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack1[1], 0,0,0},
-    {ID_ChopsRest,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack1[1], 0,0,0},
-    {ID_ChopsOpen,  Chops_REST_RATE/3,  nullptr,  &ps_ChopsAttack1[3], 0,0,0},
-    {ID_ChopsClose, 0,                  &AF(pChopsClick),    &ps_ChopsAttack1[4], psf_QuickCall, 0,0},
-    {ID_ChopsClose, Chops_REST_RATE/3,  nullptr,  &ps_ChopsAttack1[5], 0,0,0},
-    {ID_ChopsClose, Chops_REST_RATE,    &AF(pChopsDown),     &ps_ChopsAttack1[5], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack1[1], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack1[1], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE/3,  nullptr,  &ps_ChopsAttack1[3], 0,0,0},
+    {SPR_ChopsClose, 0,                  &AF(pChopsClick),    &ps_ChopsAttack1[4], psf_QuickCall, 0,0},
+    {SPR_ChopsClose, Chops_REST_RATE/3,  nullptr,  &ps_ChopsAttack1[5], 0,0,0},
+    {SPR_ChopsClose, Chops_REST_RATE,    &AF(pChopsDown),     &ps_ChopsAttack1[5], 0,0,0},
 };
 
 PANEL_STATE ps_ChopsAttack2[] =
 {
-    {ID_ChopsOpen,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack2[1], 0,0,0},
-    {ID_ChopsOpen,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack2[1], 0,0,0},
-    {ID_ChopsOpen,  0,                  &AF(pChopsClick),    &ps_ChopsAttack2[3], psf_QuickCall, 0,0},
-    {ID_ChopsOpen,  8,                  nullptr,  &ps_ChopsAttack2[4], 0,0,0},
-    {ID_ChopsRest,  Chops_REST_RATE,    nullptr,  &ps_ChopsAttack2[5], 0,0,0},
-    {ID_ChopsRest,  Chops_REST_RATE,    &AF(pChopsDown),     &ps_ChopsAttack2[5], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack2[1], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack2[1], 0,0,0},
+    {SPR_ChopsOpen,  0,                  &AF(pChopsClick),    &ps_ChopsAttack2[3], psf_QuickCall, 0,0},
+    {SPR_ChopsOpen,  8,                  nullptr,  &ps_ChopsAttack2[4], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE,    nullptr,  &ps_ChopsAttack2[5], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE,    &AF(pChopsDown),     &ps_ChopsAttack2[5], 0,0,0},
 };
 
 PANEL_STATE ps_ChopsAttack3[] =
 {
-    {ID_ChopsOpen,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack3[1], 0,0,0},
-    {ID_ChopsOpen,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack3[1], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack3[1], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack3[1], 0,0,0},
 
-    {ID_ChopsRest,  0,                  nullptr,  &ps_ChopsAttack3[3], 0,0,0},
-    {ID_ChopsRest,  0,                  &AF(pChopsClick),    &ps_ChopsAttack3[4], psf_QuickCall, 0,0},
+    {SPR_ChopsRest,  0,                  nullptr,  &ps_ChopsAttack3[3], 0,0,0},
+    {SPR_ChopsRest,  0,                  &AF(pChopsClick),    &ps_ChopsAttack3[4], psf_QuickCall, 0,0},
 
-    {ID_ChopsRest,  Chops_REST_RATE,    nullptr,  &ps_ChopsAttack3[5], 0,0,0},
-    {ID_ChopsRest,  24,                 nullptr,  &ps_ChopsAttack3[6], 0,0,0},
-    {ID_ChopsOpen,  16,                 nullptr,  &ps_ChopsAttack3[7], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE,    nullptr,  &ps_ChopsAttack3[5], 0,0,0},
+    {SPR_ChopsRest,  24,                 nullptr,  &ps_ChopsAttack3[6], 0,0,0},
+    {SPR_ChopsOpen,  16,                 nullptr,  &ps_ChopsAttack3[7], 0,0,0},
 
-    {ID_ChopsRest,  0,                  &AF(pChopsClick),    &ps_ChopsAttack3[8], psf_QuickCall, 0,0},
-    {ID_ChopsRest,  16,                 nullptr,  &ps_ChopsAttack3[9], 0,0,0},
-    {ID_ChopsOpen,  16,                 nullptr,  &ps_ChopsAttack3[10], 0,0,0},
+    {SPR_ChopsRest,  0,                  &AF(pChopsClick),    &ps_ChopsAttack3[8], psf_QuickCall, 0,0},
+    {SPR_ChopsRest,  16,                 nullptr,  &ps_ChopsAttack3[9], 0,0,0},
+    {SPR_ChopsOpen,  16,                 nullptr,  &ps_ChopsAttack3[10], 0,0,0},
 
-    {ID_ChopsOpen,  8,                  &AF(pChopsDownSlow), &ps_ChopsAttack3[11], 0,0,0},
-    {ID_ChopsRest,  10,                 &AF(pChopsDownSlow), &ps_ChopsAttack3[12], 0,0,0},
-    {ID_ChopsRest,  0,                  &AF(pChopsClick),    &ps_ChopsAttack3[13], psf_QuickCall, 0,0},
-    {ID_ChopsRest,  10,                 &AF(pChopsDownSlow), &ps_ChopsAttack3[14], 0,0,0},
-    {ID_ChopsOpen,  10,                 &AF(pChopsDownSlow), &ps_ChopsAttack3[11], 0,0,0},
+    {SPR_ChopsOpen,  8,                  &AF(pChopsDownSlow), &ps_ChopsAttack3[11], 0,0,0},
+    {SPR_ChopsRest,  10,                 &AF(pChopsDownSlow), &ps_ChopsAttack3[12], 0,0,0},
+    {SPR_ChopsRest,  0,                  &AF(pChopsClick),    &ps_ChopsAttack3[13], psf_QuickCall, 0,0},
+    {SPR_ChopsRest,  10,                 &AF(pChopsDownSlow), &ps_ChopsAttack3[14], 0,0,0},
+    {SPR_ChopsOpen,  10,                 &AF(pChopsDownSlow), &ps_ChopsAttack3[11], 0,0,0},
 };
 
 PANEL_STATE ps_ChopsAttack4[] =
 {
-    {ID_ChopsOpen,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack4[1], 0,0,0},
-    {ID_ChopsOpen,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack4[1], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE*3,  nullptr,  &ps_ChopsAttack4[1], 0,0,0},
+    {SPR_ChopsOpen,  Chops_REST_RATE,    &AF(pChopsUp),       &ps_ChopsAttack4[1], 0,0,0},
 
-    {ID_ChopsOpen,  0,                  &AF(pChopsClick),    &ps_ChopsAttack4[3], psf_QuickCall, 0,0},
-    {ID_ChopsOpen,  8,                  nullptr,  &ps_ChopsAttack4[4], 0,0,0},
+    {SPR_ChopsOpen,  0,                  &AF(pChopsClick),    &ps_ChopsAttack4[3], psf_QuickCall, 0,0},
+    {SPR_ChopsOpen,  8,                  nullptr,  &ps_ChopsAttack4[4], 0,0,0},
 
-    {ID_ChopsRest,  Chops_REST_RATE,    nullptr,  &ps_ChopsAttack4[5], 0,0,0},
-    {ID_ChopsRest,  Chops_REST_RATE*4,  &AF(pChopsShake),    &ps_ChopsAttack4[6], 0,0,0},
-    {ID_ChopsRest,  Chops_REST_RATE,    &AF(pChopsDown),     &ps_ChopsAttack4[6], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE,    nullptr,  &ps_ChopsAttack4[5], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE*4,  &AF(pChopsShake),    &ps_ChopsAttack4[6], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE,    &AF(pChopsDown),     &ps_ChopsAttack4[6], 0,0,0},
 };
 
 PANEL_STATE* psp_ChopsAttack[] = {ps_ChopsAttack1, ps_ChopsAttack2, ps_ChopsAttack3, ps_ChopsAttack4};
 
 PANEL_STATE ps_ChopsWait[] =
 {
-    {ID_ChopsRest,  Chops_REST_RATE, &AF(pChopsWait),     &ps_ChopsWait[0], 0,0,0},
+    {SPR_ChopsRest,  Chops_REST_RATE, &AF(pChopsWait),     &ps_ChopsWait[0], 0,0,0},
 };
 
 PANEL_STATE ps_ChopsRetract[] =
 {
-    {ID_ChopsRest, Chops_REST_RATE, &AF(pChopsRetract), &ps_ChopsRetract[0], 0,0,0}
+    {SPR_ChopsRest, Chops_REST_RATE, &AF(pChopsRetract), &ps_ChopsRetract[0], 0,0,0}
 };
 
 #define CHOPS_YOFF 200
@@ -6448,8 +6455,8 @@ void SpawnFistBlur(DPanelSprite* psp)
     nsp->kill_tics = 9;
     nsp->shade = psp->shade + 10;
 
-    nsp->picndx = -1;
-    nsp->picnum = psp->picndx;
+    nsp->Sprite = SPR_NULL;
+    nsp->texnum = GetTextureFromSprite(psp->Sprite, 0);
 
     if ((psp->State->flags & psf_Xflip))
         nsp->flags |= (PANF_XFLIP);
@@ -6488,32 +6495,32 @@ extern PANEL_STATE ps_ReloadFist[];
 
 PANEL_STATE ps_PresentFist[] =
 {
-    {ID_FistPresent0, Fist_BEAT_RATE, &AF(pFistPresent), &ps_PresentFist[0], 0,0,0}
+    {SPR_FIST_REST, Fist_BEAT_RATE, &AF(pFistPresent), &ps_PresentFist[0], 0,0,0}
 };
 
 PANEL_STATE ps_FistRest[] =
 {
-    {ID_FistPresent0, Fist_BEAT_RATE, &AF(pFistRest), &ps_FistRest[0], 0,0,0}
+    {SPR_FIST_REST, Fist_BEAT_RATE, &AF(pFistRest), &ps_FistRest[0], 0,0,0}
 };
 
 PANEL_STATE ps_FistHide[] =
 {
-    {ID_FistPresent0, Fist_BEAT_RATE, &AF(pFistHide), &ps_FistHide[0], 0,0,0}
+    {SPR_FIST_REST, Fist_BEAT_RATE, &AF(pFistHide), &ps_FistHide[0], 0,0,0}
 };
 
 PANEL_STATE ps_PresentFist2[] =
 {
-    {ID_Fist2Present0, Fist_BEAT_RATE, &AF(pFistPresent), &ps_PresentFist2[0], 0,0,0}
+    {SPR_FIST2_REST, Fist_BEAT_RATE, &AF(pFistPresent), &ps_PresentFist2[0], 0,0,0}
 };
 
 PANEL_STATE ps_Fist2Rest[] =
 {
-    {ID_Fist2Present0, Fist_BEAT_RATE, &AF(pFistRest), &ps_Fist2Rest[0], 0,0,0}
+    {SPR_FIST2_REST, Fist_BEAT_RATE, &AF(pFistRest), &ps_Fist2Rest[0], 0,0,0}
 };
 
 PANEL_STATE ps_Fist2Hide[] =
 {
-    {ID_Fist2Present0, Fist_BEAT_RATE, &AF(pFistHide), &ps_Fist2Hide[0], 0,0,0}
+    {SPR_FIST2_REST, Fist_BEAT_RATE, &AF(pFistHide), &ps_Fist2Hide[0], 0,0,0}
 };
 
 
@@ -6523,46 +6530,46 @@ PANEL_STATE ps_Fist2Hide[] =
 
 PANEL_STATE ps_FistSwing[] =
 {
-    {ID_FistSwing0, FIST_PAUSE_TICS,                    nullptr,      &ps_FistSwing[1], 0,0,0},
-    {ID_FistSwing1, FIST_SLIDE_TICS, /* start slide */ nullptr,        &ps_FistSwing[2], 0,0,0},
-    {ID_FistSwing2, 0, /* damage */ &AF(pFistAttack),       &ps_FistSwing[3], psf_QuickCall, 0,0},
-    {ID_FistSwing2, FIST_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDown),    &ps_FistSwing[4], 0,0,0},
+    {SPR_FIST_SWING0, FIST_PAUSE_TICS,                    nullptr,      &ps_FistSwing[1], 0,0,0},
+    {SPR_FIST_SWING1, FIST_SLIDE_TICS, /* start slide */ nullptr,        &ps_FistSwing[2], 0,0,0},
+    {SPR_FIST_SWING2, 0, /* damage */ &AF(pFistAttack),       &ps_FistSwing[3], psf_QuickCall, 0,0},
+    {SPR_FIST_SWING2, FIST_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDown),    &ps_FistSwing[4], 0,0,0},
 
-    {ID_FistSwing2, 2, /* end slide */ &AF(pFistSlideDown),    &ps_FistSwing[4], 0,0,0},
+    {SPR_FIST_SWING2, 2, /* end slide */ &AF(pFistSlideDown),    &ps_FistSwing[4], 0,0,0},
 
-    {ID_FistSwing1, FIST_SLIDE_TICS, /* start slide */ &AF(pFistSlideR),       &ps_FistSwing[6], psf_Xflip, 0,0},
-    {ID_FistSwing2, 0, /* damage */ &AF(pFistAttack),       &ps_FistSwing[7], psf_QuickCall|psf_Xflip, 0,0},
-    {ID_FistSwing2, FIST_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDownR),   &ps_FistSwing[8], psf_Xflip, 0,0},
+    {SPR_FIST_SWING1, FIST_SLIDE_TICS, /* start slide */ &AF(pFistSlideR),       &ps_FistSwing[6], psf_Xflip, 0,0},
+    {SPR_FIST_SWING2, 0, /* damage */ &AF(pFistAttack),       &ps_FistSwing[7], psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_FIST_SWING2, FIST_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDownR),   &ps_FistSwing[8], psf_Xflip, 0,0},
 
-    {ID_FistSwing2, 2, /* end slide */ &AF(pFistSlideDownR),   &ps_FistSwing[8], psf_Xflip, 0,0},
-    {ID_FistSwing2, 2, /* end slide */ nullptr,      &ps_FistSwing[1], psf_Xflip, 0,0},
+    {SPR_FIST_SWING2, 2, /* end slide */ &AF(pFistSlideDownR),   &ps_FistSwing[8], psf_Xflip, 0,0},
+    {SPR_FIST_SWING2, 2, /* end slide */ nullptr,      &ps_FistSwing[1], psf_Xflip, 0,0},
 };
 
 PANEL_STATE ps_Fist2Swing[] =
 {
-    {4058, FIST_PAUSE_TICS,                    nullptr,      &ps_Fist2Swing[1], 0,0,0},
-    {4058, FIST_SLIDE_TICS, /* start slide */ nullptr,      &ps_Fist2Swing[2], 0,0,0},
-    {4058, 0, /* damage */ &AF(pFistBlock),         &ps_Fist2Swing[0], psf_QuickCall, 0,0},
-    {4058, FIST_MID_SLIDE_TICS+5, /* mid slide */ &AF(pFistSlideDown),     &ps_Fist2Swing[4], 0,0,0},
+    {SPR_FIST2_SWING_ALT, FIST_PAUSE_TICS,                    nullptr,      &ps_Fist2Swing[1], 0,0,0},
+    {SPR_FIST2_SWING_ALT, FIST_SLIDE_TICS, /* start slide */ nullptr,      &ps_Fist2Swing[2], 0,0,0},
+    {SPR_FIST2_SWING_ALT, 0, /* damage */ &AF(pFistBlock),         &ps_Fist2Swing[0], psf_QuickCall, 0,0},
+    {SPR_FIST2_SWING_ALT, FIST_MID_SLIDE_TICS+5, /* mid slide */ &AF(pFistSlideDown),     &ps_Fist2Swing[4], 0,0,0},
 
-    {4058, 2, /* end slide */ &AF(pFistSlideDown),    &ps_Fist2Swing[4], 0,0,0},
+    {SPR_FIST2_SWING_ALT, 2, /* end slide */ &AF(pFistSlideDown),    &ps_Fist2Swing[4], 0,0,0},
 };
 
 PANEL_STATE ps_Fist3Swing[] =
 {
-    {ID_Fist3Swing0, FIST_PAUSE_TICS+25,                    nullptr,      &ps_Fist3Swing[1], 0,0,0},
-    {ID_Fist3Swing1, 0, /* damage */ &AF(pFistAttack),       &ps_Fist3Swing[2], psf_QuickCall, 0,0},
-    {ID_Fist3Swing2, FIST_PAUSE_TICS+10,                    nullptr,      &ps_Fist3Swing[3], 0,0,0},
-    {ID_Fist3Swing2, FIST_MID_SLIDE_TICS+3, /* mid slide */ &AF(pFistSlideDown),    &ps_Fist3Swing[4], 0,0,0},
+    {SPR_FIST3_SWING0, FIST_PAUSE_TICS+25,                    nullptr,      &ps_Fist3Swing[1], 0,0,0},
+    {SPR_FIST3_SWING1, 0, /* damage */ &AF(pFistAttack),       &ps_Fist3Swing[2], psf_QuickCall, 0,0},
+    {SPR_FIST3_SWING2, FIST_PAUSE_TICS+10,                    nullptr,      &ps_Fist3Swing[3], 0,0,0},
+    {SPR_FIST3_SWING2, FIST_MID_SLIDE_TICS+3, /* mid slide */ &AF(pFistSlideDown),    &ps_Fist3Swing[4], 0,0,0},
 
-    {ID_Fist3Swing2, 8, /* end slide */ &AF(pFistSlideDown),    &ps_Fist3Swing[4], 0,0,0},
+    {SPR_FIST3_SWING2, 8, /* end slide */ &AF(pFistSlideDown),    &ps_Fist3Swing[4], 0,0,0},
 
-    {ID_Fist3Swing1, FIST_SLIDE_TICS+20, /* start slide */ &AF(pFistSlideR),       &ps_Fist3Swing[6], psf_Xflip, 0,0},
-    {ID_Fist3Swing2, 0, /* damage */ &AF(pFistAttack),       &ps_Fist3Swing[7], psf_QuickCall|psf_Xflip, 0,0},
-    {ID_Fist3Swing2, FIST_MID_SLIDE_TICS+3, /* mid slide */ &AF(pFistSlideDownR),   &ps_Fist3Swing[8], psf_Xflip, 0,0},
+    {SPR_FIST3_SWING1, FIST_SLIDE_TICS+20, /* start slide */ &AF(pFistSlideR),       &ps_Fist3Swing[6], psf_Xflip, 0,0},
+    {SPR_FIST3_SWING2, 0, /* damage */ &AF(pFistAttack),       &ps_Fist3Swing[7], psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_FIST3_SWING2, FIST_MID_SLIDE_TICS+3, /* mid slide */ &AF(pFistSlideDownR),   &ps_Fist3Swing[8], psf_Xflip, 0,0},
 
-    {ID_Fist3Swing2, 8, /* end slide */ &AF(pFistSlideDownR),   &ps_Fist3Swing[8], psf_Xflip, 0,0},
-    {ID_Fist3Swing2, 8, /* end slide */ nullptr,      &ps_Fist3Swing[1], psf_Xflip, 0,0},
+    {SPR_FIST3_SWING2, 8, /* end slide */ &AF(pFistSlideDownR),   &ps_Fist3Swing[8], psf_Xflip, 0,0},
+    {SPR_FIST3_SWING2, 8, /* end slide */ nullptr,      &ps_Fist3Swing[1], psf_Xflip, 0,0},
 };
 
 #define KICK_PAUSE_TICS 40
@@ -6571,24 +6578,24 @@ PANEL_STATE ps_Fist3Swing[] =
 
 PANEL_STATE ps_Kick[] =
 {
-    {ID_Kick0, KICK_PAUSE_TICS,                    nullptr,     &ps_Kick[1], 0,0,0},
-    {ID_Kick1, 0, /* damage */ &AF(pFistAttack),       &ps_Kick[2], psf_QuickCall, 0,0},
-    {ID_Kick1, KICK_SLIDE_TICS, /* start slide */ nullptr,     &ps_Kick[3], 0,0,0},
-    {ID_Kick1, KICK_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDown),    &ps_Kick[4], 0,0,0},
+    {SPR_KICK0, KICK_PAUSE_TICS,                    nullptr,     &ps_Kick[1], 0,0,0},
+    {SPR_KICK1, 0, /* damage */ &AF(pFistAttack),       &ps_Kick[2], psf_QuickCall, 0,0},
+    {SPR_KICK1, KICK_SLIDE_TICS, /* start slide */ nullptr,     &ps_Kick[3], 0,0,0},
+    {SPR_KICK1, KICK_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDown),    &ps_Kick[4], 0,0,0},
 
-    {ID_Kick1, 30, /* end slide */ &AF(pFistSlideDown),    &ps_Kick[4], 0,0,0},
+    {SPR_KICK1, 30, /* end slide */ &AF(pFistSlideDown),    &ps_Kick[4], 0,0,0},
 
-    {ID_Kick0, KICK_SLIDE_TICS, /* start slide */ nullptr,     &ps_Kick[6], psf_Xflip, 0,0},
-    {ID_Kick1, 0, /* damage */ &AF(pFistAttack),       &ps_Kick[7], psf_QuickCall|psf_Xflip, 0,0},
-    {ID_Kick1, KICK_MID_SLIDE_TICS,/* mid slide */ &AF(pFistSlideDownR),   &ps_Kick[8], psf_Xflip, 0, 0},
+    {SPR_KICK0, KICK_SLIDE_TICS, /* start slide */ nullptr,     &ps_Kick[6], psf_Xflip, 0,0},
+    {SPR_KICK1, 0, /* damage */ &AF(pFistAttack),       &ps_Kick[7], psf_QuickCall|psf_Xflip, 0,0},
+    {SPR_KICK1, KICK_MID_SLIDE_TICS,/* mid slide */ &AF(pFistSlideDownR),   &ps_Kick[8], psf_Xflip, 0, 0},
 
-    {ID_Kick1, 30, /* end slide */ &AF(pFistSlideDownR),   &ps_Kick[8], psf_Xflip, 0,0},
-    {ID_Kick1, 30, /* end slide */ nullptr,     &ps_Kick[1], psf_Xflip, 0,0},
+    {SPR_KICK1, 30, /* end slide */ &AF(pFistSlideDownR),   &ps_Kick[8], psf_Xflip, 0,0},
+    {SPR_KICK1, 30, /* end slide */ nullptr,     &ps_Kick[1], psf_Xflip, 0,0},
 };
 
 PANEL_STATE ps_RetractFist[] =
 {
-    {ID_FistPresent0, Fist_BEAT_RATE, &AF(pFistRetract), &ps_RetractFist[0], 0,0,0}
+    {SPR_FIST_REST, Fist_BEAT_RATE, &AF(pFistRetract), &ps_RetractFist[0], 0,0,0}
 };
 
 #define FIST_SWAY_AMT 12
@@ -7235,9 +7242,9 @@ DPanelSprite* pSpawnSprite(DSWPlayer* pp, PANEL_STATE* state, uint8_t priority, 
     psp->opos.Y = psp->pos.Y = y;
     pSetState(psp, state);
     if (state == nullptr)
-        psp->picndx = -1;
+        psp->Sprite = SPR_NULL;
     else
-        psp->picndx = state->picndx;
+        psp->Sprite = state->Sprite;
     psp->ang = 0;
     psp->vel = 0;
     psp->rotate_ang = 0;
@@ -7362,7 +7369,8 @@ void pDisplaySprites(DSWPlayer* pp, double interpfrac)
 {
     DSWActor* plActor = pp->GetActor();
     DPanelSprite* next=nullptr;
-    short shade, picnum, overlay_shade = 0;
+    short shade, overlay_shade = 0;
+    FTextureID texnum;
     double x, y;
     unsigned i;
 
@@ -7407,99 +7415,25 @@ void pDisplaySprites(DSWPlayer* pp, double interpfrac)
         }
 
         // if the state is null get the texture for other than picndx
-        if (psp->picndx == -1 || !psp->State)
-            picnum = psp->picnum;
+        if (psp->Sprite == SPR_NULL || !psp->State)
+            texnum = psp->texnum;
         else
-            picnum = psp->picndx;
+            texnum = GetTextureFromSprite(psp->Sprite, 0);
 
         // UK panzies have to have darts instead of shurikens.
         if (sw_darts)
-            switch (picnum)
-            {
-            case STAR_REST:
-                picnum = 2510;
-                break;
-            case STAR_REST + 1:
-                picnum = 2511;
-                break;
-            case STAR_REST + 2:
-                picnum = 2512;
-                break;
-            case STAR_REST + 3:
-                picnum = 2513;
-                break;
-            case STAR_REST + 4:
-                picnum = 2514;
-                break;
-            case STAR_REST + 5:
-                picnum = 2515;
-                break;
-            case STAR_REST + 6:
-                picnum = 2516;
-                break;
-            case STAR_REST + 7:
-                picnum = 2517;
-                break;
-            }
+        {
+            texnum = GetTextureReplacement(texnum, NAME_Darts);
+        }
 
         if (pp->Bloody)
         {
-            switch (picnum)
-            {
-            case SWORD_REST:
-                picnum = BLOODYSWORD_REST;
-                break;
-            case SWORD_SWING0:
-                picnum = BLOODYSWORD_SWING0;
-                break;
-            case SWORD_SWING1:
-                picnum = BLOODYSWORD_SWING1;
-                break;
-            case SWORD_SWING2:
-                picnum = BLOODYSWORD_SWING2;
-                break;
-
-            case FIST_REST:
-                picnum = 4077;
-                break;
-            case FIST2_REST:
-                picnum = 4051;
-                break;
-            case FIST_SWING0:
-                picnum = 4074;
-                break;
-            case FIST_SWING1:
-                picnum = 4075;
-                break;
-            case FIST_SWING2:
-                picnum = 4076;
-                break;
-
-            case STAR_REST:
-            case 2510:
-                if (!sw_darts)
-                    picnum = 2138;
-                else
-                    picnum = 2518; // Bloody Dart Hand
-                break;
-            }
+            texnum = GetTextureReplacement(texnum, NAME_Bloody);
         }
 
         if (pp->WpnShotgunType == 1)
         {
-            switch (picnum)
-            {
-            case SHOTGUN_REST:
-            case SHOTGUN_RELOAD0:
-                picnum = 2227;
-                break;
-            case SHOTGUN_RELOAD1:
-                picnum = 2226;
-                break;
-            case SHOTGUN_RELOAD2:
-                picnum = 2225;
-                break;
-            }
+            texnum = GetTextureReplacement(texnum, NAME_Shotgun2);
         }
 
         // don't draw
@@ -7578,68 +7512,42 @@ void pDisplaySprites(DSWPlayer* pp, double interpfrac)
 
         if (pal == PALETTE_DEFAULT)
         {
-            switch (picnum)
+            if (tileflags(texnum) & TFLAG_PANELUSERPAL)
             {
-            case 4080:
-            case 4081:
-            case 2220:
-            case 2221:
                 pal = plActor->user.spal;
-                break;
             }
         }
 
         // temporary hack to fix fist artifacts until a solution is found in the panel system itself
-        switch (picnum)
+        if (tileflags(texnum) & TFLAG_FISTFLIP)
         {
-            case FIST_SWING0:
-            case FIST_SWING1:
-            case FIST_SWING2:
-            case FIST2_SWING0:
-            case FIST2_SWING1:
-            case FIST2_SWING2:
-            case FIST3_SWING0:
-            case FIST3_SWING1:
-            case FIST3_SWING2:
-            case BLOODYFIST_SWING0:
-            case BLOODYFIST_SWING1:
-            case BLOODYFIST_SWING2:
-            case BLOODYFIST2_SWING0:
-            case BLOODYFIST2_SWING1:
-            case BLOODYFIST2_SWING2:
-            case BLOODYFIST3_SWING0:
-            case BLOODYFIST3_SWING1:
-            case BLOODYFIST3_SWING2:
-                if ((flags & RS_XFLIPHUD) && x > 160)
-                    x = 65;
-                else if (!(flags & RS_XFLIPHUD) && x < 160)
-                    x = 345;
-                break;
-            default:
-                break;
+            if ((flags & RS_XFLIPHUD) && x > 160)
+                x = 65;
+            else if (!(flags & RS_XFLIPHUD) && x < 160)
+                x = 345;
         }
 
-		hud_drawsprite(x, y, psp->scale / 65536., ang, tileGetTextureID(picnum), shade, pal, flags);
+		hud_drawsprite(x, y, psp->scale / 65536., ang, texnum, shade, pal, flags);
 
         // do overlays (if any)
         for (i = 0; i < SIZ(psp->over); i++)
         {
             // get pic from state
             if (psp->over[i].State)
-                picnum = psp->over[i].State->picndx;
+                texnum = GetTextureFromSprite(psp->over[i].State->Sprite, 0);
             else
             // get pic from over variable
             if (psp->over[i].pic >= 0)
-                picnum = psp->over[i].pic;
+                texnum = tileGetTextureID(psp->over[i].pic);
             else
                 continue;
 
             if ((psp->over[i].flags & psf_ShadeNone))
                 overlay_shade = 0;
 
-            if (picnum)
+            if (texnum.isValid())
             {
-                hud_drawsprite((x + psp->over[i].xoff), (y + psp->over[i].yoff), psp->scale / 65536., ang, tileGetTextureID(picnum), overlay_shade, pal, flags);
+                hud_drawsprite((x + psp->over[i].xoff), (y + psp->over[i].yoff), psp->scale / 65536., ang, texnum, overlay_shade, pal, flags);
             }
         }
     }
@@ -7686,7 +7594,7 @@ void pSetState(DPanelSprite* psp, PANEL_STATE* panel_state)
     PRODUCTION_ASSERT(psp);
     psp->tics = 0;
     psp->State = panel_state;
-    psp->picndx = panel_state ? panel_state->picndx : 0;
+    psp->Sprite = panel_state ? panel_state->Sprite : SPR_NULL;
 }
 
 void pCallAnimator(DPanelSprite* psp)
@@ -7743,7 +7651,7 @@ void pStateControl(DPanelSprite* psp)
     }
 
     // Set spritenum to the correct pic
-    psp->picndx = psp->State->picndx;
+    psp->Sprite = psp->State->Sprite;
 
     // do overlay states
     for (i = 0; i < SIZ(psp->over); i++)
@@ -7822,10 +7730,10 @@ void PreUpdatePanel(double interpfrac)
 #define SmokeBomb_RATE 10
 #define Caltrops_RATE 10
 
-#define ID_PanelEnvironSuit 2397
+
 PANEL_STATE ps_PanelEnvironSuit[] =
 {
-    {ID_PanelEnvironSuit, EnvironSuit_RATE, &AF(PanelInvTestSuicide), &ps_PanelEnvironSuit[0], 0,0,0}
+    {SPR_PanelEnvironSuit, EnvironSuit_RATE, &AF(PanelInvTestSuicide), &ps_PanelEnvironSuit[0], 0,0,0}
 };
 
 //---------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "screenjob.h"
 #include "maptypes.h"
 #include "d_net.h"
+#include "textureid.h"
 
 #ifdef GetMessage
 #undef GetMessage	// Windows strikes...
@@ -316,6 +317,7 @@ ClusterDef* FindCluster(int index);
 ClusterDef* AllocateCluster();
 VolumeRecord* AllocateVolume();
 void SetLevelNum(MapRecord* info, int num);
+FTextureID GetTextureReplacement(FTextureID base, FName reason);
 
 inline VolumeRecord* MustFindVolume(int index)
 {
