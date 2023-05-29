@@ -1,6 +1,5 @@
 #include "src/actor.cpp"
 #include "src/ai.cpp"
-#include "src/break.cpp"
 #include "src/bunny.cpp"
 #include "src/cache.cpp"
 #include "src/cheats.cpp"
@@ -58,4 +57,5 @@
 #include "src/weapon.cpp"
 #include "src/zilla.cpp"
 #include "src/zombie.cpp"
+#include "src/break.cpp" // must be last because it needs definitions from the other files
 #include "src/d_menu.cpp"

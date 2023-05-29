@@ -1676,6 +1676,7 @@ extern bool bosswasseen[3];
 extern DSWActor* BossSpriteNum[3];
 extern int ChopTics;
 extern int Bunny_Count;
+int HitBreakSprite(DSWActor* breakActor, int type);
 
 
 END_SW_NS
