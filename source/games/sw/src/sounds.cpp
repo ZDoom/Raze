@@ -741,7 +741,7 @@ int _PlayerSound(int num, PLAYER* pp)
     }
 
     auto sndid = soundEngine->FindSoundByResID(num);
-    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(sndid) || !SoundEnabled())
+    if (!soundEngine->isValidSoundId(sndid) || !SoundEnabled())
         return 0;
 
     if (pp->Flags & (PF_DEAD)) return 0; // You're dead, no talking!

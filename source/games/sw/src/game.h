@@ -308,13 +308,7 @@ enum Dir8
 
 // Auto building enumerations
 
-#define DIGI_ENUM
-enum digi
-{
 #include "digi.h"
-    DIGI_MAX
-};
-#undef DIGI_ENUM
 
 #define DAMAGE_ENUM
 enum dam
