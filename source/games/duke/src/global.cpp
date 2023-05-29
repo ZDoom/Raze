@@ -145,6 +145,7 @@ void RegisterClasses()
 	if (isRR()) // save some mess elsewhere
 	{
 		DukeMoneyClass = DukeMailClass = DukePaperClass = RedneckFeatherClass;
+		DukePlayerPawnClass = RedneckPlayerPawnClass;
 	}
 }
 
