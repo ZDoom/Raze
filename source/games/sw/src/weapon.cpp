@@ -420,8 +420,6 @@ FState s_CrossBolt[] =
         {SPR_CROSSBOLT, 'A', CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[0]},
 };
 
-#undef STAR
-#define STAR 2102
 #define STAR_RATE 6
 FState s_Star[] =
 {
@@ -501,12 +499,6 @@ FState s_VulcanBoulder[] =
 //
 //////////////////////
 
-#if 0
-#else
-#define GRENADE_R0 2110
-
-#undef GRENADE
-#define GRENADE GRENADE_R0
 #define GRENADE_RATE 8
 
 FState s_Grenade[] =
@@ -515,7 +507,6 @@ FState s_Grenade[] =
 };
 
 
-#endif
 
 //////////////////////
 //
@@ -1028,13 +1019,6 @@ FState s_MineExp[] =
 };
 
 #define EXP_RATE_W 7
-#define BOLT_EXP EXP
-#define FIREBALL_EXP EXP+1
-#define BASIC_EXP EXP+2
-#define SECTOR_EXP EXP+3
-#define MICRO_EXP EXP+5
-#define TRACER_EXP EXP+6
-#define TANK_SHELL_EXP EXP+7
 
 FState s_BasicExp[] =
 {
@@ -15964,7 +15948,7 @@ int InitGrenade(DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, GRENADE_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE_R0, &s_Grenade[0], pp->cursector, pos, pp->actor->spr.Angles.Yaw, GRENADE_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -16040,7 +16024,7 @@ int InitSpriteGrenade(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0], actor->sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE_R0, &s_Grenade[0], actor->sector(),
                     actor->spr.pos.plusZ(-40), actor->spr.Angles.Yaw, GRENADE_VELOCITY);
 
     
