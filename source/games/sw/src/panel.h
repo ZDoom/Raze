@@ -41,20 +41,6 @@ enum
 	PRI_BACK_MAX    = 0
 };
 
-#define MAKE_CONPIC_ENUM
-enum conpic_id
-{
-#include "conpic.h"
-};
-#undef MAKE_CONPIC_ENUM
-
-enum PanelSpriteIDs
-{
-	ID_BORDER_TOP = 1, ID_BORDER_BOTTOM, ID_BORDER_LEFT, ID_BORDER_RIGHT, ID_BORDER_SHADE,
-	ID_PANEL_BORDER_LEFT, ID_PANEL_BORDER_RIGHT,
-	ID_TEXT, ID_TEXT2, ID_TEXT3, ID_TEXT4
-};
-
 struct PANEL_STATE
 {
 	int Sprite;                       // for pip stuff in conpic.h
