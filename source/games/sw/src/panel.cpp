@@ -1883,13 +1883,13 @@ void pUziOverlays(DPanelSprite* psp, short mode)
     switch (mode)
     {
     case 0: // At rest
-        psp->over[0].pic = UZI_COPEN;
+        psp->over[0].pic = TexMan.CheckForTexture("UZI_COPEN", ETextureType::Any);
         break;
     case 1: // Firing
-        psp->over[0].pic = UZI_CLIT;
+        psp->over[0].pic = TexMan.CheckForTexture("UZI_CLIT", ETextureType::Any);
         break;
     case 2: // Reloading
-        psp->over[0].pic = UZI_CRELOAD;
+        psp->over[0].pic = TexMan.CheckForTexture("UZI_CRELOAD", ETextureType::Any);
         psp->over[0].xoff = UZI_CHAMBERRELOAD_XOFF;
         psp->over[0].yoff = UZI_CHAMBERRELOAD_YOFF;
         break;
@@ -3146,11 +3146,11 @@ bool pShotgunOverlays(DPanelSprite* psp)
     switch (psp->PlayerP->WpnShotgunType)
     {
     case 0:
-        psp->over[SHOTGUN_AUTO_NUM].pic = -1;
+        psp->over[SHOTGUN_AUTO_NUM].pic = FNullTextureID();
         psp->over[SHOTGUN_AUTO_NUM].flags |= (psf_ShadeNone);
         return false;
     case 1:
-        psp->over[SHOTGUN_AUTO_NUM].pic = SHOTGUN_AUTO;
+        psp->over[SHOTGUN_AUTO_NUM].pic = TexMan.CheckForTexture("SHOTGUN_AUTO", ETextureType::Any);
         psp->over[SHOTGUN_AUTO_NUM].flags |= (psf_ShadeNone);
         return false;
     }
@@ -3953,13 +3953,13 @@ void pHotHeadOverlays(DPanelSprite* psp, short mode)
     switch (mode)
     {
     case 0: // Great balls o' fire
-        psp->over[0].pic = HEAD_MODE1;
+        psp->over[0].pic = TexMan.CheckForTexture("HEAD_MODE1", ETextureType::Any);
         break;
     case 1: // Ring of fire
-        psp->over[0].pic = HEAD_MODE2;
+        psp->over[0].pic = TexMan.CheckForTexture("HEAD_MODE2", ETextureType::Any);
         break;
     case 2: // I love the smell of napalm in the morning
-        psp->over[0].pic = HEAD_MODE3;
+        psp->over[0].pic = TexMan.CheckForTexture("HEAD_MODE3", ETextureType::Any);
         break;
     }
 }
@@ -4668,36 +4668,38 @@ bool pMicroOverlays(DPanelSprite* psp)
     switch (psp->PlayerP->WpnRocketType)
     {
     case 0:
-        psp->over[MICRO_SIGHT_NUM].pic = MICRO_SIGHT;
-        psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
+        psp->over[MICRO_SIGHT_NUM].pic = TexMan.CheckForTexture("MICRO_SIGHT", ETextureType::Any);
+        psp->over[MICRO_SHOT_NUM].pic = TexMan.CheckForTexture("MICRO_SHOT_1", ETextureType::Any);
         psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
-        psp->over[MICRO_HEAT_NUM].pic = -1;
+        psp->over[MICRO_HEAT_NUM].pic = FNullTextureID();
         return false;
     case 1:
         if (psp->PlayerP->WpnRocketHeat)
         {
-            psp->over[MICRO_SIGHT_NUM].pic = MICRO_SIGHT;
-            psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
+            psp->over[MICRO_SIGHT_NUM].pic = TexMan.CheckForTexture("MICRO_SIGHT", ETextureType::Any);
+            psp->over[MICRO_SHOT_NUM].pic = TexMan.CheckForTexture("MICRO_SHOT_1", ETextureType::Any);
             psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
 
-            ASSERT(psp->PlayerP->WpnRocketHeat < 6);
-
-            psp->over[MICRO_HEAT_NUM].pic = MICRO_HEAT + (5 - psp->PlayerP->WpnRocketHeat);
+            if (psp->PlayerP->WpnRocketHeat < 6)
+            {
+                static const char* heats[] = { "MICRO_HEAT0", "MICRO_HEAT1", "MICRO_HEAT2", "MICRO_HEAT3", "MICRO_HEAT4", "MICRO_HEAT5" };
+                psp->over[MICRO_HEAT_NUM].pic = TexMan.CheckForTexture(heats[5 - psp->PlayerP->WpnRocketHeat], ETextureType::Any);
+            }
         }
         else
         {
-            psp->over[MICRO_SIGHT_NUM].pic = MICRO_SIGHT;
-            psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
+            psp->over[MICRO_SIGHT_NUM].pic = TexMan.CheckForTexture("MICRO_SIGHT", ETextureType::Any);
+            psp->over[MICRO_SHOT_NUM].pic = TexMan.CheckForTexture("MICRO_SHOT_1", ETextureType::Any);
             psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
-            psp->over[MICRO_HEAT_NUM].pic = -1;
+            psp->over[MICRO_HEAT_NUM].pic = FNullTextureID();
         }
 
         return false;
     case 2:
-        psp->over[MICRO_SIGHT_NUM].pic = -1;
-        psp->over[MICRO_HEAT_NUM].pic = -1;
+        psp->over[MICRO_SIGHT_NUM].pic = FNullTextureID();
+         psp->over[MICRO_HEAT_NUM].pic = FNullTextureID();
 
-        psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_20;
+        psp->over[MICRO_SHOT_NUM].pic = TexMan.CheckForTexture("MICRO_SHOT_20", ETextureType::Any);
         psp->over[MICRO_SHOT_NUM].flags |= (psf_ShadeNone);
         psp->over[MICRO_HEAT_NUM].flags |= (psf_ShadeNone);
         return true;
@@ -7254,7 +7256,7 @@ DPanelSprite* pSpawnSprite(DSWPlayer* pp, PANEL_STATE* state, uint8_t priority, 
     for (i = 0; i < SIZ(psp->over); i++)
     {
         psp->over[i].State = nullptr;
-        psp->over[i].pic = -1;
+        psp->over[i].pic = FNullTextureID();
         psp->over[i].xoff = -1;
         psp->over[i].yoff = -1;
     }
@@ -7532,13 +7534,14 @@ void pDisplaySprites(DSWPlayer* pp, double interpfrac)
         // do overlays (if any)
         for (i = 0; i < SIZ(psp->over); i++)
         {
+            FTextureID tex;
             // get pic from state
             if (psp->over[i].State)
                 texnum = GetTextureFromSprite(psp->over[i].State->Sprite, 0);
             else
             // get pic from over variable
-            if (psp->over[i].pic >= 0)
-                texnum = tileGetTextureID(psp->over[i].pic);
+            if (psp->over[i].pic.Exists())
+                texnum = psp->over[i].pic;
             else
                 continue;
 
