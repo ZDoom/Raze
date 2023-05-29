@@ -58,7 +58,6 @@ struct FSpriteDef
 	uint8_t numframes;
 	uint16_t spriteframes;
 
-	FTextureID GetSpriteFrame(int frame, int rot, DAngle ang, bool* mirror, bool flipagain = false);
 };
 
 extern TArray<FSpriteFrame> SpriteFrames;

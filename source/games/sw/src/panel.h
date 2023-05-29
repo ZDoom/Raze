@@ -99,8 +99,8 @@ struct PANEL_SPRITE_OVERLAY
 {
 	PANEL_STATE* State;
 	int flags;
+	FTextureID pic;
 	short tics;
-	short pic;
 	short xoff; // from panel sprite center x
 	short yoff; // from panel sprite center y
 };
