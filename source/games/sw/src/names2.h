@@ -194,6 +194,7 @@ enum ETimers
     FLY_INVENTORY_TIME = 30,
     CLOAK_INVENTORY_TIME = 30,
     ENVIRON_SUIT_INVENTORY_TIME = 30,
+    FIRE_FLY_RATE = 50,
 
     DAMAGE_TIME = (1 * TICS_PER_SEC),
 };
@@ -235,10 +236,18 @@ enum EPicnums
     Red_COIN = 2440,
     Yellow_COIN = 2450,
     Green_COIN = 2460,
-
-
+    LAVA_BOULDER = 2196,
     EXP = 3100, // Use new digitized explosion for big stuff
+	BOLT_EXP = EXP,
+	FIREBALL_EXP = EXP+1,
+	BASIC_EXP = EXP+2,
+	SECTOR_EXP = EXP+3,
+	MICRO_EXP = EXP+5,
+	TRACER_EXP = EXP+6,
+	TANK_SHELL_EXP = EXP+7,
+	
     RADIATION_CLOUD = 3258,
+
     MUSHROOM_CLOUD = 3280,
     CHEMBOMB_R0 = 3038,
     CALTROPSR = CALTROPS - 1,
@@ -252,12 +261,34 @@ enum EPicnums
     SKULL_SERP = (SKULL_R0 + 2),
     BETTY_R0 = 817,
     PUFF = 1748,
+    CROSSBOLT = 2230,
+    ELECTRO = 2025,
+    UZI_SMOKE = 2146,
+    UZI_SPARK = 2140,
+    GRENADE_R0 = 2110,
+    BOLT_THINMAN_R0 = 2018,
+    BOLT_THINMAN_R1 = 2019,
+    BOLT_THINMAN_R2 = 2020,
+    BOLT_THINMAN_R3 = 2021,
+    BOLT_THINMAN_R4 = 2022,
+    BREAK_BARREL = 453,
+    BREAK_PEDISTAL = 463,
+    BREAK_BOTTLE1 = 468,
+    BREAK_BOTTLE2 = 475,
+    FIRE_FLY0 = 630,
+    SPLASH = 772,
+    FIREBALL = 2035,
+    FIREBALL_FLAMES = 3212,
+    BUBBLE = 716,
+    SPEAR_R0 = 2030,
+    EMP = 2058,
+    FLOORBLOOD1 = 389,
+
+    // above are rotated/multi-frame but used as spawn ids
 
 
 
     
-
-    SWITCH_OFF = 561,
 
     TRACK_SPRITE = 1900, //start of track sprites
     ST1 = 2307,
@@ -271,102 +302,14 @@ enum EPicnums
     ST_QUICK_DUCK = 2315,
     ST_QUICK_DEFEND = 2316,
 
-//////////////////////
-//
-// WEAPON RELATED
-//
-//////////////////////
-
-    CROSSBOLT = 2230,
-
-    STAR = 2039,
-    ELECTRO = 2025,
-
-    UZI_SMOKE = 2146,
-    UZI_SPARK = 2140,
-    SPIKES = 2092,
-    GRENADE = 2019,
-    BLANK = 2200,
 
 
-    BODY = 1002,
-    BODY_BURN = 1003,
-    BODY_SIZZLE = 1011,
-
-
-    DART_R0 = 2130,
-    DART_R1 = 2131,
-    DART_R2 = 2132,
-    DART_R3 = 2133,
-    DART_R4 = 2134,
-    DART_R5 = 2135,
-    DART_R6 = 2136,
-    DART_R7 = 2137,
-
-    BOLT_THINMAN_R0 = 2018,
-    BOLT_THINMAN_R1 = 2019,
-    BOLT_THINMAN_R2 = 2020,
-    BOLT_THINMAN_R3 = 2021,
-    BOLT_THINMAN_R4 = 2022,
-
-    SPEAR_R0 = 2030,
-    EMP = 2058,
-
-    EXP2 = 2160, // My old explosion is still used for goro head
-    FIREBALL = 2035,
-    FIREBALL_FLAMES = 3212,
-    SPLASH = 772,
-    BUBBLE = 716,
-
-    //////////////////////
-    //
-    // MISC
-    //
-    //////////////////////
-
-     WATER_BEGIN = 320,
-     WATER_END = 320+8,
-
-     WATER_BOIL = 2305,
-
-     FIRE_FLY0 = 630,
-     FIRE_FLY1 = 631,
-     FIRE_FLY2 = 632,
-     FIRE_FLY3 = 633,
-     FIRE_FLY4 = 634,
-
-     FIRE_FLY_RATE = 50,
-
-     BREAK_BARREL = 453,
-     BREAK_PEDISTAL = 463,
-     BREAK_BOTTLE1 = 468,
-     BREAK_BOTTLE2 = 475,
-
-     LAVA_BOULDER = 2196,
 
  };
 
 
-//////////////////////
-//
-// FIREBALL
-//
-//////////////////////
-
-#define FIREBALL_FRAMES 4
-#define FIREBALL_R0 3192
-#define FIREBALL_R1 FIREBALL_R0 + (FIREBALL_FRAMES * 1)
-#define FIREBALL_R2 FIREBALL_R0 + (FIREBALL_FRAMES * 2)
-#define FIREBALL_R3 FIREBALL_R0 + (FIREBALL_FRAMES * 3)
-#define FIREBALL_R4 FIREBALL_R0 + (FIREBALL_FRAMES * 4)
-
-
 ////////////////////////////////////
 
-#define SCROLL 516
-#define SCROLL_FIRE 524
-
-#define FLOORBLOOD1 389
 
 END_SW_NS
 
