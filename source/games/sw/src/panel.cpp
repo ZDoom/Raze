@@ -7419,7 +7419,7 @@ void pDisplaySprites(PLAYER* pp, double interpfrac)
             continue;
         }
 
-        // if the state is null get the picnum for other than picndx
+        // if the state is null get the texture for other than picndx
         if (psp->picndx == -1 || !psp->State)
             picnum = psp->picnum;
         else
@@ -7749,7 +7749,7 @@ void pStateControl(PANEL_SPRITE* psp)
         pNextState(psp);
     }
 
-    // Set picnum to the correct pic
+    // Set spritenum to the correct pic
     psp->picndx = psp->State->picndx;
 
     // do overlay states

@@ -5967,7 +5967,7 @@ int  StateControl(DSWActor* actor)
     if (actor->hasU())
     {
         ASSERT(actor->user.__legacyState.State);
-        // Set picnum to the correct pic
+        // Set the correct pic
         if ((actor->user.__legacyState.State->Tics & SF_WALL_STATE))
         {
             ASSERT(actor->user.WallP);

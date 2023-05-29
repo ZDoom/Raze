@@ -309,10 +309,6 @@ enum EPicnums
     //
     //////////////////////
 
-     BLUE_KEY_STATUE = BLUE_KEY+2,
-     RED_KEY_STATUE = RED_KEY+2,
-     GREEN_KEY_STATUE = GREEN_KEY+2,
-     YELLOW_KEY_STATUE = YELLOW_KEY+2,
      SKEL_LOCKED = 1846,
      SKEL_UNLOCKED = 1847,
      RAMCARD_LOCKED = 1850,

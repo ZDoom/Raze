@@ -1713,7 +1713,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     act_under->user.__legacyState.State = act_over->user.__legacyState.State;
     act_under->user.__legacyState.Rot = act_over->user.__legacyState.Rot;
     act_under->user.__legacyState.StateStart = act_over->user.__legacyState.StateStart;
-    act_under->spr.picnum = act_over->spr.picnum;
+    act_under->spr.setspritetexture(act_over->spr.spritetexture());
 }
 
 //---------------------------------------------------------------------------
@@ -6513,7 +6513,7 @@ void PlayerStateControl(DSWActor* actor)
         }
     }
 
-    // Set picnum to the correct pic
+    // Set the correct pic
     if (actor->user.__legacyState.RotNum > 1)
         actor->spr.picnum = actor->user.__legacyState.Rot[0]->Pic;
     else
