@@ -5,7 +5,6 @@
 extern F2DDrawer twodpsp;
 
 void DrawRateStuff();
-void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha = 1);
 void hud_drawsprite(double sx, double sy, double sz, double a, FTextureID texid, int dashade, int dapalnum, int dastat, double alpha = 1);
 
 // orientation bits for hud_drawsprite.

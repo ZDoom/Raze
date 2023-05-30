@@ -80,12 +80,6 @@ void hud_drawsprite(double sx, double sy, double sz, double a, FTextureID texid,
 		TAG_DONE);
 }
 
-void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
-{
-	hud_drawsprite(sx, sy, sz / 65536., a, tileGetTextureID(picnum), dashade, dapalnum, dastat, alpha);
-}
-
-
 //==========================================================================
 //
 // DFrameBuffer :: DrawRateStuff
