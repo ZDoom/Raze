@@ -59,6 +59,79 @@ class RedneckSawBlade : DukeProjectile
 		tspr.SetSpritePic(self, frame);
 		return true;
 	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		let sect = actor.sector;
+		double vel, zvel;
+		int scount;
+
+		if (actor.extra >= 0) actor.shade = -96;
+
+		scount = 1;
+		vel = 40.25;
+
+		DukeActor aimed = nullptr;
+
+		if (p != null)
+		{
+			aimed = actor.aim(self);
+			if (aimed)
+			{
+				double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5) + 8;
+				double dist = (p.actor.pos.XY - aimed.pos.XY).Length();
+				zvel = ((aimed.pos.Z - pos.Z - dal) * vel) / dist;
+				if (!(aimed.bSPECIALAUTOAIM))
+					ang = (aimed.pos.XY - pos.XY).Angle();
+			}
+			else
+				[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 40.5);
+		}
+		else
+		{
+			let j = actor.findplayer();
+			ang = (j.actor.opos.XY - pos.XY).Angle();
+
+			double dist = (j.actor.pos.XY - actor.pos.XY).Length();
+
+			zvel = ((j.actor.opos.Z + j.actor.viewzoffset - pos.Z) * vel) / dist;
+
+			if (actor.bBADGUY && (actor.hitag & face_player_smart))
+				ang = actor.Angle + frandom(-22.5 / 8, 22.5 / 8);
+			aimed = nullptr;
+		}
+
+
+		let offset = (ang + 61.171875).ToVector() * (1024. / 448.);
+		let spawned = dlevel.SpawnActor(sect, pos.plusZ(-1) + offset, self.GetClass(), 0, (0.21875, 0.21875), ang, vel, zvel, actor, STAT_PROJECTILE);
+
+		if (!spawned) return true;
+
+		if (p != null)
+		{
+			let snd = self.spawnsound;
+			if (snd > 0) spawned.PlayActorSound(snd);
+		}
+
+		spawned.extra += random(0, 7);
+		spawned.temp_actor = aimed;
+
+		if (p == null)
+		{
+			spawned.scale = (0.46875, 0.46875);
+			spawned.extra >>= 2;
+		}
+
+		spawned.cstat = CSTAT_SPRITE_YCENTER;
+		spawned.clipdist = 1;
+		return true;
+	}
+
 }
 
 
