@@ -349,7 +349,7 @@ void displayweapon_d(int snum, double interpfrac)
 				hud_drawpal(142 + offsets.X, 234 + offsets.Y, "TRIPBOMB", shade, o, pal, angle);
 
 			int i = (*kb >> 2);
-			if (i < 4)
+			if (i < 3)
 			{
 				hud_drawpal(130 + offsets.X, 249 + offsets.Y, frames[i], shade, o, pal, angle);
 				hud_drawpal(152 + offsets.X, 249 + offsets.Y, frames[i], shade, o | 4, pal, angle);
