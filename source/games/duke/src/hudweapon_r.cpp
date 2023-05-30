@@ -472,8 +472,16 @@ void displayweapon_r(int snum, double interpfrac)
 				}
 				else
 				{
-					x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + offsets.X;
-					y = tm - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
+					if (kb_frames[*kb] > 0)
+					{
+						x = ((kb_ox[kb_frames[(*kb) - 11]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames[(*kb) - 11]]) + offsets.Y;
+					}
+					else
+					{
+						x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
+					}
 					switch (*kb)
 					{
 					case 23:
@@ -511,8 +519,16 @@ void displayweapon_r(int snum, double interpfrac)
 				}
 				else if (p->shotgun_state[0])
 				{
-					x = ((kb_ox[kb_frames2[*kb]] >> 1) - 12) + offsets.X;
-					y = tm - (244 - kb_oy[kb_frames2[*kb]]) + offsets.Y;
+					if (kb_frames2[*kb] > 0)
+					{
+						x = ((kb_ox[kb_frames2[(*kb) - 11]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames2[(*kb) - 11]]) + offsets.Y;
+					}
+					else
+					{
+						x = ((kb_ox[kb_frames2[*kb]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames2[*kb]]) + offsets.Y;
+					}
 					switch (*kb)
 					{
 					case 23:
