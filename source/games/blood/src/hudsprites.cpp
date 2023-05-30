@@ -62,14 +62,14 @@ static const struct {
 //
 //---------------------------------------------------------------------------
 
-static void drawElement(int x, int y, int tile, double scale = 1, int flipx = 0, int flipy = 0, int pin = 0, int basepal = 0, double alpha = 1)
+static void drawElement(int x, int y, FTextureID tile, double scale = 1, int flipx = 0, int flipy = 0, int pin = 0, int basepal = 0, double alpha = 1)
 {
 	int flags = RS_TOPLEFT;
 	if (flipx) flags |= RS_XFLIPHUD;
 	if (flipy) flags |= RS_YFLIPHUD;
 	if (pin == -1) flags |= RS_ALIGN_L;
 	else if (pin == 1) flags |= RS_ALIGN_R;
-	hud_drawsprite(x, y, FloatToFixed(scale), 0, tile, 0, basepal, flags, alpha);
+	hud_drawsprite(x, y, scale, 0, tile, 0, basepal, flags, alpha);
 }
 
 
@@ -152,20 +152,20 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 	}
 	if (packItemActive(pPlayer, 1))
 	{
-		drawElement(0, 0, 2344, 1, 0, 0, -1);
-		drawElement(320, 0, 2344, 1, 1, 0, 1);
-		drawElement(0, 200, 2344, 1, 0, 1, -1);
-		drawElement(320, 200, 2344, 1, 1, 1, 1);
+		drawElement(0, 0, aTexIds[kTexDIVEHUD], 1, 0, 0, -1);
+		drawElement(320, 0, aTexIds[kTexDIVEHUD], 1, 1, 0, 1);
+		drawElement(0, 200, aTexIds[kTexDIVEHUD], 1, 0, 1, -1);
+		drawElement(320, 200, aTexIds[kTexDIVEHUD], 1, 1, 1, 1);
 		if (gDetail >= 4)
 		{
-			drawElement(15, 3, 2346, 1, 0, 0, -1, 0, 0.2);
-			drawElement(212, 77, 2347, 1, 0, 0, 1, 0, 0.2);
+			drawElement(15, 3, aTexIds[kTexDIVEDETAIL1], 1, 0, 0, -1, 0, 0.2);
+			drawElement(212, 77, aTexIds[kTexDIVEDETAIL2], 1, 0, 0, 1, 0, 0.2);
 		}
 	}
 	if (powerupCheck(pPlayer, kPwUpAsbestArmor) > 0)
 	{
-		drawElement(0, 237, 2358, 1, 0, 1, -1);
-		drawElement(320, 237, 2358, 1, 1, 1, 1);
+		drawElement(0, 237, aTexIds[kTexASBESTHUD], 1, 0, 1, -1);
+		drawElement(320, 237, aTexIds[kTexASBESTHUD], 1, 1, 1, 1);
 	}
 
 	int zn = int(((pPlayer->zWeapon - pPlayer->zView - 12) * 2.) + 220);
