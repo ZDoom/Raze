@@ -1,0 +1,505 @@
+4550 = "BUNNY_RUN", 5, 5, 1 // # of animation frames, # of rotations per frame (either 1, 5, 8), 1: order is frames first, rotation second. Generated name will be "BUNNY_RUN@A1" and up (A = frame, 1 = rotation) - The first frame will also get the base name.
+4575 = "BUNNY_SWIPE", 5, 5, 1
+4580 = "BUNNY_DIE", 3
+4584 = "BUNNY_DEAD"
+
+4277 = "COOLG_RUN", 4, 5, 1
+1451 = "COOLG_CLUB", 2, 5, 1
+4297 = "COOLG_FIRE", 3, 3, 1, "COOLG_RUN" // this borrows the missing rotations from the COOLG_RUN sequence
+4306 = "COOLG_PAIN"
+
+4307 = "COOLG_DIE", 6
+4312 = "COOLG_DEAD"
+4268 = "COOLG_BIRTH", 8
+
+1420 = "COOLIE_CHARGE", 4, 5, 1
+1400 = "COOLIE_RUN", 4, 5, 1
+1420 = "COOLIE_PAIN"
+1440 = "COOLIE_DEAD_NOHEAD"
+4267 = "COOLIE_DEAD_HEAD"
+4260 = "COOLIE_DIE"
+4268 = "COOLIE_DEAD"
+
+3780 = "EEL_RUN", 3, 5, 1
+3760 = "EEL_FIRE", 3, 4, 1, "EEL_RUN"
+3795 = "EEL_DIE"
+3795 = "EEL_DEAD"
+
+5162 = "GIRLNINJA_RUN", 4, 5, 1
+5162 = "GIRLNINJA_STAND", 1, 5, 4
+5211 = "GIRLNINJA_CRAWL", 1, 5, 1
+5246 = "GIRLNINJA_THROW", 3, 3, 1, "@4" = "@3", "@5" = "@3" // rotation 3 stands in for the missing ones.
+5192 = "GIRLNINJA_PAIN"
+5226 = "GIRLNINJA_JUMP", 4, 5, 1
+5211 = "GIRLNINJA_KNEEL", 1, 5, 1
+5182 = "GIRLNINJA_FIRE", 2, 5, 1
+5206 = "GIRLNINJA_STAB", 1, 5, 1
+5197 = "GIRLNINJA_DIE", 9
+5205 = "GIRLNINJA_DEAD"
+4227 = "GIRLNINJA_SLICED", 10
+4236 = "GIRLNINJA_DEAD_SLICED"
+
+1469 = "GORO_RUN", 4, 5, 1
+1489 = "GORO_CHOP", 3, 5, 1
+1489 = "GORO_STAND", 1, 5, 3
+1513 = "GORO_SPELL", 2, 3, 1, "GORO_RUN"
+1504 = "GORO_DIE", 9
+1512 = "GORO_DEAD"
+
+800 = "HORNET_RUN", 2, 5, 1
+810 = "HORNET_DIE"
+811 = "HORNET_DEAD"
+
+// hmmmm...
+2355 = "LAVA_RUN", 1, 5, 1
+2355 = "LAVA_THROW"
+2355 = "LAVA_FLAME"
+2355 = "LAVA_DIE"
+2355 = "LAVA_DEAD"
+
+
+
+
+1562 = "GOREDrip", 4
+3100 = "EXP", 21
+3258 = "RADIATION_CLOUD", 20
+3280 = "MUSHROOM_CLOUD", 20
+3038 = "CHEMBOMB", 1, 5, 1
+2217 = "CALTROPSR", 3
+2520 = "FLAG", 3
+
+1397 = "PHOSPHORUS", 2
+1685 = "CHUNK1", 6
+1566 = "DRIP", 3
+
+
+2540 = TRASHCAN, 7
+618 = PACHINKOLIGHT, 6
+4768 = PACHINKO1, 23
+4792 = PACHINKO2, 23
+4816 = PACHINKO3, 23
+4840 = PACHINKO4, 23
+
+5023 = TOILETGIRL, 2
+5025 = TOILETGIRL_FIRE, 2
+5032 = WASHGIRL, 2
+5034 = WASHGIRL_FIRE, 2
+4594 = CARGIRL, 2
+4596 = CARGIRL_FIRE, 2
+4590 = MECHANICGIRL, 2
+4592 = MECHANICGIRL_DRILL, 2
+
+4600 = SAILORGIRL, 2
+4602 = SAILORGIRL_FIRE
+
+4604 = PRUNEGIRL, 2
+
+
+4096 = NINJA_RUN, 4, 5, 1
+4096 = NINJA_STAND, 1, 5, 4
+4162 = NINJA_CRAWL,4, 5, 1
+4122 = NINJA_SWIM, 4, 5, 1
+4211 = NINJA_HARI_KARI, 8
+4182 = NINJA_CLIMB, 4, 5, 1
+4202 = NINJA_THROW, 3, 3, 1, "@4" = "@3", "@5" = "@3"
+4219 = NINJA_PAIN, 2
+4142 = NINJA_JUMP, 4, 5, 1
+4116 = NINJA_FLY, 2, 5, 1
+4116 = NINJA_FIRE, 2, 5, 1
+4219 = NINJA_DIE, 8
+4227 = NINJA_SLICED, 10
+4211 = NINJA_SLICED_HACK, 8
+4237 = NINJA_GRAB_THROAT, 3
+
+
+1094 = PLAYER_NINJA_RUN, 4, 5, 1
+1069 = PLAYER_NINJA_SHOOT, 1, 5, 1
+1094 = PLAYER_NINJA_STAND, 1, 5, 4
+1074 = PLAYER_NINJA_JUMP, 4, 5, 1
+1024 = PLAYER_NINJA_CLIMB, 4, 5, 1
+1044 = PLAYER_NINJA_CRAWL, 4, 5, 1
+1114 = PLAYER_NINJA_SWIM, 4, 5, 1
+1161 = PLAYER_NINJA_SWORD, 3, 5, 1
+1176 = PLAYER_NINJA_PUNCH, 2, 5, 1
+1186 = PLAYER_NINJA_KICK, 2, 5, 1
+1152 = PLAYER_NINJA_DIE, 9
+1142 = NINJA_Head, 1, 5, 1
+1147 = NINJA_HeadHurl, 1, 5, 1
+1134 = NINJA_HeadFly, 8
+1200 = PLAYER_NINJA_FLY
+
+1580 = RIPPER_RUN, 4, 5, 1
+1620 = RIPPER_JUMP, 2, 5, 1
+1621 = RIPPER_FALL, 1, 5, 2
+1620 = RIPPER_STAND, 1, 5, 2
+1600 = RIPPER_SWIPE, 4, 5, 1
+1635 = RIPPER_HEART
+1640 = RIPPER_DIE, 4
+1643 = RIPPER_DEAD
+
+// these are unordered so we have to define them manually.
+1645 = "RIPPER_HANG@A1"
+1645 = "RIPPER_HANG@A2"
+1639 = "RIPPER_HANG@A3"
+1637 = "RIPPER_HANG@A4"
+1635 = "RIPPER_HANG@A5"
+
+4320 = RIPPER2_RUN, 4, 5, 1
+4340 = RIPPER2_RUNFAST, 4, 5, 1
+4374 = RIPPER2_JUMP, 4, 5, 1
+4376 = RIPPER2_FALL, 1, 5, 4
+4377 = RIPPER2_STAND, 1, 5, 4
+4369 = RIPPER2_HANG, 1, 5, 1
+4394 = RIPPER2_SWIPE, 4, 5, 1
+4360 = RIPPER2_MEKONG, 3, 5, 1
+4422 = RIPPER2_HEART, 2, 5, 1
+4414 = RIPPER2_DIE, 8
+4421 = RIPPER2_DEAD
+
+1300 = SERP_RUN, 3, 5, 1
+972 = SERP_SLASH, 5, 5, 1
+997 = SERP_SPELL, 4, 5, 1
+960 = SERP_DIE, 10
+969 = SERP_DEAD
+
+1367 = SKEL_RUN, 6, 5, 1
+1326 = SKEL_SLASH, 3, 5, 1
+1341 = SKEL_SPELL, 4, 5, 1
+1327 = SKEL_PAIN, 1, 5, 3
+1361 = SKEL_TELEPORT, 6
+1320 = SKEL_DIE, 6
+
+820 = SKULL, 1, 5, 1
+825 = SKULL_EXPLODE, 14
+817 = BETTY
+
+740 = RAT_DEBRIS
+423 = CRAB_DEBRIS
+426 = STARFISH_DEBRIS
+
+2440 = Red_COIN, 8
+2450 = Yellow_COIN, 8
+2460 = Green_COIN, 8
+
+630 = FIRE_FLY0
+
+3035 = ICON_FIREBALL_LG_AMMO, 3
+1824 = ICON_HEART, 2
+1820 = ICON_HEART_LG_AMMO, 2
+1880 = ICON_SPELL, 16
+1822 = ICON_ELECTRO, 2
+1782 = ICON_FLY, 8
+2520 = ICON_FLAG, 3
+
+1210 = SUMO_RUN, 4, 5, 1
+1265 = SUMO_PAIN
+1230 = SUMO_STOMP, 3, 5, 1
+1245 = SUMO_CLAP, 4, 5, 1
+1280 = SUMO_FART, 4
+1270 = SUMO_DIE, 8
+1277 = SUMO_DEAD
+
+2323 = NOTRESTORED
+1 = SUICIDES
+1160 = DEADLOWANG
+
+447 = BREAK_LIGHT_ANIM, 6
+453 = BREAK_BARREL, 10  
+463 = BREAK_PEDISTAL, 5  
+468 = BREAK_BOTTLE1, 7  
+475 = BREAK_BOTTLE2, 7  
+1748 = PUFF
+3201 = LASER_PUFF
+3969 = RAIL_PUFF, 16, 3, 1, "@4" = "@2", "@5" = "@1"
+
+3201 = TRACER, 6
+2058 = EMP, 3
+2146 = UZI_SMOKE, 4
+717 = UZI_BULLET
+2140 = UZI_SPARK, 6
+716 = BUBBLE
+772 = SPLASH, 5
+
+2230 = "CROSSBOLT@A1"
+2232 = "CROSSBOLT@A2"
+2233 = "CROSSBOLT@A3"
+2234 = "CROSSBOLT@A4"
+2231 = "CROSSBOLT@A5"
+
+2102 = STAR, 4
+2066 = STAR_DOWN, 4
+2196 = LAVA_BOULDER, 10
+
+2110 = GRENADE, 1, 5, 1
+2223 = MINE, 2
+
+// This one's messy...
+2098 = "METEOR@A1"
+2099 = "METEOR@B1"
+2100 = "METEOR@C1"
+2101 = "METEOR@D1"
+
+2090 = "METEOR@A2"
+2091 = "METEOR@B2"
+2192 = "METEOR@C2"
+2193 = "METEOR@D2"
+
+2094 = "METEOR@A3"
+2095 = "METEOR@B3"
+2196 = "METEOR@C3"
+2197 = "METEOR@D3"
+
+2090 = "METEOR@A4"
+2091 = "METEOR@B4"
+2192 = "METEOR@C4"
+2193 = "METEOR@D4"
+
+2098 = "METEOR@A5"
+2099 = "METEOR@B5"
+2100 = "METEOR@C5"
+2101 = "METEOR@D5"
+
+2115 = METEOR_EXP, 6
+2031 = SERP_METEOR, 4 // correct?
+
+2030 = SPEAR, 1, 5, 1
+2206 = ROCKET, 1, 5, 1
+4552 = BUNNYROCKET, 1, 5, 1
+2206 = MICRO, 1, 5, 1
+2018 = BOLT_THINMAN, 1, 5, 1
+2102 = BOLT_FATMAN, 4
+2102 = BOLT_SHRAPNEL, 4
+2410 = COOLG_FIRE_DONE, 5
+1720 = COOLG_DRIP
+1710 = GORE_FLOOR_SPLASH, 6
+2410 = GORE_SPLASH, 6
+1562 = PLASMA, 3
+1562 = PLASMA_Drip, 8
+3240 = TELEPORT_EFFECT, 18
+2025 = ELECTRO, 4
+3121 = GRENADE_EXP, 22
+3196 = FIREBALL_DISS, 5
+3072 = NAP_EXP, 22
+3212 = FIREBALL_FLAMES, 14
+2035 = FIREBALL, 4
+2106 = BLOOD_WORM, 4
+
+1719 = Vomit1
+1721 = Vomit2
+1711 = VomitSplash
+1670 = GORE_Head, 12
+1689 = GORE_Leg, 3
+1692 = GORE_Eye, 4
+1696 = GORE_Torso, 8
+1550 = GORE_Arm, 12
+903 = GORE_Lung, 12
+918 = GORE_Liver, 12
+933 = GORE_SkullCap, 12
+2430 = GORE_ChunkS, 4
+1562 = GORE_Drip, 4
+847 = GORE_Flame, 8
+2152 = UZI_SHELL, 6
+2180 = SHOT_SHELL, 8
+839 = GORE_FlameChunkA, 4
+843 = GORE_FlameChunkB, 4
+2530 = COIN_SHRAP, 4
+5096 = MARBEL
+3864 = GLASS_SHRAP_A, 8
+3872 = GLASS_SHRAP_B, 8
+3880 = GLASS_SHRAP_C, 8
+3924 = WOOD_SHRAP_A, 8
+3932 = WOOD_SHRAP_B, 8
+3941 = WOOD_SHRAP_C, 8
+3840 = STONE_SHRAP_A, 8
+3848 = STONE_SHRAP_B, 8
+3856 = STONE_SHRAP_C, 8
+3888 = METAL_SHRAP_A, 8
+3896 = METAL_SHRAP_B, 8
+3904 = METAL_SHRAP_C, 8
+3924 = PAPER_SHRAP_A, 4
+3932 = PAPER_SHRAP_B, 4
+3941 = PAPER_SHRAP_C, 4
+
+389 = FLOORBLOOD1
+2490 = FOOTPRINT1
+2491 = FOOTPRINT2
+2492 = FOOTPRINT3
+2500 = WALLBLOOD1
+2501 = WALLBLOOD2
+2502 = WALLBLOOD3
+2503 = WALLBLOOD4
+
+
+5426 = ZILLA_RUN, 4, 5, 1
+5524 = ZILLA_PAIN, 2, 5, 1
+5446 = ZILLA_ROCKET, 4, 5, 1
+5466 = ZILLA_RAIL, 4, 5, 1
+5506 = ZILLA_SHOOT, 4, 5, 1
+5486 = ZILLA_RECHARGE, 4, 5, 1
+5510 = ZILLA_DIE, 9
+5518 = ZILLA_DEAD
+
+2080 = SWORD_REST                  
+2081 = SWORD_SWING0                
+2082 = SWORD_SWING1                
+2083 = SWORD_SWING2                
+
+4090 = BLOODYSWORD_REST            
+4091 = BLOODYSWORD_SWING0          
+4092 = BLOODYSWORD_SWING1          
+4093 = BLOODYSWORD_SWING2          
+
+4070 = FIST_REST                   
+4071 = FIST_SWING0                 
+4072 = FIST_SWING1                 
+4073 = FIST_SWING2                 
+
+4077 = BLOODYFIST_REST             
+4074 = BLOODYFIST_SWING0           
+4075 = BLOODYFIST_SWING1           
+4076 = BLOODYFIST_SWING2           
+
+4050 = FIST2_REST                  
+4051 = BLOODYFIST2_REST            
+4058 = FIST2_SWING_ALT             
+
+4060 = FIST3_REST                  
+4061 = FIST3_SWING0                
+4062 = FIST3_SWING1                
+4063 = FIST3_SWING2                
+
+4064 = BLOODYFIST3_REST            
+4065 = BLOODYFIST3_SWING0          
+4066 = BLOODYFIST3_SWING1          
+4067 = BLOODYFIST3_SWING2          
+
+4080 = KICK0                       
+4081 = KICK1                       
+
+4082 = BLOODYKICK0                 
+4083 = BLOODYKICK1                 
+
+2130 = STAR_REST                   
+2131 = STAR_DOWN0                  
+2132 = STAR_DOWN1                  
+2134 = STAR_THROW0                 
+2135 = STAR_THROW1                 
+2136 = STAR_THROW2                 
+2137 = STAR_THROW3                 
+2138 = STAR_THROW4                 
+
+2510 = DART_REST                   
+2511 = DART_DOWN0                  
+2512 = DART_DOWN1                  
+2514 = DART_THROW0                 
+2515 = DART_THROW1                 
+2516 = DART_THROW2                 
+2517 = DART_THROW3                 
+2518 = DART_THROW4                 
+
+2004 = UZI_REST                    
+2006 = UZI_FIRE_0                  
+2008 = UZI_FIRE_1                  
+2009 = UZI_EJECT                   
+2005 = UZI_CLIP                    
+2007 = UZI_RELOAD                  
+
+2152 = CON_UZI_SHELL0              
+2153 = CON_UZI_SHELL1              
+2154 = CON_UZI_SHELL2              
+2155 = CON_UZI_SHELL3              
+2156 = CON_UZI_SHELL4              
+2157 = CON_UZI_SHELL5              
+
+2213 = SHOTGUN_REST                
+2214 = SHOTGUN_FIRE0               
+2215 = SHOTGUN_FIRE1               
+2216 = SHOTGUN_RELOAD0             
+2211 = SHOTGUN_RELOAD1             
+2212 = SHOTGUN_RELOAD2             
+
+2227 = SHOTGUN2_REST               
+2227 = SHOTGUN2_RELOAD0            
+2226 = SHOTGUN2_RELOAD1            
+2225 = SHOTGUN2_RELOAD2            
+
+2180 = SHOTGUN_SHELL0              
+2181 = SHOTGUN_SHELL1              
+2182 = SHOTGUN_SHELL2              
+2183 = SHOTGUN_SHELL3              
+2184 = SHOTGUN_SHELL4              
+2185 = SHOTGUN_SHELL5              
+2186 = SHOTGUN_SHELL6              
+2187 = SHOTGUN_SHELL7              
+
+2211 = ROCKET_REST                 
+2212 = ROCKET_FIRE                 
+
+2010 = RAIL_REST0                  
+2011 = RAIL_REST1                  
+2012 = RAIL_REST2                  
+2013 = RAIL_REST3                  
+2014 = RAIL_REST4                  
+2015 = RAIL_CHARGE0                
+2016 = RAIL_CHARGE1                
+2017 = RAIL_CHARGE2                
+2018 = RAIL_FIRE0                  
+2019 = RAIL_FIRE1                  
+
+2048 = HOTHEAD_REST                
+2049 = HOTHEAD_ATTACK              
+2327 = HOTHEAD_CENTER              
+2314 = HOTHEAD_TURN0               
+2315 = HOTHEAD_TURN1               
+2316 = HOTHEAD_TURN2               
+2317 = HOTHEAD_TURN3               
+2318 = HOTHEAD_CHOMP               
+
+3157 = ON_FIRE0                    
+3158 = ON_FIRE1                    
+3159 = ON_FIRE2                    
+3160 = ON_FIRE3                    
+3161 = ON_FIRE4                    
+3162 = ON_FIRE5                    
+3163 = ON_FIRE6                    
+3164 = ON_FIRE7                    
+3165 = ON_FIRE8                    
+3166 = ON_FIRE9                    
+3167 = ON_FIRE10                   
+3168 = ON_FIRE11                   
+3169 = ON_FIRE12                   
+
+2070 = MICRO_REST                  
+2071 = MICRO_FIRE0                 
+2072 = MICRO_FIRE1                 
+2073 = MICRO_FIRE2                 
+2074 = MICRO_FIRE3                 
+
+2121 = GRENADE_REST                
+2122 = GRENADE_FIRE0               
+2123 = GRENADE_FIRE1               
+2124 = GRENADE_FIRE2               
+2125 = GRENADE_RELOAD0             
+2126 = GRENADE_RELOAD1             
+
+2220 = MINE_REST0                  
+2221 = MINE_REST1                  
+2222 = MINE_THROW                  
+
+2050 = HEART_REST0                 
+2051 = HEART_REST1                 
+2052 = HEART_ATTACK0               
+2053 = HEART_ATTACK1               
+
+2420 = HEART_BLOOD0                
+2421 = HEART_BLOOD1                
+2422 = HEART_BLOOD2                
+2423 = HEART_BLOOD3                
+2424 = HEART_BLOOD4                
+2425 = HEART_BLOOD5                
+
+2397 = PanelEnvironSuit            
+2000 = ChopsRest                   
+2001 = ChopsOpen                   
+2002 = ChopsClose                  
+

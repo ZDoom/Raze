@@ -214,6 +214,68 @@ void TilesetBuildInfo::MakeCanvas(int tilenum, int width, int height)
 	tile[tilenum].tileimage = nullptr;
 }
 
+static void GenerateRotations(int firsttileid, const char* basename, int tile, int numframes, int numrotations, int order)
+{
+	if (order == 0)
+	{
+		for (int frame = 0; frame < numframes; frame++)
+		{
+			for (int rotation = 0; rotation < numrotations; rotation++)
+			{
+				FStringf str("%s@%c%x", basename, frame + 'A', rotation + 1);
+				TexMan.AddAlias(str, FSetTextureID(firsttileid + tile));
+				tile++;
+			}
+		}
+	}
+	else if (order >= 1)
+	{
+		for (int rotation = 0; rotation < numrotations; rotation++)
+		{
+			for (int frame = 0; frame < numframes; frame++)
+			{
+				FStringf str("%s@%c%x", basename, frame + 'A', rotation + 1);
+				TexMan.AddAlias(str, FSetTextureID(firsttileid + tile));
+				tile += order;
+			}
+		}
+	}
+}
+
+static void CompleteRotations(int firsttileid, const char* basename, const char* getname, int numframes, int numrotations)
+{
+	for (int rotation = numrotations; ; rotation++)
+	{
+		for (int frame = 0; frame < numframes; frame++)
+		{
+			FStringf str("%s@%c%x", getname, frame + 'A', rotation + 1);
+			auto texid = TexMan.CheckForTexture(str, ETextureType::Any);
+			if (frame == 0 && !texid.isValid())
+			{
+				// rotation does not exist for the first frame -> we reached the end.
+				return;
+			}
+			str.Format("%s@%c%x", basename, frame + 'A', rotation + 1);
+			TexMan.AddAlias(str, texid);
+		}
+	}
+}
+
+static void SubstituteRotations(int firsttileid, const char* basename, int numframes, int destrot, int srcrot)
+{
+	for (int frame = 0; frame < numframes; frame++)
+	{
+		FStringf str("%s@%c%x", basename, frame + 'A', srcrot);
+		auto texid = TexMan.CheckForTexture(str, ETextureType::Any);
+		if (!texid.isValid())
+		{
+			continue;
+		}
+		str.Format("%s@%c%x", basename, frame + 'A', destrot);
+		TexMan.AddAlias(str, texid);
+	}
+}
+
 void LoadAliases(int firsttileid, int maxarttile)
 {
 	int lump, lastlump = 0;
@@ -221,6 +283,7 @@ void LoadAliases(int firsttileid, int maxarttile)
 	{
 		FScanner sc;
 		sc.OpenLumpNum(lump);
+		sc.SetCMode(true);
 		while (sc.GetNumber())
 		{
 			int tile = sc.Number;
@@ -228,6 +291,61 @@ void LoadAliases(int firsttileid, int maxarttile)
 			sc.MustGetStringName("=");
 			sc.MustGetString();
 			TexMan.AddAlias(sc.String, FSetTextureID(firsttileid + tile));
+			FString basename = sc.String;
+			if (sc.CheckString(","))
+			{
+				sc.MustGetNumber();
+				int numframes = sc.Number;
+				int numrotations = 1, order = 0;
+				if (sc.CheckString(","))
+				{
+					sc.MustGetNumber();
+					numrotations = sc.Number;
+					if (sc.CheckString(","))
+					{
+						sc.MustGetNumber();
+						order = sc.Number;
+					}
+				}
+				if (numframes <= 0 || numframes > 26)
+				{
+					sc.ScriptMessage("%d: Bad number of frames\n", numframes);
+					continue;
+				}
+				if (numrotations >= 16 || numrotations < 1)
+				{
+					sc.ScriptMessage("%d: Bad number of rotations\n", numrotations);
+					continue;
+				}
+				if (order < 0)
+				{
+					sc.ScriptMessage("%d: Bad order\n", order);
+					continue;
+				}
+				GenerateRotations(firsttileid, basename, tile, numframes, numrotations, order);
+				if (sc.CheckString(","))
+				{
+					sc.MustGetString();
+					if (sc.String[0] != '@')
+					{
+						CompleteRotations(firsttileid, basename, sc.String, numframes, numrotations);
+					}
+					else
+					{
+						sc.UnGet();
+						do
+						{
+							sc.MustGetString();
+							int destrot = (int)strtoll(sc.String + 1, nullptr, 10);
+							sc.MustGetStringName("=");
+							sc.MustGetString();
+							int srcrot = (int)strtoll(sc.String + 1, nullptr, 10);
+							SubstituteRotations(firsttileid, basename, numframes, destrot, srcrot);
+						} while (sc.CheckString(","));
+					}
+				}
+
+			}
 		}
 	}
 
