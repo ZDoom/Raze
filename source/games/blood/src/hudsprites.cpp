@@ -90,7 +90,7 @@ static void viewBurnTime(int gScale)
 		{
 			nScale = Scale(nScale, gScale, 600);
 		}
-		hud_drawsprite(burnTable[i].nX, burnTable[i].nY, nScale, 0, aTexIds[kTexTORCHEFFECT], 0, 0, RS_STRETCH, 1);
+		hud_drawsprite(burnTable[i].nX, burnTable[i].nY, nScale / 65536., 0, aTexIds[kTexTORCHEFFECT], 0, 0, RS_STRETCH, 1);
 	}
 }
 
