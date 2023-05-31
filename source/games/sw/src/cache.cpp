@@ -406,7 +406,7 @@ void PreCacheActor(void)
 			PreCacheNinjaGirl(pal);
 			break;
 
-		case 623:   // Pachinko win light
+		case PACHINKOWINLIGHT:   // Pachinko win light
 		case PACHINKO1:
 		case PACHINKO2:
 		case PACHINKO3:

@@ -1280,7 +1280,7 @@ bool ActorSpawn(DSWActor* actor)
         break;
     }
 
-    case 623:   // Pachinko win light
+    case PACHINKOWINLIGHT:   // Pachinko win light
     {
         actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPachinkoLight(actor);
@@ -1579,7 +1579,7 @@ void SpriteSetup(void)
 
 
             // crack sprite
-            if (actor->spr.picnum == 80)
+            if (actor->spr.picnum == CRACK)
             {
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
                 actor->spr.cstat |= (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);;
@@ -2768,10 +2768,10 @@ KeyMain:
 
 
         // Used for multiplayer locks
-        case 1846:
-        case 1850:
-        case 1852:
-        case 2470:
+        case MPLOCK1:
+        case MPLOCK2:
+        case MPLOCK3:
+        case MPLOCK4:
 
             if ((actor->spr.extra & SPRX_MULTI_ITEM))
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
@@ -3270,17 +3270,8 @@ NUKE_REPLACEMENT:
             actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 
-#if 0
-        case 380:
-        case 396:
-        case 430:
-        case 512:
-        case 521:
-        case 541:
-        case 2720:
-#endif
-        case 3143:
-        case 3157:
+        case FFIRE1:
+        case FFIRE2:
         {
             SpawnUser(actor, actor->spr.picnum, nullptr);
 
@@ -3301,7 +3292,7 @@ NUKE_REPLACEMENT:
         case BLADE1:
         case BLADE2:
         case BLADE3:
-        case 5011:
+        case BLADE4:
         {
             SpawnUser(actor, actor->spr.picnum, nullptr);
 
@@ -3332,39 +3323,40 @@ NUKE_REPLACEMENT:
             break;
 
         // switches
-        case 581:
-        case 582:
-        case 558:
-        case 559:
-        case 560:
-        case 561:
-        case 562:
-        case 563:
-        case 564:
-        case 565:
-        case 566:
-        case 567:
-        case 568:
-        case 569:
-        case 570:
-        case 571:
-        case 572:
-        case 573:
-        case 574:
+        case SWITCH_LEVER:
+        case SWITCH_LEVER_ON:
+        case SWITCH_FUSE:
+        case SWITCH_FUSE_ON:
+        case SWITCH_FUSE_ANI:
+        case SWITCH_FLIP:
+        case SWITCH_FLIP_ON:
+        case SWITCH_RED_CHAIN:
+        case SWITCH_RED_CHAIN_ON:
+        case SWITCH_GREEN_CHAIN:
+        case SWITCH_GREEN_CHAIN_ON:
+        case SWITCH_TOUCH:
+        case SWITCH_TOUCH_ON:
+        case SWITCH_DRAGON:
+        case SWITCH_DRAGON_ON:
+        case SWITCH_4:
+        case SWITCH_4_ON:
+        case SWITCH_5:
+        case SWITCH_5_ON:
 
-        case 551:
-        case 552:
-        case 575:
-        case 576:
-        case 577:
-        case 578:
-        case 579:
-        case 589:
-        case 583:
-        case 584:
+        case SWITCH_LIGHT:
+        case SWITCH_LIGHT_ON:
+        case SWITCH_1:
+        case SWITCH_1_ON:
+        case SWITCH_SHOOTABLE_1:
+        case SWITCH_SHOOTABLE_1_ON:
+        case SWITCH_3:
+        case SWITCH_3_ON:
+        case 589: // ???
+        case SWITCH_6:
+        case SWITCH_6_ON:
 
-        case 553:
-        case 554:
+        case SWITCH_SKULL:
+        case SWITCH_SKULL_ON:
         {
             if ((actor->spr.extra & SPRX_MULTI_ITEM))
             {

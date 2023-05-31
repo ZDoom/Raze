@@ -3391,7 +3391,7 @@ AutoShrap:
     case PACHINKO2:
     case PACHINKO3:
     case PACHINKO4:
-    case 623:
+    case PACHINKOWINLIGHT:
         PlaySound(DIGI_BREAKGLASS,parentActor,v3df_dontpan|v3df_doppler);
         p = MetalShrap;
         shrap_xsize = shrap_ysize = 10;
@@ -3799,7 +3799,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
     case PACHINKO2:
     case PACHINKO3:
     case PACHINKO4:
-    case 623:
+    case PACHINKOWINLIGHT:
     case ZILLA_RUN_R0:
         return 0;   // Don't put blood on trashcan
     }
@@ -4155,7 +4155,7 @@ bool WeaponMoveHit(DSWActor* actor)
                     case PACHINKO3:
                     case PACHINKO4:
                     case ZILLA_RUN_R0:
-                    case 623:
+                    case PACHINKOWINLIGHT:
                     {
                         PlaySound(DIGI_STARCLINK, actor, v3df_none);
                     }
@@ -4579,7 +4579,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
     case PACHINKO2:
     case PACHINKO3:
     case PACHINKO4:
-    case 623:
+    case PACHINKOWINLIGHT:
     case TOILETGIRL_R0:
     case WASHGIRL_R0:
     case CARGIRL_R0:
@@ -4623,7 +4623,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
     case PACHINKO2:
     case PACHINKO3:
     case PACHINKO4:
-    case 623:
+    case PACHINKOWINLIGHT:
     {
         if ((actor->user.ID == TOILETGIRL_R0 ||
              actor->user.ID == CARGIRL_R0 || actor->user.ID == MECHANICGIRL_R0 || actor->user.ID == SAILORGIRL_R0 || actor->user.ID == PRUNEGIRL_R0 ||
@@ -5960,7 +5960,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             case PACHINKO2:
             case PACHINKO3:
             case PACHINKO4:
-            case 623:
+            case PACHINKOWINLIGHT:
             case ZILLA_RUN_R0:
                 break;
             default:
@@ -6012,7 +6012,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         case PACHINKO2:
         case PACHINKO3:
         case PACHINKO4:
-        case 623:
+        case PACHINKOWINLIGHT:
         case ZILLA_RUN_R0:
             break;
         default:
@@ -7013,7 +7013,7 @@ int DoFlamesDamageTest(DSWActor* actor)
             case PACHINKO2:
             case PACHINKO3:
             case PACHINKO4:
-            case 623:
+            case PACHINKOWINLIGHT:
                 continue;
             }
 
@@ -12033,7 +12033,7 @@ int InitSwordAttack(PLAYER* pp)
                     case PACHINKO2:
                     case PACHINKO3:
                     case PACHINKO4:
-                    case 623:
+                    case PACHINKOWINLIGHT:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         break;
@@ -12211,7 +12211,7 @@ int InitFistAttack(PLAYER* pp)
                     case PACHINKO2:
                     case PACHINKO3:
                     case PACHINKO4:
-                    case 623:
+                    case PACHINKOWINLIGHT:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         break;
@@ -15141,7 +15141,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
         case PACHINKO2:
         case PACHINKO3:
         case PACHINKO4:
-        case 623:
+        case PACHINKOWINLIGHT:
         case ZILLA_RUN_R0:
             actorNew->spr.scale = DVector2(UZI_SMOKE_REPEAT, UZI_SMOKE_REPEAT);
             if (RANDOM_P2(1024) > 800)

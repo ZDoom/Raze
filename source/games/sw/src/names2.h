@@ -230,7 +230,6 @@ enum ECounters
 
 enum EPicnums
 {
-    SWITCH_ON = 562,
     SWITCH_OFF = 561,
 
     TRACK_SPRITE = 1900, //start of track sprites
@@ -244,16 +243,6 @@ enum EPicnums
     ST_QUICK_OPERATE = 2314,
     ST_QUICK_DUCK = 2315,
     ST_QUICK_DEFEND = 2316,
-
-//////////////////////
-//
-// BLADES
-//
-//////////////////////
-
-    BLADE1 = 360,
-    BLADE2 = 361,
-    BLADE3 = 362,
 
 //////////////////////
 //
@@ -297,7 +286,6 @@ enum EPicnums
     SPEAR_R3 = SPEAR_R0 + (SPEAR_FRAMES * 3),
     SPEAR_R4 = SPEAR_R0 + (SPEAR_FRAMES * 4),
 
-    STAR1 = 2049,
     EXP = 3100, // Use new digitized explosion for big stuff
     EXP2 = 2160, // My old explosion is still used for goro head
     FIREBALL = 2035,
@@ -308,13 +296,6 @@ enum EPicnums
     // MISC
     //
     //////////////////////
-
-     SKEL_LOCKED = 1846,
-     SKEL_UNLOCKED = 1847,
-     RAMCARD_LOCKED = 1850,
-     RAMCARD_UNLOCKED = 1851,
-     CARD_LOCKED = 1852,
-     CARD_UNLOCKED = 1853,
 
      WATER_BEGIN = 320,
      WATER_END = 320+8,
@@ -329,13 +310,11 @@ enum EPicnums
 
      FIRE_FLY_RATE = 50,
 
-     BREAK_LIGHT = 443,
      BREAK_LIGHT_ANIM = 447,
      BREAK_BARREL = 453,
      BREAK_PEDISTAL = 463,
      BREAK_BOTTLE1 = 468,
      BREAK_BOTTLE2 = 475,
-     BREAK_MUSHROOM = 666,
 
     //////////////////////
     //

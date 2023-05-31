@@ -792,28 +792,6 @@ int OperateSector(sectortype* sect, short player_is_operating)
     return false;
 }
 
-enum
-{
-    SWITCH_LEVER = 581,
-    SWITCH_FUSE = 558,
-    SWITCH_FLIP = 561,
-    SWITCH_RED_CHAIN = 563,
-    SWITCH_GREEN_CHAIN = 565,
-    SWITCH_TOUCH = 567,
-    SWITCH_DRAGON = 569,
-
-    SWITCH_LIGHT = 551,
-    SWITCH_1 = 575,
-    SWITCH_3 = 579,
-
-    SWITCH_SHOOTABLE_1 = 577,
-    SWITCH_4 = 571,
-    SWITCH_5 = 573,
-    SWITCH_6 = 583,
-    EXIT_SWITCH = 2470,
-
-    SWITCH_SKULL = 553,
-};
 
 //---------------------------------------------------------------------------
 //
@@ -862,21 +840,21 @@ int AnimateSwitch(DSWActor* actor, int tgt_value)
         return true;
 
     // set to true
-    case SWITCH_SKULL + 1:
-    case SWITCH_LEVER + 1:
-    case SWITCH_LIGHT + 1:
-    case SWITCH_1 + 1:
-    case SWITCH_3 + 1:
-    case SWITCH_FLIP + 1:
-    case SWITCH_RED_CHAIN + 1:
-    case SWITCH_GREEN_CHAIN + 1:
-    case SWITCH_TOUCH + 1:
-    case SWITCH_DRAGON + 1:
-    case SWITCH_SHOOTABLE_1 + 1:
-    case SWITCH_4+1:
-    case SWITCH_5+1:
-    case SWITCH_6+1:
-    case EXIT_SWITCH+1:
+    case SWITCH_SKULL_ON:
+    case SWITCH_LEVER_ON:
+    case SWITCH_LIGHT_ON:
+    case SWITCH_1_ON:
+    case SWITCH_3_ON:
+    case SWITCH_FLIP_ON:
+    case SWITCH_RED_CHAIN_ON:
+    case SWITCH_GREEN_CHAIN_ON:
+    case SWITCH_TOUCH_ON:
+    case SWITCH_DRAGON_ON:
+    case SWITCH_SHOOTABLE_1_ON:
+    case SWITCH_4_ON:
+    case SWITCH_5_ON:
+    case SWITCH_6_ON:
+    case EXIT_SWITCH_ON:
 
         // dont toggle - return the current state
         if (tgt_value == 999)
@@ -1294,13 +1272,13 @@ void ShootableSwitch(DSWActor* actor)
     case SWITCH_SHOOTABLE_1:
         //actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         OperateSprite(actor, false);
-        actor->spr.picnum = SWITCH_SHOOTABLE_1 + 1;
+        actor->spr.picnum = SWITCH_SHOOTABLE_1_ON;
         break;
     case SWITCH_FUSE:
-    case SWITCH_FUSE + 1:
+    case SWITCH_FUSE_ANI:
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         OperateSprite(actor, false);
-        actor->spr.picnum = SWITCH_FUSE + 2;
+        actor->spr.picnum = SWITCH_FUSE_ON;
         break;
     }
 }
