@@ -363,7 +363,6 @@ class DukeActor : CoreActor native
 	virtual native void Tick();
 
 	
-	virtual void BeginPlay() {}
 	virtual void StaticSetup() {}
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}

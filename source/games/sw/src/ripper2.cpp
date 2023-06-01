@@ -909,6 +909,13 @@ int SetupRipper2(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWRipper2, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupRipper2(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 // HANGING - Jumping/Falling/Stationary

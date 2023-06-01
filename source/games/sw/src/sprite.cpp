@@ -912,7 +912,7 @@ bool ActorTestSpawn(DSWActor* actor)
             actor->spr.picnum == SAILORGIRL_R0) && (g_gameType & GAMEFLAG_ADDON)) return true;
 
         // spawn Bouncing Betty (mine) in TD map 09 Warehouse 
-        if (actor->spr.picnum == 817 && (currentLevel->gameflags & LEVEL_SW_SPAWNMINES))
+        if (actor->spr.picnum == BETTY_R0 && (currentLevel->gameflags & LEVEL_SW_SPAWNMINES))
             return true;
 
         return false;
@@ -1476,6 +1476,1101 @@ void SpriteSetupPost(void)
     }
 }
 
+void SetupST1(DSWActor* actor)
+{
+    sectortype* sectp = actor->sector();
+    short tag;
+    short bit;
+
+    // get rid of defaults
+    if (SP_TAG3(actor) == 32)
+        SP_TAG3(actor) = 0;
+
+    tag = actor->spr.hitag;
+
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
+
+    // for bounding sector objects
+    if ((tag >= 500 && tag < 600) || tag == SECT_SO_CENTER)
+    {
+        // NOTE: These will get deleted by the sector object
+        // setup code
+        change_actor_stat(actor, STAT_ST1);
+        return;
+    }
+
+    if (tag < 16)
+    {
+        bit = 1 << (tag);
+
+        actor->sector()->extra |= (bit);
+
+        if (bit & (SECTFX_SINK))
+        {
+            sectp->u_defined = true;
+            sectp->depth_fixed = IntToFixed(actor->spr.lotag);
+            KillActor(actor);
+        }
+        else if (bit & (SECTFX_OPERATIONAL))
+        {
+            KillActor(actor);
+        }
+        else if (bit & (SECTFX_CURRENT))
+        {
+            sectp->u_defined = true;
+            sectp->speed = actor->spr.lotag;
+            sectp->angle = actor->spr.Angles.Yaw;
+            KillActor(actor);
+        }
+        else if (bit & (SECTFX_NO_RIDE))
+        {
+            change_actor_stat(actor, STAT_NO_RIDE);
+        }
+        else if (bit & (SECTFX_DIVE_AREA))
+        {
+            sectp->u_defined = true;
+            sectp->number = actor->spr.lotag;
+            change_actor_stat(actor, STAT_DIVE_AREA);
+        }
+        else if (bit & (SECTFX_UNDERWATER))
+        {
+            sectp->u_defined = true;
+            sectp->number = actor->spr.lotag;
+            change_actor_stat(actor, STAT_UNDERWATER);
+        }
+        else if (bit & (SECTFX_UNDERWATER2))
+        {
+            sectp->u_defined = true;
+            sectp->number = actor->spr.lotag;
+            if (actor->spr.clipdist == 1) // notreallyclipdist
+                sectp->flags |= (SECTFU_CANT_SURFACE);
+            change_actor_stat(actor, STAT_UNDERWATER2);
+        }
+    }
+    else
+    {
+        switch (tag)
+        {
+#if 0
+        case MULTI_PLAYER_START:
+            change_actor_stat(actor, STAT_MULTI_START + actor->spr.lotag);
+            break;
+        case MULTI_COOPERATIVE_START:
+            change_actor_stat(actor, STAT_CO_OP_START + actor->spr.lotag);
+            break;
+#endif
+
+        case SECT_MATCH:
+            sectp->u_defined = true;
+            sectp->number = actor->spr.lotag;
+
+            KillActor(actor);
+            break;
+
+        case SLIDE_SECTOR:
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_SLIDE_SECTOR);
+            sectp->speed = SP_TAG2(actor);
+            KillActor(actor);
+            break;
+
+        case SECT_DAMAGE:
+        {
+            sectp->u_defined = true;
+            if (TEST_BOOL1(actor))
+                sectp->flags |= (SECTFU_DAMAGE_ABOVE_SECTOR);
+            sectp->damage = actor->spr.lotag;
+            KillActor(actor);
+            break;
+        }
+
+        case PARALLAX_LEVEL:
+        {
+            parallaxyscale_override = 8192;
+            pskybits_override = actor->spr.lotag;
+            if (SP_TAG4(actor) > 2048)
+                parallaxyscale_override = SP_TAG4(actor);
+            defineSky(nullptr, pskybits_override, nullptr, 0, parallaxyscale_override / 8192.f);
+            KillActor(actor);
+            break;
+        }
+
+        case BREAKABLE:
+            // used for wall info
+            if (SP_TAG5(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
+
+            change_actor_stat(actor, STAT_BREAKABLE);
+            break;
+
+        case SECT_DONT_COPY_PALETTE:
+        {
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_DONT_COPY_PALETTE);
+            KillActor(actor);
+            break;
+        }
+
+        case SECT_FLOOR_PAN:
+        {
+            // if moves with SO
+            if (TEST_BOOL1(actor))
+                actor->vel.X = 0;
+            else
+                actor->vel.X = actor->spr.lotag * maptoworld;
+
+            StartInterpolation(actor->sector(), Interp_Sect_FloorPanX);
+            StartInterpolation(actor->sector(), Interp_Sect_FloorPanY);
+            change_actor_stat(actor, STAT_FLOOR_PAN);
+            break;
+        }
+
+        case SECT_CEILING_PAN:
+        {
+            // if moves with SO
+            if (TEST_BOOL1(actor))
+                actor->vel.X = 0;
+            else
+                actor->vel.X = actor->spr.lotag * maptoworld;
+            StartInterpolation(actor->sector(), Interp_Sect_CeilingPanX);
+            StartInterpolation(actor->sector(), Interp_Sect_CeilingPanY);
+            change_actor_stat(actor, STAT_CEILING_PAN);
+            break;
+        }
+
+        case SECT_WALL_PAN_SPEED:
+        {
+            HitInfo hit{};
+            hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+
+            if (hit.hitWall == nullptr)
+            {
+                KillActor(actor);
+                break;
+            }
+
+            actor->tempwall = hit.hitWall;
+            // if moves with SO
+            if (TEST_BOOL1(actor))
+                actor->vel.X = 0;
+            else
+                actor->vel.X = actor->spr.lotag * maptoworld;
+            actor->spr.Angles.Yaw = mapangle(SP_TAG6(actor));
+            // attach to the sector that contains the wall
+            ChangeActorSect(actor, hit.hitSector);
+            StartInterpolation(hit.hitWall, Interp_Wall_PanX);
+            StartInterpolation(hit.hitWall, Interp_Wall_PanY);
+            change_actor_stat(actor, STAT_WALL_PAN);
+            break;
+        }
+
+        case WALL_DONT_STICK:
+        {
+            HitInfo hit{};
+            hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+
+            if (hit.hitWall == nullptr)
+            {
+                KillActor(actor);
+                break;
+            }
+
+            hit.hitWall->extra |= WALLFX_DONT_STICK;
+            KillActor(actor);
+            break;
+        }
+
+        case TRIGGER_SECTOR:
+        {
+            actor->sector()->extra |= (SECTFX_TRIGGER);
+            change_actor_stat(actor, STAT_TRIGGER);
+            break;
+        }
+
+        case DELETE_SPRITE:
+        {
+            change_actor_stat(actor, STAT_DELETE_SPRITE);
+            break;
+        }
+
+        case SPAWN_ITEMS:
+        {
+            if ((actor->spr.extra & SPRX_MULTI_ITEM))
+            {
+                if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
+                {
+                    KillActor(actor);
+                    break;
+                }
+            }
+
+
+            change_actor_stat(actor, STAT_SPAWN_ITEMS);
+            break;
+        }
+
+        case CEILING_FLOOR_PIC_OVERRIDE:
+        {
+            // block hitscans depending on translucency
+            if (SP_TAG7(actor) == 0 || SP_TAG7(actor) == 1)
+            {
+                if (SP_TAG3(actor) == 0)
+                    actor->sector()->ceilingstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                else
+                    actor->sector()->floorstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+            }
+            else if (TEST_BOOL1(actor))
+            {
+                if (SP_TAG3(actor) == 0)
+                    actor->sector()->ceilingstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+                else
+                    actor->sector()->floorstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
+            }
+
+            // copy tag 7 to tag 6 and pre-shift it
+            SP_TAG6(actor) = SP_TAG7(actor);
+            SP_TAG6(actor) <<= 7;
+            if (SP_TAG2(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG2(actor));
+            change_actor_stat(actor, STAT_CEILING_FLOOR_PIC_OVERRIDE);
+            break;
+        }
+
+        case QUAKE_SPOT:
+        {
+            change_actor_stat(actor, STAT_QUAKE_SPOT);
+            SET_SP_TAG13(actor, ((SP_TAG6(actor) * 10) * 120));
+            break;
+        }
+
+        case SECT_CHANGOR:
+        {
+            if (SP_TAG4(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG4(actor));
+            change_actor_stat(actor, STAT_CHANGOR);
+            break;
+        }
+
+
+        case SECT_VATOR:
+        {
+            short speed, vel, time, type, start_on, floor_vator;
+            SpawnUser(actor, 0, nullptr);
+
+            // vator already set - ceiling AND floor vator
+            if ((sectp->extra & SECTFX_VATOR))
+            {
+                sectp->u_defined = true;
+                sectp->flags |= (SECTFU_VATOR_BOTH);
+            }
+            sectp->extra |= (SECTFX_VATOR);
+            SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, true, true);
+            actor->sector()->extra |= (SECTFX_DYNAMIC_AREA);
+
+            // don't step on toes of other sector settings
+            if (sectp->lotag == 0 && sectp->hitag == 0)
+                sectp->lotag = TAG_VATOR;
+
+            type = SP_TAG3(actor);
+            speed = SP_TAG4(actor);
+            vel = SP_TAG5(actor);
+            time = SP_TAG9(actor);
+            start_on = !!TEST_BOOL1(actor);
+            floor_vator = true;
+            if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
+                floor_vator = false;
+
+            actor->user.jump_speed = actor->user.vel_tgt = speed;
+            actor->user.vel_rate = vel;
+            actor->user.WaitTics = time * 15; // 1/8 of a sec
+            actor->user.Tics = 0;
+
+            actor->user.Flags |= (SPR_ACTIVE);
+
+            switch (type)
+            {
+            case 0:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoVator);
+                break;
+            case 1:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoVator);
+                break;
+            case 2:
+                actor->user.ActorActionFunc = AF(DoVatorAuto);
+                break;
+            case 3:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoVatorAuto);
+                break;
+            }
+
+            if (floor_vator)
+            {
+                // start off
+                actor->user.pos.Z = sectp->floorz;
+                actor->user.z_tgt = actor->spr.pos.Z;
+                if (start_on)
+                {
+                    double amt = actor->spr.pos.Z - sectp->floorz;
+
+                    // start in the on position
+                    sectp->setfloorz(actor->spr.pos.Z);
+                    actor->user.z_tgt = actor->user.pos.Z;
+
+                    MoveSpritesWithSector(actor->sector(), amt, false); // floor
+                }
+
+                // set orig z
+                actor->opos.Z = sectp->floorz;
+                actor->user.oz = actor->opos.Z;
+            }
+            else
+            {
+                // start off
+                actor->user.pos.Z = sectp->ceilingz;
+                actor->user.z_tgt = actor->spr.pos.Z;
+                if (start_on)
+                {
+                    double amt = actor->spr.pos.Z - sectp->ceilingz;
+
+                    // starting in the on position
+                    sectp->setceilingz(actor->spr.pos.Z);
+                    actor->user.z_tgt = actor->user.pos.Z;
+
+                    MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
+                }
+
+                // set orig z
+                actor->opos.Z = sectp->ceilingz;
+                actor->user.oz = actor->opos.Z;
+            }
+
+
+            change_actor_stat(actor, STAT_VATOR);
+            break;
+        }
+
+        case SECT_ROTATOR_PIVOT:
+        {
+            change_actor_stat(actor, STAT_ROTATOR_PIVOT);
+            break;
+        }
+
+        case SECT_ROTATOR:
+        {
+            short time, type;
+            short wallcount, startwall, endwall, w;
+            SpawnUser(actor, 0, nullptr);
+
+            SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, true, true);
+
+            // need something for this
+            sectp->lotag = TAG_ROTATOR;
+            sectp->hitag = actor->spr.lotag;
+
+            type = SP_TAG3(actor);
+            time = SP_TAG9(actor);
+
+            actor->user.WaitTics = time * 15; // 1/8 of a sec
+            actor->user.Tics = 0;
+
+            actor->user.rotator.Alloc();
+            actor->user.rotator->open_dest = SP_TAG5(actor);
+            actor->user.rotator->speed = SP_TAG7(actor);
+            actor->user.rotator->vel = SP_TAG8(actor);
+            actor->user.rotator->pos = 0; // closed
+            actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
+            actor->user.rotator->SetNumWalls(actor->sector()->walls.Size());
+
+            actor->user.rotator->orig_speed = actor->user.rotator->speed;
+
+            wallcount = 0;
+            for (auto& wal : actor->sector()->walls)
+            {
+                actor->user.rotator->orig[wallcount] = wal.pos;
+                wallcount++;
+            }
+
+            actor->user.Flags |= (SPR_ACTIVE);
+
+            switch (type)
+            {
+            case 0:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoRotator);
+                break;
+            case 1:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoRotator);
+                break;
+            }
+
+            change_actor_stat(actor, STAT_ROTATOR);
+            break;
+        }
+
+        case SECT_SLIDOR:
+        {
+            short time, type;
+
+            SpawnUser(actor, 0, nullptr);
+
+            SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, true, true);
+
+            // need something for this
+            sectp->lotag = TAG_SLIDOR;
+            sectp->hitag = actor->spr.lotag;
+
+            type = SP_TAG3(actor);
+            time = SP_TAG9(actor);
+
+            actor->user.WaitTics = time * 15; // 1/8 of a sec
+            actor->user.Tics = 0;
+
+            actor->user.rotator.Alloc();
+            actor->user.rotator->open_dest = SP_TAG5(actor);
+            actor->user.rotator->speed = SP_TAG7(actor);
+            actor->user.rotator->vel = SP_TAG8(actor);
+            actor->user.rotator->pos = 0; // closed
+            actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
+            actor->user.rotator->ClearWalls();
+            actor->user.rotator->orig_speed = actor->user.rotator->speed;
+
+            actor->user.Flags |= (SPR_ACTIVE);
+
+            switch (type)
+            {
+            case 0:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoSlidor);
+                break;
+            case 1:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoSlidor);
+                break;
+            }
+
+
+            if (TEST_BOOL5(actor))
+            {
+                DoSlidorInstantClose(actor);
+            }
+
+            change_actor_stat(actor, STAT_SLIDOR);
+            break;
+        }
+
+        case SECT_SPIKE:
+        {
+            short speed, vel, time, type, start_on, floor_vator;
+            double florz, ceilz;
+            Collision trash;
+            SpawnUser(actor, 0, nullptr);
+
+            SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, false, true);
+            actor->sector()->extra |= (SECTFX_DYNAMIC_AREA);
+
+            type = SP_TAG3(actor);
+            speed = SP_TAG4(actor);
+            vel = SP_TAG5(actor);
+            time = SP_TAG9(actor);
+            start_on = !!TEST_BOOL1(actor);
+            floor_vator = true;
+            if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
+                floor_vator = false;
+
+            actor->user.jump_speed = actor->user.vel_tgt = speed;
+            actor->user.vel_rate = vel;
+            actor->user.WaitTics = time * 15; // 1/8 of a sec
+            actor->user.Tics = 0;
+
+            actor->user.Flags |= (SPR_ACTIVE);
+
+            switch (type)
+            {
+            case 0:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoSpike);
+                break;
+            case 1:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoSpike);
+                break;
+            case 2:
+                actor->user.ActorActionFunc = AF(DoSpikeAuto);
+                break;
+            case 3:
+                actor->user.Flags &= ~(SPR_ACTIVE);
+                actor->user.ActorActionFunc = AF(DoSpikeAuto);
+                break;
+            }
+
+            getzrangepoint(actor->spr.pos, actor->sector(), &ceilz, &trash, &florz, &trash);
+
+            if (floor_vator)
+            {
+                actor->user.zclip = florz;
+
+                // start off
+                actor->user.pos.Z = actor->user.zclip;
+                actor->user.z_tgt = actor->spr.pos.Z;
+                if (start_on)
+                {
+                    // start in the on position
+                    actor->user.zclip = actor->spr.pos.Z;
+                    actor->user.z_tgt = actor->user.pos.Z;
+                    SpikeAlign(actor);
+                }
+
+                // set orig z
+                actor->user.oz = actor->user.zclip;
+                actor->opos.Z = actor->user.oz;
+            }
+            else
+            {
+                actor->user.zclip = ceilz;
+
+                // start off
+                actor->user.pos.Z = actor->user.zclip;
+                actor->user.z_tgt = actor->spr.pos.Z;
+                if (start_on)
+                {
+                    // starting in the on position
+                    actor->user.zclip = actor->spr.pos.Z;
+                    actor->user.z_tgt = actor->user.pos.Z;
+                    SpikeAlign(actor);
+                }
+
+                // set orig z
+                actor->user.oz = actor->user.zclip;
+                actor->opos.Z = actor->user.oz;
+            }
+
+            change_actor_stat(actor, STAT_SPIKE);
+            break;
+        }
+
+        case LIGHTING:
+        {
+            int wallcount = 0;
+            int8_t* wall_shade;
+
+            LIGHT_Tics(actor) = 0;
+
+            if (LIGHT_ShadeInc(actor) == 0)
+                LIGHT_ShadeInc(actor) = 1;
+
+            // save off original floor and ceil shades
+            LIGHT_FloorShade(actor) = actor->sector()->floorshade;
+            LIGHT_CeilingShade(actor) = actor->sector()->ceilingshade;
+
+            // count walls of sector
+            for (auto& wal : actor->sector()->walls)
+            {
+                wallcount++;
+                if (TEST_BOOL5(actor))
+                {
+                    if (wal.twoSided())
+                        wallcount++;
+                }
+            }
+
+            SpawnUser(actor, 0, nullptr);
+            actor->user.WallShade.Resize(wallcount);
+            wallcount = 0;
+            wall_shade = actor->user.WallShade.Data();
+
+            // save off original wall shades
+            for (auto& wal : actor->sector()->walls)
+            {
+                wall_shade[wallcount] = wal.shade;
+                wallcount++;
+                if (TEST_BOOL5(actor))
+                {
+                    if (wal.twoSided())
+                    {
+                        wall_shade[wallcount] = wal.nextWall()->shade;
+                        wallcount++;
+                    }
+                }
+            }
+
+            actor->user.spal = actor->spr.pal;
+
+            // DON'T USE COVER function
+            change_actor_stat(actor, STAT_LIGHTING, true);
+            break;
+        }
+
+        case LIGHTING_DIFFUSE:
+        {
+            int wallcount = 0;
+            int8_t* wall_shade;
+
+            LIGHT_Tics(actor) = 0;
+
+            // save off original floor and ceil shades
+            LIGHT_FloorShade(actor) = actor->sector()->floorshade;
+            LIGHT_CeilingShade(actor) = actor->sector()->ceilingshade;
+
+            // count walls of sector
+            for (auto& wal : actor->sector()->walls)
+            {
+                wallcount++;
+                if (TEST_BOOL5(actor))
+                {
+                    if (wal.twoSided())
+                        wallcount++;
+                }
+            }
+
+            // !LIGHT
+            // make an wall_shade array and put it in User
+            SpawnUser(actor, 0, nullptr);
+            actor->user.WallShade.Resize(wallcount);
+            wallcount = 0;
+            wall_shade = actor->user.WallShade.Data();
+
+            // save off original wall shades
+            for (auto& wal : actor->sector()->walls)
+            {
+                wall_shade[wallcount] = wal.shade;
+                wallcount++;
+                if (TEST_BOOL5(actor))
+                {
+                    if (wal.twoSided())
+                    {
+                        wall_shade[wallcount] = wal.nextWall()->shade;
+                        wallcount++;
+                    }
+                }
+            }
+
+            // DON'T USE COVER function
+            change_actor_stat(actor, STAT_LIGHTING_DIFFUSE, true);
+            break;
+        }
+
+        case SECT_VATOR_DEST:
+            change_actor_stat(actor, STAT_VATOR);
+            break;
+
+        case SO_WALL_DONT_MOVE_UPPER:
+            change_actor_stat(actor, STAT_WALL_DONT_MOVE_UPPER);
+            break;
+
+        case SO_WALL_DONT_MOVE_LOWER:
+            change_actor_stat(actor, STAT_WALL_DONT_MOVE_LOWER);
+            break;
+
+        case FLOOR_SLOPE_DONT_DRAW:
+            change_actor_stat(actor, STAT_FLOOR_SLOPE_DONT_DRAW);
+            break;
+
+        case DEMO_CAMERA:
+            actor->vel.Z = 100 / 256.; //attempt horiz control
+            change_actor_stat(actor, STAT_DEMO_CAMERA);
+            break;
+
+        case LAVA_ERUPT:
+        {
+
+            SpawnUser(actor, ST1, nullptr);
+
+            change_actor_stat(actor, STAT_NO_STATE);
+            actor->user.ActorActionFunc = AF(DoLavaErupt);
+
+            // interval between erupts
+            if (SP_TAG10(actor) == 0)
+                SP_TAG10(actor) = 20;
+
+            // interval in seconds
+            actor->user.WaitTics = RandomRange(SP_TAG10(actor)) * 120;
+
+            // time to erupt
+            if (SP_TAG9(actor) == 0)
+                SP_TAG9(actor) = 10;
+
+            actor->spr.pos.Z += 30;
+
+            break;
+        }
+
+
+        case SECT_EXPLODING_CEIL_FLOOR:
+        {
+            SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, false, true);
+
+            if ((sectp->floorstat & CSTAT_SECTOR_SLOPE))
+            {
+                SP_TAG5(actor) = sectp->floorheinum;
+                sectp->setfloorslope(0);
+            }
+
+            if ((sectp->ceilingstat & CSTAT_SECTOR_SLOPE))
+            {
+                SP_TAG6(actor) = sectp->ceilingheinum;
+                sectp->setceilingslope(0);
+            }
+
+            SP_TAG4(actor) = int(fabs(sectp->ceilingz - sectp->floorz));
+
+            sectp->setceilingz(sectp->floorz);
+
+            change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
+            break;
+        }
+
+        case SECT_COPY_SOURCE:
+            change_actor_stat(actor, STAT_COPY_SOURCE);
+            break;
+
+        case SECT_COPY_DEST:
+        {
+            SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, false, true);
+            change_actor_stat(actor, STAT_COPY_DEST);
+            break;
+        }
+
+
+        case SECT_WALL_MOVE:
+            // this type considers tilenum 0 invalid.
+            if (SP_TAG5(actor) > 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
+            if (SP_TAG6(actor) > 0 && !actor->texparam.isValid()) actor->texparam2 = tileGetTextureID(SP_TAG6(actor));
+            change_actor_stat(actor, STAT_WALL_MOVE);
+            break;
+        case SECT_WALL_MOVE_CANSEE:
+            change_actor_stat(actor, STAT_WALL_MOVE_CANSEE);
+            break;
+
+        case SPRI_CLIMB_MARKER:
+        {
+            // setup climb marker
+            change_actor_stat(actor, STAT_CLIMB_MARKER);
+
+            // make a QUICK_LADDER sprite automatically
+            auto actorNew = insertActor(actor->sector(), STAT_QUICK_LADDER);
+
+            actorNew->spr.cstat = 0;
+            actorNew->spr.extra = 0;
+            actorNew->spr.pos = actor->spr.pos;
+            actorNew->spr.Angles.Yaw += DAngle180;
+            actorNew->spr.picnum = actor->spr.picnum;
+
+            actorNew->spr.pos += actor->spr.Angles.Yaw.ToVector() * 24;
+
+            break;
+        }
+
+        case SO_AUTO_TURRET:
+#if 0
+            switch (gNet.MultiGameType)
+            {
+            case MULTI_GAME_NONE:
+                change_actor_stat(actor, STAT_ST1);
+                break;
+            case MULTI_GAME_COMMBAT:
+                KillActor(actor);
+                break;
+            case MULTI_GAME_COOPERATIVE:
+                change_actor_stat(actor, STAT_ST1);
+                break;
+            }
+#else
+            change_actor_stat(actor, STAT_ST1);
+#endif
+            break;
+
+        case SO_DRIVABLE_ATTRIB:
+        case SO_SCALE_XY_MULT:
+        case SO_SCALE_INFO:
+        case SO_SCALE_POINT_INFO:
+        case SO_TORNADO:
+        case SO_FLOOR_MORPH:
+        case SO_AMOEBA:
+        case SO_SET_SPEED:
+        case SO_ANGLE:
+        case SO_SPIN:
+        case SO_SPIN_REVERSE:
+        case SO_BOB_START:
+        case SO_BOB_SPEED:
+        case SO_TURN_SPEED:
+        case SO_SYNC1:
+        case SO_SYNC2:
+        case SO_LIMIT_TURN:
+        case SO_MATCH_EVENT:
+        case SO_MAX_DAMAGE:
+        case SO_RAM_DAMAGE:
+        case SO_SLIDE:
+        case SO_KILLABLE:
+        case SECT_SO_SPRITE_OBJ:
+        case SECT_SO_DONT_ROTATE:
+        case SECT_SO_CLIP_DIST:
+        {
+            // NOTE: These will get deleted by the sector
+            // object
+            // setup code
+
+            change_actor_stat(actor, STAT_ST1);
+            break;
+        }
+
+        case SOUND_SPOT:
+            SET_SP_TAG13(actor, SP_TAG4(actor));
+            change_actor_stat(actor, STAT_SOUND_SPOT);
+            break;
+
+        case STOP_SOUND_SPOT:
+            change_actor_stat(actor, STAT_STOP_SOUND_SPOT);
+            break;
+
+        case SPAWN_SPOT:
+            if (!actor->hasU())
+                SpawnUser(actor, ST1, nullptr);
+
+            if (actor->spr.scale.X == 1 && actor->spr.scale.Y == 1) // clear default scale.
+                actor->spr.scale = DVector2(0, 0);
+
+            change_actor_stat(actor, STAT_SPAWN_SPOT);
+            break;
+
+        case VIEW_THRU_CEILING:
+        case VIEW_THRU_FLOOR:
+        {
+            // make sure there is only one set per level of these
+            SWStatIterator it2(STAT_FAF);
+            while (auto itActor = it2.Next())
+            {
+                if (itActor->spr.hitag == actor->spr.hitag && itActor->spr.lotag == actor->spr.lotag)
+                {
+                    I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", int(actor->spr.pos.X), int(actor->spr.pos.Y), int(itActor->spr.pos.X), int(itActor->spr.pos.Y));
+                }
+            }
+            change_actor_stat(actor, STAT_FAF);
+            break;
+        }
+
+        case VIEW_LEVEL1:
+        case VIEW_LEVEL2:
+        case VIEW_LEVEL3:
+        case VIEW_LEVEL4:
+        case VIEW_LEVEL5:
+        case VIEW_LEVEL6:
+        {
+            change_actor_stat(actor, STAT_FAF);
+            break;
+        }
+
+        case PLAX_GLOB_Z_ADJUST:
+        {
+            actor->sector()->extra |= (SECTFX_Z_ADJUST);
+            PlaxCeilGlobZadjust = SP_TAG2(actor) * zmaptoworld;
+            PlaxFloorGlobZadjust = SP_TAG3(actor) * zmaptoworld;
+            KillActor(actor);
+            break;
+        }
+
+        case CEILING_Z_ADJUST:
+        {
+            actor->sector()->extra |= (SECTFX_Z_ADJUST);
+            change_actor_stat(actor, STAT_ST1);
+            break;
+        }
+
+        case FLOOR_Z_ADJUST:
+        {
+            actor->sector()->extra |= (SECTFX_Z_ADJUST);
+            change_actor_stat(actor, STAT_ST1);
+            break;
+        }
+
+        case WARP_TELEPORTER:
+        {
+            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
+            actor->sector()->extra |= (SECTFX_WARP_SECTOR);
+            change_actor_stat(actor, STAT_WARP);
+
+            // if just a destination teleporter
+            // don't set up flags
+            if (SP_TAG10(actor) == 1)
+                break;
+
+            // move the the next wall
+            auto start_wall = actor->sector()->walls.Data();
+            auto wall_num = start_wall;
+
+            // Travel all the way around loop setting wall bits
+            do
+            {
+                // DO NOT TAG WHITE WALLS!
+                if (wall_num->twoSided())
+                {
+                    wall_num->cstat |= (CSTAT_WALL_WARP_HITSCAN);
+                }
+
+                wall_num = wall_num->point2Wall();
+            } while (wall_num != start_wall);
+
+            break;
+        }
+
+        case WARP_CEILING_PLANE:
+        case WARP_FLOOR_PLANE:
+        {
+            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
+            actor->sector()->extra |= (SECTFX_WARP_SECTOR);
+            change_actor_stat(actor, STAT_WARP);
+            break;
+        }
+
+        case WARP_COPY_SPRITE1:
+            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
+            actor->sector()->extra |= (SECTFX_WARP_SECTOR);
+            change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
+            break;
+        case WARP_COPY_SPRITE2:
+            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
+            actor->sector()->extra |= (SECTFX_WARP_SECTOR);
+            change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
+            break;
+
+        case FIREBALL_TRAP:
+        case BOLT_TRAP:
+        case SPEAR_TRAP:
+        {
+            SpawnUser(actor, 0, nullptr);
+            ClearOwner(actor);
+            change_actor_stat(actor, STAT_TRAP);
+            break;
+        }
+
+        case SECT_SO_DONT_BOB:
+        {
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_SO_DONT_BOB);
+            KillActor(actor);
+            break;
+        }
+
+        case SECT_LOCK_DOOR:
+        {
+            sectp->u_defined = true;
+            sectp->number = actor->spr.lotag;
+            sectp->stag = SECT_LOCK_DOOR;
+            KillActor(actor);
+            break;
+        }
+
+        case SECT_SO_SINK_DEST:
+        {
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_SO_SINK_DEST);
+            sectp->number = actor->spr.lotag;  // acually the offset Z
+            // value
+            KillActor(actor);
+            break;
+        }
+
+        case SECT_SO_DONT_SINK:
+        {
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_SO_DONT_SINK);
+            KillActor(actor);
+            break;
+        }
+
+        case SO_SLOPE_FLOOR_TO_POINT:
+        {
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_SO_SLOPE_FLOOR_TO_POINT);
+            sectp->extra |= (SECTFX_DYNAMIC_AREA);
+            KillActor(actor);
+            break;
+        }
+
+        case SO_SLOPE_CEILING_TO_POINT:
+        {
+            sectp->u_defined = true;
+            sectp->flags |= (SECTFU_SO_SLOPE_CEILING_TO_POINT);
+            sectp->extra |= (SECTFX_DYNAMIC_AREA);
+            KillActor(actor);
+            break;
+        }
+        case SECT_SO_FORM_WHIRLPOOL:
+        {
+            sectp->u_defined = true;
+            sectp->stag = SECT_SO_FORM_WHIRLPOOL;
+            sectp->height = actor->spr.lotag;
+            KillActor(actor);
+            break;
+        }
+
+        case SECT_ACTOR_BLOCK:
+        {
+            // move the the next wall
+            auto start_wall = actor->sector()->walls.Data();
+            auto wall_num = start_wall;
+
+            // Travel all the way around loop setting wall bits
+            do
+            {
+                wall_num->cstat |= (CSTAT_WALL_BLOCK_ACTOR);
+                if (wall_num->twoSided())
+                    wall_num->nextWall()->cstat |= CSTAT_WALL_BLOCK_ACTOR;
+                wall_num = wall_num->point2Wall();
+            } while (wall_num != start_wall);
+
+            KillActor(actor);
+            break;
+        }
+        }
+    }
+}
+
+DEFINE_ACTION_FUNCTION(DSWTrigger1, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupST1(self);
+    return 0;
+}
+
+
+void SetupKey(DSWActor* actor, int num)
+{
+
+    if (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS)
+    {
+        KillActor(actor);
+        return;
+    }
+
+    SpawnUser(actor, 0, nullptr);
+
+    actor->spr.picnum = actor->user.ID = actor->spr.picnum;
+
+    actor->user.spal = actor->spr.pal; // Set the palette from build
+
+    //actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
+
+    ChangeState(actor, s_Key[num]);
+
+    change_actor_stat(actor, STAT_ITEM);
+    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
+    actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
+    actor->user.Radius = 500;
+    actor->spr.hitag = LUMINOUS; //Set so keys over ride colored lighting
+
+    DoActorZrange(actor);
+}  
+
+DEFINE_ACTION_FUNCTION(DSWKey, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupKey(self, self->IntVar("keynum"));
+    return 0;
+}
+
+
 //---------------------------------------------------------------------------
 //
 //
@@ -1649,1055 +2744,7 @@ void SpriteSetup(void)
 
         case ST1:
         {
-            sectortype* sectp = actor->sector();
-            short tag;
-            short bit;
-
-            // get rid of defaults
-            if (SP_TAG3(actor) == 32)
-                SP_TAG3(actor) = 0;
-
-            tag = actor->spr.hitag;
-
-            actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-
-            // for bounding sector objects
-            if ((tag >= 500 && tag < 600) || tag == SECT_SO_CENTER)
-            {
-                // NOTE: These will get deleted by the sector object
-                // setup code
-                change_actor_stat(actor, STAT_ST1);
-                break;
-            }
-
-            if (tag < 16)
-            {
-                bit = 1 << (tag);
-
-                actor->sector()->extra |= (bit);
-
-                if (bit & (SECTFX_SINK))
-                {
-                    sectp->u_defined = true;
-                    sectp->depth_fixed = IntToFixed(actor->spr.lotag);
-                    KillActor(actor);
-                }
-                else if (bit & (SECTFX_OPERATIONAL))
-                {
-                    KillActor(actor);
-                }
-                else if (bit & (SECTFX_CURRENT))
-                {
-                    sectp->u_defined = true;
-                    sectp->speed = actor->spr.lotag;
-                    sectp->angle = actor->spr.Angles.Yaw;
-                    KillActor(actor);
-                }
-                else if (bit & (SECTFX_NO_RIDE))
-                {
-                    change_actor_stat(actor, STAT_NO_RIDE);
-                }
-                else if (bit & (SECTFX_DIVE_AREA))
-                {
-                    sectp->u_defined = true;
-                    sectp->number = actor->spr.lotag;
-                    change_actor_stat(actor, STAT_DIVE_AREA);
-                }
-                else if (bit & (SECTFX_UNDERWATER))
-                {
-                    sectp->u_defined = true;
-                    sectp->number = actor->spr.lotag;
-                    change_actor_stat(actor, STAT_UNDERWATER);
-                }
-                else if (bit & (SECTFX_UNDERWATER2))
-                {
-                    sectp->u_defined = true;
-                    sectp->number = actor->spr.lotag;
-					if (actor->spr.clipdist == 1) // notreallyclipdist
-                        sectp->flags |= (SECTFU_CANT_SURFACE);
-                    change_actor_stat(actor, STAT_UNDERWATER2);
-                }
-            }
-            else
-            {
-                switch (tag)
-                {
-#if 0
-                case MULTI_PLAYER_START:
-                    change_actor_stat(actor, STAT_MULTI_START + actor->spr.lotag);
-                    break;
-                case MULTI_COOPERATIVE_START:
-                    change_actor_stat(actor, STAT_CO_OP_START + actor->spr.lotag);
-                    break;
-#endif
-
-                case SECT_MATCH:
-                    sectp->u_defined = true;
-                    sectp->number = actor->spr.lotag;
-
-                    KillActor(actor);
-                    break;
-
-                case SLIDE_SECTOR:
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_SLIDE_SECTOR);
-                    sectp->speed = SP_TAG2(actor);
-                    KillActor(actor);
-                    break;
-
-                case SECT_DAMAGE:
-                {
-                    sectp->u_defined = true;
-                    if (TEST_BOOL1(actor))
-                        sectp->flags |= (SECTFU_DAMAGE_ABOVE_SECTOR);
-                    sectp->damage = actor->spr.lotag;
-                    KillActor(actor);
-                    break;
-                }
-
-                case PARALLAX_LEVEL:
-                {
-                    parallaxyscale_override = 8192;
-                    pskybits_override = actor->spr.lotag;
-                    if (SP_TAG4(actor) > 2048)
-                        parallaxyscale_override = SP_TAG4(actor);
-                    defineSky(nullptr, pskybits_override, nullptr, 0, parallaxyscale_override / 8192.f);
-                    KillActor(actor);
-                    break;
-                }
-
-                case BREAKABLE:
-                    // used for wall info
-                    if (SP_TAG5(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
-
-                    change_actor_stat(actor, STAT_BREAKABLE);
-                    break;
-
-                case SECT_DONT_COPY_PALETTE:
-                {
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_DONT_COPY_PALETTE);
-                    KillActor(actor);
-                    break;
-                }
-
-                case SECT_FLOOR_PAN:
-                {
-                    // if moves with SO
-                    if (TEST_BOOL1(actor))
-                        actor->vel.X = 0;
-                    else
-                        actor->vel.X = actor->spr.lotag * maptoworld;
-
-                    StartInterpolation(actor->sector(), Interp_Sect_FloorPanX);
-                    StartInterpolation(actor->sector(), Interp_Sect_FloorPanY);
-                    change_actor_stat(actor, STAT_FLOOR_PAN);
-                    break;
-                }
-
-                case SECT_CEILING_PAN:
-                {
-                    // if moves with SO
-                    if (TEST_BOOL1(actor))
-                        actor->vel.X = 0;
-                    else
-                        actor->vel.X = actor->spr.lotag * maptoworld;
-                    StartInterpolation(actor->sector(), Interp_Sect_CeilingPanX);
-                    StartInterpolation(actor->sector(), Interp_Sect_CeilingPanY);
-                    change_actor_stat(actor, STAT_CEILING_PAN);
-                    break;
-                }
-
-                case SECT_WALL_PAN_SPEED:
-                {
-                    HitInfo hit{};
-                    hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
-
-                    if (hit.hitWall == nullptr)
-                    {
-                        KillActor(actor);
-                        break;
-                    }
-
-                    actor->tempwall = hit.hitWall;
-                    // if moves with SO
-                    if (TEST_BOOL1(actor))
-                        actor->vel.X = 0;
-                    else
-						actor->vel.X = actor->spr.lotag * maptoworld;
-                    actor->spr.Angles.Yaw = mapangle(SP_TAG6(actor));
-                    // attach to the sector that contains the wall
-                    ChangeActorSect(actor, hit.hitSector);
-                    StartInterpolation(hit.hitWall, Interp_Wall_PanX);
-                    StartInterpolation(hit.hitWall, Interp_Wall_PanY);
-                    change_actor_stat(actor, STAT_WALL_PAN);
-                    break;
-                }
-
-                case WALL_DONT_STICK:
-                {
-					HitInfo hit{};
-					hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
-
-                    if (hit.hitWall == nullptr)
-                    {
-                        KillActor(actor);
-                        break;
-                    }
-
-                    hit.hitWall->extra |= WALLFX_DONT_STICK;
-                    KillActor(actor);
-                    break;
-                }
-
-                case TRIGGER_SECTOR:
-                {
-                    actor->sector()->extra |= (SECTFX_TRIGGER);
-                    change_actor_stat(actor, STAT_TRIGGER);
-                    break;
-                }
-
-                case DELETE_SPRITE:
-                {
-                    change_actor_stat(actor, STAT_DELETE_SPRITE);
-                    break;
-                }
-
-                case SPAWN_ITEMS:
-                {
-                    if ((actor->spr.extra & SPRX_MULTI_ITEM))
-                    {
-                        if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
-                        {
-                            KillActor(actor);
-                            break;
-                        }
-                    }
-
-
-                    change_actor_stat(actor, STAT_SPAWN_ITEMS);
-                    break;
-                }
-
-                case CEILING_FLOOR_PIC_OVERRIDE:
-                {
-                    // block hitscans depending on translucency
-                    if (SP_TAG7(actor) == 0 || SP_TAG7(actor) == 1)
-                    {
-                        if (SP_TAG3(actor) == 0)
-                            actor->sector()->ceilingstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
-                        else
-                            actor->sector()->floorstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
-                    }
-                    else if (TEST_BOOL1(actor))
-                    {
-                        if (SP_TAG3(actor) == 0)
-                            actor->sector()->ceilingstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
-                        else
-                            actor->sector()->floorstat |= (CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
-                    }
-
-                    // copy tag 7 to tag 6 and pre-shift it
-                    SP_TAG6(actor) = SP_TAG7(actor);
-                    SP_TAG6(actor) <<= 7;
-                    if (SP_TAG2(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG2(actor));
-                    change_actor_stat(actor, STAT_CEILING_FLOOR_PIC_OVERRIDE);
-                    break;
-                }
-
-                case QUAKE_SPOT:
-                {
-                    change_actor_stat(actor, STAT_QUAKE_SPOT);
-                    SET_SP_TAG13(actor, ((SP_TAG6(actor)*10) * 120));
-                    break;
-                }
-
-                case SECT_CHANGOR:
-                {
-                    if (SP_TAG4(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG4(actor));
-                    change_actor_stat(actor, STAT_CHANGOR);
-                    break;
-                }
-
-
-                case SECT_VATOR:
-                {
-                    short speed,vel,time,type,start_on,floor_vator;
-                    SpawnUser(actor, 0, nullptr);
-
-                    // vator already set - ceiling AND floor vator
-                    if ((sectp->extra & SECTFX_VATOR))
-                    {
-                        sectp->u_defined = true;
-                        sectp->flags |= (SECTFU_VATOR_BOTH);
-                    }
-                    sectp->extra |= (SECTFX_VATOR);
-                    SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, true, true);
-                    actor->sector()->extra |= (SECTFX_DYNAMIC_AREA);
-
-                    // don't step on toes of other sector settings
-                    if (sectp->lotag == 0 && sectp->hitag == 0)
-                        sectp->lotag = TAG_VATOR;
-
-                    type = SP_TAG3(actor);
-                    speed = SP_TAG4(actor);
-                    vel = SP_TAG5(actor);
-                    time = SP_TAG9(actor);
-                    start_on = !!TEST_BOOL1(actor);
-                    floor_vator = true;
-                    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-                        floor_vator = false;
-
-                    actor->user.jump_speed = actor->user.vel_tgt = speed;
-                    actor->user.vel_rate = vel;
-                    actor->user.WaitTics = time*15; // 1/8 of a sec
-                    actor->user.Tics = 0;
-
-                    actor->user.Flags |= (SPR_ACTIVE);
-
-                    switch (type)
-                    {
-                    case 0:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoVator);
-                        break;
-                    case 1:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoVator);
-                        break;
-                    case 2:
-                        actor->user.ActorActionFunc = AF(DoVatorAuto);
-                        break;
-                    case 3:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoVatorAuto);
-                        break;
-                    }
-
-                    if (floor_vator)
-                    {
-                        // start off
-                        actor->user.pos.Z = sectp->floorz;
-                        actor->user.z_tgt = actor->spr.pos.Z;
-                        if (start_on)
-                        {
-                            double amt = actor->spr.pos.Z - sectp->floorz;
-
-                            // start in the on position
-                            sectp->setfloorz(actor->spr.pos.Z);
-                            actor->user.z_tgt = actor->user.pos.Z;
-
-                            MoveSpritesWithSector(actor->sector(), amt, false); // floor
-                        }
-
-                        // set orig z
-                        actor->opos.Z = sectp->floorz;
-                        actor->user.oz = actor->opos.Z;
-                    }
-                    else
-                    {
-                        // start off
-                        actor->user.pos.Z = sectp->ceilingz;
-                        actor->user.z_tgt = actor->spr.pos.Z;
-                        if (start_on)
-                        {
-                            double amt = actor->spr.pos.Z - sectp->ceilingz;
-
-                            // starting in the on position
-                            sectp->setceilingz(actor->spr.pos.Z);
-                            actor->user.z_tgt = actor->user.pos.Z;
-
-                            MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
-                        }
-
-                        // set orig z
-                        actor->opos.Z = sectp->ceilingz;
-                        actor->user.oz = actor->opos.Z;
-                    }
-
-
-                    change_actor_stat(actor, STAT_VATOR);
-                    break;
-                }
-
-                case SECT_ROTATOR_PIVOT:
-                {
-                    change_actor_stat(actor, STAT_ROTATOR_PIVOT);
-                    break;
-                }
-
-                case SECT_ROTATOR:
-                {
-                    short time,type;
-                    short wallcount,startwall,endwall,w;
-                    SpawnUser(actor, 0, nullptr);
-
-                    SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, true, true);
-
-                    // need something for this
-                    sectp->lotag = TAG_ROTATOR;
-                    sectp->hitag = actor->spr.lotag;
-
-                    type = SP_TAG3(actor);
-                    time = SP_TAG9(actor);
-
-                    actor->user.WaitTics = time*15; // 1/8 of a sec
-                    actor->user.Tics = 0;
-
-                    actor->user.rotator.Alloc();
-                    actor->user.rotator->open_dest = SP_TAG5(actor);
-                    actor->user.rotator->speed = SP_TAG7(actor);
-                    actor->user.rotator->vel = SP_TAG8(actor);
-                    actor->user.rotator->pos = 0; // closed
-                    actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
-                    actor->user.rotator->SetNumWalls(actor->sector()->walls.Size());
-
-                    actor->user.rotator->orig_speed = actor->user.rotator->speed;
-
-                    wallcount = 0;
-                    for(auto& wal : actor->sector()->walls)
-                    {
-                        actor->user.rotator->orig[wallcount] = wal.pos;
-                        wallcount++;
-                    }
-
-                    actor->user.Flags |= (SPR_ACTIVE);
-
-                    switch (type)
-                    {
-                    case 0:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoRotator);
-                        break;
-                    case 1:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoRotator);
-                        break;
-                    }
-
-                    change_actor_stat(actor, STAT_ROTATOR);
-                    break;
-                }
-
-                case SECT_SLIDOR:
-                {
-                    short time,type;
-
-                    SpawnUser(actor, 0, nullptr);
-
-                    SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, true, true);
-
-                    // need something for this
-                    sectp->lotag = TAG_SLIDOR;
-                    sectp->hitag = actor->spr.lotag;
-
-                    type = SP_TAG3(actor);
-                    time = SP_TAG9(actor);
-
-                    actor->user.WaitTics = time*15; // 1/8 of a sec
-                    actor->user.Tics = 0;
-
-                    actor->user.rotator.Alloc();
-                    actor->user.rotator->open_dest = SP_TAG5(actor);
-                    actor->user.rotator->speed = SP_TAG7(actor);
-                    actor->user.rotator->vel = SP_TAG8(actor);
-                    actor->user.rotator->pos = 0; // closed
-                    actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
-                    actor->user.rotator->ClearWalls();
-                    actor->user.rotator->orig_speed = actor->user.rotator->speed;
-
-                    actor->user.Flags |= (SPR_ACTIVE);
-
-                    switch (type)
-                    {
-                    case 0:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoSlidor);
-                        break;
-                    case 1:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoSlidor);
-                        break;
-                    }
-
-
-                    if (TEST_BOOL5(actor))
-                    {
-                        DoSlidorInstantClose(actor);
-                    }
-
-                    change_actor_stat(actor, STAT_SLIDOR);
-                    break;
-                }
-
-                case SECT_SPIKE:
-                {
-                    short speed,vel,time,type,start_on,floor_vator;
-                    double florz,ceilz;
-                    Collision trash;
-                    SpawnUser(actor, 0, nullptr);
-
-                    SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, false, true);
-                    actor->sector()->extra |= (SECTFX_DYNAMIC_AREA);
-
-                    type = SP_TAG3(actor);
-                    speed = SP_TAG4(actor);
-                    vel = SP_TAG5(actor);
-                    time = SP_TAG9(actor);
-                    start_on = !!TEST_BOOL1(actor);
-                    floor_vator = true;
-                    if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
-                        floor_vator = false;
-
-                    actor->user.jump_speed = actor->user.vel_tgt = speed;
-                    actor->user.vel_rate = vel;
-                    actor->user.WaitTics = time*15; // 1/8 of a sec
-                    actor->user.Tics = 0;
-
-                    actor->user.Flags |= (SPR_ACTIVE);
-
-                    switch (type)
-                    {
-                    case 0:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoSpike);
-                        break;
-                    case 1:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoSpike);
-                        break;
-                    case 2:
-                        actor->user.ActorActionFunc = AF(DoSpikeAuto);
-                        break;
-                    case 3:
-                        actor->user.Flags &= ~(SPR_ACTIVE);
-                        actor->user.ActorActionFunc = AF(DoSpikeAuto);
-                        break;
-                    }
-
-                    getzrangepoint(actor->spr.pos, actor->sector(), &ceilz, &trash, &florz, &trash);
-
-                    if (floor_vator)
-                    {
-                        actor->user.zclip = florz;
-
-                        // start off
-                        actor->user.pos.Z = actor->user.zclip;
-                        actor->user.z_tgt = actor->spr.pos.Z;
-                        if (start_on)
-                        {
-                            // start in the on position
-                            actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.pos.Z;
-                            SpikeAlign(actor);
-                        }
-
-                        // set orig z
-                        actor->user.oz = actor->user.zclip;
-                        actor->opos.Z = actor->user.oz;
-                    }
-                    else
-                    {
-                        actor->user.zclip = ceilz;
-
-                        // start off
-                        actor->user.pos.Z = actor->user.zclip;
-                        actor->user.z_tgt = actor->spr.pos.Z;
-                        if (start_on)
-                        {
-                            // starting in the on position
-                            actor->user.zclip = actor->spr.pos.Z;
-                            actor->user.z_tgt = actor->user.pos.Z;
-                            SpikeAlign(actor);
-                        }
-
-                        // set orig z
-                        actor->user.oz = actor->user.zclip;
-                        actor->opos.Z = actor->user.oz;
-                    }
-
-                    change_actor_stat(actor, STAT_SPIKE);
-                    break;
-                }
-
-                case LIGHTING:
-                {
-                    int wallcount = 0;
-                    int8_t* wall_shade;
-
-                    LIGHT_Tics(actor) = 0;
-
-                    if (LIGHT_ShadeInc(actor) == 0)
-                        LIGHT_ShadeInc(actor) = 1;
-
-                    // save off original floor and ceil shades
-                    LIGHT_FloorShade(actor) = actor->sector()->floorshade;
-                    LIGHT_CeilingShade(actor) = actor->sector()->ceilingshade;
-
-                    // count walls of sector
-                    for(auto& wal : actor->sector()->walls)
-                    {
-                        wallcount++;
-                        if (TEST_BOOL5(actor))
-                        {
-                            if (wal.twoSided())
-                                wallcount++;
-                        }
-                    }
-
-                    SpawnUser(actor, 0, nullptr);
-                    actor->user.WallShade.Resize(wallcount);
-                    wallcount = 0;
-                    wall_shade = actor->user.WallShade.Data();
-
-                    // save off original wall shades
-                    for(auto& wal : actor->sector()->walls)
-                    {
-                        wall_shade[wallcount] =  wal.shade;
-                        wallcount++;
-                        if (TEST_BOOL5(actor))
-                        {
-                            if (wal.twoSided())
-                            {
-                                wall_shade[wallcount] = wal.nextWall()->shade;
-                                wallcount++;
-                            }
-                        }
-                    }
-
-                    actor->user.spal = actor->spr.pal;
-
-                    // DON'T USE COVER function
-                    change_actor_stat(actor, STAT_LIGHTING, true);
-                    break;
-                }
-
-                case LIGHTING_DIFFUSE:
-                {
-                    int wallcount = 0;
-                    int8_t* wall_shade;
-
-                    LIGHT_Tics(actor) = 0;
-
-                    // save off original floor and ceil shades
-                    LIGHT_FloorShade(actor) = actor->sector()->floorshade;
-                    LIGHT_CeilingShade(actor) = actor->sector()->ceilingshade;
-
-                    // count walls of sector
-                    for (auto& wal : actor->sector()->walls)
-                    {
-                        wallcount++;
-                        if (TEST_BOOL5(actor))
-                        {
-                            if (wal.twoSided())
-                                wallcount++;
-                        }
-                    }
-
-                    // !LIGHT
-                    // make an wall_shade array and put it in User
-                    SpawnUser(actor, 0, nullptr);
-                    actor->user.WallShade.Resize(wallcount);
-                    wallcount = 0;
-                    wall_shade = actor->user.WallShade.Data();
-
-                    // save off original wall shades
-                    for (auto& wal : actor->sector()->walls)
-                    {
-                        wall_shade[wallcount] = wal.shade;
-                        wallcount++;
-                        if (TEST_BOOL5(actor))
-                        {
-                            if (wal.twoSided())
-                            {
-                                wall_shade[wallcount] = wal.nextWall()->shade;
-                                wallcount++;
-                            }
-                        }
-                    }
-
-                    // DON'T USE COVER function
-                    change_actor_stat(actor, STAT_LIGHTING_DIFFUSE, true);
-                    break;
-                }
-
-                case SECT_VATOR_DEST:
-                    change_actor_stat(actor, STAT_VATOR);
-                    break;
-
-                case SO_WALL_DONT_MOVE_UPPER:
-                    change_actor_stat(actor, STAT_WALL_DONT_MOVE_UPPER);
-                    break;
-
-                case SO_WALL_DONT_MOVE_LOWER:
-                    change_actor_stat(actor, STAT_WALL_DONT_MOVE_LOWER);
-                    break;
-
-                case FLOOR_SLOPE_DONT_DRAW:
-                    change_actor_stat(actor, STAT_FLOOR_SLOPE_DONT_DRAW);
-                    break;
-
-                case DEMO_CAMERA:
-                    actor->vel.Z = 100 / 256.; //attempt horiz control
-                    change_actor_stat(actor, STAT_DEMO_CAMERA);
-                    break;
-
-                case LAVA_ERUPT:
-                {
-
-                    SpawnUser(actor, ST1, nullptr);
-
-                    change_actor_stat(actor, STAT_NO_STATE);
-                    actor->user.ActorActionFunc = AF(DoLavaErupt);
-
-                    // interval between erupts
-                    if (SP_TAG10(actor) == 0)
-                        SP_TAG10(actor) = 20;
-
-                    // interval in seconds
-                    actor->user.WaitTics = RandomRange(SP_TAG10(actor)) * 120;
-
-                    // time to erupt
-                    if (SP_TAG9(actor) == 0)
-                        SP_TAG9(actor) = 10;
-
-                    actor->spr.pos.Z += 30;
-
-                    break;
-                }
-
-
-                case SECT_EXPLODING_CEIL_FLOOR:
-                {
-                    SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, false, true);
-
-                    if ((sectp->floorstat & CSTAT_SECTOR_SLOPE))
-                    {
-                        SP_TAG5(actor) = sectp->floorheinum;
-                        sectp->setfloorslope(0);
-                    }
-
-                    if ((sectp->ceilingstat & CSTAT_SECTOR_SLOPE))
-                    {
-                        SP_TAG6(actor) = sectp->ceilingheinum;
-                        sectp->setceilingslope(0);
-                    }
-
-                    SP_TAG4(actor) = int(fabs(sectp->ceilingz - sectp->floorz));
-
-                    sectp->setceilingz(sectp->floorz);
-
-                    change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
-                    break;
-                }
-
-                case SECT_COPY_SOURCE:
-                    change_actor_stat(actor, STAT_COPY_SOURCE);
-                    break;
-
-                case SECT_COPY_DEST:
-                {
-                    SetSectorWallBits(actor->sector(), WALLFX_DONT_STICK, false, true);
-                    change_actor_stat(actor, STAT_COPY_DEST);
-                    break;
-                }
-
-
-                case SECT_WALL_MOVE:
-                    // this type considers tilenum 0 invalid.
-                    if (SP_TAG5(actor) > 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
-                    if (SP_TAG6(actor) > 0 && !actor->texparam.isValid()) actor->texparam2 = tileGetTextureID(SP_TAG6(actor));
-                    change_actor_stat(actor, STAT_WALL_MOVE);
-                    break;
-                case SECT_WALL_MOVE_CANSEE:
-                    change_actor_stat(actor, STAT_WALL_MOVE_CANSEE);
-                    break;
-
-                case SPRI_CLIMB_MARKER:
-                {
-                    // setup climb marker
-                    change_actor_stat(actor, STAT_CLIMB_MARKER);
-
-                    // make a QUICK_LADDER sprite automatically
-                    auto actorNew = insertActor(actor->sector(), STAT_QUICK_LADDER);
-
-                    actorNew->spr.cstat = 0;
-                    actorNew->spr.extra = 0;
-                    actorNew->spr.pos = actor->spr.pos;
-                    actorNew->spr.Angles.Yaw += DAngle180;
-                    actorNew->spr.picnum = actor->spr.picnum;
-
-                    actorNew->spr.pos += actor->spr.Angles.Yaw.ToVector() * 24;
-
-                    break;
-                }
-
-                case SO_AUTO_TURRET:
-#if 0
-                    switch (gNet.MultiGameType)
-                    {
-                    case MULTI_GAME_NONE:
-                        change_actor_stat(actor, STAT_ST1);
-                        break;
-                    case MULTI_GAME_COMMBAT:
-                        KillActor(actor);
-                        break;
-                    case MULTI_GAME_COOPERATIVE:
-                        change_actor_stat(actor, STAT_ST1);
-                        break;
-                    }
-#else
-                    change_actor_stat(actor, STAT_ST1);
-#endif
-                    break;
-
-                case SO_DRIVABLE_ATTRIB:
-                case SO_SCALE_XY_MULT:
-                case SO_SCALE_INFO:
-                case SO_SCALE_POINT_INFO:
-                case SO_TORNADO:
-                case SO_FLOOR_MORPH:
-                case SO_AMOEBA:
-                case SO_SET_SPEED:
-                case SO_ANGLE:
-                case SO_SPIN:
-                case SO_SPIN_REVERSE:
-                case SO_BOB_START:
-                case SO_BOB_SPEED:
-                case SO_TURN_SPEED:
-                case SO_SYNC1:
-                case SO_SYNC2:
-                case SO_LIMIT_TURN:
-                case SO_MATCH_EVENT:
-                case SO_MAX_DAMAGE:
-                case SO_RAM_DAMAGE:
-                case SO_SLIDE:
-                case SO_KILLABLE:
-                case SECT_SO_SPRITE_OBJ:
-                case SECT_SO_DONT_ROTATE:
-                case SECT_SO_CLIP_DIST:
-                {
-                    // NOTE: These will get deleted by the sector
-                    // object
-                    // setup code
-
-                    change_actor_stat(actor, STAT_ST1);
-                    break;
-                }
-
-                case SOUND_SPOT:
-                    SET_SP_TAG13(actor, SP_TAG4(actor));
-                    change_actor_stat(actor, STAT_SOUND_SPOT);
-                    break;
-
-                case STOP_SOUND_SPOT:
-                    change_actor_stat(actor, STAT_STOP_SOUND_SPOT);
-                    break;
-
-                case SPAWN_SPOT:
-                    if (!actor->hasU())
-                        SpawnUser(actor, ST1, nullptr);
-
-                    if (actor->spr.scale.X == 1 && actor->spr.scale.Y == 1) // clear default scale.
-                        actor->spr.scale = DVector2(0, 0);
-
-                    change_actor_stat(actor, STAT_SPAWN_SPOT);
-                    break;
-
-                case VIEW_THRU_CEILING:
-                case VIEW_THRU_FLOOR:
-                {
-                    // make sure there is only one set per level of these
-                    SWStatIterator it2(STAT_FAF);
-                    while (auto itActor = it2.Next())
-                    {
-                        if (itActor->spr.hitag == actor->spr.hitag && itActor->spr.lotag == actor->spr.lotag)
-                        {
-                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", int(actor->spr.pos.X), int(actor->spr.pos.Y), int(itActor->spr.pos.X), int(itActor->spr.pos.Y));
-                        }
-                    }
-                    change_actor_stat(actor, STAT_FAF);
-                    break;
-                }
-
-                case VIEW_LEVEL1:
-                case VIEW_LEVEL2:
-                case VIEW_LEVEL3:
-                case VIEW_LEVEL4:
-                case VIEW_LEVEL5:
-                case VIEW_LEVEL6:
-                {
-                    change_actor_stat(actor, STAT_FAF);
-                    break;
-                }
-
-                case PLAX_GLOB_Z_ADJUST:
-                {
-                    actor->sector()->extra |= (SECTFX_Z_ADJUST);
-                    PlaxCeilGlobZadjust = SP_TAG2(actor) * zmaptoworld;
-                    PlaxFloorGlobZadjust = SP_TAG3(actor) * zmaptoworld;
-                    KillActor(actor);
-                    break;
-                }
-
-                case CEILING_Z_ADJUST:
-                {
-                    actor->sector()->extra |= (SECTFX_Z_ADJUST);
-                    change_actor_stat(actor, STAT_ST1);
-                    break;
-                }
-
-                case FLOOR_Z_ADJUST:
-                {
-                    actor->sector()->extra |= (SECTFX_Z_ADJUST);
-                    change_actor_stat(actor, STAT_ST1);
-                    break;
-                }
-
-                case WARP_TELEPORTER:
-                {
-                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    actor->sector()->extra |= (SECTFX_WARP_SECTOR);
-                    change_actor_stat(actor, STAT_WARP);
-
-                    // if just a destination teleporter
-                    // don't set up flags
-                    if (SP_TAG10(actor) == 1)
-                        break;
-
-                    // move the the next wall
-                    auto start_wall = actor->sector()->walls.Data();
-                    auto wall_num = start_wall;
-
-                    // Travel all the way around loop setting wall bits
-                    do
-                    {
-                        // DO NOT TAG WHITE WALLS!
-                        if (wall_num->twoSided())
-                        {
-                            wall_num->cstat |= (CSTAT_WALL_WARP_HITSCAN);
-                        }
-
-                        wall_num = wall_num->point2Wall();
-                    }
-                    while (wall_num != start_wall);
-
-                    break;
-                }
-
-                case WARP_CEILING_PLANE:
-                case WARP_FLOOR_PLANE:
-                {
-                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    actor->sector()->extra |= (SECTFX_WARP_SECTOR);
-                    change_actor_stat(actor, STAT_WARP);
-                    break;
-                }
-
-                case WARP_COPY_SPRITE1:
-                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    actor->sector()->extra |= (SECTFX_WARP_SECTOR);
-                    change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
-                    break;
-                case WARP_COPY_SPRITE2:
-                    actor->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
-                    actor->sector()->extra |= (SECTFX_WARP_SECTOR);
-                    change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
-                    break;
-
-                case FIREBALL_TRAP:
-                case BOLT_TRAP:
-                case SPEAR_TRAP:
-                {
-                    SpawnUser(actor, 0, nullptr);
-                    ClearOwner(actor);
-                    change_actor_stat(actor, STAT_TRAP);
-                    break;
-                }
-
-                case SECT_SO_DONT_BOB:
-                {
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_SO_DONT_BOB);
-                    KillActor(actor);
-                    break;
-                }
-
-                case SECT_LOCK_DOOR:
-                {
-                    sectp->u_defined = true;
-                    sectp->number = actor->spr.lotag;
-                    sectp->stag = SECT_LOCK_DOOR;
-                    KillActor(actor);
-                    break;
-                }
-
-                case SECT_SO_SINK_DEST:
-                {
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_SO_SINK_DEST);
-                    sectp->number = actor->spr.lotag;  // acually the offset Z
-                    // value
-                    KillActor(actor);
-                    break;
-                }
-
-                case SECT_SO_DONT_SINK:
-                {
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_SO_DONT_SINK);
-                    KillActor(actor);
-                    break;
-                }
-
-                case SO_SLOPE_FLOOR_TO_POINT:
-                {
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_SO_SLOPE_FLOOR_TO_POINT);
-                    sectp->extra |= (SECTFX_DYNAMIC_AREA);
-                    KillActor(actor);
-                    break;
-                }
-
-                case SO_SLOPE_CEILING_TO_POINT:
-                {
-                    sectp->u_defined = true;
-                    sectp->flags |= (SECTFU_SO_SLOPE_CEILING_TO_POINT);
-                    sectp->extra |= (SECTFX_DYNAMIC_AREA);
-                    KillActor(actor);
-                    break;
-                }
-                case SECT_SO_FORM_WHIRLPOOL:
-                {
-                    sectp->u_defined = true;
-                    sectp->stag = SECT_SO_FORM_WHIRLPOOL;
-                    sectp->height = actor->spr.lotag;
-                    KillActor(actor);
-                    break;
-                }
-
-                case SECT_ACTOR_BLOCK:
-                {
-                    // move the the next wall
-                    auto start_wall = actor->sector()->walls.Data();
-                    auto wall_num = start_wall;
-
-                    // Travel all the way around loop setting wall bits
-                    do
-                    {
-                        wall_num->cstat |= (CSTAT_WALL_BLOCK_ACTOR);
-                        if (wall_num->twoSided())
-                            wall_num->nextWall()->cstat |= CSTAT_WALL_BLOCK_ACTOR;
-                        wall_num = wall_num->point2Wall();
-                    }
-                    while (wall_num != start_wall);
-
-                    KillActor(actor);
-                    break;
-                }
-                }
-            }
+            SetupST1(actor);
         }
         break;
 
@@ -2736,42 +2783,16 @@ void SpriteSetup(void)
             goto KeyMain;
         case RED_SKELKEY:
             num = 11;
-KeyMain:
-            {
-
-                if (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS)
-                {
-                    KillActor(actor);
-                    break;
-                }
-
-                SpawnUser(actor, 0, nullptr);
-
-                actor->spr.picnum = actor->user.ID = actor->spr.picnum;
-
-                actor->user.spal = actor->spr.pal; // Set the palette from build
-
-                //actor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
-
-                ChangeState(actor, s_Key[num]);
-
-                change_actor_stat(actor, STAT_ITEM);
-                actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
-                actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
-                actor->user.Radius = 500;
-                actor->spr.hitag = LUMINOUS; //Set so keys over ride colored lighting
-
-                DoActorZrange(actor);
-            }
-
+        KeyMain:
+            SetupKey(actor, num);
             break;
 
 
         // Used for multiplayer locks
-        case MPLOCK1:
-        case MPLOCK2:
-        case MPLOCK3:
-        case MPLOCK4:
+        case SKEL_LOCKED:
+        case RAMCARD_LOCKED:
+        case CARD_LOCKED:
+        case EXIT_SWITCH:
 
             if ((actor->spr.extra & SPRX_MULTI_ITEM))
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)

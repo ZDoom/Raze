@@ -534,6 +534,14 @@ int SetupCoolg(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWCoolg, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupCoolg(self);
+    return 0;
+}
+
+
 //---------------------------------------------------------------------------
 //
 //

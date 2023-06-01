@@ -62,8 +62,6 @@ uint32_t oscilationclock;
 // Voxel stuff
 //bool bVoxelsOn = true;                  // Turn voxels on by default
 bool bSpinBobVoxels = false;            // Do twizzly stuff to voxels, but
-// not by default
-bool bAutoSize = true;                  // Autosizing on/off
 
 //extern int chainnumpages;
 extern AMB_INFO ambarray[];
@@ -607,9 +605,6 @@ void GameInterface::LeavePortal(DCoreActor* viewer, int type)
 
 void DoAutoSize(tspritetype* tspr)
 {
-    if (!bAutoSize)
-        return;
-
     switch (tspr->picnum)
     {
     case ICON_STAR:                     // 1793

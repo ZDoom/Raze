@@ -504,6 +504,14 @@ int SetupGoro(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWGoro, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupGoro(self);
+    return 0;
+}
+
+
 //---------------------------------------------------------------------------
 //
 // 

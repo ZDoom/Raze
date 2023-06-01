@@ -247,6 +247,13 @@ int SetupSkull(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWSkull, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupSkull(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -654,6 +661,13 @@ int SetupBetty(DSWActor* actor)
     }
 
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWBetty, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupBetty(self);
     return 0;
 }
 

@@ -401,6 +401,13 @@ int SetupEel(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWEel, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupEel(self);
+    return 0;
+}
+
 
 //---------------------------------------------------------------------------
 //

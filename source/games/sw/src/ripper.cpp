@@ -840,6 +840,13 @@ int SetupRipper(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWRipper, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupRipper(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 // 

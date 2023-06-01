@@ -140,6 +140,13 @@ int  SetupToiletGirl(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWToiletGirl, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupToiletGirl(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -386,6 +393,13 @@ int SetupWashGirl(DSWActor* actor)
 
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWWashGirl, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupWashGirl(self);
     return 0;
 }
 
@@ -725,6 +739,13 @@ int SetupPachinkoLight(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWPachinkoWinLight, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupPachinkoLight(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -821,6 +842,13 @@ int SetupPachinko1(DSWActor* actor)
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
     actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWPachinko1, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupPachinko1(self);
     return 0;
 }
 
@@ -994,6 +1022,13 @@ int SetupPachinko2(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWPachinko2, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupPachinko2(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 // PACHINKO MACHINE #3
@@ -1076,6 +1111,12 @@ int SetupPachinko3(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWPachinko3, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupPachinko3(self);
+    return 0;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -1156,6 +1197,13 @@ int SetupPachinko4(DSWActor* actor)
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
     actor->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWPachinko4, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupPachinko4(self);
     return 0;
 }
 
@@ -1266,6 +1314,13 @@ int SetupCarGirl(DSWActor* actor)
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWCarGirl, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupCarGirl(self);
     return 0;
 }
 
@@ -1493,6 +1548,13 @@ int SetupMechanicGirl(DSWActor* actor)
 
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWMechanicGirl, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupMechanicGirl(self);
     return 0;
 }
 
@@ -1724,6 +1786,13 @@ int SetupSailorGirl(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWSailorGirl, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupEel(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -1943,6 +2012,13 @@ int SetupPruneGirl(DSWActor* actor)
 
     actor->user.Flags &= ~(SPR_XFLIP_TOGGLE);
 
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSWPruneGirl, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupPruneGirl(self);
     return 0;
 }
 

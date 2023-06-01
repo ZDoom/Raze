@@ -522,6 +522,13 @@ int SetupSkel(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWSkeleton, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupSkel(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //

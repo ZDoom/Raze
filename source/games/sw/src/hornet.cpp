@@ -313,6 +313,13 @@ int SetupHornet(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWHornet, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupHornet(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 // 

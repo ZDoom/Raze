@@ -728,6 +728,14 @@ int SetupGirlNinja(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWGirlNinja, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupGirlNinja(self);
+    return 0;
+}
+
+
 //---------------------------------------------------------------------------
 //
 // 

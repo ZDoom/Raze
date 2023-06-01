@@ -727,6 +727,13 @@ int SetupSerp(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWSerpent, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupSerp(self);
+    return 0;
+}
+
 int NullSerp(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_SLIDING))

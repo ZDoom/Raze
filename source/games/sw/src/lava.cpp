@@ -476,6 +476,13 @@ int SetupLava(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWLava, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupLava(self);
+    return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //

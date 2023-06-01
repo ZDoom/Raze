@@ -1863,6 +1863,14 @@ int SetupNinja(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWNinja, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupNinja(self);
+    return 0;
+}
+
+
 //---------------------------------------------------------------------------
 //
 //

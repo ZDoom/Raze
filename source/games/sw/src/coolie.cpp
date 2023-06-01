@@ -491,6 +491,12 @@ int SetupCoolie(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWCoolie, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupCoolie(self);
+    return 0;
+}
 
 //---------------------------------------------------------------------------
 //

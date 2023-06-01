@@ -575,6 +575,14 @@ int SetupSumo(DSWActor* actor)
     return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DSWSumo, Initialize)
+{
+    PARAM_SELF_PROLOGUE(DSWActor);
+    SetupSumo(self);
+    return 0;
+}
+
+
 //---------------------------------------------------------------------------
 //
 //
