@@ -297,7 +297,7 @@ class DukeGreenSlime : DukeActor
 			}
 			else
 			{
-				self.temp_data[0] = -1;
+				self.counter = -1;
 			}
 			return;
 		}
