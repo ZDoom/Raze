@@ -80,7 +80,7 @@ class RedneckUfoBeam : DukeActor
 	}
 }
 
-class RedneckTikiLamp : DukeItemBase
+class RedneckTikiLamp : DukeActor
 {
 	default
 	{

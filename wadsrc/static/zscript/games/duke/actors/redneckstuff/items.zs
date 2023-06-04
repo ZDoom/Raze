@@ -297,6 +297,12 @@ class RedneckPowderKeg : DukeItemBase
 		+BREAKMIRRORS;
 		+INFLAME;
 	}
+
+	override void Initialize(DukeActor spawner)
+	{
+		commonItemSetup(spawner, (0.171875, 0.171875));
+		self.yint = 4;
+	}
 	
 	override void Tick()
 	{
@@ -306,6 +312,7 @@ class RedneckPowderKeg : DukeItemBase
 			{
 				movesprite((self.Angle.ToVector()* self.vel.X, self.vel.Z), CLIPMASK0);
 				self.vel.X -= 1. / 16.;
+				if (self.vel.X < 0) self.vel.X = 0;
 			}
 		Super.Tick();
 	}
