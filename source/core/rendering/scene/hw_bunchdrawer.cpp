@@ -683,7 +683,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			auto tex = actor->spr.spritetexture();
 			if (!tex.isValid()) continue;
 			auto tx = TexMan.GetGameTexture(tex);
-			if (tx->GetUseType() == ETextureType::FirstDefined) continue;
+			if (tx->GetUseType() == ETextureType::FirstDefined && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING) continue;
 
 			auto viewvec = actor->spr.pos.XY() - DVector2(viewx, -viewy); // note that viewy is in render coordinates
 
