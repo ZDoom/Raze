@@ -31,6 +31,11 @@ class RedneckDynamiteArrow : DukeRPG
 		self.Destroy();
 	}
 	
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		if (targhealth > 0) return 'RedneckDynamiteArrow';
+		return 'DukeRadiusExplosion';
+	}
 	
 }
 
