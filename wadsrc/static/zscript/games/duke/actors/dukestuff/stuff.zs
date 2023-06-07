@@ -374,3 +374,23 @@ class DukeSeriousSam : DukeActor
 	}
 }		
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeWeatherWarn : DukeActor
+{
+	default
+	{
+		pic "WEATHERWARN";
+	}
+	
+	override void Initialize(DukeActor spawner)
+	{
+		self.ChangeStat(STAT_ACTOR);
+	}	
+}
+
+
