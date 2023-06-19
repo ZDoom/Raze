@@ -37,7 +37,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 static int torchcnt;
-static int lightnincnt;
 
 static sectortype* torchsector[64];
 static short torchsectorshade[64];
@@ -67,27 +66,29 @@ struct minecart
 	int16_t open;
 };
 
+struct WindowLightning
+{
+	sectortype* sect;
+	int shade;
+};
 static TArray<jaildoor> jaildoors;
 static TArray<minecart> minecarts;
-
-
-static sectortype* lightninsector[64];
-static short lightninsectorshade[64];
+static TArray<WindowLightning> windowlightning;
 
 static uint8_t brightness;
 
 static int thunderflash;
 static int thundertime;
-static int winderflash;
-static int windertime;
+static int windowflash;
+static int windowtime;
 
 
 void lava_cleararrays()
 {
 	jaildoors.Clear();
 	minecarts.Clear();
+	windowlightning.Clear();
 	torchcnt = 0;
-	lightnincnt = 0;
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* key, jaildoor& c, jaildoor* def)
@@ -124,27 +125,34 @@ FSerializer& Serialize(FSerializer& arc, const char* key, minecart& c, minecart*
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* key, WindowLightning& c, WindowLightning* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("sect", c.sect)
+			("shade", c.shade)
+			.EndObject();
+	}
+	return arc;
+}
+
 void lava_serialize(FSerializer& arc)
 {
 	arc("torchcnt", torchcnt)
 		("jaildoors", jaildoors)
 		("minecarts", minecarts)
-		("lightnincnt", lightnincnt);
+		("windowlightning", windowlightning);
 
 	if (torchcnt)
 		arc.Array("torchsector", torchsector, torchcnt)
 		.Array("torchsectorshade", torchsectorshade, torchcnt)
 		.Array("torchtype", torchtype, torchcnt);
 
-	if (lightnincnt)
-		arc.Array("lightninsector", lightninsector, lightnincnt)
-		.Array("lightninsectorshade", lightninsectorshade, lightnincnt);
-
 	arc("brightness", brightness)
 		("thunderflash", thunderflash)
 		("thundertime", thundertime)
-		("winderflash", winderflash)
-		("windertime", windertime);
+		("winderflash", windowflash)
+		("windertime", windowtime);
 }
 
 void addtorch(sectortype* sect, int shade, int lotag)
@@ -160,12 +168,7 @@ void addtorch(sectortype* sect, int shade, int lotag)
 
 void addlightning(sectortype* sect, int shade)
 {
-	if (lightnincnt >= 64)
-		I_Error("Too many lightning effects");
-
-	lightninsector[lightnincnt] = sect;
-	lightninsectorshade[lightnincnt] = shade;
-	lightnincnt++;
+	windowlightning.Push({ sect, shade });
 }
 
 void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* j)
@@ -476,12 +479,12 @@ void thunder(void)
 			thunder_brightness = brightness;
 		}
 	}
-	if (!winderflash)
+	if (!windowflash)
 	{
 		bool seen = false;
-		for (i = 0; i < lightnincnt; i++)
+		for (auto& window : windowlightning)
 		{
-			auto sectp = lightninsector[i];
+			auto sectp = window.sect;
 			if (sectp->exflags & SECTOREX_SEEN)
 			{
 				seen = true;
@@ -493,25 +496,25 @@ void thunder(void)
 		{
 			if (krand() > 65000)
 			{
-				winderflash = 1;
-				windertime = 128;
+				windowflash = 1;
+				windowtime = 128;
 				S_PlaySound(soundEngine->FindSound("THUNDER"));
 			}
 		}
 	}
 	else
 	{
-		windertime -= 4;
-		if (windertime < 0)
+		windowtime -= 4;
+		if (windowtime < 0)
 		{
-			winderflash = 0;
-			for (i = 0; i < lightnincnt; i++)
+			windowflash = 0;
+			for (auto& window : windowlightning)
 			{
-				auto sectp = lightninsector[i];
-				sectp->floorshade = (int8_t)lightninsectorshade[i];
-				sectp->ceilingshade = (int8_t)lightninsectorshade[i];
+				auto sectp = window.sect;
+				sectp->floorshade = 
+				sectp->ceilingshade = (int8_t)window.shade;
 				for (auto& wal : sectp->walls)
-					wal.shade = (int8_t)lightninsectorshade[i];
+					wal.shade = (int8_t)window.shade;
 			}
 		}
 	}
@@ -523,17 +526,17 @@ void thunder(void)
 			brightness = 0;
 		thunder_brightness = brightness;
 	}
-	if (winderflash == 1)
+	if (windowflash == 1)
 	{
 		r2 = krand() & 8;
 		shade = torchsectorshade[i] + r2;
-		for (i = 0; i < lightnincnt; i++)
+		for (auto& window : windowlightning)
 		{
-			auto sectp = lightninsector[i];
-			sectp->floorshade = lightninsectorshade[i] - shade;
-			sectp->ceilingshade = lightninsectorshade[i] - shade;
+			auto sectp = window.sect;
+			sectp->floorshade = 
+			sectp->ceilingshade = window.shade - shade;
 			for (auto& wal : sectp->walls)
-				wal.shade = lightninsectorshade[i] - shade;
+				wal.shade = window.shade - shade;
 		}
 	}
 }
