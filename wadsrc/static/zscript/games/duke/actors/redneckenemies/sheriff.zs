@@ -17,7 +17,7 @@ class RedneckSheriff : DukeActor
 
 }
 
-class RedneckRASheriff : DukeActor // LTH (4352) // less health than in RR!
+class RedneckRASheriff : RedneckSheriff // LTH (4352) // less health than in RR!
 {
 	default
 	{
