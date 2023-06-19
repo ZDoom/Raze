@@ -1090,7 +1090,10 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	for (auto& sect : sector)
 	{
 		if (tilesurface(sect.ceilingtexture) == TSURF_THUNDERSKY)
+		{
+			addthundersector(&sect);
 			thunderon = 1;
+		}
 	}
 
 	SpawnPortals();

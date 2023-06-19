@@ -74,6 +74,7 @@ struct WindowLightning
 static TArray<jaildoor> jaildoors;
 static TArray<minecart> minecarts;
 static TArray<WindowLightning> windowlightning;
+static TArray<sectortype*> thundersectors;
 
 static uint8_t brightness;
 
@@ -88,6 +89,7 @@ void lava_cleararrays()
 	jaildoors.Clear();
 	minecarts.Clear();
 	windowlightning.Clear();
+	thundersectors.Clear();
 	torchcnt = 0;
 }
 
@@ -141,6 +143,7 @@ void lava_serialize(FSerializer& arc)
 	arc("torchcnt", torchcnt)
 		("jaildoors", jaildoors)
 		("minecarts", minecarts)
+		("thundersectors", thundersectors)
 		("windowlightning", windowlightning);
 
 	if (torchcnt)
@@ -153,6 +156,11 @@ void lava_serialize(FSerializer& arc)
 		("thundertime", thundertime)
 		("winderflash", windowflash)
 		("windertime", windowtime);
+}
+
+void addthundersector(sectortype* sect)
+{
+	thundersectors.Push(sect);
 }
 
 void addtorch(sectortype* sect, int shade, int lotag)
@@ -454,19 +462,32 @@ void thunder(void)
 
 	if (!thunderflash)
 	{
-		if (ps[screenpeek].actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+		bool seen = false;
+		for (auto& sectp : thundersectors)
 		{
-			g_relvisibility = 0;
-			if (krand() > 65000)
+			if (sectp->exflags & SECTOREX_SEEN)
 			{
-				thunderflash = 1;
-				thundertime = 256;
-				S_PlaySound(soundEngine->FindSound("THUNDER"));
+				seen = true;
+				sectp->exflags &= ~SECTOREX_SEEN;
 			}
 		}
-		else
+
+		if (seen)
 		{
-			brightness = ud.brightness >> 2;
+			if (ps[screenpeek].actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+			{
+				g_relvisibility = 0;
+				if (krand() > 65000)
+				{
+					thunderflash = 1;
+					thundertime = 256;
+					S_PlaySound(soundEngine->FindSound("THUNDER"));
+				}
+			}
+			else
+			{
+				brightness = ud.brightness >> 2;
+			}
 		}
 	}
 	else
@@ -479,6 +500,7 @@ void thunder(void)
 			thunder_brightness = brightness;
 		}
 	}
+
 	if (!windowflash)
 	{
 		bool seen = false;
