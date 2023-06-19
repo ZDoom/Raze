@@ -13,6 +13,7 @@ class RedneckMamaCloud : DukeActor
 		self.pos.X += frandom(-64, 64);
 		self.pos.Y += frandom(-64, 64);
 		self.pos.Z += frandom(-4, 4);
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 }
