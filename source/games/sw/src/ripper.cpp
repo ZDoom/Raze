@@ -427,11 +427,9 @@ int SetupRipper(DSWActor* actor)
         actor->user.Health = HEALTH_RIPPER/2; // Baby rippers are weaker
     }
 
-    ChangeState(actor, s_RipperRun[0]);
     actor->user.__legacyState.Attrib = &RipperAttrib;
     DoActorSetSpeed(actor, FAST_SPEED);
     actor->user.__legacyState.StateEnd = s_RipperDie;
-    actor->user.__legacyState.Rot = s_RipperRun;
     actor->spr.scale = DVector2(1, 1);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
@@ -448,6 +446,8 @@ int SetupRipper(DSWActor* actor)
     {
         EnemyDefaults(actor, &RipperActionSet, &RipperPersonality);
     }
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 

@@ -11219,10 +11219,10 @@ int InitSerpRing(DSWActor* actor)
         actorNew->user.Counter2 = 0;
 
         actorNew->user.__legacyState.StateEnd = s_SkullExplode;
-        actorNew->user.__legacyState.Rot = s_SkullRing;
 
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
+        actor->setPicFromState();
         change_actor_stat(actorNew, STAT_SKIP4);
         actorNew->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
@@ -11935,7 +11935,6 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
     actorNew->user.__legacyState.StateEnd = s_SkullExplode;
-    actorNew->user.__legacyState.Rot = s_SkullWait;
 
     actorNew->user.__legacyState.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
@@ -11945,6 +11944,7 @@ int InitSumoSkull(DSWActor* actor)
 
     // defaults do change the statnum
     EnemyDefaults(actorNew, nullptr, nullptr);
+    actor->setPicFromState();
     actorNew->spr.extra |= SPRX_PLAYER_OR_ENEMY;
 
     actorNew->clipdist = 12;

@@ -224,13 +224,13 @@ int SetupHornet(DSWActor* actor)
         actor->user.Health = HEALTH_HORNET;
     }
 
-    ChangeState(actor, s_HornetRun[0]);
     actor->user.__legacyState.Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_HornetDie;
-    actor->user.__legacyState.Rot = s_HornetRun;
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);

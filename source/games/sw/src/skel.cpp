@@ -304,13 +304,13 @@ int SetupSkel(DSWActor* actor)
         actor->user.Health = HEALTH_SKEL_PRIEST;
     }
 
-    ChangeState(actor, s_SkelRun[0]);
     actor->user.__legacyState.Attrib = &SkelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SkelDie;
-    actor->user.__legacyState.Rot = s_SkelRun;
 
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     // 256 is default
     //actor->clipdist = 16;

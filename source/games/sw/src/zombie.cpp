@@ -355,13 +355,13 @@ int SetupZombie(DSWActor* actor)
 
     actor->user.Health = 100;
     actor->user.__legacyState.StateEnd = &s_ZombiePain[0];
-    actor->user.__legacyState.Rot = s_ZombieRun;
 	actor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
     actor->user.__legacyState.Attrib = &ZombieAttrib;
     EnemyDefaults(actor, &ZombieActionSet, &ZombiePersonality);
 
-    ChangeState(actor, s_ZombieRun[0]);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
     DoActorSetSpeed(actor, NORM_SPEED);
 
     actor->user.Radius = 280;

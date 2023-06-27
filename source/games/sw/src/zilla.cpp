@@ -297,13 +297,13 @@ int SetupZilla(DSWActor* actor)
     if (Skill == 0) actor->user.Health = 2000;
     if (Skill == 1) actor->user.Health = 4000;
 
-    ChangeState(actor,s_ZillaRun[0]);
     actor->user.__legacyState.Attrib = &ZillaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_ZillaDie;
-    actor->user.__legacyState.Rot = s_ZillaRun;
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->clipdist = 32;
     actor->spr.scale = DVector2(1.515625, 1.23475);

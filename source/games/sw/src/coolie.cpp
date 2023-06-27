@@ -282,7 +282,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
-    actor->setPicFromState();
+    //actor->setPicFromState();
     change_actor_stat(actor, STAT_ENEMY);
 
     actor->user.Personality = person;
@@ -349,13 +349,13 @@ int SetupCoolie(DSWActor* actor)
         actor->user.Health = HEALTH_COOLIE;
     }
 
-    ChangeState(actor,s_CoolieRun[0]);
     actor->user.__legacyState.Attrib = &CoolieAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_CoolieDie;
-    actor->user.__legacyState.Rot = s_CoolieRun;
 
     EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->spr.scale = DVector2(0.65625, 0.65625);
 

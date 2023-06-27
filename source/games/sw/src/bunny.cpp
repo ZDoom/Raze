@@ -431,9 +431,6 @@ int SetupBunny(DSWActor* actor)
 
     Bunny_Count++;
 
-    ChangeState(actor, &s_BunnyRun[0]);
-    actor->user.__legacyState.StateEnd = s_BunnyDie;
-    actor->user.__legacyState.Rot = s_BunnyRun;
     actor->user.ShellNum = 0; // Not Pregnant right now
     actor->user.FlagOwner = 0;
 
@@ -468,6 +465,11 @@ int SetupBunny(DSWActor* actor)
         actor->user.Flag1 = SEC(5);
         //actor->spr.shade = 0; // darker
     }
+
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
+    actor->user.__legacyState.StateEnd = s_BunnyDie;
+    
 
     DoActorSetSpeed(actor, FAST_SPEED);
 

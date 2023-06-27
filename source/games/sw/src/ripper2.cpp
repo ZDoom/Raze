@@ -452,11 +452,9 @@ int SetupRipper2(DSWActor* actor)
         actor->user.Health = HEALTH_RIPPER2;
     }
 
-    ChangeState(actor, s_Ripper2Run[0]);
     actor->user.__legacyState.Attrib = &Ripper2Attrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_Ripper2Die;
-    actor->user.__legacyState.Rot = s_Ripper2Run;
     actor->clipdist = 32;  // This actor is bigger, needs bigger box.
     actor->spr.scale = DVector2(0.859375, 0.859375);
 
@@ -475,6 +473,8 @@ int SetupRipper2(DSWActor* actor)
     {
         EnemyDefaults(actor, &Ripper2ActionSet, &Ripper2Personality);
     }
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 

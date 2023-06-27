@@ -139,11 +139,12 @@ int SetupSkull(DSWActor* actor)
     actor->user.__legacyState.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SkullExplode;
-    actor->user.__legacyState.Rot = s_SkullWait;
 
     actor->user.ID = SKULL_R0;
 
     EnemyDefaults(actor, nullptr, nullptr);
+    actor->setPicFromState();
+
     actor->clipdist = 12;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -495,11 +496,11 @@ int SetupBetty(DSWActor* actor)
     actor->user.__legacyState.Attrib = &BettyAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_BettyExplode;
-    actor->user.__legacyState.Rot = s_BettyWait;
 
     actor->user.ID = BETTY_R0;
 
     EnemyDefaults(actor, nullptr, nullptr);
+    actor->setPicFromState();
     actor->clipdist = 12;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);

@@ -349,13 +349,13 @@ int SetupSerp(DSWActor* actor)
     if (Skill == 0) actor->user.Health = 1100;
     if (Skill == 1) actor->user.Health = 2200;
 
-    ChangeState(actor, s_SerpRun[0]);
     actor->user.__legacyState.Attrib = &SerpAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SerpDie;
-    actor->user.__legacyState.Rot = s_SerpRun;
 
     EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     // Mini-Boss Serp
     if (actor->spr.pal == 16)

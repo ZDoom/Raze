@@ -385,14 +385,14 @@ int SetupGirlNinja(DSWActor* actor)
     }
 
     actor->user.__legacyState.StateEnd = s_GirlNinjaDie;
-    actor->user.__legacyState.Rot = s_GirlNinjaRun;
 	actor->spr.scale = DVector2(0.796875, 0.671875);
 
     actor->user.__legacyState.Attrib = &GirlNinjaAttrib;
     actor->spr.pal = actor->user.spal = 26;
     EnemyDefaults(actor, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
-    ChangeState(actor, s_GirlNinjaRun[0]);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
     DoActorSetSpeed(actor, NORM_SPEED);
 
     actor->user.Radius = 280;

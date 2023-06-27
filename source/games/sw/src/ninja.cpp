@@ -894,8 +894,6 @@ int SetupNinja(DSWActor* actor)
         actor->user.Health = HEALTH_NINJA;
     }
 
-    actor->user.__legacyState.StateEnd = s_NinjaDie;
-    actor->user.__legacyState.Rot = s_NinjaRun;
 	actor->spr.scale = DVector2(0.71875, 0.71875);
 
     if (actor->spr.pal == PALETTE_PLAYER5)
@@ -983,6 +981,9 @@ int SetupNinja(DSWActor* actor)
         }
     }
 
+    //actor->setStateGroup()
+    actor->user.__legacyState.StateEnd = s_NinjaDie;
+    actor->setStateGroup(NAME_Run, 0, true); // Something wrong with the sniper ninja...
     ChangeState(actor, s_NinjaRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
@@ -1477,8 +1478,6 @@ void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle star
     actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
 
     // Grouping items that need to be reset after a LoadLevel
-    ChangeState(actor, s_NinjaRun[0]);
-    actor->user.__legacyState.Rot = s_NinjaRun;
     actor->user.__legacyState.ActorActionSet = &PlayerNinjaActionSet;
 
     actor->user.Radius = 400;
@@ -1487,7 +1486,6 @@ void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle star
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
 
-    actor->setPicFromState();
     actor->spr.shade = -60; // was 15
     actor->clipdist = 16;
 
@@ -1496,6 +1494,7 @@ void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle star
     actor->user.spal = actor->spr.pal;
 
     pp->GetActor()->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     pp->PlayerUnderActor = nullptr;
 
@@ -1545,7 +1544,6 @@ void SpawnPlayerUnderSprite(DSWPlayer* pp)
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
-    actor->user.__legacyState.Rot = s_NinjaRun;
     actor->user.__legacyState.State = plActor->user.__legacyState.State;
     NewStateGroup(pp->PlayerUnderActor, plActor->user.__legacyState.Rot);
 

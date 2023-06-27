@@ -267,13 +267,13 @@ int SetupEel(DSWActor* actor)
         actor->user.Health = 40;
     }
 
-    ChangeState(actor, s_EelRun[0]);
     actor->user.__legacyState.Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_EelDie;
-    actor->user.__legacyState.Rot = s_EelRun;
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 

@@ -287,14 +287,14 @@ int SetupGoro(DSWActor* actor)
         actor->user.Health = HEALTH_GORO;
     }
 
-    ChangeState(actor, s_GoroRun[0]);
     actor->user.__legacyState.Attrib = &GoroAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_GoroDie;
-    actor->user.__legacyState.Rot = s_GoroRun;
 
 
     EnemyDefaults(actor, &GoroActionSet, &GoroPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
     actor->clipdist = 32;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 

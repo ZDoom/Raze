@@ -281,14 +281,14 @@ int SetupLava(DSWActor* actor)
         actor->user.Health = 100;
     }
 
-    ChangeState(actor, s_LavaRun[0]);
     actor->user.__legacyState.Attrib = &LavaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_LavaDie;
-    actor->user.__legacyState.Rot = s_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
-	actor->spr.scale = DVector2(1.71875, 1.71875);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
+    actor->spr.scale = DVector2(1.71875, 1.71875);
     actor->clipdist = 32;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 

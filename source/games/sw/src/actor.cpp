@@ -1049,10 +1049,18 @@ static FState* getLegacyState(ACTOR_ACTION_SET* a, FName label, int subl)
     return nullptr;
 }
 
-void DSWActor::setStateGroup(FName label, int subl)
+void DSWActor::setStateGroup(FName label, int subl, bool noset)
 {
     auto a = user.__legacyState.ActorActionSet;
-    if (a) NewStateGroup(this, getLegacyState(a, label, subl));
+    if (a)
+    {
+        auto st = getLegacyState(a, label, subl);
+        if (!noset)
+        {
+            NewStateGroup(this, st);
+        }
+        else this->user.__legacyState.Rot = st;
+    }
 }
 
 bool DSWActor::checkStateGroup(FName label, int subl)

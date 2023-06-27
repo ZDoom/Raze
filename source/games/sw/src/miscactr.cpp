@@ -123,7 +123,6 @@ int  SetupToiletGirl(DSWActor* actor)
     ChangeState(actor,s_ToiletGirlStand);
     actor->user.__legacyState.Attrib = &ToiletGirlAttrib;
     actor->user.__legacyState.StateEnd = s_ToiletGirlStand;
-    actor->user.__legacyState.Rot = 0;
     
 
     actor->spr.scale = DVector2(0.5, 0.5);
@@ -377,7 +376,6 @@ int SetupWashGirl(DSWActor* actor)
     ChangeState(actor,s_WashGirlStand);
     actor->user.__legacyState.Attrib = &WashGirlAttrib;
     actor->user.__legacyState.StateEnd = s_WashGirlStand;
-    actor->user.__legacyState.Rot = 0;
     
 
 	actor->spr.scale = DVector2(0.4374, 0.375);
@@ -608,7 +606,6 @@ int SetupTrashCan(DSWActor* actor)
     ChangeState(actor,s_TrashCanStand);
     actor->user.__legacyState.Attrib = &TrashCanAttrib;
     actor->user.__legacyState.StateEnd = s_TrashCanStand;
-    actor->user.__legacyState.Rot = 0;
     
 
 
@@ -717,7 +714,6 @@ int SetupPachinkoLight(DSWActor* actor)
     ChangeState(actor,s_PachinkoLightStand);
     actor->user.__legacyState.Attrib = &PachinkoLightAttrib;
     actor->user.__legacyState.StateEnd = s_PachinkoLightStand;
-    actor->user.__legacyState.Rot = 0;
     
     actor->user.ID = PACHINKOLIGHT_R0;
 
@@ -826,7 +822,6 @@ int SetupPachinko1(DSWActor* actor)
     ChangeState(actor,s_Pachinko1Stand);
     actor->user.__legacyState.Attrib = &Pachinko1Attrib;
     actor->user.__legacyState.StateEnd = s_Pachinko1Stand;
-    actor->user.__legacyState.Rot = 0;
     
     actor->user.ID = PACHINKO1;
 
@@ -1003,7 +998,6 @@ int SetupPachinko2(DSWActor* actor)
     ChangeState(actor,s_Pachinko2Stand);
     actor->user.__legacyState.Attrib = &Pachinko2Attrib;
     actor->user.__legacyState.StateEnd = s_Pachinko2Stand;
-    actor->user.__legacyState.Rot = 0;
     
     actor->user.ID = PACHINKO2;
 
@@ -1092,7 +1086,6 @@ int SetupPachinko3(DSWActor* actor)
     ChangeState(actor,s_Pachinko3Stand);
     actor->user.__legacyState.Attrib = &Pachinko3Attrib;
     actor->user.__legacyState.StateEnd = s_Pachinko3Stand;
-    actor->user.__legacyState.Rot = 0;
     
     actor->user.ID = PACHINKO3;
 
@@ -1181,7 +1174,6 @@ int SetupPachinko4(DSWActor* actor)
     ChangeState(actor,s_Pachinko4Stand);
     actor->user.__legacyState.Attrib = &Pachinko4Attrib;
     actor->user.__legacyState.StateEnd = s_Pachinko4Stand;
-    actor->user.__legacyState.Rot = 0;
     
     actor->user.ID = PACHINKO4;
 
@@ -1294,7 +1286,6 @@ int SetupCarGirl(DSWActor* actor)
     ChangeState(actor,s_CarGirlStand);
     actor->user.__legacyState.Attrib = &CarGirlAttrib;
     actor->user.__legacyState.StateEnd = s_CarGirlStand;
-    actor->user.__legacyState.Rot = 0;
     
 
 	actor->spr.scale = DVector2(0.453125, 0.390625);
@@ -1527,7 +1518,6 @@ int SetupMechanicGirl(DSWActor* actor)
     ChangeState(actor,s_MechanicGirlStand);
     actor->user.__legacyState.Attrib = &MechanicGirlAttrib;
     actor->user.__legacyState.StateEnd = s_MechanicGirlStand;
-    actor->user.__legacyState.Rot = 0;
     
 
 	actor->spr.scale = DVector2(0.421875, 0.40625);
@@ -1759,7 +1749,6 @@ int SetupSailorGirl(DSWActor* actor)
     ChangeState(actor,s_SailorGirlStand);
     actor->user.__legacyState.Attrib = &SailorGirlAttrib;
     actor->user.__legacyState.StateEnd = s_SailorGirlStand;
-    actor->user.__legacyState.Rot = 0;
     
 
 	actor->spr.scale = DVector2(0.4375, 0.40625);
@@ -1988,7 +1977,6 @@ int SetupPruneGirl(DSWActor* actor)
     ChangeState(actor,s_PruneGirlStand);
     actor->user.__legacyState.Attrib = &PruneGirlAttrib;
     actor->user.__legacyState.StateEnd = s_PruneGirlStand;
-    actor->user.__legacyState.Rot = 0;
     
 
 	actor->spr.scale = DVector2(0.515625, 0.4375);

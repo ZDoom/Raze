@@ -325,13 +325,14 @@ int SetupCoolg(DSWActor* actor)
         actor->user.Health = HEALTH_COOLIE_GHOST;
     }
 
-    ChangeState(actor, s_CoolgRun[0]);
     actor->user.__legacyState.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.__legacyState.StateEnd = s_CoolgDie;
-    actor->user.__legacyState.Rot = s_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
+
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
+    actor->user.__legacyState.StateEnd = s_CoolgDie;
 
     actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 
@@ -360,7 +361,7 @@ int NewCoolg(DSWActor* actor)
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
     actorNew->user.__legacyState.StateEnd = s_CoolgDie;
-    actorNew->user.__legacyState.Rot = s_CoolgRun;
+    actorNew->setStateGroup(NAME_Run, 0, false);
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
 
     actorNew->user.__legacyState.ActorActionSet = &CoolgActionSet;
@@ -389,9 +390,8 @@ int DoCoolgBirth(DSWActor* actor)
     actor->user.__legacyState.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
 
-    ChangeState(actor, s_CoolgRun[0]);
+    actor->setStateGroup(NAME_Run);
     actor->user.__legacyState.StateEnd = s_CoolgDie;
-    actor->user.__legacyState.Rot = s_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
     // special case

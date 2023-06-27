@@ -322,13 +322,13 @@ int SetupSumo(DSWActor* actor)
     if (Skill == 0) actor->user.Health = 2000;
     if (Skill == 1) actor->user.Health = 4000;
 
-    ChangeState(actor,s_SumoRun[0]);
     actor->user.__legacyState.Attrib = &SumoAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SumoDie;
-    actor->user.__legacyState.Rot = s_SumoRun;
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
+    actor->setStateGroup(NAME_Run);
+    actor->setPicFromState();
 
     actor->clipdist = 32;
     if (actor->spr.pal == 16)

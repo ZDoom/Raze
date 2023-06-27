@@ -59,7 +59,7 @@ public:
 	void ChangeStateEnd();
 	void clearActionFunc() { user.ActorActionFunc = nullptr; }
 	void setActionDecide();
-	void setStateGroup(FName label, int substate = 0);	// substate is only valid for Attack and CloseAttack
+	void setStateGroup(FName label, int substate = 0, bool noset = false);	// substate is only valid for Attack and CloseAttack
 	bool checkStateGroup(FName label, int substate = 0);
 	bool hasState(FName label, int substate = 0);
 	void callAction();
