@@ -55,7 +55,7 @@ ATTRIBUTE ToiletGirlAttrib =
 //////////////////////
 #define TOILETGIRL_RATE 60
 
-STATE s_ToiletGirlStand[2] =
+FState s_ToiletGirlStand[2] =
 {
     {SPR_TOILETGIRL, 'A', TOILETGIRL_RATE, &AF(DoToiletGirl), &s_ToiletGirlStand[1]},
     {SPR_TOILETGIRL, 'B', TOILETGIRL_RATE, &AF(DoToiletGirl), &s_ToiletGirlStand[0]}
@@ -68,7 +68,7 @@ STATE s_ToiletGirlStand[2] =
 //////////////////////
 #define TOILETGIRL_PAIN_RATE 32
 
-STATE s_ToiletGirlPain[2] =
+FState s_ToiletGirlPain[2] =
 {
     {SPR_TOILETGIRL, 'A', TOILETGIRL_PAIN_RATE, &AF(ToiletGirlPain), &s_ToiletGirlPain[1]},
     {SPR_TOILETGIRL, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_ToiletGirlPain[0]}
@@ -83,7 +83,7 @@ STATE s_ToiletGirlPain[2] =
 #define TOILETGIRL_UZI_RATE 8
 #define TOILETGIRL_FIRE_R0 TOILETGIRL, 'C'
 
-STATE s_ToiletGirlUzi[16] =
+FState s_ToiletGirlUzi[16] =
 {
     {SPR_TOILETGIRL_FIRE, 'A', TOILETGIRL_UZI_RATE, &AF(ToiletGirlUzi), &s_ToiletGirlUzi[1]},
     {SPR_TOILETGIRL_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ToiletGirlUzi[2]},
@@ -302,14 +302,14 @@ ATTRIBUTE WashGirlAttrib =
 //////////////////////
 #define WASHGIRL_RATE 60
 
-STATE s_WashGirlStand[2] =
+FState s_WashGirlStand[2] =
 {
     {SPR_WASHGIRL, 'A', WASHGIRL_RATE, &AF(DoWashGirl), &s_WashGirlStand[1]},
     {SPR_WASHGIRL, 'B', WASHGIRL_RATE, &AF(DoWashGirl), &s_WashGirlStand[0]}
 };
 
 #define WASHGIRL_RATE2 20
-STATE s_WashGirlStandScrub[2] =
+FState s_WashGirlStandScrub[2] =
 {
     {SPR_WASHGIRL, 'A', WASHGIRL_RATE2, &AF(DoWashGirl), &s_WashGirlStandScrub[1]},
     {SPR_WASHGIRL, 'B', WASHGIRL_RATE2, &AF(DoWashGirl), &s_WashGirlStandScrub[0]}
@@ -323,7 +323,7 @@ STATE s_WashGirlStandScrub[2] =
 
 #define WASHGIRL_PAIN_RATE 30
 
-STATE s_WashGirlPain[2] =
+FState s_WashGirlPain[2] =
 {
     {SPR_WASHGIRL, 'A', WASHGIRL_PAIN_RATE, &AF(WashGirlPain), &s_WashGirlPain[1]},
     {SPR_WASHGIRL, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_WashGirlPain[0]}
@@ -338,7 +338,7 @@ STATE s_WashGirlPain[2] =
 
 #define WASHGIRL_UZI_RATE 8
 
-STATE s_WashGirlUzi[16] =
+FState s_WashGirlUzi[16] =
 {
     {SPR_WASHGIRL_FIRE, 'A', WASHGIRL_UZI_RATE, &AF(WashGirlUzi), &s_WashGirlUzi[1]},
     {SPR_WASHGIRL_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_WashGirlUzi[2]},
@@ -565,7 +565,7 @@ ATTRIBUTE TrashCanAttrib =
 #define TRASHCAN_RATE 120
 #define TRASHCAN_R0 TRASHCAN
 
-STATE s_TrashCanStand[1] =
+FState s_TrashCanStand[1] =
 {
     {SPR_TRASHCAN, 'A', TRASHCAN_RATE, &AF(DoTrashCan), &s_TrashCanStand[0]}
 };
@@ -578,7 +578,7 @@ STATE s_TrashCanStand[1] =
 
 #define TRASHCAN_PAIN_RATE 8
 
-STATE s_TrashCanPain[7] =
+FState s_TrashCanPain[7] =
 {
     {SPR_TRASHCAN, 'A', TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[1]},
     {SPR_TRASHCAN, 'B', TRASHCAN_PAIN_RATE, &AF(TrashCanPain), &s_TrashCanPain[2]},
@@ -683,12 +683,12 @@ ATTRIBUTE PachinkoLightAttrib =
 
 #define PACHINKOLIGHT_RATE 120
 
-STATE s_PachinkoLightStand[] =
+FState s_PachinkoLightStand[] =
 {
     {SPR_PACHINKOLIGHT, 'F', PACHINKOLIGHT_RATE, nullptr,  &s_PachinkoLightStand[0]}
 };
 
-STATE s_PachinkoLightOperate[] =
+FState s_PachinkoLightOperate[] =
 {
     {SPR_PACHINKOLIGHT, 'F', 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[1]},
     {SPR_PACHINKOLIGHT, 'E', 12, &AF(PachinkoLightOperate), &s_PachinkoLightOperate[2]},
@@ -775,12 +775,12 @@ ATTRIBUTE Pachinko1Attrib =
 #define PACHINKO1_RATE 120
 #define PACHINKO1_R0 PACHINKO1
 
-STATE s_Pachinko1Stand[] =
+FState s_Pachinko1Stand[] =
 {
     {SPR_PACHINKO1, 'A', PACHINKO1_RATE, nullptr,  &s_Pachinko1Stand[0]}
 };
 
-STATE s_Pachinko1Operate[] =
+FState s_Pachinko1Operate[] =
 {
     {SPR_PACHINKO1, 'A', 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[1]},
     {SPR_PACHINKO1, 'B', 12, &AF(Pachinko1Operate), &s_Pachinko1Operate[2]},
@@ -952,12 +952,12 @@ ATTRIBUTE Pachinko2Attrib =
 #define PACHINKO2_RATE 120
 #define PACHINKO2_R0 PACHINKO2
 
-STATE s_Pachinko2Stand[] =
+FState s_Pachinko2Stand[] =
 {
     {SPR_PACHINKO2, 'A', PACHINKO2_RATE, nullptr,  &s_Pachinko2Stand[0]}
 };
 
-STATE s_Pachinko2Operate[] =
+FState s_Pachinko2Operate[] =
 {
     {SPR_PACHINKO2, 'A', 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[1]},
     {SPR_PACHINKO2, 'B', 12, &AF(Pachinko1Operate), &s_Pachinko2Operate[2]},
@@ -1041,12 +1041,12 @@ ATTRIBUTE Pachinko3Attrib =
 #define PACHINKO3_RATE 120
 #define PACHINKO3_R0 PACHINKO3
 
-STATE s_Pachinko3Stand[] =
+FState s_Pachinko3Stand[] =
 {
     {SPR_PACHINKO3, 'A', PACHINKO3_RATE, nullptr,  &s_Pachinko3Stand[0]}
 };
 
-STATE s_Pachinko3Operate[] =
+FState s_Pachinko3Operate[] =
 {
     {SPR_PACHINKO3, 'A', 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[1]},
     {SPR_PACHINKO3, 'B', 12, &AF(Pachinko1Operate), &s_Pachinko3Operate[2]},
@@ -1130,12 +1130,12 @@ ATTRIBUTE Pachinko4Attrib =
 #define PACHINKO4_RATE 120
 #define PACHINKO4_R0 PACHINKO4
 
-STATE s_Pachinko4Stand[] =
+FState s_Pachinko4Stand[] =
 {
     {SPR_PACHINKO4, 'A', PACHINKO4_RATE, nullptr,  &s_Pachinko4Stand[0]}
 };
 
-STATE s_Pachinko4Operate[] =
+FState s_Pachinko4Operate[] =
 {
     {SPR_PACHINKO4, 'A', 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[1]},
     {SPR_PACHINKO4, 'B', 12, &AF(Pachinko1Operate), &s_Pachinko4Operate[2]},
@@ -1225,7 +1225,7 @@ ATTRIBUTE CarGirlAttrib =
 //////////////////////
 #define CARGIRL_RATE 60
 
-STATE s_CarGirlStand[2] =
+FState s_CarGirlStand[2] =
 {
     {SPR_CARGIRL, 'A', CARGIRL_RATE, &AF(DoCarGirl), &s_CarGirlStand[1]},
     {SPR_CARGIRL, 'B', CARGIRL_RATE, &AF(DoCarGirl), &s_CarGirlStand[0]}
@@ -1240,7 +1240,7 @@ STATE s_CarGirlStand[2] =
 #define CARGIRL_PAIN_RATE 32
 #define CARGIRL_PAIN_R0 CARGIRL_R0
 
-STATE s_CarGirlPain[2] =
+FState s_CarGirlPain[2] =
 {
     {SPR_CARGIRL, 'A', CARGIRL_PAIN_RATE, &AF(CarGirlPain), &s_CarGirlPain[1]},
     {SPR_CARGIRL, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CarGirlPain[0]}
@@ -1254,7 +1254,7 @@ STATE s_CarGirlPain[2] =
 
 #define CARGIRL_UZI_RATE 8
 
-STATE s_CarGirlUzi[16] =
+FState s_CarGirlUzi[16] =
 {
     {SPR_CARGIRL_FIRE, 'A', 240, &AF(CarGirlUzi), &s_CarGirlUzi[1]},
     {SPR_CARGIRL_FIRE, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_CarGirlUzi[2]},
@@ -1472,7 +1472,7 @@ ATTRIBUTE MechanicGirlAttrib =
 //////////////////////
 #define MECHANICGIRL_RATE 60
 
-STATE s_MechanicGirlStand[2] =
+FState s_MechanicGirlStand[2] =
 {
     {SPR_MECHANICGIRL, 'A', MECHANICGIRL_RATE, &AF(DoMechanicGirl), &s_MechanicGirlStand[1]},
     {SPR_MECHANICGIRL, 'B', MECHANICGIRL_RATE, &AF(DoMechanicGirl), &s_MechanicGirlStand[0]}
@@ -1486,7 +1486,7 @@ STATE s_MechanicGirlStand[2] =
 
 #define MECHANICGIRL_PAIN_RATE 32
 
-STATE s_MechanicGirlPain[2] =
+FState s_MechanicGirlPain[2] =
 {
     {SPR_MECHANICGIRL, 'A', MECHANICGIRL_PAIN_RATE, &AF(MechanicGirlPain), &s_MechanicGirlPain[1]},
     {SPR_MECHANICGIRL, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_MechanicGirlPain[0]}
@@ -1500,7 +1500,7 @@ STATE s_MechanicGirlPain[2] =
 
 #define MECHANICGIRL_DRILL_RATE 32
 
-STATE s_MechanicGirlDrill[2] =
+FState s_MechanicGirlDrill[2] =
 {
     {SPR_MECHANICGIRL_DRILL, 'A', MECHANICGIRL_DRILL_RATE, &AF(MechanicGirlDrill), &s_MechanicGirlDrill[1]},
     {SPR_MECHANICGIRL_DRILL, 'B', MECHANICGIRL_DRILL_RATE, &AF(MechanicGirlDrill), &s_MechanicGirlDrill[0]},
@@ -1704,7 +1704,7 @@ ATTRIBUTE SailorGirlAttrib =
 //////////////////////
 #define SAILORGIRL_RATE 60
 
-STATE s_SailorGirlStand[2] =
+FState s_SailorGirlStand[2] =
 {
     {SPR_SAILORGIRL, 'A', SAILORGIRL_RATE, &AF(DoSailorGirl), &s_SailorGirlStand[1]},
     {SPR_SAILORGIRL, 'B', SAILORGIRL_RATE, &AF(DoSailorGirl), &s_SailorGirlStand[0]}
@@ -1718,7 +1718,7 @@ STATE s_SailorGirlStand[2] =
 
 #define SAILORGIRL_PAIN_RATE 32
 
-STATE s_SailorGirlPain[2] =
+FState s_SailorGirlPain[2] =
 {
     {SPR_SAILORGIRL, 'A', SAILORGIRL_PAIN_RATE, &AF(SailorGirlPain), &s_SailorGirlPain[1]},
     {SPR_SAILORGIRL, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SailorGirlPain[0]}
@@ -1732,7 +1732,7 @@ STATE s_SailorGirlPain[2] =
 
 #define SAILORGIRL_UZI_RATE 128
 
-STATE s_SailorGirlThrow[] =
+FState s_SailorGirlThrow[] =
 {
     {SPR_SAILORGIRL_FIRE, 'A', SAILORGIRL_UZI_RATE, &AF(SailorGirlThrow), &s_SailorGirlThrow[0]},
 };
@@ -1948,7 +1948,7 @@ ATTRIBUTE PruneGirlAttrib =
 //////////////////////
 #define PRUNEGIRL_RATE 60
 
-STATE s_PruneGirlStand[2] =
+FState s_PruneGirlStand[2] =
 {
     {SPR_PRUNEGIRL, 'A', PRUNEGIRL_RATE, &AF(DoPruneGirl), &s_PruneGirlStand[1]},
     {SPR_PRUNEGIRL, 'B', PRUNEGIRL_RATE, &AF(DoPruneGirl), &s_PruneGirlStand[0]}
@@ -1962,7 +1962,7 @@ STATE s_PruneGirlStand[2] =
 
 #define PRUNEGIRL_PAIN_RATE 32
 
-STATE s_PruneGirlPain[2] =
+FState s_PruneGirlPain[2] =
 {
     {SPR_PRUNEGIRL, 'A', PRUNEGIRL_PAIN_RATE, &AF(PruneGirlPain), &s_PruneGirlPain[1]},
     {SPR_PRUNEGIRL, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_PruneGirlPain[0]}

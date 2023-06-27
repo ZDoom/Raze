@@ -325,7 +325,6 @@ enum dam
 
 
 // Forward declarations
-struct STATE;
 struct PANEL_STATE;
 class DSWPlayer;
 struct PERSONALITY;
@@ -359,16 +358,6 @@ enum spriteindex_t
 };
 
 #undef x
-
-struct STATE
-{
-    spriteindex_t     Sprite;
-    char Frame;
-    int       Tics;
-    VMNativeFunction** Animator;    // go through the scripting interface
-
-    STATE*   NextState;
-};
 
 //
 // State Flags
@@ -626,33 +615,33 @@ enum
 
 struct ACTOR_ACTION_SET
 {
-    STATE* *Stand;
-    STATE* *Run;
-    STATE* *Jump;
-    STATE* *Fall;
-    STATE* *Crawl;
-    STATE* *Swim;
-    STATE* *Fly;
-    STATE* *Rise;
-    STATE* *Sit;
-    STATE* *Look;
-    STATE* *Climb;
-    STATE* *Pain;
-    STATE* *Death1;
-    STATE* *Death2;
-    STATE* *Dead;
-    STATE* *DeathJump;
-    STATE* *DeathFall;
+    FState* Stand;
+    FState* Run;
+    FState* Jump;
+    FState* Fall;
+    FState* Crawl;
+    FState* Swim;
+    FState* Fly;
+    FState* Rise;
+    FState* Sit;
+    FState* Look;
+    FState* Climb;
+    FState* Pain;
+    FState* Death1;
+    FState* Death2;
+    FState* Dead;
+    FState* DeathJump;
+    FState* DeathFall;
 
-    STATE* *CloseAttack[MAX_ACTOR_CLOSE_ATTACK];
+    FState* CloseAttack[MAX_ACTOR_CLOSE_ATTACK];
     int16_t  CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
 
-    STATE* *Attack[MAX_ACTOR_ATTACK];
+    FState* Attack[MAX_ACTOR_ATTACK];
     int16_t  AttackPercent[MAX_ACTOR_ATTACK];
 
-    STATE* *Special[2];
-    STATE* *Duck;
-    STATE* *Dive;
+    FState* Special[2];
+    FState* Duck;
+    FState* Dive;
 };
 
 struct ROTATOR
@@ -710,11 +699,11 @@ struct USER
 
     struct LegacyState
     {
-        STATE* State;
-        STATE** Rot;
-        STATE* StateStart;
-        STATE* StateEnd;
-        STATE** StateFallOverride; // a bit kludgy - override std fall state
+        FState* State;
+        FState* Rot;
+        FState* StateStart;
+        FState* StateEnd;
+        FState* StateFallOverride; // a bit kludgy - override std fall state
         ACTOR_ACTION_SET* ActorActionSet;
         int16_t RotNum;
         ATTRIBUTE* Attrib;
@@ -1401,9 +1390,13 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
+int NewStateGroup(DSWActor* actor, FState* SpriteGroup);
 DVector3 SectorMidPoint(sectortype* sectp);
-void SpawnUser(DSWActor* actor, short id, STATE* state);
+void SpawnUser(DSWActor* actor, short id, FState* state);
+inline void SpawnUser(DSWActor* actor, short id, FState& state)
+{
+    SpawnUser(actor, id, &state);
+}
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);
 

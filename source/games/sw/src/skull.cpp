@@ -50,18 +50,11 @@ extern DAMAGE_DATA DamageData[];
 
 #define SKULL_RATE 10
 
-STATE s_SkullWait[1][1] =
+FState s_SkullWait[] =
 {
-    {
-        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[0][0]},
-    },
+        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSkullWait), &s_SkullWait[0]},
 };
 
-
-STATE* sg_SkullWait[] =
-{
-    &s_SkullWait[0][0],
-};
 
 ATTRIBUTE SkullAttrib =
 {
@@ -80,19 +73,10 @@ ATTRIBUTE SkullAttrib =
 //
 //////////////////////
 
-STATE s_SkullRing[1][1] =
+FState s_SkullRing[] =
 {
-    {
-        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[0][0]},
-    },
+        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSerpRing), &s_SkullRing[0]},
 };
-
-
-STATE* sg_SkullRing[] =
-{
-    &s_SkullRing[0][0],
-};
-
 
 
 //////////////////////
@@ -101,17 +85,9 @@ STATE* sg_SkullRing[] =
 //
 //////////////////////
 
-STATE s_SkullJump[1][1] =
+FState s_SkullJump[] =
 {
-    {
-        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[0][0]},
-    },
-};
-
-
-STATE* sg_SkullJump[] =
-{
-    &s_SkullJump[0][0],
+        {SPR_SKULL, 'A', SKULL_RATE, &AF(DoSkullJump), &s_SkullJump[0]},
 };
 
 
@@ -123,7 +99,7 @@ STATE* sg_SkullJump[] =
 
 #define SKULL_EXPLODE_RATE 11
 
-STATE s_SkullExplode[] =
+FState s_SkullExplode[] =
 {
     {SPR_SKULL_EXPLODE, 'A', 1,                  nullptr,  &s_SkullExplode[1]},
     {SPR_SKULL_EXPLODE, 'A', SF_QUICK_CALL,      &AF(DoDamageTest), &s_SkullExplode[2]},
@@ -145,12 +121,6 @@ STATE s_SkullExplode[] =
     {SPR_SKULL_EXPLODE, 'N', SKULL_EXPLODE_RATE, &AF(DoSuicide),    &s_SkullExplode[17]}
 };
 
-STATE* sg_SkullExplode[] =
-{
-    s_SkullExplode,
-};
-
-
 //---------------------------------------------------------------------------
 //
 //
@@ -169,7 +139,7 @@ int SetupSkull(DSWActor* actor)
     actor->user.__legacyState.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SkullExplode;
-    actor->user.__legacyState.Rot = sg_SkullWait;
+    actor->user.__legacyState.Rot = s_SkullWait;
 
     actor->user.ID = SKULL_R0;
 
@@ -429,7 +399,7 @@ int DoSkullWait(DSWActor* actor)
         {
             actor->vel.X = 0;
             actor->user.jump_speed = -600;
-            NewStateGroup(actor, sg_SkullJump);
+            NewStateGroup(actor, s_SkullJump);
             DoBeginJump(actor);
         }
     }
@@ -445,7 +415,7 @@ int DoSkullWait(DSWActor* actor)
             actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
             actor->vel.X = 8 + RandomRangeF(16);
             actor->user.jump_speed = -700;
-            NewStateGroup(actor, sg_SkullJump);
+            NewStateGroup(actor, s_SkullJump);
             DoBeginJump(actor);
         }
     }
@@ -464,20 +434,13 @@ int DoSkullWait(DSWActor* actor)
 
 #define BETTY_RATE 10
 
-STATE s_BettyWait[1][3] =
+FState s_BettyWait[] =
 {
-    {
-        {SPR_BETTY, 'A', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][1]},
-        {SPR_BETTY, 'B', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][2]},
-        {SPR_BETTY, 'C', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0][0]},
-    },
+        {SPR_BETTY, 'A', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[1]},
+        {SPR_BETTY, 'B', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[2]},
+        {SPR_BETTY, 'C', BETTY_RATE, &AF(DoBettyWait), &s_BettyWait[0]},
 };
 
-
-STATE* sg_BettyWait[] =
-{
-    &s_BettyWait[0][0],
-};
 
 ATTRIBUTE BettyAttrib =
 {
@@ -493,17 +456,9 @@ ATTRIBUTE BettyAttrib =
 //
 //////////////////////
 
-STATE s_BettyJump[1][1] =
+FState s_BettyJump[] =
 {
-    {
-        {SPR_BETTY, 'A', BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[0][0]},
-    },
-};
-
-
-STATE* sg_BettyJump[] =
-{
-    &s_BettyJump[0][0],
+        {SPR_BETTY, 'A', BETTY_RATE, &AF(DoBettyJump), &s_BettyJump[0]},
 };
 
 
@@ -516,17 +471,11 @@ STATE* sg_BettyJump[] =
 #define BETTY_EXPLODE_RATE 11
 #define BETTY_EXPLODE BETTY_R0
 
-STATE s_BettyExplode[] =
+FState s_BettyExplode[] =
 {
     {SPR_BETTY, 'A', SF_QUICK_CALL,      &AF(DoDamageTest), &s_BettyExplode[1]},
     {SPR_BETTY, 'A', BETTY_EXPLODE_RATE, &AF(DoSuicide), &s_BettyExplode[0]}
 };
-
-STATE* sg_BettyExplode[] =
-{
-    s_BettyExplode,
-};
-
 
 //---------------------------------------------------------------------------
 //
@@ -546,7 +495,7 @@ int SetupBetty(DSWActor* actor)
     actor->user.__legacyState.Attrib = &BettyAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_BettyExplode;
-    actor->user.__legacyState.Rot = sg_BettyWait;
+    actor->user.__legacyState.Rot = s_BettyWait;
 
     actor->user.ID = BETTY_R0;
 
@@ -787,7 +736,7 @@ int DoBettyWait(DSWActor* actor)
         {
             actor->vel.X = 0;
             actor->user.jump_speed = -600;
-            NewStateGroup(actor, sg_BettyJump);
+            NewStateGroup(actor, s_BettyJump);
             DoBeginJump(actor);
         }
     }
@@ -803,7 +752,7 @@ int DoBettyWait(DSWActor* actor)
             actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
             actor->vel.X = 8 + RandomRangeF(16);
             actor->user.jump_speed = -700;
-            NewStateGroup(actor, sg_BettyJump);
+            NewStateGroup(actor, s_BettyJump);
             DoBeginJump(actor);
         }
     }
@@ -822,25 +771,18 @@ int DoBettyWait(DSWActor* actor)
 static saveable_data saveable_skull_data[] =
 {
     SAVE_DATA(s_SkullWait),
-    SAVE_DATA(sg_SkullWait),
 
     SAVE_DATA(SkullAttrib),
 
     SAVE_DATA(s_SkullRing),
-    SAVE_DATA(sg_SkullRing),
     SAVE_DATA(s_SkullJump),
-    SAVE_DATA(sg_SkullJump),
     SAVE_DATA(s_SkullExplode),
-    SAVE_DATA(sg_SkullExplode),
     SAVE_DATA(s_BettyWait),
-    SAVE_DATA(sg_BettyWait),
 
     SAVE_DATA(BettyAttrib),
 
     SAVE_DATA(s_BettyJump),
-    SAVE_DATA(sg_BettyJump),
     SAVE_DATA(s_BettyExplode),
-    SAVE_DATA(sg_BettyExplode),
 };
 
 saveable_module saveable_skull =

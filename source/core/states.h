@@ -95,19 +95,34 @@ struct FStateParamInfo
 };
 
 
-
+class VMNativeFunction;
+class DCoreActor;
 struct FState
 {
+	int     sprite;
+	int     Frame;
+	int     Tics;
+#if 0
+
+	uint8_t	StateFlags;
+	uint8_t DefineFlags;
 	FState		*NextState;
 	VMFunction	*ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
 	VMFunction  *EnterFunc;  // called when entering the state.
 	VMFunction  *TickFunc;   // called when ticking the state.
 	VMFunction  *MoveFunc;   // called when moving the actor
-	int16_t		sprite;
-	int16_t		Tics;
-	uint8_t	Frame;
+	VMNativeFunction** AnimatorPtr;    // temporary kludge so we can define state arrays statically.
+#else
+	// this order is suboptimal but needed for SW's still existing in-code definitions.
+	VMNativeFunction** AnimatorPtr;    // temporary kludge so we can define state arrays statically.
+	FState* NextState;
 	uint8_t	StateFlags;
 	uint8_t DefineFlags;
+	VMFunction* ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
+	VMFunction* EnterFunc;  // called when entering the state.
+	VMFunction* TickFunc;   // called when ticking the state.
+	VMFunction* MoveFunc;   // called when moving the actor
+#endif
 public:
 	inline int GetFullbright() const
 	{
@@ -123,7 +138,7 @@ public:
 	}
 	void SetAction(VMFunction *func) { ActionFunc = func; }
 	void ClearAction() { ActionFunc = NULL; }
-	//bool CallAction(AActor *self, AActor *stateowner, FStateParamInfo *stateinfo, FState **stateret);
+	bool CallAction(DCoreActor *self);
 
 	static PClassActor *StaticFindStateOwner (const FState *state);
 	static PClassActor *StaticFindStateOwner (const FState *state, PClassActor *info);
@@ -242,7 +257,7 @@ public:
 	void SetStateLabel(const char *statename, FState *state, uint8_t defflags = SDF_STATE);
 	void AddStateLabel(const char *statename);
 	int GetStateLabelIndex (FName statename);
-	void InstallStates(PClassActor *info, AActor *defaults);
+	void InstallStates(PClassActor *info, DCoreActor *defaults);
 	int FinishStates(PClassActor *actor);
 
 	void MakeStateDefines(const PClassActor *cls);

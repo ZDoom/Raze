@@ -115,22 +115,14 @@ ATTRIBUTE SkelAttrib =
 
 // +4 on frame #3 to add character
 
-STATE s_SkelRun[1][6] =
+FState s_SkelRun[] =
 {
-    {
-        {SPR_SKEL_RUN, 'A', SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[0][1]},
-        {SPR_SKEL_RUN, 'B', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][2]},
-        {SPR_SKEL_RUN, 'C', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][3]},
-        {SPR_SKEL_RUN, 'D', SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[0][4]},
-        {SPR_SKEL_RUN, 'E', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][5]},
-        {SPR_SKEL_RUN, 'F', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0][0]},
-    },
-};
-
-
-STATE* sg_SkelRun[] =
-{
-    &s_SkelRun[0][0],
+        {SPR_SKEL_RUN, 'A', SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[1]},
+        {SPR_SKEL_RUN, 'B', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[2]},
+        {SPR_SKEL_RUN, 'C', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[3]},
+        {SPR_SKEL_RUN, 'D', SKEL_RUN_RATE+4, &AF(DoSkelMove), &s_SkelRun[4]},
+        {SPR_SKEL_RUN, 'E', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[5]},
+        {SPR_SKEL_RUN, 'F', SKEL_RUN_RATE, &AF(DoSkelMove), &s_SkelRun[0]},
 };
 
 //////////////////////
@@ -141,23 +133,15 @@ STATE* sg_SkelRun[] =
 
 #define SKEL_SLASH_RATE 20
 
-STATE s_SkelSlash[1][7] =
+FState s_SkelSlash[] =
 {
-    {
-        {SPR_SKEL_SLASH, 'A', SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[0][1]},
-        {SPR_SKEL_SLASH, 'B', SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[0][2]},
-        {SPR_SKEL_SLASH, 'C', 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[0][3]},
-        {SPR_SKEL_SLASH, 'C', SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[0][4]},
-        {SPR_SKEL_SLASH, 'B', SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[0][5]},
-        {SPR_SKEL_SLASH, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[0][6]},
-        {SPR_SKEL_SLASH, 'B', SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[0][6]},
-    },
-};
-
-
-STATE* sg_SkelSlash[] =
-{
-    &s_SkelSlash[0][0],
+        {SPR_SKEL_SLASH, 'A', SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[1]},
+        {SPR_SKEL_SLASH, 'B', SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[2]},
+        {SPR_SKEL_SLASH, 'C', 0|SF_QUICK_CALL, &AF(InitSkelSlash), &s_SkelSlash[3]},
+        {SPR_SKEL_SLASH, 'C', SKEL_SLASH_RATE*2, &AF(NullSkel), &s_SkelSlash[4]},
+        {SPR_SKEL_SLASH, 'B', SKEL_SLASH_RATE, &AF(NullSkel), &s_SkelSlash[5]},
+        {SPR_SKEL_SLASH, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSlash[6]},
+        {SPR_SKEL_SLASH, 'B', SKEL_SLASH_RATE, &AF(DoSkelMove), &s_SkelSlash[6]},
 };
 
 
@@ -169,24 +153,17 @@ STATE* sg_SkelSlash[] =
 
 #define SKEL_SPELL_RATE 20
 
-STATE s_SkelSpell[1][7] =
+FState s_SkelSpell[] =
 {
-    {
-        {SPR_SKEL_SPELL, 'A', SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[0][1]},
-        {SPR_SKEL_SPELL, 'B', SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[0][2]},
-        {SPR_SKEL_SPELL, 'C', SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[0][3]},
-        {SPR_SKEL_SPELL, 'D', SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[0][4]},
-        {SPR_SKEL_SPELL, 'D', 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[0][5]},
-        {SPR_SKEL_SPELL, 'D', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[0][6]},
-        {SPR_SKEL_SPELL, 'D', SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[0][6]},
-    },
+        {SPR_SKEL_SPELL, 'A', SKEL_SPELL_RATE+9, &AF(NullSkel), &s_SkelSpell[1]},
+        {SPR_SKEL_SPELL, 'B', SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[2]},
+        {SPR_SKEL_SPELL, 'C', SKEL_SPELL_RATE, &AF(NullSkel), &s_SkelSpell[3]},
+        {SPR_SKEL_SPELL, 'D', SKEL_SPELL_RATE*2, &AF(NullSkel), &s_SkelSpell[4]},
+        {SPR_SKEL_SPELL, 'D', 0|SF_QUICK_CALL, &AF(InitSkelSpell), &s_SkelSpell[5]},
+        {SPR_SKEL_SPELL, 'D', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SkelSpell[6]},
+        {SPR_SKEL_SPELL, 'D', SKEL_SPELL_RATE, &AF(DoSkelMove), &s_SkelSpell[6]},
 };
 
-
-STATE* sg_SkelSpell[] =
-{
-    &s_SkelSpell[0][0],
-};
 
 //////////////////////
 //
@@ -196,19 +173,10 @@ STATE* sg_SkelSpell[] =
 
 #define SKEL_PAIN_RATE 38
 
-STATE s_SkelPain[1][1] =
+FState s_SkelPain[] =
 {
-    {
-        {SPR_SKEL_PAIN, 'A', SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[0][0]},
-    },
+        {SPR_SKEL_PAIN, 'A', SKEL_PAIN_RATE, &AF(DoSkelPain), &s_SkelPain[0]},
 };
-
-STATE* sg_SkelPain[] =
-{
-    &s_SkelPain[0][0],
-};
-
-
 
 //////////////////////
 //
@@ -218,7 +186,7 @@ STATE* sg_SkelPain[] =
 
 #define SKEL_TELEPORT_RATE 20
 
-STATE s_SkelTeleport[] =
+FState s_SkelTeleport[] =
 {
     {SPR_SKEL_TELEPORT, 'A',  1,                  nullptr,  &s_SkelTeleport[1]},
     {SPR_SKEL_TELEPORT, 'A',  0|SF_QUICK_CALL,    &AF(DoSkelInitTeleport), &s_SkelTeleport[2]},
@@ -239,11 +207,6 @@ STATE s_SkelTeleport[] =
     {SPR_SKEL_TELEPORT, 'A',  SKEL_TELEPORT_RATE, &AF(DoSkelMove), &s_SkelTeleport[16]},
 };
 
-STATE* sg_SkelTeleport[] =
-{
-    s_SkelTeleport,
-};
-
 //////////////////////
 //
 // SKEL STAND
@@ -252,18 +215,11 @@ STATE* sg_SkelTeleport[] =
 
 #define SKEL_STAND_RATE 12
 
-STATE s_SkelStand[1][1] =
+FState s_SkelStand[] =
 {
-    {
-        {SPR_SKEL_RUN, 'A', SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[0][0]},
-    },
+        {SPR_SKEL_RUN, 'A', SKEL_STAND_RATE, &AF(DoSkelMove), &s_SkelStand[0]},
 };
 
-
-STATE* sg_SkelStand[] =
-{
-    s_SkelStand[0],
-};
 
 //////////////////////
 //
@@ -273,7 +229,7 @@ STATE* sg_SkelStand[] =
 
 #define SKEL_DIE_RATE 25
 
-STATE s_SkelDie[] =
+FState s_SkelDie[] =
 {
     {SPR_SKEL_DIE, 'A', SKEL_DIE_RATE, nullptr,  &s_SkelDie[1]},
     {SPR_SKEL_DIE, 'B', SKEL_DIE_RATE, nullptr,  &s_SkelDie[2]},
@@ -283,59 +239,54 @@ STATE s_SkelDie[] =
     {SPR_SKEL_DIE, 'F', SKEL_DIE_RATE, &AF(DoSuicide),   &s_SkelDie[5]},
 };
 
-STATE* sg_SkelDie[] =
-{
-    s_SkelDie
-};
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 ACTOR_ACTION_SET SkelActionSet =
 {
-    sg_SkelStand,
-    sg_SkelRun,
-    nullptr, //sg_SkelJump,
-    nullptr, //sg_SkelFall,
-    nullptr, //sg_SkelCrawl,
-    nullptr, //sg_SkelSwim,
-    nullptr, //sg_SkelFly,
-    nullptr, //sg_SkelRise,
-    nullptr, //sg_SkelSit,
-    nullptr, //sg_SkelLook,
+    s_SkelStand,
+    s_SkelRun,
+    nullptr, //s_SkelJump,
+    nullptr, //s_SkelFall,
+    nullptr, //s_SkelCrawl,
+    nullptr, //s_SkelSwim,
+    nullptr, //s_SkelFly,
+    nullptr, //s_SkelRise,
+    nullptr, //s_SkelSit,
+    nullptr, //s_SkelLook,
     nullptr, //climb
-    sg_SkelPain, //pain
-    sg_SkelDie,
-    nullptr, //sg_SkelHariKari,
-    nullptr, //sg_SkelDead,
-    nullptr, //sg_SkelDeathJump,
-    nullptr, //sg_SkelDeathFall,
-    {sg_SkelSlash},
+    s_SkelPain, //pain
+    s_SkelDie,
+    nullptr, //s_SkelHariKari,
+    nullptr, //s_SkelDead,
+    nullptr, //s_SkelDeathJump,
+    nullptr, //s_SkelDeathFall,
+    {s_SkelSlash},
     {1024},
-    {sg_SkelSpell},
+    {s_SkelSpell},
     {1024},
     {nullptr},
-    sg_SkelTeleport,
+    s_SkelTeleport,
     nullptr
 };
 
@@ -357,7 +308,7 @@ int SetupSkel(DSWActor* actor)
     actor->user.__legacyState.Attrib = &SkelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SkelDie;
-    actor->user.__legacyState.Rot = sg_SkelRun;
+    actor->user.__legacyState.Rot = s_SkelRun;
 
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 
@@ -505,19 +456,12 @@ static saveable_data saveable_skel_data[] =
     SAVE_DATA(SkelAttrib),
 
     SAVE_DATA(s_SkelRun),
-    SAVE_DATA(sg_SkelRun),
     SAVE_DATA(s_SkelSlash),
-    SAVE_DATA(sg_SkelSlash),
     SAVE_DATA(s_SkelSpell),
-    SAVE_DATA(sg_SkelSpell),
     SAVE_DATA(s_SkelPain),
-    SAVE_DATA(sg_SkelPain),
     SAVE_DATA(s_SkelTeleport),
-    SAVE_DATA(sg_SkelTeleport),
     SAVE_DATA(s_SkelStand),
-    SAVE_DATA(sg_SkelStand),
     SAVE_DATA(s_SkelDie),
-    SAVE_DATA(sg_SkelDie),
 
     SAVE_DATA(SkelActionSet),
 };

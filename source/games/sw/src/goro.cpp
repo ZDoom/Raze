@@ -112,21 +112,14 @@ ATTRIBUTE GoroAttrib =
 
 #define GORO_RUN_RATE 18
 
-STATE s_GoroRun[1][4] =
+FState s_GoroRun[] =
 {
-    {
-        {SPR_GORO_RUN, 'A', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[0][1]},
-        {SPR_GORO_RUN, 'B', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[0][2]},
-        {SPR_GORO_RUN, 'C', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[0][3]},
-        {SPR_GORO_RUN, 'D', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[0][0]},
-    },
+        {SPR_GORO_RUN, 'A', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[1]},
+        {SPR_GORO_RUN, 'B', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[2]},
+        {SPR_GORO_RUN, 'C', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[3]},
+        {SPR_GORO_RUN, 'D', GORO_RUN_RATE|SF_TIC_ADJUST, &AF(DoGoroMove), &s_GoroRun[0]},
 };
 
-
-STATE* sg_GoroRun[] =
-{
-    &s_GoroRun[0][0],
-};
 
 //////////////////////
 //
@@ -136,28 +129,17 @@ STATE* sg_GoroRun[] =
 
 #define GORO_CHOP_RATE 14
 
-STATE s_GoroChop[1][7] =
+FState s_GoroChop[] =
 {
-    {
-        {SPR_GORO_CHOP, 'A', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[0][1]},
-        {SPR_GORO_CHOP, 'B', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[0][2]},
-        {SPR_GORO_CHOP, 'C', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[0][3]},
-        {SPR_GORO_CHOP, 'C', 0|SF_QUICK_CALL, &AF(InitGoroChop), &s_GoroChop[0][4]},
-        {SPR_GORO_CHOP, 'C', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[0][5]},
-        {SPR_GORO_CHOP, 'C', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_GoroChop[0][6]},
-        {SPR_GORO_CHOP, 'C', GORO_CHOP_RATE, &AF(DoGoroMove), &s_GoroChop[0][6]},
-    },
+        {SPR_GORO_CHOP, 'A', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[1]},
+        {SPR_GORO_CHOP, 'B', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[2]},
+        {SPR_GORO_CHOP, 'C', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[3]},
+        {SPR_GORO_CHOP, 'C', 0|SF_QUICK_CALL, &AF(InitGoroChop), &s_GoroChop[4]},
+        {SPR_GORO_CHOP, 'C', GORO_CHOP_RATE, &AF(NullGoro), &s_GoroChop[5]},
+        {SPR_GORO_CHOP, 'C', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_GoroChop[6]},
+        {SPR_GORO_CHOP, 'C', GORO_CHOP_RATE, &AF(DoGoroMove), &s_GoroChop[6]},
 };
 
-
-STATE* sg_GoroChop[] =
-{
-    &s_GoroChop[0][0],
-    &s_GoroChop[1][0],
-    &s_GoroChop[2][0],
-    &s_GoroChop[3][0],
-    &s_GoroChop[4][0]
-};
 
 
 //////////////////////
@@ -169,27 +151,20 @@ STATE* sg_GoroChop[] =
 #define GORO_SPELL_RATE 6
 #define GORO_SPELL_PAUSE 30
 
-STATE s_GoroSpell[1][10] =
+FState s_GoroSpell[] =
 {
-    {
-        {SPR_GORO_SPELL, 'A', GORO_SPELL_PAUSE, &AF(NullGoro),      &s_GoroSpell[0][1]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_PAUSE, &AF(NullGoro),      &s_GoroSpell[0][2]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(InitEnemyFireball), &s_GoroSpell[0][3]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(NullGoro),      &s_GoroSpell[0][4]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(InitEnemyFireball), &s_GoroSpell[0][5]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(NullGoro),      &s_GoroSpell[0][6]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(InitEnemyFireball), &s_GoroSpell[0][7]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_PAUSE, &AF(NullGoro),      &s_GoroSpell[0][8]},
-        {SPR_GORO_SPELL, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide),   &s_GoroSpell[0][9]},
-        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(DoGoroMove),        &s_GoroSpell[0][9]},
-    },
+        {SPR_GORO_SPELL, 'A', GORO_SPELL_PAUSE, &AF(NullGoro),      &s_GoroSpell[1]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_PAUSE, &AF(NullGoro),      &s_GoroSpell[2]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(InitEnemyFireball), &s_GoroSpell[3]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(NullGoro),      &s_GoroSpell[4]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(InitEnemyFireball), &s_GoroSpell[5]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(NullGoro),      &s_GoroSpell[6]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(InitEnemyFireball), &s_GoroSpell[7]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_PAUSE, &AF(NullGoro),      &s_GoroSpell[8]},
+        {SPR_GORO_SPELL, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide),   &s_GoroSpell[9]},
+        {SPR_GORO_SPELL, 'B', GORO_SPELL_RATE, &AF(DoGoroMove),        &s_GoroSpell[9]},
 };
 
-
-STATE* sg_GoroSpell[] =
-{
-    &s_GoroSpell[0][0],
-};
 
 //////////////////////
 //
@@ -199,18 +174,11 @@ STATE* sg_GoroSpell[] =
 
 #define GORO_STAND_RATE 12
 
-STATE s_GoroStand[1][1] =
+FState s_GoroStand[] =
 {
-    {
-        {SPR_GORO_STAND, 'A', GORO_STAND_RATE, &AF(DoGoroMove), &s_GoroStand[0][0]},
-    },
+        {SPR_GORO_STAND, 'A', GORO_STAND_RATE, &AF(DoGoroMove), &s_GoroStand[0]},
 };
 
-
-STATE* sg_GoroStand[] =
-{
-    s_GoroStand[0],
-};
 
 //////////////////////
 //
@@ -220,18 +188,11 @@ STATE* sg_GoroStand[] =
 
 #define GORO_PAIN_RATE 12
 
-STATE s_GoroPain[1][1] =
+FState s_GoroPain[] =
 {
-    {
-        {SPR_GORO_STAND, 'A', GORO_PAIN_RATE, &AF(DoGoroPain), &s_GoroPain[0][0]},
-    },
+        {SPR_GORO_STAND, 'A', GORO_PAIN_RATE, &AF(DoGoroPain), &s_GoroPain[0]},
 };
 
-
-STATE* sg_GoroPain[] =
-{
-    s_GoroPain[0],
-};
 
 //////////////////////
 //
@@ -241,7 +202,7 @@ STATE* sg_GoroPain[] =
 
 #define GORO_DIE_RATE 16
 
-STATE s_GoroDie[] =
+FState s_GoroDie[] =
 {
     {SPR_GORO_DIE, 'A', GORO_DIE_RATE, &AF(NullGoro), &s_GoroDie[1]},
     {SPR_GORO_DIE, 'B', GORO_DIE_RATE, &AF(NullGoro), &s_GoroDie[2]},
@@ -256,66 +217,56 @@ STATE s_GoroDie[] =
     {SPR_GORO_DEAD, 'A', GORO_DIE_RATE, &AF(DoActorDebris), &s_GoroDie[10]},
 };
 
-STATE s_GoroDead[] =
+FState s_GoroDead[] =
 {
     {SPR_GORO_DEAD, 'A', GORO_DIE_RATE, &AF(DoActorDebris), &s_GoroDead[0]},
 };
 
-STATE* sg_GoroDie[] =
-{
-    s_GoroDie
-};
-
-STATE* sg_GoroDead[] =
-{
-    s_GoroDead
-};
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 ACTOR_ACTION_SET GoroActionSet =
 {
-    sg_GoroStand,
-    sg_GoroRun,
-    nullptr, //sg_GoroJump,
-    nullptr, //sg_GoroFall,
-    nullptr, //sg_GoroCrawl,
-    nullptr, //sg_GoroSwim,
-    nullptr, //sg_GoroFly,
-    nullptr, //sg_GoroRise,
-    nullptr, //sg_GoroSit,
-    nullptr, //sg_GoroLook,
+    s_GoroStand,
+    s_GoroRun,
+    nullptr, //s_GoroJump,
+    nullptr, //s_GoroFall,
+    nullptr, //s_GoroCrawl,
+    nullptr, //s_GoroSwim,
+    nullptr, //s_GoroFly,
+    nullptr, //s_GoroRise,
+    nullptr, //s_GoroSit,
+    nullptr, //s_GoroLook,
     nullptr, //climb
-    sg_GoroPain,
-    sg_GoroDie,
-    nullptr, //sg_GoroHariKari,
-    sg_GoroDead,
-    nullptr, //sg_GoroDeathJump,
-    nullptr, //sg_GoroDeathFall,
-    {sg_GoroChop},
+    s_GoroPain,
+    s_GoroDie,
+    nullptr, //s_GoroHariKari,
+    s_GoroDead,
+    nullptr, //s_GoroDeathJump,
+    nullptr, //s_GoroDeathFall,
+    {s_GoroChop},
     {1024},
-    {sg_GoroSpell},
+    {s_GoroSpell},
     {1024},
     {nullptr,nullptr},
     nullptr,
@@ -340,7 +291,7 @@ int SetupGoro(DSWActor* actor)
     actor->user.__legacyState.Attrib = &GoroAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_GoroDie;
-    actor->user.__legacyState.Rot = sg_GoroRun;
+    actor->user.__legacyState.Rot = s_GoroRun;
 
 
     EnemyDefaults(actor, &GoroActionSet, &GoroPersonality);
@@ -428,19 +379,12 @@ static saveable_data saveable_goro_data[] =
     SAVE_DATA(GoroAttrib),
 
     SAVE_DATA(s_GoroRun),
-    SAVE_DATA(sg_GoroRun),
     SAVE_DATA(s_GoroChop),
-    SAVE_DATA(sg_GoroChop),
     SAVE_DATA(s_GoroSpell),
-    SAVE_DATA(sg_GoroSpell),
     SAVE_DATA(s_GoroStand),
-    SAVE_DATA(sg_GoroStand),
     SAVE_DATA(s_GoroPain),
-    SAVE_DATA(sg_GoroPain),
     SAVE_DATA(s_GoroDie),
     SAVE_DATA(s_GoroDead),
-    SAVE_DATA(sg_GoroDie),
-    SAVE_DATA(sg_GoroDead),
 
     SAVE_DATA(GoroActionSet),
 };

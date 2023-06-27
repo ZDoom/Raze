@@ -6,9 +6,9 @@ BEGIN_SW_NS
 
 struct Personality;
 
-FTextureID picFromState(STATE* s)
+FTextureID picFromState(FState* s)
 {
-	auto& spritedef = SpriteDefs[s->Sprite];
+	auto& spritedef = SpriteDefs[s->sprite];
 	unsigned framenum = s->Frame - 'A';
 	if (framenum >= spritedef.numframes) return FNullTextureID();
 	auto& frame = SpriteFrames[spritedef.spriteframes + framenum];
@@ -64,7 +64,6 @@ public:
 	bool hasState(FName label, int substate = 0);
 	void callAction();
 	void callStateAction();
-	int callFunction(VMFunction* func);
 	void setPicFromState() { spr.setspritetexture(picFromState(user.__legacyState.State)); }
 };
 

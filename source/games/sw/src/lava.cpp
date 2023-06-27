@@ -127,17 +127,9 @@ ATTRIBUTE LavaPissedAttrib =
 //////////////////////
 
 #define LAVA_STAND_RATE 12
-STATE s_LavaStand[1][1] =
+FState s_LavaStand[] =
 {
-    {
-        {SPR_LAVA_RUN, 'A', LAVA_STAND_RATE, &AF(DoLavaMove), &s_LavaStand[0][0]},
-    },
-};
-
-
-STATE* sg_LavaStand[] =
-{
-    s_LavaStand[0],
+        {SPR_LAVA_RUN, 'A', LAVA_STAND_RATE, &AF(DoLavaMove), &s_LavaStand[0]},
 };
 
 
@@ -150,21 +142,14 @@ STATE* sg_LavaStand[] =
 #define LAVA_RUN_RATE 24
 
 
-STATE s_LavaRun[1][4] =
+FState s_LavaRun[] =
 {
-    {
-        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[0][1]},
-        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[0][2]},
-        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[0][3]},
-        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[0][0]},
-    },
+        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[1]},
+        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[2]},
+        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[3]},
+        {SPR_LAVA_RUN, 'A', LAVA_RUN_RATE, &AF(DoLavaMove), &s_LavaRun[0]},
 };
 
-
-STATE* sg_LavaRun[] =
-{
-    &s_LavaRun[0][0],
-};
 
 //////////////////////
 //
@@ -174,31 +159,20 @@ STATE* sg_LavaRun[] =
 
 #define LAVA_THROW_RATE 9
 
-STATE s_LavaThrow[1][10] =
+FState s_LavaThrow[] =
 {
-    {
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[0][1]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[0][2]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE*2, &AF(NullLava), &s_LavaThrow[0][3]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[0][4]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[0][5]},
-        {SPR_LAVA_THROW, 'A', SF_QUICK_CALL, &AF(InitLavaThrow), &s_LavaThrow[0][6]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[0][7]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[0][8]},
-        {SPR_LAVA_THROW, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_LavaThrow[0][9]},
-        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(DoLavaMove), &s_LavaThrow[0][9]},
-    },
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[1]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[2]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE*2, &AF(NullLava), &s_LavaThrow[3]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[4]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[5]},
+        {SPR_LAVA_THROW, 'A', SF_QUICK_CALL, &AF(InitLavaThrow), &s_LavaThrow[6]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[7]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(NullLava), &s_LavaThrow[8]},
+        {SPR_LAVA_THROW, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_LavaThrow[9]},
+        {SPR_LAVA_THROW, 'A', LAVA_THROW_RATE, &AF(DoLavaMove), &s_LavaThrow[9]},
 };
 
-
-STATE* sg_LavaThrow[] =
-{
-    &s_LavaThrow[0][0],
-    &s_LavaThrow[1][0],
-    &s_LavaThrow[2][0],
-    &s_LavaThrow[3][0],
-    &s_LavaThrow[4][0]
-};
 
 
 //////////////////////
@@ -209,25 +183,18 @@ STATE* sg_LavaThrow[] =
 
 #define LAVA_FLAME_RATE 18
 
-STATE s_LavaFlame[1][8] =
+FState s_LavaFlame[] =
 {
-    {
-        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE*2, &AF(NullLava), &s_LavaFlame[0][1]},
-        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(NullLava), &s_LavaFlame[0][2]},
-        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE*2, &AF(NullLava), &s_LavaFlame[0][3]},
-        {SPR_LAVA_FLAME, 'A', SF_QUICK_CALL, &AF(InitLavaFlame), &s_LavaFlame[0][4]},
-        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(NullLava), &s_LavaFlame[0][5]},
-        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(NullLava), &s_LavaFlame[0][6]},
-        {SPR_LAVA_FLAME, 'A', SF_QUICK_CALL,   &AF(InitActorDecide), &s_LavaFlame[0][7]},
-        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(DoLavaMove), &s_LavaFlame[0][7]},
-    },
+        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE*2, &AF(NullLava), &s_LavaFlame[1]},
+        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(NullLava), &s_LavaFlame[2]},
+        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE*2, &AF(NullLava), &s_LavaFlame[3]},
+        {SPR_LAVA_FLAME, 'A', SF_QUICK_CALL, &AF(InitLavaFlame), &s_LavaFlame[4]},
+        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(NullLava), &s_LavaFlame[5]},
+        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(NullLava), &s_LavaFlame[6]},
+        {SPR_LAVA_FLAME, 'A', SF_QUICK_CALL,   &AF(InitActorDecide), &s_LavaFlame[7]},
+        {SPR_LAVA_FLAME, 'A', LAVA_FLAME_RATE, &AF(DoLavaMove), &s_LavaFlame[7]},
 };
 
-
-STATE* sg_LavaFlame[] =
-{
-    &s_LavaFlame[0][0],
-};
 
 //////////////////////
 //
@@ -237,73 +204,63 @@ STATE* sg_LavaFlame[] =
 
 #define LAVA_DIE_RATE 20
 
-STATE s_LavaDie[] =
+FState s_LavaDie[] =
 {
     {SPR_LAVA_DIE, 'A', LAVA_DIE_RATE, &AF(NullLava), &s_LavaDie[1]},
     {SPR_LAVA_DEAD, 'A', LAVA_DIE_RATE, &AF(DoActorDebris), &s_LavaDie[1]}
 };
 
-STATE s_LavaDead[] =
+FState s_LavaDead[] =
 {
     {SPR_LAVA_DEAD, 'A', LAVA_DIE_RATE, &AF(DoActorDebris), &s_LavaDead[0]},
 };
 
-STATE* sg_LavaDie[] =
-{
-    s_LavaDie
-};
-
-STATE* sg_LavaDead[] =
-{
-    s_LavaDead
-};
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 
 ACTOR_ACTION_SET LavaActionSet =
 {
-    sg_LavaStand,
-    sg_LavaRun,
-    nullptr, //sg_LavaJump,
-    nullptr, //sg_LavaFall,
-    nullptr, //sg_LavaCrawl,
-    nullptr, //sg_LavaSwim,
-    nullptr, //sg_LavaFly,
-    nullptr, //sg_LavaRise,
-    nullptr, //sg_LavaSit,
-    nullptr, //sg_LavaLook,
+    s_LavaStand,
+    s_LavaRun,
+    nullptr, //s_LavaJump,
+    nullptr, //s_LavaFall,
+    nullptr, //s_LavaCrawl,
+    nullptr, //s_LavaSwim,
+    nullptr, //s_LavaFly,
+    nullptr, //s_LavaRise,
+    nullptr, //s_LavaSit,
+    nullptr, //s_LavaLook,
     nullptr, //climb
     nullptr, //pain
-    sg_LavaDie,
-    nullptr, //sg_LavaHariKari,
-    sg_LavaDead,
-    nullptr, //sg_LavaDeathJump,
-    nullptr, //sg_LavaDeathFall,
-    {sg_LavaFlame},
+    s_LavaDie,
+    nullptr, //s_LavaHariKari,
+    s_LavaDead,
+    nullptr, //s_LavaDeathJump,
+    nullptr, //s_LavaDeathFall,
+    {s_LavaFlame},
     {1024},
-    {sg_LavaFlame, sg_LavaThrow, sg_LavaThrow, sg_LavaThrow},
+    {s_LavaFlame, s_LavaThrow, s_LavaThrow, s_LavaThrow},
     {256, 512, 768, 1024},
     {nullptr},
     nullptr,
@@ -328,7 +285,7 @@ int SetupLava(DSWActor* actor)
     actor->user.__legacyState.Attrib = &LavaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_LavaDie;
-    actor->user.__legacyState.Rot = sg_LavaRun;
+    actor->user.__legacyState.Rot = s_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
 	actor->spr.scale = DVector2(1.71875, 1.71875);
@@ -403,17 +360,11 @@ static saveable_data saveable_lava_data[] =
     SAVE_DATA(LavaPissedAttrib),
 
     SAVE_DATA(s_LavaStand),
-    SAVE_DATA(sg_LavaStand),
     SAVE_DATA(s_LavaRun),
-    SAVE_DATA(sg_LavaRun),
     SAVE_DATA(s_LavaThrow),
-    SAVE_DATA(sg_LavaThrow),
     SAVE_DATA(s_LavaFlame),
-    SAVE_DATA(sg_LavaFlame),
     SAVE_DATA(s_LavaDie),
     SAVE_DATA(s_LavaDead),
-    SAVE_DATA(sg_LavaDie),
-    SAVE_DATA(sg_LavaDead),
 
     SAVE_DATA(LavaActionSet),
 };

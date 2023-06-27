@@ -120,21 +120,12 @@ ATTRIBUTE GirlNinjaAttrib =
 
 #define GIRLNINJA_RATE 18
 
-STATE s_GirlNinjaRun[1][4] =
+FState s_GirlNinjaRun[] = 
 {
-
-    {
-        {SPR_GIRLNINJA_RUN, 'A', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[0][1]},
-        {SPR_GIRLNINJA_RUN, 'B', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[0][2]},
-        {SPR_GIRLNINJA_RUN, 'C', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[0][3]},
-        {SPR_GIRLNINJA_RUN, 'D', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[0][0]},
-    },
-};
-
-
-STATE* sg_GirlNinjaRun[] =
-{
-    s_GirlNinjaRun[0],
+        {SPR_GIRLNINJA_RUN, 'A', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[1]},
+        {SPR_GIRLNINJA_RUN, 'B', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[2]},
+        {SPR_GIRLNINJA_RUN, 'C', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[3]},
+        {SPR_GIRLNINJA_RUN, 'D', GIRLNINJA_RATE | SF_TIC_ADJUST, &AF(DoGirlNinjaMove), &s_GirlNinjaRun[0]},
 };
 
 //////////////////////
@@ -145,18 +136,11 @@ STATE* sg_GirlNinjaRun[] =
 
 #define GIRLNINJA_STAND_RATE 10
 
-STATE s_GirlNinjaStand[1][1] =
+FState s_GirlNinjaStand[] = 
 {
-    {
-        {SPR_GIRLNINJA_STAND, 'A', GIRLNINJA_STAND_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaStand[0][0]},
-    },
+        {SPR_GIRLNINJA_STAND, 'A', GIRLNINJA_STAND_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaStand[0]},
 };
 
-
-STATE* sg_GirlNinjaStand[] =
-{
-    s_GirlNinjaStand[0],
-};
 
 //////////////////////
 //
@@ -166,22 +150,15 @@ STATE* sg_GirlNinjaStand[] =
 
 #define GIRLNINJA_RISE_RATE 10
 
-STATE s_GirlNinjaRise[1][3] =
+FState s_GirlNinjaRise[] = 
 {
-    {
-        {SPR_GIRLNINJA_KNEEL, 'A', GIRLNINJA_RISE_RATE, &AF(NullGirlNinja), &s_GirlNinjaRise[0][1]},
-        {SPR_GIRLNINJA_STAND, 'A', GIRLNINJA_STAND_RATE, &AF(NullGirlNinja), &s_GirlNinjaRise[0][2]},
-        {SPR_NULL, 0, 0, nullptr, (STATE*)sg_GirlNinjaRun},  // JBF: sg_GirlNinjaRun really is supposed to be the
+        {SPR_GIRLNINJA_KNEEL, 'A', GIRLNINJA_RISE_RATE, &AF(NullGirlNinja), &s_GirlNinjaRise[1]},
+        {SPR_GIRLNINJA_STAND, 'A', GIRLNINJA_STAND_RATE, &AF(NullGirlNinja), &s_GirlNinjaRise[2]},
+        {SPR_NULL, 0, 0, nullptr, &s_GirlNinjaRun[0]},  // JBF: s_GirlNinjaRun really is supposed to be the
         // pointer to the state group. See StateControl() where
         // it says "if (!actor->user.__legacyState.State->Pic)".
-    },
 };
 
-
-STATE* sg_GirlNinjaRise[] =
-{
-    s_GirlNinjaRise[0],
-};
 
 //////////////////////
 //
@@ -192,18 +169,10 @@ STATE* sg_GirlNinjaRise[] =
 #define GIRLNINJA_DUCK_RATE 10
 #define GIRLNINJA_CRAWL_RATE 14
 
-STATE s_GirlNinjaDuck[1][2] =
+FState s_GirlNinjaDuck[] = 
 {
-    {
-        {SPR_GIRLNINJA_KNEEL, 'A', GIRLNINJA_DUCK_RATE, &AF(NullGirlNinja), &s_GirlNinjaDuck[0][1]},
-        {SPR_GIRLNINJA_CRAWL, 'A', GIRLNINJA_CRAWL_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaDuck[0][1]},
-    },
-};
-
-
-STATE* sg_GirlNinjaDuck[] =
-{
-    s_GirlNinjaDuck[0],
+        {SPR_GIRLNINJA_KNEEL, 'A', GIRLNINJA_DUCK_RATE, &AF(NullGirlNinja), &s_GirlNinjaDuck[1]},
+        {SPR_GIRLNINJA_CRAWL, 'A', GIRLNINJA_CRAWL_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaDuck[1]},
 };
 
 
@@ -213,17 +182,9 @@ STATE* sg_GirlNinjaDuck[] =
 //
 //////////////////////
 
-STATE s_GirlNinjaSit[1][1] =
+FState s_GirlNinjaSit[] = 
 {
-    {
-        {SPR_GIRLNINJA_KNEEL, 'A', GIRLNINJA_RISE_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaSit[0][0]},
-    },
-};
-
-
-STATE* sg_GirlNinjaSit[] =
-{
-    s_GirlNinjaSit[0],
+        {SPR_GIRLNINJA_KNEEL, 'A', GIRLNINJA_RISE_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaSit[0]},
 };
 
 
@@ -235,18 +196,10 @@ STATE* sg_GirlNinjaSit[] =
 
 #define GIRLNINJA_JUMP_RATE 24
 
-STATE s_GirlNinjaJump[1][2] =
+FState s_GirlNinjaJump[] = 
 {
-    {
-        {SPR_GIRLNINJA_JUMP, 'A', GIRLNINJA_JUMP_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaJump[0][1]},
-        {SPR_GIRLNINJA_JUMP, 'B', GIRLNINJA_JUMP_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaJump[0][1]},
-    },
-};
-
-
-STATE* sg_GirlNinjaJump[] =
-{
-    s_GirlNinjaJump[0],
+        {SPR_GIRLNINJA_JUMP, 'A', GIRLNINJA_JUMP_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaJump[1]},
+        {SPR_GIRLNINJA_JUMP, 'B', GIRLNINJA_JUMP_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaJump[1]},
 };
 
 
@@ -258,19 +211,12 @@ STATE* sg_GirlNinjaJump[] =
 
 #define GIRLNINJA_FALL_RATE 16
 
-STATE s_GirlNinjaFall[1][2] =
+FState s_GirlNinjaFall[] = 
 {
-    {
-        {SPR_GIRLNINJA_JUMP, 'B', GIRLNINJA_FALL_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaFall[0][1]},
-        {SPR_GIRLNINJA_JUMP, 'C', GIRLNINJA_FALL_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaFall[0][1]},
-    },
+        {SPR_GIRLNINJA_JUMP, 'B', GIRLNINJA_FALL_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaFall[1]},
+        {SPR_GIRLNINJA_JUMP, 'C', GIRLNINJA_FALL_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaFall[1]},
 };
 
-
-STATE* sg_GirlNinjaFall[] =
-{
-    s_GirlNinjaFall[0],
-};
 
 //////////////////////
 //
@@ -280,16 +226,9 @@ STATE* sg_GirlNinjaFall[] =
 
 #define GIRLNINJA_PAIN_RATE 15
 
-STATE s_GirlNinjaPain[1][1] =
+FState s_GirlNinjaPain[] = 
 {
-    {
-        {SPR_GIRLNINJA_PAIN, 'A', GIRLNINJA_PAIN_RATE, &AF(DoGirlNinjaPain), &s_GirlNinjaPain[0][0]},
-    },
-};
-
-STATE* sg_GirlNinjaPain[] =
-{
-    s_GirlNinjaPain[0],
+        {SPR_GIRLNINJA_PAIN, 'A', GIRLNINJA_PAIN_RATE, &AF(DoGirlNinjaPain), &s_GirlNinjaPain[0]},
 };
 
 //////////////////////
@@ -300,23 +239,15 @@ STATE* sg_GirlNinjaPain[] =
 
 #define GIRLNINJA_STICKY_RATE 32
 
-STATE s_GirlNinjaSticky[1][6] =
+FState s_GirlNinjaSticky[] = 
 {
-    {
-        {SPR_GIRLNINJA_THROW, 'A', GIRLNINJA_STICKY_RATE * 2,     &AF(NullGirlNinja),            &s_GirlNinjaSticky[0][1]},
-        {SPR_GIRLNINJA_THROW, 'A', GIRLNINJA_STICKY_RATE,       &AF(NullGirlNinja),          &s_GirlNinjaSticky[0][2]},
-        {SPR_GIRLNINJA_THROW, 'B', 0 | SF_QUICK_CALL,         &AF(InitEnemyMine),      &s_GirlNinjaSticky[0][3]},
-        {SPR_GIRLNINJA_THROW, 'B', GIRLNINJA_STICKY_RATE * 2,     &AF(NullGirlNinja),            &s_GirlNinjaSticky[0][4]},
-        {SPR_GIRLNINJA_THROW, 'C', 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_GirlNinjaSticky[0][5]},
-        {SPR_GIRLNINJA_THROW, 'C', GIRLNINJA_STICKY_RATE,       &AF(DoGirlNinjaMove),        &s_GirlNinjaSticky[0][5]},
-    },
+        {SPR_GIRLNINJA_THROW, 'A', GIRLNINJA_STICKY_RATE * 2,     &AF(NullGirlNinja),            &s_GirlNinjaSticky[1]},
+        {SPR_GIRLNINJA_THROW, 'A', GIRLNINJA_STICKY_RATE,       &AF(NullGirlNinja),          &s_GirlNinjaSticky[2]},
+        {SPR_GIRLNINJA_THROW, 'B', 0 | SF_QUICK_CALL,         &AF(InitEnemyMine),      &s_GirlNinjaSticky[3]},
+        {SPR_GIRLNINJA_THROW, 'B', GIRLNINJA_STICKY_RATE * 2,     &AF(NullGirlNinja),            &s_GirlNinjaSticky[4]},
+        {SPR_GIRLNINJA_THROW, 'C', 0 | SF_QUICK_CALL,         &AF(InitActorDecide),    &s_GirlNinjaSticky[5]},
+        {SPR_GIRLNINJA_THROW, 'C', GIRLNINJA_STICKY_RATE,       &AF(DoGirlNinjaMove),        &s_GirlNinjaSticky[5]},
 };
-
-STATE* sg_GirlNinjaSticky[] =
-{
-    s_GirlNinjaSticky[0],
-};
-
 
 //////////////////////
 //
@@ -326,23 +257,14 @@ STATE* sg_GirlNinjaSticky[] =
 
 #define GIRLNINJA_CROSSBOW_RATE 14
 
-STATE s_GirlNinjaCrossbow[1][5] =
+FState s_GirlNinjaCrossbow[] = 
 {
-    {
-        {SPR_GIRLNINJA_FIRE, 'A', GIRLNINJA_CROSSBOW_RATE * 2, &AF(NullGirlNinja), &s_GirlNinjaCrossbow[0][1]},
-        {SPR_GIRLNINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitEnemyCrossbow), &s_GirlNinjaCrossbow[0][2]},
-        {SPR_GIRLNINJA_FIRE, 'B', GIRLNINJA_CROSSBOW_RATE, &AF(NullGirlNinja), &s_GirlNinjaCrossbow[0][3]},
-        {SPR_GIRLNINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_GirlNinjaCrossbow[0][4]},
-        {SPR_GIRLNINJA_FIRE, 'B', GIRLNINJA_CROSSBOW_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaCrossbow[0][4]},
-    },
+        {SPR_GIRLNINJA_FIRE, 'A', GIRLNINJA_CROSSBOW_RATE * 2, &AF(NullGirlNinja), &s_GirlNinjaCrossbow[1]},
+        {SPR_GIRLNINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitEnemyCrossbow), &s_GirlNinjaCrossbow[2]},
+        {SPR_GIRLNINJA_FIRE, 'B', GIRLNINJA_CROSSBOW_RATE, &AF(NullGirlNinja), &s_GirlNinjaCrossbow[3]},
+        {SPR_GIRLNINJA_FIRE, 'B', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_GirlNinjaCrossbow[4]},
+        {SPR_GIRLNINJA_FIRE, 'B', GIRLNINJA_CROSSBOW_RATE, &AF(DoGirlNinjaMove), &s_GirlNinjaCrossbow[4]},
 };
-
-
-STATE* sg_GirlNinjaCrossbow[] =
-{
-    s_GirlNinjaCrossbow[0],
-};
-
 
 
 //////////////////////
@@ -353,7 +275,7 @@ STATE* sg_GirlNinjaCrossbow[] =
 
 #define GIRLNINJA_DIE_RATE 30
 
-STATE s_GirlNinjaDie[] =
+FState s_GirlNinjaDie[] =
 {
     {SPR_GIRLNINJA_DIE, 'A', GIRLNINJA_DIE_RATE*2, &AF(NullGirlNinja), &s_GirlNinjaDie[1]},
     {SPR_GIRLNINJA_DIE, 'B', GIRLNINJA_DIE_RATE, &AF(NullGirlNinja), &s_GirlNinjaDie[2]},
@@ -368,7 +290,7 @@ STATE s_GirlNinjaDie[] =
     {SPR_GIRLNINJA_DIE, 'I', GIRLNINJA_DIE_RATE, &AF(DoActorDebris), &s_GirlNinjaDie[10]},
 };
 
-STATE s_GirlNinjaDead[] =
+FState s_GirlNinjaDead[] =
 {
     {SPR_GIRLNINJA_DIE, 'G', GIRLNINJA_DIE_RATE, &AF(DoActorDebris), &s_GirlNinjaDead[1]},
     {SPR_GIRLNINJA_DIE, 'H', SF_QUICK_CALL, &AF(DoGirlNinjaSpecial), &s_GirlNinjaDead[2]},
@@ -378,61 +300,41 @@ STATE s_GirlNinjaDead[] =
 };
 
 
-STATE s_GirlNinjaDeathJump[] =
+FState s_GirlNinjaDeathJump[] =
 {
     {SPR_GIRLNINJA_DIE, 'A', GIRLNINJA_DIE_RATE, &AF(DoActorDeathMove), &s_GirlNinjaDeathJump[1]},
     {SPR_GIRLNINJA_DIE, 'B', GIRLNINJA_DIE_RATE, &AF(DoActorDeathMove), &s_GirlNinjaDeathJump[2]},
     {SPR_GIRLNINJA_DIE, 'C', GIRLNINJA_DIE_RATE, &AF(DoActorDeathMove), &s_GirlNinjaDeathJump[2]},
 };
 
-STATE s_GirlNinjaDeathFall[] =
+FState s_GirlNinjaDeathFall[] =
 {
     {SPR_GIRLNINJA_DIE, 'D', GIRLNINJA_DIE_RATE, &AF(DoActorDeathMove), &s_GirlNinjaDeathFall[1]},
     {SPR_GIRLNINJA_DIE, 'E', GIRLNINJA_DIE_RATE, &AF(DoActorDeathMove), &s_GirlNinjaDeathFall[1]},
 };
 
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
-
-STATE* sg_GirlNinjaDie[] =
-{
-    s_GirlNinjaDie
-};
-
-STATE* sg_GirlNinjaDead[] =
-{
-    s_GirlNinjaDead
-};
-
-STATE* sg_GirlNinjaDeathJump[] =
-{
-    s_GirlNinjaDeathJump
-};
-
-STATE* sg_GirlNinjaDeathFall[] =
-{
-    s_GirlNinjaDeathFall
-};
 
 /*
 
@@ -442,29 +344,29 @@ STATE* sg_GirlNinjaDeathFall[] =
 
 ACTOR_ACTION_SET GirlNinjaActionSet =
 {
-    sg_GirlNinjaStand,
-    sg_GirlNinjaRun,
-    sg_GirlNinjaJump,
-    sg_GirlNinjaFall,
+    s_GirlNinjaStand,
+    s_GirlNinjaRun,
+    s_GirlNinjaJump,
+    s_GirlNinjaFall,
     nullptr,
     nullptr,
     nullptr,
-    sg_GirlNinjaRise,
-    sg_GirlNinjaSit,
+    s_GirlNinjaRise,
+    s_GirlNinjaSit,
     nullptr,
     nullptr,
-    sg_GirlNinjaPain,
-    sg_GirlNinjaDie,
+    s_GirlNinjaPain,
+    s_GirlNinjaDie,
     nullptr,
-    sg_GirlNinjaDead,
-    sg_GirlNinjaDeathJump,
-    sg_GirlNinjaDeathFall,
-    {sg_GirlNinjaCrossbow, sg_GirlNinjaSticky},
+    s_GirlNinjaDead,
+    s_GirlNinjaDeathJump,
+    s_GirlNinjaDeathFall,
+    {s_GirlNinjaCrossbow, s_GirlNinjaSticky},
     {800, 1024},
-    {sg_GirlNinjaCrossbow, sg_GirlNinjaSticky},
+    {s_GirlNinjaCrossbow, s_GirlNinjaSticky},
     {800, 1024},
     {nullptr},
-    sg_GirlNinjaDuck,
+    s_GirlNinjaDuck,
     nullptr
 };
 
@@ -483,7 +385,7 @@ int SetupGirlNinja(DSWActor* actor)
     }
 
     actor->user.__legacyState.StateEnd = s_GirlNinjaDie;
-    actor->user.__legacyState.Rot = sg_GirlNinjaRun;
+    actor->user.__legacyState.Rot = s_GirlNinjaRun;
 	actor->spr.scale = DVector2(0.796875, 0.671875);
 
     actor->user.__legacyState.Attrib = &GirlNinjaAttrib;
@@ -640,33 +542,19 @@ static saveable_data saveable_girlninj_data[] =
     SAVE_DATA(GirlNinjaAttrib),
 
     SAVE_DATA(s_GirlNinjaRun),
-    SAVE_DATA(sg_GirlNinjaRun),
     SAVE_DATA(s_GirlNinjaStand),
-    SAVE_DATA(sg_GirlNinjaStand),
     SAVE_DATA(s_GirlNinjaRise),
-    SAVE_DATA(sg_GirlNinjaRise),
     SAVE_DATA(s_GirlNinjaDuck),
-    SAVE_DATA(sg_GirlNinjaDuck),
     SAVE_DATA(s_GirlNinjaSit),
-    SAVE_DATA(sg_GirlNinjaSit),
     SAVE_DATA(s_GirlNinjaJump),
-    SAVE_DATA(sg_GirlNinjaJump),
     SAVE_DATA(s_GirlNinjaFall),
-    SAVE_DATA(sg_GirlNinjaFall),
     SAVE_DATA(s_GirlNinjaPain),
-    SAVE_DATA(sg_GirlNinjaPain),
     SAVE_DATA(s_GirlNinjaSticky),
-    SAVE_DATA(sg_GirlNinjaSticky),
     SAVE_DATA(s_GirlNinjaCrossbow),
-    SAVE_DATA(sg_GirlNinjaCrossbow),
     SAVE_DATA(s_GirlNinjaDie),
     SAVE_DATA(s_GirlNinjaDead),
     SAVE_DATA(s_GirlNinjaDeathJump),
     SAVE_DATA(s_GirlNinjaDeathFall),
-    SAVE_DATA(sg_GirlNinjaDie),
-    SAVE_DATA(sg_GirlNinjaDead),
-    SAVE_DATA(sg_GirlNinjaDeathJump),
-    SAVE_DATA(sg_GirlNinjaDeathFall),
 
     SAVE_DATA(GirlNinjaActionSet),
 };

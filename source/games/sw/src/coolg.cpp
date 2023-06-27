@@ -120,19 +120,12 @@ ATTRIBUTE CoolgAttrib =
 
 #define COOLG_RUN_RATE 40
 
-STATE s_CoolgRun[][4] =
+FState s_CoolgRun[] =
 {
-    {
-        {SPR_COOLG_RUN, 'A', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][1]},
-        {SPR_COOLG_RUN, 'B', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][2]},
-        {SPR_COOLG_RUN, 'C', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][3]},
-        {SPR_COOLG_RUN, 'D', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][0]},
-    },
-};
-
-STATE* sg_CoolgRun[] =
-{
-    &s_CoolgRun[0][0],
+        {SPR_COOLG_RUN, 'A', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[1]},
+        {SPR_COOLG_RUN, 'B', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[2]},
+        {SPR_COOLG_RUN, 'C', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[3]},
+        {SPR_COOLG_RUN, 'D', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0]},
 };
 
 //////////////////////
@@ -142,16 +135,9 @@ STATE* sg_CoolgRun[] =
 //////////////////////
 
 
-STATE s_CoolgStand[][1] =
+FState s_CoolgStand[] =
 {
-    {
-        {SPR_COOLG_RUN, 'A', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[0][0]},
-    },
-};
-
-STATE* sg_CoolgStand[] =
-{
-    &s_CoolgStand[0][0],
+        {SPR_COOLG_RUN, 'A', COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[0]},
 };
 
 //////////////////////
@@ -162,21 +148,14 @@ STATE* sg_CoolgStand[] =
 
 #define COOLG_RATE 16
 
-STATE s_CoolgClub[][6] =
+FState s_CoolgClub[] =
 {
-    {
-        {SPR_COOLG_CLUB, 'A', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[0][1]},
-        {SPR_COOLG_RUN, 'A', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[0][2]},
-        {SPR_COOLG_CLUB, 'B', 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[0][3]},
-        {SPR_COOLG_CLUB, 'B', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[0][4]},
-        {SPR_COOLG_CLUB, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[0][5]},
-        {SPR_COOLG_CLUB, 'B', COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[0][5]}
-    },
-};
-
-STATE* sg_CoolgClub[] =
-{
-    &s_CoolgClub[0][0],
+        {SPR_COOLG_CLUB, 'A', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[1]},
+        {SPR_COOLG_RUN, 'A', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[2]},
+        {SPR_COOLG_CLUB, 'B', 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[3]},
+        {SPR_COOLG_CLUB, 'B', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[4]},
+        {SPR_COOLG_CLUB, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[5]},
+        {SPR_COOLG_CLUB, 'B', COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[5]}
 };
 
 //////////////////////
@@ -187,22 +166,15 @@ STATE* sg_CoolgClub[] =
 
 #define COOLG_FIRE_RATE 12
 
-STATE s_CoolgAttack[][7] =
+FState s_CoolgAttack[] =
 {
-    {
-        {SPR_COOLG_FIRE, 'A', COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[0][1]},
-        {SPR_COOLG_FIRE, 'B', COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[0][2]},
-        {SPR_COOLG_FIRE, 'C', COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[0][3]},
-        {SPR_COOLG_FIRE, 'C', 0|SF_QUICK_CALL,    &AF(InitCoolgFire),          &s_CoolgAttack[0][4]},
-        {SPR_COOLG_FIRE, 'C', COOLG_FIRE_RATE,    &AF(NullCoolg),              &s_CoolgAttack[0][5]},
-        {SPR_COOLG_FIRE, 'C', 0|SF_QUICK_CALL,    &AF(InitActorDecide),        &s_CoolgAttack[0][6]},
-        {SPR_COOLG_RUN, 'C', COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[0][6]}
-    },
-};
-
-STATE* sg_CoolgAttack[] =
-{
-    &s_CoolgAttack[0][0],
+        {SPR_COOLG_FIRE, 'A', COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[1]},
+        {SPR_COOLG_FIRE, 'B', COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[2]},
+        {SPR_COOLG_FIRE, 'C', COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[3]},
+        {SPR_COOLG_FIRE, 'C', 0|SF_QUICK_CALL,    &AF(InitCoolgFire),          &s_CoolgAttack[4]},
+        {SPR_COOLG_FIRE, 'C', COOLG_FIRE_RATE,    &AF(NullCoolg),              &s_CoolgAttack[5]},
+        {SPR_COOLG_FIRE, 'C', 0|SF_QUICK_CALL,    &AF(InitActorDecide),        &s_CoolgAttack[6]},
+        {SPR_COOLG_RUN, 'C', COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[6]}
 };
 
 //////////////////////
@@ -213,19 +185,11 @@ STATE* sg_CoolgAttack[] =
 
 #define COOLG_PAIN_RATE 15
 
-STATE s_CoolgPain[][2] =
+FState s_CoolgPain[] =
 {
-    {
-        {SPR_COOLG_PAIN, 'A', COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[0][1]},
-        {SPR_COOLG_PAIN, 'A', COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[0][1]},
-    },
+        {SPR_COOLG_PAIN, 'A', COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[1]},
+        {SPR_COOLG_PAIN, 'A', COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[1]},
 };
-
-STATE* sg_CoolgPain[] =
-{
-    s_CoolgPain[0],
-};
-
 
 //////////////////////
 //
@@ -235,7 +199,7 @@ STATE* sg_CoolgPain[] =
 
 #define COOLG_DIE_RATE 20
 
-STATE s_CoolgDie[] =
+FState s_CoolgDie[] =
 {
     {SPR_COOLG_DIE, 'A', COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[1]},
     {SPR_COOLG_DIE, 'B', COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[2]},
@@ -245,20 +209,10 @@ STATE s_CoolgDie[] =
     {SPR_COOLG_DIE, 'F', COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[5]},
 };
 
-STATE* sg_CoolgDie[] =
-{
-    s_CoolgDie
-};
-
-STATE s_CoolgDead[] =
+FState s_CoolgDead[] =
 {
     {SPR_COOLG_DEAD, 'A', SF_QUICK_CALL, &AF(QueueFloorBlood), &s_CoolgDead[1]},
     {SPR_COOLG_DEAD, 'A', COOLG_DIE_RATE, &AF(DoActorDebris), &s_CoolgDead[1]},
-};
-
-STATE* sg_CoolgDead[] =
-{
-    s_CoolgDead
 };
 
 //////////////////////
@@ -269,7 +223,7 @@ STATE* sg_CoolgDead[] =
 
 #define COOLG_BIRTH_RATE 20
 
-STATE s_CoolgBirth[] =
+FState s_CoolgBirth[] =
 {
     {SPR_COOLG_BIRTH, 'A', COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[1]},
     {SPR_COOLG_BIRTH, 'B', COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[2]},
@@ -284,39 +238,34 @@ STATE s_CoolgBirth[] =
     {SPR_COOLG_BIRTH, 'I', 0 | SF_QUICK_CALL, &AF(DoCoolgBirth), &s_CoolgBirth[10]}
 };
 
-STATE* sg_CoolgBirth[] =
-{
-    s_CoolgBirth
-};
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 
 ACTOR_ACTION_SET CoolgActionSet =
 {
-    sg_CoolgStand,
-    sg_CoolgRun,
+    s_CoolgStand,
+    s_CoolgRun,
     nullptr,
     nullptr,
     nullptr,
@@ -326,16 +275,16 @@ ACTOR_ACTION_SET CoolgActionSet =
     nullptr,
     nullptr,
     nullptr, //climb
-    sg_CoolgPain, //pain
-    sg_CoolgDie,
+    s_CoolgPain, //pain
+    s_CoolgDie,
     nullptr,
-    sg_CoolgDead,
+    s_CoolgDead,
     nullptr,
     nullptr,
-//  {sg_CoolgClub},
-    {sg_CoolgAttack},
+//  {s_CoolgClub},
+    {s_CoolgAttack},
     {1024},
-    {sg_CoolgAttack},
+    {s_CoolgAttack},
     {1024},
     {nullptr,nullptr},
     nullptr,
@@ -380,7 +329,7 @@ int SetupCoolg(DSWActor* actor)
     actor->user.__legacyState.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_CoolgDie;
-    actor->user.__legacyState.Rot = sg_CoolgRun;
+    actor->user.__legacyState.Rot = s_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
 
@@ -411,7 +360,7 @@ int NewCoolg(DSWActor* actor)
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
     actorNew->user.__legacyState.StateEnd = s_CoolgDie;
-    actorNew->user.__legacyState.Rot = sg_CoolgRun;
+    actorNew->user.__legacyState.Rot = s_CoolgRun;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
 
     actorNew->user.__legacyState.ActorActionSet = &CoolgActionSet;
@@ -442,7 +391,7 @@ int DoCoolgBirth(DSWActor* actor)
 
     ChangeState(actor, s_CoolgRun[0]);
     actor->user.__legacyState.StateEnd = s_CoolgDie;
-    actor->user.__legacyState.Rot = sg_CoolgRun;
+    actor->user.__legacyState.Rot = s_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
     // special case
@@ -795,21 +744,13 @@ static saveable_data saveable_coolg_data[] =
     SAVE_DATA(CoolgAttrib),
 
     SAVE_DATA(s_CoolgRun),
-    SAVE_DATA(sg_CoolgRun),
     SAVE_DATA(s_CoolgStand),
-    SAVE_DATA(sg_CoolgStand),
     SAVE_DATA(s_CoolgClub),
-    SAVE_DATA(sg_CoolgClub),
     SAVE_DATA(s_CoolgAttack),
-    SAVE_DATA(sg_CoolgAttack),
     SAVE_DATA(s_CoolgPain),
-    SAVE_DATA(sg_CoolgPain),
     SAVE_DATA(s_CoolgDie),
-    SAVE_DATA(sg_CoolgDie),
     SAVE_DATA(s_CoolgDead),
-    SAVE_DATA(sg_CoolgDead),
     SAVE_DATA(s_CoolgBirth),
-    SAVE_DATA(sg_CoolgBirth),
 
     SAVE_DATA(CoolgActionSet),
 };

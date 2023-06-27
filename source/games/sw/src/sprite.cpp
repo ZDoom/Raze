@@ -93,8 +93,8 @@ void InitWeaponUzi(DSWPlayer*);
 int MoveSkip4, MoveSkip2, MoveSkip8;
 int MinEnemySkill;
 
-extern STATE s_CarryFlag[];
-extern STATE s_CarryFlagNoDet[];
+extern FState s_CarryFlag[];
+extern FState s_CarryFlagNoDet[];
 
 // beware of mess... :(
 static double globhiz, globloz;
@@ -118,86 +118,86 @@ int DirArr[] = {NORTH, NE, EAST, SE, SOUTH, SW, WEST, NW, NORTH, NE, EAST, SE, S
 #define SCROLL_RATE 20
 #define SCROLL_FIRE_RATE 20
 
-STATE s_DebrisNinja[] =
+FState s_DebrisNinja[] =
 {
     {SPR_NINJA_DIE, 'D', 100, &AF(DoActorDebris), &s_DebrisNinja[0]},
 };
 
-STATE s_DebrisRat[] =
+FState s_DebrisRat[] =
 {
     {SPR_RAT_DEBRIS, 'A', 100, &AF(DoActorDebris), &s_DebrisRat[0]},
 };
 
-STATE s_DebrisCrab[] =
+FState s_DebrisCrab[] =
 {
     {SPR_CRAB_DEBRIS, 'A', 100, &AF(DoActorDebris), &s_DebrisCrab[0]},
 };
 
-STATE s_DebrisStarFish[] =
+FState s_DebrisStarFish[] =
 {
     {SPR_STARFISH_DEBRIS, 'A', 100, &AF(DoActorDebris), &s_DebrisStarFish[0]},
 };
 
 // temporary
 #define REPAIR_KIT_RATE 1100
-STATE s_RepairKit[] =
+FState s_RepairKit[] =
 {
     {SPR_ICON_REPAIR_KIT, 'A', REPAIR_KIT_RATE, &AF(DoGet), &s_RepairKit[0]}
 };
 
-STATE s_GoldSkelKey[] =
+FState s_GoldSkelKey[] =
 {
     {SPR_GOLD_SKELKEY, 'A', 100, &AF(DoGet), &s_GoldSkelKey[0]}
 };
-STATE s_BlueKey[] =
+FState s_BlueKey[] =
 {
     {SPR_BLUE_KEY, 'A', 100, &AF(DoGet), &s_BlueKey[0]}
 };
-STATE s_BlueCard[] =
+FState s_BlueCard[] =
 {
     {SPR_BLUE_CARD, 'A', 100, &AF(DoGet), &s_BlueCard[0]}
 };
 
-STATE s_SilverSkelKey[] =
+FState s_SilverSkelKey[] =
 {
     {SPR_SILVER_SKELKEY, 'A', 100, &AF(DoGet), &s_SilverSkelKey[0]}
 };
-STATE s_RedKey[] =
+FState s_RedKey[] =
 {
     {SPR_RED_KEY, 'A', 100, &AF(DoGet), &s_RedKey[0]}
 };
-STATE s_RedCard[] =
+FState s_RedCard[] =
 {
     {SPR_RED_CARD, 'A', 100, &AF(DoGet), &s_RedCard[0]}
 };
 
-STATE s_BronzeSkelKey[] =
+FState s_BronzeSkelKey[] =
 {
     {SPR_BRONZE_SKELKEY, 'A', 100, &AF(DoGet), &s_BronzeSkelKey[0]}
 };
-STATE s_GreenKey[] =
+FState s_GreenKey[] =
 {
     {SPR_GREEN_KEY, 'A', 100, &AF(DoGet), &s_GreenKey[0]}
 };
-STATE s_GreenCard[] =
+FState s_GreenCard[] =
 {
     {SPR_GREEN_CARD, 'A', 100, &AF(DoGet), &s_GreenCard[0]}
 };
 
-STATE s_RedSkelKey[] =
+FState s_RedSkelKey[] =
 {
     {SPR_RED_SKELKEY, 'A', 100, &AF(DoGet), &s_RedSkelKey[0]}
 };
-STATE s_YellowKey[] =
+FState s_YellowKey[] =
 {
     {SPR_YELLOW_KEY, 'A', 100, &AF(DoGet), &s_YellowKey[0]}
 };
-STATE s_YellowCard[] =
+FState s_YellowCard[] =
 {
     {SPR_YELLOW_CARD, 'A', 100, &AF(DoGet), &s_YellowCard[0]}
 };
 
-STATE* s_Key[] =
+FState* s_Key[] =
 {
     s_RedKey,
     s_BlueKey,
@@ -219,7 +219,7 @@ STATE* s_Key[] =
 #define RED_COIN_RATE 10
 #define YELLOW_COIN_RATE 8
 #define GREEN_COIN_RATE 6
-STATE s_RedCoin[] =
+FState s_RedCoin[] =
 {
     {SPR_Red_COIN, 'A', RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[1]},
     {SPR_Red_COIN, 'B', RED_COIN_RATE, &AF(DoCoin), &s_RedCoin[2]},
@@ -232,7 +232,7 @@ STATE s_RedCoin[] =
 };
 
 // !JIM! Frank, I made coins go progressively faster
-STATE s_YellowCoin[] =
+FState s_YellowCoin[] =
 {
     {SPR_Yellow_COIN, 'A', YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[1]},
     {SPR_Yellow_COIN, 'B', YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[2]},
@@ -244,7 +244,7 @@ STATE s_YellowCoin[] =
     {SPR_Yellow_COIN, 'H', YELLOW_COIN_RATE, &AF(DoCoin), &s_YellowCoin[0]},
 };
 
-STATE s_GreenCoin[] =
+FState s_GreenCoin[] =
 {
     {SPR_Green_COIN, 'A', GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[1]},
     {SPR_Green_COIN, 'B', GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[2]},
@@ -256,123 +256,123 @@ STATE s_GreenCoin[] =
     {SPR_Green_COIN, 'H', GREEN_COIN_RATE, &AF(DoCoin), &s_GreenCoin[0]},
 };
 
-STATE s_FireFly[] =
+FState s_FireFly[] =
 {
     {SPR_FIRE_FLY0, 'A', FIRE_FLY_RATE * 4, &AF(DoFireFly), &s_FireFly[0]}
 };
 
 
-STATE s_IconStar[] =
+FState s_IconStar[] =
 {
     {SPR_ICON_STAR, 'A', 100, &AF(DoGet), &s_IconStar[0]}
 };
 
-STATE s_IconUzi[] =
+FState s_IconUzi[] =
 {
     {SPR_ICON_UZI, 'A', 100, &AF(DoGet), &s_IconUzi[0]}
 };
 
-STATE s_IconLgUziAmmo[] =
+FState s_IconLgUziAmmo[] =
 {
     {SPR_ICON_LG_UZI_AMMO, 'A', 100, &AF(DoGet), &s_IconLgUziAmmo[0]}
 };
 
-STATE s_IconUziFloor[] =
+FState s_IconUziFloor[] =
 {
     {SPR_ICON_UZIFLOOR, 'A', 100, &AF(DoGet), &s_IconUziFloor[0]}
 };
 
-STATE s_IconRocket[] =
+FState s_IconRocket[] =
 {
     {SPR_ICON_ROCKET, 'A', 100, &AF(DoGet), &s_IconRocket[0]}
 };
 
-STATE s_IconLgRocket[] =
+FState s_IconLgRocket[] =
 {
     {SPR_ICON_LG_ROCKET, 'A', 100, &AF(DoGet), &s_IconLgRocket[0]}
 };
 
-STATE s_IconShotgun[] =
+FState s_IconShotgun[] =
 {
     {SPR_ICON_SHOTGUN, 'A', 100, &AF(DoGet), &s_IconShotgun[0]}
 };
 
-STATE s_IconLgShotshell[] =
+FState s_IconLgShotshell[] =
 {
     {SPR_ICON_LG_SHOTSHELL, 'A', 100, &AF(DoGet), &s_IconLgShotshell[0]}
 };
 
-STATE s_IconAutoRiot[] =
+FState s_IconAutoRiot[] =
 {
     {SPR_ICON_AUTORIOT, 'A', 100, &AF(DoGet), &s_IconAutoRiot[0]}
 };
 
-STATE s_IconGrenadeLauncher[] =
+FState s_IconGrenadeLauncher[] =
 {
     {SPR_ICON_GRENADE_LAUNCHER, 'A', 100, &AF(DoGet), &s_IconGrenadeLauncher[0]}
 };
 
-STATE s_IconLgGrenade[] =
+FState s_IconLgGrenade[] =
 {
     {SPR_ICON_LG_GRENADE, 'A', 100, &AF(DoGet), &s_IconLgGrenade[0]}
 };
 
 
-STATE s_IconLgMine[] =
+FState s_IconLgMine[] =
 {
     {SPR_ICON_LG_MINE, 'A', 100, &AF(DoGet), &s_IconLgMine[0]}
 };
 
-STATE s_IconGuardHead[] =
+FState s_IconGuardHead[] =
 {
     {SPR_ICON_GUARD_HEAD, 'A', 15, &AF(DoGet), &s_IconGuardHead[0]},
 };
 
 
 #define FIREBALL_LG_AMMO_RATE 12
-STATE s_IconFireballLgAmmo[] =
+FState s_IconFireballLgAmmo[] =
 {
     {SPR_ICON_FIREBALL_LG_AMMO, 'A', FIREBALL_LG_AMMO_RATE, &AF(DoGet), &s_IconFireballLgAmmo[1]},
     {SPR_ICON_FIREBALL_LG_AMMO, 'B', FIREBALL_LG_AMMO_RATE, &AF(DoGet), &s_IconFireballLgAmmo[2]},
     {SPR_ICON_FIREBALL_LG_AMMO, 'C', FIREBALL_LG_AMMO_RATE, &AF(DoGet), &s_IconFireballLgAmmo[0]},
 };
 
-STATE s_IconHeart[] =
+FState s_IconHeart[] =
 {
     {SPR_ICON_HEART, 'A', 25, &AF(DoGet), &s_IconHeart[1]},
     {SPR_ICON_HEART, 'B', 25, &AF(DoGet), &s_IconHeart[0]},
 };
 
 #define HEART_LG_AMMO_RATE 12
-STATE s_IconHeartLgAmmo[] =
+FState s_IconHeartLgAmmo[] =
 {
     {SPR_ICON_HEART_LG_AMMO, 'A', HEART_LG_AMMO_RATE, &AF(DoGet), &s_IconHeartLgAmmo[1]},
     {SPR_ICON_HEART_LG_AMMO, 'B', HEART_LG_AMMO_RATE, &AF(DoGet), &s_IconHeartLgAmmo[0]},
 };
 
-STATE s_IconMicroGun[] =
+FState s_IconMicroGun[] =
 {
     {SPR_ICON_MICRO_GUN, 'A', 100, &AF(DoGet), &s_IconMicroGun[0]}
 };
 
-STATE s_IconMicroBattery[] =
+FState s_IconMicroBattery[] =
 {
     {SPR_ICON_MICRO_BATTERY, 'A', 100, &AF(DoGet), &s_IconMicroBattery[0]}
 };
 
 // !JIM!  Added rail crap
-STATE s_IconRailGun[] =
+FState s_IconRailGun[] =
 {
     {SPR_ICON_RAIL_GUN, 'A', 100, &AF(DoGet), &s_IconRailGun[0]}
 };
 
-STATE s_IconRailAmmo[] =
+FState s_IconRailAmmo[] =
 {
     {SPR_ICON_RAIL_AMMO, 'A', 100, &AF(DoGet), &s_IconRailAmmo[0]}
 };
 
 
-STATE s_IconElectro[] =
+FState s_IconElectro[] =
 {
     {SPR_ICON_ELECTRO, 'A', 25, &AF(DoGet), &s_IconElectro[1]},
     {SPR_ICON_ELECTRO, 'B', 25, &AF(DoGet), &s_IconElectro[0]},
@@ -380,7 +380,7 @@ STATE s_IconElectro[] =
 
 #define ICON_SPELL_RATE 8
 
-STATE s_IconSpell[] =
+FState s_IconSpell[] =
 {
     {SPR_ICON_SPELL, 'A', ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[1]},
     {SPR_ICON_SPELL, 'B', ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[2]},
@@ -400,67 +400,67 @@ STATE s_IconSpell[] =
     {SPR_ICON_SPELL, 'P', ICON_SPELL_RATE, &AF(DoGet), &s_IconSpell[0]},
 };
 
-STATE s_IconArmor[] =
+FState s_IconArmor[] =
 {
     {SPR_ICON_ARMOR, 'A', 15, &AF(DoGet), &s_IconArmor[0]},
 };
 
-STATE s_IconMedkit[] =
+FState s_IconMedkit[] =
 {
     {SPR_ICON_MEDKIT, 'A', 15, &AF(DoGet), &s_IconMedkit[0]},
 };
 
-STATE s_IconChemBomb[] =
+FState s_IconChemBomb[] =
 {
     {SPR_ICON_CHEMBOMB, 'A', 15, &AF(DoGet), &s_IconChemBomb[0]},
 };
 
-STATE s_IconFlashBomb[] =
+FState s_IconFlashBomb[] =
 {
     {SPR_ICON_FLASHBOMB, 'A', 15, &AF(DoGet), &s_IconFlashBomb[0]},
 };
 
-STATE s_IconNuke[] =
+FState s_IconNuke[] =
 {
     {SPR_ICON_NUKE, 'A', 15, &AF(DoGet), &s_IconNuke[0]},
 };
 
-STATE s_IconCaltrops[] =
+FState s_IconCaltrops[] =
 {
     {SPR_ICON_CALTROPS, 'A', 15, &AF(DoGet), &s_IconCaltrops[0]},
 };
 
 #define ICON_SM_MEDKIT 1802
-STATE s_IconSmMedkit[] =
+FState s_IconSmMedkit[] =
 {
     {SPR_ICON_SM_MEDKIT, 'A', 15, &AF(DoGet), &s_IconSmMedkit[0]},
 };
 
 #define ICON_BOOSTER 1810
-STATE s_IconBooster[] =
+FState s_IconBooster[] =
 {
     {SPR_ICON_BOOSTER, 'A', 15, &AF(DoGet), &s_IconBooster[0]},
 };
 
 #define ICON_HEAT_CARD 1819
-STATE s_IconHeatCard[] =
+FState s_IconHeatCard[] =
 {
     {SPR_ICON_HEAT_CARD, 'A', 15, &AF(DoGet), &s_IconHeatCard[0]},
 };
 
 #if 0
-STATE s_IconEnvironSuit[] =
+FState s_IconEnvironSuit[] =
 {
     {SPR_ICON_ENVIRON_SUIT, 'A', 20, &AF(DoGet), &s_IconEnvironSuit[0]},
 };
 #endif
 
-STATE s_IconCloak[] =
+FState s_IconCloak[] =
 {
     {SPR_ICON_CLOAK, 'A', 20, &AF(DoGet), &s_IconCloak[0]},
 };
 
-STATE s_IconFly[] =
+FState s_IconFly[] =
 {
     {SPR_ICON_FLY, 'A', 20, &AF(DoGet), &s_IconFly[1]},
     {SPR_ICON_FLY, 'B', 20, &AF(DoGet), &s_IconFly[2]},
@@ -472,12 +472,12 @@ STATE s_IconFly[] =
     {SPR_ICON_FLY, 'H', 20, &AF(DoGet), &s_IconFly[0]}
 };
 
-STATE s_IconNightVision[] =
+FState s_IconNightVision[] =
 {
     {SPR_ICON_NIGHT_VISION, 'A', 20, &AF(DoGet), &s_IconNightVision[0]},
 };
 
-STATE s_IconFlag[] =
+FState s_IconFlag[] =
 {
     {SPR_ICON_FLAG, 'A', 32, &AF(DoGet), &s_IconFlag[1]},
     {SPR_ICON_FLAG, 'B', 32, &AF(DoGet), &s_IconFlag[2]},
@@ -684,7 +684,7 @@ void KillActor(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void ChangeState(DSWActor* actor, STATE* statep)
+void ChangeState(DSWActor* actor, FState* statep)
 {
     if (!actor->hasU())
         return;
@@ -751,7 +751,7 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
 //
 //---------------------------------------------------------------------------
 
-void SpawnUser(DSWActor* actor, short id, STATE* state)
+void SpawnUser(DSWActor* actor, short id, FState* state)
 {
     ASSERT(!Prediction);
 
@@ -808,7 +808,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
 //
 //---------------------------------------------------------------------------
 
-DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVector3& pos, DAngle init_ang, double vel)
+DSWActor* SpawnActor(int stat, int id, FState* state, sectortype* sect, const DVector3& pos, DAngle init_ang, double vel)
 {
     if (sect == nullptr)
         return nullptr;
@@ -4189,7 +4189,7 @@ int SpawnItemsMatch(short match)
 //
 //---------------------------------------------------------------------------
 
-int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
+int NewStateGroup(DSWActor* actor, FState* StateGroup)
 {
     if (!StateGroup)
         return 0;
@@ -4198,11 +4198,11 @@ int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
 
     // Kind of a goofy check, but it should catch alot of invalid states!
 
-    if (actor->user.__legacyState.State && (actor->user.__legacyState.State->Sprite < 0 || actor->user.__legacyState.State->Sprite > SPR_MAX))    // JBF: verify this!
+    if (actor->user.__legacyState.State && (actor->user.__legacyState.State->sprite < 0 || actor->user.__legacyState.State->sprite > SPR_MAX))    // JBF: verify this!
         return 0;
 
     actor->user.__legacyState.Rot = StateGroup;
-    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = StateGroup[0];
+    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = StateGroup;
 
     actor->user.Tics = 0;
 
@@ -4868,7 +4868,7 @@ int KillGetWeapon(DSWActor* actor)
 
 int DoSpawnItemTeleporterEffect(DSWActor* actor)
 {
-    extern STATE s_TeleportEffect[];
+    extern FState s_TeleportEffect[];
 
     auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), actor->spr.pos.plusZ(-12), actor->spr.Angles.Yaw);
 
@@ -5666,7 +5666,7 @@ KeyMain:
                 {
                     if (pp->WpnShotgunType != 1)
                     {
-                        extern PANEL_STATE ps_ShotgunFlash[];
+                        extern PANEL_FState ps_ShotgunFlash[];
                         pp->CurWpn->over[SHOTGUN_AUTO_NUM].tics = 0;
                         pp->CurWpn->over[SHOTGUN_AUTO_NUM].State = ps_ShotgunFlash;
                     }
@@ -5969,9 +5969,9 @@ int  StateControl(DSWActor* actor)
         if (!actor->hasU())
             break;
 
-        if (!actor->user.__legacyState.State->Sprite)
+        if (actor->user.__legacyState.State->sprite == SPR_NULL)
         {
-            NewStateGroup(actor, (STATE* *) actor->user.__legacyState.State->NextState);
+            NewStateGroup(actor, actor->user.__legacyState.State->NextState);
         }
     }
 

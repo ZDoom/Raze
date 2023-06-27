@@ -45,10 +45,10 @@ BEGIN_SW_NS
 
 void SpawnFlashBombOnActor(DSWActor* actor);
 
-extern STATE s_Puff[];
-extern STATE s_FireballFlames[];
-extern STATE s_GoreFloorSplash[];
-extern STATE s_GoreSplash[];
+extern FState s_Puff[];
+extern FState s_FireballFlames[];
+extern FState s_GoreFloorSplash[];
+extern FState s_GoreSplash[];
 extern bool GlobalSkipZrange;
 
 #define CHEMTICS SEC(40)
@@ -56,7 +56,7 @@ extern bool GlobalSkipZrange;
 #define GOREDrip 1562 //2430
 #define BLOODSPRAY_RATE 20
 
-STATE s_BloodSpray[] =
+FState s_BloodSpray[] =
 {
     {SPR_GOREDrip, 'A', BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[1]},
     {SPR_GOREDrip, 'B', BLOODSPRAY_RATE, &AF(BloodSprayFall), &s_BloodSpray[2]},
@@ -67,7 +67,7 @@ STATE s_BloodSpray[] =
 
 
 #define EXP_RATE 2
-STATE s_PhosphorExp[] =
+FState s_PhosphorExp[] =
 {
     {SPR_EXP, 'A', EXP_RATE, nullptr,  &s_PhosphorExp[1]},
     {SPR_EXP, 'B', EXP_RATE, nullptr,  &s_PhosphorExp[2]},
@@ -94,7 +94,7 @@ STATE s_PhosphorExp[] =
 
 #define MUSHROOM_RATE 25
 
-STATE s_NukeMushroom[] =
+FState s_NukeMushroom[] =
 {
     {SPR_MUSHROOM_CLOUD, 'A', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[1]},
     {SPR_MUSHROOM_CLOUD, 'B', MUSHROOM_RATE, nullptr,  &s_NukeMushroom[2]},
@@ -120,7 +120,7 @@ STATE s_NukeMushroom[] =
 
 #define RADIATION_RATE 16
 
-STATE s_RadiationCloud[] =
+FState s_RadiationCloud[] =
 {
     {SPR_RADIATION_CLOUD, 'A', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[1]},
     {SPR_RADIATION_CLOUD, 'B', RADIATION_RATE, &AF(DoRadiationCloud), &s_RadiationCloud[2]},
@@ -147,7 +147,7 @@ STATE s_RadiationCloud[] =
 
 #define CHEMBOMB_RATE 8
 
-STATE s_ChemBomb[1] =
+FState s_ChemBomb[1] =
 {
     {SPR_CHEMBOMB, 'A', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[1]},
 };
@@ -155,14 +155,14 @@ STATE s_ChemBomb[1] =
 
 #define CALTROPS_RATE 8
 
-STATE s_Caltrops[] =
+FState s_Caltrops[] =
 {
     {SPR_CALTROPSR, 'A', CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[1]},
     {SPR_CALTROPSR, 'B', CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[2]},
     {SPR_CALTROPSR, 'C', CALTROPS_RATE, &AF(DoCaltrops), &s_Caltrops[0]},
 };
 
-STATE s_CaltropsStick[] =
+FState s_CaltropsStick[] =
 {
     {SPR_CALTROPSR, 'C', CALTROPS_RATE, &AF(DoCaltropsStick), &s_CaltropsStick[0]},
 };
@@ -175,21 +175,21 @@ STATE s_CaltropsStick[] =
 
 #define FLAG_RATE 16
 
-STATE s_CarryFlag[] =
+FState s_CarryFlag[] =
 {
     {SPR_FLAG, 'A', FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[1]},
     {SPR_FLAG, 'B', FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[2]},
     {SPR_FLAG, 'C', FLAG_RATE, &AF(DoCarryFlag), &s_CarryFlag[0]}
 };
 
-STATE s_CarryFlagNoDet[] =
+FState s_CarryFlagNoDet[] =
 {
     {SPR_FLAG, 'A', FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[1]},
     {SPR_FLAG, 'B', FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[2]},
     {SPR_FLAG, 'C', FLAG_RATE, &AF(DoCarryFlagNoDet), &s_CarryFlagNoDet[0]}
 };
 
-STATE s_Flag[] =
+FState s_Flag[] =
 {
     {SPR_FLAG, 'A', FLAG_RATE, &AF(DoFlag), &s_Flag[1]},
     {SPR_FLAG, 'B', FLAG_RATE, &AF(DoFlag), &s_Flag[2]},
@@ -198,13 +198,13 @@ STATE s_Flag[] =
 
 #define PHOSPHORUS_RATE 8
 
-STATE s_Phosphorus[] =
+FState s_Phosphorus[] =
 {
     {SPR_PHOSPHORUS, 'A', PHOSPHORUS_RATE, &AF(DoPhosphorus), &s_Phosphorus[1]},
     {SPR_PHOSPHORUS, 'B', PHOSPHORUS_RATE, &AF(DoPhosphorus), &s_Phosphorus[0]},
 };
 
-STATE s_BloodSprayChunk[] =
+FState s_BloodSprayChunk[] =
 {
     {SPR_CHUNK1, 'A', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[1]},
     {SPR_CHUNK1, 'B', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[2]},
@@ -214,7 +214,7 @@ STATE s_BloodSprayChunk[] =
     {SPR_CHUNK1, 'F', 8, &AF(DoBloodSpray), &s_BloodSprayChunk[0]},
 };
 
-STATE s_BloodSprayDrip[] =
+FState s_BloodSprayDrip[] =
 {
     {SPR_DRIP, 'A', PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[1]},
     {SPR_DRIP, 'B', PHOSPHORUS_RATE, &AF(DoWallBloodDrip), &s_BloodSprayDrip[2]},
@@ -2139,9 +2139,9 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 {
     short id = 0;
     double velocity = 0;
-    STATE* p=nullptr;
-    extern STATE s_UziShellShrap[];
-    extern STATE s_ShotgunShellShrap[];
+    FState* p=nullptr;
+    extern FState s_UziShellShrap[];
+    extern FState s_ShotgunShellShrap[];
 
     switch (ShellNum)
     {

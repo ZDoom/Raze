@@ -116,23 +116,15 @@ ATTRIBUTE ZillaAttrib =
 
 #define ZILLA_RATE 48
 
-STATE s_ZillaRun[1][6] =
+FState s_ZillaRun[] =
 {
-    {
-        {SPR_ZILLA_RUN, 'A', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[0][1]},
-        {SPR_ZILLA_RUN, 'B', SF_QUICK_CALL, &AF(DoZillaStomp), &s_ZillaRun[0][2]},
-        {SPR_ZILLA_RUN, 'B', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[0][3]},
-        {SPR_ZILLA_RUN, 'C', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[0][4]},
-        {SPR_ZILLA_RUN, 'D', SF_QUICK_CALL, &AF(DoZillaStomp), &s_ZillaRun[0][5]},
-        {SPR_ZILLA_RUN, 'D', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[0][0]}
-    },
+        {SPR_ZILLA_RUN, 'A', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[1]},
+        {SPR_ZILLA_RUN, 'B', SF_QUICK_CALL, &AF(DoZillaStomp), &s_ZillaRun[2]},
+        {SPR_ZILLA_RUN, 'B', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[3]},
+        {SPR_ZILLA_RUN, 'C', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[4]},
+        {SPR_ZILLA_RUN, 'D', SF_QUICK_CALL, &AF(DoZillaStomp), &s_ZillaRun[5]},
+        {SPR_ZILLA_RUN, 'D', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaRun[0]}
 };
-
-STATE* sg_ZillaRun[] =
-{
-    &s_ZillaRun[0][0],
-};
-
 
 //////////////////////
 //
@@ -140,16 +132,9 @@ STATE* sg_ZillaRun[] =
 //
 //////////////////////
 
-STATE s_ZillaStand[1][1] =
+FState s_ZillaStand[] =
 {
-    {
-        {SPR_ZILLA_RUN, 'A', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaStand[0][0]}
-    },
-};
-
-STATE* sg_ZillaStand[] =
-{
-    &s_ZillaStand[0][0],
+        {SPR_ZILLA_RUN, 'A', ZILLA_RATE, &AF(DoZillaMove), &s_ZillaStand[0]}
 };
 
 //////////////////////
@@ -160,17 +145,10 @@ STATE* sg_ZillaStand[] =
 
 #define ZILLA_PAIN_RATE 30
 
-STATE s_ZillaPain[1][2] =
+FState s_ZillaPain[] =
 {
-    {
-        {SPR_ZILLA_PAIN, 'A', ZILLA_PAIN_RATE, &AF(NullZilla), &s_ZillaPain[0][1]},
-        {SPR_ZILLA_PAIN, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaPain[0][0]}
-    },
-};
-
-STATE* sg_ZillaPain[] =
-{
-    &s_ZillaPain[0][0],
+        {SPR_ZILLA_PAIN, 'A', ZILLA_PAIN_RATE, &AF(NullZilla), &s_ZillaPain[1]},
+        {SPR_ZILLA_PAIN, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaPain[0]}
 };
 
 //////////////////////
@@ -181,29 +159,22 @@ STATE* sg_ZillaPain[] =
 
 #define ZILLA_RAIL_RATE 12
 
-STATE s_ZillaRail[1][14] =
+FState s_ZillaRail[] =
 {
-    {
-        {SPR_ZILLA_RAIL, 'A', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][1]},
-        {SPR_ZILLA_RAIL, 'B', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][2]},
-        {SPR_ZILLA_RAIL, 'C', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][3]},
-        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitZillaRail), &s_ZillaRail[0][4]},
-        {SPR_ZILLA_RAIL, 'A', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][5]},
-        {SPR_ZILLA_RAIL, 'B', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][6]},
-        {SPR_ZILLA_RAIL, 'C', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][7]},
-        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitZillaRail), &s_ZillaRail[0][8]},
-        {SPR_ZILLA_RAIL, 'A', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][9]},
-        {SPR_ZILLA_RAIL, 'B', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][10]},
-        {SPR_ZILLA_RAIL, 'C', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][11]},
-        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitZillaRail), &s_ZillaRail[0][12]},
-        {SPR_ZILLA_RAIL, 'D', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[0][13]},
-        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaRail[0][0]}
-    },
-};
-
-STATE* sg_ZillaRail[] =
-{
-    &s_ZillaRail[0][0],
+        {SPR_ZILLA_RAIL, 'A', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[1]},
+        {SPR_ZILLA_RAIL, 'B', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[2]},
+        {SPR_ZILLA_RAIL, 'C', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[3]},
+        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitZillaRail), &s_ZillaRail[4]},
+        {SPR_ZILLA_RAIL, 'A', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[5]},
+        {SPR_ZILLA_RAIL, 'B', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[6]},
+        {SPR_ZILLA_RAIL, 'C', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[7]},
+        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitZillaRail), &s_ZillaRail[8]},
+        {SPR_ZILLA_RAIL, 'A', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[9]},
+        {SPR_ZILLA_RAIL, 'B', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[10]},
+        {SPR_ZILLA_RAIL, 'C', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[11]},
+        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitZillaRail), &s_ZillaRail[12]},
+        {SPR_ZILLA_RAIL, 'D', ZILLA_RAIL_RATE, &AF(NullZilla), &s_ZillaRail[13]},
+        {SPR_ZILLA_RAIL, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaRail[0]}
 };
 
 //////////////////////
@@ -214,22 +185,15 @@ STATE* sg_ZillaRail[] =
 
 #define ZILLA_ROCKET_RATE 12
 
-STATE s_ZillaRocket[1][7] =
+FState s_ZillaRocket[] =
 {
-    {
-        {SPR_ZILLA_ROCKET, 'A', ZILLA_ROCKET_RATE, &AF(NullZilla), &s_ZillaRocket[0][1]},
-        {SPR_ZILLA_ROCKET, 'B', ZILLA_ROCKET_RATE, &AF(NullZilla), &s_ZillaRocket[0][2]},
-        {SPR_ZILLA_ROCKET, 'C', ZILLA_ROCKET_RATE*4, &AF(NullZilla), &s_ZillaRocket[0][3]},
-        {SPR_ZILLA_ROCKET, 'C', SF_QUICK_CALL, &AF(InitZillaRocket), &s_ZillaRocket[0][4]},
-        {SPR_ZILLA_ROCKET, 'C', ZILLA_ROCKET_RATE*4, &AF(NullZilla), &s_ZillaRocket[0][5]},
-        {SPR_ZILLA_ROCKET, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaRocket[0][6]},
-        {SPR_ZILLA_ROCKET, 'D', ZILLA_ROCKET_RATE*10, &AF(NullZilla), &s_ZillaRocket[0][5]}
-    },
-};
-
-STATE* sg_ZillaRocket[] =
-{
-    &s_ZillaRocket[0][0],
+        {SPR_ZILLA_ROCKET, 'A', ZILLA_ROCKET_RATE, &AF(NullZilla), &s_ZillaRocket[1]},
+        {SPR_ZILLA_ROCKET, 'B', ZILLA_ROCKET_RATE, &AF(NullZilla), &s_ZillaRocket[2]},
+        {SPR_ZILLA_ROCKET, 'C', ZILLA_ROCKET_RATE*4, &AF(NullZilla), &s_ZillaRocket[3]},
+        {SPR_ZILLA_ROCKET, 'C', SF_QUICK_CALL, &AF(InitZillaRocket), &s_ZillaRocket[4]},
+        {SPR_ZILLA_ROCKET, 'C', ZILLA_ROCKET_RATE*4, &AF(NullZilla), &s_ZillaRocket[5]},
+        {SPR_ZILLA_ROCKET, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaRocket[6]},
+        {SPR_ZILLA_ROCKET, 'D', ZILLA_ROCKET_RATE*10, &AF(NullZilla), &s_ZillaRocket[5]}
 };
 
 //////////////////////
@@ -240,37 +204,25 @@ STATE* sg_ZillaRocket[] =
 
 #define ZILLA_UZI_RATE 8
 
-STATE s_ZillaUzi[1][17] =
+FState s_ZillaUzi[] =
 {
-    {
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][1]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][2]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][3]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][4]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][5]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][6]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][7]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][8]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][9]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][10]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][11]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][12]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][13]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][14]},
-        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[0][15]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[0][16]},
-        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaUzi[0][16]},
-    },
-};
-
-
-STATE* sg_ZillaUzi[] =
-{
-    s_ZillaUzi[0],
-    s_ZillaUzi[1],
-    s_ZillaUzi[2],
-    s_ZillaUzi[3],
-    s_ZillaUzi[4]
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[1]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[2]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[3]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[4]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[5]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[6]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[7]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[8]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[9]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[10]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[11]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[12]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[13]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[14]},
+        {SPR_ZILLA_SHOOT, 'A', ZILLA_UZI_RATE, &AF(NullZilla), &s_ZillaUzi[15]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZillaUzi[16]},
+        {SPR_ZILLA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZillaUzi[16]},
 };
 
 
@@ -282,7 +234,7 @@ STATE* sg_ZillaUzi[] =
 
 #define ZILLA_DIE_RATE 30
 
-STATE s_ZillaDie[] =
+FState s_ZillaDie[] =
 {
     {SPR_ZILLA_DIE, 'A', ZILLA_DIE_RATE*15, &AF(DoZillaDeathMelt), &s_ZillaDie[1]},
     {SPR_ZILLA_DIE, 'B', ZILLA_DIE_RATE, &AF(NullZilla), &s_ZillaDie[2]},
@@ -295,25 +247,15 @@ STATE s_ZillaDie[] =
     {SPR_ZILLA_DEAD, 'A', ZILLA_DIE_RATE, &AF(DoActorDebris), &s_ZillaDie[8]}
 };
 
-STATE* sg_ZillaDie[] =
-{
-    s_ZillaDie
-};
-
-STATE s_ZillaDead[] =
+FState s_ZillaDead[] =
 {
     {SPR_ZILLA_DEAD, 'A', ZILLA_DIE_RATE, &AF(DoActorDebris), &s_ZillaDead[0]},
 };
 
-STATE* sg_ZillaDead[] =
-{
-    s_ZillaDead
-};
-
 ACTOR_ACTION_SET ZillaActionSet =
 {
-    sg_ZillaStand,
-    sg_ZillaRun,
+    s_ZillaStand,
+    s_ZillaRun,
     nullptr,
     nullptr,
     nullptr,
@@ -323,15 +265,15 @@ ACTOR_ACTION_SET ZillaActionSet =
     nullptr,
     nullptr,
     nullptr, //climb
-    sg_ZillaPain, //pain
-    sg_ZillaDie,
+    s_ZillaPain, //pain
+    s_ZillaDie,
     nullptr,
-    sg_ZillaDead,
+    s_ZillaDead,
     nullptr,
     nullptr,
-    {sg_ZillaUzi,sg_ZillaRail},
+    {s_ZillaUzi,s_ZillaRail},
     {950,1024},
-    {sg_ZillaUzi,sg_ZillaRocket,sg_ZillaRail},
+    {s_ZillaUzi,s_ZillaRocket,s_ZillaRail},
     {400,950,1024},
     {nullptr},
     nullptr,
@@ -359,7 +301,7 @@ int SetupZilla(DSWActor* actor)
     actor->user.__legacyState.Attrib = &ZillaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_ZillaDie;
-    actor->user.__legacyState.Rot = sg_ZillaRun;
+    actor->user.__legacyState.Rot = s_ZillaRun;
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 
@@ -489,23 +431,6 @@ static saveable_data saveable_zilla_data[] =
     SAVE_DATA(ZillaPersonality),
 
     SAVE_DATA(ZillaAttrib),
-
-    SAVE_DATA(s_ZillaRun),
-    SAVE_DATA(sg_ZillaRun),
-    SAVE_DATA(s_ZillaStand),
-    SAVE_DATA(sg_ZillaStand),
-    SAVE_DATA(s_ZillaPain),
-    SAVE_DATA(sg_ZillaPain),
-    SAVE_DATA(s_ZillaRail),
-    SAVE_DATA(sg_ZillaRail),
-    SAVE_DATA(s_ZillaRocket),
-    SAVE_DATA(sg_ZillaRocket),
-    SAVE_DATA(s_ZillaUzi),
-    SAVE_DATA(sg_ZillaUzi),
-    SAVE_DATA(s_ZillaDie),
-    SAVE_DATA(sg_ZillaDie),
-    SAVE_DATA(s_ZillaDead),
-    SAVE_DATA(sg_ZillaDead),
 
     SAVE_DATA(ZillaActionSet),
 };

@@ -116,19 +116,12 @@ ATTRIBUTE CoolieAttrib =
 
 #define COOLIE_RATE 12
 
-STATE s_CoolieRun[][4] =
+FState s_CoolieRun[] =
 {
-    {
-        {SPR_COOLIE_RUN, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][1]},
-        {SPR_COOLIE_RUN, 'B', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][2]},
-        {SPR_COOLIE_RUN, 'C', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][3]},
-        {SPR_COOLIE_RUN, 'D', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0][0]}
-    },
-};
-
-STATE* sg_CoolieRun[] =
-{
-    &s_CoolieRun[0][0],
+        {SPR_COOLIE_RUN, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[1]},
+        {SPR_COOLIE_RUN, 'B', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[2]},
+        {SPR_COOLIE_RUN, 'C', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[3]},
+        {SPR_COOLIE_RUN, 'D', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieRun[0]}
 };
 
 //////////////////////
@@ -139,19 +132,12 @@ STATE* sg_CoolieRun[] =
 
 #define COOLIE_RATE 12
 
-STATE s_CoolieCharge[][4] =
+FState s_CoolieCharge[] =
 {
-    {
-        {SPR_COOLIE_CHARGE, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][1]},
-        {SPR_COOLIE_CHARGE, 'B', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][2]},
-        {SPR_COOLIE_CHARGE, 'C', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][3]},
-        {SPR_COOLIE_CHARGE, 'D', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0][0]}
-    },
-};
-
-STATE* sg_CoolieCharge[] =
-{
-    &s_CoolieCharge[0][0],
+        {SPR_COOLIE_CHARGE, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[1]},
+        {SPR_COOLIE_CHARGE, 'B', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[2]},
+        {SPR_COOLIE_CHARGE, 'C', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[3]},
+        {SPR_COOLIE_CHARGE, 'D', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieCharge[0]}
 };
 
 //////////////////////
@@ -160,16 +146,9 @@ STATE* sg_CoolieCharge[] =
 //
 //////////////////////
 
-STATE s_CoolieStand[][6] =
+FState s_CoolieStand[] =
 {
-    {
-        {SPR_COOLIE_RUN, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[0][0]}
-    },
-};
-
-STATE* sg_CoolieStand[] =
-{
-    &s_CoolieStand[0][0],
+        {SPR_COOLIE_RUN, 'A', COOLIE_RATE, &AF(DoCoolieMove), &s_CoolieStand[0]}
 };
 
 //////////////////////
@@ -180,16 +159,9 @@ STATE* sg_CoolieStand[] =
 
 #define COOLIE_PAIN_RATE 60
 
-STATE s_CooliePain[][1] =
+FState s_CooliePain[] =
 {
-    {
-        {SPR_COOLIE_PAIN, 'A', COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[0][0]},
-    },
-};
-
-STATE* sg_CooliePain[] =
-{
-    &s_CooliePain[0][0],
+        {SPR_COOLIE_PAIN, 'A', COOLIE_PAIN_RATE, &AF(CooliePain), &s_CooliePain[0]},
 };
 
 //////////////////////
@@ -200,7 +172,7 @@ STATE* sg_CooliePain[] =
 
 #define COOLIE_DIE_RATE 30
 
-STATE s_CoolieDie[] =
+FState s_CoolieDie[] =
 {
     {SPR_COOLIE_DIE, 'A', COOLIE_DIE_RATE, &AF(NullCoolie), &s_CoolieDie[1]},
 
@@ -220,25 +192,15 @@ STATE s_CoolieDie[] =
     {SPR_COOLIE_DEAD_NOHEAD, 'A', COOLIE_DIE_RATE, &AF(DoActorDebris), &s_CoolieDie[12]}
 };
 
-STATE* sg_CoolieDie[] =
-{
-    s_CoolieDie
-};
-
-STATE s_CoolieDead[] =
+FState s_CoolieDead[] =
 {
     {SPR_COOLIE_DEAD, 'A', COOLIE_DIE_RATE, &AF(DoActorDebris), &s_CoolieDead[0]},
 };
 
-STATE* sg_CoolieDead[] =
-{
-    s_CoolieDead
-};
-
 ACTOR_ACTION_SET CoolieActionSet =
 {
-    sg_CoolieStand,
-    sg_CoolieRun,
+    s_CoolieStand,
+    s_CoolieRun,
     nullptr,
     nullptr,
     nullptr,
@@ -248,15 +210,15 @@ ACTOR_ACTION_SET CoolieActionSet =
     nullptr,
     nullptr,
     nullptr, //climb
-    sg_CooliePain, //pain
-    sg_CoolieDie,
+    s_CooliePain, //pain
+    s_CoolieDie,
     nullptr,
-    sg_CoolieDead,
+    s_CoolieDead,
     nullptr,
     nullptr,
-    {sg_CoolieCharge},
+    {s_CoolieCharge},
     {1024},
-    {sg_CoolieCharge},
+    {s_CoolieCharge},
     {1024},
     {nullptr},
     nullptr,
@@ -391,7 +353,7 @@ int SetupCoolie(DSWActor* actor)
     actor->user.__legacyState.Attrib = &CoolieAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_CoolieDie;
-    actor->user.__legacyState.Rot = sg_CoolieRun;
+    actor->user.__legacyState.Rot = s_CoolieRun;
 
     EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
 
@@ -519,7 +481,7 @@ int InitCoolieCharge(DSWActor* actor)
 
     InitActorMoveCloser(actor);
 
-    NewStateGroup(actor, sg_CoolieCharge);
+    NewStateGroup(actor, s_CoolieCharge);
 
     return 0;
 }
@@ -557,17 +519,11 @@ static saveable_data saveable_coolie_data[] =
     SAVE_DATA(CoolieAttrib),
 
     SAVE_DATA(s_CoolieRun),
-    SAVE_DATA(sg_CoolieRun),
     SAVE_DATA(s_CoolieCharge),
-    SAVE_DATA(sg_CoolieCharge),
     SAVE_DATA(s_CoolieStand),
-    SAVE_DATA(sg_CoolieStand),
     SAVE_DATA(s_CooliePain),
-    SAVE_DATA(sg_CooliePain),
     SAVE_DATA(s_CoolieDie),
-    SAVE_DATA(sg_CoolieDie),
     SAVE_DATA(s_CoolieDead),
-    SAVE_DATA(sg_CoolieDead),
 
     SAVE_DATA(CoolieActionSet),
 };

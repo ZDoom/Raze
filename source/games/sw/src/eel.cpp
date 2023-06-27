@@ -116,19 +116,12 @@ ATTRIBUTE EelAttrib =
 
 #define EEL_RUN_RATE 20
 
-STATE s_EelRun[][4] =
+FState s_EelRun[] =
 {
-    {
-        {SPR_EEL_RUN, 'A', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][1]},
-        {SPR_EEL_RUN, 'B', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][2]},
-        {SPR_EEL_RUN, 'C', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][3]},
-        {SPR_EEL_RUN, 'B', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][0]},
-    },
-};
-
-STATE* sg_EelRun[] =
-{
-    &s_EelRun[0][0],
+        {SPR_EEL_RUN, 'A', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[1]},
+        {SPR_EEL_RUN, 'B', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[2]},
+        {SPR_EEL_RUN, 'C', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[3]},
+        {SPR_EEL_RUN, 'B', EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0]},
 };
 
 //////////////////////
@@ -138,16 +131,9 @@ STATE* sg_EelRun[] =
 //////////////////////
 
 
-STATE s_EelStand[][1] =
+FState s_EelStand[] =
 {
-    {
-        {SPR_EEL_RUN, 'A', EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[0][0]},
-    },
-};
-
-STATE* sg_EelStand[] =
-{
-    &s_EelStand[0][0],
+        {SPR_EEL_RUN, 'A', EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[0]},
 };
 
 //////////////////////
@@ -158,24 +144,16 @@ STATE* sg_EelStand[] =
 
 #define EEL_FIRE_RATE 12
 
-STATE s_EelAttack[][7] =
+FState s_EelAttack[] =
 {
-    {
-        {SPR_EEL_FIRE, 'A', EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[0][1]},
-        {SPR_EEL_FIRE, 'B', EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[0][2]},
-        {SPR_EEL_FIRE, 'C', EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[0][3]},
-        {SPR_EEL_FIRE, 'C', 0|SF_QUICK_CALL,  &AF(InitEelFire),          &s_EelAttack[0][4]},
-        {SPR_EEL_FIRE, 'C', EEL_FIRE_RATE,    &AF(NullEel),              &s_EelAttack[0][5]},
-        {SPR_EEL_FIRE, 'D', 0|SF_QUICK_CALL,  &AF(InitActorDecide),      &s_EelAttack[0][6]},
-        {SPR_EEL_RUN, 'D', EEL_FIRE_RATE,    &AF(DoEelMove),            &s_EelAttack[0][6]}
-    },
+        {SPR_EEL_FIRE, 'A', EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[1]},
+        {SPR_EEL_FIRE, 'B', EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[2]},
+        {SPR_EEL_FIRE, 'C', EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[3]},
+        {SPR_EEL_FIRE, 'C', 0|SF_QUICK_CALL,  &AF(InitEelFire),          &s_EelAttack[4]},
+        {SPR_EEL_FIRE, 'C', EEL_FIRE_RATE,    &AF(NullEel),              &s_EelAttack[5]},
+        {SPR_EEL_FIRE, 'D', 0|SF_QUICK_CALL,  &AF(InitActorDecide),      &s_EelAttack[6]},
+        {SPR_EEL_RUN, 'D', EEL_FIRE_RATE,    &AF(DoEelMove),            &s_EelAttack[6]}
 };
-
-STATE* sg_EelAttack[] =
-{
-    &s_EelAttack[0][0],
-};
-
 
 //////////////////////
 //
@@ -185,7 +163,7 @@ STATE* sg_EelAttack[] =
 
 #define EEL_DIE_RATE 20
 
-STATE s_EelDie[] =
+FState s_EelDie[] =
 {
     {SPR_EEL_DIE, 'A', EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[1]},
     {SPR_EEL_DIE, 'A', EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[2]},
@@ -195,68 +173,58 @@ STATE s_EelDie[] =
     {SPR_EEL_DIE, 'A', EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[5]},
 };
 
-STATE* sg_EelDie[] =
-{
-    s_EelDie
-};
-
-STATE s_EelDead[] =
+FState s_EelDead[] =
 {
     {SPR_EEL_DEAD, 'A', EEL_DIE_RATE, &AF(DoActorDebris), &s_EelDead[0]},
 };
 
-STATE* sg_EelDead[] =
-{
-    s_EelDead
-};
-
 
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 
 ACTOR_ACTION_SET EelActionSet =
 {
-    sg_EelStand,
-    sg_EelRun,
+    s_EelStand,
+    s_EelRun,
     nullptr,
     nullptr,
     nullptr,
-    sg_EelRun,
+    s_EelRun,
     nullptr,
     nullptr,
-    sg_EelStand,
+    s_EelStand,
     nullptr,
     nullptr, //climb
-    sg_EelStand, //pain
-    sg_EelDie,
+    s_EelStand, //pain
+    s_EelDie,
     nullptr,
-    sg_EelDead,
+    s_EelDead,
     nullptr,
     nullptr,
-    {sg_EelAttack},
+    {s_EelAttack},
     {1024},
-    {sg_EelAttack},
+    {s_EelAttack},
     {1024},
     {nullptr,nullptr},
     nullptr,
@@ -303,7 +271,7 @@ int SetupEel(DSWActor* actor)
     actor->user.__legacyState.Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_EelDie;
-    actor->user.__legacyState.Rot = sg_EelRun;
+    actor->user.__legacyState.Rot = s_EelRun;
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
 
@@ -530,15 +498,10 @@ static saveable_data saveable_eel_data[] =
     SAVE_DATA(EelAttrib),
 
     SAVE_DATA(s_EelRun),
-    SAVE_DATA(sg_EelRun),
     SAVE_DATA(s_EelStand),
-    SAVE_DATA(sg_EelStand),
     SAVE_DATA(s_EelAttack),
-    SAVE_DATA(sg_EelAttack),
     SAVE_DATA(s_EelDie),
-    SAVE_DATA(sg_EelDie),
     SAVE_DATA(s_EelDead),
-    SAVE_DATA(sg_EelDead),
 
     SAVE_DATA(EelActionSet)
 };

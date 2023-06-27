@@ -31,7 +31,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 void KillActor(DSWActor* actor);
-DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVector3& pos, DAngle ang, double vel = 0);
+DSWActor* SpawnActor(int stat, int id, FState* state, sectortype* sect, const DVector3& pos, DAngle ang, double vel = 0);
 
 void SpriteSetup(void);
 int move_actor(DSWActor* actor, const DVector3& change);

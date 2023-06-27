@@ -45,14 +45,14 @@ BEGIN_SW_NS
 
 extern int jump_grav;
 
-extern STATE s_DebrisNinja[];
-extern STATE s_DebrisRat[];
-extern STATE s_DebrisCrab[];
-extern STATE s_DebrisStarFish[];
-extern STATE s_NinjaDieSliced[];
-extern STATE s_NinjaDieSlicedHack[];
+extern FState s_DebrisNinja[];
+extern FState s_DebrisRat[];
+extern FState s_DebrisCrab[];
+extern FState s_DebrisStarFish[];
+extern FState s_NinjaDieSliced[];
+extern FState s_NinjaDieSlicedHack[];
 
-extern STATE* sg_NinjaGrabThroat[];
+extern FState s_NinjaGrabThroat[];
 
 
 
@@ -484,7 +484,7 @@ int DoFireFly(DSWActor* actor)
 
 int DoGenerateSewerDebris(DSWActor* actor)
 {
-    static STATE* Debris[] =
+    static FState* Debris[] =
     {
         s_DebrisNinja,
         s_DebrisRat,
@@ -964,7 +964,7 @@ Personality* DSWActor::getPersonality()
     return nullptr; // not implemented yet.
 }
 
-static STATE** getLegacyState(ACTOR_ACTION_SET* a, FName label, int subl)
+static FState* getLegacyState(ACTOR_ACTION_SET* a, FName label, int subl)
 {
     if (label == NAME_Run)
     {
@@ -1078,20 +1078,7 @@ void DSWActor::callAction()
 
 void DSWActor::callStateAction()
 {
-    if (user.__legacyState.State && user.__legacyState.State->Animator)
-		callFunction(*user.__legacyState.State->Animator);
-}
-
-int DSWActor::callFunction(VMFunction* func)
-{
-    int ret = 0;
-    if (func)
-    {
-        VMValue param[] = { this };
-        VMReturn r(&ret);
-        VMCall(func, param, 1, &r, 1);
-    }
-    return ret;
+    user.__legacyState.State->CallAction(this);
 }
 
 END_SW_NS

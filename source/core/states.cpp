@@ -168,6 +168,13 @@ DEFINE_ACTION_FUNCTION(FState, GetSpriteTexture)
 }
 */
 
+bool FState::CallAction(DCoreActor* self)
+{
+	if (AnimatorPtr && *AnimatorPtr) self->callFunction(*AnimatorPtr);
+	else if (ActionFunc) self->callFunction(ActionFunc);
+	return true;
+}
+
 
 //==========================================================================
 //
@@ -567,7 +574,7 @@ FStateLabels *FStateDefinitions::CreateStateLabelList(TArray<FStateDefine> & sta
 //
 //===========================================================================
 
-void FStateDefinitions::InstallStates(PClassActor *info, AActor *defaults)
+void FStateDefinitions::InstallStates(PClassActor *info, DCoreActor *defaults)
 {
 	if (defaults == nullptr)
 	{

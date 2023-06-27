@@ -1503,10 +1503,10 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     DSWPlayer* pp = nullptr;
     short state;
     short key_num=0;
-    extern STATE s_Pachinko1Operate[];
-    extern STATE s_Pachinko2Operate[];
-    extern STATE s_Pachinko3Operate[];
-    extern STATE s_Pachinko4Operate[];
+    extern FState s_Pachinko1Operate[];
+    extern FState s_Pachinko2Operate[];
+    extern FState s_Pachinko3Operate[];
+    extern FState s_Pachinko4Operate[];
 
     if (Prediction)
         return false;

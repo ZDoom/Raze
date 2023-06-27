@@ -110,7 +110,7 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& vie
     if (!ownerActor->hasU() || ownerActor->user.__legacyState.State == nullptr)
         return 0;
 
-    unsigned sprite = ownerActor->user.__legacyState.State->Sprite;
+    unsigned sprite = ownerActor->user.__legacyState.State->sprite;
     unsigned frame = ownerActor->user.__legacyState.State->Frame - 'A';
 
     if (SpriteDefs.Size() <= sprite) return 0;
@@ -472,8 +472,8 @@ void WarpCopySprite(tspriteArray& tsprites)
 
 void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
 {
-    extern STATE s_Star[], s_StarDown[];
-    extern STATE s_StarStuck[], s_StarDownStuck[];
+    extern FState s_Star[], s_StarDown[];
+    extern FState s_StarStuck[], s_StarDownStuck[];
     double zdiff = viewz - tsp->pos.Z;
 
     if (abs(zdiff) > 24)

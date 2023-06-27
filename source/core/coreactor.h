@@ -220,6 +220,9 @@ public:
 		clipdist = other->clipdist;
 	}
 
+	int callFunction(VMFunction* func);
+
+
 };
 
 // holds pointers to the game-side actors.

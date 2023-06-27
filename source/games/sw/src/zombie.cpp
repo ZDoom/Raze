@@ -117,19 +117,12 @@ ATTRIBUTE ZombieAttrib =
 
 #define ZOMBIE_RATE 32
 
-STATE s_ZombieRun[1][4] =
+FState s_ZombieRun[] =
 {
-    {
-        {SPR_PLAYER_NINJA_RUN, 'A', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][1]},
-        {SPR_PLAYER_NINJA_RUN, 'B', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][2]},
-        {SPR_PLAYER_NINJA_RUN, 'C', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][3]},
-        {SPR_PLAYER_NINJA_RUN, 'D', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0][0]},
-    },
-};
-
-STATE* sg_ZombieRun[] =
-{
-    s_ZombieRun[0],
+        {SPR_PLAYER_NINJA_RUN, 'A', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[1]},
+        {SPR_PLAYER_NINJA_RUN, 'B', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[2]},
+        {SPR_PLAYER_NINJA_RUN, 'C', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[3]},
+        {SPR_PLAYER_NINJA_RUN, 'D', ZOMBIE_RATE | SF_TIC_ADJUST, &AF(DoZombieMove), &s_ZombieRun[0]},
 };
 
 //////////////////////
@@ -140,16 +133,9 @@ STATE* sg_ZombieRun[] =
 
 #define ZOMBIE_STAND_RATE 10
 
-STATE s_ZombieStand[1][1] =
+FState s_ZombieStand[] =
 {
-    {
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[0][0]},
-    },
-};
-
-STATE* sg_ZombieStand[] =
-{
-    s_ZombieStand[0],
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_STAND_RATE, &AF(NullZombie), &s_ZombieStand[0]},
 };
 
 //////////////////////
@@ -160,17 +146,10 @@ STATE* sg_ZombieStand[] =
 
 #define ZOMBIE_PAIN_RATE 15
 
-STATE s_ZombiePain[1][2] =
+FState s_ZombiePain[] =
 {
-    {
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[0][1]},
-        {SPR_PLAYER_NINJA_STAND, 'B', ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[0][1]},
-    },
-};
-
-STATE* sg_ZombiePain[] =
-{
-    s_ZombiePain[0],
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[1]},
+        {SPR_PLAYER_NINJA_STAND, 'B', ZOMBIE_PAIN_RATE, &AF(DoZombiePain), &s_ZombiePain[1]},
 };
 
 //////////////////////
@@ -181,23 +160,15 @@ STATE* sg_ZombiePain[] =
 
 #define ZOMBIE_NUKE_RATE 18
 
-STATE s_ZombieNuke[1][6] =
+FState s_ZombieNuke[] =
 {
-    {
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[0][1]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[0][2]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[0][3]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[0][4]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[0][5]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[0][5]},
-    },
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[1]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE, &AF(NullZombie), &s_ZombieNuke[2]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyNuke), &s_ZombieNuke[3]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE * 2, &AF(NullZombie), &s_ZombieNuke[4]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieNuke[5]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_NUKE_RATE, &AF(DoZombieMove), &s_ZombieNuke[5]},
 };
-
-STATE* sg_ZombieNuke[] =
-{
-    s_ZombieNuke[0],
-};
-
 
 //////////////////////
 //
@@ -207,22 +178,15 @@ STATE* sg_ZombieNuke[] =
 
 #define ZOMBIE_ROCKET_RATE 14
 
-STATE s_ZombieRocket[1][5] =
+FState s_ZombieRocket[] =
 {
-    {
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[0][1]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[0][2]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[0][3]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[0][4]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[0][4]},
-    },
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieRocket[1]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyRocket), &s_ZombieRocket[2]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieRocket[3]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRocket[4]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieRocket[4]},
 };
 
-
-STATE* sg_ZombieRocket[] =
-{
-    s_ZombieRocket[0],
-};
 
 //////////////////////
 //
@@ -232,22 +196,15 @@ STATE* sg_ZombieRocket[] =
 
 #define ZOMBIE_RAIL_RATE 14
 
-STATE s_ZombieRail[1][5] =
+FState s_ZombieRail[] =
 {
-    {
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[0][1]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[0][2]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[0][3]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[0][4]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[0][4]},
-    },
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_RAIL_RATE * 2, &AF(NullZombie), &s_ZombieRail[1]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyRail), &s_ZombieRail[2]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_RAIL_RATE, &AF(NullZombie), &s_ZombieRail[3]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieRail[4]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_RAIL_RATE, &AF(DoZombieMove), &s_ZombieRail[4]},
 };
 
-
-STATE* sg_ZombieRail[] =
-{
-    s_ZombieRail[0],
-};
 
 //////////////////////
 //
@@ -257,22 +214,15 @@ STATE* sg_ZombieRail[] =
 
 #define ZOMBIE_ROCKET_RATE 14
 
-STATE s_ZombieGrenade[1][5] =
+FState s_ZombieGrenade[] =
 {
-    {
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[0][1]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[0][2]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[0][3]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[0][4]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[0][4]},
-    },
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE * 2, &AF(NullZombie), &s_ZombieGrenade[1]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitSpriteGrenade), &s_ZombieGrenade[2]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(NullZombie), &s_ZombieGrenade[3]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieGrenade[4]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_ROCKET_RATE, &AF(DoZombieMove), &s_ZombieGrenade[4]},
 };
 
-
-STATE* sg_ZombieGrenade[] =
-{
-    s_ZombieGrenade[0],
-};
 
 
 //////////////////////
@@ -283,22 +233,15 @@ STATE* sg_ZombieGrenade[] =
 
 #define ZOMBIE_FLASHBOMB_RATE 14
 
-STATE s_ZombieFlashBomb[1][5] =
+FState s_ZombieFlashBomb[] =
 {
-    {
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[0][1]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[0][2]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[0][3]},
-        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[0][4]},
-        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[0][4]},
-    },
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_FLASHBOMB_RATE * 2, &AF(NullZombie), &s_ZombieFlashBomb[1]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitFlashBomb), &s_ZombieFlashBomb[2]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_FLASHBOMB_RATE, &AF(NullZombie), &s_ZombieFlashBomb[3]},
+        {SPR_PLAYER_NINJA_STAND, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieFlashBomb[4]},
+        {SPR_PLAYER_NINJA_STAND, 'A', ZOMBIE_FLASHBOMB_RATE, &AF(DoZombieMove), &s_ZombieFlashBomb[4]},
 };
 
-
-STATE* sg_ZombieFlashBomb[] =
-{
-    s_ZombieFlashBomb[0],
-};
 
 //////////////////////
 //
@@ -308,34 +251,27 @@ STATE* sg_ZombieFlashBomb[] =
 
 #define ZOMBIE_UZI_RATE 8
 
-STATE s_ZombieUzi[1][17] =
+FState s_ZombieUzi[] =
 {
-    {
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][1]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[0][2]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][3]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][4]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][5]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][6]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][7]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][8]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][9]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][10]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][11]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][12]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][13]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][14]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[0][15]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[0][16]},
-        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[0][16]},
-    },
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[1]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(CheckFire), &s_ZombieUzi[2]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[3]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[4]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[5]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[6]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[7]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[8]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[9]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[10]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[11]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[12]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[13]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[14]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', ZOMBIE_UZI_RATE, &AF(NullZombie), &s_ZombieUzi[15]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitEnemyUzi), &s_ZombieUzi[16]},
+        {SPR_PLAYER_NINJA_SHOOT, 'A', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_ZombieUzi[16]},
 };
 
-
-STATE* sg_ZombieUzi[] =
-{
-    s_ZombieUzi[0],
-};
 
 //////////////////////
 //
@@ -345,70 +281,63 @@ STATE* sg_ZombieUzi[] =
 
 #define ZOMBIE_FALL_RATE 25
 
-STATE s_ZombieFall[1][1] =
+FState s_ZombieFall[] =
 {
-    {
-        {SPR_PLAYER_NINJA_JUMP, 'D', ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[0][0]},
-    },
+        {SPR_PLAYER_NINJA_JUMP, 'D', ZOMBIE_FALL_RATE, &AF(DoZombieMove), &s_ZombieFall[0]},
 };
 
-
-STATE* sg_ZombieFall[] =
-{
-    &s_ZombieFall[0][0],
-};
 
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 ACTOR_ACTION_SET ZombieActionSet =
 {
-    sg_ZombieStand,
-    sg_ZombieRun,
+    s_ZombieStand,
+    s_ZombieRun,
     nullptr,
-    sg_ZombieFall,
-    nullptr,
-    nullptr,
-    nullptr,
-    sg_ZombieRun,
-    sg_ZombieRun,
+    s_ZombieFall,
     nullptr,
     nullptr,
-    sg_ZombiePain,
-    sg_ZombieRun,
+    nullptr,
+    s_ZombieRun,
+    s_ZombieRun,
+    nullptr,
+    nullptr,
+    s_ZombiePain,
+    s_ZombieRun,
     nullptr,
     nullptr,
     nullptr,
     nullptr,
 #if 0
-    {sg_ZombieUzi},
+    {s_ZombieUzi},
     {1024},
-    {sg_ZombieUzi, sg_ZombieRocket, sg_ZombieGrenade, sg_ZombieNuke},
+    {s_ZombieUzi, s_ZombieRocket, s_ZombieGrenade, s_ZombieNuke},
     {400, 750, 1000, 1024},
 #endif
-    {sg_ZombieRail},
+    {s_ZombieRail},
     {1024},
-    {sg_ZombieRail},
+    {s_ZombieRail},
     {1024},
     {nullptr},
     nullptr,
@@ -425,8 +354,8 @@ int SetupZombie(DSWActor* actor)
 {
 
     actor->user.Health = 100;
-    actor->user.__legacyState.StateEnd = &s_ZombiePain[0][0];
-    actor->user.__legacyState.Rot = sg_ZombieRun;
+    actor->user.__legacyState.StateEnd = &s_ZombiePain[0];
+    actor->user.__legacyState.Rot = s_ZombieRun;
 	actor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
     actor->user.__legacyState.Attrib = &ZombieAttrib;
@@ -454,7 +383,7 @@ void SpawnZombie(DSWPlayer* pp, DSWActor* weaponActor)
     if (ownerActor == nullptr)
         return;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->GetActor()->getPosWithOffsetZ(), pp->GetActor()->spr.Angles.Yaw, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, &s_ZombieRun[0], pp->cursector, pp->GetActor()->getPosWithOffsetZ(), pp->GetActor()->spr.Angles.Yaw, 0);
     SetOwner(actorNew, ownerActor);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
     actorNew->spr.Angles.Yaw = RandomAngle();
@@ -506,7 +435,7 @@ void SpawnZombie2(DSWActor* actor)
     }
 
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, &s_ZombieRun[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 0);
     actorNew->user.Counter3 = 0;
     SetOwner(ownerActor, actorNew);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
@@ -654,27 +583,6 @@ static saveable_data saveable_zombie_data[] =
     SAVE_DATA(ZombiePersonality),
 
     SAVE_DATA(ZombieAttrib),
-
-    SAVE_DATA(s_ZombieRun),
-    SAVE_DATA(sg_ZombieRun),
-    SAVE_DATA(s_ZombieStand),
-    SAVE_DATA(sg_ZombieStand),
-    SAVE_DATA(s_ZombiePain),
-    SAVE_DATA(sg_ZombiePain),
-    SAVE_DATA(s_ZombieNuke),
-    SAVE_DATA(sg_ZombieNuke),
-    SAVE_DATA(s_ZombieRocket),
-    SAVE_DATA(sg_ZombieRocket),
-    SAVE_DATA(s_ZombieRail),
-    SAVE_DATA(sg_ZombieRail),
-    SAVE_DATA(s_ZombieGrenade),
-    SAVE_DATA(sg_ZombieGrenade),
-    SAVE_DATA(s_ZombieFlashBomb),
-    SAVE_DATA(sg_ZombieFlashBomb),
-    SAVE_DATA(s_ZombieUzi),
-    SAVE_DATA(sg_ZombieUzi),
-    SAVE_DATA(s_ZombieFall),
-    SAVE_DATA(sg_ZombieFall),
 
     SAVE_DATA(ZombieActionSet),
 };

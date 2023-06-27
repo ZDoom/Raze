@@ -127,22 +127,13 @@ ATTRIBUTE SumoAttrib =
 
 #define SUMO_RATE 24
 
-STATE s_SumoRun[1][4] =
+FState s_SumoRun[] =
 {
-    {
-        {SPR_SUMO_RUN, 'A', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][1]},
-        {SPR_SUMO_RUN, 'B', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][2]},
-        {SPR_SUMO_RUN, 'C', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][3]},
-        {SPR_SUMO_RUN, 'D', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0][0]}
-    },
+        {SPR_SUMO_RUN, 'A', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[1]},
+        {SPR_SUMO_RUN, 'B', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[2]},
+        {SPR_SUMO_RUN, 'C', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[3]},
+        {SPR_SUMO_RUN, 'D', SUMO_RATE, &AF(DoSumoMove), &s_SumoRun[0]}
 };
-
-STATE* sg_SumoRun[] =
-{
-    &s_SumoRun[0][0],
-};
-
-
 
 //////////////////////
 //
@@ -150,16 +141,9 @@ STATE* sg_SumoRun[] =
 //
 //////////////////////
 
-STATE s_SumoStand[1][1] =
+FState s_SumoStand[] =
 {
-    {
-        {SPR_SUMO_RUN, 'A', SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[0][0]}
-    },
-};
-
-STATE* sg_SumoStand[] =
-{
-    &s_SumoStand[0][0],
+        {SPR_SUMO_RUN, 'A', SUMO_RATE, &AF(DoSumoMove), &s_SumoStand[0]}
 };
 
 //////////////////////
@@ -170,17 +154,10 @@ STATE* sg_SumoStand[] =
 
 #define SUMO_PAIN_RATE 30
 
-STATE s_SumoPain[1][2] =
+FState s_SumoPain[] =
 {
-    {
-        {SPR_SUMO_PAIN, 'A', SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[0][1]},
-        {SPR_SUMO_PAIN, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[0][0]}
-    },
-};
-
-STATE* sg_SumoPain[] =
-{
-    &s_SumoPain[0][0],
+        {SPR_SUMO_PAIN, 'A', SUMO_PAIN_RATE, &AF(NullSumo), &s_SumoPain[1]},
+        {SPR_SUMO_PAIN, 'A', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoPain[0]}
 };
 
 //////////////////////
@@ -191,21 +168,14 @@ STATE* sg_SumoPain[] =
 
 #define SUMO_FART_RATE 12
 
-STATE s_SumoFart[1][6] =
+FState s_SumoFart[] =
 {
-    {
-        {SPR_SUMO_FART, 'A', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][1]},
-        {SPR_SUMO_FART, 'A', SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[0][2]},
-        {SPR_SUMO_FART, 'B', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][3]},
-        {SPR_SUMO_FART, 'C', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[0][4]},
-        {SPR_SUMO_FART, 'D', SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[0][5]},
-        {SPR_SUMO_FART, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[0][0]}
-    },
-};
-
-STATE* sg_SumoFart[] =
-{
-    &s_SumoFart[0][0],
+        {SPR_SUMO_FART, 'A', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[1]},
+        {SPR_SUMO_FART, 'A', SF_QUICK_CALL, &AF(InitSumoFart), &s_SumoFart[2]},
+        {SPR_SUMO_FART, 'B', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[3]},
+        {SPR_SUMO_FART, 'C', SUMO_FART_RATE, &AF(NullSumo), &s_SumoFart[4]},
+        {SPR_SUMO_FART, 'D', SUMO_FART_RATE*10, &AF(NullSumo), &s_SumoFart[5]},
+        {SPR_SUMO_FART, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoFart[0]}
 };
 
 //////////////////////
@@ -216,21 +186,14 @@ STATE* sg_SumoFart[] =
 
 #define SUMO_CLAP_RATE 12
 
-STATE s_SumoClap[1][6] =
+FState s_SumoClap[] =
 {
-    {
-        {SPR_SUMO_CLAP, 'A', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][1]},
-        {SPR_SUMO_CLAP, 'B', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][2]},
-        {SPR_SUMO_CLAP, 'C', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[0][3]},
-        {SPR_SUMO_CLAP, 'C', SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[0][4]},
-        {SPR_SUMO_CLAP, 'D', SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[0][5]},
-        {SPR_SUMO_CLAP, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[0][5]}
-    },
-};
-
-STATE* sg_SumoClap[] =
-{
-    &s_SumoClap[0][0],
+        {SPR_SUMO_CLAP, 'A', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[1]},
+        {SPR_SUMO_CLAP, 'B', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[2]},
+        {SPR_SUMO_CLAP, 'C', SUMO_CLAP_RATE, &AF(NullSumo), &s_SumoClap[3]},
+        {SPR_SUMO_CLAP, 'C', SF_QUICK_CALL, &AF(InitSumoClap), &s_SumoClap[4]},
+        {SPR_SUMO_CLAP, 'D', SUMO_CLAP_RATE*10, &AF(NullSumo), &s_SumoClap[5]},
+        {SPR_SUMO_CLAP, 'D', SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoClap[5]}
 };
 
 //////////////////////
@@ -241,27 +204,15 @@ STATE* sg_SumoClap[] =
 
 #define SUMO_STOMP_RATE 30
 
-STATE s_SumoStomp[1][6] =
+FState s_SumoStomp[] =
 {
-    {
-        {SPR_SUMO_STOMP, 'A', SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[0][1]},
-        {SPR_SUMO_STOMP, 'B', SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[0][2]},
-        {SPR_SUMO_STOMP, 'C', SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[0][3]},
-        {SPR_SUMO_STOMP, 'C', 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[0][4]},
-        {SPR_SUMO_STOMP, 'C', 8, &AF(NullSumo), &s_SumoStomp[0][5]},
-        {SPR_SUMO_STOMP, 'C', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[0][5]}
-    },
+        {SPR_SUMO_STOMP, 'A', SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[1]},
+        {SPR_SUMO_STOMP, 'B', SUMO_STOMP_RATE*3, &AF(NullSumo), &s_SumoStomp[2]},
+        {SPR_SUMO_STOMP, 'C', SUMO_STOMP_RATE, &AF(NullSumo), &s_SumoStomp[3]},
+        {SPR_SUMO_STOMP, 'C', 0|SF_QUICK_CALL, &AF(InitSumoStomp), &s_SumoStomp[4]},
+        {SPR_SUMO_STOMP, 'C', 8, &AF(NullSumo), &s_SumoStomp[5]},
+        {SPR_SUMO_STOMP, 'C', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_SumoStomp[5]}
 };
-
-STATE* sg_SumoStomp[] =
-{
-    &s_SumoStomp[0][0],
-    &s_SumoStomp[1][0],
-    &s_SumoStomp[2][0],
-    &s_SumoStomp[3][0],
-    &s_SumoStomp[4][0]
-};
-
 
 //////////////////////
 //
@@ -271,7 +222,7 @@ STATE* sg_SumoStomp[] =
 
 #define SUMO_DIE_RATE 30
 
-STATE s_SumoDie[] =
+FState s_SumoDie[] =
 {
     {SPR_SUMO_DIE, 'A', SUMO_DIE_RATE*2, &AF(NullSumo), &s_SumoDie[1]},
     {SPR_SUMO_DIE, 'B', SUMO_DIE_RATE, &AF(NullSumo), &s_SumoDie[2]},
@@ -292,25 +243,15 @@ STATE s_SumoDie[] =
     {SPR_SUMO_DEAD, 'A', SUMO_DIE_RATE, &AF(DoActorDebris), &s_SumoDie[16]}
 };
 
-STATE* sg_SumoDie[] =
-{
-    s_SumoDie
-};
-
-STATE s_SumoDead[] =
+FState s_SumoDead[] =
 {
     {SPR_SUMO_DEAD, 'A', SUMO_DIE_RATE, &AF(DoActorDebris), &s_SumoDead[0]},
 };
 
-STATE* sg_SumoDead[] =
-{
-    s_SumoDead
-};
-
 ACTOR_ACTION_SET SumoActionSet =
 {
-    sg_SumoStand,
-    sg_SumoRun,
+    s_SumoStand,
+    s_SumoRun,
     nullptr,
     nullptr,
     nullptr,
@@ -320,15 +261,15 @@ ACTOR_ACTION_SET SumoActionSet =
     nullptr,
     nullptr,
     nullptr, //climb
-    sg_SumoPain, //pain
-    sg_SumoDie,
+    s_SumoPain, //pain
+    s_SumoDie,
     nullptr,
-    sg_SumoDead,
+    s_SumoDead,
     nullptr,
     nullptr,
-    {sg_SumoStomp,sg_SumoFart},
+    {s_SumoStomp,s_SumoFart},
     {800,1024},
-    {sg_SumoClap,sg_SumoStomp,sg_SumoFart},
+    {s_SumoClap,s_SumoStomp,s_SumoFart},
     {400,750,1024},
     {nullptr},
     nullptr,
@@ -337,8 +278,8 @@ ACTOR_ACTION_SET SumoActionSet =
 
 ACTOR_ACTION_SET MiniSumoActionSet =
 {
-    sg_SumoStand,
-    sg_SumoRun,
+    s_SumoStand,
+    s_SumoRun,
     nullptr,
     nullptr,
     nullptr,
@@ -348,15 +289,15 @@ ACTOR_ACTION_SET MiniSumoActionSet =
     nullptr,
     nullptr,
     nullptr, //climb
-    sg_SumoPain, //pain
-    sg_SumoDie,
+    s_SumoPain, //pain
+    s_SumoDie,
     nullptr,
-    sg_SumoDead,
+    s_SumoDead,
     nullptr,
     nullptr,
-    {sg_SumoClap},
+    {s_SumoClap},
     {1024},
-    {sg_SumoClap},
+    {s_SumoClap},
     {1024},
     {nullptr},
     nullptr,
@@ -385,7 +326,7 @@ int SetupSumo(DSWActor* actor)
     actor->user.__legacyState.Attrib = &SumoAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_SumoDie;
-    actor->user.__legacyState.Rot = sg_SumoRun;
+    actor->user.__legacyState.Rot = s_SumoRun;
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
@@ -692,21 +633,13 @@ static saveable_data saveable_sumo_data[] =
     SAVE_DATA(SumoAttrib),
 
     SAVE_DATA(s_SumoRun),
-    SAVE_DATA(sg_SumoRun),
     SAVE_DATA(s_SumoStand),
-    SAVE_DATA(sg_SumoStand),
     SAVE_DATA(s_SumoPain),
-    SAVE_DATA(sg_SumoPain),
     SAVE_DATA(s_SumoFart),
-    SAVE_DATA(sg_SumoFart),
     SAVE_DATA(s_SumoClap),
-    SAVE_DATA(sg_SumoClap),
     SAVE_DATA(s_SumoStomp),
-    SAVE_DATA(sg_SumoStomp),
     SAVE_DATA(s_SumoDie),
-    SAVE_DATA(sg_SumoDie),
     SAVE_DATA(s_SumoDead),
-    SAVE_DATA(sg_SumoDead),
 
     SAVE_DATA(SumoActionSet),
     SAVE_DATA(MiniSumoActionSet),

@@ -119,17 +119,10 @@ ATTRIBUTE HornetAttrib =
 
 #define HORNET_RUN_RATE 7
 
-STATE s_HornetRun[1][2] =
+FState s_HornetRun[] =
 {
-    {
-        {SPR_HORNET_RUN, 'A', HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[0][1]},
-        {SPR_HORNET_RUN, 'B', HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[0][0]},
-    },
-};
-
-STATE* sg_HornetRun[] =
-{
-    &s_HornetRun[0][0],
+        {SPR_HORNET_RUN, 'A', HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[1]},
+        {SPR_HORNET_RUN, 'B', HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[0]},
 };
 
 //////////////////////
@@ -140,17 +133,10 @@ STATE* sg_HornetRun[] =
 
 #define HORNET_STAND_RATE (HORNET_RUN_RATE + 5)
 
-STATE s_HornetStand[1][2] =
+FState s_HornetStand[] =
 {
-    {
-        {SPR_HORNET_RUN, 'A', HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[0][1]},
-        {SPR_HORNET_RUN, 'B', HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[0][0]}
-    },
-};
-
-STATE* sg_HornetStand[] =
-{
-    &s_HornetStand[0][0],
+        {SPR_HORNET_RUN, 'A', HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[1]},
+        {SPR_HORNET_RUN, 'B', HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[0]}
 };
 
 //////////////////////
@@ -160,53 +146,43 @@ STATE* sg_HornetStand[] =
 //////////////////////
 
 #define HORNET_DIE_RATE 20
-STATE s_HornetDie[] =
+FState s_HornetDie[] =
 {
     {SPR_HORNET_DIE, 'A', HORNET_DIE_RATE, &AF(DoHornetDeath), &s_HornetDie[0]},
 };
 
-STATE* sg_HornetDie[] =
-{
-    s_HornetDie
-};
-
-STATE s_HornetDead[] =
+FState s_HornetDead[] =
 {
     {SPR_HORNET_DEAD, 'A', HORNET_DIE_RATE, &AF(DoActorDebris), &s_HornetDead[0]},
 };
 
-STATE* sg_HornetDead[] =
-{
-    s_HornetDead
-};
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 ACTOR_ACTION_SET HornetActionSet =
 {
-    sg_HornetStand,
-    sg_HornetRun,
+    s_HornetStand,
+    s_HornetRun,
     nullptr,
     nullptr,
     nullptr,
@@ -217,9 +193,9 @@ ACTOR_ACTION_SET HornetActionSet =
     nullptr,
     nullptr, //climb
     nullptr, //pain
-    sg_HornetDie,
+    s_HornetDie,
     nullptr,
-    sg_HornetDead,
+    s_HornetDead,
     nullptr,
     nullptr,
     {nullptr},
@@ -252,7 +228,7 @@ int SetupHornet(DSWActor* actor)
     actor->user.__legacyState.Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_HornetDie;
-    actor->user.__legacyState.Rot = sg_HornetRun;
+    actor->user.__legacyState.Rot = s_HornetRun;
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
@@ -594,13 +570,9 @@ static saveable_data saveable_hornet_data[] =
     SAVE_DATA(HornetAttrib),
 
     SAVE_DATA(s_HornetRun),
-    SAVE_DATA(sg_HornetRun),
     SAVE_DATA(s_HornetStand),
-    SAVE_DATA(sg_HornetStand),
     SAVE_DATA(s_HornetDie),
-    SAVE_DATA(sg_HornetDie),
     SAVE_DATA(s_HornetDead),
-    SAVE_DATA(sg_HornetDead),
 
     SAVE_DATA(HornetActionSet),
 };

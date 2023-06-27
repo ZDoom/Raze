@@ -547,3 +547,14 @@ double DCoreActor::GetOffsetAndHeight(double& height)
 	return zofs - tex->GetDisplayTopOffset() * yscale;
 }
 
+int DCoreActor::callFunction(VMFunction* func)
+{
+	int ret = 0;
+	if (func)
+	{
+		VMValue param[] = { this };
+		VMReturn r(&ret);
+		VMCall(func, param, 1, &r, 1);
+	}
+	return ret;
+}

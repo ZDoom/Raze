@@ -117,20 +117,12 @@ ATTRIBUTE RipperAttrib =
 
 #define RIPPER_RUN_RATE 16
 
-STATE s_RipperRun[1][4] =
+FState s_RipperRun[] =
 {
-    {
-        {SPR_RIPPER_RUN, 'A', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[0][1]},
-        {SPR_RIPPER_RUN, 'B', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[0][2]},
-        {SPR_RIPPER_RUN, 'C', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[0][3]},
-        {SPR_RIPPER_RUN, 'D', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[0][0]},
-    },
-};
-
-
-STATE* sg_RipperRun[] =
-{
-    &s_RipperRun[0][0],
+        {SPR_RIPPER_RUN, 'A', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[1]},
+        {SPR_RIPPER_RUN, 'B', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[2]},
+        {SPR_RIPPER_RUN, 'C', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[3]},
+        {SPR_RIPPER_RUN, 'D', RIPPER_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipperMove), &s_RipperRun[0]},
 };
 
 //////////////////////
@@ -141,18 +133,11 @@ STATE* sg_RipperRun[] =
 
 #define RIPPER_STAND_RATE 12
 
-STATE s_RipperStand[1][1] =
+FState s_RipperStand[] =
 {
-    {
-        {SPR_RIPPER_STAND, 'A', RIPPER_STAND_RATE, &AF(DoRipperMove), &s_RipperStand[0][0]},
-    },
+        {SPR_RIPPER_STAND, 'A', RIPPER_STAND_RATE, &AF(DoRipperMove), &s_RipperStand[0]},
 };
 
-
-STATE* sg_RipperStand[] =
-{
-    s_RipperStand[0],
-};
 
 //////////////////////
 //
@@ -162,24 +147,16 @@ STATE* sg_RipperStand[] =
 
 #define RIPPER_SWIPE_RATE 8
 
-STATE s_RipperSwipe[1][8] =
+FState s_RipperSwipe[] =
 {
-    {
-        {SPR_RIPPER_SWIPE, 'A', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[0][1]},
-        {SPR_RIPPER_SWIPE, 'B', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[0][2]},
-        {SPR_RIPPER_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_RipperSwipe[0][3]},
-        {SPR_RIPPER_SWIPE, 'C', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[0][4]},
-        {SPR_RIPPER_SWIPE, 'D', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[0][5]},
-        {SPR_RIPPER_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_RipperSwipe[0][6]},
-        {SPR_RIPPER_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_RipperSwipe[0][7]},
-        {SPR_RIPPER_SWIPE, 'D', RIPPER_SWIPE_RATE, &AF(DoRipperMove), &s_RipperSwipe[0][7]},
-    },
-};
-
-
-STATE* sg_RipperSwipe[] =
-{
-    &s_RipperSwipe[0][0],
+        {SPR_RIPPER_SWIPE, 'A', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[1]},
+        {SPR_RIPPER_SWIPE, 'B', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[2]},
+        {SPR_RIPPER_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_RipperSwipe[3]},
+        {SPR_RIPPER_SWIPE, 'C', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[4]},
+        {SPR_RIPPER_SWIPE, 'D', RIPPER_SWIPE_RATE, &AF(NullRipper), &s_RipperSwipe[5]},
+        {SPR_RIPPER_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_RipperSwipe[6]},
+        {SPR_RIPPER_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_RipperSwipe[7]},
+        {SPR_RIPPER_SWIPE, 'D', RIPPER_SWIPE_RATE, &AF(DoRipperMove), &s_RipperSwipe[7]},
 };
 
 
@@ -191,23 +168,15 @@ STATE* sg_RipperSwipe[] =
 
 #define RIPPER_SPEW_RATE 8
 
-STATE s_RipperSpew[1][7] =
+FState s_RipperSpew[] =
 {
-    {
-        {SPR_RIPPER_SWIPE, 'A', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[0][1]},
-        {SPR_RIPPER_SWIPE, 'B', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[0][2]},
-        {SPR_RIPPER_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitCoolgFire), &s_RipperSpew[0][3]},
-        {SPR_RIPPER_SWIPE, 'C', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[0][4]},
-        {SPR_RIPPER_SWIPE, 'D', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[0][5]},
-        {SPR_RIPPER_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_RipperSpew[0][6]},
-        {SPR_RIPPER_SWIPE, 'D', RIPPER_SPEW_RATE, &AF(DoRipperMove), &s_RipperSpew[0][6]},
-    },
-};
-
-
-STATE* sg_RipperSpew[] =
-{
-    &s_RipperSpew[0][0],
+        {SPR_RIPPER_SWIPE, 'A', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[1]},
+        {SPR_RIPPER_SWIPE, 'B', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[2]},
+        {SPR_RIPPER_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitCoolgFire), &s_RipperSpew[3]},
+        {SPR_RIPPER_SWIPE, 'C', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[4]},
+        {SPR_RIPPER_SWIPE, 'D', RIPPER_SPEW_RATE, &AF(NullRipper), &s_RipperSpew[5]},
+        {SPR_RIPPER_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_RipperSpew[6]},
+        {SPR_RIPPER_SWIPE, 'D', RIPPER_SPEW_RATE, &AF(DoRipperMove), &s_RipperSpew[6]},
 };
 
 
@@ -219,16 +188,9 @@ STATE* sg_RipperSpew[] =
 
 #define RIPPER_HEART_RATE 14
 
-STATE s_RipperHeart[1][4] =
+FState s_RipperHeart[] =
 {
-    {
-        {SPR_RIPPER_HEART, 'A', RIPPER_HEART_RATE, &AF(DoRipperStandHeart), &s_RipperHeart[0][0]},
-    },
-};
-
-STATE* sg_RipperHeart[] =
-{
-    &s_RipperHeart[0][0],
+        {SPR_RIPPER_HEART, 'A', RIPPER_HEART_RATE, &AF(DoRipperStandHeart), &s_RipperHeart[0]},
 };
 
 //////////////////////
@@ -239,17 +201,9 @@ STATE* sg_RipperHeart[] =
 
 #define RIPPER_HANG_RATE 14
 
-STATE s_RipperHang[1][4] =
+FState s_RipperHang[] =
 {
-    {
-        {SPR_RIPPER_HANG, 'A', RIPPER_HANG_RATE, &AF(DoRipperHang), &s_RipperHang[0][0]},
-    },
-};
-
-
-STATE* sg_RipperHang[] =
-{
-    &s_RipperHang[0][0],
+        {SPR_RIPPER_HANG, 'A', RIPPER_HANG_RATE, &AF(DoRipperHang), &s_RipperHang[0]},
 };
 
 
@@ -261,16 +215,9 @@ STATE* sg_RipperHang[] =
 
 #define RIPPER_PAIN_RATE 38
 
-STATE s_RipperPain[1][1] =
+FState s_RipperPain[] =
 {
-    {
-        {SPR_RIPPER_JUMP, 'A', RIPPER_PAIN_RATE, &AF(DoRipperPain), &s_RipperPain[0][0]},
-    },
-};
-
-STATE* sg_RipperPain[] =
-{
-    &s_RipperPain[0][0],
+        {SPR_RIPPER_JUMP, 'A', RIPPER_PAIN_RATE, &AF(DoRipperPain), &s_RipperPain[0]},
 };
 
 //////////////////////
@@ -281,18 +228,10 @@ STATE* sg_RipperPain[] =
 
 #define RIPPER_JUMP_RATE 25
 
-STATE s_RipperJump[1][6] =
+FState s_RipperJump[] =
 {
-    {
-        {SPR_RIPPER_JUMP, 'A', RIPPER_JUMP_RATE, &AF(NullRipper), &s_RipperJump[0][1]},
-        {SPR_RIPPER_JUMP, 'B', RIPPER_JUMP_RATE, &AF(DoRipperMoveJump), &s_RipperJump[0][1]},
-    },
-};
-
-
-STATE* sg_RipperJump[] =
-{
-    &s_RipperJump[0][0],
+        {SPR_RIPPER_JUMP, 'A', RIPPER_JUMP_RATE, &AF(NullRipper), &s_RipperJump[1]},
+        {SPR_RIPPER_JUMP, 'B', RIPPER_JUMP_RATE, &AF(DoRipperMoveJump), &s_RipperJump[1]},
 };
 
 
@@ -304,17 +243,9 @@ STATE* sg_RipperJump[] =
 
 #define RIPPER_FALL_RATE 25
 
-STATE s_RipperFall[1][6] =
+FState s_RipperFall[] =
 {
-    {
-        {SPR_RIPPER_FALL, 'A', RIPPER_FALL_RATE, &AF(DoRipperMoveJump), &s_RipperFall[0][0]},
-    },
-};
-
-
-STATE* sg_RipperFall[] =
-{
-    &s_RipperFall[0][0],
+        {SPR_RIPPER_FALL, 'A', RIPPER_FALL_RATE, &AF(DoRipperMoveJump), &s_RipperFall[0]},
 };
 
 
@@ -327,19 +258,11 @@ STATE* sg_RipperFall[] =
 #define RIPPER_JUMP_ATTACK_RATE 35
 int DoRipperBeginJumpAttack(DSWActor* actor);
 
-STATE s_RipperJumpAttack[1][6] =
+FState s_RipperJumpAttack[] =
 {
-    {
-        {SPR_RIPPER_JUMP, 'A', RIPPER_JUMP_ATTACK_RATE, &AF(NullRipper), &s_RipperJumpAttack[0][1]},
-        {SPR_RIPPER_JUMP, 'A', 0 | SF_QUICK_CALL, &AF(DoRipperBeginJumpAttack), &s_RipperJumpAttack[0][2]},
-        {SPR_RIPPER_JUMP, 'B', RIPPER_JUMP_ATTACK_RATE, &AF(DoRipperMoveJump), &s_RipperJumpAttack[0][2]},
-    },
-};
-
-
-STATE* sg_RipperJumpAttack[] =
-{
-    &s_RipperJumpAttack[0][0],
+        {SPR_RIPPER_JUMP, 'A', RIPPER_JUMP_ATTACK_RATE, &AF(NullRipper), &s_RipperJumpAttack[1]},
+        {SPR_RIPPER_JUMP, 'A', 0 | SF_QUICK_CALL, &AF(DoRipperBeginJumpAttack), &s_RipperJumpAttack[2]},
+        {SPR_RIPPER_JUMP, 'B', RIPPER_JUMP_ATTACK_RATE, &AF(DoRipperMoveJump), &s_RipperJumpAttack[2]},
 };
 
 
@@ -351,19 +274,12 @@ STATE* sg_RipperJumpAttack[] =
 
 #define RIPPER_HANG_JUMP_RATE 20
 
-STATE s_RipperHangJump[1][6] =
+FState s_RipperHangJump[] =
 {
-    {
-        {SPR_RIPPER_JUMP, 'A', RIPPER_HANG_JUMP_RATE, &AF(NullRipper), &s_RipperHangJump[0][1]},
-        {SPR_RIPPER_JUMP, 'B', RIPPER_HANG_JUMP_RATE, &AF(DoRipperHangJF), &s_RipperHangJump[0][1]},
-    },
+        {SPR_RIPPER_JUMP, 'A', RIPPER_HANG_JUMP_RATE, &AF(NullRipper), &s_RipperHangJump[1]},
+        {SPR_RIPPER_JUMP, 'B', RIPPER_HANG_JUMP_RATE, &AF(DoRipperHangJF), &s_RipperHangJump[1]},
 };
 
-
-STATE* sg_RipperHangJump[] =
-{
-    &s_RipperHangJump[0][0],
-};
 
 //////////////////////
 //
@@ -373,19 +289,10 @@ STATE* sg_RipperHangJump[] =
 
 #define RIPPER_FALL_RATE 25
 
-STATE s_RipperHangFall[1][6] =
+FState s_RipperHangFall[] =
 {
-    {
-        {SPR_RIPPER_FALL, 'A', RIPPER_FALL_RATE, &AF(DoRipperHangJF), &s_RipperHangFall[0][0]},
-    },
+        {SPR_RIPPER_FALL, 'A', RIPPER_FALL_RATE, &AF(DoRipperHangJF), &s_RipperHangFall[0]},
 };
-
-
-STATE* sg_RipperHangFall[] =
-{
-    &s_RipperHangFall[0][0],
-};
-
 
 
 //////////////////////
@@ -396,7 +303,7 @@ STATE* sg_RipperHangFall[] =
 
 #define RIPPER_DIE_RATE 16
 
-STATE s_RipperDie[] =
+FState s_RipperDie[] =
 {
     {SPR_RIPPER_DIE, 'A', RIPPER_DIE_RATE, &AF(NullRipper), &s_RipperDie[1]},
     {SPR_RIPPER_DIE, 'B', RIPPER_DIE_RATE, &AF(NullRipper), &s_RipperDie[2]},
@@ -407,7 +314,7 @@ STATE s_RipperDie[] =
 
 #define RIPPER_DEAD_RATE 8
 
-STATE s_RipperDead[] =
+FState s_RipperDead[] =
 {
     {SPR_RIPPER_DIE, 'C', RIPPER_DEAD_RATE, nullptr,  &s_RipperDead[1]},
     {SPR_RIPPER_DIE, 'D', RIPPER_DEAD_RATE, nullptr,  &s_RipperDead[2]},
@@ -415,114 +322,93 @@ STATE s_RipperDead[] =
     {SPR_RIPPER_DEAD, 'A', RIPPER_DEAD_RATE, &AF(DoActorDebris), &s_RipperDead[3]},
 };
 
-STATE* sg_RipperDie[] =
-{
-    s_RipperDie
-};
-
-STATE* sg_RipperDead[] =
-{
-    s_RipperDead
-};
-
-STATE s_RipperDeathJump[] =
+FState s_RipperDeathJump[] =
 {
     {SPR_RIPPER_DIE, 'A', RIPPER_DIE_RATE, &AF(DoActorDeathMove), &s_RipperDeathJump[0]}
 };
 
-STATE s_RipperDeathFall[] =
+FState s_RipperDeathFall[] =
 {
     {SPR_RIPPER_DIE, 'B', RIPPER_DIE_RATE, &AF(DoActorDeathMove), &s_RipperDeathFall[0]}
 };
 
 
-STATE* sg_RipperDeathJump[] =
-{
-    s_RipperDeathJump
-};
-
-STATE* sg_RipperDeathFall[] =
-{
-    s_RipperDeathFall
-};
-
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 
 ACTOR_ACTION_SET RipperActionSet =
 {
-    sg_RipperStand,
-    sg_RipperRun,
-    sg_RipperJump,
-    sg_RipperFall,
-    nullptr,                               // sg_RipperCrawl,
-    nullptr,                               // sg_RipperSwim,
-    nullptr,                               // sg_RipperFly,
-    nullptr,                               // sg_RipperRise,
-    nullptr,                               // sg_RipperSit,
-    nullptr,                               // sg_RipperLook,
+    s_RipperStand,
+    s_RipperRun,
+    s_RipperJump,
+    s_RipperFall,
+    nullptr,                               // s_RipperCrawl,
+    nullptr,                               // s_RipperSwim,
+    nullptr,                               // s_RipperFly,
+    nullptr,                               // s_RipperRise,
+    nullptr,                               // s_RipperSit,
+    nullptr,                               // s_RipperLook,
     nullptr,                               // climb
-    sg_RipperPain,
-    sg_RipperDie,
-    nullptr,                               // sg_RipperHariKari,
-    sg_RipperDead,
-    sg_RipperDeathJump,
-    sg_RipperDeathFall,
-    {sg_RipperSwipe,sg_RipperSpew},
+    s_RipperPain,
+    s_RipperDie,
+    nullptr,                               // s_RipperHariKari,
+    s_RipperDead,
+    s_RipperDeathJump,
+    s_RipperDeathFall,
+    {s_RipperSwipe,s_RipperSpew},
     {800,1024},
-    {sg_RipperJumpAttack, sg_RipperSpew},
+    {s_RipperJumpAttack, s_RipperSpew},
     {400, 1024},
-    {sg_RipperHeart, sg_RipperHang},
+    {s_RipperHeart, s_RipperHang},
     nullptr,
     nullptr
 };
 
 ACTOR_ACTION_SET RipperBrownActionSet =
 {
-    sg_RipperStand,
-    sg_RipperRun,
-    sg_RipperJump,
-    sg_RipperFall,
-    nullptr,                               // sg_RipperCrawl,
-    nullptr,                               // sg_RipperSwim,
-    nullptr,                               // sg_RipperFly,
-    nullptr,                               // sg_RipperRise,
-    nullptr,                               // sg_RipperSit,
-    nullptr,                               // sg_RipperLook,
+    s_RipperStand,
+    s_RipperRun,
+    s_RipperJump,
+    s_RipperFall,
+    nullptr,                               // s_RipperCrawl,
+    nullptr,                               // s_RipperSwim,
+    nullptr,                               // s_RipperFly,
+    nullptr,                               // s_RipperRise,
+    nullptr,                               // s_RipperSit,
+    nullptr,                               // s_RipperLook,
     nullptr,                               // climb
-    sg_RipperPain,                      // pain
-    sg_RipperDie,
-    nullptr,                               // sg_RipperHariKari,
-    sg_RipperDead,
-    sg_RipperDeathJump,
-    sg_RipperDeathFall,
-    {sg_RipperSwipe},
+    s_RipperPain,                      // pain
+    s_RipperDie,
+    nullptr,                               // s_RipperHariKari,
+    s_RipperDead,
+    s_RipperDeathJump,
+    s_RipperDeathFall,
+    {s_RipperSwipe},
     {1024},
-    {sg_RipperJumpAttack, sg_RipperSwipe},
+    {s_RipperJumpAttack, s_RipperSwipe},
     {800, 1024},
-    {sg_RipperHeart, sg_RipperHang},
+    {s_RipperHeart, s_RipperHang},
     nullptr,
     nullptr
 };
@@ -545,7 +431,7 @@ int SetupRipper(DSWActor* actor)
     actor->user.__legacyState.Attrib = &RipperAttrib;
     DoActorSetSpeed(actor, FAST_SPEED);
     actor->user.__legacyState.StateEnd = s_RipperDie;
-    actor->user.__legacyState.Rot = sg_RipperRun;
+    actor->user.__legacyState.Rot = s_RipperRun;
     actor->spr.scale = DVector2(1, 1);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
@@ -688,8 +574,8 @@ int InitRipperHang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup(actor, sg_RipperHangJump);
-    actor->user.__legacyState.StateFallOverride = sg_RipperHangFall;
+    NewStateGroup(actor, s_RipperHangJump);
+    actor->user.__legacyState.StateFallOverride = s_RipperHangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
     PickJumpMaxSpeed(actor, -800);
@@ -716,7 +602,7 @@ int DoRipperHang(DSWActor* actor)
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup(actor, sg_RipperJumpAttack);
+    NewStateGroup(actor, s_RipperJumpAttack);
     // move to the 2nd frame - past the pause frame
     actor->user.Tics += actor->user.__legacyState.State->Tics;
     return 0;
@@ -861,7 +747,7 @@ int DoRipperQuickJump(DSWActor* actor)
     {
         if ((low->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup(actor, sg_RipperJumpAttack);
+            NewStateGroup(actor, s_RipperJumpAttack);
             // move past the first state
             actor->user.Tics = 30;
             return true;
@@ -914,7 +800,7 @@ int DoRipperRipHeart(DSWActor* actor)
 {
     DSWActor* target = actor->user.targetActor;
 
-    NewStateGroup(actor, sg_RipperHeart);
+    NewStateGroup(actor, s_RipperHeart);
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper
@@ -934,7 +820,7 @@ int DoRipperStandHeart(DSWActor* actor)
     NullRipper(actor);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(actor, sg_RipperRun);
+        NewStateGroup(actor, s_RipperRun);
     return 0;
 }
 
@@ -1035,37 +921,21 @@ static saveable_data saveable_ripper_data[] =
     SAVE_DATA(RipperAttrib),
 
     SAVE_DATA(s_RipperRun),
-    SAVE_DATA(sg_RipperRun),
     SAVE_DATA(s_RipperStand),
-    SAVE_DATA(sg_RipperStand),
     SAVE_DATA(s_RipperSwipe),
-    SAVE_DATA(sg_RipperSwipe),
     SAVE_DATA(s_RipperSpew),
-    SAVE_DATA(sg_RipperSpew),
     SAVE_DATA(s_RipperHeart),
-    SAVE_DATA(sg_RipperHeart),
     SAVE_DATA(s_RipperHang),
-    SAVE_DATA(sg_RipperHang),
     SAVE_DATA(s_RipperPain),
-    SAVE_DATA(sg_RipperPain),
     SAVE_DATA(s_RipperJump),
-    SAVE_DATA(sg_RipperJump),
     SAVE_DATA(s_RipperFall),
-    SAVE_DATA(sg_RipperFall),
     SAVE_DATA(s_RipperJumpAttack),
-    SAVE_DATA(sg_RipperJumpAttack),
     SAVE_DATA(s_RipperHangJump),
-    SAVE_DATA(sg_RipperHangJump),
     SAVE_DATA(s_RipperHangFall),
-    SAVE_DATA(sg_RipperHangFall),
     SAVE_DATA(s_RipperDie),
     SAVE_DATA(s_RipperDead),
-    SAVE_DATA(sg_RipperDie),
-    SAVE_DATA(sg_RipperDead),
     SAVE_DATA(s_RipperDeathJump),
     SAVE_DATA(s_RipperDeathFall),
-    SAVE_DATA(sg_RipperDeathJump),
-    SAVE_DATA(sg_RipperDeathFall),
 
     SAVE_DATA(RipperActionSet),
     SAVE_DATA(RipperBrownActionSet),

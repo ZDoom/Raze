@@ -147,34 +147,34 @@ short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 
 //////////////////////
 //
-// SPECIAL STATES
+// SPECIAL FStateS
 //
 //////////////////////
 
 // state for sprites that are not restored
-STATE s_NotRestored[] =
+FState s_NotRestored[] =
 {
     {SPR_NOTRESTORED, 'A', 100, nullptr,  &s_NotRestored[0]}
 };
 
-STATE s_Suicide[] =
+FState s_Suicide[] =
 {
     {SPR_SUICIDES, 'A', 100, &AF(DoSuicide), &s_Suicide[0]}
 };
 
-STATE s_DeadLoWang[] =
+FState s_DeadLoWang[] =
 {
     {SPR_DEADLOWANG, 'A', 100, nullptr,  &s_DeadLoWang[0]},
 };
 
 //////////////////////
 //
-// BREAKABLE STATES
+// BREAKABLE FStateS
 //
 //////////////////////
 
 #define BREAK_LIGHT_RATE 18
-STATE s_BreakLight[] =
+FState s_BreakLight[] =
 {
     {SPR_BREAK_LIGHT_ANIM, 'A', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[1]},
     {SPR_BREAK_LIGHT_ANIM, 'B', BREAK_LIGHT_RATE, nullptr,  &s_BreakLight[2]},
@@ -185,7 +185,7 @@ STATE s_BreakLight[] =
 };
 
 #define BREAK_BARREL_RATE 18
-STATE s_BreakBarrel[] =
+FState s_BreakBarrel[] =
 {
     {SPR_BREAK_BARREL, 'E', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[1]},
     {SPR_BREAK_BARREL, 'F', BREAK_BARREL_RATE, nullptr,  &s_BreakBarrel[2]},
@@ -196,7 +196,7 @@ STATE s_BreakBarrel[] =
 };
 
 #define BREAK_PEDISTAL_RATE 28
-STATE s_BreakPedistal[] =
+FState s_BreakPedistal[] =
 {
     {SPR_BREAK_PEDISTAL, 'B', BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[1]},
     {SPR_BREAK_PEDISTAL, 'C', BREAK_PEDISTAL_RATE, nullptr,  &s_BreakPedistal[2]},
@@ -205,7 +205,7 @@ STATE s_BreakPedistal[] =
 };
 
 #define BREAK_BOTTLE1_RATE 18
-STATE s_BreakBottle1[] =
+FState s_BreakBottle1[] =
 {
     {SPR_BREAK_BOTTLE1, 'B', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[1]},
     {SPR_BREAK_BOTTLE1, 'C', BREAK_BOTTLE1_RATE, nullptr,  &s_BreakBottle1[2]},
@@ -216,7 +216,7 @@ STATE s_BreakBottle1[] =
 };
 
 #define BREAK_BOTTLE2_RATE 18
-STATE s_BreakBottle2[] =
+FState s_BreakBottle2[] =
 {
     {SPR_BREAK_BOTTLE2, 'B', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[1]},
     {SPR_BREAK_BOTTLE2, 'C', BREAK_BOTTLE2_RATE, nullptr,  &s_BreakBottle2[2]},
@@ -228,7 +228,7 @@ STATE s_BreakBottle2[] =
 
 #define PUFF_RATE 8
 
-STATE s_Puff[] =
+FState s_Puff[] =
 {
     {SPR_PUFF, 'A', PUFF_RATE, &AF(DoPuff), &s_Puff[1]},
     {SPR_PUFF, 'B', PUFF_RATE, &AF(DoPuff), &s_Puff[2]},
@@ -242,37 +242,30 @@ STATE s_Puff[] =
 #define RAIL_PUFF_RATE 6
 
 
-STATE s_RailPuff[3][17] =
+FState s_RailPuff[] =
 {
-    {
-        {SPR_RAIL_PUFF, 'A', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][1]},
-        {SPR_RAIL_PUFF, 'B', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][2]},
-        {SPR_RAIL_PUFF, 'C', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][3]},
-        {SPR_RAIL_PUFF, 'D', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][4]},
-        {SPR_RAIL_PUFF, 'E', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][5]},
-        {SPR_RAIL_PUFF, 'F', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][6]},
-        {SPR_RAIL_PUFF, 'G', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][7]},
-        {SPR_RAIL_PUFF, 'H', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][8]},
-        {SPR_RAIL_PUFF, 'I', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][9]},
-        {SPR_RAIL_PUFF, 'J', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][10]},
-        {SPR_RAIL_PUFF, 'K', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][11]},
-        {SPR_RAIL_PUFF, 'L', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][12]},
-        {SPR_RAIL_PUFF, 'M', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][13]},
-        {SPR_RAIL_PUFF, 'N', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][14]},
-        {SPR_RAIL_PUFF, 'O', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][15]},
-        {SPR_RAIL_PUFF, 'P', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[0][16]},
-        {SPR_RAIL_PUFF, 'P', 100, &AF(DoSuicide), &s_RailPuff[0][0]},
-    },
+        {SPR_RAIL_PUFF, 'A', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[1]},
+        {SPR_RAIL_PUFF, 'B', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[2]},
+        {SPR_RAIL_PUFF, 'C', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[3]},
+        {SPR_RAIL_PUFF, 'D', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[4]},
+        {SPR_RAIL_PUFF, 'E', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[5]},
+        {SPR_RAIL_PUFF, 'F', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[6]},
+        {SPR_RAIL_PUFF, 'G', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[7]},
+        {SPR_RAIL_PUFF, 'H', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[8]},
+        {SPR_RAIL_PUFF, 'I', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[9]},
+        {SPR_RAIL_PUFF, 'J', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[10]},
+        {SPR_RAIL_PUFF, 'K', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[11]},
+        {SPR_RAIL_PUFF, 'L', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[12]},
+        {SPR_RAIL_PUFF, 'M', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[13]},
+        {SPR_RAIL_PUFF, 'N', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[14]},
+        {SPR_RAIL_PUFF, 'O', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[15]},
+        {SPR_RAIL_PUFF, 'P', RAIL_PUFF_RATE, &AF(DoRailPuff), &s_RailPuff[16]},
+        {SPR_RAIL_PUFF, 'P', 100, &AF(DoSuicide), &s_RailPuff[0]},
 };
 
-
-STATE* sg_RailPuff[] =
-{
-    &s_RailPuff[0][0],
-};
 
 #define LASER_PUFF_RATE 8
-STATE s_LaserPuff[] =
+FState s_LaserPuff[] =
 {
     {SPR_LASER_PUFF, 'A', LASER_PUFF_RATE, nullptr, &s_LaserPuff[1]},
     {SPR_LASER_PUFF, 'A', 100, &AF(DoSuicide), &s_LaserPuff[0]}
@@ -280,7 +273,7 @@ STATE s_LaserPuff[] =
 
 #define TRACER_RATE 6
 
-STATE s_Tracer[] =
+FState s_Tracer[] =
 {
     {SPR_TRACER, 'A', TRACER_RATE, &AF(DoTracer), &s_Tracer[1]},
     {SPR_TRACER, 'B', TRACER_RATE, &AF(DoTracer), &s_Tracer[2]},
@@ -291,7 +284,7 @@ STATE s_Tracer[] =
 };
 
 #define EMP_RATE 6
-STATE s_EMP[] =
+FState s_EMP[] =
 {
     {SPR_EMP, 'A', EMP_RATE, &AF(DoEMP), &s_EMP[1]},
     {SPR_EMP, 'B', EMP_RATE, &AF(DoEMP), &s_EMP[2]},
@@ -299,14 +292,14 @@ STATE s_EMP[] =
 };
 
 
-STATE s_EMPBurst[] =
+FState s_EMPBurst[] =
 {
     {SPR_EMP, 'A', EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[1]},
     {SPR_EMP, 'B', EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[2]},
     {SPR_EMP, 'C', EMP_RATE, &AF(DoEMPBurst), &s_EMPBurst[0]}
 };
 
-STATE s_EMPShrap[] =
+FState s_EMPShrap[] =
 {
     {SPR_EMP, 'A', EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[1]},
     {SPR_EMP, 'B', EMP_RATE, &AF(DoFastShrapJumpFall), &s_EMPShrap[2]},
@@ -317,14 +310,14 @@ STATE s_EMPShrap[] =
 #define TANK_SHELL 3201
 #define TANK_SHELL_RATE 6
 
-STATE s_TankShell[] =
+FState s_TankShell[] =
 {
     {SPR_TRACER, 'A', 200, &AF(DoTankShell), &s_TankShell[0]}
 };
 
 
 #define VEHICLE_SMOKE_RATE 18
-STATE s_VehicleSmoke[] =
+FState s_VehicleSmoke[] =
 {
     {SPR_PUFF, 'A', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[1]},
     {SPR_PUFF, 'B', VEHICLE_SMOKE_RATE, &AF(DoVehicleSmoke), &s_VehicleSmoke[2]},
@@ -337,7 +330,7 @@ STATE s_VehicleSmoke[] =
 
 
 #define WATER_SMOKE_RATE 18
-STATE s_WaterSmoke[] =
+FState s_WaterSmoke[] =
 {
     {SPR_PUFF, 'A', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[1]},
     {SPR_PUFF, 'B', WATER_SMOKE_RATE, &AF(DoWaterSmoke), &s_WaterSmoke[2]},
@@ -351,7 +344,7 @@ STATE s_WaterSmoke[] =
 constexpr double UZI_SPARK_REPEAT = 0.375;
 constexpr double UZI_SMOKE_REPEAT = 0.375;
 #define UZI_SMOKE_RATE 16 // Was 9
-STATE s_UziSmoke[] =
+FState s_UziSmoke[] =
 {
     {SPR_UZI_SMOKE, 'A', UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[1]},
     {SPR_UZI_SMOKE, 'B', UZI_SMOKE_RATE, &AF(DoUziSmoke), &s_UziSmoke[2]},
@@ -362,7 +355,7 @@ STATE s_UziSmoke[] =
 
 #define SHOTGUN_SMOKE_RATE 16
 #define SHOTGUN_SMOKE UZI_SMOKE+1
-STATE s_ShotgunSmoke[] =
+FState s_ShotgunSmoke[] =
 {
     {SPR_UZI_SMOKE, 'A', SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[1]},
     {SPR_UZI_SMOKE, 'B', SHOTGUN_SMOKE_RATE, &AF(DoShotgunSmoke), &s_ShotgunSmoke[2]},
@@ -373,14 +366,14 @@ STATE s_ShotgunSmoke[] =
 
 #define UZI_BULLET_RATE 100
 
-STATE s_UziBullet[] =
+FState s_UziBullet[] =
 {
     {SPR_UZI_BULLET, 'A', UZI_BULLET_RATE, &AF(DoUziBullet), &s_UziBullet[0]},
 };
 
 #define UZI_SPARK_RATE 8
 
-STATE s_UziSpark[] =
+FState s_UziSpark[] =
 {
     {SPR_UZI_SPARK, 'A', UZI_SPARK_RATE, nullptr,  &s_UziSpark[1]},
     {SPR_UZI_SPARK, 'B', UZI_SPARK_RATE, nullptr,  &s_UziSpark[2]},
@@ -390,7 +383,7 @@ STATE s_UziSpark[] =
     {SPR_UZI_SPARK, 'E', 100, &AF(DoSuicide), &s_UziSpark[0]},
 };
 
-STATE s_UziPowerSpark[] =
+FState s_UziPowerSpark[] =
 {
     {SPR_UZI_SPARK, 'A', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[1]},
     {SPR_UZI_SPARK, 'B', UZI_SPARK_RATE, &AF(DoUziSmoke), &s_UziSpark[2]},
@@ -402,7 +395,7 @@ STATE s_UziPowerSpark[] =
 
 #define BUBBLE_RATE 100
 
-STATE s_Bubble[] =
+FState s_Bubble[] =
 {
     {SPR_BUBBLE, 'A', BUBBLE_RATE, &AF(DoBubble), &s_Bubble[0]}
 };
@@ -411,7 +404,7 @@ STATE s_Bubble[] =
 //#define SPLASH 2190
 #define SPLASH_RATE 10
 
-STATE s_Splash[] =
+FState s_Splash[] =
 {
     {SPR_SPLASH, 'A', SPLASH_RATE, nullptr,  &s_Splash[1]},
     {SPR_SPLASH, 'B', SPLASH_RATE, nullptr,  &s_Splash[2]},
@@ -422,22 +415,15 @@ STATE s_Splash[] =
 };
 
 #define CROSSBOLT_RATE 100
-STATE s_CrossBolt[1][1] =
+FState s_CrossBolt[] =
 {
-    {
-        {SPR_CROSSBOLT, 'A', CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[0][0]},
-    },
-};
-
-STATE* sg_CrossBolt[] =
-{
-    &s_CrossBolt[0][0],
+        {SPR_CROSSBOLT, 'A', CROSSBOLT_RATE, &AF(DoCrossBolt), &s_CrossBolt[0]},
 };
 
 #undef STAR
 #define STAR 2102
 #define STAR_RATE 6
-STATE s_Star[] =
+FState s_Star[] =
 {
     {SPR_STAR, 'A', STAR_RATE, &AF(DoStar), &s_Star[1]},
     {SPR_STAR, 'B', STAR_RATE, &AF(DoStar), &s_Star[2]},
@@ -445,12 +431,12 @@ STATE s_Star[] =
     {SPR_STAR, 'D', STAR_RATE, &AF(DoStar), &s_Star[0]}
 };
 
-STATE s_StarStuck[] =
+FState s_StarStuck[] =
 {
     {SPR_STAR, 'A', STAR_RATE, nullptr,  &s_StarStuck[0]},
 };
 
-STATE s_StarDown[] =
+FState s_StarDown[] =
 {
     {SPR_STAR_DOWN, 'A', STAR_RATE, &AF(DoStar), &s_StarDown[1]},
     {SPR_STAR_DOWN, 'B', STAR_RATE, &AF(DoStar), &s_StarDown[2]},
@@ -458,7 +444,7 @@ STATE s_StarDown[] =
     {SPR_STAR_DOWN, 'D', STAR_RATE, &AF(DoStar), &s_StarDown[0]}
 };
 
-STATE s_StarDownStuck[] =
+FState s_StarDownStuck[] =
 {
     {SPR_STAR, 'A', STAR_RATE, nullptr,  &s_StarDownStuck[0]},
 };
@@ -471,7 +457,7 @@ STATE s_StarDownStuck[] =
 
 #define LAVA_BOULDER_RATE 6
 
-STATE s_LavaBoulder[] =
+FState s_LavaBoulder[] =
 {
     {SPR_LAVA_BOULDER, 'B', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[1]},
     {SPR_LAVA_BOULDER, 'C', LAVA_BOULDER_RATE, &AF(DoLavaBoulder), &s_LavaBoulder[2]},
@@ -485,7 +471,7 @@ STATE s_LavaBoulder[] =
 
 #define LAVA_SHARD (LAVA_BOULDER+1)
 
-STATE s_LavaShard[] =
+FState s_LavaShard[] =
 {
     {SPR_LAVA_BOULDER, 'B', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[1]},
     {SPR_LAVA_BOULDER, 'C', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[2]},
@@ -497,7 +483,7 @@ STATE s_LavaShard[] =
     {SPR_LAVA_BOULDER, 'I', LAVA_BOULDER_RATE, &AF(DoShrapDamage), &s_LavaShard[0]},
 };
 
-STATE s_VulcanBoulder[] =
+FState s_VulcanBoulder[] =
 {
     {SPR_LAVA_BOULDER, 'B', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[1]},
     {SPR_LAVA_BOULDER, 'C', LAVA_BOULDER_RATE, &AF(DoVulcanBoulder), &s_VulcanBoulder[2]},
@@ -523,18 +509,12 @@ STATE s_VulcanBoulder[] =
 #define GRENADE GRENADE_R0
 #define GRENADE_RATE 8
 
-STATE s_Grenade[1][1] =
+FState s_Grenade[] =
 {
-    {
-        {SPR_GRENADE, 'A', GRENADE_RATE, &AF(DoGrenade), &s_Grenade[0][0]},
-    },
+        {SPR_GRENADE, 'A', GRENADE_RATE, &AF(DoGrenade), &s_Grenade[0]},
 };
 
 
-STATE* sg_Grenade[] =
-{
-    &s_Grenade[0][0],
-};
 #endif
 
 //////////////////////
@@ -548,19 +528,19 @@ STATE* sg_Grenade[] =
 #define MINE_SHRAP 5011
 #define MINE_RATE 16
 
-STATE s_MineStuck[] =
+FState s_MineStuck[] =
 {
     {SPR_MINE, 'A', MINE_RATE, &AF(DoMineStuck), &s_MineStuck[0]},
 };
 
-STATE s_Mine[] =
+FState s_Mine[] =
 {
     {SPR_MINE, 'A', MINE_RATE, &AF(DoMine), &s_Mine[1]},
     {SPR_MINE, 'B', MINE_RATE, &AF(DoMine), &s_Mine[0]},
 };
 
 
-STATE s_MineSpark[] =
+FState s_MineSpark[] =
 {
     {SPR_UZI_SPARK, 'A', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[1]},
     {SPR_UZI_SPARK, 'B', UZI_SPARK_RATE, &AF(DoMineSpark), &s_MineSpark[2]},
@@ -582,26 +562,19 @@ STATE s_MineSpark[] =
 #define METEOR_RATE 8
 
 
-STATE s_Meteor[1][4] =
+FState s_Meteor[] =
 {
-    {
-        {SPR_METEOR, 'A', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][1]},
-        {SPR_METEOR, 'B', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][2]},
-        {SPR_METEOR, 'C', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][3]},
-        {SPR_METEOR, 'D', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0][0]},
-    },
+        {SPR_METEOR, 'A', METEOR_RATE, &AF(DoMeteor), &s_Meteor[1]},
+        {SPR_METEOR, 'B', METEOR_RATE, &AF(DoMeteor), &s_Meteor[2]},
+        {SPR_METEOR, 'C', METEOR_RATE, &AF(DoMeteor), &s_Meteor[3]},
+        {SPR_METEOR, 'D', METEOR_RATE, &AF(DoMeteor), &s_Meteor[0]},
 };
 
-
-STATE* sg_Meteor[] =
-{
-    &s_Meteor[0][0],
-};
 
 #define METEOR_EXP 2115
 #define METEOR_EXP_RATE 7
 
-STATE s_MeteorExp[] =
+FState s_MeteorExp[] =
 {
     {SPR_METEOR_EXP, 'A', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[1]},
     {SPR_METEOR_EXP, 'B', METEOR_EXP_RATE, nullptr,  &s_MeteorExp[2]},
@@ -614,23 +587,16 @@ STATE s_MeteorExp[] =
 
 #define MIRV_METEOR 2098 //METEOR_R0
 
-STATE s_MirvMeteor[1][4] =
+FState s_MirvMeteor[] =
 {
-    {
-        {SPR_METEOR, 'A', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][1]},
-        {SPR_METEOR, 'B', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][2]},
-        {SPR_METEOR, 'C', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][3]},
-        {SPR_METEOR, 'D', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0][0]},
-    },
+        {SPR_METEOR, 'A', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[1]},
+        {SPR_METEOR, 'B', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[2]},
+        {SPR_METEOR, 'C', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[3]},
+        {SPR_METEOR, 'D', METEOR_RATE, &AF(DoMirvMissile), &s_MirvMeteor[0]},
 };
 
 
-STATE* sg_MirvMeteor[] =
-{
-    &s_MirvMeteor[0][0],
-};
-
-STATE s_MirvMeteorExp[] =
+FState s_MirvMeteorExp[] =
 {
     {SPR_METEOR_EXP, 'A', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[1]},
     {SPR_METEOR_EXP, 'B', METEOR_EXP_RATE, nullptr,  &s_MirvMeteorExp[2]},
@@ -643,24 +609,16 @@ STATE s_MirvMeteorExp[] =
 
 #define SERP_METEOR 2099// METEOR_R0+1
 
-STATE s_SerpMeteor[1][4] =
+FState s_SerpMeteor[] =
 {
-    {
-        {SPR_SERP_METEOR, 'A', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][1]},
-        {SPR_SERP_METEOR, 'B', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][2]},
-        {SPR_SERP_METEOR, 'C', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][3]},
-        {SPR_SERP_METEOR, 'D', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0][0]},
-    },
+        {SPR_SERP_METEOR, 'A', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[1]},
+        {SPR_SERP_METEOR, 'B', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[2]},
+        {SPR_SERP_METEOR, 'C', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[3]},
+        {SPR_SERP_METEOR, 'D', METEOR_RATE, &AF(DoSerpMeteor), &s_SerpMeteor[0]},
 };
 
 
-STATE* sg_SerpMeteor[] =
-{
-    &s_SerpMeteor[0][0],
-};
-
-
-STATE s_SerpMeteorExp[] =
+FState s_SerpMeteorExp[] =
 {
     {SPR_METEOR_EXP, 'A', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[1]},
     {SPR_METEOR_EXP, 'B', METEOR_EXP_RATE, nullptr,  &s_SerpMeteorExp[2]},
@@ -680,16 +638,9 @@ STATE s_SerpMeteorExp[] =
 #define SPEAR_RATE 8
 
 
-STATE s_Spear[1][1] =
+FState s_Spear[] =
 {
-    {
-        {SPR_SPEAR, 'A', SPEAR_RATE, &AF(DoSpear), s_Spear[0]},
-    },
-};
-
-STATE* sg_Spear[] =
-{
-    s_Spear[0],
+        {SPR_SPEAR, 'A', SPEAR_RATE, &AF(DoSpear), &s_Spear[0]},
 };
 
 //////////////////////
@@ -700,16 +651,9 @@ STATE* sg_Spear[] =
 
 #define ROCKET_RATE 8
 
-STATE s_Rocket[1][1] =
+FState s_Rocket[] =
 {
-    {
-        {SPR_ROCKET, 'A', ROCKET_RATE, &AF(DoRocket), &s_Rocket[0][0]},
-    },
-};
-
-STATE* sg_Rocket[] =
-{
-    &s_Rocket[0][0],
+        {SPR_ROCKET, 'A', ROCKET_RATE, &AF(DoRocket), &s_Rocket[0]},
 };
 
 //////////////////////
@@ -720,37 +664,22 @@ STATE* sg_Rocket[] =
 
 #define BUNNYROCKET_RATE 8
 
-STATE s_BunnyRocket[1][1] =
+FState s_BunnyRocket[] =
 {
-    {
-        {SPR_BUNNYROCKET, 'A', BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[0][0]},
-    },
-};
-
-STATE* sg_BunnyRocket[] =
-{
-    &s_BunnyRocket[0][0],
+        {SPR_BUNNYROCKET, 'A', BUNNYROCKET_RATE, &AF(DoRocket), &s_BunnyRocket[0]},
 };
 
 
 #define RAIL_RATE 8
 
-STATE s_Rail[1][1] =
+FState s_Rail[] =
 {
-    {
-        {SPR_ROCKET, 'A', RAIL_RATE, &AF(DoRail), &s_Rail[0][0]},
-    },
+        {SPR_ROCKET, 'A', RAIL_RATE, &AF(DoRail), &s_Rail[0]},
 };
-
-STATE* sg_Rail[] =
-{
-    &s_Rail[0][0],
-};
-
 
 #define LASER_RATE 8
 
-STATE s_Laser[] =
+FState s_Laser[] =
 {
     {SPR_ROCKET, 'A', LASER_RATE, &AF(DoLaser), &s_Laser[0]}
 };
@@ -763,29 +692,14 @@ STATE s_Laser[] =
 
 #define MICRO_RATE 8
 
-STATE s_Micro[1][1] =
+FState s_Micro[] =
 {
-    {
-        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicro), &s_Micro[0][0]},
-    },
+        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicro), &s_Micro[0]},
 };
 
-STATE* sg_Micro[] =
+FState s_MicroMini[] =
 {
-    &s_Micro[0][0],
-};
-
-
-STATE s_MicroMini[1][1] =
-{
-    {
-        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[0][0]},
-    },
-};
-
-STATE* sg_MicroMini[] =
-{
-    &s_MicroMini[0][0],
+        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[0]},
 };
 
 //////////////////////
@@ -797,38 +711,23 @@ STATE* sg_MicroMini[] =
 #define BOLT_THINMAN_RATE 8
 
 
-STATE s_BoltThinMan[1][1] =
+FState s_BoltThinMan[] =
 {
-    {
-        {SPR_BOLT_THINMAN, 'A', BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[0][0]},
-    },
-};
-
-STATE* sg_BoltThinMan[] =
-{
-    &s_BoltThinMan[0][0],
+        {SPR_BOLT_THINMAN, 'A', BOLT_THINMAN_RATE, &AF(DoBoltThinMan), &s_BoltThinMan[0]},
 };
 
 #define BOLT_SEEKER_RATE 8
 
 
-STATE s_BoltSeeker[1][1] =
+FState s_BoltSeeker[] =
 {
-    {
-        {SPR_BOLT_THINMAN, 'A', BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[0][0]},
-    },
+        {SPR_BOLT_THINMAN, 'A', BOLT_SEEKER_RATE, &AF(DoBoltSeeker), &s_BoltSeeker[0]},
 };
-
-STATE* sg_BoltSeeker[] =
-{
-    &s_BoltSeeker[0][0],
-};
-
 
 #define BOLT_FATMAN_RATE 8
 
 
-STATE s_BoltFatMan[] =
+FState s_BoltFatMan[] =
 {
     {SPR_BOLT_FATMAN, 'A', BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[1]},
     {SPR_BOLT_FATMAN, 'B', BOLT_FATMAN_RATE, &AF(DoBoltFatMan), &s_BoltFatMan[2]},
@@ -840,7 +739,7 @@ STATE s_BoltFatMan[] =
 #define BOLT_SHRAPNEL_RATE 8
 
 
-STATE s_BoltShrapnel[] =
+FState s_BoltShrapnel[] =
 {
     {SPR_BOLT_SHRAPNEL, 'A', BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[1]},
     {SPR_BOLT_SHRAPNEL, 'B', BOLT_SHRAPNEL_RATE, &AF(DoBoltShrapnel), &s_BoltShrapnel[2]},
@@ -853,7 +752,7 @@ STATE s_BoltShrapnel[] =
 #define COOLG_W_FIRE_RATE 8
 
 
-STATE s_CoolgFire[] =
+FState s_CoolgFire[] =
 {
     {SPR_SERP_METEOR, 'A', COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[1]},
     {SPR_SERP_METEOR, 'B', COOLG_W_FIRE_RATE, &AF(DoCoolgFire), &s_CoolgFire[2]},
@@ -863,7 +762,7 @@ STATE s_CoolgFire[] =
 
 #define COOLG_FIRE_DONE_RATE 3
 
-STATE s_CoolgFireDone[] =
+FState s_CoolgFireDone[] =
 {
     {SPR_COOLG_FIRE_DONE, 'A', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[1]},
     {SPR_COOLG_FIRE_DONE, 'B', COOLG_FIRE_DONE_RATE, nullptr,  &s_CoolgFireDone[2]},
@@ -875,13 +774,13 @@ STATE s_CoolgFireDone[] =
 
 
 #define COOLG_DRIP 1720
-STATE s_CoolgDrip[] =
+FState s_CoolgDrip[] =
 {
     {SPR_COOLG_DRIP, 'A', 100, &AF(DoCoolgDrip), &s_CoolgDrip[0]}
 };
 
 #define GORE_FLOOR_SPLASH_RATE 8
-STATE s_GoreFloorSplash[] =
+FState s_GoreFloorSplash[] =
 {
     {SPR_GORE_FLOOR_SPLASH, 'A', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[1]},
     {SPR_GORE_FLOOR_SPLASH, 'B', GORE_FLOOR_SPLASH_RATE, nullptr,  &s_GoreFloorSplash[2]},
@@ -894,7 +793,7 @@ STATE s_GoreFloorSplash[] =
 
 #define GORE_SPLASH_RATE 8
 
-STATE s_GoreSplash[] =
+FState s_GoreSplash[] =
 {
     {SPR_GORE_SPLASH, 'A', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[1]},
     {SPR_GORE_SPLASH, 'B', GORE_SPLASH_RATE, nullptr,  &s_GoreSplash[2]},
@@ -917,7 +816,7 @@ STATE s_GoreSplash[] =
 #define PLASMA_FOUNTAIN_TIME (3*120);
 
 // regular bolt from heart
-STATE s_Plasma[] =
+FState s_Plasma[] =
 {
     {SPR_PLASMA, 'A', PLASMA_RATE, &AF(DoPlasma), &s_Plasma[1]},
     {SPR_PLASMA, 'B', PLASMA_RATE, &AF(DoPlasma), &s_Plasma[2]},
@@ -926,7 +825,7 @@ STATE s_Plasma[] =
 
 // follows actor spewing blood
 #define PLASMA_Drip 1562 //2420
-STATE s_PlasmaFountain[] =
+FState s_PlasmaFountain[] =
 {
     {SPR_PLASMA_Drip, 'A', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[1]},
     {SPR_PLASMA_Drip, 'B', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[2]},
@@ -935,7 +834,7 @@ STATE s_PlasmaFountain[] =
 };
 
 #define PLASMA_Drip_RATE 12
-STATE s_PlasmaDrip[] =
+FState s_PlasmaDrip[] =
 {
     {SPR_PLASMA_Drip, 'A', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[1]},
     {SPR_PLASMA_Drip, 'B', PLASMA_Drip_RATE, &AF(DoShrapJumpFall), &s_PlasmaDrip[2]},
@@ -950,7 +849,7 @@ STATE s_PlasmaDrip[] =
 #define PLASMA_DONE_RATE 15
 
 
-STATE s_PlasmaDone[] =
+FState s_PlasmaDone[] =
 {
     {SPR_PLASMA, 'A', PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[1]},
     {SPR_PLASMA, 'C', PLASMA_DONE_RATE, &AF(DoPlasmaDone), &s_PlasmaDone[2]},
@@ -959,7 +858,7 @@ STATE s_PlasmaDone[] =
 
 #define TELEPORT_EFFECT 3240
 #define TELEPORT_EFFECT_RATE 6
-STATE s_TeleportEffect[] =
+FState s_TeleportEffect[] =
 {
     {SPR_TELEPORT_EFFECT, 'A', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[1]},
     {SPR_TELEPORT_EFFECT, 'B', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect[2]},
@@ -983,7 +882,7 @@ STATE s_TeleportEffect[] =
 };
 
 // Spawn a RIPPER teleport effect
-STATE s_TeleportEffect2[] =
+FState s_TeleportEffect2[] =
 {
     {SPR_TELEPORT_EFFECT, 'A', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[1]},
     {SPR_TELEPORT_EFFECT, 'B', TELEPORT_EFFECT_RATE, nullptr,  &s_TeleportEffect2[2]},
@@ -1013,7 +912,7 @@ STATE s_TeleportEffect2[] =
 #define ELECTRO_ENEMY (ELECTRO + 1)
 #define ELECTRO_SHARD (ELECTRO + 2)
 
-STATE s_Electro[] =
+FState s_Electro[] =
 {
     {SPR_ELECTRO, 'A', 12, &AF(DoElectro), &s_Electro[1]},
     {SPR_ELECTRO, 'B', 12, &AF(DoElectro), &s_Electro[2]},
@@ -1021,7 +920,7 @@ STATE s_Electro[] =
     {SPR_ELECTRO, 'D', 12, &AF(DoElectro), &s_Electro[0]}
 };
 
-STATE s_ElectroShrap[] =
+FState s_ElectroShrap[] =
 {
     {SPR_ELECTRO, 'A', 12, &AF(DoShrapDamage), &s_ElectroShrap[1]},
     {SPR_ELECTRO, 'B', 12, &AF(DoShrapDamage), &s_ElectroShrap[2]},
@@ -1040,7 +939,7 @@ STATE s_ElectroShrap[] =
 
 #if 0
 #else
-STATE s_GrenadeSmallExp[] =
+FState s_GrenadeSmallExp[] =
 {
     {SPR_GRENADE_EXP, 'A', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[1]},
     {SPR_GRENADE_EXP, 'B', GRENADE_EXP_RATE, nullptr,  &s_GrenadeSmallExp[2]},
@@ -1067,7 +966,7 @@ STATE s_GrenadeSmallExp[] =
     {SPR_GRENADE_EXP, 'U', 100, &AF(DoSuicide), &s_GrenadeSmallExp[22]}
 };
 
-STATE s_GrenadeExp[] =
+FState s_GrenadeExp[] =
 {
     {SPR_GRENADE_EXP, 'A', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[1]},
     {SPR_GRENADE_EXP, 'B', GRENADE_EXP_RATE, nullptr,  &s_GrenadeExp[2]},
@@ -1099,7 +998,7 @@ STATE s_GrenadeExp[] =
 #endif
 
 #define MINE_EXP GRENADE_EXP+1
-STATE s_MineExp[] =
+FState s_MineExp[] =
 {
     {SPR_GRENADE_EXP, 'A', GRENADE_EXP_RATE, nullptr,  &s_MineExp[1]},
     {SPR_GRENADE_EXP, 'B', GRENADE_EXP_RATE, nullptr,  &s_MineExp[2]},
@@ -1137,7 +1036,7 @@ STATE s_MineExp[] =
 #define TRACER_EXP EXP+6
 #define TANK_SHELL_EXP EXP+7
 
-STATE s_BasicExp[] =
+FState s_BasicExp[] =
 {
     {SPR_EXP, 'A', EXP_RATE_W, nullptr,  &s_BasicExp[1]},
     {SPR_EXP, 'B', EXP_RATE_W, nullptr,  &s_BasicExp[2]},
@@ -1164,7 +1063,7 @@ STATE s_BasicExp[] =
 
 #define MICRO_EXP_RATE 3
 
-STATE s_MicroExp[] =
+FState s_MicroExp[] =
 {
     {SPR_EXP, 'A', MICRO_EXP_RATE, nullptr,  &s_MicroExp[1]},
     {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(DoExpDamageTest),   &s_MicroExp[2]},
@@ -1193,7 +1092,7 @@ STATE s_MicroExp[] =
 
 
 #define BIG_GUN_FLAME_RATE 15
-STATE s_BigGunFlame[] =
+FState s_BigGunFlame[] =
 {
     // first 3 frames
     {SPR_EXP, 'A', BIG_GUN_FLAME_RATE, nullptr,  &s_BigGunFlame[1]},
@@ -1207,7 +1106,7 @@ STATE s_BigGunFlame[] =
     {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_BigGunFlame[0]}
 };
 
-STATE s_BoltExp[] =
+FState s_BoltExp[] =
 {
     {SPR_EXP, 'A', EXP_RATE_W, nullptr,  &s_BoltExp[1]},
     {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,   &s_BoltExp[2]},
@@ -1236,7 +1135,7 @@ STATE s_BoltExp[] =
     {SPR_EXP, 'U', 100, &AF(DoSuicide), &s_BoltExp[0]}
 };
 
-STATE s_TankShellExp[] =
+FState s_TankShellExp[] =
 {
     {SPR_EXP, 'A', EXP_RATE_W, nullptr,  &s_TankShellExp[1]},
     {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,   &s_TankShellExp[2]},
@@ -1266,7 +1165,7 @@ STATE s_TankShellExp[] =
 };
 
 #define TRACER_EXP_RATE 4
-STATE s_TracerExp[] =
+FState s_TracerExp[] =
 {
     {SPR_EXP, 'A', TRACER_EXP_RATE, nullptr,  &s_TracerExp[1]},
     {SPR_EXP, 'A', SF_QUICK_CALL,  nullptr,   &s_TracerExp[2]},
@@ -1297,7 +1196,7 @@ STATE s_TracerExp[] =
 
 #define EXP_RATE_W 7
 
-STATE s_SectorExp[] =
+FState s_SectorExp[] =
 {
     {SPR_EXP, 'A', EXP_RATE_W, &AF(DoSectorExp), &s_SectorExp[1]},
     {SPR_EXP, 'A', SF_QUICK_CALL,  &AF(SpawnShrapX),  &s_SectorExp[2]},
@@ -1329,7 +1228,7 @@ STATE s_SectorExp[] =
 
 #define FIREBALL_DISS 3196
 #define FIREBALL_DISS_RATE 8
-STATE s_FireballExp[] =
+FState s_FireballExp[] =
 {
     {SPR_FIREBALL_DISS, 'A', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[1]},
     {SPR_FIREBALL_DISS, 'B', FIREBALL_DISS_RATE, nullptr,  &s_FireballExp[2]},
@@ -1342,7 +1241,7 @@ STATE s_FireballExp[] =
 #define NAP_EXP (3072)
 #define NAP_EXP_RATE 6
 
-STATE s_NapExp[] =
+FState s_NapExp[] =
 {
     {SPR_NAP_EXP, 'A',     NAP_EXP_RATE,      nullptr,   &s_NapExp[1]},
     {SPR_NAP_EXP, 'A',     0 | SF_QUICK_CALL,       &AF(DoDamageTest),  &s_NapExp[2]},
@@ -1372,7 +1271,7 @@ STATE s_NapExp[] =
 
 #define FLAME_RATE 6
 
-STATE s_FireballFlames[] =
+FState s_FireballFlames[] =
 {
     {SPR_FIREBALL_FLAMES, 'A', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[1]},
     {SPR_FIREBALL_FLAMES, 'B', FLAME_RATE, &AF(DoFireballFlames), &s_FireballFlames[2]},
@@ -1392,7 +1291,7 @@ STATE s_FireballFlames[] =
 
 #define FLAME_RATE 6
 
-STATE s_BreakFlames[] =
+FState s_BreakFlames[] =
 {
     {SPR_FIREBALL_FLAMES, 'A', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[1]},
     {SPR_FIREBALL_FLAMES, 'B', FLAME_RATE, &AF(DoBreakFlames), &s_BreakFlames[2]},
@@ -1419,7 +1318,7 @@ STATE s_BreakFlames[] =
 #define FIREBALL_RATE 8
 #define GORO_FIREBALL FIREBALL+1
 
-STATE s_Fireball[] =
+FState s_Fireball[] =
 {
     {SPR_FIREBALL, 'A', 12, &AF(DoFireball), &s_Fireball[1]},
     {SPR_FIREBALL, 'B', 12, &AF(DoFireball), &s_Fireball[2]},
@@ -1428,7 +1327,7 @@ STATE s_Fireball[] =
 };
 
 
-STATE s_Ring[] =
+FState s_Ring[] =
 {
     {SPR_FIREBALL, 'A', 12, &AF(DoRing), &s_Ring[1]},
     {SPR_FIREBALL, 'B', 12, &AF(DoRing), &s_Ring[2]},
@@ -1436,7 +1335,7 @@ STATE s_Ring[] =
     {SPR_FIREBALL, 'D', 12, &AF(DoRing), &s_Ring[0]}
 };
 
-STATE s_Ring2[] =
+FState s_Ring2[] =
 {
     {SPR_SERP_METEOR, 'A', 12, &AF(DoRing), &s_Ring2[1]},
     {SPR_SERP_METEOR, 'B', 12, &AF(DoRing), &s_Ring2[2]},
@@ -1444,7 +1343,7 @@ STATE s_Ring2[] =
     {SPR_SERP_METEOR, 'D', 12, &AF(DoRing), &s_Ring2[0]}
 };
 
-STATE s_Napalm[] =
+FState s_Napalm[] =
 {
     {SPR_FIREBALL, 'A', 12, &AF(DoNapalm), &s_Napalm[1]},
     {SPR_FIREBALL, 'B', 12, &AF(DoNapalm), &s_Napalm[2]},
@@ -1455,7 +1354,7 @@ STATE s_Napalm[] =
 
 #if 1
 #define BLOOD_WORM 2106
-STATE s_BloodWorm[] =
+FState s_BloodWorm[] =
 {
     {SPR_BLOOD_WORM, 'A', 12, &AF(DoBloodWorm), &s_BloodWorm[1]},
     {SPR_BLOOD_WORM, 'B', 12, &AF(DoBloodWorm), &s_BloodWorm[2]},
@@ -1471,7 +1370,7 @@ STATE s_BloodWorm[] =
 #define PLASMA_EXP BLOOD_WORM+1
 #define PLASMA_EXP_RATE 8
 
-STATE s_PlasmaExp[] =
+FState s_PlasmaExp[] =
 {
     {SPR_BLOOD_WORM, 'A', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[1]},
     {SPR_BLOOD_WORM, 'B', PLASMA_EXP_RATE, nullptr,  &s_PlasmaExp[2]},
@@ -1491,7 +1390,7 @@ STATE s_PlasmaExp[] =
 #endif
 
 
-STATE s_Mirv[] =
+FState s_Mirv[] =
 {
     {SPR_FIREBALL, 'A', 12, &AF(DoMirv), &s_Mirv[1]},
     {SPR_FIREBALL, 'B', 12, &AF(DoMirv), &s_Mirv[2]},
@@ -1499,7 +1398,7 @@ STATE s_Mirv[] =
     {SPR_FIREBALL, 'D', 12, &AF(DoMirv), &s_Mirv[0]}
 };
 
-STATE s_MirvMissile[] =
+FState s_MirvMissile[] =
 {
     {SPR_FIREBALL, 'A', 12, &AF(DoMirvMissile), &s_MirvMissile[1]},
     {SPR_FIREBALL, 'B', 12, &AF(DoMirvMissile), &s_MirvMissile[2]},
@@ -1515,17 +1414,17 @@ STATE s_MirvMissile[] =
 #define VomitSplash 1711
 #define Vomit_RATE 16
 
-STATE s_Vomit1[] =
+FState s_Vomit1[] =
 {
     {SPR_Vomit1, 'A', Vomit_RATE, &AF(DoVomit), &s_Vomit1[0]}
 };
 
-STATE s_Vomit2[] =
+FState s_Vomit2[] =
 {
     {SPR_Vomit2, 'A', Vomit_RATE, &AF(DoVomit), &s_Vomit2[0]}
 };
 
-STATE s_VomitSplash[] =
+FState s_VomitSplash[] =
 {
     {SPR_VomitSplash, 'A', Vomit_RATE, &AF(DoVomitSplash), &s_VomitSplash[0]}
 };
@@ -1533,7 +1432,7 @@ STATE s_VomitSplash[] =
 #define GORE_Head 1670
 #define GORE_Head_RATE 16
 
-STATE s_GoreHead[] =
+FState s_GoreHead[] =
 {
     {SPR_GORE_Head, 'A', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[1]},
     {SPR_GORE_Head, 'B', GORE_Head_RATE, &AF(DoShrapJumpFall), &s_GoreHead[2]},
@@ -1552,7 +1451,7 @@ STATE s_GoreHead[] =
 #define GORE_Leg 1689
 #define GORE_Leg_RATE 16
 
-STATE s_GoreLeg[] =
+FState s_GoreLeg[] =
 {
     {SPR_GORE_Leg, 'A', GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[1]},
     {SPR_GORE_Leg, 'B', GORE_Leg_RATE, &AF(DoShrapJumpFall), &s_GoreLeg[2]},
@@ -1562,7 +1461,7 @@ STATE s_GoreLeg[] =
 #define GORE_Eye 1692
 #define GORE_Eye_RATE 16
 
-STATE s_GoreEye[] =
+FState s_GoreEye[] =
 {
     {SPR_GORE_Eye, 'A', GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[1]},
     {SPR_GORE_Eye, 'B', GORE_Eye_RATE, &AF(DoShrapJumpFall), &s_GoreEye[2]},
@@ -1573,7 +1472,7 @@ STATE s_GoreEye[] =
 #define GORE_Torso 1696
 #define GORE_Torso_RATE 16
 
-STATE s_GoreTorso[] =
+FState s_GoreTorso[] =
 {
     {SPR_GORE_Torso, 'A', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[1]},
     {SPR_GORE_Torso, 'B', GORE_Torso_RATE, &AF(DoShrapJumpFall), &s_GoreTorso[2]},
@@ -1589,7 +1488,7 @@ STATE s_GoreTorso[] =
 #define GORE_Arm 1550
 #define GORE_Arm_RATE 16
 
-STATE s_GoreArm[] =
+FState s_GoreArm[] =
 {
     {SPR_GORE_Arm, 'A', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[1]},
     {SPR_GORE_Arm, 'B', GORE_Arm_RATE, &AF(DoShrapJumpFall), &s_GoreArm[2]},
@@ -1608,7 +1507,7 @@ STATE s_GoreArm[] =
 #define GORE_Lung 903
 #define GORE_Lung_RATE 16
 
-STATE s_GoreLung[] =
+FState s_GoreLung[] =
 {
     {SPR_GORE_Lung, 'A', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[1]},
     {SPR_GORE_Lung, 'B', GORE_Lung_RATE, &AF(DoShrapJumpFall), &s_GoreLung[2]},
@@ -1627,7 +1526,7 @@ STATE s_GoreLung[] =
 #define GORE_Liver 918
 #define GORE_Liver_RATE 16
 
-STATE s_GoreLiver[] =
+FState s_GoreLiver[] =
 {
     {SPR_GORE_Liver, 'A', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[1]},
     {SPR_GORE_Liver, 'B', GORE_Liver_RATE, &AF(DoShrapJumpFall), &s_GoreLiver[2]},
@@ -1646,7 +1545,7 @@ STATE s_GoreLiver[] =
 #define GORE_SkullCap 933
 #define GORE_SkullCap_RATE 16
 
-STATE s_GoreSkullCap[] =
+FState s_GoreSkullCap[] =
 {
     {SPR_GORE_SkullCap, 'A', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[1]},
     {SPR_GORE_SkullCap, 'B', GORE_SkullCap_RATE, &AF(DoShrapJumpFall), &s_GoreSkullCap[2]},
@@ -1666,7 +1565,7 @@ STATE s_GoreSkullCap[] =
 #define GORE_ChunkS 2430
 #define GORE_ChunkS_RATE 16
 
-STATE s_GoreChunkS[] =
+FState s_GoreChunkS[] =
 {
     {SPR_GORE_ChunkS, 'A', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[1]},
     {SPR_GORE_ChunkS, 'B', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[2]},
@@ -1677,7 +1576,7 @@ STATE s_GoreChunkS[] =
 #define GORE_Drip 1562 //2430
 #define GORE_Drip_RATE 16
 
-STATE s_GoreDrip[] =
+FState s_GoreDrip[] =
 {
     {SPR_GORE_Drip, 'A', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[1]},
     {SPR_GORE_Drip, 'B', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[2]},
@@ -1685,7 +1584,7 @@ STATE s_GoreDrip[] =
     {SPR_GORE_Drip, 'D', GORE_Drip_RATE, &AF(DoShrapJumpFall), &s_GoreDrip[0]},
 };
 
-STATE s_FastGoreDrip[] =
+FState s_FastGoreDrip[] =
 {
     {SPR_GORE_Drip, 'A', GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[1]},
     {SPR_GORE_Drip, 'B', GORE_Drip_RATE, &AF(DoFastShrapJumpFall), &s_FastGoreDrip[2]},
@@ -1702,7 +1601,7 @@ STATE s_FastGoreDrip[] =
 #define GORE_Flame 847
 #define GORE_Flame_RATE 8
 
-STATE s_GoreFlame[] =
+FState s_GoreFlame[] =
 {
     {SPR_GORE_Flame, 'A', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[1]},
     {SPR_GORE_Flame, 'B', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[2]},
@@ -1714,7 +1613,7 @@ STATE s_GoreFlame[] =
     {SPR_GORE_Flame, 'H', GORE_Flame_RATE, &AF(DoFastShrapJumpFall), &s_GoreFlame[0]},
 };
 
-STATE s_TracerShrap[] =
+FState s_TracerShrap[] =
 {
     {SPR_GORE_Flame, 'A', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[1]},
     {SPR_GORE_Flame, 'B', GORE_Flame_RATE, &AF(DoTracerShrap), &s_TracerShrap[2]},
@@ -1728,7 +1627,7 @@ STATE s_TracerShrap[] =
 
 #define UZI_SHELL 2152
 #define UZISHELL_RATE 8
-STATE s_UziShellShrap[] =
+FState s_UziShellShrap[] =
 {
     {SPR_UZI_SHELL, 'A', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[1]},
     {SPR_UZI_SHELL, 'B', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[2]},
@@ -1738,34 +1637,34 @@ STATE s_UziShellShrap[] =
     {SPR_UZI_SHELL, 'F', UZISHELL_RATE, &AF(DoShrapJumpFall), &s_UziShellShrap[0]},
 };
 
-STATE s_UziShellShrapStill1[] =
+FState s_UziShellShrapStill1[] =
 {
     {SPR_UZI_SHELL, 'A', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill1[0]}
 };
-STATE s_UziShellShrapStill2[] =
+FState s_UziShellShrapStill2[] =
 {
     {SPR_UZI_SHELL, 'B', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill2[0]}
 };
-STATE s_UziShellShrapStill3[] =
+FState s_UziShellShrapStill3[] =
 {
     {SPR_UZI_SHELL, 'C', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill3[0]}
 };
-STATE s_UziShellShrapStill4[] =
+FState s_UziShellShrapStill4[] =
 {
     {SPR_UZI_SHELL, 'D', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill4[0]}
 };
-STATE s_UziShellShrapStill5[] =
+FState s_UziShellShrapStill5[] =
 {
     {SPR_UZI_SHELL, 'E', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill5[0]}
 };
-STATE s_UziShellShrapStill6[] =
+FState s_UziShellShrapStill6[] =
 {
     {SPR_UZI_SHELL, 'F', UZISHELL_RATE, nullptr,  &s_UziShellShrapStill6[0]}
 };
 
 #define SHOT_SHELL 2180
 #define SHOTSHELL_RATE 8
-STATE s_ShotgunShellShrap[] =
+FState s_ShotgunShellShrap[] =
 {
     {SPR_SHOT_SHELL, 'A', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[1]},
     {SPR_SHOT_SHELL, 'B', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[2]},
@@ -1777,15 +1676,15 @@ STATE s_ShotgunShellShrap[] =
     {SPR_SHOT_SHELL, 'H', SHOTSHELL_RATE, &AF(DoShrapJumpFall), &s_ShotgunShellShrap[0]},
 };
 
-STATE s_ShotgunShellShrapStill1[] =
+FState s_ShotgunShellShrapStill1[] =
 {
     {SPR_SHOT_SHELL, 'B', SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill1[0]}
 };
-STATE s_ShotgunShellShrapStill2[] =
+FState s_ShotgunShellShrapStill2[] =
 {
     {SPR_SHOT_SHELL, 'D', SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill2[0]}
 };
-STATE s_ShotgunShellShrapStill3[] =
+FState s_ShotgunShellShrapStill3[] =
 {
     {SPR_SHOT_SHELL, 'H', SHOTSHELL_RATE, nullptr,  &s_ShotgunShellShrapStill3[0]}
 };
@@ -1793,7 +1692,7 @@ STATE s_ShotgunShellShrapStill3[] =
 #define GORE_FlameChunkA 839
 #define GORE_FlameChunkA_RATE 8
 
-STATE s_GoreFlameChunkA[] =
+FState s_GoreFlameChunkA[] =
 {
     {SPR_GORE_FlameChunkA, 'A', GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[1]},
     {SPR_GORE_FlameChunkA, 'B', GORE_FlameChunkA_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkA[2]},
@@ -1804,7 +1703,7 @@ STATE s_GoreFlameChunkA[] =
 #define GORE_FlameChunkB 843
 #define GORE_FlameChunkB_RATE 8
 
-STATE s_GoreFlameChunkB[] =
+FState s_GoreFlameChunkB[] =
 {
     {SPR_GORE_FlameChunkB, 'A', GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[1]},
     {SPR_GORE_FlameChunkB, 'B', GORE_FlameChunkB_RATE, &AF(DoShrapJumpFall), &s_GoreFlameChunkB[2]},
@@ -1821,7 +1720,7 @@ STATE s_GoreFlameChunkB[] =
 #define COIN_SHRAP 2530
 #define CoinShrap_RATE 12
 
-STATE s_CoinShrap[] =
+FState s_CoinShrap[] =
 {
     {SPR_COIN_SHRAP, 'A', CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[1]},
     {SPR_COIN_SHRAP, 'B', CoinShrap_RATE, &AF(DoShrapJumpFall), &s_CoinShrap[2]},
@@ -1832,7 +1731,7 @@ STATE s_CoinShrap[] =
 #define MARBEL 5096
 #define Marbel_RATE 12
 
-STATE s_Marbel[] =
+FState s_Marbel[] =
 {
     {SPR_MARBEL, 'A', Marbel_RATE, &AF(DoShrapJumpFall), &s_Marbel[0]},
 };
@@ -1844,7 +1743,7 @@ STATE s_Marbel[] =
 #define GLASS_SHRAP_A 3864
 #define GlassShrapA_RATE 12
 
-STATE s_GlassShrapA[] =
+FState s_GlassShrapA[] =
 {
     {SPR_GLASS_SHRAP_A, 'A', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[1]},
     {SPR_GLASS_SHRAP_A, 'B', GlassShrapA_RATE, &AF(DoShrapJumpFall), &s_GlassShrapA[2]},
@@ -1859,7 +1758,7 @@ STATE s_GlassShrapA[] =
 #define GLASS_SHRAP_B 3872
 #define GlassShrapB_RATE 12
 
-STATE s_GlassShrapB[] =
+FState s_GlassShrapB[] =
 {
     {SPR_GLASS_SHRAP_B, 'A', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[1]},
     {SPR_GLASS_SHRAP_B, 'B', GlassShrapB_RATE, &AF(DoShrapJumpFall), &s_GlassShrapB[2]},
@@ -1874,7 +1773,7 @@ STATE s_GlassShrapB[] =
 #define GLASS_SHRAP_C 3880
 #define GlassShrapC_RATE 12
 
-STATE s_GlassShrapC[] =
+FState s_GlassShrapC[] =
 {
     {SPR_GLASS_SHRAP_C, 'A', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[1]},
     {SPR_GLASS_SHRAP_C, 'B', GlassShrapC_RATE, &AF(DoShrapJumpFall), &s_GlassShrapC[2]},
@@ -1893,7 +1792,7 @@ STATE s_GlassShrapC[] =
 #define WOOD_SHRAP_A 3924
 #define WoodShrapA_RATE 12
 
-STATE s_WoodShrapA[] =
+FState s_WoodShrapA[] =
 {
     {SPR_WOOD_SHRAP_A, 'A', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[1]},
     {SPR_WOOD_SHRAP_A, 'B', WoodShrapA_RATE, &AF(DoShrapJumpFall), &s_WoodShrapA[2]},
@@ -1908,7 +1807,7 @@ STATE s_WoodShrapA[] =
 #define WOOD_SHRAP_B 3932
 #define WoodShrapB_RATE 12
 
-STATE s_WoodShrapB[] =
+FState s_WoodShrapB[] =
 {
     {SPR_WOOD_SHRAP_B, 'A', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[1]},
     {SPR_WOOD_SHRAP_B, 'B', WoodShrapB_RATE, &AF(DoShrapJumpFall), &s_WoodShrapB[2]},
@@ -1923,7 +1822,7 @@ STATE s_WoodShrapB[] =
 #define WOOD_SHRAP_C 3941
 #define WoodShrapC_RATE 12
 
-STATE s_WoodShrapC[] =
+FState s_WoodShrapC[] =
 {
     {SPR_WOOD_SHRAP_C, 'A', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[1]},
     {SPR_WOOD_SHRAP_C, 'B', WoodShrapC_RATE, &AF(DoShrapJumpFall), &s_WoodShrapC[2]},
@@ -1942,7 +1841,7 @@ STATE s_WoodShrapC[] =
 #define STONE_SHRAP_A 3840
 #define StoneShrapA_RATE 12
 
-STATE s_StoneShrapA[] =
+FState s_StoneShrapA[] =
 {
     {SPR_STONE_SHRAP_A, 'A', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[1]},
     {SPR_STONE_SHRAP_A, 'B', StoneShrapA_RATE, &AF(DoShrapJumpFall), &s_StoneShrapA[2]},
@@ -1957,7 +1856,7 @@ STATE s_StoneShrapA[] =
 #define STONE_SHRAP_B 3848
 #define StoneShrapB_RATE 12
 
-STATE s_StoneShrapB[] =
+FState s_StoneShrapB[] =
 {
     {SPR_STONE_SHRAP_B, 'A', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[1]},
     {SPR_STONE_SHRAP_B, 'B', StoneShrapB_RATE, &AF(DoShrapJumpFall), &s_StoneShrapB[2]},
@@ -1972,7 +1871,7 @@ STATE s_StoneShrapB[] =
 #define STONE_SHRAP_C 3856
 #define StoneShrapC_RATE 12
 
-STATE s_StoneShrapC[] =
+FState s_StoneShrapC[] =
 {
     {SPR_STONE_SHRAP_C, 'A', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[1]},
     {SPR_STONE_SHRAP_C, 'B', StoneShrapC_RATE, &AF(DoShrapJumpFall), &s_StoneShrapC[2]},
@@ -1991,7 +1890,7 @@ STATE s_StoneShrapC[] =
 #define METAL_SHRAP_A 3888
 #define MetalShrapA_RATE 12
 
-STATE s_MetalShrapA[] =
+FState s_MetalShrapA[] =
 {
     {SPR_METAL_SHRAP_A, 'A', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[1]},
     {SPR_METAL_SHRAP_A, 'B', MetalShrapA_RATE, &AF(DoShrapJumpFall), &s_MetalShrapA[2]},
@@ -2006,7 +1905,7 @@ STATE s_MetalShrapA[] =
 #define METAL_SHRAP_B 3896
 #define MetalShrapB_RATE 12
 
-STATE s_MetalShrapB[] =
+FState s_MetalShrapB[] =
 {
     {SPR_METAL_SHRAP_B, 'A', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[1]},
     {SPR_METAL_SHRAP_B, 'B', MetalShrapB_RATE, &AF(DoShrapJumpFall), &s_MetalShrapB[2]},
@@ -2021,7 +1920,7 @@ STATE s_MetalShrapB[] =
 #define METAL_SHRAP_C 3904
 #define MetalShrapC_RATE 12
 
-STATE s_MetalShrapC[] =
+FState s_MetalShrapC[] =
 {
     {SPR_METAL_SHRAP_C, 'A', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[1]},
     {SPR_METAL_SHRAP_C, 'B', MetalShrapC_RATE, &AF(DoShrapJumpFall), &s_MetalShrapC[2]},
@@ -2040,7 +1939,7 @@ STATE s_MetalShrapC[] =
 #define PAPER_SHRAP_A 3924
 #define PaperShrapA_RATE 12
 
-STATE s_PaperShrapA[] =
+FState s_PaperShrapA[] =
 {
     {SPR_PAPER_SHRAP_A, 'A', PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[1]},
     {SPR_PAPER_SHRAP_A, 'B', PaperShrapA_RATE, &AF(DoShrapJumpFall), &s_PaperShrapA[2]},
@@ -2051,7 +1950,7 @@ STATE s_PaperShrapA[] =
 #define PAPER_SHRAP_B 3932
 #define PaperShrapB_RATE 12
 
-STATE s_PaperShrapB[] =
+FState s_PaperShrapB[] =
 {
     {SPR_PAPER_SHRAP_B, 'A', PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[1]},
     {SPR_PAPER_SHRAP_B, 'B', PaperShrapB_RATE, &AF(DoShrapJumpFall), &s_PaperShrapB[2]},
@@ -2062,7 +1961,7 @@ STATE s_PaperShrapB[] =
 #define PAPER_SHRAP_C 3941
 #define PaperShrapC_RATE 12
 
-STATE s_PaperShrapC[] =
+FState s_PaperShrapC[] =
 {
     {SPR_PAPER_SHRAP_C, 'A', PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[1]},
     {SPR_PAPER_SHRAP_C, 'B', PaperShrapC_RATE, &AF(DoShrapJumpFall), &s_PaperShrapC[2]},
@@ -2965,9 +2864,9 @@ AutoShrap:
         break;
     case NINJA_Head_R0:
     {
-        extern STATE* sg_PlayerHeadHurl[];
+        extern FState s_PlayerHeadHurl[];
 
-        if (parentActor->user.__legacyState.Rot == sg_PlayerHeadHurl)
+        if (parentActor->user.__legacyState.Rot == s_PlayerHeadHurl)
         {
             p = PlayerHeadHurl1;
         }
@@ -3791,7 +3690,7 @@ bool WeaponMoveHit(DSWActor* actor)
             {
                 if (actor->user.ID == STAR1)
                 {
-                    extern STATE s_TrashCanPain[];
+                    extern FState s_TrashCanPain[];
                     switch (hitActor->user.ID)
                     {
                     case TRASHCAN:
@@ -4530,8 +4429,8 @@ int ActorHealth(DSWActor* actor, short amt)
             {
             case NINJA_RUN_R0:
             {
-                extern STATE* sg_NinjaGrabThroat[];
-                extern STATE* sg_NinjaHariKari[];
+                extern FState s_NinjaGrabThroat[];
+                extern FState s_NinjaHariKari[];
 
                 if (actor->user.Flags2 & (SPR2_DYING)) return true;
                 if (actor->user.Flags & (SPR_FALLING | SPR_JUMPING | SPR_CLIMBING)) return true;
@@ -4552,9 +4451,9 @@ int ActorHealth(DSWActor* actor, short amt)
                     actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle90;
                     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
                     if (sw_ninjahack)
-                        NewStateGroup(actor, sg_NinjaHariKari);
+                        NewStateGroup(actor, s_NinjaHariKari);
                         else
-                    NewStateGroup(actor, sg_NinjaGrabThroat);
+                    NewStateGroup(actor, s_NinjaGrabThroat);
                 }
                 break;
             }
@@ -7751,7 +7650,7 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
 //
 //---------------------------------------------------------------------------
 
-extern STATE s_Phosphorus[];
+extern FState s_Phosphorus[];
 
 int DoGrenade(DSWActor* actor)
 {
@@ -8848,13 +8747,13 @@ int DoRail(DSWActor* actor)
         spawn_count++;
         if (spawn_count < 128)
         {
-            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 1.25);
+            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 1.25);
 
             actorNew->vel.X += RandomRangeF(140 / 16.) - RandomRangeF(140 / 16.);
             actorNew->vel.Z += RandomRangeF(140 / 256.) - RandomRangeF(140 / 256.);
 
             
-            NewStateGroup(actorNew, sg_RailPuff);
+            NewStateGroup(actorNew, s_RailPuff);
 
             actorNew->spr.shade = -40;
             actorNew->spr.scale = DVector2(0.15625, 0.15625);
@@ -9007,7 +8906,7 @@ int DoMicroMini(DSWActor* actor)
 
 int SpawnExtraMicroMini(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, actor->vel.X);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, actor->vel.X);
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.scale = DVector2(actor->spr.scale.X, actor->spr.scale.X);
@@ -9015,7 +8914,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     actorNew->copy_clipdist(actor);
 
     
-    NewStateGroup(actorNew, &sg_MicroMini[0]);
+    NewStateGroup(actorNew, &s_MicroMini[0]);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = actor->user.Radius;
     actorNew->user.ceiling_dist = actor->user.ceiling_dist;
@@ -9071,7 +8970,7 @@ int DoMicro(DSWActor* actor)
         if ((actor->user.WaitTics -= MISSILEMOVETICS) <= 0)
         {
             SetActorZ(actorNew, actorNew->spr.pos);
-            NewStateGroup(actor, &sg_MicroMini[0]);
+            NewStateGroup(actor, &s_MicroMini[0]);
             actor->spr.scale = DVector2(0.15625, 0.15625);
             actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
             SpawnExtraMicroMini(actor);
@@ -10753,11 +10652,11 @@ int DoMirv(DSWActor* actor)
 
         for (i = 0; i < 2; i++)
         {
-            auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], actor->sector(),
+            auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &s_MirvMeteor[0], actor->sector(),
 									   actor->spr.pos, actor->spr.Angles.Yaw + angs[i], 50);
 
             
-            NewStateGroup(actorNew, &sg_MirvMeteor[0]);
+            NewStateGroup(actorNew, &s_MirvMeteor[0]);
             actorNew->user.__legacyState.StateEnd = s_MirvMeteorExp;
 
             SetOwner(actor, actorNew);
@@ -11110,13 +11009,13 @@ int DoSerpRing(DSWActor* actor)
                 // if (valid sector and can see target)
                 if (sect != nullptr && CanSeePlayer(actor))
                 {
-                    extern STATE* sg_SkullJump[];
+                    extern FState s_SkullJump[];
                     actor->user.ID = SKULL_R0;
                     actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
                     actor->vel.X = dist * (3. / 64) + RandomRangeF(16);
                     actor->user.jump_speed = -800;
                     change_actor_stat(actor, STAT_ENEMY);
-                    NewStateGroup(actor, sg_SkullJump);
+                    NewStateGroup(actor, s_SkullJump);
                     DoBeginJump(actor);
                     return 0;
                 }
@@ -11278,9 +11177,8 @@ int InitSerpRing(DSWActor* actor)
 
     const int SERP_RING_DIST = 175;
 
-    extern STATE s_SkullExplode[];
-    extern STATE s_SkullRing[1][1];
-    extern STATE* sg_SkullRing[];
+    extern FState s_SkullExplode[];
+    extern FState s_SkullRing[];
 
     max_missiles = 12;
 
@@ -11294,7 +11192,7 @@ int InitSerpRing(DSWActor* actor)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->spr.pos, ang, 0);
+        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0], actor->sector(), actor->spr.pos, ang, 0);
 
         actorNew->vel.X = 31.25;
         SetOwner(actor, actorNew);
@@ -11321,7 +11219,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->user.Counter2 = 0;
 
         actorNew->user.__legacyState.StateEnd = s_SkullExplode;
-        actorNew->user.__legacyState.Rot = sg_SkullRing;
+        actorNew->user.__legacyState.Rot = s_SkullRing;
 
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
@@ -11660,7 +11558,7 @@ int InitSwordAttack(DSWPlayer* pp)
 
             if (hit.actor() != nullptr)
             {
-                extern STATE s_TrashCanPain[];
+                extern FState s_TrashCanPain[];
                 auto hitActor = hit.actor();
 
                 if (hitActor->hasU())     // JBF: added null check
@@ -11838,7 +11736,7 @@ int InitFistAttack(DSWPlayer* pp)
 
             if (hit.actor() != nullptr)
             {
-                extern STATE s_TrashCanPain[];
+                extern FState s_TrashCanPain[];
                 auto hitActor = hit.actor();
 
                 if (hitActor->hasU())     // JBF: added null check
@@ -12014,15 +11912,14 @@ int InitSumoNapalm(DSWActor* actor)
 
 int InitSumoSkull(DSWActor* actor)
 {
-    extern STATE s_SkullExplode[];
-    extern STATE s_SkullWait[1][1];
-    extern STATE* sg_SkullWait[];
+    extern FState s_SkullExplode[];
+    extern FState s_SkullWait[];
     extern ATTRIBUTE SkullAttrib;
 
 
     PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.Angles.Yaw, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.Angles.Yaw, 0);
 		
     actorNew->vel.X = 31.25;
     SetOwner(actor, actorNew);
@@ -12038,7 +11935,7 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
     actorNew->user.__legacyState.StateEnd = s_SkullExplode;
-    actorNew->user.__legacyState.Rot = sg_SkullWait;
+    actorNew->user.__legacyState.Rot = s_SkullWait;
 
     actorNew->user.__legacyState.Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
@@ -12721,7 +12618,7 @@ int InitShotgun(DSWPlayer* pp)
 
             if (hitActor->hasU() && hitActor->user.ID == TRASHCAN)   // JBF: added null check
             {
-                extern STATE s_TrashCanPain[];
+                extern FState s_TrashCanPain[];
 
                 PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                 if (hitActor->user.WaitTics <= 0)
@@ -12881,7 +12778,7 @@ int InitRail(DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, 75);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, 75);
 
 
     SetOwner(pp->GetActor(), actorNew);
@@ -12890,7 +12787,7 @@ int InitRail(DSWPlayer* pp)
     setFreeAimVelocity(actorNew->vel.X, zvel, pp->Angles.getPitchWithView(), (HORIZ_MULT + 17) * 0.5);
 
     
-    NewStateGroup(actorNew, &sg_Rail[0]);
+    NewStateGroup(actorNew, &s_Rail[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = RAIL_RADIUS;
@@ -12955,7 +12852,7 @@ int InitZillaRail(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->sector(), pos, actor->spr.Angles.Yaw, 75);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0], actor->sector(), pos, actor->spr.Angles.Yaw, 75);
 
     SetOwner(actor, actorNew);
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
@@ -12963,7 +12860,7 @@ int InitZillaRail(DSWActor* actor)
     double zvel = (100 * (HORIZ_MULT+17)) / 256.;
 
     
-    NewStateGroup(actorNew, &sg_Rail[0]);
+    NewStateGroup(actorNew, &s_Rail[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = RAIL_RADIUS;
@@ -13046,7 +12943,7 @@ int InitRocket(DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, ROCKET_VELOCITY);
 
     SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(1.40626, 1.40625);
@@ -13056,7 +12953,7 @@ int InitRocket(DSWPlayer* pp)
     actorNew->clipdist = 4;
 
     
-    NewStateGroup(actorNew, &sg_Rocket[0]);
+    NewStateGroup(actorNew, &s_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 2000;
@@ -13153,7 +13050,7 @@ int InitBunnyRocket(DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, ROCKET_VELOCITY);
 
     SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(1, 1);
@@ -13163,7 +13060,7 @@ int InitBunnyRocket(DSWPlayer* pp)
     actorNew->clipdist = 4;
 
     
-    NewStateGroup(actorNew, &sg_BunnyRocket[0]);
+    NewStateGroup(actorNew, &s_BunnyRocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 2000;
@@ -13255,7 +13152,7 @@ int InitNuke(DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, 700/16.);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, 700/16.);
 
     SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(2, 2);
@@ -13267,7 +13164,7 @@ int InitNuke(DSWPlayer* pp)
     actorNew->spr.pal = actorNew->user.spal = 19;
 
     
-    NewStateGroup(actorNew, &sg_Rocket[0]);
+    NewStateGroup(actorNew, &s_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = NUKE_RADIUS;
@@ -13333,7 +13230,7 @@ int InitEnemyNuke(DSWActor* actor)
     auto npos = actor->spr.pos.plusZ(40);
 
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), npos, actor->spr.Angles.Yaw, 700/16.);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0], actor->sector(), npos, actor->spr.Angles.Yaw, 700/16.);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
         SetOwner(GetOwner(actor), actorNew);
@@ -13349,7 +13246,7 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->spr.pal = actorNew->user.spal = 19;
 
     
-    NewStateGroup(actorNew, &sg_Rocket[0]);
+    NewStateGroup(actorNew, &s_Rocket[0]);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = NUKE_RADIUS;
@@ -13439,7 +13336,7 @@ int InitMicro(DSWPlayer* pp)
         // Spawn a shot
         // Inserting and setting up variables
 
-        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector, pos, angle, vel);
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0], pp->cursector, pos, angle, vel);
 
         SetOwner(pp->GetActor(), actorNew);
         actorNew->spr.scale = DVector2(0.375, 0.375);
@@ -13451,7 +13348,7 @@ int InitMicro(DSWPlayer* pp)
         actorNew->vel.Z += RandomRangeF(8) - 5;
 
         
-        NewStateGroup(actorNew, &sg_Micro[0]);
+        NewStateGroup(actorNew, &s_Micro[0]);
 
         actorNew->user.WeaponNum = actor->user.WeaponNum;
         actorNew->user.Radius = 200;
@@ -13852,12 +13749,12 @@ int InitSerpSpell(DSWActor* actor)
     {
 		actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
-        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 93.75);
+        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &s_SerpMeteor[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 93.75);
 
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
         
-        NewStateGroup(actorNew, &sg_SerpMeteor[0]);
+        NewStateGroup(actorNew, &s_SerpMeteor[0]);
         actorNew->user.__legacyState.StateEnd = s_MirvMeteorExp;
 
         SetOwner(actor, actorNew);
@@ -13954,13 +13851,13 @@ int InitSerpMonstSpell(DSWActor* actor)
     {
 		actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
-		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 31.25);
+		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &s_SerpMeteor[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 31.25);
 
         actorNew->user.spal = actorNew->spr.pal = 25; // Bright Red
         actorNew->spr.pos.Z = ActorZOfTop(actor);
 
         
-        NewStateGroup(actorNew, &sg_SerpMeteor[0]);
+        NewStateGroup(actorNew, &s_SerpMeteor[0]);
         actorNew->user.__legacyState.StateEnd = s_TeleportEffect2;
 
         SetOwner(actor, actorNew);
@@ -14031,7 +13928,7 @@ int InitEnemyRocket(DSWActor* actor)
 
 
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0], actor->sector(),
                     actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5)-16), actor->user.targetActor->spr.Angles.Yaw, NINJA_BOLT_VELOCITY);
 
     // Set default palette
@@ -14049,7 +13946,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->clipdist = 4;
 
     
-    NewStateGroup(actorNew, &sg_Rocket[0]);
+    NewStateGroup(actorNew, &s_Rocket[0]);
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -14108,7 +14005,7 @@ int InitEnemyRail(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0], actor->sector(),
         actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5) - 8), actor->spr.Angles.Yaw, 75);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
@@ -14121,7 +14018,7 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->vel.Z = 0;
 
     
-    NewStateGroup(actorNew, &sg_Rail[0]);
+    NewStateGroup(actorNew, &s_Rail[0]);
 
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (1);
@@ -14176,7 +14073,7 @@ int InitZillaRocket(DSWActor* actor)
     for (int i = 0; i < (int)SIZ(mp); i++)
     {
         // Spawn a shot
-        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], actor->sector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0], actor->sector(),
                         actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5) - 16), actor->user.targetActor->spr.Angles.Yaw, NINJA_BOLT_VELOCITY);
 
         SetOwner(actor, actorNew);
@@ -14187,7 +14084,7 @@ int InitZillaRocket(DSWActor* actor)
         actorNew->clipdist = 4;
 
         
-        NewStateGroup(actorNew, &sg_Rocket[0]);
+        NewStateGroup(actorNew, &s_Rocket[0]);
         actorNew->user.Radius = 200;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -14267,7 +14164,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0], actor->sector(),
                                  ActorVectOfMiddle(actor).plusZ(-14), actor->user.targetActor->spr.Angles.Yaw, 50);
 
     SetOwner(actor, actorNew);
@@ -14278,7 +14175,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actorNew->clipdist = 4;
 
     
-    NewStateGroup(actorNew, &sg_CrossBolt[0]);
+    NewStateGroup(actorNew, &s_CrossBolt[0]);
 
 	UpdateChange(actorNew);
 
@@ -14545,7 +14442,7 @@ void InitBoltTrap(DSWActor* actor)
     PlaySound(DIGI_RIOTFIRE, actor, v3df_none);
 
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->spr.Angles.Yaw, BOLT_TRAP_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0], actor->sector(), actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->spr.Angles.Yaw, BOLT_TRAP_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.scale = DVector2(0.5, 0.5);
@@ -14554,7 +14451,7 @@ void InitBoltTrap(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     
-    NewStateGroup(actorNew, &sg_Rocket[0]);
+    NewStateGroup(actorNew, &s_Rocket[0]);
     actorNew->user.Radius = 200;
 
 	UpdateChange(actorNew);
@@ -14570,7 +14467,7 @@ void InitBoltTrap(DSWActor* actor)
 void InitSpearTrap(DSWActor* actor)
 {
     // Spawn a shot
-    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.Angles.Yaw, 750/16.);
+    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.Angles.Yaw, 750/16.);
 
     SetOwner(actor, actorNew);
     actorNew->spr.scale = DVector2(0.25, 0.40625);
@@ -14578,7 +14475,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->clipdist = 4;
 
     
-    NewStateGroup(actorNew, &sg_CrossBolt[0]);
+    NewStateGroup(actorNew, &s_CrossBolt[0]);
 
 	UpdateChange(actorNew);
  
@@ -15006,7 +14903,7 @@ int InitUzi(DSWPlayer* pp)
         if (hitActor->hasU()) // JBF: added null check
             if (hitActor->user.ID == TRASHCAN)
             {
-                extern STATE s_TrashCanPain[];
+                extern FState s_TrashCanPain[];
 
                 PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                 if (hitActor->user.WaitTics <= 0)
@@ -15159,7 +15056,7 @@ int InitTurretMicro(DSWActor* actor, DSWPlayer* pp)
         // Spawn a shot
         // Inserting and setting up variables
 
-        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->sector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0], actor->sector(),
                         actor->spr.pos.plusZ(10 + RandomRangeF(20)), angle, 75);
 
         SetOwner(plActor, actorNew);
@@ -15170,7 +15067,7 @@ int InitTurretMicro(DSWActor* actor, DSWPlayer* pp)
 
 
         
-        NewStateGroup(actorNew, &sg_Micro[0]);
+        NewStateGroup(actorNew, &s_Micro[0]);
 
         actorNew->user.WeaponNum = plActor->user.WeaponNum;
         actorNew->user.Radius = 200;
@@ -15219,7 +15116,7 @@ int InitTurretRocket(DSWActor* actor, DSWPlayer* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, ROCKET_VELOCITY);
 
     SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(0.625, 0.625);
@@ -15305,7 +15202,7 @@ int InitTurretRail(DSWActor* actor, DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, actor->spr.pos, actor->spr.Angles.Yaw, 75);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0], pp->cursector, actor->spr.pos, actor->spr.Angles.Yaw, 75);
 
     SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
@@ -15313,7 +15210,7 @@ int InitTurretRail(DSWActor* actor, DSWPlayer* pp)
     setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->Angles.getPitchWithView(), HORIZ_MULTF);
 
     
-    NewStateGroup(actorNew, &sg_Rail[0]);
+    NewStateGroup(actorNew, &s_Rail[0]);
 
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (1);
@@ -16067,7 +15964,7 @@ int InitGrenade(DSWPlayer* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, GRENADE_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0], pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, GRENADE_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -16076,7 +15973,7 @@ int InitGrenade(DSWPlayer* pp)
     }
 
     
-    NewStateGroup(actorNew, &sg_Grenade[0]);
+    NewStateGroup(actorNew, &s_Grenade[0]);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->GetActor(), actorNew);
@@ -16143,11 +16040,11 @@ int InitSpriteGrenade(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], actor->sector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0], actor->sector(),
                     actor->spr.pos.plusZ(-40), actor->spr.Angles.Yaw, GRENADE_VELOCITY);
 
     
-    NewStateGroup(actorNew, &sg_Grenade[0]);
+    NewStateGroup(actorNew, &s_Grenade[0]);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
@@ -17263,7 +17160,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
 
 enum { FLOORBLOOD_RATE = 30 };
 
-STATE s_FloorBlood1[] =
+FState s_FloorBlood1[] =
 {
     {SPR_FLOORBLOOD1, 'A', SF_QUICK_CALL,   &AF(DoFloorBlood), &s_FloorBlood1[1]},
     {SPR_FLOORBLOOD1, 'A', FLOORBLOOD_RATE, nullptr,  &s_FloorBlood1[0]},
@@ -17342,15 +17239,15 @@ enum
     FOOTPRINT3 = 2492,
     FOOTPRINT_RATE = 30,
 };
-STATE s_FootPrint1[] =
+FState s_FootPrint1[] =
 {
     {SPR_FOOTPRINT1, 'A', FOOTPRINT_RATE, nullptr,  &s_FootPrint1[0]},
 };
-STATE s_FootPrint2[] =
+FState s_FootPrint2[] =
 {
     {SPR_FOOTPRINT2, 'A', FOOTPRINT_RATE, nullptr,  &s_FootPrint2[0]},
 };
-STATE s_FootPrint3[] =
+FState s_FootPrint3[] =
 {
     {SPR_FOOTPRINT3, 'A', FOOTPRINT_RATE, nullptr,  &s_FootPrint3[0]},
 };
@@ -17469,22 +17366,22 @@ enum
     WALLBLOOD4 = 2503,
     WALLBLOOD_RATE = 1,
 };
-STATE s_WallBlood1[] =
+FState s_WallBlood1[] =
 {
     {SPR_WALLBLOOD1, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood1[1]},
     {SPR_WALLBLOOD1, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood1[0]},
 };
-STATE s_WallBlood2[] =
+FState s_WallBlood2[] =
 {
     {SPR_WALLBLOOD2, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood2[1]},
     {SPR_WALLBLOOD2, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood2[0]},
 };
-STATE s_WallBlood3[] =
+FState s_WallBlood3[] =
 {
     {SPR_WALLBLOOD3, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood3[1]},
     {SPR_WALLBLOOD3, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood3[0]},
 };
-STATE s_WallBlood4[] =
+FState s_WallBlood4[] =
 {
     {SPR_WALLBLOOD4, 'A', SF_QUICK_CALL, &AF(DoWallBlood), &s_WallBlood4[1]},
     {SPR_WALLBLOOD4, 'A', WALLBLOOD_RATE, nullptr,  &s_WallBlood4[0]},
@@ -18218,7 +18115,6 @@ static saveable_data saveable_weapon_data[] =
     SAVE_DATA(s_BreakBottle2),
     SAVE_DATA(s_Puff),
     SAVE_DATA(s_RailPuff),
-    SAVE_DATA(sg_RailPuff),
     SAVE_DATA(s_LaserPuff),
     SAVE_DATA(s_Tracer),
     SAVE_DATA(s_EMP),
@@ -18235,7 +18131,6 @@ static saveable_data saveable_weapon_data[] =
     SAVE_DATA(s_Bubble),
     SAVE_DATA(s_Splash),
     SAVE_DATA(s_CrossBolt),
-    SAVE_DATA(sg_CrossBolt),
     SAVE_DATA(s_Star),
     SAVE_DATA(s_StarStuck),
     SAVE_DATA(s_StarDown),
@@ -18245,37 +18140,25 @@ static saveable_data saveable_weapon_data[] =
     SAVE_DATA(s_VulcanBoulder),
     SAVE_DATA(s_Grenade),
     SAVE_DATA(s_Grenade),
-    SAVE_DATA(sg_Grenade),
     SAVE_DATA(s_MineStuck),
     SAVE_DATA(s_Mine),
     SAVE_DATA(s_MineSpark),
     SAVE_DATA(s_Meteor),
-    SAVE_DATA(sg_Meteor),
     SAVE_DATA(s_MeteorExp),
     SAVE_DATA(s_MirvMeteor),
-    SAVE_DATA(sg_MirvMeteor),
     SAVE_DATA(s_MirvMeteorExp),
     SAVE_DATA(s_SerpMeteor),
-    SAVE_DATA(sg_SerpMeteor),
     SAVE_DATA(s_SerpMeteorExp),
     SAVE_DATA(s_Spear),
-    SAVE_DATA(sg_Spear),
     SAVE_DATA(s_Rocket),
-    SAVE_DATA(sg_Rocket),
     SAVE_DATA(s_BunnyRocket),
-    SAVE_DATA(sg_BunnyRocket),
     SAVE_DATA(s_Rail),
-    SAVE_DATA(sg_Rail),
     SAVE_DATA(s_Laser),
     //SAVE_DATA(s_MicroPuff),
     SAVE_DATA(s_Micro),
-    SAVE_DATA(sg_Micro),
     SAVE_DATA(s_MicroMini),
-    SAVE_DATA(sg_MicroMini),
     SAVE_DATA(s_BoltThinMan),
-    SAVE_DATA(sg_BoltThinMan),
     SAVE_DATA(s_BoltSeeker),
-    SAVE_DATA(sg_BoltSeeker),
     SAVE_DATA(s_BoltFatMan),
     SAVE_DATA(s_BoltShrapnel),
     SAVE_DATA(s_CoolgFire),

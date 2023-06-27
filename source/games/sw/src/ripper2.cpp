@@ -115,20 +115,12 @@ ATTRIBUTE Ripper2Attrib =
 
 #define RIPPER2_RUN_RATE 16
 
-STATE s_Ripper2Run[1][4] =
+FState s_Ripper2Run[] =
 {
-    {
-        {SPR_RIPPER2_RUN, 'A', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[0][1]},
-        {SPR_RIPPER2_RUN, 'B', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[0][2]},
-        {SPR_RIPPER2_RUN, 'C', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[0][3]},
-        {SPR_RIPPER2_RUN, 'D', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[0][0]},
-    },
-};
-
-
-STATE* sg_Ripper2Run[] =
-{
-    &s_Ripper2Run[0][0],
+        {SPR_RIPPER2_RUN, 'A', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[1]},
+        {SPR_RIPPER2_RUN, 'B', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[2]},
+        {SPR_RIPPER2_RUN, 'C', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[3]},
+        {SPR_RIPPER2_RUN, 'D', RIPPER2_RUN_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2Run[0]},
 };
 
 //////////////////////
@@ -139,21 +131,14 @@ STATE* sg_Ripper2Run[] =
 
 #define RIPPER2_RUNFAST_RATE 14
 
-STATE s_Ripper2RunFast[1][4] =
+FState s_Ripper2RunFast[] =
 {
-    {
-        {SPR_RIPPER2_RUNFAST, 'A', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[0][1]},
-        {SPR_RIPPER2_RUNFAST, 'B', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[0][2]},
-        {SPR_RIPPER2_RUNFAST, 'C', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[0][3]},
-        {SPR_RIPPER2_RUNFAST, 'D', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[0][0]},
-    },
+        {SPR_RIPPER2_RUNFAST, 'A', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[1]},
+        {SPR_RIPPER2_RUNFAST, 'B', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[2]},
+        {SPR_RIPPER2_RUNFAST, 'C', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[3]},
+        {SPR_RIPPER2_RUNFAST, 'D', RIPPER2_RUNFAST_RATE | SF_TIC_ADJUST, &AF(DoRipper2Move), &s_Ripper2RunFast[0]},
 };
 
-
-STATE* sg_Ripper2RunFast[] =
-{
-    &s_Ripper2RunFast[0][0],
-};
 
 //////////////////////
 //
@@ -163,16 +148,9 @@ STATE* sg_Ripper2RunFast[] =
 
 #define RIPPER2_STAND_RATE 12
 
-STATE s_Ripper2Stand[1][1] =
+FState s_Ripper2Stand[] =
 {
-    {
-        {SPR_RIPPER2_STAND, 'A', RIPPER2_STAND_RATE, &AF(DoRipper2Move), &s_Ripper2Stand[0][0]},
-    },
-};
-
-STATE* sg_Ripper2Stand[] =
-{
-    s_Ripper2Stand[0],
+        {SPR_RIPPER2_STAND, 'A', RIPPER2_STAND_RATE, &AF(DoRipper2Move), &s_Ripper2Stand[0]},
 };
 
 //////////////////////
@@ -183,25 +161,18 @@ STATE* sg_Ripper2Stand[] =
 
 #define RIPPER2_SWIPE_RATE 14
 
-STATE s_Ripper2Swipe[1][8] =
+FState s_Ripper2Swipe[] =
 {
-    {
-        {SPR_RIPPER2_SWIPE, 'A', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[0][1]},
-        {SPR_RIPPER2_SWIPE, 'B', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[0][2]},
-        {SPR_RIPPER2_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_Ripper2Swipe[0][3]},
-        {SPR_RIPPER2_SWIPE, 'C', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[0][4]},
-        {SPR_RIPPER2_SWIPE, 'D', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[0][5]},
-        {SPR_RIPPER2_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_Ripper2Swipe[0][6]},
-        {SPR_RIPPER2_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_Ripper2Swipe[0][7]},
-        {SPR_RIPPER2_SWIPE, 'D', RIPPER2_SWIPE_RATE, &AF(DoRipper2Move), &s_Ripper2Swipe[0][7]},
-    },
+        {SPR_RIPPER2_SWIPE, 'A', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[1]},
+        {SPR_RIPPER2_SWIPE, 'B', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[2]},
+        {SPR_RIPPER2_SWIPE, 'B', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_Ripper2Swipe[3]},
+        {SPR_RIPPER2_SWIPE, 'C', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[4]},
+        {SPR_RIPPER2_SWIPE, 'D', RIPPER2_SWIPE_RATE, &AF(NullRipper2), &s_Ripper2Swipe[5]},
+        {SPR_RIPPER2_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitRipperSlash), &s_Ripper2Swipe[6]},
+        {SPR_RIPPER2_SWIPE, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_Ripper2Swipe[7]},
+        {SPR_RIPPER2_SWIPE, 'D', RIPPER2_SWIPE_RATE, &AF(DoRipper2Move), &s_Ripper2Swipe[7]},
 };
 
-
-STATE* sg_Ripper2Swipe[] =
-{
-    &s_Ripper2Swipe[0][0],
-};
 
 //////////////////////
 //
@@ -211,23 +182,15 @@ STATE* sg_Ripper2Swipe[] =
 
 #define RIPPER2_MEKONG_RATE 18
 
-STATE s_Ripper2Kong[1][7] =
+FState s_Ripper2Kong[] =
 {
-    {
-        {SPR_RIPPER2_MEKONG, 'A', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[0][1]},
-        {SPR_RIPPER2_MEKONG, 'A', SF_QUICK_CALL,       &AF(ChestRipper2), &s_Ripper2Kong[0][2]},
-        {SPR_RIPPER2_MEKONG, 'B', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[0][3]},
-        {SPR_RIPPER2_MEKONG, 'C', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[0][4]},
-        {SPR_RIPPER2_MEKONG, 'D', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[0][5]},
-        {SPR_RIPPER2_MEKONG, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_Ripper2Kong[0][6]},
-        {SPR_RIPPER2_MEKONG, 'A', RIPPER2_MEKONG_RATE, &AF(DoRipper2Move), &s_Ripper2Kong[0][6]},
-    },
-};
-
-
-STATE* sg_Ripper2Kong[] =
-{
-    &s_Ripper2Kong[0][0],
+        {SPR_RIPPER2_MEKONG, 'A', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[1]},
+        {SPR_RIPPER2_MEKONG, 'A', SF_QUICK_CALL,       &AF(ChestRipper2), &s_Ripper2Kong[2]},
+        {SPR_RIPPER2_MEKONG, 'B', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[3]},
+        {SPR_RIPPER2_MEKONG, 'C', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[4]},
+        {SPR_RIPPER2_MEKONG, 'D', RIPPER2_MEKONG_RATE, &AF(NullRipper2), &s_Ripper2Kong[5]},
+        {SPR_RIPPER2_MEKONG, 'D', 0 | SF_QUICK_CALL, &AF(InitActorDecide), &s_Ripper2Kong[6]},
+        {SPR_RIPPER2_MEKONG, 'A', RIPPER2_MEKONG_RATE, &AF(DoRipper2Move), &s_Ripper2Kong[6]},
 };
 
 
@@ -239,19 +202,12 @@ STATE* sg_Ripper2Kong[] =
 
 #define RIPPER2_HEART_RATE 20
 
-STATE s_Ripper2Heart[1][4] =
+FState s_Ripper2Heart[] =
 {
-    {
-        {SPR_RIPPER2_HEART, 'A', RIPPER2_HEART_RATE, &AF(DoRipper2StandHeart), &s_Ripper2Heart[0][1]},
-        {SPR_RIPPER2_HEART, 'B', RIPPER2_HEART_RATE, &AF(DoRipper2StandHeart), &s_Ripper2Heart[0][0]},
-    },
+        {SPR_RIPPER2_HEART, 'A', RIPPER2_HEART_RATE, &AF(DoRipper2StandHeart), &s_Ripper2Heart[1]},
+        {SPR_RIPPER2_HEART, 'B', RIPPER2_HEART_RATE, &AF(DoRipper2StandHeart), &s_Ripper2Heart[0]},
 };
 
-
-STATE* sg_Ripper2Heart[] =
-{
-    &s_Ripper2Heart[0][0],
-};
 
 //////////////////////
 //
@@ -261,17 +217,9 @@ STATE* sg_Ripper2Heart[] =
 
 #define RIPPER2_HANG_RATE 14
 
-STATE s_Ripper2Hang[1][4] =
+FState s_Ripper2Hang[] =
 {
-    {
-        {SPR_RIPPER2_HANG, 'A', RIPPER2_HANG_RATE, &AF(DoRipper2Hang), &s_Ripper2Hang[0][0]},
-    },
-};
-
-
-STATE* sg_Ripper2Hang[] =
-{
-    &s_Ripper2Hang[0][0],
+        {SPR_RIPPER2_HANG, 'A', RIPPER2_HANG_RATE, &AF(DoRipper2Hang), &s_Ripper2Hang[0]},
 };
 
 
@@ -283,16 +231,9 @@ STATE* sg_Ripper2Hang[] =
 
 #define RIPPER2_PAIN_RATE 38
 
-STATE s_Ripper2Pain[1][1] =
+FState s_Ripper2Pain[] =
 {
-    {
-        {SPR_RIPPER_DIE, 'A', RIPPER2_PAIN_RATE, &AF(DoRipper2Pain), &s_Ripper2Pain[0][0]},
-    },
-};
-
-STATE* sg_Ripper2Pain[] =
-{
-    &s_Ripper2Pain[0][0],
+        {SPR_RIPPER_DIE, 'A', RIPPER2_PAIN_RATE, &AF(DoRipper2Pain), &s_Ripper2Pain[0]},
 };
 
 //////////////////////
@@ -303,18 +244,10 @@ STATE* sg_Ripper2Pain[] =
 
 #define RIPPER2_JUMP_RATE 25
 
-STATE s_Ripper2Jump[1][2] =
+FState s_Ripper2Jump[] =
 {
-    {
-        {SPR_RIPPER2_JUMP, 'A', RIPPER2_JUMP_RATE, &AF(NullRipper2), &s_Ripper2Jump[0][1]},
-        {SPR_RIPPER2_JUMP, 'B', RIPPER2_JUMP_RATE, &AF(DoRipper2MoveJump), &s_Ripper2Jump[0][1]},
-    },
-};
-
-
-STATE* sg_Ripper2Jump[] =
-{
-    &s_Ripper2Jump[0][0],
+        {SPR_RIPPER2_JUMP, 'A', RIPPER2_JUMP_RATE, &AF(NullRipper2), &s_Ripper2Jump[1]},
+        {SPR_RIPPER2_JUMP, 'B', RIPPER2_JUMP_RATE, &AF(DoRipper2MoveJump), &s_Ripper2Jump[1]},
 };
 
 
@@ -326,17 +259,9 @@ STATE* sg_Ripper2Jump[] =
 
 #define RIPPER2_FALL_RATE 25
 
-STATE s_Ripper2Fall[1][6] =
+FState s_Ripper2Fall[] =
 {
-    {
-        {SPR_RIPPER2_FALL, 'A', RIPPER2_FALL_RATE, &AF(DoRipper2MoveJump), &s_Ripper2Fall[0][0]},
-    },
-};
-
-
-STATE* sg_Ripper2Fall[] =
-{
-    &s_Ripper2Fall[0][0],
+        {SPR_RIPPER2_FALL, 'A', RIPPER2_FALL_RATE, &AF(DoRipper2MoveJump), &s_Ripper2Fall[0]},
 };
 
 
@@ -349,20 +274,12 @@ STATE* sg_Ripper2Fall[] =
 #define RIPPER2_JUMP_ATTACK_RATE 35
 int DoRipper2BeginJumpAttack(DSWActor* actor);
 
-STATE s_Ripper2JumpAttack[1][6] =
+FState s_Ripper2JumpAttack[] =
 {
-    {
-        {SPR_RIPPER2_JUMP, 'A', RIPPER2_JUMP_ATTACK_RATE, &AF(NullRipper2), &s_Ripper2JumpAttack[0][1]},
-        {SPR_RIPPER2_JUMP, 'A', 0 | SF_QUICK_CALL, &AF(DoRipper2BeginJumpAttack), &s_Ripper2JumpAttack[0][2]},
-        {SPR_RIPPER2_JUMP, 'C', RIPPER2_JUMP_ATTACK_RATE, &AF(DoRipper2MoveJump), &s_Ripper2JumpAttack[0][3]},
-        {SPR_RIPPER2_JUMP, 'B', RIPPER2_JUMP_ATTACK_RATE, &AF(DoRipper2MoveJump), &s_Ripper2JumpAttack[0][3]},
-    },
-};
-
-
-STATE* sg_Ripper2JumpAttack[] =
-{
-    &s_Ripper2JumpAttack[0][0],
+        {SPR_RIPPER2_JUMP, 'A', RIPPER2_JUMP_ATTACK_RATE, &AF(NullRipper2), &s_Ripper2JumpAttack[1]},
+        {SPR_RIPPER2_JUMP, 'A', 0 | SF_QUICK_CALL, &AF(DoRipper2BeginJumpAttack), &s_Ripper2JumpAttack[2]},
+        {SPR_RIPPER2_JUMP, 'C', RIPPER2_JUMP_ATTACK_RATE, &AF(DoRipper2MoveJump), &s_Ripper2JumpAttack[3]},
+        {SPR_RIPPER2_JUMP, 'B', RIPPER2_JUMP_ATTACK_RATE, &AF(DoRipper2MoveJump), &s_Ripper2JumpAttack[3]},
 };
 
 
@@ -374,19 +291,12 @@ STATE* sg_Ripper2JumpAttack[] =
 
 #define RIPPER2_HANG_JUMP_RATE 20
 
-STATE s_Ripper2HangJump[1][6] =
+FState s_Ripper2HangJump[] =
 {
-    {
-        {SPR_RIPPER2_JUMP, 'A', RIPPER2_HANG_JUMP_RATE, &AF(NullRipper2), &s_Ripper2HangJump[0][1]},
-        {SPR_RIPPER2_JUMP, 'B', RIPPER2_HANG_JUMP_RATE, &AF(DoRipper2HangJF), &s_Ripper2HangJump[0][1]},
-    },
+        {SPR_RIPPER2_JUMP, 'A', RIPPER2_HANG_JUMP_RATE, &AF(NullRipper2), &s_Ripper2HangJump[1]},
+        {SPR_RIPPER2_JUMP, 'B', RIPPER2_HANG_JUMP_RATE, &AF(DoRipper2HangJF), &s_Ripper2HangJump[1]},
 };
 
-
-STATE* sg_Ripper2HangJump[] =
-{
-    &s_Ripper2HangJump[0][0],
-};
 
 //////////////////////
 //
@@ -396,19 +306,10 @@ STATE* sg_Ripper2HangJump[] =
 
 #define RIPPER2_FALL_RATE 25
 
-STATE s_Ripper2HangFall[1][6] =
+FState s_Ripper2HangFall[] =
 {
-    {
-        {SPR_RIPPER2_FALL, 'A', RIPPER2_FALL_RATE, &AF(DoRipper2HangJF), &s_Ripper2HangFall[0][0]},
-    },
+        {SPR_RIPPER2_FALL, 'A', RIPPER2_FALL_RATE, &AF(DoRipper2HangJF), &s_Ripper2HangFall[0]},
 };
-
-
-STATE* sg_Ripper2HangFall[] =
-{
-    &s_Ripper2HangFall[0][0],
-};
-
 
 
 //////////////////////
@@ -419,7 +320,7 @@ STATE* sg_Ripper2HangFall[] =
 
 #define RIPPER2_DIE_RATE 18
 
-STATE s_Ripper2Die[] =
+FState s_Ripper2Die[] =
 {
     {SPR_RIPPER2_DIE, 'A', RIPPER2_DIE_RATE, &AF(NullRipper2), &s_Ripper2Die[1]},
     {SPR_RIPPER2_DIE, 'B', RIPPER2_DIE_RATE, &AF(NullRipper2), &s_Ripper2Die[2]},
@@ -433,7 +334,7 @@ STATE s_Ripper2Die[] =
 
 #define RIPPER2_DEAD_RATE 8
 
-STATE s_Ripper2Dead[] =
+FState s_Ripper2Dead[] =
 {
     {SPR_RIPPER2_DIE, 'A', RIPPER2_DIE_RATE, &AF(NullRipper2), &s_Ripper2Dead[1]},
     {SPR_RIPPER2_DIE, 'B', RIPPER2_DIE_RATE, &AF(NullRipper2), &s_Ripper2Dead[2]},
@@ -446,114 +347,93 @@ STATE s_Ripper2Dead[] =
     {SPR_RIPPER2_DEAD, 'A', RIPPER2_DEAD_RATE, &AF(DoActorDebris), &s_Ripper2Dead[8]},
 };
 
-STATE* sg_Ripper2Die[] =
-{
-    s_Ripper2Die
-};
-
-STATE* sg_Ripper2Dead[] =
-{
-    s_Ripper2Dead
-};
-
-STATE s_Ripper2DeathJump[] =
+FState s_Ripper2DeathJump[] =
 {
     {SPR_RIPPER2_DIE, 'A', RIPPER2_DIE_RATE, &AF(DoActorDeathMove), &s_Ripper2DeathJump[0]}
 };
 
-STATE s_Ripper2DeathFall[] =
+FState s_Ripper2DeathFall[] =
 {
     {SPR_RIPPER2_DIE, 'B', RIPPER2_DIE_RATE, &AF(DoActorDeathMove), &s_Ripper2DeathFall[0]}
 };
 
 
-STATE* sg_Ripper2DeathJump[] =
-{
-    s_Ripper2DeathJump
-};
-
-STATE* sg_Ripper2DeathFall[] =
-{
-    s_Ripper2DeathFall
-};
-
-
 /*
-STATE* *Stand[MAX_WEAPONS];
-STATE* *Run;
-STATE* *Jump;
-STATE* *Fall;
-STATE* *Crawl;
-STATE* *Swim;
-STATE* *Fly;
-STATE* *Rise;
-STATE* *Sit;
-STATE* *Look;
-STATE* *Climb;
-STATE* *Pain;
-STATE* *Death1;
-STATE* *Death2;
-STATE* *Dead;
-STATE* *DeathJump;
-STATE* *DeathFall;
-STATE* *CloseAttack[2];
-STATE* *Attack[6];
-STATE* *Special[2];
+FState* *Stand[MAX_WEAPONS];
+FState* *Run;
+FState* *Jump;
+FState* *Fall;
+FState* *Crawl;
+FState* *Swim;
+FState* *Fly;
+FState* *Rise;
+FState* *Sit;
+FState* *Look;
+FState* *Climb;
+FState* *Pain;
+FState* *Death1;
+FState* *Death2;
+FState* *Dead;
+FState* *DeathJump;
+FState* *DeathFall;
+FState* *CloseAttack[2];
+FState* *Attack[6];
+FState* *Special[2];
 */
 
 
 ACTOR_ACTION_SET Ripper2ActionSet =
 {
-    sg_Ripper2Stand,
-    sg_Ripper2Run,
-    sg_Ripper2Jump,
-    sg_Ripper2Fall,
-    nullptr,                               // sg_Ripper2Crawl,
-    nullptr,                               // sg_Ripper2Swim,
-    nullptr,                               // sg_Ripper2Fly,
-    nullptr,                               // sg_Ripper2Rise,
-    nullptr,                               // sg_Ripper2Sit,
-    nullptr,                               // sg_Ripper2Look,
+    s_Ripper2Stand,
+    s_Ripper2Run,
+    s_Ripper2Jump,
+    s_Ripper2Fall,
+    nullptr,                               // s_Ripper2Crawl,
+    nullptr,                               // s_Ripper2Swim,
+    nullptr,                               // s_Ripper2Fly,
+    nullptr,                               // s_Ripper2Rise,
+    nullptr,                               // s_Ripper2Sit,
+    nullptr,                               // s_Ripper2Look,
     nullptr,                               // climb
-    sg_Ripper2Pain,
-    sg_Ripper2Die,
-    nullptr,                               // sg_Ripper2HariKari,
-    sg_Ripper2Dead,
-    sg_Ripper2DeathJump,
-    sg_Ripper2DeathFall,
-    {sg_Ripper2Swipe},
+    s_Ripper2Pain,
+    s_Ripper2Die,
+    nullptr,                               // s_Ripper2HariKari,
+    s_Ripper2Dead,
+    s_Ripper2DeathJump,
+    s_Ripper2DeathFall,
+    {s_Ripper2Swipe},
     {1024},
-    {sg_Ripper2JumpAttack, sg_Ripper2Kong},
+    {s_Ripper2JumpAttack, s_Ripper2Kong},
     {500, 1024},
-    {sg_Ripper2Heart, sg_Ripper2Hang},
+    {s_Ripper2Heart, s_Ripper2Hang},
     nullptr,
     nullptr
 };
 
 ACTOR_ACTION_SET Ripper2BrownActionSet =
 {
-    sg_Ripper2Stand,
-    sg_Ripper2Run,
-    sg_Ripper2Jump,
-    sg_Ripper2Fall,
-    nullptr,                               // sg_Ripper2Crawl,
-    nullptr,                               // sg_Ripper2Swim,
-    nullptr,                               // sg_Ripper2Fly,
-    nullptr,                               // sg_Ripper2Rise,
-    nullptr,                               // sg_Ripper2Sit,
-    nullptr,                               // sg_Ripper2Look,
+    s_Ripper2Stand,
+    s_Ripper2Run,
+    s_Ripper2Jump,
+    s_Ripper2Fall,
+    nullptr,                               // s_Ripper2Crawl,
+    nullptr,                               // s_Ripper2Swim,
+    nullptr,                               // s_Ripper2Fly,
+    nullptr,                               // s_Ripper2Rise,
+    nullptr,                               // s_Ripper2Sit,
+    nullptr,                               // s_Ripper2Look,
     nullptr,                               // climb
-    sg_Ripper2Pain,                      // pain
-    sg_Ripper2Die,
-    nullptr,                               // sg_Ripper2HariKari,
-    sg_Ripper2Dead,
-    sg_Ripper2DeathJump,
-    sg_Ripper2DeathFall,
-    {sg_Ripper2Swipe},
+    s_Ripper2Pain,                      // pain
+    s_Ripper2Die,
+    nullptr,                               // s_Ripper2HariKari,
+    s_Ripper2Dead,
+    s_Ripper2DeathJump,
+    s_Ripper2DeathFall,
+    {s_Ripper2Swipe},
     {1024},
-    {sg_Ripper2JumpAttack, sg_Ripper2Kong},
+    {s_Ripper2JumpAttack, s_Ripper2Kong},
     {400, 1024},
-    {sg_Ripper2Heart, sg_Ripper2Hang},
+    {s_Ripper2Heart, s_Ripper2Hang},
     nullptr,
     nullptr
 };
@@ -576,7 +456,7 @@ int SetupRipper2(DSWActor* actor)
     actor->user.__legacyState.Attrib = &Ripper2Attrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.__legacyState.StateEnd = s_Ripper2Die;
-    actor->user.__legacyState.Rot = sg_Ripper2Run;
+    actor->user.__legacyState.Rot = s_Ripper2Run;
     actor->clipdist = 32;  // This actor is bigger, needs bigger box.
     actor->spr.scale = DVector2(0.859375, 0.859375);
 
@@ -648,8 +528,8 @@ int InitRipper2Hang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup(actor, sg_Ripper2HangJump);
-    actor->user.__legacyState.StateFallOverride = sg_Ripper2HangFall;
+    NewStateGroup(actor, s_Ripper2HangJump);
+    actor->user.__legacyState.StateFallOverride = s_Ripper2HangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
     PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
@@ -676,7 +556,7 @@ int DoRipper2Hang(DSWActor* actor)
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup(actor, sg_Ripper2JumpAttack);
+    NewStateGroup(actor, s_Ripper2JumpAttack);
     // move to the 2nd frame - past the pause frame
     actor->user.Tics += actor->user.__legacyState.State->Tics;
 
@@ -832,7 +712,7 @@ int DoRipper2QuickJump(DSWActor* actor)
     {
         if ((low->spr.extra & SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup(actor, sg_Ripper2JumpAttack);
+            NewStateGroup(actor, s_Ripper2JumpAttack);
             // move past the first state
             actor->user.Tics = 30;
             return true;
@@ -882,7 +762,7 @@ int DoRipper2Pain(DSWActor* actor)
 int DoRipper2RipHeart(DSWActor* actor)
 {
     DSWActor* target = actor->user.targetActor;
-    NewStateGroup(actor, sg_Ripper2Heart);
+    NewStateGroup(actor, s_Ripper2Heart);
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper2
@@ -904,7 +784,7 @@ int DoRipper2StandHeart(DSWActor* actor)
         PlaySound(DIGI_RIPPER2HEARTOUT, actor, v3df_none, CHAN_RipHeart);
 
     if ((actor->user.WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(actor, sg_Ripper2Run);
+        NewStateGroup(actor, s_Ripper2Run);
     return 0;
 }
 
@@ -1008,7 +888,7 @@ int InitRipper2Charge(DSWActor* actor)
 
     InitActorMoveCloser(actor);
 
-    NewStateGroup(actor, sg_Ripper2RunFast);
+    NewStateGroup(actor, s_Ripper2RunFast);
 
     return 0;
 }
@@ -1041,39 +921,22 @@ static saveable_data saveable_ripper2_data[] =
     SAVE_DATA(Ripper2Attrib),
 
     SAVE_DATA(s_Ripper2Run),
-    SAVE_DATA(sg_Ripper2Run),
     SAVE_DATA(s_Ripper2RunFast),
-    SAVE_DATA(sg_Ripper2RunFast),
     SAVE_DATA(s_Ripper2Stand),
-    SAVE_DATA(sg_Ripper2Stand),
     SAVE_DATA(s_Ripper2Swipe),
-    SAVE_DATA(sg_Ripper2Swipe),
     SAVE_DATA(s_Ripper2Kong),
-    SAVE_DATA(sg_Ripper2Kong),
     SAVE_DATA(s_Ripper2Heart),
-    SAVE_DATA(sg_Ripper2Heart),
     SAVE_DATA(s_Ripper2Hang),
-    SAVE_DATA(sg_Ripper2Hang),
     SAVE_DATA(s_Ripper2Pain),
-    SAVE_DATA(sg_Ripper2Pain),
     SAVE_DATA(s_Ripper2Jump),
-    SAVE_DATA(sg_Ripper2Jump),
     SAVE_DATA(s_Ripper2Fall),
-    SAVE_DATA(sg_Ripper2Fall),
     SAVE_DATA(s_Ripper2JumpAttack),
-    SAVE_DATA(sg_Ripper2JumpAttack),
     SAVE_DATA(s_Ripper2HangJump),
-    SAVE_DATA(sg_Ripper2HangJump),
     SAVE_DATA(s_Ripper2HangFall),
-    SAVE_DATA(sg_Ripper2HangFall),
     SAVE_DATA(s_Ripper2Die),
     SAVE_DATA(s_Ripper2Dead),
-    SAVE_DATA(sg_Ripper2Die),
-    SAVE_DATA(sg_Ripper2Dead),
     SAVE_DATA(s_Ripper2DeathJump),
     SAVE_DATA(s_Ripper2DeathFall),
-    SAVE_DATA(sg_Ripper2DeathJump),
-    SAVE_DATA(sg_Ripper2DeathFall),
 
     SAVE_DATA(Ripper2ActionSet),
     SAVE_DATA(Ripper2BrownActionSet),

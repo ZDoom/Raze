@@ -51,6 +51,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "savegamehelp.h"
 #include "raze_music.h"
 #include "mapinfo.h"
+#include "serializer_raze.h"
 
 //void TimerFunc(task * Task);
 BEGIN_SW_NS
@@ -82,7 +83,7 @@ extern bool bosswasseen[3];
 
 #define ANIM_SAVE 1
 
-extern STATE s_NotRestored[];
+extern FState s_NotRestored[];
 
 
 
@@ -172,16 +173,6 @@ FSerializer& SerializeCodePtr(FSerializer& arc, const char* keyname, void** w)
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_STATE*& w, PANEL_STATE** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PANEL_STATE));
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, STATE*& w, STATE** def)
-{
-	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATE));
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, STATE**& w, STATE*** def)
-{
-	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATE*));
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SET*& w, ACTOR_ACTION_SET** def)
@@ -594,10 +585,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	{
 		arc("WallP", w.WallP, def->WallP)
 			("State", w.__legacyState.State, def->__legacyState.State)
-			("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
+			//("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
 			("StateStart", w.__legacyState.StateStart, def->__legacyState.StateStart)
 			("StateEnd", w.__legacyState.StateEnd, def->__legacyState.StateEnd)
-			("StateFallOverride", w.__legacyState.StateFallOverride, def->__legacyState.StateFallOverride)
+			//("StateFallOverride", w.__legacyState.StateFallOverride, def->__legacyState.StateFallOverride)
 			("ActorActionSet", w.__legacyState.ActorActionSet, def->__legacyState.ActorActionSet)
 			("Personality", w.Personality, def->Personality)
 			("Attrib", w.__legacyState.Attrib, def->__legacyState.Attrib)
