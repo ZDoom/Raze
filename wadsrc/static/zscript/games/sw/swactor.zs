@@ -22,7 +22,7 @@ class SWActor : CoreActor native
 	meta Sound ExtraSound5;
 	meta Sound ExtraSound6;
 
-	// all ANIMATORs.
+	// all ANIMATORs. Sort them into the proper classes later.
 	native int DoBunnyMove();
 	native int DoBunnyGrowUp();
 	native int DoBunnyEat();

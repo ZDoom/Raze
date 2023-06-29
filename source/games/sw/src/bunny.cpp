@@ -163,7 +163,7 @@ FState s_BunnyRun[] =
         {SPR_BUNNY_RUN, 'C', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[3]},
         {SPR_BUNNY_RUN, 'D', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[4]},
         {SPR_BUNNY_RUN, 'E', SF_QUICK_CALL,                &AF(DoBunnyGrowUp), &s_BunnyRun[5]},
-        {SPR_BUNNY_RUN, 'F', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0]},
+        {SPR_BUNNY_RUN, 'E', BUNNY_RUN_RATE | SF_TIC_ADJUST, &AF(DoBunnyMove), &s_BunnyRun[0]},
 };
 
 
