@@ -69,6 +69,7 @@ int ZCCRazeCompiler::Compile()
 	CompileAllProperties();
 	InitFunctions();
 	InitDefaults();
+	CompileStates();
 	return FScriptPosition::ErrorCounter;
 }
 
@@ -876,5 +877,311 @@ bool ZCCRazeCompiler::PrepareMetaData(PClass *type)
 		return true;
 	}
 	return false;
+}
+
+//==========================================================================
+//
+// Sets up the action function call
+//
+//==========================================================================
+FxExpression* ZCCRazeCompiler::SetupActionFunction(PClass* cls, ZCC_TreeNode* af, int StateFlags)
+{
+	// We have 3 cases to consider here:
+	// 1. A function without parameters. This can be called directly
+	// 2. A functon with parameters. This needs to be wrapped into a helper function to set everything up.
+	// 3. An anonymous function.
+
+	// 1. and 2. are exposed through AST_ExprFunctionCall
+	if (af->NodeType == AST_ExprFuncCall)
+	{
+		auto fc = static_cast<ZCC_ExprFuncCall*>(af);
+		assert(fc->Function->NodeType == AST_ExprID);
+		auto id = static_cast<ZCC_ExprID*>(fc->Function);
+
+		PFunction* afd = dyn_cast<PFunction>(cls->VMType->Symbols.FindSymbol(id->Identifier, true));
+		if (afd != nullptr)
+		{
+			if (fc->Parameters == nullptr && !(afd->Variants[0].Flags & VARF_Virtual))
+			{
+				FArgumentList argumentlist;
+				// We can use this function directly without wrapping it in a caller.
+				assert(PType::toClass(afd->Variants[0].SelfClass) != nullptr);	// non classes are not supposed to get here.
+
+				int comboflags = afd->Variants[0].UseFlags & StateFlags;
+				if (comboflags == StateFlags)	// the function must satisfy all the flags the state requires
+				{
+					if ((afd->Variants[0].Flags & VARF_Private) && afd->OwningClass != cls->VMType)
+					{
+						Error(af, "%s is declared private and not accessible", FName(id->Identifier).GetChars());
+					}
+
+					return new FxVMFunctionCall(new FxSelf(*af), afd, argumentlist, *af, false);
+				}
+				else
+				{
+					Error(af, "Cannot use non-action function %s here.", FName(id->Identifier).GetChars());
+				}
+			}
+		}
+	}
+	return ConvertAST(cls->VMType, af);
+}
+
+//==========================================================================
+//
+// CreateAnonymousFunction
+//
+// Creates a function symbol for an anonymous function
+// This contains actual info about the implied variables which is needed
+// during code generation.
+//
+//==========================================================================
+
+PFunction* ZCCRazeCompiler::CreateAnonymousFunction(PContainerType* containingclass, PType* returntype, int flags)
+{
+	TArray<PType*> rets;
+	TArray<PType*> args;
+	TArray<uint32_t> argflags;
+	TArray<FName> argnames;
+
+	int fflags = VARF_Method | VARF_Play;
+
+	if (returntype) rets.Push(returntype);
+	SetImplicitArgs(&args, &argflags, &argnames, containingclass, fflags, flags);
+
+	PFunction* sym = Create<PFunction>(containingclass, NAME_None);	// anonymous functions do not have names.
+	sym->AddVariant(NewPrototype(rets, args), argflags, argnames, nullptr, fflags, flags);
+	return sym;
+}
+
+//==========================================================================
+//
+// PClassActor :: Finalize
+//
+// Installs the parsed states and does some sanity checking
+//
+//==========================================================================
+
+void FinalizeClass(PClass* ccls, FStateDefinitions& statedef)
+{
+	if (!ccls->IsDescendantOf(RUNTIME_CLASS(DCoreActor))) return;
+	auto cls = static_cast<PClassActor*>(ccls);
+	try
+	{
+		statedef.FinishStates(cls);
+	}
+	catch (CRecoverableError&)
+	{
+		statedef.MakeStateDefines(nullptr);
+		throw;
+	}
+	auto def = GetDefaultByType(cls);
+	statedef.InstallStates(cls, def);
+	statedef.MakeStateDefines(nullptr);
+}
+
+//==========================================================================
+//
+// just a placeholder for now.
+//
+//==========================================================================
+
+void AddStateLight(FState* State, const char* lname)
+{
+	/*
+	if (State->Light == 0)
+	{
+		ParsedStateLights.Push(NAME_None);
+		State->Light = ParsedStateLights.Push(FName(lname));
+	}
+	else
+	{
+		ParsedStateLights.Push(FName(lname));
+	}
+	*/
+}
+//==========================================================================
+//
+// Compile the states
+//
+//==========================================================================
+
+void ZCCRazeCompiler::CompileStates()
+{
+	for (auto c : Classes)
+	{
+
+		if (!c->ClassType()->IsDescendantOf(RUNTIME_CLASS(DCoreActor)))
+		{
+			if (c->States.Size()) Error(c->cls, "%s: States can only be defined for actors.", c->Type()->TypeName.GetChars());
+			continue;
+		}
+
+		FString statename;	// The state builder wants the label as one complete string, not separated into tokens.
+		FStateDefinitions statedef;
+
+		statedef.MakeStateDefines(ValidateActor(c->ClassType()->ParentClass));
+
+
+		int numframes = 0;
+
+		for (auto s : c->States)
+		{
+			int flags;
+			if (s->Flags != nullptr)
+			{
+				flags = 0;
+				auto p = s->Flags;
+				do
+				{
+					switch (p->Id)
+					{
+					case NAME_Actor:
+						flags |= SUF_ACTOR;
+						break;
+					case NAME_Overlay:
+						flags |= SUF_OVERLAY;
+						break;
+					case NAME_Weapon:
+						flags |= SUF_WEAPON;
+						break;
+					case NAME_Item:
+						flags |= SUF_ITEM;
+						break;
+					default:
+						Error(p, "Unknown States qualifier %s", FName(p->Id).GetChars());
+						break;
+					}
+
+					p = static_cast<decltype(p)>(p->SiblingNext);
+				} while (p != s->Flags);
+			}
+			else
+			{
+				flags = SUF_ACTOR;
+			}
+			auto st = s->Body;
+			if (st != nullptr) do
+			{
+				switch (st->NodeType)
+				{
+				case AST_StateLabel:
+				{
+					auto sl = static_cast<ZCC_StateLabel*>(st);
+					statename = FName(sl->Label).GetChars();
+					statedef.AddStateLabel(statename.GetChars());
+					break;
+				}
+				case AST_StateLine:
+				{
+					auto sl = static_cast<ZCC_StateLine*>(st);
+					FState state;
+					memset(&state, 0, sizeof(state));
+					state.UseFlags = flags;
+					state.sprite = GetSpriteIndex(sl->Sprite->GetChars());
+					FCompileContext ctx(OutNamespace, c->Type(), false, mVersion);
+					state.Tics = (int16_t)IntConstFromNode(sl->Duration, c->Type());
+					if (sl->bBright) state.StateFlags |= STF_FULLBRIGHT;
+					if (sl->bNoDelay) state.StateFlags |= STF_TICADJUST;
+
+					if (sl->Lights != nullptr)
+					{
+						auto l = sl->Lights;
+						do
+						{
+							AddStateLight(&state, StringConstFromNode(l, c->Type()).GetChars());
+							l = static_cast<decltype(l)>(l->SiblingNext);
+						} while (l != sl->Lights);
+					}
+
+					if (sl->Action != nullptr)
+					{
+						auto code = SetupActionFunction(static_cast<PClassActor*>(c->ClassType()), sl->Action, state.UseFlags);
+						if (code != nullptr)
+						{
+							auto funcsym = CreateAnonymousFunction(c->Type(), nullptr, state.UseFlags);
+							state.ActionFunc = FunctionBuildList.AddFunction(OutNamespace, mVersion, funcsym, code, FStringf("%s.StateFunction.%d", c->Type()->TypeName.GetChars(), statedef.GetStateCount()), false, statedef.GetStateCount(), (int)sl->Frames->Len(), Lump);
+						}
+					}
+
+					int count = statedef.AddStates(&state, sl->Frames->GetChars(), *sl);
+					if (count < 0)
+					{
+						Error(sl, "Invalid frame character string '%s'", sl->Frames->GetChars());
+						count = -count;
+					}
+					break;
+				}
+				case AST_StateGoto:
+				{
+					auto sg = static_cast<ZCC_StateGoto*>(st);
+					statename = "";
+					if (sg->Qualifier != nullptr)
+					{
+						statename << FName(sg->Qualifier->Id).GetChars() << "::";
+					}
+					auto part = sg->Label;
+					do
+					{
+						statename << FName(part->Id).GetChars() << '.';
+						part = static_cast<decltype(part)>(part->SiblingNext);
+					} while (part != sg->Label);
+					statename.Truncate(statename.Len() - 1);	// remove the last '.' in the label name
+					if (sg->Offset != nullptr)
+					{
+						int offset = IntConstFromNode(sg->Offset, c->Type());
+						if (offset < 0)
+						{
+							Error(sg, "GOTO offset must be positive");
+							offset = 0;
+						}
+						if (offset > 0)
+						{
+							statename.AppendFormat("+%d", offset);
+						}
+					}
+					if (!statedef.SetGotoLabel(statename.GetChars()))
+					{
+						Error(sg, "GOTO before first state");
+					}
+					break;
+				}
+				case AST_StateFail:
+				case AST_StateWait:
+					if (!statedef.SetWait())
+					{
+						Error(st, "%s before first state", st->NodeType == AST_StateFail ? "Fail" : "Wait");
+					}
+					break;
+
+				case AST_StateLoop:
+					if (!statedef.SetLoop())
+					{
+						Error(st, "LOOP before first state");
+					}
+					break;
+
+				case AST_StateStop:
+					if (!statedef.SetStop())
+					{
+						Error(st, "STOP before first state");
+					}
+					break;
+
+				default:
+					assert(0 && "Bad AST node in state");
+				}
+				st = static_cast<decltype(st)>(st->SiblingNext);
+			} while (st != s->Body);
+		}
+		try
+		{
+			FinalizeClass(c->ClassType(), statedef);
+		}
+		catch (CRecoverableError& err)
+		{
+			Error(c->cls, "%s", err.GetMessage());
+		}
+	}
 }
 

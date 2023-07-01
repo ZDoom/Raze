@@ -77,6 +77,7 @@ enum EStateDefineFlags
 
 enum EStateFlags
 {
+	STF_TICADJUST = 1,
 	STF_FULLBRIGHT = 4,	// State is fullbright
 };
 
@@ -106,6 +107,7 @@ struct FState
 
 	uint8_t	StateFlags;
 	uint8_t DefineFlags;
+	uint8_t UseFlags;
 	FState		*NextState;
 	VMFunction	*ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
 	VMFunction  *EnterFunc;  // called when entering the state.
@@ -118,6 +120,7 @@ struct FState
 	FState* NextState;
 	uint8_t	StateFlags;
 	uint8_t DefineFlags;
+	uint8_t UseFlags;
 	VMFunction* ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
 	VMFunction* EnterFunc;  // called when entering the state.
 	VMFunction* TickFunc;   // called when ticking the state.

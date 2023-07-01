@@ -24,6 +24,10 @@ private:
 	void ProcessDefaultProperty(PClassActor *cls, ZCC_PropertyStmt *prop, Baggage &bag);
 	void ProcessDefaultFlag(PClassActor *cls, ZCC_FlagStmt *flg);
 	void InitDefaults() override final;
+	FxExpression* SetupActionFunction(PClass* cls, ZCC_TreeNode* af, int StateFlags);
+	void CompileStates();
+	PFunction* CreateAnonymousFunction(PContainerType* containingclass, PType* returntype, int flags);
+
 	
 };
 
