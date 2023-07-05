@@ -48,5 +48,5 @@ To build Raze, please see the [wiki](https://zdoom.org/wiki/) and see the "Progr
 - https://raze.zdoom.org/ - Home Page
 - https://forum.zdoom.org/viewforum.php?f=351 - Forum
 - https://raze.zdoom.org/wiki/ - Wiki
-- https://discord.gg/zdoom - Discord Server
+- https://dsc.gg/zdoom - Discord Server
 - https://docs.google.com/spreadsheets/d/1pvwXEgytkor9SClCiDn4j5AH7FedyXS-ocCbsuQIXDU/edit?usp=sharing - Translation sheet (Google Docs)
