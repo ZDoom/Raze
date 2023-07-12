@@ -107,9 +107,9 @@ void menu_DoPlasma()
     {
         nPlasmaTile = TexMan.GetGameTexture(aTexIds[kTexPlasmaTile1]);
         nPlasmaTileAlt = TexMan.GetGameTexture(aTexIds[kTexPlasmaTile2]);
-        plasma_A[5] = {};
-        plasma_B[5] = {};
-        plasma_C[5] = {};
+        memset(plasma_A, 0, sizeof(plasma_A));
+        memset(plasma_B, 0, sizeof(plasma_B));
+        memset(plasma_C, 0, sizeof(plasma_C));
     }
 
     const auto nLogoTexid = GameLogo();
