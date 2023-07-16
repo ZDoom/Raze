@@ -692,7 +692,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			("morph_off", w.morph_off, def->morph_off)
 			("limit_ang_center", w.limit_ang_center, def->limit_ang_center)
 			("limit_ang_delta", w.limit_ang_delta, def->limit_ang_delta)
-			("premovescale", w.PreMoveScale, def->PreMoveScale);
+			("premovescale", w.PreMoveScale, def->PreMoveScale)
 			("animtype", w.AnimType, def->AnimType);
 
 		arc.EndObject();
