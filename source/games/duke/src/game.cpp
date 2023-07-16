@@ -496,6 +496,7 @@ void GameInterface::FinalizeSetup()
 					// do not enable KILLCOUNT if it the base is a non-counting badguy. This is needed for RR's animals.
 					if (check == EDukeFlags1::FromInt(SFLAG_BADGUY)) fb &= ~SFLAG_KILLCOUNT; 
 					def->flags1 = (def->flags1 & ~fb) | (actinf.enemyflags & fb);
+					if (def->flags1 & SFLAG_KILLCOUNT) def->flags1 |= SFLAG_SKILLFILTER;
 				}
 
 			}
