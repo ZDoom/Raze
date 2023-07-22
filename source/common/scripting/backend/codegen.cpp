@@ -8858,7 +8858,7 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 		}
 	}
 
-	if (Self->ValueType->isRealPointer())
+	if (Self->ValueType->isRealPointer() && Self->ValueType->toPointer()->PointedType)
 	{
 		auto ptype = Self->ValueType->toPointer()->PointedType;
 		cls = ptype->toContainer();
