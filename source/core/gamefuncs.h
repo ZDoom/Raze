@@ -472,7 +472,7 @@ inline DAngle GetMaxPitch()
 	return !cl_clampedpitch ? (minAngle - DAngle90) : gi->playerPitchMax();
 }
 
-inline DAngle ClampViewPitch(const DAngle pitch)
+inline DAngle ClampViewPitch(const DAngle& pitch)
 {
 	return clamp(pitch, GetMaxPitch(), GetMinPitch());
 }

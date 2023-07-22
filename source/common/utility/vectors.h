@@ -44,22 +44,31 @@
 #include <math.h>
 #include <float.h>
 #include <string.h>
+
+// this is needed to properly normalize angles. We cannot do that with compiler provided conversions because they differ too much
 #include "xs_Float.h"
-#include "math/cmath.h"
-#include "basics.h"
-#include "cmdlib.h"
-
-
-#define EQUAL_EPSILON (1/65536.)
 
 // make this a local inline function to avoid any dependencies on other headers and not pollute the global namespace
 namespace pi
 {
 	inline constexpr double pi() { return 3.14159265358979323846; }
-	inline constexpr double pif() { return 3.14159265358979323846f; }
+	inline constexpr float pif() { return 3.14159265358979323846f; }
 }
 
+// optionally use reliable math routines if reproducability across hardware is important, but let this still compile without them.
+#if __has_include("math/cmath.h")
+#include "math/cmath.h"
+#else
+double g_cosdeg(double v) { return cos(v * (pi::pi() / 180.)); }
+double g_sindeg(double v) { return sin(v * (pi::pi() / 180.)); }
+double g_cos(double v) { return cos(v); }
+double g_sin(double v) { return sin(v); }
+double g_sqrt(double v) { return sqrt(v); }
+double g_atan2(double v, double w) { return atan2(v, w); }
+#endif
 
+
+#define EQUAL_EPSILON (1/65536.)
 
 template<class vec_t> struct TVector3;
 template<class vec_t> struct TRotator;
@@ -561,7 +570,7 @@ struct TVector3
 	void GetRightUp(TVector3 &right, TVector3 &up)
 	{
 		TVector3 n(X, Y, Z);
-		TVector3 fn(fabs(n.X), fabs(n.Y), fabs(n.Z));
+		TVector3 fn((vec_t)fabs(n.X), (vec_t)fabs(n.Y), (vec_t)fabs(n.Z));
 		int major = 0;
 
 		if (fn[1] > fn[major]) major = 1;
@@ -1450,8 +1459,13 @@ public:
 
 	double Tan() const
 	{
+		// use an optimized approach if we have a sine table. If not just call the CRT's tan function.
+#if __has_include("math/cmath.h")
 		const auto bam = BAMs();
 		return g_sinbam(bam) / g_cosbam(bam);
+#else
+		return vec_t(tan(Radians()));
+#endif
 	}
 
 	// This is for calculating vertical velocity. For high pitches the tangent will become too large to be useful.
@@ -1460,9 +1474,11 @@ public:
 		return clamp(Tan(), -max, max);
 	}
 
+	// returns sign of the NORMALIZED angle.
 	int Sgn() const
 	{
-		return ::Sgn(int(BAMs()));
+		auto val = int(BAMs());
+		return (val > 0) - (val < 0);
 	}
 };
 
@@ -1488,12 +1504,6 @@ template<class T>
 inline TAngle<T> absangle(const TAngle<T> &a1, const TAngle<T> &a2)
 {
 	return fabs(deltaangle(a2, a1));
-}
-
-template<class T>
-inline TAngle<T> clamp(const TAngle<T> &angle, const TAngle<T> &min, const TAngle<T> &max)
-{
-	return TAngle<T>::fromDeg(clamp(angle.Degrees(), min.Degrees(), max.Degrees()));
 }
 
 inline TAngle<double> VecToAngle(double x, double y)
