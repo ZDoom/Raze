@@ -40,6 +40,7 @@
 #include "filesystem.h"
 #include "files.h"
 #include "i_music.h"
+#include "m_argv.h"
 
 #include "gamecontrol.h"
 #include "serializer.h"
@@ -249,7 +250,7 @@ void Mus_UpdateMusic()
 
 void Mus_InitMusic()
 {
-	I_InitMusic();
+	I_InitMusic(Args->CheckParm("-nomusic") || Args->CheckParm("-nosound"));
 	static MusicCallbacks mus_cb =
 	{
 		LookupMusicCB,

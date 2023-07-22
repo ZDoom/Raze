@@ -34,6 +34,7 @@
 */
 
 
+#include "vectors.h"
 #include "actorinfo.h"
 #include "c_dispatch.h"
 #include "d_net.h"
