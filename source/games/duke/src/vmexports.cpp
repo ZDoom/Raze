@@ -301,7 +301,6 @@ DEFINE_FIELD(DDukeActor, curAction)
 DEFINE_FIELD(DDukeActor, curMove)
 DEFINE_FIELD(DDukeActor, curAI)
 DEFINE_FIELD(DDukeActor, actioncounter)
-//DEFINE_FIELD(DDukeActor, killit_flag)
 
 void TickActor(DDukeActor*);
 DEFINE_ACTION_FUNCTION(DDukeActor, Tick)

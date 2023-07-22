@@ -68,6 +68,7 @@ enum playeraction_t {
 
 struct ParseState
 {
+	int killit_flag;
 	int g_p;
 	int g_x;
 	DDukeActor *g_ac;
@@ -1473,7 +1474,7 @@ int ParseState::parse(void)
 {
 	int j, l;
 
-	if(g_ac->killit_flag) return 1;
+	if(killit_flag) return 1;
 
 	switch (*insptr)
 	{
@@ -1779,7 +1780,7 @@ int ParseState::parse(void)
 		return 1;
 	case concmd_addammo:
 		insptr++;
-		if (!playeraddammo(&ps[g_p], *insptr, *(insptr + 1))) g_ac->killit_flag = 2;
+		if (!playeraddammo(&ps[g_p], *insptr, *(insptr + 1))) killit_flag = 2;
 		insptr += 2;
 		break;
 	case concmd_money:
@@ -1813,11 +1814,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_killit:
 		insptr++;
-		g_ac->killit_flag = 1;
+		killit_flag = 1;
 		break;
 	case concmd_addweapon:
 		insptr++;
-		if (!playeraddweapon(&ps[g_p], *insptr, *(insptr + 1))) g_ac->killit_flag = 2;
+		if (!playeraddweapon(&ps[g_p], *insptr, *(insptr + 1))) killit_flag = 2;
 		insptr+=2;
 		break;
 	case concmd_debug:
@@ -3157,7 +3158,7 @@ int ParseState::parse(void)
 	default:
 		Printf(TEXTCOLOR_RED "Unrecognized PCode of %d  in parse.  Killing current sprite.\n",*insptr);
 		Printf(TEXTCOLOR_RED "Offset=%0X\n",int(insptr-ScriptCode.Data()));
-		g_ac->killit_flag = 1;
+		killit_flag = 1;
 		break;
 	}
 	return 0;
@@ -3179,6 +3180,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_p = p;	// Player ID
 	s.g_x = x;	// ??
 	s.g_ac = actor;
+	s.killit_flag = 0;
 
 	if ((actor->flags4 & SFLAG4_CONOVERRIDE) && overridecon) return;
 	auto coninf = actor->conInfo();
@@ -3186,7 +3188,6 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	auto addr = coninf->loadeventscriptptr;
 	if (addr == 0) return;
 
-	actor->killit_flag = 0;
 
 	if(!actor->insector())
 	{
@@ -3197,7 +3198,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 		done = s.parse();
 	while (done == 0);
 
-	if (actor->killit_flag == 1)
+	if (s.killit_flag == 1)
 	{
 		actor->Destroy();
 	}
@@ -3209,8 +3210,9 @@ void LoadActor(DDukeActor *actor, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-bool execute(DDukeActor *actor,int p,double pdist)
+bool execute(DDukeActor *actor,int p,double pdist, int* killit_flag)
 {
+	if (killit_flag) *killit_flag = 0;
 	if ((actor->flags4 & SFLAG4_CONOVERRIDE) && overridecon) return false;
 
 	auto coninf = actor->conInfo();
@@ -3221,12 +3223,15 @@ bool execute(DDukeActor *actor,int p,double pdist)
 	s.g_p = p;	// Player ID
 	s.g_x = int(pdist / maptoworld);	// ??
 	s.g_ac = actor;
+	s.killit_flag = 0;
 	s.insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
 
 	int done;
 	do
 		done = s.parse();
 	while( done == 0 );
+	if (killit_flag) *killit_flag = s.killit_flag;
+
 
 	return true;
 }
@@ -3259,7 +3264,7 @@ void OnEvent(int iEventID, int p, DDukeActor *actor, int x)
 
 	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 
-	actor->killit_flag = 0;
+	s.killit_flag = 0;
 	do
 		done = s.parse();
 	while (done == 0);

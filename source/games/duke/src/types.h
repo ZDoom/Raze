@@ -79,7 +79,6 @@ public:
 	short tempval, basepicnum;
 	unsigned short timetosleep;
 	bool mapSpawned;
-	uint8_t killit_flag;
 	DVector2 ovel;
 	DAngle hitang;
 	double floorz, ceilingz;

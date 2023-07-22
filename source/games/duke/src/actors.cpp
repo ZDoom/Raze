@@ -50,9 +50,9 @@ This file is a combination of code from the following sources:
 BEGIN_DUKE_NS
 
 
-void moveactor(DDukeActor* actor, int p, double pdist)
+void moveactor(DDukeActor* actor, int p, double pdist, const int killit_flag)
 {
-	if (actor->killit_flag == 1)
+	if (killit_flag == 1)
 	{
 		// if player was set to squish, first stop that..
 		if (ps[p].actorsqu == actor)
@@ -131,8 +131,8 @@ void TickActor(DDukeActor* self)
 				self->curframe = 0;
 		}
 
-		self->killit_flag = 0;
-		bool conres = execute(self, p, pdist);
+		int killit_flag = 0;
+		bool conres = execute(self, p, pdist, &killit_flag);
 		if (!conres && (self->flags4 & SFLAG4_CONOVERRIDE))
 		{
 			self->flags4 |= SFLAG4_INRUNSTATE;
@@ -145,6 +145,7 @@ void TickActor(DDukeActor* self)
 				}
 				catch(const CDukeKillEvent& ev)
 				{ 
+					killit_flag = 1;
 					if (ev.Type() == 1)
 					{
 						self->Destroy();
@@ -156,7 +157,7 @@ void TickActor(DDukeActor* self)
 			conres = true;
 		}
 		// moveactor gets only called for actors with a scripted runner.
-		if (conres) moveactor(self, p, pdist);
+		if (conres) moveactor(self, p, pdist, killit_flag);
 	}
 }
 
