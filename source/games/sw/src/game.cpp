@@ -336,6 +336,7 @@ void InitLevelGlobals(void)
     AnimCnt = 0;
     left_foot = false;
     screenpeek = myconnectindex;
+    FinishTimer = 0;
     ClearInterpolations();
 
     gNet.TimeLimitClock = gNet.TimeLimit;
