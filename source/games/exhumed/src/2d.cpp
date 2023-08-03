@@ -87,6 +87,7 @@ void DrawLogo()
 //
 //
 //---------------------------------------------------------------------------
+static FRandom rnd_plasma;
 
 void menu_DoPlasma()
 {
@@ -101,7 +102,6 @@ void menu_DoPlasma()
     static int plasma_A[5];
     static int plasma_B[5];
     static int plasma_C[5];
-    static FRandom rnd_plasma;
 
     if (!nPlasmaTile)
     {
