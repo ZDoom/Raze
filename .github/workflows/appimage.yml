@@ -24,7 +24,7 @@ jobs:
           pip install appimage-builder
       - name: Build zmusic dependency
         run: |
-          git clone -b 1.1.11 https://github.com/ZDoom/ZMusic.git zmusic_build
+          git clone -b 1.1.12 https://github.com/ZDoom/ZMusic.git zmusic_build
           mkdir ./zmusic_build/build
           cd ./zmusic_build/build
           cmake -DCMAKE_BUILD_TYPE=Release ..
