@@ -106,6 +106,7 @@ IMPLEMENT_POINTER(user.WpnGoalActor)
 IMPLEMENT_POINTERS_END
 
 void MarkSOInterp();
+extern int FinishTimer;
 
 void markgcroots()
 {
