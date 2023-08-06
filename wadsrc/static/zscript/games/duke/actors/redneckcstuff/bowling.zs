@@ -238,7 +238,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 		if (j)
 		{
 			j.vel.X = 250 / 16.;
-			j.angle = self.angle;
+			j.angle = sang;
 			j.pos.Z -= 15;
 		}
 		return true;
