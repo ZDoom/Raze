@@ -492,9 +492,9 @@ void GameInterface::FinalizeSetup()
 				{
 					auto def = static_cast<DDukeActor*>(GetDefaultByType(cls));
 					auto fb = (SFLAG_BADGUY | SFLAG_KILLCOUNT | SFLAG_BADGUYSTAYPUT);
-					auto check = (def->flags1 & (SFLAG_BADGUY | SFLAG_KILLCOUNT));
+					auto check = (def->flags1 & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY | SFLAG_KILLCOUNT));
 					// do not enable KILLCOUNT if it the base is a non-counting badguy. This is needed for RR's animals.
-					if (check == EDukeFlags1::FromInt(SFLAG_BADGUY)) fb &= ~SFLAG_KILLCOUNT; 
+					if ((check & (SFLAG_BADGUY | SFLAG_INTERNAL_BADGUY)) && !(check & SFLAG_KILLCOUNT)) fb &= ~SFLAG_KILLCOUNT;
 					def->flags1 = (def->flags1 & ~fb) | (actinf.enemyflags & fb);
 					if (def->flags1 & SFLAG_KILLCOUNT) def->flags1 |= SFLAG_SKILLFILTER;
 				}
