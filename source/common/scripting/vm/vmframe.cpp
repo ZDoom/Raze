@@ -80,7 +80,7 @@ void VMFunction::CreateRegUse()
 	if (!Proto)
 	{
 		//if (RegTypes) return;
-		//Printf(TEXTCOLOR_ORANGE "Function without prototype needs register info manually set: %s\n", PrintableName.GetChars());
+		//Printf(TEXTCOLOR_ORANGE "Function without prototype needs register info manually set: %s\n", PrintableName);
 		return;
 	}
 	assert(Proto->isPrototype());

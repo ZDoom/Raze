@@ -693,6 +693,31 @@ struct CVar native
 	native int ResetToDefault();
 }
 
+class CustomIntCVar abstract
+{
+    abstract int ModifyValue(Name CVarName, int val);
+}
+
+class CustomFloatCVar abstract
+{
+    abstract double ModifyValue(Name CVarName, double val);
+}
+
+class CustomStringCVar abstract
+{
+    abstract String ModifyValue(Name CVarName, String val);
+}
+
+class CustomBoolCVar abstract
+{
+    abstract bool ModifyValue(Name CVarName, bool val);
+}
+
+class CustomColorCVar abstract
+{
+    abstract Color ModifyValue(Name CVarName, Color val);
+}
+
 struct GIFont version("2.4")
 {
 	Name fontname;
@@ -886,7 +911,9 @@ struct StringStruct native
 	native int CodePointCount() const;
 	native int, int GetNextCodePoint(int position) const;
 	native void Substitute(String str, String replace);
+	native void StripLeft(String junk = "");
 	native void StripRight(String junk = "");
+	native void StripLeftRight(String junk = "");
 }
 
 struct Translation version("2.4")

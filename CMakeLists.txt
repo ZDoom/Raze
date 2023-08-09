@@ -402,7 +402,6 @@ else()
 endif()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/lzma/C" )
-set( GDTOA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/gdtoa" ) 
 
 if( NOT CMAKE_CROSSCOMPILING )
 	if( NOT CROSS_EXPORTS )
@@ -422,7 +421,6 @@ endif()
 
 add_subdirectory( libraries/lzma )
 add_subdirectory( tools )
-add_subdirectory( libraries/gdtoa )
 add_subdirectory( wadsrc )
 add_subdirectory( source )
 

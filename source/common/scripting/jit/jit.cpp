@@ -15,7 +15,7 @@ static void OutputJitLog(const asmjit::StringLogger &logger);
 JitFuncPtr JitCompile(VMScriptFunction *sfunc)
 {
 #if 0
-	if (strcmp(sfunc->PrintableName.GetChars(), "StatusScreen.drawNum") != 0)
+	if (strcmp(sfunc->PrintableName, "StatusScreen.drawNum") != 0)
 		return nullptr;
 #endif
 
