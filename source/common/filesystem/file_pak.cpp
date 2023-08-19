@@ -33,7 +33,8 @@
 */
 
 #include "resourcefile.h"
-#include "printf.h"
+
+using namespace fs_private;
 
 //==========================================================================
 //
@@ -44,14 +45,14 @@
 struct dpackfile_t
 {
 	char	name[56];
-	int		filepos, filelen;
+	uint32_t		filepos, filelen;
 } ;
 
 struct dpackheader_t
 {
-	int		ident;		// == IDPAKHEADER
-	int		dirofs;
-	int		dirlen;
+	uint32_t		ident;		// == IDPAKHEADER
+	uint32_t		dirofs;
+	uint32_t		dirlen;
 } ;
 
 
@@ -65,7 +66,7 @@ class FPakFile : public FUncompressedFile
 {
 public:
 	FPakFile(const char * filename, FileReader &file);
-	bool Open(bool quiet, LumpFilterInfo* filter);
+	bool Open(LumpFilterInfo* filter);
 };
 
 
@@ -88,7 +89,7 @@ FPakFile::FPakFile(const char *filename, FileReader &file)
 //
 //==========================================================================
 
-bool FPakFile::Open(bool quiet, LumpFilterInfo* filter)
+bool FPakFile::Open(LumpFilterInfo* filter)
 {
 	dpackheader_t header;
 
@@ -123,7 +124,7 @@ bool FPakFile::Open(bool quiet, LumpFilterInfo* filter)
 //
 //==========================================================================
 
-FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter)
+FResourceFile *CheckPak(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 {
 	char head[4];
 
@@ -135,7 +136,7 @@ FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet, Lump
 		if (!memcmp(head, "PACK", 4))
 		{
 			auto rf = new FPakFile(filename, file);
-			if (rf->Open(quiet, filter)) return rf;
+			if (rf->Open(filter)) return rf;
 
 			file = std::move(rf->Reader); // to avoid destruction of reader
 			delete rf;

@@ -35,7 +35,7 @@
 
 
 #include "cmdlib.h"
-#include "findfile.h"
+#include "fs_findfile.h"
 #include "files.h"
 #include "md5.h"
 
@@ -120,25 +120,6 @@ char *copystring (const char *s)
 		b[0] = '\0';
 	}
 	return b;
-}
-
-//==========================================================================
-//
-// ReplaceString
-//
-// Do not use in new code.
-//
-//==========================================================================
-
-void ReplaceString (char **ptr, const char *str)
-{
-	if (*ptr)
-	{
-		if (*ptr == str)
-			return;
-		delete[] *ptr;
-	}
-	*ptr = copystring (str);
 }
 
 /*
@@ -915,68 +896,6 @@ FString NicePath(const char *path)
 
 //==========================================================================
 //
-// ScanDirectory
-//
-//==========================================================================
-
-bool ScanDirectory(TArray<FFileList> &list, const char *dirpath)
-{
-	findstate_t find;
-	FString dirmatch;
-
-	dirmatch << dirpath << "*";
-
-	auto handle = I_FindFirst(dirmatch.GetChars(), &find);
-	if (handle == ((void*)(-1)))
-	{
-		return false;
-	}
-	else
-	{
-		do
-		{
-			auto attr = I_FindAttr(&find);
-			if (attr & FA_HIDDEN)
-			{
-				// Skip hidden files and directories. (Prevents SVN bookkeeping
-				// info from being included.)
-				continue;
-			}
-			auto fn = I_FindName(&find);
-
-			if (attr & FA_DIREC)
-			{
-				if (fn[0] == '.' &&
-					(fn[1] == '\0' ||
-					(fn[1] == '.' && fn[2] == '\0')))
-				{
-					// Do not record . and .. directories.
-					continue;
-				}
-
-				FFileList* fl = &list[list.Reserve(1)];
-				fl->Filename << dirpath << fn;
-				fl->isDirectory = true;
-				FString newdir = fl->Filename;
-				newdir << "/";
-				ScanDirectory(list, newdir);
-			}
-			else
-			{
-				FFileList* fl = &list[list.Reserve(1)];
-				fl->Filename << dirpath << fn;
-				fl->isDirectory = false;
-			}
-		} 
-		while (I_FindNext(handle, &find) == 0);
-		I_FindClose(handle);
-	}
-	return true;
-}
-
-
-//==========================================================================
-//
 //
 //
 //==========================================================================
@@ -1064,7 +983,7 @@ void md5Update(FileReader& file, MD5Context& md5, unsigned len)
 
 	while (len > 0)
 	{
-		t = min<unsigned>(len, sizeof(readbuf));
+		t = std::min<unsigned>(len, sizeof(readbuf));
 		len -= t;
 		t = (long)file.Read(readbuf, t);
 		md5.Update(readbuf, t);

@@ -33,8 +33,6 @@
 */
 
 #include "resourcefile.h"
-#include "cmdlib.h"
-#include "printf.h"
 
 //==========================================================================
 //
@@ -46,7 +44,7 @@ class FLumpFile : public FUncompressedFile
 {
 public:
 	FLumpFile(const char * filename, FileReader &file);
-	bool Open(bool quiet, LumpFilterInfo* filter);
+	bool Open(LumpFilterInfo* filter);
 };
 
 
@@ -67,21 +65,15 @@ FLumpFile::FLumpFile(const char *filename, FileReader &file)
 //
 //==========================================================================
 
-bool FLumpFile::Open(bool quiet, LumpFilterInfo*)
+bool FLumpFile::Open(LumpFilterInfo*)
 {
-	FString name(ExtractFileBase(FileName, true));
-
 	Lumps.Resize(1);
-	Lumps[0].LumpNameSetup(name);
+	Lumps[0].LumpNameSetup(ExtractBaseName(FileName.c_str(), true).c_str());
 	Lumps[0].Owner = this;
 	Lumps[0].Position = 0;
 	Lumps[0].LumpSize = (int)Reader.GetLength();
 	Lumps[0].Flags = 0;
 	NumLumps = 1;
-	if (!quiet)
-	{
-		Printf("\n");
-	}
 	return true;
 }
 
@@ -91,11 +83,11 @@ bool FLumpFile::Open(bool quiet, LumpFilterInfo*)
 //
 //==========================================================================
 
-FResourceFile *CheckLump(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter)
+FResourceFile *CheckLump(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 {
 	// always succeeds
 	auto rf = new FLumpFile(filename, file);
-	if (rf->Open(quiet, filter)) return rf;
+	if (rf->Open(filter)) return rf;
 	file = std::move(rf->Reader); // to avoid destruction of reader
 	delete rf;
 	return NULL;

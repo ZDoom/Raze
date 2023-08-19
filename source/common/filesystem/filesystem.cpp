@@ -55,7 +55,6 @@
 struct FileSystem::LumpRecord
 {
 	FResourceLump *lump;
-	FGameTexture* linkedTexture;
 	LumpShortName shortName;
 	FString		longName;
 	int			rfnum;
@@ -67,7 +66,6 @@ struct FileSystem::LumpRecord
 	{
 		lump = lmp;
 		rfnum = filenum;
-		linkedTexture = nullptr;
 		flags = 0;
 
 		if (lump->Flags & LUMPF_SHORTNAME)
@@ -152,7 +150,7 @@ struct FileSystem::LumpRecord
 
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
-static void PrintLastError ();
+static void PrintLastError (FileSystemMessageFunc Printf);
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
@@ -162,7 +160,7 @@ FileSystem fileSystem;
 
 FileSystem::FileSystem()
 {
-	// This is needed to initialize the LumpRecord array, which depends on data only available here.
+	// Cannot be defaulted! This is needed to initialize the LumpRecord array, which depends on data only available here.
 }
 
 FileSystem::~FileSystem ()
@@ -199,14 +197,14 @@ void FileSystem::DeleteAll ()
 //
 //==========================================================================
 
-void FileSystem::InitSingleFile(const char* filename, bool quiet)
+bool FileSystem::InitSingleFile(const char* filename, FileSystemMessageFunc Printf)
 {
 	TArray<FString> filenames;
 	filenames.Push(filename);
-	InitMultipleFiles(filenames, true);
+	return InitMultipleFiles(filenames, nullptr, Printf);
 }
 
-void FileSystem::InitMultipleFiles (TArray<FString> &filenames, bool quiet, LumpFilterInfo* filter, bool allowduplicates, FILE* hashfile)
+bool FileSystem::InitMultipleFiles (TArray<FString> &filenames, LumpFilterInfo* filter, FileSystemMessageFunc Printf, bool allowduplicates, FILE* hashfile)
 {
 	int numfiles;
 
@@ -232,23 +230,23 @@ void FileSystem::InitMultipleFiles (TArray<FString> &filenames, bool quiet, Lump
 
 	for(unsigned i=0;i<filenames.Size(); i++)
 	{
-		AddFile (filenames[i], nullptr, quiet, filter, hashfile);
+		AddFile (filenames[i], nullptr, filter, Printf, hashfile);
 
 		if (i == (unsigned)MaxIwadIndex) MoveLumpsInFolder("after_iwad/");
-		FStringf path("filter/%s", Files.Last()->GetHash().GetChars());
+		FStringf path("filter/%s", Files.Last()->GetHash());
 		MoveLumpsInFolder(path);
 	}
 
 	NumEntries = FileInfo.Size();
 	if (NumEntries == 0)
 	{
-		if (!quiet) I_FatalError("W_InitMultipleFiles: no files found");
-		else return;
+		return false;
 	}
 	if (filter && filter->postprocessFunc) filter->postprocessFunc();
 
 	// [RH] Set up hash table
 	InitHashChains ();
+	return true;
 }
 
 //==========================================================================
@@ -308,7 +306,7 @@ int FileSystem::AddFromBuffer(const char* name, const char* type, char* data, in
 // [RH] Removed reload hack
 //==========================================================================
 
-void FileSystem::AddFile (const char *filename, FileReader *filer, bool quiet, LumpFilterInfo* filter, FILE* hashfile)
+void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInfo* filter, FileSystemMessageFunc Printf, FILE* hashfile)
 {
 	int startlump;
 	bool isdir = false;
@@ -319,10 +317,10 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, bool quiet, L
 		// Does this exist? If so, is it a directory?
 		if (!DirEntryExists(filename, &isdir))
 		{
-			if (!quiet)
+			if (Printf)
 			{
-				Printf(TEXTCOLOR_RED "%s: File or Directory not found\n", filename);
-				PrintLastError();
+				Printf(FSMessageLevel::Error, "%s: File or Directory not found\n", filename);
+				PrintLastError(Printf);
 			}
 			return;
 		}
@@ -331,10 +329,10 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, bool quiet, L
 		{
 			if (!filereader.OpenFile(filename))
 			{ // Didn't find file
-				if (!quiet)
+				if (Printf)
 				{
-					Printf(TEXTCOLOR_RED "%s: File not found\n", filename);
-					PrintLastError();
+					Printf(FSMessageLevel::Error, "%s: File not found\n", filename);
+					PrintLastError(Printf);
 				}
 				return;
 			}
@@ -342,19 +340,20 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, bool quiet, L
 	}
 	else filereader = std::move(*filer);
 
-	if (!batchrun && !quiet) Printf (" adding %s", filename);
 	startlump = NumEntries;
 
 	FResourceFile *resfile;
 
+
 	if (!isdir)
-		resfile = FResourceFile::OpenResourceFile(filename, filereader, quiet, false, filter);
+		resfile = FResourceFile::OpenResourceFile(filename, filereader, false, filter, Printf);
 	else
-		resfile = FResourceFile::OpenDirectory(filename, quiet, filter);
+		resfile = FResourceFile::OpenDirectory(filename, filter, Printf);
 
 	if (resfile != NULL)
 	{
-		if (!quiet && !batchrun) Printf(", %d lumps\n", resfile->LumpCount());
+		if (!batchrun && Printf) 
+			Printf(FSMessageLevel::Message, "adding %s, %d lumps\n", filename, resfile->LumpCount());
 
 		uint32_t lumpstart = FileInfo.Size();
 
@@ -376,11 +375,11 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, bool quiet, L
 				FString path;
 				path.Format("%s:%s", filename, lump->getName());
 				auto embedded = lump->NewReader();
-				AddFile(path, &embedded, quiet, filter, hashfile);
+				AddFile(path, &embedded, filter, Printf, hashfile);
 			}
 		}
 
-		if (hashfile && !quiet)
+		if (hashfile)
 		{
 			uint8_t cksum[16];
 			char cksumout[33];
@@ -568,7 +567,7 @@ int FileSystem::GetNumForName (const char *name, int space)
 	i = CheckNumForName (name, space);
 
 	if (i == -1)
-		I_Error ("GetNumForName: %s not found!", name);
+		throw FileSystemException("GetNumForName: %s not found!", name);
 
 	return i;
 }
@@ -652,7 +651,7 @@ int FileSystem::GetNumForFullName (const char *name)
 	i = CheckNumForFullName (name);
 
 	if (i == -1)
-		I_Error ("GetNumForFullName: %s not found!", name);
+		throw FileSystemException("GetNumForFullName: %s not found!", name);
 
 	return i;
 }
@@ -742,38 +741,9 @@ int FileSystem::GetResource (int resid, const char *type, int filenum) const
 
 	if (i == -1)
 	{
-		I_Error("GetResource: %d of type %s not found!", resid, type);
+		throw FileSystemException("GetResource: %d of type %s not found!", resid, type);
 	}
 	return i;
-}
-
-//==========================================================================
-//
-// link a texture with a given lump
-//
-//==========================================================================
-
-void FileSystem::SetLinkedTexture(int lump, FGameTexture *tex)
-{
-	if ((size_t)lump < NumEntries)
-	{
-		FileInfo[lump].linkedTexture = tex;
-	}
-}
-
-//==========================================================================
-//
-// retrieve linked texture
-//
-//==========================================================================
-
-FGameTexture *FileSystem::GetLinkedTexture(int lump)
-{
-	if ((size_t)lump < NumEntries)
-	{
-		return FileInfo[lump].linkedTexture;
-	}
-	return NULL;
 }
 
 //==========================================================================
@@ -921,19 +891,19 @@ void FileSystem::InitHashChains (void)
 
 LumpShortName& FileSystem::GetShortName(int i)
 {
-	if ((unsigned)i >= NumEntries) I_Error("GetShortName: Invalid index");
+	if ((unsigned)i >= NumEntries) throw FileSystemException("GetShortName: Invalid index");
 	return FileInfo[i].shortName;
 }
 
 FString& FileSystem::GetLongName(int i)
 {
-	if ((unsigned)i >= NumEntries) I_Error("GetLongName: Invalid index");
+	if ((unsigned)i >= NumEntries) throw FileSystemException("GetLongName: Invalid index");
 	return FileInfo[i].longName;
 }
 
 void FileSystem::RenameFile(int num, const char* newfn)
 {
-	if ((unsigned)num >= NumEntries) I_Error("RenameFile: Invalid index");
+	if ((unsigned)num >= NumEntries) throw FileSystemException("RenameFile: Invalid index");
 	FileInfo[num].longName = newfn;
 	// This does not alter the short name - call GetShortname to do that!
 }
@@ -1332,19 +1302,21 @@ unsigned FileSystem::GetFilesInFolder(const char *inpath, TArray<FolderEntry> &r
 //
 //==========================================================================
 
-TArray<uint8_t> FileSystem::GetFileData(int lump, int pad)
+std::vector<uint8_t> FileSystem::GetFileData(int lump, int pad)
 {
+	std::vector<uint8_t> data;
+
 	if ((size_t)lump >= FileInfo.Size())
-		return TArray<uint8_t>();
+		return data;
 
 	auto lumpr = OpenFileReader(lump);
 	auto size = lumpr.GetLength();
-	TArray<uint8_t> data(size + pad, true);
-	auto numread = lumpr.Read(data.Data(), size);
+	data.resize(size + pad);
+	auto numread = lumpr.Read(data.data(), size);
 
 	if (numread != size)
 	{
-		I_Error("GetFileData: only read %ld of %ld on lump %i\n",
+		throw FileSystemException("GetFileData: only read %ld of %ld on lump %i\n",
 			numread, size, lump);
 	}
 	if (pad > 0) memset(&data[size], 0, pad);
@@ -1366,8 +1338,8 @@ void FileSystem::ReadFile (int lump, void *dest)
 
 	if (numread != size)
 	{
-		I_Error ("W_ReadFile: only read %ld of %ld on lump %i\n",
-			numread, size, lump);	
+		throw FileSystemException("W_ReadFile: only read %ld of %ld on '%s'\n",
+			numread, size, GetLongName(lump).GetChars());	
 	}
 }
 
@@ -1398,7 +1370,7 @@ FileReader FileSystem::OpenFileReader(int lump)
 {
 	if ((unsigned)lump >= (unsigned)FileInfo.Size())
 	{
-		I_Error("OpenFileReader: %u >= NumEntries", lump);
+		throw FileSystemException("OpenFileReader: %u >= NumEntries", lump);
 	}
 
 	auto rl = FileInfo[lump].lump;
@@ -1417,7 +1389,7 @@ FileReader FileSystem::ReopenFileReader(int lump, bool alwayscache)
 {
 	if ((unsigned)lump >= (unsigned)FileInfo.Size())
 	{
-		I_Error("ReopenFileReader: %u >= NumEntries", lump);
+		throw FileSystemException("ReopenFileReader: %u >= NumEntries", lump);
 	}
 
 	auto rl = FileInfo[lump].lump;
@@ -1479,9 +1451,9 @@ const char *FileSystem::GetResourceFileName (int rfnum) const noexcept
 		return NULL;
 	}
 
-	name = Files[rfnum]->FileName;
+	name = Files[rfnum]->FileName.c_str();
 	slash = strrchr (name, '/');
-	return (slash != NULL && slash[1] != 0) ? slash+1 : name;
+	return (slash != nullptr && slash[1] != 0) ? slash+1 : name;
 }
 
 //==========================================================================
@@ -1545,7 +1517,7 @@ const char *FileSystem::GetResourceFileFullName (int rfnum) const noexcept
 		return nullptr;
 	}
 
-	return Files[rfnum]->FileName;
+	return Files[rfnum]->FileName.c_str();
 }
 
 
@@ -1618,7 +1590,7 @@ FString::FString (ELumpNum lumpnum)
 
 	if (numread != size)
 	{
-		I_Error ("ConstructStringFromLump: Only read %ld of %ld bytes on lump %i (%s)\n",
+		throw FileSystemException("ConstructStringFromLump: Only read %ld of %ld bytes on lump %i (%s)\n",
 			numread, size, lumpnum, fileSystem.GetFileFullName((int)lumpnum));
 	}
 }
@@ -1647,7 +1619,7 @@ __declspec(dllimport) void * __stdcall LocalFree (void *);
 __declspec(dllimport) unsigned long __stdcall GetLastError ();
 }
 
-static void PrintLastError ()
+static void PrintLastError (FileSystemMessageFunc Printf)
 {
 	char *lpMsgBuf;
 	FormatMessageA(0x1300 /*FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -1660,14 +1632,14 @@ static void PrintLastError ()
 		0,
 		NULL 
 	);
-	Printf (TEXTCOLOR_RED "  %s\n", lpMsgBuf);
+	Printf (FSMessageLevel::Error, "  %s\n", lpMsgBuf);
 	// Free the buffer.
 	LocalFree( lpMsgBuf );
 }
 #else
-static void PrintLastError ()
+static void PrintLastError (FileSystemMessageFunc Printf)
 {
-	Printf (TEXTCOLOR_RED "  %s\n", strerror(errno));
+	Printf(FSMessageLevel::Error, "  %s\n", strerror(errno));
 }
 #endif
 
@@ -1680,22 +1652,4 @@ static void PrintLastError ()
 FResourceLump* FileSystem::GetFileAt(int no)
 {
 	return FileInfo[no].lump;
-}
-
-#include "c_dispatch.h"
-
-CCMD(fs_dir)
-{
-	int numfiles = fileSystem.GetNumEntries();
-
-	for (int i = 0; i < numfiles; i++)
-	{
-		auto container = fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(i));
-		auto fn1 = fileSystem.GetFileFullName(i);
-		auto fns = fileSystem.GetFileShortName(i);
-		auto fnid = fileSystem.GetResourceId(i);
-		auto length = fileSystem.FileLength(i);
-		bool hidden = fileSystem.FindFile(fn1) != i;
-		Printf(PRINT_HIGH | PRINT_NONOTIFY, "%s%-64s %-15s (%5d) %10d %s %s\n", hidden ? TEXTCOLOR_RED : TEXTCOLOR_UNTRANSLATED, fn1, fns, fnid, length, container, hidden ? "(h)" : "");
-	}
 }

@@ -4,21 +4,41 @@
 #define __RESFILE_H
 
 #include <limits.h>
-
+#include <vector>
+#include <string>
 #include "files.h"
-#include "zstring.h"
 
+std::string ExtractBaseName(const char* path, bool include_extension = false);
+void strReplace(std::string& str, const char* from, const char* to);
+
+// user context in which the file system gets opened. This also contains a few callbacks to avoid direct dependencies on the engine.
 struct LumpFilterInfo
 {
-	TArray<FString> gameTypeFilter;	// this can contain multiple entries
-	FString dotFilter;
+	std::vector<std::string> gameTypeFilter;	// this can contain multiple entries
+	std::string dotFilter;
 
 	// The following are for checking if the root directory of a zip can be removed.
-	TArray<FString> reservedFolders;
-	TArray<FString> requiredPrefixes;
-	TArray<FString> embeddings;
+	std::vector<std::string> reservedFolders;
+	std::vector<std::string> requiredPrefixes;
+	std::vector<std::string> embeddings;
+	std::vector<std::string> blockednames;			// File names that will never be accepted (e.g. dehacked.exe for Doom)
+	std::function<bool(const char*, const char*)> filenamecheck;	// for scanning directories, this allows to eliminate unwanted content.
 	std::function<void()> postprocessFunc;
 };
+
+enum class FSMessageLevel
+{
+	Error = 1,
+	Warning = 2,
+	Attention = 3,
+	Message = 4,
+	DebugWarn = 5,
+	DebugNotify = 6,
+};
+
+// pass the text output function as parameter to avoid a hard dependency on higher level code.
+using FileSystemMessageFunc = int(*)(FSMessageLevel msglevel, const char* format, ...);
+
 
 class FResourceFile;
 
@@ -71,6 +91,7 @@ struct FCompressedBuffer
 	int mZipFlags;
 	unsigned mCRC32;
 	char *mBuffer;
+	const char* filename;
 
 	bool Decompress(char *destbuffer);
 	void Clean()
@@ -92,7 +113,7 @@ struct FResourceLump
 	int				LumpSize;
 	int				RefCount;
 protected:
-	FString			FullName;
+	std::string		FullName;
 public:
 	uint8_t			Flags;
 	char *			Cache;
@@ -112,7 +133,7 @@ public:
 	virtual int GetFileOffset() { return -1; }
 	virtual int GetIndexNum() const { return -1; }
 	virtual int GetNamespace() const { return 0; }
-	void LumpNameSetup(FString iname);
+	void LumpNameSetup(const char* iname);
 	void CheckEmbedded(LumpFilterInfo* lfi);
 	virtual FCompressedBuffer GetRawData();
 
@@ -121,7 +142,7 @@ public:
 
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
-	const char* getName() { return FullName.GetChars(); }
+	const char* getName() { return FullName.c_str(); }
 
 protected:
 	virtual int FillCache() { return -1; }
@@ -132,10 +153,10 @@ class FResourceFile
 {
 public:
 	FileReader Reader;
-	FString FileName;
+	std::string FileName;
 protected:
 	uint32_t NumLumps;
-	FString Hash;
+	char Hash[48];
 
 	FResourceFile(const char *filename);
 	FResourceFile(const char *filename, FileReader &r);
@@ -147,23 +168,23 @@ protected:
 private:
 	uint32_t FirstLump;
 
-	int FilterLumps(FString filtername, void *lumps, size_t lumpsize, uint32_t max);
+	int FilterLumps(const std::string& filtername, void *lumps, size_t lumpsize, uint32_t max);
 	int FilterLumpsByGameType(LumpFilterInfo *filter, void *lumps, size_t lumpsize, uint32_t max);
-	bool FindPrefixRange(FString filter, void *lumps, size_t lumpsize, uint32_t max, uint32_t &start, uint32_t &end);
+	bool FindPrefixRange(const char* filter, void *lumps, size_t lumpsize, uint32_t max, uint32_t &start, uint32_t &end);
 	void JunkLeftoverFilters(void *lumps, size_t lumpsize, uint32_t max);
-	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly, LumpFilterInfo* filter);
+	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool containeronly, LumpFilterInfo* filter, FileSystemMessageFunc Printf);
 
 public:
-	static FResourceFile *OpenResourceFile(const char *filename, FileReader &file, bool quiet = false, bool containeronly = false, LumpFilterInfo* filter = nullptr);
-	static FResourceFile *OpenResourceFile(const char *filename, bool quiet = false, bool containeronly = false, LumpFilterInfo* filter = nullptr);
-	static FResourceFile *OpenDirectory(const char *filename, bool quiet = false, LumpFilterInfo* filter = nullptr);
+	static FResourceFile *OpenResourceFile(const char *filename, FileReader &file, bool containeronly = false, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr);
+	static FResourceFile *OpenResourceFile(const char *filename, bool containeronly = false, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr);
+	static FResourceFile *OpenDirectory(const char *filename, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr);
 	virtual ~FResourceFile();
     // If this FResourceFile represents a directory, the Reader object is not usable so don't return it.
     FileReader *GetReader() { return Reader.isOpen()? &Reader : nullptr; }
 	uint32_t LumpCount() const { return NumLumps; }
 	uint32_t GetFirstEntry() const { return FirstLump; }
 	void SetFirstLump(uint32_t f) { FirstLump = f; }
-	const FString &GetHash() const { return Hash; }
+	const char* GetHash() const { return Hash; }
 
 
 	virtual FResourceLump *GetLump(int no) = 0;
@@ -175,7 +196,7 @@ struct FUncompressedLump : public FResourceLump
 	int				Position;
 
 	virtual FileReader *GetReader();
-	virtual int FillCache();
+	virtual int FillCache() override;
 	virtual int GetFileOffset() { return Position; }
 
 };
@@ -195,10 +216,10 @@ protected:
 
 struct FExternalLump : public FResourceLump
 {
-	FString Filename;
+	std::string Filename;
 
 	FExternalLump(const char *_filename, int filesize = -1);
-	virtual int FillCache();
+	virtual int FillCache() override;
 
 };
 

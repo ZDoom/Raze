@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 int utf8_encode(int32_t codepoint, uint8_t *buffer, int *size);
 int utf8_decode(const uint8_t *src, int *size);
 int GetCharFromString(const uint8_t *&string);
@@ -18,3 +20,8 @@ int getAlternative(int code);
 extern uint16_t win1252map[];
 extern uint16_t lowerforupper[65536];
 extern uint16_t upperforlower[65536];
+
+// make this only visible on Windows, on other platforms this should not be called.
+#ifdef _WIN32
+std::wstring WideString(const char*);
+#endif

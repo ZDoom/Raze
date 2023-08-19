@@ -34,7 +34,9 @@
 */
 
 #include "resourcefile.h"
-#include "printf.h"
+#include "fs_swap.h"
+
+using namespace fs_private;
 
 //==========================================================================
 //
@@ -72,7 +74,7 @@ class FGrpFile : public FUncompressedFile
 {
 public:
 	FGrpFile(const char * filename, FileReader &file);
-	bool Open(bool quiet, LumpFilterInfo* filter);
+	bool Open(LumpFilterInfo* filter);
 };
 
 
@@ -93,7 +95,7 @@ FGrpFile::FGrpFile(const char *filename, FileReader &file)
 //
 //==========================================================================
 
-bool FGrpFile::Open(bool quiet, LumpFilterInfo*)
+bool FGrpFile::Open(LumpFilterInfo* filter)
 {
 	GrpHeader header;
 
@@ -129,7 +131,7 @@ bool FGrpFile::Open(bool quiet, LumpFilterInfo*)
 //
 //==========================================================================
 
-FResourceFile *CheckGRP(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter)
+FResourceFile *CheckGRP(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 {
 	char head[12];
 
@@ -141,7 +143,7 @@ FResourceFile *CheckGRP(const char *filename, FileReader &file, bool quiet, Lump
 		if (!memcmp(head, "KenSilverman", 12))
 		{
 			auto rf = new FGrpFile(filename, file);
-			if (rf->Open(quiet, filter)) return rf;
+			if (rf->Open(filter)) return rf;
 
 			file = std::move(rf->Reader); // to avoid destruction of reader
 			delete rf;

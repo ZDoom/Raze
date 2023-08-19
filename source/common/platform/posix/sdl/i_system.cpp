@@ -406,23 +406,6 @@ FString I_GetFromClipboard (bool use_primary_selection)
 	return "";
 }
 
-FString I_GetCWD()
-{
-	char* curdir = getcwd(NULL,0);
-	if (!curdir) 
-	{
-		return "";
-	}
-	FString ret(curdir);
-	free(curdir);
-	return ret;
-}
-
-bool I_ChDir(const char* path)
-{
-	return chdir(path) == 0;
-}
-
 // Return a random seed, preferably one with lots of entropy.
 unsigned int I_MakeRNGSeed()
 {

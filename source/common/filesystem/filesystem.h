@@ -16,7 +16,6 @@
 
 class FResourceFile;
 struct FResourceLump;
-class FGameTexture;
 
 union LumpShortName
 {
@@ -57,7 +56,7 @@ struct FolderEntry
 class FileSystem
 {
 public:
-	FileSystem ();
+	FileSystem();
 	~FileSystem ();
 
 	// The wadnum for the IWAD
@@ -67,9 +66,9 @@ public:
 	int GetMaxIwadNum() { return MaxIwadIndex; }
 	void SetMaxIwadNum(int x) { MaxIwadIndex = x; }
 
-	void InitSingleFile(const char *filename, bool quiet = false);
-	void InitMultipleFiles (TArray<FString> &filenames, bool quiet = false, LumpFilterInfo* filter = nullptr, bool allowduplicates = false, FILE* hashfile = nullptr);
-	void AddFile (const char *filename, FileReader *wadinfo, bool quiet, LumpFilterInfo* filter, FILE* hashfile);
+	bool InitSingleFile(const char *filename, FileSystemMessageFunc Printf = nullptr);
+	bool InitMultipleFiles (TArray<FString> &filenames, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr, bool allowduplicates = false, FILE* hashfile = nullptr);
+	void AddFile (const char *filename, FileReader *wadinfo, LumpFilterInfo* filter, FileSystemMessageFunc Printf, FILE* hashfile);
 	int CheckIfResourceFileLoaded (const char *name) noexcept;
 	void AddAdditionalFile(const char* filename, FileReader* wadinfo = NULL) {}
 
@@ -125,19 +124,15 @@ public:
 	inline int CheckNumForFullName (const FString &name, int wadfile) { return CheckNumForFullName(name.GetChars(), wadfile); }
 	inline int GetNumForFullName (const FString &name) { return GetNumForFullName(name.GetChars()); }
 
-	void SetLinkedTexture(int lump, FGameTexture *tex);
-	FGameTexture *GetLinkedTexture(int lump);
-
-
 	void ReadFile (int lump, void *dest);
-	TArray<uint8_t> GetFileData(int lump, int pad = 0);	// reads lump into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
+	std::vector<uint8_t> GetFileData(int lump, int pad = 0);	// reads lump into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
+	std::vector<uint8_t> GetFileData(const char* name, int pad = 0) { return GetFileData(GetNumForName(name), pad); }
 	FileData ReadFile (int lump);
 	FileData ReadFile (const char *name) { return ReadFile (GetNumForName (name)); }
 
-	inline TArray<uint8_t> LoadFile(const char* name, int padding = 0)
+	inline std::vector<uint8_t> LoadFile(const char* name, int padding = 0)
 	{
-		auto lump = FindFile(name);
-		if (lump < 0) return TArray<uint8_t>();
+		auto lump = GetNumForFullName(name);
 		return GetFileData(lump, padding);
 	}
 

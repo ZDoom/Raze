@@ -38,6 +38,7 @@
 #include "bitmap.h"
 #include "imagehelpers.h"
 #include "image.h"
+#include "m_swap.h"
 
 
 //==========================================================================
@@ -73,7 +74,7 @@ bool CheckIfRaw(FileReader & data, unsigned desiredsize)
 
 	data.Seek(0, FileReader::SeekSet);
 	auto bits = data.Read(data.GetLength());
-	foo = (patch_t *)bits.Data();
+	foo = (patch_t *)bits.data();
 
 	height = LittleShort(foo->height);
 	width = LittleShort(foo->width);

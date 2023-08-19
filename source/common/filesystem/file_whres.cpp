@@ -35,55 +35,35 @@
 */
 
 #include "resourcefile.h"
-#include "printf.h"
-#include "cmdlib.h"
+#include "fs_swap.h"
+
+using namespace fs_private;
 
 //==========================================================================
 //
-//
-//
-//==========================================================================
-
-struct whresentry
-{
-	int		filepospage, filelen, priority;
-} ;
-
-struct dpackheader_t
-{
-	int		ident;		// == IDPAKHEADER
-	int		dirofs;
-	int		dirlen;
-} ;
-
-
-//==========================================================================
-//
-// Wad file
+// WH resource file
 //
 //==========================================================================
 
 class FWHResFile : public FUncompressedFile
 {
-	FString basename;
+	std::string basename;
 public:
 	FWHResFile(const char * filename, FileReader &file);
-	bool Open(bool quiet, LumpFilterInfo* filter);
+	bool Open(LumpFilterInfo* filter);
 };
 
 
 //==========================================================================
 //
-// FWadFile::FWadFile
 //
-// Initializes a WAD file
 //
 //==========================================================================
 
 FWHResFile::FWHResFile(const char *filename, FileReader &file) 
 	: FUncompressedFile(filename, file)
 {
-	basename = ExtractFileBase(filename, false);
+	basename = ExtractBaseName(filename, false);
 }
 
 //==========================================================================
@@ -92,9 +72,9 @@ FWHResFile::FWHResFile(const char *filename, FileReader &file)
 //
 //==========================================================================
 
-bool FWHResFile::Open(bool quiet, LumpFilterInfo*)
+bool FWHResFile::Open(LumpFilterInfo*)
 {
-	int directory[1024];
+	uint32_t directory[1024];
 
 	Reader.Seek(-4096, FileReader::SeekEnd);
 	Reader.Read(directory, 4096);
@@ -106,11 +86,13 @@ bool FWHResFile::Open(bool quiet, LumpFilterInfo*)
 	int i = 0;
 	for(int k = 0; k < nl; k++)
 	{
-		int offset = LittleLong(directory[k*3]) * 4096;
-		int length = LittleLong(directory[k*3+1]);
-		if (length <= 0) break;
-		FStringf synthname("%s/%04d", basename.GetChars(), k);
-		Lumps[i].LumpNameSetup(synthname);
+		uint32_t offset = LittleLong(directory[k*3]) * 4096;
+		uint32_t length = LittleLong(directory[k*3+1]);
+		if (length == 0) break;
+		char num[5];
+		snprintf(num, 5, "/%04d", k);
+		std::string synthname = basename + num;
+		Lumps[i].LumpNameSetup(synthname.c_str());
 		Lumps[i].Owner = this;
 		Lumps[i].Position = offset;
 		Lumps[i].LumpSize = length;
@@ -129,27 +111,28 @@ bool FWHResFile::Open(bool quiet, LumpFilterInfo*)
 //
 //==========================================================================
 
-FResourceFile *CheckWHRes(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter)
+FResourceFile *CheckWHRes(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 {
 	if (file.GetLength() >= 8192) // needs to be at least 8192 to contain one file and the directory.
 	{
-		int directory[1024];
+		unsigned directory[1024];
 		int nl =1024/3;
 
 		file.Seek(-4096, FileReader::SeekEnd);
 		file.Read(directory, 4096);
+		auto size = file.GetLength();
 
-		int checkpos = 0;
+		uint32_t checkpos = 0;
 		for(int k = 0; k < nl; k++)
 		{
-			int offset = LittleLong(directory[k*3]);
-			int length = LittleLong(directory[k*3+1]);
+			unsigned offset = LittleLong(directory[k*3]);
+			unsigned length = LittleLong(directory[k*3+1]);
 			if (length <= 0 && offset == 0) break;
-			if (offset != checkpos || length <= 0) return nullptr;
+			if (offset != checkpos || length == 0 || offset + length >= (size_t)size - 4096 ) return nullptr;
 			checkpos += (length+4095) / 4096;
 		}
 		auto rf = new FWHResFile(filename, file);
-		if (rf->Open(quiet, filter)) return rf;
+		if (rf->Open(filter)) return rf;
 		file = std::move(rf->Reader); // to avoid destruction of reader
 		delete rf;
 	}

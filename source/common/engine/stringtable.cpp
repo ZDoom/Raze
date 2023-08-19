@@ -77,9 +77,9 @@ void FStringTable::LoadStrings (const char *language)
 //==========================================================================
 
 
-TArray<TArray<FString>> FStringTable::parseCSV(const TArray<uint8_t> &buffer)
+TArray<TArray<FString>> FStringTable::parseCSV(const std::vector<uint8_t> &buffer)
 {
-	const size_t bufLength = buffer.Size();
+	const size_t bufLength = buffer.size();
 	TArray<TArray<FString>> data;
 	TArray<FString> row;
 	TArray<char> cell;
@@ -186,10 +186,10 @@ bool FStringTable::readMacros(int lumpnum)
 //
 //==========================================================================
 
-bool FStringTable::ParseLanguageCSV(int lumpnum, const TArray<uint8_t> &buffer)
+bool FStringTable::ParseLanguageCSV(int lumpnum, const std::vector<uint8_t> &buffer)
 {
-	if (buffer.Size() < 11) return false;
-	if (strnicmp((const char*)buffer.Data(), "default,", 8) && strnicmp((const char*)buffer.Data(), "identifier,", 11 )) return false;
+	if (buffer.size() < 11) return false;
+	if (strnicmp((const char*)buffer.data(), "default,", 8) && strnicmp((const char*)buffer.data(), "identifier,", 11 )) return false;
 	auto data = parseCSV(buffer);
 
 	int labelcol = -1;
@@ -282,7 +282,7 @@ bool FStringTable::ParseLanguageCSV(int lumpnum, const TArray<uint8_t> &buffer)
 //
 //==========================================================================
 
-void FStringTable::LoadLanguage (int lumpnum, const TArray<uint8_t> &buffer)
+void FStringTable::LoadLanguage (int lumpnum, const std::vector<uint8_t> &buffer)
 {
 	bool errordone = false;
 	TArray<uint32_t> activeMaps;
