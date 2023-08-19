@@ -85,7 +85,7 @@ bool RTS_IsInitialized()
 	auto fr = fileSystem.OpenFileReader(RTSName);
 	RTSName = "";	// don't try ever again.
 	if (!fr.isOpen()) return false;
-	RTSFile.Resize(fr.GetLength());
+	RTSFile.Resize((unsigned)fr.GetLength());
 	fr.Read(RTSFile.Data(), fr.GetLength());
 	if (RTSFile.Size() >= 28)	// minimum size for one entry
 	{

@@ -47,4 +47,5 @@ public:
 	virtual bool SourceIsActor(FSoundChan* chan) { return chan->SourceType == SOURCE_Actor; }
 	virtual int SoundSourceIndex(FSoundChan* chan) { return 0; }
 	virtual void SetSource(FSoundChan* chan, int index) {}
+	std::vector<uint8_t> ReadSound(int lumpnum) override;
 };

@@ -85,6 +85,18 @@ void FX_SetReverb(int strength)
 
 //==========================================================================
 //
+//
+// 
+//==========================================================================
+
+std::vector<uint8_t> RazeSoundEngine::ReadSound(int lumpnum)
+{
+	auto wlump = fileSystem.OpenFileReader(lumpnum);
+	return wlump.Read();
+}
+
+//==========================================================================
+//
 // S_NoiseDebug
 //
 // [RH] Print sound debug info. Called by status bar.

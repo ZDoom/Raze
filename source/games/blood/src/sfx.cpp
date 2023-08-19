@@ -33,7 +33,6 @@ class BloodSoundEngine : public RazeSoundEngine
 {
 	// client specific parts of the sound engine go in this class.
 	void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* channel) override;
-	std::vector<uint8_t> ReadSound(int lumpnum) override;
 
 public:
 	BloodSoundEngine()
@@ -62,12 +61,6 @@ public:
 //
 // 
 //==========================================================================
-
-std::vector<uint8_t> BloodSoundEngine::ReadSound(int lumpnum)
-{
-	auto wlump = fileSystem.OpenFileReader(lumpnum);
-	return wlump.Read();
-}
 
 void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan*)
 {

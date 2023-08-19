@@ -137,7 +137,6 @@ class EXSoundEngine : public RazeSoundEngine
 {
     // client specific parts of the sound engine go in this class.
     void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
-    std::vector<uint8_t> ReadSound(int lumpnum) override;
 
 public:
     EXSoundEngine()
@@ -158,19 +157,6 @@ public:
     }
 
 };
-
-//==========================================================================
-//
-//
-// 
-//==========================================================================
-
-std::vector<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
-{
-    auto wlump = fileSystem.OpenFileReader(lumpnum);
-    return wlump.Read();
-}
-
 
 //==========================================================================
 //
