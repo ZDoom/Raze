@@ -128,7 +128,6 @@ public:
 	std::vector<uint8_t> GetFileData(int lump, int pad = 0);	// reads lump into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
 	std::vector<uint8_t> GetFileData(const char* name, int pad = 0) { return GetFileData(GetNumForName(name), pad); }
 	FileData ReadFile (int lump);
-	FileData ReadFile (const char *name) { return ReadFile (GetNumForName (name)); }
 
 	inline std::vector<uint8_t> LoadFile(const char* name, int padding = 0)
 	{
