@@ -35,9 +35,9 @@ public:
 	FileData (const FileData &copy);
 	FileData &operator= (const FileData &copy);
 	~FileData ();
-	void *GetMem () { return Block.Len() == 0 ? NULL : (void *)Block.GetChars(); }
+	const void *GetMem () { return Block.Len() == 0 ? NULL : (void *)Block.GetChars(); }
 	size_t GetSize () { return Block.Len(); }
-	const FString &GetString () const { return Block; }
+	const char* GetString () const { return Block.GetChars(); }
 
 private:
 	FileData (const FString &source);
@@ -125,15 +125,10 @@ public:
 	inline int GetNumForFullName (const FString &name) { return GetNumForFullName(name.GetChars()); }
 
 	void ReadFile (int lump, void *dest);
-	std::vector<uint8_t> GetFileData(int lump, int pad = 0);	// reads lump into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
-	std::vector<uint8_t> GetFileData(const char* name, int pad = 0) { return GetFileData(GetNumForName(name), pad); }
+	// These should only be used if the file data really needs padding.
 	FileData ReadFile (int lump);
-
-	inline std::vector<uint8_t> LoadFile(const char* name, int padding = 0)
-	{
-		auto lump = GetNumForFullName(name);
-		return GetFileData(lump, padding);
-	}
+	FileData ReadFile (const char *name) { return ReadFile (GetNumForName (name)); }
+	FileData ReadFileFullName(const char* name) { return ReadFile(GetNumForFullName(name)); }
 
 	FileReader OpenFileReader(int lump);		// opens a reader that redirects to the containing file's one.
 	FileReader ReopenFileReader(int lump, bool alwayscache = false);		// opens an independent reader.

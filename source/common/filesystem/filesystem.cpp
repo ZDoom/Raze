@@ -1296,34 +1296,6 @@ unsigned FileSystem::GetFilesInFolder(const char *inpath, TArray<FolderEntry> &r
 
 //==========================================================================
 //
-// GetFileData
-//
-// Loads the lump into a TArray and returns it.
-//
-//==========================================================================
-
-std::vector<uint8_t> FileSystem::GetFileData(int lump, int pad)
-{
-	std::vector<uint8_t> data;
-
-	if ((size_t)lump >= FileInfo.Size())
-		return data;
-
-	auto lumpr = OpenFileReader(lump);
-	auto size = lumpr.GetLength();
-	data.resize(size + pad);
-	auto numread = lumpr.Read(data.data(), size);
-
-	if (numread != size)
-	{
-		throw FileSystemException("GetFileData: only read %ld of %ld on lump %i\n",
-			numread, size, lump);
-	}
-	if (pad > 0) memset(&data[size], 0, pad);
-	return data;
-}
-//==========================================================================
-//
 // W_ReadFile
 //
 // Loads the lump into the given buffer, which must be >= W_LumpLength().
