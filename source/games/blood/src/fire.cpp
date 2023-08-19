@@ -106,7 +106,8 @@ void FireInit(void)
 	auto fr = fileSystem.OpenFileReader("rfire.clu");
 	if (!fr.isOpen())
 		I_Error("RFIRE.CLU not found");
-	gCLU = fr.Read();
+	gCLU.Resize((unsigned)fr.GetLength());
+	fr.Read(gCLU.Data(), fr.GetLength());
 	for (int i = 0; i < 100; i++)
 		DoFireFrame();
 }

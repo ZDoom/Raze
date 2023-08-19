@@ -50,6 +50,7 @@
 #include "tiletexture.h"
 #include "games/blood/src/mapstructs.h"
 #include "buildtiles.h"
+#include "m_swap.h"
 
 extern BitArray clipsectormap;
 
@@ -546,7 +547,7 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, secto
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
 	uint8_t md4[16];
-	md4once(buffer.Data(), buffer.Size(), md4);
+	md4once(buffer.data(), (unsigned)buffer.size(), md4);
 	PostProcessLevel(md4, filename, sprites);
 	loadMapHack(filename, md4, sprites);
 	setWallSectors();
@@ -697,7 +698,7 @@ TArray<walltype> loadMapWalls(const char* filename)
 	if (isBlood())
 	{
 		auto data = fr.Read();
-		P_LoadBloodMapWalls(data.Data(), data.Size(), lwalls);
+		P_LoadBloodMapWalls(data.data(), data.size(), lwalls);
 		return lwalls;
 	}
 

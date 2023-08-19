@@ -85,7 +85,7 @@ class DukeSoundEngine : public RazeSoundEngine
 {
 	// client specific parts of the sound engine go in this class.
 	void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
-	TArray<uint8_t> ReadSound(int lumpnum) override;
+	std::vector<uint8_t> ReadSound(int lumpnum) override;
 
 public:
 	DukeSoundEngine()
@@ -145,7 +145,7 @@ static FSoundID GetReplacementSound(FSoundID soundNum)
 // 
 //==========================================================================
 
-TArray<uint8_t> DukeSoundEngine::ReadSound(int lumpnum)
+std::vector<uint8_t> DukeSoundEngine::ReadSound(int lumpnum)
 {
 	auto wlump = fileSystem.OpenFileReader(lumpnum);
 	return wlump.Read();

@@ -176,7 +176,7 @@ static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
 			resfile = FResourceFile::OpenResourceFile(filename, fr, true);
 		}
 		else
-			resfile = FResourceFile::OpenDirectory(filename, true);
+			resfile = FResourceFile::OpenDirectory(filename);
 
 		FName gameinfo = "GAMEINFO.TXT";
 		if (resfile != NULL)
@@ -189,7 +189,7 @@ static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
 				if (FName(lmp->getName(), true) == gameinfo)
 				{
 					// Found one!
-					auto bases = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
+					auto bases = ParseGameInfo(pwads, resfile->FileName.c_str(), (const char*)lmp->Lock(), lmp->LumpSize);
 					delete resfile;
 					return bases;
 				}
@@ -279,7 +279,6 @@ static void DeleteStuff(FileSystem &fileSystem, const TArray<FString>& deletelum
 //
 //
 //==========================================================================
-const char* iwad_folders[13] = { "textures/", "hires/", "sounds/", "music/", "maps/" };
 const char* iwad_reserved_duke[12] = { ".map", "rmapinfo", ".con", "menudef", "gldefs", "zscript", "maps/", nullptr };
 const char* iwad_reserved_blood[12] = { ".map", "rmapinfo", ".ini", "menudef", "gldefs", "zscript", "maps/", nullptr };
 const char* iwad_reserved_sw[12] = { ".map", "rmapinfo", "swcustom.txt", "menudef", "gldefs", "zscript", "maps/", nullptr };
@@ -290,6 +289,36 @@ const char** iwad_reserved()
 	return (g_gameType & GAMEFLAG_PSEXHUMED) ? iwad_reserved_ex :
 		isSWALL() ? iwad_reserved_sw :
 		(g_gameType & GAMEFLAG_BLOOD) ? iwad_reserved_blood : iwad_reserved_duke;
+}
+
+static int FileSystemPrintf(FSMessageLevel level, const char* fmt, ...)
+{
+	va_list arg;
+	va_start(arg, fmt);
+	FString text;
+	text.VFormat(fmt, arg);
+	switch (level)
+	{
+	case FSMessageLevel::Error:
+		return Printf(TEXTCOLOR_RED "%s", text.GetChars());
+		break;
+	case FSMessageLevel::Warning:
+		Printf(TEXTCOLOR_YELLOW "%s", text.GetChars());
+		break;
+	case FSMessageLevel::Attention:
+		Printf(TEXTCOLOR_BLUE "%s", text.GetChars());
+		break;
+	case FSMessageLevel::Message:
+		Printf("%s", text.GetChars());
+		break;
+	case FSMessageLevel::DebugWarn:
+		DPrintf(DMSG_WARNING, "%s", text.GetChars());
+		break;
+	case FSMessageLevel::DebugNotify:
+		DPrintf(DMSG_NOTIFY, "%s", text.GetChars());
+		break;
+	}
+	return (int)text.Len();
 }
 
 void InitFileSystem(TArray<GrpEntry>& groups)
@@ -392,24 +421,23 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	}
 	todelete.Append(userConfig.toBeDeleted);
 	LumpFilterInfo lfi;
-	for (auto p : iwad_folders) lfi.reservedFolders.Push(p);
-	for (auto p = iwad_reserved(); *p; p++) lfi.requiredPrefixes.Push(*p);
+	lfi.reservedFolders = { "textures/", "hires/", "sounds/", "music/", "maps/" };
+	for (auto p = iwad_reserved(); *p; p++) lfi.requiredPrefixes.push_back(*p);
 	if (isBlood())
 	{
-		lfi.embeddings.Push("blood.rff");
-		lfi.embeddings.Push("sounds.rff");
+		lfi.embeddings = { "blood.rff", "sounds.rff" };
 	}
 
 	lfi.dotFilter = LumpFilter;
 
-	if (isDukeEngine()) lfi.gameTypeFilter.Push("DukeEngine");
-	if (isDukeLike()) lfi.gameTypeFilter.Push("DukeLike");
+	if (isDukeEngine()) lfi.gameTypeFilter.push_back("DukeEngine");
+	if (isDukeLike()) lfi.gameTypeFilter.push_back("DukeLike");
 
 	lfi.postprocessFunc = [&]()
 	{
 		DeleteStuff(fileSystem, todelete, groups.Size());
 	};
-	fileSystem.InitMultipleFiles(Files, false, &lfi);
+	fileSystem.InitMultipleFiles(Files, &lfi);
 	if (Args->CheckParm("-dumpfs"))
 	{
 		FILE* f = fopen("filesystem.dir", "wb");

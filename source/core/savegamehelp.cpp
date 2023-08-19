@@ -67,11 +67,11 @@
 #include <zlib.h>
 
 #include "buildtiles.h"
+#include "fs_findfile.h"
 
 
 
 void WriteSavePic(FileWriter* file, int width, int height);
-bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
 extern FString savename;
 extern FString BackupSaveGame;
 int SaveVersion;
@@ -114,7 +114,7 @@ static void SerializeSession(FSerializer& arc)
 
 bool ReadSavegame(const char* name)
 {
-	auto savereader = FResourceFile::OpenResourceFile(name, true, true);
+	auto savereader = FResourceFile::OpenResourceFile(name, true);
 
 	if (savereader != nullptr)
 	{
@@ -234,8 +234,10 @@ bool WriteSavegame(const char* filename, const char *name)
 	savegame_filenames.Push("info.json");
 	savegame_content.Push(savegamesession.GetCompressedOutput());
 	savegame_filenames.Push("session.json");
+	for (unsigned i = 0; i < savegame_content.Size(); i++)
+		savegame_content[i].filename = savegame_filenames[i].GetChars();
 
-	if (WriteZip(filename, savegame_filenames, savegame_content))
+	if (WriteZip(filename, savegame_content.Data(), savegame_content.Size()))
 	{
 		// Check whether the file is ok by trying to open it.
 		FResourceFile* test = FResourceFile::OpenResourceFile(filename, true);
@@ -318,7 +320,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 {
 	auto data = fr.Read();
 	FSerializer arc;
-	if (!arc.OpenReader((const char*)data.Data(), data.Size()))
+	if (!arc.OpenReader((const char*)data.data(), data.size()))
 	{
 		return -2;
 	}

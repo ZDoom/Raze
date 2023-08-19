@@ -40,6 +40,7 @@
 #include "texturemanager.h"
 #include "filesystem.h"
 #include "printf.h"
+#include "m_swap.h"
 
 
 class FTileTexture : public FImageSource
@@ -439,7 +440,8 @@ static void AddArtFile(const FString& filename)
 	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (fr.isOpen())
 	{
-		auto artdata = fr.Read();
+		TArray<uint8_t> artdata(fr.GetLength());
+		fr.Read(artdata.Data(), artdata.Size());
 		if (artdata.Size() > 16)
 		{
 			if (memcmp(artdata.Data(), "BUILDART", 8) == 0)

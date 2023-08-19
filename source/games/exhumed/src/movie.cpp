@@ -140,7 +140,7 @@ public:
             case kFrameSound:
             {
                 auto buffer = fp.Read(nSize);
-                assert(buffer.Size() == kSampleSize);
+                assert(buffer.size() == kSampleSize);
                 auto wbuffer = audio.samples + audio.nWrite * kSampleSize;
                 for (int i = 0; i < 2205; i++)
                 {

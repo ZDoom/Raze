@@ -77,7 +77,7 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, const DVector2& view, angle_
 		DVector2 vv;
 		vv.X = w.pos.X - view.X;
 		vv.Y = w.pos.Y + view.Y; // beware of different coordinate systems!
-		w.clipangle = RAD2BAM(atan2(vv.Y, vv.X));
+		w.clipangle = vv.Angle().BAMs();
 	}
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
 	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));

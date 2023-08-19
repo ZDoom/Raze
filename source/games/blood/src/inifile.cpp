@@ -172,7 +172,7 @@ void IniFile::Load()
     if (fp.isOpen())
     {
 		auto pBuffer = fp.ReadPadded(1);
-        LoadRes(pBuffer.Data());
+        LoadRes(pBuffer.data());
     }
     else
         curNode->next = &head;

@@ -234,12 +234,12 @@ void GameInterface::loadPalette(void)
 
     paletteLoadFromDisk();
     auto pal = fileSystem.LoadFile("3drealms.pal", 0);
-    if (pal.Size() >= 768)
+    if (pal.size() >= 768)
     {
         for (auto& c : pal)
             c <<= 2;
 
-        paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
+        paletteSetColorTable(DREALMSPAL, pal.data(), true, true);
     }
 
 

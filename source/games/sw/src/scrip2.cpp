@@ -67,21 +67,21 @@ static bool    tokenready;                     // only true if UnGetToken was ju
 ==============
 */
 
-TArray<uint8_t> LoadScriptFile(const char *filename)
+std::vector<uint8_t> LoadScriptFile(const char *filename)
 {
     FileReader fp;
 
 	if (!(fp = fileSystem.OpenFileReader(filename)).isOpen())
 	{
 		// If there's no script file, forget it.
-		return TArray<uint8_t>();
+		return std::vector<uint8_t>();
 	}
 
     auto scriptbuffer = fp.Read();
 
-    if (scriptbuffer.Size() != 0)
+    if (scriptbuffer.size() != 0)
     {
-        scriptbuffer.Push(0);
+        scriptbuffer.push_back(0);
         scriptline = 1;
         endofscript = false;
         tokenready = false;
@@ -194,12 +194,12 @@ void LoadKVXFromScript(TilesetBuildInfo& info, const char* filename)
 
     // Load the file
     auto buffer = LoadScriptFile(filename);
-    if (!buffer.Size())
+    if (!buffer.size())
     {
         return;
     }
-    script_p = (char*)buffer.Data();
-    scriptend_p = (char*)&buffer.Last();
+    script_p = (char*)buffer.data();
+    scriptend_p = (char*)&buffer.back();
 
     do
     {

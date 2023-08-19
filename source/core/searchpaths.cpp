@@ -47,6 +47,7 @@
 #include "filesystem.h"
 #include "findfile.h"
 #include "engineerrors.h"
+#include "fs_findfile.h"
 
 static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7", ".rff"};
 
@@ -189,23 +190,13 @@ void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 	FString AbsPath = M_GetNormalizedPath(dirpath);
 	if (DirExists(AbsPath))
 	{
-		findstate_t findstate;
-		void* handle;
-		if ((handle = I_FindFirst(AbsPath + "/*", &findstate)) != (void*)-1)
+		FileList list;
+		if (ScanDirectory(list, AbsPath, "*", true))
 		{
-			do
+			for (auto& entry : list)
 			{
-				if (I_FindAttr(&findstate) & FA_DIREC)
-				{
-					auto p = I_FindName(&findstate);
-					if (strcmp(p, ".") && strcmp(p, ".."))
-					{
-						FStringf fullpath("%s/%s", AbsPath.GetChars(), p);
-						searchpath.Push(fullpath);
-					}
-				}
-			} while (I_FindNext(handle, &findstate) == 0);
-			I_FindClose(handle);
+				if (entry.isDirectory) searchpath.Push(entry.FilePath.c_str());
+			}
 		}
 	}
 }
@@ -313,23 +304,21 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 	{
 		if (DirExists(path))
 		{
-			findstate_t findstate;
-			void* handle;
-			if ((handle = I_FindFirst(path + "/*.*", &findstate)) != (void*)-1)
+			FileList list;
+			if (ScanDirectory(list, path, "*", true))
 			{
-				do
+				for (auto& entry : list)
 				{
-					if (!(I_FindAttr(&findstate) & FA_DIREC))
+					if (!entry.isDirectory)
 					{
-						auto p = I_FindName(&findstate);
 						filelist.Reserve(1);
 						auto& flentry = filelist.Last();
-						flentry.FileName.Format("%s/%s", path.GetChars(), p);
+						flentry.FileName = entry.FilePath.c_str();
 						GetFileInfo(flentry.FileName, &flentry.FileLength, &flentry.FileTime);
 						flentry.Index = index++; // to preserve order when working on the list.
+
 					}
-				} while (I_FindNext(handle, &findstate) == 0);
-				I_FindClose(handle);
+				}
 			}
 		}
 	}
@@ -429,7 +418,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 
 	FScanner sc;
 	auto mem = fr.Read();
-	sc.OpenMem(fn, (const char *)mem.Data(), mem.Size());
+	sc.OpenMem(fn, (const char *)mem.data(), (int)mem.size());
 
 	while (sc.GetToken())
 	{
@@ -636,7 +625,7 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 	// This opens the base resource only for reading the grpinfo from it which we need before setting up the game state.
 	std::unique_ptr<FResourceFile> engine_res;
 	const char* baseres = BaseFileSearch(ENGINERES_FILE, nullptr, true, GameConfig);
-	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
+	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true));
 	if (engine_res)
 	{
 		auto basegrp = engine_res->FindLump("engine/grpinfo.txt");
@@ -790,7 +779,7 @@ TArray<GrpEntry> GrpScan()
 			{
 				if (strcmp(ext, fn.GetChars() + fn.Len() - 4) == 0)
 				{
-					auto resf = FResourceFile::OpenResourceFile(fe->FileName, true, true);
+					auto resf = FResourceFile::OpenResourceFile(fe->FileName, true);
 					if (resf)
 					{
 						for (auto grp : contentGroupList)

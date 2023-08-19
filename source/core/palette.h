@@ -15,6 +15,7 @@
 #include "filesystem.h"
 #include "zstring.h"
 #include "palentry.h"
+#include "basics.h"
 
 
 enum

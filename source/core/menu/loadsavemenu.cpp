@@ -45,6 +45,7 @@
 #include "v_video.h"
 #include "findfile.h"
 #include "v_draw.h"
+#include "fs_findfile.h"
 #include "savegamehelp.h"
 
 //=============================================================================
@@ -59,22 +60,14 @@ void FSavegameManager::ReadSaveStrings()
 {
 	if (SaveGames.Size() == 0)
 	{
-		void *filefirst;
-		findstate_t c_file;
-		FString filter;
-
 		LastSaved = LastAccessed = -1;
 		quickSaveSlot = nullptr;
-		filter = G_BuildSaveName("*");
-		filefirst = I_FindFirst(filter.GetChars(), &c_file);
-		if (filefirst != ((void *)(-1)))
+		FileList list;
+		if (ScanDirectory(list, G_GetSavegamesFolder().GetChars(), "*." SAVEGAME_EXT, true))
 		{
-			do
+			for (auto& entry : list)
 			{
-				// I_FindName only returns the file's name and not its full path
-				FString filepath = G_BuildSaveName(I_FindName(&c_file));
-
-				FResourceFile *savegame = FResourceFile::OpenResourceFile(filepath, true, true);
+				FResourceFile *savegame = FResourceFile::OpenResourceFile(entry.FilePath.c_str(), true);
 				if (savegame != nullptr)
 				{
 					FResourceLump *info = savegame->FindLump("info.json");
@@ -92,15 +85,14 @@ void FSavegameManager::ReadSaveStrings()
 					if (check != 0)
 					{
 						FSaveGameNode *node = new FSaveGameNode;
-						node->Filename = filepath;
+						node->Filename = entry.FilePath.c_str();
 						node->bOldVersion = check == -1;
 						node->bMissingWads = check == -2;
 						node->SaveTitle = title;
 						InsertSaveNode(node);
 					}
 				}
-			} while (I_FindNext (filefirst, &c_file) == 0);
-			I_FindClose (filefirst);
+			} 
 		}
 	}
 }

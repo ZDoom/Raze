@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_sections.h"
 #include "sectorgeometry.h"
 #include "psky.h"
+#include "m_swap.h"
 
 #include "blood.h"
 
@@ -612,11 +613,11 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
 	uint8_t md4[16];
-	md4once(buffer.Data(), buffer.Size(), md4);
+	md4once(buffer.data(), (unsigned)buffer.size(), md4);
 	PostProcessLevel(md4, mapname, sprites);
 	loadMapHack(mapname, md4, sprites);
 
-	if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)
+	if (CalcCRC32(buffer.data(), (unsigned)buffer.size() - 4) != nCRC)
 	{
 		I_Error("%s: Map File does not match CRC", mapname.GetChars());
 	}

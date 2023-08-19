@@ -5,6 +5,7 @@
 #include "tiletexture.h"
 #include "s_soundinternal.h"
 
+class FGameTexture;
 // extended texture info for which there is no room in the texture manager.
 
 enum AnimFlags

@@ -553,8 +553,8 @@ void GameInterface::loadPalette(void)
 	for (int i = 0; i < 5; i++)
 	{
 		auto pal = fileSystem.LoadFile(PAL[i]);
-		if (pal.Size() < 768) I_FatalError("%s: file too small", PAL[i]);
-		paletteSetColorTable(i, pal.Data(), false, false);
+		if (pal.size() < 768) I_FatalError("%s: file too small", PAL[i]);
+		paletteSetColorTable(i, pal.data(), false, false);
 	}
 
 	numshades = 64;
@@ -567,12 +567,12 @@ void GameInterface::loadPalette(void)
 			else continue;
 		}
 		auto data = fileSystem.GetFileData(lump);
-		if (data.Size() != 64 * 256)
+		if (data.size() != 64 * 256)
 		{
 			if (i < 15) I_FatalError("%s: Incorrect PLU size", PLU[i]);
 			else continue;
 		}
-		lookups.setTable(i, data.Data());
+		lookups.setTable(i, data.data());
 	}
 
 	lookups.setFadeColor(1, 255, 255, 255);

@@ -137,7 +137,7 @@ class EXSoundEngine : public RazeSoundEngine
 {
     // client specific parts of the sound engine go in this class.
     void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
-    TArray<uint8_t> ReadSound(int lumpnum) override;
+    std::vector<uint8_t> ReadSound(int lumpnum) override;
 
 public:
     EXSoundEngine()
@@ -165,7 +165,7 @@ public:
 // 
 //==========================================================================
 
-TArray<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
+std::vector<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
 {
     auto wlump = fileSystem.OpenFileReader(lumpnum);
     return wlump.Read();
@@ -191,7 +191,7 @@ int LoadSound(const char* name)
     {
         auto check = fileSystem.GetFileData(lump);
 		bool loops = false;
-        if (check.Size() > 26 && check[26] == 6 && !memcmp("Creative Voice File", check.Data(), 19))
+        if (check.size() > 26 && check[26] == 6 && !memcmp("Creative Voice File", check.data(), 19))
         {
             // This game uses the actual loop point information in the sound data as its only means to check if a sound is looped.
             loops = true;

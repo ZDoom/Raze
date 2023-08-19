@@ -320,7 +320,7 @@ CCMD(md4sum)
 		{
 			auto data = fr.Read();
 			uint8_t digest[16];
-			md4once(data.Data(), data.Size(), digest);
+			md4once(data.data(), data.size(), digest);
 			for (int j = 0; j < 16; ++j)
 			{
 				Printf("%02x", digest[j]);

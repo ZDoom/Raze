@@ -1089,7 +1089,7 @@ int ConCompiler::parsecommand()
 		temp_ifelse_check = checking_ifelse;
 		checking_ifelse = 0;
 		auto origtptr = textptr;
-		textptr = (char*)data.Data();
+		textptr = (char*)data.data();
 
 		do
 			done = parsecommand();
@@ -3107,7 +3107,7 @@ void ConCompiler::compilecon(const char *filenam)
 	}
 	Printf("Compiling: '%s'.\n", filenam);
 	auto data = fileSystem.GetFileData(currentsourcefile, 1);
-	textptr = (char*)data.Data();
+	textptr = (char*)data.data();
 
 	line_number = 1;
 	errorcount = warningcount = 0;

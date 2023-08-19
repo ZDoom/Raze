@@ -194,8 +194,6 @@ public:
 };
 
 
-extern char g_modDir[BMAX_PATH];
-
 void G_LoadGroupsInDir(const char* dirname);
 void G_DoAutoload(const char* dirname);
 void DrawRel(FGameTexture* tile, double x, double y, int shade = 0);
