@@ -118,7 +118,7 @@ struct TempMusic
 
 class ConCompiler
 {
-	char* textptr = nullptr;
+	const char* textptr = nullptr;
 	int line_number = 0;
 	int errorcount = 0, warningcount = 0;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
 	int currentsourcefile = -1;
@@ -782,7 +782,7 @@ void ConCompiler::checkforkeyword()
 int ConCompiler::CountCaseStatements()
 {
 	int lCount;
-	char* temptextptr;
+	const char* temptextptr;
 	int savescript;
 	int savecase;
 	int temp_line_number;
@@ -1079,7 +1079,7 @@ int ConCompiler::parsecommand()
 			return 0;
 		}
 
-		auto data = fileSystem.GetFileData(fni, 1);
+		auto data = fileSystem.ReadFile(fni);
 
 		temp_current_file = currentsourcefile;
 		currentsourcefile = fni;
@@ -1089,7 +1089,7 @@ int ConCompiler::parsecommand()
 		temp_ifelse_check = checking_ifelse;
 		checking_ifelse = 0;
 		auto origtptr = textptr;
-		textptr = (char*)data.data();
+		textptr = data.GetString();
 
 		do
 			done = parsecommand();
@@ -3106,8 +3106,8 @@ void ConCompiler::compilecon(const char *filenam)
 		I_FatalError("%s: Missing con file(s).", filenam);
 	}
 	Printf("Compiling: '%s'.\n", filenam);
-	auto data = fileSystem.GetFileData(currentsourcefile, 1);
-	textptr = (char*)data.data();
+	auto data = fileSystem.ReadFile(currentsourcefile);
+	textptr = data.GetString();
 
 	line_number = 1;
 	errorcount = warningcount = 0;

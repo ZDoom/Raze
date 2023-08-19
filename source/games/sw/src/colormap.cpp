@@ -231,15 +231,20 @@ void GameInterface::loadPalette(void)
     unsigned int i;
     int play;
     uint8_t tempbuf[256];
+    uint8_t pal[768];
 
     paletteLoadFromDisk();
-    auto pal = fileSystem.LoadFile("3drealms.pal", 0);
-    if (pal.size() >= 768)
+    auto palr = fileSystem.OpenFileReader("3drealms.pal");
+    if (palr.isOpen())
     {
-        for (auto& c : pal)
-            c <<= 2;
+        auto siz = palr.Read(pal, 768);
+        if (siz == 768)
+        {
+            for (auto& c : pal)
+                c <<= 2;
 
-        paletteSetColorTable(DREALMSPAL, pal.data(), true, true);
+            paletteSetColorTable(DREALMSPAL, pal, true, true);
+        }
     }
 
 
