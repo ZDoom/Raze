@@ -47,6 +47,8 @@
 #include "vectors.h"
 #include "animtexture.h"
 #include "formats/multipatchtexture.h"
+#include "basics.h"
+#include "cmdlib.h"
 
 FTextureManager TexMan;
 
@@ -451,7 +453,7 @@ FTextureID FTextureManager::CreateTexture (int lumpnum, ETextureType usetype)
 	{
 		FString str;
 		if (!usefullnames)
-			fileSystem.GetFileShortName(str, lumpnum);
+			str = fileSystem.GetFileShortName(lumpnum);
 		else
 		{
 			auto fn = fileSystem.GetFileFullName(lumpnum);
@@ -485,7 +487,7 @@ FTextureID FTextureManager::CreateTexture (int lumpnum, ETextureType usetype)
 		}
 		else
 		{
-			Printf (TEXTCOLOR_ORANGE "Invalid data encountered for texture %s\n", fileSystem.GetFileFullPath(lumpnum).GetChars());
+			Printf (TEXTCOLOR_ORANGE "Invalid data encountered for texture %s\n", fileSystem.GetFileFullPath(lumpnum).c_str());
 			return FTextureID(-1);
 		}
 	}
@@ -563,7 +565,6 @@ void FTextureManager::AddGroup(int wadnum, int ns, ETextureType usetype)
 {
 	int firsttx = fileSystem.GetFirstEntry(wadnum);
 	int lasttx = fileSystem.GetLastEntry(wadnum);
-	FString Name;
 
 	if (!usefullnames)
 	{
@@ -574,10 +575,9 @@ void FTextureManager::AddGroup(int wadnum, int ns, ETextureType usetype)
 
 		for (; firsttx <= lasttx; ++firsttx)
 		{
+			auto Name = fileSystem.GetFileShortName(firsttx);
 			if (fileSystem.GetFileNamespace(firsttx) == ns)
 			{
-				fileSystem.GetFileShortName(Name, firsttx);
-
 				if (fileSystem.CheckNumForName(Name, ns) == firsttx)
 				{
 					CreateTexture(firsttx, usetype);
@@ -618,7 +618,6 @@ void FTextureManager::AddHiresTextures (int wadnum)
 	int firsttx = fileSystem.GetFirstEntry(wadnum);
 	int lasttx = fileSystem.GetLastEntry(wadnum);
 
-	FString Name;
 	TArray<FTextureID> tlist;
 
 	if (firsttx == -1 || lasttx == -1)
@@ -630,7 +629,7 @@ void FTextureManager::AddHiresTextures (int wadnum)
 	{
 		if (fileSystem.GetFileNamespace(firsttx) == ns_hires)
 		{
-			fileSystem.GetFileShortName (Name, firsttx);
+			auto Name = fileSystem.GetFileShortName(firsttx);
 
 			if (fileSystem.CheckNumForName (Name, ns_hires) == firsttx)
 			{
@@ -964,8 +963,7 @@ void FTextureManager::AddTexturesForWad(int wadnum, FMultipatchTextureBuilder &b
 	for (int i= firsttx; i <= lasttx; i++)
 	{
 		bool skin = false;
-		FString Name;
-		fileSystem.GetFileShortName(Name, i);
+		auto Name = fileSystem.GetFileShortName(i);
 
 		// Ignore anything not in the global namespace
 		int ns = fileSystem.GetFileNamespace(i);
@@ -997,7 +995,7 @@ void FTextureManager::AddTexturesForWad(int wadnum, FMultipatchTextureBuilder &b
 				if (iwad)
 				{ 
 					// We need to make an exception for font characters of the SmallFont coming from the IWAD to be able to construct the original font.
-					if (Name.IndexOf("STCFN") != 0 && Name.IndexOf("FONTA") != 0) continue;
+					if (strncmp(Name, "STCFN", 5) != 0 && strncmp(Name, "FONTA", 5) != 0) continue;
 					force = true;
 				}
 				else continue;
@@ -1013,7 +1011,7 @@ void FTextureManager::AddTexturesForWad(int wadnum, FMultipatchTextureBuilder &b
 				if (iwad)
 				{
 					// We need to make an exception for font characters of the SmallFont coming from the IWAD to be able to construct the original font.
-					if (Name.IndexOf("STCFN") != 0 && Name.IndexOf("FONTA") != 0) continue;
+					if (strncmp(Name, "STCFN", 5) != 0 && strncmp(Name, "FONTA", 5) != 0) continue;
 				}
 				else continue;
 			}
@@ -1110,7 +1108,7 @@ void FTextureManager::SortTexturesByType(int start, int end)
 
 void FTextureManager::AddLocalizedVariants()
 {
-	TArray<FolderEntry> content;
+	std::vector<FolderEntry> content;
 	fileSystem.GetFilesInFolder("localized/textures/", content, false);
 	for (auto &entry : content)
 	{
@@ -1513,9 +1511,7 @@ void FTextureManager::AdjustSpriteOffsets()
 		if (fileSystem.GetFileContainer(i) > fileSystem.GetMaxIwadNum()) break; // we are past the IWAD
 		if (fileSystem.GetFileNamespace(i) == ns_sprites && fileSystem.GetFileContainer(i) >= fileSystem.GetIwadNum() && fileSystem.GetFileContainer(i) <= fileSystem.GetMaxIwadNum())
 		{
-			char str[9];
-			fileSystem.GetFileShortName(str, i);
-			str[8] = 0;
+			const char *str = fileSystem.GetFileShortName(i);
 			FTextureID texid = TexMan.CheckForTexture(str, ETextureType::Sprite, 0);
 			if (texid.isValid() && fileSystem.GetFileContainer(GetGameTexture(texid)->GetSourceLump()) > fileSystem.GetMaxIwadNum())
 			{

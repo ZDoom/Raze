@@ -145,9 +145,6 @@ public:
 	FString (const char *head, const char *tail);
 	FString (char head, const FString &tail);
 
-	// Other constructors
-	FString (ELumpNum);	// Create from a lump
-
 	~FString ();
 
 	// Discard string's contents, create a new buffer, and lock it.

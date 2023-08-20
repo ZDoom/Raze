@@ -819,9 +819,7 @@ DEFINE_ACTION_FUNCTION(_Wads, GetLumpName)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(lump);
-	FString lumpname;
-	fileSystem.GetFileShortName(lumpname, lump);
-	ACTION_RETURN_STRING(lumpname);
+	ACTION_RETURN_STRING(fileSystem.GetFileShortName(lump));
 }
 
 DEFINE_ACTION_FUNCTION(_Wads, GetLumpFullName)
@@ -843,7 +841,7 @@ DEFINE_ACTION_FUNCTION(_Wads, ReadLump)
 	PARAM_PROLOGUE;
 	PARAM_INT(lump);
 	const bool isLumpValid = lump >= 0 && lump < fileSystem.GetNumEntries();
-	ACTION_RETURN_STRING(isLumpValid ? fileSystem.ReadFile(lump).GetString() : "");
+	ACTION_RETURN_STRING(isLumpValid ? GetStringFromLump(lump) : FString());
 }
 
 //==========================================================================

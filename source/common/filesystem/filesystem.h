@@ -9,9 +9,6 @@
 
 
 #include "files.h"
-#include "tarray.h"
-#include "cmdlib.h"
-#include "zstring.h"
 #include "resourcefile.h"
 
 class FResourceFile;
@@ -30,19 +27,34 @@ union LumpShortName
 class FileData
 {
 public:
-	FileData ();
+	FileData() { lump = nullptr; }
+	const void *GetMem () { return lump->Cache; }
+	size_t GetSize () { return lump->LumpSize; }
+	const char* GetString () const { return (const char*)lump->Cache; }
+	const uint8_t* GetBytes() const { return (const uint8_t*)lump->Cache; }
 
-	FileData (const FileData &copy);
-	FileData &operator= (const FileData &copy);
-	~FileData ();
-	const void *GetMem () { return Block.Len() == 0 ? NULL : (void *)Block.GetChars(); }
-	size_t GetSize () { return Block.Len(); }
-	const char* GetString () const { return Block.GetChars(); }
+	FileData& operator = (const FileData& copy) = delete;
+
+	FileData(const FileData& copy)
+	{
+		lump = copy.lump;
+		lump->Lock();
+	}
+
+	~FileData()
+	{
+		if (lump) lump->Unlock();
+	}
+
 
 private:
-	FileData (const FString &source);
+	FileData(FResourceLump* nlump)
+	{
+		lump = nlump;
+		if (lump) lump->Lock();
+	}
 
-	FString Block;
+	FResourceLump* lump;
 
 	friend class FileSystem;
 };
@@ -67,7 +79,7 @@ public:
 	void SetMaxIwadNum(int x) { MaxIwadIndex = x; }
 
 	bool InitSingleFile(const char *filename, FileSystemMessageFunc Printf = nullptr);
-	bool InitMultipleFiles (TArray<FString> &filenames, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr, bool allowduplicates = false, FILE* hashfile = nullptr);
+	bool InitMultipleFiles (std::vector<std::string>& filenames, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr, bool allowduplicates = false, FILE* hashfile = nullptr);
 	void AddFile (const char *filename, FileReader *wadinfo, LumpFilterInfo* filter, FileSystemMessageFunc Printf, FILE* hashfile);
 	int CheckIfResourceFileLoaded (const char *name) noexcept;
 	void AddAdditionalFile(const char* filename, FileReader* wadinfo = NULL) {}
@@ -85,10 +97,8 @@ public:
 
 	inline int CheckNumForName (const uint8_t *name) { return CheckNumForName ((const char *)name, ns_global); }
 	inline int CheckNumForName (const char *name) { return CheckNumForName (name, ns_global); }
-	inline int CheckNumForName (const FString &name) { return CheckNumForName (name.GetChars()); }
 	inline int CheckNumForName (const uint8_t *name, int ns) { return CheckNumForName ((const char *)name, ns); }
 	inline int GetNumForName (const char *name) { return GetNumForName (name, ns_global); }
-	inline int GetNumForName (const FString &name) { return GetNumForName (name.GetChars(), ns_global); }
 	inline int GetNumForName (const uint8_t *name) { return GetNumForName ((const char *)name); }
 	inline int GetNumForName (const uint8_t *name, int ns) { return GetNumForName ((const char *)name, ns); }
 
@@ -105,24 +115,14 @@ public:
 		return FindFile(name) >= 0;
 	}
 
-	bool FileExists(const FString& name)
-	{
-		return FindFile(name) >= 0;
-	}
-
 	bool FileExists(const std::string& name)
 	{
 		return FindFile(name.c_str()) >= 0;
 	}
 
 	LumpShortName& GetShortName(int i);	// may only be called before the hash chains are set up.
-	FString& GetLongName(int i);	// may only be called before the hash chains are set up.
 	void RenameFile(int num, const char* fn);
 	bool CreatePathlessCopy(const char* name, int id, int flags);
-
-	inline int CheckNumForFullName(const FString &name, bool trynormal = false, int namespc = ns_global) { return CheckNumForFullName(name.GetChars(), trynormal, namespc); }
-	inline int CheckNumForFullName (const FString &name, int wadfile) { return CheckNumForFullName(name.GetChars(), wadfile); }
-	inline int GetNumForFullName (const FString &name) { return GetNumForFullName(name.GetChars()); }
 
 	void ReadFile (int lump, void *dest);
 	// These should only be used if the file data really needs padding.
@@ -143,24 +143,19 @@ public:
 	int FindResource(int resid, const char* type, int filenum = -1) const noexcept;
 	int GetResource(int resid, const char* type, int filenum = -1) const;
 
-
-	static uint32_t LumpNameHash (const char *name);		// [RH] Create hash key from an 8-char name
-
 	int FileLength (int lump) const;
 	int GetFileOffset (int lump);					// [RH] Returns offset of lump in the wadfile
 	int GetFileFlags (int lump);					// Return the flags for this lump
-	void GetFileShortName (char *to, int lump) const;	// [RH] Copies the lump name to to using uppercopy
-	void GetFileShortName (FString &to, int lump) const;
 	const char* GetFileShortName(int lump) const;
 	const char *GetFileFullName (int lump, bool returnshort = true) const;	// [RH] Returns the lump's full name
-	FString GetFileFullPath (int lump) const;		// [RH] Returns wad's name + lump's full name
+	std::string GetFileFullPath (int lump) const;		// [RH] Returns wad's name + lump's full name
 	int GetFileContainer (int lump) const;				// [RH] Returns wadnum for a specified lump
 	int GetFileNamespace (int lump) const;			// [RH] Returns the namespace a lump belongs to
 	void SetFileNamespace(int lump, int ns);
 	int GetResourceId(int lump) const;				// Returns the RFF index number for this lump
 	const char* GetResourceType(int lump) const;
 	bool CheckFileName (int lump, const char *name) const;	// [RH] Returns true if the names match
-	unsigned GetFilesInFolder(const char *path, TArray<FolderEntry> &result, bool atomic) const;
+	unsigned GetFilesInFolder(const char *path, std::vector<FolderEntry> &result, bool atomic) const;
 
 	int GetNumEntries() const
 	{
@@ -169,7 +164,7 @@ public:
 
 	int GetNumWads() const
 	{
-		return Files.Size();
+		return (int)Files.size();
 	}
 
 	void AddLump(FResourceLump* lump);
@@ -183,10 +178,10 @@ protected:
 
 	struct LumpRecord;
 
-	TArray<FResourceFile *> Files;
-	TArray<LumpRecord> FileInfo;
+	std::vector<FResourceFile *> Files;
+	std::vector<LumpRecord> FileInfo;
 
-	TArray<uint32_t> Hashes;	// one allocation for all hash lists.
+	std::vector<uint32_t> Hashes;	// one allocation for all hash lists.
 	uint32_t *FirstLumpIndex;	// [RH] Hashing stuff moved out of lumpinfo structure
 	uint32_t *NextLumpIndex;
 

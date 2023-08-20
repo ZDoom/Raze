@@ -1079,8 +1079,6 @@ int ConCompiler::parsecommand()
 			return 0;
 		}
 
-		auto data = fileSystem.ReadFile(fni);
-
 		temp_current_file = currentsourcefile;
 		currentsourcefile = fni;
 
@@ -1089,7 +1087,8 @@ int ConCompiler::parsecommand()
 		temp_ifelse_check = checking_ifelse;
 		checking_ifelse = 0;
 		auto origtptr = textptr;
-		textptr = data.GetString();
+		auto textstring = GetStringFromLump(fni);
+		textptr = textstring.GetChars();
 
 		do
 			done = parsecommand();
@@ -3106,8 +3105,8 @@ void ConCompiler::compilecon(const char *filenam)
 		I_FatalError("%s: Missing con file(s).", filenam);
 	}
 	Printf("Compiling: '%s'.\n", filenam);
-	auto data = fileSystem.ReadFile(currentsourcefile);
-	textptr = data.GetString();
+	auto textstring = GetStringFromLump(currentsourcefile);
+	textptr = textstring.GetChars();
 
 	line_number = 1;
 	errorcount = warningcount = 0;

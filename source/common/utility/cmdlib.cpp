@@ -36,6 +36,7 @@
 
 #include "cmdlib.h"
 #include "fs_findfile.h"
+#include "filesystem.h"
 #include "files.h"
 #include "md5.h"
 
@@ -1008,3 +1009,20 @@ void uppercopy(char* to, const char* from)
 		to[i] = 0;
 }
 
+//==========================================================================
+//
+// GetStringFromLump
+//
+// Loads a zero terminated string from a lump in the file system
+//==========================================================================
+
+FString GetStringFromLump(int lump)
+{
+	FString ScriptBuffer;
+	auto mem = fileSystem.OpenFileReader(lump);
+	auto buff = ScriptBuffer.LockNewBuffer(mem.GetLength());
+	mem.Read(buff, mem.GetLength());
+	buff[mem.GetLength()] = 0;
+	ScriptBuffer.UnlockBuffer();
+	return ScriptBuffer;
+}
