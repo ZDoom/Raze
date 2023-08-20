@@ -166,7 +166,7 @@ FileReader OpenMusic(const char* musicname)
 				{
 					Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
 				}
-				else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).GetChars());
+				else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).c_str());
 			}
 		}
 	}

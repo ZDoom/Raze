@@ -145,7 +145,7 @@ FILE* hashfile;
 
 InputState inputState;
 int ShowStartupWindow(TArray<GrpEntry> &);
-TArray<FString> GetGameFronUserFiles();
+std::vector<std::string> GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
 void S_ParseSndInfo();
@@ -732,7 +732,7 @@ static TArray<GrpEntry> SetupGame()
 			int g = 0;
 			for (auto& grp : groups)
 			{
-				if (grp.FileInfo.gameid.CompareNoCase(str) == 0)
+				if (grp.FileInfo.gameid.CompareNoCase(str.c_str()) == 0)
 				{
 					userConfig.gamegrp = grp.FileName;
 					groupno = g;

@@ -60,10 +60,10 @@ static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "
 //
 //==========================================================================
 
-static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, const char* data, int size)
+static std::vector<std::string> ParseGameInfo(std::vector<std::string>& pwads, const char* fn, const char* data, int size)
 {
 	FScanner sc;
-	TArray<FString> bases;
+	std::vector<std::string> bases;
 	int pos = 0;
 
 	const char* lastSlash = strrchr(fn, '/');
@@ -78,7 +78,7 @@ static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, con
 		if (!nextKey.CompareNoCase("GAME"))
 		{
 			sc.MustGetString();
-			bases.Push(sc.String);
+			bases.push_back(sc.String);
 		}
 		else if (!nextKey.CompareNoCase("LOAD"))
 		{
@@ -149,17 +149,17 @@ static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, con
 //
 //==========================================================================
 
-static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
+static std::vector<std::string> CheckGameInfo(std::vector<std::string>& pwads)
 {
 	// scan the list of WADs backwards to find the last one that contains a GAMEINFO lump
-	for (int i = pwads.Size() - 1; i >= 0; i--)
+	for (int i = (int)pwads.size() - 1; i >= 0; i--)
 	{
 		bool isdir = false;
 		FResourceFile* resfile;
-		const char* filename = pwads[i];
+		const char* filename = pwads[i].c_str();
 
 		// Does this exist? If so, is it a directory?
-		if (!DirEntryExists(pwads[i], &isdir))
+		if (!DirEntryExists(pwads[i].c_str(), &isdir))
 		{
 			Printf(TEXTCOLOR_RED "Could not find %s\n", filename);
 			continue;
@@ -197,7 +197,7 @@ static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
 			delete resfile;
 		}
 	}
-	return TArray<FString>();
+	return std::vector<std::string>();
 }
 
 //==========================================================================
@@ -206,9 +206,9 @@ static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
 //
 //==========================================================================
 
-TArray<FString> GetGameFronUserFiles()
+std::vector<std::string> GetGameFronUserFiles()
 {
-	TArray<FString> Files;
+	std::vector<std::string> Files;
 
 	if (userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 	{
@@ -229,13 +229,13 @@ TArray<FString> GetGameFronUserFiles()
 			if (DirEntryExists(fn, &isdir) && isdir)
 			{
 				// Insert the GRPs before this entry itself.
-				FString lastfn;
-				Files.Pop(lastfn);
+				std::string lastfn = std::move(Files.back());
+				Files.pop_back();
 				for (auto ext : validexts)
 				{
 					D_AddDirectory(Files, fn, ext, GameConfig);
 				}
-				Files.Push(lastfn);
+				Files.push_back(std::move(lastfn));
 			}
 		}
 	}
@@ -324,7 +324,7 @@ static int FileSystemPrintf(FSMessageLevel level, const char* fmt, ...)
 void InitFileSystem(TArray<GrpEntry>& groups)
 {
 	TArray<int> dependencies;
-	TArray<FString> Files;
+	std::vector<std::string> Files;
 
 	// First comes the engine's own stuff.
 	const char* baseres = BaseFileSearch(ENGINERES_FILE, nullptr, true, GameConfig);
@@ -369,7 +369,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		i--;
 	}
 	fileSystem.SetIwadNum(1);
-	fileSystem.SetMaxIwadNum(Files.Size() - 1);
+	fileSystem.SetMaxIwadNum((int)Files.size() - 1);
 
 	D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
 
@@ -402,13 +402,13 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 			if (DirEntryExists(fname, &isdir) && isdir)
 			{
 				// Insert the GRPs before this entry itself.
-				FString lastfn;
-				Files.Pop(lastfn);
+				std::string lastfn = std::move(Files.back());
+				Files.pop_back();
 				for (auto ext : validexts)
 				{
 					D_AddDirectory(Files, fname, ext, GameConfig);
 				}
-				Files.Push(lastfn);
+				Files.push_back(std::move(lastfn));
 			}
 		}
 	}

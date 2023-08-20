@@ -102,7 +102,7 @@ void LoadVoxelModels()
 			if (voxmodels[i])
 				voxmodels[i]->scale = voxscale[i];
 			else
-				Printf("Unable to load voxel from %s\n", fileSystem.GetFileFullPath(lumpnum).GetChars());
+				Printf("Unable to load voxel from %s\n", fileSystem.GetFileFullPath(lumpnum).c_str());
 		}
 		else 
 		{
