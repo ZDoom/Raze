@@ -52,8 +52,8 @@ public:
 		bTranslucent = false;
 	}
 	virtual uint8_t* GetRawData() = 0;
-	virtual PalettedPixels CreatePalettedPixels(int conversion);
-	virtual int CopyPixels(FBitmap* bmp, int conversion);			// This will always ignore 'luminance'.
+	virtual PalettedPixels CreatePalettedPixels(int conversion, int frame) override;
+	virtual int CopyPixels(FBitmap* bmp, int conversion, int frame) override;			// This will always ignore 'luminance'.
 };
 
 //==========================================================================
@@ -176,7 +176,7 @@ public:
 //
 //==========================================================================
 
-int FTileTexture::CopyPixels(FBitmap* bmp, int conversion)
+int FTileTexture::CopyPixels(FBitmap* bmp, int conversion, int)
 {
 	TArray<uint8_t> buffer;
 	auto ppix = GetRawData();
@@ -188,7 +188,7 @@ int FTileTexture::CopyPixels(FBitmap* bmp, int conversion)
 }
 
 // 'conversion' is meaningless here becazse we do not have to bother with a software renderer.
-PalettedPixels FTileTexture::CreatePalettedPixels(int conversion)
+PalettedPixels FTileTexture::CreatePalettedPixels(int conversion, int)
 {
 	if (GetRawData())
 	{
