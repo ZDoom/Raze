@@ -52,8 +52,8 @@ class FRawPageTexture : public FImageSource
 	int mPaletteLump = -1;
 public:
 	FRawPageTexture (int lumpnum);
-	PalettedPixels CreatePalettedPixels(int conversion) override;
-	int CopyPixels(FBitmap *bmp, int conversion) override;
+	PalettedPixels CreatePalettedPixels(int conversion, int frame = 0) override;
+	int CopyPixels(FBitmap *bmp, int conversion, int frame = 0) override;
 };
 
 //==========================================================================
@@ -170,9 +170,9 @@ FRawPageTexture::FRawPageTexture (int lumpnum)
 //
 //==========================================================================
 
-PalettedPixels FRawPageTexture::CreatePalettedPixels(int conversion)
+PalettedPixels FRawPageTexture::CreatePalettedPixels(int conversion, int frame)
 {
-	FileData lump = fileSystem.ReadFile (SourceLump);
+	auto lump =  fileSystem.ReadFile (SourceLump);
 	auto source = lump.GetBytes();
 	const uint8_t *source_p = source;
 	uint8_t *dest_p;
@@ -199,13 +199,13 @@ PalettedPixels FRawPageTexture::CreatePalettedPixels(int conversion)
 	return Pixels;
 }
 
-int FRawPageTexture::CopyPixels(FBitmap *bmp, int conversion)
+int FRawPageTexture::CopyPixels(FBitmap *bmp, int conversion, int frame)
 {
 	if (mPaletteLump < 0) return FImageSource::CopyPixels(bmp, conversion);
 	else
 	{
-		FileData lump = fileSystem.ReadFile(SourceLump);
-		FileData plump = fileSystem.ReadFile(mPaletteLump);
+		auto lump =  fileSystem.ReadFile(SourceLump);
+		auto plump = fileSystem.ReadFile(mPaletteLump);
 		auto source = lump.GetBytes();
 		auto psource = plump.GetBytes();
 		PalEntry paldata[256];

@@ -41,10 +41,13 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <functional>
+#include <vector>
 #include "fs_swap.h"
 
 #include "tarray.h"
 
+namespace FileSys {
+	
 class FileSystemException : public std::exception
 {
 protected:
@@ -98,31 +101,6 @@ public:
 	virtual const char *GetBuffer() const { return nullptr; }
 	long GetLength () const { return Length; }
 };
-
-class MemoryReader : public FileReaderInterface
-{
-protected:
-	const char * bufptr = nullptr;
-	long FilePos = 0;
-
-	MemoryReader()
-	{}
-
-public:
-	MemoryReader(const char *buffer, long length)
-	{
-		bufptr = buffer;
-		Length = length;
-		FilePos = 0;
-	}
-
-	long Tell() const override;
-	long Seek(long offset, int origin) override;
-	long Read(void *buffer, long len) override;
-	char *Gets(char *strbuf, int len) override;
-	virtual const char *GetBuffer() const override { return bufptr; }
-};
-
 
 struct FResourceLump;
 
@@ -217,8 +195,11 @@ public:
 	std::vector<uint8_t> Read(size_t len)
 	{
 		std::vector<uint8_t> buffer(len);
-		Size length = mReader->Read(&buffer[0], (long)len);
-		buffer.resize((size_t)length);
+		if (len > 0)
+		{
+			Size length = mReader->Read(&buffer[0], (long)len);
+			buffer.resize((size_t)length);
+		}
 		return buffer;
 	}
 
@@ -231,9 +212,13 @@ public:
 	{
 		auto len = GetLength();
 		std::vector<uint8_t> buffer(len + padding);
-		Size length = mReader->Read(&buffer[0], (long)len);
-		if (length < len) buffer.clear();
-		else memset(buffer.data() + len, 0, padding);
+		if (len > 0)
+		{
+			Size length = mReader->Read(&buffer[0], (long)len);
+			if (length < len) buffer.clear();
+			else memset(buffer.data() + len, 0, padding);
+		}
+		else buffer[0] = 0;
 		return buffer;
 	}
 
@@ -271,7 +256,7 @@ public:
 	{
 		uint16_t v = 0;
 		Read(&v, 2);
-		return fs_private::LittleShort(v);
+		return byteswap::LittleShort(v);
 	}
 
 	int16_t ReadInt16()
@@ -283,7 +268,7 @@ public:
 	{
 		uint16_t v = 0;
 		Read(&v, 2);
-		return fs_private::BigShort(v);
+		return byteswap::BigShort(v);
 	}
 
 	int16_t ReadInt16BE()
@@ -295,7 +280,7 @@ public:
 	{
 		uint32_t v = 0;
 		Read(&v, 4);
-		return fs_private::LittleLong(v);
+		return byteswap::LittleLong(v);
 	}
 
 	int32_t ReadInt32()
@@ -307,7 +292,7 @@ public:
 	{
 		uint32_t v = 0;
 		Read(&v, 4);
-		return fs_private::BigLong(v);
+		return byteswap::BigLong(v);
 	}
 
 	int32_t ReadInt32BE()
@@ -325,24 +310,6 @@ public:
 
 
 	friend class FileSystem;
-};
-
-class DecompressorBase : public FileReaderInterface
-{
-	bool exceptions = false;
-public:
-	// These do not work but need to be defined to satisfy the FileReaderInterface.
-	// They will just error out when called.
-	long Tell() const override;
-	long Seek(long offset, int origin) override;
-	char* Gets(char* strbuf, int len) override;
-	void DecompressionError(const char* error, ...) const;
-	void SetOwnsReader();
-	void EnableExceptions(bool on) { exceptions = on; }
-
-protected:
-	FileReader* File = nullptr;
-	FileReader OwnedFile;
 };
 
 
@@ -394,5 +361,6 @@ public:
 	TArray<unsigned char>&& TakeBuffer() { return std::move(mBuffer); }
 };
 
+}
 
 #endif

@@ -431,17 +431,13 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 				{
 					int pl_lump = fileSystem.CheckNumForFullName("shaders/glsl/func_defaultmat2.fp", 0);
 					if (pl_lump == -1) I_Error("Unable to load '%s'", "shaders/glsl/func_defaultmat2.fp");
-					FileData pl_data = fileSystem.ReadFile(pl_lump);
-					fp_comb << "\n";
-					fp_comb.AppendCStrPart(pl_data.GetString(), pl_data.GetSize());
+					fp_comb << "\n" << GetStringFromLump(pl_lump);
 				}
 				else
 				{
 					int pl_lump = fileSystem.CheckNumForFullName("shaders/glsl/func_defaultmat.fp", 0);
 					if (pl_lump == -1) I_Error("Unable to load '%s'", "shaders/glsl/func_defaultmat.fp");
-					FileData pl_data = fileSystem.ReadFile(pl_lump);
-					fp_comb << "\n";
-					fp_comb.AppendCStrPart(pl_data.GetString(), pl_data.GetSize());
+					fp_comb << "\n" << GetStringFromLump(pl_lump);
 
 					if (pp_data.IndexOf("ProcessTexel") < 0)
 					{
@@ -467,9 +463,7 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 			{
 				int pl_lump = fileSystem.CheckNumForFullName("shaders/glsl/func_defaultlight.fp", 0);
 				if (pl_lump == -1) I_Error("Unable to load '%s'", "shaders/glsl/func_defaultlight.fp");
-				FileData pl_data = fileSystem.ReadFile(pl_lump);
-				fp_comb << "\n";
-				fp_comb.AppendCStrPart(pl_data.GetString(), pl_data.GetSize());
+				fp_comb << "\n" << GetStringFromLump(pl_lump);
 			}
 
 			// ProcessMaterial must be considered broken because it requires the user to fill in data they possibly cannot know all about.
@@ -491,8 +485,7 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 	{
 		int pp_lump = fileSystem.CheckNumForFullName(light_fragprog, 0);
 		if (pp_lump == -1) I_Error("Unable to load '%s'", light_fragprog);
-		FileData pp_data = fileSystem.ReadFile(pp_lump);
-		fp_comb.AppendCStrPart(pp_data.GetString(), pp_data.GetSize()) << "\n";
+		fp_comb << GetStringFromLump(pp_lump) << "\n";
 	}
 
 	if (gl.flags & RFL_NO_CLIP_PLANES)

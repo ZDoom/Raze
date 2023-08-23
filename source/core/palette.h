@@ -97,7 +97,7 @@ struct LookupTableInfo
     void makeTable(int palnum, const uint8_t* remapbuf, int r, int g, int b, bool noFloorPal);
     int setTable(int palnum, const uint8_t* remap);
     void postLoadTables();
-    int loadTable(FileReader& fp);
+    int loadTable(FileSys::FileReader& fp);
     void postLoadLookups();
     void setupDefaultFog();
 

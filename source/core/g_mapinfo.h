@@ -37,7 +37,6 @@
 #include "autosegs.h"
 #include "vectors.h"
 #include "sc_man.h"
-#include "file_zip.h"
 #include "actorinfo.h"
 
 struct SpawnRec

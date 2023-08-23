@@ -40,6 +40,7 @@
 #include <string>
 #include "tarray.h"
 #include "utf8.h"
+#include "filesystem.h"
 
 #ifdef __GNUC__
 #define PRINTFISH(x) __attribute__((format(printf, 2, x)))

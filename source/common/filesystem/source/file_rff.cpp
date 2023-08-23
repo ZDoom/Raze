@@ -33,10 +33,11 @@
 **
 */
 
-#include "resourcefile.h"
+#include "resourcefile_internal.h"
 #include "fs_swap.h"
 
-using namespace fs_private;
+namespace FileSys {
+	using namespace byteswap;
 
 //==========================================================================
 //
@@ -110,7 +111,7 @@ class FRFFFile : public FResourceFile
 	FRFFLump *Lumps;
 
 public:
-	FRFFFile(const char * filename, FileReader &file);
+	FRFFFile(const char * filename, FileReader &file, StringPool* sp);
 	virtual ~FRFFFile();
 	virtual bool Open(LumpFilterInfo* filter);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
@@ -123,8 +124,8 @@ public:
 //
 //==========================================================================
 
-FRFFFile::FRFFFile(const char *filename, FileReader &file)
-: FResourceFile(filename, file)
+FRFFFile::FRFFFile(const char *filename, FileReader &file, StringPool* sp)
+: FResourceFile(filename, file, sp)
 {
 	Lumps = NULL;
 }
@@ -172,7 +173,7 @@ bool FRFFFile::Open(LumpFilterInfo*)
 		name[len+2] = lumps[i].Extension[1];
 		name[len+3] = lumps[i].Extension[2];
 		name[len+4] = 0;
-		Lumps[i].LumpNameSetup(name);
+		Lumps[i].LumpNameSetup(name, stringpool);
 	}
 	delete[] lumps;
 	GenerateHash();
@@ -238,7 +239,7 @@ int FRFFLump::FillCache()
 //
 //==========================================================================
 
-FResourceFile *CheckRFF(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
+FResourceFile *CheckRFF(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
 {
 	char head[4];
 
@@ -249,7 +250,7 @@ FResourceFile *CheckRFF(const char *filename, FileReader &file, LumpFilterInfo* 
 		file.Seek(0, FileReader::SeekSet);
 		if (!memcmp(head, "RFF\x1a", 4))
 		{
-			auto rf = new FRFFFile(filename, file);
+			auto rf = new FRFFFile(filename, file, sp);
 			if (rf->Open(filter)) return rf;
 
 			file = std::move(rf->Reader); // to avoid destruction of reader
@@ -260,4 +261,4 @@ FResourceFile *CheckRFF(const char *filename, FileReader &file, LumpFilterInfo* 
 }
 
 
-
+}

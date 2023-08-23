@@ -38,7 +38,10 @@
 
 #include "resourcefile.h"
 #include "fs_findfile.h"
+#include "fs_stringpool.h"
 
+namespace FileSys {
+	
 std::string FS_FullPath(const char* directory);
 
 #ifdef _WIN32
@@ -75,7 +78,7 @@ class FDirectory : public FResourceFile
 	void AddEntry(const char *fullpath, int size);
 
 public:
-	FDirectory(const char * dirname, bool nosubdirflag = false);
+	FDirectory(const char * dirname, StringPool* sp, bool nosubdirflag = false);
 	bool Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
@@ -88,11 +91,12 @@ public:
 //
 //==========================================================================
 
-FDirectory::FDirectory(const char * directory, bool nosubdirflag)
-: FResourceFile(NULL), nosubdir(nosubdirflag)
+FDirectory::FDirectory(const char * directory, StringPool* sp, bool nosubdirflag)
+	: FResourceFile("", sp), nosubdir(nosubdirflag)
 {
-	FileName = FS_FullPath(directory);
-	if (FileName[FileName.length()-1] != '/') FileName += '/';
+	auto fn = FS_FullPath(directory);
+	if (fn.back() != '/') fn += '/';
+	FileName = sp->Strdup(fn.c_str());
 }
 
 //==========================================================================
@@ -129,6 +133,7 @@ int FDirectory::AddDirectory(const char *dirpath, LumpFilterInfo* filter, FileSy
 					if (entry.Length > 0x7fffffff)
 					{
 						Printf(FSMessageLevel::Warning, "%s is larger than 2GB and will be ignored\n", entry.FilePath.c_str());
+						continue;
 					}
 					AddEntry(entry.FilePathRel.c_str(), (int)entry.Length);
 					count++;
@@ -147,7 +152,7 @@ int FDirectory::AddDirectory(const char *dirpath, LumpFilterInfo* filter, FileSy
 
 bool FDirectory::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 {
-	NumLumps = AddDirectory(FileName.c_str(), filter, Printf);
+	NumLumps = AddDirectory(FileName, filter, Printf);
 	PostProcessArchive(&Lumps[0], sizeof(FDirectoryLump), filter);
 	return true;
 }
@@ -166,11 +171,11 @@ void FDirectory::AddEntry(const char *fullpath, int size)
 	lump_p->mFullPath = fullpath;
 
 	// [mxd] Convert name to lowercase
-	std::string name = fullpath + FileName;
+	std::string name = fullpath + strlen(FileName);
 	for (auto& c : name) c = tolower(c);
 
 	// The lump's name is only the part relative to the main directory
-	lump_p->LumpNameSetup(name.c_str());
+	lump_p->LumpNameSetup(name.c_str(), stringpool);
 	lump_p->LumpSize = size;
 	lump_p->Owner = this;
 	lump_p->Flags = 0;
@@ -220,11 +225,12 @@ int FDirectoryLump::FillCache()
 //
 //==========================================================================
 
-FResourceFile *CheckDir(const char *filename, bool nosubdirflag, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
+FResourceFile *CheckDir(const char *filename, bool nosubdirflag, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
 {
-	auto rf = new FDirectory(filename, nosubdirflag);
+	auto rf = new FDirectory(filename, sp, nosubdirflag);
 	if (rf->Open(filter, Printf)) return rf;
 	delete rf;
 	return nullptr;
 }
 
+}

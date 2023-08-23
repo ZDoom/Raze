@@ -1,9 +1,8 @@
 /*
-** file_grp.cpp
+** file_lump.cpp
 **
 **---------------------------------------------------------------------------
-** Copyright 1998-2009 Randy Heit
-** Copyright 2005-2009 Christoph Oelckers
+** Copyright 2009 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -33,59 +32,31 @@
 **
 */
 
-#include "resourcefile.h"
-#include "fs_swap.h"
+#include "resourcefile_internal.h"
 
-using namespace fs_private;
-
+namespace FileSys {
 //==========================================================================
 //
-//
+// Single lump
 //
 //==========================================================================
 
-struct GrpHeader
-{
-	uint32_t		Magic[3];
-	uint32_t		NumLumps;
-};
-
-struct GrpLump
-{
-	union
-	{
-		struct
-		{
-			char		Name[12];
-			uint32_t		Size;
-		};
-		char NameWithZero[13];
-	};
-};
-
-
-//==========================================================================
-//
-// Build GRP file
-//
-//==========================================================================
-
-class FGrpFile : public FUncompressedFile
+class FLumpFile : public FUncompressedFile
 {
 public:
-	FGrpFile(const char * filename, FileReader &file);
+	FLumpFile(const char * filename, FileReader &file, StringPool* sp);
 	bool Open(LumpFilterInfo* filter);
 };
 
 
 //==========================================================================
 //
-// Initializes a Build GRP file
+// FLumpFile::FLumpFile
 //
 //==========================================================================
 
-FGrpFile::FGrpFile(const char *filename, FileReader &file)
-: FUncompressedFile(filename, file)
+FLumpFile::FLumpFile(const char *filename, FileReader &file, StringPool* sp)
+	: FUncompressedFile(filename, file, sp)
 {
 }
 
@@ -95,35 +66,17 @@ FGrpFile::FGrpFile(const char *filename, FileReader &file)
 //
 //==========================================================================
 
-bool FGrpFile::Open(LumpFilterInfo* filter)
+bool FLumpFile::Open(LumpFilterInfo*)
 {
-	GrpHeader header;
-
-	Reader.Read(&header, sizeof(header));
-	NumLumps = LittleLong(header.NumLumps);
-
-	GrpLump *fileinfo = new GrpLump[NumLumps];
-	Reader.Read (fileinfo, NumLumps * sizeof(GrpLump));
-
-	Lumps.Resize(NumLumps);
-
-	int Position = sizeof(GrpHeader) + NumLumps * sizeof(GrpLump);
-
-	for(uint32_t i = 0; i < NumLumps; i++)
-	{
-		Lumps[i].Owner = this;
-		Lumps[i].Position = Position;
-		Lumps[i].LumpSize = LittleLong(fileinfo[i].Size);
-		Position += fileinfo[i].Size;
-		Lumps[i].Flags = 0;
-		fileinfo[i].NameWithZero[12] = '\0';	// Be sure filename is null-terminated
-		Lumps[i].LumpNameSetup(fileinfo[i].NameWithZero);
-	}
-	GenerateHash();
-	delete[] fileinfo;
+	Lumps.Resize(1);
+	Lumps[0].LumpNameSetup(ExtractBaseName(FileName, true).c_str(), stringpool);
+	Lumps[0].Owner = this;
+	Lumps[0].Position = 0;
+	Lumps[0].LumpSize = (int)Reader.GetLength();
+	Lumps[0].Flags = 0;
+	NumLumps = 1;
 	return true;
 }
-
 
 //==========================================================================
 //
@@ -131,24 +84,14 @@ bool FGrpFile::Open(LumpFilterInfo* filter)
 //
 //==========================================================================
 
-FResourceFile *CheckGRP(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
+FResourceFile *CheckLump(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
 {
-	char head[12];
-
-	if (file.GetLength() >= 12)
-	{
-		file.Seek(0, FileReader::SeekSet);
-		file.Read(&head, 12);
-		file.Seek(0, FileReader::SeekSet);
-		if (!memcmp(head, "KenSilverman", 12))
-		{
-			auto rf = new FGrpFile(filename, file);
-			if (rf->Open(filter)) return rf;
-
-			file = std::move(rf->Reader); // to avoid destruction of reader
-			delete rf;
-		}
-	}
+	// always succeeds
+	auto rf = new FLumpFile(filename, file, sp);
+	if (rf->Open(filter)) return rf;
+	file = std::move(rf->Reader); // to avoid destruction of reader
+	delete rf;
 	return NULL;
 }
 
+}

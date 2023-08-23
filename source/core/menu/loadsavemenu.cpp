@@ -48,6 +48,7 @@
 #include "fs_findfile.h"
 #include "savegamehelp.h"
 
+using namespace FileSys;
 //=============================================================================
 //
 // M_ReadSaveStrings

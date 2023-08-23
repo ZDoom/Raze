@@ -33,9 +33,11 @@
 */
 
 #include "fs_findfile.h"
+#include <string.h>
 #include <vector>
 
-
+namespace FileSys {
+	
 enum
 {
 	ZPATH_MAX = 260
@@ -61,6 +63,8 @@ enum
 
 #ifndef _WIN32
 
+#include <limits.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fnmatch.h>
 #include <sys/stat.h>
@@ -163,7 +167,7 @@ static int FS_FindAttr(findstate_t *const fileinfo)
 	const std::string path = fileinfo->path + ent->d_name;
 	bool isdir;
 
-	if (DirEntryExists(path.c_str(), &isdir))
+	if (FS_DirEntryExists(path.c_str(), &isdir))
 	{
 		return isdir ? FA_DIREC : 0;
 	}
@@ -173,8 +177,12 @@ static int FS_FindAttr(findstate_t *const fileinfo)
 
 std::string FS_FullPath(const char* directory)
 {
-	// todo
-	return directory
+	char fullpath[PATH_MAX];
+
+	if (realpath(directory, fullpath) != nullptr)
+		return fullpath;
+
+	return directory;
 }
 
 static size_t FS_GetFileSize(findstate_t* handle, const char* pathname)
@@ -303,7 +311,7 @@ std::string FS_FullPath(const char* directory)
 
 static size_t FS_GetFileSize(findstate_t* handle, const char* pathname)
 {
-	return handle->FindData.Size[0] + ((uint64_t)handle->FindData.Size[1] << 32);
+	return handle->FindData.Size[1] + ((uint64_t)handle->FindData.Size[0] << 32);
 }
 
 #endif
@@ -315,7 +323,7 @@ static size_t FS_GetFileSize(findstate_t* handle, const char* pathname)
 //
 //==========================================================================
 
-static bool ScanDirectory(FileList& list, const char* dirpath, const char* match, const char* relpath, bool nosubdir, bool readhidden)
+static bool DoScanDirectory(FileList& list, const char* dirpath, const char* match, const char* relpath, bool nosubdir, bool readhidden)
 {
 	findstate_t find;
 
@@ -323,7 +331,7 @@ static bool ScanDirectory(FileList& list, const char* dirpath, const char* match
 	FixPathSeparator(&dirpathn.front());
 	if (dirpathn[dirpathn.length() - 1] != '/') dirpathn += '/';
 
-	std::string dirmatch = dirpath;
+	std::string dirmatch = dirpathn;
 	dirmatch += match;
 
 	auto handle = FS_FindFirst(dirmatch.c_str(), &find);
@@ -353,7 +361,7 @@ static bool ScanDirectory(FileList& list, const char* dirpath, const char* match
 		fl.FileName = fn;
 		fl.FilePath = dirpathn + fn;
 		fl.FilePathRel = relpath;
-		fl.FilePathRel += '/';
+		if (fl.FilePathRel.length() > 0) fl.FilePathRel += '/';
 		fl.FilePathRel += fn;
 		fl.isDirectory = !!(attr & FA_DIREC);
 		fl.isReadonly = !!(attr & FA_RDONLY);
@@ -363,8 +371,7 @@ static bool ScanDirectory(FileList& list, const char* dirpath, const char* match
 		list.push_back(fl);
 		if (!nosubdir && (attr & FA_DIREC))
 		{
-			std::string rel = relpath + '/' + fl.FileName;
-			ScanDirectory(list, fl.FilePath.c_str(), match);
+			DoScanDirectory(list, fl.FilePath.c_str(), match, fl.FilePathRel.c_str(), false, readhidden);
 			fl.Length = 0;
 		}
 	} while (FS_FindNext(handle, &find) == 0);
@@ -375,7 +382,7 @@ static bool ScanDirectory(FileList& list, const char* dirpath, const char* match
 
 bool ScanDirectory(std::vector<FileListEntry>& list, const char* dirpath, const char* match, bool nosubdir, bool readhidden)
 {
-	return ScanDirectory(list, dirpath, match, "", nosubdir, readhidden);
+	return DoScanDirectory(list, dirpath, match, "", nosubdir, readhidden);
 }
 
 //==========================================================================
@@ -405,3 +412,4 @@ bool FS_DirEntryExists(const char* pathname, bool* isdir)
 	return res;
 }
 
+}

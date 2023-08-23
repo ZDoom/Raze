@@ -50,6 +50,7 @@
 #include "basics.h"
 #include "cmdlib.h"
 
+using namespace FileSys;
 FTextureManager TexMan;
 
 
@@ -681,15 +682,15 @@ void FTextureManager::AddHiresTextures (int wadnum)
 
 void FTextureManager::LoadTextureDefs(int wadnum, const char *lumpname, FMultipatchTextureBuilder &build)
 {
-	int remapLump, lastLump;
+	int texLump, lastLump;
 
 	lastLump = 0;
 
-	while ((remapLump = fileSystem.FindLump(lumpname, &lastLump)) != -1)
+	while ((texLump = fileSystem.FindLump(lumpname, &lastLump)) != -1)
 	{
-		if (fileSystem.GetFileContainer(remapLump) == wadnum)
+		if (fileSystem.GetFileContainer(texLump) == wadnum)
 		{
-			ParseTextureDef(remapLump, build);
+			ParseTextureDef(texLump, build);
 		}
 	}
 }

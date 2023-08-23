@@ -41,7 +41,8 @@
 #include "fs_findfile.h"
 #include "fs_swap.h"
 
-using namespace fs_private;
+namespace FileSys {
+	using namespace byteswap;
 
 #define BUFREADCOMMENT (0x400)
 
@@ -164,8 +165,8 @@ static uint32_t Zip_FindCentralDir(FileReader &fin, bool* zip64)
 //
 //==========================================================================
 
-FZipFile::FZipFile(const char * filename, FileReader &file)
-: FResourceFile(filename, file)
+FZipFile::FZipFile(const char * filename, FileReader &file, StringPool* sp)
+: FResourceFile(filename, file, sp)
 {
 	Lumps = NULL;
 }
@@ -180,7 +181,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 
 	if (centraldir == 0)
 	{
-		Printf(FSMessageLevel::Error, "%s: ZIP file corrupt!\n", FileName.c_str());
+		Printf(FSMessageLevel::Error, "%s: ZIP file corrupt!\n", FileName);
 		return false;
 	}
 
@@ -196,7 +197,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 		if (info.NumEntries != info.NumEntriesOnAllDisks ||
 			info.FirstDisk != 0 || info.DiskNumber != 0)
 		{
-			Printf(FSMessageLevel::Error, "%s: Multipart Zip files are not supported.\n", FileName.c_str());
+			Printf(FSMessageLevel::Error, "%s: Multipart Zip files are not supported.\n", FileName);
 			return false;
 		}
 		
@@ -215,7 +216,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 		if (info.NumEntries != info.NumEntriesOnAllDisks ||
 			info.FirstDisk != 0 || info.DiskNumber != 0)
 		{
-			Printf(FSMessageLevel::Error, "%s: Multipart Zip files are not supported.\n", FileName.c_str());
+			Printf(FSMessageLevel::Error, "%s: Multipart Zip files are not supported.\n", FileName);
 			return false;
 		}
 		
@@ -254,35 +255,36 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 		if (dirptr > ((char*)directory) + dirsize)	// This directory entry goes beyond the end of the file.
 		{
 			free(directory);
-			Printf(FSMessageLevel::Error, "%s: Central directory corrupted.", FileName.c_str());
+			Printf(FSMessageLevel::Error, "%s: Central directory corrupted.", FileName);
 			return false;
 		}
 
 		for (auto& c : name) c = tolower(c);
 
-		if (name.find_first_of("filter/") == 0)
+		auto vv = name.find("__macosx");
+		if (name.find("filter/") == 0)
 			continue; // 'filter' is a reserved name of the file system.
-		if (name.find_first_of("__macosx") == 0) 
+		if (name.find("__macosx") == 0) 
 			continue; // skip Apple garbage. At this stage only the root folder matters.
-		if (name.find_first_of(".bat") != std::string::npos || name.find_first_of(".exe") != std::string::npos)
+		if (name.find(".bat") != std::string::npos || name.find(".exe") != std::string::npos)
 			continue; // also ignore executables for this.
 		if (!foundprefix)
 		{
 			// check for special names, if one of these gets found this must be treated as a normal zip.
-			bool isspecial = name.find_first_of("/") == std::string::npos ||
+			bool isspecial = name.find("/") == std::string::npos ||
 				(filter && std::find(filter->reservedFolders.begin(), filter->reservedFolders.end(), name) != filter->reservedFolders.end());
 			if (isspecial) break;
-			name0 = std::string(name, 0, name.find_last_of("/")+1);
-			name1 = std::string(name, 0, name.find_first_of("/") + 1);
+			name0 = std::string(name, 0, name.rfind("/")+1);
+			name1 = std::string(name, 0, name.find("/") + 1);
 			foundprefix = true;
 		}
 
-		if (name.find_first_of(name0) != 0)
+		if (name.find(name0) != 0)
 		{
 			if (!name1.empty())
 			{
 				name0 = name1;
-				if (name.find_first_of(name0) != 0)
+				if (name.find(name0) != 0)
 				{
 					name0 = "";
 				}
@@ -295,7 +297,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 			// at least one of the more common definition lumps must be present.
 			for (auto &p : filter->requiredPrefixes)
 			{ 
-				if (name.find_first_of(name0 + p) == 0 || name.find_last_of(p) == ptrdiff_t(name.length() - p.length()))
+				if (name.find(name0 + p) == 0 || name.rfind(p) == ptrdiff_t(name.length() - p.length()))
 				{
 					foundspeciallump = true;
 					break;
@@ -322,11 +324,11 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 		if (dirptr > ((char*)directory) + dirsize)	// This directory entry goes beyond the end of the file.
 		{
 			free(directory);
-			Printf(FSMessageLevel::Error, "%s: Central directory corrupted.", FileName.c_str());
+			Printf(FSMessageLevel::Error, "%s: Central directory corrupted.", FileName);
 			return false;
 		}
 
-		if (name.find_first_of("__macosx") == 0 || name.find_first_of("__MACOSX") == 0)
+		if (name.find("__macosx") == 0 || name.find("__MACOSX") == 0)
 		{
 			skipped++;
 			continue; // Weed out Apple's resource fork garbage right here because it interferes with safe operation.
@@ -349,7 +351,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 			zip_fh->Method != METHOD_IMPLODE &&
 			zip_fh->Method != METHOD_SHRINK)
 		{
-			Printf(FSMessageLevel::Error, "%s: '%s' uses an unsupported compression algorithm (#%d).\n", FileName.c_str(), name.c_str(), zip_fh->Method);
+			Printf(FSMessageLevel::Error, "%s: '%s' uses an unsupported compression algorithm (#%d).\n", FileName, name.c_str(), zip_fh->Method);
 			skipped++;
 			continue;
 		}
@@ -357,7 +359,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 		zip_fh->Flags = LittleShort(zip_fh->Flags);
 		if (zip_fh->Flags & ZF_ENCRYPTED)
 		{
-			Printf(FSMessageLevel::Error, "%s: '%s' is encrypted. Encryption is not supported.\n", FileName.c_str(), name.c_str());
+			Printf(FSMessageLevel::Error, "%s: '%s' is encrypted. Encryption is not supported.\n", FileName, name.c_str());
 			skipped++;
 			continue;
 		}
@@ -384,7 +386,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 					if (zip_64->CompressedSize > 0x7fffffff || zip_64->UncompressedSize > 0x7fffffff)
 					{
 						// The file system is limited to 32 bit file sizes;
-						Printf(FSMessageLevel::Warning, "%s: '%s' is too large.\n", FileName.c_str(), name.c_str());
+						Printf(FSMessageLevel::Warning, "%s: '%s' is too large.\n", FileName, name.c_str());
 						skipped++;
 						continue;
 					}
@@ -395,7 +397,7 @@ bool FZipFile::Open(LumpFilterInfo* filter, FileSystemMessageFunc Printf)
 			}
 		}
 
-		lump_p->LumpNameSetup(name.c_str());
+		lump_p->LumpNameSetup(name.c_str(), stringpool);
 		lump_p->LumpSize = UncompressedSize;
 		lump_p->Owner = this;
 		// The start of the Reader will be determined the first time it is accessed.
@@ -531,7 +533,7 @@ int FZipLump::GetFileOffset()
 //
 //==========================================================================
 
-FResourceFile *CheckZip(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf)
+FResourceFile *CheckZip(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
 {
 	char head[4];
 
@@ -542,7 +544,7 @@ FResourceFile *CheckZip(const char *filename, FileReader &file, LumpFilterInfo* 
 		file.Seek(0, FileReader::SeekSet);
 		if (!memcmp(head, "PK\x3\x4", 4))
 		{
-			auto rf = new FZipFile(filename, file);
+			auto rf = new FZipFile(filename, file, sp);
 			if (rf->Open(filter, Printf)) return rf;
 
 			file = std::move(rf->Reader); // to avoid destruction of reader
@@ -718,4 +720,6 @@ bool WriteZip(const char* filename, const FCompressedBuffer* content, size_t con
 		return true;
 	}
 	return false;
+}
+
 }

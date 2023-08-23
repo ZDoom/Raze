@@ -576,7 +576,8 @@ file( GLOB HEADER_FILES
 	common/statusbar/*.h
 	common/fonts/*.h
 	common/objects/*.h
-	common/filesystem/*.h
+	common/filesystem/include/*.h
+	common/filesystem/source/*.h
 	common/platform/posix/cocoa/*.h
 	common/platform/posix/sdl/*.h
 	common/platform/win32/*.h
@@ -1232,18 +1233,7 @@ else()
 	set( NOT_COMPILED_SOURCE_FILES ${NOT_COMPILED_SOURCE_FILES} ${VM_JIT_SOURCES} )
 endif()
 
-macro( use_precompiled_header )
-	if( MSVC )
-		enable_precompiled_headers( "${ARGV0}/g_pch.h" PCH_SOURCES )
-	else()
-		# Temporary solution for compilers other than MSVC
-		set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
-	endif()
-endmacro()
-
-use_precompiled_header(".")
-
-add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
+set( GAME_SOURCES
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
 	${SYSTEM_SOURCES}
@@ -1273,29 +1263,37 @@ add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	common/thirdparty/math/tanh.c
 	common/thirdparty/math/fastsin.cpp
 
-	common/filesystem/filesystem.cpp
-	common/filesystem/ancientzip.cpp
-	common/filesystem/file_7z.cpp
-	common/filesystem/file_grp.cpp
-	common/filesystem/file_lump.cpp
-	common/filesystem/file_rff.cpp
-	common/filesystem/file_wad.cpp
-	common/filesystem/file_zip.cpp
-	common/filesystem/file_pak.cpp
-	common/filesystem/file_whres.cpp
-	common/filesystem/file_ssi.cpp
-	common/filesystem/file_directory.cpp
-	common/filesystem/resourcefile.cpp
-	common/filesystem/files.cpp
-	common/filesystem/files_decompress.cpp
-	common/filesystem/fs_findfile.cpp
+	common/filesystem/source/filesystem.cpp
+	common/filesystem/source/ancientzip.cpp
+	common/filesystem/source/file_7z.cpp
+	common/filesystem/source/file_grp.cpp
+	common/filesystem/source/file_lump.cpp
+	common/filesystem/source/file_rff.cpp
+	common/filesystem/source/file_wad.cpp
+	common/filesystem/source/file_zip.cpp
+	common/filesystem/source/file_pak.cpp
+	common/filesystem/source/file_whres.cpp
+	common/filesystem/source/file_ssi.cpp
+	common/filesystem/source/file_directory.cpp
+	common/filesystem/source/resourcefile.cpp
+	common/filesystem/source/files.cpp
+	common/filesystem/source/files_decompress.cpp
+	common/filesystem/source/fs_findfile.cpp
+	common/filesystem/source/fs_stringpool.cpp
 
 )
 
+set( GAME_NONPCH_SOURCES ${GAME_SOURCES} )
+list( REMOVE_ITEM GAME_NONPCH_SOURCES ${PCH_SOURCES} )
+
+add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${GAME_SOURCES} )
+
+target_precompile_headers( ${PROJECT_NAME} PRIVATE g_pch.h )
+
 #set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
-set_source_files_properties( xlat/parse_xlat.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/xlat_parser.c" )
 set_source_files_properties( common/engine/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
+set_source_files_properties( ${GAME_NONPCH_SOURCES} common/textures/hires/hqresize.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE )
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
@@ -1345,7 +1343,7 @@ include_directories(
 	common/textures/hires
 	common/textures
 	common/models
-	common/filesystem
+	common/filesystem/include
 	common/utility
 	common/console
 	common/engine
@@ -1510,6 +1508,8 @@ source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Common\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
+source_group("Common\\File System\\Include" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/include/.+")
+source_group("Common\\File System\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/source/.+")
 source_group("Common\\Scripting" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/.+")
 source_group("Common\\Scripting\\Interface" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/interface/.+")
 source_group("Common\\Scripting\\Frontend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/frontend/.+" FILES ${CMAKE_CURRENT_BINARY_DIR}/zcc-parse.c ${CMAKE_CURRENT_BINARY_DIR}/zcc-parse.h)

@@ -104,7 +104,7 @@ int LookupMusic(const char* fn, bool onlyextended)
 		int l = fileSystem.FindFileWithExtensions(name, knownMusicExts, countof(knownMusicExts));
 		if (l >= 0 || onlyextended) return l;
 	}
-	return fileSystem.CheckNumForFullName(fn, true, ns_music);
+	return fileSystem.CheckNumForFullName(fn, true, FileSys::ns_music);
 }
 
 //==========================================================================

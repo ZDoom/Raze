@@ -53,6 +53,7 @@
 #include "s_music.h"
 #include "filereadermusicinterface.h"
 
+using namespace FileSys;
 
 
 void I_InitSoundFonts();
@@ -182,7 +183,7 @@ static void SetupGenMidi()
 	auto genmidi = fileSystem.ReadFile(lump);
 
 	if (genmidi.GetSize() < 8 + 175 * 36 || memcmp(genmidi.GetMem(), "#OPL_II#", 8)) return;
-	ZMusic_SetGenMidi(genmidi.GetBytes()+8);
+	ZMusic_SetGenMidi(genmidi.GetBytes() + 8);
 }
 
 static void SetupWgOpn()
@@ -192,7 +193,7 @@ static void SetupWgOpn()
 	{
 		return;
 	}
-	FileData data = fileSystem.ReadFile(lump);
+	auto data = fileSystem.ReadFile(lump);
 	ZMusic_SetWgOpn(data.GetMem(), (uint32_t)data.GetSize());
 }
 
@@ -204,7 +205,7 @@ static void SetupDMXGUS()
 	{
 		return;
 	}
-	FileData data = fileSystem.ReadFile(lump);
+	auto data = fileSystem.ReadFile(lump);
 	ZMusic_SetDmxGus(data.GetMem(), (uint32_t)data.GetSize());
 }
 

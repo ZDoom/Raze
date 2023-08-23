@@ -144,7 +144,7 @@ void sndInit(void)
 		}
 		else if (!stricmp(type, "WAV") || !stricmp(type, "OGG") || !stricmp(type, "FLAC") || !stricmp(type, "VOC"))
 		{
-			if (fileSystem.GetFileNamespace(i) != ns_music)
+			if (fileSystem.GetFileNamespace(i) != FileSys::ns_music)
 				soundEngine->AddSoundLump(fileSystem.GetFileFullName(i), i, 0, fileSystem.GetResourceId(i) | 0x40000000, 6); // mark the resource ID as special.
 		}
 	}

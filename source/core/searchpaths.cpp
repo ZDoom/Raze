@@ -190,8 +190,8 @@ void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 	FString AbsPath = M_GetNormalizedPath(dirpath);
 	if (DirExists(AbsPath))
 	{
-		FileList list;
-		if (ScanDirectory(list, AbsPath, "*", true))
+		FileSys::FileList list;
+		if (FileSys::ScanDirectory(list, AbsPath, "*", true))
 		{
 			for (auto& entry : list)
 			{
@@ -304,8 +304,8 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 	{
 		if (DirExists(path))
 		{
-			FileList list;
-			if (ScanDirectory(list, path, "*", true))
+			FileSys::FileList list;
+			if (FileSys::ScanDirectory(list, path, "*", true))
 			{
 				for (auto& entry : list)
 				{

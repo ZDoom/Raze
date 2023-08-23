@@ -48,6 +48,8 @@
 #include "palutil.h"
 #include "startupinfo.h"
 
+using namespace FileSys;
+
 #ifndef PATH_MAX
 #define PATH_MAX 260
 #endif
@@ -189,7 +191,7 @@ static std::vector<std::string> CheckGameInfo(std::vector<std::string>& pwads)
 				if (FName(lmp->getName(), true) == gameinfo)
 				{
 					// Found one!
-					auto bases = ParseGameInfo(pwads, resfile->FileName.c_str(), (const char*)lmp->Lock(), lmp->LumpSize);
+					auto bases = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
 					delete resfile;
 					return bases;
 				}

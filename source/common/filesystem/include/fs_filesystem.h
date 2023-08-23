@@ -8,12 +8,11 @@
 
 
 
-#include "files.h"
+#include "fs_files.h"
 #include "resourcefile.h"
 
-class FResourceFile;
-struct FResourceLump;
-
+namespace FileSys {
+	
 union LumpShortName
 {
 	char		String[9];
@@ -91,31 +90,31 @@ public:
 	int GetLastEntry(int wadnum) const noexcept;
     int GetEntryCount(int wadnum) const noexcept;
 
-	int CheckNumForName (const char *name, int namespc);
-	int CheckNumForName (const char *name, int namespc, int wadfile, bool exact = true);
-	int GetNumForName (const char *name, int namespc);
+	int CheckNumForName (const char *name, int namespc) const;
+	int CheckNumForName (const char *name, int namespc, int wadfile, bool exact = true) const;
+	int GetNumForName (const char *name, int namespc) const;
 
-	inline int CheckNumForName (const uint8_t *name) { return CheckNumForName ((const char *)name, ns_global); }
-	inline int CheckNumForName (const char *name) { return CheckNumForName (name, ns_global); }
-	inline int CheckNumForName (const uint8_t *name, int ns) { return CheckNumForName ((const char *)name, ns); }
-	inline int GetNumForName (const char *name) { return GetNumForName (name, ns_global); }
-	inline int GetNumForName (const uint8_t *name) { return GetNumForName ((const char *)name); }
-	inline int GetNumForName (const uint8_t *name, int ns) { return GetNumForName ((const char *)name, ns); }
+	inline int CheckNumForName (const uint8_t *name) const { return CheckNumForName ((const char *)name, ns_global); }
+	inline int CheckNumForName (const char *name) const { return CheckNumForName (name, ns_global); }
+	inline int CheckNumForName (const uint8_t *name, int ns) const { return CheckNumForName ((const char *)name, ns); }
+	inline int GetNumForName (const char *name) const { return GetNumForName (name, ns_global); }
+	inline int GetNumForName (const uint8_t *name) const { return GetNumForName ((const char *)name); }
+	inline int GetNumForName (const uint8_t *name, int ns) const { return GetNumForName ((const char *)name, ns); }
 
-	int CheckNumForFullName (const char *name, bool trynormal = false, int namespc = ns_global, bool ignoreext = false);
-	int CheckNumForFullName (const char *name, int wadfile);
-	int GetNumForFullName (const char *name);
-	int FindFile(const char* name)
+	int CheckNumForFullName (const char *cname, bool trynormal = false, int namespc = ns_global, bool ignoreext = false) const;
+	int CheckNumForFullName (const char *name, int wadfile) const;
+	int GetNumForFullName (const char *name) const;
+	int FindFile(const char* name) const
 	{
 		return CheckNumForFullName(name);
 	}
 
-	bool FileExists(const char* name)
+	bool FileExists(const char* name) const
 	{
 		return FindFile(name) >= 0;
 	}
 
-	bool FileExists(const std::string& name)
+	bool FileExists(const std::string& name) const
 	{
 		return FindFile(name.c_str()) >= 0;
 	}
@@ -139,9 +138,12 @@ public:
 	int FindLumpFullName(const char* name, int* lastlump, bool noext = false);
 	bool CheckFileName (int lump, const char *name);	// [RH] True if lump's name == name
 
-	int FindFileWithExtensions(const char* name, const char* const* exts, int count);
+	int FindFileWithExtensions(const char* name, const char* const* exts, int count) const;
 	int FindResource(int resid, const char* type, int filenum = -1) const noexcept;
 	int GetResource(int resid, const char* type, int filenum = -1) const;
+
+
+	static uint32_t LumpNameHash (const char *name);		// [RH] Create hash key from an 8-char name
 
 	int FileLength (int lump) const;
 	int GetFileOffset (int lump);					// [RH] Returns offset of lump in the wadfile
@@ -200,11 +202,12 @@ protected:
 	int IwadIndex = -1;
 	int MaxIwadIndex = -1;
 
+	StringPool* stringpool;
+
 private:
 	void DeleteAll();
 	void MoveLumpsInFolder(const char *);
 
 };
 
-extern FileSystem fileSystem;
-
+}

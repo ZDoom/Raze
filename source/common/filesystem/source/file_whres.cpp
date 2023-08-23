@@ -1,9 +1,10 @@
 /*
-** flattexture.cpp
-** Texture class for standard Doom flats
+** file_whres.cpp
+**
+** reads a Witchaven/TekWar sound resource file
 **
 **---------------------------------------------------------------------------
-** Copyright 2004-2006 Randy Heit
+** Copyright 2009-2019 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -33,85 +34,112 @@
 **
 */
 
-#include "files.h"
-#include "filesystem.h"
-#include "imagehelpers.h"
-#include "image.h"
+#include "resourcefile_internal.h"
+#include "fs_stringpool.h"
+#include "fs_swap.h"
+
+namespace FileSys {
+	using namespace byteswap;
 
 //==========================================================================
 //
-// A texture defined between F_START and F_END markers
+// WH resource file
 //
 //==========================================================================
 
-class FFlatTexture : public FImageSource
+class FWHResFile : public FUncompressedFile
 {
+	const char* BaseName;
 public:
-	FFlatTexture (int lumpnum);
-	PalettedPixels CreatePalettedPixels(int conversion, int frame = 0) override;
+	FWHResFile(const char * filename, FileReader &file, StringPool* sp);
+	bool Open(LumpFilterInfo* filter);
 };
 
 
-
 //==========================================================================
 //
-// Since there is no way to detect the validity of a flat
-// they can't be used anywhere else but between F_START and F_END
+//
 //
 //==========================================================================
 
-FImageSource *FlatImage_TryCreate(FileReader & file, int lumpnum)
+FWHResFile::FWHResFile(const char *filename, FileReader &file, StringPool* sp)
+	: FUncompressedFile(filename, file, sp)
 {
-	return new FFlatTexture(lumpnum);
+	BaseName = stringpool->Strdup(ExtractBaseName(filename, false).c_str());
 }
 
 //==========================================================================
 //
-//
+// Open it
 //
 //==========================================================================
 
-FFlatTexture::FFlatTexture (int lumpnum)
-: FImageSource(lumpnum)
+bool FWHResFile::Open(LumpFilterInfo*)
 {
-	int area;
-	int bits;
+	uint32_t directory[1024];
 
-	area = fileSystem.FileLength (lumpnum);
+	Reader.Seek(-4096, FileReader::SeekEnd);
+	Reader.Read(directory, 4096);
 
-	switch (area)
+	int nl =1024/3;
+	Lumps.Resize(nl);
+
+
+	int i = 0;
+	for(int k = 0; k < nl; k++)
 	{
-	default:
-	case 64*64:		bits = 6;	break;
-	case 8*8:		bits = 3;	break;
-	case 16*16:		bits = 4;	break;
-	case 32*32:		bits = 5;	break;
-	case 128*128:	bits = 7;	break;
-	case 256*256:	bits = 8;	break;
+		uint32_t offset = LittleLong(directory[k*3]) * 4096;
+		uint32_t length = LittleLong(directory[k*3+1]);
+		if (length == 0) break;
+		char num[5];
+		snprintf(num, 5, "/%04d", k);
+		std::string synthname = BaseName;
+		synthname += num;
+		Lumps[i].LumpNameSetup(synthname.c_str(), stringpool);
+		Lumps[i].Owner = this;
+		Lumps[i].Position = offset;
+		Lumps[i].LumpSize = length;
+		i++;
 	}
-
-	bUseGamePalette = true;
-	bMasked = false;
-	bTranslucent = false;
-	Width = Height = 1 << bits;
+	NumLumps = i;
+	Lumps.Clamp(NumLumps);
+	Lumps.ShrinkToFit();
+	return true;
 }
 
+
 //==========================================================================
 //
-//
+// File open
 //
 //==========================================================================
 
-PalettedPixels FFlatTexture::CreatePalettedPixels(int conversion, int frame)
+FResourceFile *CheckWHRes(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
 {
-	auto lump = fileSystem.OpenFileReader (SourceLump);
-	PalettedPixels Pixels(Width*Height);
-	auto numread = lump.Read (Pixels.Data(), Width*Height);
-	if (numread < Width*Height)
+	if (file.GetLength() >= 8192) // needs to be at least 8192 to contain one file and the directory.
 	{
-		memset (Pixels.Data() + numread, 0xBB, Width*Height - numread);
-	}
-	ImageHelpers::FlipSquareBlockRemap(Pixels.Data(), Width, ImageHelpers::GetRemap(conversion == luminance));
-	return Pixels;
-}
+		unsigned directory[1024];
+		int nl =1024/3;
 
+		file.Seek(-4096, FileReader::SeekEnd);
+		file.Read(directory, 4096);
+		auto size = file.GetLength();
+
+		uint32_t checkpos = 0;
+		for(int k = 0; k < nl; k++)
+		{
+			unsigned offset = LittleLong(directory[k*3]);
+			unsigned length = LittleLong(directory[k*3+1]);
+			if (length <= 0 && offset == 0) break;
+			if (offset != checkpos || length == 0 || offset + length >= (size_t)size - 4096 ) return nullptr;
+			checkpos += (length+4095) / 4096;
+		}
+		auto rf = new FWHResFile(filename, file, sp);
+		if (rf->Open(filter)) return rf;
+		file = std::move(rf->Reader); // to avoid destruction of reader
+		delete rf;
+	}
+	return NULL;
+}
+ 
+}

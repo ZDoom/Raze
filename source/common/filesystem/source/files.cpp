@@ -34,10 +34,10 @@
 */
 
 #include <string>
-#include "files.h"
+#include "files_internal.h"
 
-using namespace fs_private;
-
+namespace FileSys {
+	
 #ifdef _WIN32
 std::wstring toWide(const char* str);
 #endif
@@ -345,7 +345,7 @@ public:
 
 	void UpdateBuffer() 
 	{ 
-		bufptr = (const char*)&buf[0];
+		bufptr = (const char*)buf.data();
 		FilePos = 0;
 		Length = (long)buf.size();
 	}
@@ -476,12 +476,14 @@ long FileWriter::Seek(long offset, int mode)
 
 size_t FileWriter::Printf(const char *fmt, ...)
 {
+	char c[300];
 	va_list arglist;
 	va_start(arglist, fmt);
-	auto n = snprintf(nullptr, 0, fmt, arglist);
+	auto n = vsnprintf(c, 300, fmt, arglist);
 	std::string buf;
 	buf.resize(n);
-	snprintf(&buf.front(), n, fmt, arglist);
+	va_start(arglist, fmt);
+	vsnprintf(&buf.front(), n, fmt, arglist);
 	va_end(arglist);
 	return Write(buf.c_str(), n);
 }
@@ -491,4 +493,6 @@ size_t BufferWriter::Write(const void *buffer, size_t len)
 	unsigned int ofs = mBuffer.Reserve((unsigned)len);
 	memcpy(&mBuffer[ofs], buffer, len);
 	return len;
+}
+
 }

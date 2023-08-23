@@ -6,8 +6,11 @@
 #include <limits.h>
 #include <vector>
 #include <string>
-#include "files.h"
+#include "fs_files.h"
 
+namespace FileSys {
+	
+class StringPool;
 std::string ExtractBaseName(const char* path, bool include_extension = false);
 void strReplace(std::string& str, const char* from, const char* to);
 
@@ -113,7 +116,7 @@ struct FResourceLump
 	int				LumpSize;
 	int				RefCount;
 protected:
-	std::string		FullName;
+	const char*		FullName;
 public:
 	uint8_t			Flags;
 	char *			Cache;
@@ -125,6 +128,7 @@ public:
 		Owner = NULL;
 		Flags = 0;
 		RefCount = 0;
+		FullName = "";
 	}
 
 	virtual ~FResourceLump();
@@ -133,7 +137,7 @@ public:
 	virtual int GetFileOffset() { return -1; }
 	virtual int GetIndexNum() const { return -1; }
 	virtual int GetNamespace() const { return 0; }
-	void LumpNameSetup(const char* iname);
+	void LumpNameSetup(const char* iname, StringPool* allocator);
 	void CheckEmbedded(LumpFilterInfo* lfi);
 	virtual FCompressedBuffer GetRawData();
 
@@ -142,7 +146,8 @@ public:
 
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
-	const char* getName() { return FullName.c_str(); }
+	const char* getName() { return FullName; }
+	void clearName() { FullName = ""; }
 
 protected:
 	virtual int FillCache() { return -1; }
@@ -153,13 +158,14 @@ class FResourceFile
 {
 public:
 	FileReader Reader;
-	std::string FileName;
+	const char* FileName;
 protected:
 	uint32_t NumLumps;
 	char Hash[48];
+	StringPool* stringpool;
 
-	FResourceFile(const char *filename);
-	FResourceFile(const char *filename, FileReader &r);
+	FResourceFile(const char *filename, StringPool* sp);
+	FResourceFile(const char *filename, FileReader &r, StringPool* sp);
 
 	// for archives that can contain directories
 	void GenerateHash();
@@ -172,12 +178,12 @@ private:
 	int FilterLumpsByGameType(LumpFilterInfo *filter, void *lumps, size_t lumpsize, uint32_t max);
 	bool FindPrefixRange(const char* filter, void *lumps, size_t lumpsize, uint32_t max, uint32_t &start, uint32_t &end);
 	void JunkLeftoverFilters(void *lumps, size_t lumpsize, uint32_t max);
-	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool containeronly, LumpFilterInfo* filter, FileSystemMessageFunc Printf);
+	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool containeronly, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp);
 
 public:
-	static FResourceFile *OpenResourceFile(const char *filename, FileReader &file, bool containeronly = false, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr);
-	static FResourceFile *OpenResourceFile(const char *filename, bool containeronly = false, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr);
-	static FResourceFile *OpenDirectory(const char *filename, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr);
+	static FResourceFile *OpenResourceFile(const char *filename, FileReader &file, bool containeronly = false, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr, StringPool* sp = nullptr);
+	static FResourceFile *OpenResourceFile(const char *filename, bool containeronly = false, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr, StringPool* sp = nullptr);
+	static FResourceFile *OpenDirectory(const char *filename, LumpFilterInfo* filter = nullptr, FileSystemMessageFunc Printf = nullptr, StringPool* sp = nullptr);
 	virtual ~FResourceFile();
     // If this FResourceFile represents a directory, the Reader object is not usable so don't return it.
     FileReader *GetReader() { return Reader.isOpen()? &Reader : nullptr; }
@@ -191,57 +197,7 @@ public:
 	FResourceLump *FindLump(const char *name);
 };
 
-struct FUncompressedLump : public FResourceLump
-{
-	int				Position;
 
-	virtual FileReader *GetReader();
-	virtual int FillCache() override;
-	virtual int GetFileOffset() { return Position; }
-
-};
-
-
-// Base class for uncompressed resource files (WAD, GRP, PAK and single lumps)
-class FUncompressedFile : public FResourceFile
-{
-protected:
-	TArray<FUncompressedLump> Lumps;
-
-	FUncompressedFile(const char *filename);
-	FUncompressedFile(const char *filename, FileReader &r);
-	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
-};
-
-
-struct FExternalLump : public FResourceLump
-{
-	std::string Filename;
-
-	FExternalLump(const char *_filename, int filesize = -1);
-	virtual int FillCache() override;
-
-};
-
-struct FMemoryLump : public FResourceLump
-{
-	FMemoryLump(const void* data, int length)
-	{
-		RefCount = INT_MAX / 2;
-		LumpSize = length;
-		Cache = new char[length];
-		memcpy(Cache, data, length);
-	}
-
-	virtual int FillCache() override
-	{
-		RefCount = INT_MAX / 2; // Make sure it never counts down to 0 by resetting it to something high each time it is used.
-		return 1;
-	}
-};
-
-
-
-
+}
 
 #endif

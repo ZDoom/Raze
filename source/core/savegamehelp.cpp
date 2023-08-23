@@ -132,7 +132,7 @@ bool ReadSavegame(const char* name)
 		}
 		file.Close();
 
-		FResourceLump* info = savereader->FindLump("session.json");
+		auto info = savereader->FindLump("session.json");
 		if (info == nullptr)
 		{
 			delete savereader;
@@ -223,9 +223,9 @@ bool WriteSavegame(const char* filename, const char *name)
 	M_FinishPNG(&savepic);
 
 	auto picdata = savepic.GetBuffer();
-	FCompressedBuffer bufpng = { picdata->Size(), picdata->Size(), METHOD_STORED, 0, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->Size())), (char*)&(*picdata)[0] };
+	FileSys::FCompressedBuffer bufpng = { picdata->Size(), picdata->Size(), FileSys::METHOD_STORED, 0, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->Size())), (char*)&(*picdata)[0] };
 
-	TArray<FCompressedBuffer> savegame_content;
+	TArray<FileSys::FCompressedBuffer> savegame_content;
 	TArray<FString> savegame_filenames;
 
 	savegame_content.Push(bufpng);

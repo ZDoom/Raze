@@ -1018,11 +1018,8 @@ void uppercopy(char* to, const char* from)
 
 FString GetStringFromLump(int lump)
 {
-	FString ScriptBuffer;
-	auto mem = fileSystem.OpenFileReader(lump);
-	auto buff = ScriptBuffer.LockNewBuffer(mem.GetLength());
-	mem.Read(buff, mem.GetLength());
-	buff[mem.GetLength()] = 0;
-	ScriptBuffer.UnlockBuffer();
+	auto fd = fileSystem.ReadFile(lump);
+	FString ScriptBuffer(fd.GetString(), fd.GetSize());
+	ScriptBuffer.Truncate(strlen(ScriptBuffer.GetChars()));	// this is necessary to properly truncate the generated string to not contain 0 bytes.
 	return ScriptBuffer;
 }
