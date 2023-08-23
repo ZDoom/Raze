@@ -440,7 +440,7 @@ static void AddArtFile(const FString& filename)
 	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (fr.isOpen())
 	{
-		TArray<uint8_t> artdata(fr.GetLength());
+		TArray<uint8_t> artdata(fr.GetLength(), true);
 		fr.Read(artdata.Data(), artdata.Size());
 		if (artdata.Size() > 16)
 		{
