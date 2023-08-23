@@ -439,7 +439,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	{
 		DeleteStuff(fileSystem, todelete, groups.Size());
 	};
-	fileSystem.InitMultipleFiles(Files, &lfi);
+	fileSystem.InitMultipleFiles(Files, &lfi, FileSystemPrintf);
 	if (Args->CheckParm("-dumpfs"))
 	{
 		FILE* f = fopen("filesystem.dir", "wb");
