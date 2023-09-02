@@ -1,11 +1,4 @@
-cmake_minimum_required( VERSION 3.1.0 )
-project(Raze)
-set ( PROJECT_NAME "raze")
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
+cmake_minimum_required( VERSION 3.16 )
 
 if( COMMAND cmake_policy )
 	if( POLICY CMP0011 )
@@ -14,7 +7,53 @@ if( COMMAND cmake_policy )
 	if( POLICY CMP0054 )
 		cmake_policy( SET CMP0054 NEW )
 	endif()
+	if ( POLICY CMP0067 )
+		cmake_policy( SET CMP0067 NEW )
+	endif()
+	if ( POLICY CMP0057 )
+		cmake_policy( SET CMP0057 NEW )
+	endif()
+	if ( POLICY CMP0091 )
+		cmake_policy( SET CMP0091 NEW )
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	endif()
 endif()
+
+if (LIBVPX_VCPKG)
+	list(APPEND VCPKG_MANIFEST_FEATURES "vcpkg-libvpx")
+endif()
+
+if (OPENAL_SOFT_VCPKG)
+	list(APPEND VCPKG_MANIFEST_FEATURES "vcpkg-openal-soft")
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR (NOT CMAKE_SYSTEM_NAME AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows"))
+	# Force static triplet on Windows
+	set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+endif()
+
+project(Raze)
+
+if (WIN32 AND VCPKG_TOOLCHAIN)
+	option(LIBVPX_VCPKG "Use libvpx from vcpkg" OFF)
+endif()
+
+if (VCPKG_TOOLCHAIN)
+	option(OPENAL_SOFT_VCPKG "Use OpenAL from vcpkg" OFF)
+endif()
+
+if (NOT VCPKG_TOOLCHAIN)
+	set(VCPKG_MANIFEST_FEATURES)
+endif()
+
+
+
+set ( PROJECT_NAME "raze")
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 include( FindPackageHandleStandardArgs )
@@ -188,6 +227,7 @@ find_package( BZip2 )
 find_package( JPEG )
 find_package( VPX )
 find_package( ZLIB )
+find_package( WebP )
 
 include( TargetArch )
 

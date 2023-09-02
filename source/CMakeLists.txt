@@ -307,7 +307,7 @@ if( UNIX )
 			add_definitions( -DNO_CLOCK_GETTIME )
 		endif()
 	else()
-		set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} rt )
+		list( APPEND PROJECT_LIBRARIES rt )
 	endif()
 endif()
 
@@ -324,7 +324,7 @@ add_custom_target( revision_check ALL
 
 set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${CMAKE_DL_LIBS}" "${TESS_LIBRARIES}" "${DRPC_LIBRARIES}")
 if (HAVE_VULKAN)
-	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "zvulkan")
+	list( APPEND PROJECT_LIBRARIES "zvulkan" )
 endif()
 
 # ZMUSIC
@@ -383,6 +383,12 @@ else()
 	message( SEND_ERROR "Could not find libvpx" )
 endif()
 
+#if (TARGET WebP::webp)
+	list( APPEND PROJECT_LIBRARIES WebP::webp WebP::webpdemux WebP::libwebpmux )
+	if (TARGET WebP::webpdecoder)
+		list( APPEND PROJECT_LIBRARIES WebP::webpdecoder)
+	endif()
+#endif()
 
 include_directories( SYSTEM "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${TESS_INCLUDE_DIR}" "${DRPC_INCLUDE_DIR}" )
 
@@ -1080,6 +1086,7 @@ set (PCH_SOURCES
 	common/textures/formats/anmtexture.cpp
 	common/textures/formats/startscreentexture.cpp
 	common/textures/formats/qoitexture.cpp
+	common/textures/formats/webptexture.cpp
 	common/textures/hires/hqresize.cpp
 	common/models/models_md3.cpp
 	common/models/models_md2.cpp
@@ -1429,6 +1436,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 	${CMAKE_SOURCE_DIR}/soundfont/${PROJECT_NAME}.sf2 $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfonts/${PROJECT_NAME}.sf2
 )
+
+if (VCPKG_TOOLCHAIN)
+	x_vcpkg_install_local_dependencies(TARGETS ${PROJECT_NAME} DESTINATION ".")
+endif()
+
 
 if( CMAKE_COMPILER_IS_GNUCXX )
 	# GCC misoptimizes this file
