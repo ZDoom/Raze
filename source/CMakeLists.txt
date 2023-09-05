@@ -383,12 +383,12 @@ else()
 	message( SEND_ERROR "Could not find libvpx" )
 endif()
 
-#if (TARGET WebP::webp)
+if (TARGET WebP::webp)
 	list( APPEND PROJECT_LIBRARIES WebP::webp WebP::webpdemux WebP::libwebpmux )
 	if (TARGET WebP::webpdecoder)
 		list( APPEND PROJECT_LIBRARIES WebP::webpdecoder)
 	endif()
-#endif()
+endif()
 
 include_directories( SYSTEM "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${TESS_INCLUDE_DIR}" "${DRPC_INCLUDE_DIR}" )
 
