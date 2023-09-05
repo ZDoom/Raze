@@ -1071,7 +1071,6 @@ set (PCH_SOURCES
 	common/textures/formats/flattexture.cpp
 	common/textures/formats/fontchars.cpp
 	common/textures/formats/imgztexture.cpp
-	common/textures/formats/jpegtexture.cpp
 	common/textures/formats/md5check.cpp
 	common/textures/formats/multipatchtexture.cpp
 	common/textures/formats/patchtexture.cpp
