@@ -37,7 +37,6 @@
 #include "configfile.h"
 
 class FArgs;
-class FileWriter;
 
 class FGameConfigFile : public FConfigFile
 {

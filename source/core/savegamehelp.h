@@ -7,7 +7,6 @@
 #include "serializer_raze.h"
 
 // Savegame utilities
-class FileReader;
 extern int SaveVersion;
 
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
