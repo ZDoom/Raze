@@ -56,10 +56,10 @@ jobs:
             build_type: "MinSizeRel"
           }
         - {
-            name: "Linux Clang 6",
+            name: "Linux Clang 9",
             os: ubuntu-20.04,
-            extra_options: "-DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DDYN_OPENAL=OFF",
-            deps_cmdline: "sudo apt update && sudo apt install clang-6.0 libsdl2-dev libvpx-dev libopenal-dev libfluidsynth-dev libmpg123-dev libsndfile1-dev libwebp-dev",
+            extra_options: "-DCMAKE_C_COMPILER=clang-9 -DCMAKE_CXX_COMPILER=clang++-9 -DDYN_OPENAL=OFF",
+            deps_cmdline: "sudo apt update && sudo apt install clang-9 libsdl2-dev libvpx-dev libopenal-dev libfluidsynth-dev libmpg123-dev libsndfile1-dev libwebp-dev",
             build_type: "Debug"
           }
         - {
