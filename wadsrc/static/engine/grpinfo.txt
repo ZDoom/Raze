@@ -259,6 +259,18 @@ grpinfo
 
 grpinfo
 {
+	name "Duke it out in D.C."
+	size 8410149
+	crc 0xC63B6A8B
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
+	dependency DUKE15_CRC
+	gamefilter "Duke.DukeDC.15"
+	GameID "DukeDC"
+	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
+}
+
+grpinfo
+{
 	name "Duke Caribbean: Life's a Beach (1.3)"
 	size 23559381
 	crc VACA13_CRC
@@ -335,6 +347,21 @@ grpinfo
 	scriptname "VACATION.CON"
 	size 22201375
 	crc 0xb28e883c
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.Vacation.15"
+	FgColor 0x00004f
+	BkColor 0x8f8fff
+	GameID "DukeVacation"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
+}
+
+grpinfo
+{
+	name "Duke Caribbean: Life's a Beach"
+	scriptname "VACATION.CON"
+	size 22213795
+	crc 0x64CF2351
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation.15"
