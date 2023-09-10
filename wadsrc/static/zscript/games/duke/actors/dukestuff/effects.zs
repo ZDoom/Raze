@@ -73,6 +73,11 @@ class DukeExplosion2Bot : DukeExplosion2
 		-TRIGGER_IFHITSECTOR;
 	}
 	
+	override bool animate(tspritetype t)
+	{
+		return false;
+	}
+	
 }
 
 //---------------------------------------------------------------------------
@@ -81,7 +86,7 @@ class DukeExplosion2Bot : DukeExplosion2
 //
 //---------------------------------------------------------------------------
 
-class RedneckExplosion3 : DukeExplosion2
+class RedneckExplosion3 : DukeExplosion2Bot
 {
 	default
 	{
@@ -92,11 +97,6 @@ class RedneckExplosion3 : DukeExplosion2
 	{
 		Super.Initialize(spawner);
 		self.scale = (2, 2);
-	}
-	
-	override bool animate(tspritetype t)
-	{
-		return false;
 	}
 
 }
