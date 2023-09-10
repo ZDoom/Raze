@@ -79,7 +79,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else
 				t->scale = DVector2(0, 0);
-			break;
+			continue;
 		}
 
 		if (t->statnum == STAT_TEMP) continue;
