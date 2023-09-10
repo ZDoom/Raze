@@ -199,6 +199,7 @@ static FFlagDef DukeActorFlagDefs[] =
 	DEFINE_FLAG(SFLAG3, NOSHOTGUNBLOOD, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG4, DOUBLEHITDAMAGE, DDukeActor, flags4),
 	DEFINE_FLAG(SFLAG4, NODAMAGETURN, DDukeActor, flags4),
+	DEFINE_FLAG(SFLAG4, FLASHFRAME0, DDukeActor, flags4),
 
 };
 

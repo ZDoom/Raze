@@ -177,7 +177,6 @@ struct Duke native
 	native static bool StartCommentary(int tag, DukeActor act);
 	native static void StopCommentary();
 	static native int getPlayerIndex(DukePlayer p);
-	static native void setlastvisinc(int amount);
 	static native bool isaccessswitch(TextureID tex);
 	static native bool isshootableswitch(TextureID tex);
 	static native bool CheckSprite(class<DukeActor> tex);

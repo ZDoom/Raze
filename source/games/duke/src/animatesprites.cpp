@@ -214,6 +214,16 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 		}
 		else if (display_mirror == 1)
 			t->cstat |= CSTAT_SPRITE_XFLIP;
+
+		if (h->flags4 & SFLAG4_FLASHFRAME0)
+		{
+			if (t->spritetexture() == h->spr.spritetexture())
+			{
+				ps[screenpeek].visibility = -127;
+				lastvisinc = PlayClock + 32;
+			}
+		}
+
 	}
 }
 END_DUKE_NS

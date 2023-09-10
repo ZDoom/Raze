@@ -189,19 +189,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getPlayerIndex, getPlayerIndex)
 	ACTION_RETURN_INT(getPlayerIndex(p));
 }
 
-void setlastvisinc(int v)
-{
-	lastvisinc = PlayClock + v;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, setlastvisinc, setlastvisinc)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(v);
-	setlastvisinc(v);
-	return 0;
-}
-
 int Duke_isaccessswitch(int texint)
 {
 	return isaccessswitch(FSetTextureID(texint));

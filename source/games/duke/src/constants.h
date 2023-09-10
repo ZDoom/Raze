@@ -450,6 +450,7 @@ enum sflags4_t
 	SFLAG4_NODAMAGETURN = 0x00000002,
 	SFLAG4_CONOVERRIDE = 0x00000004,	// this is strictly internal
 	SFLAG4_INRUNSTATE = 0x00000008,		// exception throwing guard.
+	SFLAG4_FLASHFRAME0 = 0x00000010,	// lousy hack for Duke's explosion.
 };
 
 using EDukeFlags4 = TFlags<sflags4_t, uint32_t>;
