@@ -324,7 +324,7 @@ void GameInput::processInputBits()
 
 	if (buttonMap.ButtonDown(gamefunc_Open))
 	{
-		if (isBlood()) buttonMap.ClearButton(gamefunc_Open);
+		if (isBlood() || isExhumed()) buttonMap.ClearButton(gamefunc_Open);
 		inputBuffer.actions |= SB_OPEN;
 	}
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
