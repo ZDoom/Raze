@@ -353,42 +353,16 @@ void LookupTableInfo::makeTable(int palnum, const uint8_t *remapbuf, int r, int 
 
     int length = numshades * 256;
     auto p = tables[palnum].Shades.LockNewBuffer(length);
-    if (r == 0 && g == 0 && b == 0)
+    // "black fog"/visibility case -- only remap color indices
+
+    auto src = getTable(0);
+
+    for (int j = 0; j < numshades; j++)
     {
-        // "black fog"/visibility case -- only remap color indices
-
-        auto src = getTable(0);
-
-        for (int j = 0; j < numshades; j++)
-            for (int i = 0; i < 256; i++)
-            {
-                p[256 * j + i] = src[256 * j + remapbuf[i]];
-            }
-    }
-    else
-    {
-        // colored fog case
-
-        auto src = getTable(0);
         for (int i = 0; i < 256; i++)
         {
-            p[i] = src[remapbuf[i]];
+            p[256 * j + i] = src[256 * j + remapbuf[i]];
         }
-
-#if 0 // these are never used.
-        for (int i = 1; i < numshades; i++)
-        {
-            int colfac = (numshades - i);
-            for (int j = 0; j < 256; j++)
-            {
-                PalEntry pe = GPalette.BaseColors[remapbuf[j]];
-                p[256 * i + j] = ColorMatcher.Pick(
-                    (pe.r * colfac + r * i) / numshades,
-                    (pe.g * colfac + g * i) / numshades,
-                    (pe.b * colfac + b * i) / numshades);
-            }
-        }
-#endif
     }
 
     tables[palnum].FadeColor.r = r;
