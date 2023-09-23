@@ -132,6 +132,15 @@ static FSoundID GetReplacementSound(FSoundID soundNum)
 	if (wt_forcevoc && isWorldTour() && soundEngine->isValidSoundId(soundNum))
 	{
 		auto const* snd = soundEngine->GetUserData(soundNum);
+		if (snd == nullptr)
+		{
+			auto S_sfx = soundEngine->GetSfx(soundNum);
+			if (!S_sfx->bRandomHeader && S_sfx->link != sfxinfo_t::NO_LINK)
+			{
+				snd = soundEngine->GetUserData(S_sfx->link);
+				if (snd == nullptr) return soundNum;
+			}
+		}
 		int sndx = snd[kWorldTourMapping];
 		if (sndx > 0) soundNum = FSoundID::fromInt(sndx);
 	}
