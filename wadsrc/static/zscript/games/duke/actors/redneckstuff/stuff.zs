@@ -105,7 +105,7 @@ class DukeMinecartKiller : DukeActor
 }
 
 
-class RedneckBustaWin4a : DukeItemBase
+class RedneckBustaWin4a : DukeActor
 {
 	default
 	{
@@ -114,7 +114,7 @@ class RedneckBustaWin4a : DukeItemBase
 	}
 }
 
-class RedneckBustaWin5a : DukeItemBase
+class RedneckBustaWin5a : DukeActor
 {
 	default
 	{
