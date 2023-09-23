@@ -417,7 +417,7 @@ int PrintString (int iprintlevel, const char *outline)
 
 	if (!conbuffer) return 0;	// when called too early
 	int printlevel = iprintlevel & PRINT_TYPES;
-	if (printlevel < msglevel || *outline == '\0')
+	if (*outline == '\0')
 	{
 		return 0;
 	}
@@ -434,7 +434,10 @@ int PrintString (int iprintlevel, const char *outline)
 			conbuffer->AddText(printlevel, outline);
 			if (vidactive && screen && !(iprintlevel & PRINT_NONOTIFY) && NotifyStrings)
 			{
-				NotifyStrings->AddString(iprintlevel, outline);
+				if (printlevel >= msglevel)
+				{
+					NotifyStrings->AddString(iprintlevel, outline);
+				}
 			}
 		}
 		if (Logfile != nullptr && !(iprintlevel & PRINT_NOLOG))
@@ -648,48 +651,51 @@ void C_DrawConsole ()
 		conbuffer->FormatText(CurrentConsoleFont, ConWidth / textScale);
 		unsigned int consolelines = conbuffer->GetFormattedLineCount();
 		FBrokenLines *blines = conbuffer->GetLines();
-		FBrokenLines *printline = blines + consolelines - 1 - RowAdjust;
-
-		int bottomline = ConBottom / textScale - CurrentConsoleFont->GetHeight()*2 - 4;
-
-		for(FBrokenLines *p = printline; p >= blines && lines > 0; p--, lines--)
+		if (blines != nullptr)
 		{
-			if (textScale == 1)
-			{
-				DrawText(twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text, TAG_DONE);
-			}
-			else
-			{
-				DrawText(twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text,
-					DTA_VirtualWidth, twod->GetWidth() / textScale,
-					DTA_VirtualHeight, twod->GetHeight() / textScale,
-					DTA_KeepRatio, true, TAG_DONE);
-			}
-		}
+			FBrokenLines* printline = blines + consolelines - 1 - RowAdjust;
 
-		if (ConBottom >= 20)
-		{
-			if (gamestate != GS_STARTUP)
+			int bottomline = ConBottom / textScale - CurrentConsoleFont->GetHeight() * 2 - 4;
+
+			for (FBrokenLines* p = printline; p >= blines && lines > 0; p--, lines--)
 			{
-				auto now = I_msTime();
-				if (now > CursorTicker)
-				{
-					CursorTicker = now + 500;
-					cursoron = !cursoron;
-				}
-				CmdLine.Draw(left, bottomline, textScale, cursoron);
-			}
-			if (RowAdjust && ConBottom >= CurrentConsoleFont->GetHeight()*7/2)
-			{
-				// Indicate that the view has been scrolled up (10)
-				// and if we can scroll no further (12)
 				if (textScale == 1)
-					DrawChar(twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10, TAG_DONE);
+				{
+					DrawText(twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text, TAG_DONE);
+				}
 				else
-					DrawChar(twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10,
+				{
+					DrawText(twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text,
 						DTA_VirtualWidth, twod->GetWidth() / textScale,
 						DTA_VirtualHeight, twod->GetHeight() / textScale,
 						DTA_KeepRatio, true, TAG_DONE);
+				}
+			}
+
+			if (ConBottom >= 20)
+			{
+				if (gamestate != GS_STARTUP)
+				{
+					auto now = I_msTime();
+					if (now > CursorTicker)
+					{
+						CursorTicker = now + 500;
+						cursoron = !cursoron;
+					}
+					CmdLine.Draw(left, bottomline, textScale, cursoron);
+				}
+				if (RowAdjust && ConBottom >= CurrentConsoleFont->GetHeight() * 7 / 2)
+				{
+					// Indicate that the view has been scrolled up (10)
+					// and if we can scroll no further (12)
+					if (textScale == 1)
+						DrawChar(twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10, TAG_DONE);
+					else
+						DrawChar(twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10,
+							DTA_VirtualWidth, twod->GetWidth() / textScale,
+							DTA_VirtualHeight, twod->GetHeight() / textScale,
+							DTA_KeepRatio, true, TAG_DONE);
+				}
 			}
 		}
 	}

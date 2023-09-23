@@ -132,6 +132,7 @@ enum
 	DTA_Indexed,			// Use an indexed texture combined with the given translation.
 	DTA_CleanTop,			// Like DTA_Clean but aligns to the top of the screen instead of the center.
 	DTA_NoOffset,			// Ignore 2D drawer's offset.
+	DTA_Localize,		// localize drawn string, for DrawText only
 
 };
 
@@ -194,6 +195,7 @@ struct DrawParms
 	int monospace;
 	int spacing;
 	int maxstrlen;
+	bool localize;
 	bool fortext;
 	bool virtBottom;
 	bool burn;
@@ -266,7 +268,7 @@ enum
 };
 
 template<class T>
-bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture* img, double x, double y, uint32_t tag, T& tags, DrawParms* parms, int type, PalEntry fill = ~0u, double fillalpha = 0.0);
+bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture* img, double x, double y, uint32_t tag, T& tags, DrawParms* parms, int type, PalEntry fill = ~0u, double fillalpha = 0.0, bool scriptDifferences = false);
 
 template<class T>
 void DrawTextCommon(F2DDrawer *drawer, FFont* font, int normalcolor, double x, double y, const T* string, DrawParms& parms);

@@ -37,7 +37,7 @@
 #define RAPIDJSON_HAS_CXX11_RANGE_FOR 1
 #define RAPIDJSON_PARSE_DEFAULT_FLAGS kParseFullPrecisionFlag
 
-#include <zlib.h>
+#include <miniz.h>
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
@@ -604,6 +604,8 @@ void FSerializer::WriteObjects()
 		{
 			auto obj = w->mDObjects[i];
 
+			if(obj->ObjectFlags & OF_Transient) continue;
+
 			BeginObject(nullptr);
 			w->Key("classtype");
 			w->String(obj->GetClass()->TypeName.GetChars());
@@ -696,7 +698,6 @@ void FSerializer::ReadObjects(bool hubtravel)
 			}
 			EndArray();
 
-			assert(!founderrors);
 			if (founderrors)
 			{
 				Printf(TEXTCOLOR_RED "Failed to restore all objects in savegame\n");

@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdint.h>
-#include <zlib.h>
+#include <miniz.h>
 #include <new>
 #include <type_traits>
 #include <algorithm>

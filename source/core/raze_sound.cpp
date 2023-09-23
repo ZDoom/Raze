@@ -346,17 +346,3 @@ CCMD(playsoundid)
 	}
 }
 
-//==========================================================================
-//
-// CCMD listsounds
-//
-//==========================================================================
-
-CCMD(listsounds)
-{
-	for (unsigned i = 0; i < soundEngine->GetNumSounds(); i++)
-	{
-		auto sfx = soundEngine->GetSfx(FSoundID::fromInt(i));
-		Printf("%4d: name = %s, resId = %d, lumpnum = %d\n", i, sfx->name.GetChars(), sfx->ResourceId, sfx->lumpnum);
-	}
-}

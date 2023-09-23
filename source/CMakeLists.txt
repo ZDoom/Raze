@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 3.1.0 )
-
 include(precompiled_headers)
 
 if( COMMAND cmake_policy )
@@ -46,9 +44,6 @@ endif()
 # Right now only 64 bit is supported.
 if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 	set( X64 64 )
-endif()
-
-if( X64 OR ${TARGET_ARCHITECTURE} MATCHES "i386" )
 	add_definitions( -DARCH_IA32 )
 endif()
 
@@ -61,6 +56,7 @@ if( WIN32 )
 	add_definitions( -D_WIN32 )
 
 	set( PROJECT_LIBRARIES
+		psapi
 		wsock32
 		winmm
 		dinput8
@@ -322,7 +318,7 @@ add_custom_target( revision_check ALL
 
 # required libraries
 
-set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${CMAKE_DL_LIBS}" "${TESS_LIBRARIES}" "${DRPC_LIBRARIES}")
+set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} miniz "${BZIP2_LIBRARIES}" "${CMAKE_DL_LIBS}" "${TESS_LIBRARIES}" "${DRPC_LIBRARIES}")
 if (HAVE_VULKAN)
 	list( APPEND PROJECT_LIBRARIES "zvulkan" )
 endif()
@@ -390,7 +386,7 @@ if (TARGET WebP::webp)
 	endif()
 endif()
 
-include_directories( SYSTEM "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${TESS_INCLUDE_DIR}" "${DRPC_INCLUDE_DIR}" )
+include_directories( SYSTEM "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${TESS_INCLUDE_DIR}" "${DRPC_INCLUDE_DIR}" )
 
 if (WIN32)
 	include_directories( "platform/win32" )
@@ -925,11 +921,11 @@ if (HAVE_GLES2)
 		common/rendering/gles/glad/src/glad.c
 	)
 
-	set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${GLES_SOURCES})
+	list (APPEND FASTMATH_SOURCES ${GLES_SOURCES})
 endif()
 
 if (HAVE_VULKAN)
-	set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${VULKAN_SOURCES})
+	list (APPEND FASTMATH_SOURCES ${VULKAN_SOURCES})
 endif()
 
 set (FASTMATH_SOURCES ${FASTMATH_SOURCES})
