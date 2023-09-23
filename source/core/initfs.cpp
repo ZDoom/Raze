@@ -283,7 +283,7 @@ static void DeleteStuff(FileSystem &fileSystem, const TArray<FString>& deletelum
 //==========================================================================
 const char* iwad_reserved_duke[12] = { ".map", "rmapinfo", ".con", "menudef", "gldefs", "zscript", "maps/", nullptr };
 const char* iwad_reserved_blood[12] = { ".map", "rmapinfo", ".ini", "menudef", "gldefs", "zscript", "maps/", nullptr };
-const char* iwad_reserved_sw[12] = { ".map", "rmapinfo", "swcustom.txt", "menudef", "gldefs", "zscript", "maps/", nullptr };
+const char* iwad_reserved_sw[12] = { ".map", "rmapinfo", "swcustom.txt", "menudef", "gldefs", "zscript", "swvoxfil.txt", "maps/", nullptr };
 const char* iwad_reserved_ex[12] = { ".map", "rmapinfo", "menudef", "gldefs", "zscript", "maps/", nullptr };
 
 const char** iwad_reserved()
