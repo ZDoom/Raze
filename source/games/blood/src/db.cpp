@@ -655,7 +655,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 						}
 						else
 						{
-							pXSector->waitTimeB = pXSector->busyTimeA;
+							pXSector->waitTimeB = pXSector->waitTimeA;
 							pXSector->waitTimeA = 0;
 							pXSector->reTriggerB = 1;
 						}
