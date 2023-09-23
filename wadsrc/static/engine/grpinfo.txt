@@ -260,6 +260,7 @@ grpinfo
 grpinfo
 {
 	name "Duke it out in D.C."
+	scriptname "DUKEDC.CON"
 	size 8410149
 	crc 0xC63B6A8B
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
