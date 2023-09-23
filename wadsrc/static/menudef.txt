@@ -1735,7 +1735,7 @@ OptionString "LanguageOptions"
 	"default", "English (US)"
 	"eng", "English (UK)"
 	"cs", "Česky (Czech)"
-	"de", "Dansk (Danish)"
+	"da", "Dansk (Danish)"
 	"de", "Deutsch (German)"
 	"es", "Español (Spanish)" // Note: this has not been reviewed for regional variations!
 	"fr", "Français (French)"
