@@ -1,3 +1,4 @@
+x(One, 1)
 x(Torch1, 338)
 x(Torch2, 350)
 x(WeaponSpriteMagnum, 488)

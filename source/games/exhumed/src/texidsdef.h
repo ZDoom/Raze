@@ -1,4 +1,5 @@
 // list of textures that get referenced directly in game code.
+x(One)
 x(Spark1)
 x(Spark2)
 x(Playermarker1)
