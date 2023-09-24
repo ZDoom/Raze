@@ -60,6 +60,12 @@ public:
 		ActionsToSend |= action;
 	}
 
+	// Clear all values within this object.
+	void Clear()
+	{
+		memset(this, 0, sizeof(*this));
+	}
+
 	// Receives mouse input from OS for processing.
 	void MouseAddToPos(float x, float y)
 	{
@@ -71,7 +77,7 @@ public:
 	void processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const float turnscale = 1.f);
 	void processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
 	void getInput(const double scaleAdjust, InputPacket* packet = nullptr);
-	void Clear();
+	void resetCrouchToggle();
 };
 
 struct PlayerAngles

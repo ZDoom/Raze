@@ -156,6 +156,7 @@ void NewGame(MapRecord* map, int skill, bool ns = false)
 		gi->NewGame(map, skill, ns); 
 		gameaction = ga_level;
 		ResetStatusBar();
+		gameInput.resetCrouchToggle();
 		});
 }
 

@@ -82,13 +82,12 @@ bool scaletozero(DAngle& angle, const double scale, const double push)
 
 //---------------------------------------------------------------------------
 //
-// Clears entire game input state.
+// Clears crouch toggle state for new games.
 //
 //---------------------------------------------------------------------------
 
-void GameInput::Clear()
+void GameInput::resetCrouchToggle()
 {
-	memset(this, 0, sizeof(*this));
 	crouch_toggle = false;
 }
 
