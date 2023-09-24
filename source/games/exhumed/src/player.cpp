@@ -2152,8 +2152,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("totalvel", w.totalvel)
             ("grenade", w.pPlayerGrenade)
             ("bUnderwater", w.bUnderwater)
-
+            ("actions", w.input.actions)
             .EndObject();
+
+        if (arc.isReading())
+        {
+            w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+        }
     }
     return arc;
 }

@@ -2491,8 +2491,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("quakeeffect", w.quakeEffect)
 			("player_par", w.player_par)
 			("waterpal", w.nWaterPal)
+			("actions", w.input.actions)
 			.Array("posturedata", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
 			.EndObject();
+
+		if (arc.isReading())
+		{
+			w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+		}
 	}
 	return arc;
 }
