@@ -271,11 +271,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("fistsign", w.fistsign)
 			.EndObject();
 
-		w.invdisptime = 0;
-		w.GetActor()->backuploc();
-		w.opyoff = w.pyoff;
-		w.backupweapon();
-		w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+		if (arc.isReading())
+		{
+			w.invdisptime = 0;
+			w.GetActor()->backuploc();
+			w.opyoff = w.pyoff;
+			w.backupweapon();
+			w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+		}
 	}
 	return arc;
 }
