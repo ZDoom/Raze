@@ -103,7 +103,7 @@ struct Player
     double nIdxBobZ;
     double nPrevWeapBob;
     double nWeapBob;
-    bool crouch_toggle;
+    bool bUnderwater;
     bool bTouchFloor;
     bool bJumping;
     bool bRebound;

@@ -2664,7 +2664,6 @@ void DoPlayerBeginJump(PLAYER* pp)
     pp->Flags |= (PF_JUMPING);
     pp->Flags &= ~(PF_FALLING);
     pp->Flags &= ~(PF_CRAWLING);
-    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->p_floor_dist = PLAYER_JUMP_FLOOR_DIST;
     pp->p_ceiling_dist = PLAYER_JUMP_CEILING_DIST;
@@ -2698,7 +2697,7 @@ void DoPlayerBeginForceJump(PLAYER* pp)
     DSWActor* plActor = pp->actor;
 
     pp->Flags |= (PF_JUMPING);
-    pp->Flags &= ~(PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_FALLING|PF_CRAWLING|PF_CLIMBING);
 
     pp->JumpDuration = MAX_JUMP_DURATION;
     pp->DoPlayerAction = DoPlayerForceJump;
@@ -2877,7 +2876,6 @@ void DoPlayerBeginFall(PLAYER* pp)
     pp->Flags |= (PF_FALLING);
     pp->Flags &= ~(PF_JUMPING);
     pp->Flags &= ~(PF_CRAWLING);
-    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->p_floor_dist = PLAYER_FALL_FLOOR_DIST;
     pp->p_ceiling_dist = PLAYER_FALL_CEILING_DIST;
@@ -3084,7 +3082,6 @@ void DoPlayerBeginClimb(PLAYER* pp)
 
     pp->Flags &= ~(PF_JUMPING|PF_FALLING);
     pp->Flags &= ~(PF_CRAWLING);
-    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->DoPlayerAction = DoPlayerClimb;
 
@@ -3412,33 +3409,7 @@ void DoPlayerCrawl(PLAYER* pp)
         return;
     }
 
-    if (pp->Flags & PF_LOCK_CRAWL)
-    {
-        if (pp->input.actions & SB_CROUCH_LOCK)
-        {
-            if ((pp->KeyPressBits & SB_CROUCH_LOCK) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
-            {
-                pp->KeyPressBits &= ~SB_CROUCH_LOCK;
-                pp->Flags &= ~PF_CRAWLING;
-                DoPlayerBeginRun(pp);
-                return;
-            }
-        }
-        else
-        {
-           pp->KeyPressBits |= SB_CROUCH_LOCK;
-        }
-
-        // Jump to get up
-        if ((pp->input.actions & (SB_JUMP|SB_CROUCH)) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
-        {
-            pp->Flags &= ~PF_CRAWLING;
-            DoPlayerBeginRun(pp);
-            return;
-        }
-
-    }
-    else if (!(pp->input.actions & SB_CROUCH) && pp->input.uvel >= 0 && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+    if ((!(pp->input.actions & SB_CROUCH) || pp->input.uvel > 0) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
     {
         // Let off of crawl to get up
         pp->Flags &= ~PF_CRAWLING;
@@ -4180,7 +4151,6 @@ void DoPlayerBeginDive(PLAYER* pp)
 
     pp->Flags &= ~(PF_JUMPING | PF_FALLING);
     pp->Flags &= ~(PF_CRAWLING);
-    pp->Flags &= ~(PF_LOCK_CRAWL);
 
     pp->friction = PLAYER_DIVE_FRICTION;
     pp->p_ceiling_dist = PLAYER_DIVE_CEILING_DIST;
@@ -4995,7 +4965,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
     pp->posZset(fz - PLAYER_HEIGHTF);
 
-    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING);
 
     DoPlayerOperateMatch(pp, true);
 
@@ -5085,7 +5055,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
     pp->posZset(fz - PLAYER_HEIGHTF);
 
-    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING);
 
     DoPlayerOperateMatch(pp, true);
 
@@ -5573,7 +5543,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     if (pp->Flags & (PF_DIVING))
         pp->DeathType = PLAYER_DEATH_DROWN;
 
-    pp->Flags &= ~(PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING|PF_LOCK_CRAWL);
+    pp->Flags &= ~(PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING);
 
     ActorCoughItem(pp->actor);
 
@@ -6293,7 +6263,7 @@ void DoPlayerBeginRun(PLAYER* pp)
         return;
     }
 
-    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL|PF_CLIMBING);
+    pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_CLIMBING);
 
     if (pp->WadeDepth)
     {
@@ -6361,22 +6331,6 @@ void DoPlayerRun(PLAYER* pp)
     else
     {
         pp->KeyPressBits |= SB_JUMP;
-    }
-
-    // Crawl lock
-    if (pp->input.actions & SB_CROUCH_LOCK)
-    {
-        if (pp->KeyPressBits & SB_CROUCH_LOCK)
-        {
-            pp->KeyPressBits &= ~SB_CROUCH_LOCK;
-            pp->Flags |= PF_LOCK_CRAWL;
-            DoPlayerBeginCrawl(pp);
-            return;
-        }
-    }
-    else
-    {
-        pp->KeyPressBits |= SB_CROUCH_LOCK;
     }
 
     if (PlayerFlyKey())
@@ -6471,6 +6425,19 @@ void DoPlayerRun(PLAYER* pp)
     DoPlayerHeight(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+unsigned GameInterface::getCrouchState()
+{
+    const auto pp = &Player[myconnectindex];
+    const bool crouchable = true;
+    const bool disableToggle = (pp->Flags & (PF_JUMPING|PF_FALLING|PF_CLIMBING|PF_DIVING|PF_DEAD)) || pp->sop;
+    return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
+}
 
 //---------------------------------------------------------------------------
 //

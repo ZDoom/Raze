@@ -548,7 +548,6 @@ enum
     PF_DEAD                     = (BIT(1)),
     PF_JUMPING                  = (BIT(2)),
     PF_FALLING                  = (BIT(3)),
-    PF_LOCK_CRAWL               = (BIT(4)),
     PF_PLAYER_MOVED             = (BIT(7)),
     PF_PLAYER_RIDING            = (BIT(8)),
     PF_RECOIL                   = (BIT(10)),
@@ -1902,6 +1901,7 @@ struct GameInterface : public ::GameInterface
     void ExitFromMenu() override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
+    unsigned getCrouchState() override;
     void reapplyInputBits(InputPacket* const input) override { input->actions |= Player[myconnectindex].input.actions & SB_CENTERVIEW; }
     void doPlayerMovement(const float scaleAdjust) override
     {

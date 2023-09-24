@@ -309,7 +309,6 @@ void RestartPlayer(int nPlayer)
     pPlayer->nQuake = 0;
     pPlayer->nTemperature = 0;
     pPlayer->nStandHeight = GetActorHeight(pPlayerActor);
-    pPlayer->crouch_toggle = false;
     SetTorch(nPlayer, 0);
 
     if (nNetPlayerCount)
@@ -1224,12 +1223,24 @@ static void updatePlayerWeapon(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
+unsigned GameInterface::getCrouchState()
+{
+    const bool swimming = PlayerList[nLocalPlayer].bUnderwater;
+    return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void updatePlayerAction(Player* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const auto pInput = &pPlayer->input;
     const auto kbdDir = !!(pInput->actions & SB_CROUCH) - !!(pInput->actions & SB_JUMP);
-    const double dist = bUnderwater ? 8 : 14;
+    const double dist = pPlayer->bUnderwater ? 8 : 14;
     const double velZ = clamp(dist * kbdDir - dist * pInput->uvel, -dist, dist);
     int nextAction = pPlayerActor->nAction;
 
@@ -1240,11 +1251,9 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
     if (!pPlayer->bIsMummified)
     {
-        processCrouchToggle(pPlayer->crouch_toggle, pInput->actions, !bUnderwater, bUnderwater);
-
         if (velZ < 0)
         {
-            if (bUnderwater)
+            if (pPlayer->bUnderwater)
             {
                 pPlayerActor->vel.Z = velZ;
                 nextAction = 10;
@@ -1258,7 +1267,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
         }
         else if (velZ > 0)
         {
-            if (bUnderwater)
+            if (pPlayer->bUnderwater)
             {
                 pPlayerActor->vel.Z = velZ;
                 nextAction = 10;
@@ -1292,7 +1301,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                     scaleViewZ(nActionEyeLevel[pPlayerActor->nAction]);
                 }
 
-                if (bUnderwater)
+                if (pPlayer->bUnderwater)
                 {
                     nextAction = 10 - (pPlayer->totalvel <= 0.0625);
                 }
@@ -1302,7 +1311,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
                 }
                 else if (pPlayer->totalvel <= 0.0625)
                 {
-                    nextAction = bUnderwater;
+                    nextAction = pPlayer->bUnderwater;
                 }
                 else if (pPlayer->totalvel <= 1.875)
                 {
@@ -1316,7 +1325,7 @@ static void updatePlayerAction(Player* const pPlayer, const bool bUnderwater)
 
             if (!bTallerThanSector && (pInput->actions & SB_FIRE)) // was var_38
             {
-                if (bUnderwater)
+                if (pPlayer->bUnderwater)
                 {
                     nextAction = 11;
                 }
@@ -1649,7 +1658,7 @@ static void updatePlayerDoppleActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel, const bool bUnderwater)
+static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel)
 {
     const auto pPlayerActor = pPlayer->pActor;
     const auto pPlayerSect = pPlayerActor->sector();
@@ -1657,7 +1666,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
     const auto pViewSect = bPlayerBelowCeil && pPlayerSect->pAbove ? pPlayerSect->pAbove : pPlayerSect;
 
     // Do underwater sector check
-    if (bUnderwater && pViewSect != pPlayerSect && nMove.type == kHitWall)
+    if (pPlayer->bUnderwater && pViewSect != pPlayerSect && nMove.type == kHitWall)
     {
         const auto pos = pPlayerActor->spr.pos;
         const auto fz = pViewSect->floorz - 20;
@@ -1820,9 +1829,7 @@ static bool doPlayerInput(Player* const pPlayer)
     }
 
     const auto pPlayerSect = pPlayerActor->sector();
-    const bool bUnderwater = pPlayerSect->Flag & kSectUnderwater;
-
-    if (bUnderwater)
+    if ((pPlayer->bUnderwater = pPlayerSect->Flag & kSectUnderwater))
         pPlayer->nThrust *= 0.5;
 
     // Trigger Ramses?
@@ -1854,11 +1861,11 @@ static bool doPlayerInput(Player* const pPlayer)
 
     // Most-move updates. Input bit funcs are here because
     // updatePlayerAction() needs access to bUnderwater.
-    updatePlayerViewSector(pPlayer, nMove, spr_vel, bUnderwater);
+    updatePlayerViewSector(pPlayer, nMove, spr_vel);
     updatePlayerFloorActor(pPlayer);
     updatePlayerInventory(pPlayer);
     updatePlayerWeapon(pPlayer);
-    updatePlayerAction(pPlayer, bUnderwater);
+    updatePlayerAction(pPlayer);
 
     return true;
 }
@@ -2144,7 +2151,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("save", w.sPlayerSave)
             ("totalvel", w.totalvel)
             ("grenade", w.pPlayerGrenade)
-            ("crouch_toggle", w.crouch_toggle)
+            ("bUnderwater", w.bUnderwater)
 
             .EndObject();
     }

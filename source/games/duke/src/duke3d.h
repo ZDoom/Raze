@@ -42,6 +42,7 @@ struct GameInterface : public ::GameInterface
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void reapplyInputBits(InputPacket* const input) override { input->actions |= ps[myconnectindex].sync.actions & SB_CENTERVIEW; }
 	void doPlayerMovement(const float scaleAdjust) override;
+	unsigned getCrouchState() override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;

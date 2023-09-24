@@ -120,6 +120,7 @@ struct GameInterface
 	virtual void StartSoundEngine() = 0;
 	virtual void reapplyInputBits(InputPacket* const input) = 0;
 	virtual void doPlayerMovement(const float scaleAdjust) = 0;
+	virtual unsigned getCrouchState() = 0;
 
 	virtual FString statFPS()
 	{

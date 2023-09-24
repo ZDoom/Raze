@@ -90,7 +90,6 @@ void resetplayerstats(int snum)
 	p = &ps[snum];
 
 	gFullMap = 0; 
-	p->crouch_toggle    = 0;
 	p->dead_flag        = 0;
 	p->wackedbyactor    = nullptr;
 	p->falling_counter  = 0;

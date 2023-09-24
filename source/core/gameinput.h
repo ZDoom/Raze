@@ -3,6 +3,12 @@
 #include "serializer.h"
 #include "gamefuncs.h"
 
+enum : unsigned
+{
+	CS_CANCROUCH = 1,
+	CS_DISABLETOGGLE = 2,
+};
+
 inline double getTicrateScale(const double value)
 {
 	return value / GameTicRate;
@@ -173,5 +179,4 @@ extern GameInput gameInput;
 
 class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle);
 bool scaletozero(DAngle& angle, const double scale, const double push = (7646143. / 110386328.));

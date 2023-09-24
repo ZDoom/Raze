@@ -146,6 +146,7 @@ struct GameInterface : public ::GameInterface
 	void StartSoundEngine() override;
 	void reapplyInputBits(InputPacket* const input) override { input->actions |= gPlayer[myconnectindex].input.actions & (~(SB_BUTTON_MASK | SB_RUN | SB_WEAPONMASK_BITS) | SB_CENTERVIEW); }
 	void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&gPlayer[myconnectindex].Angles, scaleAdjust); }
+	unsigned getCrouchState() override;
 
 	GameStats getStats() override;
 };

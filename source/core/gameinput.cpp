@@ -52,6 +52,7 @@ CUSTOM_CVAR(Int, cl_viewtilting, 0, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 //---------------------------------------------------------------------------
 
 GameInput gameInput{};
+bool crouch_toggle = false;
 
 
 //---------------------------------------------------------------------------
@@ -75,32 +76,6 @@ bool scaletozero(DAngle& angle, const double scale, const double push)
 		return true;
 	}
 	return false;
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Handle all the game-side crouch requirements.
-//
-//---------------------------------------------------------------------------
-
-void processCrouchToggle(bool& toggle, ESyncBits& actions, const bool crouchable, const bool disabletoggle)
-{
-	if (actions & SB_CROUCH_LOCK)
-	{
-		toggle = !toggle && crouchable;
-		actions &= ~SB_CROUCH_LOCK;
-	}
-
-	if ((actions & (SB_CROUCH|SB_JUMP)) || disabletoggle)
-	{
-		toggle = 0;
-	}
-
-	if (toggle)
-	{
-		actions |= SB_CROUCH;
-	}
 }
 
 
@@ -285,6 +260,7 @@ void GameInput::processInputBits()
 	else dpad_lock = 0;
 
 	gi->reapplyInputBits(&inputBuffer);
+	const auto crouchState = gi->getCrouchState();
 
 	inputBuffer.actions |= ActionsToSend;
 	ActionsToSend = 0;
@@ -301,20 +277,24 @@ void GameInput::processInputBits()
 		inputBuffer.actions &= ~SB_CENTERVIEW;
 	}
 
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+	{
+		const bool canCrouch = crouchState & CS_CANCROUCH;
+		crouch_toggle = !crouch_toggle && canCrouch;
+		if (canCrouch) buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || (crouchState & CS_DISABLETOGGLE))
+		crouch_toggle = false;
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
+		inputBuffer.actions |= SB_CROUCH;
+
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		joyAxes[JOYAXIS_Forward] = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		inputBuffer.actions |= SB_JUMP;
-
-	if (buttonMap.ButtonDown(gamefunc_Crouch))
-		inputBuffer.actions |= SB_CROUCH;
-
-	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
-	{
-		inputBuffer.actions |= SB_CROUCH_LOCK;
-		buttonMap.ClearButton(gamefunc_Toggle_Crouch);
-	}
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))
 		inputBuffer.actions |= SB_FIRE;
@@ -327,6 +307,7 @@ void GameInput::processInputBits()
 		if (isBlood() || isExhumed()) buttonMap.ClearButton(gamefunc_Open);
 		inputBuffer.actions |= SB_OPEN;
 	}
+
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
 		inputBuffer.actions |= SB_RUN;
 

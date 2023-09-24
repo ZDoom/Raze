@@ -67,13 +67,6 @@ void hud_input(int plnum)
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	p->backupweapon();
 
-	// Set-up crouch bools.
-	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
-	const bool crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge) && !p->jetpack_on;
-	const bool disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
-
-	processCrouchToggle(p->crouch_toggle, p->sync.actions, crouchable, disableToggle);
-
 	if (isRR() && (p->sync.actions & SB_CROUCH)) p->sync.actions &= ~SB_JUMP;
 
 	if ((isRR() && p->drink_amt > 88))
@@ -493,6 +486,21 @@ void hud_input(int plnum)
 			}
 		}
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+unsigned GameInterface::getCrouchState()
+{
+	const auto p = &ps[myconnectindex];
+	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
+	const int crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge) && !p->jetpack_on;
+	const int disableToggle = (!crouchable && p->on_ground) || p->jetpack_on || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
+	return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
 }
 
 //---------------------------------------------------------------------------

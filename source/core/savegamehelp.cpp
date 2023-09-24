@@ -72,6 +72,7 @@
 
 
 void WriteSavePic(FileWriter* file, int width, int height);
+extern bool crouch_toggle;
 extern FString savename;
 extern FString BackupSaveGame;
 int SaveVersion;
@@ -82,6 +83,21 @@ BEGIN_BLD_NS
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def);
 END_BLD_NS
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+static void SerializeGlobals(FSerializer& arc)
+{
+	if (arc.BeginObject("globals"))
+	{
+		arc("crouch_toggle", crouch_toggle)
+		.EndObject();
+	}
+}
 
 //=============================================================================
 //
@@ -103,6 +119,7 @@ static void SerializeSession(FSerializer& arc)
 	S_SerializeSounds(arc);
 	SerializeAutomap(arc);
 	SerializeHud(arc);
+	SerializeGlobals(arc);
 	gi->SerializeGameState(arc);
 }
 

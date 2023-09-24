@@ -901,7 +901,6 @@ void playerStart(int nPlayer, int bNewLevel)
 #endif
 	pPlayer->hand = 0;
 	pPlayer->nWaterPal = 0;
-	pPlayer->crouch_toggle = false;
 	playerResetPowerUps(pPlayer);
 
 	if (nPlayer == myconnectindex)
@@ -1500,6 +1499,18 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 //
 //---------------------------------------------------------------------------
 
+unsigned GameInterface::getCrouchState()
+{
+	const bool swimming = gPlayer[myconnectindex].posture == kPostureSwim;
+	return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ProcessInput(PLAYER* pPlayer)
 {
 	enum
@@ -1582,8 +1593,6 @@ void ProcessInput(PLAYER* pPlayer)
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;
-
-	processCrouchToggle(pPlayer->crouch_toggle, pInput->actions, pPlayer->posture != kPostureSwim, pPlayer->posture == kPostureSwim);
 
 	switch (pPlayer->posture) {
 	case kPostureSwim:
@@ -2482,7 +2491,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("quakeeffect", w.quakeEffect)
 			("player_par", w.player_par)
 			("waterpal", w.nWaterPal)
-			("crouch_toggle", w.crouch_toggle)
 			.Array("posturedata", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
 			.EndObject();
 	}

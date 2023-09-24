@@ -178,7 +178,6 @@ struct PLAYER
 	int                 quakeEffect;
 	int                 player_par;
 	int                 nWaterPal;
-	bool                crouch_toggle;
 	POSTURE             pPosture[kModeMax][kPostureMax];
 };
 
