@@ -28,11 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 //---------------------------------------------------------------------------
 //
-// CVARs to control mouse input sensitivity.
+// CVARs to control input.
 //
 //---------------------------------------------------------------------------
 
 EXTERN_CVAR(Int, vr_mode)
+CVAR(Bool, cl_noturnscaling, false, CVAR_GLOBALCONFIG | CVAR_ARCHIVE);
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
@@ -112,7 +113,8 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
-		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) / (!isTurboTurnTime() * 2.8 + 1));
+		const float tttscale = 1.f / (!(cl_noturnscaling || isTurboTurnTime()) * 2.8f + 1.f);
+		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * tttscale);
 		thisInput.avel += mouseInput.X * MOUSE_SCALE * m_yaw;
 		thisInput.avel -= joyAxes[JOYAXIS_Yaw] * hidspeed * scaleAdjust;
 		thisInput.avel += turndir * turnscale * turnspeed * scaleAdjust;
