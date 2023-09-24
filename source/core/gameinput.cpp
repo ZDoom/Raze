@@ -82,6 +82,19 @@ bool scaletozero(DAngle& angle, const double scale, const double push)
 
 //---------------------------------------------------------------------------
 //
+// Clears entire game input state.
+//
+//---------------------------------------------------------------------------
+
+void GameInput::Clear()
+{
+	memset(this, 0, sizeof(*this));
+	crouch_toggle = false;
+}
+
+
+//---------------------------------------------------------------------------
+//
 // Player's movement function, called from game's ticker or from gi->doPlayerMovement() as required.
 //
 //---------------------------------------------------------------------------
