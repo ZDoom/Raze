@@ -150,6 +150,7 @@ bool newGameStarted;
 
 void NewGame(MapRecord* map, int skill, bool ns = false)
 {
+	gi->FreeLevelData();
 	newGameStarted = true;
 	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
 		gi->NewGame(map, skill, ns); 
@@ -188,7 +189,6 @@ static void GameTicker()
 				g_nextmap = currentLevel;
 				FX_StopAllSounds();
 				FX_SetReverb(0);
-				gi->FreeLevelData();
 				NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
 			}
@@ -214,7 +214,6 @@ static void GameTicker()
 		case ga_newgamenostopsound:
 			DeleteScreenJob();
 			FX_SetReverb(0);
-			gi->FreeLevelData();
 			C_FlushDisplay();
 			BackupSaveGame = "";
 			NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
