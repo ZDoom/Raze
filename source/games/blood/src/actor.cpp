@@ -6054,7 +6054,7 @@ static void actCheckDudes()
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
 
 			constexpr auto maxVel = (36211. / 3000.);
-			pPlayer->Angles.doRollInput(&pPlayer->input, actor->vel.XY(), maxVel, pPlayer->posture == kPostureSwim);
+			pPlayer->Angles.doRollInput(&pPlayer->input, actor->vel.XY(), maxVel, false);
 			pPlayer->Angles.StrafeVel -= pPlayer->Angles.StrafeVel * nDrag;
 		}
 
