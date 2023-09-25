@@ -9,6 +9,13 @@ enum : unsigned
 	CS_DISABLETOGGLE = 2,
 };
 
+enum : unsigned
+{
+	VEH_CANMOVE = 1,
+	VEH_CANTURN = 2,
+	VEH_SCALETURN = 4,
+};
+
 inline double getTicrateScale(const double value)
 {
 	return value / GameTicRate;
@@ -75,7 +82,7 @@ public:
 
 	// Prototypes for large member functions.
 	void processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const float turnscale = 1.f);
-	void processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+	void processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const unsigned flags);
 	void getInput(const double scaleAdjust, InputPacket* packet = nullptr);
 	void resetCrouchToggle();
 };
@@ -93,7 +100,7 @@ struct PlayerAngles
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 	friend void GameInput::processMovement(PlayerAngles* const plrAngles, const float scaleAdjust, const int drink_amt, const bool allowstrafe, const float turnscale);
-	friend void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate);
+	friend void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const unsigned flags);
 
 	// Prototypes.
 	void doPitchInput(InputPacket* const input);

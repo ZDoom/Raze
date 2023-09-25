@@ -529,11 +529,12 @@ void GameInterface::doPlayerMovement(const float scaleAdjust)
 			baseVel = VEHICLETURN * velScale;
 		}
 
-		const auto canMove = p->OnBoat || !p->moto_underwater;
-		const auto canTurn = p->OnMotorcycle || p->MotoSpeed || p->moto_drink;
-		const auto attenuate = p->OnMotorcycle && p->MotoSpeed <= 0;
+		unsigned vehFlags = 0;
+		vehFlags |= VEH_CANMOVE * (p->OnBoat || !p->moto_underwater);
+		vehFlags |= VEH_CANTURN * (p->OnMotorcycle || p->MotoSpeed || p->moto_drink);
+		vehFlags |= VEH_SCALETURN * (p->OnMotorcycle && p->MotoSpeed <= 0);
 
-		gameInput.processVehicle(&p->Angles, scaleAdjust, baseVel, velScale, canMove, canTurn, attenuate);
+		gameInput.processVehicle(&p->Angles, scaleAdjust, baseVel, velScale, vehFlags);
 	}
 	else
 	{

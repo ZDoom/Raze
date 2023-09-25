@@ -185,7 +185,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const bool canMove, const bool canTurn, const bool attenuate)
+void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleAdjust, const float baseVel, const float velScale, const unsigned flags)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
@@ -194,7 +194,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 	inputBuffer.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
-	if (canMove)
+	if (flags & VEH_CANMOVE)
 	{
 		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
@@ -205,7 +205,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
 	}
 
-	if (canTurn)
+	if (flags & VEH_CANTURN)
 	{
 		// Keyboard turning.
 		const auto kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -217,7 +217,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		const auto hidRight = mouseInput.X > 0 || joyAxes[JOYAXIS_Yaw] < 0;
 
 		// Velocity setup.
-		const auto turnVel = (!attenuate && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
+		const auto turnVel = (!(flags & VEH_SCALETURN) && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
 		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
 		const auto maxVel = abs(turnVel * 1.5f);
 
