@@ -5142,19 +5142,13 @@ void MoveDude(DBloodActor* actor)
 				return;
 			}
 		}
-		int nDrag = gDudeDrag;
-		if (actor->xspr.height > 0)
-			nDrag -= Scale(gDudeDrag, actor->xspr.height, 256);
-
-		if (pPlayer)
-		{
-			pPlayer->Angles.StrafeVel += FixedToFloat(-mulscale16r(FloatToFixed(pPlayer->Angles.StrafeVel), nDrag));
-		}
-
 		if (IsUnderwaterSector(actor->sector()))
 			return;
 		if (actor->xspr.height >= 0x100)
 			return;
+		int nDrag = gDudeDrag;
+		if (actor->xspr.height > 0)
+			nDrag -= Scale(gDudeDrag, actor->xspr.height, 256);
 
 		// this cannot be floatified due to the effect of mulscale16r on the value.
 		actor->vel.X += FixedToFloat(-mulscale16r(FloatToFixed(actor->vel.X), nDrag));
@@ -5163,7 +5157,6 @@ void MoveDude(DBloodActor* actor)
 		if (actor->vel.XY().Length() < 0.0625)
 		{
 			actor->vel.XY().Zero();
-			if (pPlayer) pPlayer->Angles.StrafeVel = 0;
 		}
 	}
 }
@@ -6052,6 +6045,18 @@ static void actCheckDudes()
 		}
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
 		else actAirDrag(actor, 128);
+
+		if (actor->IsPlayerActor())
+		{
+			PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+			double nDrag = FixedToFloat(gDudeDrag);
+			if (actor->xspr.height > 0)
+				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
+
+			constexpr auto maxVel = (36211. / 3000.);
+			pPlayer->Angles.doRollInput(&pPlayer->input, actor->vel.XY(), maxVel, pPlayer->posture == kPostureSwim);
+			pPlayer->Angles.StrafeVel -= pPlayer->Angles.StrafeVel * nDrag;
+		}
 
 		if ((actor->spr.flags & 4) || !actor->vel.isZero() || actor->sector()->velFloor || actor->sector()->velCeil)
 			MoveDude(actor);
