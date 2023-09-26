@@ -1148,7 +1148,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
 	// Stop all sounds
 	FX_StopAllSounds();
-	FX_SetReverb(0);
+	S_SetReverb(0);
 
 	auto p = &ps[0];
 

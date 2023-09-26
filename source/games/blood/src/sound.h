@@ -52,7 +52,7 @@ void sndInit(void);
 
 void sfxPlay3DSound(const DVector3& pos, int soundId, sectortype* pSector);
 void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0);
-void sfxPlay3DSoundCP(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = 0);
+void sfxPlay3DSoundVolume(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = 0);
 void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1);
 void sfxKillAllSounds(void);
 void sfxSetReverb(bool toggle);

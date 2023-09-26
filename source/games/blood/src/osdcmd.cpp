@@ -4,7 +4,7 @@ Copyright (C) 2010-2019 EDuke32 developers and contributors
 Copyright (C) 2019 Nuke.YKT
 Copyright (C) 2020 Raze developers and contributors
 
-This file was part of NBlood.
+This file is part of Raze.
 
 NBlood is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -34,13 +34,13 @@ BEGIN_BLD_NS
 void GameInterface::ToggleThirdPerson()
 {
 	if (gamestate != GS_LEVEL) return;
-	if (gViewPos > VIEWPOS_0)
+	if (gViewPos > viewFirstPerson)
 	{
-		gViewPos = VIEWPOS_0;
+		gViewPos = viewFirstPerson;
 	}
 	else
 	{
-		gViewPos = VIEWPOS_1;
+		gViewPos = viewThirdPerson;
 		cameradist = 0;
 		cameraclock = INT_MIN;
 	}

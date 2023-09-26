@@ -1735,7 +1735,7 @@ void debrisMove(int listIndex)
 			case kMarkerUpWater:
 			case kMarkerUpGoo:
 				int pitch = (150000 - (actor->spriteMass.mass << 9)) + Random3(8192);
-				sfxPlay3DSoundCP(actor, 720, -1, 0, pitch, 75 - Random(40));
+				sfxPlay3DSoundVolume(actor, 720, -1, 0, pitch, 75 - Random(40));
 				if (!spriteIsUnderwater(actor))
 				{
 					evKillActor(actor, kCallbackEnemeyBubble);
@@ -6562,7 +6562,7 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
 	int pitch = sourceactor->xspr.data4 << 1;
 	if (pitch < 2000) pitch = 0;
-	sfxPlay3DSoundCP(actor, sourceactor->xspr.data2, -1, 0, pitch, sourceactor->xspr.data3);
+	sfxPlay3DSoundVolume(actor, sourceactor->xspr.data2, -1, 0, pitch, sourceactor->xspr.data3);
 }
 
 //---------------------------------------------------------------------------

@@ -57,8 +57,8 @@ enum VIEW_EFFECT {
 };
 
 enum VIEWPOS {
-	VIEWPOS_0 = 0,
-	VIEWPOS_1
+	viewFirstPerson = 0,
+	viewThirdPerson
 };
 
 enum { kFontNum = 5 };

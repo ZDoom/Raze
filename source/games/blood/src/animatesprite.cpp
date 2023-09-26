@@ -837,7 +837,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					viewAddEffect(tsprites, nTSprite, kViewEffectShowWeapon);
 				}
 
-				if (thisPlayer->flashEffect && (pPlayer != thisPlayer || gViewPos != VIEWPOS_0)) {
+				if (thisPlayer->flashEffect && (pPlayer != thisPlayer || gViewPos != viewFirstPerson)) {
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &thisPlayer->pPosture[thisPlayer->lifeMode][thisPlayer->posture];
@@ -866,7 +866,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				}
 			}
 
-			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != VIEWPOS_0) {
+			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != viewFirstPerson) {
 				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);

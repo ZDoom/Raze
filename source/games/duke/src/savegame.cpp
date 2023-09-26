@@ -503,10 +503,10 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			Mus_ResumeSaved();
 			Mus_SetPaused(false);
 
-			FX_SetReverb(0);
+			S_SetReverb(0);
 			show_shareware = 0;
 
-			FX_SetReverb(0);
+			S_SetReverb(0);
 			resetlanepics();
 
 		}

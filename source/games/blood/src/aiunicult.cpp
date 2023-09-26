@@ -253,7 +253,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 				gKillMgr.AddKillCount(spawned);
 				pExtra->slave[pExtra->slaveCount++] = spawned;
 				if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
-					sfxPlay3DSoundCP(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
+					sfxPlay3DSoundVolume(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
 			}
 		}
 	}
@@ -1391,7 +1391,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 			effectactor->spr.scale = DVector2(repeat, repeat);
 		}
 
-		sfxPlay3DSoundCP(actLeech, 490, -1, 0, 60000);
+		sfxPlay3DSoundVolume(actLeech, 490, -1, 0, 60000);
 
 		if (actLeech->GetOwner())
 			actLeech->GetOwner()->genDudeExtra.pLifeLeech = nullptr;
@@ -1412,7 +1412,7 @@ void killDudeLeech(DBloodActor* actLeech)
 	if (actLeech != NULL)
 	{
 		actDamageSprite(actLeech->GetOwner(), actLeech, kDamageExplode, 65535);
-		sfxPlay3DSoundCP(actLeech, 522, -1, 0, 60000);
+		sfxPlay3DSoundVolume(actLeech, 522, -1, 0, 60000);
 
 		if (actLeech->GetOwner() != nullptr)
 			actLeech->GetOwner()->genDudeExtra.pLifeLeech = nullptr;

@@ -52,16 +52,16 @@ static int LastReverb;
 
 CUSTOM_CVAR(Bool, snd_reverb, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 {
-	FX_SetReverb(-1);
+	S_SetReverb(-1);
 }
 
 // This is for testing reverb settings.
 CUSTOM_CVAR(Int, snd_reverbtype, -1, 0)
 {
-	FX_SetReverb(-1);
+	S_SetReverb(-1);
 }
 
-void FX_SetReverb(int strength)
+void S_SetReverb(int strength)
 {
 	if (strength == -1) strength = LastReverb;
 	if (snd_reverbtype > -1) 

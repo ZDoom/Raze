@@ -189,7 +189,7 @@ static void GameTicker()
 			{
 				g_nextmap = currentLevel;
 				FX_StopAllSounds();
-				FX_SetReverb(0);
+				S_SetReverb(0);
 				NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
 			}
@@ -197,7 +197,7 @@ static void GameTicker()
 
 		case ga_completed:
 			FX_StopAllSounds();
-			FX_SetReverb(0);
+			S_SetReverb(0);
 			gi->LevelCompleted(g_nextmap, g_nextskill);
 			break;
 
@@ -214,7 +214,7 @@ static void GameTicker()
 			[[fallthrough]];
 		case ga_newgamenostopsound:
 			DeleteScreenJob();
-			FX_SetReverb(0);
+			S_SetReverb(0);
 			C_FlushDisplay();
 			BackupSaveGame = "";
 			NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);

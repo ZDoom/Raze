@@ -631,7 +631,7 @@ void PlaySoundRTS(int rts_num)
 
 void COVER_SetReverb(int amt)
 {
-    FX_SetReverb(amt);
+    S_SetReverb(amt);
 }
 
 //==========================================================================

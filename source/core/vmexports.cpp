@@ -126,11 +126,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)
 	ACTION_RETURN_INT(SoundEnabled());
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SetReverb, FX_SetReverb)
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SetReverb, S_SetReverb)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(i);
-	FX_SetReverb(i);
+	S_SetReverb(i);
 	return 0;
 }
 

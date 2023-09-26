@@ -24,7 +24,7 @@ inline void FX_StopAllSounds(void)
 	soundEngine->StopAllChannels();
 }
 
-void FX_SetReverb(int strength);
+void S_SetReverb(int strength);
 
 inline void FX_SetReverbDelay(int delay) 
 { 
