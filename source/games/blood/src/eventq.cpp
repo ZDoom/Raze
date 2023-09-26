@@ -85,164 +85,9 @@ static int GetBucketChannel(EventObject* pBucket)
 //
 //---------------------------------------------------------------------------
 
-static int CompareChannels(EventObject* ref1, EventObject* ref2)
+static int CompareChannels(const void* p1, const void* p2)
 {
-	return GetBucketChannel(ref1) - GetBucketChannel(ref2);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static EventObject* SortGetMiddle(EventObject* a1, EventObject* a2, EventObject* a3)
-{
-	if (CompareChannels(a1, a2) > 0)
-	{
-		if (CompareChannels(a1, a3) > 0)
-		{
-			if (CompareChannels(a2, a3) > 0)
-				return a2;
-			return a3;
-		}
-		return a1;
-	}
-	else
-	{
-		if (CompareChannels(a1, a3) < 0)
-		{
-			if (CompareChannels(a2, a3) > 0)
-				return a3;
-			return a2;
-		}
-		return a1;
-	}
-}
-
-static void SortSwap(EventObject* a, EventObject* b)
-{
-	EventObject t = *a;
-	*a = *b;
-	*b = t;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void SortRXBucket(int nCount)
-{
-	EventObject* v144[32];
-	int vc4[32];
-	int v14 = 0;
-	EventObject* pArray = rxBucket;
-	while (true)
-	{
-		while (nCount > 1)
-		{
-			if (nCount < 16)
-			{
-				for (int nDist = 3; nDist > 0; nDist -= 2)
-				{
-					for (EventObject* pI = pArray + nDist; pI < pArray + nCount; pI += nDist)
-					{
-						for (EventObject* pJ = pI; pJ > pArray && CompareChannels(pJ - nDist, pJ) > 0; pJ -= nDist)
-						{
-							SortSwap(pJ, pJ - nDist);
-						}
-					}
-				}
-				break;
-			}
-			EventObject* middle = pArray + nCount / 2;
-			if (nCount > 29)
-			{
-				EventObject* first = pArray;
-				EventObject* last = pArray + nCount - 1;
-				if (nCount > 42)
-				{
-					int eighth = nCount / 8;
-					first = SortGetMiddle(first, first + eighth, first + eighth * 2);
-					middle = SortGetMiddle(middle - eighth, middle, middle + eighth);
-					last = SortGetMiddle(last - eighth * 2, last - eighth, last);
-				}
-				middle = SortGetMiddle(first, middle, last);
-			}
-			EventObject pivot = *middle;
-			EventObject* first = pArray;
-			EventObject* last = pArray + nCount - 1;
-			EventObject* vbx = first;
-			EventObject* v4 = last;
-			while (true)
-			{
-				while (vbx <= v4)
-				{
-					int nCmp = CompareChannels(vbx, &pivot);
-					if (nCmp > 0)
-						break;
-					if (nCmp == 0)
-					{
-						SortSwap(vbx, first);
-						first++;
-					}
-					vbx++;
-				}
-				while (vbx <= v4)
-				{
-					int nCmp = CompareChannels(v4, &pivot);
-					if (nCmp < 0)
-						break;
-					if (nCmp == 0)
-					{
-						SortSwap(v4, last);
-						last--;
-					}
-					v4--;
-				}
-				if (vbx > v4)
-					break;
-				SortSwap(vbx, v4);
-				v4--;
-				vbx++;
-			}
-			EventObject* v2c = pArray + nCount;
-			int vt = int(min(vbx - first, first - pArray));
-			for (int i = 0; i < vt; i++)
-			{
-				SortSwap(&vbx[i - vt], &pArray[i]);
-			}
-			vt = int(min(last - v4, v2c - last - 1));
-			for (int i = 0; i < vt; i++)
-			{
-				SortSwap(&v2c[i - vt], &vbx[i]);
-			}
-			int vvsi = int(last - v4);
-			int vvdi = int(vbx - first);
-			if (vvsi >= vvdi)
-			{
-				vc4[v14] = vvsi;
-				v144[v14] = v2c - vvsi;
-				nCount = vvdi;
-				v14++;
-			}
-			else
-			{
-				vc4[v14] = vvdi;
-				v144[v14] = pArray;
-				nCount = vvsi;
-				pArray = v2c - vvsi;
-				v14++;
-			}
-		}
-		if (v14 == 0)
-			return;
-		v14--;
-		pArray = v144[v14];
-		nCount = vc4[v14];
-	}
+	return GetBucketChannel((EventObject*)p1) - GetBucketChannel((EventObject*)p2);
 }
 
 //---------------------------------------------------------------------------
@@ -309,7 +154,7 @@ void evInit(TArray<DBloodActor*>& actors)
 			nCount++;
 		}
 	}
-	SortRXBucket(nCount);
+	qsort(rxBucket, nCount, sizeof(EventObject), CompareChannels);
 	bucketCount = nCount;
 	createBucketHeads();
 }
