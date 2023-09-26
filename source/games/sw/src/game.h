@@ -1881,7 +1881,7 @@ struct GameInterface : public ::GameInterface
     void UpdateSounds() override;
     void ErrorCleanup() override;
     void DrawBackground(void) override;
-    void Ticker(void) override;
+    void Ticker(const ticcmd_t* playercmds) override;
     void Render() override;
     //void DrawWeapons() override;
     void Startup() override;

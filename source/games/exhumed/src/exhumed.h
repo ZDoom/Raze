@@ -223,7 +223,7 @@ struct GameInterface : public ::GameInterface
     bool CanSave() override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void Ticker() override;
+    void Ticker(const ticcmd_t* playercmds) override;
     void DrawBackground() override;
     void Render() override;
     //void DrawWeapons() override;

@@ -409,7 +409,7 @@ int GameInterface::GetCurrentSkill()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker()
+void GameInterface::Ticker(const ticcmd_t* playercmds)
 {
 	BloodSpriteIterator it;
 	while (DBloodActor* act = it.Next()) act->interpolated = false;

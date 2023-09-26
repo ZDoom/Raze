@@ -18,6 +18,7 @@ struct tspritetype;
 class DCoreActor;
 struct MapRecord;
 struct PlayerAngles;
+struct ticcmd_t;
 
 struct GameStats
 {
@@ -91,7 +92,7 @@ struct GameInterface
 	virtual void Startup() = 0;
 	virtual void DrawBackground() = 0;
 	virtual void Render() = 0;
-	virtual void Ticker() = 0;
+	virtual void Ticker(const ticcmd_t* playercmds) = 0;
 	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
 	virtual const char *CheckCheatMode() { return nullptr; }
 	virtual const char* GenericCheat(int player, int cheat) = 0;

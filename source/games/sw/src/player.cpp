@@ -6731,7 +6731,7 @@ void PauseMultiPlay(void)
 //
 //---------------------------------------------------------------------------
 
-void domovethings(void)
+void domovethings(const ticcmd_t* playercmds)
 {
     short pnum;
 

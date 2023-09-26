@@ -312,7 +312,7 @@ static void GameMove(void)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker()
+void GameInterface::Ticker(const ticcmd_t* playercmds)
 {
 	if (paused)
 	{

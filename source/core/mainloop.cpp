@@ -98,7 +98,7 @@ CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Bool, cl_capfps)
 CVAR(Bool, cl_resumesavegame, true, CVAR_ARCHIVE)
 
-ticcmd_t playercmds[MAXPLAYERS];
+static ticcmd_t playercmds[MAXPLAYERS];
 
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
@@ -357,7 +357,7 @@ static void GameTicker()
 	case GS_LEVEL:
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
-		gi->Ticker();
+		gi->Ticker(playercmds);
 		TickStatusBar();
 		levelTextTime--;
 		gameupdatetime.Unclock();

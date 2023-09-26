@@ -122,7 +122,7 @@ int SetVisNorm(void);
 void DoWeapon(void);
 void HeadBobStateControl(void);
 void DoPlayer(void);
-void domovethings(void);
+void domovethings(const ticcmd_t* playercmds);
 void InitAllPlayers(void);
 void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang);
 void DoPlayerDivePalette(PLAYER* pp);

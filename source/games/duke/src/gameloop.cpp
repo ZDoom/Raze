@@ -44,7 +44,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker()
+void GameInterface::Ticker(const ticcmd_t* playercmds)
 {
 	if (rtsplaying > 0) rtsplaying--;
 
