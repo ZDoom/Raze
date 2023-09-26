@@ -33,11 +33,11 @@ BEGIN_BLD_NS
 struct GIBFX
 {
 	FX_ID fxId;
-	int at1;
+	int palcopy;
 	int chance;
-	int at9;
-	int atd;
-	int at11;
+	int counts;
+	int randxy;
+	int randz;
 };
 
 
@@ -46,18 +46,18 @@ struct GIBTHING
 	int type;
 	int picno;
 	int chance;
-	int atc;
-	int at10;
+	int randxy;
+	int randz;
 	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
 struct GIBLIST
 {
 	GIBFX* gibFX;
-	int Kills;
-	GIBTHING* at8;
-	int atc;
-	int at10;
+	int FXCount;
+	GIBTHING* things;
+	int thingcount;
+	int sound;
 };
 
 GIBFX gibFxGlassT[] = {
@@ -280,7 +280,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 
 	double ceilZ, floorZ;
 	calcSlope(pSector, gPos.XY(), &ceilZ, &floorZ);
-	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
+	int nCount = ChanceToCount(pGFX->chance, pGFX->counts);
 	double dz1 = floorZ - gPos.Z;
 	double dz2 = gPos.Z - ceilZ;
 	double top, bottom;
@@ -295,20 +295,20 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos);
 		if (pFX)
 		{
-			if (pGFX->at1 < 0)
+			if (pGFX->palcopy < 0)
 				pFX->spr.pal = actor->spr.pal;
 			if (pVel)
 			{
-				pFX->vel = *pVel + DVector3(Random2F(pGFX->atd, 4), Random2F(pGFX->atd, 4), -RandomF(pGFX->at11, 8));
+				pFX->vel = *pVel + DVector3(Random2F(pGFX->randxy, 4), Random2F(pGFX->randxy, 4), -RandomF(pGFX->randz, 8));
 			}
 			else
 			{
-				pFX->vel.X = Random2F((pGFX->atd << 18) / 120);
-				pFX->vel.Y = Random2F((pGFX->atd << 18) / 120);
+				pFX->vel.X = Random2F((pGFX->randxy << 18) / 120);
+				pFX->vel.Y = Random2F((pGFX->randxy << 18) / 120);
 				switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 				{
 				case 16:
-					pFX->vel.Z = Random2F((pGFX->at11 << 18) / 120);
+					pFX->vel.Z = Random2F((pGFX->randz << 18) / 120);
 					break;
 				default:
 					if (dz2 < dz1 && dz2 < 0x400)
@@ -317,14 +317,14 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 					}
 					else if (dz2 > dz1 && dz1 < 0x400)
 					{
-						pFX->vel.Z = -Random2F((abs(pGFX->at11) << 18) / 120);
+						pFX->vel.Z = -Random2F((abs(pGFX->randz) << 18) / 120);
 					}
 					else
 					{
-						if ((pGFX->at11 << 18) / 120 < 0)
-							pFX->vel.Z = -Random2F((abs(pGFX->at11) << 18) / 120);
+						if ((pGFX->randz << 18) / 120 < 0)
+							pFX->vel.Z = -Random2F((abs(pGFX->randz) << 18) / 120);
 						else
-							pFX->vel.Z = Random2F((pGFX->at11 << 18) / 120);
+							pFX->vel.Z = Random2F((pGFX->randz << 18) / 120);
 					}
 					break;
 				}
@@ -374,16 +374,16 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 			gibactor->spr.setspritetexture(pGThing->textureID());
 		if (pVel)
 		{
-			gibactor->vel = *pVel + DVector3(Random2F(pGThing->atc, 4), Random2F(pGThing->atc, 4), -RandomF(pGThing->at10, 8));
+			gibactor->vel = *pVel + DVector3(Random2F(pGThing->randxy, 4), Random2F(pGThing->randxy, 4), -RandomF(pGThing->randz, 8));
 		}
 		else
 		{
-			gibactor->vel.X = Random2F((pGThing->atc << 18) / 120);
-			gibactor->vel.Y = Random2F((pGThing->atc << 18) / 120);
+			gibactor->vel.X = Random2F((pGThing->randxy << 18) / 120);
+			gibactor->vel.Y = Random2F((pGThing->randxy << 18) / 120);
 			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case 16:
-				gibactor->vel.Z = Random2F((pGThing->at10 << 18) / 120);
+				gibactor->vel.Z = Random2F((pGThing->randz << 18) / 120);
 				break;
 			default:
 				if (dz2 < dz1 && dz2 < 0x400)
@@ -392,11 +392,11 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 				}
 				else if (dz2 > dz1 && dz1 < 0x400)
 				{
-					gibactor->vel.Z = -Random2F((pGThing->at10 << 18) / 120);
+					gibactor->vel.Z = -Random2F((pGThing->randz << 18) / 120);
 				}
 				else
 				{
-					gibactor->vel.Z = Random2F((pGThing->at10 << 18) / 120);
+					gibactor->vel.Z = Random2F((pGThing->randz << 18) / 120);
 				}
 				break;
 			}
@@ -418,15 +418,15 @@ void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, DVector3* p
 	if (!actor->insector())
 		return;
 	GIBLIST* pGib = &gibList[nGibType];
-	for (int i = 0; i < pGib->Kills; i++)
+	for (int i = 0; i < pGib->FXCount; i++)
 	{
 		GIBFX* pGibFX = &pGib->gibFX[i];
 		assert(pGibFX->chance > 0);
 		GibFX(actor, pGibFX, pPos, pVel);
 	}
-	for (int i = 0; i < pGib->atc; i++)
+	for (int i = 0; i < pGib->thingcount; i++)
 	{
-		GIBTHING* pGibThing = &pGib->at8[i];
+		GIBTHING* pGibThing = &pGib->things[i];
 		assert(pGibThing->chance > 0);
 		GibThing(actor, pGibThing, pPos, pVel);
 	}
@@ -441,7 +441,7 @@ void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, DVector3* p
 void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, DVector3* pVel)
 {
 	assert(pWall);
-	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
+	int nCount = ChanceToCount(pGFX->chance, pGFX->counts);
 	auto pSector = pWall->sectorp();
 	for (int i = 0; i < nCount; i++)
 	{
@@ -452,13 +452,13 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, D
 		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, r);
 		if (pGib)
 		{
-			if (pGFX->at1 < 0)
+			if (pGFX->palcopy < 0)
 				pGib->spr.pal = pWall->pal;
 			if (!pVel)
 			{
-				pGib->vel.X = Random2F((pGFX->atd << 18) / 120);
-				pGib->vel.Y = Random2F((pGFX->atd << 18) / 120);
-				pGib->vel.Z = -Random2F((pGFX->at11 << 18) / 120);
+				pGib->vel.X = Random2F((pGFX->randxy << 18) / 120);
+				pGib->vel.Y = Random2F((pGFX->randxy << 18) / 120);
+				pGib->vel.Z = -Random2F((pGFX->randz << 18) / 120);
 			}
 			else
 			{
@@ -498,8 +498,8 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel)
 	center.Z = (ceilZ + floorZ) * 0.5;
 
 	GIBLIST* pGib = &gibList[nGibType];
-	sfxPlay3DSound(center, pGib->at10, pSector);
-	for (int i = 0; i < pGib->Kills; i++)
+	sfxPlay3DSound(center, pGib->sound, pSector);
+	for (int i = 0; i < pGib->FXCount; i++)
 	{
 		GIBFX* pGibFX = &pGib->gibFX[i];
 		assert(pGibFX->chance > 0);
@@ -517,10 +517,10 @@ void gibPrecache()
 {
 	for (int i = 0; i < kGibMax; i++)
 	{
-		auto const pThing = gibList[i].at8;
+		auto const pThing = gibList[i].things;
 		if (pThing)
 		{
-			for (int j = 0; j < gibList[i].atc; j++)
+			for (int j = 0; j < gibList[i].thingcount; j++)
 			{
 				if (pThing[j].textureID().isValid())
 					tilePrecacheTile(pThing[j].textureID(), -1, 0);
