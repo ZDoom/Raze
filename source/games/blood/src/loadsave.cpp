@@ -718,7 +718,6 @@ void SerializeGameStats(FSerializer& arc);
 void SerializePlayers(FSerializer& arc);
 void SerializeView(FSerializer& arc);
 void SerializeNNExts(FSerializer& arc);
-void SerializeMirrors(FSerializer& arc);
 
 //---------------------------------------------------------------------------
 //
@@ -744,7 +743,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	SerializeEvents(arc);
 	SerializeGameStats(arc);
 	SerializeSequences(arc);
-	SerializeMirrors(arc);
 	SerializeWarp(arc);
 	SerializeTriggers(arc);
 	SerializeView(arc);

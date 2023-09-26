@@ -31,9 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int mirrorcnt, mirrorsector, mirrorwall[4];
-
-MIRROR mirror[16]; // only needed by Polymost.
 
 //---------------------------------------------------------------------------
 //
@@ -43,20 +40,15 @@ MIRROR mirror[16]; // only needed by Polymost.
 
 void InitMirrors(void)
 {
-	mirrorcnt = 0;
 	portalClear();
 
 	for (int i = (int)wall.Size() - 1; i >= 0; i--)
 	{
 		auto pWalli = &wall[i];
-		if (mirrorcnt == 16)
-			break;
 		if (pWalli->overtexture == mirrortile)
 		{
 			if (pWalli->extra > 0 && pWalli->type == kWallStack)
 			{
-				mirror[mirrorcnt].mynum = i;
-				mirror[mirrorcnt].type = 0;
 				pWalli->cstat |= CSTAT_WALL_1WAY;
 				int tmp = pWalli->xw().data;
 				int j;
@@ -71,7 +63,6 @@ void InitMirrors(void)
 							continue;
 						pWalli->hitag = j; // hitag is only used by Polymost, the new renderer uses external links.
 						pWallj->hitag = i;
-						mirror[mirrorcnt].link = j;
 						break;
 					}
 				}
@@ -81,7 +72,6 @@ void InitMirrors(void)
 				}
 				else
 				{
-					mirrorcnt++;
 					pWalli->portalflags = PORTAL_WALL_VIEW;
 					pWalli->portalnum = j;
 				}
@@ -90,20 +80,13 @@ void InitMirrors(void)
 		}
 		if (pWalli->walltexture == mirrortile)
 		{
-			mirror[mirrorcnt].link = i;
-			mirror[mirrorcnt].mynum = i;
-			mirror[mirrorcnt].type = 0;
 			pWalli->cstat |= CSTAT_WALL_1WAY;
 			pWalli->portalflags = PORTAL_WALL_MIRROR;
-			mirrorcnt++;
 			continue;
 		}
 	}
 	for (int i = (int)sector.Size() - 1; i >= 0; i--)
 	{
-		if (mirrorcnt >= 15)
-			break;
-
 		auto secti = &sector[i];
 		if (secti->floortexture == mirrortile)
 		{
@@ -118,59 +101,15 @@ void InitMirrors(void)
 			int j = sectindex(sectj);
 			if (sectj->ceilingtexture != mirrortile)
 				I_Error("Lower link sector %d doesn't have mirror pic\n", j);
-			mirror[mirrorcnt].type = 2;
-			mirror[mirrorcnt].diff = link2->spr.pos - link->spr.pos;
-			mirror[mirrorcnt].mynum = i;
-			mirror[mirrorcnt].link = j;
+			auto diff = link2->spr.pos - link->spr.pos;
 			secti->portalflags = PORTAL_SECTOR_FLOOR;
-			secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].diff);
-			mirrorcnt++;
-			mirror[mirrorcnt].type = 1;
-			mirror[mirrorcnt].diff = link->spr.pos - link2->spr.pos;
-			mirror[mirrorcnt].mynum = j;
-			mirror[mirrorcnt].link = i;
+			secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, diff);
+			diff = link->spr.pos - link2->spr.pos;
 			sectj->portalflags = PORTAL_SECTOR_CEILING;
-			sectj->portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].diff);
-			mirrorcnt++;
+			sectj->portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, diff);
 		}
 	}
-	mirrorsector = sector.Size();
 	mergePortals();
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRROR& w, MIRROR* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("type", w.type)
-			("link", w.link)
-			("diff", w.diff)
-			("wallnum", w.mynum)
-			.EndObject();
-	}
-	return arc;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void SerializeMirrors(FSerializer& arc)
-{
-	if (arc.BeginObject("mirror"))
-	{
-		arc("mirrorcnt", mirrorcnt)
-			.Array("mirror", mirror, countof(mirror))
-			.EndObject();
-	}
 }
 
 END_BLD_NS

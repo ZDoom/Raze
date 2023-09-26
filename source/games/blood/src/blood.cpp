@@ -143,7 +143,7 @@ void QuitGame(void)
 
 void EndLevel(void)
 {
-	gViewPos = VIEWPOS_0;
+	gViewPos = viewFirstPerson;
 	sndKillAllSounds();
 	sfxKillAllSounds();
 	ambKillAll();

@@ -83,15 +83,6 @@ void ProcessFrame(void);
 void ScanINIFiles(void);
 void EndLevel(bool);
 
-struct MIRROR
-{
-	int type;
-	int link;
-	DVector3 diff;
-	int mynum;
-};
-
-extern MIRROR mirror[16];
 extern int mirrorcnt, mirrorsector, mirrorwall[4];
 
 inline bool DemoRecordStatus(void)
