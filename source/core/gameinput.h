@@ -70,7 +70,7 @@ public:
 	// Clear all values within this object.
 	void Clear()
 	{
-		memset(this, 0, sizeof(*this));
+		*this = {};
 	}
 
 	// Receives mouse input from OS for processing.
