@@ -215,9 +215,11 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		// Input device turning.
 		const auto hidLeft = mouseInput.X < 0 || joyAxes[JOYAXIS_Yaw] > 0;
 		const auto hidRight = mouseInput.X > 0 || joyAxes[JOYAXIS_Yaw] < 0;
+		const auto hidDir = hidRight - hidLeft;
 
 		// Velocity setup.
-		const auto turnVel = (!(flags & VEH_SCALETURN) && (isTurboTurnTime() || hidLeft || hidRight)) ? (baseVel) : (baseVel * velScale);
+		const auto scaleVel = !(flags & VEH_SCALETURN) && (cl_noturnscaling || hidDir || isTurboTurnTime());
+		const auto turnVel = scaleVel ? baseVel : baseVel * velScale;
 		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
 		const auto maxVel = abs(turnVel * 1.5f);
 
