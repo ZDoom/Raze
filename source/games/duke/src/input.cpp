@@ -516,23 +516,20 @@ void GameInterface::doPlayerMovement(const float scaleAdjust)
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
 		static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
-		float baseVel, velScale;
+		float baseVel, velScale; unsigned vehFlags;
 
 		if (p->OnMotorcycle)
 		{
+			vehFlags = VEH_CANTURN | (VEH_CANMOVE * !p->moto_underwater) | (VEH_SCALETURN * (p->MotoSpeed <= 0));
 			velScale = (3.f / 10.f);
 			baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
 		}
 		else
 		{
+			vehFlags = VEH_CANMOVE | (VEH_CANTURN * (p->MotoSpeed || p->moto_drink));
 			velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
 			baseVel = VEHICLETURN * velScale;
 		}
-
-		unsigned vehFlags = 0;
-		vehFlags |= VEH_CANMOVE * (p->OnBoat || !p->moto_underwater);
-		vehFlags |= VEH_CANTURN * (p->OnMotorcycle || p->MotoSpeed || p->moto_drink);
-		vehFlags |= VEH_SCALETURN * (p->OnMotorcycle && p->MotoSpeed <= 0);
 
 		gameInput.processVehicle(&p->Angles, scaleAdjust, baseVel, velScale, vehFlags);
 	}
