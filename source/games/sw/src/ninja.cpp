@@ -2344,7 +2344,6 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos, const DAngle startan
     pp->actor = actor;
     pp->pnum = pnum;
 
-    pp->Angles = {};
     pp->Angles.initialize(pp->actor);
 
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);

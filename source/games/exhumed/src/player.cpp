@@ -285,7 +285,6 @@ void RestartPlayer(int nPlayer)
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
     pPlayer->nPlayer = nPlayer;
     pPlayer->nHealth = 800; // TODO - define
-    pPlayer->Angles = {};
     pPlayer->Angles.initialize(pPlayerActor);
 	pPlayer->bIsMummified = false;
 	pPlayer->nTorch = 0;

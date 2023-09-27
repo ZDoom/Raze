@@ -603,7 +603,6 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 				act->spr.pal = ps[j].palookup = ud.user_pals[j];
 
 			ps[j].actor = act;
-			ps[j].Angles = {};
 			ps[j].Angles.initialize(ps[j].actor, (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90);
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
