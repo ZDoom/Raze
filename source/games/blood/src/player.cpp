@@ -2399,7 +2399,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTURE& w, POSTUR
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
 {
-	if (arc.isReading()) playerResetPosture(&w);
 	if (arc.BeginObject(keyname))
 	{
 		arc("spritenum", w.actor)
@@ -2490,6 +2489,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 
 		if (arc.isReading())
 		{
+			playerResetPosture(&w);
 			w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 		}
 	}
