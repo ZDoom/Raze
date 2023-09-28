@@ -72,7 +72,6 @@ void viewInitializePrediction(void)
 	predict.Kills = gMe->bobAmp;
 	predict.bobHeight = gMe->bobHeight;
 	predict.bobWidth = gMe->bobWidth;
-	predict.swayPhase = gMe->swayPhase;
 	predict.swayAmp = gMe->swayAmp;
 	predict.shakeBobY = gMe->swayHeight;
 	predict.shakeBobX = gMe->swayWidth;

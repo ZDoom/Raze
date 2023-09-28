@@ -822,7 +822,6 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->SetBurnSource(nullptr);
 	pPlayer->actor->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	pPlayer->bloodlust = 0;
 	pPlayer->actor->spr.Angles.Pitch = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
@@ -2406,7 +2405,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 		arc("spritenum", w.actor)
 			("angles", w.Angles)
 			("newweapon", w.newWeapon)
-			("used1", w.used1)
 			("weaponqav", w.weaponQav)
 			("qavcallback", w.qavCallback)
 			("isrunning", w.isRunning)
@@ -2416,13 +2414,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("bobamp", w.bobAmp)
 			("bobheight", w.bobHeight)
 			("bobwidth", w.bobWidth)
-			("swayphase", w.swayPhase)
 			("swayamp", w.swayAmp)
 			("swayheight", w.swayHeight)
 			("swaywidth", w.swayWidth)
 			("nplayer", w.nPlayer)
 			("lifemode", w.lifeMode)
-			("bloodlust", w.bloodlust)
 			("zview", w.zView)
 			("zviewvel", w.zViewVel)
 			("zweapon", w.zWeapon)
@@ -2578,7 +2574,6 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, bobPhase)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, bobAmp)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, bobHeight)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, bobWidth)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, swayPhase)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, swayAmp)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, swayHeight)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, swayWidth)

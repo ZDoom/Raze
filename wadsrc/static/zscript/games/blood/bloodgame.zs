@@ -86,7 +86,6 @@ struct BloodPlayer native
 	native int        bobAmp;
 	native double     bobHeight;
 	native double     bobWidth;
-	native int        swayPhase;
 	native int        swayAmp;
 	native double     swayHeight;
 	native double     swayWidth;

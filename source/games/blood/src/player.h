@@ -85,7 +85,6 @@ struct PLAYER
 	InputPacket         input;
 	PlayerAngles        Angles;
 	uint8_t             newWeapon;
-	int                 used1;  // something related to game checksum
 	int                 weaponQav;
 	int                 qavCallback;
 	bool                isRunning;
@@ -97,7 +96,6 @@ struct PLAYER
 	double              bobWidth;
 	double              obobHeight;
 	double              obobWidth;
-	int                 swayPhase;
 	int                 swayAmp;
 	double              swayHeight;
 	double              swayWidth;
@@ -105,7 +103,6 @@ struct PLAYER
 	double              oswayWidth;
 	int                 nPlayer;  // Connect id
 	int                 lifeMode;
-	int                 bloodlust;  // ---> useless
 	double              zView;
 	double              ozView;
 	double              zViewVel;
