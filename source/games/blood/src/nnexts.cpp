@@ -1232,7 +1232,7 @@ void nnExtProcessSuperSprites()
 						if (!vector)
 							pSight->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-						HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->flt_aim(), CLIPMASK0 | CLIPMASK1, 0);
+						HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim, CLIPMASK0 | CLIPMASK1, 0);
 
 						if (!vector)
 							pSight->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -4627,7 +4627,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 			double range = arg3 * 2;
 			if ((pPlayer = getPlayerById(objActor->spr.type)) != NULL)
-				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->flt_aim(), arg1, range);
+				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim, arg1, range);
 			else if (objActor->IsDudeActor())
 				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.Angles.Yaw.ToVector(), (!objActor->hasX()) ? 0 : objActor->dudeSlope), arg1, range);
 			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)

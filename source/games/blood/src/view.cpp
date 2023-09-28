@@ -113,10 +113,10 @@ GameStats GameInterface::getStats()
 
 void viewDrawAimedPlayerName(PLAYER* pPlayer)
 {
-	if (!cl_idplayers || (pPlayer->flt_aim().XY().isZero()))
+	if (!cl_idplayers || (pPlayer->aim.XY().isZero()))
 		return;
 
-	int hit = HitScan(pPlayer->actor, pPlayer->zView, pPlayer->flt_aim(), CLIPMASK0, 512);
+	int hit = HitScan(pPlayer->actor, pPlayer->zView, pPlayer->aim, CLIPMASK0, 512);
 	if (hit == 3)
 	{
 		auto actor = gHitInfo.actor();

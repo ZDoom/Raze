@@ -1169,7 +1169,7 @@ void FirePitchfork(int, PLAYER* pPlayer)
 	double r2 = Random2F(2000, 14);
 	double r3 = Random2F(2000, 14);
 	for (int i = 0; i < 4; i++)
-		actFireVector(actor, (2 * i - 3) * 2.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r1, r2, r3), kVectorTine);
+		actFireVector(actor, (2 * i - 3) * 2.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), kVectorTine);
 }
 
 //---------------------------------------------------------------------------
@@ -1180,7 +1180,7 @@ void FirePitchfork(int, PLAYER* pPlayer)
 
 void FireSpray(int, PLAYER* pPlayer)
 {
-	playerFireMissile(pPlayer, 0, pPlayer->flt_aim(), kMissileFlameSpray);
+	playerFireMissile(pPlayer, 0, pPlayer->aim, kMissileFlameSpray);
 	UseAmmo(pPlayer, 6, 4);
 	if (CheckAmmo(pPlayer, 6, 1))
 		sfxPlay3DSound(pPlayer->actor, 441, 1, 2);
@@ -1426,7 +1426,7 @@ void FireShotgun(int nTrigger, PLAYER* pPlayer)
 			r3 = Random3F(1500, 14);
 			nType = kVectorShellAP;
 		}
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r1, r2, r3), nType);
+		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), nType);
 	}
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, nTrigger);
 	pPlayer->flashEffect = 1;
@@ -1455,7 +1455,7 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		double r1 = Random3F(400, 14);
 		double r2 = Random3F(1200, 14);
 		double r3 = Random3F(1200, 14);
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r3, r2, r1), kVectorTommyRegular);
+		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, -15 / 16., -45);
 		pPlayer->visibility = 20;
 		break;
@@ -1465,12 +1465,12 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		double r1 = Random3F(400, 14);
 		double r2 = Random3F(1200, 14);
 		double r3 = Random3F(1200, 14);
-		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r3, r2, r1), kVectorTommyRegular);
+		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, -140 / 16., -45);
 		r1 = Random3(400);
 		r2 = Random3(1200);
 		r3 = Random3(1200);
-		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r3, r2, r1), kVectorTommyRegular);
+		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, 140 / 16., 45);
 		pPlayer->visibility = 30;
 		break;
@@ -1494,7 +1494,7 @@ void FireSpread(int nTrigger, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
-	DVector3 aim = pPlayer->flt_aim();
+	DVector3 aim = pPlayer->aim;
 	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
@@ -1522,7 +1522,7 @@ void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
-	DVector3 aim = pPlayer->flt_aim();
+	DVector3 aim = pPlayer->aim;
 	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
@@ -1558,7 +1558,7 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
-	DVector3 aim = pPlayer->flt_aim();
+	DVector3 aim = pPlayer->aim;
 	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
@@ -1625,7 +1625,7 @@ void FireFlare(int nTrigger, PLAYER* pPlayer)
 		offset = 7.5;
 		break;
 	}
-	playerFireMissile(pPlayer, offset, pPlayer->flt_aim(), kMissileFlareRegular);
+	playerFireMissile(pPlayer, offset, pPlayer->aim, kMissileFlareRegular);
 	UseAmmo(pPlayer, 1, 1);
 	sfxPlay3DSound(pPlayer->actor, 420, 2, 0);
 	pPlayer->visibility = 30;
@@ -1651,7 +1651,7 @@ void AltFireFlare(int nTrigger, PLAYER* pPlayer)
 		offset = 7.5;
 		break;
 	}
-	playerFireMissile(pPlayer, offset, pPlayer->flt_aim(), kMissileFlareAlt);
+	playerFireMissile(pPlayer, offset, pPlayer->aim, kMissileFlareAlt);
 	UseAmmo(pPlayer, 1, 8);
 	sfxPlay3DSound(pPlayer->actor, 420, 2, 0);
 	pPlayer->visibility = 45;
@@ -1877,7 +1877,7 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 				return;
 			}
 		}
-		playerFireMissile(pPlayer, pMissile->offset, pPlayer->flt_aim(), pMissile->id);
+		playerFireMissile(pPlayer, pMissile->offset, pPlayer->aim, pMissile->id);
 		UseAmmo(pPlayer, pPlayer->weaponAmmo, pMissile->ammouse);
 		sfxPlay3DSound(pPlayer->actor, pMissile->sound, 1, 0);
 		pPlayer->visibility = pMissile->light;
@@ -1894,7 +1894,7 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 void AltFireTesla(int, PLAYER* pPlayer)
 {
 	auto plActor = pPlayer->actor;
-	playerFireMissile(pPlayer, 0., pPlayer->flt_aim(), kMissileTeslaAlt);
+	playerFireMissile(pPlayer, 0., pPlayer->aim, kMissileTeslaAlt);
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, 35);
 	sfxPlay3DSound(pPlayer->actor, 471, 2, 0);
 	pPlayer->visibility = 40;
@@ -1920,7 +1920,7 @@ void FireNapalm(int nTrigger, PLAYER* pPlayer)
 		offset = 3.125;
 		break;
 	}
-	playerFireMissile(pPlayer, offset, pPlayer->flt_aim(), kMissileFireballNapalm);
+	playerFireMissile(pPlayer, offset, pPlayer->aim, kMissileFireballNapalm);
 	sfxPlay3DSound(pPlayer->actor, 480, 2, 0);
 	UseAmmo(pPlayer, 4, 1);
 	pPlayer->flashEffect = 1;
@@ -1929,8 +1929,8 @@ void FireNapalm(int nTrigger, PLAYER* pPlayer)
 void FireNapalm2(int, PLAYER* pPlayer)
 {
 	auto plActor = pPlayer->actor;
-	playerFireMissile(pPlayer, -7.5, pPlayer->flt_aim(), kMissileFireballNapalm);
-	playerFireMissile(pPlayer, 7.5, pPlayer->flt_aim(), kMissileFireballNapalm);
+	playerFireMissile(pPlayer, -7.5, pPlayer->aim, kMissileFireballNapalm);
+	playerFireMissile(pPlayer, 7.5, pPlayer->aim, kMissileFireballNapalm);
 	sfxPlay3DSound(pPlayer->actor, 480, 2, 0);
 	UseAmmo(pPlayer, 4, 2);
 	pPlayer->flashEffect = 1;
@@ -1972,7 +1972,7 @@ void FireLifeLeech(int nTrigger, PLAYER* pPlayer)
 	double r2 = Random2F(2000, 14);
 	double r3 = Random2F(1000, 14);
 	DBloodActor* actor = pPlayer->actor;
-	auto missileActor = playerFireMissile(pPlayer, 0, pPlayer->flt_aim() + DVector3(r1, r2, r3), 315);
+	auto missileActor = playerFireMissile(pPlayer, 0, pPlayer->aim + DVector3(r1, r2, r3), 315);
 	if (missileActor)
 	{
 		missileActor->SetTarget(pPlayer->aimTarget);
@@ -2036,7 +2036,7 @@ void FireBeast(int, PLAYER* pPlayer)
 	double r1 = Random2F(2000, 14);
 	double r2 = Random2F(2000, 14);
 	double r3 = Random2F(2000, 14);
-	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r1, r2, r3), kVectorBeastSlash);
+	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), kVectorBeastSlash);
 }
 
 //---------------------------------------------------------------------------

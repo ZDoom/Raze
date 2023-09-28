@@ -136,8 +136,6 @@ struct PLAYER
 	double              throwPower;
 	DVector3            aim;  // world
 	DVector3            relAim;  // relative
-	DVector3 flt_aim() const { return aim; }
-	DVector3 flt_relAim() const { return relAim; }
 	TObjPtr<DBloodActor*>        aimTarget;  // aim target sprite
 	int                 aimTargetsCount;
 	TObjPtr<DBloodActor*>        aimTargets[16];

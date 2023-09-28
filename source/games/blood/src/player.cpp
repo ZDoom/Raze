@@ -2255,7 +2255,7 @@ int UseAmmo(PLAYER* pPlayer, int nAmmoType, int nDec)
 void voodooTarget(PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
-	double aimz = pPlayer->flt_aim().Z;
+	double aimz = pPlayer->aim.Z;
 	double dz = pPlayer->zWeapon - pPlayer->actor->spr.pos.Z;
 	if (UseAmmo(pPlayer, 9, 0) < 8)
 	{
