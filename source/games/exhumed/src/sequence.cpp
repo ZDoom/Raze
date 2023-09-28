@@ -36,7 +36,7 @@ static FTextureID nShadowPic;
 static int16_t nShadowWidth = 1;
 int16_t nFlameHeight = 1;
 
-constexpr const char *SeqNames[] =
+static constexpr const char *SeqNames[] =
 {
   "rothands",
   "sword",
@@ -328,11 +328,11 @@ static int addSeq(const char *seqName)
 
 void seq_LoadSequences()
 {
-    for (unsigned i = 0; i < countof(SeqNames); i++)
+    for (const auto& seq : SeqNames)
     {
-        if (addSeq(SeqNames[i]) == 0)
+        if (addSeq(seq) == 0)
         {
-            Printf("Error loading '%s'\n", SeqNames[i]);
+            Printf("Error loading '%s'\n", seq);
         }
     }
 
