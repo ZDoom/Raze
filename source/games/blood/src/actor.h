@@ -189,35 +189,6 @@ extern const VECTORDATA gVectorData[];
 
 const int gDudeDrag = 0x2a00;
 
-template<typename T> bool IsPlayerSprite(T const * const pSprite)
-{
-	return pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8;
-}
-
-template<typename T> bool IsDudeSprite(T const * const pSprite)
-{
-	return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
-}
-
-template<typename T> bool IsThingSprite(T const* const pSprite)
-{
-	return pSprite->type >= kThingBase && pSprite->type < kThingMax;
-}
-
-template<typename T> bool IsItemSprite(T const * const pSprite)
-{
-	return pSprite->type >= kItemBase && pSprite->type < kItemMax;
-}
-
-template<typename T> bool IsWeaponSprite(T const * const pSprite)
-{
-	return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
-}
-
-template<typename T> bool IsAmmoSprite(T const * const pSprite)
-{
-	return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
-}
 
 
 #ifdef POLYMER

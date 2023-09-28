@@ -49,6 +49,31 @@ DAngle random_angles[16][3];
 
 // to allow quick replacement later
 
+bool IsPlayerSprite(tspritetype const* const pSprite)
+{
+	return pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8;
+}
+
+bool IsDudeSprite(tspritetype const* const pSprite)
+{
+	return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
+}
+
+bool IsItemSprite(tspritetype const* const pSprite)
+{
+	return pSprite->type >= kItemBase && pSprite->type < kItemMax;
+}
+
+bool IsWeaponSprite(tspritetype const* const pSprite)
+{
+	return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
+}
+
+bool IsAmmoSprite(tspritetype const* const pSprite)
+{
+	return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
+}
+
 //---------------------------------------------------------------------------
 //
 //
