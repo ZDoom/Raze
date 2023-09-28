@@ -112,7 +112,7 @@ struct PlayerAngles
 	// General methods.
 	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
 	{
-		*this = {};
+		memset(this, 0, sizeof(*this));
 		pActor = actor;
 		CameraAngles = PrevLerpAngles = pActor->spr.Angles;
 		PrevViewAngles.Yaw = ViewAngles.Yaw = viewyaw;
