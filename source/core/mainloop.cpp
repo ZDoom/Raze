@@ -79,7 +79,6 @@
 #include "v_video.h"
 #include "palette.h"
 #include "build.h"
-#include "g_input.h"
 #include "mapinfo.h"
 #include "automap.h"
 #include "statusbar.h"
@@ -136,7 +135,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 		savegamefile = "";
 	}
 	cmd->ucmd = {};
-	I_GetEvent();
 	gameInput.getInput(inputScale, &cmd->ucmd);
 	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
@@ -612,7 +610,6 @@ void TryRunTics (void)
 		}
 		if (!SyncInput())
 		{
-			I_GetEvent();
 			gameInput.getInput(inputScale);
 		}
 		return;

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "gamestate.h"
 #include "gameinput.h"
+#include "g_input.h"
 #include "d_net.h"
 
 //---------------------------------------------------------------------------
@@ -355,6 +356,8 @@ void GameInput::processInputBits()
 
 void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 {
+	I_GetEvent();
+
 	if (M_Active() || gamestate != GS_LEVEL)
 	{
 		inputBuffer = {};
