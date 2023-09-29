@@ -97,8 +97,6 @@ CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Bool, cl_capfps)
 CVAR(Bool, cl_resumesavegame, true, CVAR_ARCHIVE)
 
-static ticcmd_t playercmds[MAXPLAYERS];
-
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
 static double inputScale;
@@ -300,6 +298,9 @@ static void GameTicker()
 
 	// get commands, check consistancy, and build new consistancy check
 	int buf = (gametic / ticdup) % BACKUPTICS;
+
+	// array to hold all cmds for this tic.
+	ticcmd_t playercmds[MAXPLAYERS];
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
