@@ -66,9 +66,9 @@ void SeqAttackCallback(int, DBloodActor* actor)
 
 	for (int i = 0; i < 2; i++)
 	{
-		double r1 = Random3F(500, 4);
+		double r3 = Random3F(500, 4);
 		double r2 = Random3F(1000, 4);
-		double r3 = Random3F(1000, 8);
+		double r1 = Random3F(1000, 8);
 		actFireVector(actor, 0, 0, vect + DVector3(r1, r2, r3), kVectorShell);
 	}
 	if (Chance(0x8000))

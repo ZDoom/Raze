@@ -104,9 +104,9 @@ void ShotSeqCallback(int, DBloodActor* actor)
 	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
 	for (int i = 0; i < 8; i++)
 	{
-		double r1 = Random3F(500 , 14);
+		double r3 = Random3F(500 , 14);
 		double r2 = Random3F(1000, 14);
-		double r3 = Random3F(1000, 14);
+		double r1 = Random3F(1000, 14);
 		actFireVector(actor, 0, 0, vect + DVector3(r1, r2, r3), kVectorShell);
 	}
 	if (Chance(0x8000))
