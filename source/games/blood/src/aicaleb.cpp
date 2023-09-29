@@ -263,9 +263,9 @@ static void calebThinkSwimChase(DBloodActor* actor)
 				else
 					aiNewState(actor, &tinycaleb13967C);
 			}
-			else
-				aiNewState(actor, &tinycaleb13967C);
 		}
+		else
+			aiNewState(actor, &tinycaleb13967C);
 		return;
 	}
 	aiNewState(actor, &tinycalebSwimGoto);
