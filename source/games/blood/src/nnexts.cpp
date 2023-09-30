@@ -269,7 +269,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 
 	SetActor(pDudeActor, pos);
 
-	pDudeActor->spr.type = nType;
+	pDudeActor->ChangeType(nType);
 	pDudeActor->spr.Angles.Yaw = angle;
 
 	pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
@@ -377,7 +377,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 	case kModernConditionFalse:
 	case kModernSlopeChanger:
 	case kModernStealthRegion:
-		actor->spr.type = kSpriteDecoration;
+		actor->ChangeType(kSpriteDecoration);
 		erased = true;
 		break;
 	case kItemModernMapLevel:
@@ -385,14 +385,14 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 	case kDudeModernCustomBurning:
 	case kModernThingTNTProx:
 	case kModernThingEnemyLifeLeech:
-		actor->spr.type = kSpriteDecoration;
+		actor->ChangeType(kSpriteDecoration);
 		ChangeActorStat(actor, kStatDecoration);
 		erased = true;
 		break;
 		// also erase some modernized vanilla types which was not active
 	case kMarkerWarpDest:
 		if (actor->spr.statnum == kStatMarker) break;
-		actor->spr.type = kSpriteDecoration;
+		actor->ChangeType(kSpriteDecoration);
 		erased = true;
 		break;
 	}
@@ -2849,7 +2849,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 					case kMarkerLowStack:
 					case kMarkerLowLink:
 						aLower->xspr.sysData1 = aLower->spr.type;
-						aLower->spr.type = kMarkerLowWater;
+						aLower->ChangeType(kMarkerLowWater);
 						break;
 					default:
 						if (pSector->portalflags != PORTAL_SECTOR_CEILING) aLower->xspr.sysData1 = kMarkerLowLink;
@@ -2857,9 +2857,9 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						break;
 					}
 				}
-				else if (aLower->xspr.sysData1 > 0) aLower->spr.type = aLower->xspr.sysData1;
-				else if (pSector->portalflags != PORTAL_SECTOR_CEILING) aLower->spr.type = kMarkerLowLink;
-				else aLower->spr.type = kMarkerLowStack;
+				else if (aLower->xspr.sysData1 > 0) aLower->ChangeType(aLower->xspr.sysData1);
+				else if (pSector->portalflags != PORTAL_SECTOR_CEILING) aLower->ChangeType(kMarkerLowLink);
+				else aLower->ChangeType(kMarkerLowStack);
 			}
 
 			if (aUpper)
@@ -2871,7 +2871,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 					case kMarkerUpStack:
 					case kMarkerUpLink:
 						aUpper->xspr.sysData1 = aUpper->spr.type;
-						aUpper->spr.type = kMarkerUpWater;
+						aUpper->ChangeType(kMarkerUpWater);
 						break;
 					default:
 						if (pSector->portalflags != PORTAL_SECTOR_FLOOR) aUpper->xspr.sysData1 = kMarkerUpLink;
@@ -2879,9 +2879,9 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						break;
 					}
 				}
-				else if (aUpper->xspr.sysData1 > 0) aUpper->spr.type = aUpper->xspr.sysData1;
-				else if (pSector->portalflags != PORTAL_SECTOR_FLOOR) aUpper->spr.type = kMarkerUpLink;
-				else aUpper->spr.type = kMarkerUpStack;
+				else if (aUpper->xspr.sysData1 > 0) aUpper->ChangeType(aUpper->xspr.sysData1);
+				else if (pSector->portalflags != PORTAL_SECTOR_FLOOR) aUpper->ChangeType(kMarkerUpLink);
+				else aUpper->ChangeType(kMarkerUpStack);
 			}
 
 			// search for dudes in this sector and change their underwater status
@@ -6445,7 +6445,7 @@ void useRandomItemGen(DBloodActor* actor)
 			if ((unsigned int)iactor->spr.type == actor->xspr.dropMsg && iactor->spr.pos == actor->spr.pos)
 			{
 				gFX.fxSpawnActor((FX_ID)29, actor->sector(), actor->spr.pos);
-				iactor->spr.type = kSpriteDecoration;
+				iactor->ChangeType(kSpriteDecoration);
 				actPostSprite(iactor, kStatFree);
 				break;
 			}
@@ -9176,7 +9176,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		auto burstactor = actSpawnSprite(actor, 5);
 		if (!burstactor) break;
 
-		burstactor->spr.type = actor->spr.type;
+		burstactor->ChangeType(actor->spr.type);
 		burstactor->spr.shade = actor->spr.shade;
 		burstactor->spr.setspritetexture(actor->spr.spritetexture());
 

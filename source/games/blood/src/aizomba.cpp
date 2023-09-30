@@ -128,7 +128,7 @@ static void zombaThinkChase(DBloodActor* actor)
 	}
 	// If the zombie gets whacked while rising from the grave it never executes this change and if it isn't done here at the very latest, will just aimlessly run around.
 	if (!VanillaMode() && actor->spr.type == kDudeZombieAxeBuried)
-		actor->spr.type = kDudeZombieAxeNormal;
+		actor->ChangeType(kDudeZombieAxeNormal);
 
 
 	if (nDist <= pDudeInfo->SeeDist())
@@ -253,7 +253,7 @@ static void myThinkSearch(DBloodActor* actor)
 
 static void entryEZombie(DBloodActor* actor)
 {
-	actor->spr.type = kDudeZombieAxeNormal;
+	actor->ChangeType(kDudeZombieAxeNormal);
 	actor->spr.flags |= 1;
 }
 

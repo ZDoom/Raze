@@ -1355,7 +1355,7 @@ void removeDudeStuff(DBloodActor* actor)
 		case kThingArmedProxBomb:
 		case kThingArmedRemoteBomb:
 		case kModernThingTNTProx:
-			actor2->spr.type = kSpriteDecoration;
+			actor2->ChangeType(kSpriteDecoration);
 			actPostSprite(actor2, kStatFree);
 			break;
 		case kModernThingEnemyLifeLeech:
@@ -1398,7 +1398,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 
 		if (delSprite)
 		{
-			actLeech->spr.type = kSpriteDecoration;
+			actLeech->ChangeType(kSpriteDecoration);
 			actPostSprite(actLeech, kStatFree);
 		}
 
@@ -1815,7 +1815,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 
 	int nSeq = 4; int nSnd = 304; const EXPLOSION* pExpl = &explodeInfo[nType];
 
-	actExplosion->spr.type = nType;
+	actExplosion->ChangeType(nType);
 	actExplosion->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	actExplosion->SetOwner(actor);
 	actExplosion->spr.shade = -127;
@@ -1857,7 +1857,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 		pos.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
 	}
 
-	spawned->spr.type = nType; 
+	spawned->ChangeType(nType); 
 	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
@@ -1955,7 +1955,8 @@ void genDudeTransform(DBloodActor* actor)
 	// trigger dude death before transform
 	trTriggerSprite(actor, kCmdOff, actor);
 
-	actor->spr.type = actor->spr.inittype = actIncarnation->spr.type;
+	actor->spr.inittype = actIncarnation->spr.type;
+	actor->ChangeType(actor->spr.inittype);
 	actor->spr.flags = actIncarnation->spr.flags;
 	actor->spr.pal = actIncarnation->spr.pal;
 	actor->spr.shade = actIncarnation->spr.shade;
@@ -2034,7 +2035,7 @@ void genDudeTransform(DBloodActor* actor)
 
 	/*// remove the incarnation in case if non-locked
 	if (actIncarnation->xspr.locked == 0) {
-		actIncarnation->xspr.txID = actIncarnation->spr.type = 0;
+		actIncarnation->xspr.txID = actIncarnation->ChangeType(0);
 		actPostSprite(pIncarnation, kStatFree);
 		// or restore triggerOn and off options
 	} else {
@@ -2485,7 +2486,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 
 	AddKill(actor, actor);
 
-	actor->spr.type = kThingBloodChunks;
+	actor->ChangeType(kThingBloodChunks);
 	actPostSprite(actor, kStatThing);
 }
 

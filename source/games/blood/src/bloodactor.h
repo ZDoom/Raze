@@ -152,6 +152,12 @@ public:
 		}
 	}
 
+	// this is only temporary
+	void ChangeType(int newtype)
+	{
+		spr.type = newtype;
+	}
+
 	int GetType() const
 	{
 		return spr.type;

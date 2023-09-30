@@ -166,7 +166,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 
 	auto actor = actSpawnSprite(pSector, pos, 1, 0);
 
-	actor->spr.type = nFx;
+	actor->ChangeType(nFx);
 	actor->spr.setspritetexture(pFX->textureID());
 	actor->spr.cstat |= pFX->cstat;
 	actor->spr.shade = pFX->shade;

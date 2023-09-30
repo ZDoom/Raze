@@ -95,7 +95,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		spawnedactor->spr.setspritetexture(aTexIds[kTexFLAREBURST]);
 		spawnedactor->spr.shade = -128;
 		spawnedactor->spr.scale = DVector2(0.5, 0.5);
-		spawnedactor->spr.type = kMissileFlareAlt;
+		spawnedactor->ChangeType(kMissileFlareAlt);
 		spawnedactor->clipdist = 0.5;
 		spawnedactor->SetOwner(actor);
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
@@ -273,7 +273,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 		assert(actor->spr.intowner != kStatRespawn);
 		assert(actor->spr.intowner >= 0 && actor->spr.intowner < kMaxStatus);
 		ChangeActorStat(actor, actor->spr.intowner);
-		actor->spr.type = actor->spr.inittype;
+		actor->ChangeType(actor->spr.inittype);
 		actor->SetOwner(nullptr);
 		actor->spr.flags &= ~kHitagRespawn;
 		actor->vel.Zero();
@@ -565,7 +565,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 		break;
 	}
 
-	actor->spr.type = FX_51;
+	actor->ChangeType(FX_51);
 	actor->spr.scale = DVector2(0.15625, 0.15625);
 }
 

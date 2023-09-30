@@ -2527,7 +2527,7 @@ void actInit(TArray<DBloodActor*>& actors)
 	{
 		if (act->spr.type == kItemWeaponVoodooDoll)
 		{
-			act->spr.type = kItemAmmoVoodooDoll;
+			act->ChangeType(kItemAmmoVoodooDoll);
 			break;
 		}
 	}
@@ -2745,7 +2745,7 @@ static DBloodActor* actDropAmmo(DBloodActor* actor, int nType)
 	{
 		auto act2 = actSpawnFloor(actor);
 		const AMMOITEMDATA* pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
-		act2->spr.type = nType;
+		act2->ChangeType(nType);
 		act2->spr.setspritetexture(pAmmo->textureID());
 		act2->spr.shade = pAmmo->shade;
 		act2->spr.scale = DVector2(pAmmo->xrepeat * REPEAT_SCALE, pAmmo->yrepeat * REPEAT_SCALE);
@@ -2761,7 +2761,7 @@ static DBloodActor* actDropWeapon(DBloodActor* actor, int nType)
 	{
 		auto act2 = actSpawnFloor(actor);
 		const WEAPONITEMDATA* pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
-		act2->spr.type = nType;
+		act2->ChangeType(nType);
 		act2->spr.setspritetexture(pWeapon->textureID());
 		act2->spr.shade = pWeapon->shade;
 		act2->spr.scale = DVector2(pWeapon->xrepeat * REPEAT_SCALE, pWeapon->yrepeat * REPEAT_SCALE);
@@ -2777,7 +2777,7 @@ static DBloodActor* actDropItem(DBloodActor* actor, int nType)
 	{
 		auto act2 = actSpawnFloor(actor);
 		const ITEMDATA* pItem = &gItemData[nType - kItemBase];
-		act2->spr.type = nType;
+		act2->ChangeType(nType);
 		act2->spr.setspritetexture(pItem->textureID());
 		act2->spr.shade = pItem->shade;
 		act2->spr.scale = DVector2(pItem->xrepeat * REPEAT_SCALE, pItem->yrepeat * REPEAT_SCALE);
@@ -2903,7 +2903,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			{
 				if (pExtra->canBurn)
 				{
-					actor->spr.type = kDudeModernCustomBurning;
+					actor->ChangeType(kDudeModernCustomBurning);
 					if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
 						actor->spr.pal = 0;
 
@@ -2999,7 +2999,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 	case kDudeCultistTNT:
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
-			actor->spr.type = kDudeBurningCultist;
+			actor->ChangeType(kDudeBurningCultist);
 			aiNewState(actor, &cultistBurnGoto);
 			actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
 			return true;
@@ -3009,7 +3009,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 	case kDudeBeast:
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
-			actor->spr.type = kDudeBurningBeast;
+			actor->ChangeType(kDudeBurningBeast);
 			aiNewState(actor, &beastBurnGoto);
 			actHealDude(actor, dudeInfo[53].startHealth, dudeInfo[53].startHealth);
 			return true;
@@ -3019,7 +3019,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 	case kDudeInnocent:
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
-			actor->spr.type = kDudeBurningInnocent;
+			actor->ChangeType(kDudeBurningInnocent);
 			aiNewState(actor, &innocentBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
@@ -3031,7 +3031,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 			break;
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
-			actor->spr.type = kDudeBurningTinyCaleb;
+			actor->ChangeType(kDudeBurningTinyCaleb);
 			aiNewState(actor, &tinycalebBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
@@ -3578,7 +3578,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 	}
 	AddKill(killerActor, actor);
 	actCheckRespawn(actor);
-	actor->spr.type = kThingBloodChunks;
+	actor->ChangeType(kThingBloodChunks);
 	actPostSprite(actor, kStatThing);
 }
 
@@ -3838,7 +3838,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		{
 			actPostSprite(missileActor, kStatDecoration);
 			if (missileActor->spr.Angles.Yaw == DAngle180) sfxPlay3DSound(missileActor, 307, -1, 0);
-			missileActor->spr.type = kSpriteDecoration;
+			missileActor->ChangeType(kSpriteDecoration);
 			seqSpawn(9, missileActor, -1);
 		}
 		else
@@ -4020,7 +4020,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileButcherKnife:
 		actPostSprite(missileActor, kStatDebris);
 		missileActor->spr.cstat &= ~CSTAT_SPRITE_ALIGNMENT_WALL;
-		missileActor->spr.type = kSpriteDecoration;
+		missileActor->ChangeType(kSpriteDecoration);
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
@@ -4972,11 +4972,11 @@ void MoveDude(DBloodActor* actor)
 				{
 					const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax) && (actor->spr.inittype != actor->spr.type) && !VanillaMode(); // fix burning cultists randomly switching types underwater
 					if (Chance(chance))
-						actor->spr.type = kDudeCultistTommy;
+						actor->ChangeType(kDudeCultistTommy);
 					else
-						actor->spr.type = kDudeCultistShotgun;
+						actor->ChangeType(kDudeCultistShotgun);
 					if (fixRandomCultist) // fix burning cultists randomly switching types underwater
-						actor->spr.type = actor->spr.inittype; // restore back to spawned cultist type
+						actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, kCallbackEnemeyBubble);
 					sfxPlay3DSound(actor, 720, -1, 0);
@@ -5449,7 +5449,7 @@ void actExplodeSprite(DBloodActor* actor)
 	actor->spr.scale = DVector2(explodeInfo[nType].repeat * REPEAT_SCALE, explodeInfo[nType].repeat* REPEAT_SCALE);
 
 	actor->spr.flags &= ~3;
-	actor->spr.type = nType;
+	actor->ChangeType(nType);
 	const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
 	actor->SetTarget(nullptr);
 	actor->explosionhackflag = true;
@@ -5954,7 +5954,7 @@ static void actCheckDudes()
 				if (actor->xspr.health <= 0 && seqGetStatus(actor) < 0)
 				{
 					actor->xspr.health = dudeInfo[28].startHealth << 4;
-					actor->spr.type = kDudeCerberusOneHead;
+					actor->ChangeType(kDudeCerberusOneHead);
 					if (actor->GetTarget() != nullptr) aiSetTarget(actor, actor->GetTarget());
 					aiActivateDude(actor);
 				}
@@ -6136,7 +6136,7 @@ DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat,
 	DBloodActor* actor = InsertSprite(pSector, nStat);
 
 	SetActor(actor, pos);
-	actor->spr.type = kSpriteDecoration;
+	actor->ChangeType(kSpriteDecoration);
 	if (setextra && !actor->hasX())
 	{
 		actor->addX();
@@ -6186,7 +6186,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	{
 		pos.XY() += angle.ToVector() * dist;
 	}
-	spawned->spr.type = nType;
+	spawned->ChangeType(nType);
 	if (!VanillaMode())
 		 spawned->spr.inittype = nType;
 	spawned->spr.Angles.Yaw = angle;
@@ -6246,7 +6246,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	assert(nThingType >= kThingBase && nThingType < kThingMax);
 	auto actor = actSpawnSprite(pSector, pos, 4, 1);
 	int nType = nThingType - kThingBase;
-	actor->spr.type = nThingType;
+	actor->ChangeType(nThingType);
 	assert(actor->hasX());
 	const THINGINFO* pThingInfo = &thingInfo[nType];
 	actor->xspr.health = pThingInfo->startHealth << 4;
@@ -6464,7 +6464,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1);
 
 	spawned->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
-	spawned->spr.type = nType;
+	spawned->ChangeType(nType);
 	spawned->spr.shade = pMissileInfo->shade;
 	spawned->spr.pal = 0;
 	spawned->clipdist = pMissileInfo->fClipDist();
@@ -6890,7 +6890,7 @@ void Fx33Callback(int, DBloodActor* actor)
 
 void TreeToGibCallback(int, DBloodActor* actor)
 {
-	actor->spr.type = kThingObjectExplode;
+	actor->ChangeType(kThingObjectExplode);
 	actor->xspr.state = 1;
 	actor->xspr.data1 = 15;
 	actor->xspr.data2 = 0;
@@ -6902,7 +6902,7 @@ void TreeToGibCallback(int, DBloodActor* actor)
 
 void DudeToGibCallback1(int, DBloodActor* actor)
 {
-	actor->spr.type = kThingBloodChunks;
+	actor->ChangeType(kThingBloodChunks);
 	actor->xspr.data1 = 8;
 	actor->xspr.data2 = 0;
 	actor->xspr.data3 = 0;
@@ -6917,7 +6917,7 @@ void DudeToGibCallback1(int, DBloodActor* actor)
 
 void DudeToGibCallback2(int, DBloodActor* actor)
 {
-	actor->spr.type = kThingBloodChunks;
+	actor->ChangeType(kThingBloodChunks);
 	actor->xspr.data1 = 3;
 	actor->xspr.data2 = 0;
 	actor->xspr.data3 = 0;

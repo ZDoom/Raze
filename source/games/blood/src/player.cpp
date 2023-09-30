@@ -814,7 +814,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->spr.Angles.Yaw = pStartZone->angle;
-	actor->spr.type = kDudePlayer1 + nPlayer;
+	actor->ChangeType(kDudePlayer1 + nPlayer);
 	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
 	actor->xspr.burnTime = 0;
@@ -1558,7 +1558,7 @@ void ProcessInput(PLAYER* pPlayer)
 			else if (seqGetStatus(pPlayer->actor) < 0)
 			{
 				if (pPlayer->actor)
-					pPlayer->actor->spr.type = kThingBloodChunks;
+					pPlayer->actor->ChangeType(kThingBloodChunks);
 				actPostSprite(pPlayer->actor, kStatThing);
 				seqSpawn(pPlayer->pDudeInfo->seqStartID + 15, pPlayer->actor, -1);
 				playerReset(pPlayer);

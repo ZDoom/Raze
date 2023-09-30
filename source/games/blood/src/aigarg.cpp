@@ -472,14 +472,14 @@ static void entryFStatue(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = &dudeInfo[6];
 	actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
-	actor->spr.type = kDudeGargoyleFlesh;
+	actor->ChangeType(kDudeGargoyleFlesh);
 }
 
 static void entrySStatue(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = &dudeInfo[7];
 	actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
-	actor->spr.type = kDudeGargoyleStone;
+	actor->ChangeType(kDudeGargoyleStone);
 }
 
 static void gargMoveForward(DBloodActor* actor)

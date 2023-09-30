@@ -446,7 +446,7 @@ void aiActivateDude(DBloodActor* actor)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->active = 1;
-		actor->spr.type = kDudeCultistTommy;
+		actor->ChangeType(kDudeCultistTommy);
 		if (actor->GetTarget() == nullptr)
 		{
 			switch (actor->xspr.medium)
@@ -483,7 +483,7 @@ void aiActivateDude(DBloodActor* actor)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->active = 1;
-		actor->spr.type = kDudeCultistShotgun;
+		actor->ChangeType(kDudeCultistShotgun);
 		if (actor->GetTarget() == nullptr)
 		{
 			switch (actor->xspr.medium)
@@ -1003,7 +1003,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				if (actor->xspr.burnTime == 0) actor->xspr.burnTime = 2400;
 				if (spriteIsUnderwater(actor, false)) 
 				{
-					actor->spr.type = kDudeModernCustom;
+					actor->ChangeType(kDudeModernCustom);
 					actor->xspr.burnTime = 0;
 					actor->xspr.health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
 					aiGenDudeNewState(actor, &genDudeGotoW);
@@ -1039,7 +1039,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 							aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 							playGenDudeSound(actor,kGenDudeSndBurning);
-							actor->spr.type = kDudeModernCustomBurning;
+							actor->ChangeType(kDudeModernCustomBurning);
 
 							if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
 								actor->spr.pal = 0;
@@ -1115,7 +1115,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			}
 			else if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
-				actor->spr.type = kDudeBurningCultist;
+				actor->ChangeType(kDudeBurningCultist);
 				aiNewState(actor, &cultistBurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1031 + Random(2), AI_SFX_PRIORITY_2, -1);
@@ -1127,7 +1127,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 		case kDudeInnocent:
 			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
-				actor->spr.type = kDudeBurningInnocent;
+				actor->ChangeType(kDudeBurningInnocent);
 				aiNewState(actor, &cultistBurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
@@ -1143,17 +1143,17 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			}
 			if (Chance(0x600) && (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo))
 			{
-				actor->spr.type = kDudeCultistTommy;
+				actor->ChangeType(kDudeCultistTommy);
 				if (fixRandomCultist) // fix burning cultists randomly switching types underwater
-					actor->spr.type = actor->spr.inittype; // restore back to spawned cultist type
+					actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
 				actor->xspr.burnTime = 0;
 				aiNewState(actor, &cultistSwimGoto);
 			}
 			else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
 			{
-				actor->spr.type = kDudeCultistShotgun;
+				actor->ChangeType(kDudeCultistShotgun);
 				if (fixRandomCultist) // fix burning cultists randomly switching types underwater
-					actor->spr.type = actor->spr.inittype; // restore back to spawned cultist type
+					actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
 				actor->xspr.burnTime = 0;
 				aiNewState(actor, &cultistSwimGoto);
 			}
@@ -1165,7 +1165,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth) {
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
-				actor->spr.type = kDudeBurningZombieButcher;
+				actor->ChangeType(kDudeBurningZombieButcher);
 				aiNewState(actor, &zombieFBurnGoto);
 				actHealDude(actor, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
 				evKillActor(actor, kCallbackFXFlameLick);
@@ -1176,12 +1176,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				if (!cl_bloodvanillaenemies && !VanillaMode()) // fix burning sprite for tiny caleb
 				{
-					actor->spr.type = kDudeBurningTinyCaleb;
+					actor->ChangeType(kDudeBurningTinyCaleb);
 					aiNewState(actor, &tinycalebBurnGoto);
 				}
 				else
 				{
-					actor->spr.type = kDudeBurningInnocent;
+					actor->ChangeType(kDudeBurningInnocent);
 					aiNewState(actor, &cultistBurnGoto);
 				}
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
@@ -1193,7 +1193,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 		case kDudeCultistBeast:
 			if (actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth)
 			{
-				actor->spr.type = kDudeBeast;
+				actor->ChangeType(kDudeBeast);
 				aiPlay3DSound(actor, 9008, AI_SFX_PRIORITY_1, -1);
 				aiNewState(actor, &beastMorphFromCultist);
 				actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
@@ -1205,7 +1205,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
-				actor->spr.type = kDudeBurningZombieAxe;
+				actor->ChangeType(kDudeBurningZombieAxe);
 				aiNewState(actor, &zombieABurnGoto);
 				actHealDude(actor, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
 				evKillActor(actor, kCallbackFXFlameLick);

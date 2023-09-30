@@ -159,7 +159,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 static void MorphToBeast(DBloodActor* actor)
 {
 	actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
-	actor->spr.type = kDudeBeast;
+	actor->ChangeType(kDudeBeast);
 }
 
 static void beastThinkSearch(DBloodActor* actor)
