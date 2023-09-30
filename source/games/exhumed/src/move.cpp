@@ -271,7 +271,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
         if (pSect2->Flag & kSectUnderwater)
         {
-            if (pActor == PlayerList[nLocalPlayer].pActor) {
+            if (pActor == PlayerList[nLocalPlayer].GetActor()) {
                 D3PlayFX(StaticSound[kSound2], pActor);
             }
 
@@ -616,7 +616,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
         if (i >= nTotalPlayers)
             return nullptr;
 
-        pPlayerActor = PlayerList[i].pActor;
+        pPlayerActor = PlayerList[i].GetActor();
 
         if ((pPlayerActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)))
         {
@@ -930,7 +930,7 @@ void SetQuake(DExhumedActor* pActor, int nVal)
 {
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        auto nSqrt = ((PlayerList[i].pActor->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
+        auto nSqrt = ((PlayerList[i].GetActor()->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
 
         if (nSqrt)
         {
@@ -1015,7 +1015,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
 
 DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 {
-    auto pActor = PlayerList[nPlayer].pActor;
+    auto pActor = PlayerList[nPlayer].GetActor();
     double height = GetActorHeight(pActor) * 0.5;
 
     *sectnum = pActor->sector();

@@ -138,7 +138,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
     DExhumedActor* nOwner = pActor->pTarget;
-    pActor->pTarget = PlayerList[nPlayer].pActor;
+    pActor->pTarget = PlayerList[nPlayer].GetActor();
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
@@ -161,7 +161,7 @@ void BuildSnake(int nPlayer, double zVal)
 {
     zVal -= 5;
 
-    auto pPlayerActor = PlayerList[nPlayer].pActor;
+    auto pPlayerActor = PlayerList[nPlayer].GetActor();
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
     auto nPic = getSequence("snakbody", 0)->getFirstFrameTexture();
 
@@ -277,7 +277,7 @@ void BuildSnake(int nPlayer, double zVal)
 DExhumedActor* FindSnakeEnemy(int nSnake)
 {
     int nPlayer = SnakeList[nSnake].nSnakePlayer;
-	auto pPlayerActor = PlayerList[nPlayer].pActor;
+	auto pPlayerActor = PlayerList[nPlayer].GetActor();
 
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;

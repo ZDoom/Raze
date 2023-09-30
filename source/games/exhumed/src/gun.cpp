@@ -287,7 +287,7 @@ void ResetSwordSeqs()
 
 Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 {
-    auto pActor = PlayerList[nPlayer].pActor;
+    auto pActor = PlayerList[nPlayer].GetActor();
 
     HitInfo hit{};
     hitscan(pos, *ppSector, DVector3(pActor->spr.Angles.Yaw.ToVector() * 1024, 0 ), hit, CLIPMASK1);
@@ -357,7 +357,7 @@ void MoveWeapons(int nPlayer)
     if (!pPlayer->bIsFiring || (nSectFlag & kSectUnderwater))
         pPlayer->nTemperature = 0;
 
-    auto pPlayerActor = pPlayer->pActor;
+    auto pPlayerActor = pPlayer->GetActor();
     int nWeapon = pPlayer->nCurrentWeapon;
 
     if (nWeapon < -1)
@@ -413,7 +413,7 @@ void MoveWeapons(int nPlayer)
                             if (!WeaponCanFire(nPlayer))
                             {
                                 if (!dword_96E22) {
-                                    D3PlayFX(StaticSound[4], pPlayer->pActor);
+                                    D3PlayFX(StaticSound[4], pPlayer->GetActor());
                                 }
                             }
                             else
@@ -904,7 +904,7 @@ loc_flag:
 
 void DrawWeapons(Player* const pPlayer, double interpfrac)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const int nWeapon = pPlayer->nCurrentWeapon;
 
     if (bCamera || nWeapon < -1)

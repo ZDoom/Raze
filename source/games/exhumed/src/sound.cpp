@@ -418,7 +418,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             Snake* pSnake = &SnakeList[nSnakeCam];
             campos = pSnake->pSprites[0]->spr.pos;
         }
-        else if (const auto pActor = PlayerList[nLocalPlayer].pActor)
+        else if (const auto pActor = PlayerList[nLocalPlayer].GetActor())
         {
             campos = pActor->spr.pos;
         }
@@ -485,7 +485,7 @@ void GameInterface::UpdateSounds()
     if (nFreeze)
         return;
 
-    const auto pActor = PlayerList[nLocalPlayer].pActor;
+    const auto pActor = PlayerList[nLocalPlayer].GetActor();
 
     DVector3 pos;
     DAngle ang;
@@ -628,7 +628,7 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
     }
 
     // Nuke: added nSprite >= 0 check
-    if (pActor != PlayerList[nLocalPlayer].pActor && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
+    if (pActor != PlayerList[nLocalPlayer].GetActor() && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         nCreepyTimer = kCreepyCount;
 }
 
@@ -669,7 +669,7 @@ void CheckAmbience(sectortype* sect)
                 {
                     if (sect == pSector2)
                     {
-                        amb = GetSoundPos(PlayerList[0].pActor->spr.pos);
+                        amb = GetSoundPos(PlayerList[0].GetActor()->spr.pos);
                     }
                     else
                     {
@@ -716,7 +716,7 @@ void UpdateCreepySounds()
                 if (totalmoves & 2)
 					adder.Y = -adder.Y;
 
-                auto sp = PlayerList[nLocalPlayer].pActor->spr.pos + adder;
+                auto sp = PlayerList[nLocalPlayer].GetActor()->spr.pos + adder;
                 creepy = GetSoundPos(sp);
 
                 auto soundid = FSoundID::fromInt((seqFrameSound & 0x1ff) + 1);

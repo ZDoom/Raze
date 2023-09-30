@@ -86,7 +86,7 @@ size_t MarkPlayers()
 {
     for (auto& p : PlayerList)
     {
-        GC::Mark(p.pActor);
+        GC::Mark(p.actor);
         GC::Mark(p.pDoppleSprite);
         GC::Mark(p.pPlayerFloorSprite);
         GC::Mark(p.pPlayerGrenade);
@@ -123,7 +123,7 @@ void InitPlayer()
     {
         const auto pPlayer = &PlayerList[i];
 
-        pPlayer->pActor = nullptr;
+        pPlayer->actor = nullptr;
         pPlayer->Angles = {};
         pPlayer->pPlayerPushSect = nullptr;
         pPlayer->pPlayerViewSect = nullptr;
@@ -151,7 +151,7 @@ void InitPlayerInventory(int nPlayer)
     pPlayer->nItem = -1;
     pPlayer->nPlayerSwear = 4;
     pPlayer->nLives = kDefaultLives;
-    pPlayer->pActor = nullptr;
+    pPlayer->actor = nullptr;
     pPlayer->Angles = {};
     pPlayer->nRun = -1;
     pPlayer->nPistolClip = 6;
@@ -190,7 +190,7 @@ int GetPlayerFromActor(DExhumedActor* pActor)
 void RestartPlayer(int nPlayer)
 {
 	const auto pPlayer = &PlayerList[nPlayer];
-    DExhumedActor* pPlayerActor = pPlayer->pActor;
+    DExhumedActor* pPlayerActor = pPlayer->GetActor();
     DExhumedActor* pDopSprite = pPlayer->pDoppleSprite;
     DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
 
@@ -201,7 +201,7 @@ void RestartPlayer(int nPlayer)
 
 		ChangeActorStat(pPlayerActor, 0);
 
-        pPlayer->pActor = nullptr;
+        pPlayer->actor = nullptr;
         pPlayer->Angles = {};
 
 		if (pFloorSprite)
@@ -279,7 +279,7 @@ void RestartPlayer(int nPlayer)
 	pDopSprite->spr.lotag = runlist_HeadRun() + 1;
     pDopSprite->spr.intowner = runlist_AddRunRec(pDopSprite->spr.lotag - 1, nPlayer, 0xA0000);
 
-    pPlayer->pActor = pPlayerActor;
+    pPlayer->actor = pPlayerActor;
     pPlayer->pDoppleSprite = pDopSprite;
     pPlayer->pPlayerFloorSprite = pFloorSprite;
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
@@ -361,7 +361,7 @@ int GrabPlayer()
 void StartDeathSeq(int nPlayer, int nVal)
 {
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
     FreeRa(nPlayer);
@@ -455,7 +455,7 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->vel.XY().Zero();
 
@@ -482,7 +482,7 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 void ShootStaff(int nPlayer)
 {
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->nAction = 15;
     pPlayerActor->nFrame = 0;
@@ -531,7 +531,7 @@ void AIPlayer::Draw(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto playerSeq = &PlayerSeq[pPlayerActor->nAction];
     seq_PlotSequence(ev->nParam, pPlayerActor->nSeqFile, playerSeq->nSeqId, pPlayerActor->nFrame, playerSeq->nFlags);
 }
@@ -552,7 +552,7 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
     if (pPlayer->nHealth <= 0)
         return;
 
-    ev->nDamage = runlist_CheckRadialDamage(pPlayer->pActor);
+    ev->nDamage = runlist_CheckRadialDamage(pPlayer->GetActor());
     Damage(ev);
 }
 
@@ -573,7 +573,7 @@ void AIPlayer::Damage(RunListEvent* ev)
     if (!nDamage || !pPlayer->nHealth)
         return;
 
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pDamageActor = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget.Get();
 
     if (!pPlayer->invincibility)
@@ -843,7 +843,7 @@ static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 
 void doPlayerItemPickups(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
     if (const auto pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerSect, pPlayer->nMagic, pPlayer->nHealth, 48))
@@ -1043,7 +1043,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
 void updatePlayerTarget(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pRa = &Ra[pPlayer->nPlayer];
     const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
 
@@ -1106,7 +1106,7 @@ void updatePlayerTarget(Player* const pPlayer)
 
 static void updatePlayerVelocity(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     if (pPlayer->nHealth > 0)
     {
@@ -1236,7 +1236,7 @@ unsigned GameInterface::getCrouchState()
 
 static void updatePlayerAction(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pInput = &pPlayer->input;
     const auto kbdDir = !!(pInput->actions & SB_CROUCH) - !!(pInput->actions & SB_JUMP);
     const double dist = pPlayer->bUnderwater ? 8 : 14;
@@ -1355,7 +1355,7 @@ static void updatePlayerAction(Player* const pPlayer)
 
 static void doPlayerCounters(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const bool bConsolePlayer = pPlayer->nPlayer == nLocalPlayer;
 
     if (pPlayer->nTorch > 0)
@@ -1436,7 +1436,7 @@ static void doPlayerCounters(Player* const pPlayer)
 
 static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const bool bUnderwater = pPlayer->pPlayerViewSect->Flag & kSectUnderwater;
 
     if (!pPlayer->invincibility)
@@ -1530,7 +1530,7 @@ static void doPlayerRamses(Player* const pPlayer)
 
     if (nTotalPlayers <= 1)
     {
-        pPlayer->pActor->vel.Zero();
+        pPlayer->GetActor()->vel.Zero();
 
         if (nFreeze < 1)
         {
@@ -1570,7 +1570,7 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 
 static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertPan)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
     constexpr auto maxVel = 15.25;
 
@@ -1617,7 +1617,7 @@ static void updatePlayerFloorActor(Player* const pPlayer)
     if (nTotalPlayers <= 1 || !pFloorActor)
         return;
 
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
     pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
     pFloorActor->spr.pos.Z = pPlayerSect->floorz;
@@ -1634,7 +1634,7 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 
 static void updatePlayerDoppleActor(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
     DExhumedActor* const pDopple = pPlayer->pDoppleSprite;
     pDopple->spr.pos = pPlayerActor->spr.pos;
@@ -1659,7 +1659,7 @@ static void updatePlayerDoppleActor(Player* const pPlayer)
 
 static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
     const auto bPlayerBelowCeil = (pPlayerActor->getOffsetZ() + pPlayer->nQuake) < pPlayerSect->ceilingz;
     const auto pViewSect = bPlayerBelowCeil && pPlayerSect->pAbove ? pPlayerSect->pAbove : pPlayerSect;
@@ -1698,7 +1698,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 
 static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     pPlayer->nThrust *= 0.5;
 
     if (nStartVelZ < (6500 / 256.))
@@ -1727,7 +1727,7 @@ static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
 
 static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel, sectortype* const spr_sect)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     sectortype* sect;
     DAngle nNormal = nullAngle;
 
@@ -1788,7 +1788,7 @@ static bool doPlayerInput(Player* const pPlayer)
     // update the player/actor's velocity before anything.
     updatePlayerVelocity(pPlayer);
 
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
     const auto spr_sect = pPlayerActor->sector();
 
@@ -1877,7 +1877,7 @@ static bool doPlayerInput(Player* const pPlayer)
 
 static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pStartSect)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
     if (pPlayer->bTouchFloor && pPlayerSect->lotag > 0)
@@ -1916,7 +1916,7 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
 
 static bool doPlayerDeathRestart(Player* const pPlayer)
 {
-    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->pActor->nAction < 16)
+    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->GetActor()->nAction < 16)
         return true;
 
     pPlayer->input.actions &= ~SB_OPEN;
@@ -1932,9 +1932,9 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 
     if (pPlayer->nLives && nNetTime)
     {
-        if (pPlayer->pActor->nAction != 20)
+        if (pPlayer->GetActor()->nAction != 20)
         {
-            const auto pPlayerActor = pPlayer->pActor;
+            const auto pPlayerActor = pPlayer->GetActor();
             pPlayerActor->spr.setspritetexture(getSequence("joe", 120)->getFirstFrameTexture());
             pPlayerActor->spr.cstat = 0;
             pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
@@ -1962,7 +1962,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 
 static void doPlayerActionSequence(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     const auto playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
     const auto& seqFrame = playerSeq->frames[pPlayerActor->nFrame];
@@ -2017,7 +2017,7 @@ static void doPlayerActionSequence(Player* const pPlayer)
 
 static void doPlayerDeathPitch(Player* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     pPlayer->nThrust.Zero();
 
     if (pPlayerActor->viewzoffset >= -11)
@@ -2059,7 +2059,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)->getFirstFrameTexture());
     pPlayer->pDoppleSprite->spr.setspritetexture(pPlayerActor->spr.spritetexture());
@@ -2109,7 +2109,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
     if (arc.BeginObject(keyname))
     {
         arc("health", w.nHealth)
-            ("sprite", w.pActor)
+            ("sprite", w.actor)
             ("mummy", w.bIsMummified)
             ("invincible", w.invincibility)
             ("air", w.nAir)
@@ -2200,7 +2200,7 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
-DEFINE_FIELD_X(ExhumedPlayer, Player, pActor);
+DEFINE_FIELD_X(ExhumedPlayer, Player, actor);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
 DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
@@ -2244,7 +2244,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->pActor->spr.Angles.Yaw.Buildang());
+    ACTION_RETURN_INT(self->GetActor()->spr.Angles.Yaw.Buildang());
 }
 
 

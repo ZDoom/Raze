@@ -73,7 +73,7 @@ void DrawView(double interpfrac, bool sceneonly)
     DoInterpolations(interpfrac);
 
     auto pPlayer = &PlayerList[nLocalPlayer];
-    auto pPlayerActor = pPlayer->pActor;
+    auto pPlayerActor = pPlayer->GetActor();
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
     auto pDop = pPlayer->pDoppleSprite;
     auto nDoppleOldCstat = pDop->spr.cstat;

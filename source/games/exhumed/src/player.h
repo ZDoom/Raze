@@ -49,7 +49,7 @@ struct PlayerSave
 
 struct Player
 {
-    DExhumedActor* pActor;
+    DExhumedActor* actor;
     int16_t nHealth;
     int16_t nLives;
     int16_t nDouble;
@@ -112,6 +112,10 @@ struct Player
     TObjPtr<DExhumedActor*> pDoppleSprite;
     TObjPtr<DExhumedActor*> pTarget;
 
+    inline DExhumedActor* GetActor()
+    {
+        return actor;
+    }
 };
 
 extern int PlayerCount;

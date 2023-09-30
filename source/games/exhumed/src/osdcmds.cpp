@@ -61,7 +61,7 @@ static int osdcmd_doors(CCmdFuncPtr parm)
 
 static int osdcmd_spawn(CCmdFuncPtr parm)
 {
-    auto pActor = PlayerList[nLocalPlayer].pActor;
+    auto pActor = PlayerList[nLocalPlayer].GetActor();
     if (parm->numparms != 1) return CCMD_SHOWHELP;
     if (!pActor) return CCMD_SHOWHELP;
     auto c = parm->parms[0];

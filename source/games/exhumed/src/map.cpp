@@ -45,7 +45,7 @@ void GrabMap()
 
 void UpdateMap()
 {
-    const auto initsectp = PlayerList[nLocalPlayer].pActor->sector();
+    const auto initsectp = PlayerList[nLocalPlayer].GetActor()->sector();
     if (initsectp->ceilingpal != 3 || (PlayerList[nLocalPlayer].nTorch != 0)) {
         MarkSectorSeen(initsectp);
     }
@@ -73,7 +73,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     {
         if (i == nLocalPlayer)// || gGameOptions.nGameType == 1)
         {
-            auto pPlayerActor = PlayerList[i].pActor;
+            auto pPlayerActor = PlayerList[i].GetActor();
             auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
             DrawTexture(twod, pPlayerActor->spr.spritetexture(), true, vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,
