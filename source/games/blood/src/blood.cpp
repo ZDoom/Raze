@@ -169,7 +169,7 @@ TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 			continue;
 		}
 		auto sprt = &sprites.sprites[i];
-		auto actor = InsertSprite(sprt->sectp, sprt->statnum);
+		auto actor = InsertSprite(sprt->sectp, sprt->statnum, GetSpawnType(sprt->lotag));
 		spawns[j++] = actor;
 		actor->time = i;
 		actor->initFromSprite(&sprites.sprites[i]);

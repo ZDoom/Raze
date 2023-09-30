@@ -4694,7 +4694,7 @@ void MoveDude(DBloodActor* actor)
 	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 	if (!(actor->IsDudeActor()))
 	{
-		Printf(PRINT_HIGH, "%d: actor->IsDudeActor()", actor->GetType());
+		Printf(PRINT_HIGH, "%s is not a dude actor type\n", actor->GetClass()->TypeName);
 		return;
 	}
 
@@ -6130,12 +6130,12 @@ void actProcessSprites(void)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool setextra)
+DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool setextra, PClass* cls, int type)
 {
-	DBloodActor* actor = InsertSprite(pSector, nStat);
+	DBloodActor* actor = InsertSprite(pSector, nStat, cls);
+	actor->spr.lotag = type;	// we still need this.
 
 	SetActor(actor, pos);
-	actor->ChangeType(kSpriteDecoration);
 	if (setextra && !actor->hasX())
 	{
 		actor->addX();
@@ -6152,9 +6152,10 @@ DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat,
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
+DBloodActor* actSpawnSprite(DBloodActor* source, int nStat, PClass* cls, int type)
 {
-	DBloodActor* actor = InsertSprite(source->sector(), nStat);
+	DBloodActor* actor = InsertSprite(source->sector(), nStat, cls);
+	actor->spr.lotag = type;	// we still need this.
 
 	actor->spr.pos = source->spr.pos;
 	actor->vel = source->vel;
@@ -6174,7 +6175,8 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 
 DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 {
-	auto spawned = actSpawnSprite(source, kStatDude);
+	auto cls = GetSpawnType(nType);
+	auto spawned = actSpawnSprite(source, kStatDude, cls, nType);
 	if (!spawned) return nullptr;
 	DAngle angle = source->spr.Angles.Yaw;
 	int nDude = nType - kDudeBase;
@@ -6185,7 +6187,6 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	{
 		pos.XY() += angle.ToVector() * dist;
 	}
-	spawned->ChangeType(nType);
 	if (!VanillaMode())
 		 spawned->spr.inittype = nType;
 	spawned->spr.Angles.Yaw = angle;
@@ -6243,7 +6244,8 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType)
 {
 	assert(nThingType >= kThingBase && nThingType < kThingMax);
-	auto actor = actSpawnSprite(pSector, pos, 4, 1);
+	auto cls = GetSpawnType(nThingType);
+	auto actor = actSpawnSprite(pSector, pos, 4, 1, cls, nThingType);
 	int nType = nThingType - kThingBase;
 	actor->ChangeType(nThingType);
 	assert(actor->hasX());
@@ -6460,10 +6462,10 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * pMissileInfo->fClipDist() * 2;
 		}
 	}
-	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1);
+	auto cls = GetSpawnType(nType);
+	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1, cls, nType);
 
 	spawned->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
-	spawned->ChangeType(nType);
 	spawned->spr.shade = pMissileInfo->shade;
 	spawned->spr.pal = 0;
 	spawned->clipdist = pMissileInfo->fClipDist();

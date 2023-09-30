@@ -216,9 +216,9 @@ void actAirDrag(DBloodActor *pSprite, fixed_t drag);
 void actExplodeSprite(DBloodActor *pSprite);
 void actActivateGibObject(DBloodActor *actor);
 void actProcessSprites(void);
-DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool a6);
+DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool setextra, PClass* cls = nullptr, int type = 0);
 DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, double dist);
-DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
+DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat, PClass* cls = nullptr, int type = 0);
 DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType);
 
 DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed);

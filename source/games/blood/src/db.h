@@ -100,7 +100,7 @@ struct BloodSpawnSpriteDef : public SpawnSpriteDef
 	TArray<XSPRITE> xspr;
 };
 
-DBloodActor* InsertSprite(sectortype* pSector, int nStat);
+DBloodActor* InsertSprite(sectortype* pSector, int nStat, PClass* cls = nullptr);
 int DeleteSprite(DBloodActor* actor);
 
 unsigned int dbReadMapCRC(const char* pPath);

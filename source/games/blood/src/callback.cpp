@@ -91,7 +91,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 	double nRadius = FixedToFloat(0x55555);
 	for (int i = 0; i < 8; i++)
 	{
-		auto spawnedactor = actSpawnSprite(actor, 5);
+		auto spawnedactor = actSpawnSprite(actor, kStatProjectile);
 		spawnedactor->spr.setspritetexture(aTexIds[kTexFLAREBURST]);
 		spawnedactor->spr.shade = -128;
 		spawnedactor->spr.scale = DVector2(0.5, 0.5);

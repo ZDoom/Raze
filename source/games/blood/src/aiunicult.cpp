@@ -1809,9 +1809,8 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 
 bool doExplosion(DBloodActor* actor, int nType)
 {
-	auto actExplosion = actSpawnSprite(actor->sector(), actor->spr.pos, kStatExplosion, true);
-	if (!actExplosion->hasX())
-		return false;
+	auto cls = GetSpawnType(nType);
+	auto actExplosion = actSpawnSprite(actor->sector(), actor->spr.pos, kStatExplosion, true, cls, nType);
 
 	int nSeq = 4; int nSnd = 304; const EXPLOSION* pExpl = &explodeInfo[nType];
 
@@ -1848,8 +1847,8 @@ bool doExplosion(DBloodActor* actor, int nType)
 
 DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 {
-	auto spawned = actSpawnSprite(actor, kStatDude);
-	int nType = kDudeModernCustom;
+	auto cls = GetSpawnType(kDudeModernCustom);
+	auto spawned = actSpawnSprite(actor, kStatDude, cls, kDudeModernCustom);
 
 	auto pos = actor->spr.pos;
 	if (nDist > 0)
@@ -1857,11 +1856,11 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 		pos.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
 	}
 
-	spawned->ChangeType(nType); 
 	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	spawned->clipdist = dudeInfo[nType - kDudeBase].fClipdist();
+	auto pDudeInfo = getDudeInfo(spawned);
+	spawned->clipdist = pDudeInfo->fClipdist();
 
 	// inherit weapon, seq and sound settings.
 	spawned->xspr.data1 = source->xspr.data1;
@@ -1880,7 +1879,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 		spawned->copy_clipdist(source);
 
 	// inherit custom hp settings
-	if (source->xspr.data4 <= 0) spawned->xspr.health = dudeInfo[nType - kDudeBase].startHealth << 4;
+	if (source->xspr.data4 <= 0) spawned->xspr.health = pDudeInfo->startHealth << 4;
 	else spawned->xspr.health = ClipRange(source->xspr.data4 << 4, 1, 65535);
 
 

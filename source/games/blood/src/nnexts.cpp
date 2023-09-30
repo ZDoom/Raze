@@ -256,8 +256,12 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 {
 	DBloodActor* pDudeActor = nullptr;
 
-	if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
+	if (nType < kDudeBase || nType >= kDudeMax)
 		return NULL;
+
+	auto cls = GetSpawnType(nType);
+	pDudeActor = actSpawnSprite(origin, kStatDude, cls, nType);
+	if (!pDudeActor) return nullptr;
 
 	DAngle angle = origin->spr.Angles.Yaw;
 	auto pos = origin->spr.pos.plusZ(zadd);
@@ -9173,10 +9177,9 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 
 	for (int i = 0; i < 8; i++)
 	{
-		auto burstactor = actSpawnSprite(actor, 5);
+		auto burstactor = actSpawnSprite(actor, kStatProjectile, actor->GetClass(), actor->GetType());
 		if (!burstactor) break;
 
-		burstactor->ChangeType(actor->GetType());
 		burstactor->spr.shade = actor->spr.shade;
 		burstactor->spr.setspritetexture(actor->spr.spritetexture());
 

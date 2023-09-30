@@ -798,10 +798,12 @@ void playerStart(int nPlayer, int bNewLevel)
 		pStartZone = &gStartZone[Random(8)];
 	}
 
-	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, 6, 1);
+	auto cls = GetSpawnType(kDudePlayer1 + nPlayer);
+	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, kStatDude, 1, cls, kDudePlayer1 + nPlayer);
 	assert(actor->hasX());
 	pPlayer->actor = actor;
 	pPlayer->Angles.initialize(pPlayer->actor);
+
 	DUDEINFO* pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
 	pPlayer->pDudeInfo = pDudeInfo;
 	playerSetRace(pPlayer, kModeHuman);
@@ -814,7 +816,6 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->spr.Angles.Yaw = pStartZone->angle;
-	actor->ChangeType(kDudePlayer1 + nPlayer);
 	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
 	actor->xspr.burnTime = 0;
