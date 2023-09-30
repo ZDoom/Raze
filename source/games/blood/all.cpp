@@ -65,5 +65,6 @@
 #include "src/weapon.cpp"
 
 // This includes the VM so it is last
+#include "src/vmexports.cpp"
 #include "src/d_menu.cpp"
 
