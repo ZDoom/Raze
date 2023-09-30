@@ -91,7 +91,7 @@ enum FX_ID {
 
 constexpr inline int fxType(int type)
 {
-	return type;
+	return kFxBase + type;
 }
 
 class CFX {
