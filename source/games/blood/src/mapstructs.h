@@ -17,7 +17,7 @@ struct spritetypedisk
 	int16_t sectnum, statnum;
 	int16_t ang, owner;
 	int16_t index, yvel, inittype;
-	int16_t type;
+	int16_t lotag;
 	int16_t hitag;
 	int16_t extra;
 };

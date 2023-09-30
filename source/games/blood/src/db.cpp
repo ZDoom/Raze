@@ -491,7 +491,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pSprite->xint = LittleShort(load.index);
 		pSprite->yint = LittleShort(load.yvel);
 		pSprite->inittype = LittleShort(load.inittype);
-		pSprite->type = LittleShort(load.type);
+		pSprite->lotag = LittleShort(load.lotag);
 		pSprite->flags = LittleShort(load.hitag);
 		pSprite->extra = LittleShort(load.extra);
 		pSprite->pal = load.pal;

@@ -2765,7 +2765,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 					targetactor->xspr.physAttr = flags;
 					targetactor->vel.Zero();
-					if (targetactor->spr.lotag >= kThingBase && targetactor->spr.lotag < kThingMax)
+					if (targetactor->IsThingActor())
 						ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
 				}
 				break;

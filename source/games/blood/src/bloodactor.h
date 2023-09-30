@@ -155,12 +155,12 @@ public:
 	// this is only temporary
 	void ChangeType(int newtype)
 	{
-		spr.type = newtype;
+		spr.lotag = newtype;
 	}
 	
 	int GetType() const
 	{
-		return spr.type;
+		return spr.lotag;
 	}
 };
 

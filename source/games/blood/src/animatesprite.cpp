@@ -47,33 +47,6 @@ BEGIN_BLD_NS
 static DAngle gCameraAng;
 DAngle random_angles[16][3];
 
-// to allow quick replacement later
-
-bool IsPlayerSprite(tspritetype const* const pSprite)
-{
-	return pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8;
-}
-
-bool IsDudeSprite(tspritetype const* const pSprite)
-{
-	return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
-}
-
-bool IsItemSprite(tspritetype const* const pSprite)
-{
-	return pSprite->type >= kItemBase && pSprite->type < kItemMax;
-}
-
-bool IsWeaponSprite(tspritetype const* const pSprite)
-{
-	return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
-}
-
-bool IsAmmoSprite(tspritetype const* const pSprite)
-{
-	return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -87,7 +60,6 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	pTSprite->cstat = CSTAT_SPRITE_YCENTER;
 	pTSprite->scale = DVector2(1, 1);
 	pTSprite->ownerActor = nullptr;
-	pTSprite->type = -int(tsprites.Size() - 1);
 	pTSprite->statnum = nStatnum;
 	pTSprite->sectp = pSector;
 
@@ -328,7 +300,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		pNSprite->pos.Z = top;
-		if (IsDudeSprite(pTSprite))
+		if (owneractor->IsDudeActor())
 			pNSprite->setspritetexture(aTexIds[kTexBIGSMOKEEFFECT]);
 		else
 			pNSprite->setspritetexture(aTexIds[kTexSMALLSMOKEEFFECT]);
@@ -346,7 +318,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		pNSprite->pos.Z = bottom;
-		if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
+		if (owneractor->IsDudeActor())
 			pNSprite->setspritetexture(aTexIds[kTexBIGSMOKEEFFECT]);
 		else
 			pNSprite->setspritetexture(aTexIds[kTexSMALLSMOKEEFFECT]);
@@ -414,7 +386,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->scale.X = pTSprite->scale.X;
 		pNSprite->scale.Y = pTSprite->scale.Y * 0.25;
 		pNSprite->setspritetexture(pTSprite->spritetexture());
-		if (!VanillaMode() && (pTSprite->type == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
+		if (!VanillaMode() && (owneractor->GetType() == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
 			pNSprite->setspritetexture(aTexIds[kTexICONLEECH]);
 		pNSprite->pal = 5;
 		auto tex = TexMan.GetGameTexture(pNSprite->spritetexture());
@@ -489,8 +461,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	}
 	case kViewEffectShowWeapon:
 	{
-		assert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
-		PLAYER* pPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
+		assert(owneractor->IsPlayerActor());
+		PLAYER* pPlayer = getPlayer(owneractor);
 		WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
 		auto nTex = weaponIcon.textureID();
 		if (!nTex.isValid()) break;
@@ -560,6 +532,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 	// shift before interpolating to increase precision.
 	DAngle myclock = DAngle::fromBuild((PlayClock << 3) + (4 << 3) * interpfrac);
 	gCameraAng = cA;
+	// Because this goes backward it will only iterate over the originally added tsprites, not over the ones added here.
 	for (int nTSprite = int(tsprites.Size()) - 1; nTSprite >= 0; nTSprite--)
 	{
 		tspritetype* pTSprite = tsprites.get(nTSprite);
@@ -587,7 +560,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		{
 		case 0:
 			if (!owneractor->hasX()) break;
-			switch (pTSprite->type) 
+			switch (owneractor->GetType())
 			{
 #ifdef NOONE_EXTENSIONS
 			case kModernCondition:
@@ -728,7 +701,8 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		switch (pTSprite->statnum) {
 		case kStatDecoration: {
-			switch (pTSprite->type) {
+			switch (owneractor->GetType())
+			{
 			case kDecorationCandle:
 				if (!owneractor->hasX() || owneractor->xspr.state == 1) {
 					pTSprite->shade = -128;
@@ -754,7 +728,8 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 							break;
 		case kStatItem: {
-			switch (pTSprite->type) {
+			switch (owneractor->GetType())
+			{
 			case kItemFlagABase:
 				if (owneractor->hasX() && owneractor->xspr.state > 0 && gGameOptions.nGameType == 3) {
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectBigFlag);
@@ -776,7 +751,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				pTSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT2;
 				break;
 			default:
-				if (pTSprite->type >= kItemKeySkull && pTSprite->type < kItemKeyMax)
+				if (owneractor->GetType() >= kItemKeySkull && owneractor->GetType() < kItemKeyMax)
 					pTSprite->shade = -128;
 
 				viewApplyDefaultPal(pTSprite, pSector);
@@ -785,7 +760,8 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 					  break;
 		case kStatProjectile: {
-			switch (pTSprite->type) {
+			switch (owneractor->GetType())
+			{
 			case kMissileTeslaAlt:
 				pTSprite->scale.Y = (2);
 				pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
@@ -807,7 +783,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				}
 
 				viewAddEffect(tsprites, nTSprite, kViewEffectFlareHalo);
-				if (pTSprite->type != kMissileFlareRegular) break;
+				if (owneractor->GetType() != kMissileFlareRegular) break;
 				sectortype* pSector1 = pTSprite->sectp;
 
 				double zDiff = pTSprite->pos.Z - pSector1->ceilingz;
@@ -827,7 +803,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		case kStatDude:
 		{
-			if (pTSprite->type == kDudeHand && owneractor->hasX() && owneractor->xspr.aiState == &hand13A3B4)
+			if (owneractor->GetType() == kDudeHand && owneractor->hasX() && owneractor->xspr.aiState == &hand13A3B4)
 			{
 				auto target = owneractor->GetTarget();
 				if (target && target->IsPlayerActor())
@@ -840,8 +816,8 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			if (pXSector && pXSector->color) copyfloorpal(pTSprite, pSector);
 			if (powerupCheck(pPlayer, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
-			if (IsPlayerSprite(pTSprite)) {
-				PLAYER* thisPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
+			if (owneractor->IsPlayerActor()) {
+				PLAYER* thisPlayer = getPlayer(owneractor);
 				if (powerupCheck(thisPlayer, kPwUpShadowCloak) && !powerupCheck(pPlayer, kPwUpBeastVision)) {
 					pTSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 					pTSprite->pal = 5;
@@ -905,7 +881,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			break;
 		}
 		case kStatTraps: {
-			if (pTSprite->type == kTrapSawCircular) {
+			if (owneractor->GetType() == kTrapSawCircular) {
 				if (owneractor->xspr.state) {
 					if (owneractor->xspr.data1) {
 						pTSprite->setspritetexture(aTexIds[kTexCIRCLESAW1]);
@@ -922,7 +898,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		case kStatThing: {
 			viewApplyDefaultPal(pTSprite, pSector);
 
-			if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
+			if (owneractor->GetType() < kThingBase || owneractor->GetType() >= kThingMax || owneractor->hit.florhit.type == kHitNone)
 			{
 				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);

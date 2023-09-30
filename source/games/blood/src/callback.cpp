@@ -565,7 +565,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 		break;
 	}
 
-	actor->ChangeType(FX_51);
+	actor->ChangeType(fxType(FX_51));
 	actor->spr.scale = DVector2(0.15625, 0.15625);
 }
 

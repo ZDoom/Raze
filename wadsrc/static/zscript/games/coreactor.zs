@@ -31,8 +31,8 @@ class CoreActor native
 	native int16 intangle;
 	native int16 xint;
 	native int16 yint;
-	native int16 inittype; // inittype, type and flags are for Blood.
-	native int16 lotag, type;
+	native int16 inittype; // inittype and flags are for Blood.
+	native int16 lotag;
 	native int16 hitag, flags;
 	native int16 extra;
 	native int16 detail;

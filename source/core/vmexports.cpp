@@ -827,7 +827,6 @@ DEFINE_FIELD_NAMED(DCoreActor, spr.yint, yint)
 DEFINE_FIELD_NAMED(DCoreActor, spr.inittype, inittype)
 DEFINE_FIELD_NAMED(DCoreActor, spr.hitag, hitag)
 DEFINE_FIELD_NAMED(DCoreActor, spr.lotag, lotag)
-DEFINE_FIELD_NAMED(DCoreActor, spr.type, type)
 DEFINE_FIELD_NAMED(DCoreActor, spr.flags, flags) // need to be careful with this!
 DEFINE_FIELD_NAMED(DCoreActor, spr.extra, extra)
 DEFINE_FIELD_NAMED(DCoreActor, spr.detail, detail)
