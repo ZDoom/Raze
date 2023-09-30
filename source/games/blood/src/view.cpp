@@ -102,7 +102,7 @@ void viewDrawText(FFont* pFont, const char* pString, int x, int y, int nShade, i
 
 GameStats GameInterface::getStats()
 {
-	return { gKillMgr.Kills, gKillMgr.TotalKills, gSecretMgr.Founds, gSecretMgr.Total, gFrameCount / kTicsPerSec, gPlayer[myconnectindex].fragCount };
+	return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, gFrameCount / kTicsPerSec, gPlayer[myconnectindex].fragCount };
 }
 
 //---------------------------------------------------------------------------

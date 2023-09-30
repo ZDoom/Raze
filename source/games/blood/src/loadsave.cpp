@@ -714,7 +714,6 @@ void SerializeSequences(FSerializer& arc);
 void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
 void SerializeActor(FSerializer& arc);
-void SerializeGameStats(FSerializer& arc);
 void SerializePlayers(FSerializer& arc);
 void SerializeView(FSerializer& arc);
 void SerializeNNExts(FSerializer& arc);
@@ -741,7 +740,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	SerializeActor(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);
-	SerializeGameStats(arc);
 	SerializeSequences(arc);
 	SerializeWarp(arc);
 	SerializeTriggers(arc);

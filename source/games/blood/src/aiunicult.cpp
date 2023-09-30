@@ -250,7 +250,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 						aiActivateDude(spawned);
 				}
 
-				gKillMgr.AddKillCount(spawned);
+				if (AllowedKillType(spawned)) Level.addKillCount();
 				pExtra->slave[pExtra->slaveCount++] = spawned;
 				if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
 					sfxPlay3DSoundVolume(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
@@ -1919,7 +1919,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 		spawned->spr.scale = source->spr.scale;
 	}
 
-	gKillMgr.AddKillCount(spawned);
+	if (AllowedKillType(spawned)) Level.addKillCount();
 	aiInitSprite(spawned);
 	return spawned;
 }
@@ -2483,7 +2483,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 			fxSpawnBlood(actor, damage);
 	}
 
-	gKillMgr.AddKill(actor);
+	AddKill(actor, actor);
 
 	actor->spr.type = kThingBloodChunks;
 	actPostSprite(actor, kStatThing);

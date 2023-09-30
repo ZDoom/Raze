@@ -211,7 +211,7 @@ bool WriteSavegame(const char* filename, const char *name)
 		.AddString("Map Label", lev->labelName)
 		.AddString("Map Time", timeStr);
 
-	const char *fn = currentLevel->fileName;
+	const char *fn = lev->fileName.GetChars();
 	if (*fn == '/') fn++;
 	if (strncmp(fn, "file://", 7) != 0) // this only has meaning for non-usermaps
 	{
@@ -649,12 +649,39 @@ void DCoreActor::Serialize(FSerializer& arc)
 	}
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* key, StatRecord& c, StatRecord* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("max", c.max)
+			("got", c.got)
+			.Array("player", c.player, MAXPLAYERS)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* key, MapLocals& c, MapLocals* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("kills", c.kills)
+			("secrets", c.secrets)
+			("superSecrets", c.superSecrets)
+			.EndObject();
+	}
+	return arc;
+}
+
+
 
 void SerializeMap(FSerializer& arc)
 {
 	if (arc.BeginObject("engine"))
 	{
-		arc.Array("statlist", statList, MAXSTATUS)
+		arc("maplocals", Level)
+			// everything here should move into MapLocals as well later.
+			.Array("statlist", statList, MAXSTATUS)
 			("sectors", sector, sectorbackup)
 			("walls", wall, wallbackup)
 

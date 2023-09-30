@@ -140,6 +140,11 @@ public:
 			return true;
 		}
 	}
+	int GetType() const
+	{
+		return spr.type;
+	}
+
 };
 
 // subclassed to add a game specific actor() method

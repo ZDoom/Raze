@@ -308,7 +308,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 
 	aiInitSprite(pDudeActor);
 
-	gKillMgr.AddKillCount(pDudeActor);
+	if (AllowedKillType(pDudeActor)) Level.addKillCount();
 
 	bool burning = IsBurningDude(pDudeActor);
 	if (burning) {
@@ -3893,10 +3893,10 @@ bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 	case 2:  return condCmp((gFrameCount / kTicsPerSec) % 60, arg1, arg2, cmpOp);            // compare level seconds
 	case 3:  return condCmp(((gFrameCount % kTicsPerSec) * 33) / 10, arg1, arg2, cmpOp);     // compare level mseconds
 	case 4:  return condCmp(gFrameCount, arg1, arg2, cmpOp);                                 // compare level time (unsafe)
-	case 5:  return condCmp(gKillMgr.Kills, arg1, arg2, cmpOp);                             // compare current global kills counter
-	case 6:  return condCmp(gKillMgr.TotalKills, arg1, arg2, cmpOp);                        // compare total global kills counter
-	case 7:  return condCmp(gSecretMgr.Founds, arg1, arg2, cmpOp);                          // compare how many secrets found
-	case 8:  return condCmp(gSecretMgr.Total, arg1, arg2, cmpOp);                           // compare total secrets
+	case 5:  return condCmp(Level.kills.got, arg1, arg2, cmpOp);                             // compare current global kills counter
+	case 6:  return condCmp(Level.kills.max, arg1, arg2, cmpOp);                        // compare total global kills counter
+	case 7:  return condCmp(Level.secrets.got, arg1, arg2, cmpOp);                          // compare how many secrets found
+	case 8:  return condCmp(Level.secrets.max, arg1, arg2, cmpOp);                           // compare total secrets
 	/*----------------------------------------------------------------------------------------------------------------------------------*/
 	case 20: return condCmp(gVisibility, arg1, arg2, cmpOp);                                // compare global visibility value
 	/*----------------------------------------------------------------------------------------------------------------------------------*/

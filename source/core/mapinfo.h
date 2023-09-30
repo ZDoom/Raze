@@ -7,6 +7,7 @@
 #include "vectors.h"
 #include "screenjob.h"
 #include "maptypes.h"
+#include "d_net.h"
 
 #ifdef GetMessage
 #undef GetMessage	// Windows strikes...
@@ -189,6 +190,35 @@ struct MapRecord
 	}
 };
 
+struct StatRecord
+{
+	int max;
+	int got;
+	int player[MAXPLAYERS];
+
+	void addTotal(int amount = 1)
+	{
+		max += amount;
+		if (amount < 0 && max < 0) max = 0;
+	}
+
+	void add(int playerno, int amount = 1)
+	{
+		got += amount;
+		if (amount < 0 && got < 0) got = 0;
+		if (playerno >= 0 && playerno < MAXPLAYERS)
+		{
+			player[playerno] += amount;
+			if (amount < 0 && player[playerno] < 0) player[playerno] = 0;
+		}
+	}
+
+	void clear()
+	{
+		memset(this, 0, sizeof(*this));
+	}
+};
+
 struct SummaryInfo
 {
 	int kills;
@@ -203,8 +233,69 @@ struct SummaryInfo
 	bool endofgame;
 };
 
+struct MapLocals
+{
+	StatRecord kills, secrets, superSecrets;
+
+	void fillSummary(SummaryInfo& sum)
+	{
+		sum.kills = kills.got;
+		sum.maxkills = kills.max;
+		sum.secrets = secrets.got;
+		sum.maxsecrets = std::max(secrets.got, secrets.max); // If we found more than there are, increase the total. Blood's secret maintenance is too broken to get right.
+		sum.supersecrets = superSecrets.got;
+
+
+		// todo: centralize the remaining info as well.
+	}
+
+	void clearStats()
+	{
+		kills.clear();
+		secrets.clear();
+		superSecrets.clear();
+	}
+
+	void setKills(int num)
+	{
+		kills.clear();
+		kills.max = num;
+	}
+
+	void setSecrets(int num, int supernum = 0)
+	{
+		secrets.clear();
+		secrets.max = num;
+		superSecrets.clear();
+		superSecrets.max = supernum;
+	}
+
+	void addKillCount(int amount = 1)
+	{
+		kills.addTotal(amount);
+	}
+
+	void addKill(int playerno, int amount = 1)
+	{
+		kills.add(playerno, amount);
+	}
+
+	void addSecret(int playerno, int amount = 1)
+	{
+		secrets.add(playerno, amount);
+	}
+
+	void addSuperSecret(int playerno, int amount = 1)
+	{
+		superSecrets.add(playerno, amount);
+	}
+
+};
+
+
 extern GlobalCutscenes globalCutscenes;
-extern MapRecord *currentLevel;	
+extern MapRecord* currentLevel;	// level that is currently played.
+extern MapLocals Level;
 
 void SetMusicReplacement(const char *mapname, const char *music);
 void ReplaceMusics(bool namehack = false);

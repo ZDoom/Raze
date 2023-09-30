@@ -2427,7 +2427,7 @@ static void actInitDudes()
 {
 	if (gGameOptions.nMonsterSettings == 0)
 	{
-		gKillMgr.SetCount(0);
+		Level.setKills(0);
 		BloodStatIterator it(kStatDude);
 		while (auto act = it.Next())
 		{
@@ -2438,16 +2438,17 @@ static void actInitDudes()
 	}
 	else
 	{
-		// by NoOne: WTF is this?
-		///////////////
+		int TotalKills = 0;
+
 		BloodStatIterator it(kStatDude);
 		while (auto act = it.Next())
 		{
-			if (act->spr.type < kDudeBase || act->spr.type >= kDudeMax)
+			if (!act->IsDudeActor())
 				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", act->GetIndex());
+			if (AllowedKillType(act)) TotalKills++;
 		}
+		Level.setKills(TotalKills);
 
-		gKillMgr.CountTotalKills();
 		///////////////
 
 		for (int i = 0; i < kDudeMax - kDudeBase; i++)
@@ -3395,7 +3396,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 	if (!getSequence(getDudeInfo(nType + kDudeBase)->seqStartID + nSeq))
 	{
 		seqKill(actor);
-		gKillMgr.AddKill(actor);
+		AddKill(killerActor, actor);
 		actPostSprite(actor, kStatFree);
 		return;
 	}
@@ -3575,7 +3576,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		for (int i = 0; i < 4; i++)
 			fxSpawnBlood(actor, damage);
 	}
-	gKillMgr.AddKill(actor);
+	AddKill(killerActor, actor);
 	actCheckRespawn(actor);
 	actor->spr.type = kThingBloodChunks;
 	actPostSprite(actor, kStatThing);

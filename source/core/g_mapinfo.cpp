@@ -47,6 +47,7 @@
 #include "gamecontrol.h"
 #include "coreactor.h"
 #include "texinfo.h"
+#include "serializer_raze.h"
 
 #include "buildtiles.h"
 
@@ -1815,3 +1816,4 @@ void G_ParseMapInfo ()
 		I_FatalError ("No volumes defined.");
 	}
 }
+

@@ -1,25 +1,19 @@
-//-------------------------------------------------------------------------
 /*
-Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
-
-This file is part of NBlood.
-
-NBlood is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-//-------------------------------------------------------------------------
+ * Copyright (C) 2020-2023 Christoph Oelckers
+ *
+ * This file is part of Raze
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
 
 #include "ns.h"	// Must come before everything else!
 
@@ -52,12 +46,8 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 	Mus_Stop();
 
 	SummaryInfo info{};
+	Level.fillSummary(info);
 
-	info.kills = gKillMgr.Kills;
-	info.maxkills = gKillMgr.TotalKills;
-	info.secrets = gSecretMgr.Founds;
-	info.maxsecrets = gSecretMgr.Total;
-	info.supersecrets = gSecretMgr.Super;
 	info.endofgame = map == nullptr;
 
 	ShowIntermission(currentLevel, map, &info, [=](bool)
@@ -67,77 +57,21 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 		});
 }
 
-
-void CKillMgr::SetCount(int nCount)
+bool AllowedKillType(DBloodActor* actor)
 {
-	TotalKills = nCount;
+    if (!actor || actor->spr.statnum != kStatDude)
+        return false;
+	auto type = actor->GetType();
+    return type != kDudeBat && type != kDudeRat && type != kDudeInnocent && type != kDudeBurningInnocent;
 }
 
-void CKillMgr::AddKill(DBloodActor* actor)
+void AddKill(DBloodActor* killer, DBloodActor* killed)
 {
-	if (actor->spr.statnum == kStatDude && actor->spr.type != kDudeBat && actor->spr.type != kDudeRat && actor->spr.type != kDudeInnocent && actor->spr.type != kDudeBurningInnocent)
-		Kills++;
-}
-
-void CKillMgr::AddKillCount(DBloodActor* actor)
-{
-	if (actor->spr.statnum == kStatDude && actor->spr.type != kDudeBat && actor->spr.type != kDudeRat && actor->spr.type != kDudeInnocent && actor->spr.type != kDudeBurningInnocent)
-		TotalKills++;
-}
-
-void CKillMgr::CountTotalKills(void)
-{
-	TotalKills = 0;
-	BloodStatIterator it(kStatDude);
-	while (auto actor = it.Next())
+	if (AllowedKillType(killed))
 	{
-		if (actor->spr.type < kDudeBase || actor->spr.type >= kDudeMax)
-			I_Error("Non-enemy sprite (%d) in the enemy sprite list.", actor->GetIndex());
-		if (actor->spr.statnum == kStatDude && actor->spr.type != kDudeBat && actor->spr.type != kDudeRat && actor->spr.type != kDudeInnocent && actor->spr.type != kDudeBurningInnocent)
-			TotalKills++;
+		int playernum = killer->IsPlayerActor() ? killer->GetType() - kDudePlayer1 : -1;
+		Level.addKill(playernum, 1);
 	}
 }
-
-void CKillMgr::Clear(void)
-{
-	TotalKills = Kills = 0;
-}
-
-void CSecretMgr::SetCount(int nCount)
-{
-	Total = nCount;
-}
-
-void CSecretMgr::Found(int nType)
-{
-	if (nType == 0) Founds++;
-	else if (nType < 0) {
-		viewSetSystemMessage("Invalid secret type %d triggered.", nType);
-		return;
-	}
-	else Super++;
-}
-
-void CSecretMgr::Clear(void)
-{
-	Total = Founds = Super = 0;
-}
-
-void SerializeGameStats(FSerializer& arc)
-{
-	if (arc.BeginObject("gamestats"))
-	{
-		arc("secrets", gSecretMgr.Total)
-			("secretsfound", gSecretMgr.Founds)
-			("super", gSecretMgr.Super)
-			("totalkills", gKillMgr.TotalKills)
-			("kills", gKillMgr.Kills)
-			.EndObject();
-	}
-}
-
-
-CSecretMgr gSecretMgr;
-CKillMgr gKillMgr;
 
 END_BLD_NS

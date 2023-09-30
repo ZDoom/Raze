@@ -231,7 +231,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 		return;
 #endif
 	case kChannelSetTotalSecrets:
-		if (command >= kCmdNumberic) gSecretMgr.SetCount(command - kCmdNumberic);
+		if (command >= kCmdNumberic) Level.setSecrets(command - kCmdNumberic);
 		else viewSetSystemMessage("Invalid Total-Secrets command by %s", eob.description().GetChars());
 		break;
 	case kChannelSecretFound:
@@ -245,10 +245,20 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 		{
 			if (command >= kCmdNumberic)
 			{
-				gSecretMgr.Found(command - kCmdNumberic);
-				if (gGameOptions.nGameType == 0)
+				int nType = command - kCmdNumberic;
+				if (nType < 0)
+					Printf(PRINT_HIGH | PRINT_NOTIFY, "Invalid secret type %d triggered.\n", nType);
+				else
 				{
-					viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), nullptr, MESSAGE_PRIORITY_SECRET);
+					if (nType == 0)
+						Level.addSecret(-1);
+					else
+						Level.addSuperSecret(-1);
+
+					if (gGameOptions.nGameType == 0)
+					{
+						viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), nullptr, MESSAGE_PRIORITY_SECRET);
+					}
 				}
 			}
 			else viewSetSystemMessage("Invalid Trigger-Secret command by %s", eob.description().GetChars());

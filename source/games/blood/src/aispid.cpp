@@ -155,7 +155,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 		{
 			pDudeExtraE->birthCounter++;
 			spawned->SetOwner(spawned);
-			gKillMgr.AddKillCount(spawned);
+			if (AllowedKillType(spawned)) Level.addKillCount();
 		}
 	}
 

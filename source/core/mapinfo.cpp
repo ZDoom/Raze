@@ -50,8 +50,8 @@ TArray<ClusterDef> clusters;
 TArray<VolumeRecord> volumes;
 TArray<TPointer<MapRecord>> mapList;	// must be allocated as pointers because it can whack the currentlLevel pointer if this was a flat array.
 static TMap<FString, FString> musicReplacements;
-MapRecord *currentLevel;	// level that is currently played.
-MapRecord* lastLevel;		// Same here, for the last level.
+MapRecord* currentLevel;	// level that is currently played.
+MapLocals Level;
 
 
 CCMD(listmaps)

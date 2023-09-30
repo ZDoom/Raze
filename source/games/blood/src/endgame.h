@@ -1,24 +1,19 @@
-//-------------------------------------------------------------------------
 /*
-Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
-
-This file is part of NBlood.
-
-NBlood is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+ * Copyright (C) 2023 Christoph Oelckers
+ *
+ * This file is part of Raze.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
 //-------------------------------------------------------------------------
 #pragma once
 #include "build.h"
@@ -26,26 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-class CKillMgr {
-public:
-	int TotalKills, Kills;
-	void SetCount(int);
-	void AddKill(DBloodActor* actor);
-	void AddKillCount(DBloodActor* actor);
-	void CountTotalKills(void);
-	void Clear(void);
-};
-
-class CSecretMgr {
-public:
-	int Total, Founds, Super;
-	void SetCount(int);
-	void Found(int);
-	void Clear(void);
-};
-
-extern CSecretMgr gSecretMgr;
-extern CKillMgr gKillMgr;
+bool AllowedKillType(DBloodActor* actor);
+void AddKill(DBloodActor* killer, DBloodActor* killed);
 
 
 END_BLD_NS

@@ -272,8 +272,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
 	gHitInfo.hitSector = nullptr;
 	gHitInfo.hitWall = nullptr;
-	gKillMgr.Clear();
-	gSecretMgr.Clear();
+	Level.clearStats();
 	automapping = 1;
 
 	// Here is where later the actors must be spawned.
