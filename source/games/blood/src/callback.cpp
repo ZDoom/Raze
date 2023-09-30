@@ -412,7 +412,7 @@ void CounterCheck(DBloodActor*, sectortype* pSector) // 12
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.type == nType) nCount++;
+		if (actor->GetType() == nType) nCount++;
 	}
 
 	if (nCount < nReq) {
@@ -525,7 +525,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 		int nChannel = 28 + (actor->GetIndex() & 2);
 
 		// tommy sleeve
-		if (actor->spr.type >= FX_37 && actor->spr.type <= FX_39) 
+		if (actor->GetType() >= fxType(FX_37) && actor->GetType() <= fxType(FX_39))
 		{
 			Random(3);
 			sfxPlay3DSound(actor, 608 + Random(2), nChannel, 1);
@@ -552,15 +552,15 @@ void sleeveStopBouncing(DBloodActor* actor)
 	if (actor->hasX()) seqKill(actor);
 	sfxKill3DSound(actor, -1, -1);
 
-	switch (actor->spr.type) {
-	case FX_37:
-	case FX_38:
-	case FX_39:
+	switch (actor->GetType()) {
+	case fxType(FX_37):
+	case fxType(FX_38):
+	case fxType(FX_39):
 		actor->spr.setspritetexture(aTexIds[kTexBULLETCASE]);
 		break;
-	case FX_40:
-	case FX_41:
-	case FX_42:
+	case fxType(FX_40):
+	case fxType(FX_41):
+	case fxType(FX_42):
 		actor->spr.setspritetexture(aTexIds[kTexSHELLCASE]);
 		break;
 	}
@@ -611,7 +611,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 {
 	if (!actor) return;
 	DBloodActor* pFX;
-	if (actor->spr.type == FX_53)
+	if (actor->GetType() == fxType(FX_53))
 		pFX = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos);
 	else
 		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);
@@ -643,14 +643,14 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	int nDist = Random(16);
 	auto pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist * 4;
 
-	if (actor->spr.Angles.Yaw == DAngle180 && actor->spr.type == FX_53)
+	if (actor->spr.Angles.Yaw == DAngle180 && actor->GetType() == fxType(FX_53))
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);
 		assert(nChannel < 32);
 		sfxPlay3DSound(actor, 385, nChannel, 1);
 	}
 	DBloodActor* pFX = NULL;
-	if (actor->spr.type == 53 || actor->GetType() == kThingPodGreenBall)
+	if (actor->GetType() == fxType(FX_53) || actor->GetType() == kThingPodGreenBall)
 	{
 		if (Chance(0x500) || actor->GetType() == kThingPodGreenBall)
 			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), DVector3(pos, floorZ - 0.25));

@@ -89,6 +89,11 @@ enum FX_ID {
 	kFXMax
 };
 
+constexpr inline int fxType(int type)
+{
+	return type;
+}
+
 class CFX {
 public:
 	void destroy(DBloodActor*);

@@ -166,7 +166,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 
 	auto actor = actSpawnSprite(pSector, pos, 1, 0);
 
-	actor->ChangeType(nFx);
+	actor->ChangeType(fxType(nFx));
 	actor->spr.setspritetexture(pFX->textureID());
 	actor->spr.cstat |= pFX->cstat;
 	actor->spr.shade = pFX->shade;
@@ -206,8 +206,8 @@ void CFX::fxProcess(void)
 		viewBackupSpriteLoc(actor);
 		auto pSector = actor->sector();
 		assert(pSector);
-		assert(actor->spr.type < kFXMax);
-		FXDATA* pFXData = &gFXData[actor->spr.type];
+		assert(actor->GetType() >= fxType(0) && actor->GetType() < fxType(kFXMax));
+		FXDATA* pFXData = &gFXData[actor->GetType() - fxType(0)];
 		actAirDrag(actor, pFXData->drag);
 		actor->spr.pos += actor->vel;
 		// Weird...

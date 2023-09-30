@@ -380,6 +380,8 @@ enum {
 	kGenSound = 708,
 	kSoundSector = 709,
 	kSoundPlayer = 711,
+
+	kFxBase = 1024,
 };
 
 // WALL TYPES /////////////////////////////////////////////////
