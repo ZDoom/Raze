@@ -69,7 +69,7 @@ static constexpr int16_t nItemText[] = {
 };
 
 int nLocalPlayer = 0;
-Player PlayerList[kMaxPlayers];
+ExhumedPlayer PlayerList[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 int PlayerCount;
 int nNetStartSprites;
@@ -144,7 +144,7 @@ void InitPlayerKeys(int nPlayer)
 void InitPlayerInventory(int nPlayer)
 {
     const auto pPlayer = &PlayerList[nPlayer];
-    memset(pPlayer, 0, sizeof(Player));
+    memset(pPlayer, 0, sizeof(ExhumedPlayer));
 
     ResetPlayerWeapons(nPlayer);
 
@@ -709,7 +709,7 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nMag
 //
 //---------------------------------------------------------------------------
 
-static void doPickupNotification(Player* const pPlayer, const int nItem, const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
+static void doPickupNotification(ExhumedPlayer* const pPlayer, const int nItem, const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
 {
     if (pPlayer->nPlayer != nLocalPlayer)
         return;
@@ -755,7 +755,7 @@ static void doPickupDestroy(DExhumedActor* const pPickupActor, const int nItem)
 //
 //---------------------------------------------------------------------------
 
-static void doPickupWeapon(Player* pPlayer, DExhumedActor* pPickupActor, int nItem, int nWeapon, int nAmount, int nSound = kSound72)
+static void doPickupWeapon(ExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, int nItem, int nWeapon, int nAmount, int nSound = kSound72)
 {
     const int weapFlag = 1 << nWeapon;
 
@@ -793,7 +793,7 @@ static void doPickupWeapon(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 //
 //---------------------------------------------------------------------------
 
-static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nItem, const int nAmount, int nSound)
+static void doPickupHealth(ExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, int nItem, const int nAmount, int nSound)
 {
     if (!pPickupActor->spr.hitag || nAmount > 0 && pPlayer->nHealth >= 800)
         return;
@@ -841,7 +841,7 @@ static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 //
 //---------------------------------------------------------------------------
 
-void doPlayerItemPickups(Player* const pPlayer)
+void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
@@ -1041,7 +1041,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void updatePlayerTarget(Player* const pPlayer)
+void updatePlayerTarget(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pRa = &Ra[pPlayer->nPlayer];
@@ -1104,7 +1104,7 @@ void updatePlayerTarget(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerVelocity(Player* const pPlayer)
+static void updatePlayerVelocity(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
 
@@ -1136,7 +1136,7 @@ static void updatePlayerVelocity(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerInventory(Player* const pPlayer)
+static void updatePlayerInventory(ExhumedPlayer* const pPlayer)
 {
     if (const auto invDir = !!(pPlayer->input.actions & SB_INVNEXT) - !!(pPlayer->input.actions & SB_INVPREV))
     {
@@ -1178,7 +1178,7 @@ static void updatePlayerInventory(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerWeapon(Player* const pPlayer)
+static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
 {
     const bool bIsFiring = pPlayer->input.actions & SB_FIRE;
 
@@ -1234,7 +1234,7 @@ unsigned GameInterface::getCrouchState()
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerAction(Player* const pPlayer)
+static void updatePlayerAction(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pInput = &pPlayer->input;
@@ -1353,7 +1353,7 @@ static void updatePlayerAction(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerCounters(Player* const pPlayer)
+static void doPlayerCounters(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const bool bConsolePlayer = pPlayer->nPlayer == nLocalPlayer;
@@ -1434,7 +1434,7 @@ static void doPlayerCounters(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
+static void doPlayerUnderwater(ExhumedPlayer* const pPlayer, const bool oUnderwater)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const bool bUnderwater = pPlayer->pPlayerViewSect->Flag & kSectUnderwater;
@@ -1524,7 +1524,7 @@ static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerRamses(Player* const pPlayer)
+static void doPlayerRamses(ExhumedPlayer* const pPlayer)
 {
     setForcedSyncInput(pPlayer->nPlayer);
 
@@ -1568,7 +1568,7 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertPan)
+static void doPlayerCameraEffects(ExhumedPlayer* const pPlayer, const double nDestVertPan)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
@@ -1610,7 +1610,7 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerFloorActor(Player* const pPlayer)
+static void updatePlayerFloorActor(ExhumedPlayer* const pPlayer)
 {
     DExhumedActor* const pFloorActor = pPlayer->pPlayerFloorSprite;
 
@@ -1632,7 +1632,7 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerDoppleActor(Player* const pPlayer)
+static void updatePlayerDoppleActor(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
@@ -1657,7 +1657,7 @@ static void updatePlayerDoppleActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel)
+static void updatePlayerViewSector(ExhumedPlayer* const pPlayer, const Collision& nMove, const DVector3& spr_vel)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
@@ -1696,7 +1696,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
+static void doPlayerFloorDamage(ExhumedPlayer* const pPlayer, const double nStartVelZ)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     pPlayer->nThrust *= 0.5;
@@ -1725,7 +1725,7 @@ static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel, sectortype* const spr_sect)
+static void doPlayerMovingBlocks(ExhumedPlayer* const pPlayer, const Collision& nMove, const DVector3& spr_vel, sectortype* const spr_sect)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     sectortype* sect;
@@ -1783,7 +1783,7 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
 //
 //---------------------------------------------------------------------------
 
-static bool doPlayerInput(Player* const pPlayer)
+static bool doPlayerInput(ExhumedPlayer* const pPlayer)
 {
     // update the player/actor's velocity before anything.
     updatePlayerVelocity(pPlayer);
@@ -1875,7 +1875,7 @@ static bool doPlayerInput(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pStartSect)
+static void doPlayerRunlistSignals(ExhumedPlayer* const pPlayer, sectortype* const pStartSect)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
@@ -1914,7 +1914,7 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
 //
 //---------------------------------------------------------------------------
 
-static bool doPlayerDeathRestart(Player* const pPlayer)
+static bool doPlayerDeathRestart(ExhumedPlayer* const pPlayer)
 {
     if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->GetActor()->nAction < 16)
         return true;
@@ -1960,7 +1960,7 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerActionSequence(Player* const pPlayer)
+static void doPlayerActionSequence(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
 
@@ -2015,7 +2015,7 @@ static void doPlayerActionSequence(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerDeathPitch(Player* const pPlayer)
+static void doPlayerDeathPitch(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     pPlayer->nThrust.Zero();
@@ -2104,7 +2104,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ExhumedPlayer& w, ExhumedPlayer* def)
 {
     if (arc.BeginObject(keyname))
     {
@@ -2195,29 +2195,29 @@ void SerializePlayer(FSerializer& arc)
 //
 //---------------------------------------------------------------------------
 
-DEFINE_FIELD_X(ExhumedPlayer, Player, nHealth);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
-DEFINE_FIELD_X(ExhumedPlayer, Player, actor);
-DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
-DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nMaskAmount);
-DEFINE_FIELD_X(ExhumedPlayer, Player, keys);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
-DEFINE_FIELD_X(ExhumedPlayer, Player, items);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons? 
-DEFINE_FIELD_X(ExhumedPlayer, Player, nPlayerWeapons);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nWeapFrame);
-DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nNextWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nState);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nLastWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nRun);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nHealth);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nLives);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nDouble);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nInvisible);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nTorch);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, actor);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, bIsMummified);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, invincibility);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nAir);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nMaskAmount);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, keys);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nMagic);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nItem);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, items);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nAmmo); // TODO - kMaxWeapons? 
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nPlayerWeapons);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nCurrentWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nWeapFrame);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, bIsFiring);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nNextWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nState);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nLastWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nRun);
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
 {
@@ -2236,14 +2236,14 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(Player);
+    PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
     auto nLocalPlayer = self - PlayerList;
     ACTION_RETURN_BOOL(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & kSectUnderwater);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(Player);
+    PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
     ACTION_RETURN_INT(self->GetActor()->spr.Angles.Yaw.Buildang());
 }
 

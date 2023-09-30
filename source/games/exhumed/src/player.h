@@ -47,7 +47,7 @@ struct PlayerSave
     DAngle nAngle;
 };
 
-struct Player
+struct ExhumedPlayer
 {
     DExhumedActor* actor;
     int16_t nHealth;
@@ -120,7 +120,7 @@ struct Player
 
 extern int PlayerCount;
 
-extern Player PlayerList[kMaxPlayers];
+extern ExhumedPlayer PlayerList[kMaxPlayers];
 
 extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;
@@ -130,9 +130,9 @@ int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
-void updatePlayerTarget(Player* const pPlayer);
+void updatePlayerTarget(ExhumedPlayer* const pPlayer);
 
-inline void doPlayerVertPanning(Player* const pPlayer, const double nDestVertPan)
+inline void doPlayerVertPanning(ExhumedPlayer* const pPlayer, const double nDestVertPan)
 {
     const auto nVertPan = (nDestVertPan - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
     pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);

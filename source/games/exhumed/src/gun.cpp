@@ -902,7 +902,7 @@ loc_flag:
 //
 //---------------------------------------------------------------------------
 
-void DrawWeapons(Player* const pPlayer, double interpfrac)
+void DrawWeapons(ExhumedPlayer* const pPlayer, double interpfrac)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const int nWeapon = pPlayer->nCurrentWeapon;
