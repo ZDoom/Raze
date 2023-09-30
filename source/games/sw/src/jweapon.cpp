@@ -1233,7 +1233,7 @@ int DoRadiationCloud(DSWActor* actor)
 //////////////////////////////////////////////
 int PlayerInitChemBomb(PLAYER* pp)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
@@ -1241,11 +1241,11 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
+    auto pos = pp->GetActor()->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector, pos, pp->actor->spr.Angles.Yaw, CHEMBOMB_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, CHEMBOMB_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1255,7 +1255,7 @@ int PlayerInitChemBomb(PLAYER* pp)
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->actor, actorNew);
+    SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
@@ -1403,7 +1403,7 @@ int PlayerInitFlashBomb(PLAYER* pp)
     unsigned int stat;
 
     short damage;
-    DSWActor* actor = pp->actor;
+    DSWActor* actor = pp->GetActor();
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
 
@@ -1415,7 +1415,7 @@ int PlayerInitFlashBomb(PLAYER* pp)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            if (itActor == pp->actor)
+            if (itActor == pp->GetActor())
                 break;
 
 			double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
@@ -1428,7 +1428,7 @@ int PlayerInitFlashBomb(PLAYER* pp)
             if (!FAFcansee(itActor->spr.pos, itActor->sector(), actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->sector()))
                 continue;
 
-            damage = GetDamage(itActor, pp->actor, DMG_FLASHBOMB);
+            damage = GetDamage(itActor, pp->GetActor(), DMG_FLASHBOMB);
 
             if (itActor->user.sop_parent)
             {
@@ -1607,16 +1607,16 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
 int PlayerInitCaltrops(PLAYER* pp)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
+    auto pos = pp->GetActor()->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
-    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector, pos, pp->actor->spr.Angles.Yaw, (CHEMBOMB_VELOCITY + RandomRangeF(CHEMBOMB_VELOCITY)) / 2);
+    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector, pos, pp->GetActor()->spr.Angles.Yaw, (CHEMBOMB_VELOCITY + RandomRangeF(CHEMBOMB_VELOCITY)) / 2);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1626,7 +1626,7 @@ int PlayerInitCaltrops(PLAYER* pp)
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->actor, actorNew);
+    SetOwner(pp->GetActor(), actorNew);
     actorNew->spr.scale = DVector2(1, 1);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
@@ -2182,7 +2182,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, actor->user.PlayerP->actor->spr.Angles.Pitch, HORIZ_MULTF * (1. / 3.));
+        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, actor->user.PlayerP->GetActor()->spr.Angles.Pitch, HORIZ_MULTF * (1. / 3.));
     }
 
     switch (actorNew->user.ID)

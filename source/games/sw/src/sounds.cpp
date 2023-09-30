@@ -108,7 +108,7 @@ short SoundDist(const DVector3& pos, double basedist)
     double sqrdist;
     extern short screenpeek;
 
-    double distance = (Player[screenpeek].actor->getPosWithOffsetZ() - pos).Length() * 16;
+    double distance = (Player[screenpeek].GetActor()->getPosWithOffsetZ() - pos).Length() * 16;
 
     if (basedist < 0) // if basedist is negative
     {
@@ -325,7 +325,7 @@ static void UpdateAmbients()
         if (sdist < 255 && sfx->ResourceId == DIGI_WHIPME)
         {
             PLAYER* pp = Player + screenpeek;
-            if (!FAFcansee(spot->spr.pos, spot->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
+            if (!FAFcansee(spot->spr.pos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
             {
                 sdist = 255;
             }
@@ -426,7 +426,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
     if (pos != nullptr)
     {
         PLAYER* pp = Player + screenpeek;
-        FVector3 campos = GetSoundPos(pp->actor ? pp->actor->getPosWithOffsetZ() : DVector3());
+        FVector3 campos = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
         DVector3 vPos = {};
         bool pancheck = false;
 
@@ -446,10 +446,10 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             }
             else
             {
-                auto act = ((PLAYER*)source)->actor;
+                auto act = ((PLAYER*)source)->GetActor();
                 if (act) vPos = act->getPosWithOffsetZ();
-                else if (pp->actor)
-                    vPos = pp->actor->getPosWithOffsetZ();
+                else if (pp->GetActor())
+                    vPos = pp->GetActor()->getPosWithOffsetZ();
             }
             pancheck = true;
             FVector3 npos = GetSoundPos(vPos);
@@ -479,7 +479,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vPos, spot->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
+                if (!FAFcansee(vPos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
@@ -523,13 +523,13 @@ void GameInterface::UpdateSounds(void)
         if (rsp && TEST_BOOL1(rsp))
             tang = rsp->spr.Angles.Yaw;
         else
-            tang = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
+            tang = (pp->sop_remote->pmid.XY() - pp->GetActor()->spr.pos.XY()).Angle();
     }
-    else tang = pp->actor ? pp->actor->spr.Angles.Yaw : nullAngle;
+    else tang = pp->GetActor() ? pp->GetActor()->spr.Angles.Yaw : nullAngle;
 
     listener.angle = float(-tang.Radians());
     listener.velocity.Zero();
-    listener.position = GetSoundPos(pp->actor ? pp->actor->getPosWithOffsetZ() : DVector3());
+    listener.position = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
@@ -573,7 +573,7 @@ int _PlaySound(const FSoundID sndid, DSWActor* actor, PLAYER* pp, const DVector3
         }
         else if (pp && !ppos)
         {
-            pos = pp->actor->getPosWithOffsetZ();
+            pos = pp->GetActor()->getPosWithOffsetZ();
             pp = nullptr;
             sourcetype = SOURCE_Unattached;
         }

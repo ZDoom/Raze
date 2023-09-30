@@ -775,7 +775,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 ShadeSprite(tsp);
 
             // sw if its your playersprite
-            if (Player[screenpeek].actor == tActor)
+            if (Player[screenpeek].GetActor() == tActor)
             {
                 pp = Player + screenpeek;
                 if (display_mirror || (pp->Flags & (PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA)))
@@ -792,9 +792,9 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                         pos.Z -= PLAYER_HEIGHTF - 17.;
                     }
 
-                    if ((pp->Flags & PF_DEAD) && pos.Z > pp->actor->user.loz - pp->actor->user.floor_dist)
+                    if ((pp->Flags & PF_DEAD) && pos.Z > pp->GetActor()->user.loz - pp->GetActor()->user.floor_dist)
                     {
-                        pos.Z = pp->actor->user.loz - pp->actor->user.floor_dist;
+                        pos.Z = pp->GetActor()->user.loz - pp->GetActor()->user.floor_dist;
                     }
                     else if (pp->Flags & (PF_SWIMMING|PF_DIVING))
                     {
@@ -815,8 +815,8 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                tsp->pos = pp->actor->getRenderPos(interpfrac);
-                tsp->Angles.Yaw = pp->actor->interpolatedyaw(interpfrac);
+                tsp->pos = pp->GetActor()->getRenderPos(interpfrac);
+                tsp->Angles.Yaw = pp->GetActor()->interpolatedyaw(interpfrac);
             }
         }
 
@@ -880,7 +880,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
         {
             if ((tActor->user.Flags2 & SPR2_VIS_SHADING))
             {
-                if (Player[screenpeek].actor != tActor)
+                if (Player[screenpeek].GetActor() != tActor)
                 {
                     if (!(tActor->user.PlayerP->Flags & PF_VIEW_FROM_OUTSIDE))
                     {
@@ -972,7 +972,7 @@ void PrintSpriteInfo(PLAYER* pp)
 
     //if (SpriteInfo && !LocationInfo)
     {
-        auto actor = DoPickTarget(pp->actor, DAngle22_5/4, 2);
+        auto actor = DoPickTarget(pp->GetActor(), DAngle22_5/4, 2);
 
         actor->spr.hitag = 9997; // Special tag to make the actor glow red for one frame
 
@@ -1013,7 +1013,7 @@ void PrintSpriteInfo(PLAYER* pp)
 static void DrawCrosshair(PLAYER* pp, const double interpfrac)
 {
     auto offsets = pp->Angles.getCrosshairOffsets(interpfrac);
-    ::DrawCrosshair(pp->actor->user.Health, offsets.first.X, offsets.first.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, offsets.second, shadeToLight(10));
+    ::DrawCrosshair(pp->GetActor()->user.Health, offsets.first.X, offsets.first.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, offsets.second, shadeToLight(10));
 }
 
 //---------------------------------------------------------------------------
@@ -1231,7 +1231,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     pp->Angles.updateCameraAngles(interpfrac);
 
     // Get initial player position, interpolating if required.
-    DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
+    DVector3 tpos = camerapp->GetActor()->getRenderPos(interpfrac);
     DVector2 ampos = tpos.XY();
     DRotator tangles = camerapp->Angles.getRenderAngles(interpfrac);
     sectortype* tsect = camerapp->cursector;
@@ -1242,14 +1242,14 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
-            tpos = pp->actor->getPosWithOffsetZ();
-            tangles.Yaw = pp->actor->spr.Angles.Yaw;
+            tpos = pp->GetActor()->getPosWithOffsetZ();
+            tangles.Yaw = pp->GetActor()->spr.Angles.Yaw;
         }
         tsect = pp->cursector;
         updatesectorz(tpos, &tsect);
     }
 
-    pp->si = tpos.plusZ(-pp->actor->getOffsetZ());
+    pp->si = tpos.plusZ(-pp->GetActor()->getOffsetZ());
 
     QuakeViewChange(camerapp, tpos, tangles.Yaw);
     int vis = g_visibility;
@@ -1266,10 +1266,10 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         tpos.Z -= 33;
 
-        if (!calcChaseCamPos(tpos, pp->actor, &tsect, tangles, interpfrac, 128.))
+        if (!calcChaseCamPos(tpos, pp->GetActor(), &tsect, tangles, interpfrac, 128.))
         {
             tpos.Z += 33;
-            calcChaseCamPos(tpos, pp->actor, &tsect, tangles, interpfrac, 128.);
+            calcChaseCamPos(tpos, pp->GetActor(), &tsect, tangles, interpfrac, 128.);
         }
     }
 
@@ -1294,7 +1294,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         UpdatePanel(interpfrac);
 
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, tpos, tsect, tangles, interpfrac);
+    render_drawrooms(pp->GetActor(), tpos, tsect, tangles, interpfrac);
     RestorePortalState();
 
     if (sceneonly)
@@ -1399,7 +1399,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                 if (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)
                 {
                     // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                    PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].actor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
+                    PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].GetActor() ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
                     auto statnum = actor->spr.statnum;
                     auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedpos(interpfrac) : actor->spr.pos).XY() - cpos;
 
@@ -1425,7 +1425,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
         if (p == screenpeek)
         {
             auto pp = &Player[p];
-            auto actor = pp->actor;
+            auto actor = pp->GetActor();
             if (actor->vel.X > 1) pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
             sprisplayer = true;
 
@@ -1437,7 +1437,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                 int spnum = -1;
                 if (sprisplayer)
                 {
-                    if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].actor)
+                    if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].GetActor())
                         spnum = 1196 + pspr_ndx[myconnectindex];
                 }
                 else spnum = actor->spr.picnum;

@@ -1518,7 +1518,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->actor->getPosWithOffsetZ(), pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
+        if (!FAFcansee(pp->GetActor()->getPosWithOffsetZ(), pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
             return false;
     }
 
@@ -1996,9 +1996,9 @@ void OperateTripTrigger(PLAYER* pp)
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if ((actor->spr.pos.XY() - pp->actor->spr.pos.XY()).Length() < dist)
+                if ((actor->spr.pos.XY() - pp->GetActor()->spr.pos.XY()).Length() < dist)
                 {
-                    actor->user.targetActor = pp->actor;
+                    actor->user.targetActor = pp->GetActor();
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
                 }
             }
@@ -2076,7 +2076,7 @@ void OperateContinuousTrigger(PLAYER* pp)
 short PlayerTakeSectorDamage(PLAYER* pp)
 {
     auto sectu = pp->cursector;
-    DSWActor* actor = pp->actor;
+    DSWActor* actor = pp->GetActor();
 
     // the calling routine must make sure sectu exists
     if ((actor->user.DamageTics -= synctics) < 0)
@@ -2109,7 +2109,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->actor->spr.Angles.Yaw, near, 64., NT_Lotag | NT_Hitag);
+    neartag(pp->GetActor()->getPosWithOffsetZ(), pp->cursector, pp->GetActor()->spr.Angles.Yaw, near, 64., NT_Lotag | NT_Hitag);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2142,12 +2142,12 @@ bool NearThings(PLAYER* pp)
     {
         HitInfo hit{};
 
-        FAFhitscan(pp->actor->getPosWithOffsetZ().plusZ(-30), pp->cursector, DVector3(pp->actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->GetActor()->getPosWithOffsetZ().plusZ(-30), pp->cursector, DVector3(pp->GetActor()->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return false;
 
-        if ((hit.hitpos.XY() - pp->actor->spr.pos.XY()).Length() > 93.75)
+        if ((hit.hitpos.XY() - pp->GetActor()->spr.pos.XY()).Length() > 93.75)
             return false;
 
         // hit a sprite?
@@ -2190,7 +2190,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
     HitInfo near;
 
 
-    neartag(DVector3(pp->actor->spr.pos.XY(), z), pp->cursector, pp->actor->spr.Angles.Yaw, near, dist, type);
+    neartag(DVector3(pp->GetActor()->spr.pos.XY(), z), pp->cursector, pp->GetActor()->spr.Angles.Yaw, near, dist, type);
 
     if (near.hitSector != nullptr)
     {
@@ -2315,7 +2315,7 @@ int DoPlayerGrabStar(PLAYER* pp)
         auto actor = StarQueue[i];
         if (actor != nullptr)
         {
-            if ((actor->spr.pos - pp->actor->getPosWithOffsetZ()).plusZ(12).Length() < 31.25)
+            if ((actor->spr.pos - pp->GetActor()->getPosWithOffsetZ()).plusZ(12).Length() < 31.25)
             {
                 break;
             }
@@ -2349,7 +2349,7 @@ void PlayerOperateEnv(PLAYER* pp)
 {
     bool found;
 
-    if (Prediction || !pp->actor)
+    if (Prediction || !pp->GetActor())
         return;
 
     //
@@ -2373,7 +2373,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->actor->getOffsetZ(), 128, NT_Lotag | NT_Hitag, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->GetActor()->getOffsetZ(), 128, NT_Lotag | NT_Hitag, 8);
 
             found = false;
 
@@ -2394,7 +2394,7 @@ void PlayerOperateEnv(PLAYER* pp)
             if (!found)
             {
                 double z[3];
-                DSWActor* plActor = pp->actor;
+                DSWActor* plActor = pp->GetActor();
 
                 z[0] = plActor->spr.pos.Z - ActorSizeZ(plActor) - 10;
                 z[1] = plActor->spr.pos.Z;
@@ -2484,14 +2484,14 @@ void PlayerOperateEnv(PLAYER* pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((ActorZOfBottom(pp->actor) >= sectp->floorz) && !(pp->Flags & PF_DIVING))
+        else if ((ActorZOfBottom(pp->GetActor()) >= sectp->floorz) && !(pp->Flags & PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }
     }
     else
     {
-        pp->actor->user.DamageTics = 0;
+        pp->GetActor()->user.DamageTics = 0;
     }
 
 
@@ -2904,7 +2904,7 @@ void DoSector(void)
             }
             else
             {
-				double dist = (pp->actor->spr.pos.XY() - sop->pmid.XY()).Length();
+				double dist = (pp->GetActor()->spr.pos.XY() - sop->pmid.XY()).Length();
                 if (dist < min_dist)
                     min_dist = dist;
             }

@@ -774,7 +774,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     actor->user.WpnGoalActor = nullptr;
     actor->user.attachActor = nullptr;
     actor->user.track = -1;
-    actor->user.targetActor = Player[0].actor;
+    actor->user.targetActor = Player[0].GetActor();
     actor->user.Radius = 220;
     actor->user.Sibling = -1;
     actor->user.WaitTics = 0;
@@ -4999,26 +4999,26 @@ int DoGet(DSWActor* actor)
     TRAVERSE_CONNECT(pnum)
     {
         pp = &Player[pnum];
-        DSWActor* plActor = pp->actor;
+        DSWActor* plActor = pp->GetActor();
         int weaponswitch = WeaponSwitch(pnum);
 
         if (pp->Flags & (PF_DEAD))
             continue;
 
-        double dist = (pp->actor->spr.pos.XY() - actor->spr.pos).Length();
+        double dist = (pp->GetActor()->spr.pos.XY() - actor->spr.pos).Length();
         if ((unsigned)dist > (plActor->user.fRadius() + actor->user.fRadius()))
         {
             continue;
         }
 
-        if (!SpriteOverlap(actor, pp->actor))
+        if (!SpriteOverlap(actor, pp->GetActor()))
         {
             continue;
         }
 
         auto cstat_bak = actor->spr.cstat;
         actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        can_see = FAFcansee(actor->spr.pos, actor->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector);
+        can_see = FAFcansee(actor->spr.pos, actor->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector);
         actor->spr.cstat = cstat_bak;
 
         if (!can_see)
@@ -5800,7 +5800,7 @@ KeyMain:
 
         case ICON_FLAG:
         {
-            if (actor->spr.pal == pp->actor->spr.pal) break; // Can't pick up your own flag!
+            if (actor->spr.pal == pp->GetActor()->spr.pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
@@ -5816,11 +5816,11 @@ KeyMain:
             actorNew->user.Counter = 0;
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
-            SetAttach(pp->actor, actorNew);
-            actorNew->user.pos.Z = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
+            SetAttach(pp->GetActor(), actorNew);
+            actorNew->user.pos.Z = ActorZOfMiddle(pp->GetActor());  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
-            SetOwner(pp->actor, actorNew);  // Player now owns the flag
+            SetOwner(pp->GetActor(), actorNew);  // Player now owns the flag
             actorNew->user.flagOwnerActor = actor;       // Tell carried flag who owns it
             KillGet(actor);  // Set up for flag respawning
             break;
@@ -5867,7 +5867,7 @@ void ProcessActiveVars(DSWActor* actor)
 
 void AdjustActiveRange(PLAYER* pp, DSWActor* actor, double dist)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     // do no FAFcansee before it is time
     if (actor->user.wait_active_check < ACTIVE_CHECK_TIME)
@@ -6050,7 +6050,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-				double dist = (pp->actor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+				double dist = (pp->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
                 AdjustActiveRange(pp, actor, dist);
 

@@ -1850,9 +1850,14 @@ struct PLAYER
 
     uint8_t WpnReloadState;
 
+    inline DSWActor* GetActor()
+    {
+        return actor;
+    }
+
     void posZset(const double val)
     {
-        actor->spr.pos.Z = val - actor->viewzoffset;
+        GetActor()->spr.pos.Z = val - GetActor()->viewzoffset;
     }
 };
 
@@ -1887,7 +1892,7 @@ struct GameInterface : public ::GameInterface
     void NextLevel(MapRecord *map, int skill) override;
     void NewGame(MapRecord *map, int skill, bool) override;
     bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-    DCoreActor* getConsoleActor() override { return Player[myconnectindex].actor; }
+    DCoreActor* getConsoleActor() override { return Player[myconnectindex].GetActor(); }
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;
@@ -1920,7 +1925,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return absangle((a->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle(), pp->actor->spr.Angles.Yaw) < range;
+    return absangle((a->spr.pos.XY() - pp->GetActor()->spr.pos.XY()).Angle(), pp->GetActor()->spr.Angles.Yaw) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)

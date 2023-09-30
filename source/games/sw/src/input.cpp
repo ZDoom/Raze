@@ -72,7 +72,7 @@ enum
 
 void processWeapon(PLAYER* const pp)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
     if (plActor == nullptr) return;
     int i;
 

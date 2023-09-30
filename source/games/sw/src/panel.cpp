@@ -259,7 +259,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 
 void PlayerUpdateHealth(PLAYER* pp, short value)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
     short x,y;
 
     if (Prediction)
@@ -413,7 +413,7 @@ void PlayerUpdateAmmo(PLAYER* pp, short UpdateWeaponNum, short value)
 
 void PlayerUpdateWeapon(PLAYER* pp, short WeaponNum)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     // weapon Change
     if (Prediction)
@@ -447,7 +447,7 @@ void PlayerUpdateKills(PLAYER* pp, short value)
             opp = Player + pnum;
 
             // for everyone on the same team
-            if (opp != pp && opp->actor->user.spal == pp->actor->user.spal)
+            if (opp != pp && opp->GetActor()->user.spal == pp->GetActor()->user.spal)
             {
                 Level.addFrags(pnum, value);
             }
@@ -489,7 +489,7 @@ void PlayerUpdateArmor(PLAYER* pp, short value)
 int WeaponOperate(PLAYER* pp)
 {
     short weapon;
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     InventoryKeys(pp);
 
@@ -716,7 +716,7 @@ bool WeaponOK(PLAYER* pp)
     static const uint8_t wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
     unsigned wpn_ndx=0;
 
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     if (!plActor || !plActor->hasU())
         return(false);
@@ -2590,7 +2590,7 @@ void pUziFire(PANEL_SPRITE* psp)
     }
     else
     {
-        SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
+        SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 32);
 
         if (!WeaponOK(psp->PlayerP))
             return;
@@ -2705,14 +2705,14 @@ void SpawnUziShell(PANEL_SPRITE* psp)
         // LEFT side
         pp->UziShellLeftAlt = !pp->UziShellLeftAlt;
         if (pp->UziShellLeftAlt)
-            SpawnShell(pp->actor,-3);
+            SpawnShell(pp->GetActor(),-3);
     }
     else
     {
         // RIGHT side
         pp->UziShellRightAlt = !pp->UziShellRightAlt;
         if (pp->UziShellRightAlt)
-            SpawnShell(pp->actor,-2);
+            SpawnShell(pp->GetActor(),-2);
     }
 }
 
@@ -2774,7 +2774,7 @@ PANEL_STATE ps_ShotgunShell[] =
 void SpawnShotgunShell(PANEL_SPRITE* psp)
 {
     PLAYER* pp = psp->PlayerP;
-    SpawnShell(pp->actor,-4);
+    SpawnShell(pp->GetActor(),-4);
 }
 
 void pShotgunShell(PANEL_SPRITE* psp)
@@ -3320,7 +3320,7 @@ void pShotgunAction(PANEL_SPRITE* psp)
 
 void pShotgunFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
+    SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 32);
     InitShotgun(psp->PlayerP);
     //SpawnShotgunShell(psp);
 }
@@ -3752,7 +3752,7 @@ void pRailAction(PANEL_SPRITE* psp)
 
 void pRailFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, {}, 16);
+    SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 16);
     InitRail(psp->PlayerP);
 }
 
@@ -3771,7 +3771,7 @@ void pRailRetract(PANEL_SPRITE* psp)
     {
         psp->PlayerP->Flags &= ~(PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
-        DeleteNoSoundOwner(psp->PlayerP->actor);
+        DeleteNoSoundOwner(psp->PlayerP->GetActor());
         pKillSprite(psp);
     }
 }
@@ -4203,15 +4203,15 @@ void pHotheadAttack(PANEL_SPRITE* psp)
     switch (psp->PlayerP->WpnFlameType)
     {
     case 0:
-        SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
+        SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 32);
         InitFireball(psp->PlayerP);
         break;
     case 1:
-        SpawnVis(psp->PlayerP->actor, nullptr, {}, 20);
+        SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 20);
         InitSpellRing(psp->PlayerP);
         break;
     case 2:
-        SpawnVis(psp->PlayerP->actor, nullptr, {}, 16);
+        SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 16);
         InitSpellNapalm(psp->PlayerP);
         break;
     }
@@ -4294,7 +4294,7 @@ void SpawnOnFire(PLAYER* pp)
 
 void pOnFire(PANEL_SPRITE* psp)
 {
-    DSWActor* plActor = psp->PlayerP->actor;
+    DSWActor* plActor = psp->PlayerP->GetActor();
 
     // Kill immediately - in case of death/water
     if (plActor->user.flameActor == nullptr && plActor->user.Flags2 & SPR2_FLAMEDIE)
@@ -4827,7 +4827,7 @@ void pMicroAction(PANEL_SPRITE* psp)
 
 void pMicroFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, {}, 20);
+    SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 20);
     switch (psp->PlayerP->WpnRocketType)
     {
     case 0:
@@ -5770,7 +5770,7 @@ void pGrenadeAction(PANEL_SPRITE* psp)
 
 void pGrenadeFire(PANEL_SPRITE* psp)
 {
-    SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
+    SpawnVis(psp->PlayerP->GetActor(), nullptr, {}, 32);
     InitGrenade(psp->PlayerP);
 }
 
@@ -7365,7 +7365,7 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
 bool DrawBeforeView = false;
 void pDisplaySprites(PLAYER* pp, double interpfrac)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
     PANEL_SPRITE* next=nullptr;
     short shade, picnum, overlay_shade = 0;
     double x, y;

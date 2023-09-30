@@ -159,7 +159,7 @@ void UseInventoryMedkit(PLAYER* pp)
     if (!pp->InventoryAmount[inv])
         return;
 
-    diff = 100 - pp->actor->user.Health;
+    diff = 100 - pp->GetActor()->user.Health;
     if (diff <= 0)
         return;
 
@@ -296,7 +296,7 @@ void UseInventoryRepairKit(PLAYER* pp)
 
 void UseInventoryCloak(PLAYER* pp)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -321,7 +321,7 @@ void UseInventoryCloak(PLAYER* pp)
 
 void StopInventoryCloak(PLAYER* pp, short InventoryNum)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     pp->InventoryActive[InventoryNum] = false;
 
