@@ -66,7 +66,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 		PLAYER* pPlayer = &gPlayer[myconnectindex];
 		FVector3 camera;
 
-		if (pPlayer && pPlayer->actor) camera = GetSoundPos(pPlayer->actor->spr.pos);
+		if (pPlayer && pPlayer->GetActor()) camera = GetSoundPos(pPlayer->GetActor()->spr.pos);
 		else camera = { 0, 0, 0 }; // don't crash if there is no player.
 
 		if (vel) vel->Zero();
@@ -108,11 +108,11 @@ void GameInterface::UpdateSounds()
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	SoundListener listener;
 
-	if (pPlayer->actor)
+	if (pPlayer->GetActor())
 	{
-		listener.angle = float(-pPlayer->actor->spr.Angles.Yaw.Radians());
+		listener.angle = float(-pPlayer->GetActor()->spr.Angles.Yaw.Radians());
 		listener.velocity.Zero();
-		listener.position = GetSoundPos(pPlayer->actor->spr.pos);
+		listener.position = GetSoundPos(pPlayer->GetActor()->spr.pos);
 		listener.valid = true;
 	}
 	else

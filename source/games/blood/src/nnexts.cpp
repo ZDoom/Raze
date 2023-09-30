@@ -1176,12 +1176,12 @@ void nnExtProcessSuperSprites()
 				for (int a = connecthead; a >= 0; a = connectpoint2[a])
 				{
 					PLAYER* pPlayer = &gPlayer[a];
-					if (!pPlayer || !xsprIsFine(pPlayer->actor) || pPlayer->actor->xspr.health <= 0)
+					if (!pPlayer || !xsprIsFine(pPlayer->GetActor()) || pPlayer->GetActor()->xspr.health <= 0)
 						continue;
 
-					if (pPlayer->actor->xspr.health > 0 && CheckProximity(gPlayer->actor, pos, pSect, okDist))
+					if (pPlayer->GetActor()->xspr.health > 0 && CheckProximity(gPlayer->GetActor(), pos, pSect, okDist))
 					{
-						trTriggerSprite(pProx, kCmdSpriteProximity, pPlayer->actor);
+						trTriggerSprite(pProx, kCmdSpriteProximity, pPlayer->GetActor());
 					}
 				}
 			}
@@ -1214,10 +1214,10 @@ void nnExtProcessSuperSprites()
 			for (int a = connecthead; a >= 0; a = connectpoint2[a])
 			{
 				PLAYER* pPlayer = &gPlayer[a];
-				if (!pPlayer || !xsprIsFine(pPlayer->actor) || pPlayer->actor->xspr.health <= 0)
+				if (!pPlayer || !xsprIsFine(pPlayer->GetActor()) || pPlayer->GetActor()->xspr.health <= 0)
 					continue;
 
-				auto plActor = pPlayer->actor;
+				auto plActor = pPlayer->GetActor();
 				GetActorExtents(plActor, &ztop2, &zbot2);
 				if (cansee(pSight->spr.pos, pSightSect, DVector3(plActor->spr.pos.XY(), ztop2), plActor->sector()))
 				{
@@ -1232,7 +1232,7 @@ void nnExtProcessSuperSprites()
 						if (!vector)
 							pSight->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-						HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim, CLIPMASK0 | CLIPMASK1, 0);
+						HitScan(pPlayer->GetActor(), pPlayer->zWeapon, pPlayer->aim, CLIPMASK0 | CLIPMASK1, 0);
 
 						if (!vector)
 							pSight->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -1304,15 +1304,15 @@ void nnExtProcessSuperSprites()
 				for (int a = connecthead; a != -1; a = connectpoint2[a])
 				{
 					pPlayer = &gPlayer[a];
-					DBloodActor* pact = pPlayer->actor;
+					DBloodActor* pact = pPlayer->GetActor();
 
 					if (pact && pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor)
 					{
 						double nSpeed = pact->vel.XY().Length();
 						nSpeed = max<double>(nSpeed - nSpeed * FixedToFloat<6>(mass), FixedToFloat(0x9000 - (mass << 3))); // very messy math (TM)...
 
-						debrisactor->vel += pPlayer->actor->spr.Angles.Yaw.ToVector() * nSpeed;
-						debrisactor->hit.hit.setSprite(pPlayer->actor);
+						debrisactor->vel += pPlayer->GetActor()->spr.Angles.Yaw.ToVector() * nSpeed;
+						debrisactor->hit.hit.setSprite(pPlayer->GetActor());
 					}
 				}
 			}
@@ -1998,7 +1998,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 		pPlayer->sceneQav = -1;
 
 		// restore weapon
-		if (pPlayer->actor->xspr.health > 0)
+		if (pPlayer->GetActor()->xspr.health > 0)
 		{
 			int oldWeapon = (initiator->hasX() && initiator->xspr.dropMsg != 0) ? initiator->xspr.dropMsg : 1;
 			pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
@@ -2017,7 +2017,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondition)
 {
 	// save player's sprite index to let the tracking condition know it after savegame loading...
-	auto actor = pPlayer->actor;
+	auto actor = pPlayer->GetActor();
 	sourceactor->prevmarker = actor;
 
 	actor->xspr.txID = sourceactor->xspr.txID;
@@ -2060,8 +2060,8 @@ void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondi
 			for (unsigned k = 0; k < pCond->objects.Size(); k++)
 			{
 				if (!pCond->objects[k].obj.isActor() || pCond->objects[k].obj.actor() != sourceactor) continue;
-				pCond->objects[k].obj = EventObject(pPlayer->actor);
-				pCond->objects[k].cmd = (uint8_t)pPlayer->actor->xspr.command;
+				pCond->objects[k].obj = EventObject(pPlayer->GetActor());
+				pCond->objects[k].cmd = (uint8_t)pPlayer->GetActor()->xspr.command;
 				break;
 			}
 		}
@@ -2189,7 +2189,7 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
 		setForcedSyncInput(pPlayer->nPlayer);
-		pPlayer->actor->spr.Angles.Pitch = maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.)));
+		pPlayer->GetActor()->spr.Angles.Pitch = maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.)));
 	}
 }
 
@@ -2908,7 +2908,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 						pPlayer->nWaterPal = waterPal;
 						pPlayer->posture = kPostureSwim;
-						pPlayer->actor->xspr.burnTime = 0;
+						pPlayer->GetActor()->xspr.burnTime = 0;
 					}
 
 				}
@@ -3197,7 +3197,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
 				pPlayer->nWaterPal = waterPal;
 				pPlayer->posture = kPostureSwim;
-				pPlayer->actor->xspr.burnTime = 0;
+				pPlayer->GetActor()->xspr.burnTime = 0;
 			}
 		}
 		else
@@ -4318,7 +4318,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 	auto objActor = eob.actor();
 	for (int i = 0; i < kMaxPlayers; i++)
 	{
-		if (objActor != gPlayer[i].actor) continue;
+		if (objActor != gPlayer[i].GetActor()) continue;
 		pPlayer = &gPlayer[i];
 		break;
 	}
@@ -4331,8 +4331,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 	switch (cond) {
 	case 0: // check if this player is connected
-		if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->actor == nullptr) return false;
-		else if (PUSH) condPush(aCond, pPlayer->actor);
+		if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->GetActor() == nullptr) return false;
+		else if (PUSH) condPush(aCond, pPlayer->GetActor());
 		return (pPlayer->nPlayer >= 0);
 	case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
 	case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
@@ -4374,8 +4374,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 	case 14: return condCmp(pPlayer->posture + 1, arg1, arg2, cmpOp);
 	case 46: return condCmp(pPlayer->sceneQav, arg1, arg2, cmpOp);
 	case 47: return (pPlayer->godMode || powerupCheck(pPlayer, kPwUpDeathMask));
-	case 48: return isShrinked(pPlayer->actor);
-	case 49: return isGrown(pPlayer->actor);
+	case 48: return isShrinked(pPlayer->GetActor());
+	case 49: return isGrown(pPlayer->GetActor());
 	}
 
 	condError(aCond, "Unexpected condition #%d!", cond);
@@ -5729,7 +5729,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			{
 				PLAYER* pPlayer = getPlayerById(actor->xspr.data1);
 				if (pPlayer != NULL)
-					useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->actor);
+					useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->GetActor());
 			}
 
 			if (actor->xspr.busyTime > 0)
@@ -5748,7 +5748,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		{
 			PLAYER* pPlayer = getPlayerById(actor->xspr.data1);
 			if (pPlayer != NULL && SetSpriteState(actor, actor->xspr.state ^ 1, initiator) == 1)
-				useTeleportTarget(actor, pPlayer->actor);
+				useTeleportTarget(actor, pPlayer->GetActor());
 			return true;
 		}
 		[[fallthrough]];
@@ -5999,12 +5999,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
 		/// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
 		if ((cmd -= kCmdNumberic) < 0) return true;
-		else if (pPlayer->actor->xspr.health <= 0)
+		else if (pPlayer->GetActor()->xspr.health <= 0)
 		{
 
 			switch (cmd) {
 			case 36:
-				actHealDude(pPlayer->actor, ((actor->xspr.data2 > 0) ? ClipHigh(actor->xspr.data2, 200) : getDudeInfo(pPlayer->actor->spr.type)->startHealth), 200);
+				actHealDude(pPlayer->GetActor(), ((actor->xspr.data2 > 0) ? ClipHigh(actor->xspr.data2, 200) : getDudeInfo(pPlayer->GetActor()->spr.type)->startHealth), 200);
 				pPlayer->curWeapon = kWeapPitchFork;
 				break;
 			}
@@ -6061,12 +6061,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
 				setForcedSyncInput(pPlayer->nPlayer);
-				pPlayer->actor->spr.Angles.Yaw = actor->spr.Angles.Yaw;
+				pPlayer->GetActor()->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
 				setForcedSyncInput(pPlayer->nPlayer);
-				pPlayer->actor->spr.Angles.Yaw = mapangle(actor->xspr.data2);
+				pPlayer->GetActor()->spr.Angles.Yaw = mapangle(actor->xspr.data2);
 			}
 			break;
 		case 10: // 74 (de)activate powerup
@@ -7276,7 +7276,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
 						}
 
 					}
-					nnExtTriggerObject(rxBucket[i], initiator->xspr.command, pPlayer->actor);
+					nnExtTriggerObject(rxBucket[i], initiator->xspr.command, pPlayer->GetActor());
 
 				}
 			}
@@ -7373,14 +7373,14 @@ void playerQavSceneReset(PLAYER* pPlayer)
 
 bool playerSizeShrink(PLAYER* pPlayer, int divider)
 {
-	pPlayer->actor->xspr.scale = 256 / divider;
+	pPlayer->GetActor()->xspr.scale = 256 / divider;
 	playerSetRace(pPlayer, kModeHumanShrink);
 	return true;
 }
 
 bool playerSizeGrow(PLAYER* pPlayer, int multiplier)
 {
-	pPlayer->actor->xspr.scale = 256 * multiplier;
+	pPlayer->GetActor()->xspr.scale = 256 * multiplier;
 	playerSetRace(pPlayer, kModeHumanGrown);
 	return true;
 }
@@ -7388,7 +7388,7 @@ bool playerSizeGrow(PLAYER* pPlayer, int multiplier)
 bool playerSizeReset(PLAYER* pPlayer)
 {
 	playerSetRace(pPlayer, kModeHuman);
-	pPlayer->actor->xspr.scale = 0;
+	pPlayer->GetActor()->xspr.scale = 0;
 	return true;
 }
 
@@ -7425,7 +7425,7 @@ PLAYER* getPlayerById(int id)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (id == gPlayer[i].actor->spr.type)
+			if (id == gPlayer[i].GetActor()->spr.type)
 				return &gPlayer[i];
 		}
 	}
@@ -8401,9 +8401,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	for (i = connecthead; i != -1; i = connectpoint2[i])
 	{
 		pPlayer = &gPlayer[i];
-		if (!xsprIsFine(pPlayer->actor)) continue;
+		if (!xsprIsFine(pPlayer->GetActor())) continue;
 
-		auto plActor = pPlayer->actor;
+		auto plActor = pPlayer->GetActor();
 		if (plActor->xspr.health <= 0)
 			continue;
 
@@ -8423,7 +8423,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		{
 			double scratch;
 			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-			if (nDistf < seeDistf / 8) GetActorExtents(pPlayer->actor, &pos.Z, &scratch); //use ztop of the target sprite
+			if (nDistf < seeDistf / 8) GetActorExtents(pPlayer->GetActor(), &pos.Z, &scratch); //use ztop of the target sprite
 			if (!cansee(pos, plActor->sector(), actor->spr.pos - eyeAboveZ, actor->sector()))
 				continue;
 		}
@@ -8431,11 +8431,11 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			continue;
 
 		bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
-		if (spritesTouching(actor, pPlayer->actor) || spritesTouching(pPlayer->actor, actor))
+		if (spritesTouching(actor, pPlayer->GetActor()) || spritesTouching(pPlayer->GetActor(), actor))
 		{
 			DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->nPlayer + 1);
 			if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-			newtarget = pPlayer->actor;
+			newtarget = pPlayer->GetActor();
 			break;
 		}
 
@@ -8453,7 +8453,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 						sndv = emitterActor->spr.pos.XY();
 
 						// sound attached to the sprite
-						if (pPlayer->actor != emitterActor && emitterActor->GetOwner() != actor)
+						if (pPlayer->GetActor() != emitterActor && emitterActor->GetOwner() != actor)
 						{
 
 							if (!emitterActor->insector()) return false;
@@ -8488,7 +8488,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 					BloodSectIterator it(searchsect);
 					while (auto act = it.Next())
 					{
-						if (act->GetOwner() == pPlayer->actor)
+						if (act->GetOwner() == pPlayer->GetActor())
 						{
 							found = true;
 							break;
@@ -8552,7 +8552,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 			if (hearDistf)
 			{
-				DBloodActor* act = pPlayer->actor;
+				DBloodActor* act = pPlayer->GetActor();
 				itCanHear = (!deaf && (nDistf < hearDistf || hearChance > 0));
 				if (act && itCanHear && nDistf < feelDistf && (!act->vel.isZero()))
 					hearChance += (int)max(((feelDistf - nDistf) + act->vel.Sum() * 64, 0.) / 256, 0.);
@@ -8648,7 +8648,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 					// trigger this region if target gonna be spot
 					if (steal->xspr.txID && actor->xspr.data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
-						trTriggerSprite(steal, kCmdToggle, pPlayer->actor);
+						trTriggerSprite(steal, kCmdToggle, pPlayer->GetActor());
 
 					// continue search another stealth regions to affect chances
 				}
@@ -8660,7 +8660,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 				actor->xspr.data3 = ClipRange(actor->xspr.data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
 				if (!stealth)
 				{
-					newtarget = pPlayer->actor;
+					newtarget = pPlayer->GetActor();
 					break;
 				}
 			}
@@ -8672,7 +8672,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 				actor->xspr.data3 = ClipRange(actor->xspr.data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
 				if (!stealth)
 				{
-					newtarget = pPlayer->actor;
+					newtarget = pPlayer->GetActor();
 					break;
 				}
 			}
@@ -8682,7 +8682,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 		if ((actor->xspr.data3 = ClipRange(actor->xspr.data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue)
 		{
-			newtarget = pPlayer->actor;
+			newtarget = pPlayer->GetActor();
 			break;
 		}
 
@@ -9288,7 +9288,7 @@ void changeSpriteAngle(DBloodActor* pSpr, DAngle nAng)
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
 		if (pPlayer)
-			pPlayer->actor->spr.Angles.Yaw = nAng;
+			pPlayer->GetActor()->spr.Angles.Yaw = nAng;
 		else
 		{
 			pSpr->spr.Angles.Yaw = nAng;
@@ -9325,8 +9325,8 @@ void killEffectGenCallbacks(DBloodActor* actor)
 	case kChannelAllPlayers: // player sprites
 		for (i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (gPlayer[i].actor != nullptr)
-				dokillEffectGenCallbacks(gPlayer[i].actor);
+			if (gPlayer[i].GetActor() != nullptr)
+				dokillEffectGenCallbacks(gPlayer[i].GetActor());
 		}
 		break;
 	case kChannelEventCauser: // worst case...
@@ -9350,8 +9350,8 @@ void killEffectGenCallbacks(DBloodActor* actor)
 		{
 			// player sprites
 			PLAYER* pPlayer = getPlayerById(actor->xspr.txID - kChannelPlayer0);
-			if (pPlayer && pPlayer->actor != nullptr)
-				dokillEffectGenCallbacks(pPlayer->actor);
+			if (pPlayer && pPlayer->GetActor() != nullptr)
+				dokillEffectGenCallbacks(pPlayer->GetActor());
 		}
 		break;
 

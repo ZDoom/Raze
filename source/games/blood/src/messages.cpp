@@ -297,7 +297,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
 		return nullptr;
 
-	if (gamestate != GS_LEVEL || pPlayer->actor->xspr.health == 0) // must be alive and in a level to cheat.
+	if (gamestate != GS_LEVEL || pPlayer->GetActor()->xspr.health == 0) // must be alive and in a level to cheat.
 		return nullptr;
 
 	bPlayerCheated = true;
@@ -322,27 +322,27 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		SetToys(pPlayer, true);
 		break;
 	case kCheatKevorkian:
-		actDamageSprite(pPlayer->actor, pPlayer->actor, kDamageBullet, 8000);
+		actDamageSprite(pPlayer->GetActor(), pPlayer->GetActor(), kDamageBullet, 8000);
 		return GStrings("TXTB_KEVORKIAN");
 
 	case kCheatMcGee:
 	{
-		if (!pPlayer->actor->xspr.burnTime)
-			evPostActor(pPlayer->actor, 0, kCallbackFXFlameLick);
-		actBurnSprite(pPlayer->actor, pPlayer->actor, 2400);
+		if (!pPlayer->GetActor()->xspr.burnTime)
+			evPostActor(pPlayer->GetActor(), 0, kCallbackFXFlameLick);
+		actBurnSprite(pPlayer->GetActor(), pPlayer->GetActor(), 2400);
 		return GStrings("TXTB_FIRED");
 	}
 	case kCheatEdmark:
-		actDamageSprite(pPlayer->actor, pPlayer->actor, kDamageExplode, 8000);
+		actDamageSprite(pPlayer->GetActor(), pPlayer->GetActor(), kDamageExplode, 8000);
 		return GStrings("TXTB_THEDAYS");
 
 	case kCheatKrueger:
 	{
-		actHealDude(pPlayer->actor, 200, 200);
+		actHealDude(pPlayer->GetActor(), 200, 200);
 		pPlayer->armor[1] = VanillaMode() ? 200 : 3200;
-		if (!pPlayer->actor->xspr.burnTime)
-			evPostActor(pPlayer->actor, 0, kCallbackFXFlameLick);
-		actBurnSprite(pPlayer->actor, pPlayer->actor, 2400);
+		if (!pPlayer->GetActor()->xspr.burnTime)
+			evPostActor(pPlayer->GetActor(), 0, kCallbackFXFlameLick);
+		actBurnSprite(pPlayer->GetActor(), pPlayer->GetActor(), 2400);
 		return GStrings("TXTB_RETARD");
 	}
 	case kCheatSterno:
@@ -352,7 +352,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		pPlayer->flickerEffect = 360;
 		break;
 	case kCheatSpork:
-		actHealDude(pPlayer->actor, 200, 200);
+		actHealDude(pPlayer->GetActor(), 200, 200);
 		break;
 	case kCheatClarice:
 		for (int i = 0; i < 3; i++)
@@ -401,7 +401,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		SetWooMode(pPlayer, true);
 		break;
 	case kCheatCousteau:
-		actHealDude(pPlayer->actor, 200, 200);
+		actHealDude(pPlayer->GetActor(), 200, 200);
 		pPlayer->packSlots[1].curAmount = 100;
 		if (!VanillaMode())
 			pPlayer->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
@@ -416,7 +416,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		SetKeys(pPlayer, false);
 		SetWooMode(pPlayer, true);
 		powerupActivate(pPlayer, kPwUpDeliriumShroom);
-		pPlayer->actor->xspr.health = 16;
+		pPlayer->GetActor()->xspr.health = 16;
 		pPlayer->hasWeapon[kWeapPitchFork] = 1;
 		pPlayer->curWeapon = kWeapNone;
 		pPlayer->nextWeapon = kWeapPitchFork;
@@ -534,7 +534,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (numplayers != 1 || gamestate != GS_LEVEL || pPlayer->actor->xspr.health == 0)
+	if (numplayers != 1 || gamestate != GS_LEVEL || pPlayer->GetActor()->xspr.health == 0)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -552,7 +552,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		actHealDude(pPlayer->actor, 200, 200);
+		actHealDude(pPlayer->GetActor(), 200, 200);
 		bPlayerCheated = true;
 		break;
 

@@ -238,7 +238,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 		if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
 		{
 			PLAYER* pPlayer = &gPlayer[nPlayer];
-			if (pPlayer->actor->xspr.health > 0)
+			if (pPlayer->GetActor()->xspr.health > 0)
 			{
 				evKillActor(actor);
 				pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8] + actor->xspr.data3, gAmmoInfo[8].max);
@@ -511,7 +511,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		SetSpriteState(actor, 1, initiator);
 		for (int p = connecthead; p >= 0; p = connectpoint2[p]) 
 		{
-			auto vec = actor->spr.pos - gPlayer[p].actor->spr.pos;
+			auto vec = actor->spr.pos - gPlayer[p].GetActor()->spr.pos;
 			int nDist = int(vec.LengthSquared()) + 0x40000;
 			gPlayer[p].quakeEffect = DivScale(actor->xspr.data1, nDist, 16);
 		}
@@ -600,7 +600,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		{
 			PLAYER* pPlayer = &gPlayer[myconnectindex];
 
-			if (pPlayer->actor->xspr.health <= 0)
+			if (pPlayer->GetActor()->xspr.health <= 0)
 				break;
 			pPlayer->restTime = 0;
 		}
@@ -960,7 +960,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot + pt_w2 - pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].GetActor()->spr.Angles.Yaw += angleofs;
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
@@ -968,7 +968,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot - pt_w2 + pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].GetActor()->spr.Angles.Yaw += angleofs;
 				}
 			}
 		}
@@ -1620,7 +1620,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					playerResetInertia(pPlayer);
 					pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
-					pPlayer->actor->PrevAngles.Yaw = pPlayer->actor->spr.Angles.Yaw = actor->spr.Angles.Yaw;
+					pPlayer->GetActor()->PrevAngles.Yaw = pPlayer->GetActor()->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 				}
 			}
 		}

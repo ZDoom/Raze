@@ -3676,7 +3676,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 		case kThingZombieHead:
 			if (damageType == 3 && pSourcePlayer && PlayClock > pSourcePlayer->laughCount && Chance(0x4000))
 			{
-				sfxPlay3DSound(pSourcePlayer->actor, gPlayerGibThingComments[Random(10)], 0, 2);
+				sfxPlay3DSound(pSourcePlayer->GetActor(), gPlayerGibThingComments[Random(10)], 0, 2);
 				pSourcePlayer->laughCount = PlayClock + 3600;
 			}
 			break;
@@ -5803,7 +5803,7 @@ static void actCheckExplosion()
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			auto dv = apos - gPlayer[p].actor->spr.pos;
+			auto dv = apos - gPlayer[p].GetActor()->spr.pos;
 			int nDist = int(dv.LengthSquared() + 0x40000);
 
 			int t = DivScale(actor->xspr.data2, nDist, 16);
@@ -6005,7 +6005,7 @@ static void actCheckDudes()
 				}
 				else if (gGameOptions.nGameType == 0)
 				{
-					if (pPlayer->actor->xspr.health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
+					if (pPlayer->GetActor()->xspr.health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
 					{
 						pPlayer->restTime = -1;
 						sfxPlay3DSound(actor, 3100 + Random(11), 0, 2);

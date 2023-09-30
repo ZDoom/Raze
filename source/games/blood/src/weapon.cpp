@@ -216,7 +216,7 @@ static bool CheckWeaponAmmo(PLAYER* pPlayer, int weapon, int ammotype, int count
 		return 1;
 	if (weapon == kWeapRemote && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
 		return 1;
-	if (weapon == kWeapLifeLeech && pPlayer->actor->xspr.health > 0)
+	if (weapon == kWeapLifeLeech && pPlayer->GetActor()->xspr.health > 0)
 		return 1;
 	return pPlayer->ammoCount[ammotype] >= count;
 }
@@ -235,7 +235,7 @@ static bool CheckAmmo(PLAYER* pPlayer, int ammotype, int count)
 		return 1;
 	if (pPlayer->curWeapon == kWeapRemote && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
 		return 1;
-	if (pPlayer->curWeapon == kWeapLifeLeech && pPlayer->actor->xspr.health >= unsigned(count << 4))
+	if (pPlayer->curWeapon == kWeapLifeLeech && pPlayer->GetActor()->xspr.health >= unsigned(count << 4))
 		return 1;
 	return pPlayer->ammoCount[ammotype] >= count;
 }
@@ -264,18 +264,18 @@ static bool checkAmmo2(const PLAYER* pPlayer, int ammotype, int amount)
 void SpawnBulletEject(PLAYER* pPlayer, double dist, int rdist)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
+	pPlayer->zView = pPlayer->GetActor()->spr.pos.Z - pPosture->eyeAboveZ;
 	double dz = pPlayer->zWeapon - (pPlayer->zWeapon - pPlayer->zView) * 0.5;
-	fxSpawnEjectingBrass(pPlayer->actor, dz, dist, rdist);
+	fxSpawnEjectingBrass(pPlayer->GetActor(), dz, dist, rdist);
 }
 
 void SpawnShellEject(PLAYER* pPlayer, double dist, int rdist)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
+	pPlayer->zView = pPlayer->GetActor()->spr.pos.Z - pPosture->eyeAboveZ;
 	double t = pPlayer->zWeapon - pPlayer->zView;
 	double dz = pPlayer->zWeapon - t + (t * 0.25);
-	fxSpawnEjectingShell(pPlayer->actor, dz, dist, rdist);
+	fxSpawnEjectingShell(pPlayer->GetActor(), dz, dist, rdist);
 }
 
 //---------------------------------------------------------------------------
@@ -439,7 +439,7 @@ WEAPONTRACK gWeaponTrack[] = {
 void UpdateAimVector(PLAYER* pPlayer)
 {
 	assert(pPlayer != NULL);
-	auto plActor = pPlayer->actor;
+	auto plActor = pPlayer->GetActor();
 	DVector3 pos(plActor->spr.pos.XY(), pPlayer->zWeapon);
 	DVector3 Aim(plActor->spr.Angles.Yaw.ToVector(), pPlayer->slope);
 
@@ -759,7 +759,7 @@ void WeaponLower(PLAYER* pPlayer)
 		StartQAV(pPlayer, kQAVFORKDOWN);
 		break;
 	case kWeapSpraycan:
-		sfxKill3DSound(pPlayer->actor, -1, 441);
+		sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 		switch (prevState)
 		{
 		case 1:
@@ -985,7 +985,7 @@ void WeaponUpdateState(PLAYER* pPlayer)
 				pPlayer->weaponState = 1;
 				StartQAV(pPlayer, kQAVCANDOWN);
 			}
-			sfxKill3DSound(pPlayer->actor, -1, 441);
+			sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 			break;
 		}
 		break;
@@ -1064,7 +1064,7 @@ void WeaponUpdateState(PLAYER* pPlayer)
 		case 1:
 			if (CheckAmmo(pPlayer, 2, 1))
 			{
-				sfxPlay3DSound(pPlayer->actor, 410, 3, 2);
+				sfxPlay3DSound(pPlayer->GetActor(), 410, 3, 2);
 				StartQAV(pPlayer, kQAVSHOTL1, nClientEjectShell);
 				if (gInfiniteAmmo || pPlayer->ammoCount[2] > 1)
 					pPlayer->weaponState = 3;
@@ -1109,7 +1109,7 @@ void WeaponUpdateState(PLAYER* pPlayer)
 			SetQAV(pPlayer, kQAVFLARIDLE);
 		break;
 	case kWeapVoodooDoll:
-		if (pPlayer->actor->xspr.height < 256 && pPlayer->swayHeight != 0)
+		if (pPlayer->GetActor()->xspr.height < 256 && pPlayer->swayHeight != 0)
 			StartQAV(pPlayer, kQAVVDIDLE2);
 		else
 			SetQAV(pPlayer, kQAVVDIDLE1);
@@ -1164,12 +1164,12 @@ void WeaponUpdateState(PLAYER* pPlayer)
 
 void FirePitchfork(int, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	double r1 = Random2F(2000, 14);
 	double r2 = Random2F(2000, 14);
 	double r3 = Random2F(2000, 14);
 	for (int i = 0; i < 4; i++)
-		actFireVector(actor, (2 * i - 3) * 2.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), kVectorTine);
+		actFireVector(actor, (2 * i - 3) * 2.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), kVectorTine);
 }
 
 //---------------------------------------------------------------------------
@@ -1183,9 +1183,9 @@ void FireSpray(int, PLAYER* pPlayer)
 	playerFireMissile(pPlayer, 0, pPlayer->aim, kMissileFlameSpray);
 	UseAmmo(pPlayer, 6, 4);
 	if (CheckAmmo(pPlayer, 6, 1))
-		sfxPlay3DSound(pPlayer->actor, 441, 1, 2);
+		sfxPlay3DSound(pPlayer->GetActor(), 441, 1, 2);
 	else
-		sfxKill3DSound(pPlayer->actor, -1, 441);
+		sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 }
 
 //---------------------------------------------------------------------------
@@ -1196,15 +1196,15 @@ void FireSpray(int, PLAYER* pPlayer)
 
 void ThrowCan(int, PLAYER* pPlayer)
 {
-	sfxKill3DSound(pPlayer->actor, -1, 441);
+	sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 	double nSpeed = getThrowPower(pPlayer);
-	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedSpray, nSpeed);
 	if (spawned)
 	{
 		sfxPlay3DSound(spawned, 441, 0, 0);
 		spawned->spr.shade = -128;
-		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->GetActor());
 		spawned->xspr.Impact = 1;
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 		pPlayer->throwPower = 0;
@@ -1219,11 +1219,11 @@ void ThrowCan(int, PLAYER* pPlayer)
 
 void DropCan(int, PLAYER* pPlayer)
 {
-	sfxKill3DSound(pPlayer->actor, -1, 441);
+	sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 	}
 }
@@ -1236,11 +1236,11 @@ void DropCan(int, PLAYER* pPlayer)
 
 void ExplodeCan(int, PLAYER* pPlayer)
 {
-	sfxKill3DSound(pPlayer->actor, -1, 441);
+	sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, 0, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, 0, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
 		StartQAV(pPlayer, kQAVCANBOOM);
 		pPlayer->curWeapon = kWeapNone;
@@ -1256,16 +1256,16 @@ void ExplodeCan(int, PLAYER* pPlayer)
 
 void ThrowBundle(int, PLAYER* pPlayer)
 {
-	sfxKill3DSound(pPlayer->actor, 16, -1);
+	sfxKill3DSound(pPlayer->GetActor(), 16, -1);
 	double nSpeed = getThrowPower(pPlayer);
-	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedTNTBundle, nSpeed);
 	if (spawned)
 	{
 		if (pPlayer->fuseTime < 0)
 			spawned->xspr.Impact = 1;
 		else
-			evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
+			evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 5, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1279,11 +1279,11 @@ void ThrowBundle(int, PLAYER* pPlayer)
 
 void DropBundle(int, PLAYER* pPlayer)
 {
-	sfxKill3DSound(pPlayer->actor, 16, -1);
+	sfxKill3DSound(pPlayer->GetActor(), 16, -1);
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 5, 1);
 	}
 }
@@ -1296,11 +1296,11 @@ void DropBundle(int, PLAYER* pPlayer)
 
 void ExplodeBundle(int, PLAYER* pPlayer)
 {
-	sfxKill3DSound(pPlayer->actor, 16, -1);
+	sfxKill3DSound(pPlayer->GetActor(), 16, -1);
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, 0, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, 0, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 5, 1);
 		StartQAV(pPlayer, kQAVDYNEXPLO);
 		pPlayer->curWeapon = kWeapNone;
@@ -1317,11 +1317,11 @@ void ExplodeBundle(int, PLAYER* pPlayer)
 void ThrowProx(int, PLAYER* pPlayer)
 {
 	double nSpeed = getThrowPower(pPlayer);
-	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedProxBomb, nSpeed);
 	if (spawned)
 	{
-		evPostActor(spawned, 240, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, 240, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 10, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1338,7 +1338,7 @@ void DropProx(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedProxBomb, 0);
 	if (spawned)
 	{
-		evPostActor(spawned, 240, kCmdOn, pPlayer->actor);
+		evPostActor(spawned, 240, kCmdOn, pPlayer->GetActor());
 		UseAmmo(pPlayer, 10, 1);
 	}
 }
@@ -1352,11 +1352,11 @@ void DropProx(int, PLAYER* pPlayer)
 void ThrowRemote(int, PLAYER* pPlayer)
 {
 	double nSpeed = getThrowPower(pPlayer);
-	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedRemoteBomb, nSpeed);
 	if (spawned)
 	{
-		spawned->xspr.rxID = 90 + (pPlayer->actor->spr.type - kDudePlayer1);
+		spawned->xspr.rxID = 90 + (pPlayer->GetActor()->spr.type - kDudePlayer1);
 		UseAmmo(pPlayer, 11, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1373,14 +1373,14 @@ void DropRemote(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedRemoteBomb, 0);
 	if (spawned)
 	{
-		spawned->xspr.rxID = 90 + (pPlayer->actor->spr.type - kDudePlayer1);
+		spawned->xspr.rxID = 90 + (pPlayer->GetActor()->spr.type - kDudePlayer1);
 		UseAmmo(pPlayer, 11, 1);
 	}
 }
 
 void FireRemote(int, PLAYER* pPlayer)
 {
-	evSendGame(90 + (pPlayer->actor->spr.type - kDudePlayer1), kCmdOn);
+	evSendGame(90 + (pPlayer->GetActor()->spr.type - kDudePlayer1), kCmdOn);
 }
 
 //---------------------------------------------------------------------------
@@ -1393,17 +1393,17 @@ enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
 	if (nTrigger == 1)
 	{
-		sfxPlay3DSound(pPlayer->actor, 411, 2, 0);
+		sfxPlay3DSound(pPlayer->GetActor(), 411, 2, 0);
 		pPlayer->tiltEffect = 30;
 		pPlayer->visibility = 20;
 	}
 	else
 	{
-		sfxPlay3DSound(pPlayer->actor, 412, 2, 0);
+		sfxPlay3DSound(pPlayer->GetActor(), 412, 2, 0);
 		pPlayer->tiltEffect = 50;
 		pPlayer->visibility = 40;
 	}
@@ -1426,7 +1426,7 @@ void FireShotgun(int nTrigger, PLAYER* pPlayer)
 			r3 = Random3F(1500, 14);
 			nType = kVectorShellAP;
 		}
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), nType);
+		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), nType);
 	}
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, nTrigger);
 	pPlayer->flashEffect = 1;
@@ -1446,8 +1446,8 @@ void EjectShell(int, PLAYER* pPlayer)
 
 void FireTommy(int nTrigger, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
-	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
+	DBloodActor* actor = pPlayer->GetActor();
+	sfxPlay3DSound(pPlayer->GetActor(), 431, -1, 0);
 	switch (nTrigger)
 	{
 	case 1:
@@ -1455,7 +1455,7 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		double r1 = Random3F(400, 14);
 		double r2 = Random3F(1200, 14);
 		double r3 = Random3F(1200, 14);
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
+		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, -15 / 16., -45);
 		pPlayer->visibility = 20;
 		break;
@@ -1465,12 +1465,12 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		double r1 = Random3F(400, 14);
 		double r2 = Random3F(1200, 14);
 		double r3 = Random3F(1200, 14);
-		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
+		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, -140 / 16., -45);
 		r1 = Random3(400);
 		r2 = Random3(1200);
 		r3 = Random3(1200);
-		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
+		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->aim + DVector3(r3, r2, r1), kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, 140 / 16., 45);
 		pPlayer->visibility = 30;
 		break;
@@ -1492,18 +1492,18 @@ static constexpr DAngle DAngle20 = DAngle::fromDeg(20);
 
 void FireSpread(int nTrigger, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
 	DVector3 aim = pPlayer->aim;
 	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
-	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 431, -1, 0);
 	double r1, r2, r3;
 	r1 = Random3F(300, 14);
 	r2 = Random3F(600, 14);
 	r3 = Random3F(600, 14);
-	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
+	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 	int ri = Random2(90);
 	r2 = Random2F(30, 4);
 	SpawnBulletEject(pPlayer, r2, ri);
@@ -1520,25 +1520,25 @@ void FireSpread(int nTrigger, PLAYER* pPlayer)
 
 void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
 	DVector3 aim = pPlayer->aim;
 	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
-	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 431, -1, 0);
 	double r1, r2, r3;
 	r1 = Random3F(300, 14);
 	r2 = Random3F(600, 14);
 	r3 = Random3F(600, 14);
-	actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
+	actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 	int ri = Random2(45);
 	r2 = Random2F(120, 4);
 	SpawnBulletEject(pPlayer, r2, ri);
 	r1 = Random3F(300, 14);
 	r2 = Random3F(600, 14);
 	r3 = Random3F(600, 14);
-	actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
+	actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 	ri = Random2(-45);
 	r2 = Random2F(-120, 4);
 	SpawnBulletEject(pPlayer, r2, ri);
@@ -1556,27 +1556,27 @@ void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 
 void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
 	DVector3 aim = pPlayer->aim;
 	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
-	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 431, -1, 0);
 	if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
 	{
 		double r1, r2, r3;
 		r1 = Random3F(300, 14);
 		r2 = Random3F(600, 14);
 		r3 = Random3F(600, 14);
-		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
+		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 		int ri = Random2(45);
 		r2 = Random2F(120, 4);
 		SpawnBulletEject(pPlayer, r2, ri);
 		r1 = Random3F(300, 14);
 		r2 = Random3F(600, 14);
 		r3 = Random3F(600, 14);
-		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
+		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 		ri = Random2(-45);
 		r2 = Random2F(-120, 4);
 		SpawnBulletEject(pPlayer, r2, ri);
@@ -1590,7 +1590,7 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 		r1 = Random3F(300, 14);
 		r2 = Random3F(600, 14);
 		r3 = Random3F(600, 14);
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
+		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 		int ri = Random2(90);
 		r2 = Random2F(30, 4);
 		SpawnBulletEject(pPlayer, r2, ri);
@@ -1614,7 +1614,7 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 
 void FireFlare(int nTrigger, PLAYER* pPlayer)
 {
-	auto plActor = pPlayer->actor;
+	auto plActor = pPlayer->GetActor();
 	double offset = 0;
 	switch (nTrigger)
 	{
@@ -1627,7 +1627,7 @@ void FireFlare(int nTrigger, PLAYER* pPlayer)
 	}
 	playerFireMissile(pPlayer, offset, pPlayer->aim, kMissileFlareRegular);
 	UseAmmo(pPlayer, 1, 1);
-	sfxPlay3DSound(pPlayer->actor, 420, 2, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 420, 2, 0);
 	pPlayer->visibility = 30;
 	pPlayer->flashEffect = 1;
 }
@@ -1640,7 +1640,7 @@ void FireFlare(int nTrigger, PLAYER* pPlayer)
 
 void AltFireFlare(int nTrigger, PLAYER* pPlayer)
 {
-	auto plActor = pPlayer->actor;
+	auto plActor = pPlayer->GetActor();
 	double offset = 0;
 	switch (nTrigger)
 	{
@@ -1653,7 +1653,7 @@ void AltFireFlare(int nTrigger, PLAYER* pPlayer)
 	}
 	playerFireMissile(pPlayer, offset, pPlayer->aim, kMissileFlareAlt);
 	UseAmmo(pPlayer, 1, 8);
-	sfxPlay3DSound(pPlayer->actor, 420, 2, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 420, 2, 0);
 	pPlayer->visibility = 45;
 	pPlayer->flashEffect = 1;
 }
@@ -1667,8 +1667,8 @@ void AltFireFlare(int nTrigger, PLAYER* pPlayer)
 void FireVoodoo(int nTrigger, PLAYER* pPlayer)
 {
 	nTrigger--;
-	DBloodActor* actor = pPlayer->actor;
-	auto plActor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
+	auto plActor = pPlayer->GetActor();
 	if (nTrigger == 4)
 	{
 		actDamageSprite(actor, actor, kDamageBullet, 1 << 4);
@@ -1730,7 +1730,7 @@ void FireVoodoo(int nTrigger, PLAYER* pPlayer)
 
 void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	if (nTrigger == 2) {
 
 		// by NoOne: trying to simulate v1.0x voodoo here.
@@ -1745,7 +1745,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					if (!targetactor) continue;
 					if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, targetactor))
 						continue;
-					double nDist = (targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY()).Length();
+					double nDist = (targetactor->spr.pos.XY() - pPlayer->GetActor()->spr.pos.XY()).Length();
 					if (nDist > 0 && nDist < 3200)
 					{
 						int vc = pPlayer->ammoCount[9] >> 3;
@@ -1783,7 +1783,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					continue;
 				if (v4 > 0)
 					v4--;
-				double nDist = (targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY()).Length();
+				double nDist = (targetactor->spr.pos.XY() - pPlayer->GetActor()->spr.pos.XY()).Length();
 				if (nDist > 0 && nDist < 3200)
 				{
 					int vc = pPlayer->ammoCount[9] >> 3;
@@ -1816,7 +1816,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 
 void DropVoodoo(int, PLAYER* pPlayer)
 {
-	sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 455, 2, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -4730 / 65536., kThingVoodooHead, 12.8);
 	if (spawned)
 	{
@@ -1864,7 +1864,7 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 	if (nTrigger > 0 && nTrigger <= 6)
 	{
 		nTrigger--;
-		auto plActor = pPlayer->actor;
+		auto plActor = pPlayer->GetActor();
 		TeslaMissile* pMissile = &teslaMissile[nTrigger];
 		if (!checkAmmo2(pPlayer, 7, pMissile->ammouse))
 		{
@@ -1879,7 +1879,7 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 		}
 		playerFireMissile(pPlayer, pMissile->offset, pPlayer->aim, pMissile->id);
 		UseAmmo(pPlayer, pPlayer->weaponAmmo, pMissile->ammouse);
-		sfxPlay3DSound(pPlayer->actor, pMissile->sound, 1, 0);
+		sfxPlay3DSound(pPlayer->GetActor(), pMissile->sound, 1, 0);
 		pPlayer->visibility = pMissile->light;
 		pPlayer->flashEffect = pMissile->flash;
 	}
@@ -1893,10 +1893,10 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 
 void AltFireTesla(int, PLAYER* pPlayer)
 {
-	auto plActor = pPlayer->actor;
+	auto plActor = pPlayer->GetActor();
 	playerFireMissile(pPlayer, 0., pPlayer->aim, kMissileTeslaAlt);
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, 35);
-	sfxPlay3DSound(pPlayer->actor, 471, 2, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 471, 2, 0);
 	pPlayer->visibility = 40;
 	pPlayer->flashEffect = 1;
 }
@@ -1909,7 +1909,7 @@ void AltFireTesla(int, PLAYER* pPlayer)
 
 void FireNapalm(int nTrigger, PLAYER* pPlayer)
 {
-	auto plActor = pPlayer->actor;
+	auto plActor = pPlayer->GetActor();
 	double offset = 0;
 	switch (nTrigger)
 	{
@@ -1921,17 +1921,17 @@ void FireNapalm(int nTrigger, PLAYER* pPlayer)
 		break;
 	}
 	playerFireMissile(pPlayer, offset, pPlayer->aim, kMissileFireballNapalm);
-	sfxPlay3DSound(pPlayer->actor, 480, 2, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 480, 2, 0);
 	UseAmmo(pPlayer, 4, 1);
 	pPlayer->flashEffect = 1;
 }
 
 void FireNapalm2(int, PLAYER* pPlayer)
 {
-	auto plActor = pPlayer->actor;
+	auto plActor = pPlayer->GetActor();
 	playerFireMissile(pPlayer, -7.5, pPlayer->aim, kMissileFireballNapalm);
 	playerFireMissile(pPlayer, 7.5, pPlayer->aim, kMissileFireballNapalm);
-	sfxPlay3DSound(pPlayer->actor, 480, 2, 0);
+	sfxPlay3DSound(pPlayer->GetActor(), 480, 2, 0);
 	UseAmmo(pPlayer, 4, 2);
 	pPlayer->flashEffect = 1;
 }
@@ -1950,7 +1950,7 @@ void AltFireNapalm(int, PLAYER* pPlayer)
 		missile->xspr.data4 = ClipHigh(pPlayer->ammoCount[4], 12);
 		UseAmmo(pPlayer, 4, missile->xspr.data4);
 		seqSpawn(22, missile, -1);
-		actBurnSprite(pPlayer->actor, missile, 600);
+		actBurnSprite(pPlayer->GetActor(), missile, 600);
 		evPostActor(missile, 0, kCallbackFXFlameLick);
 		sfxPlay3DSound(missile, 480, 2, 0);
 		pPlayer->visibility = 30;
@@ -1971,7 +1971,7 @@ void FireLifeLeech(int nTrigger, PLAYER* pPlayer)
 	double r1 = Random2F(2000, 14);
 	double r2 = Random2F(2000, 14);
 	double r3 = Random2F(1000, 14);
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	auto missileActor = playerFireMissile(pPlayer, 0, pPlayer->aim + DVector3(r1, r2, r3), 315);
 	if (missileActor)
 	{
@@ -1993,8 +1993,8 @@ void FireLifeLeech(int nTrigger, PLAYER* pPlayer)
 
 void AltFireLifeLeech(int, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
-	sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
+	DBloodActor* actor = pPlayer->GetActor();
+	sfxPlay3DSound(pPlayer->GetActor(), 455, 2, 0);
 	auto missile = playerFireThing(pPlayer, 0, -4730 / 65536., kThingDroppedLifeLeech, 1.6);
 	if (missile)
 	{
@@ -2007,7 +2007,7 @@ void AltFireLifeLeech(int, PLAYER* pPlayer)
 		if (gGameOptions.nGameType <= 1)
 		{
 			int nAmmo = pPlayer->ammoCount[8];
-			if (nAmmo < 25 && pPlayer->actor->xspr.health > unsigned((25 - nAmmo) << 4))
+			if (nAmmo < 25 && pPlayer->GetActor()->xspr.health > unsigned((25 - nAmmo) << 4))
 			{
 				actDamageSprite(actor, actor, kDamageSpirit, ((25 - nAmmo) << 4));
 				nAmmo = 25;
@@ -2032,11 +2032,11 @@ void AltFireLifeLeech(int, PLAYER* pPlayer)
 
 void FireBeast(int, PLAYER* pPlayer)
 {
-	DBloodActor* actor = pPlayer->actor;
+	DBloodActor* actor = pPlayer->GetActor();
 	double r1 = Random2F(2000, 14);
 	double r2 = Random2F(2000, 14);
 	double r3 = Random2F(2000, 14);
-	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), kVectorBeastSlash);
+	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->aim + DVector3(r1, r2, r3), kVectorBeastSlash);
 }
 
 //---------------------------------------------------------------------------
@@ -2375,7 +2375,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
 
 #ifdef NOONE_EXTENSIONS
-	if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->actor->xspr.health > 0) {
+	if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->GetActor()->xspr.health > 0) {
 		playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
 		UpdateAimVector(pPlayer);
 		return;
@@ -2385,10 +2385,10 @@ void WeaponProcess(PLAYER* pPlayer) {
 	int newweap = pPlayer->input.getNewWeapon();
 	if (newweap > 0 && newweap <= WeaponSel_MaxBlood) pPlayer->newWeapon = newweap;
 
-	if (pPlayer->actor->xspr.health == 0)
+	if (pPlayer->GetActor()->xspr.health == 0)
 	{
 		pPlayer->qavLoop = 0;
-		sfxKill3DSound(pPlayer->actor, 1, -1);
+		sfxKill3DSound(pPlayer->GetActor(), 1, -1);
 	}
 	if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->curWeapon))
 	{
@@ -2417,7 +2417,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	bool bShoot2 = pPlayer->input.actions & SB_ALTFIRE;
 	const int prevNewWeaponVal = pPlayer->input.getNewWeapon(); // used to fix scroll issue for banned weapons
 	if ((bShoot || bShoot2 || prevNewWeaponVal) && pPlayer->weaponQav == qavGetCorrectID(kQAVVDIDLE2)) pPlayer->weaponTimer = 0;
-	if (pPlayer->qavLoop && pPlayer->actor->xspr.health > 0)
+	if (pPlayer->qavLoop && pPlayer->GetActor()->xspr.health > 0)
 	{
 		if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
 		{
@@ -2458,7 +2458,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	}
 	if (pPlayer->weaponTimer > 0)
 		return;
-	if (pPlayer->actor->xspr.health == 0 || pPlayer->curWeapon == kWeapNone)
+	if (pPlayer->GetActor()->xspr.health == 0 || pPlayer->curWeapon == kWeapNone)
 		pPlayer->weaponQav = kQAVNone;
 	switch (pPlayer->curWeapon)
 	{
@@ -2475,7 +2475,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	{
 		if (pPlayer->nextWeapon)
 		{
-			sfxKill3DSound(pPlayer->actor, -1, 441);
+			sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 			pPlayer->weaponState = 0;
 			pPlayer->newWeapon = pPlayer->nextWeapon;
 			pPlayer->nextWeapon = kWeapNone;
@@ -2561,7 +2561,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 	{
 		if (pPlayer->nextWeapon)
 		{
-			sfxKill3DSound(pPlayer->actor, -1, 441);
+			sfxKill3DSound(pPlayer->GetActor(), -1, 441);
 			pPlayer->newWeapon = pPlayer->nextWeapon;
 			pPlayer->nextWeapon = kWeapNone;
 		}
@@ -2643,7 +2643,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 				return;
 			}
 		}
-		if (pPlayer->actor->xspr.health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
+		if (pPlayer->GetActor()->xspr.health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
 		{
 			pPlayer->newWeapon = kWeapNone;
 			return;
@@ -2830,7 +2830,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 				StartQAV(pPlayer, kQAVNAPFIRE, nClientFireNapalm);
 			return;
 		case kWeapLifeLeech:
-			sfxPlay3DSound(pPlayer->actor, 494, 2, 0);
+			sfxPlay3DSound(pPlayer->GetActor(), 494, 2, 0);
 			StartQAV(pPlayer, kQAVSTAFIRE4, nClientFireLifeLeech);
 			return;
 		case kWeapBeast:
@@ -2927,7 +2927,7 @@ void WeaponProcess(PLAYER* pPlayer) {
 				StartQAV(pPlayer, kQAVTOMSPRED, nClientAltFireSpread2);
 			return;
 		case kWeapVoodooDoll:
-			sfxPlay3DSound(pPlayer->actor, 461, 2, 0);
+			sfxPlay3DSound(pPlayer->GetActor(), 461, 2, 0);
 			StartQAV(pPlayer, kQAVVDSPEL1, nClientAltFireVoodoo);
 			return;
 #if 0
@@ -2979,9 +2979,9 @@ void WeaponProcess(PLAYER* pPlayer) {
 			}
 			return;
 		case kWeapLifeLeech:
-			if (gGameOptions.nGameType <= 1 && !checkAmmo2(pPlayer, 8, 1) && pPlayer->actor->xspr.health < (25 << 4))
+			if (gGameOptions.nGameType <= 1 && !checkAmmo2(pPlayer, 8, 1) && pPlayer->GetActor()->xspr.health < (25 << 4))
 			{
-				sfxPlay3DSound(pPlayer->actor, 494, 2, 0);
+				sfxPlay3DSound(pPlayer->GetActor(), 494, 2, 0);
 				StartQAV(pPlayer, kQAVSTAFIRE4, nClientFireLifeLeech);
 			}
 			else

@@ -65,8 +65,8 @@ void viewBackupView(int nPlayer)
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
 	pPlayer->oswayWidth = pPlayer->swayWidth;
-	pPlayer->actor->backuploc();
-	pPlayer->actor->interpolated = true;
+	pPlayer->GetActor()->backuploc();
+	pPlayer->GetActor()->interpolated = true;
 }
 
 //---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void viewDrawAimedPlayerName(PLAYER* pPlayer)
 	if (!cl_idplayers || (pPlayer->aim.XY().isZero()))
 		return;
 
-	int hit = HitScan(pPlayer->actor, pPlayer->zView, pPlayer->aim, CLIPMASK0, 512);
+	int hit = HitScan(pPlayer->GetActor(), pPlayer->zView, pPlayer->aim, CLIPMASK0, 512);
 	if (hit == 3)
 	{
 		auto actor = gHitInfo.actor();
@@ -412,7 +412,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), pPlayer->Angles.getRenderAngles(interpfrac).Yaw, interpfrac);
+	DrawOverheadMap(pPlayer->GetActor()->interpolatedpos(interpfrac).XY(), pPlayer->Angles.getRenderAngles(interpfrac).Yaw, interpfrac);
 	if (tm)
 		setViewport(hud_size);
 }
@@ -427,7 +427,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, sector
 {
 	double bobWidth, bobHeight;
 
-	pSector = pPlayer->actor->sector();
+	pSector = pPlayer->GetActor()->sector();
 #if 0
 	if (numplayers > 1 && pPlayer == gMe && gPrediction && gMe->actor->xspr.health > 0)
 	{
@@ -457,7 +457,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, sector
 	else
 #endif
 	{
-		cPos = pPlayer->actor->getRenderPos(interpfrac);
+		cPos = pPlayer->GetActor()->getRenderPos(interpfrac);
 		cAngles = pPlayer->Angles.getRenderAngles(interpfrac);
 		zDelta = interpolatedvalue(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - 12, interpfrac);
 		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
@@ -482,7 +482,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, sector
 	}
 	else
 	{
-		calcChaseCamPos(cPos, pPlayer->actor, &pSector, cAngles, interpfrac, 80.);
+		calcChaseCamPos(cPos, pPlayer->GetActor(), &pSector, cAngles, interpfrac, 80.);
 	}
 	if (pSector != nullptr)
 		CheckLink(cPos, &pSector);
@@ -590,8 +590,8 @@ void viewDrawScreen(bool sceneonly)
 		else if (pPlayer->isUnderwater) {
 			if (pPlayer->nWaterPal) basepal = pPlayer->nWaterPal;
 			else {
-				if (pPlayer->actor->xspr.medium == kMediumWater) basepal = 1;
-				else if (pPlayer->actor->xspr.medium == kMediumGoo) basepal = 3;
+				if (pPlayer->GetActor()->xspr.medium == kMediumWater) basepal = 1;
+				else if (pPlayer->GetActor()->xspr.medium == kMediumGoo) basepal = 3;
 				else basepal = 2;
 			}
 		}
@@ -684,16 +684,16 @@ void viewDrawScreen(bool sceneonly)
 
 		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, cAngles.Roll, basepal, interpfrac);
 		DAngle deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
-		auto bakCstat = pPlayer->actor->spr.cstat;
-		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
+		auto bakCstat = pPlayer->GetActor()->spr.cstat;
+		pPlayer->GetActor()->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		cAngles.Pitch -= deliriumPitchI;
-		render_drawrooms(pPlayer->actor, cPos, pSector, cAngles, interpfrac);
-		pPlayer->actor->spr.cstat = bakCstat;
+		render_drawrooms(pPlayer->GetActor(), cPos, pSector, cAngles, interpfrac);
+		pPlayer->GetActor()->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
 		if (sceneonly) return;
 		auto offsets = pPlayer->Angles.getCrosshairOffsets(interpfrac);
-		DrawCrosshair(pPlayer->actor->xspr.health >> 4, offsets.first.X, offsets.first.Y, 2, offsets.second);
+		DrawCrosshair(pPlayer->GetActor()->xspr.health >> 4, offsets.first.X, offsets.first.Y, 2, offsets.second);
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)
 		{
@@ -726,7 +726,7 @@ void viewDrawScreen(bool sceneonly)
 	}
 	UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
 
-	MarkSectorSeen(pPlayer->actor->sector());
+	MarkSectorSeen(pPlayer->GetActor()->sector());
 
 	if (automapMode != am_off)
 	{
@@ -778,7 +778,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 	{
 		if (i == gViewIndex || gGameOptions.nGameType == 1)
 		{
-			auto actor = gPlayer[i].actor;
+			auto actor = gPlayer[i].GetActor();
 			auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
 			DrawTexture(twod, TexMan.GetGameTexture(actor->spr.spritetexture(), true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,

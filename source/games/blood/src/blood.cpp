@@ -340,8 +340,8 @@ void StartLevel(MapRecord* level, bool newgame)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			PLAYER* pPlayer = &gPlayer[i];
-			pPlayer->actor->xspr.health &= 0xf000;
-			pPlayer->actor->xspr.health |= gHealthTemp[i];
+			pPlayer->GetActor()->xspr.health &= 0xf000;
+			pPlayer->GetActor()->xspr.health |= gHealthTemp[i];
 			pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
 			pPlayer->curWeapon = gPlayerTemp[i].curWeapon;
 			pPlayer->weaponState = gPlayerTemp[i].weaponState;
@@ -463,8 +463,8 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		thinktime.Unclock();
 
 		// update console player's viewzoffset at the end of the tic.
-		pPlayer->actor->oviewzoffset = pPlayer->actor->viewzoffset;
-		pPlayer->actor->viewzoffset = pPlayer->zView - pPlayer->actor->spr.pos.Z;
+		pPlayer->GetActor()->oviewzoffset = pPlayer->GetActor()->viewzoffset;
+		pPlayer->GetActor()->viewzoffset = pPlayer->zView - pPlayer->GetActor()->spr.pos.Z;
 
 		gFrameCount++;
 		PlayClock += kTicsPerFrame;
@@ -763,7 +763,7 @@ DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
-	ACTION_RETURN_INT(self->actor->xspr.health);
+	ACTION_RETURN_INT(self->GetActor()->xspr.health);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)

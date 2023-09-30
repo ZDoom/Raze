@@ -436,7 +436,7 @@ void CounterCheck(DBloodActor*, sectortype* pSector) // 12
 void FinishHim(DBloodActor* actor, sectortype*) // 13
 {
 	if (!actor) return;
-	if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[actor->spr.type - kDudePlayer1], 16) && actor == gPlayer[myconnectindex].actor)
+	if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[actor->spr.type - kDudePlayer1], 16) && actor == gPlayer[myconnectindex].GetActor())
 		sndStartSample(3313, -1, 1, 0);
 }
 

@@ -317,9 +317,9 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
 			{
 				if (command == kCmdEventKillFull)
-					evKillActor(pPlayer->actor);
+					evKillActor(pPlayer->GetActor());
 				else
-					trMessageSprite(pPlayer->actor, event);
+					trMessageSprite(pPlayer->GetActor(), event);
 			}
 		}
 		else if (rxId == kChannelAllPlayers)
@@ -329,9 +329,9 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 				if ((pPlayer = getPlayerById(i)) != nullptr)
 				{
 					if (command == kCmdEventKillFull)
-						evKillActor(pPlayer->actor);
+						evKillActor(pPlayer->GetActor());
 					else
-						trMessageSprite(pPlayer->actor, event);
+						trMessageSprite(pPlayer->GetActor(), event);
 				}
 			}
 			return;

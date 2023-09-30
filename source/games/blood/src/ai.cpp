@@ -1492,11 +1492,11 @@ void aiThinkTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (actor->GetOwner() == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			auto ppos = pPlayer->actor->spr.pos;
+			auto ppos = pPlayer->GetActor()->spr.pos;
 			auto dvec = ppos.XY() - actor->spr.pos.XY();
-			auto pSector = pPlayer->actor->sector();
+			auto pSector = pPlayer->GetActor()->sector();
 
 			double nDist = dvec.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
@@ -1508,7 +1508,7 @@ void aiThinkTarget(DBloodActor* actor)
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvec.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
-				aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 				return;
 			}
@@ -1537,11 +1537,11 @@ void aiLookForTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (actor->GetOwner() == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			auto ppos = pPlayer->actor->spr.pos;
+			auto ppos = pPlayer->GetActor()->spr.pos;
 			auto dvec = ppos.XY() - actor->spr.pos.XY();
-			auto pSector = pPlayer->actor->sector();
+			auto pSector = pPlayer->GetActor()->sector();
 
 			double nDist = dvec.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
@@ -1552,7 +1552,7 @@ void aiLookForTarget(DBloodActor* actor)
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvec.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
-				aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 				return;
 			}

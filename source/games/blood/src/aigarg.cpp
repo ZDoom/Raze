@@ -194,11 +194,11 @@ static void gargThinkTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			auto ppos = pPlayer->actor->spr.pos;
+			auto ppos = pPlayer->GetActor()->spr.pos;
 			auto dvect = ppos.XY() - actor->spr.pos;
-			auto pSector = pPlayer->actor->sector();
+			auto pSector = pPlayer->GetActor()->sector();
 			double nDist = dvect.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
@@ -209,7 +209,7 @@ static void gargThinkTarget(DBloodActor* actor)
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				pDudeExtraE->thinkTime = 0;
-				aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->HearDist())

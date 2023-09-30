@@ -174,6 +174,11 @@ struct PLAYER
 	int                 player_par;
 	int                 nWaterPal;
 	POSTURE             pPosture[kModeMax][kPostureMax];
+
+	inline DBloodActor* GetActor()
+	{
+		return actor;
+	}
 };
 
 struct AMMOINFO
