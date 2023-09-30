@@ -95,12 +95,12 @@ public:
 
 	bool IsPlayerActor()
 	{
-		return spr.type >= kDudePlayer1 && spr.type <= kDudePlayer8;
+		return GetType() >= kDudePlayer1 && GetType() <= kDudePlayer8;
 	}
 
 	bool IsDudeActor()
 	{
-		return spr.type >= kDudeBase && spr.type < kDudeMax;
+		return GetType() >= kDudeBase && GetType() < kDudeMax;
 	}
 
 	bool IsThingActor()
@@ -157,12 +157,11 @@ public:
 	{
 		spr.type = newtype;
 	}
-
+	
 	int GetType() const
 	{
 		return spr.type;
 	}
-
 };
 
 // subclassed to add a game specific actor() method

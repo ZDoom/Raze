@@ -124,7 +124,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	auto dv = target->spr.pos - actor->spr.pos;
 	double nDist = dv.XY().Length();
 	if (nDist > 0x1e0)
@@ -155,7 +155,7 @@ void cultThrowSeqCallback3(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	auto dv = target->spr.pos - actor->spr.pos;
 	double nDist = dv.XY().Length();
 
@@ -168,7 +168,7 @@ static bool TargetNearExplosion(sectortype* sector)
 	BloodSectIterator it(sector);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.type == kThingArmedTNTStick || actor->spr.statnum == kStatExplosion)
+		if (actor->GetType() == kThingArmedTNTStick || actor->spr.statnum == kStatExplosion)
 			return true;
 	}
 	return false;
@@ -182,7 +182,7 @@ static void cultThinkSearch(DBloodActor* actor)
 
 static void cultThinkGoto(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -220,7 +220,7 @@ static void cultThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
@@ -235,7 +235,7 @@ static void cultThinkChase(DBloodActor* actor)
 		{
 		case kMediumNormal:
 			aiNewState(actor, &cultistSearch);
-			if (actor->spr.type == kDudeCultistTommy)
+			if (actor->GetType() == kDudeCultistTommy)
 				aiPlay3DSound(actor, 4021 + Random(4), AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 1021 + Random(4), AI_SFX_PRIORITY_1, -1);

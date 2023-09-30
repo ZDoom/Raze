@@ -301,7 +301,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		return;
 	DBloodActor* spawnactor;
-	if (actor->spr.type == kDudePodGreen)
+	if (actor->GetType() == kDudePodGreen)
 		spawnactor = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos);
 	else
 		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);

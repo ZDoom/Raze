@@ -295,7 +295,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	if (target == nullptr)
 		return;
 
-	if (!(target->spr.type >= kDudeBase && target->spr.type < kDudeMax))
+	if (!(target->GetType() >= kDudeBase && target->GetType() < kDudeMax))
 		return;
 
 	int curWeapon = actor->genDudeExtra.curWeapon;
@@ -409,9 +409,9 @@ static void unicultThinkSearch(DBloodActor* actor)
 
 static void unicultThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
 	{
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 
@@ -437,7 +437,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 
 static void unicultThinkChase(DBloodActor* actor)
 {
-	if (actor->spr.type < kDudeBase || actor->spr.type >= kDudeMax) return;
+	if (actor->GetType() < kDudeBase || actor->GetType() >= kDudeMax) return;
 
 	auto const target = actor->GetTarget();
 	if (target == nullptr)
@@ -1160,9 +1160,9 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 void aiGenDudeChooseDirection(DBloodActor* actor, DAngle direction, const DVector2& vel)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
 	{
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 

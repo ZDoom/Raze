@@ -64,7 +64,7 @@ static void handThinkSearch(DBloodActor* actor)
 
 static void handThinkGoto(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -82,7 +82,7 @@ static void handThinkChase(DBloodActor* actor)
 		aiNewState(actor, &handGoto);
 		return;
 	}
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();

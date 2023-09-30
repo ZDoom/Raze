@@ -155,8 +155,8 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 
 static void ghostThinkTarget(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -213,8 +213,8 @@ static void ghostThinkSearch(DBloodActor* actor)
 
 static void ghostThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -229,8 +229,8 @@ static void ghostThinkGoto(DBloodActor* actor)
 
 static void ghostMoveDodgeUp(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -249,8 +249,8 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 
 static void ghostMoveDodgeDown(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -275,9 +275,9 @@ static void ghostThinkChase(DBloodActor* actor)
 		aiNewState(actor, &ghostGoto);
 		return;
 	}
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	///assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -380,8 +380,8 @@ static void ghostThinkChase(DBloodActor* actor)
 
 static void ghostMoveForward(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -407,8 +407,8 @@ static void ghostMoveForward(DBloodActor* actor)
 
 static void ghostMoveSlow(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -438,8 +438,8 @@ static void ghostMoveSlow(DBloodActor* actor)
 
 static void ghostMoveSwoop(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -468,8 +468,8 @@ static void ghostMoveSwoop(DBloodActor* actor)
 
 static void ghostMoveFly(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);

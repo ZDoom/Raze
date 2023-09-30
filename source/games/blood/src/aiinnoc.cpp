@@ -48,7 +48,7 @@ static void innocThinkSearch(DBloodActor* actor)
 
 static void innocThinkGoto(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -66,7 +66,7 @@ static void innocThinkChase(DBloodActor* actor)
 		aiNewState(actor, &innocentGoto);
 		return;
 	}
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();

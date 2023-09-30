@@ -2556,7 +2556,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 		{
 			mass = getDudeInfo(actor->spr.type)->mass;
 #ifdef NOONE_EXTENSIONS
-			if (actor->spr.type == kDudeModernCustom || actor->spr.type == kDudeModernCustomBurning)
+			if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
 			{
 				mass = getSpriteMassBySize(actor);
 			}
@@ -3374,7 +3374,7 @@ static void genericDeath(DBloodActor* actor, int nSeq, int sound1, int seqnum)
 
 void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax&& actor->hasX());
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax&& actor->hasX());
 	int nType = actor->spr.type - kDudeBase;
 
 	if (actKillDudeStage1(actor, damageType)) return;
@@ -3600,7 +3600,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	int nType = actor->spr.type - kDudeBase;
 	int nDamageFactor = getDudeInfo(nType + kDudeBase)->damageVal[damageType];
 #ifdef NOONE_EXTENSIONS
-	if (actor->spr.type == kDudeModernCustom)
+	if (actor->GetType() == kDudeModernCustom)
 		nDamageFactor = actor->genDudeExtra.dmgControl[damageType];
 #endif
 
@@ -3654,7 +3654,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			actor->xspr.stateTimer = actor->xspr.data4 = actor->xspr.isTriggered = 0;
 
 #ifdef NOONE_EXTENSIONS
-			if (Owner && Owner->spr.type == kDudeModernCustom)
+			if (Owner && Owner->GetType() == kDudeModernCustom)
 				Owner->SetSpecialOwner(); // indicates if custom dude had life leech.
 #endif
 			break;
@@ -3905,7 +3905,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileFireballNapalm:
 		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
-			if (pThingInfo && actorHit->spr.type == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
+			if (pThingInfo && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			int nDamage = (50 + Random(50)) << 4;
@@ -3925,7 +3925,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		{
 			if ((pThingInfo && pThingInfo->dmgControl[kDamageBurn] != 0) || (pDudeInfo && pDudeInfo->damageVal[kDamageBurn] != 0))
 			{
-				if (pThingInfo && actorHit->spr.type == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
+				if (pThingInfo && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 					evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 				actBurnSprite(missileOwner, actorHit, 480);
@@ -4556,7 +4556,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		actor->spr.pos.Z += FixedToFloat<8>(455);
 		actor->vel.Z += FixedToFloat(58254);
-		if (actor->spr.type == kThingZombieHead)
+		if (actor->GetType() == kThingZombieHead)
 		{
 			auto* fxActor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos);
 			if (fxActor)
@@ -4693,9 +4693,9 @@ void MoveDude(DBloodActor* actor)
 {
 	PLAYER* pPlayer = nullptr;
 	if (actor->IsPlayerActor()) pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
 	{
-		Printf(PRINT_HIGH, "%d: actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax", actor->spr.type);
+		Printf(PRINT_HIGH, "%d: actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax", actor->spr.type);
 		return;
 	}
 
@@ -5018,7 +5018,7 @@ void MoveDude(DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 				if (gModernMap) {
 
-					if (actor->spr.type == kDudeModernCustom) {
+					if (actor->GetType() == kDudeModernCustom) {
 
 						evPostActor(actor, 0, kCallbackEnemeyBubble);
 						if (!canSwim(actor)) actKillDude(actor, actor, kDamageFall, 1000 << 4);
@@ -5520,7 +5520,7 @@ static void actCheckProximity()
 					continue;
 #endif
 
-				if (actor->spr.type == kThingDroppedLifeLeech) actor->SetTarget(nullptr);
+				if (actor->GetType() == kThingDroppedLifeLeech) actor->SetTarget(nullptr);
 				BloodStatIterator it1(kStatDude);
 				while (auto dudeactor = it1.Next())
 				{
@@ -5538,7 +5538,7 @@ static void actCheckProximity()
 
 						if (actor->spr.type == kModernThingEnemyLifeLeech) proxyDist = 512;
 #endif
-						if (actor->spr.type == kThingDroppedLifeLeech && actor->GetTarget() == nullptr)
+						if (actor->GetType() == kThingDroppedLifeLeech && actor->GetTarget() == nullptr)
 						{
 							auto Owner = actor->GetOwner();
 							if (!Owner->IsPlayerActor()) continue;
@@ -5546,7 +5546,7 @@ static void actCheckProximity()
 							PLAYER* pPlayer = &gPlayer[Owner->spr.type - kDudePlayer1];
 							PLAYER* pPlayer2 = dudeactor->IsPlayerActor() ? &gPlayer[dudeactor->spr.type - kDudePlayer1] : nullptr;
 
-							if (dudeactor == Owner || dudeactor->spr.type == kDudeZombieAxeBuried || dudeactor->spr.type == kDudeRat || dudeactor->spr.type == kDudeBat) continue;
+							if (dudeactor == Owner || dudeactor->GetType() == kDudeZombieAxeBuried || dudeactor->GetType() == kDudeRat || dudeactor->GetType() == kDudeBat) continue;
 							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;
 							if (gGameOptions.nGameType == 1 && pPlayer2) continue;
 							proxyDist = 512;
@@ -5792,7 +5792,7 @@ static void actCheckExplosion()
 
 						if (pExplodeInfo->burnTime)
 						{
-							if (thingactor->spr.type == kThingTNTBarrel && !thingactor->xspr.burnTime)
+							if (thingactor->GetType() == kThingTNTBarrel && !thingactor->xspr.burnTime)
 								evPostActor(thingactor, 0, kCallbackFXFlameLick);
 							actBurnSprite(Owner, thingactor, pExplodeInfo->burnTime << 2);
 						}
@@ -5943,13 +5943,13 @@ static void actCheckDudes()
 
 #ifdef NOONE_EXTENSIONS
 			// handle incarnations of custom dude
-			if (actor->spr.type == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
+			if (actor->GetType() == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
 			{
 				actor->vel.XY().Zero();
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif
-			if (actor->spr.type == kDudeCerberusTwoHead)
+			if (actor->GetType() == kDudeCerberusTwoHead)
 			{
 				if (actor->xspr.health <= 0 && seqGetStatus(actor) < 0)
 				{
@@ -6560,7 +6560,7 @@ bool actCheckRespawn(DBloodActor* actor)
 		if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax)
 		{
 			actor->xspr.respawnPending = 3;
-			if (actor->spr.type == kThingTNTBarrel) actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+			if (actor->GetType() == kThingTNTBarrel) actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		if (nRespawnTime > 0)
 		{
@@ -6569,7 +6569,7 @@ bool actCheckRespawn(DBloodActor* actor)
 			actPostSprite(actor, kStatRespawn);
 			actor->spr.flags |= kHitagRespawn;
 
-			if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
+			if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
 			{
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				actor->spr.pos = actor->basePoint;

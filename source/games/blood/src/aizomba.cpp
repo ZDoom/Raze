@@ -88,7 +88,7 @@ static void zombaThinkSearch(DBloodActor* actor)
 
 static void zombaThinkGoto(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -106,7 +106,7 @@ static void zombaThinkChase(DBloodActor* actor)
 		aiNewState(actor, &zombieASearch);
 		return;
 	}
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -127,7 +127,7 @@ static void zombaThinkChase(DBloodActor* actor)
 		return;
 	}
 	// If the zombie gets whacked while rising from the grave it never executes this change and if it isn't done here at the very latest, will just aimlessly run around.
-	if (!VanillaMode() && actor->spr.type == kDudeZombieAxeBuried)
+	if (!VanillaMode() && actor->GetType() == kDudeZombieAxeBuried)
 		actor->ChangeType(kDudeZombieAxeNormal);
 
 
@@ -158,7 +158,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 		aiNewState(actor, &zombieASearch);
 		return;
 	}
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -205,7 +205,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 
 static void myThinkTarget(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{

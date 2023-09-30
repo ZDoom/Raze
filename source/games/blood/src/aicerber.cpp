@@ -60,8 +60,8 @@ static constexpr double Cerberus_ZOff = 100. / 256;
 
 void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -215,8 +215,8 @@ static void cerberusThinkSearch(DBloodActor* actor)
 
 static void cerberusThinkTarget(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -227,7 +227,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		if (actor->spr.type == kDudeCerberusTwoHead)
+		if (actor->GetType() == kDudeCerberusTwoHead)
 			aiNewState(actor, &cerberus139890);
 		else
 			aiNewState(actor, &cerberus1398AC);
@@ -271,8 +271,8 @@ static void cerberusThinkTarget(DBloodActor* actor)
 
 static void cerberusThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -308,9 +308,9 @@ static void cerberusThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	///assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 

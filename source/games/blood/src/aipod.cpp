@@ -130,8 +130,8 @@ static void aiPodSearch(DBloodActor* actor)
 
 static void aiPodMove(DBloodActor* actor)
 {
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 
@@ -171,8 +171,8 @@ static void aiPodChase(DBloodActor* actor)
 		}
 		return;
 	}
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);

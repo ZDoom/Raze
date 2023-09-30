@@ -324,7 +324,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		return;
 	}
 
-	if (actor->spr.statnum == kStatDude && actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax) {
+	if (actor->spr.statnum == kStatDude && actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax) {
 
 		switch (event.cmd) {
 		case kCmdOff:

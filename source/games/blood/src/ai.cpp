@@ -45,7 +45,7 @@ const int gCultTeslaFireChance[5] = { 0x2000, 0x4000, 0x8000, 0xa000, 0xe000 };
 
 bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 {
-	if (actor->spr.statnum == kStatDude && actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)
+	if (actor->spr.statnum == kStatDude && actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 		if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
@@ -248,7 +248,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 
 void aiChooseDirection(DBloodActor* actor, DAngle direction)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DAngle vc = deltaangle(actor->spr.Angles.Yaw, direction);
 	auto almost60deg = DAngle::fromBuild(341); // 60° does not work correctly - this is a little bit less, actually.
 	DAngle v8 = vc.Sgn() == -1 ? -almost60deg : almost60deg;
@@ -293,7 +293,7 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 
 void aiMoveForward(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -311,7 +311,7 @@ void aiMoveForward(DBloodActor* actor)
 
 void aiMoveTurn(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -326,7 +326,7 @@ void aiMoveTurn(DBloodActor* actor)
 
 void aiMoveDodge(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -350,7 +350,7 @@ void aiMoveDodge(DBloodActor* actor)
 
 void aiActivateDude(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	if (!actor->xspr.state)
 	{
 		aiChooseDirection(actor, (actor->xspr.TargetPos - actor->spr.pos).Angle());
@@ -388,7 +388,7 @@ void aiActivateDude(DBloodActor* actor)
 				aiNewState(actor, &cultistSearch);
 				if (Chance(0x8000))
 				{
-					if (actor->spr.type == kDudeCultistTommy) aiPlay3DSound(actor, 4008 + Random(5), AI_SFX_PRIORITY_1, -1);
+					if (actor->GetType() == kDudeCultistTommy) aiPlay3DSound(actor, 4008 + Random(5), AI_SFX_PRIORITY_1, -1);
 					else aiPlay3DSound(actor, 1008 + Random(5), AI_SFX_PRIORITY_1, -1);
 				}
 				break;
@@ -402,13 +402,13 @@ void aiActivateDude(DBloodActor* actor)
 		{
 			if (Chance(0x8000))
 			{
-				if (actor->spr.type == kDudeCultistTommy) aiPlay3DSound(actor, 4003 + Random(4), AI_SFX_PRIORITY_1, -1);
+				if (actor->GetType() == kDudeCultistTommy) aiPlay3DSound(actor, 4003 + Random(4), AI_SFX_PRIORITY_1, -1);
 				else aiPlay3DSound(actor, 1003 + Random(4), AI_SFX_PRIORITY_1, -1);
 			}
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				if (actor->spr.type == kDudeCultistTommy) aiNewState(actor, &fanaticChase);
+				if (actor->GetType() == kDudeCultistTommy) aiNewState(actor, &fanaticChase);
 				else aiNewState(actor, &cultistChase);
 				break;
 			case kMediumWater:
@@ -694,7 +694,7 @@ void aiActivateDude(DBloodActor* actor)
 		// play gargoyle statue breaking animation if data1 = 1.
 		if (gModernMap && actor->xspr.data1 == 1)
 		{
-			if (actor->spr.type == kDudeGargoyleStatueFlesh) aiNewState(actor, &statueFBreakSEQ);
+			if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, &statueFBreakSEQ);
 			else aiNewState(actor, &statueSBreakSEQ);
 		}
 		else
@@ -702,14 +702,14 @@ void aiActivateDude(DBloodActor* actor)
 			if (Chance(0x4000)) aiPlay3DSound(actor, 1401, AI_SFX_PRIORITY_1, -1);
 			else aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
 
-			if (actor->spr.type == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
+			if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
 			else aiNewState(actor, &gargoyleSMorph);
 		}
 #else
 		if (Chance(0x4000)) aiPlay3DSound(actor, 1401, AI_SFX_PRIORITY_1, -1);
 		else aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
 
-		if (actor->spr.type == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
+		if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
 		else aiNewState(actor, &gargoyleSMorph);
 #endif
 		break;
@@ -876,7 +876,7 @@ void aiActivateDude(DBloodActor* actor)
 			aiNewState(actor, &podSearch);
 		else
 		{
-			if (actor->spr.type == kDudePodFire)
+			if (actor->GetType() == kDudePodFire)
 				aiPlay3DSound(actor, 2453, AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 2473, AI_SFX_PRIORITY_1, -1);
@@ -915,7 +915,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		actor->SetTarget(nullptr);
 		return;
 	}
-	if (target->spr.type >= kDudeBase && target->spr.type < kDudeMax)
+	if (target->GetType() >= kDudeBase && target->GetType() < kDudeMax)
 	{
 		if (actor->GetOwner() != target)
 		{
@@ -993,7 +993,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				return nDamage;
 			}
 
-			if (actor->spr.type == kDudeModernCustomBurning)
+			if (actor->GetType() == kDudeModernCustomBurning)
 			{
 				if (Chance(0x2000) && actor->dudeExtra.time < PlayClock) {
 					playGenDudeSound(actor,kGenDudeSndBurning);
@@ -1013,7 +1013,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 			}
 
-			if (actor->spr.type == kDudeModernCustom)
+			if (actor->GetType() == kDudeModernCustom)
 			{
 				GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 				if (nDmgType == kDamageBurn)
@@ -1226,7 +1226,7 @@ void RecoilDude(DBloodActor* actor)
 {
 	uint8_t v4 = Chance(0x8000);
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
-	if (actor->spr.statnum == kStatDude && (actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
+	if (actor->spr.statnum == kStatDude && (actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 		switch (actor->spr.type)
@@ -1289,7 +1289,7 @@ void RecoilDude(DBloodActor* actor)
 		case kDudeCultistTesla:
 		case kDudeCultistTNT:
 		case kDudeCultistBeast:
-			if (actor->spr.type == kDudeCultistTommy) aiPlay3DSound(actor, 4013 + Random(2), AI_SFX_PRIORITY_2, -1);
+			if (actor->GetType() == kDudeCultistTommy) aiPlay3DSound(actor, 4013 + Random(2), AI_SFX_PRIORITY_2, -1);
 			else aiPlay3DSound(actor, 1013 + Random(2), AI_SFX_PRIORITY_2, -1);
 
 			if (!v4 && actor->xspr.medium == kMediumNormal)
@@ -1485,7 +1485,7 @@ void RecoilDude(DBloodActor* actor)
 
 void aiThinkTarget(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (Chance(pDudeInfo->alertChance))
 	{
@@ -1530,7 +1530,7 @@ void aiThinkTarget(DBloodActor* actor)
 
 void aiLookForTarget(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (Chance(pDudeInfo->alertChance))
 	{
@@ -1572,7 +1572,7 @@ void aiLookForTarget(DBloodActor* actor)
 			while (DBloodActor* actor2 = it.Next())
 			{
 				double nDist = (actor2->spr.pos.XY() - actor->spr.pos.XY()).Length();
-				if (actor2->spr.type == kDudeInnocent)
+				if (actor2->GetType() == kDudeInnocent)
 				{
 					pDudeInfo = getDudeInfo(actor2->spr.type);
 					if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())

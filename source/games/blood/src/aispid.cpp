@@ -64,7 +64,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	vec.X += Random2F(2000, 14);
 	vec.Y += Random2F(2000, 14);
 	vec.Z = Random2F(2000, 14);
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto const target = actor->GetTarget();
@@ -113,7 +113,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 	vec.Y += Random2F(200, 14);
 	vec.Z = Random2F(200, 14);
 
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor()) {
@@ -131,7 +131,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 
 void SpidBirthSeqCallback(int, DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -169,7 +169,7 @@ static void spidThinkSearch(DBloodActor* actor)
 
 static void spidThinkGoto(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -187,7 +187,7 @@ static void spidThinkChase(DBloodActor* actor)
 		aiNewState(actor, &spidGoto);
 		return;
 	}
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 

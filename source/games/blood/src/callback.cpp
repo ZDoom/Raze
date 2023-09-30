@@ -314,7 +314,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 			aiInitSprite(actor);
 			actor->xspr.key = 0;
 		}
-		else if (actor->spr.type == kThingTNTBarrel) {
+		else if (actor->GetType() == kThingTNTBarrel) {
 			actor->spr.cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
 			actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 		}
@@ -650,9 +650,9 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 		sfxPlay3DSound(actor, 385, nChannel, 1);
 	}
 	DBloodActor* pFX = NULL;
-	if (actor->spr.type == 53 || actor->spr.type == kThingPodGreenBall)
+	if (actor->spr.type == 53 || actor->GetType() == kThingPodGreenBall)
 	{
-		if (Chance(0x500) || actor->spr.type == kThingPodGreenBall)
+		if (Chance(0x500) || actor->GetType() == kThingPodGreenBall)
 			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
 			pFX->spr.Angles.Yaw = nAngle;

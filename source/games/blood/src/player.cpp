@@ -1011,7 +1011,7 @@ bool findDroppedLeech(PLAYER* a1, DBloodActor* a2)
 	{
 		if (a2 == actor)
 			continue;
-		if (actor->spr.type == kThingDroppedLifeLeech && actor->GetOwner() == a1->actor)
+		if (actor->GetType() == kThingDroppedLifeLeech && actor->GetOwner() == a1->actor)
 			return 1;
 	}
 	return 0;
@@ -1435,7 +1435,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 			out->hitActor = hitactor;
 			if (hitactor->spr.statnum == kStatThing)
 			{
-				if (hitactor->spr.type == kThingDroppedLifeLeech)
+				if (hitactor->GetType() == kThingDroppedLifeLeech)
 				{
 					if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, hitactor))
 						return -1;

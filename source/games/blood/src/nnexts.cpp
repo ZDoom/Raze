@@ -339,7 +339,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 		else if (actor->IsDudeActor())
 		{
 			if (actor->IsPlayerActor()) return (gPlayer[actor->spr.type - kDudePlayer1].damageControl[dmgType]);
-			else if (actor->spr.type == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
+			else if (actor->GetType() == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
 			else return (getDudeInfo(actor->spr.type)->damageVal[dmgType] <= minScale);
 		}
 	}
@@ -2448,7 +2448,7 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 			}
 		}
 
-		if (fit && (targetactor->spr.type == kDudeModernCustom || targetactor->spr.type == kDudeModernCustomBurning))
+		if (fit && (targetactor->GetType() == kDudeModernCustom || targetactor->GetType() == kDudeModernCustomBurning))
 		{
 			// request properties update for custom dude
 
@@ -4403,7 +4403,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 	auto objActor = eob.actor();
 
-	if (!objActor->hasX() || objActor->spr.type == kThingBloodChunks)
+	if (!objActor->hasX() || objActor->GetType() == kThingBloodChunks)
 		condError(aCond, "Sprite #%d is dead!", objActor->GetIndex());
 
 	if (!objActor->IsDudeActor() || objActor->IsPlayerActor())
@@ -4686,7 +4686,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		default: break;
 		case 50: // compare hp (in %)
 			if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(objActor->spr.type)->startHealth << 4;
-			else if (objActor->spr.type == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
+			else if (objActor->GetType() == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
 			else if (objActor->spr.type >= kThingBase && objActor->spr.type < kThingMax) var = thingInfo[objActor->spr.type - kThingBase].startHealth << 4;
 			return condCmp((kPercFull * objActor->xspr.health) / ClipLow(var, 1), arg1, arg2, cmpOp);
 		case 55: // touching ceil of sector?
@@ -5318,7 +5318,7 @@ bool aiFightUnitCanFly(DBloodActor* dude)
 
 bool aiFightIsMeleeUnit(DBloodActor* dude)
 {
-	if (dude->spr.type == kDudeModernCustom) return (dude->hasX() && dudeIsMelee(dude));
+	if (dude->GetType() == kDudeModernCustom) return (dude->hasX() && dudeIsMelee(dude));
 	else return (dude->IsDudeActor() && gDudeInfoExtra[dude->spr.type - kDudeBase].melee);
 }
 
@@ -6976,13 +6976,13 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 		{
 			aiSetTarget(actor, actor->spr.pos);
 			aiSetGenIdleState(actor);
-			if (actor->spr.type == kDudeModernCustom && actLeech)
+			if (actor->GetType() == kDudeModernCustom && actLeech)
 				removeLeech(actLeech);
 		}
 		else if (sourceactor->xspr.data4 == 4)
 		{
 			aiSetTarget(actor, playeractor->spr.pos);
-			if (actor->spr.type == kDudeModernCustom && actLeech)
+			if (actor->GetType() == kDudeModernCustom && actLeech)
 				removeLeech(actLeech);
 		}
 	}
@@ -7696,7 +7696,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double
 
 void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 
 	DAngle vc = deltaangle(actor->spr.Angles.Yaw, direction);
 	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
@@ -7737,7 +7737,7 @@ void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 
 void aiPatrolState(DBloodActor* actor, int state)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax&& actor->hasX());
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax&& actor->hasX());
 	assert(actor->GetTarget());
 
 	auto markeractor = actor->GetTarget();
@@ -7792,7 +7792,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 
 
 	if (markeractor->xspr.data4 > 0) seq = markeractor->xspr.data4, nSeqOverride = true;
-	else if (!nSeqOverride && state == kAiStatePatrolWaitC && (actor->spr.type == kDudeCultistTesla || actor->spr.type == kDudeCultistTNT))
+	else if (!nSeqOverride && state == kAiStatePatrolWaitC && (actor->GetType() == kDudeCultistTesla || actor->GetType() == kDudeCultistTNT))
 		seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
 
 	if (seq < 0)
@@ -7804,7 +7804,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 		if (newState->stateType != state || (!nSeqOverride && seq != newState->seqId))
 			continue;
 
-		if (actor->spr.type == kDudeModernCustom) aiGenDudeNewState(actor, newState);
+		if (actor->GetType() == kDudeModernCustom) aiGenDudeNewState(actor, newState);
 		else aiNewState(actor, newState);
 
 		if (crouch) actor->xspr.unused1 |= kDudeFlagCrouch;
@@ -7852,7 +7852,7 @@ DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker)
 
 bool aiPatrolMarkerReached(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->spr.type - kDudeBase];
 	auto markeractor = actor->GetTarget();
@@ -8123,7 +8123,7 @@ void aiPatrolMove(DBloodActor* actor)
 {
 	auto targetactor = actor->GetTarget();
 
-	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax) || !targetactor)
+	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax) || !targetactor)
 		return;
 
 
@@ -8342,9 +8342,9 @@ bool spritesTouching(DBloodActor* actor1, DBloodActor* actor2)
 
 bool aiCanCrouch(DBloodActor* actor)
 {
-	if (actor->spr.type >= kDudeBase && actor->spr.type < kDudeVanillaMax)
+	if (actor->GetType() >= kDudeBase && actor->GetType() < kDudeVanillaMax)
 		return (gDudeInfoExtra[actor->spr.type - kDudeBase].idlcseqofs >= 0 && gDudeInfoExtra[actor->spr.type - kDudeBase].mvecseqofs >= 0);
-	else if (actor->spr.type == kDudeModernCustom || actor->spr.type == kDudeModernCustomBurning)
+	else if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
 		return actor->genDudeExtra.canDuck;
 
 	return false;
@@ -8359,7 +8359,7 @@ bool aiCanCrouch(DBloodActor* actor)
 
 bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 {
-	if (!(hunter->spr.type >= kDudeBase && hunter->spr.type < kDudeMax) || !(victim->spr.type >= kDudeBase && victim->spr.type < kDudeMax))
+	if (!(hunter->GetType() >= kDudeBase && hunter->GetType() < kDudeMax) || !(victim->GetType() >= kDudeBase && victim->GetType() < kDudeMax))
 		return false;
 
 	auto dvect = victim->spr.pos.XY() - hunter->spr.pos.XY();
@@ -8380,7 +8380,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
 	PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type); PLAYER* pPlayer = NULL;
 
 	for (int i = 0; i < kMaxPatrolFoundSounds; i++)
@@ -8761,7 +8761,7 @@ bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker)
 
 void aiPatrolThink(DBloodActor* actor)
 {
-	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
 
 	DBloodActor* targetactor;
 	unsigned int stateTimer;
@@ -8774,7 +8774,7 @@ void aiPatrolThink(DBloodActor* actor)
 
 
 	bool crouch = (actor->xspr.unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
-	if (markeractor == nullptr || (actor->spr.type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor))))
+	if (markeractor == nullptr || (actor->GetType() == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor))))
 	{
 		aiPatrolStop(actor, nullptr);
 		return;
