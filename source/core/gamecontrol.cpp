@@ -637,10 +637,6 @@ int GameMain()
 	DeinitMenus();
 	if (StatusBar) StatusBar->Destroy();
 	StatusBar = nullptr;
-	if (gi)
-	{
-		gi->FreeGameData();	// Must be done before taking down any subsystems.
-	}
 	S_StopMusic(true);
 	if (soundEngine) delete soundEngine;
 	soundEngine = nullptr;

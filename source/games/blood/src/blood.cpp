@@ -671,12 +671,6 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
 //
 //---------------------------------------------------------------------------
 
-extern  IniFile* BloodINI;
-void GameInterface::FreeGameData()
-{
-	if (BloodINI) delete BloodINI;
-}
-
 void GameInterface::FreeLevelData()
 {
 	EndLevel();

@@ -73,7 +73,6 @@ struct GameInterface
 	virtual void SetupSpecialTextures(TilesetBuildInfo&) = 0;
 	virtual void loadPalette() = 0;
 	virtual void FreeLevelData();
-	virtual void FreeGameData() {}
 	virtual void PlayHudSound() {}
 	virtual GameStats getStats() { return {}; }
 	virtual void MenuOpened() {}

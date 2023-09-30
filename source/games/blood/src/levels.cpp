@@ -1,25 +1,21 @@
-//-------------------------------------------------------------------------
 /*
-Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
-
-This file is part of NBlood.
-
-NBlood is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-//-------------------------------------------------------------------------
+ * Copyright (C) 2018, 2022 nukeykt
+ * Copyright (C) 2020-2022 Christoph Oelckers
+ *
+ * This file is part of Raze
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+ 
 #include "ns.h"	// Must come before everything else!
 
 #include <stdlib.h>
@@ -40,10 +36,12 @@ GAMEOPTIONS gSingleGameOptions = {
 int gSkill = 2;
 MapRecord* gNextLevel;
 
-char BloodIniFile[BMAX_PATH] = "BLOOD.INI";
-bool bINIOverride = false;
-IniFile* BloodINI;
-
+enum
+{
+	kMaxMessages = 32,
+	kMaxEpisodes = 7,
+	kMaxLevels = 16
+};
 
 //---------------------------------------------------------------------------
 //
@@ -51,26 +49,11 @@ IniFile* BloodINI;
 //
 //---------------------------------------------------------------------------
 
-void levelInitINI(const char* pzIni)
+static IniFile* levelInitINI(const char* pzIni)
 {
 	if (!fileSystem.FileExists(pzIni))
-		I_Error("Initialization: %s does not exist", pzIni);
-	BloodINI = new IniFile(pzIni);
-	strncpy(BloodIniFile, pzIni, BMAX_PATH - 1);
-}
-
-void CheckSectionAbend(const char* pzSection)
-{
-	if (!pzSection || !BloodINI->SectionExists(pzSection))
-		I_Error("Section [%s] expected in BLOOD.INI", pzSection);
-}
-
-void CheckKeyAbend(const char* pzSection, const char* pzKey)
-{
-	assert(pzSection != NULL);
-
-	if (!pzKey || !BloodINI->KeyExists(pzSection, pzKey))
-		I_Error("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
+		I_Error("%s: Ini file not found", pzIni);
+	return new IniFile(pzIni);
 }
 
 //---------------------------------------------------------------------------
@@ -79,12 +62,13 @@ void CheckKeyAbend(const char* pzSection, const char* pzKey)
 //
 //---------------------------------------------------------------------------
 
-void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSection, int epinum, int mapnum, int* nextmap, int* nextsecret)
+static void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSection, int epinum, int mapnum, int* nextmap, int* nextsecret)
 {
 	char buffer[16];
 	pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
 	pLevelInfo->Author = pIni->GetKeyString(pzSection, "Author", "");
-	pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); if (pLevelInfo->music.IsNotEmpty()) DefaultExtension(pLevelInfo->music, ".mid");
+	pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", "");
+	if (pLevelInfo->music.IsNotEmpty()) DefaultExtension(pLevelInfo->music, ".mid");
 	pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
 	*nextmap = pIni->GetKeyInt(pzSection, "EndingA", 0);
 	*nextsecret = pIni->GetKeyInt(pzSection, "EndingB", 0);
@@ -92,7 +76,7 @@ void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSectio
 	pLevelInfo->weather = pIni->GetKeyInt(pzSection, "Weather", -0);
 	for (int i = 0; i < kMaxMessages; i++)
 	{
-		sprintf(buffer, "Message%d", i + 1);
+		snprintf(buffer, 16, "Message%d", i + 1);
 		auto msg = pIni->GetKeyString(pzSection, buffer, "");
 		pLevelInfo->AddMessage(i, msg);
 	}
@@ -184,53 +168,58 @@ void levelLoadDefaults(void)
 
 	int cutALevel = 0;
 
-	levelInitINI(DefFile());
+	auto fn = DefFile();
+	std::unique_ptr<IniFile> pIni(levelInitINI(fn));
 	int i;
 	for (i = 1; i <= kMaxEpisodes; i++)
 	{
-		sprintf(buffer, "Episode%d", i);
-		if (!BloodINI->SectionExists(buffer))
+		snprintf(buffer, 64, "Episode%d", i);
+		if (!pIni->SectionExists(buffer))
 			break;
+
 		auto cluster = MustFindCluster(i);
 		auto volume = MustFindVolume(i);
 		CutsceneDef& csB = cluster->outro;
-		FString ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
+		FString ep_str = pIni->GetKeyString(buffer, "Title", buffer);
 		ep_str.StripRight();
 		cluster->name = volume->name = FStringTable::MakeMacro(ep_str);
 		if (i > 1) volume->flags |= VF_SHAREWARELOCK;
-		if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0)) volume->flags |= VF_HIDEFROMSP;
+		if (pIni->GetKeyInt(buffer, "BloodBathOnly", 0)) volume->flags |= VF_HIDEFROMSP;
 
-		csB.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneB", ""));
-		int soundint = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
+		csB.video = cleanPath(pIni->GetKeyString(buffer, "CutSceneB", ""));
+		int soundint = pIni->GetKeyInt(buffer, "CutWavB", -1);
 		if (soundint > 0) csB.soundID = soundint + 0x40000000;
-		else csB.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavB", ""));
+		else csB.soundName = cleanPath(pIni->GetKeyString(buffer, "CutWavB", ""));
 
-		//pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
-		cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
+		cutALevel = pIni->GetKeyInt(buffer, "CutSceneALevel", 0);
 		if (cutALevel < 1) cutALevel = 1;
 
 		int nextmaps[kMaxLevels]{}, nextsecrets[kMaxLevels]{};
 		for (int j = 1; j <= kMaxLevels; j++)
 		{
-			sprintf(buffer2, "Map%d", j);
-			if (!BloodINI->KeyExists(buffer, buffer2))
+			snprintf(buffer2, 16, "Map%d", j);
+			if (!pIni->KeyExists(buffer, buffer2))
 				break;
+
 			auto pLevelInfo = AllocateMap();
-			const char* pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
-			CheckSectionAbend(pMap);
+			const char* pMap = pIni->GetKeyString(buffer, buffer2, NULL);
+
+			if (!pMap || !pIni->SectionExists(pMap))
+				I_Error("Section [%s] expected in %s", buffer2, fn);
+
 			SetLevelNum(pLevelInfo, makelevelnum(i, j));
 			pLevelInfo->cluster = i;
 			pLevelInfo->labelName = pMap;
 			if (j == 1) volume->startmap = pLevelInfo->labelName;
 			pLevelInfo->fileName.Format("%s.map", pMap);
-			levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j, &nextmaps[j - 1], &nextsecrets[j - 1]);
+			levelLoadMapInfo(pIni.get(), pLevelInfo, pMap, i, j, &nextmaps[j - 1], &nextsecrets[j - 1]);
 			if (j == cutALevel)
 			{
 				CutsceneDef& csA = pLevelInfo->intro;
-				csA.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneA", ""));
-				int soundfileint = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
+				csA.video = cleanPath(pIni->GetKeyString(buffer, "CutSceneA", ""));
+				int soundfileint = pIni->GetKeyInt(buffer, "CutWavA", -1);
 				if (soundfileint > 0) csA.soundID = soundfileint + 0x40000000;
-				else csA.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavA", ""));
+				else csA.soundName = cleanPath(pIni->GetKeyString(buffer, "CutWavA", ""));
 			}
 		}
 		// Now resolve the level links

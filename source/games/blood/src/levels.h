@@ -29,20 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-enum
-{
-	kMaxMessages = 32,
-	kMaxEpisodes = 7,
-	kMaxLevels = 16
-};
-
 #pragma pack(push, 1)
 
 enum EGameFlag
 {
 	GF_AdvanceLevel = 1,
-	// 4 was for playing intro cutscenes but is no longer used.
-	GF_PlayCutscene = 8,
 };
 
 struct GAMEOPTIONS {
@@ -69,14 +60,9 @@ struct GAMEOPTIONS {
 extern GAMEOPTIONS gSingleGameOptions;
 extern GAMEOPTIONS gGameOptions;
 extern int gSkill;
-extern char BloodIniFile[];
-extern bool bINIOverride;
 extern MapRecord* gNextLevel;
 extern bool gGameStarted;
 
-void levelInitINI(const char* pzIni);
-void CheckSectionAbend(const char* pzSection);
-void CheckKeyAbend(const char* pzSection, const char* pzKey);
 void levelLoadDefaults(void);
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);

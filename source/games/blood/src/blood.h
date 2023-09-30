@@ -106,7 +106,6 @@ struct GameInterface : public ::GameInterface
 	void loadPalette() override;
 	bool GenerateSavePic() override;
 	void FreeLevelData() override;
-	void FreeGameData() override;
 	FSavegameInfo GetSaveSig() override;
 	void MenuOpened() override;
 	void MenuClosed() override;
