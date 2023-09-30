@@ -62,7 +62,7 @@ void HackSeqCallback(int, DBloodActor* actor)
 {
 	auto target = actor->GetTarget();
 	if (!target) return;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	DVector3 dv;
 	dv.XY() = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
@@ -89,7 +89,7 @@ static void zombaThinkSearch(DBloodActor* actor)
 static void zombaThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
@@ -107,7 +107,7 @@ static void zombaThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -159,7 +159,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -206,7 +206,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 static void myThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		PLAYER* pPlayer = &gPlayer[p];

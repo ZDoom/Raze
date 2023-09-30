@@ -340,7 +340,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 		{
 			if (actor->IsPlayerActor()) return (gPlayer[actor->spr.type - kDudePlayer1].damageControl[dmgType]);
 			else if (actor->GetType() == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
-			else return (getDudeInfo(actor->spr.type)->damageVal[dmgType] <= minScale);
+			else return (getDudeInfo(actor)->damageVal[dmgType] <= minScale);
 		}
 	}
 
@@ -1406,7 +1406,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 			clipDist = actor->genDudeExtra.clipdist;
 			break;
 		default:
-			seqId = getDudeInfo(actor->spr.type)->seqStartID;
+			seqId = getDudeInfo(actor)->seqStartID;
 			break;
 		}
 	}
@@ -3571,7 +3571,7 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (sourceactor->spr.flags & kModernTypeFlag1) dmg = ClipHigh(sourceactor->xspr.data3 << 1, 65535);
 		else if (actor->xspr.sysData2 > 0) dmg = (ClipHigh(actor->xspr.sysData2 << 4, 65535) * sourceactor->xspr.data3) / kPercFull;
-		else dmg = ((getDudeInfo(actor->spr.type)->startHealth << 4) * sourceactor->xspr.data3) / kPercFull;
+		else dmg = ((getDudeInfo(actor)->startHealth << 4) * sourceactor->xspr.data3) / kPercFull;
 
 		health = actor->xspr.health - dmg;
 	}
@@ -5041,7 +5041,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
 
 DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDist, int data, int teamMode)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 
 	BloodStatIterator it(kStatDude);
 	while (auto targactor = it.Next())
@@ -5284,7 +5284,7 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
 
 void aiFightAlarmDudesInSight(DBloodActor* actor, int max)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 
 	BloodStatIterator it(kStatDude);
 	while (auto dudeactor = it.Next())
@@ -6939,7 +6939,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
 
 	int receiveHp = 33 + Random(33);
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	int matesPerEnemy = 1;
 
 	// dude is burning?
@@ -8107,7 +8107,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 
 void aiPatrolTurn(DBloodActor* actor)
 {
-	DAngle nTurnRange = mapangle((getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4);
+	DAngle nTurnRange = mapangle((getDudeInfo(actor)->angSpeed << 1) >> 4);
 	DAngle nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 
@@ -8264,7 +8264,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 	if (actor->xspr.health <= 0)
 		return;
 
-	double eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.scale.Y);
+	double eaz2 = (getDudeInfo(actor)->eyeHeight * actor->spr.scale.Y);
 	auto pos2 = actor->spr.pos.plusZ(-eaz2);
 
 	auto pSect2 = actor->sector();
@@ -8381,7 +8381,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type); PLAYER* pPlayer = NULL;
+	DUDEINFO* pDudeInfo = getDudeInfo(actor); PLAYER* pPlayer = NULL;
 
 	for (int i = 0; i < kMaxPatrolFoundSounds; i++)
 	{

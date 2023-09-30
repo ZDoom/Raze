@@ -64,7 +64,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
@@ -91,7 +91,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	double height = (actor->spr.scale.Y * getDudeInfo(actor->spr.type)->eyeHeight);
+	double height = (actor->spr.scale.Y * getDudeInfo(actor)->eyeHeight);
 	DVector3 pos(actor->spr.pos.XY(), height);
 
 	DVector3 Aim(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
@@ -159,7 +159,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
 		pDudeExtraE->thinkTime++;
@@ -217,7 +217,7 @@ static void ghostThinkGoto(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
@@ -233,7 +233,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -253,7 +253,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -280,7 +280,7 @@ static void ghostThinkChase(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	DVector2 dxy = target->spr.pos.XY() - actor->spr.pos.XY();
@@ -384,7 +384,7 @@ static void ghostMoveForward(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -411,7 +411,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -442,7 +442,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -472,7 +472,7 @@ static void ghostMoveFly(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);

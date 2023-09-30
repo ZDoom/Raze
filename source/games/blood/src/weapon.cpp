@@ -491,7 +491,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 			if (nDist2 >= nClosest)
 				continue;
 
-			DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+			DUDEINFO* pDudeInfo = getDudeInfo(actor);
 			if (cansee(pos, plActor->sector(), pos2, actor->sector()))
 			{
 				double center = (actor->spr.scale.Y * pDudeInfo->aimHeight);

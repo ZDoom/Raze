@@ -77,7 +77,7 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 
 void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
@@ -139,7 +139,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
 
 	DVector3 pos(actor->spr.pos.XY(), height);
@@ -219,7 +219,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
 		pDudeExtraE->thinkTime++;
@@ -275,7 +275,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
@@ -314,7 +314,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();

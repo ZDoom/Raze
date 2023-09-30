@@ -99,4 +99,9 @@ inline DUDEINFO* getDudeInfo(int const nType)
 	return &fakeDudeInfo;
 }
 
+inline DUDEINFO* getDudeInfo(DBloodActor* actor)
+{
+	return getDudeInfo(actor->GetType());
+}
+
 END_BLD_NS

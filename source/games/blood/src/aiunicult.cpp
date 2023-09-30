@@ -186,7 +186,7 @@ void punchCallback(int, DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target != nullptr)
 	{
-		double nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.scale.Y;
+		double nZOffset1 = getDudeInfo(actor)->eyeHeight * actor->spr.scale.Y;
 		double nZOffset2 = 0;
 
 
@@ -421,7 +421,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 
 	// if reached target, change to search mode
-	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < getDudeInfo(actor->spr.type)->Periphery())
+	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < getDudeInfo(actor)->Periphery())
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -508,7 +508,7 @@ static void unicultThinkChase(DBloodActor* actor)
 		}
 	}
 
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DAngle losAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 
@@ -1071,7 +1071,7 @@ int checkAttackState(DBloodActor* actor)
 
 static int getGenDudeMoveSpeed(DBloodActor* actor, int which, bool mul, bool shift)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	int speed = -1; int step = 2500; int maxSpeed = 146603;
 	switch (which)
 	{
@@ -1111,7 +1111,7 @@ static int getGenDudeMoveSpeed(DBloodActor* actor, int which, bool mul, bool shi
 
 void aiGenDudeMoveForward(DBloodActor* actor)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 
 	if (pExtra->canFly)
@@ -2304,7 +2304,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 
 		// check the animation
 		int seqStartId = -1;
-		if (actor->xspr.data2 <= 0) seqStartId = actor->xspr.data2 = getDudeInfo(actor->spr.type)->seqStartID;
+		if (actor->xspr.data2 <= 0) seqStartId = actor->xspr.data2 = getDudeInfo(actor)->seqStartID;
 		else seqStartId = actor->xspr.data2;
 
 		for (int i = seqStartId; i < seqStartId + kGenDudeSeqMax; i++) {
@@ -2318,7 +2318,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 				Seq* pSeq = getSequence(i);
 				if (!pSeq)
 				{
-					actor->xspr.data2 = getDudeInfo(actor->spr.type)->seqStartID;
+					actor->xspr.data2 = getDudeInfo(actor)->seqStartID;
 					viewSetSystemMessage("No SEQ animation id %d found for custom dude #%d!", i, actor->GetIndex());
 					viewSetSystemMessage("SEQ base id: %d", seqStartId);
 				}
@@ -2475,7 +2475,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 {
 	if (damageType == kDamageExplode)
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		for (int i = 0; i < 3; i++)
 			if (pDudeInfo->nGibType[i] > -1)
 				GibSprite(actor, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);

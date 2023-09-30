@@ -2554,7 +2554,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 		double mass = 0;
 		if (actor->IsDudeActor())
 		{
-			mass = getDudeInfo(actor->spr.type)->mass;
+			mass = getDudeInfo(actor)->mass;
 #ifdef NOONE_EXTENSIONS
 			if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
 			{
@@ -3569,7 +3569,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 
 	if (damageType == kDamageExplode)
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		for (int i = 0; i < 3; i++)
 			if (pDudeInfo->nGibType[i] > -1)
 				GibSprite(actor, (GIBTYPE)pDudeInfo->nGibType[i], nullptr, nullptr);
@@ -4154,7 +4154,7 @@ static void checkCeilHit(DBloodActor* actor)
 					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
 
 						int mass1 = getDudeInfo(actor2->spr.type)->mass;
-						int mass2 = getDudeInfo(actor->spr.type)->mass;
+						int mass2 = getDudeInfo(actor)->mass;
 						switch (actor->spr.type)
 						{
 						case kDudeModernCustom:
@@ -4241,7 +4241,7 @@ static void checkHit(DBloodActor* actor)
 			{
 				if (actor->vel.X != 0 && actor2->IsDudeActor())
 				{
-					int mass1 = getDudeInfo(actor->spr.type)->mass;
+					int mass1 = getDudeInfo(actor)->mass;
 					int mass2 = getDudeInfo(actor2->spr.type)->mass;
 					switch (actor2->spr.type)
 					{
@@ -4313,7 +4313,7 @@ static void checkFloorHit(DBloodActor* actor)
 			if ((actor2->IsPlayerActor() && isShrinked(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
 
-				int mass1 = getDudeInfo(actor->spr.type)->mass;
+				int mass1 = getDudeInfo(actor)->mass;
 				int mass2 = getDudeInfo(actor2->spr.type)->mass;
 				switch (actor2->spr.type)
 				{
@@ -4699,7 +4699,7 @@ void MoveDude(DBloodActor* actor)
 		return;
 	}
 
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	double bz = (bottom - actor->spr.pos.Z) / 4;
@@ -6715,7 +6715,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			}
 			if (actor->spr.statnum == kStatDude && actor->hasX())
 			{
-				int mass = getDudeInfo(actor->spr.type)->mass;
+				int mass = getDudeInfo(actor)->mass;
 
 #ifdef NOONE_EXTENSIONS
 				if (actor->IsDudeActor())

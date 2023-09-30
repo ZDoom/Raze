@@ -51,7 +51,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 		return;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	double height2 = pDudeInfoT->eyeHeight * target->spr.scale.Y * 0.25;
@@ -62,7 +62,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 
 	DVector2 dv = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
@@ -89,7 +89,7 @@ static void zombfThinkSearch(DBloodActor* actor)
 static void zombfThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
@@ -107,7 +107,7 @@ static void zombfThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 

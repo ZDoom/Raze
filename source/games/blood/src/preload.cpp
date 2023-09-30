@@ -78,7 +78,7 @@ void tilePrecacheTile(FTextureID nTex, int nType, int palette)
 void PrecacheDude(DBloodActor* actor)
 {
 	int palette = actor->spr.pal;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	seqPrecacheId(pDudeInfo->seqStartID, palette);
 	seqPrecacheId(pDudeInfo->seqStartID + 5, palette);
 	seqPrecacheId(pDudeInfo->seqStartID + 1, palette);

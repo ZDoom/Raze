@@ -47,7 +47,7 @@ bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 {
 	if (actor->spr.statnum == kStatDude && actor->IsDudeActor())
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
 			return true;
 	}
@@ -82,7 +82,7 @@ void aiPlay3DSound(DBloodActor* actor, int soundid, AI_SFX_PRIORITY a3, int play
 
 void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	actor->xspr.stateTimer = pAIState->stateTicks;
 	actor->xspr.aiState = pAIState;
 	int seqStartId = pDudeInfo->seqStartID;
@@ -294,7 +294,7 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 void aiMoveForward(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -312,7 +312,7 @@ void aiMoveForward(DBloodActor* actor)
 void aiMoveTurn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -327,7 +327,7 @@ void aiMoveTurn(DBloodActor* actor)
 void aiMoveDodge(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
@@ -939,7 +939,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 		return 0;
 	actor->xspr.health = ClipLow(actor->xspr.health - nDamage, 0);
 	actor->cumulDamage += nDamage;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 
 	if (source)
 	{
@@ -979,7 +979,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 					nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
 					if (actor->xspr.health > 0)
 					{
-						int fullHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(actor->spr.type)->startHealth << 4;
+						int fullHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(actor)->startHealth << 4;
 						if (((100 * actor->xspr.health) / fullHp) <= 75)
 						{
 							actor->cumulDamage += nDamage << 4; // to be sure any enemy will play the recoil animation
@@ -1228,7 +1228,7 @@ void RecoilDude(DBloodActor* actor)
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	if (actor->spr.statnum == kStatDude && (actor->IsDudeActor()))
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		switch (actor->spr.type)
 		{
 #ifdef NOONE_EXTENSIONS
@@ -1486,7 +1486,7 @@ void RecoilDude(DBloodActor* actor)
 void aiThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (Chance(pDudeInfo->alertChance))
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -1531,7 +1531,7 @@ void aiThinkTarget(DBloodActor* actor)
 void aiLookForTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (Chance(pDudeInfo->alertChance))
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -1598,7 +1598,7 @@ void aiProcessDudes(void)
 	while (auto actor = it.Next())
 	{
 		if (actor->spr.flags & 32) continue;
-		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		if (actor->IsPlayerActor() || actor->xspr.health == 0) continue;
 
 		actor->xspr.stateTimer = ClipLow(actor->xspr.stateTimer - 4, 0);
