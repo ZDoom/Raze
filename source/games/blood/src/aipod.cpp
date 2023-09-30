@@ -71,7 +71,7 @@ void podAttack(int, DBloodActor* actor)
 	dv.Y += Random2F(1000, 4);
 	double nDist = dv.XY().Length();
 	DBloodActor* pMissile = nullptr;
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudePodGreen:
 		dv.Z += 31.25;
@@ -106,7 +106,7 @@ void sub_70284(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 2502, -1, 0);
 	int nDist, nBurn;
 	DAMAGE_TYPE dmgType;
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudeTentacleGreen:
 	default: // ???
 		nBurn = 0;
@@ -142,7 +142,7 @@ static void aiPodMove(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudePodGreen:
 		case kDudePodFire:
 			aiNewState(actor, &podSearch);
@@ -159,7 +159,7 @@ static void aiPodMove(DBloodActor* actor)
 static void aiPodChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) {
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudePodGreen:
 		case kDudePodFire:
 			aiNewState(actor, &podMove);
@@ -184,7 +184,7 @@ static void aiPodChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0) {
 
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudePodGreen:
 		case kDudePodFire:
 			aiNewState(actor, &podSearch);
@@ -205,8 +205,8 @@ static void aiPodChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (nDeltaAngle < DAngle15 && target->spr.type != kDudePodGreen && target->spr.type != kDudePodFire) {
-					switch (actor->spr.type) {
+				if (nDeltaAngle < DAngle15 && target->GetType() != kDudePodGreen && target->GetType() != kDudePodFire) {
+					switch (actor->GetType()) {
 					case kDudePodGreen:
 					case kDudePodFire:
 						aiNewState(actor, &podStartChase);
@@ -222,7 +222,7 @@ static void aiPodChase(DBloodActor* actor)
 		}
 	}
 
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudePodGreen:
 	case kDudePodFire:
 		aiNewState(actor, &podMove);

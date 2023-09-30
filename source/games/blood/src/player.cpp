@@ -238,7 +238,7 @@ inline bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* target)
 		return false;
 	if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
 	{
-		PLAYER* pTargetPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+		PLAYER* pTargetPlayer = getPlayer(target);
 		if (pSourcePlayer != pTargetPlayer)
 		{
 			if (gGameOptions.nGameType == 1)
@@ -300,7 +300,7 @@ bool powerupActivate(PLAYER* pPlayer, int nPowerUp)
 		else if (isShrinked(pPlayer->actor)) playerDeactivateShrooms(pPlayer);
 		else {
 			playerSizeGrow(pPlayer, 2);
-			if (powerupCheck(&gPlayer[pPlayer->actor->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0) {
+			if (powerupCheck(&gPlayer[pPlayer->actor->GetType() - kDudePlayer1], kPwUpShadowCloak) > 0) {
 				powerupDeactivate(pPlayer, kPwUpShadowCloak);
 				pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 			}
@@ -1027,7 +1027,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 {
 	char buffer[80];
 	int pickupSnd = 775;
-	int nType = itemactor->spr.type - kItemBase;
+	int nType = itemactor->GetType() - kItemBase;
 	auto plActor = pPlayer->actor;
 
 	switch (itemactor->spr.type) {
@@ -1187,7 +1187,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 	case kItemArmorFire:
 	case kItemArmorSpirit:
 	case kItemArmorSuper: {
-		ARMORDATA* pArmorData = &armorData[itemactor->spr.type - kItemArmorBasic]; bool pickedUp = false;
+		ARMORDATA* pArmorData = &armorData[itemactor->GetType() - kItemArmorBasic]; bool pickedUp = false;
 		if (pPlayer->armor[1] < pArmorData->armor1max) {
 			pPlayer->armor[1] = ClipHigh(pPlayer->armor[1] + pArmorData->armor1, pArmorData->armor1max);
 			pickedUp = true;
@@ -1258,7 +1258,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 
 bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 {
-	const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[ammoactor->spr.type - kItemAmmoBase];
+	const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[ammoactor->GetType() - kItemAmmoBase];
 	int nAmmoType = pAmmoItemData->type;
 
 	if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
@@ -1282,7 +1282,7 @@ bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 
 bool PickupWeapon(PLAYER* pPlayer, DBloodActor* weaponactor)
 {
-	const WEAPONITEMDATA* pWeaponItemData = &gWeaponItemData[weaponactor->spr.type - kItemWeaponBase];
+	const WEAPONITEMDATA* pWeaponItemData = &gWeaponItemData[weaponactor->GetType() - kItemWeaponBase];
 	int nWeaponType = pWeaponItemData->type;
 	int nAmmoType = pWeaponItemData->ammoType;
 	if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
@@ -1914,9 +1914,9 @@ void playerFrag(PLAYER* pKiller, PLAYER* pVictim)
 	assert(pVictim != NULL);
 
 	char buffer[128] = "";
-	int nKiller = pKiller->actor->spr.type - kDudePlayer1;
+	int nKiller = pKiller->actor->GetType() - kDudePlayer1;
 	assert(nKiller >= 0 && nKiller < kMaxPlayers);
-	int nVictim = pVictim->actor->spr.type - kDudePlayer1;
+	int nVictim = pVictim->actor->GetType() - kDudePlayer1;
 	assert(nVictim >= 0 && nVictim < kMaxPlayers);
 	if (nKiller == nVictim)
 	{
@@ -1978,7 +1978,7 @@ void FragPlayer(PLAYER* pPlayer, DBloodActor* killer)
 {
 	if (killer && killer->IsPlayerActor())
 	{
-		PLAYER* pKiller = &gPlayer[killer->spr.type - kDudePlayer1];
+		PLAYER* pKiller = getPlayer(killer);
 		playerFrag(pKiller, pPlayer);
 		int nTeam1 = pKiller->teamId & 1;
 		int nTeam2 = pPlayer->teamId & 1;
@@ -2322,7 +2322,7 @@ void PlayerSurvive(int, DBloodActor* actor)
 		sfxPlay3DSound(actor, 3009, 0, 6);
 		if (actor->IsPlayerActor())
 		{
-			PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+			PLAYER* pPlayer = getPlayer(actor);
 			if (pPlayer->nPlayer == myconnectindex)
 				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
 			else
@@ -2539,7 +2539,7 @@ void SerializePlayers(FSerializer& arc)
 	{
 		for (int i = 0; i < gNetPlayers; i++)
 		{
-			gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].actor->spr.type - kDudeBase];
+			gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].actor->GetType() - kDudeBase];
 
 #ifdef NOONE_EXTENSIONS
 			// load qav scene

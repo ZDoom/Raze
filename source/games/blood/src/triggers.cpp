@@ -265,7 +265,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 				{
 					double top, bottom;
 					GetActorExtents(actor, &top, &bottom);
-					DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
+					DUDEINFO* pDudeInfo = getDudeInfo(target);
 					auto pos = target->spr.pos;
 					auto nDist = (pos.XY() - actor->spr.pos.XY()).Length();
 					if (nDist != 0 && cansee(DVector3(actor->spr.pos.XY(), top), actor->sector(), pos, target->sector()))
@@ -960,7 +960,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot + pt_w2 - pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->GetType() - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
@@ -968,7 +968,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot - pt_w2 + pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->GetType() - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 				}
 			}
 		}
@@ -1599,7 +1599,7 @@ void OperateTeleport(sectortype* pSector)
 			PLAYER* pPlayer;
 			bool bPlayer = actor->IsPlayerActor();
 			if (bPlayer)
-				pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+				pPlayer = getPlayer(actor);
 			else
 				pPlayer = NULL;
 			if (bPlayer || !SectorContainsDudes(destactor->sector()))

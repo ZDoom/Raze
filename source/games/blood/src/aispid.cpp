@@ -49,7 +49,7 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 	{
 		nBlind <<= 4;
 		max <<= 4;
-		PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+		PLAYER* pPlayer = getPlayer(actor);
 		if (pPlayer->blindEffect < max)
 		{
 			pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect + nBlind, max);
@@ -74,8 +74,8 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
 			vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
-			PLAYER* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
-			switch (actor->spr.type)
+			PLAYER* pPlayer = getPlayer(target);
+			switch (actor->GetType())
 			{
 			case kDudeSpiderBrown:
 				actFireVector(actor, 0, 0, vec, kVectorSpiderBite);
@@ -118,7 +118,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor()) {
 		vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
 		case kDudeSpiderBlack:
@@ -200,7 +200,7 @@ static void spidThinkChase(DBloodActor* actor)
 		aiNewState(actor, &spidSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &spidSearch);
 		return;
@@ -216,7 +216,7 @@ static void spidThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 
-				switch (actor->spr.type) {
+				switch (actor->GetType()) {
 				case kDudeSpiderRed:
 					if (nDist < 57.5625 && nDeltaAngle < DAngle15)
 						aiNewState(actor, &spidBite);

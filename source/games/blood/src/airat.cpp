@@ -92,7 +92,7 @@ static void ratThinkChase(DBloodActor* actor)
 		aiNewState(actor, &ratSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &ratSearch);
 		return;

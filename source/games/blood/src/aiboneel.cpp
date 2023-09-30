@@ -79,7 +79,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
 	DVector3 vect(actor->spr.Angles.Yaw.ToVector() * 1024, height2 - height);
@@ -267,7 +267,7 @@ static void eelThinkChase(DBloodActor* actor)
 		aiNewState(actor, &eelSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &eelSearch);
 		return;

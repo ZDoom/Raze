@@ -79,7 +79,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 	{
 		if (!actor->exists()) continue;
 		if (actor->hasX()) {
-			switch (actor->spr.type) {
+			switch (actor->GetType()) {
 			case kMarkerSPStart:
 				if (gGameOptions.nGameType < 2 && actor->xspr.data1 >= 0 && actor->xspr.data1 < kMaxPlayers) {
 					ZONE* pZone = &gStartZone[actor->xspr.data1];
@@ -219,7 +219,7 @@ int CheckLink(DBloodActor* actor)
 				z2 = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 			actor->spr.pos.Z += z2 - z;
 			actor->interpolated = false;
-			return aUpper->spr.type;
+			return aUpper->GetType();
 		}
 	}
 	if (aLower)
@@ -243,7 +243,7 @@ int CheckLink(DBloodActor* actor)
 				z2 = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 			actor->spr.pos.Z += z2 - z;
 			actor->interpolated = false;
-			return aLower->spr.type;
+			return aLower->GetType();
 		}
 	}
 	return 0;
@@ -279,7 +279,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			else
 				z2 = getceilzofslopeptr(*pSector, cPos);
 			cPos.Z += z2 - z1;
-			return aUpper->spr.type;
+			return aUpper->GetType();
 		}
 	}
 	if (aLower)
@@ -301,7 +301,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			else
 				z2 = getflorzofslopeptr(*pSector, cPos);
 			cPos.Z += z2 - z1;
-			return aLower->spr.type;
+			return aLower->GetType();
 		}
 	}
 	return 0;

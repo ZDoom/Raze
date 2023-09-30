@@ -80,7 +80,7 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
 	DVector3 vec(actor->spr.Angles.Yaw.ToVector() * 64, height - height2);
@@ -312,7 +312,7 @@ static void gargThinkChase(DBloodActor* actor)
 		aiNewState(actor, &gargoyleFSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &gargoyleFSearch);
 		return;
@@ -322,7 +322,7 @@ static void gargThinkChase(DBloodActor* actor)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dxyAngle);
 		double height = pDudeInfo->eyeHeight * actor->spr.scale.Y;
-		// Should be dudeInfo[target->spr.type-kDudeBase]
+		// Should be dudeInfo[target]
 		double height2 = pDudeInfo->eyeHeight * target->spr.scale.Y;
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
@@ -335,7 +335,7 @@ static void gargThinkChase(DBloodActor* actor)
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
 				bool angWithinRange = nDeltaAngle < DAngle15;
-				switch (actor->spr.type)
+				switch (actor->GetType())
 				{
 				case kDudeGargoyleFlesh:
 					if (nDist < 0x180 && nDist > 0xc0 && angWithinRange)
@@ -351,7 +351,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeGargoyleStone)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleStone)
 							{
 								sfxPlay3DSound(actor, 1408, 0, 0);
 								aiNewState(actor, &gargoyleFThrow);
@@ -376,7 +376,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeGargoyleStone)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleStone)
 							{
 								sfxPlay3DSound(actor, 1406, 0, 0);
 								aiNewState(actor, &gargoyleFSlash);
@@ -410,7 +410,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeGargoyleFlesh)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleFlesh)
 							{
 								sfxPlay3DSound(actor, 1457, 0, 0);
 								aiNewState(actor, &gargoyleSBlast);
@@ -434,7 +434,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeGargoyleFlesh)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleFlesh)
 								aiNewState(actor, &gargoyleFSlash);
 							break;
 						default:
@@ -535,7 +535,7 @@ static void gargMoveSlow(DBloodActor* actor)
 		t2 *= 0.5;
 	});
 
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudeGargoyleFlesh:
 		actor->vel.Z = 4.26666;
 		break;
@@ -568,7 +568,7 @@ static void gargMoveSwoop(DBloodActor* actor)
 
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudeGargoyleFlesh:
 			actor->vel.Z = t1;
 			break;
@@ -603,7 +603,7 @@ static void gargMoveFly(DBloodActor* actor)
 	
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudeGargoyleFlesh:
 			actor->vel.Z = -t1;
 			break;

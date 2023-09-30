@@ -198,7 +198,7 @@ void PropagateMarkerReferences(void)
 	BloodStatIterator it(kStatMarker);
 	while (auto actor = it.Next())
 	{
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 		case kMarkerOff:
 		case kMarkerAxis:
@@ -699,6 +699,11 @@ enum
 inline DUDEINFO* getDudeInfo(DBloodActor* actor)
 {
 	return getDudeInfo(actor->GetType());
+}
+
+inline PLAYER* getPlayer(DBloodActor* actor)
+{
+	return &gPlayer[actor->GetType() - kDudePlayer1];
 }
 
 

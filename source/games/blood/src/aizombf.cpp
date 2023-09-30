@@ -47,13 +47,13 @@ AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zomb
 
 void zombfHackSeqCallback(int, DBloodActor* actor)
 {
-	if (actor->spr.type != kDudeZombieButcher)
+	if (actor->GetType() != kDudeZombieButcher)
 		return;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
-	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 	double height2 = pDudeInfoT->eyeHeight * target->spr.scale.Y * 0.25;
 	actFireVector(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector() * 64, height - height2), kVectorCleaver);
 }
@@ -63,7 +63,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 
 	DVector2 dv = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
@@ -119,7 +119,7 @@ static void zombfThinkChase(DBloodActor* actor)
 		aiNewState(actor, &zombieFSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && (powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpDeathMaskUseless) > 0))
+	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target), kPwUpDeathMaskUseless) > 0))
 	{
 		aiNewState(actor, &zombieFSearch);
 		return;
@@ -143,7 +143,7 @@ static void zombfThinkChase(DBloodActor* actor)
 						aiNewState(actor, &zombieFThrow);
 						break;
 					case 3:
-						if (actor->spr.type != gHitInfo.actor()->spr.type)
+						if (actor->GetType() != gHitInfo.actor()->GetType())
 							aiNewState(actor, &zombieFThrow);
 						else
 							aiNewState(actor, &zombieFDodge);
@@ -162,7 +162,7 @@ static void zombfThinkChase(DBloodActor* actor)
 						aiNewState(actor, &zombieFPuke);
 						break;
 					case 3:
-						if (actor->spr.type != gHitInfo.actor()->spr.type)
+						if (actor->GetType() != gHitInfo.actor()->GetType())
 							aiNewState(actor, &zombieFPuke);
 						else
 							aiNewState(actor, &zombieFDodge);
@@ -181,7 +181,7 @@ static void zombfThinkChase(DBloodActor* actor)
 						aiNewState(actor, &zombieFHack);
 						break;
 					case 3:
-						if (actor->spr.type != gHitInfo.actor()->spr.type)
+						if (actor->GetType() != gHitInfo.actor()->GetType())
 							aiNewState(actor, &zombieFHack);
 						else
 							aiNewState(actor, &zombieFDodge);

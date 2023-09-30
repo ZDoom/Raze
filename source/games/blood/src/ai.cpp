@@ -920,7 +920,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		if (actor->GetOwner() != target)
 		{
 			actor->SetTarget(target);
-			DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
+			DUDEINFO* pDudeInfo = getDudeInfo(target);
 			double eyeHeight = (pDudeInfo->eyeHeight * target->spr.scale.Y);
 			actor->xspr.TargetPos = target->spr.pos.plusZ(-eyeHeight);
 		}
@@ -1574,7 +1574,7 @@ void aiLookForTarget(DBloodActor* actor)
 				double nDist = (actor2->spr.pos.XY() - actor->spr.pos.XY()).Length();
 				if (actor2->GetType() == kDudeInnocent)
 				{
-					pDudeInfo = getDudeInfo(actor2->spr.type);
+					pDudeInfo = getDudeInfo(actor2);
 					if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 						continue;
 					aiSetTarget(actor, actor2);

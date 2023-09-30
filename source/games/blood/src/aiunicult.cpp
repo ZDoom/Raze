@@ -325,7 +325,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	DBloodActor* spawned = nullptr;
 	if ((spawned = actFireThing(actor, 0., 0., (dv.Z / 32768.) - zThrow, curWeapon, dist * (2048. / 64800))) == nullptr) return;
 
-	if (pThinkInfo->picno < 0 && spawned->spr.type != kModernThingThrowableRock) spawned->spr.setspritetexture(FNullTextureID());
+	if (pThinkInfo->picno < 0 && spawned->GetType() != kModernThingThrowableRock) spawned->spr.setspritetexture(FNullTextureID());
 
 	spawned->SetOwner(actor);
 
@@ -462,7 +462,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	if (target->xspr.health <= 0) // target is dead
 	{
 		PLAYER* pPlayer = NULL;
-		if ((!target->IsPlayerActor()) || ((pPlayer = getPlayerById(target->spr.type)) != NULL && pPlayer->fragger == actor))
+		if ((!target->IsPlayerActor()) || ((pPlayer = getPlayerById(target->GetType())) != NULL && pPlayer->fragger == actor))
 		{
 			playGenDudeSound(actor, kGenDudeSndTargetDead);
 			if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -498,7 +498,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 	else if (target->IsPlayerActor())
 	{
-		PLAYER* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+		PLAYER* pPlayer = getPlayer(target);
 		if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 		{
 			if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -808,7 +808,7 @@ static void unicultThinkChase(DBloodActor* actor)
 									else if (inDuck(actor->xspr.aiState)) aiGenDudeNewState(actor, &genDudeDodgeShortD);
 									else aiGenDudeNewState(actor, &genDudeDodgeShortL);
 
-									switch (hitactor->spr.type)
+									switch (hitactor->GetType())
 									{
 									case kDudeModernCustom: // and make dude which could be hit to dodge too
 										if (!dudeIsMelee(hitactor) && Chance(int(dist * 256)))
@@ -1351,7 +1351,7 @@ void removeDudeStuff(DBloodActor* actor)
 	while (auto actor2 = it.Next())
 	{
 		if (actor2->GetOwner() != actor) continue;
-		switch (actor2->spr.type) {
+		switch (actor2->GetType()) {
 		case kThingArmedProxBomb:
 		case kThingArmedRemoteBomb:
 		case kModernThingTNTProx:
@@ -1758,12 +1758,12 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 		{
 			if (actTarget->IsPlayerActor())
 			{
-				PLAYER* pPlayer = &gPlayer[actTarget->spr.type - kDudePlayer1];
+				PLAYER* pPlayer = getPlayer(actTarget);
 				if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0) return;
 			}
 			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			int nType = actTarget->spr.type - kDudeBase;
+			int nType = actTarget->GetType() - kDudeBase;
 			DUDEINFO* pDudeInfo = &dudeInfo[nType];
 			double z1 = (top - actor->spr.pos.Z) - 1;
 			auto atpos = actTarget->spr.pos;
@@ -1886,7 +1886,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 
 	if (source->spr.flags & kModernTypeFlag1)
 	{
-		switch (source->spr.type) {
+		switch (source->GetType()) {
 		case kModernCustomDudeSpawn:
 			//inherit pal?
 			if (spawned->spr.pal <= 0) spawned->spr.pal = source->spr.pal;
@@ -1955,7 +1955,7 @@ void genDudeTransform(DBloodActor* actor)
 	// trigger dude death before transform
 	trTriggerSprite(actor, kCmdOff, actor);
 
-	actor->spr.inittype = actIncarnation->spr.type;
+	actor->spr.inittype = actIncarnation->GetType();
 	actor->ChangeType(actor->spr.inittype);
 	actor->spr.flags = actIncarnation->spr.flags;
 	actor->spr.pal = actIncarnation->spr.pal;
@@ -1999,11 +1999,11 @@ void genDudeTransform(DBloodActor* actor)
 	actIncarnation->xspr.key = actIncarnation->xspr.dropMsg = 0;
 
 	// set hp
-	if (actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->spr.type - kDudeBase].startHealth << 4;
+	if (actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->GetType() - kDudeBase].startHealth << 4;
 	else actor->xspr.health = ClipRange(actor->xspr.sysData2 << 4, 1, 65535);
 
-	int seqId = dudeInfo[actor->spr.type - kDudeBase].seqStartID;
-	switch (actor->spr.type) {
+	int seqId = dudeInfo[actor->GetType() - kDudeBase].seqStartID;
+	switch (actor->GetType()) {
 	case kDudePodMother: // fake dude
 	case kDudeTentacleMother: // fake dude
 		break;
@@ -2223,8 +2223,8 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 {
 	if (!actor || !actor->hasX()) return false;
 
-	if (actor->spr.type != kDudeModernCustom) {
-		Printf(PRINT_HIGH, "actor->spr.type != kDudeModernCustom");
+	if (actor->GetType() != kDudeModernCustom) {
+		Printf(PRINT_HIGH, "actor->GetType() != kDudeModernCustom");
 		return false;
 	}
 	else if (propId < kGenDudePropertyAll || propId >= kGenDudePropertyMax) {
@@ -2498,7 +2498,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 
 void aiGenDudeInitSprite(DBloodActor* actor)
 {
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudeModernCustom:
 	{

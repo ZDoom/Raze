@@ -1356,7 +1356,7 @@ void ThrowRemote(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedRemoteBomb, nSpeed);
 	if (spawned)
 	{
-		spawned->xspr.rxID = 90 + (pPlayer->actor->spr.type - kDudePlayer1);
+		spawned->xspr.rxID = 90 + (pPlayer->actor->GetType() - kDudePlayer1);
 		UseAmmo(pPlayer, 11, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1373,14 +1373,14 @@ void DropRemote(int, PLAYER* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedRemoteBomb, 0);
 	if (spawned)
 	{
-		spawned->xspr.rxID = 90 + (pPlayer->actor->spr.type - kDudePlayer1);
+		spawned->xspr.rxID = 90 + (pPlayer->actor->GetType() - kDudePlayer1);
 		UseAmmo(pPlayer, 11, 1);
 	}
 }
 
 void FireRemote(int, PLAYER* pPlayer)
 {
-	evSendGame(90 + (pPlayer->actor->spr.type - kDudePlayer1), kCmdOn);
+	evSendGame(90 + (pPlayer->actor->GetType() - kDudePlayer1), kCmdOn);
 }
 
 //---------------------------------------------------------------------------
@@ -1694,7 +1694,7 @@ void FireVoodoo(int nTrigger, PLAYER* pPlayer)
 		fxSpawnBlood(targetactor, 17 << 4);
 		int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 9 << 4);
 		if (targetactor->IsPlayerActor())
-			WeaponLower(&gPlayer[targetactor->spr.type - kDudePlayer1]);
+			WeaponLower(getPlayer(targetactor));
 		UseAmmo(pPlayer, 9, nDamage / 4);
 		break;
 	}
@@ -1713,7 +1713,7 @@ void FireVoodoo(int nTrigger, PLAYER* pPlayer)
 		int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 11 << 4);
 		if (targetactor->IsPlayerActor())
 		{
-			PLAYER* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
+			PLAYER* pOtherPlayer = getPlayer(targetactor);
 			pOtherPlayer->blindEffect = 128;
 		}
 		UseAmmo(pPlayer, 9, nDamage / 4);
@@ -1756,7 +1756,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 
 						if (targetactor->IsPlayerActor())
 						{
-							PLAYER* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
+							PLAYER* pOtherPlayer = getPlayer(targetactor);
 							if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
 								powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
 						}
@@ -1794,7 +1794,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					UseAmmo(pPlayer, 9, nDamage);
 					if (targetactor->IsPlayerActor())
 					{
-						PLAYER* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
+						PLAYER* pOtherPlayer = getPlayer(targetactor);
 						if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
 							powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
 					}

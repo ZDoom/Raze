@@ -63,7 +63,7 @@ void HackSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	if (!target) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 	DVector3 dv;
 	dv.XY() = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
@@ -121,7 +121,7 @@ static void zombaThinkChase(DBloodActor* actor)
 		aiNewState(actor, &zombieASearch);
 		return;
 	}
-	if (target->IsPlayerActor() && (powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpDeathMaskUseless) > 0))
+	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target), kPwUpDeathMaskUseless) > 0))
 	{
 		aiNewState(actor, &zombieAGoto);
 		return;
@@ -172,7 +172,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 		aiNewState(actor, &zombieASearch);
 		return;
 	}
-	if (target->IsPlayerActor() && (powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpDeathMaskUseless) > 0))
+	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target), kPwUpDeathMaskUseless) > 0))
 	{
 		aiNewState(actor, &zombieAGoto);
 		return;

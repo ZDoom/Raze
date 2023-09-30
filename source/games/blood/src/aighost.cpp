@@ -65,7 +65,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
 	DVector3 dv(actor->spr.Angles.Yaw.ToVector() * 64, height - height2);
@@ -291,7 +291,7 @@ static void ghostThinkChase(DBloodActor* actor)
 		aiNewState(actor, &ghostSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &ghostSearch);
 		return;
@@ -301,7 +301,7 @@ static void ghostThinkChase(DBloodActor* actor)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dxyAngle);
 		double height = pDudeInfo->eyeHeight * actor->spr.scale.Y;
-		// Should be dudeInfo[target->spr.type-kDudeBase]
+		// Should be dudeInfo[target->GetType()-kDudeBase]
 		double height2 = pDudeInfo->eyeHeight * target->spr.scale.Y;
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
@@ -314,7 +314,7 @@ static void ghostThinkChase(DBloodActor* actor)
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
 				bool angWithinRange = nDeltaAngle < DAngle15;
-				switch (actor->spr.type) {
+				switch (actor->GetType()) {
 				case kDudePhantasm:
 					if (nDist < 0x200 && nDist > 0x100 && angWithinRange) {
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dxy, 0), CLIPMASK1, 0);
@@ -327,7 +327,7 @@ static void ghostThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudePhantasm)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudePhantasm)
 								aiNewState(actor, &ghostBlast);
 							break;
 						default:
@@ -347,7 +347,7 @@ static void ghostThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudePhantasm)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudePhantasm)
 								aiNewState(actor, &ghostSlash);
 							break;
 						default:
@@ -429,7 +429,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 		t1 += nAccel * 0.5;
 		t2 *= 0.5;
 	});
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudePhantasm:
 		actor->vel.Z = 4.26666;
 		break;
@@ -458,7 +458,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudePhantasm:
 			actor->vel.Z = t1;
 			break;
@@ -488,7 +488,7 @@ static void ghostMoveFly(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudePhantasm:
 			actor->vel.Z = -t1;
 			break;

@@ -125,7 +125,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 			}
 		}
 	}
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudeCerberusTwoHead:
 		actFireMissile(actor, -Cerberus_XYOff, 0, Aim, kMissileFireballCerberus);
 		actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFireballCerberus);
@@ -180,7 +180,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 			DAngle nDeltaAngle = absangle(nAngle, actor->spr.Angles.Yaw);
 			if (nDeltaAngle <= DAngle45)
 			{
-				DUDEINFO* pDudeInfo2 = getDudeInfo(actor2->spr.type);
+				DUDEINFO* pDudeInfo2 = getDudeInfo(actor2);
 				double height1 = (pDudeInfo2->aimHeight * actor2->spr.scale.Y);
 				double tz1 = actor2->spr.pos.Z - height - actor->spr.pos.Z;
 
@@ -195,7 +195,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 			}
 		}
 	}
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 
 	case kDudeCerberusTwoHead:
 		actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFlameHound);
@@ -282,7 +282,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudeCerberusTwoHead:
 			aiNewState(actor, &cerberusSearch);
 			break;
@@ -297,7 +297,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
 static void cerberusThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) {
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudeCerberusTwoHead:
 			aiNewState(actor, &cerberusGoto);
 			break;
@@ -325,7 +325,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 
 	if (target->xspr.health == 0) {
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kDudeCerberusTwoHead:
 			aiNewState(actor, &cerberusSearch);
 			break;
@@ -336,8 +336,8 @@ static void cerberusThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0) {
-		switch (actor->spr.type) {
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0) {
+		switch (actor->GetType()) {
 		case kDudeCerberusTwoHead:
 			aiNewState(actor, &cerberusSearch);
 			break;
@@ -361,7 +361,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 
 				if (nDist < 0x1b0 && nDist > 0xd0 && nDeltaAngle < DAngle15) 
 				{
-					switch (actor->spr.type) {
+					switch (actor->GetType()) {
 					case kDudeCerberusTwoHead:
 						aiNewState(actor, &cerberusBurn);
 						break;
@@ -373,7 +373,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 
 				else if (nDist < 0xb0 && nDist > 0x50 && nDeltaAngle < DAngle15)
 				{
-					switch (actor->spr.type) {
+					switch (actor->GetType()) {
 					case kDudeCerberusTwoHead:
 						aiNewState(actor, &cerberus3Burn);
 						break;
@@ -385,14 +385,14 @@ static void cerberusThinkChase(DBloodActor* actor)
 				else if (nDist < 0x20 && nDeltaAngle < DAngle15)
 				{
 					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
-					switch (actor->spr.type) {
+					switch (actor->GetType()) {
 					case kDudeCerberusTwoHead:
 						switch (hit) {
 						case -1:
 							aiNewState(actor, &cerberusBite);
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeHellHound)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeHellHound)
 								aiNewState(actor, &cerberusBite);
 							break;
 						case 0:
@@ -409,7 +409,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 							aiNewState(actor, &cerberus2Bite);
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeHellHound)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeHellHound)
 								aiNewState(actor, &cerberus2Bite);
 							break;
 						case 0:
@@ -427,7 +427,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 		}
 	}
 
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudeCerberusTwoHead:
 		aiNewState(actor, &cerberusGoto);
 		break;

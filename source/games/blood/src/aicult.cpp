@@ -247,7 +247,7 @@ static void cultThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		switch (actor->xspr.medium)
 		{
@@ -271,11 +271,11 @@ static void cultThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				actor->dudeSlope = nDist == 0 ? 0 : (target->spr.pos.Z - actor->spr.pos.Z) / nDist;
-				switch (actor->spr.type) 
+				switch (actor->GetType()) 
 				{
 				case kDudeCultistTommy:
 					if (nDist < 0x1e0 && nDist > 0xe0 && nDeltaAngle < DAngle15 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->GetType() - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -289,7 +289,7 @@ static void cultThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
 								aiNewState(actor, &cultistTThrow);
 							break;
 						default:
@@ -311,7 +311,7 @@ static void cultThinkChase(DBloodActor* actor)
 								aiNewState(actor, &cultistTSwimFire);
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 									aiNewState(actor, &cultistTFire);
@@ -343,7 +343,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistShotgun:
 					if (nDist < 0x2c0 && nDist > 0x140 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !gPlayer[target->spr.type - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !gPlayer[target->GetType() - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -357,7 +357,7 @@ static void cultThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
 								aiNewState(actor, &cultistSThrow);
 							break;
 						default:
@@ -379,7 +379,7 @@ static void cultThinkChase(DBloodActor* actor)
 								aiNewState(actor, &cultistSSwimFire);
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistTommy)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistTommy)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 									aiNewState(actor, &cultistSFire);
@@ -411,7 +411,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistTesla:
 					if (nDist < 0x1e0 && nDist > 0xe0 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->GetType() - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -425,7 +425,7 @@ static void cultThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
 								aiNewState(actor, &cultistTsThrow);
 							break;
 						default:
@@ -448,7 +448,7 @@ static void cultThinkChase(DBloodActor* actor)
 								aiNewState(actor, &cultistTsSwimFire);
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistTommy)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistTommy)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 									aiNewState(actor, &cultistTsFire);
@@ -491,7 +491,7 @@ static void cultThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
 								aiNewState(actor, &cultistDThrow);
 							break;
 						default:
@@ -511,7 +511,7 @@ static void cultThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
 								aiNewState(actor, &cultist139A78);
 							break;
 						default:
@@ -522,7 +522,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistBeast:
 					if (nDist < 0x1e0 && nDist > 0xe0 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->GetType() - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -536,7 +536,7 @@ static void cultThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
 								aiNewState(actor, &cultistSThrow);
 							break;
 						default:
@@ -558,7 +558,7 @@ static void cultThinkChase(DBloodActor* actor)
 								aiNewState(actor, &cultistSSwimFire);
 							break;
 						case 3:
-							if (actor->spr.type != gHitInfo.actor()->spr.type && gHitInfo.actor()->spr.type != kDudeCultistTommy)
+							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistTommy)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 									aiNewState(actor, &cultistSFire);

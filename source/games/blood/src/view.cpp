@@ -111,7 +111,7 @@ void viewDrawAimedPlayerName(PLAYER* pPlayer)
 		auto actor = gHitInfo.actor();
 		if (actor && actor->IsPlayerActor())
 		{
-			int nPlayer = actor->spr.type - kDudePlayer1;
+			int nPlayer = actor->GetType() - kDudePlayer1;
 			const char* szName = PlayerName(nPlayer);
 			int nPalette = (gPlayer[nPlayer].teamId & 3) + 11;
 			viewDrawText(DigiFont, szName, 160, 125, -128, nPalette, 1, 1);

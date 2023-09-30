@@ -251,7 +251,7 @@ static void batThinkChase(DBloodActor* actor)
 		aiNewState(actor, &batSearch);
 		return;
 	}
-	if (pTarget->IsPlayerActor() && powerupCheck(&gPlayer[pTarget->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (pTarget->IsPlayerActor() && powerupCheck(&gPlayer[pTarget->GetType() - kDudePlayer1], kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &batSearch);
 		return;

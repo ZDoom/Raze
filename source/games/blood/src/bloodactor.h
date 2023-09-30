@@ -188,7 +188,7 @@ inline bool IsTargetTeammate(DBloodActor* pSource, DBloodActor* pTarget)
 {
 	if (!pSource->IsPlayerActor())
 		return false;
-	PLAYER* pSourcePlayer = &gPlayer[pSource->spr.type - kDudePlayer1];
+	PLAYER* pSourcePlayer = getPlayer(pSource);
 	return IsTargetTeammate(pSourcePlayer, pTarget);
 }
 

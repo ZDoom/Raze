@@ -90,7 +90,7 @@ static void burnThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 		case kDudeBurningCultist:
 			aiNewState(actor, &cultistBurnSearch);
@@ -124,7 +124,7 @@ static void burnThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 		case kDudeBurningCultist:
 			aiNewState(actor, &cultistBurnGoto);
@@ -163,7 +163,7 @@ static void burnThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 		case kDudeBurningCultist:
 			aiNewState(actor, &cultistBurnSearch);
@@ -203,7 +203,7 @@ static void burnThinkChase(DBloodActor* actor)
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 51.1875 && nDeltaAngle < DAngle15)
 				{
-					switch (actor->spr.type)
+					switch (actor->GetType())
 					{
 					case kDudeBurningCultist:
 						aiNewState(actor, &cultistBurnAttack);
@@ -235,7 +235,7 @@ static void burnThinkChase(DBloodActor* actor)
 		}
 	}
 
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudeBurningCultist:
 		aiNewState(actor, &cultistBurnGoto);
