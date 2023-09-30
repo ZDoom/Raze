@@ -289,7 +289,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 			if (!gModernMap || actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->GetType() - kDudeBase].startHealth << 4;
 			else actor->xspr.health = ClipRange(actor->xspr.sysData2 << 4, 1, 65535);
 
-			switch (actor->spr.type) {
+			switch (actor->GetType()) {
 			default:
 				actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
 				if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
@@ -582,7 +582,7 @@ void returnFlagToBase(DBloodActor* actor, sectortype*) // 17
 	auto aOwner = actor->GetOwner();
 	if (aOwner)
 	{
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 		case kItemFlagA:
 			trTriggerSprite(aOwner, kCmdOn, aOwner);
@@ -611,7 +611,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 {
 	if (!actor) return;
 	DBloodActor* pFX;
-	if (actor->spr.type == 53)
+	if (actor->spr.type == FX_53)
 		pFX = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos);
 	else
 		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);
@@ -643,7 +643,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	int nDist = Random(16);
 	auto pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist * 4;
 
-	if (actor->spr.Angles.Yaw == DAngle180 && actor->spr.type == 53)
+	if (actor->spr.Angles.Yaw == DAngle180 && actor->spr.type == FX_53)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);
 		assert(nChannel < 32);
@@ -677,7 +677,7 @@ void LeechStateTimer(DBloodActor* actor, sectortype*) // 20
 {
 	if (!actor) return;
 	if (actor->spr.statnum == kStatThing && !(actor->spr.flags & 32)) {
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 		case kThingDroppedLifeLeech:
 #ifdef NOONE_EXTENSIONS
 		case kModernThingEnemyLifeLeech:
@@ -782,7 +782,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 					else
 					{
 						int vd = 0x2666;
-						switch (actor2->spr.type)
+						switch (actor2->GetType())
 						{
 						case kDudeBoneEel:
 						case kDudeBat:

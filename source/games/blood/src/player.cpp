@@ -1030,7 +1030,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 	int nType = itemactor->GetType() - kItemBase;
 	auto plActor = pPlayer->actor;
 
-	switch (itemactor->spr.type) {
+	switch (itemactor->GetType()) {
 	case kItemShadowCloak:
 #ifdef NOONE_EXTENSIONS
 		if (isGrown(pPlayer->actor) || !powerupActivate(pPlayer, nType)) return false;
@@ -1043,7 +1043,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 	case kItemShroomGrow:
 
 		if (gModernMap) {
-			switch (itemactor->spr.type) {
+			switch (itemactor->GetType()) {
 			case kItemShroomShrink:
 				if (isShrinked(pPlayer->actor)) return false;
 				break;
@@ -1217,8 +1217,8 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 	case kItemKeySpider:
 	case kItemKeyMoon:
 	case kItemKeyKey7:
-		if (pPlayer->hasKey[itemactor->spr.type - 99]) return 0;
-		pPlayer->hasKey[itemactor->spr.type - 99] = 1;
+		if (pPlayer->hasKey[itemactor->GetType() - 99]) return 0;
+		pPlayer->hasKey[itemactor->GetType() - 99] = 1;
 		pickupSnd = 781;
 		break;
 	case kItemHealthMedPouch:
@@ -1328,7 +1328,7 @@ bool PickupWeapon(PLAYER* pPlayer, DBloodActor* weaponactor)
 void PickUp(PLAYER* pPlayer, DBloodActor* actor)
 {
 	const char* msg = nullptr;
-	int nType = actor->spr.type;
+	int nType = actor->GetType();
 	bool pickedUp = 0;
 	int customMsg = -1;
 #ifdef NOONE_EXTENSIONS
@@ -2075,7 +2075,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 	pPlayer->painEffect = ClipHigh(pPlayer->painEffect + (nDamage >> 3), 600);
 
 	DBloodActor* pActor = pPlayer->actor;
-	DUDEINFO* pDudeInfo = getDudeInfo(pActor->spr.type);
+	DUDEINFO* pDudeInfo = getDudeInfo(pActor->GetType());
 	int nDeathSeqID = -1;
 	int nKneelingPlayer = -1;
 	bool va = playerSeqPlaying(pPlayer, 16);

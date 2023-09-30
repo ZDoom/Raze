@@ -83,7 +83,7 @@ void PrecacheDude(DBloodActor* actor)
 	seqPrecacheId(pDudeInfo->seqStartID + 5, palette);
 	seqPrecacheId(pDudeInfo->seqStartID + 1, palette);
 	seqPrecacheId(pDudeInfo->seqStartID + 2, palette);
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudeCultistTommy:
 	case kDudeCultistShotgun:
@@ -170,7 +170,7 @@ void PrecacheDude(DBloodActor* actor)
 void PrecacheThing(DBloodActor* actor)
 {
 	int palette = actor->spr.pal;
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kThingGlassWindow: // worthless...
 	case kThingFluorescent:
 		seqPrecacheId(12, palette);

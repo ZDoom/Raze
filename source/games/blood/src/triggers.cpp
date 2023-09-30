@@ -345,7 +345,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	}
 
 
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kTrapMachinegun:
 		if (actor->xspr.health <= 0) break;
 		switch (event.cmd) {
@@ -580,7 +580,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 			SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdRepeat:
-			if (actor->spr.type != kGenTrigger) ActivateGenerator(actor);
+			if (actor->GetType() != kGenTrigger) ActivateGenerator(actor);
 			if (actor->xspr.txID) evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			if (actor->xspr.busyTime > 0) {
 				int nRand = Random2(actor->xspr.data1);
@@ -1863,7 +1863,7 @@ void LinkSprite(DBloodActor* actor, EVENT event)
 	DBloodActor* initiator = event.initiator;
 	int nBusy = GetSourceBusy(event);
 
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kSwitchCombo:
 	{
 		if (event.isActor())
@@ -2280,7 +2280,7 @@ void trInit(TArray<DBloodActor*>& actors)
 	for (auto actor : actors)
 	{
 		if (!actor->exists()) continue;
-		actor->spr.inittype = actor->spr.type;
+		actor->spr.inittype = actor->GetType();
 		actor->basePoint = actor->spr.pos;
 	}
 	for (auto& wal : wall)
@@ -2356,7 +2356,7 @@ void trInit(TArray<DBloodActor*>& actors)
 		{
 			if (actor->xspr.state)
 				actor->xspr.busy = 65536;
-			switch (actor->spr.type) {
+			switch (actor->GetType()) {
 			case kSwitchPadlock:
 				actor->xspr.triggerOnce = 1;
 				break;
@@ -2449,7 +2449,7 @@ void trTextOver(int nId)
 void InitGenerator(DBloodActor* actor)
 {
 	assert(actor->hasX());
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kGenTrigger:
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -2468,7 +2468,7 @@ void InitGenerator(DBloodActor* actor)
 void ActivateGenerator(DBloodActor* actor)
 {
 	assert(actor->hasX());
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kGenDripWater:
 	case kGenDripBlood: {
 		double top, bottom;

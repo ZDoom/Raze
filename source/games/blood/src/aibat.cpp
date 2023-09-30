@@ -261,7 +261,7 @@ static void batThinkChase(DBloodActor* actor)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvec.Angle());
 		double height = pDudeInfo->eyeHeight * actor->spr.scale.Y;
-		// Should be dudeInfo[pTarget->spr.type-kDudeBase]
+		// Should be dudeInfo[pTarget]
 		double height2 = pDudeInfo->eyeHeight * pTarget->spr.scale.Y;
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);

@@ -109,7 +109,7 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 
 	if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->xspr.locked != 1)
 	{
-		int type = actor->spr.type;
+		int type = actor->GetType();
 		if (type >= kThingBase && type < kThingMax)
 			return (thingInfo[type - kThingBase].dmgControl[dmgType] <= minScale);
 		else if (actor->IsDudeActor())
@@ -952,7 +952,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 		else if (source != actor->GetTarget()) // if found a new target, retarget
 		{
 			int nThresh = nDamage;
-			if (actor->spr.type == source->spr.type)
+			if (actor->GetType() == source->GetType())
 				nThresh *= pDudeInfo->changeTargetKin;
 			else
 				nThresh *= pDudeInfo->changeTarget;
@@ -971,7 +971,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				aiPatrolStop(actor, source, actor->xspr.dudeAmbush);
 
-				PLAYER* pPlayer = getPlayerById(source->spr.type);
+				PLAYER* pPlayer = getPlayerById(source->GetType());
 				if (!pPlayer) return nDamage;
 				//if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 				if (readyForCrit(source, actor)) 
@@ -1097,7 +1097,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 			pDudeExtra->teslaHit = 0;
 		}
-		const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax)  && (actor->spr.inittype != actor->spr.type) && !VanillaMode(); // fix burning cultists randomly switching types underwater
+		const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax)  && (actor->spr.inittype != actor->GetType()) && !VanillaMode(); // fix burning cultists randomly switching types underwater
 		switch (actor->GetType())
 		{
 		case kDudeCultistTommy:
@@ -1915,7 +1915,7 @@ void aiInitSprite(DBloodActor* actor)
 
 			// make dude follow the markers
 			bool uwater = spriteIsUnderwater(actor);
-			if (actor->GetTarget() == nullptr || actor->GetTarget()->spr.type != kMarkerPath) 
+			if (actor->GetTarget() == nullptr || actor->GetTarget()->GetType() != kMarkerPath) 
 			{
 				actor->SetTarget(nullptr);
 				aiPatrolSetMarker(actor);

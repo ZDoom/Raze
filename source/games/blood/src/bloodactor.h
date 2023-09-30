@@ -105,22 +105,22 @@ public:
 
 	bool IsThingActor()
 	{
-		return spr.type >= kThingBase && spr.type < kThingMax;
+		return GetType() >= kThingBase && GetType() < kThingMax;
 	}
 
 	bool IsItemActor()
 	{
-		return spr.type >= kItemBase && spr.type < kItemMax;
+		return GetType() >= kItemBase && GetType() < kItemMax;
 	}
 
 	bool IsWeaponActor()
 	{
-		return spr.type >= kItemWeaponBase && spr.type < kItemWeaponMax;
+		return GetType() >= kItemWeaponBase && GetType() < kItemWeaponMax;
 	}
 
 	bool IsAmmoActor()
 	{
-		return spr.type >= kItemAmmoBase && spr.type < kItemAmmoMax;
+		return GetType() >= kItemAmmoBase && GetType() < kItemAmmoMax;
 	}
 	
 	bool isActive()

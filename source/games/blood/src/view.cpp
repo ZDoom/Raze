@@ -644,7 +644,7 @@ void viewDrawScreen(bool sceneonly)
 		it.Reset(kStatProjectile);
 		while (auto actor = it.Next())
 		{
-			switch (actor->spr.type) {
+			switch (actor->GetType()) {
 			case kMissileFlareRegular:
 			case kMissileTeslaAlt:
 			case kMissileFlareAlt:

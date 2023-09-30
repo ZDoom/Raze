@@ -2562,13 +2562,13 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 			}
 #endif
 		}
-		else if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax)
+		else if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax)
 		{
 			mass = thingInfo[actor->GetType() - kThingBase].mass;
 		}
 		else
 		{
-			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", actor->GetIndex(), (int)actor->spr.type, (int)actor->spr.statnum);
+			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", actor->GetIndex(), (int)actor->GetType(), (int)actor->spr.statnum);
 			return;
 		}
 
@@ -3384,7 +3384,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		if (gPlayer[p].fragger == actor && gPlayer[p].deathTime > 0)
 			gPlayer[p].fragger = nullptr;
 	}
-	if (actor->spr.type != kDudeCultistBeast)
+	if (actor->GetType() != kDudeCultistBeast)
 		trTriggerSprite(actor, kCmdOff, killerActor);
 
 	actor->spr.flags |= 7;
@@ -3592,9 +3592,8 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 {
 	if (!actor->IsDudeActor())
 	{
-		Printf(PRINT_HIGH, "Bad Dude Failed: initial=%d type=%d %s\n", (int)actor->spr.inittype, (int)actor->spr.type, (int)(actor->spr.flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
+		Printf(PRINT_HIGH, "Bad Dude Failed: initial=%d type=%d %s\n", (int)actor->spr.inittype, (int)actor->GetType(), (int)(actor->spr.flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
 		return damage >> 4;
-		//I_Error("Bad Dude Failed: initial=%d type=%d %s\n", (int)actor->spr.inittype, (int)actor->spr.type, (int)(actor->spr.flags & 16) ? "RESPAWN" : "NORMAL");
 	}
 
 	auto pDudeInfo = getDudeInfo(actor);
@@ -3810,11 +3809,11 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			pThingInfo = &thingInfo[actorHit->GetType() - kThingBase];
 			break;
 		case kStatDude:
-			pDudeInfo = getDudeInfo(actorHit->spr.type);
+			pDudeInfo = getDudeInfo(actorHit);
 			break;
 		}
 	}
-	switch (missileActor->spr.type)
+	switch (missileActor->GetType())
 	{
 	case kMissileLifeLeechRegular:
 		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
@@ -4493,7 +4492,7 @@ void actAirDrag(DBloodActor* actor, fixed_t drag)
 static Collision MoveThing(DBloodActor* actor)
 {
 	assert(actor->hasX());
-	assert(actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
+	assert(actor->GetType() >= kThingBase && actor->GetType() < kThingMax);
 	const THINGINFO* pThingInfo = &thingInfo[actor->GetType() - kThingBase];
 	auto pSector = actor->sector();
 	assert(pSector);
@@ -4695,7 +4694,7 @@ void MoveDude(DBloodActor* actor)
 	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 	if (!(actor->IsDudeActor()))
 	{
-		Printf(PRINT_HIGH, "%d: actor->IsDudeActor()", actor->spr.type);
+		Printf(PRINT_HIGH, "%d: actor->IsDudeActor()", actor->GetType());
 		return;
 	}
 
@@ -4970,7 +4969,7 @@ void MoveDude(DBloodActor* actor)
 					break;
 				case kDudeBurningCultist:
 				{
-					const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax) && (actor->spr.inittype != actor->spr.type) && !VanillaMode(); // fix burning cultists randomly switching types underwater
+					const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax) && (actor->spr.inittype != actor->GetType()) && !VanillaMode(); // fix burning cultists randomly switching types underwater
 					if (Chance(chance))
 						actor->ChangeType(kDudeCultistTommy);
 					else
@@ -5533,7 +5532,7 @@ static void actCheckProximity()
 						int proxyDist = 96;
 #ifdef NOONE_EXTENSIONS
 						// allow dudeLockout for proximity flag
-						if (gModernMap && actor->spr.type != kThingDroppedLifeLeech && actor->xspr.DudeLockout && !dudeactor->IsPlayerActor())
+						if (gModernMap && actor->GetType() != kThingDroppedLifeLeech && actor->xspr.DudeLockout && !dudeactor->IsPlayerActor())
 							continue;
 
 						if (actor->GetType() == kModernThingEnemyLifeLeech) proxyDist = 512;
@@ -5726,7 +5725,7 @@ static void actCheckExplosion()
 		if (!actor->hasX()) continue;
 
 		auto Owner = actor->GetOwner();
-		int nType = actor->spr.type;
+		int nType = actor->GetType();
 		assert(nType >= 0 && nType < kExplodeMax);
 		const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
 		const auto apos = actor->spr.pos;
@@ -6205,7 +6204,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	if (gModernMap && source->spr.flags & kModernTypeFlag1)
 	{
 		// allow inheriting only for selected source types
-		switch (source->spr.type)
+		switch (source->GetType())
 		{
 		case kMarkerDudeSpawn:
 			//inherit pal?
@@ -6358,7 +6357,7 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 
 void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 {
-	switch (spawned->spr.type)
+	switch (spawned->GetType())
 	{
 	case kMissileLifeLeechRegular:
 		evPostActor(spawned, 0, kCallbackFXFlameLick);
@@ -6557,7 +6556,7 @@ bool actCheckRespawn(DBloodActor* actor)
 		if (nRespawnTime < 0) return 0;
 
 		actor->xspr.respawnPending = 1;
-		if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax)
+		if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax)
 		{
 			actor->xspr.respawnPending = 3;
 			if (actor->GetType() == kThingTNTBarrel) actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -6796,7 +6795,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 							actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 						}
 
-						if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax) {
+						if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax) {
 							actor->spr.statnum = kStatThing; // temporary change statnum property
 							actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << 4);
 							actor->spr.statnum = kStatDecoration; // return statnum property back
