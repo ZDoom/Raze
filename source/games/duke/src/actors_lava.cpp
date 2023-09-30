@@ -474,7 +474,7 @@ void thunder(void)
 
 		if (seen)
 		{
-			if (ps[screenpeek].actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+			if (ps[screenpeek].GetActor()->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			{
 				g_relvisibility = 0;
 				if (krand() > 65000)

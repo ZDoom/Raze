@@ -16,7 +16,7 @@ inline DDukeActor* player_struct::GetActor()
 
 inline int player_struct::GetPlayerNum()
 {
-	return actor->PlayerIndex();
+	return GetActor()->PlayerIndex();
 }
 
 DDukeActor* spawn(DDukeActor* spawner, PClassActor* pname);

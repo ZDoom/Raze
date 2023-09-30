@@ -905,7 +905,7 @@ CCMD(changewalltexture)
 	FTextureID tile = TexMan.CheckForTexture(argv[1], ETextureType::Any);
 	if (!tile.isValid()) tile = tileGetTextureID((int)strtol(argv[1], nullptr, 10));
 	HitInfoBase hit;
-	hitscan(ps[0].actor->spr.pos, ps[0].cursector, DVector3(ps[0].actor->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
+	hitscan(ps[0].GetActor()->spr.pos, ps[0].cursector, DVector3(ps[0].GetActor()->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
 	if (hit.hitWall)
 	{
 		hit.hitWall->setwalltexture(tile);

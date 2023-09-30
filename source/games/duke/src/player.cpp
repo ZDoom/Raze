@@ -504,7 +504,7 @@ void footprints(int snum)
 					DDukeActor* fprint = spawn(actor, DukeFootprintsClass);
 					if (fprint)
 					{
-						fprint->spr.Angles.Yaw = p->actor->spr.Angles.Yaw;
+						fprint->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
 						fprint->spr.pal = p->footprintpal;
 						fprint->spr.shade = (int8_t)p->footprintshade;
 					}
@@ -1028,7 +1028,7 @@ int haslock(sectortype* sectp, int snum)
 
 void purplelavacheck(player_struct* p)
 {
-	auto pact = p->actor;
+	auto pact = p->GetActor();
 	if (p->spritebridge == 0 && pact->insector())
 	{
 		auto sect = pact->sector();

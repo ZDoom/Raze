@@ -271,7 +271,7 @@ struct player_struct
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references.
 	walltype* access_wall;
-	DDukeActor* actor;
+	DDukeActor* GetActor();
 	TObjPtr<DDukeActor*> actorsqu, wackedbyactor, on_crane, holoduke_on, somethingonplayer, access_spritenum, dummyplayersprite, newOwner;
 
 	short last_extra, subweapon;
@@ -351,7 +351,7 @@ struct player_struct
 	// input stuff.
 	InputPacket input;
 
-	DDukeActor* GetActor();
+	DDukeActor* actor;
 	int GetPlayerNum();
 
 	void apply_seasick();

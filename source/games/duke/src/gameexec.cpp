@@ -612,7 +612,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_I:	// Read only, because this is very dangerous.
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].actor, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].GetActor(), sActor, sPlayer);
 		break;
 
 	case PLAYER_ONE_PARALLAX_SECTNUM:
