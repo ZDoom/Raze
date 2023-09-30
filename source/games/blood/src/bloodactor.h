@@ -168,7 +168,6 @@ public:
 
 extern HitInfo gHitInfo;
 
-
 // Iterator wrappers that return an actor pointer, not an index.
 
 using BloodStatIterator = TStatIterator<DBloodActor>;

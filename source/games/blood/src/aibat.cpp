@@ -68,7 +68,7 @@ void batBiteSeqCallback(int, DBloodActor* actor)
 
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget->spr.type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget);
 
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * pTarget->spr.scale.Y);
@@ -167,7 +167,7 @@ static void batThinkPonder(DBloodActor* actor)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvec.Angle());
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.scale.Y);
+		double height2 = (getDudeInfo(pTarget)->eyeHeight * pTarget->spr.scale.Y);
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))

@@ -696,6 +696,11 @@ enum
 
 };
 
+inline DUDEINFO* getDudeInfo(DBloodActor* actor)
+{
+	return getDudeInfo(actor->GetType());
+}
+
 
 DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
 {

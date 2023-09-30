@@ -174,7 +174,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 		if (Lower->spr.type == kMarkerLowWater || Lower->spr.type == kMarkerLowGoo)
 			Depth = 1;
 	}
-	switch (actor->spr.type) {
+	switch (actor->GetType()) {
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
 	case kDudeBat:
@@ -356,7 +356,7 @@ void aiActivateDude(DBloodActor* actor)
 		aiChooseDirection(actor, (actor->xspr.TargetPos - actor->spr.pos).Angle());
 		actor->xspr.state = 1;
 	}
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudePhantasm:
 	{
@@ -1098,7 +1098,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			pDudeExtra->teslaHit = 0;
 		}
 		const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax)  && (actor->spr.inittype != actor->spr.type) && !VanillaMode(); // fix burning cultists randomly switching types underwater
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 		case kDudeCultistTommy:
 		case kDudeCultistShotgun:
@@ -1229,7 +1229,7 @@ void RecoilDude(DBloodActor* actor)
 	if (actor->spr.statnum == kStatDude && (actor->IsDudeActor()))
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(actor);
-		switch (actor->spr.type)
+		switch (actor->GetType())
 		{
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
@@ -1612,7 +1612,7 @@ void aiProcessDudes(void)
 				actor->xspr.aiState->thinkFunc(actor);
 		}
 
-		switch (actor->spr.type) {
+		switch (actor->GetType()) {
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
 		case kDudeModernCustomBurning: {
@@ -1693,7 +1693,7 @@ void aiInitSprite(DBloodActor* actor)
 	}
 #endif
 
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudeCultistTommy:
 	case kDudeCultistShotgun:
@@ -1852,7 +1852,7 @@ void aiInitSprite(DBloodActor* actor)
 	}
 	aiSetTarget(actor, DVector3(0, 0, 0));
 	actor->xspr.stateTimer = 0;
-	switch (actor->spr.type)
+	switch (actor->GetType())
 	{
 	case kDudeSpiderBrown:
 	case kDudeSpiderRed:
