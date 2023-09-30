@@ -340,7 +340,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 		predict.isUnderwater = 1;
 		int nSector = predict.sector;
 		auto nLink = getLowerLink(nSector);
-		if (nLink && (nLink->spr.type == kMarkerLowGoo || nLink->spr.type == kMarkerLowWater))
+		if (nLink && (nLink->GetType() == kMarkerLowGoo || nLink->GetType() == kMarkerLowWater))
 		{
 			if (getceilzofslope(nSector, predict.x, predict.y) > predict.viewz)
 				predict.isUnderwater = 0;
@@ -430,9 +430,9 @@ static void fakeMoveDude(DBloodActor* actor)
 	}
 	auto nUpperLink = getUpperLink(nSector);
 	auto nLowerLink = getLowerLink(nSector);
-	if (nUpperLink >= 0 && (nUpperLink->spr.type == kMarkerUpWater || nUpperLink->spr.type == kMarkerUpGoo))
+	if (nUpperLink >= 0 && (nUpperLink->GetType() == kMarkerUpWater || nUpperLink->GetType() == kMarkerUpGoo))
 		bDepth = 1;
-	if (nLowerLink >= 0 && (nLowerLink->spr.type == kMarkerLowWater || nLowerLink->spr.type == kMarkerLowGoo))
+	if (nLowerLink >= 0 && (nLowerLink->GetType() == kMarkerLowWater || nLowerLink->GetType() == kMarkerLowGoo))
 		bDepth = 1;
 	if (pPlayer)
 		wd += 16;

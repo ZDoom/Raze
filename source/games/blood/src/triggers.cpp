@@ -761,7 +761,7 @@ void SectorStartSound(sectortype* pSector, int nState)
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.statnum == kStatDecoration && actor->spr.type == kSoundSector && actor->hasX())
+		if (actor->spr.statnum == kStatDecoration && actor->GetType() == kSoundSector && actor->hasX())
 		{
 			if (nState)
 			{
@@ -788,7 +788,7 @@ void SectorEndSound(sectortype* pSector, int nState)
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.statnum == kStatDecoration && actor->spr.type == kSoundSector && actor->hasX())
+		if (actor->spr.statnum == kStatDecoration && actor->GetType() == kSoundSector && actor->hasX())
 		{
 			if (nState)
 			{
@@ -815,7 +815,7 @@ void PathSound(sectortype* pSector, int nSound)
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.statnum == kStatDecoration && actor->spr.type == kSoundSector)
+		if (actor->spr.statnum == kStatDecoration && actor->GetType() == kSoundSector)
 			sfxPlay3DSound(actor, nSound, 0, 0);
 	}
 }
@@ -1589,7 +1589,7 @@ void OperateTeleport(sectortype* pSector)
 	auto destactor = pXSector->marker0;
 	assert(destactor != nullptr);
 	assert(destactor->spr.statnum == kStatMarker);
-	assert(destactor->spr.type == kMarkerWarpDest);
+	assert(destactor->GetType() == kMarkerWarpDest);
 	assert(destactor->insector());
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
@@ -1645,7 +1645,7 @@ void OperatePath(sectortype* pSector, EVENT event)
 	BloodStatIterator it(kStatPathMarker);
 	while ((actor = it.Next()))
 	{
-		if (actor->spr.type == kMarkerPath)
+		if (actor->GetType() == kMarkerPath)
 		{
 			if (actor->xspr.data1 == nId)
 				break;
@@ -1800,7 +1800,7 @@ void InitPath(sectortype* pSector, XSECTOR* pXSector)
 	BloodStatIterator it(kStatPathMarker);
 	while ((actor = it.Next()))
 	{
-		if (actor->spr.type == kMarkerPath && actor->hasX())
+		if (actor->GetType() == kMarkerPath && actor->hasX())
 		{
 			if (actor->xspr.data1 == nId)
 				break;
@@ -2473,7 +2473,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenDripBlood: {
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		actSpawnThing(actor->sector(), DVector3(actor->spr.pos.XY(), bottom), (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+		actSpawnThing(actor->sector(), DVector3(actor->spr.pos.XY(), bottom), (actor->GetType() == kGenDripWater) ? kThingDripWater : kThingDripBlood);
 		break;
 	}
 	case kGenSound:
@@ -2498,7 +2498,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenBubbleMulti: {
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		gFX.fxSpawnActor((actor->spr.type == kGenBubble) ? FX_23 : FX_26, actor->sector(), DVector3(actor->spr.pos.XY(), top));
+		gFX.fxSpawnActor((actor->GetType() == kGenBubble) ? FX_23 : FX_26, actor->sector(), DVector3(actor->spr.pos.XY(), top));
 		break;
 	}
 	}

@@ -162,16 +162,16 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 		if (pSector->type == kSectorDamage || pXSector->damageType > 0)
 			Crusher = 1;
 	}
-	auto Upper = pSector->upperLink;
-	auto Lower = pSector->lowerLink;
+	auto Upper = barrier_cast<DBloodActor*>(pSector->upperLink);
+	auto Lower = barrier_cast<DBloodActor*>(pSector->lowerLink);
 	if (Upper != nullptr)
 	{
-		if (Upper->spr.type == kMarkerUpWater || Upper->spr.type == kMarkerUpGoo)
+		if (Upper->GetType() == kMarkerUpWater || Upper->GetType() == kMarkerUpGoo)
 			Water = Depth = 1;
 	}
 	if (Lower != nullptr)
 	{
-		if (Lower->spr.type == kMarkerLowWater || Lower->spr.type == kMarkerLowGoo)
+		if (Lower->GetType() == kMarkerLowWater || Lower->GetType() == kMarkerLowGoo)
 			Depth = 1;
 	}
 	switch (actor->GetType()) {
@@ -1684,7 +1684,7 @@ void aiInitSprite(DBloodActor* actor)
 	if (gModernMap)
 	{
 		// must keep it in case of loading save
-		if (actor->xspr.dudeFlag4 && actor->GetTarget() && actor->GetTarget()->spr.type == kMarkerPath)
+		if (actor->xspr.dudeFlag4 && actor->GetTarget() && actor->GetTarget()->GetType() == kMarkerPath)
 		{
 			stateTimer = actor->xspr.stateTimer;
 			pTargetMarker = actor->GetTarget();

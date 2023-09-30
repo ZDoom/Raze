@@ -2352,7 +2352,7 @@ static void actInitTraps()
 	BloodStatIterator it(kStatTraps);
 	while (auto act = it.Next())
 	{
-		if (act->spr.type == kTrapExploder)
+		if (act->GetType() == kTrapExploder)
 		{
 			act->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -2390,7 +2390,7 @@ static void actInitThings()
 		if (act->spr.flags & kPhysGravity) act->spr.flags |= kPhysFalling;
 		act->vel.Zero();
 
-		switch (act->spr.type)
+		switch (act->GetType())
 		{
 		case kThingArmedProxBomb:
 		case kTrapMachinegun:
@@ -2465,7 +2465,7 @@ static void actInitDudes()
 			if (!act->IsPlayerActor())
 			{
 #ifdef NOONE_EXTENSIONS
-				switch (act->spr.type)
+				switch (act->GetType())
 				{
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
@@ -2525,7 +2525,7 @@ void actInit(TArray<DBloodActor*>& actors)
 	BloodStatIterator it(kStatItem);
 	while (auto act = it.Next())
 	{
-		if (act->spr.type == kItemWeaponVoodooDoll)
+		if (act->GetType() == kItemWeaponVoodooDoll)
 		{
 			act->ChangeType(kItemAmmoVoodooDoll);
 			break;
@@ -3632,7 +3632,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 
 static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, PLAYER* pSourcePlayer)
 {
-	assert(actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
+	assert(actor->IsThingActor());
 	int nType = actor->spr.type - kThingBase;
 	int nDamageFactor = thingInfo[nType].dmgControl[damageType];
 
@@ -3830,7 +3830,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			if (gGameOptions.weaponsV10x && !VanillaMode() && pDudeInfo != nullptr)
 			{
 				if (missileOwner->IsDudeActor() && missileOwner->hasX() && missileOwner->xspr.health != 0)
-					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner->spr.type)->startHealth);
+					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner)->startHealth);
 			}
 		}
 
@@ -3894,7 +3894,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
-			int nDmgMul = (missileActor->spr.type == kMissileLifeLeechAltSmall) ? 6 : 3;
+			int nDmgMul = (missileActor->GetType() == kMissileLifeLeechAltSmall) ? 6 : 3;
 			int nDamage = (nDmgMul + Random(nDmgMul)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
 		}
@@ -4153,7 +4153,7 @@ static void checkCeilHit(DBloodActor* actor)
 					// add size shroom abilities
 					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
 
-						int mass1 = getDudeInfo(actor2->spr.type)->mass;
+						int mass1 = getDudeInfo(actor2)->mass;
 						int mass2 = getDudeInfo(actor)->mass;
 						switch (actor->GetType())
 						{
@@ -4203,7 +4203,7 @@ static void checkCeilHit(DBloodActor* actor)
 				}
 			}
 
-			if (actor2->spr.type == kTrapSawCircular && actor2->hasX())
+			if (actor2->GetType() == kTrapSawCircular && actor2->hasX())
 			{
 				if (!actor2->xspr.state) actDamageSprite(actor, actor, kDamageBullet, 1);
 				else {
@@ -4242,7 +4242,7 @@ static void checkHit(DBloodActor* actor)
 				if (actor->vel.X != 0 && actor2->IsDudeActor())
 				{
 					int mass1 = getDudeInfo(actor)->mass;
-					int mass2 = getDudeInfo(actor2->spr.type)->mass;
+					int mass2 = getDudeInfo(actor2)->mass;
 					switch (actor2->spr.type)
 					{
 					case kDudeModernCustom:
@@ -4314,7 +4314,7 @@ static void checkFloorHit(DBloodActor* actor)
 			{
 
 				int mass1 = getDudeInfo(actor)->mass;
-				int mass2 = getDudeInfo(actor2->spr.type)->mass;
+				int mass2 = getDudeInfo(actor2)->mass;
 				switch (actor2->spr.type)
 				{
 				case kDudeModernCustom:
@@ -4828,10 +4828,10 @@ void MoveDude(DBloodActor* actor)
 		if (pXSector->Underwater) bUnderwater = 1;
 		if (pXSector->Depth) bDepth = 1;
 	}
-	DCoreActor* pUpperLink = pSector->upperLink;
-	DCoreActor* pLowerLink = pSector->lowerLink;
-	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
-	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
+	DBloodActor* pUpperLink = barrier_cast<DBloodActor*>(pSector->upperLink);
+	DBloodActor* pLowerLink = barrier_cast<DBloodActor*>(pSector->lowerLink);
+	if (pUpperLink && (pUpperLink->GetType() == kMarkerUpWater || pUpperLink->GetType() == kMarkerUpGoo)) bDepth = 1;
+	if (pLowerLink && (pLowerLink->GetType() == kMarkerLowWater || pLowerLink->GetType() == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wdf += 1;
 	if (actor->vel.Z) actor->spr.pos.Z += actor->vel.Z;
 
@@ -5182,7 +5182,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 	}
 	gHitInfo.clearObj();
-	if (actor->spr.type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
+	if (actor->GetType() == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
 	if (actor->GetTarget() != nullptr && !actor->vel.isZero())
 	{
@@ -5204,7 +5204,7 @@ int MoveMissile(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	int i = 1;
 	const int bakCompat = enginecompatibility_mode;
-	const bool isFlameSprite = (actor->spr.type == kMissileFlameSpray || actor->spr.type == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
+	const bool isFlameSprite = (actor->GetType() == kMissileFlameSpray || actor->GetType() == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
 	while (1)
 	{
 		auto ppos = actor->spr.pos;
@@ -5536,7 +5536,7 @@ static void actCheckProximity()
 						if (gModernMap && actor->spr.type != kThingDroppedLifeLeech && actor->xspr.DudeLockout && !dudeactor->IsPlayerActor())
 							continue;
 
-						if (actor->spr.type == kModernThingEnemyLifeLeech) proxyDist = 512;
+						if (actor->GetType() == kModernThingEnemyLifeLeech) proxyDist = 512;
 #endif
 						if (actor->GetType() == kThingDroppedLifeLeech && actor->GetTarget() == nullptr)
 						{

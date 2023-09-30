@@ -1060,7 +1060,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 	case kItemFlagABase:
 	case kItemFlagBBase: {
 		if (gGameOptions.nGameType != 3 || !itemactor->hasX()) return 0;
-		if (itemactor->spr.type == kItemFlagABase) {
+		if (itemactor->GetType() == kItemFlagABase) {
 			if (pPlayer->teamId == 1) {
 				if ((pPlayer->hasFlag & 1) == 0 && itemactor->xspr.state) {
 					pPlayer->hasFlag |= 1;
@@ -1096,7 +1096,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 			}
 
 		}
-		else if (itemactor->spr.type == kItemFlagBBase) {
+		else if (itemactor->GetType() == kItemFlagBBase) {
 
 			if (pPlayer->teamId == 0) {
 				if ((pPlayer->hasFlag & 2) == 0 && itemactor->xspr.state) {
@@ -1286,7 +1286,7 @@ bool PickupWeapon(PLAYER* pPlayer, DBloodActor* weaponactor)
 	int nWeaponType = pWeaponItemData->type;
 	int nAmmoType = pWeaponItemData->ammoType;
 	if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
-		if (weaponactor->spr.type == kItemWeaponLifeLeech && gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, NULL))
+		if (weaponactor->GetType() == kItemWeaponLifeLeech && gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, NULL))
 			return 0;
 		pPlayer->hasWeapon[nWeaponType] = 1;
 		if (nAmmoType == -1) return 0;
@@ -1447,7 +1447,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				return 3;
 			if (hitactor->spr.statnum == kStatDude)
 			{
-				int nMass = getDudeInfo(hitactor->spr.type)->mass;
+				int nMass = getDudeInfo(hitactor)->mass;
 				if (nMass)
 				{
 					hitactor->vel += pos * (FixedToFloat<10>(0xccccc) / nMass);
@@ -1854,8 +1854,8 @@ void playerProcess(PLAYER* pPlayer)
 	if (pPlayer->posture == 1)
 	{
 		pPlayer->isUnderwater = 1;
-		auto link = actor->sector()->lowerLink;
-		if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
+		auto link = barrier_cast<DBloodActor*>(actor->sector()->lowerLink);
+		if (link && (link->GetType() == kMarkerLowGoo || link->GetType() == kMarkerLowWater))
 		{
 			if (getceilzofslopeptr(actor->sector(), actor->spr.pos) > pPlayer->zView)
 				pPlayer->isUnderwater = 0;

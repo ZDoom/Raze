@@ -182,7 +182,7 @@ static void eelThinkPonder(DBloodActor* actor)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-		double height2 = (getDudeInfo(target->spr.type)->eyeHeight * target->spr.scale.Y);
+		double height2 = (getDudeInfo(target)->eyeHeight * target->spr.scale.Y);
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))

@@ -479,7 +479,7 @@ CCMD(nnext_ifshow)
 	int cnt = 0;
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.type == kModernCondition || actor->spr.type == kModernConditionFalse)
+		if (actor->GetType() == kModernCondition || actor->GetType() == kModernConditionFalse)
 		{
 			if (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
 			{
@@ -814,7 +814,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 				continue;
 			}
 
-			if (iactor2->spr.type == kModernCondition || iactor2->spr.type == kModernConditionFalse)
+			if (iactor2->GetType() == kModernCondition || iactor2->GetType() == kModernConditionFalse)
 				condError(iactor, "Tracking condition always must be first in condition sequence!");
 
 			pCond->objects.Reserve(1);
@@ -1006,7 +1006,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.type == kMarkerOn && actor->spr.statnum != kStatMarker)
+		if (actor->GetType() == kMarkerOn && actor->spr.statnum != kStatMarker)
 		{
 			maxZ = actor->spr.pos.Z;
 			maxZfound = true;
@@ -2895,7 +2895,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 				if (pXSector->Underwater)
 				{
 					if (aLower)
-						iactor->xspr.medium = (aLower->spr.type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+						iactor->xspr.medium = (aLower->GetType() == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
 					if (pPlayer)
 					{
@@ -2903,7 +2903,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						if (aLower)
 						{
 							if (aLower->xspr.data2 > 0) waterPal = aLower->xspr.data2;
-							else if (aLower->spr.type == kMarkerUpGoo) waterPal = kMediumGoo;
+							else if (aLower->GetType() == kMarkerUpGoo) waterPal = kMediumGoo;
 						}
 
 						pPlayer->nWaterPal = waterPal;
@@ -3184,7 +3184,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 			}
 
 			if (aUpper)
-				actor->xspr.medium = (aLink->spr.type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+				actor->xspr.medium = (aLink->GetType() == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
 			if (pPlayer)
 			{
@@ -3192,7 +3192,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 				if (aUpper)
 				{
 					if (aLink->xspr.data2 > 0) waterPal = aLink->xspr.data2;
-					else if (aLink->spr.type == kMarkerUpGoo) waterPal = kMediumGoo;
+					else if (aLink->GetType() == kMarkerUpGoo) waterPal = kMediumGoo;
 				}
 
 				pPlayer->nWaterPal = waterPal;
@@ -4481,7 +4481,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 		else if (!(objActor->xspr.unused1 & kDudeFlagStealth) || objActor->xspr.data3 < 0 || objActor->xspr.data3 > kMaxPatrolSpotValue) var = 0;
 		else var = (kPercFull * objActor->xspr.data3) / kMaxPatrolSpotValue;
 		return condCmp(var, arg1, arg2, cmpOp);
-	case 15: return getDudeInfo(objActor->spr.type)->lockOut; // dude allowed to interact with objects?
+	case 15: return getDudeInfo(objActor)->lockOut; // dude allowed to interact with objects?
 	case 16: return condCmp(objActor->xspr.aiState->stateType, arg1, arg2, cmpOp);
 	case 17: return condCmp(objActor->xspr.stateTimer, arg1, arg2, cmpOp);
 	case 20: // kDudeModernCustom conditions
@@ -4685,7 +4685,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		{
 		default: break;
 		case 50: // compare hp (in %)
-			if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(objActor->spr.type)->startHealth << 4;
+			if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(objActor)->startHealth << 4;
 			else if (objActor->GetType() == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
 			else if (objActor->spr.type >= kThingBase && objActor->spr.type < kThingMax) var = thingInfo[objActor->spr.type - kThingBase].startHealth << 4;
 			return condCmp((kPercFull * objActor->xspr.health) / ClipLow(var, 1), arg1, arg2, cmpOp);
@@ -5776,18 +5776,18 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 1) 
 			{
 				SetSpriteState(actor, 0, initiator);
-				if (actor->spr.type == kModernEffectSpawner)
+				if (actor->GetType() == kModernEffectSpawner)
 					killEffectGenCallbacks(actor);
 			}
 			break;
 		case kCmdOn:
 			evKillActor(actor, initiator); // queue overflow protect
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
-			if (actor->spr.type == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
+			if (actor->GetType() == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
 			[[fallthrough]];
 		case kCmdRepeat:
 			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
-			else if (actor->spr.type == kModernSeqSpawner) useSeqSpawnerGen(actor, OBJ_SPRITE, nullptr, nullptr, actor);
+			else if (actor->GetType() == kModernSeqSpawner) useSeqSpawnerGen(actor, OBJ_SPRITE, nullptr, nullptr, actor);
 			else useEffectGen(actor, nullptr);
 
 			if (actor->xspr.busyTime > 0)
@@ -6004,7 +6004,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
 			switch (cmd) {
 			case 36:
-				actHealDude(pPlayer->actor, ((actor->xspr.data2 > 0) ? ClipHigh(actor->xspr.data2, 200) : getDudeInfo(pPlayer->actor->spr.type)->startHealth), 200);
+				actHealDude(pPlayer->actor, ((actor->xspr.data2 > 0) ? ClipHigh(actor->xspr.data2, 200) : getDudeInfo(pPlayer->actor)->startHealth), 200);
 				pPlayer->curWeapon = kWeapPitchFork;
 				break;
 			}
@@ -6341,7 +6341,7 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 
 	if (event.isActor() && pActor == nullptr) return -1;
 	if (event.isActor() && pActor != sourceactor)
-		srcIsCondition = (pActor->spr.type == kModernCondition || pActor->spr.type == kModernConditionFalse);
+		srcIsCondition = (pActor->GetType() == kModernCondition || pActor->GetType() == kModernConditionFalse);
 
 	// if it's a tracking condition, it must ignore all the commands sent from objects
 	if (sourceactor->xspr.busyTime > 0 && event.funcID != kCallbackMax) return -1;
@@ -6359,7 +6359,7 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 
 	int cond = sourceactor->xspr.data1;
 	bool ok = false;
-	bool RVRS = (sourceactor->spr.type == kModernConditionFalse);
+	bool RVRS = (sourceactor->GetType() == kModernConditionFalse);
 	bool RSET = (sourceactor->xspr.command == kCmdNumberic + 36);
 	bool PUSH = (sourceactor->xspr.command == kCmdNumberic);
 	int comOp = sourceactor->spr.cstat; // comparison operator
@@ -7031,7 +7031,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 			if (actor->xspr.health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
 
 			// heal mate
-			startHp = (mateactor->xspr.sysData2 > 0) ? ClipRange(mateactor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(mateactor->spr.type)->startHealth << 4;
+			startHp = (mateactor->xspr.sysData2 > 0) ? ClipRange(mateactor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(mateactor)->startHealth << 4;
 			if (mateactor->xspr.health < (unsigned)startHp) actHealDude(mateactor, receiveHp, startHp);
 
 			auto matetarget = mateactor->GetTarget();
@@ -7268,7 +7268,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
 						auto rxactor = rxBucket[i].actor();
 						if (!rxactor || !rxactor->hasX() || rxactor == initiator) continue;
 
-						if (rxactor->spr.type == kModernPlayerControl && rxactor->xspr.command == 67)
+						if (rxactor->GetType() == kModernPlayerControl && rxactor->xspr.command == 67)
 						{
 							if (rxactor->xspr.data2 == initiator->xspr.data2 || rxactor->xspr.locked) continue;
 							else trPlayerCtrlStartScene(rxactor, pPlayer, true);
@@ -7741,7 +7741,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 	assert(actor->GetTarget());
 
 	auto markeractor = actor->GetTarget();
-	assert(markeractor->spr.type == kMarkerPath);
+	assert(markeractor->GetType() == kMarkerPath);
 
 	bool nSeqOverride = false, crouch = false;
 	int i, seq = -1, start = 0, end = kPatrolStateSize;
@@ -7838,7 +7838,7 @@ DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker)
 			continue;
 
 		auto targ = actor->GetTarget();
-		if (actor->xspr.health > 0 && targ != nullptr && targ->spr.type == kMarkerPath && targ == marker)
+		if (actor->xspr.health > 0 && targ != nullptr && targ->GetType() == kMarkerPath && targ == marker)
 			return actor;
 	}
 	return nullptr;
@@ -7856,7 +7856,7 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
 
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->spr.type - kDudeBase];
 	auto markeractor = actor->GetTarget();
-	if (markeractor && markeractor->spr.type == kMarkerPath)
+	if (markeractor && markeractor->GetType() == kMarkerPath)
 	{
 		double okDist = max(markeractor->clipdist * 8, 4.);
 		auto ov = markeractor->spr.pos.XY() - actor->spr.pos.XY(); // this was already shifted right by 4 in the old code.
@@ -7963,7 +7963,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 		}
 	}
 	// set next marker
-	else if (targetactor->spr.type == kMarkerPath && targetactor->hasX())
+	else if (targetactor->GetType() == kMarkerPath && targetactor->hasX())
 	{
 		// idea: which one of next (allowed) markers are closer to the potential target?
 		// idea: -3 select random next marker that dude can see in radius of reached marker
@@ -8048,7 +8048,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 		auto mytarget = actor->GetTarget();
 
-		if (mytarget && mytarget->spr.type == kMarkerPath)
+		if (mytarget && mytarget->GetType() == kMarkerPath)
 		{
 			if (targetactor == nullptr) actor->spr.Angles.Yaw = mytarget->spr.Angles.Yaw;
 			actor->SetTarget(nullptr);
@@ -8232,7 +8232,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.scale.Y);
+		double eaz2 = (getDudeInfo(targetactor)->eyeHeight * targetactor->spr.scale.Y);
 		double nDist = (dudeactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
 		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
@@ -8284,7 +8284,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.scale.Y);
+		double eaz1 = (getDudeInfo(dudeactor)->eyeHeight * dudeactor->spr.scale.Y);
 		auto pos1 = dudeactor->spr.pos.plusZ(-eaz1);
 
 		auto pSect1 = dudeactor->sector();
@@ -8292,8 +8292,8 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 		double nDist1 = (pos1 - pos2).Length();
 		double nDist2 = (pos1 - pos3).Length();
 
-		//double hdist = (dudeactor->xspr.dudeDeaf)  ? 0 : getDudeInfo(dudeactor->spr.type)->HearDist() / 4;
-		double sdist = (dudeactor->xspr.dudeGuard) ? 0 : getDudeInfo(dudeactor->spr.type)->SeeDist() / 2;
+		//double hdist = (dudeactor->xspr.dudeDeaf)  ? 0 : getDudeInfo(dudeactor)->HearDist() / 4;
+		double sdist = (dudeactor->xspr.dudeGuard) ? 0 : getDudeInfo(dudeactor)->SeeDist() / 2;
 
 		if (//(nDist1 < hdist || nDist2 < hdist) ||
 			((nDist1 < sdist && cansee(pos1, pSect1, pos2, pSect2)) || (nDist2 < sdist && cansee(pos1, pSect1, pos3, pSect3)))) 

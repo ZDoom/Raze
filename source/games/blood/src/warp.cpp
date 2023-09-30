@@ -201,7 +201,7 @@ int CheckLink(DBloodActor* actor)
 	if (aUpper)
 	{
 		double z;
-		if (aUpper->spr.type == kMarkerUpLink)
+		if (aUpper->GetType() == kMarkerUpLink)
 			z = aUpper->spr.pos.Z;
 		else
 			z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
@@ -213,7 +213,7 @@ int CheckLink(DBloodActor* actor)
 			ChangeActorSect(actor, aLower->sector());
 			actor->spr.pos.XY() += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
 			double z2;
-			if (aLower->spr.type == kMarkerLowLink)
+			if (aLower->GetType() == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
 			else
 				z2 = getceilzofslopeptr(actor->sector(), actor->spr.pos);
@@ -225,7 +225,7 @@ int CheckLink(DBloodActor* actor)
 	if (aLower)
 	{
 		double z;
-		if (aLower->spr.type == kMarkerLowLink)
+		if (aLower->GetType() == kMarkerLowLink)
 			z = aLower->spr.pos.Z;
 		else
 			z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
@@ -237,7 +237,7 @@ int CheckLink(DBloodActor* actor)
 			ChangeActorSect(actor, aUpper->sector());
 			actor->spr.pos.XY() += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
 			double z2;
-			if (aUpper->spr.type == kMarkerUpLink)
+			if (aUpper->GetType() == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;
 			else
 				z2 = getflorzofslopeptr(actor->sector(), actor->spr.pos);
@@ -262,7 +262,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 	if (aUpper)
 	{
 		double z1;
-		if (aUpper->spr.type == kMarkerUpLink)
+		if (aUpper->GetType() == kMarkerUpLink)
 			z1 = aUpper->spr.pos.Z;
 		else
 			z1 = getflorzofslopeptr(*pSector, cPos);
@@ -274,7 +274,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			*pSector = aLower->sector();
 			cPos.XY() += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
 			double z2;
-			if (aUpper->spr.type == kMarkerLowLink)
+			if (aUpper->GetType() == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
 			else
 				z2 = getceilzofslopeptr(*pSector, cPos);
@@ -285,7 +285,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 	if (aLower)
 	{
 		double z1;
-		if (aLower->spr.type == kMarkerLowLink)
+		if (aLower->GetType() == kMarkerLowLink)
 			z1 = aLower->spr.pos.Z;
 		else
 			z1 = getceilzofslopeptr(*pSector, cPos);
@@ -296,7 +296,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			*pSector = aUpper->sector();
 			cPos.XY() += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
 			double z2;
-			if (aLower->spr.type == kMarkerUpLink)
+			if (aLower->GetType() == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;
 			else
 				z2 = getflorzofslopeptr(*pSector, cPos);

@@ -191,7 +191,7 @@ void punchCallback(int, DBloodActor* actor)
 
 
 		if (target->IsDudeActor())
-			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.scale.Y;
+			nZOffset2 = getDudeInfo(target)->eyeHeight * target->spr.scale.Y;
 
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
 			sfxPlay3DSound(actor, 530, 1, 0);
@@ -2412,7 +2412,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 			BloodStatIterator it(kStatThing);
 			while (auto actor2 = it.Next())
 			{
-				if (actor2->GetOwner() == actor && actor2->spr.type == kModernThingEnemyLifeLeech) {
+				if (actor2->GetOwner() == actor && actor2->GetType() == kModernThingEnemyLifeLeech) {
 					pExtra->pLifeLeech = actor2;
 					break;
 				}
