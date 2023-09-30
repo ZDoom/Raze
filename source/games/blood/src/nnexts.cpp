@@ -7696,7 +7696,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double
 
 void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 
 	DAngle vc = deltaangle(actor->spr.Angles.Yaw, direction);
 	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
@@ -7737,7 +7737,7 @@ void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 
 void aiPatrolState(DBloodActor* actor, int state)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax&& actor->hasX());
+	assert(actor->IsDudeActor()&& actor->hasX());
 	assert(actor->GetTarget());
 
 	auto markeractor = actor->GetTarget();
@@ -7852,7 +7852,7 @@ DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker)
 
 bool aiPatrolMarkerReached(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->spr.type - kDudeBase];
 	auto markeractor = actor->GetTarget();
@@ -8123,7 +8123,7 @@ void aiPatrolMove(DBloodActor* actor)
 {
 	auto targetactor = actor->GetTarget();
 
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax) || !targetactor)
+	if (!(actor->IsDudeActor()) || !targetactor)
 		return;
 
 
@@ -8380,7 +8380,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
 	PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type); PLAYER* pPlayer = NULL;
 
 	for (int i = 0; i < kMaxPatrolFoundSounds; i++)
@@ -8761,7 +8761,7 @@ bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker)
 
 void aiPatrolThink(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 
 	DBloodActor* targetactor;
 	unsigned int stateTimer;

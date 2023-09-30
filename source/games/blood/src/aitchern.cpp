@@ -179,8 +179,8 @@ static void sub_72580(DBloodActor* actor)
 
 static void sub_725A4(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -234,8 +234,8 @@ static void sub_725A4(DBloodActor* actor)
 
 static void sub_72850(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -255,8 +255,8 @@ static void tchernobogThinkChase(DBloodActor* actor)
 		aiNewState(actor, &tcherno13A9B8);
 		return;
 	}
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);

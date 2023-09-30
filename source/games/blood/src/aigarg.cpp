@@ -174,8 +174,8 @@ void ThrowSSeqCallback(int, DBloodActor* actor)
 
 static void gargThinkTarget(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -233,8 +233,8 @@ static void gargThinkSearch(DBloodActor* actor)
 
 static void gargThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -249,8 +249,8 @@ static void gargThinkGoto(DBloodActor* actor)
 
 static void gargMoveDodgeUp(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -269,8 +269,8 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 
 static void gargMoveDodgeDown(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -296,9 +296,9 @@ static void gargThinkChase(DBloodActor* actor)
 		aiNewState(actor, &gargoyleFGoto);
 		return;
 	}
-	///assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	///assert(actor->IsDudeActor());
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -484,8 +484,8 @@ static void entrySStatue(DBloodActor* actor)
 
 static void gargMoveForward(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -512,8 +512,8 @@ static void gargMoveForward(DBloodActor* actor)
 
 static void gargMoveSlow(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -547,8 +547,8 @@ static void gargMoveSlow(DBloodActor* actor)
 
 static void gargMoveSwoop(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -582,8 +582,8 @@ static void gargMoveSwoop(DBloodActor* actor)
 
 static void gargMoveFly(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);

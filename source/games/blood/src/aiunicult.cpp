@@ -409,9 +409,9 @@ static void unicultThinkSearch(DBloodActor* actor)
 
 static void unicultThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
+	if (!(actor->IsDudeActor()))
 	{
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 
@@ -1160,9 +1160,9 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 void aiGenDudeChooseDirection(DBloodActor* actor, DAngle direction, const DVector2& vel)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
+	if (!(actor->IsDudeActor()))
 	{
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 

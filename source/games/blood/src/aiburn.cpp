@@ -82,7 +82,7 @@ static void burnThinkSearch(DBloodActor* actor)
 
 static void burnThinkGoto(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -152,7 +152,7 @@ static void burnThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 

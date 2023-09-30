@@ -60,8 +60,8 @@ static constexpr double Cerberus_ZOff = 100. / 256;
 
 void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -215,8 +215,8 @@ static void cerberusThinkSearch(DBloodActor* actor)
 
 static void cerberusThinkTarget(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -271,8 +271,8 @@ static void cerberusThinkTarget(DBloodActor* actor)
 
 static void cerberusThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -308,9 +308,9 @@ static void cerberusThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	///assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	///assert(actor->IsDudeActor());
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 

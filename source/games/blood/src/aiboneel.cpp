@@ -77,7 +77,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 	}
 
 	auto target = actor->GetTarget();
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
@@ -89,7 +89,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 
 static void eelThinkTarget(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
@@ -146,7 +146,7 @@ static void eelThinkSearch(DBloodActor* actor)
 
 static void eelThinkGoto(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	auto nAngle = dvec.Angle();
@@ -164,7 +164,7 @@ static void eelThinkPonder(DBloodActor* actor)
 		aiNewState(actor, &eelSearch);
 		return;
 	}
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
@@ -213,7 +213,7 @@ static void eelThinkPonder(DBloodActor* actor)
 
 static void eelMoveDodgeUp(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -230,7 +230,7 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 
 static void eelMoveDodgeDown(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -254,7 +254,7 @@ static void eelThinkChase(DBloodActor* actor)
 		aiNewState(actor, &eelGoto);
 		return;
 	}
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
@@ -306,7 +306,7 @@ static void eelThinkChase(DBloodActor* actor)
 
 static void eelMoveForward(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -331,7 +331,7 @@ static void eelMoveForward(DBloodActor* actor)
 
 static void eelMoveSwoop(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -352,7 +352,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 
 static void eelMoveAscend(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();

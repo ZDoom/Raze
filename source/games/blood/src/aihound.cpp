@@ -44,8 +44,8 @@ AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, 
 
 void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 
@@ -69,8 +69,8 @@ static void houndThinkSearch(DBloodActor* actor)
 
 static void houndThinkGoto(DBloodActor* actor)
 {
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 
@@ -91,8 +91,8 @@ static void houndThinkChase(DBloodActor* actor)
 		aiNewState(actor, &houndGoto);
 		return;
 	}
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)) {
-		Printf(PRINT_HIGH, "actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax");
+	if (!(actor->IsDudeActor())) {
+		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);

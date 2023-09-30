@@ -43,7 +43,7 @@ AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ra
 
 void ratBiteSeqCallback(int, DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor())
@@ -61,7 +61,7 @@ static void ratThinkSearch(DBloodActor* actor)
 
 static void ratThinkGoto(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -79,7 +79,7 @@ static void ratThinkChase(DBloodActor* actor)
 		aiNewState(actor, &ratGoto);
 		return;
 	}
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 

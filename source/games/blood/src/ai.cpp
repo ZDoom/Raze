@@ -45,7 +45,7 @@ const int gCultTeslaFireChance[5] = { 0x2000, 0x4000, 0x8000, 0xa000, 0xe000 };
 
 bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 {
-	if (actor->spr.statnum == kStatDude && actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax)
+	if (actor->spr.statnum == kStatDude && actor->IsDudeActor())
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 		if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
@@ -248,7 +248,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 
 void aiChooseDirection(DBloodActor* actor, DAngle direction)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DAngle vc = deltaangle(actor->spr.Angles.Yaw, direction);
 	auto almost60deg = DAngle::fromBuild(341); // 60° does not work correctly - this is a little bit less, actually.
 	DAngle v8 = vc.Sgn() == -1 ? -almost60deg : almost60deg;
@@ -293,7 +293,7 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 
 void aiMoveForward(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -311,7 +311,7 @@ void aiMoveForward(DBloodActor* actor)
 
 void aiMoveTurn(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -326,7 +326,7 @@ void aiMoveTurn(DBloodActor* actor)
 
 void aiMoveDodge(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
@@ -350,7 +350,7 @@ void aiMoveDodge(DBloodActor* actor)
 
 void aiActivateDude(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	if (!actor->xspr.state)
 	{
 		aiChooseDirection(actor, (actor->xspr.TargetPos - actor->spr.pos).Angle());
@@ -1226,7 +1226,7 @@ void RecoilDude(DBloodActor* actor)
 {
 	uint8_t v4 = Chance(0x8000);
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
-	if (actor->spr.statnum == kStatDude && (actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
+	if (actor->spr.statnum == kStatDude && (actor->IsDudeActor()))
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 		switch (actor->spr.type)
@@ -1485,7 +1485,7 @@ void RecoilDude(DBloodActor* actor)
 
 void aiThinkTarget(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (Chance(pDudeInfo->alertChance))
 	{
@@ -1530,7 +1530,7 @@ void aiThinkTarget(DBloodActor* actor)
 
 void aiLookForTarget(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (Chance(pDudeInfo->alertChance))
 	{

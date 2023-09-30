@@ -124,7 +124,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	auto dv = target->spr.pos - actor->spr.pos;
 	double nDist = dv.XY().Length();
 	if (nDist > 0x1e0)
@@ -155,7 +155,7 @@ void cultThrowSeqCallback3(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	auto dv = target->spr.pos - actor->spr.pos;
 	double nDist = dv.XY().Length();
 
@@ -182,7 +182,7 @@ static void cultThinkSearch(DBloodActor* actor)
 
 static void cultThinkGoto(DBloodActor* actor)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
@@ -220,7 +220,7 @@ static void cultThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax);
+	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 

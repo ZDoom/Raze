@@ -3374,7 +3374,7 @@ static void genericDeath(DBloodActor* actor, int nSeq, int sound1, int seqnum)
 
 void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 {
-	assert(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax&& actor->hasX());
+	assert(actor->IsDudeActor()&& actor->hasX());
 	int nType = actor->spr.type - kDudeBase;
 
 	if (actKillDudeStage1(actor, damageType)) return;
@@ -4693,9 +4693,9 @@ void MoveDude(DBloodActor* actor)
 {
 	PLAYER* pPlayer = nullptr;
 	if (actor->IsPlayerActor()) pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
-	if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
+	if (!(actor->IsDudeActor()))
 	{
-		Printf(PRINT_HIGH, "%d: actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax", actor->spr.type);
+		Printf(PRINT_HIGH, "%d: actor->IsDudeActor()", actor->spr.type);
 		return;
 	}
 
@@ -6569,7 +6569,7 @@ bool actCheckRespawn(DBloodActor* actor)
 			actPostSprite(actor, kStatRespawn);
 			actor->spr.flags |= kHitagRespawn;
 
-			if (!(actor->GetType() >= kDudeBase && actor->GetType() < kDudeMax))
+			if (!(actor->IsDudeActor()))
 			{
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				actor->spr.pos = actor->basePoint;
