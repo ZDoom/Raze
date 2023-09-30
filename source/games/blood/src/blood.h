@@ -59,6 +59,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+constexpr int BMAX_PATH = 260;
+
 struct INIDESCRIPTION {
 	const char* pzName;
 	const char* pzFilename;
