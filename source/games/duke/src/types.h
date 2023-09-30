@@ -349,7 +349,7 @@ struct player_struct
 	TArray<GameVarValue> uservars;
 
 	// input stuff.
-	InputPacket sync;
+	InputPacket input;
 
 	DDukeActor* GetActor();
 	int GetPlayerNum();
@@ -382,20 +382,20 @@ struct player_struct
 
 	void updatecentering(const int snum)
 	{
-		if (!(sync.actions & SB_CENTERVIEW))
+		if (!(input.actions & SB_CENTERVIEW))
 			return;
 
 		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
 		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370; // Build horizon value of 5.
 
-		if ((centertest && returnlock) || !sync.horz)
+		if ((centertest && returnlock) || !input.horz)
 		{
 			setForcedSyncInput(snum);
-			sync.horz = 0;
+			input.horz = 0;
 		}
 		else
 		{
-			sync.actions &= ~SB_CENTERVIEW;
+			input.actions &= ~SB_CENTERVIEW;
 		}
 	}
 };

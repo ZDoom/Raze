@@ -103,53 +103,53 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
-	return (!!((ps[pl].sync.actions) & bit));
+	return (!!((ps[pl].input.actions) & bit));
 }
 
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
-	return (ps[pl].sync.actions & bits);
+	return (ps[pl].input.actions & bits);
 }
 
 inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-	ps[pl].sync.actions |= bit;
+	ps[pl].input.actions |= bit;
 }
 
 
 inline int PlayerNewWeapon(int pl)
 {
-	return ps[pl].sync.getNewWeapon();
+	return ps[pl].input.getNewWeapon();
 }
 
 inline void PlayerSetItemUsed(int pl, int num)
 {
-	ps[pl].sync.setItemUsed(num - 1);
+	ps[pl].input.setItemUsed(num - 1);
 }
 
 inline bool PlayerUseItem(int pl, int num)
 {
-	return ps[pl].sync.isItemUsed(num - 1);
+	return ps[pl].input.isItemUsed(num - 1);
 }
 
 inline float PlayerInputSideVel(int pl)
 {
-	return ps[pl].sync.svel;
+	return ps[pl].input.svel;
 }
 
 inline float PlayerInputForwardVel(int pl)
 {
-	return ps[pl].sync.fvel;
+	return ps[pl].input.fvel;
 }
 
 inline float PlayerInputAngVel(int pl)
 {
-	return ps[pl].sync.avel;
+	return ps[pl].input.avel;
 }
 
 inline DAngle GetPlayerHorizon(int pl)
 {
-	return DAngle::fromDeg(ps[pl].sync.horz);
+	return DAngle::fromDeg(ps[pl].input.horz);
 }
 
 inline void clearfriction()
@@ -274,9 +274,9 @@ inline int monsterCheatCheck(DDukeActor* self)
 inline void processinputvel(int snum)
 {
 	const auto p = &ps[snum];
-	const auto velvect = DVector2(p->sync.fvel, p->sync.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
-	p->sync.fvel = (float)velvect.X;
-	p->sync.svel = (float)velvect.Y;
+	const auto velvect = DVector2(p->input.fvel, p->input.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
+	p->input.fvel = (float)velvect.X;
+	p->input.svel = (float)velvect.Y;
 }
 
 

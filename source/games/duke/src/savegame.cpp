@@ -261,7 +261,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("moto_on_oil", w.moto_on_oil)
 			("moto_on_mud", w.moto_on_mud)
 			// new stuff
-			("actions", w.sync.actions)
+			("actions", w.input.actions)
 			.Array("frags", w.frags, MAXPLAYERS)
 			("uservars", w.uservars)
 			("fistsign", w.fistsign)
@@ -273,7 +273,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			w.GetActor()->backuploc();
 			w.opyoff = w.pyoff;
 			w.backupweapon();
-			w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+			w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 		}
 	}
 	return arc;

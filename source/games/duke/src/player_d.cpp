@@ -581,7 +581,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	const auto pact = p->GetActor();
 	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
-	const double velZ = clamp(dist * kbdDir + dist * p->sync.uvel, -dist, dist);
+	const double velZ = clamp(dist * kbdDir + dist * p->input.uvel, -dist, dist);
 
 	p->on_ground = 0;
 	p->jumping_counter = 0;
@@ -766,7 +766,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if ((actions & SB_CROUCH) || p->sync.uvel < 0)
+		if ((actions & SB_CROUCH) || p->input.uvel < 0)
 		{
 			playerCrouch(snum);
 		}
@@ -1541,7 +1541,7 @@ void processinput_d(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
-	ESyncBits& actions = p->sync.actions;
+	ESyncBits& actions = p->input.actions;
 
 	// Get strafe value before it's rotated by the angle.
 	const auto strafeVel = PlayerInputSideVel(snum);
@@ -1675,7 +1675,7 @@ void processinput_d(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum,actions);
-	p->Angles.doViewYaw(&p->sync);
+	p->Angles.doViewYaw(&p->input);
 
 	p->updatecentering(snum);
 
@@ -1714,15 +1714,15 @@ void processinput_d(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->sync.avel = 0;
+		p->input.avel = 0;
 		setForcedSyncInput(snum);
 	}
 	else
 	{
-		p->sync.avel = p->adjustavel(PlayerInputAngVel(snum));
+		p->input.avel = p->adjustavel(PlayerInputAngVel(snum));
 	}
 
-	p->Angles.doYawInput(&p->sync);
+	p->Angles.doYawInput(&p->input);
 
 	purplelavacheck(p);
 
@@ -1827,7 +1827,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	p->Angles.doRollInput(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	p->Angles.doRollInput(&p->input, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 
@@ -1943,7 +1943,7 @@ HORIZONLY:
 		playerAimDown(snum, actions);
 	}
 
-	p->Angles.doPitchInput(&p->sync);
+	p->Angles.doPitchInput(&p->input);
 
 	p->checkhardlanding();
 

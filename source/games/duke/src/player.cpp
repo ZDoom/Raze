@@ -118,7 +118,7 @@ void forceplayerangle(player_struct* p)
 	const auto ang = (DAngle22_5 - randomAngle(45)) / 2.;
 
 	p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(26.566);
-	p->sync.actions |= SB_CENTERVIEW;
+	p->input.actions |= SB_CENTERVIEW;
 	p->Angles.ViewAngles.Yaw = ang;
 	p->Angles.ViewAngles.Roll = -ang;
 }
@@ -362,7 +362,7 @@ void dokneeattack(int snum)
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
 		pact->spr.Angles.Pitch = (pact->getPosWithOffsetZ() - p->actorsqu->spr.pos.plusZ(-4)).Pitch();
-		p->sync.actions |= SB_CENTERVIEW;
+		p->input.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
 			p->oknee_incs = p->knee_incs = 0;
@@ -673,13 +673,13 @@ void playerCrouch(int snum)
 {
 	const auto p = &ps[snum];
 	const auto pact = p->GetActor();
-	const auto nVelMoveDown = abs(p->sync.uvel * (p->sync.uvel < 0));
+	const auto nVelMoveDown = abs(p->input.uvel * (p->input.uvel < 0));
 	constexpr double vel = 8 + 3;
 	SetGameVarID(g_iReturnVarID, 0, pact, snum);
 	OnEvent(EVENT_CROUCH, snum, pact, -1);
 	if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
 	{
-		pact->spr.pos.Z += clamp(vel * !!(p->sync.actions & SB_CROUCH) + vel * nVelMoveDown, -vel, vel);
+		pact->spr.pos.Z += clamp(vel * !!(p->input.actions & SB_CROUCH) + vel * nVelMoveDown, -vel, vel);
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -856,13 +856,13 @@ void playerCenterView(int snum)
 	OnEvent(EVENT_RETURNTOCENTER, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->sync.actions |= SB_CENTERVIEW;
-		p->sync.horz = 0;
+		p->input.actions |= SB_CENTERVIEW;
+		p->input.horz = 0;
 		setForcedSyncInput(snum);
 	}
 	else
 	{
-		p->sync.actions &= ~SB_CENTERVIEW;
+		p->input.actions &= ~SB_CENTERVIEW;
 	}
 }
 
@@ -873,11 +873,11 @@ void playerLookUp(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKUP, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->sync.actions |= SB_CENTERVIEW;
+		p->input.actions |= SB_CENTERVIEW;
 	}
 	else
 	{
-		p->sync.actions &= ~SB_LOOK_UP;
+		p->input.actions &= ~SB_LOOK_UP;
 	}
 }
 
@@ -888,11 +888,11 @@ void playerLookDown(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKDOWN, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->sync.actions |= SB_CENTERVIEW;
+		p->input.actions |= SB_CENTERVIEW;
 	}
 	else
 	{
-		p->sync.actions &= ~SB_LOOK_DOWN;
+		p->input.actions &= ~SB_LOOK_DOWN;
 	}
 }
 
@@ -903,7 +903,7 @@ void playerAimUp(int snum, ESyncBits actions)
 	OnEvent(EVENT_AIMUP, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
 	{
-		p->sync.actions &= ~SB_AIM_UP;
+		p->input.actions &= ~SB_AIM_UP;
 	}
 }
 
@@ -914,7 +914,7 @@ void playerAimDown(int snum, ESyncBits actions)
 	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);	// due to a typo in WW2GI's CON files this is the same as EVENT_AIMUP.
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
 	{
-		p->sync.actions &= ~SB_AIM_DOWN;
+		p->input.actions &= ~SB_AIM_DOWN;
 	}
 }
 
@@ -1582,7 +1582,7 @@ void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 	const auto pact = p->GetActor();
 	constexpr double dist = (348. / 256.);
 	const auto kbdDir = ((actions & SB_JUMP) && !p->OnMotorcycle) - ((actions & SB_CROUCH) || p->OnMotorcycle);
-	const auto velZ = clamp(dist * kbdDir + dist * p->sync.uvel, -dist, dist);
+	const auto velZ = clamp(dist * kbdDir + dist * p->input.uvel, -dist, dist);
 
 	p->jumping_counter = 0;
 	p->pycount += 32;

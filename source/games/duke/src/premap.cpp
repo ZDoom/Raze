@@ -127,7 +127,7 @@ void resetplayerstats(int snum)
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
 	p->player_par       = 0;
-	p->sync.actions |= SB_CENTERVIEW;
+	p->input.actions |= SB_CENTERVIEW;
 	p->airleft          = 15*26;
 	p->rapid_fire_hold  = 0;
 	p->toggle_key_flag  = 0;

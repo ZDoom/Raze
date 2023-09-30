@@ -1178,19 +1178,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpos, dukeplayer_addpos)
 
 void dukeplayer_centerview(player_struct* self)
 {
-	self->sync.actions |= SB_CENTERVIEW;
+	self->input.actions |= SB_CENTERVIEW;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, centerview, dukeplayer_centerview)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
-	self->sync.actions |= SB_CENTERVIEW;
+	self->input.actions |= SB_CENTERVIEW;
 	return 0;
 }
 
 inline int DukePlayer_PlayerInput(player_struct* pl, int bit)
 {
-	return (!!((pl->sync.actions) & ESyncBits::FromInt(bit)));
+	return (!!((pl->input.actions) & ESyncBits::FromInt(bit)));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerinput, DukePlayer_PlayerInput)
