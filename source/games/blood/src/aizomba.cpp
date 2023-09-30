@@ -209,7 +209,7 @@ static void myThinkTarget(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		PLAYER* pPlayer = &gPlayer[p];
+		BloodPlayer* pPlayer = &gPlayer[p];
 		auto owneractor = actor->GetOwner();
 		if (owneractor == nullptr || owneractor == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 			continue;

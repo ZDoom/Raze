@@ -311,7 +311,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 	if (gModernMap)
 	{
 		// allow to send commands on player sprites
-		PLAYER* pPlayer = NULL;
+		BloodPlayer* pPlayer = NULL;
 		if (playerRXRngIsFine(rxId))
 		{
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)

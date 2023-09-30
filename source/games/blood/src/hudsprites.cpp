@@ -100,7 +100,7 @@ static void viewBurnTime(int gScale)
 //
 //---------------------------------------------------------------------------
 
-void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, DAngle angle, int basepal, double interpfrac)
+void hudDraw(BloodPlayer* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, DAngle angle, int basepal, double interpfrac)
 {
 	if (gViewPos == 0)
 	{
@@ -169,7 +169,7 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 	}
 
 	int zn = int(((pPlayer->zWeapon - pPlayer->zView - 12) * 2.) + 220);
-	PLAYER* pPSprite = &gPlayer[pPlayer->GetActor()->spr.type - kDudePlayer1];
+	BloodPlayer* pPSprite = &gPlayer[pPlayer->GetActor()->spr.type - kDudePlayer1];
 	if (pPlayer->GetActor()->IsPlayerActor() && pPSprite->hand == 1)
 	{
 		gChoke.animateChoke(160, zn, interpfrac);

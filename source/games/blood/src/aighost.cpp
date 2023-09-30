@@ -174,7 +174,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			PLAYER* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = &gPlayer[p];
 			if (pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->GetActor()->spr.pos;

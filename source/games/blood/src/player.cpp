@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-PLAYER gPlayer[kMaxPlayers];
+BloodPlayer gPlayer[kMaxPlayers];
 
 bool gBlueFlagDropped = false;
 bool gRedFlagDropped = false;
@@ -230,7 +230,7 @@ DAMAGEINFO damageInfo[7] = {
 //
 //---------------------------------------------------------------------------
 
-inline bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* target)
+inline bool IsTargetTeammate(BloodPlayer* pSourcePlayer, DBloodActor* target)
 {
 	if (pSourcePlayer == nullptr)
 		return false;
@@ -238,7 +238,7 @@ inline bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* target)
 		return false;
 	if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
 	{
-		PLAYER* pTargetPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+		BloodPlayer* pTargetPlayer = &gPlayer[target->spr.type - kDudePlayer1];
 		if (pSourcePlayer != pTargetPlayer)
 		{
 			if (gGameOptions.nGameType == 1)
@@ -258,7 +258,7 @@ inline bool IsTargetTeammate(PLAYER* pSourcePlayer, DBloodActor* target)
 //
 //---------------------------------------------------------------------------
 
-int powerupCheck(PLAYER* pPlayer, int nPowerUp)
+int powerupCheck(BloodPlayer* pPlayer, int nPowerUp)
 {
 	assert(pPlayer != NULL);
 	assert(nPowerUp >= 0 && nPowerUp < kMaxPowerUps);
@@ -275,7 +275,7 @@ int powerupCheck(PLAYER* pPlayer, int nPowerUp)
 //
 //---------------------------------------------------------------------------
 
-bool powerupActivate(PLAYER* pPlayer, int nPowerUp)
+bool powerupActivate(BloodPlayer* pPlayer, int nPowerUp)
 {
 	if (powerupCheck(pPlayer, nPowerUp) > 0 && gPowerUpInfo[nPowerUp].pickupOnce)
 		return 0;
@@ -348,7 +348,7 @@ bool powerupActivate(PLAYER* pPlayer, int nPowerUp)
 //
 //---------------------------------------------------------------------------
 
-void powerupDeactivate(PLAYER* pPlayer, int nPowerUp)
+void powerupDeactivate(BloodPlayer* pPlayer, int nPowerUp)
 {
 	int nPack = powerupToPackItem(nPowerUp);
 	if (nPack >= 0)
@@ -403,7 +403,7 @@ void powerupDeactivate(PLAYER* pPlayer, int nPowerUp)
 //
 //---------------------------------------------------------------------------
 
-void powerupSetState(PLAYER* pPlayer, int nPowerUp, bool bState)
+void powerupSetState(BloodPlayer* pPlayer, int nPowerUp, bool bState)
 {
 	if (!bState)
 		powerupActivate(pPlayer, nPowerUp);
@@ -417,7 +417,7 @@ void powerupSetState(PLAYER* pPlayer, int nPowerUp, bool bState)
 //
 //---------------------------------------------------------------------------
 
-void powerupProcess(PLAYER* pPlayer)
+void powerupProcess(BloodPlayer* pPlayer)
 {
 	pPlayer->packItemTime = ClipLow(pPlayer->packItemTime - 4, 0);
 	for (int i = kMaxPowerUps - 1; i >= 0; i--)
@@ -453,7 +453,7 @@ void powerupProcess(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void powerupClear(PLAYER* pPlayer)
+void powerupClear(BloodPlayer* pPlayer)
 {
 	for (int i = kMaxPowerUps - 1; i >= 0; i--)
 	{
@@ -519,7 +519,7 @@ int powerupToPackItem(int nPowerUp)
 //
 //---------------------------------------------------------------------------
 
-bool packAddItem(PLAYER* pPlayer, unsigned int nPack)
+bool packAddItem(BloodPlayer* pPlayer, unsigned int nPack)
 {
 	if (nPack <= 4)
 	{
@@ -545,12 +545,12 @@ bool packAddItem(PLAYER* pPlayer, unsigned int nPack)
 //
 //---------------------------------------------------------------------------
 
-int packCheckItem(PLAYER* pPlayer, int nPack)
+int packCheckItem(BloodPlayer* pPlayer, int nPack)
 {
 	return pPlayer->packSlots[nPack].curAmount;
 }
 
-bool packItemActive(PLAYER* pPlayer, int nPack)
+bool packItemActive(BloodPlayer* pPlayer, int nPack)
 {
 	return pPlayer->packSlots[nPack].isActive;
 }
@@ -561,7 +561,7 @@ bool packItemActive(PLAYER* pPlayer, int nPack)
 //
 //---------------------------------------------------------------------------
 
-void packUseItem(PLAYER* pPlayer, int nPack)
+void packUseItem(BloodPlayer* pPlayer, int nPack)
 {
 	bool v4 = 0;
 	int nPowerUp = -1;
@@ -614,7 +614,7 @@ void packUseItem(PLAYER* pPlayer, int nPack)
 //
 //---------------------------------------------------------------------------
 
-void packPrevItem(PLAYER* pPlayer)
+void packPrevItem(BloodPlayer* pPlayer)
 {
 	if (pPlayer->packItemTime > 0)
 	{
@@ -643,7 +643,7 @@ void packPrevItem(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void packNextItem(PLAYER* pPlayer)
+void packNextItem(BloodPlayer* pPlayer)
 {
 	if (pPlayer->packItemTime > 0)
 	{
@@ -671,7 +671,7 @@ void packNextItem(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-bool playerSeqPlaying(PLAYER* pPlayer, int nSeq)
+bool playerSeqPlaying(BloodPlayer* pPlayer, int nSeq)
 {
 	int nCurSeq = seqGetID(pPlayer->GetActor());
 	if (pPlayer->pDudeInfo->seqStartID + nSeq == nCurSeq && seqGetStatus(pPlayer->GetActor()) >= 0)
@@ -685,7 +685,7 @@ bool playerSeqPlaying(PLAYER* pPlayer, int nSeq)
 //
 //---------------------------------------------------------------------------
 
-void playerSetRace(PLAYER* pPlayer, int nLifeMode)
+void playerSetRace(BloodPlayer* pPlayer, int nLifeMode)
 {
 	assert(nLifeMode >= kModeHuman && nLifeMode <= kModeHumanGrown);
 	DUDEINFO* pDudeInfo = pPlayer->pDudeInfo;
@@ -705,12 +705,12 @@ void playerSetRace(PLAYER* pPlayer, int nLifeMode)
 //
 //---------------------------------------------------------------------------
 
-void playerSetGodMode(PLAYER* pPlayer, bool bGodMode)
+void playerSetGodMode(BloodPlayer* pPlayer, bool bGodMode)
 {
 	pPlayer->godMode = bGodMode;
 }
 
-void playerResetInertia(PLAYER* pPlayer)
+void playerResetInertia(BloodPlayer* pPlayer)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->GetActor()->spr.pos.Z - pPosture->eyeAboveZ;
@@ -719,7 +719,7 @@ void playerResetInertia(PLAYER* pPlayer)
 	viewBackupView(pPlayer->nPlayer);
 }
 
-void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
+void playerCorrectInertia(BloodPlayer* pPlayer, const DVector3& oldpos)
 {
 	auto zAdj = pPlayer->GetActor()->spr.pos.Z - oldpos.Z;
 	pPlayer->zView += zAdj;
@@ -729,7 +729,7 @@ void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
 	pPlayer->GetActor()->opos.Z += zAdj;
 }
 
-void playerResetPowerUps(PLAYER* pPlayer)
+void playerResetPowerUps(BloodPlayer* pPlayer)
 {
 	for (int i = 0; i < kMaxPowerUps; i++) {
 		if (!VanillaMode() && (i == kPwUpJumpBoots || i == kPwUpDivingSuit || i == kPwUpCrystalBall || i == kPwUpBeastVision))
@@ -738,7 +738,7 @@ void playerResetPowerUps(PLAYER* pPlayer)
 	}
 }
 
-void playerResetPosture(PLAYER* pPlayer) {
+void playerResetPosture(BloodPlayer* pPlayer) {
 	memcpy(pPlayer->pPosture, gPostureDefaults, sizeof(gPostureDefaults));
 	if (!VanillaMode()) {
 		pPlayer->bobPhase = 0;
@@ -759,7 +759,7 @@ void playerResetPosture(PLAYER* pPlayer) {
 
 void playerStart(int nPlayer, int bNewLevel)
 {
-	PLAYER* pPlayer = &gPlayer[nPlayer];
+	BloodPlayer* pPlayer = &gPlayer[nPlayer];
 	InputPacket* pInput = &pPlayer->input;
 	ZONE* pStartZone = NULL;
 
@@ -918,7 +918,7 @@ void playerStart(int nPlayer, int bNewLevel)
 //
 //---------------------------------------------------------------------------
 
-void playerReset(PLAYER* pPlayer)
+void playerReset(BloodPlayer* pPlayer)
 {
 	static int dword_136400[] = {
 		3, 4, 2, 8, 9, 10, 7, 1, 1, 1, 1, 1, 1, 1
@@ -984,7 +984,7 @@ void playerInit(int nPlayer, unsigned int a2)
 	if (!(a2 & 1))
 		gPlayer[nPlayer] = {};
 
-	PLAYER* pPlayer = &gPlayer[nPlayer];
+	BloodPlayer* pPlayer = &gPlayer[nPlayer];
 	pPlayer->nPlayer = nPlayer;
 	pPlayer->teamId = nPlayer;
 	if (gGameOptions.nGameType == 3)
@@ -1004,7 +1004,7 @@ void playerInit(int nPlayer, unsigned int a2)
 //
 //---------------------------------------------------------------------------
 
-bool findDroppedLeech(PLAYER* a1, DBloodActor* a2)
+bool findDroppedLeech(BloodPlayer* a1, DBloodActor* a2)
 {
 	BloodStatIterator it(kStatThing);
 	while (auto actor = it.Next())
@@ -1023,7 +1023,7 @@ bool findDroppedLeech(PLAYER* a1, DBloodActor* a2)
 //
 //---------------------------------------------------------------------------
 
-bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
+bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 {
 	char buffer[80];
 	int pickupSnd = 775;
@@ -1256,7 +1256,7 @@ bool PickupItem(PLAYER* pPlayer, DBloodActor* itemactor)
 //
 //---------------------------------------------------------------------------
 
-bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
+bool PickupAmmo(BloodPlayer* pPlayer, DBloodActor* ammoactor)
 {
 	const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[ammoactor->spr.type - kItemAmmoBase];
 	int nAmmoType = pAmmoItemData->type;
@@ -1280,7 +1280,7 @@ bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 //
 //---------------------------------------------------------------------------
 
-bool PickupWeapon(PLAYER* pPlayer, DBloodActor* weaponactor)
+bool PickupWeapon(BloodPlayer* pPlayer, DBloodActor* weaponactor)
 {
 	const WEAPONITEMDATA* pWeaponItemData = &gWeaponItemData[weaponactor->spr.type - kItemWeaponBase];
 	int nWeaponType = pWeaponItemData->type;
@@ -1325,7 +1325,7 @@ bool PickupWeapon(PLAYER* pPlayer, DBloodActor* weaponactor)
 //
 //---------------------------------------------------------------------------
 
-void PickUp(PLAYER* pPlayer, DBloodActor* actor)
+void PickUp(BloodPlayer* pPlayer, DBloodActor* actor)
 {
 	const char* msg = nullptr;
 	int nType = actor->spr.type;
@@ -1376,7 +1376,7 @@ void PickUp(PLAYER* pPlayer, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void CheckPickUp(PLAYER* pPlayer)
+void CheckPickUp(BloodPlayer* pPlayer)
 {
 	auto plActor = pPlayer->GetActor();
 	auto ppos = plActor->spr.pos;
@@ -1417,7 +1417,7 @@ void CheckPickUp(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-int ActionScan(PLAYER* pPlayer, HitInfo* out)
+int ActionScan(BloodPlayer* pPlayer, HitInfo* out)
 {
 	auto plActor = pPlayer->GetActor();
 	*out = {};
@@ -1509,7 +1509,7 @@ unsigned GameInterface::getCrouchState()
 //
 //---------------------------------------------------------------------------
 
-void ProcessInput(PLAYER* pPlayer)
+void ProcessInput(BloodPlayer* pPlayer)
 {
 	enum
 	{
@@ -1764,7 +1764,7 @@ void ProcessInput(PLAYER* pPlayer)
 	CheckPickUp(pPlayer);
 }
 
-void playerProcess(PLAYER* pPlayer)
+void playerProcess(BloodPlayer* pPlayer)
 {
 	DBloodActor* actor = pPlayer->GetActor();
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1892,12 +1892,12 @@ void playerProcess(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* playerFireMissile(PLAYER* pPlayer, double xyoff, const DVector3& dv, int nType)
+DBloodActor* playerFireMissile(BloodPlayer* pPlayer, double xyoff, const DVector3& dv, int nType)
 {
 	return actFireMissile(pPlayer->GetActor(), xyoff, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, dv, nType);
 }
 
-DBloodActor* playerFireThing(PLAYER* pPlayer, double xyoff, double zvel, int thingType, double nSpeed)
+DBloodActor* playerFireThing(BloodPlayer* pPlayer, double xyoff, double zvel, int thingType, double nSpeed)
 {
 	return actFireThing(pPlayer->GetActor(), xyoff, pPlayer->zWeapon - pPlayer->GetActor()->spr.pos.Z, pPlayer->slope * 0.25 + zvel, thingType, nSpeed);
 }
@@ -1908,7 +1908,7 @@ DBloodActor* playerFireThing(PLAYER* pPlayer, double xyoff, double zvel, int thi
 //
 //---------------------------------------------------------------------------
 
-void playerFrag(PLAYER* pKiller, PLAYER* pVictim)
+void playerFrag(BloodPlayer* pKiller, BloodPlayer* pVictim)
 {
 	assert(pKiller != NULL);
 	assert(pVictim != NULL);
@@ -1974,11 +1974,11 @@ void playerFrag(PLAYER* pKiller, PLAYER* pVictim)
 //
 //---------------------------------------------------------------------------
 
-void FragPlayer(PLAYER* pPlayer, DBloodActor* killer)
+void FragPlayer(BloodPlayer* pPlayer, DBloodActor* killer)
 {
 	if (killer && killer->IsPlayerActor())
 	{
-		PLAYER* pKiller = &gPlayer[killer->spr.type - kDudePlayer1];
+		BloodPlayer* pKiller = &gPlayer[killer->spr.type - kDudePlayer1];
 		playerFrag(pKiller, pPlayer);
 		int nTeam1 = pKiller->teamId & 1;
 		int nTeam2 = pPlayer->teamId & 1;
@@ -2005,7 +2005,7 @@ void FragPlayer(PLAYER* pPlayer, DBloodActor* killer)
 //
 //---------------------------------------------------------------------------
 
-int playerDamageArmor(PLAYER* pPlayer, DAMAGE_TYPE nType, int nDamage)
+int playerDamageArmor(BloodPlayer* pPlayer, DAMAGE_TYPE nType, int nDamage)
 {
 	DAMAGEINFO* pDamageInfo = &damageInfo[nType];
 	int nArmorType = pDamageInfo->armorType;
@@ -2032,7 +2032,7 @@ int playerDamageArmor(PLAYER* pPlayer, DAMAGE_TYPE nType, int nDamage)
 //
 //---------------------------------------------------------------------------
 
-void flagDropped(PLAYER* pPlayer, int a2)
+void flagDropped(BloodPlayer* pPlayer, int a2)
 {
 	DBloodActor* playeractor = pPlayer->GetActor();
 	DBloodActor* actor;
@@ -2066,7 +2066,7 @@ void flagDropped(PLAYER* pPlayer, int a2)
 //
 //---------------------------------------------------------------------------
 
-int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
+int playerDamageSprite(DBloodActor* source, BloodPlayer* pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
 {
 	assert(pPlayer != NULL);
 	if (pPlayer->damageControl[nDamageType] || pPlayer->godMode)
@@ -2234,7 +2234,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 //
 //---------------------------------------------------------------------------
 
-int UseAmmo(PLAYER* pPlayer, int nAmmoType, int nDec)
+int UseAmmo(BloodPlayer* pPlayer, int nAmmoType, int nDec)
 {
 	if (gInfiniteAmmo)
 		return 9999;
@@ -2250,7 +2250,7 @@ int UseAmmo(PLAYER* pPlayer, int nAmmoType, int nDec)
 //
 //---------------------------------------------------------------------------
 
-void voodooTarget(PLAYER* pPlayer)
+void voodooTarget(BloodPlayer* pPlayer)
 {
 	DBloodActor* actor = pPlayer->GetActor();
 	double aimz = pPlayer->aim.Z;
@@ -2277,7 +2277,7 @@ void voodooTarget(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void playerLandingSound(PLAYER* pPlayer)
+void playerLandingSound(BloodPlayer* pPlayer)
 {
 	static int surfaceSound[] = {
 		-1,
@@ -2322,7 +2322,7 @@ void PlayerSurvive(int, DBloodActor* actor)
 		sfxPlay3DSound(actor, 3009, 0, 6);
 		if (actor->IsPlayerActor())
 		{
-			PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+			BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
 			if (pPlayer->nPlayer == myconnectindex)
 				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
 			else
@@ -2347,7 +2347,7 @@ void PlayerKneelsOver(int, DBloodActor* actor)
 	{
 		if (gPlayer[p].GetActor() == actor)
 		{
-			PLAYER* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = &gPlayer[p];
 			playerDamageSprite(pPlayer->fragger, pPlayer, kDamageSpirit, 500 << 4);
 			return;
 		}
@@ -2396,7 +2396,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTURE& w, POSTUR
 	return arc;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, BloodPlayer& w, BloodPlayer* def)
 {
 	if (arc.BeginObject(keyname))
 	{
@@ -2563,76 +2563,76 @@ void SerializePlayers(FSerializer& arc)
 
 
 
-DEFINE_FIELD_X(BloodPlayer, PLAYER, newWeapon)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponQav)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, qavCallback)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, isRunning)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, posture)   // stand, crouch, swim
-DEFINE_FIELD_X(BloodPlayer, PLAYER, sceneQav)  // by NoOne: used to keep qav id
-DEFINE_FIELD_X(BloodPlayer, PLAYER, bobPhase)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, bobAmp)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, bobHeight)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, bobWidth)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, swayAmp)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, swayHeight)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, swayWidth)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, nPlayer)  // Connect id
-DEFINE_FIELD_X(BloodPlayer, PLAYER, lifeMode)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, zView)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, zViewVel)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, zWeapon)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, zWeaponVel)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, slope)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, isUnderwater)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, hasKey)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, hasFlag)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, damageControl)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, curWeapon)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, nextWeapon)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponTimer)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponState)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponAmmo)  //rename
-DEFINE_FIELD_X(BloodPlayer, PLAYER, hasWeapon)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponMode)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponOrder)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, ammoCount)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, qavLoop)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, fuseTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, throwTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, throwPower)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, newWeapon)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, weaponQav)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, qavCallback)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, isRunning)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, posture)   // stand, crouch, swim
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, sceneQav)  // by NoOne: used to keep qav id
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, bobPhase)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, bobAmp)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, bobHeight)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, bobWidth)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, swayAmp)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, swayHeight)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, swayWidth)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, nPlayer)  // Connect id
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, lifeMode)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, zView)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, zViewVel)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, zWeapon)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, zWeaponVel)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, slope)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, isUnderwater)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, hasKey)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, hasFlag)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, damageControl)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, curWeapon)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, nextWeapon)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, weaponTimer)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, weaponState)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, weaponAmmo)  //rename
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, hasWeapon)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, weaponMode)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, weaponOrder)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, ammoCount)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, qavLoop)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, fuseTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, throwTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, throwPower)
 //DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
-DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargetsCount)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, aimTargetsCount)
 //DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, deathTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, pwUpTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, teamId)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, fragCount)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, fragInfo)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, underwaterTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, bubbleTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, restTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, kickPower)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, laughCount)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, godMode)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, fallScream)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, cantJump)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, packItemTime)  // pack timer
-DEFINE_FIELD_X(BloodPlayer, PLAYER, packItemId)    // pack id 1: diving suit, 2: crystal ball, 3:
-DEFINE_FIELD_X(BloodPlayer, PLAYER, packSlots)  // at325 1]: diving suit, [2]: crystal ball, 
-DEFINE_FIELD_X(BloodPlayer, PLAYER, armor)      // armor
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, deathTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, pwUpTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, teamId)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, fragCount)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, fragInfo)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, underwaterTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, bubbleTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, restTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, kickPower)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, laughCount)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, godMode)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, fallScream)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, cantJump)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, packItemTime)  // pack timer
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, packItemId)    // pack id 1: diving suit, 2: crystal ball, 3:
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, packSlots)  // at325 1]: diving suit, [2]: crystal ball, 
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, armor)      // armor
 //DEFINE_FIELD_X(BloodPlayer, PLAYER, voodooTarget)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, flickerEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, tiltEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, visibility)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, painEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, blindEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, chokeEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, handTime)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, hand)  // if true, there is hand start choking the player
-DEFINE_FIELD_X(BloodPlayer, PLAYER, pickupEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, flashEffect)  // if true, reduce pPlayer->visibility counter
-DEFINE_FIELD_X(BloodPlayer, PLAYER, quakeEffect)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, player_par)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, nWaterPal)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, flickerEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, tiltEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, visibility)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, painEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, blindEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, chokeEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, handTime)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, hand)  // if true, there is hand start choking the player
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, pickupEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, flashEffect)  // if true, reduce pPlayer->visibility counter
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, quakeEffect)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, player_par)
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, nWaterPal)
 
 END_BLD_NS

@@ -237,7 +237,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 		int nPlayer = actor->xspr.data4;
 		if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
 		{
-			PLAYER* pPlayer = &gPlayer[nPlayer];
+			BloodPlayer* pPlayer = &gPlayer[nPlayer];
 			if (pPlayer->GetActor()->xspr.health > 0)
 			{
 				evKillActor(actor);
@@ -598,7 +598,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kSoundPlayer:
 		if (gGameOptions.nGameType == 0)
 		{
-			PLAYER* pPlayer = &gPlayer[myconnectindex];
+			BloodPlayer* pPlayer = &gPlayer[myconnectindex];
 
 			if (pPlayer->GetActor()->xspr.health <= 0)
 				break;
@@ -1596,7 +1596,7 @@ void OperateTeleport(sectortype* pSector)
 	{
 		if (actor->spr.statnum == kStatDude)
 		{
-			PLAYER* pPlayer;
+			BloodPlayer* pPlayer;
 			bool bPlayer = actor->IsPlayerActor();
 			if (bPlayer)
 				pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];

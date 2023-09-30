@@ -43,7 +43,7 @@ int nAmbChannels = 0;
 //
 //---------------------------------------------------------------------------
 
-void ambProcess(PLAYER* pPlayer)
+void ambProcess(BloodPlayer* pPlayer)
 {
     if (!SoundEnabled())
         return;

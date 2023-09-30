@@ -971,7 +971,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				aiPatrolStop(actor, source, actor->xspr.dudeAmbush);
 
-				PLAYER* pPlayer = getPlayerById(source->spr.type);
+				BloodPlayer* pPlayer = getPlayerById(source->spr.type);
 				if (!pPlayer) return nDamage;
 				//if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 				if (readyForCrit(source, actor)) 
@@ -1491,7 +1491,7 @@ void aiThinkTarget(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			PLAYER* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = &gPlayer[p];
 			if (actor->GetOwner() == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->GetActor()->spr.pos;
@@ -1536,7 +1536,7 @@ void aiLookForTarget(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			PLAYER* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = &gPlayer[p];
 			if (actor->GetOwner() == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->GetActor()->spr.pos;

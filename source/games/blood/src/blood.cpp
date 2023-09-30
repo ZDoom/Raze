@@ -123,7 +123,7 @@ bool bNoDemo = false;
 int gNetPlayers;
 int gChokeCounter = 0;
 int blood_globalflags;
-PLAYER gPlayerTemp[kMaxPlayers];
+BloodPlayer gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 int16_t startang;
 sectortype* startsector;
@@ -339,7 +339,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			PLAYER* pPlayer = &gPlayer[i];
+			BloodPlayer* pPlayer = &gPlayer[i];
 			pPlayer->GetActor()->xspr.health &= 0xf000;
 			pPlayer->GetActor()->xspr.health |= gHealthTemp[i];
 			pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
@@ -421,7 +421,7 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		thinktime.Reset();
 		thinktime.Clock();
 
-		PLAYER* pPlayer = &gPlayer[myconnectindex];
+		BloodPlayer* pPlayer = &gPlayer[myconnectindex];
 
 		// disable synchronised input if set by game.
 		resetForcedSyncInput();
@@ -762,13 +762,13 @@ DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	PARAM_SELF_STRUCT_PROLOGUE(BloodPlayer);
 	ACTION_RETURN_INT(self->GetActor()->xspr.health);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	PARAM_SELF_STRUCT_PROLOGUE(BloodPlayer);
 	PARAM_INT(pwup);
 	ACTION_RETURN_INT(powerupCheck(self, pwup));
 }

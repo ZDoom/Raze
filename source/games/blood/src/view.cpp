@@ -58,7 +58,7 @@ int gViewIndex;
 
 void viewBackupView(int nPlayer)
 {
-	PLAYER* pPlayer = &gPlayer[nPlayer];
+	BloodPlayer* pPlayer = &gPlayer[nPlayer];
 	pPlayer->ozView = pPlayer->zView;
 	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 12;
 	pPlayer->obobHeight = pPlayer->bobHeight;
@@ -100,7 +100,7 @@ void viewDrawText(FFont* pFont, const char* pString, int x, int y, int nShade, i
 //
 //---------------------------------------------------------------------------
 
-void viewDrawAimedPlayerName(PLAYER* pPlayer)
+void viewDrawAimedPlayerName(BloodPlayer* pPlayer)
 {
 	if (!cl_idplayers || (pPlayer->aim.XY().isZero()))
 		return;
@@ -280,7 +280,7 @@ void UpdateDacs(int nPalette, bool bNoTint)
 //
 //---------------------------------------------------------------------------
 
-void UpdateBlend(PLAYER* pPlayer)
+void UpdateBlend(BloodPlayer* pPlayer)
 {
 	int nRed = 0;
 	int nGreen = 0;
@@ -324,7 +324,7 @@ int gShowFrameRate = 1;
 //
 //---------------------------------------------------------------------------
 
-void viewUpdateDelirium(PLAYER* pPlayer)
+void viewUpdateDelirium(BloodPlayer* pPlayer)
 {
 	gScreenTiltO = gScreenTilt;
 	deliriumTurnO = deliriumTurn;
@@ -371,7 +371,7 @@ void viewUpdateDelirium(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, double& pshakeX, double& pshakeY)
+void viewUpdateShake(BloodPlayer* pPlayer, DVector3& cPos, DRotator& cAngles, double& pshakeX, double& pshakeY)
 {
 	auto doEffect = [&](const int& effectType)
 	{
@@ -404,7 +404,7 @@ int32_t g_frameRate;
 //
 //---------------------------------------------------------------------------
 
-static void DrawMap(PLAYER* pPlayer, const double interpfrac)
+static void DrawMap(BloodPlayer* pPlayer, const double interpfrac)
 {
 	int tm = 0;
 	if (viewport3d.Left() > 0)
@@ -423,7 +423,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static void SetupView(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, const double interpfrac)
+static void SetupView(BloodPlayer* pPlayer, DVector3& cPos, DRotator& cAngles, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, const double interpfrac)
 {
 	double bobWidth, bobHeight;
 
@@ -558,7 +558,7 @@ void renderCrystalBall()
 
 void viewDrawScreen(bool sceneonly)
 {
-	PLAYER* pPlayer = &gPlayer[gViewIndex];
+	BloodPlayer* pPlayer = &gPlayer[gViewIndex];
 
 	FireProcess();
 
