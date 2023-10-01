@@ -170,31 +170,26 @@ struct sectortype native
 	// new additions not from the binary map format.
 	native uint8 exflags;
 
+	// TODO: Later this must hide the parts unrelated to the current game because these variables occupy the same space! The compiler cannot do that right now.
 
 	// Duke
+	native uint8 lockinfo; // This was originally the repurposed filler byte.
 	native uint8 shadedsector;
+	DukeActor hitagactor;    // we need this because Duke stores an actor in the hitag field. Is really a DDukeActor, but cannot be declared here safely.
+
+	//native XSECTOR x;
+	native BloodActor upperLink;
+	native BloodActor lowerLink;
+	native double baseFloor;
+	native double baseCeil;
+	native double velFloor;
+	native double velCeil;
+	
+	
 
 /*
-	// Game specific extensions. Only export what's really needed.
 	union
 	{
-		struct // DukeRR
-		{
-			uint8_t keyinfo; // This was originally the repurposed filler byte.
-			uint8_t shadedsector;
-			TObjPtr<DCoreActor*> hitagactor;    // we need this because Duke stores an actor in the hitag field. Is really a DDukeActor, but cannot be declared here safely.
-		}
-		struct // Blood
-		{
-			BLD_NS::XSECTOR* _xs;
-			TObjPtr<DCoreActor*> upperLink;
-			TObjPtr<DCoreActor*> lowerLink;
-			double baseFloor;
-			double baseCeil;
-			double velFloor;
-			double velCeil;
-			uint8_t slopewallofs; // This was originally the repurposed filler byte.
-		}
 		struct // Exhumed
 		{
 			sectortype* pSoundSect;
@@ -283,8 +278,10 @@ struct walltype native
 
 	native int8 shade;
 	native uint8 pal;
-	//native uint8 xrepeat;
+	//native uint8 xrepeat; // these are still bytes, do not export unless floatified
 	//native uint8 yrepeat;
+	
+	//native XWALL x;
 
 
 	native void setxpan(double add);

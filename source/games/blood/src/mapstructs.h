@@ -140,7 +140,7 @@ struct XSECTOR {
 
 	union
 	{
-		uint64_t flags;
+		uint32_t flags;
 		struct {
 			unsigned int state : 1;             // State
 			unsigned int triggerOn : 1;         // Send at ON
@@ -173,13 +173,19 @@ struct XSECTOR {
 			unsigned int Crush : 1;             // Crush
 			unsigned int locked : 1;            // Locked
 			unsigned int windAlways : 1;        // Wind always
+		};
+	};
+	union
+	{
+		int32_t flags2;
+		struct
+		{
 			unsigned int dudeLockout : 1;
 			unsigned int bobAlways : 1;         // Motion always
 			unsigned int bobFloor : 1;          // Motion bob floor
 			unsigned int bobCeiling : 1;        // Motion bob ceiling
 			unsigned int bobRotate : 1;         // Motion rotate
 			unsigned int unused1 : 1;           // (new) pause motion
-
 		};
 	};
 	DBloodActor* marker0;

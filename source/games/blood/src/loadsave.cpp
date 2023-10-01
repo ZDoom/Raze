@@ -552,6 +552,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTO
 	if (arc.BeginObject(keyname))
 	{
 		arc("flags", w.flags, def->flags)
+			("flags2", w.flags2, def->flags2)
 			("busy", w.busy, def->busy)
 			("data", w.data, def->data)
 			("txid", w.txID, def->txID)

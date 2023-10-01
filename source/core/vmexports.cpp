@@ -210,7 +210,20 @@ DEFINE_FIELD_X(sectortype, sectortype, exflags)
 DEFINE_FIELD_X(sectortype, sectortype, floorz)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingz)
 
+//Duke specific
+DEFINE_FIELD_X(sectortype, sectortype, lockinfo)
 DEFINE_FIELD_X(sectortype, sectortype, shadedsector)
+DEFINE_FIELD_X(sectortype, sectortype, hitagactor)
+
+// Blood specific
+DEFINE_FIELD_NAMED_X(sectortype, sectortype, _xs, x)
+DEFINE_FIELD_X(sectortype, sectortype, upperLink)
+DEFINE_FIELD_X(sectortype, sectortype, lowerLink)
+DEFINE_FIELD_X(sectortype, sectortype, baseFloor)
+DEFINE_FIELD_X(sectortype, sectortype, baseCeil)
+DEFINE_FIELD_X(sectortype, sectortype, velFloor)
+DEFINE_FIELD_X(sectortype, sectortype, velCeil)
+DEFINE_FIELD_X(sectortype, sectortype, slopewallofs)
 
 DEFINE_FIELD_NAMED_X(walltype, walltype, xpan_, xpan)
 DEFINE_FIELD_NAMED_X(walltype, walltype, ypan_, ypan)
@@ -230,6 +243,7 @@ DEFINE_FIELD_X(walltype, walltype, shade)
 DEFINE_FIELD_X(walltype, walltype, pal)
 DEFINE_FIELD_NAMED_X(walltype, walltype, xrepeat, xrepeat)
 DEFINE_FIELD_NAMED_X(walltype, walltype, yrepeat, yrepeat)
+DEFINE_FIELD_NAMED_X(walltype, walltype, _xw, x)
 
 DEFINE_FIELD_NAMED_X(tspritetype, tspritetype, sectp, sector)
 DEFINE_FIELD_X(tspritetype, tspritetype, cstat)
