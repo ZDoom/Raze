@@ -184,10 +184,10 @@ static void sub_725A4(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-	if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
-		pDudeExtraE->thinkTime++;
-	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
+	
+	if (actor->dudeExtra.active && actor->dudeExtra.thinkTime < 10)
+		actor->dudeExtra.thinkTime++;
+	else if (actor->dudeExtra.thinkTime >= 10 && actor->dudeExtra.active)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
@@ -215,13 +215,13 @@ static void sub_725A4(DBloodActor* actor)
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
 			{
-				pDudeExtraE->thinkTime = 0;
+				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->HearDist())
 			{
-				pDudeExtraE->thinkTime = 0;
+				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
 			}

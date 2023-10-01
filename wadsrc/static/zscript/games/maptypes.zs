@@ -338,8 +338,8 @@ struct sectortype native
 //=============================================================================
 
 
-struct XWALL native {
-
+struct XWALL native
+{
 	native uint flags;
 	native uint busy;
 	native int16 data;     

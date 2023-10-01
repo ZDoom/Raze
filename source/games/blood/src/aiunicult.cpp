@@ -2501,8 +2501,8 @@ void aiGenDudeInitSprite(DBloodActor* actor)
 	{
 	case kDudeModernCustom:
 	{
-		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-		pDudeExtraE->active = pDudeExtraE->thinkTime = 0;
+		
+		actor->dudeExtra.active = actor->dudeExtra.thinkTime = 0;
 		aiGenDudeNewState(actor, &genDudeIdleL);
 		break;
 	}

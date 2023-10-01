@@ -443,7 +443,6 @@ void InitThingdef()
 	collstruct->Size = sizeof(CollisionBase);
 	collstruct->Align = alignof(CollisionBase);
 
-
 	auto sidestruct = NewStruct("tspritetype", nullptr, true);
 	sidestruct->Size = sizeof(tspritetype);
 	sidestruct->Align = alignof(tspritetype);

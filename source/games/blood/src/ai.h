@@ -50,23 +50,6 @@ enum AI_SFX_PRIORITY {
 };
 
 
-struct DUDEEXTRA_STATS
-{
-	union {
-		int thinkTime;
-		int birthCounter;
-	};
-	uint8_t active;
-};
-
-struct DUDEEXTRA
-{
-	int time;
-	uint8_t teslaHit;
-	int prio;
-	DUDEEXTRA_STATS stats;
-};
-
 struct TARGETTRACK {
 	int TotalKills;
 	int Kills;

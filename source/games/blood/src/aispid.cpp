@@ -135,13 +135,13 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
+	
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 
 	DBloodActor* spawned = nullptr;
-	if (target->IsPlayerActor() && pDudeExtraE->birthCounter < 10)
+	if (target->IsPlayerActor() && actor->dudeExtra.birthCounter < 10)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		if (nDist < 0x1a0 && nDist > 0x140 && nDeltaAngle < pDudeInfo->Periphery())
@@ -153,7 +153,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 
 		if (spawned)
 		{
-			pDudeExtraE->birthCounter++;
+			actor->dudeExtra.birthCounter++;
 			spawned->SetOwner(spawned);
 			if (AllowedKillType(spawned)) Level.addKillCount();
 		}

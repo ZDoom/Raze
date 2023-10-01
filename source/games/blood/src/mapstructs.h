@@ -1,4 +1,4 @@
-// This is separate because the map loader needs knowledge about these types to allocate their instances.
+// This is separate because the map loader and script compiler needs knowledge about these types to allocate their instances so it needs to be usable from shared code.
 #pragma once
 #include "ns.h"
 
@@ -265,5 +265,16 @@ struct XWALL {
 	vec3_t panVel;
 	uint8_t key;               // Key
 };
+
+struct DUDEEXTRA
+{
+	int time;
+	uint8_t teslaHit;
+	uint8_t active;
+	int prio;
+	int thinkTime;
+	int birthCounter;
+};
+
 
 END_BLD_NS

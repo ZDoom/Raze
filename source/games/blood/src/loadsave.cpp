@@ -448,12 +448,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 
 	if (arc.BeginObject(keyname))
 	{
-		// Note: birthCounter/thinkTime are a union and share the same value (this is used for savefile backwards compatibility - see correct implementation below)
 		arc("time", w.time, &empty)
 			("teslaHit", w.teslaHit, &empty2)
 			("prio", w.prio, &empty)
-			("thinkTime", w.stats.thinkTime, &empty)
-			("active", w.stats.active, &empty2)
+			("thinkTime", w.thinkTime, &empty)
+			("birthCounter", w.birthCounter, &empty)
+			("active", w.active, &empty2)
 			.EndObject();
 	}
 	return arc;

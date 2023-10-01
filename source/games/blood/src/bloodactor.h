@@ -5,13 +5,14 @@
 
 BEGIN_BLD_NS
 
-class DBloodActor;
 
 struct SPRITEHIT
 {
 	// These must use read barriers as they can live longer and need proper GC maintenance.
 	Collision hit, ceilhit, florhit;
 };
+
+class DBloodActor;
 
 class DBloodActor : public DCoreActor
 {
@@ -21,16 +22,18 @@ class DBloodActor : public DCoreActor
 public:
 	double dudeSlope; // Q18.14 format
 	bool hasx;
+	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
 	XSPRITE xspr;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
+	TObjPtr<DBloodActor*> ownerActor;	// was previously stored in the sprite's owner field.
+
+	// nnext stuff. For now not exported to scripting.
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
-	TObjPtr<DBloodActor*> ownerActor;	// was previously stored in the sprite's owner field.
 	DVector3 basePoint;
 	EventObject condition[2];
-	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
 
 	// transient data (not written to savegame)
 	int cumulDamage;

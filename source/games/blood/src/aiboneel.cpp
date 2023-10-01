@@ -91,12 +91,12 @@ static void eelThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-	if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
-		pDudeExtraE->thinkTime++;
-	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
+	
+	if (actor->dudeExtra.active && actor->dudeExtra.thinkTime < 10)
+		actor->dudeExtra.thinkTime++;
+	else if (actor->dudeExtra.thinkTime >= 10 && actor->dudeExtra.active)
 	{
-		pDudeExtraE->thinkTime = 0;
+		actor->dudeExtra.thinkTime = 0;
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &eelTurn);
@@ -121,13 +121,13 @@ static void eelThinkTarget(DBloodActor* actor)
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvect.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
-				pDudeExtraE->thinkTime = 0;
+				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->HearDist())
 			{
-				pDudeExtraE->thinkTime = 0;
+				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
 			}
@@ -375,8 +375,8 @@ void eelMoveToCeil(DBloodActor* actor)
 {
 	if (actor->spr.pos.Z - actor->xspr.TargetPos.Z < 0x10)
 	{
-		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-		pDudeExtraE->active = 0;
+		
+		actor->dudeExtra.active = 0;
 		actor->spr.flags = 0;
 		aiNewState(actor, &eelIdle);
 	}
