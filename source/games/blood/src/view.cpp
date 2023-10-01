@@ -100,17 +100,6 @@ void viewDrawText(FFont* pFont, const char* pString, int x, int y, int nShade, i
 //
 //---------------------------------------------------------------------------
 
-GameStats GameInterface::getStats()
-{
-	return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, gFrameCount / kTicsPerSec, gPlayer[myconnectindex].fragCount };
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void viewDrawAimedPlayerName(PLAYER* pPlayer)
 {
 	if (!cl_idplayers || (pPlayer->aim.XY().isZero()))

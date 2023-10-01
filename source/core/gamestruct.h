@@ -74,7 +74,6 @@ struct GameInterface
 	virtual void loadPalette() = 0;
 	virtual void FreeLevelData();
 	virtual void PlayHudSound() {}
-	virtual GameStats getStats() { return {}; }
 	virtual void MenuOpened() {}
 	virtual void MenuClosed() {}
 	virtual void MenuSound(EMenuSounds snd) {}

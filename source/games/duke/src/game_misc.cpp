@@ -51,19 +51,6 @@ BEGIN_DUKE_NS
 
 //---------------------------------------------------------------------------
 //
-// debug output
-//
-//---------------------------------------------------------------------------
-
-GameStats GameInterface::getStats()
-{
-	player_struct* p = &ps[myconnectindex];
-	return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, p->player_par / REALGAMETICSPERSEC, p->frag };
-}
-
-
-//---------------------------------------------------------------------------
-//
 //
 //
 //---------------------------------------------------------------------------

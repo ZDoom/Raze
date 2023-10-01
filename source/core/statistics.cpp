@@ -50,6 +50,8 @@
 #include "engineerrors.h"
 #include "gamestruct.h"
 #include "printf.h"
+#include "mapinfo.h"
+#include "gamecontrol.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, GAMENAMELOWERCASE "stat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -65,6 +67,7 @@ struct OneLevel
 {
 	int totalkills = 0, killcount = 0;
 	int totalsecrets = 0, secretcount = 0;
+	int supersecrets = 0;
 	int leveltime = 0;
 	FString Levelname;
 };
@@ -137,8 +140,11 @@ static void ParseStatistics(const char *fn, TArray<FStatistics> &statlist)
 
 				int h,m,s;
 				sc.MustGetString();
-				sscanf(sc.String, "%d:%d:%d", &h, &m, &s);
-				session.timeneeded= ((((h*60)+m)*60)+s);
+				if (3 == sscanf(sc.String, "%d:%d:%d", &h, &m, &s))
+				{
+					session.timeneeded = ((((h * 60) + m) * 60) + s);
+				}
+				else session.timeneeded = 0;
 
 				sc.MustGetNumber();
 				session.skill=sc.Number;
@@ -155,8 +161,11 @@ static void ParseStatistics(const char *fn, TArray<FStatistics> &statlist)
 
 						int hour,min,sec;
 						sc.MustGetString();
-						sscanf(sc.String, "%d:%d:%d", &hour, &min, &sec);
-						lstats.timeneeded= ((((hour*60)+min)*60)+sec);
+						if (3 == sscanf(sc.String, "%d:%d:%d", &hour, &min, &sec))
+						{
+							lstats.timeneeded = ((((hour * 60) + min) * 60) + sec);
+						}
+						else lstats.timeneeded = 0;
 
 						lstats.skill = 0;
 					}
@@ -394,12 +403,13 @@ static void StoreLevelStats()
 		LevelData.Reserve(1);
 		LevelData[i].Levelname = LevelName; // should never happen
 	}
-	auto stat = gi->getStats();
-	LevelData[i].totalkills = stat.tkill;
-	LevelData[i].killcount = stat.kill;
-	LevelData[i].totalsecrets = stat.tsecret;
-	LevelData[i].secretcount = stat.secret;
-	LevelData[i].leveltime = stat.timesecnd;
+	SummaryInfo info{};
+	Level.fillSummary(info);
+	LevelData[i].totalkills = info.maxkills;
+	LevelData[i].killcount = info.kills;
+	LevelData[i].totalsecrets = info.maxsecrets;
+	LevelData[i].secretcount = info.secrets;
+	LevelData[i].leveltime = PlayClock / 120;
 }
 
 //==========================================================================
@@ -449,6 +459,7 @@ void STAT_Update(bool endofgame)
 			FString lsection = ExtractFileBase(LevelData[i].Levelname);
 			lsection.ToUpper();
 			infostring.Format("%4d/%4d, %3d/%3d", LevelData[i].killcount, LevelData[i].totalkills, LevelData[i].secretcount, LevelData[i].totalsecrets);
+			if (LevelData[i].supersecrets > 0) infostring.AppendFormat(":%d", LevelData[i].supersecrets);
 			LevelStatEntry(es, lsection, infostring, LevelData[i].leveltime);
 		}
 		SaveStatistics(statfile, EpisodeStatistics);
@@ -494,6 +505,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, OneLevel& l, OneLevel*
 			("killcount", l.killcount)
 			("totalsecrets", l.totalsecrets)
 			("secretcount", l.secretcount)
+			("supersecrets", l.supersecrets)
 			("leveltime", l.leveltime)
 			("levelname", l.Levelname)
 			.EndObject();

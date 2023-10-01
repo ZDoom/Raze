@@ -524,11 +524,6 @@ bool GameInterface::CanSave()
     return !bRecord && !bPlayback && !bInDemo && nTotalPlayers == 1 && nFreeze == 0;
 }
 
-::GameStats GameInterface::getStats()
-{
-    return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, PlayClock / 120, 0 };
-}
-
 ::GameInterface* CreateInterface()
 {
     return new GameInterface;

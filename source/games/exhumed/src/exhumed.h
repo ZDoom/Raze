@@ -242,8 +242,6 @@ struct GameInterface : public ::GameInterface
     void reapplyInputBits(InputPacket* const input) override { input->actions |= PlayerList[nLocalPlayer].input.actions & SB_CENTERVIEW; }
     void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&PlayerList[nLocalPlayer].Angles, scaleAdjust); }
     unsigned getCrouchState() override;
-
-	::GameStats getStats() override;
 };
 
 

@@ -195,8 +195,8 @@ bool WriteSavegame(const char* filename, const char *name)
 	char buf[100];
 	mysnprintf(buf, countof(buf), GAMENAME " %s", GetVersionString());
 	auto savesig = gi->GetSaveSig();
-	auto gs = gi->getStats();
-	FStringf timeStr("%02d:%02d", gs.timesecnd / 60, gs.timesecnd % 60);
+	auto gs = PlayClock / 120;
+	FStringf timeStr("%02d:%02d", gs / 60, gs % 60);
 	auto lev = currentLevel;
 
 	savegameinfo.OpenWriter(true);

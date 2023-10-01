@@ -1904,9 +1904,6 @@ struct GameInterface : public ::GameInterface
         const auto pp = &Player[myconnectindex];
         gameInput.processMovement(&pp->Angles, scaleAdjust, 0, !pp->sop, pp->sop_control ? (3.f / 1.40625f) : 1.f);
     }
-
-
-    GameStats getStats() override;
 };
 
 

@@ -30,7 +30,6 @@ struct GameInterface : public ::GameInterface
 	void SetupSpecialTextures(TilesetBuildInfo& info) override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
-	GameStats getStats() override;
 	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
 	bool CanSave() override;

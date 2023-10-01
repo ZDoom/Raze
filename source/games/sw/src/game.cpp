@@ -818,12 +818,6 @@ int StdRandomRange(int range)
 	return new GameInterface;
 }
 
-GameStats GameInterface::getStats()
-{
-	PLAYER* pp = Player + myconnectindex;
-    return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, PlayClock / 120, 0 };
-}
-
 void GameInterface::FreeLevelData()
 {
     TerminateLevel();
