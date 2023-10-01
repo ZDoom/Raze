@@ -1296,7 +1296,6 @@ void exitlevel(MapRecord* nextlevel)
 	SummaryInfo info{};
 
 	Level.fillSummary(info);
-	info.time = ps[0].player_par / GameTicRate;
 	info.endofgame = endofgame;
 	Mus_Stop();
 

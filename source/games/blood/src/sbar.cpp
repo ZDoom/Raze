@@ -86,8 +86,6 @@ void UpdateStatusBar(PLAYER* pPlayer)
 		sum.kills = pPlayer ? pPlayer->fragCount : 0;
 		sum.maxkills = -3;
 	}
-	sum.time = Scale(PlayClock, 1000, 120);
-	sum.totaltime = STAT_GetTotalTime();
 	UpdateStatusBar(&sum);
 }
 

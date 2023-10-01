@@ -643,9 +643,6 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
     SummaryInfo info{};
     Level.fillSummary(info);
 
-    info.time = PlayClock / 120;
-
-
     ShowIntermission(currentLevel, map, &info, [=](bool)
         {
             if (map == nullptr)

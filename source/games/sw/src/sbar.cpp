@@ -85,8 +85,6 @@ void UpdateStatusBar()
 
     SummaryInfo info{};
     Level.fillSummary(info);
-    info.time = Scale(PlayClock, 1000, 120);
-	info.totaltime = STAT_GetTotalTime();
 
     ::UpdateStatusBar(&info);
 

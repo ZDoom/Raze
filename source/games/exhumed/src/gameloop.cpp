@@ -193,7 +193,6 @@ void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
     SummaryInfo info{};
     Level.fillSummary(info);
     info.supersecrets = nBestLevel;// hacky override
-    info.time = PlayClock * GameTicRate / 120;
     if (to_map) selectedlevelnew = to_map->levelNumber;
     ShowIntermission(currentLevel, to_map, &info, [=](bool)
         {

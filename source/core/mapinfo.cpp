@@ -41,6 +41,7 @@
 #include "gamecontrol.h"
 #include "raze_sound.h"
 #include "zstring.h"
+#include "statistics.h"
 
 FString gSkillNames[MAXSKILLS];
 int gDefaultVolume = 0, gDefaultSkill = 1;
@@ -262,4 +263,15 @@ MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 	if (lookup >= 0) map->music = fileSystem.GetFileFullName(lookup);
 	else map->music = defaultmusic;
 	return map;
+}
+
+void MapLocals::fillSummary(SummaryInfo& sum)
+{
+	sum.kills = kills.got;
+	sum.maxkills = kills.max;
+	sum.secrets = secrets.got;
+	sum.maxsecrets = std::max(secrets.got, secrets.max); // If we found more than there are, increase the total. Blood's secret maintenance is too broken to get right.
+	sum.supersecrets = superSecrets.got;
+	sum.time = PlayClock;
+	// todo: centralize the remaining info as well.
 }

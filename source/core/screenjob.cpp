@@ -207,6 +207,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		completion_(false);
 		return;
 	}
+	if (info) info->time /= 120;
 	bool bossexit = g_bossexit;
 	g_bossexit = false;
 

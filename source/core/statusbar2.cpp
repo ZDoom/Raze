@@ -63,6 +63,7 @@
 #include "mapinfo.h"
 #include "razefont.h"
 #include "gamefuncs.h"
+#include "statistics.h"
 
 #include "../version.h"
 
@@ -199,6 +200,9 @@ void DrawAltHUD(SummaryInfo* info);
 
 void UpdateStatusBar(SummaryInfo* info)
 {
+	info->time = Scale(info->time, 1000, 120); // The statusbar expects milliseconds
+	info->totaltime = STAT_GetTotalTime();
+
 	if (hud_size == Hud_Althud)
 	{
 		DrawAltHUD(info);

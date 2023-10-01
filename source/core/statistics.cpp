@@ -409,7 +409,7 @@ static void StoreLevelStats()
 	LevelData[i].killcount = info.kills;
 	LevelData[i].totalsecrets = info.maxsecrets;
 	LevelData[i].secretcount = info.secrets;
-	LevelData[i].leveltime = PlayClock / 120;
+	LevelData[i].leveltime = info.time / 120;
 }
 
 //==========================================================================
@@ -483,6 +483,7 @@ void STAT_Cancel()
 int STAT_GetTotalTime()
 {
 	int statval = 0;
+
 	StoreLevelStats();
 	for (unsigned i = 0; i < LevelData.Size(); i++)
 	{

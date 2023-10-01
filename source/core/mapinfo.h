@@ -237,17 +237,7 @@ struct MapLocals
 {
 	StatRecord kills, secrets, superSecrets;
 
-	void fillSummary(SummaryInfo& sum)
-	{
-		sum.kills = kills.got;
-		sum.maxkills = kills.max;
-		sum.secrets = secrets.got;
-		sum.maxsecrets = std::max(secrets.got, secrets.max); // If we found more than there are, increase the total. Blood's secret maintenance is too broken to get right.
-		sum.supersecrets = superSecrets.got;
-
-
-		// todo: centralize the remaining info as well.
-	}
+	void fillSummary(SummaryInfo& sum);
 
 	void clearStats()
 	{
