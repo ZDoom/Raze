@@ -18,9 +18,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <io.h>
 #include <string>
 #include "inifile.h"
 #include "misc.h"
