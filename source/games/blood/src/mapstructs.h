@@ -91,10 +91,7 @@ struct XSPRITE {
 			unsigned int dudeAmbush : 1;        // dudeAmbush
 			unsigned int dudeGuard : 1;         // dudeGuard
 			unsigned int dudeFlag4 : 1;         // unused
-			unsigned int wave : 2;              // Wave
-			unsigned int medium : 2;            // medium
-			unsigned int respawn : 2;           // Respawn option
-			unsigned int unused2 : 1;           // (new) patrol state
+			unsigned int patrolstate : 1;       // (new) patrol state
 		};
 	};
 
@@ -130,9 +127,13 @@ struct XSPRITE {
 	uint8_t lSkill;            // Launch 12345
 	uint8_t lockMsg;           // Lock msg
 	int8_t dodgeDir;          // Dude dodge direction
-	uint8_t unused1;            // modern flags
-	uint8_t unused3;           // something about sight checks
-	uint8_t unused4;           // patrol turn delay
+	uint8_t wave;              // Wave
+	uint8_t medium;            // medium
+	uint8_t respawn;           // Respawn option
+
+	uint8_t modernFlags;            // modern flags
+	uint8_t sightstuff;           // something about sight checks
+	uint8_t patrolturndelay;           // patrol turn delay
 
 };
 
@@ -185,7 +186,7 @@ struct XSECTOR {
 			unsigned int bobFloor : 1;          // Motion bob floor
 			unsigned int bobCeiling : 1;        // Motion bob ceiling
 			unsigned int bobRotate : 1;         // Motion rotate
-			unsigned int unused1 : 1;           // (new) pause motion
+			unsigned int pauseMotion : 1;       // (new) pause motion
 		};
 	};
 	DBloodActor* marker0;
@@ -193,23 +194,23 @@ struct XSECTOR {
 	DBloodActor* basePath;
 	DBloodActor* actordata;
 
-	uint32_t busy;
 	double offCeilZ;
 	double onCeilZ;
 	double offFloorZ;
 	double onFloorZ;
+	DAngle panAngle;         // Motion angle
+	DAngle windAng;          // Wind ang
 
 	uint32_t windVel;          // Wind vel (changed from 10 bit to use higher velocity values)
+	uint32_t busy;
 
 	uint16_t data;             // Data
 	uint16_t txID;             // TX ID
 	uint16_t rxID;             // RX ID
 	uint16_t busyTimeA;        // OFF->ON busyTime
 	uint16_t waitTimeA;        // OFF->ON waitTime
-	DAngle panAngle;         // Motion angle
 	uint16_t busyTimeB;        // ON->OFF busyTime
 	uint16_t waitTimeB;        // ON->OFF waitTime
-	DAngle windAng;          // Wind ang
 	uint16_t bobTheta;         // Motion Theta
 	int16_t bobSpeed;           // Motion speed
 

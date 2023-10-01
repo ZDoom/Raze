@@ -1717,7 +1717,7 @@ void OperateSector(sectortype* pSector, EVENT event)
 		break;
 	default:
 #ifdef NOONE_EXTENSIONS
-		if (gModernMap && pXSector->unused1) break;
+		if (gModernMap && pXSector->pauseMotion) break;
 #endif
 		switch (pSector->type) {
 		case kSectorZMotionSprite:
@@ -2205,7 +2205,7 @@ void trProcessBusy(void)
 		int oldBusy = gBusy[i].busy;
 		gBusy[i].busy = ClipRange(oldBusy + gBusy[i].delta * 4, 0, 65536);
 #ifdef NOONE_EXTENSIONS
-		if (!gModernMap || !gBusy[i].sect->xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy, nullptr);
+		if (!gModernMap || !gBusy[i].sect->xs().pauseMotion) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy, nullptr);
 		else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
 #else
 		nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);

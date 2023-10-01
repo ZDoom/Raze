@@ -89,6 +89,11 @@ void ZCCRazeCompiler::CompileAllProperties()
 
 		if (c->FlagDefs.Size() > 0)
 			CompileFlagDefs(c->ClassType(), c->FlagDefs, c->Type()->TypeName);
+	}
+	for (auto s : Structs)
+	{
+		if (s->FlagDefs.Size() > 0)
+			CompileFlagDefs(s->Type(), s->FlagDefs, s->Type()->TypeName);
 
 	}
 }
@@ -158,17 +163,22 @@ bool ZCCRazeCompiler::CompileProperties(PClass *type, TArray<ZCC_Property *> &Pr
 
 bool ZCCRazeCompiler::CompileFlagDefs(PClass *type, TArray<ZCC_FlagDef *> &Properties, FName prefix)
 {
-	if (!type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)))
-	{
-		Error(Properties[0], "Flags can only be defined for actors");
-		return false;
-	}
 	for (auto p : Properties)
 	{
-		PField *field;
-		FName referenced = FName(p->RefName);
+		bool internal = (p->BitValue & 0x10000); // defines just a variable for the flag but no property.
+		if (!internal)
+		{
+			if (!type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)))
+			{
+				Error(Properties[0], "Flag properties can only be defined for actors");
+				return false;
+			}
+		}
+		FName referenced(p->RefName);
 
-		if (FName(p->NodeName) == FName("prefix") && fileSystem.GetFileContainer(Lump) == 0)
+		PField *field;
+
+		if (!internal && FName(p->NodeName) == FName("prefix") && fileSystem.GetFileContainer(Lump) == 0)
 		{
 			// only for internal definitions: Allow setting a prefix. This is only for compatiblity with the old DECORATE property parser, but not for general use.
 			prefix = referenced;
@@ -190,30 +200,70 @@ bool ZCCRazeCompiler::CompileFlagDefs(PClass *type, TArray<ZCC_FlagDef *> &Prope
 			else field = nullptr;
 
 
-			FString qualifiedname;
-			// Store the full qualified name and prepend some 'garbage' to the name so that no conflicts with other symbol types can happen.
-			// All these will be removed from the symbol table after the compiler finishes to free up the allocated space.
-			FName name = FName(p->NodeName);
-			for (int i = 0; i < 2; i++)
+			FName name(p->NodeName);
+			if (!internal)
 			{
-				if (i == 0) qualifiedname.Format("@flagdef@%s", name.GetChars());
-				else
+				FString qualifiedname;
+				// Store the full qualified name and prepend some 'garbage' to the name so that no conflicts with other symbol types can happen.
+				// All these will be removed from the symbol table after the compiler finishes to free up the allocated space.
+				for (int i = 0; i < 2; i++)
 				{
-					if (prefix == NAME_None) continue;
-					qualifiedname.Format("@flagdef@%s.%s", prefix.GetChars(), name.GetChars());
-				}
+					if (i == 0) qualifiedname.Format("@flagdef@%s", name.GetChars());
+					else
+					{
+						if (prefix == NAME_None) continue;
+						qualifiedname.Format("@flagdef@%s.%s", prefix.GetChars(), name.GetChars());
+					}
 
-				if (!type->VMType->Symbols.AddSymbol(Create<PPropFlag>(qualifiedname, field, p->BitValue, i == 0 && prefix != NAME_None)))
-				{
-					Error(p, "Unable to add flag definition %s to class %s", FName(p->NodeName).GetChars(), type->TypeName.GetChars());
+					if (!type->VMType->Symbols.AddSymbol(Create<PPropFlag>(qualifiedname, field, p->BitValue, i == 0 && prefix != NAME_None)))
+					{
+						Error(p, "Unable to add flag definition %s to class %s", FName(p->NodeName).GetChars(), type->TypeName.GetChars());
+					}
 				}
+				if (field != nullptr)
+					type->VMType->AddNativeField(FStringf("b%s", name.GetChars()), TypeSInt32, field->Offset, 0, 1 << p->BitValue);
+
 			}
-
-			if (field != nullptr)
-				type->VMType->AddNativeField(FStringf("b%s", name.GetChars()), TypeSInt32, field->Offset, 0, 1 << p->BitValue);
+			// internal ones get no 'b'.
+			else if (field != nullptr)
+				type->VMType->AddNativeField(name.GetChars(), TypeSInt32, field->Offset, 0, 1 << p->BitValue);
 		} 
 	}
 	return true;
+}
+
+bool ZCCRazeCompiler::CompileFlagDefs(PContainerType* type, TArray<ZCC_FlagDef*>& Properties, FName prefix)
+{
+	for (auto p : Properties)
+	{
+		bool internal = (p->BitValue & 0x10000); // defines just a variable for the flag but no property.
+		if (!internal)
+		{
+			Error(Properties[0], "Flag properties can only be defined for actors");
+			return false;
+		}
+		FName referenced(p->RefName);
+
+		PField* field;
+
+		if (referenced != NAME_None)
+		{
+			field = dyn_cast<PField>(type->Symbols.FindSymbol(referenced, true));
+			if (field == nullptr)
+			{
+				Error(p, "Variable %s not found in %s", referenced.GetChars(), type->TypeName.GetChars());
+			}
+			else if (!field->Type->isInt() || field->Type->Size != 4)
+			{
+				Error(p, "Variable %s in %s must have a size of 4 bytes for use as flag storage", referenced.GetChars(), type->TypeName.GetChars());
+			}
+
+			FName name(p->NodeName);
+			type->AddNativeField(name.GetChars(), TypeSInt32, field->Offset, 0, 1 << (p->BitValue & 0xffff));
+			return true;
+		}
+	}
+	return false;
 }
 
 //==========================================================================
@@ -449,9 +499,105 @@ void ZCCRazeCompiler::DispatchScriptProperty(PProperty *prop, ZCC_PropertyStmt *
 		}
 		else if (!ex->isConstant())
 		{
+			if (ex->ExprType == EFX_VectorValue && ex->ValueType == f->Type)
+			{
+				auto v = static_cast<FxVectorValue *>(ex);
+				if (f->Type == TypeVector2)
+				{
+					if(!v->isConstVector(2))
+					{
+						Error(exp, "%s: non-constant Vector2 parameter", prop->SymbolName.GetChars());
+						return;
+					}
+					(*(DVector2*)addr) = DVector2(
+						static_cast<FxConstant *>(v->xyzw[0])->GetValue().GetFloat(),
+						static_cast<FxConstant *>(v->xyzw[1])->GetValue().GetFloat()
+					);
+					goto vector_ok;
+				}
+				else if (f->Type == TypeFVector2)
+				{
+					if(!v->isConstVector(2))
+					{
+						Error(exp, "%s: non-constant FVector2 parameter", prop->SymbolName.GetChars());
+						return;
+					}
+					(*(FVector2*)addr) = FVector2(
+						float(static_cast<FxConstant *>(v->xyzw[0])->GetValue().GetFloat()),
+						float(static_cast<FxConstant *>(v->xyzw[1])->GetValue().GetFloat())
+					);
+					goto vector_ok;
+				}
+				else if (f->Type == TypeVector3)
+				{
+					if(!v->isConstVector(3))
+					{
+						Error(exp, "%s: non-constant Vector3 parameter", prop->SymbolName.GetChars());
+						return;
+					}
+					(*(DVector3*)addr) = DVector3(
+						static_cast<FxConstant *>(v->xyzw[0])->GetValue().GetFloat(),
+						static_cast<FxConstant *>(v->xyzw[1])->GetValue().GetFloat(),
+						static_cast<FxConstant *>(v->xyzw[2])->GetValue().GetFloat()
+					);
+					goto vector_ok;
+				}
+				else if (f->Type == TypeFVector3)
+				{
+					if(!v->isConstVector(3))
+					{
+						Error(exp, "%s: non-constant FVector3 parameter", prop->SymbolName.GetChars());
+						return;
+					}
+					(*(FVector3*)addr) = FVector3(
+						float(static_cast<FxConstant*>(v->xyzw[0])->GetValue().GetFloat()),
+						float(static_cast<FxConstant*>(v->xyzw[1])->GetValue().GetFloat()),
+						float(static_cast<FxConstant*>(v->xyzw[2])->GetValue().GetFloat())
+					);
+					goto vector_ok;
+				}
+				else if (f->Type == TypeVector4)
+				{
+					if(!v->isConstVector(4))
+					{
+						Error(exp, "%s: non-constant Vector4 parameter", prop->SymbolName.GetChars());
+						return;
+					}
+					(*(DVector4*)addr) = DVector4(
+						static_cast<FxConstant *>(v->xyzw[0])->GetValue().GetFloat(),
+						static_cast<FxConstant *>(v->xyzw[1])->GetValue().GetFloat(),
+						static_cast<FxConstant *>(v->xyzw[2])->GetValue().GetFloat(),
+						static_cast<FxConstant *>(v->xyzw[3])->GetValue().GetFloat()
+					);
+					goto vector_ok;
+				}
+				else if (f->Type == TypeFVector4)
+				{
+					if(!v->isConstVector(4))
+					{
+						Error(exp, "%s: non-constant FVector4 parameter", prop->SymbolName.GetChars());
+						return;
+					}
+					(*(FVector4*)addr) = FVector4(
+						float(static_cast<FxConstant*>(v->xyzw[0])->GetValue().GetFloat()),
+						float(static_cast<FxConstant*>(v->xyzw[1])->GetValue().GetFloat()),
+						float(static_cast<FxConstant*>(v->xyzw[2])->GetValue().GetFloat()),
+						float(static_cast<FxConstant *>(v->xyzw[3])->GetValue().GetFloat())
+					);
+					goto vector_ok;
+				}
+				else
+				{
+					Error(exp, "%s: invalid vector parameter", prop->SymbolName.GetChars());
+					return;
+				}
+			}
+			else
+			{
+				if (exp->Type != TypeError) Error(exp, "%s: non-constant parameter", prop->SymbolName.GetChars());
+				return;
+			}
 			// If we get TypeError, there has already been a message from deeper down so do not print another one.
-			if (exp->Type != TypeError) Error(exp, "%s: non-constant parameter", prop->SymbolName.GetChars());
-			return;
 		}
 
 		if (f->Type == TypeBool)
@@ -508,6 +654,7 @@ void ZCCRazeCompiler::DispatchScriptProperty(PProperty *prop, ZCC_PropertyStmt *
 		{
 			Error(property, "unhandled property type %s", f->Type->DescriptiveName());
 		}
+vector_ok:
 		exp->ToErrorNode();	// invalidate after processing.
 		exp = static_cast<ZCC_Expression *>(exp->SiblingNext);
 	}

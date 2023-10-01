@@ -306,7 +306,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 		pDudeActor->xspr.dudeGuard = sourceactor->xspr.dudeGuard;
 		pDudeActor->xspr.dudeAmbush = sourceactor->xspr.dudeAmbush;
 		pDudeActor->xspr.dudeFlag4 = sourceactor->xspr.dudeFlag4;
-		pDudeActor->xspr.unused1 = sourceactor->xspr.unused1;
+		pDudeActor->xspr.modernFlags = sourceactor->xspr.modernFlags;
 
 	}
 
@@ -762,7 +762,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 		}
 
 		// make Sight, Screen, Aim flags work not just for dudes and things...
-		if ((actor->xspr.Sight || actor->xspr.unused3) && gSightSpritesCount < kMaxSuperXSprites)
+		if ((actor->xspr.Sight || actor->xspr.sightstuff) && gSightSpritesCount < kMaxSuperXSprites)
 		{
 			switch (actor->spr.statnum)
 			{
@@ -1204,7 +1204,7 @@ void nnExtProcessSuperSprites()
 				pSight->xspr.isTriggered) continue; // don't process locked or triggered sprites
 
 			// sprite is drawn for one of players
-			if ((pSight->xspr.unused3 & kTriggerSpriteScreen) && (pSight->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
+			if ((pSight->xspr.sightstuff & kTriggerSpriteScreen) && (pSight->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
 			{
 				trTriggerSprite(pSight, kCmdSpriteSight);
 				pSight->spr.cstat2 &= ~CSTAT2_SPRITE_MAPPED;
@@ -1230,7 +1230,7 @@ void nnExtProcessSuperSprites()
 						trTriggerSprite(pSight, kCmdSpriteSight, plActor);
 					}
 
-					if (pSight->xspr.unused3 & kTriggerSpriteAim)
+					if (pSight->xspr.sightstuff & kTriggerSpriteAim)
 					{
 						bool vector = (pSight->spr.cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
 						if (!vector)
@@ -4232,7 +4232,7 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 			}
 		}
 		case 57: // this sector in movement?
-			return !pXSect->unused1;
+			return !pXSect->pauseMotion;
 		}
 	}
 	else
@@ -4462,7 +4462,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 	case 6: return objActor->xspr.dudeDeaf;
 	case 7: return objActor->xspr.dudeGuard;
 	case 8: return objActor->xspr.dudeAmbush;
-	case 9: return (objActor->xspr.unused1 & kDudeFlagStealth);
+	case 9: return (objActor->xspr.modernFlags & kDudeFlagStealth);
 	case 10: // check if the marker is busy with another dude
 	case 11: // check if the marker is reached
 		if (!objActor->xspr.dudeFlag4 || !targ || targ->GetType() != kMarkerPath) return false;
@@ -4482,7 +4482,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 		return true;
 	case 12: // compare spot progress value in %
 		if (!objActor->xspr.dudeFlag4 || !targ || targ->GetType() != kMarkerPath) var = 0;
-		else if (!(objActor->xspr.unused1 & kDudeFlagStealth) || objActor->xspr.data3 < 0 || objActor->xspr.data3 > kMaxPatrolSpotValue) var = 0;
+		else if (!(objActor->xspr.modernFlags & kDudeFlagStealth) || objActor->xspr.data3 < 0 || objActor->xspr.data3 > kMaxPatrolSpotValue) var = 0;
 		else var = (kPercFull * objActor->xspr.data3) / kMaxPatrolSpotValue;
 		return condCmp(var, arg1, arg2, cmpOp);
 	case 15: return getDudeInfo(objActor)->lockOut; // dude allowed to interact with objects?
@@ -5392,7 +5392,7 @@ void sectorPauseMotion(sectortype* pSector, DBloodActor* initiator)
 {
 	if (!pSector->hasX()) return;
 	XSECTOR* pXSector = &pSector->xs();
-	pXSector->unused1 = 1;
+	pXSector->pauseMotion = 1;
 
 	evKillSector(pSector, initiator);
 
@@ -5412,7 +5412,7 @@ void sectorContinueMotion(sectortype* pSector, EVENT event)
 	if (!pSector->hasX()) return;
 
 	XSECTOR* pXSector = &pSector->xs();
-	pXSector->unused1 = 0;
+	pXSector->pauseMotion = 0;
 
 	int busyTimeA = pXSector->busyTimeA;
 	int waitTimeA = pXSector->waitTimeA;
@@ -5534,7 +5534,7 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 
 		// continue motion of the paused sector
 	}
-	else if (pXSector->unused1)
+	else if (pXSector->pauseMotion)
 	{
 		switch (event.cmd)
 		{
@@ -7811,8 +7811,8 @@ void aiPatrolState(DBloodActor* actor, int state)
 		if (actor->GetType() == kDudeModernCustom) aiGenDudeNewState(actor, newState);
 		else aiNewState(actor, newState);
 
-		if (crouch) actor->xspr.unused1 |= kDudeFlagCrouch;
-		else actor->xspr.unused1 &= ~kDudeFlagCrouch;
+		if (crouch) actor->xspr.modernFlags |= kDudeFlagCrouch;
+		else actor->xspr.modernFlags &= ~kDudeFlagCrouch;
 
 		if (nSeqOverride)
 			seqSpawn(seq, actor);
@@ -7986,11 +7986,11 @@ void aiPatrolSetMarker(DBloodActor* actor)
 		}
 
 		bool node = markerIsNode(targetactor, false);
-		actor->xspr.unused2 = aiPatrolGetPathDir(actor, targetactor); // decide if it should go back or forward
-		if (actor->xspr.unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
-			actor->xspr.unused2 = kPatrolMoveForward;
+		actor->xspr.patrolstate = aiPatrolGetPathDir(actor, targetactor); // decide if it should go back or forward
+		if (actor->xspr.patrolstate == kPatrolMoveBackward && Chance(0x8000) && node)
+			actor->xspr.patrolstate = kPatrolMoveForward;
 
-		bool back = (actor->xspr.unused2 == kPatrolMoveBackward); next = (back) ? targetactor->xspr.data1 : targetactor->xspr.data2;
+		bool back = (actor->xspr.patrolstate == kPatrolMoveBackward); next = (back) ? targetactor->xspr.data1 : targetactor->xspr.data2;
 		BloodStatIterator it(kStatPathMarker);
 		while (auto nextactor = it.Next())
 		{
@@ -8043,8 +8043,8 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 	if (actor->hasX())
 	{
 		actor->xspr.data3 = 0; // reset spot progress
-		actor->xspr.unused1 &= ~kDudeFlagCrouch; // reset the crouch status
-		actor->xspr.unused2 = kPatrolMoveForward; // reset path direction
+		actor->xspr.modernFlags &= ~kDudeFlagCrouch; // reset the crouch status
+		actor->xspr.patrolstate = kPatrolMoveForward; // reset path direction
 		actor->prevmarker = nullptr;
 		actor->xspr.TargetPos.X = -1; // reset the previous marker index
 		if (actor->xspr.health <= 0)
@@ -8202,7 +8202,7 @@ void aiPatrolMove(DBloodActor* actor)
 		actor->vel += actor->spr.Angles.Yaw.ToVector() * FixedToFloat(frontSpeed);
 	}
 
-	double vel = (actor->xspr.unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
+	double vel = (actor->xspr.modernFlags & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
 
 	vel *= dv.XY().Length() / 1024; // was: MulScale16 with length << 6, effectively resulting in >> 10.
 	actor->vel.X = clamp(actor->vel.X, -vel, vel);
@@ -8395,7 +8395,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	}
 
 	int i, mod, sndCnt = 0, seeChance, hearChance;
-	bool stealth = (actor->xspr.unused1 & kDudeFlagStealth);
+	bool stealth = (actor->xspr.modernFlags & kDudeFlagStealth);
 	bool blind = (actor->xspr.dudeGuard);
 	bool deaf = (actor->xspr.dudeDeaf);
 	int nRandomSkill = Random(gGameOptions.nDifficulty);
@@ -8715,10 +8715,10 @@ void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool cop
 		destactor->xspr.dudeAmbush = sourceactor->xspr.dudeAmbush;
 		destactor->xspr.dudeGuard = sourceactor->xspr.dudeGuard;
 		destactor->xspr.dudeDeaf = sourceactor->xspr.dudeDeaf;
-		destactor->xspr.unused1 = sourceactor->xspr.unused1;
+		destactor->xspr.modernFlags = sourceactor->xspr.modernFlags;
 
-		if (sourceactor->xspr.unused1 & kDudeFlagStealth) destactor->xspr.unused1 |= kDudeFlagStealth;
-		else destactor->xspr.unused1 &= ~kDudeFlagStealth;
+		if (sourceactor->xspr.modernFlags & kDudeFlagStealth) destactor->xspr.modernFlags |= kDudeFlagStealth;
+		else destactor->xspr.modernFlags &= ~kDudeFlagStealth;
 	}
 
 	// do init
@@ -8753,7 +8753,7 @@ void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool cop
 
 bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker)
 {
-	if (actor->xspr.unused2 == kPatrolMoveForward) return (marker->xspr.data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+	if (actor->xspr.patrolstate == kPatrolMoveForward) return (marker->xspr.data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 	else return (findNextMarker(marker, kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 }
 
@@ -8777,7 +8777,7 @@ void aiPatrolThink(DBloodActor* actor)
 	}
 
 
-	bool crouch = (actor->xspr.unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
+	bool crouch = (actor->xspr.modernFlags & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
 	if (markeractor == nullptr || (actor->GetType() == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor))))
 	{
 		aiPatrolStop(actor, nullptr);
@@ -8785,7 +8785,7 @@ void aiPatrolThink(DBloodActor* actor)
 	}
 
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->GetType() - kDudeBase];
-	bool isFinal = ((!actor->xspr.unused2 && markeractor->xspr.data2 == -1) || (actor->xspr.unused2 && markeractor->xspr.data1 == -1));
+	bool isFinal = ((!actor->xspr.patrolstate && markeractor->xspr.data2 == -1) || (actor->xspr.patrolstate && markeractor->xspr.data1 == -1));
 	bool reached = false;
 
 	if (aiPatrolWaiting(actor->xspr.aiState))
@@ -8802,12 +8802,12 @@ void aiPatrolThink(DBloodActor* actor)
 			{
 				stateTimer = actor->xspr.stateTimer;
 
-				if (--actor->xspr.unused4 <= 0)
+				if (--actor->xspr.patrolturndelay <= 0)
 				{
 					if (uwater) aiPatrolState(actor, kAiStatePatrolTurnW);
 					else if (crouch) aiPatrolState(actor, kAiStatePatrolTurnC);
 					else aiPatrolState(actor, kAiStatePatrolTurnL);
-					actor->xspr.unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
+					actor->xspr.patrolturndelay = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
 				}
 
 				// must restore stateTimer for waiting
@@ -8879,7 +8879,7 @@ void aiPatrolThink(DBloodActor* actor)
 			// take marker's angle
 			if (!(markeractor->spr.flags & kModernTypeFlag4))
 			{
-				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->spr.Angles.Yaw+ DAngle180 : markeractor->spr.Angles.Yaw).Normalized360();
+				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.patrolstate) ? markeractor->spr.Angles.Yaw+ DAngle180 : markeractor->spr.Angles.Yaw).Normalized360();
 				if (absangle(actor->spr.Angles.Yaw, actor->xspr.goalAng) > minAngle) // let the enemy play move animation while turning
 					return;
 			}
@@ -8912,7 +8912,7 @@ void aiPatrolThink(DBloodActor* actor)
 				actor->xspr.stateTimer = (markeractor->xspr.waitTime * 120) / 10;
 
 			if (markeractor->spr.flags & kModernTypeFlag16)
-				actor->xspr.unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
+				actor->xspr.patrolturndelay = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
 
 			return;
 		}

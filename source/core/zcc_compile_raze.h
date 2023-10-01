@@ -18,6 +18,7 @@ private:
 	void CompileAllProperties();
 	bool CompileProperties(PClass *type, TArray<ZCC_Property *> &Properties, FName prefix);
 	bool CompileFlagDefs(PClass *type, TArray<ZCC_FlagDef *> &Properties, FName prefix);
+	bool CompileFlagDefs(PContainerType* type, TArray<ZCC_FlagDef*>& Properties, FName prefix);
 	void DispatchProperty(FPropertyInfo *prop, ZCC_PropertyStmt *property, DCoreActor *defaults, Baggage &bag);
 	void DispatchScriptProperty(PProperty *prop, ZCC_PropertyStmt *property, DCoreActor *defaults, Baggage &bag);
 	void ProcessDefaultProperty(PClassActor *cls, ZCC_PropertyStmt *prop, Baggage &bag);

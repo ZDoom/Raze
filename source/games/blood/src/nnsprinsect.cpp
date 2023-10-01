@@ -172,7 +172,7 @@ bool isMovableSector(sectortype* pSect)
 {
     if (isMovableSector(pSect->type) && pSect->hasX())
     {
-        return (pSect->xs().busy && !pSect->xs().unused1);
+        return (pSect->xs().busy && !pSect->xs().pauseMotion);
     }
     return false;
 }

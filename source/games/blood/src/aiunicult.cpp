@@ -1907,7 +1907,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 			spawned->xspr.dudeGuard = source->xspr.dudeGuard;
 			spawned->xspr.dudeAmbush = source->xspr.dudeAmbush;
 			spawned->xspr.dudeFlag4 = source->xspr.dudeFlag4;
-			spawned->xspr.unused1 = source->xspr.unused1;
+			spawned->xspr.modernFlags = source->xspr.modernFlags;
 			break;
 		}
 	}
@@ -1986,7 +1986,7 @@ void genDudeTransform(DBloodActor* actor)
 	actor->xspr.dudeDeaf = actIncarnation->xspr.dudeDeaf;
 	actor->xspr.dudeAmbush = actIncarnation->xspr.dudeAmbush;
 	actor->xspr.dudeFlag4 = actIncarnation->xspr.dudeFlag4;
-	actor->xspr.unused1 = actIncarnation->xspr.unused1;
+	actor->xspr.modernFlags = actIncarnation->xspr.modernFlags;
 
 	actor->xspr.dropMsg = actIncarnation->xspr.dropMsg;
 	actor->xspr.key = actIncarnation->xspr.key;

@@ -112,6 +112,93 @@ enum ESectorExBits
 
 //=============================================================================
 //
+// Blood's sector extension.
+//
+//=============================================================================
+
+struct XSECTOR native
+{
+	native uint flags;
+	native int flags2;
+	native BloodActor marker0;
+	native BloodActor marker1;
+	native BloodActor basePath;
+	native BloodActor actordata;
+	native uint busy;
+	native double offCeilZ;
+	native double onCeilZ;
+	native double offFloorZ;
+	native double onFloorZ;
+	native uint windVel;   
+	native uint16 data;      
+	native uint16 txID;      
+	native uint16 rxID;      
+	native uint16 busyTimeA; 
+	native uint16 waitTimeA; 
+	native double panAngle;    
+	native uint16 busyTimeB; 
+	native uint16 waitTimeB; 
+	native double windAng;     
+	native uint16 bobTheta;  
+	native int16 bobSpeed;   
+	native uint8 busyWaveA;  
+	native uint8 busyWaveB;  
+	native uint8 command;    
+	native int8 amplitude;   
+	native uint8 freq;       
+	native uint8 phase;      
+	native uint8 wave;       
+	native int8 shade;       
+	native uint8 panVel;     
+	native uint8 Depth;      
+	native uint8 Key;        
+	native uint8 ceilpal;    
+	native uint8 damageType; 
+	native uint8 floorpal;   
+	native uint8 bobZRange;  
+	
+	flagdef internal state: flags, 0;
+	flagdef internal triggerOn: flags, 1;
+	flagdef internal triggerOff: flags, 2;
+	flagdef internal restState: flags, 3;
+	flagdef internal interruptable: flags, 4;
+	flagdef internal reTriggerA: flags, 5;
+	flagdef internal reTriggerB: flags, 6;
+	flagdef internal shadeAlways: flags, 7;
+	flagdef internal shadeFloor: flags, 8;
+	flagdef internal shadeCeiling: flags, 9;
+	flagdef internal shadeWalls: flags, 10;
+	flagdef internal panAlways: flags, 11;
+	flagdef internal panFloor: flags, 12;
+	flagdef internal panCeiling: flags, 13;
+	flagdef internal Drag: flags, 14;
+	flagdef internal Underwater: flags, 15;
+	flagdef internal decoupled: flags, 16;
+	flagdef internal triggerOnce: flags, 17;
+	flagdef internal isTriggered: flags, 18;
+	flagdef internal Push: flags, 19;
+	flagdef internal Vector: flags, 20;
+	flagdef internal Reserved: flags, 21;
+	flagdef internal Enter: flags, 22;
+	flagdef internal Exit: flags, 23;
+	flagdef internal Wallpush: flags, 24;
+	flagdef internal color: flags, 25;
+	flagdef internal stopOn: flags, 26;
+	flagdef internal stopOff: flags, 27;
+	flagdef internal Crush: flags, 28;
+	flagdef internal locked: flags, 29;
+	flagdef internal windAlways: flags, 30;
+	
+	flagdef internal dudeLockout: flags2, 0;
+	flagdef internal bobAlways: flags2, 1;
+	flagdef internal bobFloor: flags2, 2;
+	flagdef internal bobCeiling: flags2, 3;
+	flagdef internal bobRotate: flags2, 4;
+	flagdef internal pauseMotion: flags2, 5;
+}
+
+//=============================================================================
+//
 // internal sector struct - no longer identical with on-disk format
 //
 //=============================================================================
@@ -177,7 +264,7 @@ struct sectortype native
 	native uint8 shadedsector;
 	DukeActor hitagactor;    // we need this because Duke stores an actor in the hitag field. Is really a DDukeActor, but cannot be declared here safely.
 
-	//native XSECTOR x;
+	native XSECTOR x;
 	native BloodActor upperLink;
 	native BloodActor lowerLink;
 	native double baseFloor;
@@ -246,6 +333,43 @@ struct sectortype native
 
 //=============================================================================
 //
+// Blood's wall extension.
+//
+//=============================================================================
+
+
+struct XWALL native {
+
+	native uint flags;
+	native uint busy;
+	native int16 data;     
+	native uint16 txID;    
+	native uint16 rxID;    
+	native uint16 busyTime;
+	native uint16 waitTime;
+	native uint8 command;  
+	native int panVelX;
+	native int panVelY;
+	native uint8 key;      
+	
+	flagdef internal state: flags, 0;
+	flagdef internal triggerOn: flags, 1;
+	flagdef internal triggerOff: flags, 2;
+	flagdef internal restState: flags, 3;
+	flagdef internal interruptable: flags, 4;
+	flagdef internal panAlways: flags, 5;
+	flagdef internal decoupled: flags, 6;
+	flagdef internal triggerOnce: flags, 7;
+	flagdef internal isTriggered: flags, 8;
+	flagdef internal triggerPush: flags, 9;
+	flagdef internal triggerVector: flags, 10;
+	flagdef internal triggerTouch: flags, 11;
+	flagdef internal locked: flags, 12;
+	flagdef internal dudeLockout: flags, 13;
+}
+
+//=============================================================================
+//
 // internal wall struct - no longer identical with on-disk format
 //
 //=============================================================================
@@ -281,7 +405,7 @@ struct walltype native
 	//native uint8 xrepeat; // these are still bytes, do not export unless floatified
 	//native uint8 yrepeat;
 	
-	//native XWALL x;
+	native XWALL x;
 
 
 	native void setxpan(double add);

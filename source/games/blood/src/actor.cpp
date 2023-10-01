@@ -6225,7 +6225,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 			spawned->xspr.dudeGuard = source->xspr.dudeGuard;
 			spawned->xspr.dudeAmbush = source->xspr.dudeAmbush;
 			spawned->xspr.dudeFlag4 = source->xspr.dudeFlag4;
-			spawned->xspr.unused1 = source->xspr.unused1;
+			spawned->xspr.modernFlags = source->xspr.modernFlags;
 			break;
 		}
 	}

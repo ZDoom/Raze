@@ -341,7 +341,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 			pXSector->Depth = bitReader.readUnsigned(3);
 			pXSector->panVel = bitReader.readUnsigned(8);
 			pXSector->panAngle = mapangle(bitReader.readUnsigned(11));
-			pXSector->unused1 = bitReader.readUnsigned(1);
+			pXSector->pauseMotion = bitReader.readUnsigned(1);
 			pXSector->decoupled = bitReader.readUnsigned(1);
 			pXSector->triggerOnce = bitReader.readUnsigned(1);
 			pXSector->isTriggered = bitReader.readUnsigned(1);
@@ -535,9 +535,9 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 			pXSprite->waitTime = bitReader.readUnsigned(12);
 			pXSprite->restState = bitReader.readUnsigned(1);
 			pXSprite->Interrutable = bitReader.readUnsigned(1);
-			pXSprite->unused1 = bitReader.readUnsigned(2);
+			pXSprite->modernFlags = bitReader.readUnsigned(2);
 			pXSprite->respawnPending = bitReader.readUnsigned(2);
-			pXSprite->unused2 = bitReader.readUnsigned(1);
+			pXSprite->patrolstate = bitReader.readUnsigned(1);
 			pXSprite->lT = bitReader.readUnsigned(1);
 			pXSprite->dropMsg = bitReader.readUnsigned(8);
 			pXSprite->Decoupled = bitReader.readUnsigned(1);
@@ -551,7 +551,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 			pXSprite->Touch = bitReader.readUnsigned(1);
 			pXSprite->Sight = bitReader.readUnsigned(1);
 			pXSprite->Proximity = bitReader.readUnsigned(1);
-			pXSprite->unused3 = bitReader.readUnsigned(2);
+			pXSprite->sightstuff = bitReader.readUnsigned(2);
 			pXSprite->lSkill = bitReader.readUnsigned(5);
 			pXSprite->lS = bitReader.readUnsigned(1);
 			pXSprite->lB = bitReader.readUnsigned(1);
@@ -566,7 +566,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 			pXSprite->medium = bitReader.readUnsigned(2);
 			pXSprite->respawn = bitReader.readUnsigned(2);
 			pXSprite->data4 = bitReader.readUnsigned(16);
-			pXSprite->unused4 = bitReader.readUnsigned(6);
+			pXSprite->patrolturndelay = bitReader.readUnsigned(6);
 			pXSprite->lockMsg = bitReader.readUnsigned(8);
 			pXSprite->health = bitReader.readUnsigned(12);
 			pXSprite->dudeDeaf = bitReader.readUnsigned(1);

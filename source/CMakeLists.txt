@@ -699,6 +699,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/view.cpp
 	games/blood/src/warp.cpp
 	games/blood/src/weapon.cpp
+	games/blood/src/vmexports.cpp
 
 	# Duke
 	games/duke/src/actors.cpp

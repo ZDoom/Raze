@@ -1924,12 +1924,12 @@ void aiInitSprite(DBloodActor* actor)
 			if (stateTimer > 0) 
 			{
 				if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
-				else if (actor->xspr.unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+				else if (actor->xspr.modernFlags & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
 				else aiPatrolState(actor, kAiStatePatrolWaitL);
 				actor->xspr.stateTimer = stateTimer; // restore state timer
 			}
 			else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
-			else if (actor->xspr.unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+			else if (actor->xspr.modernFlags & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
 			else aiPatrolState(actor, kAiStatePatrolMoveL);
 		}
 	}
