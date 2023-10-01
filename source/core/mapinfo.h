@@ -295,6 +295,11 @@ struct MapLocals
 		superSecrets.add(playerno, amount);
 	}
 
+	void addFrags(int playerno, int amount)
+	{
+		// todo
+	}
+
 };
 
 

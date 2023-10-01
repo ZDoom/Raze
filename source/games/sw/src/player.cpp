@@ -6695,8 +6695,7 @@ void MultiPlayLimits(void)
     {
         TRAVERSE_CONNECT(pnum)
         {
-            pp = Player + pnum;
-            if (pp->Kills >= gNet.KillLimit)
+            if (Level.kills.player[pnum] >= gNet.KillLimit)
             {
                 Done = true;
             }
@@ -6884,7 +6883,6 @@ void InitAllPlayers(void)
 
         pp->climb_ndx = 10;
         pp->KillerActor = nullptr;
-        pp->Kills = 0;
         pp->bcnt = 0;
         pp->UziShellLeftAlt = 0;
         pp->UziShellRightAlt = 0;
@@ -7313,8 +7311,6 @@ DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryActive)
 DEFINE_FIELD_X(SWPlayer, PLAYER, DiveTics)
 DEFINE_FIELD_X(SWPlayer, PLAYER, DiveDamageTics)
 DEFINE_FIELD_X(SWPlayer, PLAYER, DeathType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Kills)
-DEFINE_FIELD_X(SWPlayer, PLAYER, SecretsFound)
 DEFINE_FIELD_X(SWPlayer, PLAYER, Armor)
 DEFINE_FIELD_X(SWPlayer, PLAYER, MaxHealth)
 DEFINE_FIELD_X(SWPlayer, PLAYER, UziShellLeftAlt)

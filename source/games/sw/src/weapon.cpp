@@ -4548,8 +4548,7 @@ void UpdateSinglePlayKills(DSWActor* actor)
         case GIRLNINJA_RUN_R0:
         case SKULL_R0:
         case BETTY_R0:
-            // always give kills to the first player
-            Player->Kills++;
+            Level.addKill(-1);
             break;
         }
     }

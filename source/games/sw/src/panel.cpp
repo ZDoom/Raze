@@ -449,20 +449,12 @@ void PlayerUpdateKills(PLAYER* pp, short value)
             // for everyone on the same team
             if (opp != pp && opp->actor->user.spal == pp->actor->user.spal)
             {
-                opp->Kills += value;
-                if (opp->Kills > 999)
-                    opp->Kills = 0;
-                if (opp->Kills < -99)
-                    opp->Kills = -99;
+                Level.addFrags(pnum, value);
             }
         }
     }
 
-    pp->Kills += value;
-    if (pp->Kills > 999)
-        pp->Kills = 0;
-    if (pp->Kills < -99)
-        pp->Kills = -99;
+    Level.addFrags(pp->pnum, value);
 }
 
 //---------------------------------------------------------------------------

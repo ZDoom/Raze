@@ -263,10 +263,8 @@ struct SWPlayer native
 
     // Death stuff
     native uint16 DeathType;
-    native int16 Kills;
     //native int16 Killer;  //who killed me
     //native int16 KilledPlayer[MAX_SW_PLAYERS_REG];
-    native int16 SecretsFound;
 
     // Health
     native int16 Armor;

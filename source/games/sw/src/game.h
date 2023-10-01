@@ -1656,8 +1656,6 @@ void LoadSaveMsg(const char *msg);
 void UpdateStatusBar();
 int32_t registerosdcommands(void);
 
-extern short LevelSecrets;
-extern int TotalKillable;
 extern int OrigCommPlayers;
 
 extern uint8_t PlayerGravity;
@@ -1809,9 +1807,7 @@ struct PLAYER
 
     // Death stuff
     uint16_t DeathType;
-    int16_t Kills;
     int16_t KilledPlayer[MAX_SW_PLAYERS_REG];
-    int16_t SecretsFound;
 
     // Health
     int16_t Armor;

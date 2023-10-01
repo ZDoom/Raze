@@ -162,7 +162,6 @@ short screenpeek = 0;
 
 int GodMode = false;
 short Skill = 2;
-int TotalKillable;
 
 const GAME_SET gs_defaults =
 {
@@ -356,7 +355,7 @@ void InitLevelGlobals(void)
 void InitLevelGlobals2(void)
 {
     InitTimingVars();
-    TotalKillable = 0;
+    Level.clearStats();
     Bunny_Count = 0;
     FinishAnim = false;
 }
@@ -642,11 +641,8 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
     STAT_Update(map == nullptr);
 
     SummaryInfo info{};
+    Level.fillSummary(info);
 
-    info.kills = Player[screenpeek].Kills;
-    info.maxkills = TotalKillable;
-    info.secrets = Player[screenpeek].SecretsFound;
-    info.maxsecrets = LevelSecrets;
     info.time = PlayClock / 120;
 
 
@@ -825,7 +821,7 @@ int StdRandomRange(int range)
 GameStats GameInterface::getStats()
 {
 	PLAYER* pp = Player + myconnectindex;
-	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
+    return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, PlayClock / 120, 0 };
 }
 
 void GameInterface::FreeLevelData()

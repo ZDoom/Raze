@@ -2135,12 +2135,10 @@ void PlayerLevelReset(PLAYER* pp)
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    pp->SecretsFound = 0;
     pp->WpnFirstType = WPN_SWORD;
     //PlayerUpdateHealth(pp, 500);
     //pp->Armor = 0;
     //PlayerUpdateArmor(pp, 0);
-    pp->Kills = 0;
     pp->KillerActor = nullptr;;
     pp->NightVision = false;
     pp->StartColor = 0;
@@ -2277,7 +2275,6 @@ void PlayerGameReset(PLAYER* pp)
     pp->TestNukeInit = false;
     pp->InitingNuke = false;
     pp->NukeInitialized = false;
-    pp->SecretsFound = 0;
     pp->WpnReloadState = 2;
 
     pp->WpnAmmo[WPN_STAR] = 30;

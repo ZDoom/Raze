@@ -564,7 +564,7 @@ int NewCoolg(DSWActor* actor)
     actorNew->user.__legacyState.Attrib = &CoolgAttrib;
 
     // special case
-    TotalKillable++;
+    Level.addKillCount();
     CoolgCommon(actorNew);
 
     return 0;
@@ -589,7 +589,7 @@ int DoCoolgBirth(DSWActor* actor)
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
     // special case
-    TotalKillable--;
+    Level.addKillCount(-1);
 
     actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
     CoolgCommon(actor);

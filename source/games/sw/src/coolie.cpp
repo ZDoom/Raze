@@ -381,7 +381,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
         break;
     default:
     {
-        TotalKillable++;
+        Level.addKillCount();
     }
 
     break;

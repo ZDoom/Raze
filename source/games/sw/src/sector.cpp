@@ -61,7 +61,6 @@ enum
 void DoPlayerBeginForceJump(PLAYER*);
 
 sectortype* FindNextSectorByTag(sectortype* sect, int tag);
-short LevelSecrets;
 bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);
 bool TestRotatorMatchActive(short match);
@@ -413,8 +412,6 @@ void SectorSetup(void)
     memset(SineWaveFloor, 0, sizeof(SineWaveFloor));
     memset(SpringBoard, 0, sizeof(SpringBoard));
 
-    LevelSecrets = 0;
-
     for(auto&sect: sector)
     {
         auto const sectp = &sect;
@@ -475,7 +472,7 @@ void SectorSetup(void)
         switch (tag)
         {
         case TAG_SECRET_AREA_TRIGGER:
-            LevelSecrets++;
+            Level.addSecretCount();
             break;
 
         case TAG_DOOR_SLIDING:
@@ -1915,7 +1912,7 @@ void TriggerSecret(sectortype* sectp, PLAYER* pp)
 
     PutStringInfo(pp, GStrings("TXTS_SECRET"));
     // always give to the first player
-    Player->SecretsFound++;
+    Level.addSecret(myconnectindex);
     sectp->lotag = 0;
 }
 

@@ -84,10 +84,7 @@ void UpdateStatusBar()
     }
 
     SummaryInfo info{};
-    info.kills = Player[screenpeek].Kills;
-    info.maxkills = TotalKillable;
-    info.secrets = Player[screenpeek].SecretsFound;
-    info.maxsecrets = LevelSecrets;
+    Level.fillSummary(info);
     info.time = Scale(PlayClock, 1000, 120);
 	info.totaltime = STAT_GetTotalTime();
 
