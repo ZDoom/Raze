@@ -308,8 +308,6 @@ struct DukePlayer native
 	native uint8 walking_snd_toggle, palookup;
 	native bool quick_kick_msg;
 
-	native int max_secret_rooms, secret_rooms;
-
 	// Redneck Rampage additions. Those which did not have names in the reconstructed source got one from either RedneckGDX or RedNukem.
 	// Items were reordered by size.
 	native int stairs;

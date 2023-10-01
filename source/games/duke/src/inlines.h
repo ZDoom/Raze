@@ -5,6 +5,7 @@
 #include "models/modeldata.h"
 #include "texinfo.h"
 #include "funct.h"
+#include "mapinfo.h"
 
 // all inline functions.
 BEGIN_DUKE_NS
@@ -314,7 +315,7 @@ inline void addtokills(DDukeActor* actor)
 {
 	if (actor->flags1 & SFLAG_KILLCOUNT)
 	{
-		ps[myconnectindex].max_actors_killed++;
+		Level.addKillCount(1);
 		actor->spr.cstat2 |= CSTAT2_SPRITE_COUNTKILL;
 	}
 }
@@ -323,7 +324,7 @@ inline void addkill(DDukeActor* actor)
 {
 	if ((actor->flags1 & SFLAG_KILLCOUNT) && (actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
 	{
-		ps[myconnectindex].actors_killed++;
+		Level.addKill(myconnectindex);
 		actor->spr.cstat2 &= ~CSTAT2_SPRITE_COUNTKILL;
 	}
 }
@@ -332,7 +333,7 @@ inline void subkill(DDukeActor* actor)
 {
 	if ((actor->flags1 & SFLAG_KILLCOUNT) && !(actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
 	{
-		ps[myconnectindex].actors_killed--;
+		Level.addKill(-1, -1); // only deduct from global, not from player kills
 		actor->spr.cstat2 |= CSTAT2_SPRITE_COUNTKILL;
 	}
 }

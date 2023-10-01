@@ -215,10 +215,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("walking_snd_toggle", w.walking_snd_toggle)
 			("palookup", w.palookup)
 			("hard_landing", w.hard_landing)
-			("max_secret_rooms", w.max_secret_rooms)
-			("secret_rooms", w.secret_rooms)
-			("max_actors_killed", w.max_actors_killed)
-			("actors_killed", w.actors_killed)
 			// RR from here on
 			("stairs", w.stairs)
 			("detonate_count", w.detonate_count)

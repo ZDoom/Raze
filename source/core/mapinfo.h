@@ -275,6 +275,11 @@ struct MapLocals
 		kills.addTotal(amount);
 	}
 
+	void addSecretCount(int amount = 1)
+	{
+		secrets.addTotal(amount);
+	}
+
 	void addKill(int playerno, int amount = 1)
 	{
 		kills.add(playerno, amount);

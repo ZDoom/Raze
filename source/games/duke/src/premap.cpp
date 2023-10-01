@@ -384,10 +384,6 @@ void resetprestat(int snum,int g)
 	p->hbomb_on          = 0;
 	p->pals.a         = 0;
 	p->toggle_key_flag   = 0;
-	p->secret_rooms      = 0;
-	p->max_secret_rooms  = 0;
-	p->actors_killed     = 0;
-	p->max_actors_killed = 0;
 	p->lastrandomspot = 0;
 	p->oweapon_pos = p->weapon_pos = 6;
 	p->okickback_pic = p->kickback_pic = 5;
@@ -627,6 +623,7 @@ void lava_cleararrays();
 
 void prelevel_common(int g)
 {
+	Level.clearStats();
 	if (isRRRA()) ud.mapflags = MFLAG_ALLSECTORTYPES;
 	else if (isRR()) ud.mapflags = MFLAG_SECTORTYPE800;
 	auto p = &ps[screenpeek];
@@ -684,7 +681,7 @@ void prelevel_common(int g)
 
 		if (sectp->lotag == 32767) //Found a secret room
 		{
-			ps[0].max_secret_rooms++;
+			Level.addSecretCount();
 			continue;
 		}
 
@@ -1298,10 +1295,7 @@ void exitlevel(MapRecord* nextlevel)
 
 	SummaryInfo info{};
 
-	info.kills = ps[0].actors_killed;
-	info.maxkills = ps[0].max_actors_killed;
-	info.secrets = ps[0].secret_rooms;
-	info.maxsecrets = ps[0].max_secret_rooms;
+	Level.fillSummary(info);
 	info.time = ps[0].player_par / GameTicRate;
 	info.endofgame = endofgame;
 	Mus_Stop();

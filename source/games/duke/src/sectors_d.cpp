@@ -196,7 +196,7 @@ void checksectors_d(int snum)
 	case 32767:
 		p->cursector->lotag = 0;
 		FTA(9, p);
-		p->secret_rooms++;
+		Level.addSecret(snum);
 		SECRET_Trigger(sectindex(p->cursector));
 		return;
 	case -1:

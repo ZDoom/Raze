@@ -879,16 +879,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ps[iPlayer].hard_landing, sActor, sPlayer);
 		break;
 
-	case PLAYER_MAX_SECRET_ROOMS:
-		if (bSet) ps[iPlayer].max_secret_rooms = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].max_secret_rooms, sActor, sPlayer);
-		break;
-
-	case PLAYER_SECRET_ROOMS:
-		if (bSet) ps[iPlayer].secret_rooms = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].secret_rooms, sActor, sPlayer);
-		break;
-
 	case PLAYER_RETURN_TO_CENTER:
 		if (bSet) ps[iPlayer].sync.actions |= SB_CENTERVIEW;
 		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? int(abs((ps[iPlayer].GetActor()->spr.Angles.Pitch * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);

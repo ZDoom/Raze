@@ -58,7 +58,7 @@ BEGIN_DUKE_NS
 GameStats GameInterface::getStats()
 {
 	player_struct* p = &ps[myconnectindex];
-	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
+	return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, p->player_par / REALGAMETICSPERSEC, p->frag };
 }
 
 

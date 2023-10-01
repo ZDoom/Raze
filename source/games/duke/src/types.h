@@ -312,8 +312,6 @@ struct player_struct
 	uint8_t walking_snd_toggle, palookup;
 	bool quick_kick_msg;
 
-	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
-
 	// Redneck Rampage additions. Those which did not have names in the reconstructed source got one from either RedneckGDX or RedNukem.
 	// Items were reordered by size.
 	int stairs;
