@@ -1038,8 +1038,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, spritetexture, CoreActor_spritetexture
 
 
 
-DEFINE_FIELD_X(Collision, CollisionBase, type)
-DEFINE_FIELD_X(Collision, CollisionBase, exbits)
+DEFINE_FIELD_X(CollisionData, CollisionBase, type)
+DEFINE_FIELD_X(CollisionData, CollisionBase, exbits)
 
 walltype* collision_getwall(CollisionBase* coll)
 {
@@ -1133,4 +1133,3 @@ DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setvoid, collision_setvoid)
 	collision_setvoid(self);
 	return 0;
 }
-

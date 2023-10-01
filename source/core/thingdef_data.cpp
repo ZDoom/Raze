@@ -439,12 +439,12 @@ void InitThingdef()
 		}
 	);
 
-	auto collstruct = NewStruct("Collision", nullptr, true);
+	auto collstruct = NewStruct("CollisionData", nullptr, true);
 	collstruct->Size = sizeof(CollisionBase);
 	collstruct->Align = alignof(CollisionBase);
 
 
-	auto sidestruct = NewStruct("TSprite", nullptr, true);
+	auto sidestruct = NewStruct("tspritetype", nullptr, true);
 	sidestruct->Size = sizeof(tspritetype);
 	sidestruct->Align = alignof(tspritetype);
 	// This may not be serialized
