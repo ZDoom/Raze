@@ -135,56 +135,6 @@ void AddCmdDefine(char* text, int value)
 	nCmdDefines++;
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void SplitPath(const char* pzPath, char* pzDirectory, char* pzFile, char* pzType)
-{
-	int const nLength = (int)strlen(pzPath);
-	const char* pDot = NULL;
-	for (int i = nLength - 1; i >= 0; i--)
-	{
-		if (pzPath[i] == '/' || pzPath[i] == '\\')
-		{
-			strncpy(pzDirectory, pzPath, i);
-			pzDirectory[i] = 0;
-			if (!pDot)
-			{
-				strcpy(pzFile, pzPath + i + 1);
-				strcpy(pzType, "");
-			}
-			else
-			{
-				strncpy(pzFile, pzPath + i + 1, pDot - (pzPath + i + 1));
-				pzFile[pDot - (pzPath + i + 1)] = 0;
-				strcpy(pzType, pDot + 1);
-			}
-
-			return;
-		}
-		else if (pzPath[i] == '.')
-		{
-			pDot = pzPath + i;
-		}
-	}
-	strcpy(pzDirectory, "/");
-	if (!pDot)
-	{
-		strcpy(pzFile, pzPath);
-		strcpy(pzType, "");
-	}
-	else
-	{
-		strncpy(pzFile, pzPath, pDot - pzPath);
-		pzFile[pDot - pzPath] = 0;
-		strcpy(pzType, pDot + 1);
-	}
-}
-
-
 
 //---------------------------------------------------------------------------
 //
@@ -989,13 +939,9 @@ void ParseScript(int lumpnum)
 
 void addMemoryResource(const char* filePath, int flags, int ID)
 {
-	char zDirectory[BMAX_PATH];
-	char zFilename[BMAX_PATH];
-	char zType[BMAX_PATH];
-
-	SplitPath(filePath, zDirectory, zFilename, zType);
-
-	fileSystem.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
+	FString zDirectory, zFilename, zType;
+	SplitPath(filePath, zDirectory, zFilename, zType, true);
+	fileSystem.AddFromBuffer(zFilename.GetChars(), zType.GetChars(), buffer, nBytes, ID, flags);
 }
 
 
