@@ -116,8 +116,6 @@ void MySetView(int x1, int y1, int x2, int y2);
 
 char sHollyStr[40];
 
-int nCreaturesKilled = 0, nCreaturesTotal = 0;
-
 int nFreeze;
 
 int nSnakeCam = -1;
@@ -528,7 +526,7 @@ bool GameInterface::CanSave()
 
 ::GameStats GameInterface::getStats()
 {
-    return { nCreaturesKilled, nCreaturesTotal, 0, 0, PlayClock / 120, 0 };
+    return { Level.kills.got, Level.kills.max, Level.secrets.got, Level.secrets.max, PlayClock / 120, 0 };
 }
 
 ::GameInterface* CreateInterface()
@@ -581,9 +579,7 @@ void SerializeState(FSerializer& arc)
             InitEnergyTile();
     }
 
-        arc ("creaturestotal", nCreaturesTotal)
-            ("creatureskilled", nCreaturesKilled)
-            ("freeze", nFreeze)
+        arc ("freeze", nFreeze)
             ("snakecam", nSnakeCam)
             ("clockval", nClockVal)
             ("redticks", nRedTicks)

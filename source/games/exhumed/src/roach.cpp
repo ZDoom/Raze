@@ -92,7 +92,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
 
     pActor->nSeqFile = "roach";
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 //---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ void AIRoach::Damage(RunListEvent* ev)
                 pActor->nFrame = 0;
             }
 
-            nCreaturesKilled++; // NOTE: This was incrementing in original code. Bug?
+            Level.addKill(-1); // NOTE: This was incrementing in original code. Bug?
         }
         else
         {

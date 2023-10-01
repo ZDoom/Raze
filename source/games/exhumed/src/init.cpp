@@ -117,8 +117,7 @@ uint8_t LoadLevel(MapRecord* map)
     // init stuff
     {
         StopAllSounds();
-        nCreaturesKilled = 0;
-        nCreaturesTotal = 0;
+        Level.clearStats();
         nFreeze = 0;
         pSpiritSprite = nullptr;
         PlayClock = 0;

@@ -196,7 +196,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x120000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x120000);
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 //---------------------------------------------------------------------------
@@ -304,7 +304,7 @@ void AIFish::Damage(RunListEvent* ev)
     if (pActor->nHealth <= 0)
     {
         pActor->nHealth = 0;
-        nCreaturesKilled++;
+        Level.addKill(-1);
 
         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 

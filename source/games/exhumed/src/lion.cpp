@@ -86,7 +86,7 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
     pActor->nSeqFile = "lion";
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 void AILion::Draw(RunListEvent* ev)
@@ -127,7 +127,7 @@ void AILion::Damage(RunListEvent* ev)
 
             pActor->nHealth = 0;
 
-            nCreaturesKilled++;
+            Level.addKill(-1);
 
             if (nAction < 10)
             {

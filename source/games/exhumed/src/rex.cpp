@@ -91,7 +91,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x180000);
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 //---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void AIRex::Damage(RunListEvent* ev)
 
                 pActor->nHealth = 0;
 
-                nCreaturesKilled++;
+                Level.addKill(-1);
 
                 if (nAction < 6)
                 {

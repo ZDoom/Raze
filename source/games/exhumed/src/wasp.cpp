@@ -108,7 +108,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
 
     pActor->nSeqFile = "wasp";
 
-    nCreaturesTotal++;
+    Level.addKillCount();
     return pActor;
 }
 
@@ -187,7 +187,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             pActor->vel.Z = 2;
 
-            nCreaturesKilled++;
+            Level.addKill(-1);
         }
         pActor->nFrame = 0;
     }

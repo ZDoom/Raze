@@ -91,7 +91,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 
     pActor->nSeqFile = "scorp";
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 //---------------------------------------------------------------------------
@@ -156,7 +156,7 @@ void AIScorp::Damage(RunListEvent* ev)
         pActor->vel.Z = 0;
         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
-        nCreaturesKilled++;
+        Level.addKill(-1);
         return;
     }
     else

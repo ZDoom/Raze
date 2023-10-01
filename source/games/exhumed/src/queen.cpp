@@ -1210,7 +1210,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 
     runlist_AddRunRec(NewRun, nQueen, 0x1A0000);
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 void SetQueenSpeed(DExhumedActor* pActor, int nSpeed)
@@ -1549,7 +1549,7 @@ void AIQueen::Damage(RunListEvent* ev)
                 QueenList[nQueen].nHealth = 0;
                 QueenList[nQueen].nIndex = 5;
 
-                nCreaturesKilled++;
+                Level.addKill(-1);
                 break;
             }
 

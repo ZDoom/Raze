@@ -95,7 +95,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, pActor, 0x190000);
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 //---------------------------------------------------------------------------
@@ -223,7 +223,7 @@ void AISet::Damage(RunListEvent* ev)
 
             pActor->nHealth = 0;
 
-            nCreaturesKilled++;
+            Level.addKill(-1);
 
             if (nAction < 10)
             {

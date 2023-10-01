@@ -145,7 +145,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x150000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x150000);
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 void AILavaDude::Draw(RunListEvent* ev)
@@ -178,7 +178,7 @@ void AILavaDude::Damage(RunListEvent* ev)
         pActor->nAction = 5;
         pActor->nFrame = 0;
 
-        nCreaturesKilled++;
+        Level.addKill(-1);
 
         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
     }

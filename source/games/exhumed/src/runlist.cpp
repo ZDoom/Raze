@@ -1842,7 +1842,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         return;
     }
 
-    int nPreCreaturesKilled = nCreaturesKilled;
+    int nPreCreaturesKilled = Level.kills.got;
 
     RunListEvent ev{};
     ev.pOtherActor = pActor2;
@@ -1850,13 +1850,16 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
     runlist_SendMessage(nRun, -1, &ExhumedAI::Damage, &ev);
 
     // is there now one less creature? (has one died)
-    if (nPreCreaturesKilled < nCreaturesKilled && pActor2 != nullptr)
+    if (nPreCreaturesKilled < Level.kills.got && pActor2 != nullptr)
     {
         if (pActor2->spr.statnum != 100) {
             return;
         }
 
         int nPlayer = GetPlayerFromActor(pActor2);
+        // Due to the horrible setup we can award the kill to the player only here. Yuck!
+        Level.kills.player[nPlayer]++;
+
         PlayerList[nPlayer].nTauntTimer--;
 
         if (PlayerList[nPlayer].nTauntTimer <= 0)

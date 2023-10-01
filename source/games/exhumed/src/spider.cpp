@@ -87,7 +87,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
 
     spp->nSeqFile = "spider";
 
-    nCreaturesTotal++;
+    Level.addKillCount();
 
     return spp;
 }
@@ -417,7 +417,7 @@ void AISpider::Damage(RunListEvent* ev)
 
         spp->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
-        nCreaturesKilled++;
+        Level.addKill(-1);
 
         const auto spiderSeqs = getFileSeqs("spider");
 

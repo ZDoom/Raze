@@ -702,7 +702,7 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (nCreaturesKilled < nCreaturesTotal && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
+        if (Level.kills.got < Level.kills.max && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
         {
             const auto creepySeq = getSequence("creepy");
             const auto seqFrameSound = creepySeq->frames[totalmoves % creepySeq->frames.Size()].sound;

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "sequence.h"
 #include "sound.h"
+#include "mapinfo.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -109,7 +110,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     ap->nSeqFile = "anubis";
 
     runlist_AddRunRec(NewRun, ap, 0x90000);
-    nCreaturesTotal++;
+    Level.addKillCount();
 }
 
 //---------------------------------------------------------------------------
@@ -425,7 +426,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             ap->nHealth = 0;
 
-            nCreaturesKilled++;
+            Level.addKill(-1);
 
             if (nAction < 11)
             {

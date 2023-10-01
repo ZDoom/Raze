@@ -88,9 +88,7 @@ void DrawStatusBar()
         UpdateFrame();
     }
     SummaryInfo info{};
-    info.kills = nCreaturesKilled;
-    info.maxkills = nCreaturesTotal;
-    // got no secrets in the game
+    Level.fillSummary(info);
     info.time = Scale(PlayClock, 1000, 120);
 	info.totaltime = STAT_GetTotalTime();
 

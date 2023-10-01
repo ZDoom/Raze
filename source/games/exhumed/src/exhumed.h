@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "texinfo.h"
 #include "player.h"
 #include "texids.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -106,8 +107,6 @@ extern int nNetPlayerCount;
 extern int nNetTime;
 
 extern int nTotalPlayers;
-
-extern int nCreaturesTotal, nCreaturesKilled;
 
 extern int lLocalButtons;
 
