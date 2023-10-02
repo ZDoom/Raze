@@ -529,9 +529,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->restorepos();
-				act->backupz();
-				act->spr.Angles.Yaw = p->GetActor()->PrevAngles.Yaw;
+				act->restoreloc();
 				SetActor(act, act->spr.pos);
 			}
 			else
@@ -541,6 +539,7 @@ void moveplayers(void)
 				{
 					otherp = findotherplayer(pn, &other);
 					auto psp = getPlayer(otherp)->GetActor();
+
 					if (psp->spr.extra > 0)
 					{
 						if (act->spr.scale.Y > 0.5 && psp->spr.scale.Y < 0.5)
@@ -549,7 +548,7 @@ void moveplayers(void)
 							{
 								p->knee_incs = 1;
 								p->weapon_pos = -1;
-								p->actorsqu = getPlayer(otherp)->GetActor();
+								p->actorsqu = psp;
 							}
 						}
 					}
@@ -564,7 +563,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25;
+					act->spr.Angles.Yaw += deltaangle(act->spr.Angles.Yaw, (p->actorsqu->spr.pos.XY() - act->spr.pos.XY()).Angle()) * 0.25;
 				}
 
 				if (act->spr.extra > 0)
@@ -579,12 +578,12 @@ void moveplayers(void)
 				}
 				else
 				{
-					p->GetActor()->spr.pos.Z += 20;
+					act->spr.pos.Z += 20;
 					p->newOwner = nullptr;
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5;
+						act->spr.Angles.Yaw += deltaangle(act->spr.Angles.Yaw, (p->wackedbyactor->spr.pos.XY() - act->spr.pos.XY()).Angle()) * 0.5;
 					}
 				}
 			}
