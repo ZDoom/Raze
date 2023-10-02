@@ -444,7 +444,7 @@ void PlayerUpdateKills(SWPlayer* pp, short value)
 
         TRAVERSE_CONNECT(pnum)
         {
-            opp = Player + pnum;
+            opp = &Player[pnum];
 
             // for everyone on the same team
             if (opp != pp && opp->GetActor()->user.spal == pp->GetActor()->user.spal)

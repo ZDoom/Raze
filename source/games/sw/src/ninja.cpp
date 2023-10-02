@@ -2241,7 +2241,7 @@ void PlayerPanelSetup(void)
     //for (pp = Player; pp < &Player[numplayers]; pp++)
     TRAVERSE_CONNECT(pnum)
     {
-        auto pp = Player + pnum;
+        auto pp = &Player[pnum];
 
         ASSERT(pp->GetActor()->hasU());
 

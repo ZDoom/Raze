@@ -2547,7 +2547,7 @@ int DoLavaErupt(DSWActor* actor)
     {
         TRAVERSE_CONNECT(pnum)
         {
-            pp = Player + pnum;
+            pp = &Player[pnum];
             if (pp->insector() && (pp->cursector->extra & SECTFX_TRIGGER))
             {
                 SWSectIterator it(pp->cursector);
@@ -5449,7 +5449,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             }
             else
             {
-                SWPlayer* pp = Player + screenpeek;
+                SWPlayer* pp = &Player[screenpeek];
 
                 ActorHealth(actor, damage);
                 if (actor->user.Health <= 0)

@@ -6512,7 +6512,7 @@ void MoveSkipSavePos(void)
     // Save off player
     TRAVERSE_CONNECT(pnum)
     {
-        pp = Player + pnum;
+        pp = &Player[pnum];
 
         pp->Angles.resetCameraAngles();
         pp->GetActor()->backuploc();
@@ -6775,7 +6775,7 @@ void domovethings(const ticcmd_t* playercmds)
         extern bool PlayerTrackingMode;
         extern SWPlayer* GlobPlayerP;
 
-        pp = Player + pnum;
+        pp = &Player[pnum];
         GlobPlayerP = pp;
 
         pp->lastinput = pp->input;
@@ -7110,7 +7110,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
     //for (pp = Player; pp < Player + numplayers; pp++)
     TRAVERSE_CONNECT(pnum)
     {
-        pp = Player + pnum;
+        pp = &Player[pnum];
         switch (gNet.MultiGameType)
         {
         case MULTI_GAME_NONE:

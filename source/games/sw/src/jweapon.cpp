@@ -1473,7 +1473,7 @@ int InitFlashBomb(DSWActor* actor)
     int i;
     unsigned int stat;
     short damage;
-    SWPlayer* pp = Player + screenpeek;
+    SWPlayer* pp = &Player[screenpeek];
 
     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
 

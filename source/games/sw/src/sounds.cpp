@@ -324,7 +324,7 @@ static void UpdateAmbients()
 
         if (sdist < 255 && sfx->ResourceId == DIGI_WHIPME)
         {
-            SWPlayer* pp = Player + screenpeek;
+            SWPlayer* pp = &Player[screenpeek];
             if (!FAFcansee(spot->spr.pos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
             {
                 sdist = 255;
@@ -425,7 +425,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        SWPlayer* pp = Player + screenpeek;
+        SWPlayer* pp = &Player[screenpeek];
         FVector3 campos = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
         DVector3 vPos = {};
         bool pancheck = false;
@@ -513,7 +513,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 
 void GameInterface::UpdateSounds(void)
 {
-    SWPlayer* pp = Player + screenpeek;
+    SWPlayer* pp = &Player[screenpeek];
     SoundListener listener;
 
     DAngle tang;

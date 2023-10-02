@@ -557,7 +557,7 @@ void JS_DrawCameras(SWPlayer* pp, const DVector3& campos, double smoothratio)
                     {
                         if (dist < MAXCAMDIST)
                         {
-                            SWPlayer* cp = Player + camplayerview;
+                            SWPlayer* cp = &Player[camplayerview];
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {

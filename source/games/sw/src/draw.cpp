@@ -608,7 +608,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 {
     int tSpriteNum;
     static int ang = 0;
-    SWPlayer* pp = Player + screenpeek;
+    SWPlayer* pp = &Player[screenpeek];
     int newshade=0;
 
     const int DART_PIC = 2526;
@@ -777,7 +777,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             // sw if its your playersprite
             if (Player[screenpeek].GetActor() == tActor)
             {
-                pp = Player + screenpeek;
+                pp = &Player[screenpeek];
                 if (display_mirror || (pp->Flags & (PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA)))
                 {
                     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))

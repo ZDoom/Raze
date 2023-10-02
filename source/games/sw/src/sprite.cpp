@@ -597,7 +597,7 @@ void KillActor(DSWActor* actor)
         // reset it.
         TRAVERSE_CONNECT(pnum)
         {
-            pp = Player + pnum;
+            pp = &Player[pnum];
 
             if (pp->KillerActor != nullptr)
             {
