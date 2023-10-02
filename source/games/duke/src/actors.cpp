@@ -2660,11 +2660,12 @@ void handle_se13(DDukeActor* actor)
 					wal.shade = actor->spr.shade;
 
 				sc->floorshade = actor->spr.shade;
+				const auto p = getPlayer(0);
 
-				if (getPlayer(0)->one_parallax_sectnum != nullptr)
+				if (p->one_parallax_sectnum != nullptr)
 				{
-					sc->setceilingtexture(getPlayer(0)->one_parallax_sectnum->ceilingtexture);
-					sc->ceilingshade = getPlayer(0)->one_parallax_sectnum->ceilingshade;
+					sc->setceilingtexture(p->one_parallax_sectnum->ceilingtexture);
+					sc->ceilingshade = p->one_parallax_sectnum->ceilingshade;
 				}
 			}
 		}
