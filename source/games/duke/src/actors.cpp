@@ -55,8 +55,8 @@ void moveactor(DDukeActor* actor, int p, double pdist, const int killit_flag)
 	if (killit_flag == 1)
 	{
 		// if player was set to squish, first stop that..
-		if (getPlayer(p)->actorsqu == actor)
-			getPlayer(p)->actorsqu = nullptr;
+		const auto pp = getPlayer(p);
+		if (pp->actorsqu == actor) pp->actorsqu = nullptr;
 		actor->flags2 |= SFLAG2_DIENOW;
 	}
 	else
