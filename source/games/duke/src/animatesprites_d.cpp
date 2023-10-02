@@ -46,7 +46,6 @@ BEGIN_DUKE_NS
 
 void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
-	int p;
 	tspritetype* t;
 	DDukeActor* h;
 
@@ -90,8 +89,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		}
 
 		if (t->statnum == STAT_TEMP) continue;
-		auto pp = getPlayer(h->PlayerIndex());
-		if ((h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner()) || !(h->flags1 & SFLAG_NOINTERPOLATE))
+
+		const auto p = getPlayer(h->PlayerIndex());
+		const auto spp = getPlayer(screenpeek);
+
+		if ((h->spr.statnum != STAT_ACTOR && h->isPlayer() && p->newOwner == nullptr && h->GetOwner()) || !(h->flags1 & SFLAG_NOINTERPOLATE))
 		{
 			t->pos = h->interpolatedpos(interpfrac);
 			t->Angles.Yaw = h->interpolatedyaw(interpfrac);
@@ -117,11 +119,9 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (h->isPlayer())
 		{
-			p = h->PlayerIndex();
-
 			if (t->pal == 1) t->pos.Z -= 18;
 
-			if (getPlayer(p)->over_shoulder_on > 0 && getPlayer(p)->newOwner == nullptr)
+			if (p->over_shoulder_on > 0 && p->newOwner == nullptr)
 			{
 				t->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 #if 0 // multiplayer only
@@ -134,7 +134,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 #endif
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && getPlayer(p)->GetActor()->spr.extra > 0 && getPlayer(p)->curr_weapon > 0)
+			if ((display_mirror == 1 || spp != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && h->spr.extra > 0 && p->curr_weapon > 0)
 			{
 				auto newtspr = tsprites.newTSprite();
 				*newtspr = *t;
@@ -147,7 +147,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				newtspr->cstat = 0;
 
 				const char* texname = nullptr;
-				switch (getPlayer(p)->curr_weapon)
+				switch (p->curr_weapon)
 				{
 				case PISTOL_WEAPON:      texname = "FIRSTGUNSPRITE";       break;
 				case SHOTGUN_WEAPON:     texname = "SHOTGUNSPRITE";        break;
@@ -164,9 +164,9 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				t->setspritetexture(TexMan.CheckForTexture(texname, ETextureType::Any));
 
-				if (h->GetOwner()) newtspr->pos.Z = getPlayer(p)->GetActor()->getOffsetZ() - 12;
+				if (h->GetOwner()) newtspr->pos.Z = h->getOffsetZ() - 12;
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
-				if (getPlayer(p)->curr_weapon == HANDBOMB_WEAPON)
+				if (p->curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->scale = DVector2(0.15625, 0.15625);
 				}
@@ -187,20 +187,20 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				applyRotation1(h, t, viewang, base);
 
 
-				t->pal = getPlayer(p)->palookup;
+				t->pal = p->palookup;
 				continue;
 			}
-			if (getPlayer(p)->on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
+			if (p->on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
-				double v = h->spr.pos.Z - getPlayer(p)->GetActor()->floorz + 3;
+				double v = h->spr.pos.Z - h->floorz + 3;
 				if (v > 4 && h->spr.scale.Y > 0.5 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(v / h->spr.scale.Y);
 				else h->spr.yoffset = 0;
 			}
 
-			if (ud.cameraactor == nullptr && getPlayer(p)->newOwner == nullptr)
-				if (h->GetOwner() && display_mirror == 0 && getPlayer(p)->over_shoulder_on == 0)
-					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
+			if (ud.cameraactor == nullptr && p->newOwner == nullptr)
+				if (h->GetOwner() && display_mirror == 0 && p->over_shoulder_on == 0)
+					if (ud.multimode < 2 || (ud.multimode > 1 && p == spp))
 					{
 						t->ownerActor = nullptr;
 						t->scale = DVector2(0, 0);
@@ -221,7 +221,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->isPlayer() && h->GetOwner()))
 		{
 			drawshadows(tsprites, t, h);
-			if (getPlayer(screenpeek)->heat_amount > 0 && getPlayer(screenpeek)->heat_on)
+			if (spp->heat_amount > 0 && spp->heat_on)
 			{
 				t->pal = 6;
 				t->shade = 0;
