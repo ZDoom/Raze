@@ -118,6 +118,7 @@ void addweapon_r(DukePlayer* p, int weapon, bool wswitch)
 	p->curr_weapon = cw;
 	p->wantweaponfire = -1;
 
+	const auto pact = p->GetActor();
 	switch (weapon)
 	{
 	case SLINGBLADE_WEAPON:
@@ -128,13 +129,13 @@ void addweapon_r(DukePlayer* p, int weapon, bool wswitch)
 	case THROWINGDYNAMITE_WEAPON:
 		break;
 	case SHOTGUN_WEAPON:	  
-		S_PlayActorSound(SHOTGUN_COCK, p->GetActor()); 
+		S_PlayActorSound(SHOTGUN_COCK, pact); 
 		break;
 	case PISTOL_WEAPON:	   
-		S_PlayActorSound(INSERT_CLIP, p->GetActor());
+		S_PlayActorSound(INSERT_CLIP, pact);
 		break;
 	default:	  
-		S_PlayActorSound(EJECT_CLIP, p->GetActor());
+		S_PlayActorSound(EJECT_CLIP, pact);
 		break;
 	}
 }
