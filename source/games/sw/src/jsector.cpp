@@ -376,7 +376,7 @@ void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* 
 
 void JS_ProcessEchoSpot()
 {
-    PLAYER* pp = Player+screenpeek;
+    SWPlayer* pp = getPlayer(screenpeek);
     int16_t reverb;
     bool reverb_set = false;
 
@@ -385,7 +385,7 @@ void JS_ProcessEchoSpot()
     while (auto actor = it.Next())
     {
         double maxdist = SP_TAG4(actor) * maptoworld;
-        auto v = actor->spr.pos.XY() - pp->actor->spr.pos.XY();
+        auto v = actor->spr.pos.XY() - pp->GetActor()->spr.pos.XY();
         double dist = abs(v.X) + abs(v.Y);
 
         if (dist <= maxdist) // tag4 = ang
@@ -417,7 +417,7 @@ short camplayerview = 1;                // Don't show yourself!
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
 // So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
-void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
+void JS_DrawCameras(SWPlayer* pp, const DVector3& campos, double smoothratio)
 {
     int  cnt;
     double dist;
@@ -548,7 +548,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
-                    if (pp->actor->spr.pos == pp->actor->opos)
+                    if (pp->GetActor()->spr.pos == pp->GetActor()->opos)
                         DoCam = true;
 
 
@@ -557,11 +557,11 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                     {
                         if (dist < MAXCAMDIST)
                         {
-                            PLAYER* cp = Player + camplayerview;
+                            SWPlayer* cp = getPlayer(camplayerview);
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->actor->getPosWithOffsetZ(), cp->actor->spr.Angles.Yaw, cp->actor->spr.Angles.Pitch, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->GetActor()->getPosWithOffsetZ(), cp->GetActor()->spr.Angles.Yaw, cp->GetActor()->spr.Angles.Pitch, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
@@ -577,11 +577,11 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
 // Workaround until the camera code can be refactored to process all camera textures that were visible last frame.
 // Need to stash the parameters for later use. This is only used to find the nearest camera.
-static PLAYER* cam_pp;
+static SWPlayer* cam_pp;
 DVector3 cam_pos;
 static int oldstat;
 
-void JS_CameraParms(PLAYER* pp, const DVector3& tpos)
+void JS_CameraParms(SWPlayer* pp, const DVector3& tpos)
 {
     cam_pp = pp;
     cam_pos = tpos;

@@ -70,7 +70,6 @@ extern int screenpeek;
 // Variables that must be saved
 extern int rtsplaying;
 
-extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;
 extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];

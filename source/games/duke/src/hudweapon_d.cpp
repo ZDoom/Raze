@@ -61,7 +61,7 @@ inline static void hud_drawpal(double x, double y, const char* tilenum, int shad
 //
 //---------------------------------------------------------------------------
 
-static void displayloogie(player_struct* p, double const interpfrac)
+static void displayloogie(DukePlayer* p, double const interpfrac)
 {
 	if (p->loogcnt == 0) return;
 
@@ -84,7 +84,7 @@ static void displayloogie(player_struct* p, double const interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static bool animatefist(int gs, player_struct* p, double xoffset, double yoffset, int fistpal, double const interpfrac)
+static bool animatefist(int gs, DukePlayer* p, double xoffset, double yoffset, int fistpal, double const interpfrac)
 {
 	const double fisti = min(interpolatedvalue<double>(p->ofist_incs, p->fist_incs, interpfrac), 32.);
 	if (fisti <= 0) return false;
@@ -103,7 +103,7 @@ static bool animatefist(int gs, player_struct* p, double xoffset, double yoffset
 //
 //---------------------------------------------------------------------------
 
-static bool animateknee(int gs, player_struct* p, double xoffset, double yoffset, int pal, double const interpfrac, DAngle angle)
+static bool animateknee(int gs, DukePlayer* p, double xoffset, double yoffset, int pal, double const interpfrac, DAngle angle)
 {
 	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
@@ -121,7 +121,7 @@ static bool animateknee(int gs, player_struct* p, double xoffset, double yoffset
 //
 //---------------------------------------------------------------------------
 
-static bool animateknuckles(int gs, player_struct* p, double xoffset, double yoffset, int pal, DAngle angle)
+static bool animateknuckles(int gs, DukePlayer* p, double xoffset, double yoffset, int pal, DAngle angle)
 {
 	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 	static const char* const frames[] = { "CRACKKNUCKLES0", "CRACKKNUCKLES1", "CRACKKNUCKLES2", "CRACKKNUCKLES3" };
@@ -141,7 +141,7 @@ static bool animateknuckles(int gs, player_struct* p, double xoffset, double yof
 
 void displaymasks_d(int snum, int p, double interpfrac)
 {
-	if (ps[snum].scuba_on)
+	if (getPlayer(snum)->scuba_on)
 	{
 		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK", ETextureType::Any);
 		auto tex0 = TexMan.GetGameTexture(scuba0);
@@ -158,7 +158,7 @@ void displaymasks_d(int snum, int p, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static bool animatetip(int gs, player_struct* p, double xoffset, double yoffset, int pal, double const interpfrac, DAngle angle)
+static bool animatetip(int gs, DukePlayer* p, double xoffset, double yoffset, int pal, double const interpfrac, DAngle angle)
 {
 	if (p->tipincs == 0) return false;
 
@@ -177,7 +177,7 @@ static bool animatetip(int gs, player_struct* p, double xoffset, double yoffset,
 //
 //---------------------------------------------------------------------------
 
-static bool animateaccess(int gs, player_struct* p, double xoffset, double yoffset, double const interpfrac, DAngle angle)
+static bool animateaccess(int gs, DukePlayer* p, double xoffset, double yoffset, double const interpfrac, DAngle angle)
 {
 	if (p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
@@ -201,10 +201,10 @@ static bool animateaccess(int gs, player_struct* p, double xoffset, double yoffs
 //
 //---------------------------------------------------------------------------
 
-void animateshrunken(player_struct* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac)
+void animateshrunken(DukePlayer* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac)
 {
 	const double fistsign = BobVal(interpolatedvalue<double>(p->ofistsign, p->fistsign, interpfrac)) * 16;
-	int pal = ps[screenpeek].cursector->floorpal;
+	int pal = getPlayer(screenpeek)->cursector->floorpal;
 	if (p->jetpack_on == 0)	yoffset += 32 - (p->GetActor()->vel.X * 8);
 	hud_drawpal(250 + fistsign + xoffset, 258 - fabs(fistsign * 4) + yoffset, "FIST", shade, o, pal, nullAngle);
 	hud_drawpal(40 - fistsign + xoffset, 200 + fabs(fistsign * 4) + yoffset, "FIST", shade, o | 4, pal, nullAngle);
@@ -220,7 +220,7 @@ void animateshrunken(player_struct* p, double xoffset, double yoffset, int8_t sh
 void displayweapon_d(int snum, double interpfrac)
 {
 	int pal, pal2;
-	player_struct* p = &ps[snum];
+	DukePlayer* p = getPlayer(snum);
 
 	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
 		return;

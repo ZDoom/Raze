@@ -260,17 +260,15 @@ void ClearGameVars(void)
 
 void ResetGameVars(void)
 {
-	int i;
-
-	for(i=0;i<iGameVarCount;i++)
+	for (int i = 0; i < iGameVarCount; i++)
 	{
 		if (!(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC)))
 		{
 			if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER))
 			{
-				for (auto &pl : ps)
+				for (int j = 0; i < MAXPLAYERS; i++)
 				{
-					pl.uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
+					getPlayer(j)->uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
 				}
 			}
 			else if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
@@ -307,7 +305,7 @@ GameVarValue GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 	{
 		// for the current player
 		if (sPlayer >= 0 && sPlayer < MAXPLAYERS)
-			return ps[sPlayer].uservars[aGameVars[id].indexValue];
+			return getPlayer(sPlayer)->uservars[aGameVars[id].indexValue];
 
 		return aGameVars[id].initValue;
 	}
@@ -367,12 +365,12 @@ void SetGameVarID(int id, GameVarValue lValue, DDukeActor* sActor, int sPlayer)
 		if (sPlayer >= 0)
 		{
 			if (sPlayer < MAXPLAYERS)
-				ps[sPlayer].uservars[aGameVars[id].indexValue] = lValue;
+				getPlayer(sPlayer)->uservars[aGameVars[id].indexValue] = lValue;
 		}
 		else
 		{
 			for (int i = connecthead; i >= 0; i = connectpoint2[i])
-				ps[i].uservars[aGameVars[id].indexValue] = lValue; // set for all players
+				getPlayer(i)->uservars[aGameVars[id].indexValue] = lValue; // set for all players
 			aGameVars[id].initValue = lValue;
 		}
 	}
@@ -520,21 +518,21 @@ static int i_aplWeaponFireSound[MAX_WEAPONS];	// Sound made when firing (each ti
 static int i_aplWeaponSound2Time[MAX_WEAPONS];	// Alternate sound time
 static int i_aplWeaponSound2Sound[MAX_WEAPONS];	// Alternate sound sound ID
 
-int aplWeaponClip(int weapon, int player) { return ps[player].uservars[i_aplWeaponClip[weapon]].safeValue(); }
-int aplWeaponReload(int weapon, int player) { return ps[player].uservars[i_aplWeaponReload[weapon]].safeValue(); }
-int aplWeaponFireDelay(int weapon, int player) { return ps[player].uservars[i_aplWeaponFireDelay[weapon]].safeValue(); }
-int aplWeaponHoldDelay(int weapon, int player) { return ps[player].uservars[i_aplWeaponHoldDelay[weapon]].safeValue(); }
-int aplWeaponTotalTime(int weapon, int player) { return ps[player].uservars[i_aplWeaponTotalTime[weapon]].safeValue(); }
-int aplWeaponFlags(int weapon, int player) { return ps[player].uservars[i_aplWeaponFlags[weapon]].safeValue(); }
-int aplWeaponShoots(int weapon, int player) { return ps[player].uservars[i_aplWeaponShoots[weapon]].safeValue(); }
-int aplWeaponSpawnTime(int weapon, int player) { return ps[player].uservars[i_aplWeaponSpawnTime[weapon]].safeValue(); }
-int aplWeaponSpawn(int weapon, int player) { return ps[player].uservars[i_aplWeaponSpawn[weapon]].safeValue(); }
-int aplWeaponShotsPerBurst(int weapon, int player) { return ps[player].uservars[i_aplWeaponShotsPerBurst[weapon]].safeValue(); }
-int aplWeaponWorksLike(int weapon, int player) { return ps[player].uservars[i_aplWeaponWorksLike[weapon]].safeValue(); }
-int aplWeaponInitialSound(int weapon, int player) { return ps[player].uservars[i_aplWeaponInitialSound[weapon]].safeValue(); }
-int aplWeaponFireSound(int weapon, int player) { return ps[player].uservars[i_aplWeaponFireSound[weapon]].safeValue(); }
-int aplWeaponSound2Time(int weapon, int player) { return ps[player].uservars[i_aplWeaponSound2Time[weapon]].safeValue(); }
-int aplWeaponSound2Sound(int weapon, int player) { return ps[player].uservars[i_aplWeaponSound2Sound[weapon]].safeValue(); }
+int aplWeaponClip(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponClip[weapon]].safeValue(); }
+int aplWeaponReload(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponReload[weapon]].safeValue(); }
+int aplWeaponFireDelay(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponFireDelay[weapon]].safeValue(); }
+int aplWeaponHoldDelay(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponHoldDelay[weapon]].safeValue(); }
+int aplWeaponTotalTime(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponTotalTime[weapon]].safeValue(); }
+int aplWeaponFlags(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponFlags[weapon]].safeValue(); }
+int aplWeaponShoots(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponShoots[weapon]].safeValue(); }
+int aplWeaponSpawnTime(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSpawnTime[weapon]].safeValue(); }
+int aplWeaponSpawn(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSpawn[weapon]].safeValue(); }
+int aplWeaponShotsPerBurst(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponShotsPerBurst[weapon]].safeValue(); }
+int aplWeaponWorksLike(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponWorksLike[weapon]].safeValue(); }
+int aplWeaponInitialSound(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponInitialSound[weapon]].safeValue(); }
+int aplWeaponFireSound(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponFireSound[weapon]].safeValue(); }
+int aplWeaponSound2Time(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSound2Time[weapon]].safeValue(); }
+int aplWeaponSound2Sound(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSound2Sound[weapon]].safeValue(); }
 
 //---------------------------------------------------------------------------
 //
@@ -1222,7 +1220,7 @@ void FinalizeGameVars(void)
 			aGameVars[i].indexValue = actorNdx++;
 		}
 	}
-	for (auto& pl : ps) pl.uservars.Resize(weapNdx);
+	for (int i = 0; i < MAXPLAYERS; i++) getPlayer(i)->uservars.Resize(weapNdx);
 	ResetGameVars();
 
 	numActorVars = actorNdx;

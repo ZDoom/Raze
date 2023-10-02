@@ -108,7 +108,7 @@ short SoundDist(const DVector3& pos, double basedist)
     double sqrdist;
     extern short screenpeek;
 
-    double distance = (Player[screenpeek].actor->getPosWithOffsetZ() - pos).Length() * 16;
+    double distance = (getPlayer(screenpeek)->GetActor()->getPosWithOffsetZ() - pos).Length() * 16;
 
     if (basedist < 0) // if basedist is negative
     {
@@ -199,7 +199,7 @@ void InitAmbient(int num, DSWActor* actor)
         if (num != -1) // skip message for -1 to allow using it for silencing buggy ambient sound sprites (there is one in SW level 9.)
         {
             sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
-            PutStringInfo(Player + screenpeek, ds);
+            PutStringInfo(getPlayer(screenpeek), ds);
         }
         return;
     }
@@ -324,8 +324,8 @@ static void UpdateAmbients()
 
         if (sdist < 255 && sfx->ResourceId == DIGI_WHIPME)
         {
-            PLAYER* pp = Player + screenpeek;
-            if (!FAFcansee(spot->spr.pos, spot->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
+            SWPlayer* pp = getPlayer(screenpeek);
+            if (!FAFcansee(spot->spr.pos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
             {
                 sdist = 255;
             }
@@ -379,7 +379,7 @@ public:
 
     int SoundSourceIndex(FSoundChan* chan) override
     {
-        if (chan->SourceType == SOURCE_Player) return int((PLAYER*)(chan->Source) - Player);
+        if (chan->SourceType == SOURCE_Player) return int((SWPlayer*)(chan->Source) - (SWPlayer*)PlayerArray);
         return 0;
     }
 
@@ -388,7 +388,7 @@ public:
         if (chan->SourceType == SOURCE_Player)
         {
             if (index < 0 || index >= MAX_SW_PLAYERS_REG) index = 0;
-            chan->Source = &Player[index];
+            chan->Source = getPlayer(index);
         }
         else chan->Source = nullptr;
     }
@@ -425,8 +425,8 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        PLAYER* pp = Player + screenpeek;
-        FVector3 campos = GetSoundPos(pp->actor ? pp->actor->getPosWithOffsetZ() : DVector3());
+        SWPlayer* pp = getPlayer(screenpeek);
+        FVector3 campos = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
         DVector3 vPos = {};
         bool pancheck = false;
 
@@ -446,10 +446,10 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             }
             else
             {
-                auto act = ((PLAYER*)source)->actor;
+                auto act = ((SWPlayer*)source)->GetActor();
                 if (act) vPos = act->getPosWithOffsetZ();
-                else if (pp->actor)
-                    vPos = pp->actor->getPosWithOffsetZ();
+                else if (pp->GetActor())
+                    vPos = pp->GetActor()->getPosWithOffsetZ();
             }
             pancheck = true;
             FVector3 npos = GetSoundPos(vPos);
@@ -479,7 +479,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vPos, spot->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
+                if (!FAFcansee(vPos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
@@ -513,7 +513,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 
 void GameInterface::UpdateSounds(void)
 {
-    PLAYER* pp = Player + screenpeek;
+    SWPlayer* pp = getPlayer(screenpeek);
     SoundListener listener;
 
     DAngle tang;
@@ -523,13 +523,13 @@ void GameInterface::UpdateSounds(void)
         if (rsp && TEST_BOOL1(rsp))
             tang = rsp->spr.Angles.Yaw;
         else
-            tang = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
+            tang = (pp->sop_remote->pmid.XY() - pp->GetActor()->spr.pos.XY()).Angle();
     }
-    else tang = pp->actor ? pp->actor->spr.Angles.Yaw : nullAngle;
+    else tang = pp->GetActor() ? pp->GetActor()->spr.Angles.Yaw : nullAngle;
 
     listener.angle = float(-tang.Radians());
     listener.velocity.Zero();
-    listener.position = GetSoundPos(pp->actor ? pp->actor->getPosWithOffsetZ() : DVector3());
+    listener.position = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
@@ -549,7 +549,7 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(const FSoundID sndid, DSWActor* actor, PLAYER* pp, const DVector3* const ppos, int flags, int channel, EChanFlags cflags)
+int _PlaySound(const FSoundID sndid, DSWActor* actor, SWPlayer* pp, const DVector3* const ppos, int flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(sndid))
         return -1;
@@ -573,7 +573,7 @@ int _PlaySound(const FSoundID sndid, DSWActor* actor, PLAYER* pp, const DVector3
         }
         else if (pp && !ppos)
         {
-            pos = pp->actor->getPosWithOffsetZ();
+            pos = pp->GetActor()->getPosWithOffsetZ();
             pp = nullptr;
             sourcetype = SOURCE_Unattached;
         }
@@ -715,14 +715,14 @@ void PlaySpriteSound(DSWActor* actor, int attrib_ndx, int flags)
 //
 //==========================================================================
 
-int _PlayerSound(int num, PLAYER* pp)
+int _PlayerSound(int num, SWPlayer* pp)
 {
     int handle;
 
     if (Prediction)
         return 0;
 
-    if (pp < Player || pp >= Player + MAX_SW_PLAYERS)
+    if (pp < *PlayerArray || pp >= getPlayer(MAX_SW_PLAYERS))
     {
         return 0;
     }
@@ -759,7 +759,7 @@ int _PlayerSound(int num, PLAYER* pp)
     return 0;
 }
 
-void StopPlayerSound(PLAYER* pp, int which)
+void StopPlayerSound(SWPlayer* pp, int which)
 {
     soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, soundEngine->FindSoundByResID(which));
 }

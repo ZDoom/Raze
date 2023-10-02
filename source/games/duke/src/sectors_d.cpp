@@ -50,35 +50,35 @@ BEGIN_DUKE_NS
 
 bool checkaccessswitch_d(int snum, int switchpal, DDukeActor* act, walltype* wwal)
 {
-	if (ps[snum].access_incs == 0)
+	if (getPlayer(snum)->access_incs == 0)
 	{
 		if (switchpal == 0)
 		{
-			if ((ps[snum].got_access & 1))
-				ps[snum].access_incs = 1;
-			else FTA(70, &ps[snum]);
+			if ((getPlayer(snum)->got_access & 1))
+				getPlayer(snum)->access_incs = 1;
+			else FTA(70, getPlayer(snum));
 		}
 
 		else if (switchpal == 21)
 		{
-			if (ps[snum].got_access & 2)
-				ps[snum].access_incs = 1;
-			else FTA(71, &ps[snum]);
+			if (getPlayer(snum)->got_access & 2)
+				getPlayer(snum)->access_incs = 1;
+			else FTA(71, getPlayer(snum));
 		}
 
 		else if (switchpal == 23)
 		{
-			if (ps[snum].got_access & 4)
-				ps[snum].access_incs = 1;
-			else FTA(72, &ps[snum]);
+			if (getPlayer(snum)->got_access & 4)
+				getPlayer(snum)->access_incs = 1;
+			else FTA(72, getPlayer(snum));
 		}
 
-		if (ps[snum].access_incs == 1)
+		if (getPlayer(snum)->access_incs == 1)
 		{
 			if (!act)
-				ps[snum].access_wall = wwal;
+				getPlayer(snum)->access_wall = wwal;
 			else
-				ps[snum].access_spritenum = act;
+				getPlayer(snum)->access_spritenum = act;
 		}
 
 		return 1;
@@ -117,7 +117,7 @@ void activatebysector_d(sectortype* sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_d(player_struct* p, const Collision& coll)
+void checkplayerhurt_d(DukePlayer* p, const Collision& coll)
 {
 	if (coll.type == kHitSprite)
 	{
@@ -158,7 +158,7 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 //
 //---------------------------------------------------------------------------
 
-void clearcameras(player_struct* p)
+void clearcameras(DukePlayer* p)
 {
 	p->GetActor()->restorepos();
 	p->newOwner = nullptr;
@@ -181,11 +181,11 @@ void clearcameras(player_struct* p)
 void checksectors_d(int snum)
 {
 	int i = -1;
-	player_struct* p;
+	DukePlayer* p;
 	walltype* hitscanwall;
 	HitInfo near;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (!p->insector()) return;

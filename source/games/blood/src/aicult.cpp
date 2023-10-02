@@ -275,7 +275,7 @@ static void cultThinkChase(DBloodActor* actor)
 				{
 				case kDudeCultistTommy:
 					if (nDist < 0x1e0 && nDist > 0xe0 && nDeltaAngle < DAngle15 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->GetType() - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && getPlayer(target)->isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -343,7 +343,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistShotgun:
 					if (nDist < 0x2c0 && nDist > 0x140 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !gPlayer[target->GetType() - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !getPlayer(target)->isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -411,7 +411,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistTesla:
 					if (nDist < 0x1e0 && nDist > 0xe0 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->GetType() - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && getPlayer(target)->isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
@@ -522,7 +522,7 @@ static void cultThinkChase(DBloodActor* actor)
 					break;
 				case kDudeCultistBeast:
 					if (nDist < 0x1e0 && nDist > 0xe0 && !TargetNearExplosion(target->sector())
-						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->GetType() - kDudePlayer1].isRunning
+						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && getPlayer(target)->isRunning
 						&& Chance(0x8000))
 					{
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);

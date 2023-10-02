@@ -331,8 +331,8 @@ void useCustomDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 void useVelocityChanger(DBloodActor* pXSource, sectortype* sect, DBloodActor* causerID, DBloodActor* pSprite);
 void seqTxSendCmdAll(DBloodActor* pXSource, DBloodActor* nIndex, COMMAND_ID cmd, bool modernSend, DBloodActor* initiator);
 //  -------------------------------------------------------------------------   //
-void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkCondition);
-void trPlayerCtrlStopScene(PLAYER* pPlayer);
+void trPlayerCtrlLink(DBloodActor* pXSource, BloodPlayer* pPlayer, bool checkCondition);
+void trPlayerCtrlStopScene(BloodPlayer* pPlayer);
 //  -------------------------------------------------------------------------   //
 void modernTypeTrigger(int type, sectortype* sect, walltype* wal, DBloodActor* actor, EVENT& event);
 bool modernTypeOperateSector(sectortype* pSector, const EVENT& event);
@@ -340,22 +340,22 @@ bool modernTypeOperateSprite(DBloodActor*, EVENT& event);
 bool modernTypeOperateWall(walltype* pWall, const EVENT& event);
 void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command, DBloodActor* initiator);
 //  -------------------------------------------------------------------------   //
-bool playerSizeShrink(PLAYER* pPlayer, int divider);
-bool playerSizeGrow(PLAYER* pPlayer, int multiplier);
-bool playerSizeReset(PLAYER* pPlayer);
-void playerDeactivateShrooms(PLAYER* pPlayer);
+bool playerSizeShrink(BloodPlayer* pPlayer, int divider);
+bool playerSizeGrow(BloodPlayer* pPlayer, int multiplier);
+bool playerSizeReset(BloodPlayer* pPlayer);
+void playerDeactivateShrooms(BloodPlayer* pPlayer);
 //  -------------------------------------------------------------------------   //
 QAV* playerQavSceneLoad(int qavId);
-void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene);
-void playerQavScenePlay(PLAYER* pPlayer);
-void playerQavSceneDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle);
-void playerQavSceneReset(PLAYER* pPlayer);
+void playerQavSceneProcess(BloodPlayer* pPlayer, QAVSCENE* pQavScene);
+void playerQavScenePlay(BloodPlayer* pPlayer);
+void playerQavSceneDraw(BloodPlayer* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle);
+void playerQavSceneReset(BloodPlayer* pPlayer);
 //  -------------------------------------------------------------------------   //
 void callbackUniMissileBurst(DBloodActor* actor, sectortype* nSprite);
 void callbackMakeMissileBlocking(DBloodActor* actor, sectortype* nSprite);
 void callbackGenDudeUpdate(DBloodActor* actor, sectortype* nSprite);
 //  -------------------------------------------------------------------------   //
-PLAYER* getPlayerById(int id);
+BloodPlayer* getPlayerById(int id);
 bool isGrown(DBloodActor* pSprite);
 bool isShrinked(DBloodActor* pSprite);
 bool IsBurningDude(DBloodActor* pSprite);

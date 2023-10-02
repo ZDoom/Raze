@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once 
 
 #include "gamecontrol.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 
 BEGIN_PS_NS
 
@@ -47,9 +47,8 @@ struct PlayerSave
     DAngle nAngle;
 };
 
-struct Player
+struct ExhumedPlayer final : public CorePlayer
 {
-    DExhumedActor* pActor;
     int16_t nHealth;
     int16_t nLives;
     int16_t nDouble;
@@ -73,8 +72,6 @@ struct Player
     int16_t nLastWeapon;
     int16_t nRun;
 
-    InputPacket input;
-    PlayerAngles Angles;
     sectortype* pPlayerPushSect;
     sectortype* pPlayerViewSect;
 
@@ -92,7 +89,6 @@ struct Player
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
     int16_t dVertPan;
     double nQuake;
-    uint8_t nPlayer;
     int16_t nTemperature;
     double nStandHeight;
     PlayerSave sPlayerSave;
@@ -112,11 +108,18 @@ struct Player
     TObjPtr<DExhumedActor*> pDoppleSprite;
     TObjPtr<DExhumedActor*> pTarget;
 
+    inline DExhumedActor* GetActor() override
+    {
+        return static_cast<DExhumedActor*>(actor);
+    }
 };
 
 extern int PlayerCount;
 
-extern Player PlayerList[kMaxPlayers];
+inline ExhumedPlayer* getPlayer(int index)
+{
+    return static_cast<ExhumedPlayer*>(PlayerArray[index]);
+}
 
 extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;
@@ -126,9 +129,9 @@ int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
-void updatePlayerTarget(Player* const pPlayer);
+void updatePlayerTarget(ExhumedPlayer* const pPlayer);
 
-inline void doPlayerVertPanning(Player* const pPlayer, const double nDestVertPan)
+inline void doPlayerVertPanning(ExhumedPlayer* const pPlayer, const double nDestVertPan)
 {
     const auto nVertPan = (nDestVertPan - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
     pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);

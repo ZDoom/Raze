@@ -10,6 +10,11 @@
 // all inline functions.
 BEGIN_DUKE_NS
 
+inline DukePlayer* getPlayer(int index)
+{
+	return static_cast<DukePlayer*>(PlayerArray[index]);
+}
+
 inline int rnd(int X)
 {
 	return ((krand() >> 8) >= (255 - (X)));
@@ -79,7 +84,7 @@ inline int checkcursectnums(sectortype* se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(ps[i].GetActor() && ps[i].GetActor()->sector() == se ) return i;
+		if(getPlayer(i)->GetActor() && getPlayer(i)->GetActor()->sector() == se ) return i;
 	return -1;
 }
 
@@ -103,64 +108,64 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
-	return (!!((ps[pl].sync.actions) & bit));
+	return (!!((getPlayer(pl)->cmd.ucmd.actions) & bit));
 }
 
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
-	return (ps[pl].sync.actions & bits);
+	return (getPlayer(pl)->cmd.ucmd.actions & bits);
 }
 
 inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-	ps[pl].sync.actions |= bit;
+	getPlayer(pl)->cmd.ucmd.actions |= bit;
 }
 
 
 inline int PlayerNewWeapon(int pl)
 {
-	return ps[pl].sync.getNewWeapon();
+	return getPlayer(pl)->cmd.ucmd.getNewWeapon();
 }
 
 inline void PlayerSetItemUsed(int pl, int num)
 {
-	ps[pl].sync.setItemUsed(num - 1);
+	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
 }
 
 inline bool PlayerUseItem(int pl, int num)
 {
-	return ps[pl].sync.isItemUsed(num - 1);
+	return getPlayer(pl)->cmd.ucmd.isItemUsed(num - 1);
 }
 
 inline float PlayerInputSideVel(int pl)
 {
-	return ps[pl].sync.svel;
+	return getPlayer(pl)->cmd.ucmd.svel;
 }
 
 inline float PlayerInputForwardVel(int pl)
 {
-	return ps[pl].sync.fvel;
+	return getPlayer(pl)->cmd.ucmd.fvel;
 }
 
 inline float PlayerInputAngVel(int pl)
 {
-	return ps[pl].sync.avel;
+	return getPlayer(pl)->cmd.ucmd.avel;
 }
 
 inline DAngle GetPlayerHorizon(int pl)
 {
-	return DAngle::fromDeg(ps[pl].sync.horz);
+	return DAngle::fromDeg(getPlayer(pl)->cmd.ucmd.horz);
 }
 
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		ps[i].fric.X = ps[i].fric.Y = 0;
+		getPlayer(i)->fric.X = getPlayer(i)->fric.Y = 0;
 	}
 }
 
-inline void SetPlayerPal(player_struct* p, PalEntry pe)
+inline void SetPlayerPal(DukePlayer* p, PalEntry pe)
 {
 	p->pals = pe;
 }
@@ -170,7 +175,7 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline void doslopetilting(player_struct* p)
+inline void doslopetilting(DukePlayer* p)
 {
 	p->Angles.doViewPitch(p->aim_mode == 0 && p->on_ground && p->cursector->lotag != ST_2_UNDERWATER);
 }
@@ -273,10 +278,10 @@ inline int monsterCheatCheck(DDukeActor* self)
 
 inline void processinputvel(int snum)
 {
-	const auto p = &ps[snum];
-	const auto velvect = DVector2(p->sync.fvel, p->sync.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
-	p->sync.fvel = (float)velvect.X;
-	p->sync.svel = (float)velvect.Y;
+	const auto p = getPlayer(snum);
+	const auto velvect = DVector2(p->cmd.ucmd.fvel, p->cmd.ucmd.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
+	p->cmd.ucmd.fvel = (float)velvect.X;
+	p->cmd.ucmd.svel = (float)velvect.Y;
 }
 
 
@@ -338,7 +343,7 @@ inline void subkill(DDukeActor* actor)
 	}
 }
 
-inline void dokill(player_struct* p, DDukeActor* g_ac, int amount)
+inline void dokill(DukePlayer* p, DDukeActor* g_ac, int amount)
 {
 	if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128 || !isRR())
 	{

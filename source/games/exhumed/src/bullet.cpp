@@ -449,9 +449,9 @@ HITSPRITE:
             if (pActor->spr.pal == 5 && hitactor->spr.statnum == 100)
             {
                 int nPlayer = GetPlayerFromActor(hitactor);
-                if (!PlayerList[nPlayer].bIsMummified)
+                if (!getPlayer(nPlayer)->bIsMummified)
                 {
-                    PlayerList[nPlayer].bIsMummified = true;
+                    getPlayer(nPlayer)->bIsMummified = true;
                     SetNewWeapon(nPlayer, kWeaponMummified);
                 }
             }
@@ -598,7 +598,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
 
     if (pActor->spr.statnum == 100)
     {
-        pSector = PlayerList[GetPlayerFromActor(pActor)].pPlayerViewSect;
+        pSector = getPlayer(GetPlayerFromActor(pActor))->pPlayerViewSect;
     }
     else
     {

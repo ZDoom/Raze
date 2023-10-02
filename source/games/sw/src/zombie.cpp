@@ -771,14 +771,14 @@ int SetupZombie(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void SpawnZombie(PLAYER* pp, DSWActor* weaponActor)
+void SpawnZombie(SWPlayer* pp, DSWActor* weaponActor)
 {
     auto ownerActor = GetOwner(weaponActor);
 
     if (ownerActor == nullptr)
         return;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->actor->getPosWithOffsetZ(), pp->actor->spr.Angles.Yaw, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector, pp->GetActor()->getPosWithOffsetZ(), pp->GetActor()->spr.Angles.Yaw, 0);
     SetOwner(actorNew, ownerActor);
     actorNew->spr.pal = actorNew->user.spal = ownerActor->user.spal;
     actorNew->spr.Angles.Yaw = RandomAngle();

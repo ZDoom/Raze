@@ -548,7 +548,7 @@ void AISWPressSector::Use(RunListEvent* ev)
     int nLink = SwitchData[nSwitch].nLink;
     int nPlayer = ev->nParam;
 
-    if ((PlayerList[nPlayer].keys & SwitchData[nSwitch].nKeyMask) == SwitchData[nSwitch].nKeyMask)
+    if ((getPlayer(nPlayer)->keys & SwitchData[nSwitch].nKeyMask) == SwitchData[nSwitch].nKeyMask)
     {
         runlist_ChangeChannel(nChannel, LinkMap[nLink].v[sRunChannels[nChannel].c]);
     }
@@ -556,7 +556,7 @@ void AISWPressSector::Use(RunListEvent* ev)
     {
         if (SwitchData[nSwitch].nKeyMask)
         {
-            PlayFXAtXYZ(StaticSound[nSwitchSound], PlayerList[nPlayer].pActor->spr.pos, CHANF_LISTENERZ);
+            PlayFXAtXYZ(StaticSound[nSwitchSound], getPlayer(nPlayer)->GetActor()->spr.pos, CHANF_LISTENERZ);
 
             StatusMessage(300, GStrings("TXT_EX_NEEDKEY"));
         }

@@ -49,7 +49,7 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 	{
 		nBlind <<= 4;
 		max <<= 4;
-		PLAYER* pPlayer = getPlayer(actor);
+		auto pPlayer = getPlayer(actor);
 		if (pPlayer->blindEffect < max)
 		{
 			pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect + nBlind, max);
@@ -74,7 +74,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
 			vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
-			PLAYER* pPlayer = getPlayer(target);
+			auto pPlayer = getPlayer(target);
 			switch (actor->GetType())
 			{
 			case kDudeSpiderBrown:

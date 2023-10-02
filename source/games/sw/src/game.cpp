@@ -118,16 +118,16 @@ void markgcroots()
     GC::MarkArray(GenericQueue, MAX_GENERIC_QUEUE);
     GC::MarkArray(LoWangsQueue, MAX_LOWANGS_QUEUE);
     GC::MarkArray(BossSpriteNum, 3);
-    for (auto& pl : Player)
+    for (int i = 0; i < MAXPLAYERS; i++)
     {
-        GC::Mark(pl.actor);
-        GC::Mark(pl.lowActor);
-        GC::Mark(pl.highActor);
-        GC::Mark(pl.remoteActor);
-        GC::Mark(pl.PlayerUnderActor);
-        GC::Mark(pl.KillerActor);
-        GC::Mark(pl.HitBy);
-        GC::Mark(pl.last_camera_act);
+        GC::Mark(getPlayer(i)->actor);
+        GC::Mark(getPlayer(i)->lowActor);
+        GC::Mark(getPlayer(i)->highActor);
+        GC::Mark(getPlayer(i)->remoteActor);
+        GC::Mark(getPlayer(i)->PlayerUnderActor);
+        GC::Mark(getPlayer(i)->KillerActor);
+        GC::Mark(getPlayer(i)->HitBy);
+        GC::Mark(getPlayer(i)->last_camera_act);
     }
     for (auto& so : SectorObject)
     {
@@ -148,7 +148,7 @@ void markgcroots()
 }
 
 
-void pClearSpriteList(PLAYER* pp);
+void pClearSpriteList(SWPlayer* pp);
 
 int GameVersion = 20;
 
@@ -250,6 +250,13 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 
 void GameInterface::app_init()
 {
+    // Initialise player array.
+    for (unsigned i = 0; i < MAXPLAYERS; i++)
+    {
+        PlayerArray[i] = new SWPlayer;
+        *getPlayer(i) = {};
+    }
+
     // these are frequently checked markers.
     FAFPlaceMirrorPic[0] = tileGetTextureID(FAF_PLACE_MIRROR_PIC);
     FAFPlaceMirrorPic[1] = tileGetTextureID(FAF_PLACE_MIRROR_PIC + 1);
@@ -265,7 +272,7 @@ void GameInterface::app_init()
     gs = gs_defaults;
 
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
-        INITLIST(&Player[i].PanelSpriteList);
+        INITLIST(&getPlayer(i)->PanelSpriteList);
 
     DebugOperate = true;
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
@@ -293,9 +300,8 @@ void GameInterface::app_init()
     defineSky(nullptr, 1, nullptr);
 
     memset(Track, 0, sizeof(Track));
-    memset(Player, 0, sizeof(Player));
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
-        INITLIST(&Player[i].PanelSpriteList);
+        INITLIST(&(getPlayer(i)->PanelSpriteList));
 
     LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
@@ -413,12 +419,12 @@ void InitLevel(MapRecord *maprec)
         for (int i = 0; i < MAX_SW_PLAYERS; i++)
         {
             // don't jack with the playerreadyflag
-            int ready_bak = Player[i].playerreadyflag;
-            int ver_bak = Player[i].PlayerVersion;
-            memset(&Player[i], 0, sizeof(Player[i]));
-            Player[i].playerreadyflag = ready_bak;
-            Player[i].PlayerVersion = ver_bak;
-            INITLIST(&Player[i].PanelSpriteList);
+            int ready_bak = getPlayer(i)->playerreadyflag;
+            int ver_bak = getPlayer(i)->PlayerVersion;
+            *getPlayer(i) = {};
+            getPlayer(i)->playerreadyflag = ready_bak;
+            getPlayer(i)->PlayerVersion = ver_bak;
+            INITLIST(&getPlayer(i)->PanelSpriteList);
         }
 
         memset(puser, 0, sizeof(puser));
@@ -431,7 +437,7 @@ void InitLevel(MapRecord *maprec)
     DVector3 ppos;
     loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
     spawnactors(sprites);
-    Player[0].cursector = cursect;
+    getPlayer(0)->cursector = cursect;
 
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
@@ -505,7 +511,7 @@ void InitRunLevel(void)
         PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
-    InitPrediction(&Player[myconnectindex]);
+    InitPrediction(getPlayer(myconnectindex));
 
     InitTimingVars();
 
@@ -573,7 +579,7 @@ void TerminateLevel(void)
 
     TRAVERSE_CONNECT(pnum)
     {
-        PLAYER* pp = &Player[pnum];
+        SWPlayer* pp = getPlayer(pnum);
 
         if (pp->Flags & PF_DEAD)
             PlayerDeathReset(pp);
@@ -636,7 +642,7 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
     //ResetPalette(mpp);
     COVER_SetReverb(0); // Reset reverb
-    Player[myconnectindex].Reverb = 0;
+    getPlayer(myconnectindex)->Reverb = 0;
     StopSound();
     STAT_Update(map == nullptr);
 
@@ -704,9 +710,9 @@ int GameInterface::GetCurrentSkill()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker(void)
 {
-    domovethings(playercmds);
+    domovethings();
     r_NoInterpolate = paused;
 }
 
@@ -720,7 +726,7 @@ void GameInterface::Render()
 {
     drawtime.Reset();
     drawtime.Clock();
-    drawscreen(Player + screenpeek, paused || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac(), false);
+    drawscreen(getPlayer(screenpeek), paused || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac(), false);
     drawtime.Unclock();
 }
 

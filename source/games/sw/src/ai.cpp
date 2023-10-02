@@ -238,7 +238,7 @@ int CanHitPlayer(DSWActor* actor)
 int DoActorPickClosePlayer(DSWActor* actor)
 {
     int pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
     // if actor can still see the player
     bool found = false;
     int i;
@@ -250,18 +250,18 @@ int DoActorPickClosePlayer(DSWActor* actor)
         goto TARGETACTOR;
 
     // Set initial target to Player 0
-    actor->user.targetActor = Player->actor;
+    actor->user.targetActor = getPlayer(0)->GetActor();
 
     if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
     {
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
 
-            if (GetOwner(actor) == pp->actor)
+            if (GetOwner(actor) == pp->GetActor())
                 continue;
 
-            actor->user.targetActor = pp->actor;
+            actor->user.targetActor = pp->GetActor();
             break;
         }
     }
@@ -270,12 +270,12 @@ int DoActorPickClosePlayer(DSWActor* actor)
     // Set initial target to the closest player
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         // Zombies don't target their masters!
         if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
         {
-            if (GetOwner(actor) == pp->actor)
+            if (GetOwner(actor) == pp->GetActor())
                 continue;
 
             if (!PlayerTakeDamage(pp, actor))
@@ -286,12 +286,12 @@ int DoActorPickClosePlayer(DSWActor* actor)
             //    continue;
         }
 
-        dist = (actor->spr.pos - pp->actor->getPosWithOffsetZ()).Length();
+        dist = (actor->spr.pos - pp->GetActor()->getPosWithOffsetZ()).Length();
 
         if (dist < near_dist)
         {
             near_dist = dist;
-            actor->user.targetActor = pp->actor;
+            actor->user.targetActor = pp->GetActor();
         }
     }
 
@@ -300,26 +300,26 @@ int DoActorPickClosePlayer(DSWActor* actor)
     found = false;
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         // Zombies don't target their masters!
         if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
         {
-            if (GetOwner(actor) == pp->actor)
+            if (GetOwner(actor) == pp->GetActor())
                 continue;
 
             if (!PlayerTakeDamage(pp, actor))
                 continue;
         }
 
-        dist = (actor->spr.pos - pp->actor->getPosWithOffsetZ()).Length();
+        dist = (actor->spr.pos - pp->GetActor()->getPosWithOffsetZ()).Length();
 
-        DSWActor* plActor = pp->actor;
+        DSWActor* plActor = pp->GetActor();
 
         if (dist < near_dist && FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(plActor), plActor->sector()))
         {
             near_dist = dist;
-            actor->user.targetActor = pp->actor;
+            actor->user.targetActor = pp->GetActor();
             found = true;
         }
     }
@@ -362,15 +362,15 @@ TARGETACTOR:
 DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 {
     int pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
 
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
-        if (pp->actor == actor->user.targetActor)
+        if (pp->GetActor() == actor->user.targetActor)
         {
-            return pp->actor;
+            return pp->GetActor();
         }
     }
     return nullptr;

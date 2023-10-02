@@ -221,7 +221,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE*& w, 
 				for (unsigned i = 0; i < MAX_SW_PLAYERS_REG; i++)
 				{
 					// special case for pointing to the list head
-					if ((List*)w == (List*)&Player[i].PanelSpriteList)
+					if ((List*)w == (List*)&getPlayer(i)->PanelSpriteList)
 					{
 						idx = 1000'0000 + i;
 						break;
@@ -239,7 +239,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE*& w, 
 		arc(keyname, ndx);
 
 		if (ndx == ~0u) w = nullptr;
-		else if (ndx >= 1000'0000) w = (PANEL_SPRITE*)&Player[ndx - 1000'0000].PanelSpriteList;
+		else if (ndx >= 1000'0000) w = (PANEL_SPRITE*)&(getPlayer(ndx - 1000'0000)->PanelSpriteList);
 		else if ((unsigned)ndx >= pspAsArray.Size())
 			I_Error("Bad panel sprite index in savegame");
 		else w = pspAsArray[ndx];
@@ -417,11 +417,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER*& w, PLAYER** def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPlayer** def)
 {
-	int ndx = w ? int(w - Player) : -1;
+	int ndx = w ? int(w - (SWPlayer*)PlayerArray) : -1;
 	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : Player + ndx;
+	w = ndx == -1 ? nullptr : getPlayer(ndx);
 	return arc;
 }
 
@@ -431,7 +431,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER*& w, PLAYER
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer& w, SWPlayer* def)
 {
 	if (arc.BeginObject(keyname))
 	{
@@ -566,7 +566,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	{
 		w.ovect = w.vect;
 		w.obob_z = w.bob_z;
-		w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+		w.cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
         memset(w.cookieQuote, 0, sizeof(w.cookieQuote)); // no need to remember this.
         w.StartColor = 0;
 
@@ -1100,7 +1100,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		preSerializePanelSprites(arc);
 		so_serializeinterpolations(arc);
 		arc("numplayers", numplayers)
-			.Array("players", Player, numplayers)
+			#pragma message("SW: Fix saving!")
+			//.Array("players", PlayerArray, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)
 			.Array("sop", SectorObject, countof(SectorObject))
@@ -1162,8 +1163,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		// this is not a new game
 		ShadowWarrior::NewGame = false;
 
-		DoPlayerDivePalette(Player + myconnectindex);
-		DoPlayerNightVisionPalette(Player + myconnectindex);
+		DoPlayerDivePalette(getPlayer(myconnectindex));
+		DoPlayerNightVisionPalette(getPlayer(myconnectindex));
 		InitLevelGlobals();
 	}
 }

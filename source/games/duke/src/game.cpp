@@ -83,18 +83,18 @@ static void markgcroots()
 	GC::MarkArray(spriteq, 1024);
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
-	for (auto& pl : ps)
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		GC::Mark(pl.actor);
-		GC::Mark(pl.actorsqu);
-		GC::Mark(pl.wackedbyactor);
-		GC::Mark(pl.on_crane);
-		GC::Mark(pl.holoduke_on);
-		GC::Mark(pl.somethingonplayer);
-		GC::Mark(pl.access_spritenum);
-		GC::Mark(pl.dummyplayersprite);
-		GC::Mark(pl.newOwner);
-		for (auto& var : pl.uservars)
+		GC::Mark(getPlayer(i)->actor);
+		GC::Mark(getPlayer(i)->actorsqu);
+		GC::Mark(getPlayer(i)->wackedbyactor);
+		GC::Mark(getPlayer(i)->on_crane);
+		GC::Mark(getPlayer(i)->holoduke_on);
+		GC::Mark(getPlayer(i)->somethingonplayer);
+		GC::Mark(getPlayer(i)->access_spritenum);
+		GC::Mark(getPlayer(i)->dummyplayersprite);
+		GC::Mark(getPlayer(i)->newOwner);
+		for (auto& var : getPlayer(i)->uservars)
 		{
 			var.Mark();
 		}
@@ -386,6 +386,13 @@ void initactorflags()
 
 void GameInterface::app_init()
 {
+	// Initialise player array.
+	for (unsigned i = 0; i < MAXPLAYERS; i++)
+	{
+		PlayerArray[i] = new DukePlayer;
+		*getPlayer(i) = {};
+	}
+
 	RegisterClasses();
 	GC::AddMarkerFunc(markgcroots);
 
@@ -408,7 +415,7 @@ void GameInterface::app_init()
 	ud.wchoice[0][9] = 1;
 	ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;
-	ps[0].aim_mode = 1;
+	getPlayer(0)->aim_mode = 1;
 	ud.cameraactor = nullptr;
 
 	if (fileSystem.FileExists("DUKESW.BIN"))
@@ -634,7 +641,7 @@ void checkhitsprite(DDukeActor* actor, DDukeActor* hitter)
 	}
 }
 
-void CallOnHurt(DDukeActor* actor, player_struct* hitter)
+void CallOnHurt(DDukeActor* actor, DukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onHurt)
 	{
@@ -643,7 +650,7 @@ void CallOnHurt(DDukeActor* actor, player_struct* hitter)
 	}
 }
 
-void CallOnTouch(DDukeActor* actor, player_struct* hitter)
+void CallOnTouch(DDukeActor* actor, DukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onTouch)
 	{
@@ -653,7 +660,7 @@ void CallOnTouch(DDukeActor* actor, player_struct* hitter)
 }
 
 
-bool CallOnUse(DDukeActor* actor, player_struct* user)
+bool CallOnUse(DDukeActor* actor, DukePlayer* user)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, onUse)
@@ -665,7 +672,7 @@ bool CallOnUse(DDukeActor* actor, player_struct* user)
 	return nval;
 }
 
-void CallOnMotoSmash(DDukeActor* actor, player_struct* hitter)
+void CallOnMotoSmash(DDukeActor* actor, DukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onMotoSmash)
 	{
@@ -711,7 +718,7 @@ bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3
 	VMReturn ret(&rv);
 	IFVIRTUALPTR(clsdef, DDukeActor, ShootThis)
 	{
-		VMValue val[] = {clsdef, actor, pn >= 0? &ps[pn] : nullptr, spos.X, spos.Y, spos.Z, sang.Degrees()};
+		VMValue val[] = {clsdef, actor, pn >= 0? getPlayer(pn) : nullptr, spos.X, spos.Y, spos.Z, sang.Degrees()};
 		VMCall(func, val, 7, &ret, 1);
 	}
 	return rv;
@@ -726,7 +733,7 @@ void CallPlayFTASound(DDukeActor* actor, int mode)
 	}
 }
 
-void CallStandingOn(DDukeActor* actor, player_struct* p)
+void CallStandingOn(DDukeActor* actor, DukePlayer* p)
 {
 	IFVIRTUALPTR(actor, DDukeActor, StandingOn)
 	{
@@ -735,7 +742,7 @@ void CallStandingOn(DDukeActor* actor, player_struct* p)
 	}
 }
 
-int CallTriggerSwitch(DDukeActor* actor, player_struct* p)
+int CallTriggerSwitch(DDukeActor* actor, DukePlayer* p)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, TriggerSwitch)
@@ -905,7 +912,7 @@ CCMD(changewalltexture)
 	FTextureID tile = TexMan.CheckForTexture(argv[1], ETextureType::Any);
 	if (!tile.isValid()) tile = tileGetTextureID((int)strtol(argv[1], nullptr, 10));
 	HitInfoBase hit;
-	hitscan(ps[0].actor->spr.pos, ps[0].cursector, DVector3(ps[0].actor->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
+	hitscan(getPlayer(0)->GetActor()->spr.pos, getPlayer(0)->cursector, DVector3(getPlayer(0)->GetActor()->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
 	if (hit.hitWall)
 	{
 		hit.hitWall->setwalltexture(tile);

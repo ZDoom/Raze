@@ -69,7 +69,6 @@ static constexpr int16_t nItemText[] = {
 };
 
 int nLocalPlayer = 0;
-Player PlayerList[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 int PlayerCount;
 int nNetStartSprites;
@@ -84,13 +83,13 @@ int nCurStartSprite;
 
 size_t MarkPlayers()
 {
-    for (auto& p : PlayerList)
+    for (int i = 0; i < kMaxWeapons; i++)
     {
-        GC::Mark(p.pActor);
-        GC::Mark(p.pDoppleSprite);
-        GC::Mark(p.pPlayerFloorSprite);
-        GC::Mark(p.pPlayerGrenade);
-        GC::Mark(p.pTarget);
+        GC::Mark(getPlayer(i)->actor);
+        GC::Mark(getPlayer(i)->pDoppleSprite);
+        GC::Mark(getPlayer(i)->pPlayerFloorSprite);
+        GC::Mark(getPlayer(i)->pPlayerGrenade);
+        GC::Mark(getPlayer(i)->pTarget);
     }
     GC::MarkArray(nNetStartSprite, kMaxPlayers);
     return 6 * kMaxPlayers;
@@ -104,7 +103,7 @@ size_t MarkPlayers()
 
 void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     pPlayer->sPlayerSave.pos = pos;
     pPlayer->sPlayerSave.pSector = pSector;
@@ -121,9 +120,9 @@ void InitPlayer()
 {
     for (int i = 0; i < kMaxPlayers; i++)
     {
-        const auto pPlayer = &PlayerList[i];
+        const auto pPlayer = getPlayer(i);
 
-        pPlayer->pActor = nullptr;
+        pPlayer->actor = nullptr;
         pPlayer->Angles = {};
         pPlayer->pPlayerPushSect = nullptr;
         pPlayer->pPlayerViewSect = nullptr;
@@ -132,7 +131,7 @@ void InitPlayer()
 
 void InitPlayerKeys(int nPlayer)
 {
-    PlayerList[nPlayer].keys = 0;
+    getPlayer(nPlayer)->keys = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -143,15 +142,15 @@ void InitPlayerKeys(int nPlayer)
 
 void InitPlayerInventory(int nPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
-    memset(pPlayer, 0, sizeof(Player));
+    const auto pPlayer = getPlayer(nPlayer);
+    memset(pPlayer, 0, sizeof(ExhumedPlayer));
 
     ResetPlayerWeapons(nPlayer);
 
     pPlayer->nItem = -1;
     pPlayer->nPlayerSwear = 4;
     pPlayer->nLives = kDefaultLives;
-    pPlayer->pActor = nullptr;
+    pPlayer->actor = nullptr;
     pPlayer->Angles = {};
     pPlayer->nRun = -1;
     pPlayer->nPistolClip = 6;
@@ -167,7 +166,7 @@ void InitPlayerInventory(int nPlayer)
     auto texp = TexMan.GetGameTexture(tex);
     auto pixels = GetRawPixels(tex);
 
-    PlayerList[nPlayer].nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
+    getPlayer(nPlayer)->nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
 }
 
 //---------------------------------------------------------------------------
@@ -189,8 +188,8 @@ int GetPlayerFromActor(DExhumedActor* pActor)
 
 void RestartPlayer(int nPlayer)
 {
-	const auto pPlayer = &PlayerList[nPlayer];
-    DExhumedActor* pPlayerActor = pPlayer->pActor;
+	const auto pPlayer = getPlayer(nPlayer);
+    DExhumedActor* pPlayerActor = pPlayer->GetActor();
     DExhumedActor* pDopSprite = pPlayer->pDoppleSprite;
     DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
 
@@ -201,7 +200,7 @@ void RestartPlayer(int nPlayer)
 
 		ChangeActorStat(pPlayerActor, 0);
 
-        pPlayer->pActor = nullptr;
+        pPlayer->actor = nullptr;
         pPlayer->Angles = {};
 
 		if (pFloorSprite)
@@ -279,11 +278,11 @@ void RestartPlayer(int nPlayer)
 	pDopSprite->spr.lotag = runlist_HeadRun() + 1;
     pDopSprite->spr.intowner = runlist_AddRunRec(pDopSprite->spr.lotag - 1, nPlayer, 0xA0000);
 
-    pPlayer->pActor = pPlayerActor;
+    pPlayer->actor = pPlayerActor;
     pPlayer->pDoppleSprite = pDopSprite;
     pPlayer->pPlayerFloorSprite = pFloorSprite;
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
-    pPlayer->nPlayer = nPlayer;
+    pPlayer->pnum = nPlayer;
     pPlayer->nHealth = 800; // TODO - define
     pPlayer->Angles.initialize(pPlayerActor);
 	pPlayer->bIsMummified = false;
@@ -360,8 +359,8 @@ int GrabPlayer()
 
 void StartDeathSeq(int nPlayer, int nVal)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayer = getPlayer(nPlayer);
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
     FreeRa(nPlayer);
@@ -428,7 +427,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     if (!nAmmoAmount)
         nAmmoAmount = 1;
@@ -454,8 +453,8 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayer = getPlayer(nPlayer);
+    const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->vel.XY().Zero();
 
@@ -481,8 +480,8 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 
 void ShootStaff(int nPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayer = getPlayer(nPlayer);
+    const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->nAction = 15;
     pPlayerActor->nFrame = 0;
@@ -530,8 +529,8 @@ void AIPlayer::Draw(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayer = getPlayer(nPlayer);
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto playerSeq = &PlayerSeq[pPlayerActor->nAction];
     seq_PlotSequence(ev->nParam, pPlayerActor->nSeqFile, playerSeq->nSeqId, pPlayerActor->nFrame, playerSeq->nFlags);
 }
@@ -547,12 +546,12 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     if (pPlayer->nHealth <= 0)
         return;
 
-    ev->nDamage = runlist_CheckRadialDamage(pPlayer->pActor);
+    ev->nDamage = runlist_CheckRadialDamage(pPlayer->GetActor());
     Damage(ev);
 }
 
@@ -567,13 +566,13 @@ void AIPlayer::Damage(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto nDamage = ev->nDamage;
 
     if (!nDamage || !pPlayer->nHealth)
         return;
 
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pDamageActor = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget.Get();
 
     if (!pPlayer->invincibility)
@@ -709,9 +708,9 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nMag
 //
 //---------------------------------------------------------------------------
 
-static void doPickupNotification(Player* const pPlayer, const int nItem, const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
+static void doPickupNotification(ExhumedPlayer* const pPlayer, const int nItem, const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
 {
-    if (pPlayer->nPlayer != nLocalPlayer)
+    if (pPlayer->pnum != nLocalPlayer)
         return;
 
     if (nItemText[nItem] > -1 && nTotalPlayers == 1)
@@ -755,24 +754,24 @@ static void doPickupDestroy(DExhumedActor* const pPickupActor, const int nItem)
 //
 //---------------------------------------------------------------------------
 
-static void doPickupWeapon(Player* pPlayer, DExhumedActor* pPickupActor, int nItem, int nWeapon, int nAmount, int nSound = kSound72)
+static void doPickupWeapon(ExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, int nItem, int nWeapon, int nAmount, int nSound = kSound72)
 {
     const int weapFlag = 1 << nWeapon;
 
     if (pPlayer->nPlayerWeapons & weapFlag)
     {
         if (currentLevel->gameflags & LEVEL_EX_MULTI)
-            AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+            AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
     else
     {
-        SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
+        SetNewWeaponIfBetter(pPlayer->pnum, nWeapon);
         pPlayer->nPlayerWeapons |= weapFlag;
-        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+        AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
 
     if (nWeapon == 2)
-        CheckClip(pPlayer->nPlayer);
+        CheckClip(pPlayer->pnum);
 
     if (nItem > 50)
     {
@@ -793,7 +792,7 @@ static void doPickupWeapon(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 //
 //---------------------------------------------------------------------------
 
-static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nItem, const int nAmount, int nSound)
+static void doPickupHealth(ExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, int nItem, const int nAmount, int nSound)
 {
     if (!pPickupActor->spr.hitag || nAmount > 0 && pPlayer->nHealth >= 800)
         return;
@@ -811,7 +810,7 @@ static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
         else if (pPlayer->nHealth < 0)
         {
             nSound = -1;
-            StartDeathSeq(pPlayer->nPlayer, 0);
+            StartDeathSeq(pPlayer->pnum, 0);
         }
     }
 
@@ -841,9 +840,9 @@ static void doPickupHealth(Player* pPlayer, DExhumedActor* pPickupActor, int nIt
 //
 //---------------------------------------------------------------------------
 
-void doPlayerItemPickups(Player* const pPlayer)
+void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
     if (const auto pPickupActor = feebtag(pPlayerActor->spr.pos, pPlayerSect, pPlayer->nMagic, pPlayer->nHealth, 48))
@@ -858,9 +857,9 @@ void doPlayerItemPickups(Player* const pPlayer)
         case 6: // Speed Loader
         case 7: // Fuel Canister
         case 8: // M - 60 Ammo Belt
-            if (AddAmmo(pPlayer->nPlayer, ammoArray[nItem - 6], pPickupActor->spr.hitag))
+            if (AddAmmo(pPlayer->pnum, ammoArray[nItem - 6], pPickupActor->spr.hitag))
             {
-                if (nItem == 8) CheckClip(pPlayer->nPlayer);
+                if (nItem == 8) CheckClip(pPlayer->pnum);
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
             }
@@ -869,12 +868,12 @@ void doPlayerItemPickups(Player* const pPlayer)
         case 9: // Grenade
         case 27: // May not be grenade, needs confirmation
         case 55:
-            if (AddAmmo(pPlayer->nPlayer, 4, 1))
+            if (AddAmmo(pPlayer->pnum, 4, 1))
             {
                 if (!(pPlayer->nPlayerWeapons & 0x10))
                 {
                     pPlayer->nPlayerWeapons |= 0x10;
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, 4);
+                    SetNewWeaponIfBetter(pPlayer->pnum, 4);
                 }
 
                 if (nItem == 55)
@@ -941,7 +940,7 @@ void doPlayerItemPickups(Player* const pPlayer)
         case 21: // Unseen eye(Invisibility)
         case 22: // Torch
         case 23: // Sobek Mask
-            if (GrabItem(pPlayer->nPlayer, itemArray[nItem - 18]))
+            if (GrabItem(pPlayer->pnum, itemArray[nItem - 18]))
             {
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem);
@@ -979,7 +978,7 @@ void doPlayerItemPickups(Player* const pPlayer)
 
         case 37: // Cobra staff ammo
         case 38: // Raw Energy
-            if (AddAmmo(pPlayer->nPlayer, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
+            if (AddAmmo(pPlayer->pnum, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
             {
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
@@ -1016,14 +1015,14 @@ void doPlayerItemPickups(Player* const pPlayer)
             break;
 
         case 59: // Scarab (Checkpoint)
-            if (nLocalPlayer == pPlayer->nPlayer)
+            if (nLocalPlayer == pPlayer->pnum)
             {
                 pPickupActor->nSeqIndex++;
                 pPickupActor->nFlags &= 0xEF;
                 pPickupActor->nFrame = 0;
                 ChangeActorStat(pPickupActor, 899);
             }
-            SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);
+            SetSavePoint(pPlayer->pnum, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);
             break;
 
         case 60: // Golden Sarcophagus (End Level)
@@ -1041,10 +1040,10 @@ void doPlayerItemPickups(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void updatePlayerTarget(Player* const pPlayer)
+void updatePlayerTarget(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
-    const auto pRa = &Ra[pPlayer->nPlayer];
+    const auto pPlayerActor = pPlayer->GetActor();
+    const auto pRa = &Ra[pPlayer->pnum];
     const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
 
     DExhumedActor* bestTarget = nullptr;
@@ -1088,7 +1087,7 @@ void updatePlayerTarget(Player* const pPlayer)
 
     if (bestTarget)
     {
-        if (pPlayer->nPlayer == nLocalPlayer)
+        if (pPlayer->pnum == nLocalPlayer)
             nCreepyTimer = kCreepyCount;
 
         if (!cansee(pPlayerActor->spr.pos, pPlayerActor->sector(), bestTarget->spr.pos.plusZ(-GetActorHeight(bestTarget)), bestTarget->sector()))
@@ -1104,13 +1103,13 @@ void updatePlayerTarget(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerVelocity(Player* const pPlayer)
+static void updatePlayerVelocity(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     if (pPlayer->nHealth > 0)
     {
-        const auto pInput = &pPlayer->input;
+        const auto pInput = &pPlayer->cmd.ucmd;
         const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
@@ -1136,9 +1135,9 @@ static void updatePlayerVelocity(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerInventory(Player* const pPlayer)
+static void updatePlayerInventory(ExhumedPlayer* const pPlayer)
 {
-    if (const auto invDir = !!(pPlayer->input.actions & SB_INVNEXT) - !!(pPlayer->input.actions & SB_INVPREV))
+    if (const auto invDir = !!(pPlayer->cmd.ucmd.actions & SB_INVNEXT) - !!(pPlayer->cmd.ucmd.actions & SB_INVPREV))
     {
         int nItem = pPlayer->nItem;
 
@@ -1154,18 +1153,18 @@ static void updatePlayerInventory(Player* const pPlayer)
         if (i > 0) pPlayer->nItem = nItem;
     }
 
-    if ((pPlayer->input.actions & SB_INVUSE) && pPlayer->nItem != -1)
-        pPlayer->input.setItemUsed(pPlayer->nItem);
+    if ((pPlayer->cmd.ucmd.actions & SB_INVUSE) && pPlayer->nItem != -1)
+        pPlayer->cmd.ucmd.setItemUsed(pPlayer->nItem);
 
     for (int i = 0; i < 6; i++)
     {
-        if (pPlayer->input.isItemUsed(i))
+        if (pPlayer->cmd.ucmd.isItemUsed(i))
         {
-            pPlayer->input.clearItemUsed(i);
+            pPlayer->cmd.ucmd.clearItemUsed(i);
 
             if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
             {
-                UseItem(pPlayer->nPlayer, i);
+                UseItem(pPlayer->pnum, i);
                 break;
             }
         }
@@ -1178,9 +1177,9 @@ static void updatePlayerInventory(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerWeapon(Player* const pPlayer)
+static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
 {
-    const bool bIsFiring = pPlayer->input.actions & SB_FIRE;
+    const bool bIsFiring = pPlayer->cmd.ucmd.actions & SB_FIRE;
 
     if (pPlayer->bIsMummified)
     {
@@ -1190,7 +1189,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
     }
 
     pPlayer->bIsFiring = bIsFiring;
-    const auto newWeap = pPlayer->input.getNewWeapon();
+    const auto newWeap = pPlayer->cmd.ucmd.getNewWeapon();
 
     if (const auto weapDir = (newWeap == WeaponSel_Next) - (newWeap == WeaponSel_Prev))
     {
@@ -1204,7 +1203,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
         }
         while (nextWeap && (!haveWeap || (haveWeap && !pPlayer->nAmmo[nextWeap])));
 
-        SetNewWeapon(pPlayer->nPlayer, nextWeap);
+        SetNewWeapon(pPlayer->pnum, nextWeap);
     }
     else if (newWeap == WeaponSel_Alt)
     {
@@ -1212,7 +1211,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
     }
     else if (pPlayer->nPlayerWeapons & (1 << (newWeap - 1)))
     {
-        SetNewWeapon(pPlayer->nPlayer, newWeap - 1);
+        SetNewWeapon(pPlayer->pnum, newWeap - 1);
     }
 }
 
@@ -1224,7 +1223,7 @@ static void updatePlayerWeapon(Player* const pPlayer)
 
 unsigned GameInterface::getCrouchState()
 {
-    const bool swimming = PlayerList[nLocalPlayer].bUnderwater;
+    const bool swimming = getPlayer(nLocalPlayer)->bUnderwater;
     return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
 }
 
@@ -1234,10 +1233,10 @@ unsigned GameInterface::getCrouchState()
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerAction(Player* const pPlayer)
+static void updatePlayerAction(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
-    const auto pInput = &pPlayer->input;
+    const auto pPlayerActor = pPlayer->GetActor();
+    const auto pInput = &pPlayer->cmd.ucmd;
     const auto kbdDir = !!(pInput->actions & SB_CROUCH) - !!(pInput->actions & SB_JUMP);
     const double dist = pPlayer->bUnderwater ? 8 : 14;
     const double velZ = clamp(dist * kbdDir - dist * pInput->uvel, -dist, dist);
@@ -1353,10 +1352,10 @@ static void updatePlayerAction(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerCounters(Player* const pPlayer)
+static void doPlayerCounters(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
-    const bool bConsolePlayer = pPlayer->nPlayer == nLocalPlayer;
+    const auto pPlayerActor = pPlayer->GetActor();
+    const bool bConsolePlayer = pPlayer->pnum == nLocalPlayer;
 
     if (pPlayer->nTorch > 0)
     {
@@ -1364,7 +1363,7 @@ static void doPlayerCounters(Player* const pPlayer)
 
         if (pPlayer->nTorch == 0)
         {
-            SetTorch(pPlayer->nPlayer, 0);
+            SetTorch(pPlayer->pnum, 0);
         }
         else if (!bConsolePlayer)
         {
@@ -1434,9 +1433,9 @@ static void doPlayerCounters(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
+static void doPlayerUnderwater(ExhumedPlayer* const pPlayer, const bool oUnderwater)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const bool bUnderwater = pPlayer->pPlayerViewSect->Flag & kSectUnderwater;
 
     if (!pPlayer->invincibility)
@@ -1469,7 +1468,7 @@ static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
                         if (pPlayer->nHealth <= 0)
                         {
                             pPlayer->nHealth = 0;
-                            StartDeathSeq(pPlayer->nPlayer, 0);
+                            StartDeathSeq(pPlayer->pnum, 0);
                         }
 
                         pPlayer->nAir = 0;
@@ -1477,7 +1476,7 @@ static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
                     }
                 }
 
-                DoBubbles(pPlayer->nPlayer);
+                DoBubbles(pPlayer->pnum);
             }
         }
     }
@@ -1487,7 +1486,7 @@ static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
         if (pPlayer->nTorch > 0)
         {
             pPlayer->nTorch = 0;
-            SetTorch(pPlayer->nPlayer, 0);
+            SetTorch(pPlayer->pnum, 0);
         }
     }
     else
@@ -1524,13 +1523,13 @@ static void doPlayerUnderwater(Player* const pPlayer, const bool oUnderwater)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerRamses(Player* const pPlayer)
+static void doPlayerRamses(ExhumedPlayer* const pPlayer)
 {
-    setForcedSyncInput(pPlayer->nPlayer);
+    setForcedSyncInput(pPlayer->pnum);
 
     if (nTotalPlayers <= 1)
     {
-        pPlayer->pActor->vel.Zero();
+        pPlayer->GetActor()->vel.Zero();
 
         if (nFreeze < 1)
         {
@@ -1568,9 +1567,9 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertPan)
+static void doPlayerCameraEffects(ExhumedPlayer* const pPlayer, const double nDestVertPan)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
     constexpr auto maxVel = 15.25;
 
@@ -1578,7 +1577,7 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->Angles.doRollInput(&pPlayer->input, pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->Angles.doRollInput(&pPlayer->cmd.ucmd, pPlayerActor->vel.XY(), maxVel, nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)
@@ -1610,14 +1609,14 @@ static void doPlayerCameraEffects(Player* const pPlayer, const double nDestVertP
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerFloorActor(Player* const pPlayer)
+static void updatePlayerFloorActor(ExhumedPlayer* const pPlayer)
 {
     DExhumedActor* const pFloorActor = pPlayer->pPlayerFloorSprite;
 
     if (nTotalPlayers <= 1 || !pFloorActor)
         return;
 
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
     pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
     pFloorActor->spr.pos.Z = pPlayerSect->floorz;
@@ -1632,9 +1631,9 @@ static void updatePlayerFloorActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerDoppleActor(Player* const pPlayer)
+static void updatePlayerDoppleActor(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
     DExhumedActor* const pDopple = pPlayer->pDoppleSprite;
     pDopple->spr.pos = pPlayerActor->spr.pos;
@@ -1657,9 +1656,9 @@ static void updatePlayerDoppleActor(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel)
+static void updatePlayerViewSector(ExhumedPlayer* const pPlayer, const Collision& nMove, const DVector3& spr_vel)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
     const auto bPlayerBelowCeil = (pPlayerActor->getOffsetZ() + pPlayer->nQuake) < pPlayerSect->ceilingz;
     const auto pViewSect = bPlayerBelowCeil && pPlayerSect->pAbove ? pPlayerSect->pAbove : pPlayerSect;
@@ -1686,7 +1685,7 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 
     pPlayer->pPlayerViewSect = pViewSect;
 
-    if (nLocalPlayer == pPlayer->nPlayer)
+    if (nLocalPlayer == pPlayer->pnum)
         CheckAmbience(pPlayer->pPlayerViewSect);
 }
 
@@ -1696,9 +1695,9 @@ static void updatePlayerViewSector(Player* const pPlayer, const Collision& nMove
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
+static void doPlayerFloorDamage(ExhumedPlayer* const pPlayer, const double nStartVelZ)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     pPlayer->nThrust *= 0.5;
 
     if (nStartVelZ < (6500 / 256.))
@@ -1725,9 +1724,9 @@ static void doPlayerFloorDamage(Player* const pPlayer, const double nStartVelZ)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, const DVector3& spr_vel, sectortype* const spr_sect)
+static void doPlayerMovingBlocks(ExhumedPlayer* const pPlayer, const Collision& nMove, const DVector3& spr_vel, sectortype* const spr_sect)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     sectortype* sect;
     DAngle nNormal = nullAngle;
 
@@ -1783,12 +1782,12 @@ static void doPlayerMovingBlocks(Player* const pPlayer, const Collision& nMove, 
 //
 //---------------------------------------------------------------------------
 
-static bool doPlayerInput(Player* const pPlayer)
+static bool doPlayerInput(ExhumedPlayer* const pPlayer)
 {
     // update the player/actor's velocity before anything.
     updatePlayerVelocity(pPlayer);
 
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto spr_vel = DVector3(pPlayerActor->vel.XY() * (pPlayer->bIsMummified ? 0.5 : 1.), pPlayerActor->vel.Z);
     const auto spr_sect = pPlayerActor->sector();
 
@@ -1836,7 +1835,7 @@ static bool doPlayerInput(Player* const pPlayer)
         return false;
 
     // update player yaw here as per the original workflow.
-    const auto pInput = &pPlayer->input;
+    const auto pInput = &pPlayer->cmd.ucmd;
     pPlayer->Angles.doViewYaw(pInput);
     pPlayer->Angles.doYawInput(pInput);
     pPlayer->Angles.doPitchInput(pInput);
@@ -1875,36 +1874,36 @@ static bool doPlayerInput(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pStartSect)
+static void doPlayerRunlistSignals(ExhumedPlayer* const pPlayer, sectortype* const pStartSect)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
     if (pPlayer->bTouchFloor && pPlayerSect->lotag > 0)
-        runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::TouchFloor);
+        runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->pnum, &ExhumedAI::TouchFloor);
 
     if (pStartSect != pPlayerSect)
     {
         if (pStartSect->lotag > 0)
-            runlist_SignalRun(pStartSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::EnterSector);
+            runlist_SignalRun(pStartSect->lotag - 1, pPlayer->pnum, &ExhumedAI::EnterSector);
 
         if (pPlayerSect->lotag > 0)
-            runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::LeaveSector);
+            runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->pnum, &ExhumedAI::LeaveSector);
     }
 
-    if (!pPlayer->bIsMummified && (pPlayer->input.actions & SB_OPEN))
+    if (!pPlayer->bIsMummified && (pPlayer->cmd.ucmd.actions & SB_OPEN))
     {
-        pPlayer->input.actions &= ~SB_OPEN;
+        pPlayer->cmd.ucmd.actions &= ~SB_OPEN;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
         HitInfo near;
         neartag(pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall != nullptr && near.hitWall->lotag > 0)
-            runlist_SignalRun(near.hitWall->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+            runlist_SignalRun(near.hitWall->lotag - 1, pPlayer->pnum, &ExhumedAI::Use);
 
         if (near.hitSector != nullptr && near.hitSector->lotag > 0)
-            runlist_SignalRun(near.hitSector->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+            runlist_SignalRun(near.hitSector->lotag - 1, pPlayer->pnum, &ExhumedAI::Use);
     }
 }
 
@@ -1914,14 +1913,14 @@ static void doPlayerRunlistSignals(Player* const pPlayer, sectortype* const pSta
 //
 //---------------------------------------------------------------------------
 
-static bool doPlayerDeathRestart(Player* const pPlayer)
+static bool doPlayerDeathRestart(ExhumedPlayer* const pPlayer)
 {
-    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->pActor->nAction < 16)
+    if (!(pPlayer->cmd.ucmd.actions & SB_OPEN) || pPlayer->GetActor()->nAction < 16)
         return true;
 
-    pPlayer->input.actions &= ~SB_OPEN;
+    pPlayer->cmd.ucmd.actions &= ~SB_OPEN;
 
-    if (pPlayer->nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         StopAllSounds();
         StopLocalSound();
@@ -1932,16 +1931,16 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 
     if (pPlayer->nLives && nNetTime)
     {
-        if (pPlayer->pActor->nAction != 20)
+        if (pPlayer->GetActor()->nAction != 20)
         {
-            const auto pPlayerActor = pPlayer->pActor;
+            const auto pPlayerActor = pPlayer->GetActor();
             pPlayerActor->spr.setspritetexture(getSequence("joe", 120)->getFirstFrameTexture());
             pPlayerActor->spr.cstat = 0;
             pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
         }
 
         // will invalidate nPlayerSprite
-        RestartPlayer(pPlayer->nPlayer);
+        RestartPlayer(pPlayer->pnum);
         inputState.ClearAllInput();
         gameInput.Clear();
     }
@@ -1960,9 +1959,9 @@ static bool doPlayerDeathRestart(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerActionSequence(Player* const pPlayer)
+static void doPlayerActionSequence(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
 
     const auto playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
     const auto& seqFrame = playerSeq->frames[pPlayerActor->nFrame];
@@ -1995,7 +1994,7 @@ static void doPlayerActionSequence(Player* const pPlayer)
         if (!RandomSize(5))
         {
             sectortype* mouthSect;
-            const auto pos = WheresMyMouth(pPlayer->nPlayer, &mouthSect);
+            const auto pos = WheresMyMouth(pPlayer->pnum, &mouthSect);
             BuildAnim(nullptr, "blood", 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
         }
         break;
@@ -2015,9 +2014,9 @@ static void doPlayerActionSequence(Player* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerDeathPitch(Player* const pPlayer)
+static void doPlayerDeathPitch(ExhumedPlayer* const pPlayer)
 {
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayerActor = pPlayer->GetActor();
     pPlayer->nThrust.Zero();
 
     if (pPlayerActor->viewzoffset >= -11)
@@ -2040,7 +2039,7 @@ static void doPlayerDeathPitch(Player* const pPlayer)
         }
         else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0 && !(pPlayerActor->sector()->Flag & kSectUnderwater))
         {
-            SetNewWeapon(pPlayer->nPlayer, pPlayer->nDeathType + 8);
+            SetNewWeapon(pPlayer->pnum, pPlayer->nDeathType + 8);
         }
 
         pPlayer->dVertPan--;
@@ -2058,8 +2057,8 @@ void AIPlayer::Tick(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
-    const auto pPlayerActor = pPlayer->pActor;
+    const auto pPlayer = getPlayer(nPlayer);
+    const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)->getFirstFrameTexture());
     pPlayer->pDoppleSprite->spr.setspritetexture(pPlayerActor->spr.spritetexture());
@@ -2104,12 +2103,12 @@ void AIPlayer::Tick(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ExhumedPlayer& w, ExhumedPlayer* def)
 {
     if (arc.BeginObject(keyname))
     {
         arc("health", w.nHealth)
-            ("sprite", w.pActor)
+            ("sprite", w.actor)
             ("mummy", w.bIsMummified)
             ("invincible", w.invincibility)
             ("air", w.nAir)
@@ -2151,12 +2150,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("totalvel", w.totalvel)
             ("grenade", w.pPlayerGrenade)
             ("bUnderwater", w.bUnderwater)
-            ("actions", w.input.actions)
+            ("actions", w.cmd.ucmd.actions)
             .EndObject();
 
         if (arc.isReading())
         {
-            w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+            w.cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
         }
     }
     return arc;
@@ -2182,8 +2181,9 @@ void SerializePlayer(FSerializer& arc)
             ("netstartsprites", nNetStartSprites)
             ("localplayer", nLocalPlayer)
             ("curstartsprite", nCurStartSprite)
-            .Array("netstartsprite", nNetStartSprite, kMaxPlayers)
-            .Array("list", PlayerList, PlayerCount);
+            .Array("netstartsprite", nNetStartSprite, kMaxPlayers);
+            #pragma message("Exhumed: Fix saving!")
+            //.Array("list", PlayerArray, PlayerCount);
 
         arc.EndObject();
     }
@@ -2195,56 +2195,56 @@ void SerializePlayer(FSerializer& arc)
 //
 //---------------------------------------------------------------------------
 
-DEFINE_FIELD_X(ExhumedPlayer, Player, nHealth);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
-DEFINE_FIELD_X(ExhumedPlayer, Player, pActor);
-DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
-DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nMaskAmount);
-DEFINE_FIELD_X(ExhumedPlayer, Player, keys);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
-DEFINE_FIELD_X(ExhumedPlayer, Player, items);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons? 
-DEFINE_FIELD_X(ExhumedPlayer, Player, nPlayerWeapons);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nWeapFrame);
-DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nNextWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nState);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nLastWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nRun);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nHealth);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nLives);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nDouble);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nInvisible);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nTorch);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, actor);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, bIsMummified);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, invincibility);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nAir);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nMaskAmount);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, keys);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nMagic);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nItem);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, items);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nAmmo); // TODO - kMaxWeapons? 
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nPlayerWeapons);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nCurrentWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nWeapFrame);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, bIsFiring);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nNextWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nState);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nLastWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nRun);
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
 {
-    ACTION_RETURN_POINTER(&PlayerList[nLocalPlayer]);
+    ACTION_RETURN_POINTER(getPlayer(nLocalPlayer));
 }
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetPistolClip)
 {
-    ACTION_RETURN_INT(PlayerList[nLocalPlayer].nPistolClip);
+    ACTION_RETURN_INT(getPlayer(nLocalPlayer)->nPistolClip);
 }
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
 {
-    ACTION_RETURN_INT(PlayerList[nLocalPlayer].nPlayerClip);
+    ACTION_RETURN_INT(getPlayer(nLocalPlayer)->nPlayerClip);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(Player);
-    auto nLocalPlayer = self - PlayerList;
-    ACTION_RETURN_BOOL(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & kSectUnderwater);
+    PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
+    auto nLocalPlayer = self - (ExhumedPlayer*)PlayerArray;
+    ACTION_RETURN_BOOL(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & kSectUnderwater);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->pActor->spr.Angles.Yaw.Buildang());
+    PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
+    ACTION_RETURN_INT(self->GetActor()->spr.Angles.Yaw.Buildang());
 }
 
 

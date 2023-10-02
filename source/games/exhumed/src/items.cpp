@@ -178,18 +178,18 @@ void FillItems(int nPlayer)
 {
     for (int i = 0; i < 6; i++)
     {
-        PlayerList[nPlayer].items[i] = 5;
+        getPlayer(nPlayer)->items[i] = 5;
     }
 
-    PlayerList[nPlayer].nMagic = 1000;
+    getPlayer(nPlayer)->nMagic = 1000;
 
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
     }
 
-    if (PlayerList[nPlayer].nItem == -1) {
-        PlayerList[nPlayer].nItem = 0;
+    if (getPlayer(nPlayer)->nItem == -1) {
+        getPlayer(nPlayer)->nItem = 0;
     }
 }
 
@@ -201,14 +201,14 @@ void FillItems(int nPlayer)
 
 static bool UseEye(int nPlayer)
 {
-    if (PlayerList[nPlayer].nInvisible >= 0) 
-        PlayerList[nPlayer].nInvisible = 900;
+    if (getPlayer(nPlayer)->nInvisible >= 0) 
+        getPlayer(nPlayer)->nInvisible = 900;
 
-    auto pActor = PlayerList[nPlayer].pActor;
+    auto pActor = getPlayer(nPlayer)->GetActor();
 
     pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-    if (PlayerList[nPlayer].pPlayerFloorSprite != nullptr) {
+    if (getPlayer(nPlayer)->pPlayerFloorSprite != nullptr) {
         pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
@@ -228,12 +228,12 @@ static bool UseEye(int nPlayer)
 
 static bool UseMask(int nPlayer)
 {
-    PlayerList[nPlayer].nMaskAmount = 1350;
-    PlayerList[nPlayer].nAir = 100;
+    getPlayer(nPlayer)->nMaskAmount = 1350;
+    getPlayer(nPlayer)->nAir = 100;
 
     if (nPlayer == nLocalPlayer)
     {
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
+        D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
     }
     return true;
 }
@@ -246,12 +246,12 @@ static bool UseMask(int nPlayer)
 
 bool UseTorch(int nPlayer)
 {
-    if (!PlayerList[nPlayer].nTorch) 
+    if (!getPlayer(nPlayer)->nTorch) 
     {
         SetTorch(nPlayer, 1);
     }
 
-    PlayerList[nPlayer].nTorch = 900;
+    getPlayer(nPlayer)->nTorch = 900;
     return true;
 }
 
@@ -263,13 +263,13 @@ bool UseTorch(int nPlayer)
 
 bool UseHeart(int nPlayer)
 {
-    if (PlayerList[nPlayer].nHealth < kMaxHealth) {
-        PlayerList[nPlayer].nHealth = kMaxHealth;
+    if (getPlayer(nPlayer)->nHealth < kMaxHealth) {
+        getPlayer(nPlayer)->nHealth = kMaxHealth;
 
         if (nPlayer == nLocalPlayer)
         {
             ItemFlash();
-            D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
+            D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
         }
         return true;
     }
@@ -284,13 +284,13 @@ bool UseHeart(int nPlayer)
 
 bool UseScarab(int nPlayer)
 {
-    if (PlayerList[nPlayer].invincibility >= 0 && PlayerList[nPlayer].invincibility < 900)
-        PlayerList[nPlayer].invincibility = 900;
+    if (getPlayer(nPlayer)->invincibility >= 0 && getPlayer(nPlayer)->invincibility < 900)
+        getPlayer(nPlayer)->invincibility = 900;
 
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
+        D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
     }
     return true;
 }
@@ -298,12 +298,12 @@ bool UseScarab(int nPlayer)
 // faster firing
 static bool UseHand(int nPlayer)
 {
-    PlayerList[nPlayer].nDouble = 1350;
+    getPlayer(nPlayer)->nDouble = 1350;
 
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].pActor);
+        D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
     }
     return true;
 }
@@ -342,8 +342,8 @@ void UseItem(int nPlayer, int nItem)
     }
     if (!didit) return;
 
-    PlayerList[nPlayer].items[nItem]--;
-    int nItemCount = PlayerList[nPlayer].items[nItem];
+    getPlayer(nPlayer)->items[nItem]--;
+    int nItemCount = getPlayer(nPlayer)->items[nItem];
 
     int nMagic = nItemMagic[nItem];
 
@@ -351,7 +351,7 @@ void UseItem(int nPlayer, int nItem)
     {
         for (nItem = 0; nItem < 6; nItem++)
         {
-            if (PlayerList[nPlayer].items[nItem] > 0) {
+            if (getPlayer(nPlayer)->items[nItem] > 0) {
                 break;
             }
         }
@@ -361,8 +361,8 @@ void UseItem(int nPlayer, int nItem)
         }
     }
 
-    PlayerList[nPlayer].nMagic -= nMagic;
-    PlayerList[nPlayer].nItem = nItem;
+    getPlayer(nPlayer)->nMagic -= nMagic;
+    getPlayer(nPlayer)->nItem = nItem;
 }
 
 //---------------------------------------------------------------------------
@@ -373,14 +373,14 @@ void UseItem(int nPlayer, int nItem)
 
 int GrabItem(int nPlayer, int nItem)
 {
-    if (PlayerList[nPlayer].items[nItem] >= 5) {
+    if (getPlayer(nPlayer)->items[nItem] >= 5) {
         return 0;
     }
 
-    PlayerList[nPlayer].items[nItem]++;
+    getPlayer(nPlayer)->items[nItem]++;
 
-    if (PlayerList[nPlayer].nItem < 0 || nItem == PlayerList[nPlayer].nItem) {
-        PlayerList[nPlayer].nItem = nItem;
+    if (getPlayer(nPlayer)->nItem < 0 || nItem == getPlayer(nPlayer)->nItem) {
+        getPlayer(nPlayer)->nItem = nItem;
     }
 
     return 1;

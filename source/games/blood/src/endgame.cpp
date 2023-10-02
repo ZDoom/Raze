@@ -35,10 +35,10 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 	// Save the player state before taking down anything.
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (gPlayer[i].actor)
+		if (getPlayer(i)->GetActor())
 		{
-			memcpy(&gPlayerTemp[i], &gPlayer[i], sizeof(PLAYER));
-			gHealthTemp[i] = gPlayer[i].actor->xspr.health;
+			memcpy(&gPlayerTemp[i], getPlayer(i), sizeof(BloodPlayer));
+			gHealthTemp[i] = getPlayer(i)->GetActor()->xspr.health;
 		}
 	}
 

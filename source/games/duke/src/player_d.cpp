@@ -49,7 +49,7 @@ void operateweapon_ww(int snum, ESyncBits actions);
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_d(player_struct* p)
+void incur_damage_d(DukePlayer* p)
 {
 	int  damage = 0L, shield_damage = 0L;
 
@@ -89,7 +89,7 @@ void incur_damage_d(player_struct* p)
 void selectweapon_d(int snum, int weap) // playernum, weaponnum
 {
 	int i, j, k;
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.5  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
@@ -337,7 +337,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 //
 //---------------------------------------------------------------------------
 
-int doincrements_d(player_struct* p)
+int doincrements_d(DukePlayer* p)
 {
 	int snum;
 
@@ -536,7 +536,7 @@ int doincrements_d(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkweapons_d(player_struct* p)
+void checkweapons_d(DukePlayer* p)
 {
 	static PClassActor* const * const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &DukeFirstgunSpriteClass, &DukeShotgunSpriteClass,
 			&DukeChaingunSpriteClass, &DukeRPGSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass, &DukeDevastatorSpriteClass,
@@ -577,11 +577,11 @@ void checkweapons_d(player_struct* p)
 
 static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double floorz, double ceilingz, int shrunk)
 {
-	const auto p = &ps[snum];
+	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
-	const double velZ = clamp(dist * kbdDir + dist * p->sync.uvel, -dist, dist);
+	const double velZ = clamp(dist * kbdDir + dist * p->cmd.ucmd.uvel, -dist, dist);
 
 	p->on_ground = 0;
 	p->jumping_counter = 0;
@@ -646,7 +646,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 static void movement(int snum, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
 {
 	int j;
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->airleft != 15 * 26)
@@ -766,7 +766,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if ((actions & SB_CROUCH) || p->sync.uvel < 0)
+		if ((actions & SB_CROUCH) || p->cmd.ucmd.uvel < 0)
 		{
 			playerCrouch(snum);
 		}
@@ -830,7 +830,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 int operateTripbomb(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	HitInfo hit{};
 	double vel = 1024, zvel = 0;
 	setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 16.);
@@ -882,7 +882,7 @@ int operateTripbomb(int snum)
 
 static void fireweapon(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
@@ -1000,7 +1000,7 @@ static void fireweapon(int snum)
 
 static void operateweapon(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	// already firing...
@@ -1453,7 +1453,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 static void processweapon(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int shrunk = (pact->spr.scale.Y < 0.5);
 
@@ -1536,12 +1536,12 @@ void processinput_d(int snum)
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
-	player_struct* p;
+	DukePlayer* p;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
-	ESyncBits& actions = p->sync.actions;
+	ESyncBits& actions = p->cmd.ucmd.actions;
 
 	// Get strafe value before it's rotated by the angle.
 	const auto strafeVel = PlayerInputSideVel(snum);
@@ -1675,7 +1675,7 @@ void processinput_d(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum,actions);
-	p->Angles.doViewYaw(&p->sync);
+	p->Angles.doViewYaw(&p->cmd.ucmd);
 
 	p->updatecentering(snum);
 
@@ -1714,15 +1714,15 @@ void processinput_d(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->sync.avel = 0;
+		p->cmd.ucmd.avel = 0;
 		setForcedSyncInput(snum);
 	}
 	else
 	{
-		p->sync.avel = p->adjustavel(PlayerInputAngVel(snum));
+		p->cmd.ucmd.avel = p->adjustavel(PlayerInputAngVel(snum));
 	}
 
-	p->Angles.doYawInput(&p->sync);
+	p->Angles.doYawInput(&p->cmd.ucmd);
 
 	purplelavacheck(p);
 
@@ -1827,7 +1827,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	p->Angles.doRollInput(&p->sync, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	p->Angles.doRollInput(&p->cmd.ucmd, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 
@@ -1943,7 +1943,7 @@ HORIZONLY:
 		playerAimDown(snum, actions);
 	}
 
-	p->Angles.doPitchInput(&p->sync);
+	p->Angles.doPitchInput(&p->cmd.ucmd);
 
 	p->checkhardlanding();
 
@@ -1952,7 +1952,7 @@ HORIZONLY:
 	if (p->show_empty_weapon > 0)
 	{
 		p->show_empty_weapon--;
-		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - ps) & 2))
+		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - (DukePlayer*)PlayerArray) & 2))
 		{
 			if (p->last_full_weapon == GROW_WEAPON)
 				p->subweapon |= (1 << GROW_WEAPON);

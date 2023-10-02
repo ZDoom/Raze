@@ -43,7 +43,7 @@ BEGIN_SW_NS
 //
 //---------------------------------------------------------------------------
 
-Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
+Collision MultiClipMove(SWPlayer* pp, double zz, double floordist)
 {
     int i;
     DVector3 opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
@@ -59,8 +59,8 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
     {
         // move the box to position instead of using offset- this prevents small rounding errors
         // allowing you to move through wall
-        DAngle ang = (pp->actor->spr.Angles.Yaw + sop->clipbox_ang[i]);
-        DVector3 spos(pp->actor->getPosWithOffsetZ(), zz);
+        DAngle ang = (pp->GetActor()->spr.Angles.Yaw + sop->clipbox_ang[i]);
+        DVector3 spos(pp->GetActor()->getPosWithOffsetZ(), zz);
 
         DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];
         Collision coll;
@@ -73,7 +73,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].XY() = pp->actor->getPosWithOffsetZ() + ang.ToVector() * sop->clipbox_vdist[i];
+            opos[i].XY() = pp->GetActor()->getPosWithOffsetZ() + ang.ToVector() * sop->clipbox_vdist[i];
 
             // spos.x is where it hit
             pos[i].XY() = spos.XY();
@@ -111,7 +111,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
     }
 
     // put posx and y off from offset
-    pp->actor->spr.pos.XY() += pos[min_ndx].XY() - opos[min_ndx].XY();
+    pp->GetActor()->spr.pos.XY() += pos[min_ndx].XY() - opos[min_ndx].XY();
 
     return min_ret;
 }
@@ -122,7 +122,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
 //
 //---------------------------------------------------------------------------
 
-int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
+int MultiClipTurn(SWPlayer* pp, DAngle new_ang, double zz, double floordist)
 {
     int i;
     SECTOR_OBJECT* sop = pp->sop;
@@ -133,7 +133,7 @@ int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
     {
         DAngle ang = new_ang + sop->clipbox_ang[i];
 
-        DVector3 spos(pp->actor->getPosWithOffsetZ(), zz);
+        DVector3 spos(pp->GetActor()->getPosWithOffsetZ(), zz);
 
         DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];
         Collision coll;
@@ -192,7 +192,7 @@ int testquadinsect(int *point_num, DVector2 const * qp, sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-int RectClipMove(PLAYER* pp, DVector2* qpos)
+int RectClipMove(SWPlayer* pp, DVector2* qpos)
 {
     int i;
     DVector2 xy[4];
@@ -207,7 +207,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
-        pp->actor->spr.pos.XY() += pvect;
+        pp->GetActor()->spr.pos.XY() += pvect;
         return true;
     }
 
@@ -223,7 +223,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->actor->spr.pos.XY() += { -pvect.X * 0.5, pvect.X * 0.5 };
+            pp->GetActor()->spr.pos.XY() += { -pvect.X * 0.5, pvect.X * 0.5 };
         }
 
         return false;
@@ -238,7 +238,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->actor->spr.pos.XY() += { pvect.X * 0.5, -pvect.X * 0.5 };
+            pp->GetActor()->spr.pos.XY() += { pvect.X * 0.5, -pvect.X * 0.5 };
         }
 
         return false;
@@ -253,7 +253,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
 //
 //---------------------------------------------------------------------------
 
-short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
+short RectClipTurn(SWPlayer* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
 {
     int i;
     DVector2 xy[4];
@@ -264,7 +264,7 @@ short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
     rot_angl = new_angl + sop->spin_ang - sop->ang_orig;
     for (i = 0; i < 4; i++)
     {
-        xy[i] = rotatepoint(pp->actor->spr.pos.XY(), opos[i], rot_angl);
+        xy[i] = rotatepoint(pp->GetActor()->spr.pos.XY(), opos[i], rot_angl);
         // cannot use sop->xmid and ymid because the SO is off the map at this point
     }
 

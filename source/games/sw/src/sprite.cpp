@@ -87,8 +87,8 @@ int SetupPachinko4(DSWActor*);
 int SetupGirlNinja(DSWActor*);
 int DoSlidorInstantClose(DSWActor*);
 
-void InitWeaponRocket(PLAYER*);
-void InitWeaponUzi(PLAYER*);
+void InitWeaponRocket(SWPlayer*);
+void InitWeaponUzi(SWPlayer*);
 
 int MoveSkip4, MoveSkip2, MoveSkip8;
 int MinEnemySkill;
@@ -547,7 +547,7 @@ void KillActor(DSWActor* actor)
 
     if (actor->hasU())
     {
-        PLAYER* pp;
+        SWPlayer* pp;
         int pnum;
 
         // doing a MissileSetPos - don't allow killing
@@ -597,7 +597,7 @@ void KillActor(DSWActor* actor)
         // reset it.
         TRAVERSE_CONNECT(pnum)
         {
-            pp = Player + pnum;
+            pp = getPlayer(pnum);
 
             if (pp->KillerActor != nullptr)
             {
@@ -774,7 +774,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     actor->user.WpnGoalActor = nullptr;
     actor->user.attachActor = nullptr;
     actor->user.track = -1;
-    actor->user.targetActor = Player[0].actor;
+    actor->user.targetActor = getPlayer(0)->GetActor();
     actor->user.Radius = 220;
     actor->user.Sibling = -1;
     actor->user.WaitTics = 0;
@@ -4887,11 +4887,11 @@ int DoSpawnItemTeleporterEffect(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void ChoosePlayerGetSound(PLAYER* pp)
+void ChoosePlayerGetSound(SWPlayer* pp)
 {
     int choose_snd=0;
 
-    if (pp != Player+myconnectindex) return;
+    if (pp != getPlayer(myconnectindex)) return;
 
     choose_snd = StdRandomRange((MAX_GETSOUNDS-1)<<8)>>8;
 
@@ -4904,7 +4904,7 @@ void ChoosePlayerGetSound(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-bool CanGetWeapon(PLAYER* pp, DSWActor* actor, int WPN)
+bool CanGetWeapon(SWPlayer* pp, DSWActor* actor, int WPN)
 {
     switch (gNet.MultiGameType)
     {
@@ -4964,7 +4964,7 @@ enum
 };
 int DoGet(DSWActor* actor)
 {
-    PLAYER* pp;
+    SWPlayer* pp;
     short pnum, key_num;
     bool can_see;
 
@@ -4998,27 +4998,27 @@ int DoGet(DSWActor* actor)
 
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
-        DSWActor* plActor = pp->actor;
+        pp = getPlayer(pnum);
+        DSWActor* plActor = pp->GetActor();
         int weaponswitch = WeaponSwitch(pnum);
 
         if (pp->Flags & (PF_DEAD))
             continue;
 
-        double dist = (pp->actor->spr.pos.XY() - actor->spr.pos).Length();
+        double dist = (pp->GetActor()->spr.pos.XY() - actor->spr.pos).Length();
         if ((unsigned)dist > (plActor->user.fRadius() + actor->user.fRadius()))
         {
             continue;
         }
 
-        if (!SpriteOverlap(actor, pp->actor))
+        if (!SpriteOverlap(actor, pp->GetActor()))
         {
             continue;
         }
 
         auto cstat_bak = actor->spr.cstat;
         actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        can_see = FAFcansee(actor->spr.pos, actor->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector);
+        can_see = FAFcansee(actor->spr.pos, actor->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector);
         actor->spr.cstat = cstat_bak;
 
         if (!can_see)
@@ -5063,11 +5063,11 @@ KeyMain:
             if (pp->HasKey[key_num])
                 break;
 
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_KEYMSG + key_num));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_KEYMSG + key_num));
 
             pp->HasKey[key_num] = true;
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_KEY, actor, v3df_dontpan);
 
             // don't kill keys in coop
@@ -5083,20 +5083,20 @@ KeyMain:
                 if (actor->user.spal == PALETTE_PLAYER3)
                 {
                     PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Kevlar].amount);
-                    PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Kevlar));
+                    PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Kevlar));
                 }
                 else
                 {
                     if (pp->Armor < InventoryDecls[InvDecl_Armor].amount)
                     {
                         PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Armor].amount);
-                        PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Armor));
+                        PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Armor));
                     }
                     else
                         break;
                 }
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_BIGITEM, actor, v3df_dontpan);
 
                 // override for respawn mode
@@ -5119,7 +5119,7 @@ KeyMain:
             {
                 bool putbackmax=false;
 
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_SmMedkit));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_SmMedkit));
 
                 if (pp->MaxHealth == 200)
                 {
@@ -5131,7 +5131,7 @@ KeyMain:
                 if (putbackmax) pp->MaxHealth = 200;
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
                 // override for respawn mode
@@ -5149,11 +5149,11 @@ KeyMain:
             pp->MaxHealth = 200;
             if (plActor->user.Health < 200)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Booster));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Booster));
                 PlayerUpdateHealth(pp, InventoryDecls[InvDecl_Booster].amount);       // This is for health
                 // over 100%
                 // Say something witty
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                 {
                     int cookie = StdRandomRange(MAX_FORTUNES);
                     // print to the console, and the user quote display.
@@ -5168,7 +5168,7 @@ KeyMain:
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_BIGITEM, actor, v3df_dontpan);
 
                 // override for respawn mode
@@ -5189,12 +5189,12 @@ KeyMain:
 
             if (!pp->InventoryAmount[INVENTORY_MEDKIT] || pp->InventoryPercent[INVENTORY_MEDKIT] < InventoryDecls[InvDecl_Medkit].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Medkit));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Medkit));
                 pp->InventoryPercent[INVENTORY_MEDKIT] = InventoryDecls[InvDecl_Medkit].amount;
                 pp->InventoryAmount[INVENTORY_MEDKIT] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_MEDKIT);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
                 // override for respawn mode
@@ -5212,12 +5212,12 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_CHEMBOMB] < InventoryDecls[InvDecl_ChemBomb].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_ChemBomb));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_ChemBomb));
                 pp->InventoryPercent[INVENTORY_CHEMBOMB] = 0;
                 pp->InventoryAmount[INVENTORY_CHEMBOMB]++;
                 PlayerUpdateInventory(pp, INVENTORY_CHEMBOMB);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
                 KillGet(actor);
             }
@@ -5227,12 +5227,12 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_FLASHBOMB] < InventoryDecls[InvDecl_FlashBomb].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_FlashBomb));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_FlashBomb));
                 pp->InventoryPercent[INVENTORY_FLASHBOMB] = 0;
                 pp->InventoryAmount[INVENTORY_FLASHBOMB]++;
                 PlayerUpdateInventory(pp, INVENTORY_FLASHBOMB);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
                 KillGet(actor);
             }
@@ -5242,14 +5242,14 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_CALTROPS] < InventoryDecls[InvDecl_Caltrops].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Caltrops));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Caltrops));
                 pp->InventoryPercent[INVENTORY_CALTROPS] = 0;
                 pp->InventoryAmount[INVENTORY_CALTROPS]+=3;
                 if (pp->InventoryAmount[INVENTORY_CALTROPS] > InventoryDecls[InvDecl_Caltrops].amount)
                     pp->InventoryAmount[INVENTORY_CALTROPS] = InventoryDecls[InvDecl_Caltrops].amount;
                 PlayerUpdateInventory(pp, INVENTORY_CALTROPS);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
                 KillGet(actor);
             }
@@ -5258,12 +5258,12 @@ KeyMain:
         case ICON_NIGHT_VISION:
             if (!pp->InventoryAmount[INVENTORY_NIGHT_VISION] || pp->InventoryPercent[INVENTORY_NIGHT_VISION] < InventoryDecls[InvDecl_NightVision].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_NightVision));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_NightVision));
                 pp->InventoryPercent[INVENTORY_NIGHT_VISION] = InventoryDecls[InvDecl_NightVision].amount;
                 pp->InventoryAmount[INVENTORY_NIGHT_VISION] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_NIGHT_VISION);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
                 KillGet(actor);
             }
@@ -5271,12 +5271,12 @@ KeyMain:
         case ICON_REPAIR_KIT:
             if (!pp->InventoryAmount[INVENTORY_REPAIR_KIT] || pp->InventoryPercent[INVENTORY_REPAIR_KIT] < InventoryDecls[InvDecl_RepairKit].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_RepairKit));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_RepairKit));
                 pp->InventoryPercent[INVENTORY_REPAIR_KIT] = InventoryDecls[InvDecl_RepairKit].amount;
                 pp->InventoryAmount[INVENTORY_REPAIR_KIT] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_REPAIR_KIT);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
                 // don't kill repair kit in coop
@@ -5302,12 +5302,12 @@ KeyMain:
         case ICON_CLOAK:
             if (!pp->InventoryAmount[INVENTORY_CLOAK] || pp->InventoryPercent[INVENTORY_CLOAK] < InventoryDecls[InvDecl_Cloak].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Cloak));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Cloak));
                 pp->InventoryPercent[INVENTORY_CLOAK] = InventoryDecls[InvDecl_Cloak].amount;
                 pp->InventoryAmount[INVENTORY_CLOAK] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_CLOAK);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
                 KillGet(actor);
             }
@@ -5325,10 +5325,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
 
-            PutStringInfo(Player+pnum, sw_darts? GStrings("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
+            PutStringInfo(getPlayer(pnum), sw_darts? GStrings("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
             PlayerUpdateAmmo(pp, WPN_STAR, DamageData[WPN_STAR].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetWeapon(actor);
             if (pp->WpnFlags & (BIT(WPN_STAR)))
@@ -5352,10 +5352,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_MINE] >= DamageData[WPN_MINE].max_ammo)
                 break;
             //sprintf(ds,"Sticky Bombs");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNSTICKY));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNSTICKY));
             PlayerUpdateAmmo(pp, WPN_MINE, DamageData[WPN_MINE].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
@@ -5381,11 +5381,11 @@ KeyMain:
             if (pp->Flags & (PF_TWO_UZI) && pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Submachine Gun");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNUZI));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNUZI));
 //            pp->WpnAmmo[WPN_UZI] += 50;
             PlayerUpdateAmmo(pp, WPN_UZI, DamageData[WPN_UZI].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetWeapon(actor);
 
@@ -5397,7 +5397,7 @@ KeyMain:
             {
                 pp->Flags |= (PF_TWO_UZI);
                 pp->WpnUziType = 0; // Let it come up
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlayerSound(DIGI_DOUBLEUZI, v3df_dontpan|v3df_follow, pp);
             }
             else
@@ -5419,10 +5419,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Clip");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOUZI));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMOUZI));
             PlayerUpdateAmmo(pp, WPN_UZI, DamageData[WPN_UZI].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5437,11 +5437,11 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_MICRO)) && pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missile Launcher");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNLAUNCH));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNLAUNCH));
 //            pp->WpnAmmo[WPN_MICRO] += 5;
             PlayerUpdateAmmo(pp, WPN_MICRO, DamageData[WPN_MICRO].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
@@ -5460,10 +5460,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missiles");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOLAUNCH));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMOLAUNCH));
             PlayerUpdateAmmo(pp, WPN_MICRO, DamageData[WPN_MICRO].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5472,12 +5472,12 @@ KeyMain:
             if (pp->WpnRocketNuke != 1)
             {
                 //sprintf(ds,"Nuclear Warhead");
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNNUKE));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNNUKE));
                 pp->WpnRocketNuke =uint8_t(DamageData[DMG_NUCLEAR_EXP].weapon_pickup);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
-                if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
+                if (StdRandomRange(1000) > 800 && pp == getPlayer(myconnectindex))
                     PlayerSound(DIGI_ILIKENUKES, v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 if (pp->CurWpn == pp->Wpn[WPN_MICRO])
                 {
@@ -5504,14 +5504,14 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_GRENADE)) && pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Launcher");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNGRENADE));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNGRENADE));
 //            pp->WpnAmmo[WPN_GRENADE] += 6;
             PlayerUpdateAmmo(pp, WPN_GRENADE, DamageData[WPN_GRENADE].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             //ChoosePlayerGetSound(pp);
-            if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
+            if (StdRandomRange(1000) > 800 && pp == getPlayer(myconnectindex))
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
             if (pp->WpnFlags & (BIT(WPN_GRENADE)))
@@ -5529,10 +5529,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Shells");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOGRENADE));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMOGRENADE));
             PlayerUpdateAmmo(pp, WPN_GRENADE, DamageData[WPN_GRENADE].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5574,12 +5574,12 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_RAIL)) && pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRAILGUN));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNRAILGUN));
             PlayerUpdateAmmo(pp, WPN_RAIL, DamageData[WPN_RAIL].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
             {
                 if (StdRandomRange(1000) > 700)
                     PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
@@ -5605,10 +5605,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun Rods");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORAILGUN));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMORAILGUN));
             PlayerUpdateAmmo(pp, WPN_RAIL, DamageData[WPN_RAIL].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5622,11 +5622,11 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_SHOTGUN)) && pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Riot Gun");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIOT));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNRIOT));
 //            pp->WpnAmmo[WPN_SHOTGUN] += 10;
             PlayerUpdateAmmo(pp, WPN_SHOTGUN, DamageData[WPN_SHOTGUN].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             ChoosePlayerGetSound(pp);
             KillGetWeapon(actor);
@@ -5645,10 +5645,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Shotshells");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORIOT));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMORIOT));
             PlayerUpdateAmmo(pp, WPN_SHOTGUN, DamageData[WPN_SHOTGUN].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5689,13 +5689,13 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_HOTHEAD)) && pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Guardian Head");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNHEAD));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNHEAD));
             PlayerUpdateAmmo(pp, WPN_HOTHEAD, DamageData[WPN_HOTHEAD].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             //ChoosePlayerGetSound(pp);
-            if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
+            if (StdRandomRange(1000) > 800 && pp == getPlayer(myconnectindex))
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
             if (pp->WpnFlags & (BIT(WPN_HOTHEAD)))
@@ -5715,10 +5715,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Firebursts");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOHEAD));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMOHEAD));
             PlayerUpdateAmmo(pp, WPN_HOTHEAD, DamageData[WPN_HOTHEAD].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5734,13 +5734,13 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_HEART)) && pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Ripper Heart");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIPPER));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_WPNRIPPER));
             PlayerUpdateAmmo(pp, WPN_HEART, DamageData[WPN_HEART].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             //ChoosePlayerGetSound(pp);
-            if (StdRandomRange(1000) > 800 && pp == Player+myconnectindex)
+            if (StdRandomRange(1000) > 800 && pp == getPlayer(myconnectindex))
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             KillGetWeapon(actor);
             if (pp->WpnFlags & (BIT(WPN_HEART)))
@@ -5762,10 +5762,10 @@ KeyMain:
             if (pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Deathcoils");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORIPPER));
+            PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMORIPPER));
             PlayerUpdateAmmo(pp, WPN_HEART, DamageData[WPN_HEART].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-            if (pp == Player+myconnectindex)
+            if (pp == getPlayer(myconnectindex))
                 PlaySound(DIGI_ITEM, actor, v3df_dontpan);
             KillGetAmmo(actor);
             break;
@@ -5774,10 +5774,10 @@ KeyMain:
             if (pp->WpnRocketHeat != 5)
             {
                 //sprintf(ds,"Heat Seeker Card");
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMONUKE));
+                PutStringInfo(getPlayer(pnum), quoteMgr.GetQuote(QUOTE_AMMONUKE));
                 pp->WpnRocketHeat = uint8_t(DamageData[DMG_NUCLEAR_EXP].ammo_pickup);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
-                if (pp == Player+myconnectindex)
+                if (pp == getPlayer(myconnectindex))
                     PlaySound(DIGI_ITEM, actor, v3df_dontpan);
                 KillGet(actor);
 
@@ -5800,7 +5800,7 @@ KeyMain:
 
         case ICON_FLAG:
         {
-            if (actor->spr.pal == pp->actor->spr.pal) break; // Can't pick up your own flag!
+            if (actor->spr.pal == pp->GetActor()->spr.pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
@@ -5816,11 +5816,11 @@ KeyMain:
             actorNew->user.Counter = 0;
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
-            SetAttach(pp->actor, actorNew);
-            actorNew->user.pos.Z = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
+            SetAttach(pp->GetActor(), actorNew);
+            actorNew->user.pos.Z = ActorZOfMiddle(pp->GetActor());  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
-            SetOwner(pp->actor, actorNew);  // Player now owns the flag
+            SetOwner(pp->GetActor(), actorNew);  // Player now owns the flag
             actorNew->user.flagOwnerActor = actor;       // Tell carried flag who owns it
             KillGet(actor);  // Set up for flag respawning
             break;
@@ -5865,9 +5865,9 @@ void ProcessActiveVars(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void AdjustActiveRange(PLAYER* pp, DSWActor* actor, double dist)
+void AdjustActiveRange(SWPlayer* pp, DSWActor* actor, double dist)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     // do no FAFcansee before it is time
     if (actor->user.wait_active_check < ACTIVE_CHECK_TIME)
@@ -6011,7 +6011,7 @@ void SpriteControl(void)
 {
     int32_t stat;
     short pnum, CloseToPlayer;
-    PLAYER* pp;
+    SWPlayer* pp;
     short StateTics;
 
     SWStatIterator it(STAT_MISC);
@@ -6047,10 +6047,10 @@ void SpriteControl(void)
 
             TRAVERSE_CONNECT(pnum)
             {
-                pp = &Player[pnum];
+                pp = getPlayer(pnum);
 
                 // Only update the ones closest
-				double dist = (pp->actor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+				double dist = (pp->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
                 AdjustActiveRange(pp, actor, dist);
 

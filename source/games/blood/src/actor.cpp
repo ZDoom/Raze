@@ -3053,7 +3053,7 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 	{
 		if (killerActor->IsPlayerActor())
 		{
-			PLAYER* pPlayer = getPlayer(killerActor);
+			auto pPlayer = getPlayer(killerActor);
 			if (gGameOptions.nGameType == 1)
 				pPlayer->fragCount++;
 		}
@@ -3068,7 +3068,7 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 		case kDudeBurningInnocent:
 			break;
 		default:
-			PLAYER* pKillerPlayer = getPlayer(killerActor);
+			auto pKillerPlayer = getPlayer(killerActor);
 			pKillerPlayer->fragCount++;
 			break;
 		}
@@ -3381,8 +3381,8 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (gPlayer[p].fragger == actor && gPlayer[p].deathTime > 0)
-			gPlayer[p].fragger = nullptr;
+		if (getPlayer(p)->fragger == actor && getPlayer(p)->deathTime > 0)
+			getPlayer(p)->fragger = nullptr;
 	}
 	if (actor->GetType() != kDudeCultistBeast)
 		trTriggerSprite(actor, kCmdOff, killerActor);
@@ -3615,7 +3615,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	}
 	else
 	{
-		PLAYER* pPlayer = getPlayer(actor);
+		auto pPlayer = getPlayer(actor);
 		if (actor->xspr.health > 0 || playerSeqPlaying(pPlayer, 16))
 			damage = playerDamageSprite(source, pPlayer, damageType, damage);
 
@@ -3629,7 +3629,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 //
 //---------------------------------------------------------------------------
 
-static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, PLAYER* pSourcePlayer)
+static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, BloodPlayer* pSourcePlayer)
 {
 	assert(actor->IsThingActor());
 	int nType = actor->GetType() - kThingBase;
@@ -3675,7 +3675,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 		case kThingZombieHead:
 			if (damageType == 3 && pSourcePlayer && PlayClock > pSourcePlayer->laughCount && Chance(0x4000))
 			{
-				sfxPlay3DSound(pSourcePlayer->actor, gPlayerGibThingComments[Random(10)], 0, 2);
+				sfxPlay3DSound(pSourcePlayer->GetActor(), gPlayerGibThingComments[Random(10)], 0, 2);
 				pSourcePlayer->laughCount = PlayClock + 3600;
 			}
 			break;
@@ -3738,7 +3738,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 
 	if (source == nullptr) source = actor;
 
-	PLAYER* pSourcePlayer = nullptr;
+	BloodPlayer* pSourcePlayer = nullptr;
 	if (source->IsPlayerActor()) pSourcePlayer = getPlayer(source);
 	if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, actor)) return 0;
 
@@ -4172,7 +4172,7 @@ static void checkCeilHit(DBloodActor* actor)
 						}
 					}
 #endif
-					if (!actor->IsPlayerActor() || gPlayer[actor->GetType() - kDudePlayer1].godMode == 0)
+					if (!actor->IsPlayerActor() || getPlayer(actor)->godMode == 0)
 					{
 						switch (actor2->GetType())
 						{
@@ -4333,7 +4333,7 @@ static void checkFloorHit(DBloodActor* actor)
 			}
 #endif
 
-			PLAYER* pPlayer = nullptr;
+			BloodPlayer* pPlayer = nullptr;
 			if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 
 			switch (actor2->GetType())
@@ -4690,7 +4690,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 void MoveDude(DBloodActor* actor)
 {
-	PLAYER* pPlayer = nullptr;
+	BloodPlayer* pPlayer = nullptr;
 	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 	if (!(actor->IsDudeActor()))
 	{
@@ -4897,7 +4897,7 @@ void MoveDude(DBloodActor* actor)
 			{
 				pPlayer->posture = 0;
 				pPlayer->bubbleTime = 0;
-				if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP))
+				if (!pPlayer->cantJump && (pPlayer->cmd.ucmd.actions & SB_JUMP))
 				{
 					actor->vel.Z = FixedToFloat(-0x6aaaa);
 					pPlayer->cantJump = 1;
@@ -5542,8 +5542,8 @@ static void actCheckProximity()
 							auto Owner = actor->GetOwner();
 							if (!Owner->IsPlayerActor()) continue;
 
-							PLAYER* pPlayer = getPlayer(Owner);
-							PLAYER* pPlayer2 = dudeactor->IsPlayerActor() ? &gPlayer[dudeactor->GetType() - kDudePlayer1] : nullptr;
+							auto pPlayer = getPlayer(Owner);
+							BloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? getPlayer(dudeactor) : nullptr;
 
 							if (dudeactor == Owner || dudeactor->GetType() == kDudeZombieAxeBuried || dudeactor->GetType() == kDudeRat || dudeactor->GetType() == kDudeBat) continue;
 							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;
@@ -5802,11 +5802,11 @@ static void actCheckExplosion()
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			auto dv = apos - gPlayer[p].actor->spr.pos;
+			auto dv = apos - getPlayer(p)->GetActor()->spr.pos;
 			int nDist = int(dv.LengthSquared() + 0x40000);
 
 			int t = DivScale(actor->xspr.data2, nDist, 16);
-			gPlayer[p].flickerEffect += t;
+			getPlayer(p)->flickerEffect += t;
 		}
 
 #ifdef NOONE_EXTENSIONS
@@ -5974,7 +5974,7 @@ static void actCheckDudes()
 			}
 			if (actor->IsPlayerActor())
 			{
-				PLAYER* pPlayer = getPlayer(actor);
+				auto pPlayer = getPlayer(actor);
 				if (pPlayer->voodooTargets) voodooTarget(pPlayer);
 				if (pPlayer->hand && Chance(0x8000)) actDamageSprite(actor, actor, kDamageDrown, 12);
 
@@ -6004,7 +6004,7 @@ static void actCheckDudes()
 				}
 				else if (gGameOptions.nGameType == 0)
 				{
-					if (pPlayer->actor->xspr.health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
+					if (pPlayer->GetActor()->xspr.health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
 					{
 						pPlayer->restTime = -1;
 						sfxPlay3DSound(actor, 3100 + Random(11), 0, 2);
@@ -6048,13 +6048,13 @@ static void actCheckDudes()
 
 		if (actor->IsPlayerActor())
 		{
-			PLAYER* pPlayer = getPlayer(actor);
+			auto pPlayer = getPlayer(actor);
 			double nDrag = FixedToFloat(gDudeDrag);
 			if (actor->xspr.height > 0)
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
 
 			constexpr auto maxVel = (36211. / 3000.);
-			pPlayer->Angles.doRollInput(&pPlayer->input, actor->vel.XY(), maxVel, false);
+			pPlayer->Angles.doRollInput(&pPlayer->cmd.ucmd, actor->vel.XY(), maxVel, false);
 			pPlayer->Angles.StrafeVel -= pPlayer->Angles.StrafeVel * nDrag;
 		}
 
@@ -6625,7 +6625,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		if (!gGameOptions.bFriendlyFire && IsTargetTeammate(shooter, hitactor)) return;
 		if (hitactor->IsPlayerActor())
 		{
-			PLAYER* pPlayer = getPlayer(hitactor);
+			auto pPlayer = getPlayer(hitactor);
 			if (powerupCheck(pPlayer, kPwUpReflectShots))
 			{
 				gHitInfo.hitActor = shooter;

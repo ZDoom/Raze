@@ -694,7 +694,7 @@ int DoSumoDeathMelt(DSWActor* actor)
 
 void BossHealthMeter(void)
 {
-    PLAYER* pp = Player + myconnectindex;
+    SWPlayer* pp = getPlayer(myconnectindex);
     short color=0,metertics,meterunit;
     int y;
     extern bool NoMeters;
@@ -706,7 +706,7 @@ void BossHealthMeter(void)
     if (!(currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SERPENT | LEVEL_SW_BOSSMETER_SUMO | LEVEL_SW_BOSSMETER_ZILLA))) return;
 
     // Don't draw bar for other players
-    if (pp != Player+myconnectindex)
+    if (pp != getPlayer(myconnectindex))
         return;
 
     // all enemys
@@ -738,7 +738,7 @@ void BossHealthMeter(void)
         DSWActor* actor = BossSpriteNum[i];
         if (actor != nullptr && !bosswasseen[i])
         {
-            if (cansee(ActorVectOfTop(actor), actor->sector(), pp->actor->getPosWithOffsetZ().plusZ(-40), pp->cursector))
+            if (cansee(ActorVectOfTop(actor), actor->sector(), pp->GetActor()->getPosWithOffsetZ().plusZ(-40), pp->cursector))
             {
                 if (i == 0 && !bosswasseen[0])
                 {

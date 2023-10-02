@@ -349,14 +349,14 @@ void operatejaildoors(int hitag)
 				jd.open = 1;
 				jd.drag = jd.dist;
 				if (!isRRRA() || jd.sound != 0)
-					S_PlayActorSound(jd.sound, ps[screenpeek].GetActor());
+					S_PlayActorSound(jd.sound, getPlayer(screenpeek)->GetActor());
 			}
 			if (jd.open == 2)
 			{
 				jd.open = 3;
 				jd.drag = jd.dist;
 				if (!isRRRA() || jd.sound != 0)
-					S_PlayActorSound(jd.sound, ps[screenpeek].GetActor());
+					S_PlayActorSound(jd.sound, getPlayer(screenpeek)->GetActor());
 			}
 		}
 	}
@@ -453,12 +453,12 @@ void moveminecart(void)
 
 void thunder(void)
 {
-	player_struct* p;
+	DukePlayer* p;
 	int r1, r2;
 	int i = 0;
 	uint8_t shade;
 
-	p = &ps[screenpeek];
+	p = getPlayer(screenpeek);
 
 	if (!thunderflash)
 	{
@@ -474,7 +474,7 @@ void thunder(void)
 
 		if (seen)
 		{
-			if (ps[screenpeek].actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+			if (getPlayer(screenpeek)->GetActor()->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			{
 				g_relvisibility = 0;
 				if (krand() > 65000)

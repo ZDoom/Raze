@@ -198,12 +198,12 @@ static void sub_725A4(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			PLAYER* pPlayer = &gPlayer[p];
-			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			BloodPlayer* pPlayer = getPlayer(p);
+			if (pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			auto ppos = pPlayer->actor->spr.pos;
+			auto ppos = pPlayer->GetActor()->spr.pos;
 			auto dvect = ppos.XY() - actor->spr.pos;
-			auto pSector = pPlayer->actor->sector();
+			auto pSector = pPlayer->GetActor()->sector();
 			DAngle nAngle = dvect.Angle();
 			double nDist = dvect.Length();
 
@@ -216,7 +216,7 @@ static void sub_725A4(DBloodActor* actor)
 			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
 			{
 				actor->dudeExtra.thinkTime = 0;
-				aiSetTarget(actor, pPlayer->actor);
+				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->HearDist())

@@ -47,6 +47,8 @@
 #include "gamestruct.h"
 #include "statusbar.h"
 #include "coreactor.h"
+#include "d_net.h"
+#include "coreplayer.h"
 
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
@@ -250,7 +252,7 @@ ADD_STAT(fps)
 ADD_STAT(coord)
 {
 	FString out;
-	if (const auto pActor = gi->getConsoleActor())
+	if (const auto pActor = PlayerArray[myconnectindex]->GetActor())
 	{
 		out.AppendFormat("X: %.4f  ", pActor->spr.pos.X);
 		out.AppendFormat("Y: %.4f  ", pActor->spr.pos.Y);

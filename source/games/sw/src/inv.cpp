@@ -44,28 +44,28 @@ BEGIN_SW_NS
 
 extern short NormalVisibility;
 
-void PlayerUpdateInventory(PLAYER* pp, short InventoryNum);
-void InventoryUse(PLAYER* pp);
-void InventoryStop(PLAYER* pp, short InventoryNum);
+void PlayerUpdateInventory(SWPlayer* pp, short InventoryNum);
+void InventoryUse(SWPlayer* pp);
+void InventoryStop(SWPlayer* pp, short InventoryNum);
 
 
 
-void UseInventoryRepairKit(PLAYER* pp);
-void UseInventoryMedkit(PLAYER* pp);
-void UseInventoryRepairKit(PLAYER* pp);
-void UseInventoryCloak(PLAYER* pp);
-void UseInventoryEnvironSuit(PLAYER* pp);
-void UseInventoryNightVision(PLAYER* pp);
-void UseInventoryChemBomb(PLAYER* pp);
-void UseInventoryFlashBomb(PLAYER* pp);
-void UseInventoryCaltrops(PLAYER* pp);
+void UseInventoryRepairKit(SWPlayer* pp);
+void UseInventoryMedkit(SWPlayer* pp);
+void UseInventoryRepairKit(SWPlayer* pp);
+void UseInventoryCloak(SWPlayer* pp);
+void UseInventoryEnvironSuit(SWPlayer* pp);
+void UseInventoryNightVision(SWPlayer* pp);
+void UseInventoryChemBomb(SWPlayer* pp);
+void UseInventoryFlashBomb(SWPlayer* pp);
+void UseInventoryCaltrops(SWPlayer* pp);
 
-void StopInventoryRepairKit(PLAYER* pp, short);
-void StopInventoryMedkit(PLAYER* pp, short);
-void StopInventoryRepairKit(PLAYER* pp, short);
-void StopInventoryCloak(PLAYER* pp, short);
-void StopInventoryEnvironSuit(PLAYER* pp, short);
-void StopInventoryNightVision(PLAYER* pp, short);
+void StopInventoryRepairKit(SWPlayer* pp, short);
+void StopInventoryMedkit(SWPlayer* pp, short);
+void StopInventoryRepairKit(SWPlayer* pp, short);
+void StopInventoryCloak(SWPlayer* pp, short);
+void StopInventoryEnvironSuit(SWPlayer* pp, short);
+void StopInventoryNightVision(SWPlayer* pp, short);
 
 extern PANEL_STATE ps_PanelEnvironSuit[];
 
@@ -96,14 +96,14 @@ void PanelInvTestSuicide(PANEL_SPRITE* psp)
     }
 }
 
-void KillPanelInv(PLAYER* pp, short InventoryNum)
+void KillPanelInv(SWPlayer* pp, short InventoryNum)
 {
     ASSERT(InventoryNum < MAX_INVENTORY);
 
     pp->InventoryTics[InventoryNum] = 0;
 }
 
-void KillAllPanelInv(PLAYER* pp)
+void KillAllPanelInv(SWPlayer* pp)
 {
     for (int i = 0; i < MAX_INVENTORY; i++)
     {
@@ -117,7 +117,7 @@ void KillAllPanelInv(PLAYER* pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void AutoPickInventory(PLAYER* pp)
+void AutoPickInventory(SWPlayer* pp)
 {
     int i;
 
@@ -149,7 +149,7 @@ void AutoPickInventory(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void UseInventoryMedkit(PLAYER* pp)
+void UseInventoryMedkit(SWPlayer* pp)
 {
     short diff;
     short inv = INVENTORY_MEDKIT;
@@ -159,7 +159,7 @@ void UseInventoryMedkit(PLAYER* pp)
     if (!pp->InventoryAmount[inv])
         return;
 
-    diff = 100 - pp->actor->user.Health;
+    diff = 100 - pp->GetActor()->user.Health;
     if (diff <= 0)
         return;
 
@@ -182,7 +182,7 @@ void UseInventoryMedkit(PLAYER* pp)
     //percent
     PlayerUpdateInventory(pp, pp->InventoryNum);
 
-    if (pp == Player+myconnectindex)
+    if (pp == getPlayer(myconnectindex))
     {
         if (amt >= 30)
             PlayerSound(DIGI_GETMEDKIT, v3df_follow|v3df_dontpan,pp);
@@ -196,7 +196,7 @@ void UseInventoryMedkit(PLAYER* pp)
 // CHEMICAL WARFARE CANISTERS
 //
 //////////////////////////////////////////////////////////////////////
-void UseInventoryChemBomb(PLAYER* pp)
+void UseInventoryChemBomb(SWPlayer* pp)
 {
     short inv = INVENTORY_CHEMBOMB;
 
@@ -219,7 +219,7 @@ void UseInventoryChemBomb(PLAYER* pp)
 // FLASH BOMBS
 //
 //////////////////////////////////////////////////////////////////////
-void UseInventoryFlashBomb(PLAYER* pp)
+void UseInventoryFlashBomb(SWPlayer* pp)
 {
     short inv = INVENTORY_FLASHBOMB;
 
@@ -242,7 +242,7 @@ void UseInventoryFlashBomb(PLAYER* pp)
 // CALTROPS
 //
 //////////////////////////////////////////////////////////////////////
-void UseInventoryCaltrops(PLAYER* pp)
+void UseInventoryCaltrops(SWPlayer* pp)
 {
     short inv = INVENTORY_CALTROPS;
 
@@ -266,12 +266,12 @@ void UseInventoryCaltrops(PLAYER* pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void UseInventoryRepairKit(PLAYER* pp)
+void UseInventoryRepairKit(SWPlayer* pp)
 {
     short inv = INVENTORY_REPAIR_KIT;
 
     //PlaySound(DIGI_TOOLBOX, pp, v3df_none);
-    if (pp == Player + myconnectindex)
+    if (pp == getPlayer(myconnectindex))
     {
         if (StdRandomRange(1000) > 500)
             PlayerSound(DIGI_NOREPAIRMAN, v3df_follow|v3df_dontpan,pp);
@@ -294,9 +294,9 @@ void UseInventoryRepairKit(PLAYER* pp)
 //
 //////////////////////////////////////////////////////////////////////
 
-void UseInventoryCloak(PLAYER* pp)
+void UseInventoryCloak(SWPlayer* pp)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -315,13 +315,13 @@ void UseInventoryCloak(PLAYER* pp)
     plActor->spr.shade = 100;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);
-    if (pp == Player+myconnectindex)
+    if (pp == getPlayer(myconnectindex))
         PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }
 
-void StopInventoryCloak(PLAYER* pp, short InventoryNum)
+void StopInventoryCloak(SWPlayer* pp, short InventoryNum)
 {
-    DSWActor* plActor = pp->actor;
+    DSWActor* plActor = pp->GetActor();
 
     pp->InventoryActive[InventoryNum] = false;
 
@@ -347,9 +347,9 @@ void StopInventoryCloak(PLAYER* pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 
-void DoPlayerNightVisionPalette(PLAYER* pp)
+void DoPlayerNightVisionPalette(SWPlayer* pp)
 {
-    if (pp != Player + screenpeek) return;
+    if (pp != getPlayer(screenpeek)) return;
 
     if (pp->InventoryActive[INVENTORY_NIGHT_VISION])
     {
@@ -370,7 +370,7 @@ void DoPlayerNightVisionPalette(PLAYER* pp)
     }
 }
 
-void UseInventoryNightVision(PLAYER* pp)
+void UseInventoryNightVision(SWPlayer* pp)
 {
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -387,7 +387,7 @@ void UseInventoryNightVision(PLAYER* pp)
     PlaySound(DIGI_NIGHTON, pp, v3df_dontpan|v3df_follow);
 }
 
-void StopInventoryNightVision(PLAYER* pp, short InventoryNum)
+void StopInventoryNightVision(SWPlayer* pp, short InventoryNum)
 {
     pp->InventoryActive[InventoryNum] = false;
 
@@ -414,10 +414,10 @@ void StopInventoryNightVision(PLAYER* pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 
-void InventoryKeys(PLAYER* pp)
+void InventoryKeys(SWPlayer* pp)
 {
     // scroll SPELLs left
-    if (pp->input.actions & SB_INVPREV)
+    if (pp->cmd.ucmd.actions & SB_INVPREV)
     {
         if (pp->KeyPressBits & SB_INVPREV)
         {
@@ -433,7 +433,7 @@ void InventoryKeys(PLAYER* pp)
     }
 
     // scroll SPELLs right
-    if (pp->input.actions & SB_INVNEXT)
+    if (pp->cmd.ucmd.actions & SB_INVNEXT)
     {
         if (pp->KeyPressBits & SB_INVNEXT)
         {
@@ -448,7 +448,7 @@ void InventoryKeys(PLAYER* pp)
         pp->KeyPressBits |= SB_INVNEXT;
     }
 
-    if (pp->input.actions & SB_INVUSE)
+    if (pp->cmd.ucmd.actions & SB_INVUSE)
     {
         if (pp->KeyPressBits & SB_INVUSE)
         {
@@ -476,7 +476,7 @@ void InventoryKeys(PLAYER* pp)
     for (int i = 0; i <= 7; i++)
     {
         ESyncBits bit = ESyncBits::FromInt(SB_ITEM_BIT_1 << i);
-        if (pp->input.isItemUsed(i))
+        if (pp->cmd.ucmd.isItemUsed(i))
         {
             if (pp->KeyPressBits & bit)
             {
@@ -507,7 +507,7 @@ void InventoryKeys(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void InventoryTimer(PLAYER* pp)
+void InventoryTimer(SWPlayer* pp)
 {
     // called every time through loop
     short inv = 0;
@@ -591,7 +591,7 @@ void InventoryTimer(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void InventoryUse(PLAYER* pp)
+void InventoryUse(SWPlayer* pp)
 {
     INVENTORY_DATA* id = &InventoryData[pp->InventoryNum];
 
@@ -599,7 +599,7 @@ void InventoryUse(PLAYER* pp)
         (*id->Init)(pp);
 }
 
-void InventoryStop(PLAYER* pp, short InventoryNum)
+void InventoryStop(SWPlayer* pp, short InventoryNum)
 {
     INVENTORY_DATA* id = &InventoryData[InventoryNum];
 
@@ -613,7 +613,7 @@ void InventoryStop(PLAYER* pp, short InventoryNum)
 //
 /////////////////////////////////////////////////////////////////
 
-void PlayerUpdateInventory(PLAYER* pp, short InventoryNum)
+void PlayerUpdateInventory(SWPlayer* pp, short InventoryNum)
 {
     pp->InventoryNum = InventoryNum;
 

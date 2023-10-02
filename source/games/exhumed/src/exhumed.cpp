@@ -310,7 +310,7 @@ static void GameMove(void)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker()
 {
 	if (paused)
 	{
@@ -323,9 +323,8 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 
         for (int i = connecthead; i >= 0; i = connectpoint2[i])
         {
-            const auto pPlayer = &PlayerList[i];
+            const auto pPlayer = getPlayer(i);
             pPlayer->Angles.resetCameraAngles();
-            pPlayer->input = playercmds[i].ucmd;
             updatePlayerTarget(pPlayer);
         }
 
@@ -417,6 +416,13 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 
 void GameInterface::app_init()
 {
+    // Initialise player array.
+    for (unsigned i = 0; i < MAXPLAYERS; i++)
+    {
+        PlayerArray[i] = new ExhumedPlayer;
+        *getPlayer(i) = {};
+    }
+
     GC::AddMarkerFunc(markgcroots);
 	InitTextureIDs();
 

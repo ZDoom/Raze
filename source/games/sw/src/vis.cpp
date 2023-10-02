@@ -80,7 +80,7 @@ void ProcessVisOn(void)
     }
 }
 
-void VisViewChange(PLAYER* pp, int *vis)
+void VisViewChange(SWPlayer* pp, int *vis)
 {
     short BrightestVis = NormalVisibility;
     DVector3 pos;
@@ -106,7 +106,7 @@ void VisViewChange(PLAYER* pp, int *vis)
         }
 
         // save off the brightest vis that you can see
-        if (FAFcansee(pp->actor->getPosWithOffsetZ(), pp->cursector, pos, sectp))
+        if (FAFcansee(pp->GetActor()->getPosWithOffsetZ(), pp->cursector, pos, sectp))
         {
             if (VIS_VisCur(actor) < BrightestVis)
                 BrightestVis = VIS_VisCur(actor);

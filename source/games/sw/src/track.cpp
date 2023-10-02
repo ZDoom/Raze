@@ -1453,9 +1453,9 @@ void PlaceActorsOnTracks(void)
 }
 
 
-void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
+void MovePlayer(SWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
 {
-    void DoPlayerZrange(PLAYER* pp);
+    void DoPlayerZrange(SWPlayer* pp);
 
     // make sure your standing on the so
     if (pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING))
@@ -1469,14 +1469,14 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
     {
         pp->Flags |= (PF_PLAYER_RIDING);
 
-        pp->RevolveAng = pp->actor->spr.Angles.Yaw;
-        pp->Revolve.XY() = pp->actor->spr.pos.XY();
+        pp->RevolveAng = pp->GetActor()->spr.Angles.Yaw;
+        pp->Revolve.XY() = pp->GetActor()->spr.pos.XY();
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
     }
 
-    pp->actor->spr.pos.XY() += move;
+    pp->GetActor()->spr.pos.XY() += move;
 
     if ((sop->flags & SOBJ_DONT_ROTATE))
     {
@@ -1491,8 +1491,8 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         // save the current information so when Player stops
         // moving then you
         // know where he was last
-        pp->RevolveAng = pp->actor->spr.Angles.Yaw;
-        pp->Revolve.XY() = pp->actor->spr.pos.XY();
+        pp->RevolveAng = pp->GetActor()->spr.Angles.Yaw;
+        pp->Revolve.XY() = pp->GetActor()->spr.pos.XY();
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1505,20 +1505,20 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         pp->Revolve += move;
 
         // Last known angle is now adjusted by the delta angle
-        pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->actor->spr.Angles.Yaw);
+        pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->GetActor()->spr.Angles.Yaw);
     }
 
     // increment Players delta angle
     pp->RevolveDeltaAng += GlobSpeedSO;
 
-    pp->actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng);
+    pp->GetActor()->spr.pos.XY() = rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->actor->spr.Angles.Yaw = (pp->RevolveAng + pp->RevolveDeltaAng).Normalized360();
+    pp->GetActor()->spr.Angles.Yaw = (pp->RevolveAng + pp->RevolveDeltaAng).Normalized360();
 
     UpdatePlayerSprite(pp);
 }
@@ -1527,7 +1527,7 @@ void MovePoints(SECTOR_OBJECT* sop, DAngle deltaangle, const DVector2& move)
 {
     int j;
     int pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
     sectortype** sectp;
     int i;
     DAngle rot_ang;
@@ -1597,7 +1597,7 @@ PlayerPart:
 
         TRAVERSE_CONNECT(pnum)
         {
-            pp = Player + pnum;
+            pp = getPlayer(pnum);
 
             // if controlling a sector object
             if (pp->sop)
@@ -1632,7 +1632,7 @@ PlayerPart:
         // move the player
         TRAVERSE_CONNECT(pnum)
         {
-            pp = Player + pnum;
+            pp = getPlayer(pnum);
 
             if (pp->lowActor && pp->lowActor == actor)
             {
@@ -1715,7 +1715,7 @@ PlayerPart:
 
     TRAVERSE_CONNECT(pnum)
     {
-        pp = Player + pnum;
+        pp = getPlayer(pnum);
 
         // if player was on a sector object
         if (pp->sop_riding)
@@ -1724,7 +1724,7 @@ PlayerPart:
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
             //if (!SO_EMPTY(sop))
-            updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
+            updatesector(pp->GetActor()->getPosWithOffsetZ(), &pp->cursector);
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction
@@ -3316,7 +3316,7 @@ present time.
 
 int ActorFollowTrack(DSWActor* actor, short locktics)
 {
-    PLAYER* pp;
+    SWPlayer* pp;
 
     TRACK_POINT* tpoint;
     short pnum;
@@ -3333,11 +3333,11 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         {
             TRAVERSE_CONNECT(pnum)
             {
-                pp = &Player[pnum];
+                pp = getPlayer(pnum);
 
-                if ((actor->spr.pos.XY() - pp->actor->spr.pos.XY()).Length() < actor->user.Dist)
+                if ((actor->spr.pos.XY() - pp->GetActor()->spr.pos.XY()).Length() < actor->user.Dist)
                 {
-                    actor->user.targetActor = pp->actor;
+                    actor->user.targetActor = pp->GetActor();
                     actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);
                     return true;
                 }

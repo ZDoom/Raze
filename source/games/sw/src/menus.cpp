@@ -80,7 +80,7 @@ static int faderamp[32] =
 // Set the amount of redness for damage
 // the player just took
 //////////////////////////////////////////
-void SetFadeAmt(PLAYER* pp, short damage, uint8_t startcolor)
+void SetFadeAmt(SWPlayer* pp, short damage, uint8_t startcolor)
 {
     const int FADE_DAMAGE_FACTOR = 3;   // 100 health / 32 shade cycles = 3.125
 
@@ -96,7 +96,7 @@ void SetFadeAmt(PLAYER* pp, short damage, uint8_t startcolor)
         return;
 
     // Reset the palette
-    if (pp == Player + screenpeek)
+    if (pp == getPlayer(screenpeek))
     {
 		videoFadePalette(0, 0, 0, 0);
     }
@@ -132,7 +132,7 @@ void SetFadeAmt(PLAYER* pp, short damage, uint8_t startcolor)
     auto color = GPalette.BaseColors[pp->StartColor];
 
     // Do initial palette set
-    if (pp == Player + screenpeek)
+    if (pp == getPlayer(screenpeek))
     {
 		videoFadePalette(color.r, color.g, color.b, faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]);
         if (damage < -1000)
@@ -143,7 +143,7 @@ void SetFadeAmt(PLAYER* pp, short damage, uint8_t startcolor)
 //////////////////////////////////////////
 // Do the screen reddness based on damage
 //////////////////////////////////////////
-void DoPaletteFlash(PLAYER* pp)
+void DoPaletteFlash(SWPlayer* pp)
 {
     const int MAXFADETICS = 5;
 
@@ -151,7 +151,7 @@ void DoPaletteFlash(PLAYER* pp)
     {
         pp->FadeAmt = 0;
         pp->StartColor = 0;
-        if (pp == Player + screenpeek)
+        if (pp == getPlayer(screenpeek))
         {
 			videoFadePalette(0, 0, 0, 0);
             DoPlayerDivePalette(pp);  // Check Dive again
@@ -186,7 +186,7 @@ void DoPaletteFlash(PLAYER* pp)
     {
         pp->FadeAmt = 0;
         pp->StartColor = 0;
-        if (pp == Player + screenpeek)
+        if (pp == getPlayer(screenpeek))
         {
 			videoFadePalette(0, 0, 0, 0);
             DoPlayerDivePalette(pp);  // Check Dive again
@@ -197,7 +197,7 @@ void DoPaletteFlash(PLAYER* pp)
     else
     {
         // Only hard set the palette if this is currently the player's view
-        if (pp == Player + screenpeek)
+        if (pp == getPlayer(screenpeek))
         {
             videoFadePalette(
                 GPalette.BaseColors[pp->StartColor].r,

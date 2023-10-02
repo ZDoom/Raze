@@ -96,14 +96,14 @@ static void markgcroots()
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
 	MarkSprInSect();
-	for (auto& pl : gPlayer)
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		GC::Mark(pl.actor);
-		GC::MarkArray(pl.ctfFlagState, 2);
-		GC::Mark(pl.aimTarget);
-		GC::MarkArray(pl.aimTargets, 16);
-		GC::Mark(pl.fragger);
-		GC::Mark(pl.voodooTarget);
+		GC::Mark(getPlayer(i)->actor);
+		GC::MarkArray(getPlayer(i)->ctfFlagState, 2);
+		GC::Mark(getPlayer(i)->aimTarget);
+		GC::MarkArray(getPlayer(i)->aimTargets, 16);
+		GC::Mark(getPlayer(i)->fragger);
+		GC::Mark(getPlayer(i)->voodooTarget);
 	}
 	for (auto& evobj : rxBucket)
 	{
@@ -123,7 +123,7 @@ bool bNoDemo = false;
 int gNetPlayers;
 int gChokeCounter = 0;
 int blood_globalflags;
-PLAYER gPlayerTemp[kMaxPlayers];
+BloodPlayer gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 int16_t startang;
 sectortype* startsector;
@@ -339,9 +339,9 @@ void StartLevel(MapRecord* level, bool newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			PLAYER* pPlayer = &gPlayer[i];
-			pPlayer->actor->xspr.health &= 0xf000;
-			pPlayer->actor->xspr.health |= gHealthTemp[i];
+			BloodPlayer* pPlayer = getPlayer(i);
+			pPlayer->GetActor()->xspr.health &= 0xf000;
+			pPlayer->GetActor()->xspr.health |= gHealthTemp[i];
 			pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
 			pPlayer->curWeapon = gPlayerTemp[i].curWeapon;
 			pPlayer->weaponState = gPlayerTemp[i].weaponState;
@@ -357,7 +357,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	PreloadCache();
 	InitMirrors();
 	trInit(actorlist);
-	if (!gPlayer[myconnectindex].packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+	if (!getPlayer(myconnectindex)->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 		sfxSetReverb(0);
 	ambInit();
 	gChokeCounter = 0;
@@ -408,7 +408,7 @@ int GameInterface::GetCurrentSkill()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker()
 {
 	BloodSpriteIterator it;
 	while (DBloodActor* act = it.Next()) act->interpolated = false;
@@ -421,17 +421,16 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		thinktime.Reset();
 		thinktime.Clock();
 
-		PLAYER* pPlayer = &gPlayer[myconnectindex];
+		BloodPlayer* pPlayer = getPlayer(myconnectindex);
 
 		// disable synchronised input if set by game.
 		resetForcedSyncInput();
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			gPlayer[i].input = playercmds[i].ucmd;
-			gPlayer[i].Angles.resetCameraAngles();
+			getPlayer(i)->Angles.resetCameraAngles();
 			viewBackupView(i);
-			playerProcess(&gPlayer[i]);
+			playerProcess(getPlayer(i));
 		}
 
 		trProcessBusy();
@@ -463,8 +462,8 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		thinktime.Unclock();
 
 		// update console player's viewzoffset at the end of the tic.
-		pPlayer->actor->oviewzoffset = pPlayer->actor->viewzoffset;
-		pPlayer->actor->viewzoffset = pPlayer->zView - pPlayer->actor->spr.pos.Z;
+		pPlayer->GetActor()->oviewzoffset = pPlayer->GetActor()->viewzoffset;
+		pPlayer->GetActor()->viewzoffset = pPlayer->zView - pPlayer->GetActor()->spr.pos.Z;
 
 		gFrameCount++;
 		PlayClock += kTicsPerFrame;
@@ -586,6 +585,13 @@ void GameInterface::loadPalette(void)
 
 void GameInterface::app_init()
 {
+	// Initialise player array.
+	for (unsigned i = 0; i < MAXPLAYERS; i++)
+	{
+		PlayerArray[i] = new BloodPlayer;
+		*getPlayer(i) = {};
+	}
+
 	mirrortile = tileGetTextureID(504);
 	InitTextureIDs();
 
@@ -701,9 +707,9 @@ inline DUDEINFO* getDudeInfo(DBloodActor* actor)
 	return getDudeInfo(actor->GetType());
 }
 
-inline PLAYER* getPlayer(DBloodActor* actor)
+inline BloodPlayer* getPlayer(DBloodActor* actor)
 {
-	return &gPlayer[actor->GetType() - kDudePlayer1];
+	return getPlayer(actor->GetType() - kDudePlayer1);
 }
 
 
@@ -767,18 +773,18 @@ DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
 DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 {
 	PARAM_PROLOGUE;
-	ACTION_RETURN_POINTER(&gPlayer[gViewIndex]);
+	ACTION_RETURN_POINTER(getPlayer(gViewIndex));
 }
 
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
-	ACTION_RETURN_INT(self->actor->xspr.health);
+	PARAM_SELF_STRUCT_PROLOGUE(BloodPlayer);
+	ACTION_RETURN_INT(self->GetActor()->xspr.health);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	PARAM_SELF_STRUCT_PROLOGUE(BloodPlayer);
 	PARAM_INT(pwup);
 	ACTION_RETURN_INT(powerupCheck(self, pwup));
 }

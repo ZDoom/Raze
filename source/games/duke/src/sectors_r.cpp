@@ -51,47 +51,47 @@ BEGIN_DUKE_NS
 
 bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwal)
 {
-	if (ps[snum].access_incs == 0)
+	if (getPlayer(snum)->access_incs == 0)
 	{
 		if (switchpal == 0)
 		{
-			if (ps[snum].keys[1])
-				ps[snum].access_incs = 1;
+			if (getPlayer(snum)->keys[1])
+				getPlayer(snum)->access_incs = 1;
 			else
 			{
-				FTA(70, &ps[snum]);
-				if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
+				FTA(70, getPlayer(snum));
+				if (isRRRA()) S_PlayActorSound(99, act ? act : getPlayer(snum)->GetActor());
 			}
 		}
 
 		else if (switchpal == 21)
 		{
-			if (ps[snum].keys[2])
-				ps[snum].access_incs = 1;
+			if (getPlayer(snum)->keys[2])
+				getPlayer(snum)->access_incs = 1;
 			else
 			{
-				FTA(71, &ps[snum]);
-				if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
+				FTA(71, getPlayer(snum));
+				if (isRRRA()) S_PlayActorSound(99, act ? act : getPlayer(snum)->GetActor());
 			}
 		}
 
 		else if (switchpal == 23)
 		{
-			if (ps[snum].keys[3])
-				ps[snum].access_incs = 1;
+			if (getPlayer(snum)->keys[3])
+				getPlayer(snum)->access_incs = 1;
 			else
 			{
-				FTA(72, &ps[snum]);
-				if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
+				FTA(72, getPlayer(snum));
+				if (isRRRA()) S_PlayActorSound(99, act ? act : getPlayer(snum)->GetActor());
 			}
 		}
 
-		if (ps[snum].access_incs == 1)
+		if (getPlayer(snum)->access_incs == 1)
 		{
 			if (!act)
-				ps[snum].access_wall = wwal;
+				getPlayer(snum)->access_wall = wwal;
 			else
-				ps[snum].access_spritenum = act;
+				getPlayer(snum)->access_spritenum = act;
 		}
 		return 1;
 	}
@@ -127,7 +127,7 @@ void activatebysector_r(sectortype* sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_r(player_struct* p, const Collision &coll)
+void checkplayerhurt_r(DukePlayer* p, const Collision &coll)
 {
 	if (coll.type == kHitSprite)
 	{
@@ -160,11 +160,11 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 
 void checksectors_r(int snum)
 {
-	player_struct* p;
+	DukePlayer* p;
 	walltype* hitscanwall;
 	HitInfo near;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (!p->insector()) return;
@@ -464,8 +464,8 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 
 	if (pos_ok)
 	{
-		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
-			S_PlayActorSound(389, ps[snum].GetActor());
+		if (S_CheckActorSoundPlaying(getPlayer(snum)->GetActor(), 389) == 0)
+			S_PlayActorSound(389, getPlayer(snum)->GetActor());
 		for(auto& wal : nextsect->walls)
 		{
 			auto vec = wal.pos;

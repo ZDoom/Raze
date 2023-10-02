@@ -461,7 +461,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
 	if (target->xspr.health <= 0) // target is dead
 	{
-		PLAYER* pPlayer = NULL;
+		BloodPlayer* pPlayer = NULL;
 		if ((!target->IsPlayerActor()) || ((pPlayer = getPlayerById(target->GetType())) != NULL && pPlayer->fragger == actor))
 		{
 			playGenDudeSound(actor, kGenDudeSndTargetDead);
@@ -498,7 +498,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 	else if (target->IsPlayerActor())
 	{
-		PLAYER* pPlayer = getPlayer(target);
+		auto pPlayer = getPlayer(target);
 		if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 		{
 			if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -1758,7 +1758,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 		{
 			if (actTarget->IsPlayerActor())
 			{
-				PLAYER* pPlayer = getPlayer(actTarget);
+				auto pPlayer = getPlayer(actTarget);
 				if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0) return;
 			}
 			double top, bottom;

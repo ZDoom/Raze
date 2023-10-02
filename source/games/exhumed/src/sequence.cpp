@@ -508,7 +508,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         const auto pSector = pTSprite->sectp;
         const double nFloorZ = pSector->floorz;
 
-        if (nFloorZ <= PlayerList[nLocalPlayer].pActor->viewzoffset + PlayerList[nLocalPlayer].pActor->spr.pos.Z)
+        if (nFloorZ <= getPlayer(nLocalPlayer)->GetActor()->viewzoffset + getPlayer(nLocalPlayer)->GetActor()->spr.pos.Z)
         {
             pTSprite->ownerActor = nullptr;
         }
@@ -552,7 +552,7 @@ DEFINE_FIELD_X(Seq, Seq, flags);
 DEFINE_ACTION_FUNCTION(_SeqFrame, playSound)
 {
     PARAM_SELF_STRUCT_PROLOGUE(SeqFrame);
-    self->playSound(PlayerList[nLocalPlayer].pActor);
+    self->playSound(getPlayer(nLocalPlayer)->GetActor());
     return 0;
 }
 

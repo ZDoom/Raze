@@ -45,9 +45,6 @@ user_defs ud;		// partially serialized
 DukeGameInfo gs;
 int screenpeek;
 
-// serialized
-player_struct ps[MAXPLAYERS];
-
 //------------------------------------------------------------------------- 
 //
 // variables that only need an export if the entire game logic gets scriptified.

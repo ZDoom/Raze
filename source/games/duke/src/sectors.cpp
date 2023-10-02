@@ -250,7 +250,7 @@ int findplayer(const DDukeActor* actor, double* d)
 
 	if (ud.multimode < 2)
 	{
-		if (d) *d = (ps[myconnectindex].GetActor()->getPrevPosWithOffsetZ() - s).plusZ(28).Sum();
+		if (d) *d = (getPlayer(myconnectindex)->GetActor()->getPrevPosWithOffsetZ() - s).plusZ(28).Sum();
 		return myconnectindex;
 	}
 
@@ -259,8 +259,8 @@ int findplayer(const DDukeActor* actor, double* d)
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		double x = (ps[j].GetActor()->getPrevPosWithOffsetZ() - s).plusZ(28).Sum();
-		if (x < closest && ps[j].GetActor()->spr.extra > 0)
+		double x = (getPlayer(j)->GetActor()->getPrevPosWithOffsetZ() - s).plusZ(28).Sum();
+		if (x < closest && getPlayer(j)->GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
 			closest = x;
@@ -285,9 +285,9 @@ int findotherplayer(int p, double* d)
 	closest_player = p;
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
-		if (p != j && ps[j].GetActor()->spr.extra > 0)
+		if (p != j && getPlayer(j)->GetActor()->spr.extra > 0)
 		{
-			double x = (ps[j].GetActor()->getPrevPosWithOffsetZ() - ps[p].GetActor()->getPosWithOffsetZ()).Sum();
+			double x = (getPlayer(j)->GetActor()->getPrevPosWithOffsetZ() - getPlayer(p)->GetActor()->getPosWithOffsetZ()).Sum();
 
 			if (x < closest)
 			{
@@ -403,12 +403,12 @@ void doanimations(void)
 		if (type == anim_floorz)
 		{
 			for (auto p = connecthead; p >= 0; p = connectpoint2[p])
-				if (ps[p].cursector == dasectp)
-					if ((dasectp->floorz - ps[p].GetActor()->getOffsetZ()) < 64)
-						if (ps[p].GetActor()->GetOwner() != nullptr)
+				if (getPlayer(p)->cursector == dasectp)
+					if ((dasectp->floorz - getPlayer(p)->GetActor()->getOffsetZ()) < 64)
+						if (getPlayer(p)->GetActor()->GetOwner() != nullptr)
 						{
-							ps[p].GetActor()->spr.pos.Z += v;
-							ps[p].vel.Z = 0;
+							getPlayer(p)->GetActor()->spr.pos.Z += v;
+							getPlayer(p)->vel.Z = 0;
 						}
 
 			DukeSectIterator it(dasectp);
@@ -1126,7 +1126,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void operateactivators(int low, player_struct* plr)
+void operateactivators(int low, DukePlayer* plr)
 {
 	int i, j, k;
 	Cycler * p;
@@ -1329,7 +1329,7 @@ bool checkhitceiling(sectortype* sectp)
 		if (!data->handler)
 		{
 			sectp->setceilingtexture(data->brokentex);
-			S_PlayActorSound(data->breaksound, ps[screenpeek].GetActor());	// this is nonsense but what the original code did.
+			S_PlayActorSound(data->breaksound, getPlayer(screenpeek)->GetActor());	// this is nonsense but what the original code did.
 		}
 		else
 		{
@@ -1369,7 +1369,7 @@ bool checkhitceiling(sectortype* sectp)
 		}
 		if (data->flags & 2)
 		{
-			ceilingglass(ps[myconnectindex].GetActor(), sectp, 10);
+			ceilingglass(getPlayer(myconnectindex)->GetActor(), sectp, 10);
 		}
 		return true;
 	}
@@ -1413,7 +1413,7 @@ void checkhitdefault(DDukeActor* targ, DDukeActor* proj)
 			auto Owner = proj->GetOwner();
 
 			if (Owner && Owner->isPlayer() && !(targ->flags3 & SFLAG3_NOSHOTGUNBLOOD))
-				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
+				if (getPlayer(Owner->PlayerIndex())->curr_weapon == SHOTGUN_WEAPON)
 				{
 					shoot(targ, DukeBloodSplat3Class);
 					shoot(targ, DukeBloodSplat1Class);
@@ -1468,12 +1468,12 @@ void checkhitdefault(DDukeActor* targ, DDukeActor* proj)
 		if (targ->spr.statnum == STAT_PLAYER)
 		{
 			auto p = targ->PlayerIndex();
-			if (ps[p].newOwner != nullptr)
+			if (getPlayer(p)->newOwner != nullptr)
 			{
-				ps[p].newOwner = nullptr;
-				ps[p].GetActor()->restoreloc();
+				getPlayer(p)->newOwner = nullptr;
+				getPlayer(p)->GetActor()->restoreloc();
 
-				updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &ps[p].cursector);
+				updatesector(getPlayer(p)->GetActor()->getPosWithOffsetZ(), &getPlayer(p)->cursector);
 
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto itActor = it.Next())
@@ -1536,8 +1536,8 @@ void moveclouds(double interpfrac)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += (float)ps[screenpeek].GetActor()->spr.Angles.Yaw.Cos() * 0.5f;
-		cloudy += (float)ps[screenpeek].GetActor()->spr.Angles.Yaw.Sin() * 0.5f;
+		cloudx += (float)getPlayer(screenpeek)->GetActor()->spr.Angles.Yaw.Cos() * 0.5f;
+		cloudy += (float)getPlayer(screenpeek)->GetActor()->spr.Angles.Yaw.Sin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
 			// no clamping here!
@@ -1745,7 +1745,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		switchpal = act->spr.pal;
 
 		// custom switches that maintain themselves can immediately abort.
-		swresult = CallTriggerSwitch(act, &ps[snum]);
+		swresult = CallTriggerSwitch(act, getPlayer(snum));
 		if (swresult == 1) return true;
 	}
 	else
@@ -1796,15 +1796,15 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		if (hitag == 10001 && swdef.flags & SwitchDef::oneway && isRRRA())
 		{
 			act->spr.setspritetexture(swdef.states[1]);
-			if (ps[snum].SeaSick == 0)
-				ps[snum].SeaSick = 350;
-			operateactivators(668, &ps[snum]);
+			if (getPlayer(snum)->SeaSick == 0)
+				getPlayer(snum)->SeaSick = 350;
+			operateactivators(668, getPlayer(snum));
 			operatemasterswitches(668);
-			S_PlayActorSound(328, ps[snum].GetActor());
+			S_PlayActorSound(328, getPlayer(snum)->GetActor());
 			return 1;
 		}
 	}
-	DVector3 v(spos, ps[snum].GetActor()->getOffsetZ());
+	DVector3 v(spos, getPlayer(snum)->GetActor()->getOffsetZ());
 
 	if (swdef.type != SwitchDef::None || isadoorwall(texid))
 	{
@@ -1814,9 +1814,9 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			{
 				FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
 				if (act) S_PlaySound3D(sound, act, v);
-				else S_PlaySound3D(sound, ps[snum].GetActor(), v);
+				else S_PlaySound3D(sound, getPlayer(snum)->GetActor(), v);
 				if (numdips != correctdips) return 0;
-				S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
+				S_PlaySound3D(END_OF_LEVEL_WARN, getPlayer(snum)->GetActor(), v);
 			}
 			if (swdef.type == SwitchDef::Multi)
 			{
@@ -1854,18 +1854,18 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 				case SE_25_PISTON:
 					other->temp_data[4] = !other->temp_data[4];
 					if (other->temp_data[4])
-						FTA(15, &ps[snum]);
-					else FTA(2, &ps[snum]);
+						FTA(15, getPlayer(snum));
+					else FTA(2, getPlayer(snum));
 					break;
 				case SE_21_DROP_FLOOR:
-					FTA(2, &ps[screenpeek]);
+					FTA(2, getPlayer(screenpeek));
 					break;
 				}
 			}
 		}
 
-		operateactivators(lotag, &ps[snum]);
-		operateforcefields(ps[snum].GetActor(), lotag);
+		operateactivators(lotag, getPlayer(snum));
+		operateforcefields(getPlayer(snum)->GetActor(), lotag);
 		operatemasterswitches(lotag);
 
 		if (swdef.type == SwitchDef::Combo) return 1;
@@ -1874,7 +1874,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		{
 			FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
 			if (act) S_PlaySound3D(sound, act, v);
-			else S_PlaySound3D(sound, ps[snum].GetActor(), v);
+			else S_PlaySound3D(sound, getPlayer(snum)->GetActor(), v);
 		}
 		else if (hitag != 0)
 		{
@@ -1883,7 +1883,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			if (act && (flags & SF_TALK) == 0)
 				S_PlaySound3D(hitag, act, v);
 			else
-				S_PlayActorSound(hitag, ps[snum].GetActor());
+				S_PlayActorSound(hitag, getPlayer(snum)->GetActor());
 		}
 
 		return 1;
@@ -1907,7 +1907,7 @@ void animatewalls(void)
 	if (!ff1.isValid()) ff1 = TexMan.CheckForTexture("W_FORCEFIELD", ETextureType::Any);
 	if (!ff2.isValid()) ff2 = TexMan.CheckForTexture("W_FORCEFIELD2", ETextureType::Any);
 
-	if (ps[screenpeek].sea_sick_stat == 1)
+	if (getPlayer(screenpeek)->sea_sick_stat == 1)
 	{
 		for (auto& wal : wall)
 		{

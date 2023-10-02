@@ -48,7 +48,7 @@ int operateTripbomb(int snum);
 //
 //---------------------------------------------------------------------------
 
-void DoFire(player_struct* p, int snum)
+void DoFire(DukePlayer* p, int snum)
 {
 	int i;
 
@@ -105,7 +105,7 @@ void DoFire(player_struct* p, int snum)
 //
 //---------------------------------------------------------------------------
 
-void DoSpawn(player_struct *p, int snum)
+void DoSpawn(DukePlayer *p, int snum)
 {
 	if(!aplWeaponSpawn(p->curr_weapon, snum))
 		return;
@@ -140,7 +140,7 @@ void DoSpawn(player_struct *p, int snum)
 
 void fireweapon_ww(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
@@ -307,7 +307,7 @@ void fireweapon_ww(int snum)
 
 void operateweapon_ww(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	// already firing...

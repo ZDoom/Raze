@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "gamestate.h"
 #include "gameinput.h"
+#include "coreplayer.h"
 #include "g_input.h"
 #include "d_net.h"
 
@@ -276,10 +277,8 @@ void GameInput::processInputBits()
 	}
 	else dpad_lock = 0;
 
-	gi->reapplyInputBits(&inputBuffer);
 	const auto crouchState = gi->getCrouchState();
-
-	inputBuffer.actions |= ActionsToSend;
+	inputBuffer.actions |= ActionsToSend | (PlayerArray[myconnectindex]->cmd.ucmd.actions & SB_CENTERVIEW);
 	ActionsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && joyAxes[JOYAXIS_Forward] > 0)) 
@@ -722,7 +721,7 @@ CCMD(warptocoords)
 		return;
 	}
 
-	if (const auto pActor = gi->getConsoleActor())
+	if (const auto pActor = PlayerArray[myconnectindex]->actor)
 	{
 		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
 		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));

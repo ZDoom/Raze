@@ -144,7 +144,7 @@ void SetSlidorInactive(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void DoSlidorOperate(PLAYER* pp, sectortype* sect)
+void DoSlidorOperate(SWPlayer* pp, sectortype* sect)
 {
     short match;
 
@@ -165,7 +165,7 @@ void DoSlidorOperate(PLAYER* pp, sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-void DoSlidorMatch(PLAYER* pp, short match, bool manual)
+void DoSlidorMatch(SWPlayer* pp, short match, bool manual)
 {
     SWStatIterator it(STAT_SLIDOR);
     while (auto actor = it.Next())
@@ -577,11 +577,11 @@ int DoSlidor(DSWActor* actor)
             if (!found)
             {
                 short pnum;
-                PLAYER* pp;
+                SWPlayer* pp;
                 // go ahead and look for players clip box bounds
                 TRAVERSE_CONNECT(pnum)
                 {
-                    pp = Player + pnum;
+                    pp = getPlayer(pnum);
 
                     if (pp->lo_sectp == actor->sector() ||
                         pp->hi_sectp == actor->sector())

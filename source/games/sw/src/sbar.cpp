@@ -89,7 +89,7 @@ void UpdateStatusBar()
     ::UpdateStatusBar(&info);
 
 
-    PLAYER* pp = &Player[screenpeek];
+    SWPlayer* pp = getPlayer(screenpeek);
     if (pp->cookieTime > 0)
     {
         const int MESSAGE_LINE = 142;    // Used to be 164

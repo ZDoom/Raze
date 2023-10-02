@@ -462,7 +462,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	case kViewEffectShowWeapon:
 	{
 		assert(owneractor->IsPlayerActor());
-		PLAYER* pPlayer = getPlayer(owneractor);
+		auto pPlayer = getPlayer(owneractor);
 		WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
 		auto nTex = weaponIcon.textureID();
 		if (!nTex.isValid()) break;
@@ -477,12 +477,12 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		int nVoxel = GetExtInfo(nTex).tiletovox;
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			auto gView = &gPlayer[gViewIndex];
-			pNSprite->Angles.Yaw = gView->actor->spr.Angles.Yaw + DAngle90; // always face viewer
+			auto gView = getPlayer(gViewIndex);
+			pNSprite->Angles.Yaw = gView->GetActor()->spr.Angles.Yaw + DAngle90; // always face viewer
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->pos.XY() += gView->actor->spr.Angles.Yaw.ToVector() * 8;
+				pNSprite->pos.XY() += gView->GetActor()->spr.Angles.Yaw.ToVector() * 8;
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->Angles.Yaw += DAngle90;
@@ -527,7 +527,7 @@ static int GetOctant(const DVector2& dPos)
 
 void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA, double interpfrac)
 {
-	PLAYER* pPlayer = &gPlayer[gViewIndex];
+	BloodPlayer* pPlayer = getPlayer(gViewIndex);
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
 	DAngle myclock = DAngle::fromBuild((PlayClock << 3) + (4 << 3) * interpfrac);
@@ -775,7 +775,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			case kMissileFlareRegular:
 			case kMissileFlareAlt:
 				if (pTSprite->statnum == kStatFlare) {
-					if (owneractor->GetTarget() == pPlayer->actor)
+					if (owneractor->GetTarget() == pPlayer->GetActor())
 					{
 						pTSprite->scale = DVector2(0, 0);
 						break;
@@ -817,7 +817,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			if (powerupCheck(pPlayer, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
 			if (owneractor->IsPlayerActor()) {
-				PLAYER* thisPlayer = getPlayer(owneractor);
+				auto thisPlayer = getPlayer(owneractor);
 				if (powerupCheck(thisPlayer, kPwUpShadowCloak) && !powerupCheck(pPlayer, kPwUpBeastVision)) {
 					pTSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 					pTSprite->pal = 5;
@@ -843,7 +843,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					if (pNTSprite) {
 						POSTURE* pPosture = &thisPlayer->pPosture[thisPlayer->lifeMode][thisPlayer->posture];
 						pNTSprite->pos.XY() += pTSprite->Angles.Yaw.ToVector() * pPosture->xOffset;
-						pNTSprite->pos.Z = thisPlayer->actor->spr.pos.Z - pPosture->zOffset;
+						pNTSprite->pos.Z = thisPlayer->GetActor()->spr.pos.Z - pPosture->zOffset;
 					}
 				}
 
@@ -867,7 +867,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				}
 			}
 
-			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != viewFirstPerson) {
+			if (pTSprite->ownerActor != pPlayer->GetActor() || gViewPos != viewFirstPerson) {
 				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);

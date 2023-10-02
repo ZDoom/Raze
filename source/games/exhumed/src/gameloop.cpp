@@ -79,8 +79,8 @@ void GameInterface::Render()
     if (nFreeze != 2) // Hide when Ramses is talking.
     {
         DrawStatusBar();
-        auto offsets = PlayerList[nLocalPlayer].Angles.getCrosshairOffsets(interpfrac);
-        DrawCrosshair(PlayerList[nLocalPlayer].nHealth >> 3, offsets.first.X, offsets.first.Y, 1, offsets.second);
+        auto offsets = getPlayer(nLocalPlayer)->Angles.getCrosshairOffsets(interpfrac);
+        DrawCrosshair(getPlayer(nLocalPlayer)->nHealth >> 3, offsets.first.X, offsets.first.Y, 1, offsets.second);
 
         if (paused && !M_Active())
         {
@@ -183,7 +183,7 @@ void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
     {
         if (to_map->levelNumber > nBestLevel) nBestLevel = to_map->levelNumber - 1;
 
-        if (to_map->gameflags & LEVEL_EX_COUNTDOWN) PlayerList[0].nLives = 0;
+        if (to_map->gameflags & LEVEL_EX_COUNTDOWN) getPlayer(0)->nLives = 0;
         if (to_map->gameflags & LEVEL_EX_TRAINING)
         {
             gameaction = ga_nextlevel;

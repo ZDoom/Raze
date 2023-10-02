@@ -60,10 +60,10 @@ void premapcontroller(DDukeActor* ac)
 
 void pickrandomspot(int snum)
 {
-	player_struct* p;
+	DukePlayer* p;
 	int i;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 
 	if( ud.multimode > 1 && ud.coop != 1)
 		i = krand()%numplayersprites;
@@ -85,9 +85,9 @@ void pickrandomspot(int snum)
 
 void resetplayerstats(int snum)
 {
-	player_struct* p;
+	DukePlayer* p;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 
 	gFullMap = 0; 
 	p->dead_flag        = 0;
@@ -127,7 +127,7 @@ void resetplayerstats(int snum)
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
 	p->player_par       = 0;
-	p->sync.actions |= SB_CENTERVIEW;
+	p->cmd.ucmd.actions |= SB_CENTERVIEW;
 	p->airleft          = 15*26;
 	p->rapid_fire_hold  = 0;
 	p->toggle_key_flag  = 0;
@@ -259,7 +259,7 @@ void resetplayerstats(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetweapons(player_struct* p)
+void resetweapons(DukePlayer* p)
 {
 	for (int weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
 	{
@@ -293,7 +293,7 @@ void resetweapons(player_struct* p)
 		p->gotweapon[SLINGBLADE_WEAPON] = true;
 		p->ammo_amount[SLINGBLADE_WEAPON] = 1;
 	}
-	OnEvent(EVENT_RESETWEAPONS, int(p - ps), nullptr, -1);
+	OnEvent(EVENT_RESETWEAPONS, int(p - (DukePlayer*)PlayerArray), nullptr, -1);
 }
 
 //---------------------------------------------------------------------------
@@ -302,7 +302,7 @@ void resetweapons(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void resetinventory(player_struct* p)
+void resetinventory(DukePlayer* p)
 {
 	p->inven_icon = 0;
 	p->boot_amount = 0;
@@ -362,7 +362,7 @@ void resetinventory(player_struct* p)
 		ufocnt = 0;
 		hulkspawn = 2;
 	}
-	OnEvent(EVENT_RESETINVENTORY, int(p - ps), p->GetActor());
+	OnEvent(EVENT_RESETINVENTORY, int(p - (DukePlayer*)PlayerArray), p->GetActor());
 }
 
 
@@ -374,9 +374,9 @@ void resetinventory(player_struct* p)
 
 void resetprestat(int snum,int g)
 {
-	player_struct* p;
+	DukePlayer* p;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 
 	spriteqloc = 0;
 	for(auto& p : spriteq) p = nullptr;
@@ -489,7 +489,7 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	auto newActor = CreateActor(ps[0].cursector, startpos,
+	auto newActor = CreateActor(getPlayer(0)->cursector, startpos,
 		DukePlayerPawnClass /*fixme for RR later!*/, 0, DVector2(0, 0), startang, 0., 0., nullptr, 10);
 
 	newActor->spr.Angles.Pitch = DAngle::fromDeg(-17.354);
@@ -497,55 +497,55 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
-		aimmode[i] = ps[i].aim_mode;
+		aimmode[i] = getPlayer(i)->aim_mode;
 		if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
 		{
 			for (j = 0; j < MAX_WEAPONS; j++)
 			{
-				tsbar[i].ammo_amount[j] = ps[i].ammo_amount[j];
-				tsbar[i].gotweapon[j] = ps[i].gotweapon[j];
+				tsbar[i].ammo_amount[j] = getPlayer(i)->ammo_amount[j];
+				tsbar[i].gotweapon[j] = getPlayer(i)->gotweapon[j];
 			}
 
-			tsbar[i].shield_amount = ps[i].shield_amount;
-			tsbar[i].curr_weapon = ps[i].curr_weapon;
-			tsbar[i].inven_icon = ps[i].inven_icon;
+			tsbar[i].shield_amount = getPlayer(i)->shield_amount;
+			tsbar[i].curr_weapon = getPlayer(i)->curr_weapon;
+			tsbar[i].inven_icon = getPlayer(i)->inven_icon;
 
-			tsbar[i].firstaid_amount = ps[i].firstaid_amount;
-			tsbar[i].steroids_amount = ps[i].steroids_amount;
-			tsbar[i].holoduke_amount = ps[i].holoduke_amount;
-			tsbar[i].jetpack_amount = ps[i].jetpack_amount;
-			tsbar[i].heat_amount = ps[i].heat_amount;
-			tsbar[i].scuba_amount = ps[i].scuba_amount;
-			tsbar[i].boot_amount = ps[i].boot_amount;
+			tsbar[i].firstaid_amount = getPlayer(i)->firstaid_amount;
+			tsbar[i].steroids_amount = getPlayer(i)->steroids_amount;
+			tsbar[i].holoduke_amount = getPlayer(i)->holoduke_amount;
+			tsbar[i].jetpack_amount = getPlayer(i)->jetpack_amount;
+			tsbar[i].heat_amount = getPlayer(i)->heat_amount;
+			tsbar[i].scuba_amount = getPlayer(i)->scuba_amount;
+			tsbar[i].boot_amount = getPlayer(i)->boot_amount;
 		}
 	}
 
 	resetplayerstats(0);
 
 	for (i = 1; i < MAXPLAYERS; i++)
-		ps[i] = ps[0];
+		*getPlayer(i) = *getPlayer(0);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
-		ps[i].aim_mode = aimmode[i];
+		getPlayer(i)->aim_mode = aimmode[i];
 		if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
 		{
 			for (j = 0; j < MAX_WEAPONS; j++)
 			{
-				ps[i].ammo_amount[j] = tsbar[i].ammo_amount[j];
-				ps[i].gotweapon[j] = tsbar[i].gotweapon[j];
+				getPlayer(i)->ammo_amount[j] = tsbar[i].ammo_amount[j];
+				getPlayer(i)->gotweapon[j] = tsbar[i].gotweapon[j];
 			}
-			ps[i].shield_amount = tsbar[i].shield_amount;
-			ps[i].curr_weapon = tsbar[i].curr_weapon;
-			ps[i].inven_icon = tsbar[i].inven_icon;
+			getPlayer(i)->shield_amount = tsbar[i].shield_amount;
+			getPlayer(i)->curr_weapon = tsbar[i].curr_weapon;
+			getPlayer(i)->inven_icon = tsbar[i].inven_icon;
 
-			ps[i].firstaid_amount = tsbar[i].firstaid_amount;
-			ps[i].steroids_amount = tsbar[i].steroids_amount;
-			ps[i].holoduke_amount = tsbar[i].holoduke_amount;
-			ps[i].jetpack_amount = tsbar[i].jetpack_amount;
-			ps[i].heat_amount = tsbar[i].heat_amount;
-			ps[i].scuba_amount = tsbar[i].scuba_amount;
-			ps[i].boot_amount = tsbar[i].boot_amount;
+			getPlayer(i)->firstaid_amount = tsbar[i].firstaid_amount;
+			getPlayer(i)->steroids_amount = tsbar[i].steroids_amount;
+			getPlayer(i)->holoduke_amount = tsbar[i].holoduke_amount;
+			getPlayer(i)->jetpack_amount = tsbar[i].jetpack_amount;
+			getPlayer(i)->heat_amount = tsbar[i].heat_amount;
+			getPlayer(i)->scuba_amount = tsbar[i].scuba_amount;
+			getPlayer(i)->boot_amount = tsbar[i].boot_amount;
 		}
 	}
 
@@ -575,12 +575,12 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 			act->spr.xoffset = 0;
 			act->clipdist = 16;
 
-			if (ps[j].last_extra == 0)
+			if (getPlayer(j)->last_extra == 0)
 			{
-				ps[j].last_extra = gs.max_player_health;
+				getPlayer(j)->last_extra = gs.max_player_health;
 				act->spr.extra = gs.max_player_health;
 			}
-			else act->spr.extra = ps[j].last_extra;
+			else act->spr.extra = getPlayer(j)->last_extra;
 
 			act->spr.yint = j;
 
@@ -588,24 +588,24 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 			{
 				if (act->spr.pal == 0)
 				{
-					act->spr.pal = ps[j].palookup = which_palookup;
+					act->spr.pal = getPlayer(j)->palookup = which_palookup;
 					ud.user_pals[j] = which_palookup;
 					which_palookup++;
 					if (which_palookup == 17) which_palookup = 9;
 				}
-				else ud.user_pals[j] = ps[j].palookup = act->spr.pal;
+				else ud.user_pals[j] = getPlayer(j)->palookup = act->spr.pal;
 			}
 			else
-				act->spr.pal = ps[j].palookup = ud.user_pals[j];
+				act->spr.pal = getPlayer(j)->palookup = ud.user_pals[j];
 
-			ps[j].actor = act;
-			ps[j].Angles.initialize(ps[j].actor, (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90);
-			ps[j].frag_ps = j;
+			getPlayer(j)->actor = act;
+			getPlayer(j)->Angles.initialize(getPlayer(j)->GetActor(), (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90);
+			getPlayer(j)->frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].setbobpos();
+			getPlayer(j)->setbobpos();
 
-			updatesector(act->spr.pos, &ps[j].cursector);
+			updatesector(act->spr.pos, &getPlayer(j)->cursector);
 
 			j = connectpoint2[j];
 
@@ -626,7 +626,7 @@ void prelevel_common(int g)
 	Level.clearStats();
 	if (isRRRA()) ud.mapflags = MFLAG_ALLSECTORTYPES;
 	else if (isRR()) ud.mapflags = MFLAG_SECTORTYPE800;
-	auto p = &ps[screenpeek];
+	auto p = getPlayer(screenpeek);
 	p->sea_sick_stat = 0;
 	ud.ufospawnsminion = 0;
 	ud.pistonsound = 0;
@@ -675,8 +675,8 @@ void prelevel_common(int g)
 			if (tilesurface(sectp->ceilingtexture) == TSURF_SCROLLSKY && numclouds < 127)
 				clouds[numclouds++] = sectp;
 
-			if (ps[0].one_parallax_sectnum == nullptr)
-				ps[0].one_parallax_sectnum = sectp;
+			if (getPlayer(0)->one_parallax_sectnum == nullptr)
+				getPlayer(0)->one_parallax_sectnum = sectp;
 		}
 
 		if (sectp->lotag == 32767) //Found a secret room
@@ -687,7 +687,7 @@ void prelevel_common(int g)
 
 		if (sectp->lotag == -1)
 		{
-			ps[0].Exit = sectp->walls[0].pos;
+			getPlayer(0)->Exit = sectp->walls[0].pos;
 			continue;
 		}
 	}
@@ -778,7 +778,7 @@ void resettimevars(void)
 
 void donewgame(MapRecord* map, int sk)
 {
-	auto p = &ps[0];
+	auto p = getPlayer(0);
 	show_shareware = 26 * 34;
 
 	ud.player_skill = sk;
@@ -1058,7 +1058,7 @@ void cacheit(void)
 //
 //---------------------------------------------------------------------------
 
-static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
+static int LoadTheMap(MapRecord *mi, DukePlayer*p, int gamemode)
 {
 	int16_t lbang;
 	if (isShareware() && (mi->flags & MI_USERMAP))
@@ -1116,8 +1116,8 @@ static void clearfrags(void)
 {
 	for (int i = 0; i < ud.multimode; i++)
 	{
-		ps[i].frag = ps[i].fraggedself = 0;
-		memset(ps[i].frags, 0, sizeof(ps[i].frags));
+		getPlayer(i)->frag = getPlayer(i)->fraggedself = 0;
+		memset(getPlayer(i)->frags, 0, sizeof(getPlayer(i)->frags));
 	}
 }
 
@@ -1146,7 +1146,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	FX_StopAllSounds();
 	S_SetReverb(0);
 
-	auto p = &ps[0];
+	auto p = getPlayer(0);
 
 	LoadTheMap(mi, p, gamemode);
 
@@ -1162,29 +1162,29 @@ void enterlevel(MapRecord *mi, int gamemode)
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
-		auto pn = ps[i].GetActor()->sector()->floortexture;
+		auto pn = getPlayer(i)->GetActor()->sector()->floortexture;
 		if (tileflags(pn) & TFLAG_CLEARINVENTORY)
 		{
-			resetinventory(&ps[i]);
+			resetinventory(getPlayer(i));
 			clearweapon = true;
 		}
 		if (clearweapon)
 		{
-			resetweapons(&ps[i]);
-			ps[i].gotweapon[PISTOL_WEAPON] = false;
-			ps[i].ammo_amount[PISTOL_WEAPON] = 0;
-			ps[i].curr_weapon = KNEE_WEAPON;
-			ps[i].kickback_pic = 0;
-			ps[i].okickback_pic = ps[i].kickback_pic = 0;
+			resetweapons(getPlayer(i));
+			getPlayer(i)->gotweapon[PISTOL_WEAPON] = false;
+			getPlayer(i)->ammo_amount[PISTOL_WEAPON] = 0;
+			getPlayer(i)->curr_weapon = KNEE_WEAPON;
+			getPlayer(i)->kickback_pic = 0;
+			getPlayer(i)->okickback_pic = getPlayer(i)->kickback_pic = 0;
 		}
-		if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(&ps[i]);
+		if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(getPlayer(i));
 	}
 	resetmys();
 
 	global_random = 0;
 
 	ud.last_level = 1;
-	ps[myconnectindex].over_shoulder_on = 0;
+	getPlayer(myconnectindex)->over_shoulder_on = 0;
 	clearfrags();
 	resettimevars();  // Here we go
 	setLevelStarted(mi);
@@ -1205,11 +1205,11 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		resetweapons(&ps[i]);
-		resetinventory(&ps[i]);
+		resetweapons(getPlayer(i));
+		resetinventory(getPlayer(i));
 	}
 
-	ps[0].last_extra = gs.max_player_health;
+	getPlayer(0)->last_extra = gs.max_player_health;
 
 
 	if (skill == -1) skill = ud.player_skill;
@@ -1223,7 +1223,7 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 
 	donewgame(map, skill);
 	enterlevel(map, 0);
-	if (isShareware() && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
+	if (isShareware() && ud.recstat != 2) FTA(QUOTE_F1HELP, getPlayer(myconnectindex));
 
 	PlayerColorChanged();
 }

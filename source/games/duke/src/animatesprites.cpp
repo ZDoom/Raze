@@ -49,7 +49,7 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 			floorz = h->floorz;
 
 
-		if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].GetActor()->getOffsetZ() < floorz)
+		if (h->spr.pos.Z - floorz < 8 && getPlayer(screenpeek)->GetActor()->getOffsetZ() < floorz)
 		{
 			auto shadowspr = tsprites.newTSprite();
 			*shadowspr = *t;
@@ -74,7 +74,7 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 			else
 			{
 				// Alter the shadow's position so that it appears behind the sprite itself.
-				auto look = (shadowspr->pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).Angle();
+				auto look = (shadowspr->pos.XY() - getPlayer(screenpeek)->GetActor()->spr.pos.XY()).Angle();
 				shadowspr->pos.XY() += look.ToVector() * 2;
 			}
 		}
@@ -219,7 +219,7 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 		{
 			if (t->spritetexture() == h->spr.spritetexture())
 			{
-				ps[screenpeek].visibility = -127;
+				getPlayer(screenpeek)->visibility = -127;
 				lastvisinc = PlayClock + 32;
 			}
 		}

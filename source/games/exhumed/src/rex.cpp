@@ -364,7 +364,7 @@ void AIRex::Tick(RunListEvent* ev)
                     if (pHitActor->spr.statnum == 100)
                     {
                         auto nPlayer = GetPlayerFromActor(nMov.actor());
-                        PlayerList[nPlayer].nThrust += vel / 4096;
+                        getPlayer(nPlayer)->nThrust += vel / 4096;
                         pHitActor->vel.Z = -14;
                     }
                     else

@@ -108,7 +108,7 @@ void FreeRa(int nPlayer)
 
 void BuildRa(int nPlayer)
 {
-    auto pPlayerActor = PlayerList[nPlayer].pActor;
+    auto pPlayerActor = getPlayer(nPlayer)->GetActor();
 
     auto pActor = insertActor(pPlayerActor->sector(), 203);
 
@@ -189,7 +189,7 @@ void MoveRaToEnemy(int nPlayer)
         }
 
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-        pTarget = PlayerList[nPlayer].pActor;
+        pTarget = getPlayer(nPlayer)->GetActor();
     }
 
     pActor->spr.pos = pTarget->spr.pos.plusZ(-GetActorHeight(pTarget));
@@ -208,7 +208,7 @@ void MoveRaToEnemy(int nPlayer)
 void AIRa::Tick(RunListEvent* ev)
 {
     int nPlayer = RunData[ev->nRun].nObjIndex;
-    int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
+    int nCurrentWeapon = getPlayer(nPlayer)->nCurrentWeapon;
 
     DExhumedActor* pActor = Ra[nPlayer].pActor;
     if (!pActor) return;
@@ -218,7 +218,7 @@ void AIRa::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    Ra[nPlayer].pTarget = PlayerList[nPlayer].pTarget;
+    Ra[nPlayer].pTarget = getPlayer(nPlayer)->pTarget;
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
     if (Ra[nPlayer].nAction)
@@ -295,9 +295,9 @@ void AIRa::Tick(RunListEvent* ev)
             }
             else
             {
-                if (PlayerList[nPlayer].nAmmo[kWeaponRing] > 0)
+                if (getPlayer(nPlayer)->nAmmo[kWeaponRing] > 0)
                 {
-                    runlist_DamageEnemy(Ra[nPlayer].pTarget, PlayerList[Ra[nPlayer].nPlayer].pActor, BulletInfo[kWeaponRing].nDamage);
+                    runlist_DamageEnemy(Ra[nPlayer].pTarget, getPlayer(Ra[nPlayer].nPlayer)->GetActor(), BulletInfo[kWeaponRing].nDamage);
                     AddAmmo(nPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
                     SetQuake(pActor, 100);
                 }

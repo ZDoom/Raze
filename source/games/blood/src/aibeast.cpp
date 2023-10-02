@@ -120,7 +120,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 							else
 								nDamage = nBaseDamage + int(nBaseDamage2 *  ((nDist - nDist2) / nDist));
 							if (actor2->IsPlayerActor())
-								gPlayer[actor2->GetType() - kDudePlayer1].quakeEffect += nDamage * 4;
+								getPlayer(actor2)->quakeEffect += nDamage * 4;
 							actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 						}
 					}
@@ -148,7 +148,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 					nDamage = nBaseDamage + int(nBaseDamage2 * ((nDist - nDist2) / nDist));
 
 				if (actor2->IsPlayerActor())
-					gPlayer[actor2->GetType() - kDudePlayer1].quakeEffect += nDamage * 4;
+					getPlayer(actor2)->quakeEffect += nDamage * 4;
 				actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 			}
 		}

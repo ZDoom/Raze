@@ -622,7 +622,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
 
                 runlist_DamageEnemy(pActor, nullptr, 5);
 
-                if (pActor->spr.statnum == 100 && PlayerList[GetPlayerFromActor(pActor)].nHealth <= 0)
+                if (pActor->spr.statnum == 100 && getPlayer(GetPlayerFromActor(pActor))->nHealth <= 0)
                 {
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie],
                         pActor->spr.pos,
@@ -1556,7 +1556,7 @@ void DoFinale()
             PlayFX2(StaticSound[kSound78] | 0x2000, pFinaleSpr);
 
             for (int i = 0; i < nTotalPlayers; i++) {
-                PlayerList[i].nQuake = 5.;
+                getPlayer(i)->nQuake = 5.;
             }
         }
     }

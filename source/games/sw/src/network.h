@@ -32,14 +32,14 @@ enum
     MAXSYNCBYTES = 16
 };
 extern bool PredictionOn;
-extern PLAYER PredictPlayer;
-extern PLAYER* ppp;
+extern SWPlayer PredictPlayer;
+extern SWPlayer* ppp;
 extern short predictangpos[];
 extern int predictmovefifoplc;
 extern bool Prediction;
 
-void InitPrediction(PLAYER* pp);
-void DoPrediction(PLAYER* ppp);
+void InitPrediction(SWPlayer* pp);
+void DoPrediction(SWPlayer* ppp);
 void CorrectPrediction(int actualfifoplc);
 
 

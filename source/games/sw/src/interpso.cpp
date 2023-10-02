@@ -481,8 +481,8 @@ void so_dointerpolations(double interpfrac)                      // Stick at beg
         if (CommEnabled &&
             ((interp->lasttic != synctics) ||
              !(sop->controller) ||
-             ((Player[screenpeek].sop_control == sop) &&
-               !Player[screenpeek].sop_remote)))
+             ((getPlayer(screenpeek)->sop_control == sop) &&
+               !getPlayer(screenpeek)->sop_remote)))
             continue;
 
         double ratio = interpfrac * synctics + interp->tic;

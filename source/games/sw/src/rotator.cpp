@@ -38,9 +38,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoRotatorMatch(PLAYER* pp, short match, bool);
+void DoRotatorMatch(SWPlayer* pp, short match, bool);
 bool TestRotatorMatchActive(short match);
-void DoMatchEverything(PLAYER* pp, short match, short state);
+void DoMatchEverything(SWPlayer* pp, short match, short state);
 void DoRotatorSetInterp(DSWActor*);
 void DoRotatorStopInterp(DSWActor*);
 
@@ -149,7 +149,7 @@ void SetRotatorInactive(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void DoRotatorOperate(PLAYER* pp, sectortype* sect)
+void DoRotatorOperate(SWPlayer* pp, sectortype* sect)
 {
     short match = sect->hitag;
 
@@ -167,7 +167,7 @@ void DoRotatorOperate(PLAYER* pp, sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-void DoRotatorMatch(PLAYER* pp, short match, bool manual)
+void DoRotatorMatch(SWPlayer* pp, short match, bool manual)
 {
     DSWActor* firstVator = nullptr;
 

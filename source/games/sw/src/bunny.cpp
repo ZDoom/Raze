@@ -993,7 +993,7 @@ int DoBunnyQuickJump(DSWActor* actor)
         {
             if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
-                PLAYER* pp = nullptr;
+                SWPlayer* pp = nullptr;
 
                 if (RandomRange(1000) < 995 && hitActor->user.spal != PALETTE_PLAYER0) return false;
 
@@ -1012,10 +1012,10 @@ int DoBunnyQuickJump(DSWActor* actor)
                         int choose_snd;
                         static const int fagsnds[] = {DIGI_FAGRABBIT1,DIGI_FAGRABBIT2,DIGI_FAGRABBIT3};
 
-                        if (pp == Player+myconnectindex)
+                        if (pp == getPlayer(myconnectindex))
                         {
                             choose_snd = StdRandomRange(2<<8)>>8;
-                            if (FAFcansee(ActorVectOfTop(actor),actor->sector(),pp->actor->getPosWithOffsetZ(), pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(ActorVectOfTop(actor),actor->sector(),pp->GetActor()->getPosWithOffsetZ(), pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1027,10 +1027,10 @@ int DoBunnyQuickJump(DSWActor* actor)
                         int choose_snd;
                         static const int straightsnds[] = {DIGI_RABBITHUMP1,DIGI_RABBITHUMP2, DIGI_RABBITHUMP3,DIGI_RABBITHUMP4};
 
-                        if (pp == Player+myconnectindex)
+                        if (pp == getPlayer(myconnectindex))
                         {
                             choose_snd = StdRandomRange(3<<8)>>8;
-                            if (FAFcansee(ActorVectOfTop(actor), actor->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector) && Facing(actor, actor->user.targetActor))
+                            if (FAFcansee(ActorVectOfTop(actor), actor->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector) && Facing(actor, actor->user.targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler | v3df_follow | v3df_dontpan, pp);
                         }
                     }

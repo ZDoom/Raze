@@ -3,7 +3,7 @@
 #include "names.h"
 #include "packet.h"
 #include "d_net.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 #include "texturemanager.h"
 
 BEGIN_DUKE_NS
@@ -224,15 +224,12 @@ struct player_orig
 	sectortype* os;
 };
 
-struct player_struct
+struct DukePlayer final : public CorePlayer
 {
 	DVector3 vel;
 	DVector2 bobpos;
 	DVector2 fric;
 	DVector2 Exit;
-
-	// player's horizon and angle structs.
-	PlayerAngles Angles;
 
 	uint16_t frags[MAXPLAYERS];
 
@@ -271,7 +268,7 @@ struct player_struct
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references.
 	walltype* access_wall;
-	DDukeActor* actor;
+	DDukeActor* GetActor() override;
 	TObjPtr<DDukeActor*> actorsqu, wackedbyactor, on_crane, holoduke_on, somethingonplayer, access_spritenum, dummyplayersprite, newOwner;
 
 	short last_extra, subweapon;
@@ -348,10 +345,6 @@ struct player_struct
 
 	TArray<GameVarValue> uservars;
 
-	// input stuff.
-	InputPacket sync;
-
-	DDukeActor* GetActor();
 	int GetPlayerNum();
 
 	void apply_seasick();
@@ -382,20 +375,20 @@ struct player_struct
 
 	void updatecentering(const int snum)
 	{
-		if (!(sync.actions & SB_CENTERVIEW))
+		if (!(cmd.ucmd.actions & SB_CENTERVIEW))
 			return;
 
 		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
 		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370; // Build horizon value of 5.
 
-		if ((centertest && returnlock) || !sync.horz)
+		if ((centertest && returnlock) || !cmd.ucmd.horz)
 		{
 			setForcedSyncInput(snum);
-			sync.horz = 0;
+			cmd.ucmd.horz = 0;
 		}
 		else
 		{
-			sync.actions &= ~SB_CENTERVIEW;
+			cmd.ucmd.actions &= ~SB_CENTERVIEW;
 		}
 	}
 };

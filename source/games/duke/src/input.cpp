@@ -54,25 +54,25 @@ void hud_input(int plnum)
 {
 	int i, k;
 	uint8_t dainv;
-	player_struct* p;
+	DukePlayer* p;
 
-	p = &ps[plnum];
+	p = getPlayer(plnum);
 	auto pact = p->GetActor();
 
 	i = p->aim_mode;
 	p->aim_mode = !PlayerInput(plnum, SB_AIMMODE);
 	if (p->aim_mode < i)
-		p->sync.actions |= SB_CENTERVIEW;
+		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	p->backupweapon();
 
-	if (isRR() && (p->sync.actions & SB_CROUCH)) p->sync.actions &= ~SB_JUMP;
+	if (isRR() && (p->cmd.ucmd.actions & SB_CROUCH)) p->cmd.ucmd.actions &= ~SB_JUMP;
 
 	if ((isRR() && p->drink_amt > 88))
-		p->sync.actions |= SB_LOOK_LEFT;
+		p->cmd.ucmd.actions |= SB_LOOK_LEFT;
 	if ((isRR() && p->drink_amt > 99))
-		p->sync.actions |= SB_LOOK_DOWN;
+		p->cmd.ucmd.actions |= SB_LOOK_DOWN;
 
 	if (isRR())
 	{
@@ -482,7 +482,7 @@ void hud_input(int plnum)
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
 			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() != 0)
 			{
-				p->sync.actions &= ~SB_TURNAROUND;
+				p->cmd.ucmd.actions &= ~SB_TURNAROUND;
 			}
 		}
 	}
@@ -496,7 +496,7 @@ void hud_input(int plnum)
 
 unsigned GameInterface::getCrouchState()
 {
-	const auto p = &ps[myconnectindex];
+	const auto p = getPlayer(myconnectindex);
 	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
 	const int crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge) && !p->jetpack_on;
 	const int disableToggle = (!crouchable && p->on_ground) || p->jetpack_on || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
@@ -511,7 +511,7 @@ unsigned GameInterface::getCrouchState()
 
 void GameInterface::doPlayerMovement(const float scaleAdjust)
 {
-	auto const p = &ps[myconnectindex];
+	auto const p = getPlayer(myconnectindex);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{

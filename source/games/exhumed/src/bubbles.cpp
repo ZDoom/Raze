@@ -53,7 +53,7 @@ static DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector, cons
         nSize -= 4;
 
     // Was inita global previously.
-    const auto nAngle = PlayerList[nPlayer].pActor->spr.Angles.Yaw;
+    const auto nAngle = getPlayer(nPlayer)->GetActor()->spr.Angles.Yaw;
     const auto pActor = insertActor(pSector, 402);
 
 	pActor->spr.pos = pos;
