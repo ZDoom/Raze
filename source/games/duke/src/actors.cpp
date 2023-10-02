@@ -2116,12 +2116,16 @@ void handle_se02(DDukeActor* actor)
 
 		auto vect = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
-		for (int p = connecthead; p >= 0; p = connectpoint2[p])
-			if (getPlayer(p)->cursector == actor->sector() && getPlayer(p)->on_ground)
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
+		{
+			const auto p = getPlayer(i);
+
+			if (p->cursector == actor->sector() && p->on_ground)
 			{
-				getPlayer(p)->GetActor()->spr.pos.XY() += vect;
-				getPlayer(p)->bobpos += vect;
+				p->GetActor()->spr.pos.XY() += vect;
+				p->bobpos += vect;
 			}
+		}
 
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
