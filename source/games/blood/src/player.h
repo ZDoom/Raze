@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dude.h"
 #include "levels.h"
 #include "qav.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 
 BEGIN_BLD_NS
 
@@ -78,12 +78,10 @@ struct POSTURE
 
 extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
-struct BloodPlayer
+struct BloodPlayer final : public CorePlayer
 {
 	DBloodActor* actor;
 	DUDEINFO* pDudeInfo;
-	InputPacket         input;
-	PlayerAngles        Angles;
 	uint8_t             newWeapon;
 	int                 weaponQav;
 	int                 qavCallback;

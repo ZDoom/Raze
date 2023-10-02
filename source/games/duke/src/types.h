@@ -3,7 +3,7 @@
 #include "names.h"
 #include "packet.h"
 #include "d_net.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 #include "texturemanager.h"
 
 BEGIN_DUKE_NS
@@ -224,15 +224,12 @@ struct player_orig
 	sectortype* os;
 };
 
-struct DukePlayer
+struct DukePlayer final : public CorePlayer
 {
 	DVector3 vel;
 	DVector2 bobpos;
 	DVector2 fric;
 	DVector2 Exit;
-
-	// player's horizon and angle structs.
-	PlayerAngles Angles;
 
 	uint16_t frags[MAXPLAYERS];
 
@@ -347,9 +344,6 @@ struct DukePlayer
 	double MotoSpeed;
 
 	TArray<GameVarValue> uservars;
-
-	// input stuff.
-	InputPacket input;
 
 	DDukeActor* actor;
 	int GetPlayerNum();

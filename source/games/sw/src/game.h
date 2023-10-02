@@ -45,7 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamecontrol.h"
 #include "gamestruct.h"
 #include "packet.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 #include "serialize_obj.h"
 #include "texturemanager.h"
 #include "states.h"
@@ -1676,7 +1676,7 @@ END_SW_NS
 
 BEGIN_SW_NS
 
-struct SWPlayer
+struct SWPlayer final : public CorePlayer
 {
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -1725,7 +1725,6 @@ struct SWPlayer
     bool insector() const { return cursector != nullptr; }
 
     // variables that do not fit into sprite structure
-    PlayerAngles Angles;
     double recoil_amt;
     int16_t recoil_speed;
     int16_t recoil_ndx;
@@ -1747,7 +1746,6 @@ struct SWPlayer
     double bob_z, obob_z;
 
     //Multiplayer variables
-    InputPacket input;
     InputPacket lastinput;
 
     // must start out as 0

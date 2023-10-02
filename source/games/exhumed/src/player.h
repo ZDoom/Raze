@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once 
 
 #include "gamecontrol.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 
 BEGIN_PS_NS
 
@@ -47,7 +47,7 @@ struct PlayerSave
     DAngle nAngle;
 };
 
-struct ExhumedPlayer
+struct ExhumedPlayer final : public CorePlayer
 {
     DExhumedActor* actor;
     int16_t nHealth;
@@ -73,8 +73,6 @@ struct ExhumedPlayer
     int16_t nLastWeapon;
     int16_t nRun;
 
-    InputPacket input;
-    PlayerAngles Angles;
     sectortype* pPlayerPushSect;
     sectortype* pPlayerViewSect;
 
