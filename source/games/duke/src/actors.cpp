@@ -4274,7 +4274,7 @@ DDukeActor *LocateTheLocator(int n, sectortype* sect)
 void movefta(void)
 {
 	double xx;
-	int canseeme, p;
+	int canseeme;
 	sectortype* psect, * ssect;
 
 	auto check_fta_sounds = [](DDukeActor* act)
@@ -4286,12 +4286,13 @@ void movefta(void)
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
 	while (auto act = it.Next())
 	{
-		p = findplayer(act, &xx);
+		const auto pnum = findplayer(act, &xx);
+		const auto p = getPlayer(pnum);
+		const auto pact = p->GetActor();
 		canseeme = 0;
-
 		ssect = psect = act->sector();
 
-		if (getPlayer(p)->GetActor()->spr.extra > 0)
+		if (pact->spr.extra > 0)
 		{
 			if (xx < 30000 / 16.)
 			{
@@ -4301,8 +4302,8 @@ void movefta(void)
 					if (badguy(act))
 					{
 						auto xyrand = []() -> double { return (64 - (krand() & 127)) * maptoworld; };
-						double px = getPlayer(p)->GetActor()->opos.X - xyrand();
-						double py = getPlayer(p)->GetActor()->opos.Y - xyrand();
+						double px = pact->opos.X - xyrand();
+						double py = pact->opos.Y - xyrand();
 						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{
@@ -4319,14 +4320,14 @@ void movefta(void)
 						{
 							double r1 = zrand(32);
 							double r2 = zrand(52);
-							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, getPlayer(p)->GetActor()->getPrevOffsetZ() - r1 }, getPlayer(p)->cursector);
+							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, pact->getPrevOffsetZ() - r1 }, p->cursector);
 						}
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), getPlayer(p)->GetActor()->getPrevPosWithOffsetZ().plusZ(-(r1 & 31)), getPlayer(p)->cursector);
+						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), pact->getPrevPosWithOffsetZ().plusZ(-(r1 & 31)), p->cursector);
 					}
 
 
@@ -4360,7 +4361,7 @@ void movefta(void)
 				// wakeup is an RR feature, this flag will allow it to use in Duke, too.
 				if ((act->flags1 & SFLAG_MOVEFTA_WAKEUPCHECK))
 				{
-					if (wakeup(act, p))
+					if (wakeup(act, pnum))
 					{
 						act->timetosleep = 0;
 						check_fta_sounds(act);
