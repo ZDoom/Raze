@@ -1215,7 +1215,7 @@ void RestorePortalState()
 void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 {
     // prediction player if prediction is on, else regular player
-    SWPlayer* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
+    SWPlayer* camerapp = (PredictionOn && CommEnabled && pp == &Player[myconnectindex]) ? ppp : pp;
 
     PreDraw();
     PreUpdatePanel(interpfrac);
@@ -1305,7 +1305,7 @@ void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 
     MarkSectorSeen(pp->cursector);
 
-    if ((automapMode != am_off) && pp == Player+myconnectindex)
+    if ((automapMode != am_off) && pp == &Player[myconnectindex])
     {
         SWSpriteIterator it;
         while (auto actor = it.Next())

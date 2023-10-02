@@ -706,7 +706,7 @@ void BossHealthMeter(void)
     if (!(currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SERPENT | LEVEL_SW_BOSSMETER_SUMO | LEVEL_SW_BOSSMETER_ZILLA))) return;
 
     // Don't draw bar for other players
-    if (pp != Player+myconnectindex)
+    if (pp != &Player[myconnectindex])
         return;
 
     // all enemys

@@ -4302,7 +4302,7 @@ void DoPlayerDiveMeter(SWPlayer* pp)
     if (NoMeters) return;
 
     // Don't draw bar from other players
-    if (pp != Player+myconnectindex) return;
+    if (pp != &Player[myconnectindex]) return;
 
     if (!(pp->Flags & (PF_DIVING|PF_DIVING_IN_LAVA))) return;
 

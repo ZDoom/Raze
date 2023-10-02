@@ -1012,7 +1012,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         int choose_snd;
                         static const int fagsnds[] = {DIGI_FAGRABBIT1,DIGI_FAGRABBIT2,DIGI_FAGRABBIT3};
 
-                        if (pp == Player+myconnectindex)
+                        if (pp == &Player[myconnectindex])
                         {
                             choose_snd = StdRandomRange(2<<8)>>8;
                             if (FAFcansee(ActorVectOfTop(actor),actor->sector(),pp->GetActor()->getPosWithOffsetZ(), pp->cursector) && Facing(actor, actor->user.targetActor))
@@ -1027,7 +1027,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         int choose_snd;
                         static const int straightsnds[] = {DIGI_RABBITHUMP1,DIGI_RABBITHUMP2, DIGI_RABBITHUMP3,DIGI_RABBITHUMP4};
 
-                        if (pp == Player+myconnectindex)
+                        if (pp == &Player[myconnectindex])
                         {
                             choose_snd = StdRandomRange(3<<8)>>8;
                             if (FAFcansee(ActorVectOfTop(actor), actor->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector) && Facing(actor, actor->user.targetActor))

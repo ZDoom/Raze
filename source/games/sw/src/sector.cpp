@@ -1088,7 +1088,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
                 if (pp)
                 {
-                    if (pp == Player+myconnectindex)
+                    if (pp == &Player[myconnectindex])
                         PlayerSound(snd2play, v3df_dontpan|v3df_follow,pp);
                 }
             }
@@ -1536,7 +1536,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         actor->user.FlagOwner = 1;
         actor->user.WaitTics = SEC(4);
 
-        if (pp != Player+myconnectindex) return true;
+        if (pp != &Player[myconnectindex]) return true;
 
         choose_snd = StdRandomRange(1000);
         if (actor->spr.lotag == CARGIRL_R0)
@@ -2104,7 +2104,7 @@ bool NearThings(SWPlayer* pp)
     // Check player's current sector for triggered sound
     if (pp->cursector->hitag == PLAYER_SOUNDEVENT_TAG)
     {
-        if (pp == Player+myconnectindex)
+        if (pp == &Player[myconnectindex])
             PlayerSound(pp->cursector->lotag, v3df_follow|v3df_dontpan,pp);
         return false;
     }
@@ -2121,7 +2121,7 @@ bool NearThings(SWPlayer* pp)
         // Go through list of cases
         if (actor->spr.hitag == PLAYER_SOUNDEVENT_TAG)
         {
-            if (pp == Player+myconnectindex)
+            if (pp == &Player[myconnectindex])
                 PlayerSound(actor->spr.lotag, v3df_follow|v3df_dontpan,pp);
         }
         return false;   // Return false so he doesn't grunt
@@ -2132,7 +2132,7 @@ bool NearThings(SWPlayer* pp)
         // Check player's current sector for triggered sound
         if (near.hitWall->hitag == PLAYER_SOUNDEVENT_TAG)
         {
-            if (pp == Player+myconnectindex)
+            if (pp == &Player[myconnectindex])
                 PlayerSound(near.hitWall->lotag, v3df_follow|v3df_dontpan,pp);
             return false;   // We are playing a sound so don't return true
         }
@@ -2160,7 +2160,7 @@ bool NearThings(SWPlayer* pp)
         if (hit.hitWall != nullptr)
         {
             // Near a plain old vanilla wall.  Can't do anything but grunt.
-            if (!(hit.hitWall->extra & WALLFX_DONT_STICK) && pp == Player+myconnectindex)
+            if (!(hit.hitWall->extra & WALLFX_DONT_STICK) && pp == &Player[myconnectindex])
             {
                 if (StdRandomRange(1000) > 970)
                     PlayerSound(DIGI_HITTINGWALLS, v3df_follow|v3df_dontpan,pp);

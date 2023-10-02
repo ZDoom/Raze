@@ -182,7 +182,7 @@ void UseInventoryMedkit(SWPlayer* pp)
     //percent
     PlayerUpdateInventory(pp, pp->InventoryNum);
 
-    if (pp == Player+myconnectindex)
+    if (pp == &Player[myconnectindex])
     {
         if (amt >= 30)
             PlayerSound(DIGI_GETMEDKIT, v3df_follow|v3df_dontpan,pp);
@@ -315,7 +315,7 @@ void UseInventoryCloak(SWPlayer* pp)
     plActor->spr.shade = 100;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);
-    if (pp == Player+myconnectindex)
+    if (pp == &Player[myconnectindex])
         PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }
 

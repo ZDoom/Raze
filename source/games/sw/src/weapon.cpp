@@ -4655,7 +4655,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
             {
                 SWPlayer* pp = weapActor->user.PlayerP;
 
-                if (weapActor->user.WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
+                if (weapActor->user.WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == &Player[myconnectindex])
                 {
                     int choosesnd = StdRandomRange(6);
 
@@ -4674,7 +4674,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                     //PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
                     //    &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
                 }
-                else if (weapActor->user.WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == Player+myconnectindex)
+                else if (weapActor->user.WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == &Player[myconnectindex])
                 {
                     short choose_snd;
 
@@ -4762,7 +4762,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                         {
                             choosesnd=StdRandomRange(MAX_TAUNTAI<<8)>>8;
 
-                            if (pp == Player+myconnectindex)
+                            if (pp == &Player[myconnectindex])
                                 PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                         }
                     }
@@ -5456,7 +5456,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 {
                     int choosesnd=0;
                     // Random chance of taunting the AI's here
-                    if (StdRandomRange(1024) > 512 && pp == Player+myconnectindex)
+                    if (StdRandomRange(1024) > 512 && pp == &Player[myconnectindex])
                     {
                         choosesnd=RandomRange(MAX_TAUNTAI);
                         PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
