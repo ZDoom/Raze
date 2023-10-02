@@ -176,6 +176,7 @@ class DBloodPlayer final : public DCorePlayer
 	DBloodPlayer() = default;
 public:
 	DBloodPlayer(uint8_t p) : DCorePlayer(p) {}
+	void Serialize(FSerializer& arc) override;
 	void Clear()
 	{
 		Super::Clear();

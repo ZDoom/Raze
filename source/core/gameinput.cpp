@@ -604,11 +604,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			("spin", w.YawSpin)
 			("actor", w.pActor)
 			.EndObject();
-
-		if (arc.isReading())
-		{
-			w.resetCameraAngles();
-		}
 	}
 	return arc;
 }

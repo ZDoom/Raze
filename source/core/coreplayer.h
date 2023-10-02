@@ -28,6 +28,7 @@ public:
 	DCorePlayer(uint8_t p) : pnum(p) {}
 	void OnDestroy() override { if (actor) actor->Destroy(); actor = nullptr; }
 	virtual DCoreActor* GetActor() = 0;
+	void Serialize(FSerializer& arc) override;
 };
 
 extern DCorePlayer* PlayerArray[MAXPLAYERS];

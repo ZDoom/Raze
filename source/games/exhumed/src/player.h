@@ -54,6 +54,7 @@ class DExhumedPlayer final : public DCorePlayer
     DExhumedPlayer() = default;
 public:
     DExhumedPlayer(uint8_t p) : DCorePlayer(p) {}
+    void Serialize(FSerializer& arc) override;
     void Clear()
     {
         Super::Clear();

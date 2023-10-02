@@ -64,6 +64,7 @@
 #include "serialize_obj.h"
 #include "games/blood/src/mapstructs.h"
 #include "texinfo.h"
+#include "coreplayer.h"
 #include <miniz.h>
 
 #include "buildtiles.h"
@@ -172,6 +173,12 @@ bool ReadSavegame(const char* name)
 		arc.Close();
 		info->Unlock();
 		delete savereader;
+
+		// this can only be done after the load is complete
+		for (auto pl : PlayerArray)
+		{
+			pl->Angles.resetCameraAngles();
+		}
 		ResetStatusBar();
 		return true;
 	}
@@ -622,6 +629,17 @@ FSerializer& Serialize(FSerializer& arc, const char* key, ActorStatList& c, Acto
 	return arc;
 }
 
+void DCorePlayer::Serialize(FSerializer& arc)
+{
+	Super::Serialize(arc);
+	arc("pnum", pnum)
+		("actor", actor)
+		("angles", Angles)
+		//("cmd", cmd)
+		//("lastcmd", lastcmd)
+		;
+}
+
 void DCoreActor::Serialize(FSerializer& arc)
 {
 	Super::Serialize(arc);
@@ -682,6 +700,7 @@ void SerializeMap(FSerializer& arc)
 		arc("maplocals", Level)
 			// everything here should move into MapLocals as well later.
 			.Array("statlist", statList, MAXSTATUS)
+			.Array("players",PlayerArray, MAXPLAYERS)
 			("sectors", sector, sectorbackup)
 			("walls", wall, wallbackup)
 
