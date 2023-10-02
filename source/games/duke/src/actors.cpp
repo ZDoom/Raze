@@ -3692,7 +3692,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (getPlayer(a2->PlayerIndex())->on_ground == 1)
-								getPlayer(a2->PlayerIndex())->GetActor()->spr.pos.Z += l;
+								a2->spr.pos.Z += l;
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							if (!a2->isPlayer()) a2->spr.pos.Z += l;
@@ -3721,7 +3721,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (getPlayer(a2->PlayerIndex())->on_ground == 1)
-								getPlayer(a2->PlayerIndex())->GetActor()->spr.pos.Z += l;
+								a2->spr.pos.Z += l;
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							if (!a2->isPlayer()) a2->spr.pos.Z += l;
@@ -3752,7 +3752,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (getPlayer(a2->PlayerIndex())->on_ground == 1)
-							getPlayer(a2->PlayerIndex())->GetActor()->spr.pos.Z += l;
+							a2->spr.pos.Z += l;
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						if (!a2->isPlayer()) a2->spr.pos.Z += l;
@@ -3780,7 +3780,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (getPlayer(a2->PlayerIndex())->on_ground == 1)
-							getPlayer(a2->PlayerIndex())->GetActor()->spr.pos.Z -= l;
+							a2->spr.pos.Z -= l;
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						if (!a2->isPlayer()) a2->spr.pos.Z -= l;
