@@ -332,9 +332,10 @@ void checkavailweapon(DukePlayer* player)
 
 void clearcamera(DukePlayer* ps)
 {
+	const auto pact = ps->GetActor();
 	ps->newOwner = nullptr;
-	ps->GetActor()->restoreloc();
-	updatesector(ps->GetActor()->getPosWithOffsetZ(), &ps->cursector);
+	pact->restoreloc();
+	updatesector(pact->getPosWithOffsetZ(), &ps->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())
