@@ -268,9 +268,9 @@ void ResetGameVars(void)
 		{
 			if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER))
 			{
-				for (auto &pl : PlayerArray)
+				for (auto pl : PlayerArray)
 				{
-					pl.uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
+					pl->uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
 				}
 			}
 			else if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
@@ -1222,7 +1222,7 @@ void FinalizeGameVars(void)
 			aGameVars[i].indexValue = actorNdx++;
 		}
 	}
-	for (auto& pl : PlayerArray) pl.uservars.Resize(weapNdx);
+	for (auto pl : PlayerArray) pl->uservars.Resize(weapNdx);
 	ResetGameVars();
 
 	numActorVars = actorNdx;

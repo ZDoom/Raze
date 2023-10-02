@@ -1952,7 +1952,7 @@ HORIZONLY:
 	if (p->show_empty_weapon > 0)
 	{
 		p->show_empty_weapon--;
-		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - PlayerArray) & 2))
+		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - *PlayerArray) & 2))
 		{
 			if (p->last_full_weapon == GROW_WEAPON)
 				p->subweapon |= (1 << GROW_WEAPON);

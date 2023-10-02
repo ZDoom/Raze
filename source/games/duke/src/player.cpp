@@ -1229,21 +1229,21 @@ int playeraddammo(DukePlayer* p, int weaponindex, int amount)
 	}
 	addammo(weaponindex, p, amount);
 	if (p->curr_weapon == KNEE_WEAPON)
-		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - PlayerArray) & 1))
+		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - *PlayerArray) & 1))
 			fi.addweapon(p, weaponindex, true);
 	return true;
 }
 
 int playeraddweapon(DukePlayer* p, int weaponindex, int amount)
 {
-	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p- PlayerArray) & 1));
+	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p - *PlayerArray) & 1));
 	else if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
 	{
 		return false;
 	}
 	addammo(weaponindex, p, amount);
 	if (p->curr_weapon == KNEE_WEAPON)
-		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - PlayerArray) & 1))
+		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - *PlayerArray) & 1))
 			fi.addweapon(p, weaponindex, true);
 
 	return true;
@@ -1327,7 +1327,7 @@ int checkp(DDukeActor* self, DukePlayer* p, int flags)
 	bool j = 0;
 
 	double vel = self->vel.X;
-	unsigned plindex = unsigned(p - PlayerArray);
+	unsigned plindex = unsigned(p - *PlayerArray);
 
 	// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 	if ((flags & pducking) && p->on_ground && PlayerInput(plindex, SB_CROUCH))
@@ -1484,7 +1484,7 @@ void playerreset(DukePlayer* p, DDukeActor* g_ac)
 	else
 	{
 		// I am not convinced this is even remotely smart to be executed from here..
-		pickrandomspot(int(p - PlayerArray));
+		pickrandomspot(int(p - *PlayerArray));
 		g_ac->spr.pos = p->GetActor()->getPosWithOffsetZ();
 		p->GetActor()->backuppos();
 		p->setbobpos();
@@ -1504,7 +1504,7 @@ void playerreset(DukePlayer* p, DDukeActor* g_ac)
 		p->wantweaponfire = -1;
 		p->GetActor()->PrevAngles.Pitch = p->GetActor()->spr.Angles.Pitch = nullAngle;
 		p->on_crane = nullptr;
-		p->frag_ps = int(p - PlayerArray);
+		p->frag_ps = int(p - *PlayerArray);
 		p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
 		p->opyoff = 0;
 		p->wackedbyactor = nullptr;

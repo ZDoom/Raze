@@ -273,7 +273,7 @@ void checkavailweapon(DukePlayer* player)
 	weap = player->curr_weapon;
 	if (player->gotweapon[weap])
 	{
-		if (player->ammo_amount[weap] > 0 || (WeaponSwitch(player - PlayerArray) & 2) == 0)
+		if (player->ammo_amount[weap] > 0 || (WeaponSwitch(player - *PlayerArray) & 2) == 0)
 			return;
 	}
 
