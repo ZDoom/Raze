@@ -2910,7 +2910,8 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 						{
-							if (getPlayer(a2->PlayerIndex())->on_ground == 1) getPlayer(a2->PlayerIndex())->GetActor()->spr.pos.Z += extra;
+							const auto p = getPlayer(a2->PlayerIndex());
+							if (p->on_ground == 1) a2->spr.pos.Z += extra;
 						}
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
@@ -2949,7 +2950,8 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 						{
-							if (getPlayer(a2->PlayerIndex())->on_ground == 1) getPlayer(a2->PlayerIndex())->GetActor()->spr.pos.Z -= extra;
+							const auto p = getPlayer(a2->PlayerIndex());
+							if (p->on_ground == 1) a2->spr.pos.Z -= extra;
 						}
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
