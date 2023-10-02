@@ -498,7 +498,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 	else if (target->IsPlayerActor())
 	{
-		BloodPlayer* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+		BloodPlayer* pPlayer = getPlayer(target->spr.type - kDudePlayer1);
 		if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 		{
 			if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -1758,7 +1758,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 		{
 			if (actTarget->IsPlayerActor())
 			{
-				BloodPlayer* pPlayer = &gPlayer[actTarget->spr.type - kDudePlayer1];
+				BloodPlayer* pPlayer = getPlayer(actTarget->spr.type - kDudePlayer1);
 				if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0) return;
 			}
 			double top, bottom;

@@ -237,7 +237,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 		int nPlayer = actor->xspr.data4;
 		if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
 		{
-			BloodPlayer* pPlayer = &gPlayer[nPlayer];
+			BloodPlayer* pPlayer = getPlayer(nPlayer);
 			if (pPlayer->GetActor()->xspr.health > 0)
 			{
 				evKillActor(actor);
@@ -511,9 +511,9 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		SetSpriteState(actor, 1, initiator);
 		for (int p = connecthead; p >= 0; p = connectpoint2[p]) 
 		{
-			auto vec = actor->spr.pos - gPlayer[p].GetActor()->spr.pos;
+			auto vec = actor->spr.pos - getPlayer(p)->GetActor()->spr.pos;
 			int nDist = int(vec.LengthSquared()) + 0x40000;
-			gPlayer[p].quakeEffect = DivScale(actor->xspr.data1, nDist, 16);
+			getPlayer(p)->quakeEffect = DivScale(actor->xspr.data1, nDist, 16);
 		}
 		break;
 	case kThingTNTBarrel:
@@ -598,7 +598,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kSoundPlayer:
 		if (gGameOptions.nGameType == 0)
 		{
-			BloodPlayer* pPlayer = &gPlayer[myconnectindex];
+			BloodPlayer* pPlayer = getPlayer(myconnectindex);
 
 			if (pPlayer->GetActor()->xspr.health <= 0)
 				break;
@@ -960,7 +960,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot + pt_w2 - pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].GetActor()->spr.Angles.Yaw += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) getPlayer(ac->spr.type - kDudePlayer1)->GetActor()->spr.Angles.Yaw += angleofs;
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
@@ -968,7 +968,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot - pt_w2 + pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].GetActor()->spr.Angles.Yaw += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) getPlayer(ac->spr.type - kDudePlayer1)->GetActor()->spr.Angles.Yaw += angleofs;
 				}
 			}
 		}
@@ -1599,7 +1599,7 @@ void OperateTeleport(sectortype* pSector)
 			BloodPlayer* pPlayer;
 			bool bPlayer = actor->IsPlayerActor();
 			if (bPlayer)
-				pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+				pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 			else
 				pPlayer = NULL;
 			if (bPlayer || !SectorContainsDudes(destactor->sector()))

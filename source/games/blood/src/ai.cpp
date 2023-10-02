@@ -114,7 +114,7 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 			return (thingInfo[type - kThingBase].dmgControl[dmgType] <= minScale);
 		else if (actor->IsDudeActor())
 		{
-			if (actor->IsPlayerActor()) return (gPlayer[type - kDudePlayer1].godMode || gPlayer[type - kDudePlayer1].damageControl[dmgType] <= minScale);
+			if (actor->IsPlayerActor()) return (getPlayer(type - kDudePlayer1)->godMode || getPlayer(type - kDudePlayer1)->damageControl[dmgType] <= minScale);
 			else return (dudeInfo[type - kDudeBase].damageVal[dmgType] <= minScale);
 		}
 	}
@@ -1491,7 +1491,7 @@ void aiThinkTarget(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			BloodPlayer* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = getPlayer(p);
 			if (actor->GetOwner() == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->GetActor()->spr.pos;
@@ -1536,7 +1536,7 @@ void aiLookForTarget(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			BloodPlayer* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = getPlayer(p);
 			if (actor->GetOwner() == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->GetActor()->spr.pos;

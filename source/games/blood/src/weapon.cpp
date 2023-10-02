@@ -1694,7 +1694,7 @@ void FireVoodoo(int nTrigger, BloodPlayer* pPlayer)
 		fxSpawnBlood(targetactor, 17 << 4);
 		int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 9 << 4);
 		if (targetactor->IsPlayerActor())
-			WeaponLower(&gPlayer[targetactor->spr.type - kDudePlayer1]);
+			WeaponLower(getPlayer(targetactor->spr.type - kDudePlayer1));
 		UseAmmo(pPlayer, 9, nDamage / 4);
 		break;
 	}
@@ -1713,7 +1713,7 @@ void FireVoodoo(int nTrigger, BloodPlayer* pPlayer)
 		int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 11 << 4);
 		if (targetactor->IsPlayerActor())
 		{
-			BloodPlayer* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
+			BloodPlayer* pOtherPlayer = getPlayer(targetactor->spr.type - kDudePlayer1);
 			pOtherPlayer->blindEffect = 128;
 		}
 		UseAmmo(pPlayer, 9, nDamage / 4);
@@ -1756,7 +1756,7 @@ void AltFireVoodoo(int nTrigger, BloodPlayer* pPlayer)
 
 						if (targetactor->IsPlayerActor())
 						{
-							BloodPlayer* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
+							BloodPlayer* pOtherPlayer = getPlayer(targetactor->spr.type - kDudePlayer1);
 							if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
 								powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
 						}
@@ -1794,7 +1794,7 @@ void AltFireVoodoo(int nTrigger, BloodPlayer* pPlayer)
 					UseAmmo(pPlayer, 9, nDamage);
 					if (targetactor->IsPlayerActor())
 					{
-						BloodPlayer* pOtherPlayer = &gPlayer[targetactor->spr.type - kDudePlayer1];
+						BloodPlayer* pOtherPlayer = getPlayer(targetactor->spr.type - kDudePlayer1);
 						if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
 							powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
 					}
@@ -2063,7 +2063,7 @@ static const uint8_t gWeaponUpgrade[][13] = {
 
 int WeaponUpgrade(BloodPlayer* pPlayer, int newWeapon)
 {
-	int weaponswitch = WeaponSwitch(pPlayer - gPlayer);
+	int weaponswitch = WeaponSwitch(pPlayer - PlayerArray);
 	int weapon = pPlayer->curWeapon;
 	if (!checkLitSprayOrTNT(pPlayer) && (weaponswitch & 1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (weaponswitch & 2)))
 		weapon = newWeapon;

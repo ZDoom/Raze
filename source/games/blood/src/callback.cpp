@@ -337,7 +337,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 	if (!actor) return;
 	if (actor->IsPlayerActor())
 	{
-		BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+		BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 		if (!pPlayer->bubbleTime)
 			return;
 		double top, bottom;
@@ -436,7 +436,7 @@ void CounterCheck(DBloodActor*, sectortype* pSector) // 12
 void FinishHim(DBloodActor* actor, sectortype*) // 13
 {
 	if (!actor) return;
-	if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[actor->spr.type - kDudePlayer1], 16) && actor == gPlayer[myconnectindex].GetActor())
+	if (actor->IsPlayerActor() && playerSeqPlaying(getPlayer(actor->spr.type - kDudePlayer1), 16) && actor == getPlayer(myconnectindex)->GetActor())
 		sndStartSample(3313, -1, 1, 0);
 }
 
@@ -728,7 +728,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 	}
 	BloodPlayer* pPlayer;
 	if (Owner->IsPlayerActor())
-		pPlayer = &gPlayer[Owner->spr.type - kDudePlayer1];
+		pPlayer = getPlayer(Owner->spr.type - kDudePlayer1);
 	else
 		pPlayer = nullptr;
 	if (!pPlayer)
@@ -755,7 +755,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 			{
 				BloodPlayer* pPlayer2;
 				if (actor2->IsPlayerActor())
-					pPlayer2 = &gPlayer[actor2->spr.type - kDudePlayer1];
+					pPlayer2 = getPlayer(actor2->spr.type - kDudePlayer1);
 				else
 					pPlayer2 = nullptr;
 

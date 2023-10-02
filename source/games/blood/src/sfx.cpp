@@ -63,7 +63,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 {
 	if (pos != nullptr && type != SOURCE_None)
 	{
-		BloodPlayer* pPlayer = &gPlayer[myconnectindex];
+		BloodPlayer* pPlayer = getPlayer(myconnectindex);
 		FVector3 camera;
 
 		if (pPlayer && pPlayer->GetActor()) camera = GetSoundPos(pPlayer->GetActor()->spr.pos);
@@ -105,7 +105,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 
 void GameInterface::UpdateSounds()
 {
-	BloodPlayer* pPlayer = &gPlayer[myconnectindex];
+	BloodPlayer* pPlayer = getPlayer(myconnectindex);
 	SoundListener listener;
 
 	if (pPlayer->GetActor())

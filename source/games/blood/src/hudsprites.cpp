@@ -169,7 +169,7 @@ void hudDraw(BloodPlayer* pPlayer, sectortype* pSector, double bobx, double boby
 	}
 
 	int zn = int(((pPlayer->zWeapon - pPlayer->zView - 12) * 2.) + 220);
-	BloodPlayer* pPSprite = &gPlayer[pPlayer->GetActor()->spr.type - kDudePlayer1];
+	BloodPlayer* pPSprite = getPlayer(pPlayer->GetActor()->spr.type - kDudePlayer1);
 	if (pPlayer->GetActor()->IsPlayerActor() && pPSprite->hand == 1)
 	{
 		gChoke.animateChoke(160, zn, interpfrac);

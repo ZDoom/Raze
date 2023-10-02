@@ -121,7 +121,7 @@ static void zombaThinkChase(DBloodActor* actor)
 		aiNewState(actor, &zombieASearch);
 		return;
 	}
-	if (target->IsPlayerActor() && (powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpDeathMaskUseless) > 0))
+	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpDeathMaskUseless) > 0))
 	{
 		aiNewState(actor, &zombieAGoto);
 		return;
@@ -172,7 +172,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 		aiNewState(actor, &zombieASearch);
 		return;
 	}
-	if (target->IsPlayerActor() && (powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpDeathMaskUseless) > 0))
+	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpDeathMaskUseless) > 0))
 	{
 		aiNewState(actor, &zombieAGoto);
 		return;
@@ -209,7 +209,7 @@ static void myThinkTarget(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		BloodPlayer* pPlayer = &gPlayer[p];
+		BloodPlayer* pPlayer = getPlayer(p);
 		auto owneractor = actor->GetOwner();
 		if (owneractor == nullptr || owneractor == pPlayer->GetActor() || pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 			continue;

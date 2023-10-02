@@ -119,7 +119,7 @@ static void zombfThinkChase(DBloodActor* actor)
 		aiNewState(actor, &zombieFSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && (powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpDeathMaskUseless) > 0))
+	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpDeathMaskUseless) > 0))
 	{
 		aiNewState(actor, &zombieFSearch);
 		return;

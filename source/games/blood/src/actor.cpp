@@ -3053,7 +3053,7 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 	{
 		if (killerActor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = &gPlayer[killerActor->spr.type - kDudePlayer1];
+			BloodPlayer* pPlayer = getPlayer(killerActor->spr.type - kDudePlayer1);
 			if (gGameOptions.nGameType == 1)
 				pPlayer->fragCount++;
 		}
@@ -3068,7 +3068,7 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 		case kDudeBurningInnocent:
 			break;
 		default:
-			BloodPlayer* pKillerPlayer = &gPlayer[killerActor->spr.type - kDudePlayer1];
+			BloodPlayer* pKillerPlayer = getPlayer(killerActor->spr.type - kDudePlayer1);
 			pKillerPlayer->fragCount++;
 			break;
 		}
@@ -3381,8 +3381,8 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (gPlayer[p].fragger == actor && gPlayer[p].deathTime > 0)
-			gPlayer[p].fragger = nullptr;
+		if (getPlayer(p)->fragger == actor && getPlayer(p)->deathTime > 0)
+			getPlayer(p)->fragger = nullptr;
 	}
 	if (actor->spr.type != kDudeCultistBeast)
 		trTriggerSprite(actor, kCmdOff, killerActor);
@@ -3616,7 +3616,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	}
 	else
 	{
-		BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+		BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 		if (actor->xspr.health > 0 || playerSeqPlaying(pPlayer, 16))
 			damage = playerDamageSprite(source, pPlayer, damageType, damage);
 
@@ -3740,7 +3740,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 	if (source == nullptr) source = actor;
 
 	BloodPlayer* pSourcePlayer = nullptr;
-	if (source->IsPlayerActor()) pSourcePlayer = &gPlayer[source->spr.type - kDudePlayer1];
+	if (source->IsPlayerActor()) pSourcePlayer = getPlayer(source->spr.type - kDudePlayer1);
 	if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, actor)) return 0;
 
 	switch (actor->spr.statnum)
@@ -4173,7 +4173,7 @@ static void checkCeilHit(DBloodActor* actor)
 						}
 					}
 #endif
-					if (!actor->IsPlayerActor() || gPlayer[actor->spr.type - kDudePlayer1].godMode == 0)
+					if (!actor->IsPlayerActor() || getPlayer(actor->spr.type - kDudePlayer1)->godMode == 0)
 					{
 						switch (actor2->spr.type)
 						{
@@ -4192,7 +4192,7 @@ static void checkCeilHit(DBloodActor* actor)
 								actDamageSprite(actor2, actor, kDamageFall, dmg);
 								if (actor->hasX() && !actor->isActive()) aiActivateDude(actor);
 							}
-							else if (powerupCheck(&gPlayer[actor->spr.type - kDudePlayer1], kPwUpJumpBoots) > 0) actDamageSprite(actor2, actor, kDamageExplode, dmg);
+							else if (powerupCheck(getPlayer(actor->spr.type - kDudePlayer1), kPwUpJumpBoots) > 0) actDamageSprite(actor2, actor, kDamageExplode, dmg);
 							else actDamageSprite(actor2, actor, kDamageFall, dmg);
 							break;
 #endif
@@ -4335,7 +4335,7 @@ static void checkFloorHit(DBloodActor* actor)
 #endif
 
 			BloodPlayer* pPlayer = nullptr;
-			if (actor->IsPlayerActor()) pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+			if (actor->IsPlayerActor()) pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 
 			switch (actor2->spr.type)
 			{
@@ -4692,7 +4692,7 @@ static Collision MoveThing(DBloodActor* actor)
 void MoveDude(DBloodActor* actor)
 {
 	BloodPlayer* pPlayer = nullptr;
-	if (actor->IsPlayerActor()) pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
 	{
 		Printf(PRINT_HIGH, "%d: actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax", actor->spr.type);
@@ -5543,8 +5543,8 @@ static void actCheckProximity()
 							auto Owner = actor->GetOwner();
 							if (!Owner->IsPlayerActor()) continue;
 
-							BloodPlayer* pPlayer = &gPlayer[Owner->spr.type - kDudePlayer1];
-							BloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? &gPlayer[dudeactor->spr.type - kDudePlayer1] : nullptr;
+							BloodPlayer* pPlayer = getPlayer(Owner->spr.type - kDudePlayer1);
+							BloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? getPlayer(dudeactor->spr.type - kDudePlayer1) : nullptr;
 
 							if (dudeactor == Owner || dudeactor->spr.type == kDudeZombieAxeBuried || dudeactor->spr.type == kDudeRat || dudeactor->spr.type == kDudeBat) continue;
 							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;
@@ -5803,11 +5803,11 @@ static void actCheckExplosion()
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			auto dv = apos - gPlayer[p].GetActor()->spr.pos;
+			auto dv = apos - getPlayer(p)->GetActor()->spr.pos;
 			int nDist = int(dv.LengthSquared() + 0x40000);
 
 			int t = DivScale(actor->xspr.data2, nDist, 16);
-			gPlayer[p].flickerEffect += t;
+			getPlayer(p)->flickerEffect += t;
 		}
 
 #ifdef NOONE_EXTENSIONS
@@ -5975,7 +5975,7 @@ static void actCheckDudes()
 			}
 			if (actor->IsPlayerActor())
 			{
-				BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+				BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 				if (pPlayer->voodooTargets) voodooTarget(pPlayer);
 				if (pPlayer->hand && Chance(0x8000)) actDamageSprite(actor, actor, kDamageDrown, 12);
 
@@ -6049,7 +6049,7 @@ static void actCheckDudes()
 
 		if (actor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+			BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 			double nDrag = FixedToFloat(gDudeDrag);
 			if (actor->xspr.height > 0)
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
@@ -6624,7 +6624,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		if (!gGameOptions.bFriendlyFire && IsTargetTeammate(shooter, hitactor)) return;
 		if (hitactor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = &gPlayer[hitactor->spr.type - kDudePlayer1];
+			BloodPlayer* pPlayer = getPlayer(hitactor->spr.type - kDudePlayer1);
 			if (powerupCheck(pPlayer, kPwUpReflectShots))
 			{
 				gHitInfo.hitActor = shooter;

@@ -49,7 +49,7 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 	{
 		nBlind <<= 4;
 		max <<= 4;
-		BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+		BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 		if (pPlayer->blindEffect < max)
 		{
 			pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect + nBlind, max);
@@ -74,7 +74,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
 			vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
-			BloodPlayer* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+			BloodPlayer* pPlayer = getPlayer(target->spr.type - kDudePlayer1);
 			switch (actor->spr.type)
 			{
 			case kDudeSpiderBrown:
@@ -200,7 +200,7 @@ static void spidThinkChase(DBloodActor* actor)
 		aiNewState(actor, &spidSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &spidSearch);
 		return;

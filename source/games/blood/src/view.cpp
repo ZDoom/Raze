@@ -58,7 +58,7 @@ int gViewIndex;
 
 void viewBackupView(int nPlayer)
 {
-	BloodPlayer* pPlayer = &gPlayer[nPlayer];
+	BloodPlayer* pPlayer = getPlayer(nPlayer);
 	pPlayer->ozView = pPlayer->zView;
 	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 12;
 	pPlayer->obobHeight = pPlayer->bobHeight;
@@ -113,7 +113,7 @@ void viewDrawAimedPlayerName(BloodPlayer* pPlayer)
 		{
 			int nPlayer = actor->spr.type - kDudePlayer1;
 			const char* szName = PlayerName(nPlayer);
-			int nPalette = (gPlayer[nPlayer].teamId & 3) + 11;
+			int nPalette = (getPlayer(nPlayer)->teamId & 3) + 11;
 			viewDrawText(DigiFont, szName, 160, 125, -128, nPalette, 1, 1);
 		}
 	}
@@ -558,7 +558,7 @@ void renderCrystalBall()
 
 void viewDrawScreen(bool sceneonly)
 {
-	BloodPlayer* pPlayer = &gPlayer[gViewIndex];
+	BloodPlayer* pPlayer = getPlayer(gViewIndex);
 
 	FireProcess();
 
@@ -778,7 +778,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 	{
 		if (i == gViewIndex || gGameOptions.nGameType == 1)
 		{
-			auto actor = gPlayer[i].GetActor();
+			auto actor = getPlayer(i)->GetActor();
 			auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
 			DrawTexture(twod, TexMan.GetGameTexture(actor->spr.spritetexture(), true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,

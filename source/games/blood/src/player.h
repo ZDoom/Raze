@@ -198,7 +198,12 @@ struct POWERUPINFO
 
 void playerResetPosture(BloodPlayer* pPlayer);
 
-extern BloodPlayer gPlayer[kMaxPlayers];
+extern BloodPlayer PlayerArray[kMaxPlayers];
+
+inline BloodPlayer* getPlayer(int index)
+{
+	return &PlayerArray[index];
+}
 
 extern bool gBlueFlagDropped;
 extern bool gRedFlagDropped;

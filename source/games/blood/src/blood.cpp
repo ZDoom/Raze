@@ -96,7 +96,7 @@ static void markgcroots()
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
 	MarkSprInSect();
-	for (auto& pl : gPlayer)
+	for (auto& pl : PlayerArray)
 	{
 		GC::Mark(pl.actor);
 		GC::MarkArray(pl.ctfFlagState, 2);
@@ -339,7 +339,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			BloodPlayer* pPlayer = &gPlayer[i];
+			BloodPlayer* pPlayer = getPlayer(i);
 			pPlayer->GetActor()->xspr.health &= 0xf000;
 			pPlayer->GetActor()->xspr.health |= gHealthTemp[i];
 			pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
@@ -357,7 +357,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	PreloadCache();
 	InitMirrors();
 	trInit(actorlist);
-	if (!gPlayer[myconnectindex].packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+	if (!getPlayer(myconnectindex)->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 		sfxSetReverb(0);
 	ambInit();
 	gChokeCounter = 0;
@@ -421,17 +421,17 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		thinktime.Reset();
 		thinktime.Clock();
 
-		BloodPlayer* pPlayer = &gPlayer[myconnectindex];
+		BloodPlayer* pPlayer = getPlayer(myconnectindex);
 
 		// disable synchronised input if set by game.
 		resetForcedSyncInput();
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			gPlayer[i].input = playercmds[i].ucmd;
-			gPlayer[i].Angles.resetCameraAngles();
+			getPlayer(i)->input = playercmds[i].ucmd;
+			getPlayer(i)->Angles.resetCameraAngles();
 			viewBackupView(i);
-			playerProcess(&gPlayer[i]);
+			playerProcess(getPlayer(i));
 		}
 
 		trProcessBusy();
@@ -757,7 +757,7 @@ DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
 DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 {
 	PARAM_PROLOGUE;
-	ACTION_RETURN_POINTER(&gPlayer[gViewIndex]);
+	ACTION_RETURN_POINTER(getPlayer(gViewIndex));
 }
 
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)

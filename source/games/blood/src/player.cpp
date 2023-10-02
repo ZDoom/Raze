@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-BloodPlayer gPlayer[kMaxPlayers];
+BloodPlayer PlayerArray[kMaxPlayers];
 
 bool gBlueFlagDropped = false;
 bool gRedFlagDropped = false;
@@ -238,7 +238,7 @@ inline bool IsTargetTeammate(BloodPlayer* pSourcePlayer, DBloodActor* target)
 		return false;
 	if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
 	{
-		BloodPlayer* pTargetPlayer = &gPlayer[target->spr.type - kDudePlayer1];
+		BloodPlayer* pTargetPlayer = getPlayer(target->spr.type - kDudePlayer1);
 		if (pSourcePlayer != pTargetPlayer)
 		{
 			if (gGameOptions.nGameType == 1)
@@ -300,7 +300,7 @@ bool powerupActivate(BloodPlayer* pPlayer, int nPowerUp)
 		else if (isShrinked(pPlayer->GetActor())) playerDeactivateShrooms(pPlayer);
 		else {
 			playerSizeGrow(pPlayer, 2);
-			if (powerupCheck(&gPlayer[pPlayer->GetActor()->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0) {
+			if (powerupCheck(getPlayer(pPlayer->GetActor()->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0) {
 				powerupDeactivate(pPlayer, kPwUpShadowCloak);
 				pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 			}
@@ -759,7 +759,7 @@ void playerResetPosture(BloodPlayer* pPlayer) {
 
 void playerStart(int nPlayer, int bNewLevel)
 {
-	BloodPlayer* pPlayer = &gPlayer[nPlayer];
+	BloodPlayer* pPlayer = getPlayer(nPlayer);
 	InputPacket* pInput = &pPlayer->input;
 	ZONE* pStartZone = NULL;
 
@@ -982,9 +982,9 @@ int team_ticker[8];
 void playerInit(int nPlayer, unsigned int a2)
 {
 	if (!(a2 & 1))
-		gPlayer[nPlayer] = {};
+		*getPlayer(nPlayer) = {};
 
-	BloodPlayer* pPlayer = &gPlayer[nPlayer];
+	BloodPlayer* pPlayer = getPlayer(nPlayer);
 	pPlayer->nPlayer = nPlayer;
 	pPlayer->teamId = nPlayer;
 	if (gGameOptions.nGameType == 3)
@@ -1499,7 +1499,7 @@ int ActionScan(BloodPlayer* pPlayer, HitInfo* out)
 
 unsigned GameInterface::getCrouchState()
 {
-	const bool swimming = gPlayer[myconnectindex].posture == kPostureSwim;
+	const bool swimming = getPlayer(myconnectindex)->posture == kPostureSwim;
 	return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
 }
 
@@ -1978,7 +1978,7 @@ void FragPlayer(BloodPlayer* pPlayer, DBloodActor* killer)
 {
 	if (killer && killer->IsPlayerActor())
 	{
-		BloodPlayer* pKiller = &gPlayer[killer->spr.type - kDudePlayer1];
+		BloodPlayer* pKiller = getPlayer(killer->spr.type - kDudePlayer1);
 		playerFrag(pKiller, pPlayer);
 		int nTeam1 = pKiller->teamId & 1;
 		int nTeam2 = pPlayer->teamId & 1;
@@ -2191,8 +2191,8 @@ int playerDamageSprite(DBloodActor* source, BloodPlayer* pPlayer, DAMAGE_TYPE nD
 		pActor->spr.flags |= 7;
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			if (gPlayer[p].fragger == pPlayer->GetActor() && gPlayer[p].deathTime > 0)
-				gPlayer[p].fragger = nullptr;
+			if (getPlayer(p)->fragger == pPlayer->GetActor() && getPlayer(p)->deathTime > 0)
+				getPlayer(p)->fragger = nullptr;
 		}
 		FragPlayer(pPlayer, source);
 		trTriggerSprite(pActor, kCmdOff);
@@ -2209,7 +2209,7 @@ int playerDamageSprite(DBloodActor* source, BloodPlayer* pPlayer, DAMAGE_TYPE nD
 
 				int i; // if all players have this key, don't drop it
 				for (i = connecthead; i >= 0; i = connectpoint2[i]) {
-					if (!gPlayer[i].hasKey[pPlayer->GetActor()->xspr.key])
+					if (!getPlayer(i)->hasKey[pPlayer->GetActor()->xspr.key])
 						break;
 				}
 
@@ -2322,7 +2322,7 @@ void PlayerSurvive(int, DBloodActor* actor)
 		sfxPlay3DSound(actor, 3009, 0, 6);
 		if (actor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
+			BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 			if (pPlayer->nPlayer == myconnectindex)
 				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
 			else
@@ -2345,9 +2345,9 @@ void PlayerKneelsOver(int, DBloodActor* actor)
 {
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (gPlayer[p].GetActor() == actor)
+		if (getPlayer(p)->GetActor() == actor)
 		{
-			BloodPlayer* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = getPlayer(p);
 			playerDamageSprite(pPlayer->fragger, pPlayer, kDamageSpirit, 500 << 4);
 			return;
 		}
@@ -2528,7 +2528,7 @@ void SerializePlayers(FSerializer& arc)
 	{
 		arc("numplayers", gNetPlayers)
 			.Array("teamscore", team_score, gNetPlayers)
-			.Array("players", gPlayer, gNetPlayers)
+			.Array("players", PlayerArray, gNetPlayers)
 #ifdef NOONE_EXTENSIONS
 			.Array("playerctrl", gPlayerCtrl, gNetPlayers)
 #endif
@@ -2539,13 +2539,13 @@ void SerializePlayers(FSerializer& arc)
 	{
 		for (int i = 0; i < gNetPlayers; i++)
 		{
-			gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].GetActor()->spr.type - kDudeBase];
+			getPlayer(i)->pDudeInfo = &dudeInfo[getPlayer(i)->GetActor()->spr.type - kDudeBase];
 
 #ifdef NOONE_EXTENSIONS
 			// load qav scene
-			if (gPlayer[i].sceneQav != -1)
+			if (getPlayer(i)->sceneQav != -1)
 			{
-				QAV* pQav = playerQavSceneLoad(gPlayer[i].sceneQav);
+				QAV* pQav = playerQavSceneLoad(getPlayer(i)->sceneQav);
 				if (pQav)
 				{
 					gPlayerCtrl[i].qavScene.qavResrc = pQav;
@@ -2553,7 +2553,7 @@ void SerializePlayers(FSerializer& arc)
 				}
 				else
 				{
-					gPlayer[i].sceneQav = -1;
+					getPlayer(i)->sceneQav = -1;
 				}
 			}
 #endif

@@ -292,7 +292,7 @@ static int parseArgs(char* pzArgs, int* nArg1, int* nArg2)
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
 	// message processing is not perfect because many cheats output multiple messages.
-	BloodPlayer* pPlayer = &gPlayer[player];
+	BloodPlayer* pPlayer = getPlayer(player);
 
 	if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
 		return nullptr;
@@ -512,7 +512,7 @@ static cheatseq_t s_CheatInfo[] = {
 
 void cheatReset(void)
 {
-	BloodPlayer* pPlayer = &gPlayer[myconnectindex];
+	BloodPlayer* pPlayer = getPlayer(myconnectindex);
 	bPlayerCheated = 0;
 	playerSetGodMode(pPlayer, 0);
 	gNoClip = 0;
@@ -530,7 +530,7 @@ void cheatReset(void)
 
 static void cmd_Give(int player, uint8_t** stream, bool skip)
 {
-	BloodPlayer* pPlayer = &gPlayer[player];
+	BloodPlayer* pPlayer = getPlayer(player);
 	int type = ReadByte(stream);
 	if (skip) return;
 

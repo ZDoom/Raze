@@ -338,7 +338,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 		}
 		else if (actor->IsDudeActor())
 		{
-			if (actor->IsPlayerActor()) return (gPlayer[actor->spr.type - kDudePlayer1].damageControl[dmgType]);
+			if (actor->IsPlayerActor()) return (getPlayer(actor->spr.type - kDudePlayer1)->damageControl[dmgType]);
 			else if (actor->spr.type == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
 			else return (getDudeInfo(actor->spr.type)->damageVal[dmgType] <= minScale);
 		}
@@ -1175,11 +1175,11 @@ void nnExtProcessSuperSprites()
 			{
 				for (int a = connecthead; a >= 0; a = connectpoint2[a])
 				{
-					BloodPlayer* pPlayer = &gPlayer[a];
+					BloodPlayer* pPlayer = getPlayer(a);
 					if (!pPlayer || !xsprIsFine(pPlayer->GetActor()) || pPlayer->GetActor()->xspr.health <= 0)
 						continue;
 
-					if (pPlayer->GetActor()->xspr.health > 0 && CheckProximity(gPlayer->GetActor(), pos, pSect, okDist))
+					if (pPlayer->GetActor()->xspr.health > 0 && CheckProximity(getPlayer(0)->GetActor(), pos, pSect, okDist))
 					{
 						trTriggerSprite(pProx, kCmdSpriteProximity, pPlayer->GetActor());
 					}
@@ -1213,7 +1213,7 @@ void nnExtProcessSuperSprites()
 
 			for (int a = connecthead; a >= 0; a = connectpoint2[a])
 			{
-				BloodPlayer* pPlayer = &gPlayer[a];
+				BloodPlayer* pPlayer = getPlayer(a);
 				if (!pPlayer || !xsprIsFine(pPlayer->GetActor()) || pPlayer->GetActor()->xspr.health <= 0)
 					continue;
 
@@ -1303,7 +1303,7 @@ void nnExtProcessSuperSprites()
 				BloodPlayer* pPlayer = NULL;
 				for (int a = connecthead; a != -1; a = connectpoint2[a])
 				{
-					pPlayer = &gPlayer[a];
+					pPlayer = getPlayer(a);
 					DBloodActor* pact = pPlayer->GetActor();
 
 					if (pact && pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor)
@@ -4318,8 +4318,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 	auto objActor = eob.actor();
 	for (int i = 0; i < kMaxPlayers; i++)
 	{
-		if (objActor != gPlayer[i].GetActor()) continue;
-		pPlayer = &gPlayer[i];
+		if (objActor != getPlayer(i)->GetActor()) continue;
+		pPlayer = getPlayer(i);
 		break;
 	}
 
@@ -7415,8 +7415,8 @@ BloodPlayer* getPlayerById(int id)
 		id = id - 1;
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (id == gPlayer[i].nPlayer)
-				return &gPlayer[i];
+			if (id == getPlayer(i)->nPlayer)
+				return getPlayer(i);
 		}
 
 		// absolute sprite type
@@ -7425,8 +7425,8 @@ BloodPlayer* getPlayerById(int id)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (id == gPlayer[i].GetActor()->spr.type)
-				return &gPlayer[i];
+			if (id == getPlayer(i)->GetActor()->spr.type)
+				return getPlayer(i);
 		}
 	}
 
@@ -7473,14 +7473,14 @@ bool IsKillableDude(DBloodActor* actor)
 
 bool isGrown(DBloodActor* actor)
 {
-	if (powerupCheck(&gPlayer[actor->spr.type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
+	if (powerupCheck(getPlayer(actor->spr.type - kDudePlayer1), kPwUpGrowShroom) > 0) return true;
 	else if (actor->hasX() && actor->xspr.scale >= 512) return true;
 	else return false;
 }
 
 bool isShrinked(DBloodActor* actor)
 {
-	if (powerupCheck(&gPlayer[actor->spr.type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
+	if (powerupCheck(getPlayer(actor->spr.type - kDudePlayer1), kPwUpShrinkShroom) > 0) return true;
 	else if (actor->hasX() && actor->xspr.scale > 0 && actor->xspr.scale <= 128) return true;
 	else return false;
 }
@@ -8400,7 +8400,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	// search for player targets
 	for (i = connecthead; i != -1; i = connectpoint2[i])
 	{
-		pPlayer = &gPlayer[i];
+		pPlayer = getPlayer(i);
 		if (!xsprIsFine(pPlayer->GetActor())) continue;
 
 		auto plActor = pPlayer->GetActor();
@@ -9325,8 +9325,8 @@ void killEffectGenCallbacks(DBloodActor* actor)
 	case kChannelAllPlayers: // player sprites
 		for (i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (gPlayer[i].GetActor() != nullptr)
-				dokillEffectGenCallbacks(gPlayer[i].GetActor());
+			if (getPlayer(i)->GetActor() != nullptr)
+				dokillEffectGenCallbacks(getPlayer(i)->GetActor());
 		}
 		break;
 	case kChannelEventCauser: // worst case...

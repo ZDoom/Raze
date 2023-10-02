@@ -120,7 +120,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 							else
 								nDamage = nBaseDamage + int(nBaseDamage2 *  ((nDist - nDist2) / nDist));
 							if (actor2->IsPlayerActor())
-								gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
+								getPlayer(actor2->spr.type - kDudePlayer1)->quakeEffect += nDamage * 4;
 							actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 						}
 					}
@@ -148,7 +148,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 					nDamage = nBaseDamage + int(nBaseDamage2 * ((nDist - nDist2) / nDist));
 
 				if (actor2->IsPlayerActor())
-					gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
+					getPlayer(actor2->spr.type - kDudePlayer1)->quakeEffect += nDamage * 4;
 				actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 			}
 		}
@@ -221,7 +221,7 @@ static void beastThinkChase(DBloodActor* actor)
 			aiNewState(actor, &beastSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0)
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
@@ -355,7 +355,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 		aiNewState(actor, &beastSwimSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &beastSwimSearch);
 		return;

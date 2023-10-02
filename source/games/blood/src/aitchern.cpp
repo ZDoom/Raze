@@ -198,7 +198,7 @@ static void sub_725A4(DBloodActor* actor)
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			BloodPlayer* pPlayer = &gPlayer[p];
+			BloodPlayer* pPlayer = getPlayer(p);
 			if (pPlayer->GetActor()->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->GetActor()->spr.pos;
@@ -272,7 +272,7 @@ static void tchernobogThinkChase(DBloodActor* actor)
 		aiNewState(actor, &tchernobogSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &tchernobogSearch);
 		return;

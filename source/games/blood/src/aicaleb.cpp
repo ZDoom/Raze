@@ -140,7 +140,7 @@ static void calebThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0)
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &tinycalebSwimSearch);
@@ -242,7 +242,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
 		aiNewState(actor, &tinycalebSwimSearch);
 		return;
 	}
-	if (target->IsPlayerActor() && powerupCheck(&gPlayer[target->spr.type - kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (target->IsPlayerActor() && powerupCheck(getPlayer(target->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0)
 	{
 		aiNewState(actor, &tinycalebSwimSearch);
 		return;

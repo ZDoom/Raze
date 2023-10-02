@@ -490,7 +490,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	case kViewEffectShowWeapon:
 	{
 		assert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
-		BloodPlayer* pPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
+		BloodPlayer* pPlayer = getPlayer(pTSprite->type - kDudePlayer1);
 		WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
 		auto nTex = weaponIcon.textureID();
 		if (!nTex.isValid()) break;
@@ -505,7 +505,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		int nVoxel = GetExtInfo(nTex).tiletovox;
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			auto gView = &gPlayer[gViewIndex];
+			auto gView = getPlayer(gViewIndex);
 			pNSprite->Angles.Yaw = gView->GetActor()->spr.Angles.Yaw + DAngle90; // always face viewer
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
@@ -555,7 +555,7 @@ static int GetOctant(const DVector2& dPos)
 
 void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA, double interpfrac)
 {
-	BloodPlayer* pPlayer = &gPlayer[gViewIndex];
+	BloodPlayer* pPlayer = getPlayer(gViewIndex);
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
 	DAngle myclock = DAngle::fromBuild((PlayClock << 3) + (4 << 3) * interpfrac);
@@ -841,7 +841,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			if (powerupCheck(pPlayer, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
 			if (IsPlayerSprite(pTSprite)) {
-				BloodPlayer* thisPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
+				BloodPlayer* thisPlayer = getPlayer(pTSprite->type - kDudePlayer1);
 				if (powerupCheck(thisPlayer, kPwUpShadowCloak) && !powerupCheck(pPlayer, kPwUpBeastVision)) {
 					pTSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 					pTSprite->pal = 5;
