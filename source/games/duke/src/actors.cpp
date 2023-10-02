@@ -301,16 +301,18 @@ void checkavailweapon(DukePlayer* player)
 	player->curr_weapon = weap;
 	if (isWW2GI())
 	{
-		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is player index!
+		const auto pact = player->GetActor();
+		SetGameVarID(g_iWeaponVarID, player->curr_weapon, pact, snum); // snum is player index!
+
 		if (player->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, snum), player->GetActor(), snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, snum), pact, snum);
 		}
 		else
 		{
-			SetGameVarID(g_iWorksLikeVarID, -1, player->GetActor(), snum);
+			SetGameVarID(g_iWorksLikeVarID, -1, pact, snum);
 		}
-		OnEvent(EVENT_CHANGEWEAPON, snum, player->GetActor(), -1);
+		OnEvent(EVENT_CHANGEWEAPON, snum, pact, -1);
 	}
 
 	player->okickback_pic = player->kickback_pic = 0;
