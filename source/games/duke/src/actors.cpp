@@ -1629,20 +1629,20 @@ void handle_se00(DDukeActor* actor)
 
 	if (direction && (sect->floorstat & CSTAT_SECTOR_ALIGN))
 	{
-		int p;
-		for (p = connecthead; p >= 0; p = connectpoint2[p])
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (getPlayer(p)->cursector == actor->sector() && getPlayer(p)->on_ground == 1)
+			const auto p = getPlayer(i);
+
+			if (p->cursector == actor->sector() && p->on_ground == 1)
 			{
-				getPlayer(p)->GetActor()->spr.Angles.Yaw += ang_amount * direction;
+				const auto pact = p->GetActor();
 
-				getPlayer(p)->GetActor()->spr.pos.Z += zchange;
+				pact->spr.Angles.Yaw += ang_amount * direction;
+				pact->spr.pos.Z += zchange;
 
-				auto result = rotatepoint(Owner->spr.pos, getPlayer(p)->GetActor()->spr.pos.XY(), ang_amount * direction);
-
-				getPlayer(p)->bobpos += (result - getPlayer(p)->GetActor()->spr.pos.XY());
-
-				getPlayer(p)->GetActor()->spr.pos.XY() = result;
+				auto result = rotatepoint(Owner->spr.pos, pact->spr.pos.XY(), ang_amount * direction);
+				p->bobpos += (result - pact->spr.pos.XY());
+				pact->spr.pos.XY() = result;
 			}
 		}
 		DukeSectIterator itp(actor->sector());
