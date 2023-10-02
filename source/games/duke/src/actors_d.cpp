@@ -285,13 +285,13 @@ void movetransports_d(void)
 
 				if (act2->GetOwner())
 				{
-					int p = act2->PlayerIndex();
+					const auto pnum = act2->PlayerIndex();
+					const auto p = getPlayer(pnum);
+					p->on_warping_sector = 1;
 
-					getPlayer(p)->on_warping_sector = 1;
-
-					if (getPlayer(p)->transporter_hold == 0 && getPlayer(p)->jumping_counter == 0)
+					if (p->transporter_hold == 0 && p->jumping_counter == 0)
 					{
-						if (getPlayer(p)->on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && getPlayer(p)->jetpack_on == 0)
+						if (p->on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && p->jetpack_on == 0)
 						{
 							if (act->spr.pal == 0)
 							{
@@ -299,28 +299,32 @@ void movetransports_d(void)
 								S_PlayActorSound(TELEPORTER, act);
 							}
 
-							for (int k = connecthead; k >= 0; k = connectpoint2[k])
-							if (getPlayer(k)->cursector == Owner->sector())
+							for (int i = connecthead; i >= 0; i = connectpoint2[i])
 							{
-								getPlayer(k)->frag_ps = p;
-								getPlayer(k)->GetActor()->spr.extra = 0;
+								const auto k = getPlayer(i);
+
+								if (k->cursector == Owner->sector())
+								{
+									k->frag_ps = pnum;
+									k->GetActor()->spr.extra = 0;
+								}
 							}
 
-							getPlayer(p)->GetActor()->PrevAngles.Yaw = getPlayer(p)->GetActor()->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+							act2->PrevAngles.Yaw = act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
 
 							if (Owner->GetOwner() != Owner)
 							{
 								act->counter = 13;
 								Owner->counter = 13;
-								getPlayer(p)->transporter_hold = 13;
+								p->transporter_hold = 13;
 							}
 
-							getPlayer(p)->GetActor()->spr.pos = Owner->spr.pos;
-							getPlayer(p)->GetActor()->backuppos();
-							getPlayer(p)->setbobpos();
+							act2->spr.pos = Owner->spr.pos;
+							act2->backuppos();
+							p->setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());
-							getPlayer(p)->setCursector(act2->sector());
+							p->setCursector(act2->sector());
 
 							if (act->spr.pal == 0)
 							{
@@ -331,95 +335,94 @@ void movetransports_d(void)
 							break;
 						}
 					}
-					else if (!(sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground == 1)) break;
+					else if (!(sectlotag == ST_1_ABOVE_WATER && p->on_ground == 1)) break;
 
-					if (onfloorz == 0 && fabs(act->spr.pos.Z - getPlayer(p)->GetActor()->getOffsetZ()) < 24)
-						if ((getPlayer(p)->jetpack_on == 0) || (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->cmd.ucmd.uvel > 0)) ||
-							(getPlayer(p)->jetpack_on && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->cmd.ucmd.uvel < 0)))
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - act2->getOffsetZ()) < 24)
+					{
+						if ((p->jetpack_on == 0) || (p->jetpack_on && (PlayerInput(pnum, SB_JUMP) || p->cmd.ucmd.uvel > 0)) ||
+							(p->jetpack_on && (PlayerInput(pnum, SB_CROUCH) || p->cmd.ucmd.uvel < 0)))
 						{
-							getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							getPlayer(p)->GetActor()->backupvec2();
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->backupvec2();
 
-							if (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->jetpack_on < 11))
-								getPlayer(p)->GetActor()->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
-							else getPlayer(p)->GetActor()->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
-							getPlayer(p)->GetActor()->backupz();
-
-							auto pa = getPlayer(p)->GetActor();
-							pa->opos = getPlayer(p)->GetActor()->getPosWithOffsetZ();
+							if (p->jetpack_on && (PlayerInput(pnum, SB_JUMP) || p->jetpack_on < 11))
+								act2->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
+							else act2->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
+							act2->backuppos();
 
 							ChangeActorSect(act2, Owner->sector());
-							getPlayer(p)->setCursector(Owner->sector());
+							p->setCursector(Owner->sector());
 
 							break;
 						}
+					}
 
 					int k = 0;
 
 					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 					{
-						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && getPlayer(p)->GetActor()->getOffsetZ() > sectp->floorz - 48)
+						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && act2->getOffsetZ() > sectp->floorz - 48)
 						{
 							k = 2;
-							getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
-							getPlayer(p)->GetActor()->backupz();
+							act2->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+							act2->backupz();
 						}
 
-						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && getPlayer(p)->GetActor()->getOffsetZ() < sectp->ceilingz + 6)
+						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && act2->getOffsetZ() < sectp->ceilingz + 6)
 						{
 							k = 2;
-							if (getPlayer(p)->GetActor()->spr.extra <= 0) break;
-							getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
-							getPlayer(p)->GetActor()->backupz();
+							if (act2->spr.extra <= 0) break;
+							act2->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
+							act2->backupz();
 						}
 					}
 
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground && getPlayer(p)->GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->cmd.ucmd.uvel < 0 || getPlayer(p)->vel.Z > 8))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && p->on_ground && act2->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(pnum, SB_CROUCH) || p->cmd.ucmd.uvel < 0 || p->vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
-						if (screenpeek == p)
+						if (getPlayer(screenpeek) == p)
 						{
 							FX_StopAllSounds();
 						}
-						if (getPlayer(p)->GetActor()->spr.extra > 0)
+						if (act2->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
-						getPlayer(p)->GetActor()->backupz();
+						act2->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+						act2->backupz();
 
 						// this is actually below the precision óf the original Build coordinate system...
-						getPlayer(p)->vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
-						getPlayer(p)->vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
+						p->vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
+						p->vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
 
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && getPlayer(p)->GetActor()->getOffsetZ() < (sectp->ceilingz + 6))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && act2->getOffsetZ() < (sectp->ceilingz + 6))
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
-						if (screenpeek == p)
+						if (getPlayer(screenpeek) == p)
 						{
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
-						getPlayer(p)->GetActor()->backupz();
+						act2->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
+						act2->backupz();
 
-						getPlayer(p)->jumping_toggle = 1;
-						getPlayer(p)->jumping_counter = 0;
+						p->jumping_toggle = 1;
+						p->jumping_counter = 0;
 					}
 
 					if (k == 1)
 					{
-						getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-						getPlayer(p)->GetActor()->backupvec2();
+						act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						act2->backupvec2();
 
 						if (!Owner || Owner->GetOwner() != Owner)
-							getPlayer(p)->transporter_hold = -2;
-						getPlayer(p)->setCursector(Owner->sector());
+							p->transporter_hold = -2;
 
+						p->setCursector(Owner->sector());
 						ChangeActorSect(act2, Owner->sector());
 						SetActor(act2, act2->spr.pos);
 
@@ -429,19 +432,19 @@ void movetransports_d(void)
 						if (sectlotag == ST_1_ABOVE_WATER)
 							for (int l = 0; l < 9; l++)
 						{
-							auto q = spawn(getPlayer(p)->GetActor(), DukeWaterBubbleClass);
+							auto q = spawn(act2, DukeWaterBubbleClass);
 							if (q) q->spr.pos.Z += krandf(64);
 						}
 					}
 					else if (k == 2)
 					{
-						getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-						getPlayer(p)->GetActor()->backupvec2();
+						act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						act2->backupvec2();
 
 						if (Owner->GetOwner() != Owner)
-							getPlayer(p)->transporter_hold = -2;
-						getPlayer(p)->setCursector(Owner->sector());
+							p->transporter_hold = -2;
 
+						p->setCursector(Owner->sector());
 						ChangeActorSect(act2, Owner->sector());
 					}
 				}
