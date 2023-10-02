@@ -544,11 +544,13 @@ static void handle_se28(DDukeActor* actor)
 	}
 	else
 	{
+		const auto spp = getPlayer(screenpeek);
 		actor->temp_data[2]++;
+
 		if (actor->temp_data[2] > actor->temp_data[1])
 		{
 			actor->counter = 0;
-			getPlayer(screenpeek)->visibility = ud.const_visibility;
+			spp->visibility = ud.const_visibility;
 			return;
 		}
 		else if (actor->temp_data[2] == (actor->temp_data[1] >> 1))
@@ -566,13 +568,13 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (actor->temp_data[2] > (actor->temp_data[1] >> 3) && actor->temp_data[2] < (actor->temp_data[1] >> 2))
 		{
-			int j = !!cansee(actor->spr.pos, actor->sector(), getPlayer(screenpeek)->GetActor()->getPosWithOffsetZ(), getPlayer(screenpeek)->cursector);
+			int j = !!cansee(actor->spr.pos, actor->sector(), spp->GetActor()->getPosWithOffsetZ(), spp->cursector);
 
 			if (rnd(192) && (actor->temp_data[2] & 1))
 			{
-				if (j) getPlayer(screenpeek)->visibility = 0;
+				if (j) spp->visibility = 0;
 			}
-			else if (j)	getPlayer(screenpeek)->visibility = ud.const_visibility;
+			else if (j)	spp->visibility = ud.const_visibility;
 
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
@@ -585,16 +587,17 @@ static void handle_se28(DDukeActor* actor)
 						spawn(act2, DukeSmallSmokeClass);
 
 						double x;
-						int p = findplayer(actor, &x);
-						auto psa = getPlayer(p)->GetActor();
-						double dist = (psa->spr.pos.XY() - act2->spr.pos.XY()).LengthSquared();
+						const auto p = getPlayer(findplayer(actor, &x));
+						const auto pact = p->GetActor();
+						double dist = (pact->spr.pos.XY() - act2->spr.pos.XY()).LengthSquared();
+
 						if (dist < 49*48)
 						{
-							if (S_CheckActorSoundPlaying(psa, DUKE_LONGTERM_PAIN) < 1)
-								S_PlayActorSound(DUKE_LONGTERM_PAIN, psa);
-							S_PlayActorSound(SHORT_CIRCUIT, psa);
-							psa->spr.extra -= 8 + (krand() & 7);
-							SetPlayerPal(getPlayer(p), PalEntry(32, 16, 0, 0));
+							if (S_CheckActorSoundPlaying(pact, DUKE_LONGTERM_PAIN) < 1)
+								S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
+							S_PlayActorSound(SHORT_CIRCUIT, pact);
+							pact->spr.extra -= 8 + (krand() & 7);
+							SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 						}
 						return;
 					}
