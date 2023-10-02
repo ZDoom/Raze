@@ -147,6 +147,8 @@ struct SW native
 
 struct SWPlayer native
 {
+    native uint8 pnum; // carry along the player number
+
     // variable that fit in the sprite or user structure
 	/*
     union
@@ -216,8 +218,6 @@ struct SWPlayer native
     native double recoil_horizoff;
 
     native double RevolveDeltaAng;
-
-    native int16 pnum; // carry along the player number
 
     //native int16 LadderSector;
     native int16 JumpDuration;
