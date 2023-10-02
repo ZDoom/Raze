@@ -25,7 +25,7 @@ DSWActor* WarpPlane(DVector3& pos, sectortype** sect, double testz = DBL_MAX);
 
 
 void ProcessVisOn(void);
-void VisViewChange(SWPlayer* pp, int* vis);
+void VisViewChange(DSWPlayer* pp, int* vis);
 void SpawnVis(DSWActor* Parent, sectortype* sect, const DVector3& pos, int amt);
 
 enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
@@ -53,10 +53,10 @@ int DoActorFall(DSWActor* actor);
 #define TEXT_INFO_YOFF (10)
 inline constexpr int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TEXT_INFO_YOFF)); }
 
-void PutStringInfo(SWPlayer* pp, const char* string);
+void PutStringInfo(DSWPlayer* pp, const char* string);
 
 
-void DoSlidorMatch(SWPlayer* pp, short match, bool);
+void DoSlidorMatch(DSWPlayer* pp, short match, bool);
 bool TestSlidorMatchActive(short match);
 void InterpSectorSprites(sectortype* sect, bool state);
 
@@ -75,21 +75,21 @@ int DoActorSectorDamage(DSWActor* actor);
 int DoScaleSprite(DSWActor* actor);
 int DoActorStopFall(DSWActor* actor);
 
-void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle startang);
+void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle startang);
 void InitAllPlayerSprites(const DVector3& spawnpos, const DAngle startang);
 void PlayerPanelSetup(void);
-void PlayerDeathReset(SWPlayer* pp);
-void SpawnPlayerUnderSprite(SWPlayer* pp);
+void PlayerDeathReset(DSWPlayer* pp);
+void SpawnPlayerUnderSprite(DSWPlayer* pp);
 
 void DoQuakeMatch(short match);
 void ProcessQuakeOn(void);
 void ProcessQuakeSpot(void);
-void QuakeViewChange(SWPlayer* pp, DVector3& tpos, DAngle& tang);
-void DoQuake(SWPlayer* pp);
-bool SetQuake(SWPlayer* pp, short tics, short amt);
+void QuakeViewChange(DSWPlayer* pp, DVector3& tpos, DAngle& tang);
+void DoQuake(DSWPlayer* pp);
+bool SetQuake(DSWPlayer* pp, short tics, short amt);
 int SetExpQuake(DSWActor*);
 int SetGunQuake(DSWActor*);
-int SetPlayerQuake(SWPlayer* mpp);
+int SetPlayerQuake(DSWPlayer* mpp);
 int SetNuclearQuake(DSWActor*);
 int SetSumoQuake(DSWActor*);
 int SetSumoFartQuake(DSWActor*);

@@ -159,13 +159,27 @@ public:
 
 };
 
-struct BloodPlayer final : public CorePlayer
+class DBloodPlayer final : public DCorePlayer
 {
-	DUDEINFO* pDudeInfo;
+	DECLARE_CLASS(DBloodPlayer, DCorePlayer)
+	HAS_OBJECT_POINTERS
+	DBloodPlayer() = default;
+public:
+	DBloodPlayer(uint8_t p) : DCorePlayer(p) {}
+	void Clear()
+	{
+		Super::Clear();
+		// Quick'n dirty clear
+		memset(&startOfMem, 0, sizeof(DBloodPlayer) - myoffsetof(DBloodPlayer, startOfMem));
+	}
+
+	uint8_t				startOfMem; // only for Clear
 	uint8_t             newWeapon;
+	bool                isRunning;
+
+	DUDEINFO* pDudeInfo;
 	int                 weaponQav;
 	int                 qavCallback;
-	bool                isRunning;
 	int                 posture;   // stand, crouch, swim
 	int                 sceneQav;  // by NoOne: used to keep qav id
 	double              bobPhase;
@@ -258,10 +272,58 @@ struct BloodPlayer final : public CorePlayer
 	}
 };
 
-inline BloodPlayer* getPlayer(int index)
+inline DBloodPlayer* getPlayer(int index)
 {
-	return static_cast<BloodPlayer*>(PlayerArray[index]);
+	return static_cast<DBloodPlayer*>(PlayerArray[index]);
 }
+
+inline DBloodPlayer* getPlayer(DBloodActor* ac)
+{
+	return static_cast<DBloodPlayer*>(PlayerArray[ac->spr.type - kDudePlayer1]);
+}
+
+struct PlayerSave
+{
+	int weaponQav;
+	int8_t curWeapon;
+	int weaponState;
+	int weaponAmmo;
+	int qavCallback;
+	bool qavLoop;
+	int weaponTimer;
+	int8_t nextWeapon;
+	int qavLastTick;
+	int qavTimer;
+
+	void CopyFromPlayer(DBloodPlayer* p)
+	{
+		weaponQav = p->weaponQav;
+		curWeapon = p->curWeapon;
+		weaponState = p->weaponState;
+		weaponAmmo = p->weaponAmmo;
+		qavCallback = p->qavCallback;
+		qavLoop = p->qavLoop;
+		weaponTimer = p->weaponTimer;
+		nextWeapon = p->nextWeapon;
+		qavLastTick = p->qavLastTick;
+		qavTimer = p->qavTimer;
+
+	}
+
+	void CopyToPlayer(DBloodPlayer* p)
+	{
+		p->weaponQav = weaponQav;
+		p->curWeapon = curWeapon;
+		p->weaponState = weaponState;
+		p->weaponAmmo = weaponAmmo;
+		p->qavCallback = qavCallback;
+		p->qavLoop = qavLoop;
+		p->weaponTimer = weaponTimer;
+		p->nextWeapon = nextWeapon;
+		p->qavLastTick = qavLastTick;
+		p->qavTimer = qavTimer;
+	}
+};
 
 // subclassed to add a game specific actor() method
 
@@ -288,7 +350,7 @@ inline bool IsTargetTeammate(DBloodActor* pSource, DBloodActor* pTarget)
 {
 	if (!pSource->IsPlayerActor())
 		return false;
-	BloodPlayer* pSourcePlayer = getPlayer(pSource->spr.type - kDudePlayer1);
+	DBloodPlayer* pSourcePlayer = getPlayer(pSource->spr.type - kDudePlayer1);
 	return IsTargetTeammate(pSourcePlayer, pTarget);
 }
 

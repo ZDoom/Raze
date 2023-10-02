@@ -166,6 +166,7 @@ void HudScaleChanged();
 bool M_SetSpecialMenu(FName& menu, int param);
 void OnMenuOpen(bool makeSound);
 void DestroyAltHUD();
+void MarkPlayers();
 
 DStatusBarCore* StatusBar;
 
@@ -637,7 +638,7 @@ int GameMain()
 		gi->FreeLevelData();
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			delete PlayerArray[i];
+			PlayerArray[i]->Destroy();
 			PlayerArray[i] = nullptr;
 		}
 	}
@@ -1154,6 +1155,7 @@ int RunGame()
 	StartWindow->Progress();
 
 	GC::AddMarkerFunc(MarkMap);
+	GC::AddMarkerFunc(MarkPlayers);
 	gi->app_init();
 	StartWindow->Progress();
 	G_ParseMapInfo();

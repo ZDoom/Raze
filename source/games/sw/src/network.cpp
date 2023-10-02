@@ -60,7 +60,7 @@ uint8_t CommPlayers = 0;
 void InitNetPlayerOptions(void)
 {
 //    short pnum;
-    SWPlayer* pp = getPlayer(myconnectindex);
+    DSWPlayer* pp = getPlayer(myconnectindex);
 
     strncpy(pp->PlayerName, playername, 31);
 

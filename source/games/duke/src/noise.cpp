@@ -32,7 +32,7 @@ BEGIN_DUKE_NS
 
 int madenoise(int snum)
 {
-	DukePlayer *p;
+	DDukePlayer *p;
 	p = getPlayer(snum);
 	p->donoise = 1;
 	p->noise = p->GetActor()->spr.pos.XY();

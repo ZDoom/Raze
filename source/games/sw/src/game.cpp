@@ -97,12 +97,22 @@ IMPLEMENT_CLASS(DSWActor, false, true)
 IMPLEMENT_POINTERS_START(DSWActor)
 IMPLEMENT_POINTER(ownerActor)
 IMPLEMENT_POINTER(user.lowActor)
-IMPLEMENT_POINTER(user.lowActor)
 IMPLEMENT_POINTER(user.highActor)
 IMPLEMENT_POINTER(user.targetActor)
 IMPLEMENT_POINTER(user.flameActor)
 IMPLEMENT_POINTER(user.attachActor)
 IMPLEMENT_POINTER(user.WpnGoalActor)
+IMPLEMENT_POINTERS_END
+
+IMPLEMENT_CLASS(DSWPlayer, false, true)
+IMPLEMENT_POINTERS_START(DSWPlayer)
+IMPLEMENT_POINTER(remoteActor)
+IMPLEMENT_POINTER(lowActor)
+IMPLEMENT_POINTER(highActor)
+IMPLEMENT_POINTER(PlayerUnderActor)
+IMPLEMENT_POINTER(KillerActor)
+IMPLEMENT_POINTER(HitBy)
+IMPLEMENT_POINTER(last_camera_act)
 IMPLEMENT_POINTERS_END
 
 void MarkSOInterp();
@@ -118,21 +128,6 @@ void markgcroots()
     GC::MarkArray(GenericQueue, MAX_GENERIC_QUEUE);
     GC::MarkArray(LoWangsQueue, MAX_LOWANGS_QUEUE);
     GC::MarkArray(BossSpriteNum, 3);
-    for (int i = 0; i < MAXPLAYERS; i++)
-    {
-        auto plr = getPlayer(i);
-        if (plr)
-        {
-            GC::Mark(plr->actor);
-            GC::Mark(plr->lowActor);
-            GC::Mark(plr->highActor);
-            GC::Mark(plr->remoteActor);
-            GC::Mark(plr->PlayerUnderActor);
-            GC::Mark(plr->KillerActor);
-            GC::Mark(plr->HitBy);
-            GC::Mark(plr->last_camera_act);
-        }
-    }
     for (auto& so : SectorObject)
     {
        GC::Mark(so.controller);
@@ -152,7 +147,7 @@ void markgcroots()
 }
 
 
-void pClearSpriteList(SWPlayer* pp);
+void pClearSpriteList(DSWPlayer* pp);
 
 int GameVersion = 20;
 
@@ -257,8 +252,8 @@ void GameInterface::app_init()
     // Initialise player array.
     for (unsigned i = 0; i < MAXPLAYERS; i++)
     {
-        PlayerArray[i] = new SWPlayer;
-        *getPlayer(i) = {};
+        PlayerArray[i] = Create<DSWPlayer>(i);
+        GC::WriteBarrier(PlayerArray[i]);
     }
 
     // these are frequently checked markers.
@@ -425,7 +420,7 @@ void InitLevel(MapRecord *maprec)
             // don't jack with the playerreadyflag
             int ready_bak = getPlayer(i)->playerreadyflag;
             int ver_bak = getPlayer(i)->PlayerVersion;
-            *getPlayer(i) = {};
+            getPlayer(i)->Clear();
             getPlayer(i)->playerreadyflag = ready_bak;
             getPlayer(i)->PlayerVersion = ver_bak;
             INITLIST(&getPlayer(i)->PanelSpriteList);
@@ -583,7 +578,7 @@ void TerminateLevel(void)
 
     TRAVERSE_CONNECT(pnum)
     {
-        SWPlayer* pp = getPlayer(pnum);
+        DSWPlayer* pp = getPlayer(pnum);
 
         if (pp->Flags & PF_DEAD)
             PlayerDeathReset(pp);

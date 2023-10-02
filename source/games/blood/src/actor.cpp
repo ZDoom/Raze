@@ -3053,7 +3053,7 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 	{
 		if (killerActor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = getPlayer(killerActor->spr.type - kDudePlayer1);
+			DBloodPlayer* pPlayer = getPlayer(killerActor->spr.type - kDudePlayer1);
 			if (gGameOptions.nGameType == 1)
 				pPlayer->fragCount++;
 		}
@@ -3068,7 +3068,7 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 		case kDudeBurningInnocent:
 			break;
 		default:
-			BloodPlayer* pKillerPlayer = getPlayer(killerActor->spr.type - kDudePlayer1);
+			DBloodPlayer* pKillerPlayer = getPlayer(killerActor->spr.type - kDudePlayer1);
 			pKillerPlayer->fragCount++;
 			break;
 		}
@@ -3616,7 +3616,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	}
 	else
 	{
-		BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
+		DBloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 		if (actor->xspr.health > 0 || playerSeqPlaying(pPlayer, 16))
 			damage = playerDamageSprite(source, pPlayer, damageType, damage);
 
@@ -3630,7 +3630,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 //
 //---------------------------------------------------------------------------
 
-static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, BloodPlayer* pSourcePlayer)
+static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, DBloodPlayer* pSourcePlayer)
 {
 	assert(actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
 	int nType = actor->spr.type - kThingBase;
@@ -3739,7 +3739,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 
 	if (source == nullptr) source = actor;
 
-	BloodPlayer* pSourcePlayer = nullptr;
+	DBloodPlayer* pSourcePlayer = nullptr;
 	if (source->IsPlayerActor()) pSourcePlayer = getPlayer(source->spr.type - kDudePlayer1);
 	if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, actor)) return 0;
 
@@ -4334,7 +4334,7 @@ static void checkFloorHit(DBloodActor* actor)
 			}
 #endif
 
-			BloodPlayer* pPlayer = nullptr;
+			DBloodPlayer* pPlayer = nullptr;
 			if (actor->IsPlayerActor()) pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 
 			switch (actor2->spr.type)
@@ -4691,7 +4691,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 void MoveDude(DBloodActor* actor)
 {
-	BloodPlayer* pPlayer = nullptr;
+	DBloodPlayer* pPlayer = nullptr;
 	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
 	{
@@ -5543,8 +5543,8 @@ static void actCheckProximity()
 							auto Owner = actor->GetOwner();
 							if (!Owner->IsPlayerActor()) continue;
 
-							BloodPlayer* pPlayer = getPlayer(Owner->spr.type - kDudePlayer1);
-							BloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? getPlayer(dudeactor->spr.type - kDudePlayer1) : nullptr;
+							auto pPlayer = getPlayer(Owner);
+							DBloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? getPlayer(dudeactor) : nullptr;
 
 							if (dudeactor == Owner || dudeactor->spr.type == kDudeZombieAxeBuried || dudeactor->spr.type == kDudeRat || dudeactor->spr.type == kDudeBat) continue;
 							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;
@@ -5975,7 +5975,7 @@ static void actCheckDudes()
 			}
 			if (actor->IsPlayerActor())
 			{
-				BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
+				DBloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 				if (pPlayer->voodooTargets) voodooTarget(pPlayer);
 				if (pPlayer->hand && Chance(0x8000)) actDamageSprite(actor, actor, kDamageDrown, 12);
 
@@ -6049,7 +6049,7 @@ static void actCheckDudes()
 
 		if (actor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
+			DBloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 			double nDrag = FixedToFloat(gDudeDrag);
 			if (actor->xspr.height > 0)
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
@@ -6624,7 +6624,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		if (!gGameOptions.bFriendlyFire && IsTargetTeammate(shooter, hitactor)) return;
 		if (hitactor->IsPlayerActor())
 		{
-			BloodPlayer* pPlayer = getPlayer(hitactor->spr.type - kDudePlayer1);
+			DBloodPlayer* pPlayer = getPlayer(hitactor->spr.type - kDudePlayer1);
 			if (powerupCheck(pPlayer, kPwUpReflectShots))
 			{
 				gHitInfo.hitActor = shooter;

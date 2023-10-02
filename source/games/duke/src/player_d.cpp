@@ -49,7 +49,7 @@ void operateweapon_ww(int snum, ESyncBits actions);
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_d(DukePlayer* p)
+void incur_damage_d(DDukePlayer* p)
 {
 	int  damage = 0L, shield_damage = 0L;
 
@@ -337,7 +337,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 //
 //---------------------------------------------------------------------------
 
-int doincrements_d(DukePlayer* p)
+int doincrements_d(DDukePlayer* p)
 {
 	int snum;
 
@@ -536,7 +536,7 @@ int doincrements_d(DukePlayer* p)
 //
 //---------------------------------------------------------------------------
 
-void checkweapons_d(DukePlayer* p)
+void checkweapons_d(DDukePlayer* p)
 {
 	static PClassActor* const * const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &DukeFirstgunSpriteClass, &DukeShotgunSpriteClass,
 			&DukeChaingunSpriteClass, &DukeRPGSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass, &DukeDevastatorSpriteClass,
@@ -1536,7 +1536,7 @@ void processinput_d(int snum)
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
-	DukePlayer* p;
+	DDukePlayer* p;
 
 	p = getPlayer(snum);
 	auto pact = p->GetActor();
@@ -1952,7 +1952,7 @@ HORIZONLY:
 	if (p->show_empty_weapon > 0)
 	{
 		p->show_empty_weapon--;
-		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - (DukePlayer*)PlayerArray) & 2))
+		if (p->show_empty_weapon == 0 && (WeaponSwitch(p->pnum) & 2))
 		{
 			if (p->last_full_weapon == GROW_WEAPON)
 				p->subweapon |= (1 << GROW_WEAPON);

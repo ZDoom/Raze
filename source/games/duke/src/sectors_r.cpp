@@ -127,7 +127,7 @@ void activatebysector_r(sectortype* sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_r(DukePlayer* p, const Collision &coll)
+void checkplayerhurt_r(DDukePlayer* p, const Collision &coll)
 {
 	if (coll.type == kHitSprite)
 	{
@@ -160,7 +160,7 @@ void checkplayerhurt_r(DukePlayer* p, const Collision &coll)
 
 void checksectors_r(int snum)
 {
-	DukePlayer* p;
+	DDukePlayer* p;
 	walltype* hitscanwall;
 	HitInfo near;
 

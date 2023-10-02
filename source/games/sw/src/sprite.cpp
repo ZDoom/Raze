@@ -87,8 +87,8 @@ int SetupPachinko4(DSWActor*);
 int SetupGirlNinja(DSWActor*);
 int DoSlidorInstantClose(DSWActor*);
 
-void InitWeaponRocket(SWPlayer*);
-void InitWeaponUzi(SWPlayer*);
+void InitWeaponRocket(DSWPlayer*);
+void InitWeaponUzi(DSWPlayer*);
 
 int MoveSkip4, MoveSkip2, MoveSkip8;
 int MinEnemySkill;
@@ -547,7 +547,7 @@ void KillActor(DSWActor* actor)
 
     if (actor->hasU())
     {
-        SWPlayer* pp;
+        DSWPlayer* pp;
         int pnum;
 
         // doing a MissileSetPos - don't allow killing
@@ -4887,7 +4887,7 @@ int DoSpawnItemTeleporterEffect(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void ChoosePlayerGetSound(SWPlayer* pp)
+void ChoosePlayerGetSound(DSWPlayer* pp)
 {
     int choose_snd=0;
 
@@ -4904,7 +4904,7 @@ void ChoosePlayerGetSound(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-bool CanGetWeapon(SWPlayer* pp, DSWActor* actor, int WPN)
+bool CanGetWeapon(DSWPlayer* pp, DSWActor* actor, int WPN)
 {
     switch (gNet.MultiGameType)
     {
@@ -4964,7 +4964,7 @@ enum
 };
 int DoGet(DSWActor* actor)
 {
-    SWPlayer* pp;
+    DSWPlayer* pp;
     short pnum, key_num;
     bool can_see;
 
@@ -5865,7 +5865,7 @@ void ProcessActiveVars(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void AdjustActiveRange(SWPlayer* pp, DSWActor* actor, double dist)
+void AdjustActiveRange(DSWPlayer* pp, DSWActor* actor, double dist)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6011,7 +6011,7 @@ void SpriteControl(void)
 {
     int32_t stat;
     short pnum, CloseToPlayer;
-    SWPlayer* pp;
+    DSWPlayer* pp;
     short StateTics;
 
     SWStatIterator it(STAT_MISC);

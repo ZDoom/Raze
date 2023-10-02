@@ -27,9 +27,9 @@ BEGIN_SW_NS
 
 #define RECT_CLIP 1
 
-Collision MultiClipMove(SWPlayer* pp, double z, double floor_dist);
-int MultiClipTurn(SWPlayer* pp, DAngle new_ang, double zz, double floordist);
-int RectClipMove(SWPlayer* pp, DVector2* qpos);
+Collision MultiClipMove(DSWPlayer* pp, double z, double floor_dist);
+int MultiClipTurn(DSWPlayer* pp, DAngle new_ang, double zz, double floordist);
+int RectClipMove(DSWPlayer* pp, DVector2* qpos);
 //short RectClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist, int *qx, int *qy);
-short RectClipTurn(SWPlayer* pp, short new_ang, int *qx, int *qy, int *ox, int *oy);
+short RectClipTurn(DSWPlayer* pp, short new_ang, int *qx, int *qy, int *ox, int *oy);
 END_SW_NS

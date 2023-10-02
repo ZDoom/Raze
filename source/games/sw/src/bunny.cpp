@@ -993,7 +993,7 @@ int DoBunnyQuickJump(DSWActor* actor)
         {
             if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
-                SWPlayer* pp = nullptr;
+                DSWPlayer* pp = nullptr;
 
                 if (RandomRange(1000) < 995 && hitActor->user.spal != PALETTE_PLAYER0) return false;
 

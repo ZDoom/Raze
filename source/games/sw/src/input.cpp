@@ -70,7 +70,7 @@ enum
 //
 //---------------------------------------------------------------------------
 
-void processWeapon(SWPlayer* const pp)
+void processWeapon(DSWPlayer* const pp)
 {
     DSWActor* plActor = pp->GetActor();
     if (plActor == nullptr) return;

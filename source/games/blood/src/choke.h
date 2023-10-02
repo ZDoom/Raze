@@ -40,7 +40,7 @@ public:
 		x = 0;
 		y = 0;
 	};
-	void init(int a1, void(*a2)(BloodPlayer*));
+	void init(int a1, void(*a2)(DBloodPlayer*));
 	void animateChoke(int x, int y, double interpfrac);
 	void reset() { time = 0; }
 	QAV* qav;
@@ -48,10 +48,10 @@ public:
 	int time;
 	int x;
 	int y;
-	void(*callback)(BloodPlayer*);
+	void(*callback)(DBloodPlayer*);
 };
 
-void chokeCallback(BloodPlayer*);
+void chokeCallback(DBloodPlayer*);
 
 extern CChoke gChoke;
 

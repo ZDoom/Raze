@@ -58,6 +58,14 @@ IMPLEMENT_POINTERS_START(DExhumedActor)
 IMPLEMENT_POINTER(pTarget)
 IMPLEMENT_POINTERS_END
 
+IMPLEMENT_CLASS(DExhumedPlayer, false, true)
+IMPLEMENT_POINTERS_START(DExhumedPlayer)
+IMPLEMENT_POINTER(pTarget)
+IMPLEMENT_POINTER(pDoppleSprite)
+IMPLEMENT_POINTER(pPlayerFloorSprite)
+IMPLEMENT_POINTER(pPlayerGrenade)
+IMPLEMENT_POINTERS_END
+
 size_t MarkMove();
 size_t MarkBullets();
 size_t MarkItems();
@@ -419,8 +427,8 @@ void GameInterface::app_init()
     // Initialise player array.
     for (unsigned i = 0; i < MAXPLAYERS; i++)
     {
-        PlayerArray[i] = new ExhumedPlayer;
-        *getPlayer(i) = {};
+        PlayerArray[i] = Create<DExhumedPlayer>(i);
+        GC::WriteBarrier(PlayerArray[i]);
     }
 
     GC::AddMarkerFunc(markgcroots);

@@ -337,7 +337,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 	if (!actor) return;
 	if (actor->IsPlayerActor())
 	{
-		BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
+		DBloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 		if (!pPlayer->bubbleTime)
 			return;
 		double top, bottom;
@@ -694,7 +694,7 @@ void LeechStateTimer(DBloodActor* actor, sectortype*) // 20
 //
 //---------------------------------------------------------------------------
 
-void sub_76A08(DBloodActor* actor, DBloodActor* actor2, BloodPlayer* pPlayer) // ???
+void sub_76A08(DBloodActor* actor, DBloodActor* actor2, DBloodPlayer* pPlayer) // ???
 {
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
@@ -726,7 +726,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 		evPostActor(actor, 0, kCallbackRemove);
 		return;
 	}
-	BloodPlayer* pPlayer;
+	DBloodPlayer* pPlayer;
 	if (Owner->IsPlayerActor())
 		pPlayer = getPlayer(Owner->spr.type - kDudePlayer1);
 	else
@@ -753,7 +753,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 				continue;
 			if (actor2->hasX())
 			{
-				BloodPlayer* pPlayer2;
+				DBloodPlayer* pPlayer2;
 				if (actor2->IsPlayerActor())
 					pPlayer2 = getPlayer(actor2->spr.type - kDudePlayer1);
 				else

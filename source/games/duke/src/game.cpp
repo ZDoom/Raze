@@ -68,6 +68,27 @@ IMPLEMENT_POINTER(temp_actor)
 IMPLEMENT_POINTER(seek_actor)
 IMPLEMENT_POINTERS_END
 
+IMPLEMENT_CLASS(DDukePlayer, false, true)
+IMPLEMENT_POINTERS_START(DDukePlayer)
+IMPLEMENT_POINTER(actorsqu)
+IMPLEMENT_POINTER(wackedbyactor)
+IMPLEMENT_POINTER(on_crane)
+IMPLEMENT_POINTER(holoduke_on)
+IMPLEMENT_POINTER(somethingonplayer)
+IMPLEMENT_POINTER(access_spritenum)
+IMPLEMENT_POINTER(dummyplayersprite)
+IMPLEMENT_POINTER(newOwner)
+IMPLEMENT_POINTERS_END
+
+size_t DDukePlayer::PropagateMark()
+{
+	for (auto& var : uservars)
+	{
+		var.Mark();
+	}
+	return Super::PropagateMark();
+}
+
 size_t DDukeActor::PropagateMark()
 {
 	for (auto& var : uservars)
@@ -83,26 +104,6 @@ static void markgcroots()
 	GC::MarkArray(spriteq, 1024);
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
-	for (int i = 0; i < MAXPLAYERS; i++)
-	{
-		auto plr = getPlayer(i);
-		if (plr)
-		{
-			GC::Mark(plr->actor);
-			GC::Mark(plr->actorsqu);
-			GC::Mark(plr->wackedbyactor);
-			GC::Mark(plr->on_crane);
-			GC::Mark(plr->holoduke_on);
-			GC::Mark(plr->somethingonplayer);
-			GC::Mark(plr->access_spritenum);
-			GC::Mark(plr->dummyplayersprite);
-			GC::Mark(plr->newOwner);
-			for (auto& var : plr->uservars)
-			{
-				var.Mark();
-			}
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -393,8 +394,8 @@ void GameInterface::app_init()
 	// Initialise player array.
 	for (unsigned i = 0; i < MAXPLAYERS; i++)
 	{
-		PlayerArray[i] = new DukePlayer;
-		*getPlayer(i) = {};
+		PlayerArray[i] = Create<DDukePlayer>(i);
+		GC::WriteBarrier(PlayerArray[i]);
 	}
 
 	RegisterClasses();
@@ -645,7 +646,7 @@ void checkhitsprite(DDukeActor* actor, DDukeActor* hitter)
 	}
 }
 
-void CallOnHurt(DDukeActor* actor, DukePlayer* hitter)
+void CallOnHurt(DDukeActor* actor, DDukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onHurt)
 	{
@@ -654,7 +655,7 @@ void CallOnHurt(DDukeActor* actor, DukePlayer* hitter)
 	}
 }
 
-void CallOnTouch(DDukeActor* actor, DukePlayer* hitter)
+void CallOnTouch(DDukeActor* actor, DDukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onTouch)
 	{
@@ -664,7 +665,7 @@ void CallOnTouch(DDukeActor* actor, DukePlayer* hitter)
 }
 
 
-bool CallOnUse(DDukeActor* actor, DukePlayer* user)
+bool CallOnUse(DDukeActor* actor, DDukePlayer* user)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, onUse)
@@ -676,7 +677,7 @@ bool CallOnUse(DDukeActor* actor, DukePlayer* user)
 	return nval;
 }
 
-void CallOnMotoSmash(DDukeActor* actor, DukePlayer* hitter)
+void CallOnMotoSmash(DDukeActor* actor, DDukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onMotoSmash)
 	{
@@ -737,7 +738,7 @@ void CallPlayFTASound(DDukeActor* actor, int mode)
 	}
 }
 
-void CallStandingOn(DDukeActor* actor, DukePlayer* p)
+void CallStandingOn(DDukeActor* actor, DDukePlayer* p)
 {
 	IFVIRTUALPTR(actor, DDukeActor, StandingOn)
 	{
@@ -746,7 +747,7 @@ void CallStandingOn(DDukeActor* actor, DukePlayer* p)
 	}
 }
 
-int CallTriggerSwitch(DDukeActor* actor, DukePlayer* p)
+int CallTriggerSwitch(DDukeActor* actor, DDukePlayer* p)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, TriggerSwitch)

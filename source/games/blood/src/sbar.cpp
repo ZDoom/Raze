@@ -73,7 +73,7 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
-void UpdateStatusBar(BloodPlayer* pPlayer)
+void UpdateStatusBar(DBloodPlayer* pPlayer)
 {
 	if (automapMode == am_off && hud_size <= Hud_Stbar)
 	{

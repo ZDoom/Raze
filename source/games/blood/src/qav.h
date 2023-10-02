@@ -230,13 +230,13 @@ struct QAV
 	uint16_t res_id;
 	FRAMEINFO frames[1]; // 24
 	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac, DAngle angle = nullAngle);
-	void Play(int, int, int, BloodPlayer*);
+	void Play(int, int, int, DBloodPlayer*);
 	void Precache(int palette = 0);
 };
 
 QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
-void qavProcessTimer(BloodPlayer* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
+void qavProcessTimer(DBloodPlayer* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
 
 inline bool qavIsOriginal(const int res_id)
 {

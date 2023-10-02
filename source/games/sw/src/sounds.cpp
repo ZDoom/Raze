@@ -324,7 +324,7 @@ static void UpdateAmbients()
 
         if (sdist < 255 && sfx->ResourceId == DIGI_WHIPME)
         {
-            SWPlayer* pp = getPlayer(screenpeek);
+            DSWPlayer* pp = getPlayer(screenpeek);
             if (!FAFcansee(spot->spr.pos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
             {
                 sdist = 255;
@@ -379,7 +379,7 @@ public:
 
     int SoundSourceIndex(FSoundChan* chan) override
     {
-        if (chan->SourceType == SOURCE_Player) return int((SWPlayer*)(chan->Source) - (SWPlayer*)PlayerArray);
+        if (chan->SourceType == SOURCE_Player) return int(((DSWPlayer*)(chan->Source))->pnum);
         return 0;
     }
 
@@ -425,7 +425,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        SWPlayer* pp = getPlayer(screenpeek);
+        DSWPlayer* pp = getPlayer(screenpeek);
         FVector3 campos = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
         DVector3 vPos = {};
         bool pancheck = false;
@@ -446,7 +446,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             }
             else
             {
-                auto act = ((SWPlayer*)source)->GetActor();
+                auto act = ((DSWPlayer*)source)->GetActor();
                 if (act) vPos = act->getPosWithOffsetZ();
                 else if (pp->GetActor())
                     vPos = pp->GetActor()->getPosWithOffsetZ();
@@ -513,7 +513,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 
 void GameInterface::UpdateSounds(void)
 {
-    SWPlayer* pp = getPlayer(screenpeek);
+    DSWPlayer* pp = getPlayer(screenpeek);
     SoundListener listener;
 
     DAngle tang;
@@ -549,7 +549,7 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(const FSoundID sndid, DSWActor* actor, SWPlayer* pp, const DVector3* const ppos, int flags, int channel, EChanFlags cflags)
+int _PlaySound(const FSoundID sndid, DSWActor* actor, DSWPlayer* pp, const DVector3* const ppos, int flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(sndid))
         return -1;
@@ -715,17 +715,12 @@ void PlaySpriteSound(DSWActor* actor, int attrib_ndx, int flags)
 //
 //==========================================================================
 
-int _PlayerSound(int num, SWPlayer* pp)
+int _PlayerSound(int num, DSWPlayer* pp)
 {
     int handle;
 
     if (Prediction)
         return 0;
-
-    if (pp < *PlayerArray || pp >= getPlayer(MAX_SW_PLAYERS))
-    {
-        return 0;
-    }
 
     auto sndid = soundEngine->FindSoundByResID(num);
     if (!soundEngine->isValidSoundId(sndid) || !SoundEnabled())
@@ -759,7 +754,7 @@ int _PlayerSound(int num, SWPlayer* pp)
     return 0;
 }
 
-void StopPlayerSound(SWPlayer* pp, int which)
+void StopPlayerSound(DSWPlayer* pp, int which)
 {
     soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, soundEngine->FindSoundByResID(which));
 }

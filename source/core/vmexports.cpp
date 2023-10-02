@@ -39,6 +39,7 @@
 #include "raze_sound.h"
 #include "texturemanager.h"
 #include "texinfo.h"
+#include "coreplayer.h"
 
 #include "buildtiles.h"
 
@@ -815,6 +816,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setSpritePic, tspritetype_setSpriteP
 }
 
 //=============================================================================
+
+DEFINE_FIELD(DCorePlayer, pnum)
 
 DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat, cstat)

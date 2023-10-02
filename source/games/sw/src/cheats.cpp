@@ -51,7 +51,7 @@ extern bool FAF_DebugView;
 extern bool ToggleFlyMode;
 
 const char *CheatKeyType;
-void KeysCheat(SWPlayer* pp, const char *cheat_string);
+void KeysCheat(DSWPlayer* pp, const char *cheat_string);
 
 //---------------------------------------------------------------------------
 //
@@ -59,7 +59,7 @@ void KeysCheat(SWPlayer* pp, const char *cheat_string);
 //
 //---------------------------------------------------------------------------
 
-static SWPlayer* checkCheat(cheatseq_t* c)
+static DSWPlayer* checkCheat(cheatseq_t* c)
 {
 	if (::CheckCheatmode(true, true)) return nullptr;
     return getPlayer(screenpeek);
@@ -142,7 +142,7 @@ bool PrevCheat(cheatseq_t* c)
 
 bool MapCheat(cheatseq_t* c)
 {
-    SWPlayer* pp;
+    DSWPlayer* pp;
     if (!(pp=checkCheat(c))) return false;
     gFullMap = !gFullMap;
     // Need to do this differently. The code here was completely broken.
@@ -158,7 +158,7 @@ bool MapCheat(cheatseq_t* c)
 
 bool WarpCheat(cheatseq_t* c)
 {
-    SWPlayer* pp;
+    DSWPlayer* pp;
     if (!(pp = checkCheat(c))) return false;
     int level_num;
 

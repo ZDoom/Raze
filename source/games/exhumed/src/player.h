@@ -47,8 +47,20 @@ struct PlayerSave
     DAngle nAngle;
 };
 
-struct ExhumedPlayer final : public CorePlayer
+class DExhumedPlayer final : public DCorePlayer
 {
+    DECLARE_CLASS(DExhumedPlayer, DCorePlayer)
+    HAS_OBJECT_POINTERS
+    DExhumedPlayer() = default;
+public:
+    DExhumedPlayer(uint8_t p) : DCorePlayer(p) {}
+    void Clear()
+    {
+        Super::Clear();
+        // Quick'n dirty clear
+        memset(&nHealth, 0, sizeof(DExhumedPlayer) - myoffsetof(DExhumedPlayer, nHealth));
+    }
+
     int16_t nHealth;
     int16_t nLives;
     int16_t nDouble;
@@ -116,9 +128,9 @@ struct ExhumedPlayer final : public CorePlayer
 
 extern int PlayerCount;
 
-inline ExhumedPlayer* getPlayer(int index)
+inline DExhumedPlayer* getPlayer(int index)
 {
-    return static_cast<ExhumedPlayer*>(PlayerArray[index]);
+    return static_cast<DExhumedPlayer*>(PlayerArray[index]);
 }
 
 extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
@@ -129,9 +141,9 @@ int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
-void updatePlayerTarget(ExhumedPlayer* const pPlayer);
+void updatePlayerTarget(DExhumedPlayer* const pPlayer);
 
-inline void doPlayerVertPanning(ExhumedPlayer* const pPlayer, const double nDestVertPan)
+inline void doPlayerVertPanning(DExhumedPlayer* const pPlayer, const double nDestVertPan)
 {
     const auto nVertPan = (nDestVertPan - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
     pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);

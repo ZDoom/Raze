@@ -179,7 +179,7 @@ void ProcessQuakeSpot(void)
 // 
 //
 //---------------------------------------------------------------------------
-void QuakeViewChange(SWPlayer* pp, DVector3& tpos, DAngle& tang)
+void QuakeViewChange(DSWPlayer* pp, DVector3& tpos, DAngle& tang)
 {
     DSWActor* save_act = nullptr;
     double save_dist = 62500;
@@ -275,7 +275,7 @@ void SpawnQuake(sectortype* sect, const DVector3& pos, int tics, int amt, int ra
 //
 //---------------------------------------------------------------------------
 
-bool SetQuake(SWPlayer* pp, short tics, short amt)
+bool SetQuake(DSWPlayer* pp, short tics, short amt)
 {
     SpawnQuake(pp->cursector, pp->GetActor()->getPosWithOffsetZ(),  tics, amt, 30000);
     return false;
@@ -293,7 +293,7 @@ int SetGunQuake(DSWActor* actor)
     return 0;
 }
 
-int SetPlayerQuake(SWPlayer* pp)
+int SetPlayerQuake(DSWPlayer* pp)
 {
     SpawnQuake(pp->cursector, pp->GetActor()->getPosWithOffsetZ(),  40, 8, 40000);
     return 0;

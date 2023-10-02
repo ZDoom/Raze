@@ -129,7 +129,7 @@ bool GameInterface::GetGeoEffect(GeoEffect* eff, sectortype* viewsector)
 //---------------------------------------------------------------------------
 int DrugTimer;
 
-static int getdrugmode(DukePlayer *p, int oyrepeat)
+static int getdrugmode(DDukePlayer *p, int oyrepeat)
 {
 	int now = I_GetBuildTime() >> 1;	// this function works on a 60 fps setup.
 	if (playrunning() && p->DrugMode > 0)
@@ -218,7 +218,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	DVector3 cpos;
 	DRotator cangles;
 
-	DukePlayer* p = getPlayer(snum);
+	DDukePlayer* p = getPlayer(snum);
 
 	// update render angles.
 	p->Angles.updateCameraAngles(interpfrac);

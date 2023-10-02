@@ -2120,7 +2120,7 @@ void InitAllPlayerSprites(const DVector3& spawnpos, const DAngle startang)
 //
 //---------------------------------------------------------------------------
 
-void PlayerLevelReset(SWPlayer* pp)
+void PlayerLevelReset(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -2163,7 +2163,7 @@ void PlayerLevelReset(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerDeathReset(SWPlayer* pp)
+void PlayerDeathReset(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -2255,7 +2255,7 @@ void PlayerPanelSetup(void)
 //
 //---------------------------------------------------------------------------
 
-void PlayerGameReset(SWPlayer* pp)
+void PlayerGameReset(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -2319,9 +2319,9 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 //
 //---------------------------------------------------------------------------
 
-void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle startang)
+void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle startang)
 {
-    int pnum = int(pp - (SWPlayer*)PlayerArray);
+    int pnum = int(pp->pnum);
     double fz,cz;
     extern bool NewGame;
 
@@ -2404,11 +2404,11 @@ void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle start
 //
 //---------------------------------------------------------------------------
 
-void SpawnPlayerUnderSprite(SWPlayer* pp)
+void SpawnPlayerUnderSprite(DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
-    int pnum = int(pp - (SWPlayer*)PlayerArray);
+    int pnum = int(pp->pnum);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
                                                  NINJA_RUN_R0, nullptr, pp->cursector, pp->GetActor()->getPosWithOffsetZ(), pp->GetActor()->spr.Angles.Yaw);

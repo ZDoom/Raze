@@ -248,7 +248,11 @@ struct Raze
 	{
 		return vel * cos(pitch), sin(pitch) * zvspeed;
 	}
-	
+}
+
+class CorePlayer native
+{
+	native readonly uint8 pnum;
 }
 
 /*
@@ -266,3 +270,4 @@ class RazeMenuDelegate : MenuDelegateBase
 	native override void MenuDismissed();
 
 }
+

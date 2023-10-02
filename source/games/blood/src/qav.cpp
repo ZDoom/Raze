@@ -227,7 +227,7 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double
 //
 //---------------------------------------------------------------------------
 
-void QAV::Play(int start, int end, int nCallback, BloodPlayer* pData)
+void QAV::Play(int start, int end, int nCallback, DBloodPlayer* pData)
 {
 	auto pActor = pData ? pData->GetActor() : nullptr;
 	assert(ticksPerFrame > 0);
@@ -326,7 +326,7 @@ void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
 //
 //---------------------------------------------------------------------------
 
-void qavProcessTimer(BloodPlayer* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration, bool const ignoreWeaponTimer)
+void qavProcessTimer(DBloodPlayer* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration, bool const ignoreWeaponTimer)
 {
 	// Process clock based on QAV's ticrate and last tick value.
 	if (!paused)

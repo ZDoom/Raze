@@ -37,7 +37,7 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 	{
 		if (getPlayer(i)->GetActor())
 		{
-			memcpy(&gPlayerTemp[i], getPlayer(i), sizeof(BloodPlayer));
+			gPlayerTemp[i].CopyFromPlayer(getPlayer(i));
 			gHealthTemp[i] = getPlayer(i)->GetActor()->xspr.health;
 		}
 	}

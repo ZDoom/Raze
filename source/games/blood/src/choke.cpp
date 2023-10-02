@@ -35,7 +35,7 @@ BEGIN_BLD_NS
 //
 //---------------------------------------------------------------------------
 
-void CChoke::init(int a1, void(*a2)(BloodPlayer*))
+void CChoke::init(int a1, void(*a2)(DBloodPlayer*))
 {
 	callback = a2;
 	if (!qav && a1 != -1)
@@ -82,7 +82,7 @@ void CChoke::animateChoke(int x, int y, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-void chokeCallback(BloodPlayer* pPlayer)
+void chokeCallback(DBloodPlayer* pPlayer)
 {
 	int t = gGameOptions.nDifficulty + 2;
 	if (pPlayer->handTime < 64)

@@ -47,7 +47,7 @@ void HandJumpSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor())
 	{
-		BloodPlayer* pPlayer = getPlayer(target->spr.type - kDudePlayer1);
+		DBloodPlayer* pPlayer = getPlayer(target->spr.type - kDudePlayer1);
 		if (!pPlayer->hand)
 		{
 			pPlayer->hand = 1;

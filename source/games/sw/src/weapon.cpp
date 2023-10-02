@@ -54,7 +54,7 @@ struct MISSILE_PLACEMENT
 
 void SpawnZombie2(DSWActor*);
 Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
-void DoPlayerBeginDie(SWPlayer*);
+void DoPlayerBeginDie(DSWPlayer*);
 
 void ScaleSpriteVector(DSWActor* actor, int scalex, int scaley, int scalez);
 void ScaleSpriteVector(DSWActor* actor, int scale);
@@ -118,7 +118,7 @@ void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, double lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& pos, short ID);
 int SpawnSplashXY(const DVector3& pos, sectortype*);
-DSWActor* SpawnBoatSparks(SWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang);
+DSWActor* SpawnBoatSparks(DSWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 {
@@ -2540,7 +2540,7 @@ int SpawnShrapX(DSWActor* actor)
 int DoLavaErupt(DSWActor* actor)
 {
     short i,pnum;
-    SWPlayer* pp;
+    DSWPlayer* pp;
     bool found = false;
 
     if (TEST_BOOL1(actor))
@@ -3334,7 +3334,7 @@ AutoShrap:
         p = StdShrap;
         if (parentActor->user.PlayerP)
         {
-            SWPlayer* pp = parentActor->user.PlayerP;
+            DSWPlayer* pp = parentActor->user.PlayerP;
 
             if (pp->DeathType == PLAYER_DEATH_CRUMBLE)
                 p = PlayerGoreFall;
@@ -4628,7 +4628,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
              actor->user.ID == CARGIRL_R0 || actor->user.ID == MECHANICGIRL_R0 || actor->user.ID == SAILORGIRL_R0 || actor->user.ID == PRUNEGIRL_R0 ||
              actor->user.ID == WASHGIRL_R0) && weapActor->hasU() && weapActor->user.ID == NINJA_RUN_R0 && weapActor->user.PlayerP)
         {
-            SWPlayer* pp = weapActor->user.PlayerP;
+            DSWPlayer* pp = weapActor->user.PlayerP;
             if (pp && !(pp->Flags & PF_DIVING))  // JBF: added null test
                 pp->Bloody = true;
             PlaySound(DIGI_TOILETGIRLSCREAM, actor, v3df_none);
@@ -4653,7 +4653,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
         case NINJA_RUN_R0: //sword
             if (weapActor->user.PlayerP)
             {
-                SWPlayer* pp = weapActor->user.PlayerP;
+                DSWPlayer* pp = weapActor->user.PlayerP;
 
                 if (weapActor->user.WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == getPlayer(myconnectindex))
                 {
@@ -4752,7 +4752,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                 // Random chance of taunting the AI's here
                 if (RandomRange(1000) > 400)
                 {
-                    SWPlayer* pp;
+                    DSWPlayer* pp;
 
                     auto own = GetOwner(weapActor);
                     if (own && own->hasU())
@@ -5109,7 +5109,7 @@ int ActorDamageSlide(DSWActor* actor, int damage, DAngle angle)
 //
 //---------------------------------------------------------------------------
 
-int PlayerDamageSlide(SWPlayer* pp, int damage, DAngle angle)
+int PlayerDamageSlide(DSWPlayer* pp, int damage, DAngle angle)
 {
 
     damage = abs(damage);
@@ -5196,7 +5196,7 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 //
 //---------------------------------------------------------------------------
 
-int PlayerCheckDeath(SWPlayer* pp, DSWActor* weapActor)
+int PlayerCheckDeath(DSWPlayer* pp, DSWActor* weapActor)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -5263,7 +5263,7 @@ int PlayerCheckDeath(SWPlayer* pp, DSWActor* weapActor)
 //
 //---------------------------------------------------------------------------
 
-bool PlayerTakeDamage(SWPlayer* pp, DSWActor* weapActor)
+bool PlayerTakeDamage(DSWPlayer* pp, DSWActor* weapActor)
 {
     if (weapActor == nullptr)
         return true;
@@ -5449,7 +5449,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             }
             else
             {
-                SWPlayer* pp = getPlayer(screenpeek);
+                DSWPlayer* pp = getPlayer(screenpeek);
 
                 ActorHealth(actor, damage);
                 if (actor->user.Health <= 0)
@@ -6710,7 +6710,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             if (PlayerTakeDamage(actor->user.PlayerP, weapActor))
             {
-                SWPlayer* pp = actor->user.PlayerP;
+                DSWPlayer* pp = actor->user.PlayerP;
 
                 PlayerSound(DIGI_GASHURT, v3df_dontpan|v3df_follow|v3df_doppler,pp);
                 PlayerUpdateHealth(actor->user.PlayerP, damage-1000);
@@ -8738,7 +8738,7 @@ int DoMine(DSWActor* actor)
             // check to see if sprite is player or enemy
             if ((hitActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
             {
-                SWPlayer* pp;
+                DSWPlayer* pp;
 
                 // attach weapon to sprite
                 SetAttach(hitActor, actor);
@@ -10069,7 +10069,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, DAngle ang)
 void SpawnNuclearExp(DSWActor* actor)
 {
     DAngle ang=nullAngle;
-    SWPlayer* pp = nullptr;
+    DSWPlayer* pp = nullptr;
     short rnd_rng;
 
     ASSERT(actor->hasU());
@@ -11228,7 +11228,7 @@ int DoRing(DSWActor* actor)
 {
     auto own = GetOwner(actor);
     if (!own) return 0; // this would crash.
-    SWPlayer* pp = own->user.PlayerP;
+    DSWPlayer* pp = own->user.PlayerP;
     double cz,fz;
 
     if (actor->user.Flags & (SPR_UNDERWATER))
@@ -11315,7 +11315,7 @@ int DoRing(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void InitSpellRing(SWPlayer* pp)
+void InitSpellRing(DSWPlayer* pp)
 {
     short missiles;
     short max_missiles = 16;
@@ -11690,7 +11690,7 @@ int InitSerpRing(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void InitSpellNapalm(SWPlayer* pp)
+void InitSpellNapalm(DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     unsigned i;
@@ -11846,7 +11846,7 @@ int InitEnemyNapalm(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitSpellMirv(SWPlayer* pp)
+int InitSpellMirv(DSWPlayer* pp)
 {
     PlaySound(DIGI_MIRVFIRE, pp, v3df_none);
 
@@ -11925,7 +11925,7 @@ int InitEnemyMirv(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitSwordAttack(SWPlayer* pp)
+int InitSwordAttack(DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     unsigned stat;
@@ -12093,7 +12093,7 @@ int InitSwordAttack(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitFistAttack(SWPlayer* pp)
+int InitFistAttack(DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     unsigned stat;
@@ -12707,7 +12707,7 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, double *zvect)
     }
 }
 
-int InitStar(SWPlayer* pp)
+int InitStar(DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -12811,7 +12811,7 @@ int InitStar(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void InitHeartAttack(SWPlayer* pp)
+void InitHeartAttack(DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     short i = 0;
@@ -12864,7 +12864,7 @@ void InitHeartAttack(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int ContinueHitscan(SWPlayer* pp, sectortype* sect, const DVector3& start, DAngle ang, const DVector3& vect)
+int ContinueHitscan(DSWPlayer* pp, sectortype* sect, const DVector3& start, DAngle ang, const DVector3& vect)
 {
     HitInfo hit{};
     DSWActor* actor = pp->GetActor();
@@ -12948,7 +12948,7 @@ int ContinueHitscan(SWPlayer* pp, sectortype* sect, const DVector3& start, DAngl
 //
 //---------------------------------------------------------------------------
 
-int InitShotgun(SWPlayer* pp)
+int InitShotgun(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     HitInfo hit{};
@@ -13114,7 +13114,7 @@ int InitShotgun(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitLaser(SWPlayer* pp)
+int InitLaser(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -13204,7 +13204,7 @@ int InitLaser(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitRail(SWPlayer* pp)
+int InitRail(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     double zvel;
@@ -13361,7 +13361,7 @@ int InitZillaRail(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitRocket(SWPlayer* pp)
+int InitRocket(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     double zvel;
@@ -13471,7 +13471,7 @@ int InitRocket(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitBunnyRocket(SWPlayer* pp)
+int InitBunnyRocket(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     double zvel;
@@ -13576,7 +13576,7 @@ int InitBunnyRocket(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitNuke(SWPlayer* pp)
+int InitNuke(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     double zvel;
@@ -13743,7 +13743,7 @@ int InitEnemyNuke(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitMicro(SWPlayer* pp)
+int InitMicro(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     short i;
@@ -14432,7 +14432,7 @@ int InitEnemyRail(DSWActor* actor)
     // if co-op don't hurt teammate
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && actor->user.ID == ZOMBIE_RUN_R0)
     {
-        SWPlayer* pp;
+        DSWPlayer* pp;
 
         // Check all players
         TRAVERSE_CONNECT(pnum)
@@ -14959,7 +14959,7 @@ int DoDefaultStat(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitTracerUzi(SWPlayer* pp)
+int InitTracerUzi(DSWPlayer* pp)
 {
     if (!pp->insector())
         return 0;
@@ -15222,7 +15222,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 //
 //---------------------------------------------------------------------------
 
-int InitUzi(SWPlayer* pp)
+int InitUzi(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     HitInfo hit{};
@@ -15233,7 +15233,7 @@ int InitUzi(SWPlayer* pp)
     bool FireSnd = false;
     const int UZIFIRE_WAIT = 20;
 
-    void InitUziShell(SWPlayer*);
+    void InitUziShell(DSWPlayer*);
 
 
     PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
@@ -15423,7 +15423,7 @@ int InitUzi(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTankShell(DSWActor* actor, SWPlayer* pp)
+int InitTankShell(DSWActor* actor, DSWPlayer* pp)
 {
     if (!SW_SHAREWARE)
         PlaySound(DIGI_CANNON, pp, v3df_dontpan|v3df_doppler);
@@ -15466,7 +15466,7 @@ int InitTankShell(DSWActor* actor, SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTurretMicro(DSWActor* actor, SWPlayer* pp)
+int InitTurretMicro(DSWActor* actor, DSWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     TARGET_SORT* ts = TargetSort;
@@ -15562,7 +15562,7 @@ int InitTurretMicro(DSWActor* actor, SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTurretRocket(DSWActor* actor, SWPlayer* pp)
+int InitTurretRocket(DSWActor* actor, DSWPlayer* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -15601,7 +15601,7 @@ int InitTurretRocket(DSWActor* actor, SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTurretFireball(DSWActor* actor, SWPlayer* pp)
+int InitTurretFireball(DSWActor* actor, DSWPlayer* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -15641,7 +15641,7 @@ int InitTurretFireball(DSWActor* actor, SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTurretRail(DSWActor* actor, SWPlayer* pp)
+int InitTurretRail(DSWActor* actor, DSWPlayer* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -15687,7 +15687,7 @@ int InitTurretRail(DSWActor* actor, SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTurretLaser(DSWActor* actor, SWPlayer* pp)
+int InitTurretLaser(DSWActor* actor, DSWPlayer* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -15730,7 +15730,7 @@ int InitTurretLaser(DSWActor* actor, SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitSobjMachineGun(DSWActor* actor, SWPlayer* pp)
+int InitSobjMachineGun(DSWActor* actor, DSWPlayer* pp)
 {
     HitInfo hit{};
     short cstat = 0;
@@ -15820,7 +15820,7 @@ int InitSobjMachineGun(DSWActor* actor, SWPlayer* pp)
     return 0;
 }
 
-int InitSobjGun(SWPlayer* pp)
+int InitSobjGun(DSWPlayer* pp)
 {
     short i;
     bool first = false;
@@ -15932,7 +15932,7 @@ int InitSobjGun(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-DSWActor* SpawnBoatSparks(SWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
+DSWActor* SpawnBoatSparks(DSWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
@@ -15972,7 +15972,7 @@ DSWActor* SpawnBoatSparks(SWPlayer* pp, sectortype* hit_sect, walltype* hit_wall
 //
 //---------------------------------------------------------------------------
 
-int SpawnSwordSparks(SWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
+int SpawnSwordSparks(DSWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -16050,7 +16050,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
 //
 //---------------------------------------------------------------------------
 
-DSWActor* SpawnShotgunSparks(SWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
+DSWActor* SpawnShotgunSparks(DSWPlayer* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     const double SHOTGUN_SMOKE_REPEAT = 0.28125;
 
@@ -16248,7 +16248,7 @@ int InitEnemyUzi(DSWActor* actor)
     DAngle daang;
     HitInfo hit{};
     double zh;
-    void InitUziShell(SWPlayer*);
+    void InitUziShell(DSWPlayer*);
     static short alternate;
 
 
@@ -16391,7 +16391,7 @@ int InitEnemyUzi(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitGrenade(SWPlayer* pp)
+int InitGrenade(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     double zvel;
@@ -16536,7 +16536,7 @@ int InitSpriteGrenade(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int InitMine(SWPlayer* pp)
+int InitMine(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -16664,7 +16664,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 //
 //---------------------------------------------------------------------------
 
-int InitFireball(SWPlayer* pp)
+int InitFireball(DSWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -17952,7 +17952,7 @@ int DoFloorBlood(DSWActor* actor)
     constexpr double FEET_IN_BLOOD_DIST = 18.75;
 
     short pnum;
-    SWPlayer* pp;
+    DSWPlayer* pp;
     double scale;
 
 

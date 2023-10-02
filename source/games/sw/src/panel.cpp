@@ -46,17 +46,17 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 
-int InitSwordAttack(SWPlayer* pp);
+int InitSwordAttack(DSWPlayer* pp);
 PANEL_SPRITE* InitWeaponUziSecondaryReload(PANEL_SPRITE*);
 PANEL_SPRITE* InitWeaponUzi2(PANEL_SPRITE*);
-int InitShotgun(SWPlayer* pp);
-int InitRail(SWPlayer* pp);
-int InitMicro(SWPlayer* pp);
-int InitRocket(SWPlayer* pp);
-int InitNuke(SWPlayer* pp);
-int InitGrenade(SWPlayer* pp);
-int InitMine(SWPlayer* pp);
-int InitFistAttack(SWPlayer* pp);
+int InitShotgun(DSWPlayer* pp);
+int InitRail(DSWPlayer* pp);
+int InitMicro(DSWPlayer* pp);
+int InitRocket(DSWPlayer* pp);
+int InitNuke(DSWPlayer* pp);
+int InitGrenade(DSWPlayer* pp);
+int InitMine(DSWPlayer* pp);
+int InitFistAttack(DSWPlayer* pp);
 
 struct PANEL_SHRAP
 {
@@ -67,7 +67,7 @@ struct PANEL_SHRAP
 
 void PanelInvTestSuicide(PANEL_SPRITE* psp);
 
-void InsertPanelSprite(SWPlayer* pp, PANEL_SPRITE* psp);
+void InsertPanelSprite(DSWPlayer* pp, PANEL_SPRITE* psp);
 void pKillSprite(PANEL_SPRITE* psp);
 void pWeaponBob(PANEL_SPRITE* psp, short condition);
 void pSuicide(PANEL_SPRITE* psp);
@@ -92,8 +92,8 @@ uint8_t UziRecoilYadj = 0;
 extern short screenpeek;
 
 pANIMATOR pNullAnimator;
-int InitStar(SWPlayer*);
-int ChangeWeapon(SWPlayer*);
+int InitStar(DSWPlayer*);
+int ChangeWeapon(DSWPlayer*);
 
 int NullAnimator(DSWActor*)
 {
@@ -117,7 +117,7 @@ inline int pspheight(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-PANEL_SPRITE* pFindMatchingSprite(SWPlayer* pp, int x, int y, short pri)
+PANEL_SPRITE* pFindMatchingSprite(DSWPlayer* pp, int x, int y, short pri)
 {
     PANEL_SPRITE* next;
 
@@ -143,7 +143,7 @@ PANEL_SPRITE* pFindMatchingSprite(SWPlayer* pp, int x, int y, short pri)
 //
 //---------------------------------------------------------------------------
 
-PANEL_SPRITE* pFindMatchingSpriteID(SWPlayer* pp, short id, int x, int y, short pri)
+PANEL_SPRITE* pFindMatchingSpriteID(DSWPlayer* pp, short id, int x, int y, short pri)
 {
     PANEL_SPRITE* next;
 
@@ -169,7 +169,7 @@ PANEL_SPRITE* pFindMatchingSpriteID(SWPlayer* pp, short id, int x, int y, short 
 //
 //---------------------------------------------------------------------------
 
-bool pKillScreenSpiteIDs(SWPlayer* pp, short id)
+bool pKillScreenSpiteIDs(DSWPlayer* pp, short id)
 {
     PANEL_SPRITE* next;
     bool found = false;
@@ -213,7 +213,7 @@ void pToggleCrosshair(void)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerChooseYell(SWPlayer* pp)
+void DoPlayerChooseYell(DSWPlayer* pp)
 {
     int choose_snd = 0;
 
@@ -257,7 +257,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 //
 //---------------------------------------------------------------------------
 
-void PlayerUpdateHealth(SWPlayer* pp, short value)
+void PlayerUpdateHealth(DSWPlayer* pp, short value)
 {
     DSWActor* plActor = pp->GetActor();
     short x,y;
@@ -367,7 +367,7 @@ void PlayerUpdateHealth(SWPlayer* pp, short value)
 //
 //---------------------------------------------------------------------------
 
-void PlayerUpdateAmmo(SWPlayer* pp, short UpdateWeaponNum, short value)
+void PlayerUpdateAmmo(DSWPlayer* pp, short UpdateWeaponNum, short value)
 {
     short x,y;
     short WeaponNum;
@@ -411,7 +411,7 @@ void PlayerUpdateAmmo(SWPlayer* pp, short UpdateWeaponNum, short value)
 //
 //---------------------------------------------------------------------------
 
-void PlayerUpdateWeapon(SWPlayer* pp, short WeaponNum)
+void PlayerUpdateWeapon(DSWPlayer* pp, short WeaponNum)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -428,7 +428,7 @@ void PlayerUpdateWeapon(SWPlayer* pp, short WeaponNum)
 //
 //---------------------------------------------------------------------------
 
-void PlayerUpdateKills(SWPlayer* pp, short value)
+void PlayerUpdateKills(DSWPlayer* pp, short value)
 {
     if (Prediction)
         return;
@@ -440,7 +440,7 @@ void PlayerUpdateKills(SWPlayer* pp, short value)
     if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.TeamPlay)
     {
         short pnum;
-        SWPlayer* opp;
+        DSWPlayer* opp;
 
         TRAVERSE_CONNECT(pnum)
         {
@@ -463,7 +463,7 @@ void PlayerUpdateKills(SWPlayer* pp, short value)
 //
 //---------------------------------------------------------------------------
 
-void PlayerUpdateArmor(SWPlayer* pp, short value)
+void PlayerUpdateArmor(DSWPlayer* pp, short value)
 {
     if (Prediction)
         return;
@@ -486,7 +486,7 @@ void PlayerUpdateArmor(SWPlayer* pp, short value)
 //
 //---------------------------------------------------------------------------
 
-int WeaponOperate(SWPlayer* pp)
+int WeaponOperate(DSWPlayer* pp)
 {
     short weapon;
     DSWActor* plActor = pp->GetActor();
@@ -710,7 +710,7 @@ int WeaponOperate(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-bool WeaponOK(SWPlayer* pp)
+bool WeaponOK(DSWPlayer* pp)
 {
     short min_ammo, WeaponNum, FindWeaponNum;
     static const uint8_t wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
@@ -990,7 +990,7 @@ void SpecialUziRetractFunc(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-void RetractCurWpn(SWPlayer* pp)
+void RetractCurWpn(DSWPlayer* pp)
 {
     // Retract old weapon
     if (pp->CurWpn)
@@ -1033,7 +1033,7 @@ void RetractCurWpn(SWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponSword(SWPlayer* pp)
+void InitWeaponSword(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
     short rnd_num;
@@ -1485,7 +1485,7 @@ void pStarRestTest(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponStar(SWPlayer* pp)
+void InitWeaponStar(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp = nullptr;
 
@@ -2093,7 +2093,7 @@ void pUziReloadRetract(PANEL_SPRITE* nclip)
 
 void pUziDoneReload(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
 
     if (psp->flags & (PANF_PRIMARY) && pp->WpnUziType == 3)
@@ -2180,7 +2180,7 @@ void pUziClip(PANEL_SPRITE* oclip)
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponUzi(SWPlayer* pp)
+void InitWeaponUzi(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp = nullptr;
 
@@ -2269,7 +2269,7 @@ void InitWeaponUzi(SWPlayer* pp)
 PANEL_SPRITE* InitWeaponUzi2(PANEL_SPRITE* uzi_orig)
 {
     PANEL_SPRITE* New;
-    SWPlayer* pp = uzi_orig->PlayerP;
+    DSWPlayer* pp = uzi_orig->PlayerP;
 
 
     // There is already a second uzi, or it's retracting
@@ -2310,7 +2310,7 @@ PANEL_SPRITE* InitWeaponUzi2(PANEL_SPRITE* uzi_orig)
 PANEL_SPRITE* InitWeaponUziSecondaryReload(PANEL_SPRITE* uzi_orig)
 {
     PANEL_SPRITE* New;
-    SWPlayer* pp = uzi_orig->PlayerP;
+    DSWPlayer* pp = uzi_orig->PlayerP;
 
     New = pSpawnSprite(pp, ps_PresentUzi, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
     New->pos.Y += pspheight(New);
@@ -2567,7 +2567,7 @@ void pUziAction(PANEL_SPRITE* psp)
 
 void pUziFire(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     if (!WeaponOK(psp->PlayerP))
         return;
@@ -2698,7 +2698,7 @@ PANEL_STATE ps_Uzi2Shell[] =
 
 void SpawnUziShell(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     if (psp->State && (psp->State->flags & psf_Xflip))
     {
@@ -2773,7 +2773,7 @@ PANEL_STATE ps_ShotgunShell[] =
 
 void SpawnShotgunShell(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
     SpawnShell(pp->GetActor(),-4);
 }
 
@@ -2920,7 +2920,7 @@ PANEL_STATE ps_RetractShotgun[] =
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponShotgun(SWPlayer* pp)
+void InitWeaponShotgun(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp = nullptr;
 
@@ -3468,7 +3468,7 @@ PANEL_STATE ps_RetractRail[] =
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponRail(SWPlayer* pp)
+void InitWeaponRail(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp = nullptr;
 
@@ -3971,7 +3971,7 @@ void pHotHeadOverlays(PANEL_SPRITE* psp, short mode)
 #define HOTHEAD_XOFF (200 + HOTHEAD_BOB_X_AMT + 6)
 #define HOTHEAD_YOFF 200
 
-void InitWeaponHothead(SWPlayer* pp)
+void InitWeaponHothead(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp = nullptr;
 
@@ -4272,7 +4272,7 @@ PANEL_STATE ps_OnFire[] =
 //
 //---------------------------------------------------------------------------
 
-void SpawnOnFire(SWPlayer* pp)
+void SpawnOnFire(DSWPlayer* pp)
 {
     PANEL_SPRITE* fire;
     int x = 50;
@@ -4451,7 +4451,7 @@ void pMicroSetRecoil(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponMicro(SWPlayer* pp)
+void InitWeaponMicro(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
 
@@ -4565,7 +4565,7 @@ void pMicroRecoilUp(PANEL_SPRITE* psp)
 
 void pMicroPresent(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
         return;
@@ -4743,7 +4743,7 @@ PANEL_STATE ps_MicroNukeFlash[] =
 
 void pMicroRest(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
     bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MicroHide))
@@ -4877,7 +4877,7 @@ void pMicroRetract(PANEL_SPRITE* psp)
 
 void pNukeAction(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
 #if 0 // Code commented out as it's causing interpolation issues when initialising a nuke.
     psp->backupy();
@@ -4904,7 +4904,7 @@ void pNukeAction(PANEL_SPRITE* psp)
 
 void pMicroStandBy(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     pMicroOverlays(psp);
     PlaySound(DIGI_NUKESTDBY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
@@ -4912,14 +4912,14 @@ void pMicroStandBy(PANEL_SPRITE* psp)
 
 void pMicroCount(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     PlaySound(DIGI_NUKECDOWN, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
 }
 
 void pMicroReady(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     PlaySound(DIGI_NUKEREADY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
     pp->NukeInitialized = true;
@@ -4997,7 +4997,7 @@ PANEL_STATE ps_RetractHeart[] =
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponHeart(SWPlayer* pp)
+void InitWeaponHeart(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
 
@@ -5188,7 +5188,7 @@ void pHeartActionBlood(PANEL_SPRITE* psp)
     SpawnHeartBlood(psp);
 }
 
-void InitHeartAttack(SWPlayer* pp);
+void InitHeartAttack(DSWPlayer* pp);
 
 //---------------------------------------------------------------------------
 //
@@ -5198,7 +5198,7 @@ void InitHeartAttack(SWPlayer* pp);
 
 void pHeartAttack(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
     // CTW MODIFICATION
     //int InitHeartAttack(PLAYER* pp);
     // CTW MODIFICATION END
@@ -5270,7 +5270,7 @@ PANEL_STATE ps_HeartBloodSmall[] =
 
 void SpawnHeartBlood(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
     PANEL_SPRITE* blood;
     PANEL_SHRAP* hsp;
 
@@ -5315,7 +5315,7 @@ void SpawnHeartBlood(PANEL_SPRITE* psp)
 
 void SpawnSmallHeartBlood(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
     PANEL_SPRITE* blood;
     PANEL_SHRAP* hsp;
 
@@ -5553,7 +5553,7 @@ void pGrenadePresentSetup(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponGrenade(SWPlayer* pp)
+void InitWeaponGrenade(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
 
@@ -5857,7 +5857,7 @@ PANEL_STATE ps_RetractMine[] =
 //#define MINE_XOFF (160+20)
 #define MINE_XOFF (160+50)
 
-void InitWeaponMine(SWPlayer* pp)
+void InitWeaponMine(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
 
@@ -5911,7 +5911,7 @@ void InitWeaponMine(SWPlayer* pp)
 
 void pMineUpSound(PANEL_SPRITE* psp)
 {
-    SWPlayer* pp = psp->PlayerP;
+    DSWPlayer* pp = psp->PlayerP;
 
     PlaySound(DIGI_MINE_UP, pp, v3df_follow);
 }
@@ -6190,7 +6190,7 @@ PANEL_STATE ps_ChopsRetract[] =
 //
 //---------------------------------------------------------------------------
 
-void InitChops(SWPlayer* pp)
+void InitChops(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
 
@@ -6339,7 +6339,7 @@ void pChopsWait(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-void ChopsSetRetract(SWPlayer* pp)
+void ChopsSetRetract(DSWPlayer* pp)
  {
     if (pp == nullptr || pp->Chops == nullptr)
         return;
@@ -6615,7 +6615,7 @@ PANEL_STATE ps_RetractFist[] =
 //
 //---------------------------------------------------------------------------
 
-void InitWeaponFist(SWPlayer* pp)
+void InitWeaponFist(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp;
     short rnd_num;
@@ -7066,7 +7066,7 @@ void pFistBlock(PANEL_SPRITE* psp)
 
 
 
-void pWeaponForceRest(SWPlayer* pp)
+void pWeaponForceRest(DSWPlayer* pp)
 {
     pSetState(pp->CurWpn, pp->CurWpn->RestState);
 }
@@ -7171,7 +7171,7 @@ bool pWeaponHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
 //
 //---------------------------------------------------------------------------
 
-void InsertPanelSprite(SWPlayer* pp, PANEL_SPRITE* psp)
+void InsertPanelSprite(DSWPlayer* pp, PANEL_SPRITE* psp)
 {
     PANEL_SPRITE* cur,* nxt;
 
@@ -7219,7 +7219,7 @@ void InsertPanelSprite(SWPlayer* pp, PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-PANEL_SPRITE* pSpawnSprite(SWPlayer* pp, PANEL_STATE* state, uint8_t priority, double x, double y)
+PANEL_SPRITE* pSpawnSprite(DSWPlayer* pp, PANEL_STATE* state, uint8_t priority, double x, double y)
 {
     unsigned i;
     PANEL_SPRITE* psp;
@@ -7287,7 +7287,7 @@ void pKillSprite(PANEL_SPRITE* psp)
 //
 //---------------------------------------------------------------------------
 
-void pClearSpriteList(SWPlayer* pp)
+void pClearSpriteList(DSWPlayer* pp)
 {
     PANEL_SPRITE* psp = nullptr, * next_psp = nullptr;
     auto l = &pp->PanelSpriteList;
@@ -7363,7 +7363,7 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
 //////////////////////////////////////////////////////////////////////////////////////////
 
 bool DrawBeforeView = false;
-void pDisplaySprites(SWPlayer* pp, double interpfrac)
+void pDisplaySprites(DSWPlayer* pp, double interpfrac)
 {
     DSWActor* plActor = pp->GetActor();
     PANEL_SPRITE* next=nullptr;
@@ -7656,7 +7656,7 @@ void pDisplaySprites(SWPlayer* pp, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-void pSpriteControl(SWPlayer* pp)
+void pSpriteControl(DSWPlayer* pp)
 {
     PANEL_SPRITE* next=nullptr;
 

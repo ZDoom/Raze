@@ -131,7 +131,7 @@ void GameInterface::SwitchCoopView()
         }
         else
         {
-            SWPlayer* tp = getPlayer(screenpeek);
+            DSWPlayer* tp = getPlayer(screenpeek);
             DoPlayerDivePalette(tp);
             DoPlayerNightVisionPalette(tp);
         }
