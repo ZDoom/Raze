@@ -712,11 +712,11 @@ enum : unsigned
 static unsigned outVehicleFlags(DukePlayer* p, ESyncBits& actions)
 {
 	unsigned flags = 0;
-	flags += VEH_FORWARD * (p->input.fvel > 0);
-	flags += VEH_REVERSE * (p->input.fvel < 0);
-	flags += VEH_TURNLEFT * (p->input.avel < 0);
-	flags += VEH_TURNRIGHT * (p->input.avel > 0);
-	flags += VEH_BRAKING * (!!(actions & SB_CROUCH) || (p->input.fvel < 0 && p->MotoSpeed > 0));
+	flags += VEH_FORWARD * (p->cmd.ucmd.fvel > 0);
+	flags += VEH_REVERSE * (p->cmd.ucmd.fvel < 0);
+	flags += VEH_TURNLEFT * (p->cmd.ucmd.avel < 0);
+	flags += VEH_TURNRIGHT * (p->cmd.ucmd.avel > 0);
+	flags += VEH_BRAKING * (!!(actions & SB_CROUCH) || (p->cmd.ucmd.fvel < 0 && p->MotoSpeed > 0));
 	actions &= ~SB_CROUCH;
 	return flags;
 }
@@ -729,7 +729,7 @@ static unsigned outVehicleFlags(DukePlayer* p, ESyncBits& actions)
 
 static void doVehicleTilting(DukePlayer* const p, const bool canTilt)
 {
-	auto adj = DAngle::fromDeg(p->input.avel * (545943. / 3200000.) * canTilt);
+	auto adj = DAngle::fromDeg(p->cmd.ucmd.avel * (545943. / 3200000.) * canTilt);
 	if (p->OnMotorcycle) adj *= 5 * Sgn(p->MotoSpeed);
 	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
@@ -907,7 +907,7 @@ static void doVehicleThrottling(DukePlayer* p, DDukeActor* pact, unsigned& flags
 		else if ((flags & VEH_BRAKING) && p->MotoSpeed > 0)
 		{
 			const auto kbdBraking = brakeSpeed * !!(flags & VEH_BRAKING);
-			const auto hidBraking = brakeSpeed * p->input.fvel * (p->input.fvel < 0);
+			const auto hidBraking = brakeSpeed * p->cmd.ucmd.fvel * (p->cmd.ucmd.fvel < 0);
 			p->MotoSpeed -= clamp<double>(kbdBraking - hidBraking, -brakeSpeed, brakeSpeed);
 			if (p->MotoSpeed < 0)
 				p->MotoSpeed = 0;
@@ -922,7 +922,7 @@ static void doVehicleThrottling(DukePlayer* p, DDukeActor* pact, unsigned& flags
 				p->moto_bump_fast = 1;
 			}
 
-			p->MotoSpeed += fwdSpeed * p->input.fvel;
+			p->MotoSpeed += fwdSpeed * p->cmd.ucmd.fvel;
 			flags &= ~VEH_FORWARD;
 
 			if (p->MotoSpeed > 120)
@@ -952,7 +952,7 @@ static void doVehicleThrottling(DukePlayer* p, DDukeActor* pact, unsigned& flags
 				flags &= ~VEH_TURNRIGHT;
 				flags |= VEH_TURNLEFT;
 			}
-			p->MotoSpeed = revSpeed * p->input.fvel;
+			p->MotoSpeed = revSpeed * p->cmd.ucmd.fvel;
 			flags &= ~VEH_REVERSE;
 		}
 	}
@@ -970,7 +970,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 
 	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, !p->on_ground || p->input.avel);
+	doVehicleTilting(p, !p->on_ground || p->cmd.ucmd.avel);
 
 	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
@@ -1034,7 +1034,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
-	p->input.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	p->cmd.ucmd.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
 }
 
 //---------------------------------------------------------------------------
@@ -1066,7 +1066,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->MotoSpeed = 0;
 
 	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, (p->MotoSpeed != 0 && (p->input.avel || p->moto_drink)) || !p->NotOnWater); 
+	doVehicleTilting(p, (p->MotoSpeed != 0 && (p->cmd.ucmd.avel || p->moto_drink)) || !p->NotOnWater); 
 	doVehicleSounds(p, pact, flags, 87, 88, 89, 90);
 
 	if (!p->NotOnWater)
@@ -1104,7 +1104,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed *= 0.5;
 
-	p->input.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	p->cmd.ucmd.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
 }
 
 //---------------------------------------------------------------------------
@@ -1282,7 +1282,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if (((actions & SB_CROUCH) || p->input.uvel < 0) && !p->OnMotorcycle)
+		if (((actions & SB_CROUCH) || p->cmd.ucmd.uvel < 0) && !p->OnMotorcycle)
 		{
 			playerCrouch(snum);
 		}
@@ -2271,7 +2271,7 @@ void processinput_r(int snum)
 	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
-	ESyncBits& actions = p->input.actions;
+	ESyncBits& actions = p->cmd.ucmd.actions;
 
 	// Get strafe value before it's rotated by the angle.
 	const auto strafeVel = PlayerInputSideVel(snum);
@@ -2486,7 +2486,7 @@ void processinput_r(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum, actions);
-	p->Angles.doViewYaw(&p->input);
+	p->Angles.doViewYaw(&p->cmd.ucmd);
 	p->apply_seasick();
 
 	p->updatecentering(snum);
@@ -2541,15 +2541,15 @@ void processinput_r(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->input.avel = 0;
+		p->cmd.ucmd.avel = 0;
 		setForcedSyncInput(snum);
 	}
 	else
 	{
-		p->input.avel = p->adjustavel(PlayerInputAngVel(snum));
+		p->cmd.ucmd.avel = p->adjustavel(PlayerInputAngVel(snum));
 	}
 
-	p->Angles.doYawInput(&p->input);
+	p->Angles.doYawInput(&p->cmd.ucmd);
 
 	purplelavacheck(p);
 
@@ -2708,7 +2708,7 @@ void processinput_r(int snum)
 
 	if (!p->OnMotorcycle && !p->OnBoat)
 	{
-		p->Angles.doRollInput(&p->input, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+		p->Angles.doRollInput(&p->cmd.ucmd, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 	}
 
 HORIZONLY:
@@ -2900,7 +2900,7 @@ HORIZONLY:
 		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
-	p->Angles.doPitchInput(&p->input);
+	p->Angles.doPitchInput(&p->cmd.ucmd);
 
 	p->checkhardlanding();
 

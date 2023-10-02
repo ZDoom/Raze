@@ -1109,7 +1109,7 @@ static void updatePlayerVelocity(ExhumedPlayer* const pPlayer)
 
     if (pPlayer->nHealth > 0)
     {
-        const auto pInput = &pPlayer->input;
+        const auto pInput = &pPlayer->cmd.ucmd;
         const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
@@ -1137,7 +1137,7 @@ static void updatePlayerVelocity(ExhumedPlayer* const pPlayer)
 
 static void updatePlayerInventory(ExhumedPlayer* const pPlayer)
 {
-    if (const auto invDir = !!(pPlayer->input.actions & SB_INVNEXT) - !!(pPlayer->input.actions & SB_INVPREV))
+    if (const auto invDir = !!(pPlayer->cmd.ucmd.actions & SB_INVNEXT) - !!(pPlayer->cmd.ucmd.actions & SB_INVPREV))
     {
         int nItem = pPlayer->nItem;
 
@@ -1153,14 +1153,14 @@ static void updatePlayerInventory(ExhumedPlayer* const pPlayer)
         if (i > 0) pPlayer->nItem = nItem;
     }
 
-    if ((pPlayer->input.actions & SB_INVUSE) && pPlayer->nItem != -1)
-        pPlayer->input.setItemUsed(pPlayer->nItem);
+    if ((pPlayer->cmd.ucmd.actions & SB_INVUSE) && pPlayer->nItem != -1)
+        pPlayer->cmd.ucmd.setItemUsed(pPlayer->nItem);
 
     for (int i = 0; i < 6; i++)
     {
-        if (pPlayer->input.isItemUsed(i))
+        if (pPlayer->cmd.ucmd.isItemUsed(i))
         {
-            pPlayer->input.clearItemUsed(i);
+            pPlayer->cmd.ucmd.clearItemUsed(i);
 
             if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
             {
@@ -1179,7 +1179,7 @@ static void updatePlayerInventory(ExhumedPlayer* const pPlayer)
 
 static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
 {
-    const bool bIsFiring = pPlayer->input.actions & SB_FIRE;
+    const bool bIsFiring = pPlayer->cmd.ucmd.actions & SB_FIRE;
 
     if (pPlayer->bIsMummified)
     {
@@ -1189,7 +1189,7 @@ static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
     }
 
     pPlayer->bIsFiring = bIsFiring;
-    const auto newWeap = pPlayer->input.getNewWeapon();
+    const auto newWeap = pPlayer->cmd.ucmd.getNewWeapon();
 
     if (const auto weapDir = (newWeap == WeaponSel_Next) - (newWeap == WeaponSel_Prev))
     {
@@ -1236,7 +1236,7 @@ unsigned GameInterface::getCrouchState()
 static void updatePlayerAction(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
-    const auto pInput = &pPlayer->input;
+    const auto pInput = &pPlayer->cmd.ucmd;
     const auto kbdDir = !!(pInput->actions & SB_CROUCH) - !!(pInput->actions & SB_JUMP);
     const double dist = pPlayer->bUnderwater ? 8 : 14;
     const double velZ = clamp(dist * kbdDir - dist * pInput->uvel, -dist, dist);
@@ -1577,7 +1577,7 @@ static void doPlayerCameraEffects(ExhumedPlayer* const pPlayer, const double nDe
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->Angles.doRollInput(&pPlayer->input, pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->Angles.doRollInput(&pPlayer->cmd.ucmd, pPlayerActor->vel.XY(), maxVel, nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)
@@ -1835,7 +1835,7 @@ static bool doPlayerInput(ExhumedPlayer* const pPlayer)
         return false;
 
     // update player yaw here as per the original workflow.
-    const auto pInput = &pPlayer->input;
+    const auto pInput = &pPlayer->cmd.ucmd;
     pPlayer->Angles.doViewYaw(pInput);
     pPlayer->Angles.doYawInput(pInput);
     pPlayer->Angles.doPitchInput(pInput);
@@ -1891,9 +1891,9 @@ static void doPlayerRunlistSignals(ExhumedPlayer* const pPlayer, sectortype* con
             runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::LeaveSector);
     }
 
-    if (!pPlayer->bIsMummified && (pPlayer->input.actions & SB_OPEN))
+    if (!pPlayer->bIsMummified && (pPlayer->cmd.ucmd.actions & SB_OPEN))
     {
-        pPlayer->input.actions &= ~SB_OPEN;
+        pPlayer->cmd.ucmd.actions &= ~SB_OPEN;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
         HitInfo near;
@@ -1915,10 +1915,10 @@ static void doPlayerRunlistSignals(ExhumedPlayer* const pPlayer, sectortype* con
 
 static bool doPlayerDeathRestart(ExhumedPlayer* const pPlayer)
 {
-    if (!(pPlayer->input.actions & SB_OPEN) || pPlayer->GetActor()->nAction < 16)
+    if (!(pPlayer->cmd.ucmd.actions & SB_OPEN) || pPlayer->GetActor()->nAction < 16)
         return true;
 
-    pPlayer->input.actions &= ~SB_OPEN;
+    pPlayer->cmd.ucmd.actions &= ~SB_OPEN;
 
     if (pPlayer->nPlayer == nLocalPlayer)
     {
@@ -2150,12 +2150,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ExhumedPlayer& w, 
             ("totalvel", w.totalvel)
             ("grenade", w.pPlayerGrenade)
             ("bUnderwater", w.bUnderwater)
-            ("actions", w.input.actions)
+            ("actions", w.cmd.ucmd.actions)
             .EndObject();
 
         if (arc.isReading())
         {
-            w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+            w.cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
         }
     }
     return arc;

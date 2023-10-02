@@ -2167,21 +2167,21 @@ static int WeaponFindLoaded(BloodPlayer* pPlayer, int* a2)
 
 int processSprayCan(BloodPlayer* pPlayer)
 {
-	const char bUseShootAsThrow = !VanillaMode() && (pPlayer->input.actions & SB_FIRE);
+	const char bUseShootAsThrow = !VanillaMode() && (pPlayer->cmd.ucmd.actions & SB_FIRE);
 	switch (pPlayer->weaponState)
 	{
 	case 5:
-		if (!(pPlayer->input.actions & SB_ALTFIRE) || bUseShootAsThrow)
+		if (!(pPlayer->cmd.ucmd.actions & SB_ALTFIRE) || bUseShootAsThrow)
 			pPlayer->weaponState = 6;
 		return 1;
 	case 6:
-		if ((pPlayer->input.actions & SB_ALTFIRE) && !bUseShootAsThrow)
+		if ((pPlayer->cmd.ucmd.actions & SB_ALTFIRE) && !bUseShootAsThrow)
 		{
 			pPlayer->weaponState = 3;
 			pPlayer->fuseTime = pPlayer->weaponTimer;
 			StartQAV(pPlayer, kQAVCANDROP, nClientDropCan);
 		}
-		else if (pPlayer->input.actions & SB_FIRE)
+		else if (pPlayer->cmd.ucmd.actions & SB_FIRE)
 		{
 			pPlayer->weaponState = 7;
 			pPlayer->fuseTime = 0;
@@ -2191,7 +2191,7 @@ int processSprayCan(BloodPlayer* pPlayer)
 	case 7:
 	{
 		setThrowPower(pPlayer);
-		if (!(pPlayer->input.actions & SB_FIRE))
+		if (!(pPlayer->cmd.ucmd.actions & SB_FIRE))
 		{
 			if (!pPlayer->fuseTime)
 				pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -2212,21 +2212,21 @@ int processSprayCan(BloodPlayer* pPlayer)
 
 static bool processTNT(BloodPlayer* pPlayer)
 {
-	const char bUseShootAsThrow = !VanillaMode() && (pPlayer->input.actions & SB_FIRE);
+	const char bUseShootAsThrow = !VanillaMode() && (pPlayer->cmd.ucmd.actions & SB_FIRE);
 	switch (pPlayer->weaponState)
 	{
 	case 4:
-		if (!(pPlayer->input.actions & SB_ALTFIRE) || bUseShootAsThrow)
+		if (!(pPlayer->cmd.ucmd.actions & SB_ALTFIRE) || bUseShootAsThrow)
 			pPlayer->weaponState = 5;
 		return 1;
 	case 5:
-		if ((pPlayer->input.actions & SB_ALTFIRE) && !bUseShootAsThrow)
+		if ((pPlayer->cmd.ucmd.actions & SB_ALTFIRE) && !bUseShootAsThrow)
 		{
 			pPlayer->weaponState = 1;
 			pPlayer->fuseTime = pPlayer->weaponTimer;
 			StartQAV(pPlayer, kQAVBUNDROP, nClientDropBundle);
 		}
-		else if (pPlayer->input.actions & SB_FIRE)
+		else if (pPlayer->cmd.ucmd.actions & SB_FIRE)
 		{
 			pPlayer->weaponState = 6;
 			pPlayer->fuseTime = 0;
@@ -2236,7 +2236,7 @@ static bool processTNT(BloodPlayer* pPlayer)
 	case 6:
 	{
 		setThrowPower(pPlayer);
-		if (!(pPlayer->input.actions & SB_FIRE))
+		if (!(pPlayer->cmd.ucmd.actions & SB_FIRE))
 		{
 			if (!pPlayer->fuseTime)
 				pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -2263,7 +2263,7 @@ static bool processProxy(BloodPlayer* pPlayer)
 		setThrowPower(pPlayer);
 		pPlayer->weaponTimer = 0;
 		pPlayer->qavTimer = 0;
-		if (!(pPlayer->input.actions & SB_FIRE))
+		if (!(pPlayer->cmd.ucmd.actions & SB_FIRE))
 		{
 			pPlayer->weaponState = 8;
 			StartQAV(pPlayer, kQAVPROXTHRO, nClientThrowProx);
@@ -2285,7 +2285,7 @@ static bool processRemote(BloodPlayer* pPlayer)
 	{
 	case 13:
 		setThrowPower(pPlayer);
-		if (!(pPlayer->input.actions & SB_FIRE))
+		if (!(pPlayer->cmd.ucmd.actions & SB_FIRE))
 		{
 			pPlayer->weaponState = 11;
 			StartQAV(pPlayer, kQAVREMTHRO, nClientThrowRemote);
@@ -2310,7 +2310,7 @@ static bool processLeech(BloodPlayer* pPlayer)
 		StartQAV(pPlayer, kQAVSTAFIRE1, nClientFireLifeLeech, 1);
 		return 1;
 	case 6:
-		if (!(pPlayer->input.actions & SB_ALTFIRE))
+		if (!(pPlayer->cmd.ucmd.actions & SB_ALTFIRE))
 		{
 			pPlayer->weaponState = 2;
 			StartQAV(pPlayer, kQAVSTAFPOST);
@@ -2343,7 +2343,7 @@ static bool processTesla(BloodPlayer* pPlayer)
 			StartQAV(pPlayer, kQAVSGUNFIR1, nClientFireTesla, 1);
 		return 1;
 	case 5:
-		if (!(pPlayer->input.actions & SB_FIRE))
+		if (!(pPlayer->cmd.ucmd.actions & SB_FIRE))
 		{
 			pPlayer->weaponState = 2;
 			if (checkAmmo2(pPlayer, 7, 10) && powerupCheck(pPlayer, kPwUpTwoGuns))
@@ -2382,7 +2382,7 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 	}
 #endif
 
-	int newweap = pPlayer->input.getNewWeapon();
+	int newweap = pPlayer->cmd.ucmd.getNewWeapon();
 	if (newweap > 0 && newweap <= WeaponSel_MaxBlood) pPlayer->newWeapon = newweap;
 
 	if (pPlayer->GetActor()->xspr.health == 0)
@@ -2413,9 +2413,9 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 	WeaponPlay(pPlayer);
 	UpdateAimVector(pPlayer);
 	pPlayer->weaponTimer -= 4;
-	bool bShoot = pPlayer->input.actions & SB_FIRE;
-	bool bShoot2 = pPlayer->input.actions & SB_ALTFIRE;
-	const int prevNewWeaponVal = pPlayer->input.getNewWeapon(); // used to fix scroll issue for banned weapons
+	bool bShoot = pPlayer->cmd.ucmd.actions & SB_FIRE;
+	bool bShoot2 = pPlayer->cmd.ucmd.actions & SB_ALTFIRE;
+	const int prevNewWeaponVal = pPlayer->cmd.ucmd.getNewWeapon(); // used to fix scroll issue for banned weapons
 	if ((bShoot || bShoot2 || prevNewWeaponVal) && pPlayer->weaponQav == qavGetCorrectID(kQAVVDIDLE2)) pPlayer->weaponTimer = 0;
 	if (pPlayer->qavLoop && pPlayer->GetActor()->xspr.health > 0)
 	{
@@ -2481,9 +2481,9 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 			pPlayer->nextWeapon = kWeapNone;
 		}
 	}
-	if (pPlayer->input.getNewWeapon() == WeaponSel_Next)
+	if (pPlayer->cmd.ucmd.getNewWeapon() == WeaponSel_Next)
 	{
-		pPlayer->input.setNewWeapon(kWeapNone);
+		pPlayer->cmd.ucmd.setNewWeapon(kWeapNone);
 		if (VanillaMode())
 		{
 			pPlayer->weaponState = 0;
@@ -2503,9 +2503,9 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 		}
 		pPlayer->newWeapon = weapon;
 	}
-	else if (pPlayer->input.getNewWeapon() == WeaponSel_Prev)
+	else if (pPlayer->cmd.ucmd.getNewWeapon() == WeaponSel_Prev)
 	{
-		pPlayer->input.setNewWeapon(kWeapNone);
+		pPlayer->cmd.ucmd.setNewWeapon(kWeapNone);
 		if (VanillaMode())
 		{
 			pPlayer->weaponState = 0;
@@ -2525,7 +2525,7 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 		}
 		pPlayer->newWeapon = weapon;
 	}
-	else if (pPlayer->input.getNewWeapon() == WeaponSel_Alt)
+	else if (pPlayer->cmd.ucmd.getNewWeapon() == WeaponSel_Alt)
 	{
 		int weapon;
 
@@ -2544,7 +2544,7 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 			return;
 		}
 
-		pPlayer->input.setNewWeapon(kWeapNone);
+		pPlayer->cmd.ucmd.setNewWeapon(kWeapNone);
 		pPlayer->weaponState = 0;
 		pPlayer->nextWeapon = kWeapNone;
 		int t = 0;

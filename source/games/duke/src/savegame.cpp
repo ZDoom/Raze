@@ -261,7 +261,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DukePlayer& w, Duk
 			("moto_on_oil", w.moto_on_oil)
 			("moto_on_mud", w.moto_on_mud)
 			// new stuff
-			("actions", w.input.actions)
+			("actions", w.cmd.ucmd.actions)
 			.Array("frags", w.frags, MAXPLAYERS)
 			("uservars", w.uservars)
 			("fistsign", w.fistsign)
@@ -273,7 +273,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DukePlayer& w, Duk
 			w.GetActor()->backuploc();
 			w.opyoff = w.pyoff;
 			w.backupweapon();
-			w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+			w.cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 		}
 	}
 	return arc;

@@ -2917,7 +2917,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 					iactor->xspr.medium = kMediumNormal;
 					if (pPlayer)
 					{
-						pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
+						pPlayer->posture = (!(pPlayer->cmd.ucmd.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
 						pPlayer->nWaterPal = 0;
 					}
 
@@ -3205,7 +3205,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 			actor->xspr.medium = kMediumNormal;
 			if (pPlayer)
 			{
-				pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
+				pPlayer->posture = (!(pPlayer->cmd.ucmd.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
 				pPlayer->nWaterPal = 0;
 			}
 
@@ -4354,15 +4354,15 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 		return true;
 	case 10: // check keys pressed
 		switch (arg1) {
-		case 1:  return (pPlayer->input.fvel > 0);            // forward
-		case 2:  return (pPlayer->input.fvel < 0);            // backward
-		case 3:  return (pPlayer->input.svel < 0);             // left
-		case 4:  return (pPlayer->input.svel > 0);             // right
-		case 5:  return !!(pPlayer->input.actions & SB_JUMP);       // jump
-		case 6:  return !!(pPlayer->input.actions & SB_CROUCH);     // crouch
-		case 7:  return !!(pPlayer->input.actions & SB_FIRE);      // normal fire weapon
-		case 8:  return !!(pPlayer->input.actions & SB_ALTFIRE);     // alt fire weapon
-		case 9:  return !!(pPlayer->input.actions & SB_OPEN);        // use
+		case 1:  return (pPlayer->cmd.ucmd.fvel > 0);            // forward
+		case 2:  return (pPlayer->cmd.ucmd.fvel < 0);            // backward
+		case 3:  return (pPlayer->cmd.ucmd.svel < 0);             // left
+		case 4:  return (pPlayer->cmd.ucmd.svel > 0);             // right
+		case 5:  return !!(pPlayer->cmd.ucmd.actions & SB_JUMP);       // jump
+		case 6:  return !!(pPlayer->cmd.ucmd.actions & SB_CROUCH);     // crouch
+		case 7:  return !!(pPlayer->cmd.ucmd.actions & SB_FIRE);      // normal fire weapon
+		case 8:  return !!(pPlayer->cmd.ucmd.actions & SB_ALTFIRE);     // alt fire weapon
+		case 9:  return !!(pPlayer->cmd.ucmd.actions & SB_OPEN);        // use
 		default:
 			condError(aCond, "Specify a correct key!");
 			break;

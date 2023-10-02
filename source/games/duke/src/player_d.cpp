@@ -581,7 +581,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	const auto pact = p->GetActor();
 	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
-	const double velZ = clamp(dist * kbdDir + dist * p->input.uvel, -dist, dist);
+	const double velZ = clamp(dist * kbdDir + dist * p->cmd.ucmd.uvel, -dist, dist);
 
 	p->on_ground = 0;
 	p->jumping_counter = 0;
@@ -766,7 +766,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if ((actions & SB_CROUCH) || p->input.uvel < 0)
+		if ((actions & SB_CROUCH) || p->cmd.ucmd.uvel < 0)
 		{
 			playerCrouch(snum);
 		}
@@ -1541,7 +1541,7 @@ void processinput_d(int snum)
 	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
-	ESyncBits& actions = p->input.actions;
+	ESyncBits& actions = p->cmd.ucmd.actions;
 
 	// Get strafe value before it's rotated by the angle.
 	const auto strafeVel = PlayerInputSideVel(snum);
@@ -1675,7 +1675,7 @@ void processinput_d(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum,actions);
-	p->Angles.doViewYaw(&p->input);
+	p->Angles.doViewYaw(&p->cmd.ucmd);
 
 	p->updatecentering(snum);
 
@@ -1714,15 +1714,15 @@ void processinput_d(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->input.avel = 0;
+		p->cmd.ucmd.avel = 0;
 		setForcedSyncInput(snum);
 	}
 	else
 	{
-		p->input.avel = p->adjustavel(PlayerInputAngVel(snum));
+		p->cmd.ucmd.avel = p->adjustavel(PlayerInputAngVel(snum));
 	}
 
-	p->Angles.doYawInput(&p->input);
+	p->Angles.doYawInput(&p->cmd.ucmd);
 
 	purplelavacheck(p);
 
@@ -1827,7 +1827,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	p->Angles.doRollInput(&p->input, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	p->Angles.doRollInput(&p->cmd.ucmd, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 
@@ -1943,7 +1943,7 @@ HORIZONLY:
 		playerAimDown(snum, actions);
 	}
 
-	p->Angles.doPitchInput(&p->input);
+	p->Angles.doPitchInput(&p->cmd.ucmd);
 
 	p->checkhardlanding();
 

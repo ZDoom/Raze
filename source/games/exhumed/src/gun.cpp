@@ -933,8 +933,8 @@ void DrawWeapons(ExhumedPlayer* const pPlayer, double interpfrac)
     double xPos = 160 + weaponOffsets.first.X;
     double yPos = 100 + weaponOffsets.first.Y;
 
-    double nFlameAng = interpolatedvalue(lastavel, pPlayer->input.avel, interpfrac);
-    lastavel = pPlayer->input.avel;
+    double nFlameAng = interpolatedvalue(lastavel, pPlayer->cmd.ucmd.avel, interpfrac);
+    lastavel = pPlayer->cmd.ucmd.avel;
 
     if (cl_weaponsway)
     {

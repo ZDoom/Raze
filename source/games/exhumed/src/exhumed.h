@@ -239,7 +239,7 @@ struct GameInterface : public ::GameInterface
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
-    void reapplyInputBits(InputPacket* const input) override { input->actions |= getPlayer(nLocalPlayer)->input.actions & SB_CENTERVIEW; }
+    void reapplyInputBits(InputPacket* const input) override { input->actions |= getPlayer(nLocalPlayer)->cmd.ucmd.actions & SB_CENTERVIEW; }
     void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&getPlayer(nLocalPlayer)->Angles, scaleAdjust); }
     unsigned getCrouchState() override;
 };

@@ -76,7 +76,7 @@ void processWeapon(SWPlayer* const pp)
     if (plActor == nullptr) return;
     int i;
 
-    if (pp->input.getNewWeapon() == WeaponSel_Next)
+    if (pp->cmd.ucmd.getNewWeapon() == WeaponSel_Next)
     {
         int next_weapon = plActor->user.WeaponNum + 1;
         int start_weapon;
@@ -109,9 +109,9 @@ void processWeapon(SWPlayer* const pp)
             }
         }
 
-        pp->input.setNewWeapon(next_weapon + 1);
+        pp->cmd.ucmd.setNewWeapon(next_weapon + 1);
     }
-    else if (pp->input.getNewWeapon() == WeaponSel_Prev)
+    else if (pp->cmd.ucmd.getNewWeapon() == WeaponSel_Prev)
     {
         int prev_weapon = plActor->user.WeaponNum - 1;
         int start_weapon;
@@ -141,12 +141,12 @@ void processWeapon(SWPlayer* const pp)
                 }
             }
         }
-        pp->input.setNewWeapon(prev_weapon + 1);
+        pp->cmd.ucmd.setNewWeapon(prev_weapon + 1);
     }
-    else if (pp->input.getNewWeapon() == WeaponSel_Alt)
+    else if (pp->cmd.ucmd.getNewWeapon() == WeaponSel_Alt)
     {
         int which_weapon = plActor->user.WeaponNum + 1;
-        pp->input.setNewWeapon(which_weapon);
+        pp->cmd.ucmd.setNewWeapon(which_weapon);
     }
 }
 

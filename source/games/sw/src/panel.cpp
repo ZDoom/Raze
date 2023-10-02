@@ -518,7 +518,7 @@ int WeaponOperate(SWPlayer* pp)
             if (!(pp->sop->flags & SOBJ_HAS_WEAPON))
                 break;
 
-            if (pp->input.actions & SB_FIRE)
+            if (pp->cmd.ucmd.actions & SB_FIRE)
             {
                 if (pp->KeyPressBits & SB_FIRE)
                 {
@@ -533,7 +533,7 @@ int WeaponOperate(SWPlayer* pp)
         }
     }
 
-    weapon = pp->input.getNewWeapon();
+    weapon = pp->cmd.ucmd.getNewWeapon();
 
     if (weapon)
     {
@@ -1163,7 +1163,7 @@ void pSwordSlideDown(PANEL_SPRITE* psp)
     if (psp->pos.X < -40)
     {
         // if still holding down the fire key - continue swinging
-        if (psp->PlayerP->input.actions & SB_FIRE)
+        if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
         {
             if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
@@ -1229,7 +1229,7 @@ void pSwordSlideDownR(PANEL_SPRITE* psp)
     if (psp->pos.X > 350)
     {
         // if still holding down the fire key - continue swinging
-        if (psp->PlayerP->input.actions & SB_FIRE)
+        if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
         {
             if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
@@ -1318,7 +1318,7 @@ void pSwordRest(PANEL_SPRITE* psp)
 
     force = !!(psp->flags & PANF_UNHIDE_SHOOT);
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -1462,7 +1462,7 @@ PANEL_STATE ps_RetractStar[] =
 
 void pStarRestTest(PANEL_SPRITE* psp)
 {
-    if (psp->PlayerP->input.actions & SB_FIRE)
+    if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
     {
         if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
@@ -1638,7 +1638,7 @@ void pStarRest(PANEL_SPRITE* psp)
     pStarBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -2499,7 +2499,7 @@ void pUziRest(PANEL_SPRITE* psp)
 
     SetVisNorm();
 
-    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    shooting = (psp->PlayerP->cmd.ucmd.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
     shooting |= force;
 
     pUziBobSetup(psp);
@@ -2528,7 +2528,7 @@ void pUziAction(PANEL_SPRITE* psp)
 {
     static int alternate = 0;
 
-    bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    bool shooting = (psp->PlayerP->cmd.ucmd.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -3239,7 +3239,7 @@ void pShotgunRest(PANEL_SPRITE* psp)
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -3288,7 +3288,7 @@ void pShotgunRestTest(PANEL_SPRITE* psp)
     pShotgunBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -3676,7 +3676,7 @@ void pRailRest(PANEL_SPRITE* psp)
     pRailBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -3714,7 +3714,7 @@ void pRailRestTest(PANEL_SPRITE* psp)
     pRailBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -4030,7 +4030,7 @@ void InitWeaponHothead(SWPlayer* pp)
 
 void pHotheadRestTest(PANEL_SPRITE* psp)
 {
-    if (psp->PlayerP->input.actions & SB_FIRE)
+    if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
     {
         if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
@@ -4146,7 +4146,7 @@ void pHotheadRest(PANEL_SPRITE* psp)
     pHotheadBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -4183,7 +4183,7 @@ void pHotheadRest(PANEL_SPRITE* psp)
 
 void pHotheadAction(PANEL_SPRITE* psp)
 {
-    bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    bool shooting = (psp->PlayerP->cmd.ucmd.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -4771,7 +4771,7 @@ void pMicroRest(PANEL_SPRITE* psp)
         }
     }
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -5124,7 +5124,7 @@ void pHeartRest(PANEL_SPRITE* psp)
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -5738,7 +5738,7 @@ void pGrenadeRest(PANEL_SPRITE* psp)
     pGrenadeBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -6031,7 +6031,7 @@ void pMineRest(PANEL_SPRITE* psp)
     pMineBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -6758,7 +6758,7 @@ void pFistSlideDown(PANEL_SPRITE* psp)
     if (psp->pos.Y > 440)
     {
         // if still holding down the fire key - continue swinging
-        if (psp->PlayerP->input.actions & SB_FIRE)
+        if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
         {
             if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
@@ -6861,7 +6861,7 @@ void pFistSlideDownR(PANEL_SPRITE* psp)
     if (psp->pos.Y > 440)
     {
         // if still holding down the fire key - continue swinging
-        if (psp->PlayerP->input.actions & SB_FIRE)
+        if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
         {
             if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
@@ -6976,7 +6976,7 @@ void pFistRest(PANEL_SPRITE* psp)
     // Reset move to default
     psp->PlayerP->WpnKungFuMove = 0;
 
-    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
+    if ((psp->PlayerP->cmd.ucmd.actions & SB_FIRE) || force)
     {
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
@@ -7051,7 +7051,7 @@ void pFistBlock(PANEL_SPRITE* psp)
     pFistBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (!(psp->PlayerP->input.actions & SB_OPEN))
+    if (!(psp->PlayerP->cmd.ucmd.actions & SB_OPEN))
     {
         pStatePlusOne(psp);
     }
@@ -7097,7 +7097,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
         return false;
     }
 
-    if (psp->PlayerP->input.actions & SB_HOLSTER)
+    if (psp->PlayerP->cmd.ucmd.actions & SB_HOLSTER)
     {
         if (psp->PlayerP->KeyPressBits & SB_HOLSTER)
         {
@@ -7111,7 +7111,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
         psp->PlayerP->KeyPressBits |= SB_HOLSTER;
     }
 
-    if (psp->PlayerP->input.actions & SB_FIRE)
+    if (psp->PlayerP->cmd.ucmd.actions & SB_FIRE)
     {
         if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
@@ -7146,7 +7146,7 @@ bool pWeaponHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
         return true;
     }
 
-    if (psp->PlayerP->input.actions & SB_HOLSTER)
+    if (psp->PlayerP->cmd.ucmd.actions & SB_HOLSTER)
     {
         if (psp->PlayerP->KeyPressBits & SB_HOLSTER)
         {

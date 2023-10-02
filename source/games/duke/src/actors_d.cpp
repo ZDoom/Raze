@@ -334,8 +334,8 @@ void movetransports_d(void)
 					else if (!(sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground == 1)) break;
 
 					if (onfloorz == 0 && fabs(act->spr.pos.Z - getPlayer(p)->GetActor()->getOffsetZ()) < 24)
-						if ((getPlayer(p)->jetpack_on == 0) || (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->input.uvel > 0)) ||
-							(getPlayer(p)->jetpack_on && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->input.uvel < 0)))
+						if ((getPlayer(p)->jetpack_on == 0) || (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->cmd.ucmd.uvel > 0)) ||
+							(getPlayer(p)->jetpack_on && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->cmd.ucmd.uvel < 0)))
 						{
 							getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 							getPlayer(p)->GetActor()->backupvec2();
@@ -375,7 +375,7 @@ void movetransports_d(void)
 					}
 
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground && getPlayer(p)->GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->input.uvel < 0 || getPlayer(p)->vel.Z > 8))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground && getPlayer(p)->GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->cmd.ucmd.uvel < 0 || getPlayer(p)->vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;

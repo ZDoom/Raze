@@ -326,9 +326,9 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 	case PLAYER_HORIZ:
 		if (bSet)
 		{	
-			if (getPlayer(iPlayer)->input.actions & SB_CENTERVIEW)
+			if (getPlayer(iPlayer)->cmd.ucmd.actions & SB_CENTERVIEW)
 			{
-				getPlayer(iPlayer)->input.actions &= ~SB_CENTERVIEW;
+				getPlayer(iPlayer)->cmd.ucmd.actions &= ~SB_CENTERVIEW;
 			}
 			getPlayer(iPlayer)->GetActor()->spr.Angles.Pitch = maphoriz(-lValue);
 		}
@@ -880,8 +880,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_RETURN_TO_CENTER:
-		if (bSet) getPlayer(iPlayer)->input.actions |= SB_CENTERVIEW;
-		else SetGameVarID(lVar2, getPlayer(iPlayer)->input.actions & SB_CENTERVIEW ? int(abs((getPlayer(iPlayer)->GetActor()->spr.Angles.Pitch * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
+		if (bSet) getPlayer(iPlayer)->cmd.ucmd.actions |= SB_CENTERVIEW;
+		else SetGameVarID(lVar2, getPlayer(iPlayer)->cmd.ucmd.actions & SB_CENTERVIEW ? int(abs((getPlayer(iPlayer)->GetActor()->spr.Angles.Pitch * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
 		break;
 
 	default:

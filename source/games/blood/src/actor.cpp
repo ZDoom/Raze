@@ -4898,7 +4898,7 @@ void MoveDude(DBloodActor* actor)
 			{
 				pPlayer->posture = 0;
 				pPlayer->bubbleTime = 0;
-				if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP))
+				if (!pPlayer->cantJump && (pPlayer->cmd.ucmd.actions & SB_JUMP))
 				{
 					actor->vel.Z = FixedToFloat(-0x6aaaa);
 					pPlayer->cantJump = 1;
@@ -6055,7 +6055,7 @@ static void actCheckDudes()
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
 
 			constexpr auto maxVel = (36211. / 3000.);
-			pPlayer->Angles.doRollInput(&pPlayer->input, actor->vel.XY(), maxVel, false);
+			pPlayer->Angles.doRollInput(&pPlayer->cmd.ucmd, actor->vel.XY(), maxVel, false);
 			pPlayer->Angles.StrafeVel -= pPlayer->Angles.StrafeVel * nDrag;
 		}
 

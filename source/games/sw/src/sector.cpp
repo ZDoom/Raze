@@ -2356,7 +2356,7 @@ void PlayerOperateEnv(SWPlayer* pp)
     // Switch & door activations
     //
 
-    if (pp->input.actions & SB_OPEN)
+    if (pp->cmd.ucmd.actions & SB_OPEN)
     {
         if (pp->KeyPressBits & SB_OPEN)
         {

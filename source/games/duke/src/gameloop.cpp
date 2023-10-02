@@ -65,7 +65,7 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			getPlayer(i)->Angles.resetCameraAngles();
-			getPlayer(i)->input = playercmds[i].ucmd;
+			getPlayer(i)->cmd.ucmd = playercmds[i].ucmd;
 		}
 
 		// disable synchronised input if set by game.

@@ -566,7 +566,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer& w, SWPla
 	{
 		w.ovect = w.vect;
 		w.obob_z = w.bob_z;
-		w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+		w.cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
         memset(w.cookieQuote, 0, sizeof(w.cookieQuote)); // no need to remember this.
         w.StartColor = 0;
 

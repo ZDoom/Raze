@@ -1904,7 +1904,7 @@ struct GameInterface : public ::GameInterface
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
     unsigned getCrouchState() override;
-    void reapplyInputBits(InputPacket* const input) override { input->actions |= getPlayer(myconnectindex)->input.actions & SB_CENTERVIEW; }
+    void reapplyInputBits(InputPacket* const input) override { input->actions |= getPlayer(myconnectindex)->cmd.ucmd.actions & SB_CENTERVIEW; }
     void doPlayerMovement(const float scaleAdjust) override
     {
         const auto pp = getPlayer(myconnectindex);

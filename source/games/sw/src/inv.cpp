@@ -417,7 +417,7 @@ void StopInventoryNightVision(SWPlayer* pp, short InventoryNum)
 void InventoryKeys(SWPlayer* pp)
 {
     // scroll SPELLs left
-    if (pp->input.actions & SB_INVPREV)
+    if (pp->cmd.ucmd.actions & SB_INVPREV)
     {
         if (pp->KeyPressBits & SB_INVPREV)
         {
@@ -433,7 +433,7 @@ void InventoryKeys(SWPlayer* pp)
     }
 
     // scroll SPELLs right
-    if (pp->input.actions & SB_INVNEXT)
+    if (pp->cmd.ucmd.actions & SB_INVNEXT)
     {
         if (pp->KeyPressBits & SB_INVNEXT)
         {
@@ -448,7 +448,7 @@ void InventoryKeys(SWPlayer* pp)
         pp->KeyPressBits |= SB_INVNEXT;
     }
 
-    if (pp->input.actions & SB_INVUSE)
+    if (pp->cmd.ucmd.actions & SB_INVUSE)
     {
         if (pp->KeyPressBits & SB_INVUSE)
         {
@@ -476,7 +476,7 @@ void InventoryKeys(SWPlayer* pp)
     for (int i = 0; i <= 7; i++)
     {
         ESyncBits bit = ESyncBits::FromInt(SB_ITEM_BIT_1 << i);
-        if (pp->input.isItemUsed(i))
+        if (pp->cmd.ucmd.isItemUsed(i))
         {
             if (pp->KeyPressBits & bit)
             {

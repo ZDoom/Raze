@@ -62,17 +62,17 @@ void hud_input(int plnum)
 	i = p->aim_mode;
 	p->aim_mode = !PlayerInput(plnum, SB_AIMMODE);
 	if (p->aim_mode < i)
-		p->input.actions |= SB_CENTERVIEW;
+		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	p->backupweapon();
 
-	if (isRR() && (p->input.actions & SB_CROUCH)) p->input.actions &= ~SB_JUMP;
+	if (isRR() && (p->cmd.ucmd.actions & SB_CROUCH)) p->cmd.ucmd.actions &= ~SB_JUMP;
 
 	if ((isRR() && p->drink_amt > 88))
-		p->input.actions |= SB_LOOK_LEFT;
+		p->cmd.ucmd.actions |= SB_LOOK_LEFT;
 	if ((isRR() && p->drink_amt > 99))
-		p->input.actions |= SB_LOOK_DOWN;
+		p->cmd.ucmd.actions |= SB_LOOK_DOWN;
 
 	if (isRR())
 	{
@@ -482,7 +482,7 @@ void hud_input(int plnum)
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
 			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() != 0)
 			{
-				p->input.actions &= ~SB_TURNAROUND;
+				p->cmd.ucmd.actions &= ~SB_TURNAROUND;
 			}
 		}
 	}

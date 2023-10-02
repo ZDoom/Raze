@@ -6,7 +6,7 @@
 
 struct CorePlayer
 {
-	InputPacket input;
+	ticcmd_t cmd;
 	PlayerAngles Angles;
 	DCoreActor* actor;
 

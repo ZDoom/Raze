@@ -375,20 +375,20 @@ struct DukePlayer final : public CorePlayer
 
 	void updatecentering(const int snum)
 	{
-		if (!(input.actions & SB_CENTERVIEW))
+		if (!(cmd.ucmd.actions & SB_CENTERVIEW))
 			return;
 
 		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
 		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370; // Build horizon value of 5.
 
-		if ((centertest && returnlock) || !input.horz)
+		if ((centertest && returnlock) || !cmd.ucmd.horz)
 		{
 			setForcedSyncInput(snum);
-			input.horz = 0;
+			cmd.ucmd.horz = 0;
 		}
 		else
 		{
-			input.actions &= ~SB_CENTERVIEW;
+			cmd.ucmd.actions &= ~SB_CENTERVIEW;
 		}
 	}
 };

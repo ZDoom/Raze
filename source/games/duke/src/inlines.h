@@ -108,53 +108,53 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
-	return (!!((getPlayer(pl)->input.actions) & bit));
+	return (!!((getPlayer(pl)->cmd.ucmd.actions) & bit));
 }
 
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
-	return (getPlayer(pl)->input.actions & bits);
+	return (getPlayer(pl)->cmd.ucmd.actions & bits);
 }
 
 inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-	getPlayer(pl)->input.actions |= bit;
+	getPlayer(pl)->cmd.ucmd.actions |= bit;
 }
 
 
 inline int PlayerNewWeapon(int pl)
 {
-	return getPlayer(pl)->input.getNewWeapon();
+	return getPlayer(pl)->cmd.ucmd.getNewWeapon();
 }
 
 inline void PlayerSetItemUsed(int pl, int num)
 {
-	getPlayer(pl)->input.setItemUsed(num - 1);
+	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
 }
 
 inline bool PlayerUseItem(int pl, int num)
 {
-	return getPlayer(pl)->input.isItemUsed(num - 1);
+	return getPlayer(pl)->cmd.ucmd.isItemUsed(num - 1);
 }
 
 inline float PlayerInputSideVel(int pl)
 {
-	return getPlayer(pl)->input.svel;
+	return getPlayer(pl)->cmd.ucmd.svel;
 }
 
 inline float PlayerInputForwardVel(int pl)
 {
-	return getPlayer(pl)->input.fvel;
+	return getPlayer(pl)->cmd.ucmd.fvel;
 }
 
 inline float PlayerInputAngVel(int pl)
 {
-	return getPlayer(pl)->input.avel;
+	return getPlayer(pl)->cmd.ucmd.avel;
 }
 
 inline DAngle GetPlayerHorizon(int pl)
 {
-	return DAngle::fromDeg(getPlayer(pl)->input.horz);
+	return DAngle::fromDeg(getPlayer(pl)->cmd.ucmd.horz);
 }
 
 inline void clearfriction()
@@ -279,9 +279,9 @@ inline int monsterCheatCheck(DDukeActor* self)
 inline void processinputvel(int snum)
 {
 	const auto p = getPlayer(snum);
-	const auto velvect = DVector2(p->input.fvel, p->input.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
-	p->input.fvel = (float)velvect.X;
-	p->input.svel = (float)velvect.Y;
+	const auto velvect = DVector2(p->cmd.ucmd.fvel, p->cmd.ucmd.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
+	p->cmd.ucmd.fvel = (float)velvect.X;
+	p->cmd.ucmd.svel = (float)velvect.Y;
 }
 
 

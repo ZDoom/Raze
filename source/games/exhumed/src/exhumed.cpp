@@ -325,7 +325,7 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
         {
             const auto pPlayer = getPlayer(i);
             pPlayer->Angles.resetCameraAngles();
-            pPlayer->input = playercmds[i].ucmd;
+            pPlayer->cmd.ucmd = playercmds[i].ucmd;
             updatePlayerTarget(pPlayer);
         }
 

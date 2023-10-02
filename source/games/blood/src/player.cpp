@@ -758,7 +758,7 @@ void playerResetPosture(BloodPlayer* pPlayer) {
 void playerStart(int nPlayer, int bNewLevel)
 {
 	BloodPlayer* pPlayer = getPlayer(nPlayer);
-	InputPacket* pInput = &pPlayer->input;
+	InputPacket* pInput = &pPlayer->cmd.ucmd;
 	ZONE* pStartZone = NULL;
 
 	// normal start position
@@ -1519,7 +1519,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 
 	DBloodActor* actor = pPlayer->GetActor();
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-	InputPacket* pInput = &pPlayer->input;
+	InputPacket* pInput = &pPlayer->cmd.ucmd;
 
 	// Originally, this was never able to be true due to sloppy input code in the original game.
 	// Allow it to become true behind a CVAR to offer an alternate playing experience if desired.
@@ -2480,14 +2480,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, BloodPlayer& w, Bl
 			("quakeeffect", w.quakeEffect)
 			("player_par", w.player_par)
 			("waterpal", w.nWaterPal)
-			("actions", w.input.actions)
+			("actions", w.cmd.ucmd.actions)
 			.Array("posturedata", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
 			.EndObject();
 
 		if (arc.isReading())
 		{
 			playerResetPosture(&w);
-			w.input.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+			w.cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 		}
 	}
 	return arc;
