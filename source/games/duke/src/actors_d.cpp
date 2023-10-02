@@ -149,7 +149,6 @@ int ifsquished(DDukeActor* actor, int p)
 
 int ifhitbyweapon_d(DDukeActor *actor)
 {
-	int p;
 	auto hitowner = actor->GetHitOwner();
 
 	if (actor->hitextra >= 0)
@@ -161,7 +160,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			{
 				if (ud.god && !(adef->flags3 & SFLAG3_LIGHTDAMAGE)) return -1;
 
-				p = actor->PlayerIndex();
+				const auto p = getPlayer(actor->PlayerIndex());
 
 				if (hitowner &&
 					hitowner->isPlayer() &&
@@ -177,23 +176,23 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					{
 						actor->spr.extra = 0;
 
-						getPlayer(p)->wackedbyactor = hitowner;
+						p->wackedbyactor = hitowner;
 
-						if (hitowner->isPlayer() && p != hitowner->PlayerIndex())
+						if (hitowner->isPlayer() && p != getPlayer(hitowner->PlayerIndex()))
 						{
-							getPlayer(p)->frag_ps = hitowner->PlayerIndex();
+							p->frag_ps = hitowner->PlayerIndex();
 						}
-						actor->SetHitOwner(getPlayer(p)->GetActor());
+						actor->SetHitOwner(actor);
 					}
 				}
 
 				if (adef->flags2 & SFLAG2_DOUBLEDMGTHRUST)
 				{
-					getPlayer(p)->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
+					p->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
 				else
 				{
-					getPlayer(p)->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
+					p->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
 				}
 			}
 			else
@@ -237,14 +236,14 @@ int ifhitbyweapon_d(DDukeActor *actor)
 	}
 	else
 	{
-		p = actor->PlayerIndex();
+		const auto p = getPlayer(actor->PlayerIndex());
 		actor->spr.extra = 0;
-		getPlayer(p)->wackedbyactor = hitowner;
+		p->wackedbyactor = hitowner;
 
-		if (hitowner->isPlayer() && hitowner != getPlayer(p)->GetActor())
-			getPlayer(p)->frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
+		if (hitowner->isPlayer() && hitowner != actor)
+			p->frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
 
-		actor->SetHitOwner(getPlayer(p)->GetActor());
+		actor->SetHitOwner(actor);
 		actor->hitextra = -1;
 
 		return 0;
