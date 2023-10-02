@@ -84,7 +84,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_material.h"
 #include "tiletexture.h"
 #include "tilesetbuilder.h"
-#include "gameinput.h"
+#include "coreplayer.h"
 
 #include "buildtiles.h"
 
@@ -632,7 +632,11 @@ int GameMain()
 		r = -1;
 	}
 	//DeleteScreenJob();
-	if (gi) gi->FreeLevelData();
+	if (gi)
+	{
+		gi->FreeLevelData();
+		for (int i = 0; i < MAXPLAYERS; i++) delete PlayerArray[i];
+	}
 	DestroyAltHUD();
 	DeinitMenus();
 	if (StatusBar) StatusBar->Destroy();

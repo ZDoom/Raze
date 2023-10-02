@@ -10,6 +10,7 @@ struct CorePlayer
 	PlayerAngles Angles;
 	DCoreActor* actor;
 
+	virtual ~CorePlayer() { if (actor) actor->Destroy(); };
 	virtual DCoreActor* GetActor() = 0;
 };
 
