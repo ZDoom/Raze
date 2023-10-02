@@ -132,7 +132,7 @@ void ResetPlayerWeapons(int nPlayer)
 
 void InitWeapons()
 {
-    for (auto& p : PlayerArray) p.pPlayerGrenade = nullptr;
+    for (auto p : PlayerArray) p->pPlayerGrenade = nullptr;
 }
 
 //---------------------------------------------------------------------------

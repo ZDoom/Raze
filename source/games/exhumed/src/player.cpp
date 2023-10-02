@@ -69,7 +69,7 @@ static constexpr int16_t nItemText[] = {
 };
 
 int nLocalPlayer = 0;
-ExhumedPlayer PlayerArray[kMaxPlayers];
+ExhumedPlayer* PlayerArray[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 int PlayerCount;
 int nNetStartSprites;
@@ -84,13 +84,13 @@ int nCurStartSprite;
 
 size_t MarkPlayers()
 {
-    for (auto& p : PlayerArray)
+    for (auto p : PlayerArray)
     {
-        GC::Mark(p.actor);
-        GC::Mark(p.pDoppleSprite);
-        GC::Mark(p.pPlayerFloorSprite);
-        GC::Mark(p.pPlayerGrenade);
-        GC::Mark(p.pTarget);
+        GC::Mark(p->actor);
+        GC::Mark(p->pDoppleSprite);
+        GC::Mark(p->pPlayerFloorSprite);
+        GC::Mark(p->pPlayerGrenade);
+        GC::Mark(p->pTarget);
     }
     GC::MarkArray(nNetStartSprite, kMaxPlayers);
     return 6 * kMaxPlayers;
@@ -2182,8 +2182,9 @@ void SerializePlayer(FSerializer& arc)
             ("netstartsprites", nNetStartSprites)
             ("localplayer", nLocalPlayer)
             ("curstartsprite", nCurStartSprite)
-            .Array("netstartsprite", nNetStartSprite, kMaxPlayers)
-            .Array("list", PlayerArray, PlayerCount);
+            .Array("netstartsprite", nNetStartSprite, kMaxPlayers);
+            #pragma message("Exhumed: Fix saving!")
+            //.Array("list", PlayerArray, PlayerCount);
 
         arc.EndObject();
     }
@@ -2237,7 +2238,7 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
-    auto nLocalPlayer = self - PlayerArray;
+    auto nLocalPlayer = self - *PlayerArray;
     ACTION_RETURN_BOOL(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & kSectUnderwater);
 }
 

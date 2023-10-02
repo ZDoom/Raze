@@ -417,6 +417,13 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 
 void GameInterface::app_init()
 {
+    // Initialise player array.
+    for (unsigned i = 0; i < kMaxPlayers; i++)
+    {
+        PlayerArray[i] = new ExhumedPlayer;
+        *PlayerArray[i] = {};
+    }
+
     GC::AddMarkerFunc(markgcroots);
 	InitTextureIDs();
 

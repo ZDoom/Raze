@@ -117,11 +117,11 @@ struct ExhumedPlayer final : public CorePlayer
 
 extern int PlayerCount;
 
-extern ExhumedPlayer PlayerArray[kMaxPlayers];
+extern ExhumedPlayer* PlayerArray[kMaxPlayers];
 
 inline ExhumedPlayer* getPlayer(int index)
 {
-    return &PlayerArray[index];
+    return PlayerArray[index];
 }
 
 extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
