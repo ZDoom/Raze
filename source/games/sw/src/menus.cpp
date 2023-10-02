@@ -96,7 +96,7 @@ void SetFadeAmt(SWPlayer* pp, short damage, uint8_t startcolor)
         return;
 
     // Reset the palette
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
 		videoFadePalette(0, 0, 0, 0);
     }
@@ -132,7 +132,7 @@ void SetFadeAmt(SWPlayer* pp, short damage, uint8_t startcolor)
     auto color = GPalette.BaseColors[pp->StartColor];
 
     // Do initial palette set
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
 		videoFadePalette(color.r, color.g, color.b, faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]);
         if (damage < -1000)
@@ -151,7 +151,7 @@ void DoPaletteFlash(SWPlayer* pp)
     {
         pp->FadeAmt = 0;
         pp->StartColor = 0;
-        if (pp == &Player[screenpeek])
+        if (pp == getPlayer(screenpeek))
         {
 			videoFadePalette(0, 0, 0, 0);
             DoPlayerDivePalette(pp);  // Check Dive again
@@ -186,7 +186,7 @@ void DoPaletteFlash(SWPlayer* pp)
     {
         pp->FadeAmt = 0;
         pp->StartColor = 0;
-        if (pp == &Player[screenpeek])
+        if (pp == getPlayer(screenpeek))
         {
 			videoFadePalette(0, 0, 0, 0);
             DoPlayerDivePalette(pp);  // Check Dive again
@@ -197,7 +197,7 @@ void DoPaletteFlash(SWPlayer* pp)
     else
     {
         // Only hard set the palette if this is currently the player's view
-        if (pp == &Player[screenpeek])
+        if (pp == getPlayer(screenpeek))
         {
             videoFadePalette(
                 GPalette.BaseColors[pp->StartColor].r,

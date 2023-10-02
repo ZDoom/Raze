@@ -376,7 +376,7 @@ void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* 
 
 void JS_ProcessEchoSpot()
 {
-    SWPlayer* pp = &Player[screenpeek];
+    SWPlayer* pp = getPlayer(screenpeek);
     int16_t reverb;
     bool reverb_set = false;
 
@@ -557,7 +557,7 @@ void JS_DrawCameras(SWPlayer* pp, const DVector3& campos, double smoothratio)
                     {
                         if (dist < MAXCAMDIST)
                         {
-                            SWPlayer* cp = &Player[camplayerview];
+                            SWPlayer* cp = getPlayer(camplayerview);
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {

@@ -221,7 +221,7 @@ void DoPlayerChooseYell(SWPlayer* pp)
 
     choose_snd = StdRandomRange(MAX_YELLSOUNDS);
 
-    if (pp == &Player[myconnectindex])
+    if (pp == getPlayer(myconnectindex))
         PlayerSound(PlayerYellVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
 
@@ -321,7 +321,7 @@ void PlayerUpdateHealth(SWPlayer* pp, short value)
 
         }
         // Do redness based on damage taken.
-        if (pp == &Player[screenpeek])
+        if (pp == getPlayer(screenpeek))
         {
             if (IsChem)
                 SetFadeAmt(pp,-40,144);  // ChemBomb green color
@@ -444,7 +444,7 @@ void PlayerUpdateKills(SWPlayer* pp, short value)
 
         TRAVERSE_CONNECT(pnum)
         {
-            opp = &Player[pnum];
+            opp = getPlayer(pnum);
 
             // for everyone on the same team
             if (opp != pp && opp->GetActor()->user.spal == pp->GetActor()->user.spal)
@@ -1084,7 +1084,7 @@ void InitWeaponSword(SWPlayer* pp)
 
     PlaySound(DIGI_SWORD_UP, pp, v3df_follow|v3df_dontpan);
 
-    if (pp == &Player[myconnectindex] && PlayClock > 0)
+    if (pp == getPlayer(myconnectindex) && PlayClock > 0)
     {
         rnd_num = StdRandomRange(1024);
         if (rnd_num > 900)
@@ -1539,7 +1539,7 @@ void InitWeaponStar(SWPlayer* pp)
     pSetState(psp, psp->PresentState);
 
     PlaySound(DIGI_PULL, pp, v3df_follow|v3df_dontpan);
-    if (StdRandomRange(1000) > 900 && pp == &Player[myconnectindex])
+    if (StdRandomRange(1000) > 900 && pp == getPlayer(myconnectindex))
     {
         if (!sw_darts)
             PlayerSound(DIGI_ILIKESHURIKEN, v3df_follow|v3df_dontpan,pp);
@@ -4761,7 +4761,7 @@ void pMicroRest(PANEL_SPRITE* psp)
         pp->InitingNuke = false;
         pp->NukeInitialized = true;
 
-        if (pp == &Player[myconnectindex])
+        if (pp == getPlayer(myconnectindex))
         {
             choose_voc = StdRandomRange(1024);
             if (choose_voc > 600)
@@ -7784,7 +7784,7 @@ void UpdatePanel(double interpfrac)
     TRAVERSE_CONNECT(pnum)
     {
         if (pnum == screenpeek)
-            pDisplaySprites(&Player[pnum], interpfrac);
+            pDisplaySprites(getPlayer(pnum), interpfrac);
     }
 }
 
@@ -7803,7 +7803,7 @@ void PreUpdatePanel(double interpfrac)
     TRAVERSE_CONNECT(pnum)
     {
         if (pnum == screenpeek)
-            pDisplaySprites(&Player[pnum], interpfrac);
+            pDisplaySprites(getPlayer(pnum), interpfrac);
     }
 
     DrawBeforeView = false;

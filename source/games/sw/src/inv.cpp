@@ -182,7 +182,7 @@ void UseInventoryMedkit(SWPlayer* pp)
     //percent
     PlayerUpdateInventory(pp, pp->InventoryNum);
 
-    if (pp == &Player[myconnectindex])
+    if (pp == getPlayer(myconnectindex))
     {
         if (amt >= 30)
             PlayerSound(DIGI_GETMEDKIT, v3df_follow|v3df_dontpan,pp);
@@ -271,7 +271,7 @@ void UseInventoryRepairKit(SWPlayer* pp)
     short inv = INVENTORY_REPAIR_KIT;
 
     //PlaySound(DIGI_TOOLBOX, pp, v3df_none);
-    if (pp == &Player[myconnectindex])
+    if (pp == getPlayer(myconnectindex))
     {
         if (StdRandomRange(1000) > 500)
             PlayerSound(DIGI_NOREPAIRMAN, v3df_follow|v3df_dontpan,pp);
@@ -315,7 +315,7 @@ void UseInventoryCloak(SWPlayer* pp)
     plActor->spr.shade = 100;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);
-    if (pp == &Player[myconnectindex])
+    if (pp == getPlayer(myconnectindex))
         PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }
 
@@ -349,7 +349,7 @@ void StopInventoryCloak(SWPlayer* pp, short InventoryNum)
 
 void DoPlayerNightVisionPalette(SWPlayer* pp)
 {
-    if (pp != &Player[screenpeek]) return;
+    if (pp != getPlayer(screenpeek)) return;
 
     if (pp->InventoryActive[INVENTORY_NIGHT_VISION])
     {

@@ -108,7 +108,7 @@ short SoundDist(const DVector3& pos, double basedist)
     double sqrdist;
     extern short screenpeek;
 
-    double distance = (Player[screenpeek].GetActor()->getPosWithOffsetZ() - pos).Length() * 16;
+    double distance = (getPlayer(screenpeek)->GetActor()->getPosWithOffsetZ() - pos).Length() * 16;
 
     if (basedist < 0) // if basedist is negative
     {
@@ -199,7 +199,7 @@ void InitAmbient(int num, DSWActor* actor)
         if (num != -1) // skip message for -1 to allow using it for silencing buggy ambient sound sprites (there is one in SW level 9.)
         {
             sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
-            PutStringInfo(&Player[screenpeek], ds);
+            PutStringInfo(getPlayer(screenpeek), ds);
         }
         return;
     }
@@ -324,7 +324,7 @@ static void UpdateAmbients()
 
         if (sdist < 255 && sfx->ResourceId == DIGI_WHIPME)
         {
-            SWPlayer* pp = &Player[screenpeek];
+            SWPlayer* pp = getPlayer(screenpeek);
             if (!FAFcansee(spot->spr.pos, spot->sector(), pp->GetActor()->getPosWithOffsetZ(), pp->cursector))
             {
                 sdist = 255;
@@ -379,7 +379,7 @@ public:
 
     int SoundSourceIndex(FSoundChan* chan) override
     {
-        if (chan->SourceType == SOURCE_Player) return int((SWPlayer*)(chan->Source) - Player);
+        if (chan->SourceType == SOURCE_Player) return int((SWPlayer*)(chan->Source) - PlayerArray);
         return 0;
     }
 
@@ -388,7 +388,7 @@ public:
         if (chan->SourceType == SOURCE_Player)
         {
             if (index < 0 || index >= MAX_SW_PLAYERS_REG) index = 0;
-            chan->Source = &Player[index];
+            chan->Source = getPlayer(index);
         }
         else chan->Source = nullptr;
     }
@@ -425,7 +425,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        SWPlayer* pp = &Player[screenpeek];
+        SWPlayer* pp = getPlayer(screenpeek);
         FVector3 campos = GetSoundPos(pp->GetActor() ? pp->GetActor()->getPosWithOffsetZ() : DVector3());
         DVector3 vPos = {};
         bool pancheck = false;
@@ -513,7 +513,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 
 void GameInterface::UpdateSounds(void)
 {
-    SWPlayer* pp = &Player[screenpeek];
+    SWPlayer* pp = getPlayer(screenpeek);
     SoundListener listener;
 
     DAngle tang;
@@ -722,7 +722,7 @@ int _PlayerSound(int num, SWPlayer* pp)
     if (Prediction)
         return 0;
 
-    if (pp < Player || pp >= &Player[MAX_SW_PLAYERS])
+    if (pp < PlayerArray || pp >= getPlayer(MAX_SW_PLAYERS))
     {
         return 0;
     }

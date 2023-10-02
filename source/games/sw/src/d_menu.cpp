@@ -86,7 +86,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 bool GameInterface::CanSave()
 {
-    return (!CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !(Player[myconnectindex].Flags & PF_DEAD));
+    return (!CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !(getPlayer(myconnectindex)->Flags & PF_DEAD));
 }
 
 //---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ bool GameInterface::CanSave()
 
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
-    SWPlayer* pp = &Player[screenpeek];
+    SWPlayer* pp = getPlayer(screenpeek);
     int handle = 0;
     int zero = 0;
 

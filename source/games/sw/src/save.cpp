@@ -221,7 +221,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE*& w, 
 				for (unsigned i = 0; i < MAX_SW_PLAYERS_REG; i++)
 				{
 					// special case for pointing to the list head
-					if ((List*)w == (List*)&Player[i].PanelSpriteList)
+					if ((List*)w == (List*)&getPlayer(i)->PanelSpriteList)
 					{
 						idx = 1000'0000 + i;
 						break;
@@ -239,7 +239,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE*& w, 
 		arc(keyname, ndx);
 
 		if (ndx == ~0u) w = nullptr;
-		else if (ndx >= 1000'0000) w = (PANEL_SPRITE*)&Player[ndx - 1000'0000].PanelSpriteList;
+		else if (ndx >= 1000'0000) w = (PANEL_SPRITE*)&(getPlayer(ndx - 1000'0000)->PanelSpriteList);
 		else if ((unsigned)ndx >= pspAsArray.Size())
 			I_Error("Bad panel sprite index in savegame");
 		else w = pspAsArray[ndx];
@@ -419,9 +419,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPlayer** def)
 {
-	int ndx = w ? int(w - Player) : -1;
+	int ndx = w ? int(w - PlayerArray) : -1;
 	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : &Player[ndx];
+	w = ndx == -1 ? nullptr : getPlayer(ndx);
 	return arc;
 }
 
@@ -1100,7 +1100,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		preSerializePanelSprites(arc);
 		so_serializeinterpolations(arc);
 		arc("numplayers", numplayers)
-			.Array("players", Player, numplayers)
+			.Array("players", PlayerArray, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)
 			.Array("sop", SectorObject, countof(SectorObject))
@@ -1162,8 +1162,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		// this is not a new game
 		ShadowWarrior::NewGame = false;
 
-		DoPlayerDivePalette(&Player[myconnectindex]);
-		DoPlayerNightVisionPalette(&Player[myconnectindex]);
+		DoPlayerDivePalette(getPlayer(myconnectindex));
+		DoPlayerNightVisionPalette(getPlayer(myconnectindex));
 		InitLevelGlobals();
 	}
 }

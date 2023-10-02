@@ -250,13 +250,13 @@ int DoActorPickClosePlayer(DSWActor* actor)
         goto TARGETACTOR;
 
     // Set initial target to Player 0
-    actor->user.targetActor = Player[0].GetActor();
+    actor->user.targetActor = getPlayer(0)->GetActor();
 
     if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
     {
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
 
             if (GetOwner(actor) == pp->GetActor())
                 continue;
@@ -270,7 +270,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
     // Set initial target to the closest player
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         // Zombies don't target their masters!
         if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
@@ -300,7 +300,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
     found = false;
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         // Zombies don't target their masters!
         if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
@@ -366,7 +366,7 @@ DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         if (pp->GetActor() == actor->user.targetActor)
         {

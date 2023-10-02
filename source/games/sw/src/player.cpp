@@ -119,7 +119,7 @@ extern bool DebugOperate;
 
 int ChopTics;
 
-SWPlayer Player[MAX_SW_PLAYERS_REG + 1];
+SWPlayer PlayerArray[MAX_SW_PLAYERS_REG + 1];
 
 // These are a bunch of kens variables for the player
 
@@ -1325,9 +1325,9 @@ void DoPlayerWarpTeleporter(SWPlayer* pp)
 
         TRAVERSE_CONNECT(pnum)
         {
-            if (pnum != pp - Player)
+            if (pnum != pp - PlayerArray)
             {
-                SWPlayer* npp = &Player[pnum];
+                SWPlayer* npp = getPlayer(pnum);
 
                 // if someone already standing there
                 if (npp->cursector == pp->cursector)
@@ -4101,9 +4101,9 @@ void DoPlayerWarpToSurface(SWPlayer* pp)
 
 void DoPlayerDivePalette(SWPlayer* pp)
 {
-    if (pp != &Player[screenpeek]) return;
+    if (pp != getPlayer(screenpeek)) return;
 
-    if ((pp->DeathType == PLAYER_DEATH_DROWN || (Player[screenpeek].Flags & PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
+    if ((pp->DeathType == PLAYER_DEATH_DROWN || (getPlayer(screenpeek)->Flags & PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
     {
         SetFadeAmt(pp,-1005,210); // Dive color , org color 208
     }
@@ -4138,7 +4138,7 @@ void DoPlayerBeginDive(SWPlayer* pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
         COVER_SetReverb(140); // Underwater echo
         pp->Reverb = 140;
@@ -4189,7 +4189,7 @@ void DoPlayerBeginDiveNoWarp(SWPlayer* pp)
 
     if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
 
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
         COVER_SetReverb(140); // Underwater echo
         pp->Reverb = 140;
@@ -4245,7 +4245,7 @@ void DoPlayerStopDiveNoWarp(SWPlayer* pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
     pp->GetActor()->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
         COVER_SetReverb(0);
         pp->Reverb = 0;
@@ -4280,7 +4280,7 @@ void DoPlayerStopDive(SWPlayer* pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
     actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
         COVER_SetReverb(0);
         pp->Reverb = 0;
@@ -4302,7 +4302,7 @@ void DoPlayerDiveMeter(SWPlayer* pp)
     if (NoMeters) return;
 
     // Don't draw bar from other players
-    if (pp != &Player[myconnectindex]) return;
+    if (pp != getPlayer(myconnectindex)) return;
 
     if (!(pp->Flags & (PF_DIVING|PF_DIVING_IN_LAVA))) return;
 
@@ -5458,16 +5458,16 @@ void DoPlayerDeathMessage(SWPlayer* pp, SWPlayer* killer)
     int pnum;
     bool SEND_OK = false;
 
-    killer->KilledPlayer[pp-Player]++;
+    killer->KilledPlayer[pp-PlayerArray]++;
 
-    if (pp == killer && pp == &Player[myconnectindex])
+    if (pp == killer && pp == getPlayer(myconnectindex))
     {
         sprintf(ds,"%s %s",pp->PlayerName,SuicideNote[StdRandomRange(MAX_SUICIDE)]);
         SEND_OK = true;
     }
     else
     // I am being killed
-    if (killer == &Player[myconnectindex])
+    if (killer == getPlayer(myconnectindex))
     {
         sprintf(ds,"%s",KilledPlayerMessage(pp,killer));
         SEND_OK = true;
@@ -5854,7 +5854,7 @@ void DoPlayerDeathCheckKeys(SWPlayer* pp)
 
         plActor->user.ID = NINJA_RUN_R0;
 
-        if (pp == &Player[screenpeek])
+        if (pp == getPlayer(screenpeek))
         {
             videoFadePalette(0,0,0,0);
         }
@@ -6433,7 +6433,7 @@ void DoPlayerRun(SWPlayer* pp)
 
 unsigned GameInterface::getCrouchState()
 {
-    const auto pp = &Player[myconnectindex];
+    const auto pp = getPlayer(myconnectindex);
     const bool crouchable = true;
     const bool disableToggle = (pp->Flags & (PF_JUMPING|PF_FALLING|PF_CLIMBING|PF_DIVING|PF_DEAD)) || pp->sop;
     return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
@@ -6512,7 +6512,7 @@ void MoveSkipSavePos(void)
     // Save off player
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         pp->Angles.resetCameraAngles();
         pp->GetActor()->backuploc();
@@ -6775,7 +6775,7 @@ void domovethings(const ticcmd_t* playercmds)
         extern bool PlayerTrackingMode;
         extern SWPlayer* GlobPlayerP;
 
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
         GlobPlayerP = pp;
 
         pp->lastinput = pp->input;
@@ -6797,7 +6797,7 @@ void domovethings(const ticcmd_t* playercmds)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].GetActor()->spr.Angles.Yaw = (Player[myconnectindex].GetActor()->spr.pos.XY() - Player[screenpeek].GetActor()->spr.pos.XY()).Angle();
+            getPlayer(screenpeek)->GetActor()->spr.Angles.Yaw = (getPlayer(myconnectindex)->GetActor()->spr.pos.XY() - getPlayer(screenpeek)->GetActor()->spr.pos.XY()).Angle();
         }
 
         if (!(pp->Flags & PF_DEAD))
@@ -6867,13 +6867,13 @@ void domovethings(const ticcmd_t* playercmds)
 void InitAllPlayers(void)
 {
     SWPlayer* pp;
-    SWPlayer* pfirst = Player;
+    SWPlayer* pfirst = PlayerArray;
     int i;
     extern bool NewGame;
     //int fz,cz;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
-    for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
+    for (pp = PlayerArray; pp < getPlayer(MAX_SW_PLAYERS); pp++)
     {
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
@@ -6940,7 +6940,7 @@ int SearchSpawnPosition(SWPlayer* pp)
         // check to see if anyone else is blocking this spot
         TRAVERSE_CONNECT(pnum)
         {
-            opp = &Player[pnum];
+            opp = getPlayer(pnum);
 
             if (opp != pp)  // don't test for yourself
             {
@@ -6967,7 +6967,7 @@ bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 
 void PlayerSpawnPosition(SWPlayer* pp)
 {
-    short pnum = short(pp - Player);
+    short pnum = short(pp - PlayerArray);
     short pos_num = pnum;
     int i;
     DSWActor* spawn_sprite = nullptr;
@@ -7079,7 +7079,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
 
     // set up the zero starting positions - its not saved in the map as a ST1 sprite
     // like the others
-    pp = Player;
+    pp = PlayerArray;
     for (stat = 0; stat < SIZ(MultiStatList); stat++)
     {
         if (gNet.MultiGameType != MULTI_GAME_NONE)
@@ -7110,7 +7110,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
     //for (pp = Player; pp < Player + numplayers; pp++)
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
         switch (gNet.MultiGameType)
         {
         case MULTI_GAME_NONE:
@@ -7120,7 +7120,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
         case MULTI_GAME_COMMBAT:
         case MULTI_GAME_AI_BOTS:
             // there are no keys in deathmatch play
-            memset(Player[0].HasKey,0xFFFF,sizeof(Player[0].HasKey));
+            memset(getPlayer(0)->HasKey,0xFFFF,sizeof(getPlayer(0)->HasKey));
             memset(pp->HasKey,0xFFFF,sizeof(pp->HasKey));
             PlayerSpawnPosition(pp);
             break;
@@ -7194,7 +7194,7 @@ static saveable_code saveable_player_code[] =
 
 static saveable_data saveable_player_data[] =
 {
-    SAVE_DATA(Player),
+    SAVE_DATA(PlayerArray),
     SAVE_DATA(s_PlayerNinjaRun),
     SAVE_DATA(sg_PlayerNinjaRun),
     SAVE_DATA(s_PlayerNinjaStand),
@@ -7383,7 +7383,7 @@ DEFINE_ACTION_FUNCTION(_SW, InventoryFlags)
 DEFINE_ACTION_FUNCTION(_SW, GetViewPlayer)
 {
     PARAM_PROLOGUE;
-    ACTION_RETURN_POINTER(&Player[screenpeek]);
+    ACTION_RETURN_POINTER(getPlayer(screenpeek));
 }
 
 DEFINE_ACTION_FUNCTION(_SW, RealWeapon)

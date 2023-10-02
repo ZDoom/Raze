@@ -2109,7 +2109,7 @@ void InitAllPlayerSprites(const DVector3& spawnpos, const DAngle startang)
 
     TRAVERSE_CONNECT(i)
     {
-        InitPlayerSprite(&Player[i], spawnpos, startang);
+        InitPlayerSprite(getPlayer(i), spawnpos, startang);
     }
 }
 
@@ -2241,7 +2241,7 @@ void PlayerPanelSetup(void)
     //for (pp = Player; pp < &Player[numplayers]; pp++)
     TRAVERSE_CONNECT(pnum)
     {
-        auto pp = &Player[pnum];
+        auto pp = getPlayer(pnum);
 
         ASSERT(pp->GetActor()->hasU());
 
@@ -2292,7 +2292,7 @@ void PlayerGameReset(SWPlayer* pp)
     PlayerUpdateArmor(pp, 0);
     pp->KillerActor = nullptr;;
 
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
         videoFadePalette(0,0,0,0);
     }
@@ -2321,7 +2321,7 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
 void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle startang)
 {
-    int pnum = int(pp - Player);
+    int pnum = int(pp - PlayerArray);
     double fz,cz;
     extern bool NewGame;
 
@@ -2387,7 +2387,7 @@ void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle start
 
     memset(pp->InventoryTics,0,sizeof(pp->InventoryTics));
 
-    if (pp == &Player[screenpeek])
+    if (pp == getPlayer(screenpeek))
     {
         videoFadePalette(0,0,0,0);
     }
@@ -2408,7 +2408,7 @@ void SpawnPlayerUnderSprite(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
-    int pnum = int(pp - Player);
+    int pnum = int(pp - PlayerArray);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
                                                  NINJA_RUN_R0, nullptr, pp->cursector, pp->GetActor()->getPosWithOffsetZ(), pp->GetActor()->spr.Angles.Yaw);

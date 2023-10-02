@@ -362,7 +362,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     else
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        auto look = (tSpr->pos.XY() - Player[screenpeek].si.XY()).Angle();
+        auto look = (tSpr->pos.XY() - getPlayer(screenpeek)->si.XY()).Angle();
 		tSpr->pos.XY() += look.ToVector() * 2;
     }
 
@@ -608,7 +608,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 {
     int tSpriteNum;
     static int ang = 0;
-    SWPlayer* pp = &Player[screenpeek];
+    SWPlayer* pp = getPlayer(screenpeek);
     int newshade=0;
 
     const int DART_PIC = 2526;
@@ -775,9 +775,9 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 ShadeSprite(tsp);
 
             // sw if its your playersprite
-            if (Player[screenpeek].GetActor() == tActor)
+            if (getPlayer(screenpeek)->GetActor() == tActor)
             {
-                pp = &Player[screenpeek];
+                pp = getPlayer(screenpeek);
                 if (display_mirror || (pp->Flags & (PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA)))
                 {
                     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
@@ -880,7 +880,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
         {
             if ((tActor->user.Flags2 & SPR2_VIS_SHADING))
             {
-                if (Player[screenpeek].GetActor() != tActor)
+                if (getPlayer(screenpeek)->GetActor() != tActor)
                 {
                     if (!(tActor->user.PlayerP->Flags & PF_VIEW_FROM_OUTSIDE))
                     {
@@ -1215,7 +1215,7 @@ void RestorePortalState()
 void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 {
     // prediction player if prediction is on, else regular player
-    SWPlayer* camerapp = (PredictionOn && CommEnabled && pp == &Player[myconnectindex]) ? ppp : pp;
+    SWPlayer* camerapp = (PredictionOn && CommEnabled && pp == getPlayer(myconnectindex)) ? ppp : pp;
 
     PreDraw();
     PreUpdatePanel(interpfrac);
@@ -1305,7 +1305,7 @@ void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 
     MarkSectorSeen(pp->cursector);
 
-    if ((automapMode != am_off) && pp == &Player[myconnectindex])
+    if ((automapMode != am_off) && pp == getPlayer(myconnectindex))
     {
         SWSpriteIterator it;
         while (auto actor = it.Next())
@@ -1369,7 +1369,7 @@ void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 
 bool GameInterface::GenerateSavePic()
 {
-    drawscreen(&Player[myconnectindex], 65536, true);
+    drawscreen(getPlayer(myconnectindex), 65536, true);
     return true;
 }
 
@@ -1399,7 +1399,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                 if (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)
                 {
                     // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                    PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].GetActor() ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
+                    PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == getPlayer(screenpeek)->GetActor() ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
                     auto statnum = actor->spr.statnum;
                     auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedpos(interpfrac) : actor->spr.pos).XY() - cpos;
 
@@ -1424,7 +1424,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     {
         if (p == screenpeek)
         {
-            auto pp = &Player[p];
+            auto pp = getPlayer(p);
             auto actor = pp->GetActor();
             if (actor->vel.X > 1) pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
             sprisplayer = true;
@@ -1437,7 +1437,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                 int spnum = -1;
                 if (sprisplayer)
                 {
-                    if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].GetActor())
+                    if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == getPlayer(screenpeek)->GetActor())
                         spnum = 1196 + pspr_ndx[myconnectindex];
                 }
                 else spnum = actor->spr.picnum;

@@ -1597,7 +1597,7 @@ PlayerPart:
 
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
 
             // if controlling a sector object
             if (pp->sop)
@@ -1632,7 +1632,7 @@ PlayerPart:
         // move the player
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
 
             if (pp->lowActor && pp->lowActor == actor)
             {
@@ -1715,7 +1715,7 @@ PlayerPart:
 
     TRAVERSE_CONNECT(pnum)
     {
-        pp = &Player[pnum];
+        pp = getPlayer(pnum);
 
         // if player was on a sector object
         if (pp->sop_riding)
@@ -3333,7 +3333,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         {
             TRAVERSE_CONNECT(pnum)
             {
-                pp = &Player[pnum];
+                pp = getPlayer(pnum);
 
                 if ((actor->spr.pos.XY() - pp->GetActor()->spr.pos.XY()).Length() < actor->user.Dist)
                 {

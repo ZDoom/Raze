@@ -1861,7 +1861,12 @@ struct SWPlayer
     }
 };
 
-extern SWPlayer Player[MAX_SW_PLAYERS_REG+1];
+extern SWPlayer PlayerArray[MAX_SW_PLAYERS_REG+1];
+
+inline SWPlayer* getPlayer(int index)
+{
+    return &PlayerArray[index];
+}
 
 
 struct GameInterface : public ::GameInterface
@@ -1892,7 +1897,7 @@ struct GameInterface : public ::GameInterface
     void NextLevel(MapRecord *map, int skill) override;
     void NewGame(MapRecord *map, int skill, bool) override;
     bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-    DCoreActor* getConsoleActor() override { return Player[myconnectindex].GetActor(); }
+    DCoreActor* getConsoleActor() override { return getPlayer(myconnectindex)->GetActor(); }
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;
@@ -1903,10 +1908,10 @@ struct GameInterface : public ::GameInterface
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
     unsigned getCrouchState() override;
-    void reapplyInputBits(InputPacket* const input) override { input->actions |= Player[myconnectindex].input.actions & SB_CENTERVIEW; }
+    void reapplyInputBits(InputPacket* const input) override { input->actions |= getPlayer(myconnectindex)->input.actions & SB_CENTERVIEW; }
     void doPlayerMovement(const float scaleAdjust) override
     {
-        const auto pp = &Player[myconnectindex];
+        const auto pp = getPlayer(myconnectindex);
         gameInput.processMovement(&pp->Angles, scaleAdjust, 0, !pp->sop, pp->sop_control ? (3.f / 1.40625f) : 1.f);
     }
 };

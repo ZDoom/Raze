@@ -93,7 +93,7 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
 void GameInterface::ToggleThirdPerson()
 {
     if (gamestate != GS_LEVEL) return;
-    auto pp = &Player[myconnectindex];
+    auto pp = getPlayer(myconnectindex);
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
         pp->Flags &= ~(PF_VIEW_FROM_OUTSIDE);
@@ -125,13 +125,13 @@ void GameInterface::SwitchCoopView()
         if (screenpeek == myconnectindex)
         {
             // JBF: figure out what's going on here
-            auto pp = &Player[myconnectindex];
+            auto pp = getPlayer(myconnectindex);
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
         }
         else
         {
-            SWPlayer* tp = &Player[screenpeek];
+            SWPlayer* tp = getPlayer(screenpeek);
             DoPlayerDivePalette(tp);
             DoPlayerNightVisionPalette(tp);
         }

@@ -2547,7 +2547,7 @@ int DoLavaErupt(DSWActor* actor)
     {
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
             if (pp->insector() && (pp->cursector->extra & SECTFX_TRIGGER))
             {
                 SWSectIterator it(pp->cursector);
@@ -4655,7 +4655,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
             {
                 SWPlayer* pp = weapActor->user.PlayerP;
 
-                if (weapActor->user.WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == &Player[myconnectindex])
+                if (weapActor->user.WeaponNum == WPN_FIST && StdRandomRange(1000)>500 && pp == getPlayer(myconnectindex))
                 {
                     int choosesnd = StdRandomRange(6);
 
@@ -4674,7 +4674,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                     //PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
                     //    &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
                 }
-                else if (weapActor->user.WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == &Player[myconnectindex])
+                else if (weapActor->user.WeaponNum == WPN_SWORD && StdRandomRange(1000)>500 && pp == getPlayer(myconnectindex))
                 {
                     short choose_snd;
 
@@ -4762,7 +4762,7 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
                         {
                             choosesnd=StdRandomRange(MAX_TAUNTAI<<8)>>8;
 
-                            if (pp == &Player[myconnectindex])
+                            if (pp == getPlayer(myconnectindex))
                                 PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                         }
                     }
@@ -5449,14 +5449,14 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             }
             else
             {
-                SWPlayer* pp = &Player[screenpeek];
+                SWPlayer* pp = getPlayer(screenpeek);
 
                 ActorHealth(actor, damage);
                 if (actor->user.Health <= 0)
                 {
                     int choosesnd=0;
                     // Random chance of taunting the AI's here
-                    if (StdRandomRange(1024) > 512 && pp == &Player[myconnectindex])
+                    if (StdRandomRange(1024) > 512 && pp == getPlayer(myconnectindex))
                     {
                         choosesnd=RandomRange(MAX_TAUNTAI);
                         PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
@@ -14437,7 +14437,7 @@ int InitEnemyRail(DSWActor* actor)
         // Check all players
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
             if (actor->user.targetActor == pp->GetActor())
                 return 0;
         }
@@ -17977,7 +17977,7 @@ int DoFloorBlood(DSWActor* actor)
     {
         TRAVERSE_CONNECT(pnum)
         {
-            pp = &Player[pnum];
+            pp = getPlayer(pnum);
 
             double dist = (actor->spr.pos.XY() - pp->GetActor()->spr.pos.XY()).Length();
 

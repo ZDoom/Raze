@@ -62,7 +62,7 @@ void KeysCheat(SWPlayer* pp, const char *cheat_string);
 static SWPlayer* checkCheat(cheatseq_t* c)
 {
 	if (::CheckCheatmode(true, true)) return nullptr;
-    return &Player[screenpeek];
+    return getPlayer(screenpeek);
 }
 
 const char *GameInterface::CheckCheatMode() 
@@ -91,8 +91,8 @@ const char *GameInterface::GenericCheat(int player, int cheat)
         return GStrings("GOD MODE: ON");
 
     case CHT_NOCLIP:
-        Player[player].Flags ^= PF_CLIP_CHEAT;
-        return GStrings(Player[player].Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
+        getPlayer(player)->Flags ^= PF_CLIP_CHEAT;
+        return GStrings(getPlayer(player)->Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
 
     case CHT_FLY:
         ToggleFlyMode = true;
@@ -193,7 +193,7 @@ bool WinPachinkoCheat(cheatseq_t* c)
         return false;
 
     Pachinko_Win_Cheat = !Pachinko_Win_Cheat;
-    PutStringInfo(&Player[myconnectindex], GStrings(Pachinko_Win_Cheat ? "TXTS_WINPACHINKOEN" : "TXTS_WINPACHINKODIS"));
+    PutStringInfo(getPlayer(myconnectindex), GStrings(Pachinko_Win_Cheat ? "TXTS_WINPACHINKOEN" : "TXTS_WINPACHINKODIS"));
     return true;
 }
 
@@ -209,7 +209,7 @@ bool BunnyCheat(cheatseq_t* c)
         return false;
 
     sw_bunnyrockets = !sw_bunnyrockets;
-    PutStringInfo(&Player[myconnectindex], GStrings(sw_bunnyrockets ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
+    PutStringInfo(getPlayer(myconnectindex), GStrings(sw_bunnyrockets ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
     return true;
 }
 
@@ -258,7 +258,7 @@ static cheatseq_t swcheats[] = {
 
 static void WeaponCheat(int player)
 {
-    auto p = &Player[player];
+    auto p = getPlayer(player);
 
     if (!(p->Flags & PF_TWO_UZI))
     {
@@ -289,7 +289,7 @@ static void WeaponCheat(int player)
 
 static void ItemCheat(int player)
 {
-    auto p = &Player[player];
+    auto p = getPlayer(player);
     PutStringInfo(p, GStrings("GIVING EVERYTHING!"));
     memset(p->HasKey, true, sizeof(p->HasKey));
 
@@ -324,7 +324,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     int type = ReadByte(stream);
     if (skip) return;
 
-    if (numplayers != 1 || gamestate != GS_LEVEL || (Player[player].Flags & PF_DEAD))
+    if (numplayers != 1 || gamestate != GS_LEVEL || (getPlayer(player)->Flags & PF_DEAD))
     {
         Printf("give: Cannot give while dead or not in a single-player game.\n");
         return;
@@ -338,10 +338,10 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         break;
 
     case GIVE_HEALTH:
-        if (Player[player].GetActor()->user.Health < Player[player].MaxHealth)
+        if (getPlayer(player)->GetActor()->user.Health < getPlayer(player)->MaxHealth)
         {
-            Player[player].GetActor()->user.Health += 25;
-            PutStringInfo(&Player[player], GStrings("TXTS_ADDEDHEALTH"));
+            getPlayer(player)->GetActor()->user.Health += 25;
+            PutStringInfo(getPlayer(player), GStrings("TXTS_ADDEDHEALTH"));
         }
         break;
 
@@ -351,7 +351,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 
     case GIVE_AMMO:
     {
-        auto p = &Player[player];
+        auto p = getPlayer(player);
 
         p->WpnShotgunAuto = 50;
         p->WpnRocketHeat = 5;
@@ -367,21 +367,21 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     }
 
     case GIVE_ARMOR:
-        if (Player[player].GetActor()->user.Health < Player[player].MaxHealth)
+        if (getPlayer(player)->GetActor()->user.Health < getPlayer(player)->MaxHealth)
         {
-            Player[player].Armor = 100;
-            PutStringInfo(&Player[player], GStrings("TXTB_FULLARM"));
+            getPlayer(player)->Armor = 100;
+            PutStringInfo(getPlayer(player), GStrings("TXTB_FULLARM"));
         }
         break;
 
     case GIVE_KEYS:
-        memset(Player[player].HasKey, true, sizeof(Player[player].HasKey));
-        PutStringInfo(&Player[player], GStrings("TXTS_GIVEKEY"));
+        memset(getPlayer(player)->HasKey, true, sizeof(getPlayer(player)->HasKey));
+        PutStringInfo(getPlayer(player), GStrings("TXTS_GIVEKEY"));
         break;
 
     case GIVE_INVENTORY:
     {
-        auto p = &Player[player];
+        auto p = getPlayer(player);
         PutStringInfo(p, GStrings("GOT ALL INVENTORY"));
 
         p->WpnShotgunAuto = 50;
