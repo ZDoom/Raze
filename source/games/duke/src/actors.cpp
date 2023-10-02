@@ -2785,10 +2785,10 @@ void handle_se17(DDukeActor* actor)
 	{
 		if (act1->spr.statnum == STAT_PLAYER && act1->GetOwner())
 		{
-			int p = act1->spr.yint;
-			getPlayer(p)->GetActor()->spr.pos.Z += q;
-			getPlayer(p)->truefz += q;
-			getPlayer(p)->truecz += q;
+			const auto p = getPlayer(act1->PlayerIndex());
+			p->GetActor()->spr.pos.Z += q;
+			p->truefz += q;
+			p->truecz += q;
 		}
 		if (act1->spr.statnum != STAT_EFFECTOR && act1->spr.statnum != STAT_PLAYER)
 		{
@@ -2833,26 +2833,26 @@ void handle_se17(DDukeActor* actor)
 		{
 			if (act3->spr.statnum == STAT_PLAYER && act3->GetOwner())
 			{
-				int p = act3->PlayerIndex();
+				const auto p = getPlayer(act3->PlayerIndex());
 
 				act3->opos -= act3->spr.pos;
 				act3->spr.pos.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
 				act3->spr.pos.Z += act2->sector()->floorz - sc->floorz;
 				act3->opos += act3->spr.pos;
 
-				if (q > 0) getPlayer(p)->GetActor()->backupz();
+				if (q > 0) act3->backupz();
 
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
 
-				getPlayer(p)->setbobpos();
+				p->setbobpos();
 
-				getPlayer(p)->truefz = act3->floorz;
-				getPlayer(p)->truecz = act3->ceilingz;
-				getPlayer(p)->bobcounter = 0;
+				p->truefz = act3->floorz;
+				p->truecz = act3->ceilingz;
+				p->bobcounter = 0;
 
 				ChangeActorSect(act3, act2->sector());
-				getPlayer(p)->setCursector(act2->sector());
+				p->setCursector(act2->sector());
 			}
 			else if (act3->spr.statnum != STAT_EFFECTOR)
 			{
