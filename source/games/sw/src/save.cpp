@@ -419,7 +419,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPlayer** def)
 {
-	int ndx = w ? int(w - *PlayerArray) : -1;
+	int ndx = w ? int(w - (SWPlayer*)PlayerArray) : -1;
 	arc(keyname, ndx);
 	w = ndx == -1 ? nullptr : getPlayer(ndx);
 	return arc;
@@ -1100,7 +1100,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		preSerializePanelSprites(arc);
 		so_serializeinterpolations(arc);
 		arc("numplayers", numplayers)
-			.Array("players", PlayerArray, numplayers)
+			#pragma message("SW: Fix saving!")
+			//.Array("players", PlayerArray, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)
 			.Array("sop", SectorObject, countof(SectorObject))

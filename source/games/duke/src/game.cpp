@@ -83,18 +83,18 @@ static void markgcroots()
 	GC::MarkArray(spriteq, 1024);
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
-	for (auto pl : PlayerArray)
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		GC::Mark(pl->actor);
-		GC::Mark(pl->actorsqu);
-		GC::Mark(pl->wackedbyactor);
-		GC::Mark(pl->on_crane);
-		GC::Mark(pl->holoduke_on);
-		GC::Mark(pl->somethingonplayer);
-		GC::Mark(pl->access_spritenum);
-		GC::Mark(pl->dummyplayersprite);
-		GC::Mark(pl->newOwner);
-		for (auto& var : pl->uservars)
+		GC::Mark(getPlayer(i)->actor);
+		GC::Mark(getPlayer(i)->actorsqu);
+		GC::Mark(getPlayer(i)->wackedbyactor);
+		GC::Mark(getPlayer(i)->on_crane);
+		GC::Mark(getPlayer(i)->holoduke_on);
+		GC::Mark(getPlayer(i)->somethingonplayer);
+		GC::Mark(getPlayer(i)->access_spritenum);
+		GC::Mark(getPlayer(i)->dummyplayersprite);
+		GC::Mark(getPlayer(i)->newOwner);
+		for (auto& var : getPlayer(i)->uservars)
 		{
 			var.Mark();
 		}
@@ -390,7 +390,7 @@ void GameInterface::app_init()
 	for (unsigned i = 0; i < MAXPLAYERS; i++)
 	{
 		PlayerArray[i] = new DukePlayer;
-		*PlayerArray[i] = {};
+		*getPlayer(i) = {};
 	}
 
 	RegisterClasses();

@@ -247,11 +247,9 @@ struct BloodPlayer final : public CorePlayer
 	}
 };
 
-extern BloodPlayer* PlayerArray[kMaxPlayers];
-
 inline BloodPlayer* getPlayer(int index)
 {
-	return PlayerArray[index];
+	return static_cast<BloodPlayer*>(PlayerArray[index]);
 }
 
 // subclassed to add a game specific actor() method

@@ -119,8 +119,6 @@ extern bool DebugOperate;
 
 int ChopTics;
 
-SWPlayer* PlayerArray[MAX_SW_PLAYERS_REG + 1];
-
 // These are a bunch of kens variables for the player
 
 short NormalVisibility;
@@ -1325,7 +1323,7 @@ void DoPlayerWarpTeleporter(SWPlayer* pp)
 
         TRAVERSE_CONNECT(pnum)
         {
-            if (pnum != pp - *PlayerArray)
+            if (pnum != pp - (SWPlayer*)PlayerArray)
             {
                 SWPlayer* npp = getPlayer(pnum);
 
@@ -5458,7 +5456,7 @@ void DoPlayerDeathMessage(SWPlayer* pp, SWPlayer* killer)
     int pnum;
     bool SEND_OK = false;
 
-    killer->KilledPlayer[pp - *PlayerArray]++;
+    killer->KilledPlayer[pp - (SWPlayer*)PlayerArray]++;
 
     if (pp == killer && pp == getPlayer(myconnectindex))
     {
@@ -6968,7 +6966,7 @@ bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 
 void PlayerSpawnPosition(SWPlayer* pp)
 {
-    short pnum = short(pp - *PlayerArray);
+    short pnum = short(pp - (SWPlayer*)PlayerArray);
     short pos_num = pnum;
     int i;
     DSWActor* spawn_sprite = nullptr;

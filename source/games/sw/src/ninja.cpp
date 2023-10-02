@@ -2321,7 +2321,7 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
 void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle startang)
 {
-    int pnum = int(pp - *PlayerArray);
+    int pnum = int(pp - (SWPlayer*)PlayerArray);
     double fz,cz;
     extern bool NewGame;
 
@@ -2408,7 +2408,7 @@ void SpawnPlayerUnderSprite(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
-    int pnum = int(pp - *PlayerArray);
+    int pnum = int(pp - (SWPlayer*)PlayerArray);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
                                                  NINJA_RUN_R0, nullptr, pp->cursector, pp->GetActor()->getPosWithOffsetZ(), pp->GetActor()->spr.Angles.Yaw);

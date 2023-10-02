@@ -19,8 +19,6 @@
 
 BEGIN_DUKE_NS
 
-extern DukePlayer* PlayerArray[MAXPLAYERS];
-
 struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }

@@ -12,7 +12,7 @@ BEGIN_DUKE_NS
 
 inline DukePlayer* getPlayer(int index)
 {
-	return PlayerArray[index];
+	return static_cast<DukePlayer*>(PlayerArray[index]);
 }
 
 inline int rnd(int X)

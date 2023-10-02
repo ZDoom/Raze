@@ -293,7 +293,7 @@ void resetweapons(DukePlayer* p)
 		p->gotweapon[SLINGBLADE_WEAPON] = true;
 		p->ammo_amount[SLINGBLADE_WEAPON] = 1;
 	}
-	OnEvent(EVENT_RESETWEAPONS, int(p - *PlayerArray), nullptr, -1);
+	OnEvent(EVENT_RESETWEAPONS, int(p - (DukePlayer*)PlayerArray), nullptr, -1);
 }
 
 //---------------------------------------------------------------------------
@@ -362,7 +362,7 @@ void resetinventory(DukePlayer* p)
 		ufocnt = 0;
 		hulkspawn = 2;
 	}
-	OnEvent(EVENT_RESETINVENTORY, int(p - *PlayerArray), p->GetActor());
+	OnEvent(EVENT_RESETINVENTORY, int(p - (DukePlayer*)PlayerArray), p->GetActor());
 }
 
 

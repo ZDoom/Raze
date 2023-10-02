@@ -179,7 +179,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopCommentary, StopCommentary)
 int getPlayerIndex(DukePlayer* p)
 {
 	if (!p) return -1;
-	return int(p - *PlayerArray);
+	return int(p - (DukePlayer*)PlayerArray);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getPlayerIndex, getPlayerIndex)

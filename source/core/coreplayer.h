@@ -1,5 +1,6 @@
 #pragma once
 
+#include "d_net.h"
 #include "packet.h"
 #include "gameinput.h"
 
@@ -11,3 +12,5 @@ struct CorePlayer
 
 	virtual DCoreActor* GetActor() = 0;
 };
+
+extern CorePlayer* PlayerArray[MAXPLAYERS];

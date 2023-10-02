@@ -260,17 +260,15 @@ void ClearGameVars(void)
 
 void ResetGameVars(void)
 {
-	int i;
-
-	for(i=0;i<iGameVarCount;i++)
+	for (int i = 0; i < iGameVarCount; i++)
 	{
 		if (!(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC)))
 		{
 			if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER))
 			{
-				for (auto pl : PlayerArray)
+				for (int j = 0; i < MAXPLAYERS; i++)
 				{
-					pl->uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
+					getPlayer(j)->uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
 				}
 			}
 			else if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
@@ -1222,7 +1220,7 @@ void FinalizeGameVars(void)
 			aGameVars[i].indexValue = actorNdx++;
 		}
 	}
-	for (auto pl : PlayerArray) pl->uservars.Resize(weapNdx);
+	for (int i = 0; i < MAXPLAYERS; i++) getPlayer(i)->uservars.Resize(weapNdx);
 	ResetGameVars();
 
 	numActorVars = actorNdx;

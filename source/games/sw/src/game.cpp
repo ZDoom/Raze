@@ -118,16 +118,16 @@ void markgcroots()
     GC::MarkArray(GenericQueue, MAX_GENERIC_QUEUE);
     GC::MarkArray(LoWangsQueue, MAX_LOWANGS_QUEUE);
     GC::MarkArray(BossSpriteNum, 3);
-    for (auto pl : PlayerArray)
+    for (int i = 0; i < MAXPLAYERS; i++)
     {
-        GC::Mark(pl->actor);
-        GC::Mark(pl->lowActor);
-        GC::Mark(pl->highActor);
-        GC::Mark(pl->remoteActor);
-        GC::Mark(pl->PlayerUnderActor);
-        GC::Mark(pl->KillerActor);
-        GC::Mark(pl->HitBy);
-        GC::Mark(pl->last_camera_act);
+        GC::Mark(getPlayer(i)->actor);
+        GC::Mark(getPlayer(i)->lowActor);
+        GC::Mark(getPlayer(i)->highActor);
+        GC::Mark(getPlayer(i)->remoteActor);
+        GC::Mark(getPlayer(i)->PlayerUnderActor);
+        GC::Mark(getPlayer(i)->KillerActor);
+        GC::Mark(getPlayer(i)->HitBy);
+        GC::Mark(getPlayer(i)->last_camera_act);
     }
     for (auto& so : SectorObject)
     {
@@ -251,10 +251,10 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 void GameInterface::app_init()
 {
     // Initialise player array.
-    for (unsigned i = 0; i < (MAX_SW_PLAYERS_REG+1); i++)
+    for (unsigned i = 0; i < MAXPLAYERS; i++)
     {
         PlayerArray[i] = new SWPlayer;
-        *PlayerArray[i] = {};
+        *getPlayer(i) = {};
     }
 
     // these are frequently checked markers.

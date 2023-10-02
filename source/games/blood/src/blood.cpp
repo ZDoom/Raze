@@ -96,14 +96,14 @@ static void markgcroots()
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
 	MarkSprInSect();
-	for (auto pl : PlayerArray)
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		GC::Mark(pl->actor);
-		GC::MarkArray(pl->ctfFlagState, 2);
-		GC::Mark(pl->aimTarget);
-		GC::MarkArray(pl->aimTargets, 16);
-		GC::Mark(pl->fragger);
-		GC::Mark(pl->voodooTarget);
+		GC::Mark(getPlayer(i)->actor);
+		GC::MarkArray(getPlayer(i)->ctfFlagState, 2);
+		GC::Mark(getPlayer(i)->aimTarget);
+		GC::MarkArray(getPlayer(i)->aimTargets, 16);
+		GC::Mark(getPlayer(i)->fragger);
+		GC::Mark(getPlayer(i)->voodooTarget);
 	}
 	for (auto& evobj : rxBucket)
 	{
@@ -587,10 +587,10 @@ void GameInterface::loadPalette(void)
 void GameInterface::app_init()
 {
 	// Initialise player array.
-	for (unsigned i = 0; i < kMaxPlayers; i++)
+	for (unsigned i = 0; i < MAXPLAYERS; i++)
 	{
 		PlayerArray[i] = new BloodPlayer;
-		*PlayerArray[i] = {};
+		*getPlayer(i) = {};
 	}
 
 	mirrortile = tileGetTextureID(504);

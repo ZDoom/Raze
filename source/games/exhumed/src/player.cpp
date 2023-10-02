@@ -69,7 +69,6 @@ static constexpr int16_t nItemText[] = {
 };
 
 int nLocalPlayer = 0;
-ExhumedPlayer* PlayerArray[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 int PlayerCount;
 int nNetStartSprites;
@@ -84,13 +83,13 @@ int nCurStartSprite;
 
 size_t MarkPlayers()
 {
-    for (auto p : PlayerArray)
+    for (int i = 0; i < kMaxWeapons; i++)
     {
-        GC::Mark(p->actor);
-        GC::Mark(p->pDoppleSprite);
-        GC::Mark(p->pPlayerFloorSprite);
-        GC::Mark(p->pPlayerGrenade);
-        GC::Mark(p->pTarget);
+        GC::Mark(getPlayer(i)->actor);
+        GC::Mark(getPlayer(i)->pDoppleSprite);
+        GC::Mark(getPlayer(i)->pPlayerFloorSprite);
+        GC::Mark(getPlayer(i)->pPlayerGrenade);
+        GC::Mark(getPlayer(i)->pTarget);
     }
     GC::MarkArray(nNetStartSprite, kMaxPlayers);
     return 6 * kMaxPlayers;
@@ -2238,7 +2237,7 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
-    auto nLocalPlayer = self - *PlayerArray;
+    auto nLocalPlayer = self - (ExhumedPlayer*)PlayerArray;
     ACTION_RETURN_BOOL(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & kSectUnderwater);
 }
 
