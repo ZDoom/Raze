@@ -224,7 +224,7 @@ void InitFX(void)
 
 void GetSpriteSoundPitch(int* pVolume, int* pPitch)
 {
-    auto pSoundSect = PlayerList[nLocalPlayer].pPlayerViewSect;
+    auto pSoundSect = getPlayer(nLocalPlayer)->pPlayerViewSect;
     int nLocalSectFlags = pSoundSect->Flag;
     if (nLocalSectFlags & kSectUnderwater)
     {
@@ -418,7 +418,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             Snake* pSnake = &SnakeList[nSnakeCam];
             campos = pSnake->pSprites[0]->spr.pos;
         }
-        else if (const auto pActor = PlayerList[nLocalPlayer].GetActor())
+        else if (const auto pActor = getPlayer(nLocalPlayer)->GetActor())
         {
             campos = pActor->spr.pos;
         }
@@ -485,7 +485,7 @@ void GameInterface::UpdateSounds()
     if (nFreeze)
         return;
 
-    const auto pActor = PlayerList[nLocalPlayer].GetActor();
+    const auto pActor = getPlayer(nLocalPlayer)->GetActor();
 
     DVector3 pos;
     DAngle ang;
@@ -628,7 +628,7 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
     }
 
     // Nuke: added nSprite >= 0 check
-    if (pActor != PlayerList[nLocalPlayer].GetActor() && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
+    if (pActor != getPlayer(nLocalPlayer)->GetActor() && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         nCreepyTimer = kCreepyCount;
 }
 
@@ -669,7 +669,7 @@ void CheckAmbience(sectortype* sect)
                 {
                     if (sect == pSector2)
                     {
-                        amb = GetSoundPos(PlayerList[0].GetActor()->spr.pos);
+                        amb = GetSoundPos(getPlayer(0)->GetActor()->spr.pos);
                     }
                     else
                     {
@@ -702,7 +702,7 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (Level.kills.got < Level.kills.max && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
+        if (Level.kills.got < Level.kills.max && !(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & 0x2000))
         {
             const auto creepySeq = getSequence("creepy");
             const auto seqFrameSound = creepySeq->frames[totalmoves % creepySeq->frames.Size()].sound;
@@ -716,7 +716,7 @@ void UpdateCreepySounds()
                 if (totalmoves & 2)
 					adder.Y = -adder.Y;
 
-                auto sp = PlayerList[nLocalPlayer].GetActor()->spr.pos + adder;
+                auto sp = getPlayer(nLocalPlayer)->GetActor()->spr.pos + adder;
                 creepy = GetSoundPos(sp);
 
                 auto soundid = FSoundID::fromInt((seqFrameSound & 0x1ff) + 1);

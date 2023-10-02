@@ -69,7 +69,7 @@ static constexpr int16_t nItemText[] = {
 };
 
 int nLocalPlayer = 0;
-ExhumedPlayer PlayerList[kMaxPlayers];
+ExhumedPlayer PlayerArray[kMaxPlayers];
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 int PlayerCount;
 int nNetStartSprites;
@@ -84,7 +84,7 @@ int nCurStartSprite;
 
 size_t MarkPlayers()
 {
-    for (auto& p : PlayerList)
+    for (auto& p : PlayerArray)
     {
         GC::Mark(p.actor);
         GC::Mark(p.pDoppleSprite);
@@ -104,7 +104,7 @@ size_t MarkPlayers()
 
 void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     pPlayer->sPlayerSave.pos = pos;
     pPlayer->sPlayerSave.pSector = pSector;
@@ -121,7 +121,7 @@ void InitPlayer()
 {
     for (int i = 0; i < kMaxPlayers; i++)
     {
-        const auto pPlayer = &PlayerList[i];
+        const auto pPlayer = getPlayer(i);
 
         pPlayer->actor = nullptr;
         pPlayer->Angles = {};
@@ -132,7 +132,7 @@ void InitPlayer()
 
 void InitPlayerKeys(int nPlayer)
 {
-    PlayerList[nPlayer].keys = 0;
+    getPlayer(nPlayer)->keys = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void InitPlayerKeys(int nPlayer)
 
 void InitPlayerInventory(int nPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     memset(pPlayer, 0, sizeof(ExhumedPlayer));
 
     ResetPlayerWeapons(nPlayer);
@@ -167,7 +167,7 @@ void InitPlayerInventory(int nPlayer)
     auto texp = TexMan.GetGameTexture(tex);
     auto pixels = GetRawPixels(tex);
 
-    PlayerList[nPlayer].nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
+    getPlayer(nPlayer)->nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
 }
 
 //---------------------------------------------------------------------------
@@ -189,7 +189,7 @@ int GetPlayerFromActor(DExhumedActor* pActor)
 
 void RestartPlayer(int nPlayer)
 {
-	const auto pPlayer = &PlayerList[nPlayer];
+	const auto pPlayer = getPlayer(nPlayer);
     DExhumedActor* pPlayerActor = pPlayer->GetActor();
     DExhumedActor* pDopSprite = pPlayer->pDoppleSprite;
     DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
@@ -360,7 +360,7 @@ int GrabPlayer()
 
 void StartDeathSeq(int nPlayer, int nVal)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
@@ -428,7 +428,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     if (!nAmmoAmount)
         nAmmoAmount = 1;
@@ -454,7 +454,7 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->vel.XY().Zero();
@@ -481,7 +481,7 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 
 void ShootStaff(int nPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->nAction = 15;
@@ -530,7 +530,7 @@ void AIPlayer::Draw(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
     const auto playerSeq = &PlayerSeq[pPlayerActor->nAction];
     seq_PlotSequence(ev->nParam, pPlayerActor->nSeqFile, playerSeq->nSeqId, pPlayerActor->nFrame, playerSeq->nFlags);
@@ -547,7 +547,7 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     if (pPlayer->nHealth <= 0)
         return;
@@ -567,7 +567,7 @@ void AIPlayer::Damage(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto nDamage = ev->nDamage;
 
     if (!nDamage || !pPlayer->nHealth)
@@ -1224,7 +1224,7 @@ static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
 
 unsigned GameInterface::getCrouchState()
 {
-    const bool swimming = PlayerList[nLocalPlayer].bUnderwater;
+    const bool swimming = getPlayer(nLocalPlayer)->bUnderwater;
     return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
 }
 
@@ -2058,7 +2058,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     const int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->spr.setspritetexture(getSequence(pPlayerActor->nSeqFile, PlayerSeq[nHeightTemplate[pPlayerActor->nAction]].nSeqId)->getFirstFrameTexture());
@@ -2183,7 +2183,7 @@ void SerializePlayer(FSerializer& arc)
             ("localplayer", nLocalPlayer)
             ("curstartsprite", nCurStartSprite)
             .Array("netstartsprite", nNetStartSprite, kMaxPlayers)
-            .Array("list", PlayerList, PlayerCount);
+            .Array("list", PlayerArray, PlayerCount);
 
         arc.EndObject();
     }
@@ -2221,24 +2221,24 @@ DEFINE_FIELD_X(ExhumedPlayer, ExhumedPlayer, nRun);
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
 {
-    ACTION_RETURN_POINTER(&PlayerList[nLocalPlayer]);
+    ACTION_RETURN_POINTER(getPlayer(nLocalPlayer));
 }
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetPistolClip)
 {
-    ACTION_RETURN_INT(PlayerList[nLocalPlayer].nPistolClip);
+    ACTION_RETURN_INT(getPlayer(nLocalPlayer)->nPistolClip);
 }
 
 DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
 {
-    ACTION_RETURN_INT(PlayerList[nLocalPlayer].nPlayerClip);
+    ACTION_RETURN_INT(getPlayer(nLocalPlayer)->nPlayerClip);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
-    auto nLocalPlayer = self - PlayerList;
-    ACTION_RETURN_BOOL(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & kSectUnderwater);
+    auto nLocalPlayer = self - PlayerArray;
+    ACTION_RETURN_BOOL(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & kSectUnderwater);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)

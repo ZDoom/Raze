@@ -772,9 +772,9 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
 
     if (nNetPlayerCount)
     {
-        auto pActor = insertActor(PlayerList[nLocalPlayer].GetActor()->sector(), 0);
+        auto pActor = insertActor(getPlayer(nLocalPlayer)->GetActor()->sector(), 0);
 
-        pActor->spr.pos = PlayerList[nLocalPlayer].GetActor()->spr.pos;
+        pActor->spr.pos = getPlayer(nLocalPlayer)->GetActor()->spr.pos;
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;

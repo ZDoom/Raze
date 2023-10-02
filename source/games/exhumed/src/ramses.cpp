@@ -195,7 +195,7 @@ void DoSpiritHead()
     auto pSpiritSpr = pSpiritSprite;
     auto Worktile = GetWritablePixels(aTexIds[kTexTileRamsesWorkTile]);
 
-    const auto pPlayer = &PlayerList[0];
+    const auto pPlayer = getPlayer(0);
     const auto pPlayerActor = pPlayer->GetActor();
     const auto nSpiritAngle = (pSpiritSprite->spr.pos.XY() - pPlayerActor->spr.pos.XY()).Angle();
     pPlayerActor->spr.Angles.Yaw += deltaangle(pPlayerActor->spr.Angles.Yaw, nSpiritAngle) * 0.25;

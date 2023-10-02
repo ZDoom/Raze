@@ -78,10 +78,10 @@ void RestoreMinAmmo(int nPlayer)
             continue;
         }
 
-        if ((1 << i) & PlayerList[nPlayer].nPlayerWeapons)
+        if ((1 << i) & getPlayer(nPlayer)->nPlayerWeapons)
         {
-            if (nMinAmmo[i] > PlayerList[nPlayer].nAmmo[i]) {
-                PlayerList[nPlayer].nAmmo[i] = nMinAmmo[i];
+            if (nMinAmmo[i] > getPlayer(nPlayer)->nAmmo[i]) {
+                getPlayer(nPlayer)->nAmmo[i] = nMinAmmo[i];
             }
         }
     }
@@ -97,12 +97,12 @@ void RestoreMinAmmo(int nPlayer)
 
 void FillWeapons(int nPlayer)
 {
-    PlayerList[nPlayer].nPlayerWeapons = 0xFFFF; // turn on all bits
+    getPlayer(nPlayer)->nPlayerWeapons = 0xFFFF; // turn on all bits
 
     for (int i = 0; i < kMaxWeapons; i++)
     {
         if (WeaponInfo[i].d) {
-            PlayerList[nPlayer].nAmmo[i] = 300;
+            getPlayer(nPlayer)->nAmmo[i] = 300;
         }
     }
 
@@ -119,20 +119,20 @@ void ResetPlayerWeapons(int nPlayer)
 {
     for (int i = 0; i < kMaxWeapons; i++)
     {
-        PlayerList[nPlayer].nAmmo[i] = 0;
+        getPlayer(nPlayer)->nAmmo[i] = 0;
     }
 
-    PlayerList[nPlayer].nCurrentWeapon = 0;
-    PlayerList[nPlayer].nState = 0;
-    PlayerList[nPlayer].nWeapFrame = 0;
+    getPlayer(nPlayer)->nCurrentWeapon = 0;
+    getPlayer(nPlayer)->nState = 0;
+    getPlayer(nPlayer)->nWeapFrame = 0;
 
-    PlayerList[nPlayer].pPlayerGrenade = nullptr;
-    PlayerList[nPlayer].nPlayerWeapons = 0x1; // turn on bit 1 only
+    getPlayer(nPlayer)->pPlayerGrenade = nullptr;
+    getPlayer(nPlayer)->nPlayerWeapons = 0x1; // turn on bit 1 only
 }
 
 void InitWeapons()
 {
-    for (auto& p : PlayerList) p.pPlayerGrenade = nullptr;
+    for (auto& p : PlayerArray) p.pPlayerGrenade = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -145,33 +145,33 @@ void SetNewWeapon(int nPlayer, int nWeapon)
 {
     if (nWeapon == kWeaponMummified)
     {
-        PlayerList[nPlayer].nLastWeapon = PlayerList[nPlayer].nCurrentWeapon;
-        PlayerList[nPlayer].bIsFiring = false;
-        PlayerList[nPlayer].nState = 5;
+        getPlayer(nPlayer)->nLastWeapon = getPlayer(nPlayer)->nCurrentWeapon;
+        getPlayer(nPlayer)->bIsFiring = false;
+        getPlayer(nPlayer)->nState = 5;
         SetPlayerMummified(nPlayer, true);
 
-        PlayerList[nPlayer].nWeapFrame = 0;
+        getPlayer(nPlayer)->nWeapFrame = 0;
     }
     else
     {
         if (nWeapon < 0)
         {
-            PlayerList[nPlayer].nPlayerOldWeapon = PlayerList[nPlayer].nCurrentWeapon;
+            getPlayer(nPlayer)->nPlayerOldWeapon = getPlayer(nPlayer)->nCurrentWeapon;
         }
-        else if (nWeapon != kWeaponGrenade || PlayerList[nPlayer].nAmmo[kWeaponGrenade] > 0)
+        else if (nWeapon != kWeaponGrenade || getPlayer(nPlayer)->nAmmo[kWeaponGrenade] > 0)
         {
-            int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
+            int nCurrentWeapon = getPlayer(nPlayer)->nCurrentWeapon;
 
             if (nCurrentWeapon != kWeaponMummified)
             {
-                if (PlayerList[nPlayer].bIsFiring || nWeapon == nCurrentWeapon) {
+                if (getPlayer(nPlayer)->bIsFiring || nWeapon == nCurrentWeapon) {
                     return;
                 }
             }
             else
             {
-                PlayerList[nPlayer].nCurrentWeapon = nWeapon;
-                PlayerList[nPlayer].nWeapFrame = 0;
+                getPlayer(nPlayer)->nCurrentWeapon = nWeapon;
+                getPlayer(nPlayer)->nWeapFrame = 0;
             }
         }
         else {
@@ -179,7 +179,7 @@ void SetNewWeapon(int nPlayer, int nWeapon)
         }
     }
 
-    PlayerList[nPlayer].nNextWeapon = nWeapon;
+    getPlayer(nPlayer)->nNextWeapon = nWeapon;
 }
 
 //---------------------------------------------------------------------------
@@ -192,15 +192,15 @@ void SetNewWeaponImmediate(int nPlayer, int nWeapon)
 {
     SetNewWeapon(nPlayer, nWeapon);
 
-    PlayerList[nPlayer].nCurrentWeapon = nWeapon;
-    PlayerList[nPlayer].nNextWeapon = -1;
-    PlayerList[nPlayer].nWeapFrame = 0;
-    PlayerList[nPlayer].nState = 0;
+    getPlayer(nPlayer)->nCurrentWeapon = nWeapon;
+    getPlayer(nPlayer)->nNextWeapon = -1;
+    getPlayer(nPlayer)->nWeapFrame = 0;
+    getPlayer(nPlayer)->nState = 0;
 }
 
 void SetNewWeaponIfBetter(int nPlayer, int nWeapon)
 {
-    if (nWeapon > PlayerList[nPlayer].nCurrentWeapon) {
+    if (nWeapon > getPlayer(nPlayer)->nCurrentWeapon) {
         SetNewWeapon(nPlayer, nWeapon);
     }
 }
@@ -215,7 +215,7 @@ void SelectNewWeapon(int nPlayer)
 {
     int nWeapon = kWeaponRing; // start at the highest weapon number
 
-    uint16_t di = PlayerList[nPlayer].nPlayerWeapons;
+    uint16_t di = getPlayer(nPlayer)->nPlayerWeapons;
     uint16_t dx = 0x40; // bit 7 turned on
 
     while (dx)
@@ -223,7 +223,7 @@ void SelectNewWeapon(int nPlayer)
         if (di & dx)
         {
             // we have this weapon
-            if (!WeaponInfo[nWeapon].d || PlayerList[nPlayer].nAmmo[WeaponInfo[nWeapon].nAmmoType])
+            if (!WeaponInfo[nWeapon].d || getPlayer(nPlayer)->nAmmo[WeaponInfo[nWeapon].nAmmoType])
                 break;
         }
 
@@ -234,7 +234,7 @@ void SelectNewWeapon(int nPlayer)
     if (nWeapon < 0)
         nWeapon = kWeaponSword;
 
-    PlayerList[nPlayer].bIsFiring = false;
+    getPlayer(nPlayer)->bIsFiring = false;
 
     SetNewWeapon(nPlayer, nWeapon);
 }
@@ -257,14 +257,14 @@ void SetWeaponStatus(int nPlayer)
 
 uint8_t WeaponCanFire(int nPlayer)
 {
-    int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-    auto pSector =PlayerList[nPlayer].pPlayerViewSect;
+    int nWeapon = getPlayer(nPlayer)->nCurrentWeapon;
+    auto pSector =getPlayer(nPlayer)->pPlayerViewSect;
 
     if (!(pSector->Flag & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
         int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
 
-        if (WeaponInfo[nWeapon].d <= PlayerList[nPlayer].nAmmo[nAmmoType]) {
+        if (WeaponInfo[nWeapon].d <= getPlayer(nPlayer)->nAmmo[nAmmoType]) {
             return true;
         }
     }
@@ -287,7 +287,7 @@ void ResetSwordSeqs()
 
 Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 {
-    auto pActor = PlayerList[nPlayer].GetActor();
+    auto pActor = getPlayer(nPlayer)->GetActor();
 
     HitInfo hit{};
     hitscan(pos, *ppSector, DVector3(pActor->spr.Angles.Yaw.ToVector() * 1024, 0 ), hit, CLIPMASK1);
@@ -322,7 +322,7 @@ Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 
 void CheckClip(int nPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     if (pPlayer->nPlayerClip <= 0)
         pPlayer->nPlayerClip = min(pPlayer->nAmmo[kWeaponM60], (int16_t)100);
@@ -339,7 +339,7 @@ void CheckClip(int nPlayer)
 
 void MoveWeapons(int nPlayer)
 {
-    const auto pPlayer = &PlayerList[nPlayer];
+    const auto pPlayer = getPlayer(nPlayer);
 
     static int dword_96E22 = 0;
 

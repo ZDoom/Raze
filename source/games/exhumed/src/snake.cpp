@@ -132,13 +132,13 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 {
     int nDamage = BulletInfo[kWeaponStaff].nDamage;
 
-    if (PlayerList[nPlayer].nDouble > 0) {
+    if (getPlayer(nPlayer)->nDouble > 0) {
         nDamage *= 2;
     }
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
     DExhumedActor* nOwner = pActor->pTarget;
-    pActor->pTarget = PlayerList[nPlayer].GetActor();
+    pActor->pTarget = getPlayer(nPlayer)->GetActor();
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
@@ -161,8 +161,8 @@ void BuildSnake(int nPlayer, double zVal)
 {
     zVal -= 5;
 
-    auto pPlayerActor = PlayerList[nPlayer].GetActor();
-    auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
+    auto pPlayerActor = getPlayer(nPlayer)->GetActor();
+    auto pViewSect = getPlayer(nPlayer)->pPlayerViewSect;
     auto nPic = getSequence("snakbody", 0)->getFirstFrameTexture();
 
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
@@ -189,9 +189,9 @@ void BuildSnake(int nPlayer, double zVal)
         if (hitactor && hitactor->spr.statnum >= 90 && hitactor->spr.statnum <= 199) {
             pTarget = hitactor;
         }
-        else if (PlayerList[nPlayer].pTarget != nullptr)
+        else if (getPlayer(nPlayer)->pTarget != nullptr)
         {
-            pTarget = PlayerList[nPlayer].pTarget;
+            pTarget = getPlayer(nPlayer)->pTarget;
         }
 
         int nSnake = GrabSnake();
@@ -277,7 +277,7 @@ void BuildSnake(int nPlayer, double zVal)
 DExhumedActor* FindSnakeEnemy(int nSnake)
 {
     int nPlayer = SnakeList[nSnake].nSnakePlayer;
-	auto pPlayerActor = PlayerList[nPlayer].GetActor();
+	auto pPlayerActor = getPlayer(nPlayer)->GetActor();
 
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;

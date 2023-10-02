@@ -120,7 +120,12 @@ struct ExhumedPlayer
 
 extern int PlayerCount;
 
-extern ExhumedPlayer PlayerList[kMaxPlayers];
+extern ExhumedPlayer PlayerArray[kMaxPlayers];
+
+inline ExhumedPlayer* getPlayer(int index)
+{
+    return &PlayerArray[index];
+}
 
 extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;

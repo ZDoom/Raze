@@ -234,13 +234,13 @@ struct GameInterface : public ::GameInterface
     bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
     DAngle playerPitchMin() override { return DAngle::fromDeg(49.5); }
     DAngle playerPitchMax() override { return DAngle::fromDeg(-49.5); }
-    DCoreActor* getConsoleActor() override { return PlayerList[nLocalPlayer].GetActor(); }
+    DCoreActor* getConsoleActor() override { return getPlayer(nLocalPlayer)->GetActor(); }
     void ToggleThirdPerson() override;
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
-    void reapplyInputBits(InputPacket* const input) override { input->actions |= PlayerList[nLocalPlayer].input.actions & SB_CENTERVIEW; }
-    void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&PlayerList[nLocalPlayer].Angles, scaleAdjust); }
+    void reapplyInputBits(InputPacket* const input) override { input->actions |= getPlayer(nLocalPlayer)->input.actions & SB_CENTERVIEW; }
+    void doPlayerMovement(const float scaleAdjust) override { gameInput.processMovement(&getPlayer(nLocalPlayer)->Angles, scaleAdjust); }
     unsigned getCrouchState() override;
 };
 

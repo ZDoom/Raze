@@ -323,7 +323,7 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 
         for (int i = connecthead; i >= 0; i = connectpoint2[i])
         {
-            const auto pPlayer = &PlayerList[i];
+            const auto pPlayer = getPlayer(i);
             pPlayer->Angles.resetCameraAngles();
             pPlayer->input = playercmds[i].ucmd;
             updatePlayerTarget(pPlayer);

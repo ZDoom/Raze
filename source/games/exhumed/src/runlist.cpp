@@ -245,7 +245,7 @@ void runlist_InitRun()
     NewRun = nRun;
 
     for (i = 0; i < kMaxPlayers; i++) {
-        PlayerList[i].nRun = -1;
+        getPlayer(i)->nRun = -1;
     }
 
     pRadialActor = nullptr;
@@ -1786,7 +1786,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
                 {
                     // The player's max vel is 15.25 for reference.
                     pActor->vel.XY() += nVel.XY() * 0.1875 * cl_exdamagepush;
-                    PlayerList[GetPlayerFromActor(pActor)].bJumping = true;
+                    getPlayer(GetPlayerFromActor(pActor))->bJumping = true;
                 }
                 else
                 {
@@ -1860,12 +1860,12 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         // Due to the horrible setup we can award the kill to the player only here. Yuck!
         Level.kills.player[nPlayer]++;
 
-        PlayerList[nPlayer].nTauntTimer--;
+        getPlayer(nPlayer)->nTauntTimer--;
 
-        if (PlayerList[nPlayer].nTauntTimer <= 0)
+        if (getPlayer(nPlayer)->nTauntTimer <= 0)
         {
             // Do a taunt
-            auto pPlayerActor = PlayerList[nPlayer].GetActor();
+            auto pPlayerActor = getPlayer(nPlayer)->GetActor();
             auto pSector = pPlayerActor->sector();
 
             if (!(pSector->Flag & kSectUnderwater))
@@ -1876,10 +1876,10 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
                     ebx = 0x6000;
                 }
 
-                D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], PlayerList[nPlayer].pDoppleSprite, ebx);
+                D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], getPlayer(nPlayer)->pDoppleSprite, ebx);
             }
 
-            PlayerList[nPlayer].nTauntTimer = RandomSize(3) + 3;
+            getPlayer(nPlayer)->nTauntTimer = RandomSize(3) + 3;
         }
     }
 }

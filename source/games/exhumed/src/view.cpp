@@ -72,7 +72,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
     DoInterpolations(interpfrac);
 
-    auto pPlayer = &PlayerList[nLocalPlayer];
+    auto pPlayer = getPlayer(nLocalPlayer);
     auto pPlayerActor = pPlayer->GetActor();
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
     auto pDop = pPlayer->pDoppleSprite;
@@ -107,11 +107,11 @@ void DrawView(double interpfrac, bool sceneonly)
     {
         nCamerapos = pPlayerActor->getRenderPos(interpfrac);
 
-        pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
+        pSector = getPlayer(nLocalPlayer)->pPlayerViewSect;
         updatesector(nCamerapos, &pSector);
-        if (pSector == nullptr) pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
+        if (pSector == nullptr) pSector = getPlayer(nLocalPlayer)->pPlayerViewSect;
 
-        nCameraangles = PlayerList[nLocalPlayer].Angles.getRenderAngles(interpfrac);
+        nCameraangles = getPlayer(nLocalPlayer)->Angles.getRenderAngles(interpfrac);
 
         if (!bCamera)
         {

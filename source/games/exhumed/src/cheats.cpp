@@ -57,14 +57,14 @@ static const char* GodCheat(int nPlayer, int state)
 {
 	if (state == -1)
 	{
-		if (PlayerList[nPlayer].invincibility >= 0)
-			PlayerList[nPlayer].invincibility = -1;
+		if (getPlayer(nPlayer)->invincibility >= 0)
+			getPlayer(nPlayer)->invincibility = -1;
 		else
-			PlayerList[nPlayer].invincibility = 0;
+			getPlayer(nPlayer)->invincibility = 0;
 	}
-	else PlayerList[nPlayer].invincibility = -state;
+	else getPlayer(nPlayer)->invincibility = -state;
 
-	return GStrings(PlayerList[nPlayer].invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
+	return GStrings(getPlayer(nPlayer)->invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
 }
 
 //---------------------------------------------------------------------------
@@ -211,7 +211,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (PlayerList[player].nHealth <= 0 || nNetPlayerCount || gamestate != GS_LEVEL)
+	if (getPlayer(player)->nHealth <= 0 || nNetPlayerCount || gamestate != GS_LEVEL)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -225,7 +225,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		PlayerList[player].nHealth = 800;
+		getPlayer(player)->nHealth = 800;
 		return;
 
 	case GIVE_WEAPONS:
@@ -257,7 +257,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	}
 	if (buttons & kButtonCheatKeys) // LOBOPICK cheat
 	{
-		PlayerList[player].keys = 0xFFFF;
+		getPlayer(player)->keys = 0xFFFF;
 		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_KEYS"));
 	}
 	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
