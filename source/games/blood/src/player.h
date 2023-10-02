@@ -78,106 +78,7 @@ struct POSTURE
 
 extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
-struct BloodPlayer final : public CorePlayer
-{
-	DBloodActor* actor;
-	DUDEINFO* pDudeInfo;
-	uint8_t             newWeapon;
-	int                 weaponQav;
-	int                 qavCallback;
-	bool                isRunning;
-	int                 posture;   // stand, crouch, swim
-	int                 sceneQav;  // by NoOne: used to keep qav id
-	double              bobPhase;
-	int                 bobAmp;
-	double              bobHeight;
-	double              bobWidth;
-	double              obobHeight;
-	double              obobWidth;
-	int                 swayAmp;
-	double              swayHeight;
-	double              swayWidth;
-	double              oswayHeight;
-	double              oswayWidth;
-	int                 nPlayer;  // Connect id
-	int                 lifeMode;
-	double              zView;
-	double              ozView;
-	double              zViewVel;
-	double              zWeapon;
-	double              ozWeapon;
-	double              zWeaponVel;
-	double              slope;
-	bool                isUnderwater;
-	bool                hasKey[8];
-	int8_t              hasFlag;
-	TObjPtr<DBloodActor*>        ctfFlagState[2];
-	int                 damageControl[7];
-	int8_t              curWeapon;
-	int8_t              nextWeapon;
-	int                 weaponTimer;
-	int                 weaponState;
-	int                 weaponAmmo;  //rename
-	bool                hasWeapon[kWeapMax];
-	int                 weaponMode[kWeapMax];
-	int                 weaponOrder[2][kWeapMax];
-	//int               at149[14];
-	int                 ammoCount[12];
-	bool                qavLoop;
-	int                 qavLastTick;
-	int                 qavTimer;
-	int                 fuseTime;
-	int                 throwTime;
-	double              throwPower;
-	DVector3            aim;  // world
-	DVector3            relAim;  // relative
-	TObjPtr<DBloodActor*>        aimTarget;  // aim target sprite
-	int                 aimTargetsCount;
-	TObjPtr<DBloodActor*>        aimTargets[16];
-	int                 deathTime;
-	int                 pwUpTime[kMaxPowerUps];
-	int                 fragCount;
-	int                 fragInfo[8];
-	int                 teamId;
-	TObjPtr<DBloodActor*>        fragger;
-	int                 underwaterTime;
-	int                 bubbleTime;
-	int                 restTime;
-	int                 kickPower;
-	int                 laughCount;
-	bool                godMode;
-	bool                fallScream;
-	bool                cantJump;
-	int                 packItemTime;  // pack timer
-	int                 packItemId;    // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
-	PACKINFO            packSlots[5];  // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
-	int                 armor[3];      // armor
-	//int               at342;
-	//int               at346;
-	TObjPtr<DBloodActor*>        voodooTarget;
-	int                 voodooTargets;  // --> useless
-	int                 voodooVar1;     // --> useless
-	int                 vodooVar2;      // --> useless
-	int                 flickerEffect;
-	int                 tiltEffect;
-	int                 visibility;
-	int                 painEffect;
-	int                 blindEffect;
-	int                 chokeEffect;
-	int                 handTime;
-	bool                hand;  // if true, there is hand start choking the player
-	int                 pickupEffect;
-	bool                flashEffect;  // if true, reduce pPlayer->visibility counter
-	int                 quakeEffect;
-	int                 player_par;
-	int                 nWaterPal;
-	POSTURE             pPosture[kModeMax][kPostureMax];
-
-	inline DBloodActor* GetActor()
-	{
-		return actor;
-	}
-};
+struct BloodPlayer;
 
 struct AMMOINFO
 {
@@ -195,13 +96,6 @@ struct POWERUPINFO
 };
 
 void playerResetPosture(BloodPlayer* pPlayer);
-
-extern BloodPlayer PlayerArray[kMaxPlayers];
-
-inline BloodPlayer* getPlayer(int index)
-{
-	return &PlayerArray[index];
-}
 
 extern bool gBlueFlagDropped;
 extern bool gRedFlagDropped;

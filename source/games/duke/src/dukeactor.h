@@ -11,7 +11,7 @@ using DukeSpriteIterator = TSpriteIterator<DDukeActor>;
 
 inline DDukeActor* DukePlayer::GetActor()
 {
-	return actor;
+	return static_cast<DDukeActor*>(actor);
 }
 
 inline int DukePlayer::GetPlayerNum()

@@ -268,7 +268,7 @@ struct DukePlayer final : public CorePlayer
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references.
 	walltype* access_wall;
-	DDukeActor* GetActor();
+	DDukeActor* GetActor() override;
 	TObjPtr<DDukeActor*> actorsqu, wackedbyactor, on_crane, holoduke_on, somethingonplayer, access_spritenum, dummyplayersprite, newOwner;
 
 	short last_extra, subweapon;
@@ -345,7 +345,6 @@ struct DukePlayer final : public CorePlayer
 
 	TArray<GameVarValue> uservars;
 
-	DDukeActor* actor;
 	int GetPlayerNum();
 
 	void apply_seasick();

@@ -7,4 +7,7 @@ struct CorePlayer
 {
 	InputPacket input;
 	PlayerAngles Angles;
+	DCoreActor* actor;
+
+	virtual DCoreActor* GetActor() = 0;
 };

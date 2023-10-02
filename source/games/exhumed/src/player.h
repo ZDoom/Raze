@@ -49,7 +49,6 @@ struct PlayerSave
 
 struct ExhumedPlayer final : public CorePlayer
 {
-    DExhumedActor* actor;
     int16_t nHealth;
     int16_t nLives;
     int16_t nDouble;
@@ -110,9 +109,9 @@ struct ExhumedPlayer final : public CorePlayer
     TObjPtr<DExhumedActor*> pDoppleSprite;
     TObjPtr<DExhumedActor*> pTarget;
 
-    inline DExhumedActor* GetActor()
+    inline DExhumedActor* GetActor() override
     {
-        return actor;
+        return static_cast<DExhumedActor*>(actor);
     }
 };
 

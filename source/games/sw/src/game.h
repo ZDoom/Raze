@@ -1848,9 +1848,9 @@ struct SWPlayer final : public CorePlayer
 
     uint8_t WpnReloadState;
 
-    inline DSWActor* GetActor()
+    inline DSWActor* GetActor() override
     {
-        return actor;
+        return static_cast<DSWActor*>(actor);
     }
 
     void posZset(const double val)
