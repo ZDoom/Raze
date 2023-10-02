@@ -39,7 +39,6 @@ BEGIN_DUKE_NS
 
 void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
-	int k;
 	tspritetype* t;
 	DDukeActor* h;
 
@@ -227,7 +226,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else if (p->OnBoat)
 			{
 				t->setspritetexture(TexMan.CheckForTexture("PLAYERONBOAT", ETextureType::Any));
-				k = angletorotation2(h->spr.Angles.Yaw, viewang);
 				applyRotation2(h, t, viewang);
 				t->scale = DVector2(0.5, 0.5);
 				drawshadows(tsprites, t, h);
