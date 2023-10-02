@@ -489,8 +489,9 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 	int circ;
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
+	const auto firstp = getPlayer(0);
 
-	auto newActor = CreateActor(getPlayer(0)->cursector, startpos,
+	auto newActor = CreateActor(firstp->cursector, startpos,
 		DukePlayerPawnClass /*fixme for RR later!*/, 0, DVector2(0, 0), startang, 0., 0., nullptr, 10);
 
 	newActor->spr.Angles.Pitch = DAngle::fromDeg(-17.354);
@@ -498,31 +499,32 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
-		aimmode[i] = getPlayer(i)->aim_mode;
+		const auto p = getPlayer(i);
+		const auto ptsbar = &tsbar[i];
+		aimmode[i] = p->aim_mode;
 		if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
 		{
 			for (j = 0; j < MAX_WEAPONS; j++)
 			{
-				tsbar[i].ammo_amount[j] = getPlayer(i)->ammo_amount[j];
-				tsbar[i].gotweapon[j] = getPlayer(i)->gotweapon[j];
+				ptsbar->ammo_amount[j] = p->ammo_amount[j];
+				ptsbar->gotweapon[j] = p->gotweapon[j];
 			}
 
-			tsbar[i].shield_amount = getPlayer(i)->shield_amount;
-			tsbar[i].curr_weapon = getPlayer(i)->curr_weapon;
-			tsbar[i].inven_icon = getPlayer(i)->inven_icon;
+			ptsbar->shield_amount = p->shield_amount;
+			ptsbar->curr_weapon = p->curr_weapon;
+			ptsbar->inven_icon = p->inven_icon;
 
-			tsbar[i].firstaid_amount = getPlayer(i)->firstaid_amount;
-			tsbar[i].steroids_amount = getPlayer(i)->steroids_amount;
-			tsbar[i].holoduke_amount = getPlayer(i)->holoduke_amount;
-			tsbar[i].jetpack_amount = getPlayer(i)->jetpack_amount;
-			tsbar[i].heat_amount = getPlayer(i)->heat_amount;
-			tsbar[i].scuba_amount = getPlayer(i)->scuba_amount;
-			tsbar[i].boot_amount = getPlayer(i)->boot_amount;
+			ptsbar->firstaid_amount = p->firstaid_amount;
+			ptsbar->steroids_amount = p->steroids_amount;
+			ptsbar->holoduke_amount = p->holoduke_amount;
+			ptsbar->jetpack_amount = p->jetpack_amount;
+			ptsbar->heat_amount = p->heat_amount;
+			ptsbar->scuba_amount = p->scuba_amount;
+			ptsbar->boot_amount = p->boot_amount;
 		}
 	}
 
 	resetplayerstats(0);
-	const auto firstp = getPlayer(0);
 
 	for (i = 1; i < MAXPLAYERS; i++)
 	{
@@ -533,25 +535,27 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
-		getPlayer(i)->aim_mode = aimmode[i];
+		const auto p = getPlayer(i);
+		const auto ptsbar = &tsbar[i];
+		p->aim_mode = aimmode[i];
 		if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
 		{
 			for (j = 0; j < MAX_WEAPONS; j++)
 			{
-				getPlayer(i)->ammo_amount[j] = tsbar[i].ammo_amount[j];
-				getPlayer(i)->gotweapon[j] = tsbar[i].gotweapon[j];
+				p->ammo_amount[j] = ptsbar->ammo_amount[j];
+				p->gotweapon[j] = ptsbar->gotweapon[j];
 			}
-			getPlayer(i)->shield_amount = tsbar[i].shield_amount;
-			getPlayer(i)->curr_weapon = tsbar[i].curr_weapon;
-			getPlayer(i)->inven_icon = tsbar[i].inven_icon;
+			p->shield_amount = ptsbar->shield_amount;
+			p->curr_weapon = ptsbar->curr_weapon;
+			p->inven_icon = ptsbar->inven_icon;
 
-			getPlayer(i)->firstaid_amount = tsbar[i].firstaid_amount;
-			getPlayer(i)->steroids_amount = tsbar[i].steroids_amount;
-			getPlayer(i)->holoduke_amount = tsbar[i].holoduke_amount;
-			getPlayer(i)->jetpack_amount = tsbar[i].jetpack_amount;
-			getPlayer(i)->heat_amount = tsbar[i].heat_amount;
-			getPlayer(i)->scuba_amount = tsbar[i].scuba_amount;
-			getPlayer(i)->boot_amount = tsbar[i].boot_amount;
+			p->firstaid_amount = ptsbar->firstaid_amount;
+			p->steroids_amount = ptsbar->steroids_amount;
+			p->holoduke_amount = ptsbar->holoduke_amount;
+			p->jetpack_amount = ptsbar->jetpack_amount;
+			p->heat_amount = ptsbar->heat_amount;
+			p->scuba_amount = ptsbar->scuba_amount;
+			p->boot_amount = ptsbar->boot_amount;
 		}
 	}
 
@@ -573,6 +577,7 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 		numplayersprites++;
 		if (j >= 0)
 		{
+			const auto p = getPlayer(j);
 			act->SetOwner(act);
 			act->spr.shade = 0;
 			if (isRR()) act->spr.scale = DVector2(0.375, 0.265625);
@@ -581,12 +586,12 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 			act->spr.xoffset = 0;
 			act->clipdist = 16;
 
-			if (getPlayer(j)->last_extra == 0)
+			if (p->last_extra == 0)
 			{
-				getPlayer(j)->last_extra = gs.max_player_health;
+				p->last_extra = gs.max_player_health;
 				act->spr.extra = gs.max_player_health;
 			}
-			else act->spr.extra = getPlayer(j)->last_extra;
+			else act->spr.extra = p->last_extra;
 
 			act->spr.yint = j;
 
@@ -594,24 +599,24 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 			{
 				if (act->spr.pal == 0)
 				{
-					act->spr.pal = getPlayer(j)->palookup = which_palookup;
+					act->spr.pal = p->palookup = which_palookup;
 					ud.user_pals[j] = which_palookup;
 					which_palookup++;
 					if (which_palookup == 17) which_palookup = 9;
 				}
-				else ud.user_pals[j] = getPlayer(j)->palookup = act->spr.pal;
+				else ud.user_pals[j] = p->palookup = act->spr.pal;
 			}
 			else
-				act->spr.pal = getPlayer(j)->palookup = ud.user_pals[j];
+				act->spr.pal = p->palookup = ud.user_pals[j];
 
-			getPlayer(j)->actor = act;
-			getPlayer(j)->Angles.initialize(getPlayer(j)->GetActor(), (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90);
-			getPlayer(j)->frag_ps = j;
+			p->actor = act;
+			p->Angles.initialize(act, (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90);
+			p->frag_ps = j;
 			act->SetOwner(act);
 
-			getPlayer(j)->setbobpos();
+			p->setbobpos();
 
-			updatesector(act->spr.pos, &getPlayer(j)->cursector);
+			updatesector(act->spr.pos, &p->cursector);
 
 			j = connectpoint2[j];
 
