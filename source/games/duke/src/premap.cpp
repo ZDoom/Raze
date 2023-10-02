@@ -90,6 +90,7 @@ void resetplayerstats(int snum)
 	p = getPlayer(snum);
 
 	gFullMap = 0; 
+	p->pnum             = 0;
 	p->dead_flag        = 0;
 	p->wackedbyactor    = nullptr;
 	p->falling_counter  = 0;
@@ -521,9 +522,14 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 	}
 
 	resetplayerstats(0);
+	const auto firstp = getPlayer(0);
 
 	for (i = 1; i < MAXPLAYERS; i++)
-		*getPlayer(i) = *getPlayer(0);
+	{
+		const auto thisp = getPlayer(i);
+		*thisp = *firstp;
+		thisp->pnum = i;
+	}
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
