@@ -3249,13 +3249,18 @@ void handle_se26(DDukeActor* actor)
 		}
 	}
 
-	for (int p = connecthead; p >= 0; p = connectpoint2[p])
-		if (getPlayer(p)->GetActor()->sector() == actor->sector() && getPlayer(p)->on_ground)
+	for (int i = connecthead; i >= 0; i = connectpoint2[i])
+	{
+		const auto p = getPlayer(i);
+		const auto pact = p->GetActor();
+
+		if (pact->sector() == actor->sector() && p->on_ground)
 		{
-			getPlayer(p)->fric.X += vect.X;
-			getPlayer(p)->fric.Y += vect.Y;
-			getPlayer(p)->GetActor()->spr.pos.Z += zvel;
+			p->fric.X += vect.X;
+			p->fric.Y += vect.Y;
+			pact->spr.pos.Z += zvel;
 		}
+	}
 
 	movesector(actor, actor->temp_data[1], nullAngle);
 	//SetActor(actor, actor->spr.pos);
