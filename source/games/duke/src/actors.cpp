@@ -3375,13 +3375,16 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 		}
 	}
 
-	for (auto p = connecthead; p >= 0; p = connectpoint2[p])
+	for (auto i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (getPlayer(p)->cursector == actor->sector() && getPlayer(p)->on_ground)
+		const auto p = getPlayer(i);
+		const auto pact = p->GetActor();
+
+		if (p->cursector == actor->sector() && p->on_ground)
 		{
-			if (abs(getPlayer(p)->GetActor()->getOffsetZ() - getPlayer(p)->truefz) < gs.playerheight + 9)
+			if (abs(pact->getOffsetZ() - p->truefz) < gs.playerheight + 9)
 			{
-				getPlayer(p)->fric += vec * (1. / 8.); // keeping the original velocity. to match the animation it should be ~1/24.
+				p->fric += vec * (1. / 8.); // keeping the original velocity. to match the animation it should be ~1/24.
 			}
 		}
 	}
