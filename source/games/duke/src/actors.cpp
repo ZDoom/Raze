@@ -3275,31 +3275,32 @@ void handle_se26(DDukeActor* actor)
 void handle_se27(DDukeActor* actor)
 {
 	int sh = actor->spr.hitag;
-	int p;
 	double xx;
 
 	if (ud.recstat == 0) return;
 
 	actor->temp_angle = actor->spr.Angles.Yaw;
 
-	p = findplayer(actor, &xx);
-	if (getPlayer(p)->GetActor()->spr.extra > 0 && myconnectindex == screenpeek)
+	const auto p = getPlayer(findplayer(actor, &xx));
+	const auto pact = p->GetActor();
+
+	if (pact->spr.extra > 0 && myconnectindex == screenpeek)
 	{
 		if (actor->counter < 0)
 		{
 			ud.cameraactor = actor;
 			actor->counter++;
 		}
-		else if (ud.recstat == 2 && getPlayer(p)->newOwner == nullptr)
+		else if (ud.recstat == 2 && p->newOwner == nullptr)
 		{
-			if (cansee(actor->spr.pos, actor->sector(), getPlayer(p)->GetActor()->getPosWithOffsetZ(), getPlayer(p)->cursector))
+			if (cansee(actor->spr.pos, actor->sector(), pact->getPosWithOffsetZ(), p->cursector))
 			{
 				if (xx < sh * maptoworld)
 				{
 					ud.cameraactor = actor;
 					actor->counter = 999;
-					actor->spr.Angles.Yaw += deltaangle(actor->spr.Angles.Yaw, (getPlayer(p)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
-					actor->spr.yint = 100 + int((actor->spr.pos.Z - getPlayer(p)->GetActor()->getOffsetZ()) * (256. / 257.));
+					actor->spr.Angles.Yaw += deltaangle(actor->spr.Angles.Yaw, (pact->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
+					actor->spr.yint = 100 + int((actor->spr.pos.Z - pact->getOffsetZ()) * (256. / 257.));
 
 				}
 				else if (actor->counter == 999)
@@ -3313,7 +3314,7 @@ void handle_se27(DDukeActor* actor)
 			}
 			else
 			{
-				actor->spr.Angles.Yaw = (getPlayer(p)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+				actor->spr.Angles.Yaw = (pact->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 				if (actor->counter == 999)
 				{
