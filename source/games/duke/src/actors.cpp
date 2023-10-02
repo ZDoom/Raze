@@ -2265,11 +2265,13 @@ void handle_se05(DDukeActor* actor)
 	int j;
 
 	double x;
-	int p = findplayer(actor, &x);
+	const auto p = getPlayer(findplayer(actor, &x));
+	const auto pact = p->GetActor();
+
 	if (x < 512)
 	{
 		auto ang = actor->spr.Angles.Yaw;
-		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - getPlayer(p)->GetActor()->spr.pos.XY()).Angle();
+		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - pact->spr.pos.XY()).Angle();
 		shoot(actor, isRR()? RedneckFirelaserClass : DukeFirelaserClass);
 		actor->spr.Angles.Yaw = ang;
 	}
@@ -2284,7 +2286,7 @@ void handle_se05(DDukeActor* actor)
 			auto NewOwner = LocateTheLocator(actor->temp_data[4], nullptr);
 			if (NewOwner == nullptr) break;
 
-			double dist = (getPlayer(p)->GetActor()->spr.pos.XY() - NewOwner->spr.pos.XY()).LengthSquared();
+			double dist = (pact->spr.pos.XY() - NewOwner->spr.pos.XY()).LengthSquared();
 
 			if (maxdist > dist)
 			{
@@ -2323,8 +2325,7 @@ void handle_se05(DDukeActor* actor)
 	}
 	else
 	{
-		actor->temp_angle +=
-			deltaangle(actor->temp_angle + DAngle90, (getPlayer(p)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
+		actor->temp_angle += deltaangle(actor->temp_angle + DAngle90, (pact->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
 		sc->ceilingshade = 0;
 	}
 	j = fi.ifhitbyweapon(actor);
