@@ -340,6 +340,8 @@ void dojaildoor(void)
 
 void operatejaildoors(int hitag)
 {
+	const auto pact = getPlayer(screenpeek)->GetActor();
+
 	for (auto& jd : jaildoors)
 	{
 		if (jd.hitag == hitag)
@@ -349,14 +351,14 @@ void operatejaildoors(int hitag)
 				jd.open = 1;
 				jd.drag = jd.dist;
 				if (!isRRRA() || jd.sound != 0)
-					S_PlayActorSound(jd.sound, getPlayer(screenpeek)->GetActor());
+					S_PlayActorSound(jd.sound, pact);
 			}
 			if (jd.open == 2)
 			{
 				jd.open = 3;
 				jd.drag = jd.dist;
 				if (!isRRRA() || jd.sound != 0)
-					S_PlayActorSound(jd.sound, getPlayer(screenpeek)->GetActor());
+					S_PlayActorSound(jd.sound, pact);
 			}
 		}
 	}
@@ -453,12 +455,11 @@ void moveminecart(void)
 
 void thunder(void)
 {
-	DDukePlayer* p;
 	int r1, r2;
 	int i = 0;
 	uint8_t shade;
 
-	p = getPlayer(screenpeek);
+	const auto psect = getPlayer(screenpeek)->GetActor()->sector();
 
 	if (!thunderflash)
 	{
@@ -474,7 +475,7 @@ void thunder(void)
 
 		if (seen)
 		{
-			if (getPlayer(screenpeek)->GetActor()->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+			if (psect->ceilingstat & CSTAT_SECTOR_SKY)
 			{
 				g_relvisibility = 0;
 				if (krand() > 65000)
