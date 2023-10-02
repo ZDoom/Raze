@@ -2476,14 +2476,12 @@ void DBloodPlayer::Serialize(FSerializer& arc)
 		("quakeeffect", quakeEffect)
 		("player_par", player_par)
 		("waterpal", nWaterPal)
-		("actions", cmd.ucmd.actions)
 		.Array("posturedata", &pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
 		;
 
 	if (arc.isReading())
 	{
 		playerResetPosture(this);
-		cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 	}
 }
 

@@ -258,7 +258,6 @@ void DDukePlayer::Serialize(FSerializer& arc)
 		("moto_on_oil", moto_on_oil)
 		("moto_on_mud", moto_on_mud)
 		// new stuff
-		("actions", cmd.ucmd.actions)
 		.Array("frags", frags, MAXPLAYERS)
 		("uservars", uservars)
 		("fistsign", fistsign);
@@ -266,10 +265,8 @@ void DDukePlayer::Serialize(FSerializer& arc)
 	if (arc.isReading())
 	{
 		invdisptime = 0;
-		GetActor()->backuploc();
 		opyoff = pyoff;
 		backupweapon();
-		cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 	}
 }
 
