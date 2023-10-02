@@ -473,27 +473,26 @@ void addcycler(sectortype* sector, int lotag, int shade, int shade2, int hitag, 
 
 void movedummyplayers(void)
 {
-	int p;
-
 	DukeStatIterator iti(STAT_DUMMYPLAYER);
 	while (auto act = iti.Next())
 	{
 		if (!act->GetOwner()) continue;
-		p = act->GetOwner()->PlayerIndex();
+		const auto p = getPlayer(act->GetOwner()->PlayerIndex());
+		const auto pact = p->GetActor();
 
-		if ((!isRR() && getPlayer(p)->on_crane != nullptr) || !getPlayer(p)->insector() || getPlayer(p)->cursector->lotag != 1 || getPlayer(0)->GetActor()->spr.extra <= 0)
+		if ((!isRR() && p->on_crane != nullptr) || !p->insector() || p->cursector->lotag != 1 || getPlayer(0)->GetActor()->spr.extra <= 0)
 		{
-			getPlayer(p)->dummyplayersprite = nullptr;
+			p->dummyplayersprite = nullptr;
 			act->Destroy();
 			continue;
 		}
 		else
 		{
-			if (getPlayer(p)->on_ground && getPlayer(p)->on_warping_sector == 1 && getPlayer(p)->cursector->lotag == 1)
+			if (p->on_ground && p->on_warping_sector == 1 && p->cursector->lotag == 1)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 				act->spr.pos.Z = act->sector()->ceilingz + 27;
-				act->spr.Angles.Yaw = getPlayer(p)->GetActor()->spr.Angles.Yaw;
+				act->spr.Angles.Yaw = pact->spr.Angles.Yaw;
 				if (act->counter == 8)
 					act->counter = 0;
 				else act->counter++;
@@ -505,7 +504,7 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->spr.pos.XY() += getPlayer(p)->GetActor()->spr.pos.XY() - getPlayer(p)->GetActor()->opos.XY();
+		act->spr.pos.XY() += pact->spr.pos.XY() - pact->opos.XY();
 		SetActor(act, act->spr.pos);
 	}
 }
