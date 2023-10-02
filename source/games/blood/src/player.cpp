@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-BloodPlayer PlayerArray[kMaxPlayers];
+BloodPlayer* PlayerArray[kMaxPlayers];
 
 bool gBlueFlagDropped = false;
 bool gRedFlagDropped = false;
@@ -2528,7 +2528,8 @@ void SerializePlayers(FSerializer& arc)
 	{
 		arc("numplayers", gNetPlayers)
 			.Array("teamscore", team_score, gNetPlayers)
-			.Array("players", PlayerArray, gNetPlayers)
+			#pragma message("Blood: Fix saving!")
+			//.Array("players", PlayerArray, gNetPlayers)
 #ifdef NOONE_EXTENSIONS
 			.Array("playerctrl", gPlayerCtrl, gNetPlayers)
 #endif
