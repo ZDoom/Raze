@@ -271,7 +271,7 @@ void UseInventoryRepairKit(SWPlayer* pp)
     short inv = INVENTORY_REPAIR_KIT;
 
     //PlaySound(DIGI_TOOLBOX, pp, v3df_none);
-    if (pp == Player + myconnectindex)
+    if (pp == &Player[myconnectindex])
     {
         if (StdRandomRange(1000) > 500)
             PlayerSound(DIGI_NOREPAIRMAN, v3df_follow|v3df_dontpan,pp);
@@ -349,7 +349,7 @@ void StopInventoryCloak(SWPlayer* pp, short InventoryNum)
 
 void DoPlayerNightVisionPalette(SWPlayer* pp)
 {
-    if (pp != Player + screenpeek) return;
+    if (pp != &Player[screenpeek]) return;
 
     if (pp->InventoryActive[INVENTORY_NIGHT_VISION])
     {

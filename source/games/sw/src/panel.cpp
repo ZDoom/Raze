@@ -321,7 +321,7 @@ void PlayerUpdateHealth(SWPlayer* pp, short value)
 
         }
         // Do redness based on damage taken.
-        if (pp == Player + screenpeek)
+        if (pp == &Player[screenpeek])
         {
             if (IsChem)
                 SetFadeAmt(pp,-40,144);  // ChemBomb green color

@@ -1905,7 +1905,7 @@ int DoTrapMatch(short match)
 
 void TriggerSecret(sectortype* sectp, SWPlayer* pp)
 {
-    if (pp == Player + myconnectindex)
+    if (pp == &Player[myconnectindex])
         PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan | v3df_doppler | v3df_follow, pp);
 
     SECRET_Trigger(sectindex(pp->cursector));

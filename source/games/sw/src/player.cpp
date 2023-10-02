@@ -4101,7 +4101,7 @@ void DoPlayerWarpToSurface(SWPlayer* pp)
 
 void DoPlayerDivePalette(SWPlayer* pp)
 {
-    if (pp != Player + screenpeek) return;
+    if (pp != &Player[screenpeek]) return;
 
     if ((pp->DeathType == PLAYER_DEATH_DROWN || (Player[screenpeek].Flags & PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
     {
@@ -4138,7 +4138,7 @@ void DoPlayerBeginDive(SWPlayer* pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
-    if (pp == Player + screenpeek)
+    if (pp == &Player[screenpeek])
     {
         COVER_SetReverb(140); // Underwater echo
         pp->Reverb = 140;
@@ -4189,7 +4189,7 @@ void DoPlayerBeginDiveNoWarp(SWPlayer* pp)
 
     if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
 
-    if (pp == Player + screenpeek)
+    if (pp == &Player[screenpeek])
     {
         COVER_SetReverb(140); // Underwater echo
         pp->Reverb = 140;
@@ -4245,7 +4245,7 @@ void DoPlayerStopDiveNoWarp(SWPlayer* pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
     pp->GetActor()->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-    if (pp == Player + screenpeek)
+    if (pp == &Player[screenpeek])
     {
         COVER_SetReverb(0);
         pp->Reverb = 0;
@@ -4280,7 +4280,7 @@ void DoPlayerStopDive(SWPlayer* pp)
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
     actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-    if (pp == Player + screenpeek)
+    if (pp == &Player[screenpeek])
     {
         COVER_SetReverb(0);
         pp->Reverb = 0;
@@ -5460,7 +5460,7 @@ void DoPlayerDeathMessage(SWPlayer* pp, SWPlayer* killer)
 
     killer->KilledPlayer[pp-Player]++;
 
-    if (pp == killer && pp == Player + myconnectindex)
+    if (pp == killer && pp == &Player[myconnectindex])
     {
         sprintf(ds,"%s %s",pp->PlayerName,SuicideNote[StdRandomRange(MAX_SUICIDE)]);
         SEND_OK = true;
@@ -5854,7 +5854,7 @@ void DoPlayerDeathCheckKeys(SWPlayer* pp)
 
         plActor->user.ID = NINJA_RUN_R0;
 
-        if (pp == Player + screenpeek)
+        if (pp == &Player[screenpeek])
         {
             videoFadePalette(0,0,0,0);
         }

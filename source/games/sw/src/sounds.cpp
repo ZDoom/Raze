@@ -722,7 +722,7 @@ int _PlayerSound(int num, SWPlayer* pp)
     if (Prediction)
         return 0;
 
-    if (pp < Player || pp >= Player + MAX_SW_PLAYERS)
+    if (pp < Player || pp >= &Player[MAX_SW_PLAYERS])
     {
         return 0;
     }
