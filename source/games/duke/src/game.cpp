@@ -85,18 +85,22 @@ static void markgcroots()
 	GC::Mark(ud.cameraactor);
 	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		GC::Mark(getPlayer(i)->actor);
-		GC::Mark(getPlayer(i)->actorsqu);
-		GC::Mark(getPlayer(i)->wackedbyactor);
-		GC::Mark(getPlayer(i)->on_crane);
-		GC::Mark(getPlayer(i)->holoduke_on);
-		GC::Mark(getPlayer(i)->somethingonplayer);
-		GC::Mark(getPlayer(i)->access_spritenum);
-		GC::Mark(getPlayer(i)->dummyplayersprite);
-		GC::Mark(getPlayer(i)->newOwner);
-		for (auto& var : getPlayer(i)->uservars)
+		auto plr = getPlayer(i);
+		if (plr)
 		{
-			var.Mark();
+			GC::Mark(plr->actor);
+			GC::Mark(plr->actorsqu);
+			GC::Mark(plr->wackedbyactor);
+			GC::Mark(plr->on_crane);
+			GC::Mark(plr->holoduke_on);
+			GC::Mark(plr->somethingonplayer);
+			GC::Mark(plr->access_spritenum);
+			GC::Mark(plr->dummyplayersprite);
+			GC::Mark(plr->newOwner);
+			for (auto& var : plr->uservars)
+			{
+				var.Mark();
+			}
 		}
 	}
 }

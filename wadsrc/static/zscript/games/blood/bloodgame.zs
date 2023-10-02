@@ -71,6 +71,8 @@ struct PACKINFO // not native!
 
 struct BloodPlayer native
 {
+	native uint8        pnum;  // Connect id
+
 	native int GetHealth(); // health is stored in the XSPRITE which cannot be safely exported to scripting at the moment due to pending refactoring.
 	native int powerupCheck(int pwup);
 	//DUDEINFO*       pDudeInfo;
@@ -89,7 +91,6 @@ struct BloodPlayer native
 	native int        swayAmp;
 	native double     swayHeight;
 	native double     swayWidth;
-	native int        nPlayer;  // Connect id
 	//native int        nSprite;
 	native int        lifeMode;
 	native double     zView;

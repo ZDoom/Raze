@@ -83,16 +83,20 @@ int nCurStartSprite;
 
 size_t MarkPlayers()
 {
-    for (int i = 0; i < kMaxWeapons; i++)
+    for (int i = 0; i < MAXPLAYERS; i++)
     {
-        GC::Mark(getPlayer(i)->actor);
-        GC::Mark(getPlayer(i)->pDoppleSprite);
-        GC::Mark(getPlayer(i)->pPlayerFloorSprite);
-        GC::Mark(getPlayer(i)->pPlayerGrenade);
-        GC::Mark(getPlayer(i)->pTarget);
+        auto plr = getPlayer(i);
+        if (plr)
+        {
+            GC::Mark(plr->actor);
+            GC::Mark(plr->pDoppleSprite);
+            GC::Mark(plr->pPlayerFloorSprite);
+            GC::Mark(plr->pPlayerGrenade);
+            GC::Mark(plr->pTarget);
+        }
     }
-    GC::MarkArray(nNetStartSprite, kMaxPlayers);
-    return 6 * kMaxPlayers;
+    GC::MarkArray(nNetStartSprite, MAXPLAYERS);
+    return 6 * MAXPLAYERS;
 }
 
 //---------------------------------------------------------------------------

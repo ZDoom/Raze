@@ -120,14 +120,18 @@ void markgcroots()
     GC::MarkArray(BossSpriteNum, 3);
     for (int i = 0; i < MAXPLAYERS; i++)
     {
-        GC::Mark(getPlayer(i)->actor);
-        GC::Mark(getPlayer(i)->lowActor);
-        GC::Mark(getPlayer(i)->highActor);
-        GC::Mark(getPlayer(i)->remoteActor);
-        GC::Mark(getPlayer(i)->PlayerUnderActor);
-        GC::Mark(getPlayer(i)->KillerActor);
-        GC::Mark(getPlayer(i)->HitBy);
-        GC::Mark(getPlayer(i)->last_camera_act);
+        auto plr = getPlayer(i);
+        if (plr)
+        {
+            GC::Mark(plr->actor);
+            GC::Mark(plr->lowActor);
+            GC::Mark(plr->highActor);
+            GC::Mark(plr->remoteActor);
+            GC::Mark(plr->PlayerUnderActor);
+            GC::Mark(plr->KillerActor);
+            GC::Mark(plr->HitBy);
+            GC::Mark(plr->last_camera_act);
+        }
     }
     for (auto& so : SectorObject)
     {

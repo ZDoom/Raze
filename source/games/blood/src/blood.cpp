@@ -98,12 +98,16 @@ static void markgcroots()
 	MarkSprInSect();
 	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		GC::Mark(getPlayer(i)->actor);
-		GC::MarkArray(getPlayer(i)->ctfFlagState, 2);
-		GC::Mark(getPlayer(i)->aimTarget);
-		GC::MarkArray(getPlayer(i)->aimTargets, 16);
-		GC::Mark(getPlayer(i)->fragger);
-		GC::Mark(getPlayer(i)->voodooTarget);
+		auto plr = getPlayer(i);
+		if (plr)
+		{
+			GC::Mark(plr->actor);
+			GC::MarkArray(plr->ctfFlagState, 2);
+			GC::Mark(plr->aimTarget);
+			GC::MarkArray(plr->aimTargets, 16);
+			GC::Mark(plr->fragger);
+			GC::Mark(plr->voodooTarget);
+		}
 	}
 	for (auto& evobj : rxBucket)
 	{

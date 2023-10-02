@@ -635,7 +635,11 @@ int GameMain()
 	if (gi)
 	{
 		gi->FreeLevelData();
-		for (int i = 0; i < MAXPLAYERS; i++) delete PlayerArray[i];
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			delete PlayerArray[i];
+			PlayerArray[i] = nullptr;
+		}
 	}
 	DestroyAltHUD();
 	DeinitMenus();
