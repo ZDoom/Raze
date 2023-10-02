@@ -282,7 +282,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->pDoppleSprite = pDopSprite;
     pPlayer->pPlayerFloorSprite = pFloorSprite;
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
-    pPlayer->nPlayer = nPlayer;
+    pPlayer->pnum = nPlayer;
     pPlayer->nHealth = 800; // TODO - define
     pPlayer->Angles.initialize(pPlayerActor);
 	pPlayer->bIsMummified = false;
@@ -710,7 +710,7 @@ static DExhumedActor* feebtag(const DVector3& pos, sectortype* pSector, int nMag
 
 static void doPickupNotification(ExhumedPlayer* const pPlayer, const int nItem, const int nSound = -1, const int tintRed = 0, const int tintGreen = 16)
 {
-    if (pPlayer->nPlayer != nLocalPlayer)
+    if (pPlayer->pnum != nLocalPlayer)
         return;
 
     if (nItemText[nItem] > -1 && nTotalPlayers == 1)
@@ -761,17 +761,17 @@ static void doPickupWeapon(ExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, 
     if (pPlayer->nPlayerWeapons & weapFlag)
     {
         if (currentLevel->gameflags & LEVEL_EX_MULTI)
-            AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+            AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
     else
     {
-        SetNewWeaponIfBetter(pPlayer->nPlayer, nWeapon);
+        SetNewWeaponIfBetter(pPlayer->pnum, nWeapon);
         pPlayer->nPlayerWeapons |= weapFlag;
-        AddAmmo(pPlayer->nPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
+        AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
 
     if (nWeapon == 2)
-        CheckClip(pPlayer->nPlayer);
+        CheckClip(pPlayer->pnum);
 
     if (nItem > 50)
     {
@@ -810,7 +810,7 @@ static void doPickupHealth(ExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, 
         else if (pPlayer->nHealth < 0)
         {
             nSound = -1;
-            StartDeathSeq(pPlayer->nPlayer, 0);
+            StartDeathSeq(pPlayer->pnum, 0);
         }
     }
 
@@ -857,9 +857,9 @@ void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
         case 6: // Speed Loader
         case 7: // Fuel Canister
         case 8: // M - 60 Ammo Belt
-            if (AddAmmo(pPlayer->nPlayer, ammoArray[nItem - 6], pPickupActor->spr.hitag))
+            if (AddAmmo(pPlayer->pnum, ammoArray[nItem - 6], pPickupActor->spr.hitag))
             {
-                if (nItem == 8) CheckClip(pPlayer->nPlayer);
+                if (nItem == 8) CheckClip(pPlayer->pnum);
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
             }
@@ -868,12 +868,12 @@ void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
         case 9: // Grenade
         case 27: // May not be grenade, needs confirmation
         case 55:
-            if (AddAmmo(pPlayer->nPlayer, 4, 1))
+            if (AddAmmo(pPlayer->pnum, 4, 1))
             {
                 if (!(pPlayer->nPlayerWeapons & 0x10))
                 {
                     pPlayer->nPlayerWeapons |= 0x10;
-                    SetNewWeaponIfBetter(pPlayer->nPlayer, 4);
+                    SetNewWeaponIfBetter(pPlayer->pnum, 4);
                 }
 
                 if (nItem == 55)
@@ -940,7 +940,7 @@ void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
         case 21: // Unseen eye(Invisibility)
         case 22: // Torch
         case 23: // Sobek Mask
-            if (GrabItem(pPlayer->nPlayer, itemArray[nItem - 18]))
+            if (GrabItem(pPlayer->pnum, itemArray[nItem - 18]))
             {
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem);
@@ -978,7 +978,7 @@ void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
 
         case 37: // Cobra staff ammo
         case 38: // Raw Energy
-            if (AddAmmo(pPlayer->nPlayer, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
+            if (AddAmmo(pPlayer->pnum, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
             {
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
@@ -1015,14 +1015,14 @@ void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
             break;
 
         case 59: // Scarab (Checkpoint)
-            if (nLocalPlayer == pPlayer->nPlayer)
+            if (nLocalPlayer == pPlayer->pnum)
             {
                 pPickupActor->nSeqIndex++;
                 pPickupActor->nFlags &= 0xEF;
                 pPickupActor->nFrame = 0;
                 ChangeActorStat(pPickupActor, 899);
             }
-            SetSavePoint(pPlayer->nPlayer, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);
+            SetSavePoint(pPlayer->pnum, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);
             break;
 
         case 60: // Golden Sarcophagus (End Level)
@@ -1043,7 +1043,7 @@ void doPlayerItemPickups(ExhumedPlayer* const pPlayer)
 void updatePlayerTarget(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
-    const auto pRa = &Ra[pPlayer->nPlayer];
+    const auto pRa = &Ra[pPlayer->pnum];
     const auto nAngVect = (-pPlayerActor->spr.Angles.Yaw).ToVector();
 
     DExhumedActor* bestTarget = nullptr;
@@ -1087,7 +1087,7 @@ void updatePlayerTarget(ExhumedPlayer* const pPlayer)
 
     if (bestTarget)
     {
-        if (pPlayer->nPlayer == nLocalPlayer)
+        if (pPlayer->pnum == nLocalPlayer)
             nCreepyTimer = kCreepyCount;
 
         if (!cansee(pPlayerActor->spr.pos, pPlayerActor->sector(), bestTarget->spr.pos.plusZ(-GetActorHeight(bestTarget)), bestTarget->sector()))
@@ -1164,7 +1164,7 @@ static void updatePlayerInventory(ExhumedPlayer* const pPlayer)
 
             if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
             {
-                UseItem(pPlayer->nPlayer, i);
+                UseItem(pPlayer->pnum, i);
                 break;
             }
         }
@@ -1203,7 +1203,7 @@ static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
         }
         while (nextWeap && (!haveWeap || (haveWeap && !pPlayer->nAmmo[nextWeap])));
 
-        SetNewWeapon(pPlayer->nPlayer, nextWeap);
+        SetNewWeapon(pPlayer->pnum, nextWeap);
     }
     else if (newWeap == WeaponSel_Alt)
     {
@@ -1211,7 +1211,7 @@ static void updatePlayerWeapon(ExhumedPlayer* const pPlayer)
     }
     else if (pPlayer->nPlayerWeapons & (1 << (newWeap - 1)))
     {
-        SetNewWeapon(pPlayer->nPlayer, newWeap - 1);
+        SetNewWeapon(pPlayer->pnum, newWeap - 1);
     }
 }
 
@@ -1355,7 +1355,7 @@ static void updatePlayerAction(ExhumedPlayer* const pPlayer)
 static void doPlayerCounters(ExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();
-    const bool bConsolePlayer = pPlayer->nPlayer == nLocalPlayer;
+    const bool bConsolePlayer = pPlayer->pnum == nLocalPlayer;
 
     if (pPlayer->nTorch > 0)
     {
@@ -1363,7 +1363,7 @@ static void doPlayerCounters(ExhumedPlayer* const pPlayer)
 
         if (pPlayer->nTorch == 0)
         {
-            SetTorch(pPlayer->nPlayer, 0);
+            SetTorch(pPlayer->pnum, 0);
         }
         else if (!bConsolePlayer)
         {
@@ -1468,7 +1468,7 @@ static void doPlayerUnderwater(ExhumedPlayer* const pPlayer, const bool oUnderwa
                         if (pPlayer->nHealth <= 0)
                         {
                             pPlayer->nHealth = 0;
-                            StartDeathSeq(pPlayer->nPlayer, 0);
+                            StartDeathSeq(pPlayer->pnum, 0);
                         }
 
                         pPlayer->nAir = 0;
@@ -1476,7 +1476,7 @@ static void doPlayerUnderwater(ExhumedPlayer* const pPlayer, const bool oUnderwa
                     }
                 }
 
-                DoBubbles(pPlayer->nPlayer);
+                DoBubbles(pPlayer->pnum);
             }
         }
     }
@@ -1486,7 +1486,7 @@ static void doPlayerUnderwater(ExhumedPlayer* const pPlayer, const bool oUnderwa
         if (pPlayer->nTorch > 0)
         {
             pPlayer->nTorch = 0;
-            SetTorch(pPlayer->nPlayer, 0);
+            SetTorch(pPlayer->pnum, 0);
         }
     }
     else
@@ -1525,7 +1525,7 @@ static void doPlayerUnderwater(ExhumedPlayer* const pPlayer, const bool oUnderwa
 
 static void doPlayerRamses(ExhumedPlayer* const pPlayer)
 {
-    setForcedSyncInput(pPlayer->nPlayer);
+    setForcedSyncInput(pPlayer->pnum);
 
     if (nTotalPlayers <= 1)
     {
@@ -1685,7 +1685,7 @@ static void updatePlayerViewSector(ExhumedPlayer* const pPlayer, const Collision
 
     pPlayer->pPlayerViewSect = pViewSect;
 
-    if (nLocalPlayer == pPlayer->nPlayer)
+    if (nLocalPlayer == pPlayer->pnum)
         CheckAmbience(pPlayer->pPlayerViewSect);
 }
 
@@ -1880,15 +1880,15 @@ static void doPlayerRunlistSignals(ExhumedPlayer* const pPlayer, sectortype* con
     const auto pPlayerSect = pPlayerActor->sector();
 
     if (pPlayer->bTouchFloor && pPlayerSect->lotag > 0)
-        runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::TouchFloor);
+        runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->pnum, &ExhumedAI::TouchFloor);
 
     if (pStartSect != pPlayerSect)
     {
         if (pStartSect->lotag > 0)
-            runlist_SignalRun(pStartSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::EnterSector);
+            runlist_SignalRun(pStartSect->lotag - 1, pPlayer->pnum, &ExhumedAI::EnterSector);
 
         if (pPlayerSect->lotag > 0)
-            runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->nPlayer, &ExhumedAI::LeaveSector);
+            runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->pnum, &ExhumedAI::LeaveSector);
     }
 
     if (!pPlayer->bIsMummified && (pPlayer->cmd.ucmd.actions & SB_OPEN))
@@ -1900,10 +1900,10 @@ static void doPlayerRunlistSignals(ExhumedPlayer* const pPlayer, sectortype* con
         neartag(pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall != nullptr && near.hitWall->lotag > 0)
-            runlist_SignalRun(near.hitWall->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+            runlist_SignalRun(near.hitWall->lotag - 1, pPlayer->pnum, &ExhumedAI::Use);
 
         if (near.hitSector != nullptr && near.hitSector->lotag > 0)
-            runlist_SignalRun(near.hitSector->lotag - 1, pPlayer->nPlayer, &ExhumedAI::Use);
+            runlist_SignalRun(near.hitSector->lotag - 1, pPlayer->pnum, &ExhumedAI::Use);
     }
 }
 
@@ -1920,7 +1920,7 @@ static bool doPlayerDeathRestart(ExhumedPlayer* const pPlayer)
 
     pPlayer->cmd.ucmd.actions &= ~SB_OPEN;
 
-    if (pPlayer->nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         StopAllSounds();
         StopLocalSound();
@@ -1940,7 +1940,7 @@ static bool doPlayerDeathRestart(ExhumedPlayer* const pPlayer)
         }
 
         // will invalidate nPlayerSprite
-        RestartPlayer(pPlayer->nPlayer);
+        RestartPlayer(pPlayer->pnum);
         inputState.ClearAllInput();
         gameInput.Clear();
     }
@@ -1994,7 +1994,7 @@ static void doPlayerActionSequence(ExhumedPlayer* const pPlayer)
         if (!RandomSize(5))
         {
             sectortype* mouthSect;
-            const auto pos = WheresMyMouth(pPlayer->nPlayer, &mouthSect);
+            const auto pos = WheresMyMouth(pPlayer->pnum, &mouthSect);
             BuildAnim(nullptr, "blood", 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
         }
         break;
@@ -2039,7 +2039,7 @@ static void doPlayerDeathPitch(ExhumedPlayer* const pPlayer)
         }
         else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0 && !(pPlayerActor->sector()->Flag & kSectUnderwater))
         {
-            SetNewWeapon(pPlayer->nPlayer, pPlayer->nDeathType + 8);
+            SetNewWeapon(pPlayer->pnum, pPlayer->nDeathType + 8);
         }
 
         pPlayer->dVertPan--;

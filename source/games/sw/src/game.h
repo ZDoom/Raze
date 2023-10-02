@@ -1734,8 +1734,6 @@ struct SWPlayer final : public CorePlayer
     DAngle RevolveDeltaAng;
     DAngle RevolveAng;
 
-    int16_t pnum; // carry along the player number
-
     sectortype* LadderSector;
     DVector2 LadderPosition; // ladder x and y
 

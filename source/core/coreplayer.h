@@ -9,6 +9,7 @@ struct CorePlayer
 	ticcmd_t lastcmd, cmd;
 	PlayerAngles Angles;
 	DCoreActor* actor;
+	uint8_t pnum;
 
 	virtual ~CorePlayer() { if (actor) actor->Destroy(); };
 	virtual DCoreActor* GetActor() = 0;

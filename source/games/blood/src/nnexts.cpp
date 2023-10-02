@@ -1942,7 +1942,7 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
 
 void trPlayerCtrlStartScene(DBloodActor* sourceactor, BloodPlayer* pPlayer, bool force)
 {
-	TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
+	TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->pnum];
 
 	if (pCtrl->qavScene.initiator != nullptr && !force) return;
 
@@ -1984,7 +1984,7 @@ void trPlayerCtrlStartScene(DBloodActor* sourceactor, BloodPlayer* pPlayer, bool
 
 void trPlayerCtrlStopScene(BloodPlayer* pPlayer)
 {
-	TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
+	TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->pnum];
 	auto initiator = pCtrl->qavScene.initiator;
 	if (initiator->hasX())
 	{
@@ -2188,7 +2188,7 @@ void trPlayerCtrlSetLookAngle(int value, BloodPlayer* pPlayer)
 
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
-		setForcedSyncInput(pPlayer->nPlayer);
+		setForcedSyncInput(pPlayer->pnum);
 		pPlayer->GetActor()->spr.Angles.Pitch = maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.)));
 	}
 }
@@ -4331,9 +4331,9 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 	switch (cond) {
 	case 0: // check if this player is connected
-		if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->GetActor() == nullptr) return false;
+		if (!condCmp(pPlayer->pnum + 1, arg1, arg2, cmpOp) || pPlayer->GetActor() == nullptr) return false;
 		else if (PUSH) condPush(aCond, pPlayer->GetActor());
-		return (pPlayer->nPlayer >= 0);
+		return (pPlayer->pnum >= 0);
 	case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
 	case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
 	case 3: return (arg1 > 0 && arg1 < 15 && pPlayer->hasWeapon[arg1 - 1]);
@@ -5995,7 +5995,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			|| ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator)))
 			return true;
 
-		TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
+		TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->pnum];
 
 		/// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
 		if ((cmd -= kCmdNumberic) < 0) return true;
@@ -6060,12 +6060,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				setForcedSyncInput(pPlayer->nPlayer);
+				setForcedSyncInput(pPlayer->pnum);
 				pPlayer->GetActor()->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				setForcedSyncInput(pPlayer->nPlayer);
+				setForcedSyncInput(pPlayer->pnum);
 				pPlayer->GetActor()->spr.Angles.Yaw = mapangle(actor->xspr.data2);
 			}
 			break;
@@ -7307,7 +7307,7 @@ void playerQavSceneDraw(BloodPlayer* pPlayer, int shade, double xpos, double ypo
 {
 	if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
-	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->pnum].qavScene;
 	auto actor = pQavScene->initiator;
 
 	if (pQavScene->qavResrc != NULL)
@@ -7351,7 +7351,7 @@ void playerQavScenePlay(BloodPlayer* pPlayer)
 {
 	if (pPlayer == NULL) return;
 
-	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->pnum].qavScene;
 	if (pPlayer->sceneQav == -1 && pQavScene->initiator != nullptr)
 		pPlayer->sceneQav = pQavScene->initiator->xspr.data2;
 
@@ -7365,7 +7365,7 @@ void playerQavScenePlay(BloodPlayer* pPlayer)
 
 void playerQavSceneReset(BloodPlayer* pPlayer)
 {
-	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->pnum].qavScene;
 	pQavScene->initiator = nullptr;
 	pQavScene->dummy = pPlayer->sceneQav = -1;
 	pQavScene->qavResrc = NULL;
@@ -7415,7 +7415,7 @@ BloodPlayer* getPlayerById(int id)
 		id = id - 1;
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			if (id == getPlayer(i)->nPlayer)
+			if (id == getPlayer(i)->pnum)
 				return getPlayer(i);
 		}
 
@@ -8433,7 +8433,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
 		if (spritesTouching(actor, pPlayer->GetActor()) || spritesTouching(pPlayer->GetActor(), actor))
 		{
-			DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->nPlayer + 1);
+			DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->pnum + 1);
 			if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 			newtarget = pPlayer->GetActor();
 			break;
@@ -8656,7 +8656,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 			if (itCanHear && hearChance > 0)
 			{
-				DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", actor->GetIndex(), pPlayer->nPlayer + 1);
+				DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", actor->GetIndex(), pPlayer->pnum + 1);
 				actor->xspr.data3 = ClipRange(actor->xspr.data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
 				if (!stealth)
 				{

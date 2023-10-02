@@ -740,9 +740,9 @@ void viewDrawScreen(bool sceneonly)
 		auto text = GStrings("TXTB_PAUSED");
 		viewDrawText(PickBigFont(text), text, 160, 10, 0, 0, 1, 0);
 	}
-	else if (pPlayer->nPlayer != myconnectindex)
+	else if (pPlayer->pnum != myconnectindex)
 	{
-		FStringf gTempStr("] %s [", PlayerName(pPlayer->nPlayer));
+		FStringf gTempStr("] %s [", PlayerName(pPlayer->pnum));
 		viewDrawText(OriginalSmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
 	}
 	if (cl_interpolate)

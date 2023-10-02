@@ -167,7 +167,6 @@ struct BloodPlayer final : public CorePlayer
 	double              swayWidth;
 	double              oswayHeight;
 	double              oswayWidth;
-	int                 nPlayer;  // Connect id
 	int                 lifeMode;
 	double              zView;
 	double              ozView;

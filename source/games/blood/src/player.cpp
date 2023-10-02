@@ -313,7 +313,7 @@ bool powerupActivate(BloodPlayer* pPlayer, int nPowerUp)
 		pPlayer->damageControl[0]++;
 		break;
 	case kItemReflectShots: // reflective shots
-		if (pPlayer->nPlayer == myconnectindex && gGameOptions.nGameType == 0)
+		if (pPlayer->pnum == myconnectindex && gGameOptions.nGameType == 0)
 			sfxSetReverb2(1);
 		break;
 	case kItemDeathMask:
@@ -322,7 +322,7 @@ bool powerupActivate(BloodPlayer* pPlayer, int nPowerUp)
 		break;
 	case kItemDivingSuit: // diving suit
 		pPlayer->damageControl[4]++;
-		if (pPlayer->nPlayer == myconnectindex && gGameOptions.nGameType == 0)
+		if (pPlayer->pnum == myconnectindex && gGameOptions.nGameType == 0)
 			sfxSetReverb(1);
 		break;
 	case kItemGasMask:
@@ -375,11 +375,11 @@ void powerupDeactivate(BloodPlayer* pPlayer, int nPowerUp)
 		break;
 	case kItemDivingSuit:
 		pPlayer->damageControl[4]--;
-		if (pPlayer && pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
+		if (pPlayer && pPlayer->pnum == myconnectindex && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
 			sfxSetReverb(0);
 		break;
 	case kItemReflectShots:
-		if (pPlayer && pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
+		if (pPlayer && pPlayer->pnum == myconnectindex && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
 			sfxSetReverb(0);
 		break;
 	case kItemGasMask:
@@ -714,7 +714,7 @@ void playerResetInertia(BloodPlayer* pPlayer)
 	pPlayer->zView = pPlayer->GetActor()->spr.pos.Z - pPosture->eyeAboveZ;
 	pPlayer->zWeapon = pPlayer->GetActor()->spr.pos.Z - pPosture->weaponAboveZ;
 	pPlayer->GetActor()->oviewzoffset = pPlayer->GetActor()->viewzoffset = pPlayer->zView - pPlayer->GetActor()->spr.pos.Z;
-	viewBackupView(pPlayer->nPlayer);
+	viewBackupView(pPlayer->pnum);
 }
 
 void playerCorrectInertia(BloodPlayer* pPlayer, const DVector3& oldpos)
@@ -883,7 +883,7 @@ void playerStart(int nPlayer, int bNewLevel)
 		BloodStatIterator it(kStatModernPlayerLinker);
 		while (auto iactor = it.Next())
 		{
-			if (!iactor->xspr.data1 || iactor->xspr.data1 == pPlayer->nPlayer + 1)
+			if (!iactor->xspr.data1 || iactor->xspr.data1 == pPlayer->pnum + 1)
 			{
 				DBloodActor* SpriteOld = iactor->prevmarker;
 				trPlayerCtrlLink(iactor, pPlayer, (SpriteOld == nullptr)); // this modifies iactor's prevmarker field!
@@ -983,7 +983,7 @@ void playerInit(int nPlayer, unsigned int a2)
 		*getPlayer(nPlayer) = {};
 
 	BloodPlayer* pPlayer = getPlayer(nPlayer);
-	pPlayer->nPlayer = nPlayer;
+	pPlayer->pnum = nPlayer;
 	pPlayer->teamId = nPlayer;
 	if (gGameOptions.nGameType == 3)
 		pPlayer->teamId = nPlayer & 1;
@@ -1064,7 +1064,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag |= 1;
 					pPlayer->ctfFlagState[0] = itemactor;
 					trTriggerSprite(itemactor, kCmdOff);
-					sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
+					sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8007, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1076,7 +1076,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag &= ~1;
 					pPlayer->ctfFlagState[0] = nullptr;
 					trTriggerSprite(itemactor, kCmdOn);
-					sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
+					sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8003, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1087,7 +1087,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 					team_score[pPlayer->teamId] += 10;
 					team_ticker[pPlayer->teamId] += 240;
 					evSendGame(81, kCmdOn);
-					sprintf(buffer, "%s captured Red Flag!", PlayerName(pPlayer->nPlayer));
+					sprintf(buffer, "%s captured Red Flag!", PlayerName(pPlayer->pnum));
 					sndStartSample(8001, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1101,7 +1101,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag |= 2;
 					pPlayer->ctfFlagState[1] = itemactor;
 					trTriggerSprite(itemactor, kCmdOff);
-					sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
+					sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8006, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1113,7 +1113,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag &= ~2;
 					pPlayer->ctfFlagState[1] = nullptr;
 					trTriggerSprite(itemactor, kCmdOn);
-					sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
+					sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8002, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1124,7 +1124,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 					team_score[pPlayer->teamId] += 10;
 					team_ticker[pPlayer->teamId] += 240;
 					evSendGame(80, kCmdOn);
-					sprintf(buffer, "%s captured Blue Flag!", PlayerName(pPlayer->nPlayer));
+					sprintf(buffer, "%s captured Blue Flag!", PlayerName(pPlayer->pnum));
 					sndStartSample(8000, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1141,7 +1141,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 			pPlayer->hasFlag &= ~1;
 			pPlayer->ctfFlagState[0] = nullptr;
 			trTriggerSprite(itemactor->GetOwner(), kCmdOn);
-			sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
+			sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8003, 255, 2, 0);
 			viewSetMessage(buffer);
 			break;
@@ -1150,7 +1150,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 		pPlayer->ctfFlagState[0] = itemactor->GetOwner();
 		if (enemyTeam)
 		{
-			sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
+			sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8007, 255, 2, 0);
 			viewSetMessage(buffer);
 		}
@@ -1165,7 +1165,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 			pPlayer->hasFlag &= ~2;
 			pPlayer->ctfFlagState[1] = nullptr;
 			trTriggerSprite(itemactor->GetOwner(), kCmdOn);
-			sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
+			sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8002, 255, 2, 0);
 			viewSetMessage(buffer);
 			break;
@@ -1174,7 +1174,7 @@ bool PickupItem(BloodPlayer* pPlayer, DBloodActor* itemactor)
 		pPlayer->ctfFlagState[1] = itemactor->GetOwner();
 		if (enemyTeam)
 		{
-			sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
+			sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8006, 255, 2, 0);
 			viewSetMessage(buffer);
 		}
@@ -1362,7 +1362,7 @@ void PickUp(BloodPlayer* pPlayer, DBloodActor* actor)
 		actPostSprite(actor, kStatFree);
 
 	pPlayer->pickupEffect = 30;
-	if (pPlayer->nPlayer == myconnectindex) {
+	if (pPlayer->pnum == myconnectindex) {
 		if (customMsg > 0) trTextOver(customMsg - 1);
 		else if (msg) viewSetMessage(msg, nullptr, MESSAGE_PRIORITY_PICKUP);
 	}
@@ -1437,7 +1437,7 @@ int ActionScan(BloodPlayer* pPlayer, HitInfo* out)
 				{
 					if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, hitactor))
 						return -1;
-					hitactor->xspr.data4 = pPlayer->nPlayer;
+					hitactor->xspr.data4 = pPlayer->pnum;
 					hitactor->xspr.isTriggered = 0;
 				}
 			}
@@ -1533,7 +1533,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 	if (actor->xspr.health == 0)
 	{
 		// force synchronised input upon death.
-		setForcedSyncInput(pPlayer->nPlayer);
+		setForcedSyncInput(pPlayer->pnum);
 
 		bool bSeqStat = playerSeqPlaying(pPlayer, 16);
 		DBloodActor* fragger = pPlayer->fragger;
@@ -1565,7 +1565,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 					gameaction = ga_autoloadgame;
 				}
 				else
-					playerStart(pPlayer->nPlayer);
+					playerStart(pPlayer->pnum);
 			}
 			pInput->actions &= ~SB_OPEN;
 		}
@@ -1627,7 +1627,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 			auto pSector = result.hitSector;
 			auto pXSector = &pSector->xs();
 			int key = pXSector->Key;
-			if (pXSector->locked && pPlayer->nPlayer == myconnectindex)
+			if (pXSector->locked && pPlayer->pnum == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_LOCKED"));
 				auto snd = 3062;
@@ -1637,7 +1637,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 			}
 			if (!key || pPlayer->hasKey[key])
 				trTriggerSector(pSector, kCmdSpritePush);
-			else if (pPlayer->nPlayer == myconnectindex)
+			else if (pPlayer->pnum == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_KEY"));
 				auto snd = 3063;
@@ -1652,7 +1652,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 			auto pWall = result.hitWall;
 			auto pXWall = &pWall->xw();
 			int key = pXWall->key;
-			if (pXWall->locked && pPlayer->nPlayer == myconnectindex)
+			if (pXWall->locked && pPlayer->pnum == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_LOCKED"));
 				auto snd = 3062;
@@ -1662,7 +1662,7 @@ void ProcessInput(BloodPlayer* pPlayer)
 			}
 			if (!key || pPlayer->hasKey[key])
 				trTriggerWall(pWall, kCmdWallPush);
-			else if (pPlayer->nPlayer == myconnectindex)
+			else if (pPlayer->pnum == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_KEY"));
 				auto snd = 3063;
@@ -1676,11 +1676,11 @@ void ProcessInput(BloodPlayer* pPlayer)
 		{
 			auto act = result.actor();
 			int key = act->xspr.key;
-			if (actor->xspr.locked && pPlayer->nPlayer == myconnectindex && act->xspr.lockMsg)
+			if (actor->xspr.locked && pPlayer->pnum == myconnectindex && act->xspr.lockMsg)
 				trTextOver(act->xspr.lockMsg);
 			if (!key || pPlayer->hasKey[key])
 				trTriggerSprite(act, kCmdSpritePush);
-			else if (pPlayer->nPlayer == myconnectindex)
+			else if (pPlayer->pnum == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_KEY"));
 				sndStartSample(3063, 255, 2, 0);
@@ -1844,7 +1844,7 @@ void playerProcess(BloodPlayer* pPlayer)
 	pPlayer->painEffect = ClipLow(pPlayer->painEffect - 4, 0);
 	pPlayer->blindEffect = ClipLow(pPlayer->blindEffect - 4, 0);
 	pPlayer->pickupEffect = ClipLow(pPlayer->pickupEffect - 4, 0);
-	if (pPlayer->nPlayer == myconnectindex && pPlayer->GetActor()->xspr.health == 0)
+	if (pPlayer->pnum == myconnectindex && pPlayer->GetActor()->xspr.health == 0)
 		pPlayer->hand = 0;
 	if (!actor->xspr.health)
 		return;
@@ -1928,7 +1928,7 @@ void playerFrag(BloodPlayer* pKiller, BloodPlayer* pVictim)
 			team_score[pVictim->teamId]--;
 		int nMessage = Random(5);
 		int nSound = gSuicide[nMessage].Kills;
-		if (pVictim->nPlayer == myconnectindex && pVictim->handTime <= 0)
+		if (pVictim->pnum == myconnectindex && pVictim->handTime <= 0)
 		{
 			strcpy(buffer, GStrings("TXTB_KILLSELF"));
 			if (gGameOptions.nGameType > 0 && nSound >= 0)
@@ -1960,7 +1960,7 @@ void playerFrag(BloodPlayer* pKiller, BloodPlayer* pVictim)
 		int nSound = gVictory[nMessage].Kills;
 		const char* pzMessage = gVictory[nMessage].message;
 		sprintf(buffer, pzMessage, PlayerName(nKiller), PlayerName(nVictim));
-		if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller->nPlayer == myconnectindex)
+		if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller->pnum == myconnectindex)
 			sndStartSample(nSound, 255, 2, 0);
 	}
 	viewSetMessage(buffer);
@@ -2042,7 +2042,7 @@ void flagDropped(BloodPlayer* pPlayer, int a2)
 		actor = actDropObject(playeractor, kItemFlagA);
 		if (actor) actor->SetOwner(pPlayer->ctfFlagState[0]);
 		gBlueFlagDropped = true;
-		sprintf(buffer, "%s dropped Blue Flag", PlayerName(pPlayer->nPlayer));
+		sprintf(buffer, "%s dropped Blue Flag", PlayerName(pPlayer->pnum));
 		sndStartSample(8005, 255, 2, 0);
 		viewSetMessage(buffer);
 		break;
@@ -2051,7 +2051,7 @@ void flagDropped(BloodPlayer* pPlayer, int a2)
 		actor = actDropObject(playeractor, kItemFlagB);
 		if (actor) actor->SetOwner(pPlayer->ctfFlagState[1]);
 		gRedFlagDropped = true;
-		sprintf(buffer, "%s dropped Red Flag", PlayerName(pPlayer->nPlayer));
+		sprintf(buffer, "%s dropped Red Flag", PlayerName(pPlayer->pnum));
 		sndStartSample(8004, 255, 2, 0);
 		viewSetMessage(buffer);
 		break;
@@ -2321,11 +2321,11 @@ void PlayerSurvive(int, DBloodActor* actor)
 		if (actor->IsPlayerActor())
 		{
 			BloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
-			if (pPlayer->nPlayer == myconnectindex)
+			if (pPlayer->pnum == myconnectindex)
 				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
 			else
 			{
-				sprintf(buffer, "%s lives again!", PlayerName(pPlayer->nPlayer));
+				sprintf(buffer, "%s lives again!", PlayerName(pPlayer->pnum));
 				viewSetMessage(buffer);
 			}
 			pPlayer->newWeapon = kWeapPitchFork;
@@ -2413,7 +2413,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, BloodPlayer& w, Bl
 			("swayamp", w.swayAmp)
 			("swayheight", w.swayHeight)
 			("swaywidth", w.swayWidth)
-			("nplayer", w.nPlayer)
+			("nplayer", w.pnum)
 			("lifemode", w.lifeMode)
 			("zview", w.zView)
 			("zviewvel", w.zViewVel)
@@ -2575,7 +2575,7 @@ DEFINE_FIELD_X(BloodPlayer, BloodPlayer, bobWidth)
 DEFINE_FIELD_X(BloodPlayer, BloodPlayer, swayAmp)
 DEFINE_FIELD_X(BloodPlayer, BloodPlayer, swayHeight)
 DEFINE_FIELD_X(BloodPlayer, BloodPlayer, swayWidth)
-DEFINE_FIELD_X(BloodPlayer, BloodPlayer, nPlayer)  // Connect id
+DEFINE_FIELD_X(BloodPlayer, BloodPlayer, pnum)  // Connect id
 DEFINE_FIELD_X(BloodPlayer, BloodPlayer, lifeMode)
 DEFINE_FIELD_X(BloodPlayer, BloodPlayer, zView)
 DEFINE_FIELD_X(BloodPlayer, BloodPlayer, zViewVel)

@@ -89,7 +89,6 @@ struct ExhumedPlayer final : public CorePlayer
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
     int16_t dVertPan;
     double nQuake;
-    uint8_t nPlayer;
     int16_t nTemperature;
     double nStandHeight;
     PlayerSave sPlayerSave;

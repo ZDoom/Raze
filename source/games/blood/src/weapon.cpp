@@ -446,7 +446,7 @@ void UpdateAimVector(BloodPlayer* pPlayer)
 	WEAPONTRACK* pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
 	DBloodActor* targetactor = nullptr;
 	pPlayer->aimTargetsCount = 0;
-	int autoaim = Autoaim(pPlayer->nPlayer);
+	int autoaim = Autoaim(pPlayer->pnum);
 	if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == kWeapVoodooDoll || pPlayer->curWeapon == kWeapLifeLeech)
 	{
 		double nClosest = 0x7fffffff;
@@ -2375,8 +2375,8 @@ void WeaponProcess(BloodPlayer* pPlayer) {
 	pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
 
 #ifdef NOONE_EXTENSIONS
-	if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->GetActor()->xspr.health > 0) {
-		playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
+	if (gPlayerCtrl[pPlayer->pnum].qavScene.initiator != nullptr && pPlayer->GetActor()->xspr.health > 0) {
+		playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->pnum].qavScene);
 		UpdateAimVector(pPlayer);
 		return;
 	}
