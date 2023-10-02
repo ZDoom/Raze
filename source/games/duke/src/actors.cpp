@@ -1909,8 +1909,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 void handle_se30(DDukeActor *actor)
 {
 	auto sc = actor->sector();
-
 	auto Owner = actor->GetOwner();
+
 	if (Owner == nullptr)
 	{
 		actor->temp_data[3] = !actor->temp_data[3];
@@ -1955,43 +1955,49 @@ void handle_se30(DDukeActor *actor)
 	{
 		auto vect = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
-		if ((sc->floorz - sc->ceilingz) < 108)
-			if (ud.clipping == 0)
-				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-					{
-					auto psp = getPlayer(p)->GetActor();
-					if (psp->spr.extra > 0)
-					{
-						auto k = getPlayer(p)->cursector;
-						updatesector(getPlayer(p)->GetActor()->getPosWithOffsetZ(), &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && getPlayer(p)->cursector != actor->sector()))
-						{
-							getPlayer(p)->GetActor()->spr.pos.XY() = actor->spr.pos.XY();
-							getPlayer(p)->setCursector(actor->sector());
+		if (((sc->floorz - sc->ceilingz) < 108) && (ud.clipping == 0))
+		{
+			for (int i = connecthead; i >= 0; i = connectpoint2[i])
+			{
+				const auto p = getPlayer(i);
+				const auto pact = p->GetActor();
 
-							SetActor(getPlayer(p)->GetActor(), actor->spr.pos);
-							quickkill(getPlayer(p));
-						}
+				if (pact->spr.extra > 0)
+				{
+					auto k = p->cursector;
+					updatesector(pact->getPosWithOffsetZ(), &k);
+					if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && p->cursector != actor->sector()))
+					{
+						pact->spr.pos.XY() = actor->spr.pos.XY();
+						p->setCursector(actor->sector());
+
+						SetActor(pact, actor->spr.pos);
+						quickkill(p);
 					}
 				}
-		for (int p = connecthead; p >= 0; p = connectpoint2[p])
+			}
+		}
+
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			auto psp = getPlayer(p)->GetActor();
-			if (psp->sector() == actor->sector())
+			const auto p = getPlayer(i);
+			const auto pact = p->GetActor();
+
+			if (pact->sector() == actor->sector())
 			{
-				getPlayer(p)->GetActor()->spr.pos.XY() += vect;
+				pact->spr.pos.XY() += vect;
 
 				if (numplayers > 1)
 				{
-					getPlayer(p)->GetActor()->backupvec2();
+					pact->backupvec2();
 				}
 
-				getPlayer(p)->bobpos += vect;
+				p->bobpos += vect;
 			}
 
-			if (po[p].os == actor->sector())
+			if (po[i].os == actor->sector())
 			{
-				po[p].opos += vect;
+				po[i].opos += vect;
 			}
 		}
 
@@ -2015,22 +2021,29 @@ void handle_se30(DDukeActor *actor)
 		if ((sc->floorz - sc->ceilingz) < 108)
 		{
 			if (ud.clipping == 0)
-				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-					if (getPlayer(p)->GetActor()->spr.extra > 0)
+			{
+				for (int i = connecthead; i >= 0; i = connectpoint2[i])
+				{
+					const auto p = getPlayer(i);
+					const auto pact = p->GetActor();
+
+					if (pact->spr.extra > 0)
 					{
-						auto k = getPlayer(p)->cursector;
-						updatesector(getPlayer(p)->GetActor()->getPosWithOffsetZ(), &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && getPlayer(p)->cursector != actor->sector()))
+						auto k = p->cursector;
+						updatesector(pact->getPosWithOffsetZ(), &k);
+						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && p->cursector != actor->sector()))
 						{
-							getPlayer(p)->GetActor()->spr.pos.XY() = actor->spr.pos.XY();
-							getPlayer(p)->GetActor()->backupvec2();
+							pact->spr.pos.XY() = actor->spr.pos.XY();
+							pact->backupvec2();
 
-							getPlayer(p)->setCursector(actor->sector());
+							p->setCursector(actor->sector());
 
-							SetActor(getPlayer(p)->GetActor(), actor->spr.pos);
-							quickkill(getPlayer(p));
+							SetActor(pact, actor->spr.pos);
+							quickkill(p);
 						}
 					}
+				}
+			}
 
 			if (Owner)
 			{
