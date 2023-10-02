@@ -327,7 +327,7 @@ enum dam
 // Forward declarations
 struct STATE;
 struct PANEL_STATE;
-struct PLAYER;
+struct SWPlayer;
 struct PERSONALITY;
 struct ATTRIBUTE;
 struct SECTOR_OBJECT;
@@ -427,7 +427,7 @@ enum
 
 struct DAMAGE_DATA
 {
-    void (*Init)(PLAYER*);
+    void (*Init)(SWPlayer*);
     int16_t damage_lo;
     int16_t damage_hi;
     unsigned int radius;
@@ -444,24 +444,24 @@ extern DAMAGE_DATA DamageData[];
 extern int WeaponHasNoAmmo, WeaponIsAmmo;
 
 
-void InitWeaponFist(PLAYER*);
-void InitWeaponStar(PLAYER*);
-void InitWeaponShotgun(PLAYER*);
-void InitWeaponRocket(PLAYER*);
-void InitWeaponRail(PLAYER*);
-void InitWeaponMicro(PLAYER*);
-void InitWeaponUzi(PLAYER*);
-void InitWeaponSword(PLAYER*);
-void InitWeaponHothead(PLAYER*);
-void InitWeaponElectro(PLAYER*);
-void InitWeaponHeart(PLAYER*);
-void InitWeaponGrenade(PLAYER*);
-void InitWeaponMine(PLAYER*);
+void InitWeaponFist(SWPlayer*);
+void InitWeaponStar(SWPlayer*);
+void InitWeaponShotgun(SWPlayer*);
+void InitWeaponRocket(SWPlayer*);
+void InitWeaponRail(SWPlayer*);
+void InitWeaponMicro(SWPlayer*);
+void InitWeaponUzi(SWPlayer*);
+void InitWeaponSword(SWPlayer*);
+void InitWeaponHothead(SWPlayer*);
+void InitWeaponElectro(SWPlayer*);
+void InitWeaponHeart(SWPlayer*);
+void InitWeaponGrenade(SWPlayer*);
+void InitWeaponMine(SWPlayer*);
 
-void InitWeaponNapalm(PLAYER*);
-void InitWeaponRing(PLAYER*);
+void InitWeaponNapalm(SWPlayer*);
+void InitWeaponRing(SWPlayer*);
 
-extern void (*InitWeapon[MAX_WEAPONS]) (PLAYER*);
+extern void (*InitWeapon[MAX_WEAPONS]) (SWPlayer*);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -525,7 +525,7 @@ enum PlayerDeathTypes
     PLAYER_DEATH_FLIP, PLAYER_DEATH_CRUMBLE, PLAYER_DEATH_EXPLODE, PLAYER_DEATH_RIPPER, PLAYER_DEATH_SQUISH, PLAYER_DEATH_DROWN, MAX_PLAYER_DEATHS
 };
 
-typedef void (*PLAYER_ACTION_FUNCp)(PLAYER*);
+typedef void (*PLAYER_ACTION_FUNCp)(SWPlayer*);
 
 #include "inv.h"
 
@@ -755,7 +755,7 @@ struct USER
 
 
     // if a player's sprite points to player structure
-    PLAYER* PlayerP;
+    SWPlayer* PlayerP;
     int16_t Sibling;
 
 
@@ -1413,10 +1413,10 @@ enum
 
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int _PlaySound(FSoundID num, DSWActor* sprite, PLAYER* player, const DVector3 *const pos, int flags, int channel, EChanFlags sndflags);
+int _PlaySound(FSoundID num, DSWActor* sprite, SWPlayer* player, const DVector3 *const pos, int flags, int channel, EChanFlags sndflags);
 void InitAmbient(int num, DSWActor* actor);
 
-inline void PlaySound(int num, PLAYER* player, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
+inline void PlaySound(int num, SWPlayer* player, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
     _PlaySound(soundEngine->FindSoundByResID(num), nullptr, player, nullptr, flags | v3df_follow, channel, sndflags);
 }
@@ -1429,20 +1429,20 @@ inline void PlaySound(int num, const DVector3 &pos, int flags, int channel = 8, 
 	_PlaySound(soundEngine->FindSoundByResID(num), nullptr, nullptr, &pos, flags, channel, sndflags);
 }
 
-int _PlayerSound(int num, PLAYER* pp);
-inline int PlayerSound(int num, int flags, PLAYER* pp) { return _PlayerSound(num, pp); }
-void StopPlayerSound(PLAYER* pp, int which = -1);
+int _PlayerSound(int num, SWPlayer* pp);
+inline int PlayerSound(int num, int flags, SWPlayer* pp) { return _PlayerSound(num, pp); }
+void StopPlayerSound(SWPlayer* pp, int which = -1);
  bool SoundValidAndActive(DSWActor* spr, int channel);
 
 
 struct BREAK_INFO;
 int SpawnShrap(DSWActor*, DSWActor*, int = -1, BREAK_INFO* breakinfo = nullptr);
 
-void PlayerUpdateHealth(PLAYER* pp, short value);
-void PlayerUpdateAmmo(PLAYER* pp, short WeaponNum, short value);
-void PlayerUpdateWeapon(PLAYER* pp, short WeaponNum);
-void PlayerUpdateKills(PLAYER* pp, short value);
-void RefreshInfoLine(PLAYER* pp);
+void PlayerUpdateHealth(SWPlayer* pp, short value);
+void PlayerUpdateAmmo(SWPlayer* pp, short WeaponNum, short value);
+void PlayerUpdateWeapon(SWPlayer* pp, short WeaponNum);
+void PlayerUpdateKills(SWPlayer* pp, short value);
+void RefreshInfoLine(SWPlayer* pp);
 
 void DoAnim(int numtics);
 void AnimDelete(int animtype, int animindex, DSWActor*);
@@ -1571,8 +1571,8 @@ extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 //
 ///////////////////////////////////////////////////////////////
 
-extern void SetFadeAmt(PLAYER* pp, short damage, uint8_t startcolor);
-extern void DoPaletteFlash(PLAYER* pp);
+extern void SetFadeAmt(SWPlayer* pp, short damage, uint8_t startcolor);
+extern void DoPaletteFlash(SWPlayer* pp);
 extern bool NightVision;
 
 
@@ -1608,9 +1608,9 @@ void InitSetup(void);   // setup.c
 void LoadKVXFromScript(TilesetBuildInfo& info, const char *filename); // scrip2.c
 void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
-int PlayerInitChemBomb(PLAYER* pp); // jweapon.c
-int PlayerInitFlashBomb(PLAYER* pp);    // jweapon.c
-int PlayerInitCaltrops(PLAYER* pp); // jweapon.c
+int PlayerInitChemBomb(SWPlayer* pp); // jweapon.c
+int PlayerInitFlashBomb(SWPlayer* pp);    // jweapon.c
+int PlayerInitCaltrops(SWPlayer* pp); // jweapon.c
 int InitPhosphorus(DSWActor*);    // jweapon.c
 void SpawnFloorSplash(DSWActor*); // jweapon.c
 
@@ -1676,7 +1676,7 @@ END_SW_NS
 
 BEGIN_SW_NS
 
-struct PLAYER
+struct SWPlayer
 {
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -1861,7 +1861,7 @@ struct PLAYER
     }
 };
 
-extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
+extern SWPlayer Player[MAX_SW_PLAYERS_REG+1];
 
 
 struct GameInterface : public ::GameInterface
@@ -1923,7 +1923,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
     return sect && sect->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2);
 }
 
-inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
+inline bool PlayerFacingRange(SWPlayer* pp, DSWActor* a, DAngle range)
 {
     return absangle((a->spr.pos.XY() - pp->GetActor()->spr.pos.XY()).Angle(), pp->GetActor()->spr.Angles.Yaw) < range;
 }
@@ -2078,7 +2078,7 @@ inline bool SpriteInUnderwaterArea(DSWActor* a)
 
 
 // just determine if the player is moving
-inline bool PLAYER_MOVING(PLAYER* pp)
+inline bool PLAYER_MOVING(SWPlayer* pp)
 {
     return !pp->vect.isZero();
 }

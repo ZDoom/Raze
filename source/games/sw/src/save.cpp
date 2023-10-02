@@ -417,7 +417,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER*& w, PLAYER** def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPlayer** def)
 {
 	int ndx = w ? int(w - Player) : -1;
 	arc(keyname, ndx);
@@ -431,7 +431,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER*& w, PLAYER
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer& w, SWPlayer* def)
 {
 	if (arc.BeginObject(keyname))
 	{

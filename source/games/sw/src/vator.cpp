@@ -40,7 +40,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoVatorMatch(PLAYER* pp, short match);
+void DoVatorMatch(SWPlayer* pp, short match);
 bool TestVatorMatchActive(short match);
 
 void ReverseVator(DSWActor* actor)
@@ -133,7 +133,7 @@ void SetVatorInactive(DSWActor* actor)
 }
 
 // called for operation from the space bar
-void DoVatorOperate(PLAYER* pp, sectortype* sect)
+void DoVatorOperate(SWPlayer* pp, sectortype* sect)
 {
     short match;
 
@@ -180,7 +180,7 @@ void DoVatorOperate(PLAYER* pp, sectortype* sect)
 
 // called from switches and triggers
 // returns first vator found
-void DoVatorMatch(PLAYER* pp, short match)
+void DoVatorMatch(SWPlayer* pp, short match)
 {
     SWStatIterator it(STAT_VATOR);
     while (auto actor = it.Next())
@@ -479,7 +479,7 @@ int DoVator(DSWActor* actor)
             if (!found)
             {
                 short pnum;
-                PLAYER* pp;
+                SWPlayer* pp;
                 // go ahead and look for players clip box bounds
                 TRAVERSE_CONNECT(pnum)
                 {

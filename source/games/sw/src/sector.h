@@ -38,11 +38,11 @@ int MoveDoorDown(short door_sector, short dir, short door_speed);
 int MoveDoorHoriz(short door_sector, short dir, short door_speed);
 void DoDoorsClose(void);
 short Switch(short SwitchSector);
-void PlayerOperateEnv(PLAYER* pp);
-int TeleportToSector(PLAYER* pp, int newsector);
+void PlayerOperateEnv(SWPlayer* pp);
+int TeleportToSector(SWPlayer* pp, int newsector);
 int OperateSector(sectortype* sect,short player_is_operating);
 int OperateSprite(DSWActor*, short player_is_operating);
-void OperateTripTrigger(PLAYER* pp);
+void OperateTripTrigger(SWPlayer* pp);
 
 enum SO_SCALE_TYPE
 {
@@ -65,7 +65,7 @@ struct NEAR_TAG_INFO
 
 void DoSpawnSpotsForKill(short match);
 void DoSpawnSpotsForDamage(short match);
-void DoMatchEverything(PLAYER* pp, short match, short state);
+void DoMatchEverything(SWPlayer* pp, short match, short state);
 bool ComboSwitchTest(short combo_type,short match);
 void DoSoundSpotStopSound(short match);
 void DoSector(void);

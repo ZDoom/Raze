@@ -1231,7 +1231,7 @@ int DoRadiationCloud(DSWActor* actor)
 // Inventory Chemical Bombs
 //
 //////////////////////////////////////////////
-int PlayerInitChemBomb(PLAYER* pp)
+int PlayerInitChemBomb(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -1398,7 +1398,7 @@ int InitChemBomb(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int PlayerInitFlashBomb(PLAYER* pp)
+int PlayerInitFlashBomb(SWPlayer* pp)
 {
     unsigned int stat;
 
@@ -1473,7 +1473,7 @@ int InitFlashBomb(DSWActor* actor)
     int i;
     unsigned int stat;
     short damage;
-    PLAYER* pp = Player + screenpeek;
+    SWPlayer* pp = Player + screenpeek;
 
     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
 
@@ -1605,7 +1605,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int PlayerInitCaltrops(PLAYER* pp)
+int PlayerInitCaltrops(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 

@@ -58,13 +58,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void pSpriteControl(PLAYER* pp);
-int WeaponOperate(PLAYER* pp);
+void pSpriteControl(SWPlayer* pp);
+int WeaponOperate(SWPlayer* pp);
 SECTOR_OBJECT* PlayerOnObject(sectortype* sect_match);
-void PlayerRemoteReset(PLAYER* pp, sectortype* sect);
-void KillAllPanelInv(PLAYER* pp);
-void DoPlayerDeathDrown(PLAYER* pp);
-void pWeaponForceRest(PLAYER* pp);
+void PlayerRemoteReset(SWPlayer* pp, sectortype* sect);
+void KillAllPanelInv(SWPlayer* pp);
+void DoPlayerDeathDrown(SWPlayer* pp);
+void pWeaponForceRest(SWPlayer* pp);
 
 #define SO_DRIVE_SOUND 2
 #define SO_IDLE_SOUND 1
@@ -119,61 +119,61 @@ extern bool DebugOperate;
 
 int ChopTics;
 
-PLAYER Player[MAX_SW_PLAYERS_REG + 1];
+SWPlayer Player[MAX_SW_PLAYERS_REG + 1];
 
 // These are a bunch of kens variables for the player
 
 short NormalVisibility;
 
 DSWActor* FindNearSprite(DSWActor*, short stat);
-bool PlayerOnLadder(PLAYER* pp);
-void DoPlayerSlide(PLAYER* pp);
-void DoPlayerBeginSwim(PLAYER* pp);
-void DoPlayerSwim(PLAYER* pp);
-void DoPlayerWade(PLAYER* pp);
-void DoPlayerBeginWade(PLAYER* pp);
-void DoPlayerBeginCrawl(PLAYER* pp);
-void DoPlayerCrawl(PLAYER* pp);
-void DoPlayerRun(PLAYER* pp);
-void DoPlayerBeginRun(PLAYER* pp);
-void DoPlayerFall(PLAYER* pp);
-void DoPlayerBeginFall(PLAYER* pp);
-void DoPlayerJump(PLAYER* pp);
-void DoPlayerBeginJump(PLAYER* pp);
-void DoPlayerForceJump(PLAYER* pp);
-void DoPlayerBeginFly(PLAYER* pp);
-void DoPlayerFly(PLAYER* pp);
-void DoPlayerBeginClimb(PLAYER* pp);
-void DoPlayerClimb(PLAYER* pp);
-void DoPlayerBeginDie(PLAYER* pp);
+bool PlayerOnLadder(SWPlayer* pp);
+void DoPlayerSlide(SWPlayer* pp);
+void DoPlayerBeginSwim(SWPlayer* pp);
+void DoPlayerSwim(SWPlayer* pp);
+void DoPlayerWade(SWPlayer* pp);
+void DoPlayerBeginWade(SWPlayer* pp);
+void DoPlayerBeginCrawl(SWPlayer* pp);
+void DoPlayerCrawl(SWPlayer* pp);
+void DoPlayerRun(SWPlayer* pp);
+void DoPlayerBeginRun(SWPlayer* pp);
+void DoPlayerFall(SWPlayer* pp);
+void DoPlayerBeginFall(SWPlayer* pp);
+void DoPlayerJump(SWPlayer* pp);
+void DoPlayerBeginJump(SWPlayer* pp);
+void DoPlayerForceJump(SWPlayer* pp);
+void DoPlayerBeginFly(SWPlayer* pp);
+void DoPlayerFly(SWPlayer* pp);
+void DoPlayerBeginClimb(SWPlayer* pp);
+void DoPlayerClimb(SWPlayer* pp);
+void DoPlayerBeginDie(SWPlayer* pp);
 // void DoPlayerBeginOperateBoat(PLAYER* pp);
-void DoPlayerBeginOperateVehicle(PLAYER* pp);
-void DoPlayerBeginOperate(PLAYER* pp);
+void DoPlayerBeginOperateVehicle(SWPlayer* pp);
+void DoPlayerBeginOperate(SWPlayer* pp);
 // void DoPlayerOperateBoat(PLAYER* pp);
-void DoPlayerOperateVehicle(PLAYER* pp);
-void DoPlayerOperateTurret(PLAYER* pp);
-void DoPlayerBeginDive(PLAYER* pp);
-void DoPlayerDive(PLAYER* pp);
-void DoPlayerTeleportPause(PLAYER* pp);
+void DoPlayerOperateVehicle(SWPlayer* pp);
+void DoPlayerOperateTurret(SWPlayer* pp);
+void DoPlayerBeginDive(SWPlayer* pp);
+void DoPlayerDive(SWPlayer* pp);
+void DoPlayerTeleportPause(SWPlayer* pp);
 bool PlayerFlyKey(void);
 void OperateSectorObject(SECTOR_OBJECT* sop, DAngle newang, const DVector2& newpos);
-void CheckFootPrints(PLAYER* pp);
-bool DoPlayerTestCrawl(PLAYER* pp);
-void DoPlayerDeathFlip(PLAYER* pp);
-void DoPlayerDeathCrumble(PLAYER* pp);
-void DoPlayerDeathExplode(PLAYER* pp);
-void DoPlayerDeathFall(PLAYER* pp);
+void CheckFootPrints(SWPlayer* pp);
+bool DoPlayerTestCrawl(SWPlayer* pp);
+void DoPlayerDeathFlip(SWPlayer* pp);
+void DoPlayerDeathCrumble(SWPlayer* pp);
+void DoPlayerDeathExplode(SWPlayer* pp);
+void DoPlayerDeathFall(SWPlayer* pp);
 
-void PlayerCheckValidMove(PLAYER* pp);
-void PlayerWarpUpdatePos(PLAYER* pp, const DVector3& oldpos);
-void DoPlayerBeginDiveNoWarp(PLAYER* pp);
-int PlayerCanDiveNoWarp(PLAYER* pp);
-void DoPlayerCurrent(PLAYER* pp);
+void PlayerCheckValidMove(SWPlayer* pp);
+void PlayerWarpUpdatePos(SWPlayer* pp, const DVector3& oldpos);
+void DoPlayerBeginDiveNoWarp(SWPlayer* pp);
+int PlayerCanDiveNoWarp(SWPlayer* pp);
+void DoPlayerCurrent(SWPlayer* pp);
 int GetOverlapSector2(const DVector2& pos, sectortype** over, sectortype** under);
-void PlayerToRemote(PLAYER* pp);
-void PlayerRemoteInit(PLAYER* pp);
-void PlayerSpawnPosition(PLAYER* pp);
-void processWeapon(PLAYER* const pp);
+void PlayerToRemote(SWPlayer* pp);
+void PlayerRemoteInit(SWPlayer* pp);
+void PlayerSpawnPosition(SWPlayer* pp);
+void processWeapon(SWPlayer* const pp);
 
 extern short target_ang;
 
@@ -952,7 +952,7 @@ STATE* sg_PlayerNinjaFly[] =
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSpriteThrow(PLAYER* pp)
+void DoPlayerSpriteThrow(SWPlayer* pp)
 {
     if (!(pp->Flags & (PF_DIVING|PF_FLYING|PF_CRAWLING)))
     {
@@ -971,7 +971,7 @@ void DoPlayerSpriteThrow(PLAYER* pp)
 
 int DoPlayerSpriteReset(DSWActor* actor)
 {
-    PLAYER* pp;
+    SWPlayer* pp;
 
     if (!actor->user.PlayerP)
         return 0;
@@ -1166,7 +1166,7 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerResetMovement(PLAYER* pp)
+void DoPlayerResetMovement(SWPlayer* pp)
 {
     pp->vect.Zero();
     pp->ovect.Zero();
@@ -1181,7 +1181,7 @@ void DoPlayerResetMovement(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTeleportPause(PLAYER* pp)
+void DoPlayerTeleportPause(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -1204,7 +1204,7 @@ void DoPlayerTeleportPause(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
+void DoPlayerTeleportToSprite(SWPlayer* pp, DVector3& pos, DAngle ang)
 {
     pp->GetActor()->spr.Angles.Yaw = ang;
     pp->GetActor()->spr.pos = pos;
@@ -1220,7 +1220,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTeleportToOffset(PLAYER* pp)
+void DoPlayerTeleportToOffset(SWPlayer* pp)
 {
     pp->GetActor()->backupvec2();
 
@@ -1280,7 +1280,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerWarpTeleporter(PLAYER* pp)
+void DoPlayerWarpTeleporter(SWPlayer* pp)
 {
     auto ppActor = pp->GetActor();
     short pnum;
@@ -1327,7 +1327,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         {
             if (pnum != pp - Player)
             {
-                PLAYER* npp = &Player[pnum];
+                SWPlayer* npp = &Player[pnum];
 
                 // if someone already standing there
                 if (npp->cursector == pp->cursector)
@@ -1352,7 +1352,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSetWadeDepth(PLAYER* pp)
+void DoPlayerSetWadeDepth(SWPlayer* pp)
 {
     sectortype* sectp;
 
@@ -1378,18 +1378,18 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerViewOffset(PLAYER* pp)
+void DoPlayerViewOffset(SWPlayer* pp)
 {
     pp->GetActor()->viewzoffset -= (pp->GetActor()->viewzoffset + pp->height) * 0.375;
 }
 
-void DoPlayerHeight(PLAYER* pp)
+void DoPlayerHeight(SWPlayer* pp)
 {
     DoPlayerViewOffset(pp);
     pp->GetActor()->spr.pos.Z -= (pp->GetActor()->spr.pos.Z - pp->loz) * 0.375;
 }
 
-void DoPlayerJumpHeight(PLAYER* pp)
+void DoPlayerJumpHeight(SWPlayer* pp)
 {
     if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -1407,7 +1407,7 @@ void DoPlayerJumpHeight(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void UpdatePlayerSpriteAngle(PLAYER* pp)
+void UpdatePlayerSpriteAngle(SWPlayer* pp)
 {
     DSWActor* plActor = pp->PlayerUnderActor;
 
@@ -1424,7 +1424,7 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTurnVehicle(PLAYER* pp, double zz, double floordist)
+void DoPlayerTurnVehicle(SWPlayer* pp, double zz, double floordist)
 {
     SECTOR_OBJECT* sop = pp->sop;
 
@@ -1456,7 +1456,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, double zz, double floordist)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
+void DoPlayerTurnVehicleRect(SWPlayer* pp, DVector2* pos, DVector2* opos)
 {
     float avel;
     SECTOR_OBJECT* sop = pp->sop;
@@ -1489,7 +1489,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTurnTurret(PLAYER* pp)
+void DoPlayerTurnTurret(SWPlayer* pp)
 {
     DAngle new_ang, diff;
     SECTOR_OBJECT* sop = pp->sop;
@@ -1535,7 +1535,7 @@ void DoPlayerTurnTurret(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void SlipSlope(PLAYER* pp)
+void SlipSlope(SWPlayer* pp)
 {
     if (!pp->insector() || !pp->cursector->hasU())
         return;
@@ -1556,7 +1556,7 @@ void SlipSlope(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSlopeTilting(PLAYER* pp)
+void DoPlayerSlopeTilting(SWPlayer* pp)
 {
     const bool canslopetilt = (pp->input.actions & SB_AIMMODE) && !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING));
     pp->Angles.doViewPitch(canslopetilt, pp->Flags & PF_CLIMBING);
@@ -1568,7 +1568,7 @@ void DoPlayerSlopeTilting(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBob(PLAYER* pp)
+void DoPlayerBob(SWPlayer* pp)
 {
     double amt;
 
@@ -1605,7 +1605,7 @@ void DoPlayerBob(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginRecoil(PLAYER* pp, double pix_amt)
+void DoPlayerBeginRecoil(SWPlayer* pp, double pix_amt)
 {
     pp->Flags |= (PF_RECOIL);
 
@@ -1621,7 +1621,7 @@ void DoPlayerBeginRecoil(PLAYER* pp, double pix_amt)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerRecoil(PLAYER* pp)
+void DoPlayerRecoil(SWPlayer* pp)
 {
     // controls how fast you move through the sin table
     pp->recoil_ndx += pp->recoil_speed;
@@ -1644,7 +1644,7 @@ void DoPlayerRecoil(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bob_speed)
+void DoPlayerSpriteBob(SWPlayer* pp, double player_height, double bobamt, short bob_speed)
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
     pp->pbob_amt = bobamt * BobVal(pp->bob_ndx);
@@ -1656,7 +1656,7 @@ void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bo
 //
 //---------------------------------------------------------------------------
 
-void UpdatePlayerUnderSprite(PLAYER* pp)
+void UpdatePlayerUnderSprite(SWPlayer* pp)
 {
     DSWActor* act_over = pp->GetActor();
 
@@ -1722,7 +1722,7 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void UpdatePlayerSprite(PLAYER* pp)
+void UpdatePlayerSprite(SWPlayer* pp)
 {
     // Adjust player height according to the next action.
     if (!(pp->Flags & PF_DEAD))
@@ -1741,7 +1741,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerZrange(PLAYER* pp)
+void DoPlayerZrange(SWPlayer* pp)
 {
     Collision ceilhit, florhit;
 
@@ -1801,7 +1801,7 @@ void DoPlayerZrange(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSlide(PLAYER* pp)
+void DoPlayerSlide(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -1856,7 +1856,7 @@ void DoPlayerSlide(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerCheckValidMove(PLAYER* pp)
+void PlayerCheckValidMove(SWPlayer* pp)
 {
     if (!pp->insector())
     {
@@ -1871,7 +1871,7 @@ void PlayerCheckValidMove(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerSectorBound(PLAYER* pp, double amt)
+void PlayerSectorBound(SWPlayer* pp, double amt)
 {
     if (!pp->insector())
         return;
@@ -1903,7 +1903,7 @@ void PlayerSectorBound(PLAYER* pp, double amt)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerMove(PLAYER* pp)
+void DoPlayerMove(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
     int friction;
@@ -1915,7 +1915,7 @@ void DoPlayerMove(PLAYER* pp)
     // the player gets pushed by a wall (e.g., on the boat in level 5).
     bool interpolate_ride = pp->sop_riding && (!cl_sointerpolation || CommEnabled);
 
-    void SlipSlope(PLAYER* pp);
+    void SlipSlope(SWPlayer* pp);
 
     SlipSlope(pp);
 
@@ -2080,7 +2080,7 @@ void DoPlayerMove(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSectorUpdatePreMove(PLAYER* pp)
+void DoPlayerSectorUpdatePreMove(SWPlayer* pp)
 {
     auto sect = pp->cursector;
 
@@ -2117,7 +2117,7 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSectorUpdatePostMove(PLAYER* pp)
+void DoPlayerSectorUpdatePostMove(SWPlayer* pp)
 {
     auto sect = pp->cursector;
     double fz,cz;
@@ -2194,7 +2194,7 @@ void StopSOsound(sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-void DoTankTreads(PLAYER* pp)
+void DoTankTreads(SWPlayer* pp)
 {
     int i;
     sectortype* *sectp;
@@ -2293,7 +2293,7 @@ void DoTankTreads(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DriveCrush(PLAYER* pp, DVector2* quad)
+void DriveCrush(SWPlayer* pp, DVector2* quad)
 {
     SECTOR_OBJECT* sop = pp->sop_control;
     short stat;
@@ -2440,7 +2440,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerMoveVehicle(PLAYER* pp)
+void DoPlayerMoveVehicle(SWPlayer* pp)
 {
     DSWActor* actor = pp->sop->sp_child;
     if (!actor) return;
@@ -2629,7 +2629,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerMoveTurret(PLAYER* pp)
+void DoPlayerMoveTurret(SWPlayer* pp)
 {
     if (!Prediction)
     {
@@ -2657,7 +2657,7 @@ void DoPlayerMoveTurret(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginJump(PLAYER* pp)
+void DoPlayerBeginJump(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -2692,7 +2692,7 @@ void DoPlayerBeginJump(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginForceJump(PLAYER* pp)
+void DoPlayerBeginForceJump(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -2719,12 +2719,12 @@ void DoPlayerBeginForceJump(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-bool PlayerCeilingHit(PLAYER* pp, double zlimit)
+bool PlayerCeilingHit(SWPlayer* pp, double zlimit)
 {
     return (pp->GetActor()->getOffsetZ() < zlimit);
 }
 
-bool PlayerFloorHit(PLAYER* pp, double zlimit)
+bool PlayerFloorHit(SWPlayer* pp, double zlimit)
 {
     return (pp->GetActor()->getOffsetZ() > zlimit);
 }
@@ -2735,7 +2735,7 @@ bool PlayerFloorHit(PLAYER* pp, double zlimit)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerJump(PLAYER* pp)
+void DoPlayerJump(SWPlayer* pp)
 {
     short i;
 
@@ -2825,7 +2825,7 @@ void DoPlayerJump(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerForceJump(PLAYER* pp)
+void DoPlayerForceJump(SWPlayer* pp)
 {
     short i;
 
@@ -2869,7 +2869,7 @@ void DoPlayerForceJump(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginFall(PLAYER* pp)
+void DoPlayerBeginFall(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -2894,7 +2894,7 @@ void DoPlayerBeginFall(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void StackedWaterSplash(PLAYER* pp)
+void StackedWaterSplash(SWPlayer* pp)
 {
     if (FAF_ConnectArea(pp->cursector))
     {
@@ -2915,7 +2915,7 @@ void StackedWaterSplash(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerFall(PLAYER* pp)
+void DoPlayerFall(SWPlayer* pp)
 {
     short i;
     double depth;
@@ -3076,7 +3076,7 @@ void DoPlayerFall(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginClimb(PLAYER* pp)
+void DoPlayerBeginClimb(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -3097,7 +3097,7 @@ void DoPlayerBeginClimb(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerClimb(PLAYER* pp)
+void DoPlayerClimb(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     int i;
@@ -3285,7 +3285,7 @@ void DoPlayerClimb(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int DoPlayerWadeSuperJump(PLAYER* pp)
+int DoPlayerWadeSuperJump(SWPlayer* pp)
 {
     HitInfo hit{};
     unsigned i;
@@ -3339,7 +3339,7 @@ bool PlayerFlyKey(void)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginCrawl(PLAYER* pp)
+void DoPlayerBeginCrawl(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -3362,7 +3362,7 @@ void DoPlayerBeginCrawl(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-bool PlayerFallTest(PLAYER* pp, double player_height)
+bool PlayerFallTest(SWPlayer* pp, double player_height)
 {
     // If the floor is far below you, fall hard instead of adjusting height
     if (abs(pp->GetActor()->getOffsetZ() - pp->loz) > player_height + PLAYER_FALL_HEIGHTF)
@@ -3392,7 +3392,7 @@ bool PlayerFallTest(PLAYER* pp, double player_height)
 
 const int PLAYER_STANDING_ROOM = 68;
 
-void DoPlayerCrawl(PLAYER* pp)
+void DoPlayerCrawl(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -3463,7 +3463,7 @@ void DoPlayerCrawl(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginFly(PLAYER* pp)
+void DoPlayerBeginFly(SWPlayer* pp)
 {
     pp->Flags &= ~(PF_FALLING | PF_JUMPING | PF_CRAWLING);
     pp->Flags |= (PF_FLYING);
@@ -3487,7 +3487,7 @@ void DoPlayerBeginFly(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerWarpUpdatePos(PLAYER* pp, const DVector3& oldpos)
+void PlayerWarpUpdatePos(SWPlayer* pp, const DVector3& oldpos)
 {
     if (Prediction)
         return;
@@ -3503,7 +3503,7 @@ void PlayerWarpUpdatePos(PLAYER* pp, const DVector3& oldpos)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerFly(PLAYER* pp)
+void DoPlayerFly(SWPlayer* pp)
 {
     if (SectorIsUnderwaterArea(pp->cursector))
     {
@@ -3586,7 +3586,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
 //
 //---------------------------------------------------------------------------
 
-bool PlayerOnLadder(PLAYER* pp)
+bool PlayerOnLadder(SWPlayer* pp)
 {
     int nx, ny;
     unsigned i;
@@ -3665,7 +3665,7 @@ bool PlayerOnLadder(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-bool DoPlayerTestCrawl(PLAYER* pp)
+bool DoPlayerTestCrawl(SWPlayer* pp)
 {
     return abs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM;
 }
@@ -3676,7 +3676,7 @@ bool DoPlayerTestCrawl(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int PlayerInDiveArea(PLAYER* pp)
+int PlayerInDiveArea(SWPlayer* pp)
 {
     sectortype* sectp;
 
@@ -3706,7 +3706,7 @@ int PlayerInDiveArea(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int PlayerCanDive(PLAYER* pp)
+int PlayerCanDive(SWPlayer* pp)
 {
     if (Prediction)
         return false;
@@ -3740,7 +3740,7 @@ int PlayerCanDive(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int PlayerCanDiveNoWarp(PLAYER* pp)
+int PlayerCanDiveNoWarp(SWPlayer* pp)
 {
     if (Prediction)
         return false;
@@ -3950,7 +3950,7 @@ int GetOverlapSector2(const DVector2& pos, sectortype** over, sectortype** under
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerWarpToUnderwater(PLAYER* pp)
+void DoPlayerWarpToUnderwater(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4023,7 +4023,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerWarpToSurface(PLAYER* pp)
+void DoPlayerWarpToSurface(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     auto sectu = pp->cursector;
@@ -4099,7 +4099,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDivePalette(PLAYER* pp)
+void DoPlayerDivePalette(SWPlayer* pp)
 {
     if (pp != Player + screenpeek) return;
 
@@ -4125,7 +4125,7 @@ void DoPlayerDivePalette(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginDive(PLAYER* pp)
+void DoPlayerBeginDive(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4177,7 +4177,7 @@ void DoPlayerBeginDive(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginDiveNoWarp(PLAYER* pp)
+void DoPlayerBeginDiveNoWarp(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4229,7 +4229,7 @@ void DoPlayerBeginDiveNoWarp(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerStopDiveNoWarp(PLAYER* pp)
+void DoPlayerStopDiveNoWarp(SWPlayer* pp)
 {
     if (Prediction)
         return;
@@ -4260,7 +4260,7 @@ void DoPlayerStopDiveNoWarp(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerStopDive(PLAYER* pp)
+void DoPlayerStopDive(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -4293,7 +4293,7 @@ void DoPlayerStopDive(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDiveMeter(PLAYER* pp)
+void DoPlayerDiveMeter(SWPlayer* pp)
 {
     short color=0,metertics,meterunit;
     int y;
@@ -4344,7 +4344,7 @@ void DoPlayerDiveMeter(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDive(PLAYER* pp)
+void DoPlayerDive(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     auto sectu = pp->cursector;
@@ -4514,7 +4514,7 @@ void DoPlayerDive(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int DoPlayerTestPlaxDeath(PLAYER* pp)
+int DoPlayerTestPlaxDeath(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4535,7 +4535,7 @@ int DoPlayerTestPlaxDeath(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerCurrent(PLAYER* pp)
+void DoPlayerCurrent(SWPlayer* pp)
 {
     int xvect, yvect;
     auto sectu = pp->cursector;
@@ -4588,7 +4588,7 @@ void DoPlayerCurrent(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerFireOutWater(PLAYER* pp)
+void DoPlayerFireOutWater(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4610,7 +4610,7 @@ void DoPlayerFireOutWater(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerFireOutDeath(PLAYER* pp)
+void DoPlayerFireOutDeath(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4630,7 +4630,7 @@ void DoPlayerFireOutDeath(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginWade(PLAYER* pp)
+void DoPlayerBeginWade(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4668,7 +4668,7 @@ void DoPlayerBeginWade(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerWade(PLAYER* pp)
+void DoPlayerWade(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4813,7 +4813,7 @@ void DoPlayerWade(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginOperateVehicle(PLAYER* pp)
+void DoPlayerBeginOperateVehicle(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4838,7 +4838,7 @@ void DoPlayerBeginOperateVehicle(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginOperateTurret(PLAYER* pp)
+void DoPlayerBeginOperateTurret(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -4887,7 +4887,7 @@ void FindMainSector(SECTOR_OBJECT* sop)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerOperateMatch(PLAYER* pp, bool starting)
+void DoPlayerOperateMatch(SWPlayer* pp, bool starting)
 {
     if (!pp->sop)
         return;
@@ -4918,7 +4918,7 @@ void DoPlayerOperateMatch(PLAYER* pp, bool starting)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginOperate(PLAYER* pp)
+void DoPlayerBeginOperate(SWPlayer* pp)
 {
     SECTOR_OBJECT* sop;
     double cz, fz;
@@ -5022,7 +5022,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
+void DoPlayerBeginRemoteOperate(SWPlayer* pp, SECTOR_OBJECT* sop)
 {
     double cz, fz;
     int i;
@@ -5106,7 +5106,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 //
 //---------------------------------------------------------------------------
 
-void PlayerToRemote(PLAYER* pp)
+void PlayerToRemote(SWPlayer* pp)
 {
     pp->remote.cursectp = pp->cursector;
     pp->remote.lastcursectp = pp->lastcursector;
@@ -5118,7 +5118,7 @@ void PlayerToRemote(PLAYER* pp)
     pp->remote.slide_vect = pp->slide_vect;
 }
 
-void RemoteToPlayer(PLAYER* pp)
+void RemoteToPlayer(SWPlayer* pp)
 {
     pp->setcursector(pp->remote.cursectp);
     pp->lastcursector = pp->remote.lastcursectp;
@@ -5130,7 +5130,7 @@ void RemoteToPlayer(PLAYER* pp)
     pp->slide_vect = pp->remote.slide_vect;
 }
 
-void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
+void PlayerRemoteReset(SWPlayer* pp, sectortype* sect)
 {
     pp->setcursector(sect);
     pp->lastcursector = pp->cursector;
@@ -5146,7 +5146,7 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     UpdatePlayerSprite(pp);
 }
 
-void PlayerRemoteInit(PLAYER* pp)
+void PlayerRemoteInit(SWPlayer* pp)
 {
     pp->remote.vect.Zero();
     pp->remote.ovect.Zero();
@@ -5159,7 +5159,7 @@ void PlayerRemoteInit(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerStopOperate(PLAYER* pp)
+void DoPlayerStopOperate(SWPlayer* pp)
 {
     pp->Flags &= ~(PF_WEAPON_DOWN);
     DoPlayerResetMovement(pp);
@@ -5190,7 +5190,7 @@ void DoPlayerStopOperate(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerOperateTurret(PLAYER* pp)
+void DoPlayerOperateTurret(SWPlayer* pp)
 {
     if (pp->input.actions & SB_OPEN)
     {
@@ -5234,7 +5234,7 @@ void DoPlayerOperateTurret(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerOperateVehicle(PLAYER* pp)
+void DoPlayerOperateVehicle(SWPlayer* pp)
 {
     if (pp->input.actions & SB_OPEN)
     {
@@ -5276,7 +5276,7 @@ void DoPlayerOperateVehicle(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathJump(PLAYER* pp)
+void DoPlayerDeathJump(SWPlayer* pp)
 {
     short i;
 
@@ -5323,7 +5323,7 @@ void DoPlayerDeathJump(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathFall(PLAYER* pp)
+void DoPlayerDeathFall(SWPlayer* pp)
 {
     double loz;
 
@@ -5380,7 +5380,7 @@ const char *SuicideNote[MAX_SUICIDE] =
     "did everyone a favor and offed himself."
 };
 
-char *KilledPlayerMessage(PLAYER* pp, PLAYER* killer)
+char *KilledPlayerMessage(SWPlayer* pp, SWPlayer* killer)
 {
     const int MAX_KILL_NOTES = 16;
     short rnd = StdRandomRange(MAX_KILL_NOTES);
@@ -5453,7 +5453,7 @@ char *KilledPlayerMessage(PLAYER* pp, PLAYER* killer)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathMessage(PLAYER* pp, PLAYER* killer)
+void DoPlayerDeathMessage(SWPlayer* pp, SWPlayer* killer)
 {
     int pnum;
     bool SEND_OK = false;
@@ -5503,7 +5503,7 @@ constexpr DAngle PLAYER_DEATH_HORIZ_UP_VALUEF = DAngle::fromDeg(-22.922);
 constexpr DAngle PLAYER_DEATH_HORIZ_JUMP_VALUEF = DAngle::fromDeg(-21.33686);
 constexpr DAngle PLAYER_DEATH_HORIZ_FALL_VALUEF = -PLAYER_DEATH_HORIZ_JUMP_VALUEF;
 
-void DoPlayerBeginDie(PLAYER* pp)
+void DoPlayerBeginDie(SWPlayer* pp)
 {
     extern bool ReloadPrompt;
     short bak;
@@ -5511,7 +5511,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 
     DSWActor* plActor = pp->GetActor();
 
-    static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYER*) =
+    static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (SWPlayer*) =
     {
         DoPlayerDeathFlip,
         DoPlayerDeathCrumble,
@@ -5713,7 +5713,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const double speed)
+static inline void DoPlayerDeathHoriz(SWPlayer* pp, const DAngle target, const double speed)
 {
     auto& pitch = pp->GetActor()->spr.Angles.Pitch;
     auto pspeed = DAngle::fromDeg(speed);
@@ -5735,7 +5735,7 @@ static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const dou
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathZrange(PLAYER* pp)
+void DoPlayerDeathZrange(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -5754,7 +5754,7 @@ void DoPlayerDeathZrange(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathHurl(PLAYER* pp)
+void DoPlayerDeathHurl(SWPlayer* pp)
 {
     if (numplayers > 1)
     {
@@ -5788,7 +5788,7 @@ void DoPlayerDeathHurl(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathFollowKiller(PLAYER* pp)
+void DoPlayerDeathFollowKiller(SWPlayer* pp)
 {
     // if it didn't make it to this angle because of a low ceiling or something
     // continue on to it
@@ -5818,7 +5818,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathCheckKeys(PLAYER* pp)
+void DoPlayerDeathCheckKeys(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -5886,7 +5886,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerHeadDebris(PLAYER* pp)
+void DoPlayerHeadDebris(SWPlayer* pp)
 {
     sectortype* sectp = pp->cursector;
 
@@ -5906,7 +5906,7 @@ void DoPlayerHeadDebris(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathCheckKick(PLAYER* pp)
+void DoPlayerDeathCheckKick(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
     unsigned stat;
@@ -5964,7 +5964,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathMoveHead(PLAYER* pp)
+void DoPlayerDeathMoveHead(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6027,7 +6027,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathFlip(PLAYER* pp)
+void DoPlayerDeathFlip(SWPlayer* pp)
 {
     if (Prediction)
         return;
@@ -6064,7 +6064,7 @@ void DoPlayerDeathFlip(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathDrown(PLAYER* pp)
+void DoPlayerDeathDrown(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -6105,7 +6105,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathBounce(PLAYER* pp)
+void DoPlayerDeathBounce(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6137,7 +6137,7 @@ void DoPlayerDeathBounce(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathCrumble(PLAYER* pp)
+void DoPlayerDeathCrumble(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6194,7 +6194,7 @@ void DoPlayerDeathCrumble(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathExplode(PLAYER* pp)
+void DoPlayerDeathExplode(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6252,7 +6252,7 @@ void DoPlayerDeathExplode(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginRun(PLAYER* pp)
+void DoPlayerBeginRun(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6292,7 +6292,7 @@ void DoPlayerBeginRun(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerRun(PLAYER* pp)
+void DoPlayerRun(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 
@@ -6503,7 +6503,7 @@ void MoveSkipSavePos(void)
 {
     int i;
     short pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
 
     MoveSkip8 = (MoveSkip8 + 1) & 7;
     MoveSkip4 = (MoveSkip4 + 1) & 3;
@@ -6569,12 +6569,12 @@ void MoveSkipSavePos(void)
 //
 //---------------------------------------------------------------------------
 
-void PlayerTimers(PLAYER* pp)
+void PlayerTimers(SWPlayer* pp)
 {
     InventoryTimer(pp);
 }
 
-void ChopsCheck(PLAYER* pp)
+void ChopsCheck(SWPlayer* pp)
 {
     if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
@@ -6627,7 +6627,7 @@ void ChopsCheck(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerGlobal(PLAYER* pp)
+void PlayerGlobal(SWPlayer* pp)
 {
     // This is the place for things that effect the player no matter what hes
     // doing
@@ -6685,7 +6685,7 @@ void PlayerGlobal(PLAYER* pp)
 void MultiPlayLimits(void)
 {
     short pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
     bool Done = false;
 
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
@@ -6734,7 +6734,7 @@ void domovethings(const ticcmd_t* playercmds)
 {
     short pnum;
 
-    PLAYER* pp;
+    SWPlayer* pp;
     extern int FinishTimer;
 
 
@@ -6773,7 +6773,7 @@ void domovethings(const ticcmd_t* playercmds)
     {
         extern short screenpeek;
         extern bool PlayerTrackingMode;
-        extern PLAYER* GlobPlayerP;
+        extern SWPlayer* GlobPlayerP;
 
         pp = Player + pnum;
         GlobPlayerP = pp;
@@ -6866,8 +6866,8 @@ void domovethings(const ticcmd_t* playercmds)
 
 void InitAllPlayers(void)
 {
-    PLAYER* pp;
-    PLAYER* pfirst = Player;
+    SWPlayer* pp;
+    SWPlayer* pfirst = Player;
     int i;
     extern bool NewGame;
     //int fz,cz;
@@ -6919,9 +6919,9 @@ void InitAllPlayers(void)
 //
 //---------------------------------------------------------------------------
 
-int SearchSpawnPosition(PLAYER* pp)
+int SearchSpawnPosition(SWPlayer* pp)
 {
-    PLAYER* opp; // other player
+    SWPlayer* opp; // other player
     short pos_num;
     short pnum;
     bool blocked;
@@ -6965,7 +6965,7 @@ bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 //
 //---------------------------------------------------------------------------
 
-void PlayerSpawnPosition(PLAYER* pp)
+void PlayerSpawnPosition(SWPlayer* pp)
 {
     short pnum = short(pp - Player);
     short pos_num = pnum;
@@ -7046,7 +7046,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
 void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
 {
-    PLAYER* pp;
+    SWPlayer* pp;
     short pnum;
     unsigned stat;
     int tag;
@@ -7156,7 +7156,7 @@ int DoFootPrints(DSWActor* actor)
     return 0;
 }
 
-void CheckFootPrints(PLAYER* pp)
+void CheckFootPrints(SWPlayer* pp)
 {
     if (pp->NumFootPrints <= 0 || FootMode != WATER_FOOT)
     {
@@ -7238,16 +7238,16 @@ saveable_module saveable_player =
     SIZ(saveable_player_data)
 };
 
-DEFINE_FIELD_X(SWPlayer, PLAYER, sop_remote)
-DEFINE_FIELD_X(SWPlayer, PLAYER, jump_count)
-DEFINE_FIELD_X(SWPlayer, PLAYER, jump_speed)
-DEFINE_FIELD_X(SWPlayer, PLAYER, z_speed)
-DEFINE_FIELD_X(SWPlayer, PLAYER, climb_ndx)
-DEFINE_FIELD_X(SWPlayer, PLAYER, hiz)
-DEFINE_FIELD_X(SWPlayer, PLAYER, loz)
-DEFINE_FIELD_X(SWPlayer, PLAYER, p_ceiling_dist)
-DEFINE_FIELD_X(SWPlayer, PLAYER, p_floor_dist)
-DEFINE_FIELD_X(SWPlayer, PLAYER, circle_camera_dist)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, sop_remote)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, jump_count)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, jump_speed)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, z_speed)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, climb_ndx)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, hiz)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, loz)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, p_ceiling_dist)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, p_floor_dist)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, circle_camera_dist)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, six)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, siy)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, siz)
@@ -7255,113 +7255,113 @@ DEFINE_FIELD_X(SWPlayer, PLAYER, circle_camera_dist)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, yvect)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, oxvect)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, oyvect)
-DEFINE_FIELD_X(SWPlayer, PLAYER, friction)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, friction)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, slide_xvect)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, slide_yvect)
-DEFINE_FIELD_X(SWPlayer, PLAYER, slide_ang)
-DEFINE_FIELD_X(SWPlayer, PLAYER, slide_dec)
-DEFINE_FIELD_X(SWPlayer, PLAYER, drive_avel)
-DEFINE_FIELD_X(SWPlayer, PLAYER, circle_camera_ang)
-DEFINE_FIELD_X(SWPlayer, PLAYER, camera_check_time_delay)
-DEFINE_FIELD_X(SWPlayer, PLAYER, cursector)
-DEFINE_FIELD_X(SWPlayer, PLAYER, lastcursector)
-DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_amt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_speed)
-DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_ndx)
-DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_horizoff)
-DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_ohorizoff)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, slide_ang)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, slide_dec)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, drive_avel)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, circle_camera_ang)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, camera_check_time_delay)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, cursector)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, lastcursector)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, recoil_amt)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, recoil_speed)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, recoil_ndx)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, recoil_horizoff)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, recoil_ohorizoff)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, oldposx)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, oldposy)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, oldposz)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, Revolve)
-DEFINE_FIELD_X(SWPlayer, PLAYER, RevolveDeltaAng)
-DEFINE_FIELD_X(SWPlayer, PLAYER, pnum)
-DEFINE_FIELD_X(SWPlayer, PLAYER, LadderSector)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, RevolveDeltaAng)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, pnum)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, LadderSector)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, lx)
 //DEFINE_FIELD_X(SWPlayer, PLAYER, ly)
-DEFINE_FIELD_X(SWPlayer, PLAYER, JumpDuration)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WadeDepth)
-DEFINE_FIELD_X(SWPlayer, PLAYER, pbob_amt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, bob_ndx)
-DEFINE_FIELD_X(SWPlayer, PLAYER, bcnt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, bob_z)
-DEFINE_FIELD_X(SWPlayer, PLAYER, obob_z)
-DEFINE_FIELD_X(SWPlayer, PLAYER, playerreadyflag)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Flags)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Flags2)
-DEFINE_FIELD_X(SWPlayer, PLAYER, HasKey)
-DEFINE_FIELD_X(SWPlayer, PLAYER, SwordAng)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnGotOnceFlags)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnFlags)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnAmmo)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnNum)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnRocketType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnRocketHeat)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnRocketNuke)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnFlameType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnFirstType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WeaponType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, FirePause)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryNum)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryBarTics)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryTics)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryPercent)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryAmount)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InventoryActive)
-DEFINE_FIELD_X(SWPlayer, PLAYER, DiveTics)
-DEFINE_FIELD_X(SWPlayer, PLAYER, DiveDamageTics)
-DEFINE_FIELD_X(SWPlayer, PLAYER, DeathType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Armor)
-DEFINE_FIELD_X(SWPlayer, PLAYER, MaxHealth)
-DEFINE_FIELD_X(SWPlayer, PLAYER, UziShellLeftAlt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, UziShellRightAlt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, TeamColor)
-DEFINE_FIELD_X(SWPlayer, PLAYER, FadeTics)
-DEFINE_FIELD_X(SWPlayer, PLAYER, FadeAmt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, NightVision)
-DEFINE_FIELD_X(SWPlayer, PLAYER, StartColor)
-DEFINE_FIELD_X(SWPlayer, PLAYER, IsAI)
-DEFINE_FIELD_X(SWPlayer, PLAYER, fta)
-DEFINE_FIELD_X(SWPlayer, PLAYER, ftq)
-DEFINE_FIELD_X(SWPlayer, PLAYER, NumFootPrints)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnUziType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnShotgunType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnShotgunAuto)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnShotgunLastShell)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnRailType)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Bloody)
-DEFINE_FIELD_X(SWPlayer, PLAYER, InitingNuke)
-DEFINE_FIELD_X(SWPlayer, PLAYER, TestNukeInit)
-DEFINE_FIELD_X(SWPlayer, PLAYER, NukeInitialized)
-DEFINE_FIELD_X(SWPlayer, PLAYER, FistAng)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnKungFuMove)
-DEFINE_FIELD_X(SWPlayer, PLAYER, HitBy)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Reverb)
-DEFINE_FIELD_X(SWPlayer, PLAYER, Heads)
-DEFINE_FIELD_X(SWPlayer, PLAYER, PlayerVersion)
-DEFINE_FIELD_X(SWPlayer, PLAYER, WpnReloadState)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, JumpDuration)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WadeDepth)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, pbob_amt)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, bob_ndx)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, bcnt)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, bob_z)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, obob_z)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, playerreadyflag)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, Flags)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, Flags2)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, HasKey)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, SwordAng)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnGotOnceFlags)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnFlags)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnAmmo)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnNum)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnRocketType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnRocketHeat)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnRocketNuke)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnFlameType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnFirstType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WeaponType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, FirePause)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InventoryNum)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InventoryBarTics)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InventoryTics)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InventoryPercent)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InventoryAmount)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InventoryActive)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, DiveTics)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, DiveDamageTics)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, DeathType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, Armor)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, MaxHealth)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, UziShellLeftAlt)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, UziShellRightAlt)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, TeamColor)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, FadeTics)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, FadeAmt)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, NightVision)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, StartColor)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, IsAI)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, fta)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, ftq)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, NumFootPrints)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnUziType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnShotgunType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnShotgunAuto)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnShotgunLastShell)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnRailType)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, Bloody)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, InitingNuke)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, TestNukeInit)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, NukeInitialized)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, FistAng)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnKungFuMove)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, HitBy)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, Reverb)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, Heads)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, PlayerVersion)
+DEFINE_FIELD_X(SWPlayer, SWPlayer, WpnReloadState)
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, WeaponNum)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+    PARAM_SELF_STRUCT_PROLOGUE(SWPlayer);
     ACTION_RETURN_INT(self->GetActor()->user.WeaponNum);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, Health)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+    PARAM_SELF_STRUCT_PROLOGUE(SWPlayer);
     ACTION_RETURN_INT(self->GetActor()->user.Health);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, MaxUserHealth)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+    PARAM_SELF_STRUCT_PROLOGUE(SWPlayer);
     ACTION_RETURN_INT(self->GetActor()->user.MaxHealth);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, GetBuildAngle)
 {
-    PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+    PARAM_SELF_STRUCT_PROLOGUE(SWPlayer);
     ACTION_RETURN_INT(self->GetActor()->spr.Angles.Yaw.Buildang());
 }
 

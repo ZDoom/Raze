@@ -608,7 +608,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 {
     int tSpriteNum;
     static int ang = 0;
-    PLAYER* pp = Player + screenpeek;
+    SWPlayer* pp = Player + screenpeek;
     int newshade=0;
 
     const int DART_PIC = 2526;
@@ -966,7 +966,7 @@ void post_analyzesprites(tspriteArray& tsprites)
 //
 //---------------------------------------------------------------------------
 
-void PrintSpriteInfo(PLAYER* pp)
+void PrintSpriteInfo(SWPlayer* pp)
 {
     const int Y_STEP = 7;
 
@@ -1010,7 +1010,7 @@ void PrintSpriteInfo(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-static void DrawCrosshair(PLAYER* pp, const double interpfrac)
+static void DrawCrosshair(SWPlayer* pp, const double interpfrac)
 {
     auto offsets = pp->Angles.getCrosshairOffsets(interpfrac);
     ::DrawCrosshair(pp->GetActor()->user.Health, offsets.first.X, offsets.first.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, offsets.second, shadeToLight(10));
@@ -1111,7 +1111,7 @@ void PreDrawStackedWater(void)
 }
 
 
-void DoPlayerDiveMeter(PLAYER* pp);
+void DoPlayerDiveMeter(SWPlayer* pp);
 
 //---------------------------------------------------------------------------
 //
@@ -1212,10 +1212,10 @@ void RestorePortalState()
 //
 //---------------------------------------------------------------------------
 
-void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
+void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 {
     // prediction player if prediction is on, else regular player
-    PLAYER* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
+    SWPlayer* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
 
     PreDraw();
     PreUpdatePanel(interpfrac);

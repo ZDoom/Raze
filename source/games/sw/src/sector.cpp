@@ -58,20 +58,20 @@ enum
     SINE_SLOPED = BIT(3),
 };
 
-void DoPlayerBeginForceJump(PLAYER*);
+void DoPlayerBeginForceJump(SWPlayer*);
 
 sectortype* FindNextSectorByTag(sectortype* sect, int tag);
 bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);
 bool TestRotatorMatchActive(short match);
 bool TestSlidorMatchActive(short match);
-int PlayerCheckDeath(PLAYER*, DSWActor*);
-void DoVatorOperate(PLAYER*, sectortype*);
-void DoVatorMatch(PLAYER* pp, short match);
-void DoRotatorOperate(PLAYER*, sectortype*);
-void DoRotatorMatch(PLAYER* pp, short match, bool);
-void DoSlidorOperate(PLAYER*, sectortype*);
-void DoSlidorMatch(PLAYER* pp, short match, bool);
+int PlayerCheckDeath(SWPlayer*, DSWActor*);
+void DoVatorOperate(SWPlayer*, sectortype*);
+void DoVatorMatch(SWPlayer* pp, short match);
+void DoRotatorOperate(SWPlayer*, sectortype*);
+void DoRotatorMatch(SWPlayer* pp, short match, bool);
+void DoSlidorOperate(SWPlayer*, sectortype*);
+void DoSlidorMatch(SWPlayer* pp, short match, bool);
 
 void DoTornadoObject(SECTOR_OBJECT* sop);
 void DoAutoTurretObject(SECTOR_OBJECT* sop);
@@ -80,7 +80,7 @@ void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
 int DoTrapMatch(short match);
 
-PLAYER* GlobPlayerP;
+SWPlayer* GlobPlayerP;
 
 ANIM Anim[MAXANIM];
 short AnimCnt = 0;
@@ -644,7 +644,7 @@ DVector3 SectorMidPoint(sectortype* sectp)
 //
 //---------------------------------------------------------------------------
 
-void DoSpringBoard(PLAYER* pp)
+void DoSpringBoard(SWPlayer* pp)
 {
 
     pp->jump_speed = -pp->cursector->hitag;
@@ -744,7 +744,7 @@ short DoSpawnActorTrigger(short match)
 
 int OperateSector(sectortype* sect, short player_is_operating)
 {
-    PLAYER* pp = GlobPlayerP;
+    SWPlayer* pp = GlobPlayerP;
 
     // Don't let actors operate locked or secret doors
     if (!player_is_operating)
@@ -1084,7 +1084,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
             if (TEST_BOOL7(actor))
             {
-                PLAYER* pp = GlobPlayerP;
+                SWPlayer* pp = GlobPlayerP;
 
                 if (pp)
                 {
@@ -1413,9 +1413,9 @@ void DoChangorMatch(short match)
 //
 //---------------------------------------------------------------------------
 
-void DoMatchEverything(PLAYER* pp, short match, short state)
+void DoMatchEverything(SWPlayer* pp, short match, short state)
 {
-    PLAYER* bak;
+    SWPlayer* bak;
 
     bak = GlobPlayerP;
     GlobPlayerP = pp;
@@ -1500,7 +1500,7 @@ bool ComboSwitchTest(short combo_type, short match)
 
 int OperateSprite(DSWActor* actor, short player_is_operating)
 {
-    PLAYER* pp = nullptr;
+    SWPlayer* pp = nullptr;
     short state;
     short key_num=0;
     extern STATE s_Pachinko1Operate[];
@@ -1903,7 +1903,7 @@ int DoTrapMatch(short match)
 //
 //---------------------------------------------------------------------------
 
-void TriggerSecret(sectortype* sectp, PLAYER* pp)
+void TriggerSecret(sectortype* sectp, SWPlayer* pp)
 {
     if (pp == Player + myconnectindex)
         PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan | v3df_doppler | v3df_follow, pp);
@@ -1922,7 +1922,7 @@ void TriggerSecret(sectortype* sectp, PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void OperateTripTrigger(PLAYER* pp)
+void OperateTripTrigger(SWPlayer* pp)
 {
     if (Prediction)
         return;
@@ -2048,7 +2048,7 @@ void OperateTripTrigger(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void OperateContinuousTrigger(PLAYER* pp)
+void OperateContinuousTrigger(SWPlayer* pp)
 {
     if (Prediction)
         return;
@@ -2073,7 +2073,7 @@ void OperateContinuousTrigger(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-short PlayerTakeSectorDamage(PLAYER* pp)
+short PlayerTakeSectorDamage(SWPlayer* pp)
 {
     auto sectu = pp->cursector;
     DSWActor* actor = pp->GetActor();
@@ -2097,7 +2097,7 @@ short PlayerTakeSectorDamage(PLAYER* pp)
 //---------------------------------------------------------------------------
 
 enum { PLAYER_SOUNDEVENT_TAG = 900 };
-bool NearThings(PLAYER* pp)
+bool NearThings(SWPlayer* pp)
 {
     HitInfo near;
 
@@ -2184,7 +2184,7 @@ bool NearThings(PLAYER* pp)
 
 static int nti_cnt;
 
-void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int type, int count)
+void NearTagList(NEAR_TAG_INFO* ntip, SWPlayer* pp, double z, double dist, int type, int count)
 {
     short save_lotag, save_hitag;
     HitInfo near;
@@ -2292,7 +2292,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
 //
 //---------------------------------------------------------------------------
 
-void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, double dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, SWPlayer* pp, double z, double dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
@@ -2305,7 +2305,7 @@ void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, doubl
 //
 //---------------------------------------------------------------------------
 
-int DoPlayerGrabStar(PLAYER* pp)
+int DoPlayerGrabStar(SWPlayer* pp)
 {
     int i;
 
@@ -2345,7 +2345,7 @@ int DoPlayerGrabStar(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerOperateEnv(PLAYER* pp)
+void PlayerOperateEnv(SWPlayer* pp)
 {
     bool found;
 
@@ -2880,7 +2880,7 @@ void DoSector(void)
     bool riding;
     int sync_flag;
     short pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {

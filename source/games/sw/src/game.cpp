@@ -148,7 +148,7 @@ void markgcroots()
 }
 
 
-void pClearSpriteList(PLAYER* pp);
+void pClearSpriteList(SWPlayer* pp);
 
 int GameVersion = 20;
 
@@ -573,7 +573,7 @@ void TerminateLevel(void)
 
     TRAVERSE_CONNECT(pnum)
     {
-        PLAYER* pp = &Player[pnum];
+        SWPlayer* pp = &Player[pnum];
 
         if (pp->Flags & PF_DEAD)
             PlayerDeathReset(pp);

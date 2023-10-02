@@ -413,7 +413,7 @@ int DoSpike(DSWActor* actor)
             if (!found)
             {
                 short pnum;
-                PLAYER* pp;
+                SWPlayer* pp;
                 // go ahead and look for players clip box bounds
                 TRAVERSE_CONNECT(pnum)
                 {

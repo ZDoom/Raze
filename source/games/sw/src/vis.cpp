@@ -80,7 +80,7 @@ void ProcessVisOn(void)
     }
 }
 
-void VisViewChange(PLAYER* pp, int *vis)
+void VisViewChange(SWPlayer* pp, int *vis)
 {
     short BrightestVis = NormalVisibility;
     DVector3 pos;

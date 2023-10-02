@@ -551,7 +551,7 @@ int DoHornetDeath(DSWActor* actor)
 int DoCheckSwarm(DSWActor* actor)
 {
     double dist, pdist;
-    PLAYER* pp;
+    SWPlayer* pp;
 
     if (!MoveSkip8) return 0;     // Don't over check
 

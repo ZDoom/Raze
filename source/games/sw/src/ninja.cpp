@@ -2120,7 +2120,7 @@ void InitAllPlayerSprites(const DVector3& spawnpos, const DAngle startang)
 //
 //---------------------------------------------------------------------------
 
-void PlayerLevelReset(PLAYER* pp)
+void PlayerLevelReset(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -2163,7 +2163,7 @@ void PlayerLevelReset(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void PlayerDeathReset(PLAYER* pp)
+void PlayerDeathReset(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -2255,7 +2255,7 @@ void PlayerPanelSetup(void)
 //
 //---------------------------------------------------------------------------
 
-void PlayerGameReset(PLAYER* pp)
+void PlayerGameReset(SWPlayer* pp)
 {
     DSWActor* actor = pp->GetActor();
 
@@ -2319,7 +2319,7 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 //
 //---------------------------------------------------------------------------
 
-void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos, const DAngle startang)
+void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle startang)
 {
     int pnum = int(pp - Player);
     double fz,cz;
@@ -2404,7 +2404,7 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos, const DAngle startan
 //
 //---------------------------------------------------------------------------
 
-void SpawnPlayerUnderSprite(PLAYER* pp)
+void SpawnPlayerUnderSprite(SWPlayer* pp)
 {
     DSWActor* plActor = pp->GetActor();
 

@@ -238,7 +238,7 @@ int CanHitPlayer(DSWActor* actor)
 int DoActorPickClosePlayer(DSWActor* actor)
 {
     int pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
     // if actor can still see the player
     bool found = false;
     int i;
@@ -362,7 +362,7 @@ TARGETACTOR:
 DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 {
     int pnum;
-    PLAYER* pp;
+    SWPlayer* pp;
 
     TRAVERSE_CONNECT(pnum)
     {
