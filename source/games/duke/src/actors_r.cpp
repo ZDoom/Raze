@@ -448,10 +448,11 @@ static void rrra_specialstats()
 		movesprite_ex(act, DVector3(0, 0, act->spr.extra / 256.), CLIPMASK0, coll);
 	}
 
-	if (getPlayer(screenpeek)->MamaEnd > 0)
+	const auto spp = getPlayer(screenpeek);
+	if (spp->MamaEnd > 0)
 	{
-		getPlayer(screenpeek)->MamaEnd--;
-		if (getPlayer(screenpeek)->MamaEnd == 0)
+		spp->MamaEnd--;
+		if (spp->MamaEnd == 0)
 		{
 			CompleteLevel(nullptr);
 		}
