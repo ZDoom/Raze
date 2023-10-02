@@ -1175,16 +1175,16 @@ void hitradius(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4
 					{
 						if (act2->isPlayer())
 						{
-							int p = act2->PlayerIndex();
+							const auto p = getPlayer(act2->PlayerIndex());
 
 							if (act2->attackertype == DukeFlamethrowerFlameClass && Owner->isPlayer())
 							{
-								getPlayer(p)->numloogs = -1 - actor->spr.yint;
+								p->numloogs = -1 - actor->spr.yint;
 							}
 
-							if (getPlayer(p)->newOwner != nullptr)
+							if (p->newOwner != nullptr)
 							{
-								clearcamera(getPlayer(p));
+								clearcamera(p);
 							}
 						}
 						act2->SetHitOwner(actor->GetOwner());
