@@ -591,7 +591,7 @@ static void handle_se28(DDukeActor* actor)
 						const auto pact = p->GetActor();
 						double dist = (pact->spr.pos.XY() - act2->spr.pos.XY()).LengthSquared();
 
-						if (dist < 49*48)
+						if (dist < 48*48)
 						{
 							if (S_CheckActorSoundPlaying(pact, DUKE_LONGTERM_PAIN) < 1)
 								S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
