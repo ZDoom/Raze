@@ -379,7 +379,7 @@ public:
 
     int SoundSourceIndex(FSoundChan* chan) override
     {
-        if (chan->SourceType == SOURCE_Player) return int((SWPlayer*)(chan->Source) - PlayerArray);
+        if (chan->SourceType == SOURCE_Player) return int((SWPlayer*)(chan->Source) - *PlayerArray);
         return 0;
     }
 
@@ -722,7 +722,7 @@ int _PlayerSound(int num, SWPlayer* pp)
     if (Prediction)
         return 0;
 
-    if (pp < PlayerArray || pp >= getPlayer(MAX_SW_PLAYERS))
+    if (pp < *PlayerArray || pp >= getPlayer(MAX_SW_PLAYERS))
     {
         return 0;
     }

@@ -1859,11 +1859,11 @@ struct SWPlayer final : public CorePlayer
     }
 };
 
-extern SWPlayer PlayerArray[MAX_SW_PLAYERS_REG+1];
+extern SWPlayer* PlayerArray[MAX_SW_PLAYERS_REG+1];
 
 inline SWPlayer* getPlayer(int index)
 {
-    return &PlayerArray[index];
+    return PlayerArray[index];
 }
 
 

@@ -118,16 +118,16 @@ void markgcroots()
     GC::MarkArray(GenericQueue, MAX_GENERIC_QUEUE);
     GC::MarkArray(LoWangsQueue, MAX_LOWANGS_QUEUE);
     GC::MarkArray(BossSpriteNum, 3);
-    for (auto& pl : PlayerArray)
+    for (auto pl : PlayerArray)
     {
-        GC::Mark(pl.actor);
-        GC::Mark(pl.lowActor);
-        GC::Mark(pl.highActor);
-        GC::Mark(pl.remoteActor);
-        GC::Mark(pl.PlayerUnderActor);
-        GC::Mark(pl.KillerActor);
-        GC::Mark(pl.HitBy);
-        GC::Mark(pl.last_camera_act);
+        GC::Mark(pl->actor);
+        GC::Mark(pl->lowActor);
+        GC::Mark(pl->highActor);
+        GC::Mark(pl->remoteActor);
+        GC::Mark(pl->PlayerUnderActor);
+        GC::Mark(pl->KillerActor);
+        GC::Mark(pl->HitBy);
+        GC::Mark(pl->last_camera_act);
     }
     for (auto& so : SectorObject)
     {
@@ -250,6 +250,13 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 
 void GameInterface::app_init()
 {
+    // Initialise player array.
+    for (unsigned i = 0; i < (MAX_SW_PLAYERS_REG+1); i++)
+    {
+        PlayerArray[i] = new SWPlayer;
+        *PlayerArray[i] = {};
+    }
+
     // these are frequently checked markers.
     FAFPlaceMirrorPic[0] = tileGetTextureID(FAF_PLACE_MIRROR_PIC);
     FAFPlaceMirrorPic[1] = tileGetTextureID(FAF_PLACE_MIRROR_PIC + 1);
@@ -293,7 +300,6 @@ void GameInterface::app_init()
     defineSky(nullptr, 1, nullptr);
 
     memset(Track, 0, sizeof(Track));
-    memset(PlayerArray, 0, sizeof(PlayerArray));
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
         INITLIST(&(getPlayer(i)->PanelSpriteList));
 

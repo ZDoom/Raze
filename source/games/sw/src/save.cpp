@@ -419,7 +419,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPlayer** def)
 {
-	int ndx = w ? int(w - PlayerArray) : -1;
+	int ndx = w ? int(w - *PlayerArray) : -1;
 	arc(keyname, ndx);
 	w = ndx == -1 ? nullptr : getPlayer(ndx);
 	return arc;

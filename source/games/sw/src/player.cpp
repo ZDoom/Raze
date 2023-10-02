@@ -119,7 +119,7 @@ extern bool DebugOperate;
 
 int ChopTics;
 
-SWPlayer PlayerArray[MAX_SW_PLAYERS_REG + 1];
+SWPlayer* PlayerArray[MAX_SW_PLAYERS_REG + 1];
 
 // These are a bunch of kens variables for the player
 
@@ -1325,7 +1325,7 @@ void DoPlayerWarpTeleporter(SWPlayer* pp)
 
         TRAVERSE_CONNECT(pnum)
         {
-            if (pnum != pp - PlayerArray)
+            if (pnum != pp - *PlayerArray)
             {
                 SWPlayer* npp = getPlayer(pnum);
 
@@ -5458,7 +5458,7 @@ void DoPlayerDeathMessage(SWPlayer* pp, SWPlayer* killer)
     int pnum;
     bool SEND_OK = false;
 
-    killer->KilledPlayer[pp-PlayerArray]++;
+    killer->KilledPlayer[pp - *PlayerArray]++;
 
     if (pp == killer && pp == getPlayer(myconnectindex))
     {
@@ -6867,14 +6867,15 @@ void domovethings(const ticcmd_t* playercmds)
 void InitAllPlayers(void)
 {
     SWPlayer* pp;
-    SWPlayer* pfirst = PlayerArray;
-    int i;
+    SWPlayer* pfirst = getPlayer(0);
     extern bool NewGame;
     //int fz,cz;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
-    for (pp = PlayerArray; pp < getPlayer(MAX_SW_PLAYERS); pp++)
+    for (int i = 0; i < MAX_SW_PLAYERS; i++)
     {
+        auto pp = getPlayer(i);
+
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
         pp->lastcursector = pfirst->cursector+1;
@@ -6897,10 +6898,10 @@ void InitAllPlayers(void)
 
         if (NewGame)
         {
-            for (i = 0; i < MAX_INVENTORY; i++)
+            for (unsigned j = 0; j < MAX_INVENTORY; j++)
             {
-                pp->InventoryAmount[i] = 0;
-                pp->InventoryPercent[i] = 0;
+                pp->InventoryAmount[j] = 0;
+                pp->InventoryPercent[j] = 0;
             }
         }
 
@@ -6967,7 +6968,7 @@ bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 
 void PlayerSpawnPosition(SWPlayer* pp)
 {
-    short pnum = short(pp - PlayerArray);
+    short pnum = short(pp - *PlayerArray);
     short pos_num = pnum;
     int i;
     DSWActor* spawn_sprite = nullptr;
@@ -7079,7 +7080,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
 
     // set up the zero starting positions - its not saved in the map as a ST1 sprite
     // like the others
-    pp = PlayerArray;
+    pp = getPlayer(0);
     for (stat = 0; stat < SIZ(MultiStatList); stat++)
     {
         if (gNet.MultiGameType != MULTI_GAME_NONE)
