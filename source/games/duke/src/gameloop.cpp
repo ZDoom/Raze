@@ -44,7 +44,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker()
 {
 	if (rtsplaying > 0) rtsplaying--;
 
@@ -65,7 +65,6 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			getPlayer(i)->Angles.resetCameraAngles();
-			getPlayer(i)->cmd.ucmd = playercmds[i].ucmd;
 		}
 
 		// disable synchronised input if set by game.

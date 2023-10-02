@@ -408,7 +408,7 @@ int GameInterface::GetCurrentSkill()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker()
 {
 	BloodSpriteIterator it;
 	while (DBloodActor* act = it.Next()) act->interpolated = false;
@@ -428,7 +428,6 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			getPlayer(i)->cmd.ucmd = playercmds[i].ucmd;
 			getPlayer(i)->Angles.resetCameraAngles();
 			viewBackupView(i);
 			playerProcess(getPlayer(i));

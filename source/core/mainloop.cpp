@@ -166,8 +166,6 @@ void NewGame(MapRecord* map, int skill, bool ns = false)
 
 static void GameTicker()
 {
-	int i;
-
 	handleevents();
 
 	// Todo: Migrate state changes to here instead of doing them ad-hoc
@@ -301,15 +299,13 @@ static void GameTicker()
 	// get commands, check consistancy, and build new consistancy check
 	int buf = (gametic / ticdup) % BACKUPTICS;
 
-	// array to hold all cmds for this tic.
-	ticcmd_t playercmds[MAXPLAYERS];
-
-	for (i = 0; i < MAXPLAYERS; i++)
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
 		if (playeringame[i])
 		{
-			ticcmd_t* cmd = &playercmds[i];
+			ticcmd_t* cmd = &PlayerArray[i]->cmd;
 			ticcmd_t* newcmd = &netcmds[i][buf];
+			PlayerArray[i]->lastcmd = *cmd;
 
 			if ((gametic % ticdup) == 0)
 			{
@@ -358,7 +354,7 @@ static void GameTicker()
 	case GS_LEVEL:
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
-		gi->Ticker(playercmds);
+		gi->Ticker();
 		TickStatusBar();
 		levelTextTime--;
 		gameupdatetime.Unclock();

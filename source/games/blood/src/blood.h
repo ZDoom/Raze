@@ -111,7 +111,7 @@ struct GameInterface : public ::GameInterface
 	void MenuClosed() override;
 	bool CanSave() override;
 	void UpdateSounds() override;
-	void Ticker(const ticcmd_t* playercmds) override;
+	void Ticker() override;
 	void DrawBackground() override;
 	void Startup() override;
 	void Render() override;

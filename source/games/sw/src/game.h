@@ -1745,9 +1745,6 @@ struct SWPlayer final : public CorePlayer
     int16_t bcnt; // bob count
     double bob_z, obob_z;
 
-    //Multiplayer variables
-    InputPacket lastinput;
-
     // must start out as 0
     int playerreadyflag;
 
@@ -1883,7 +1880,7 @@ struct GameInterface : public ::GameInterface
     void UpdateSounds() override;
     void ErrorCleanup() override;
     void DrawBackground(void) override;
-    void Ticker(const ticcmd_t* playercmds) override;
+    void Ticker(void) override;
     void Render() override;
     //void DrawWeapons() override;
     void Startup() override;

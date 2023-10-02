@@ -2459,9 +2459,9 @@ void DoPlayerMoveVehicle(SWPlayer* pp)
 
     if (!Prediction)
     {
-        if (abs(pp->cmd.ucmd.fvel + pp->cmd.ucmd.svel) && !abs(pp->lastinput.fvel + pp->lastinput.svel))
+        if (abs(pp->cmd.ucmd.fvel + pp->cmd.ucmd.svel) && !abs(pp->lastcmd.ucmd.fvel + pp->lastcmd.ucmd.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!abs(pp->cmd.ucmd.fvel + pp->cmd.ucmd.svel) && abs(pp->lastinput.fvel + pp->lastinput.svel))
+        else if (!abs(pp->cmd.ucmd.fvel + pp->cmd.ucmd.svel) && abs(pp->lastcmd.ucmd.fvel + pp->lastcmd.ucmd.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -2631,9 +2631,9 @@ void DoPlayerMoveTurret(SWPlayer* pp)
 {
     if (!Prediction)
     {
-        if (pp->cmd.ucmd.avel && !pp->lastinput.avel)
+        if (pp->cmd.ucmd.avel && !pp->lastcmd.ucmd.avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->cmd.ucmd.avel && pp->lastinput.avel)
+        else if (!pp->cmd.ucmd.avel && pp->lastcmd.ucmd.avel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
@@ -6728,7 +6728,7 @@ void PauseMultiPlay(void)
 //
 //---------------------------------------------------------------------------
 
-void domovethings(const ticcmd_t* playercmds)
+void domovethings(void)
 {
     short pnum;
 
@@ -6775,9 +6775,6 @@ void domovethings(const ticcmd_t* playercmds)
 
         pp = getPlayer(pnum);
         GlobPlayerP = pp;
-
-        pp->lastinput = pp->cmd.ucmd;
-        pp->cmd.ucmd = playercmds[pnum].ucmd;
 
         if (pp->cookieTime)
         {

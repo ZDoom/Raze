@@ -310,7 +310,7 @@ static void GameMove(void)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker()
 {
 	if (paused)
 	{
@@ -325,7 +325,6 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
         {
             const auto pPlayer = getPlayer(i);
             pPlayer->Angles.resetCameraAngles();
-            pPlayer->cmd.ucmd = playercmds[i].ucmd;
             updatePlayerTarget(pPlayer);
         }
 

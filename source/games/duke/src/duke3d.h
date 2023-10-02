@@ -44,7 +44,7 @@ struct GameInterface : public ::GameInterface
 	void Startup() override;
 	void DrawBackground() override;
 	void Render() override;
-	void Ticker(const ticcmd_t* playercmds) override;
+	void Ticker() override;
 	const char* GenericCheat(int player, int cheat) override;
 	const char* CheckCheatMode() override;
 	void NextLevel(MapRecord* map, int skill) override;

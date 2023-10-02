@@ -710,9 +710,9 @@ int GameInterface::GetCurrentSkill()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::Ticker(const ticcmd_t* playercmds)
+void GameInterface::Ticker(void)
 {
-    domovethings(playercmds);
+    domovethings();
     r_NoInterpolate = paused;
 }
 

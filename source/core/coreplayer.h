@@ -6,7 +6,7 @@
 
 struct CorePlayer
 {
-	ticcmd_t cmd;
+	ticcmd_t lastcmd, cmd;
 	PlayerAngles Angles;
 	DCoreActor* actor;
 
