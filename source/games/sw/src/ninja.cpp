@@ -2292,7 +2292,7 @@ void PlayerGameReset(SWPlayer* pp)
     PlayerUpdateArmor(pp, 0);
     pp->KillerActor = nullptr;;
 
-    if (pp == Player+screenpeek)
+    if (pp == &Player[screenpeek])
     {
         videoFadePalette(0,0,0,0);
     }
@@ -2387,7 +2387,7 @@ void InitPlayerSprite(SWPlayer* pp, const DVector3& spawnpos, const DAngle start
 
     memset(pp->InventoryTics,0,sizeof(pp->InventoryTics));
 
-    if (pp == Player+screenpeek)
+    if (pp == &Player[screenpeek])
     {
         videoFadePalette(0,0,0,0);
     }

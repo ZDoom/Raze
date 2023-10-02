@@ -4103,7 +4103,7 @@ void DoPlayerDivePalette(SWPlayer* pp)
 {
     if (pp != Player + screenpeek) return;
 
-    if ((pp->DeathType == PLAYER_DEATH_DROWN || ((Player+screenpeek)->Flags & PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
+    if ((pp->DeathType == PLAYER_DEATH_DROWN || (Player[screenpeek].Flags & PF_DIVING)) && !(pp->Flags & PF_DIVING_IN_LAVA))
     {
         SetFadeAmt(pp,-1005,210); // Dive color , org color 208
     }

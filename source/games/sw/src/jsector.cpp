@@ -376,7 +376,7 @@ void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* 
 
 void JS_ProcessEchoSpot()
 {
-    SWPlayer* pp = Player+screenpeek;
+    SWPlayer* pp = &Player[screenpeek];
     int16_t reverb;
     bool reverb_set = false;
 
