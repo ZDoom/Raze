@@ -5063,7 +5063,7 @@ KeyMain:
             if (pp->HasKey[key_num])
                 break;
 
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_KEYMSG + key_num));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_KEYMSG + key_num));
 
             pp->HasKey[key_num] = true;
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5083,14 +5083,14 @@ KeyMain:
                 if (actor->user.spal == PALETTE_PLAYER3)
                 {
                     PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Kevlar].amount);
-                    PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Kevlar));
+                    PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Kevlar));
                 }
                 else
                 {
                     if (pp->Armor < InventoryDecls[InvDecl_Armor].amount)
                     {
                         PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Armor].amount);
-                        PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Armor));
+                        PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Armor));
                     }
                     else
                         break;
@@ -5119,7 +5119,7 @@ KeyMain:
             {
                 bool putbackmax=false;
 
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_SmMedkit));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_SmMedkit));
 
                 if (pp->MaxHealth == 200)
                 {
@@ -5149,7 +5149,7 @@ KeyMain:
             pp->MaxHealth = 200;
             if (plActor->user.Health < 200)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Booster));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Booster));
                 PlayerUpdateHealth(pp, InventoryDecls[InvDecl_Booster].amount);       // This is for health
                 // over 100%
                 // Say something witty
@@ -5189,7 +5189,7 @@ KeyMain:
 
             if (!pp->InventoryAmount[INVENTORY_MEDKIT] || pp->InventoryPercent[INVENTORY_MEDKIT] < InventoryDecls[InvDecl_Medkit].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Medkit));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Medkit));
                 pp->InventoryPercent[INVENTORY_MEDKIT] = InventoryDecls[InvDecl_Medkit].amount;
                 pp->InventoryAmount[INVENTORY_MEDKIT] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_MEDKIT);
@@ -5212,7 +5212,7 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_CHEMBOMB] < InventoryDecls[InvDecl_ChemBomb].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_ChemBomb));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_ChemBomb));
                 pp->InventoryPercent[INVENTORY_CHEMBOMB] = 0;
                 pp->InventoryAmount[INVENTORY_CHEMBOMB]++;
                 PlayerUpdateInventory(pp, INVENTORY_CHEMBOMB);
@@ -5227,7 +5227,7 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_FLASHBOMB] < InventoryDecls[InvDecl_FlashBomb].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_FlashBomb));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_FlashBomb));
                 pp->InventoryPercent[INVENTORY_FLASHBOMB] = 0;
                 pp->InventoryAmount[INVENTORY_FLASHBOMB]++;
                 PlayerUpdateInventory(pp, INVENTORY_FLASHBOMB);
@@ -5242,7 +5242,7 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_CALTROPS] < InventoryDecls[InvDecl_Caltrops].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Caltrops));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Caltrops));
                 pp->InventoryPercent[INVENTORY_CALTROPS] = 0;
                 pp->InventoryAmount[INVENTORY_CALTROPS]+=3;
                 if (pp->InventoryAmount[INVENTORY_CALTROPS] > InventoryDecls[InvDecl_Caltrops].amount)
@@ -5258,7 +5258,7 @@ KeyMain:
         case ICON_NIGHT_VISION:
             if (!pp->InventoryAmount[INVENTORY_NIGHT_VISION] || pp->InventoryPercent[INVENTORY_NIGHT_VISION] < InventoryDecls[InvDecl_NightVision].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_NightVision));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_NightVision));
                 pp->InventoryPercent[INVENTORY_NIGHT_VISION] = InventoryDecls[InvDecl_NightVision].amount;
                 pp->InventoryAmount[INVENTORY_NIGHT_VISION] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_NIGHT_VISION);
@@ -5271,7 +5271,7 @@ KeyMain:
         case ICON_REPAIR_KIT:
             if (!pp->InventoryAmount[INVENTORY_REPAIR_KIT] || pp->InventoryPercent[INVENTORY_REPAIR_KIT] < InventoryDecls[InvDecl_RepairKit].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_RepairKit));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_RepairKit));
                 pp->InventoryPercent[INVENTORY_REPAIR_KIT] = InventoryDecls[InvDecl_RepairKit].amount;
                 pp->InventoryAmount[INVENTORY_REPAIR_KIT] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_REPAIR_KIT);
@@ -5302,7 +5302,7 @@ KeyMain:
         case ICON_CLOAK:
             if (!pp->InventoryAmount[INVENTORY_CLOAK] || pp->InventoryPercent[INVENTORY_CLOAK] < InventoryDecls[InvDecl_Cloak].amount)
             {
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Cloak));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Cloak));
                 pp->InventoryPercent[INVENTORY_CLOAK] = InventoryDecls[InvDecl_Cloak].amount;
                 pp->InventoryAmount[INVENTORY_CLOAK] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_CLOAK);
@@ -5325,7 +5325,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
 
-            PutStringInfo(Player+pnum, sw_darts? GStrings("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
+            PutStringInfo(&Player[pnum], sw_darts? GStrings("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
             PlayerUpdateAmmo(pp, WPN_STAR, DamageData[WPN_STAR].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5352,7 +5352,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_MINE] >= DamageData[WPN_MINE].max_ammo)
                 break;
             //sprintf(ds,"Sticky Bombs");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNSTICKY));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNSTICKY));
             PlayerUpdateAmmo(pp, WPN_MINE, DamageData[WPN_MINE].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5381,7 +5381,7 @@ KeyMain:
             if (pp->Flags & (PF_TWO_UZI) && pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Submachine Gun");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNUZI));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNUZI));
 //            pp->WpnAmmo[WPN_UZI] += 50;
             PlayerUpdateAmmo(pp, WPN_UZI, DamageData[WPN_UZI].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5419,7 +5419,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Clip");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOUZI));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMOUZI));
             PlayerUpdateAmmo(pp, WPN_UZI, DamageData[WPN_UZI].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5437,7 +5437,7 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_MICRO)) && pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missile Launcher");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNLAUNCH));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNLAUNCH));
 //            pp->WpnAmmo[WPN_MICRO] += 5;
             PlayerUpdateAmmo(pp, WPN_MICRO, DamageData[WPN_MICRO].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5460,7 +5460,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missiles");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOLAUNCH));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMOLAUNCH));
             PlayerUpdateAmmo(pp, WPN_MICRO, DamageData[WPN_MICRO].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5472,7 +5472,7 @@ KeyMain:
             if (pp->WpnRocketNuke != 1)
             {
                 //sprintf(ds,"Nuclear Warhead");
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNNUKE));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNNUKE));
                 pp->WpnRocketNuke =uint8_t(DamageData[DMG_NUCLEAR_EXP].weapon_pickup);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == &Player[myconnectindex])
@@ -5504,7 +5504,7 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_GRENADE)) && pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Launcher");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNGRENADE));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNGRENADE));
 //            pp->WpnAmmo[WPN_GRENADE] += 6;
             PlayerUpdateAmmo(pp, WPN_GRENADE, DamageData[WPN_GRENADE].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5529,7 +5529,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Shells");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOGRENADE));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMOGRENADE));
             PlayerUpdateAmmo(pp, WPN_GRENADE, DamageData[WPN_GRENADE].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5574,7 +5574,7 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_RAIL)) && pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRAILGUN));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNRAILGUN));
             PlayerUpdateAmmo(pp, WPN_RAIL, DamageData[WPN_RAIL].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5605,7 +5605,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun Rods");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORAILGUN));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMORAILGUN));
             PlayerUpdateAmmo(pp, WPN_RAIL, DamageData[WPN_RAIL].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5622,7 +5622,7 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_SHOTGUN)) && pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Riot Gun");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIOT));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNRIOT));
 //            pp->WpnAmmo[WPN_SHOTGUN] += 10;
             PlayerUpdateAmmo(pp, WPN_SHOTGUN, DamageData[WPN_SHOTGUN].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5645,7 +5645,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Shotshells");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORIOT));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMORIOT));
             PlayerUpdateAmmo(pp, WPN_SHOTGUN, DamageData[WPN_SHOTGUN].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash on item pickup
             if (pp == &Player[myconnectindex])
@@ -5689,7 +5689,7 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_HOTHEAD)) && pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Guardian Head");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNHEAD));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNHEAD));
             PlayerUpdateAmmo(pp, WPN_HOTHEAD, DamageData[WPN_HOTHEAD].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5715,7 +5715,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Firebursts");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOHEAD));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMOHEAD));
             PlayerUpdateAmmo(pp, WPN_HOTHEAD, DamageData[WPN_HOTHEAD].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5734,7 +5734,7 @@ KeyMain:
             if (pp->WpnFlags & (BIT(WPN_HEART)) && pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Ripper Heart");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIPPER));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_WPNRIPPER));
             PlayerUpdateAmmo(pp, WPN_HEART, DamageData[WPN_HEART].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5762,7 +5762,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Deathcoils");
-            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORIPPER));
+            PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMORIPPER));
             PlayerUpdateAmmo(pp, WPN_HEART, DamageData[WPN_HEART].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == &Player[myconnectindex])
@@ -5774,7 +5774,7 @@ KeyMain:
             if (pp->WpnRocketHeat != 5)
             {
                 //sprintf(ds,"Heat Seeker Card");
-                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMONUKE));
+                PutStringInfo(&Player[pnum], quoteMgr.GetQuote(QUOTE_AMMONUKE));
                 pp->WpnRocketHeat = uint8_t(DamageData[DMG_NUCLEAR_EXP].ammo_pickup);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == &Player[myconnectindex])
