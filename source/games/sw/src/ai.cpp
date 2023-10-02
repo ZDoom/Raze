@@ -250,7 +250,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         goto TARGETACTOR;
 
     // Set initial target to Player 0
-    actor->user.targetActor = Player->GetActor();
+    actor->user.targetActor = Player[0].GetActor();
 
     if (actor->user.Flags2 & (SPR2_DONT_TARGET_OWNER))
     {
