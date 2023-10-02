@@ -78,7 +78,7 @@ void PlayerColorChanged(void)
 //
 //---------------------------------------------------------------------------
 
-int setpal(player_struct* p)
+int setpal(DukePlayer* p)
 {
 	int palette;
 	if (p->DrugMode) palette = DRUGPAL;
@@ -96,7 +96,7 @@ int setpal(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void quickkill(player_struct* p)
+void quickkill(DukePlayer* p)
 {
 	SetPlayerPal(p, PalEntry(48, 48, 48, 48));
 
@@ -113,7 +113,7 @@ void quickkill(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void forceplayerangle(player_struct* p)
+void forceplayerangle(DukePlayer* p)
 {
 	const auto ang = (DAngle22_5 - randomAngle(45)) / 2.;
 
@@ -174,7 +174,7 @@ double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 //
 //---------------------------------------------------------------------------
 
-double hitawall(player_struct* p, walltype** hitw)
+double hitawall(DukePlayer* p, walltype** hitw)
 {
 	HitInfo hit{};
 
@@ -708,7 +708,7 @@ void playerJump(int snum, double floorz, double ceilingz)
 //
 //---------------------------------------------------------------------------
 
-void player_struct::apply_seasick()
+void DukePlayer::apply_seasick()
 {
 	if (isRRRA() && SeaSick && (dead_flag == 0))
 	{
@@ -736,7 +736,7 @@ void player_struct::apply_seasick()
 //
 //---------------------------------------------------------------------------
 
-void player_struct::backuppos(bool noclipping)
+void DukePlayer::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
@@ -758,7 +758,7 @@ void player_struct::backuppos(bool noclipping)
 //
 //---------------------------------------------------------------------------
 
-void player_struct::backupweapon()
+void DukePlayer::backupweapon()
 {
 	oweapon_sway = weapon_sway;
 	oweapon_pos = weapon_pos;
@@ -779,7 +779,7 @@ void player_struct::backupweapon()
 //
 //---------------------------------------------------------------------------
 
-void player_struct::checkhardlanding()
+void DukePlayer::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
@@ -788,7 +788,7 @@ void player_struct::checkhardlanding()
 	}
 }
 
-void player_struct::playerweaponsway(double xvel)
+void DukePlayer::playerweaponsway(double xvel)
 {
 	if (cl_weaponsway)
 	{
@@ -966,7 +966,7 @@ void shoot(DDukeActor* actor, PClass* cls)
 //
 //---------------------------------------------------------------------------
 
-bool movementBlocked(player_struct *p)
+bool movementBlocked(DukePlayer *p)
 {
 	auto blockingweapon = [=]()
 	{
@@ -1026,7 +1026,7 @@ int haslock(sectortype* sectp, int snum)
 //
 //---------------------------------------------------------------------------
 
-void purplelavacheck(player_struct* p)
+void purplelavacheck(DukePlayer* p)
 {
 	auto pact = p->GetActor();
 	if (p->spritebridge == 0 && pact->insector())
@@ -1060,7 +1060,7 @@ void purplelavacheck(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void addphealth(player_struct* p, int amount, bool bigitem)
+void addphealth(DukePlayer* p, int amount, bool bigitem)
 {
 	if (p->newOwner != nullptr)
 	{
@@ -1124,7 +1124,7 @@ void addphealth(player_struct* p, int amount, bool bigitem)
 //
 //---------------------------------------------------------------------------
 
-int playereat(player_struct* p, int amount, bool bigitem)
+int playereat(DukePlayer* p, int amount, bool bigitem)
 {
 	p->eat += amount;
 	if (p->eat > 100)
@@ -1181,7 +1181,7 @@ int playereat(player_struct* p, int amount, bool bigitem)
 //
 //---------------------------------------------------------------------------
 
-void playerdrink(player_struct* p, int amount)
+void playerdrink(DukePlayer* p, int amount)
 {
 	p->drink_amt += amount;
 	int curhealth = p->GetActor()->spr.extra;
@@ -1221,7 +1221,7 @@ void playerdrink(player_struct* p, int amount)
 //
 //---------------------------------------------------------------------------
 
-int playeraddammo(player_struct* p, int weaponindex, int amount)
+int playeraddammo(DukePlayer* p, int weaponindex, int amount)
 {
 	if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
 	{
@@ -1234,7 +1234,7 @@ int playeraddammo(player_struct* p, int weaponindex, int amount)
 	return true;
 }
 
-int playeraddweapon(player_struct* p, int weaponindex, int amount)
+int playeraddweapon(DukePlayer* p, int weaponindex, int amount)
 {
 	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p- ps) & 1));
 	else if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
@@ -1255,7 +1255,7 @@ int playeraddweapon(player_struct* p, int weaponindex, int amount)
 //
 //---------------------------------------------------------------------------
 
-void playeraddinventory(player_struct* p, DDukeActor* item, int type, int amount)
+void playeraddinventory(DukePlayer* p, DDukeActor* item, int type, int amount)
 {
 	switch (type)
 	{
@@ -1322,7 +1322,7 @@ void playeraddinventory(player_struct* p, DDukeActor* item, int type, int amount
 //
 //---------------------------------------------------------------------------
 
-int checkp(DDukeActor* self, player_struct* p, int flags)
+int checkp(DDukeActor* self, DukePlayer* p, int flags)
 {
 	bool j = 0;
 
@@ -1381,7 +1381,7 @@ int checkp(DDukeActor* self, player_struct* p, int flags)
 //
 //---------------------------------------------------------------------------
 
-int playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount)
+int playercheckinventory(DukePlayer* p, DDukeActor* item, int type, int amount)
 {
 	bool j = 0;
 	switch (type)
@@ -1457,7 +1457,7 @@ int playercheckinventory(player_struct* p, DDukeActor* item, int type, int amoun
 //
 //---------------------------------------------------------------------------
 
-void playerstomp(player_struct* p, DDukeActor* stomped)
+void playerstomp(DukePlayer* p, DDukeActor* stomped)
 {
 	if (p->knee_incs == 0 && p->GetActor()->spr.scale.X >= (isRR() ? 0.140625 : 0.625))
 		if (cansee(stomped->spr.pos.plusZ(-4), stomped->sector(), p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector()))
@@ -1475,7 +1475,7 @@ void playerstomp(player_struct* p, DDukeActor* stomped)
 //
 //---------------------------------------------------------------------------
 
-void playerreset(player_struct* p, DDukeActor* g_ac)
+void playerreset(DukePlayer* p, DDukeActor* g_ac)
 {
 	if (ud.multimode < 2)
 	{
@@ -1540,7 +1540,7 @@ void playerreset(player_struct* p, DDukeActor* g_ac)
 //
 //---------------------------------------------------------------------------
 
-void wackplayer(player_struct* p)
+void wackplayer(DukePlayer* p)
 {
 	if (!isRR())
 		forceplayerangle(p);
@@ -1559,7 +1559,7 @@ void wackplayer(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void playerkick(player_struct* p, DDukeActor* g_ac)
+void playerkick(DukePlayer* p, DDukeActor* g_ac)
 {
 	if (ud.multimode > 1 && g_ac->isPlayer())
 	{

@@ -19,7 +19,7 @@
 
 BEGIN_DUKE_NS
 
-extern player_struct ps[MAXPLAYERS];
+extern DukePlayer ps[MAXPLAYERS];
 
 struct GameInterface : public ::GameInterface
 {
@@ -78,14 +78,14 @@ struct Dispatcher
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
 	void (*checksectors)(int low);
 
-	void (*addweapon)(player_struct *p, int weapon, bool wswitch);
+	void (*addweapon)(DukePlayer *p, int weapon, bool wswitch);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 
 	// player
-	void (*incur_damage)(player_struct* p);
+	void (*incur_damage)(DukePlayer* p);
 	void (*selectweapon)(int snum, int j);
-	int (*doincrements)(player_struct* p);
-	void (*checkweapons)(player_struct* p);
+	int (*doincrements)(DukePlayer* p);
+	void (*checkweapons)(DukePlayer* p);
 	void (*processinput)(int snum);
 	void (*displayweapon)(int snum, double interpfrac);
 	void (*displaymasks)(int snum, int p, double interpfrac);
@@ -102,18 +102,18 @@ void CallTick(DDukeActor* actor);
 bool CallOperate(DDukeActor* actor, int plnum);
 void CallAction(DDukeActor* actor);
 void checkhitsprite(DDukeActor* actor, DDukeActor* hitter);
-void CallOnHurt(DDukeActor* actor, player_struct* hitter);
-void CallOnTouch(DDukeActor* actor, player_struct* hitter);
-bool CallOnUse(DDukeActor* actor, player_struct* user);
-void CallOnMotoSmash(DDukeActor* actor, player_struct* hitter);
+void CallOnHurt(DDukeActor* actor, DukePlayer* hitter);
+void CallOnTouch(DDukeActor* actor, DukePlayer* hitter);
+bool CallOnUse(DDukeActor* actor, DukePlayer* user);
+void CallOnMotoSmash(DDukeActor* actor, DukePlayer* hitter);
 void CallOnRespawn(DDukeActor* actor, int low);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
 bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3& spos, DAngle sang);
 void CallStaticSetup(DDukeActor* actor);
 void CallPlayFTASound(DDukeActor* actor, int mode = 0);
-void CallStandingOn(DDukeActor* actor, player_struct* p);
+void CallStandingOn(DDukeActor* actor, DukePlayer* p);
 void CallRunState(DDukeActor* actor);
-int CallTriggerSwitch(DDukeActor* actor, player_struct* p);
+int CallTriggerSwitch(DDukeActor* actor, DukePlayer* p);
 PClassActor* CallGetRadiusDamageType(DDukeActor* actor, int targhealth);
 
 

@@ -49,7 +49,7 @@ void operateweapon_ww(int snum, ESyncBits actions);
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_d(player_struct* p)
+void incur_damage_d(DukePlayer* p)
 {
 	int  damage = 0L, shield_damage = 0L;
 
@@ -337,7 +337,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 //
 //---------------------------------------------------------------------------
 
-int doincrements_d(player_struct* p)
+int doincrements_d(DukePlayer* p)
 {
 	int snum;
 
@@ -536,7 +536,7 @@ int doincrements_d(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkweapons_d(player_struct* p)
+void checkweapons_d(DukePlayer* p)
 {
 	static PClassActor* const * const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &DukeFirstgunSpriteClass, &DukeShotgunSpriteClass,
 			&DukeChaingunSpriteClass, &DukeRPGSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass, &DukeDevastatorSpriteClass,
@@ -1536,7 +1536,7 @@ void processinput_d(int snum)
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
-	player_struct* p;
+	DukePlayer* p;
 
 	p = &ps[snum];
 	auto pact = p->GetActor();

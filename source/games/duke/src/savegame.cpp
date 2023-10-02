@@ -103,7 +103,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_orig& w, pl
 	return arc;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, player_struct* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DukePlayer& w, DukePlayer* def)
 {
 	if (arc.BeginObject(keyname))
 	{

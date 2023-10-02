@@ -208,7 +208,7 @@ void DrawBoat(int const kb, const DVector2& offsets, DAngle angle, int shade, in
 //
 //
 //---------------------------------------------------------------------------
-void animateshrunken(player_struct* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac);
+void animateshrunken(DukePlayer* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac);
 
 void displayweapon_r(int snum, double interpfrac)
 {

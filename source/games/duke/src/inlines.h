@@ -160,7 +160,7 @@ inline void clearfriction()
 	}
 }
 
-inline void SetPlayerPal(player_struct* p, PalEntry pe)
+inline void SetPlayerPal(DukePlayer* p, PalEntry pe)
 {
 	p->pals = pe;
 }
@@ -170,7 +170,7 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline void doslopetilting(player_struct* p)
+inline void doslopetilting(DukePlayer* p)
 {
 	p->Angles.doViewPitch(p->aim_mode == 0 && p->on_ground && p->cursector->lotag != ST_2_UNDERWATER);
 }
@@ -338,7 +338,7 @@ inline void subkill(DDukeActor* actor)
 	}
 }
 
-inline void dokill(player_struct* p, DDukeActor* g_ac, int amount)
+inline void dokill(DukePlayer* p, DDukeActor* g_ac, int amount)
 {
 	if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128 || !isRR())
 	{

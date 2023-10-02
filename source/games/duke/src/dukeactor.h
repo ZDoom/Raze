@@ -9,12 +9,12 @@ using DukeStatIterator = TStatIterator<DDukeActor>;
 using DukeSectIterator = TSectIterator<DDukeActor>;
 using DukeSpriteIterator = TSpriteIterator<DDukeActor>;
 
-inline DDukeActor* player_struct::GetActor()
+inline DDukeActor* DukePlayer::GetActor()
 {
 	return actor;
 }
 
-inline int player_struct::GetPlayerNum()
+inline int DukePlayer::GetPlayerNum()
 {
 	return GetActor()->PlayerIndex();
 }

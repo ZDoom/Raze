@@ -224,7 +224,7 @@ struct player_orig
 	sectortype* os;
 };
 
-struct player_struct
+struct DukePlayer
 {
 	DVector3 vel;
 	DVector2 bobpos;

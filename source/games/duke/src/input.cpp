@@ -54,7 +54,7 @@ void hud_input(int plnum)
 {
 	int i, k;
 	uint8_t dainv;
-	player_struct* p;
+	DukePlayer* p;
 
 	p = &ps[plnum];
 	auto pact = p->GetActor();

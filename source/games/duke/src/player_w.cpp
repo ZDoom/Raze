@@ -48,7 +48,7 @@ int operateTripbomb(int snum);
 //
 //---------------------------------------------------------------------------
 
-void DoFire(player_struct* p, int snum)
+void DoFire(DukePlayer* p, int snum)
 {
 	int i;
 
@@ -105,7 +105,7 @@ void DoFire(player_struct* p, int snum)
 //
 //---------------------------------------------------------------------------
 
-void DoSpawn(player_struct *p, int snum)
+void DoSpawn(DukePlayer *p, int snum)
 {
 	if(!aplWeaponSpawn(p->curr_weapon, snum))
 		return;

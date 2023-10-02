@@ -43,7 +43,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_r(player_struct* p)
+void incur_damage_r(DukePlayer* p)
 {
 	int  damage = 0, shield_damage = 0;
 	int gut = 0;
@@ -343,7 +343,7 @@ void selectweapon_r(int snum, int weap)
 //
 //---------------------------------------------------------------------------
 
-int doincrements_r(player_struct* p)
+int doincrements_r(DukePlayer* p)
 {
 	int snum;
 	auto pact = p->GetActor();
@@ -600,7 +600,7 @@ int doincrements_r(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkweapons_r(player_struct* p)
+void checkweapons_r(DukePlayer* p)
 {
 	static  PClassActor* const* const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &RedneckRevolverClass, &RedneckShotgunClass,
 		&RedneckRiflegunClass, &RedneckDynamiteClass, &RedneckCrossbowClass, &RedneckRipsawClass, &RedneckBlasterClass,
@@ -709,7 +709,7 @@ enum : unsigned
 	VEH_FWDBRAKING = VEH_FORWARD|VEH_BRAKING,
 };
 
-static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
+static unsigned outVehicleFlags(DukePlayer* p, ESyncBits& actions)
 {
 	unsigned flags = 0;
 	flags += VEH_FORWARD * (p->input.fvel > 0);
@@ -727,7 +727,7 @@ static unsigned outVehicleFlags(player_struct* p, ESyncBits& actions)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleTilting(player_struct* const p, const bool canTilt)
+static void doVehicleTilting(DukePlayer* const p, const bool canTilt)
 {
 	auto adj = DAngle::fromDeg(p->input.avel * (545943. / 3200000.) * canTilt);
 	if (p->OnMotorcycle) adj *= 5 * Sgn(p->MotoSpeed);
@@ -744,7 +744,7 @@ static void doVehicleTilting(player_struct* const p, const bool canTilt)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleBumping(player_struct* p, DDukeActor* pact, unsigned flags, bool bumptest, int bumpscale)
+static void doVehicleBumping(DukePlayer* p, DDukeActor* pact, unsigned flags, bool bumptest, int bumpscale)
 {
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
@@ -805,7 +805,7 @@ static void doVehicleBumping(player_struct* p, DDukeActor* pact, unsigned flags,
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleDrunk(player_struct* const p)
+static void doVehicleDrunk(DukePlayer* const p)
 {
 	if (p->drink_amt > 88 && p->moto_drink == 0)
 	{
@@ -831,7 +831,7 @@ static void doVehicleDrunk(player_struct* const p)
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleSounds(player_struct* p, DDukeActor* pact, unsigned flags, unsigned sound1, unsigned sound2, unsigned sound3, unsigned sound4)
+static void doVehicleSounds(DukePlayer* p, DDukeActor* pact, unsigned flags, unsigned sound1, unsigned sound2, unsigned sound3, unsigned sound4)
 {
 	if ((p->OnBoat && (flags & VEH_FWDBRAKING) == VEH_FORWARD) || flags & VEH_FORWARD)
 	{
@@ -883,7 +883,7 @@ static void doVehicleSounds(player_struct* p, DDukeActor* pact, unsigned flags, 
 //
 //---------------------------------------------------------------------------
 
-static void doVehicleThrottling(player_struct* p, DDukeActor* pact, unsigned& flags, int fwdSpeed, int revSpeed, int brakeSpeed, int vBmpFwd, int vBmpBrake)
+static void doVehicleThrottling(DukePlayer* p, DDukeActor* pact, unsigned& flags, int fwdSpeed, int revSpeed, int brakeSpeed, int vBmpFwd, int vBmpBrake)
 {
 	if (p->on_ground == 1)
 	{
@@ -2946,7 +2946,7 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void OnMotorcycle(player_struct *p)
+void OnMotorcycle(DukePlayer *p)
 {
 	if (!p->OnMotorcycle && p->cursector->lotag != ST_2_UNDERWATER)
 	{
@@ -2969,7 +2969,7 @@ void OnMotorcycle(player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-void OffMotorcycle(player_struct *p)
+void OffMotorcycle(DukePlayer *p)
 {
 	auto pact = p->GetActor();
 	if (p->OnMotorcycle)
@@ -3013,7 +3013,7 @@ void OffMotorcycle(player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-void OnBoat(player_struct *p)
+void OnBoat(DukePlayer *p)
 {
 	if (!p->OnBoat)
 	{
@@ -3034,7 +3034,7 @@ void OnBoat(player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-void OffBoat(player_struct *p)
+void OffBoat(DukePlayer *p)
 {
 	if (p->OnBoat)
 	{

@@ -60,7 +60,7 @@ void premapcontroller(DDukeActor* ac)
 
 void pickrandomspot(int snum)
 {
-	player_struct* p;
+	DukePlayer* p;
 	int i;
 
 	p = &ps[snum];
@@ -85,7 +85,7 @@ void pickrandomspot(int snum)
 
 void resetplayerstats(int snum)
 {
-	player_struct* p;
+	DukePlayer* p;
 
 	p = &ps[snum];
 
@@ -259,7 +259,7 @@ void resetplayerstats(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetweapons(player_struct* p)
+void resetweapons(DukePlayer* p)
 {
 	for (int weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
 	{
@@ -302,7 +302,7 @@ void resetweapons(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void resetinventory(player_struct* p)
+void resetinventory(DukePlayer* p)
 {
 	p->inven_icon = 0;
 	p->boot_amount = 0;
@@ -374,7 +374,7 @@ void resetinventory(player_struct* p)
 
 void resetprestat(int snum,int g)
 {
-	player_struct* p;
+	DukePlayer* p;
 
 	p = &ps[snum];
 
@@ -1058,7 +1058,7 @@ void cacheit(void)
 //
 //---------------------------------------------------------------------------
 
-static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
+static int LoadTheMap(MapRecord *mi, DukePlayer*p, int gamemode)
 {
 	int16_t lbang;
 	if (isShareware() && (mi->flags & MI_USERMAP))

@@ -42,7 +42,7 @@ BEGIN_DUKE_NS
 
 void prelevel_r(int g, TArray<DDukeActor*>& actors)
 {
-	player_struct* p;
+	DukePlayer* p;
 	int j;
 	int lotaglist;
 	TArray<short> lotags;

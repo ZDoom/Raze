@@ -634,7 +634,7 @@ void checkhitsprite(DDukeActor* actor, DDukeActor* hitter)
 	}
 }
 
-void CallOnHurt(DDukeActor* actor, player_struct* hitter)
+void CallOnHurt(DDukeActor* actor, DukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onHurt)
 	{
@@ -643,7 +643,7 @@ void CallOnHurt(DDukeActor* actor, player_struct* hitter)
 	}
 }
 
-void CallOnTouch(DDukeActor* actor, player_struct* hitter)
+void CallOnTouch(DDukeActor* actor, DukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onTouch)
 	{
@@ -653,7 +653,7 @@ void CallOnTouch(DDukeActor* actor, player_struct* hitter)
 }
 
 
-bool CallOnUse(DDukeActor* actor, player_struct* user)
+bool CallOnUse(DDukeActor* actor, DukePlayer* user)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, onUse)
@@ -665,7 +665,7 @@ bool CallOnUse(DDukeActor* actor, player_struct* user)
 	return nval;
 }
 
-void CallOnMotoSmash(DDukeActor* actor, player_struct* hitter)
+void CallOnMotoSmash(DDukeActor* actor, DukePlayer* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onMotoSmash)
 	{
@@ -726,7 +726,7 @@ void CallPlayFTASound(DDukeActor* actor, int mode)
 	}
 }
 
-void CallStandingOn(DDukeActor* actor, player_struct* p)
+void CallStandingOn(DDukeActor* actor, DukePlayer* p)
 {
 	IFVIRTUALPTR(actor, DDukeActor, StandingOn)
 	{
@@ -735,7 +735,7 @@ void CallStandingOn(DDukeActor* actor, player_struct* p)
 	}
 }
 
-int CallTriggerSwitch(DDukeActor* actor, player_struct* p)
+int CallTriggerSwitch(DDukeActor* actor, DukePlayer* p)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, TriggerSwitch)

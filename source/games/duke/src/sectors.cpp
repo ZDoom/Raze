@@ -1126,7 +1126,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void operateactivators(int low, player_struct* plr)
+void operateactivators(int low, DukePlayer* plr)
 {
 	int i, j, k;
 	Cycler * p;

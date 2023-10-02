@@ -212,7 +212,7 @@ void RANDOMSCRAP(DDukeActor* origin)
 //
 //---------------------------------------------------------------------------
 
-void addammo(int weapon, player_struct* player, int amount)
+void addammo(int weapon, DukePlayer* player, int amount)
 {
 	player->ammo_amount[weapon] += amount;
 
@@ -226,7 +226,7 @@ void addammo(int weapon, player_struct* player, int amount)
 //
 //---------------------------------------------------------------------------
 
-void checkavailinven(player_struct* player)
+void checkavailinven(DukePlayer* player)
 {
 
 	if (player->firstaid_amount > 0)
@@ -252,7 +252,7 @@ void checkavailinven(player_struct* player)
 //
 //---------------------------------------------------------------------------
 
-void checkavailweapon(player_struct* player)
+void checkavailweapon(DukePlayer* player)
 {
 	int i, snum;
 	int weap;
@@ -328,7 +328,7 @@ void checkavailweapon(player_struct* player)
 //
 //---------------------------------------------------------------------------
 
-void clearcamera(player_struct* ps)
+void clearcamera(DukePlayer* ps)
 {
 	ps->newOwner = nullptr;
 	ps->GetActor()->restoreloc();
