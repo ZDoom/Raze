@@ -1758,11 +1758,12 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & CSTAT_SECTOR_SKY) && rnd(8)))
 			{
 				double dist2;
-				int p = findplayer(actor, &dist2);
+				const auto p = getPlayer(findplayer(actor, &dist2));
+
 				if (dist2 < 1280)//20480)
 				{
 					auto saved_angle = actor->spr.Angles.Yaw;
-					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - getPlayer(p)->GetActor()->spr.pos.XY()).Angle();
+					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
 					shoot(actor, RPG);
 					actor->spr.Angles.Yaw = saved_angle;
 				}
@@ -1772,57 +1773,58 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 		if (actor->vel.X <= 4 && statstate)
 			S_StopSound(actor->tempsound, actor);
 
-		if ((sc->floorz - sc->ceilingz) < 108)
+		if (((sc->floorz - sc->ceilingz) < 108) && (ud.clipping == 0 && actor->vel.X >= 12))
 		{
-			if (ud.clipping == 0 && actor->vel.X >=  12)
-				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-				{
-					auto psp = getPlayer(p)->GetActor();
-					if (psp->spr.extra > 0)
-					{
-						auto sect = getPlayer(p)->cursector;
-						updatesector(getPlayer(p)->GetActor()->getPosWithOffsetZ(), &sect);
-						if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && getPlayer(p)->cursector != actor->sector()))
-						{
-							getPlayer(p)->GetActor()->spr.pos.XY() = actor->spr.pos.XY();
-							getPlayer(p)->setCursector(actor->sector());
+			for (int i = connecthead; i >= 0; i = connectpoint2[i])
+			{
+				const auto p = getPlayer(i);
+				const auto pact = p->GetActor();
 
-							SetActor(getPlayer(p)->GetActor(), actor->spr.pos);
-							quickkill(getPlayer(p));
-						}
+				if (pact->spr.extra > 0)
+				{
+					auto sect = p->cursector;
+					updatesector(pact->getPosWithOffsetZ(), &sect);
+					if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && p->cursector != actor->sector()))
+					{
+						pact->spr.pos.XY() = actor->spr.pos.XY();
+						p->setCursector(actor->sector());
+
+						SetActor(pact, actor->spr.pos);
+						quickkill(p);
 					}
 				}
+			}
 		}
 
 		auto vec = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
-		for (int p = connecthead; p >= 0; p = connectpoint2[p])
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			auto psp = getPlayer(p)->GetActor();
-			if (getPlayer(p)->insector() && getPlayer(p)->cursector->lotag != 2)
+			const auto p = getPlayer(i);
+			const auto pact = p->GetActor();
+
+			if (p->insector() && p->cursector->lotag != 2)
 			{
-				if (po[p].os == actor->sector())
+				if (po[i].os == actor->sector())
 				{
-					po[p].opos += vec;
+					po[i].opos += vec;
 				}
 
-				if (actor->sector() == psp->sector())
+				if (actor->sector() == pact->sector())
 				{
-					auto result = rotatepoint(actor->spr.pos.XY(), getPlayer(p)->GetActor()->spr.pos.XY(), diffangle);
+					auto result = rotatepoint(actor->spr.pos.XY(), pact->spr.pos.XY(), diffangle);
+					pact->spr.pos.XY() = result + vec;
 
-					getPlayer(p)->GetActor()->spr.pos.XY() = result + vec;
-
-					getPlayer(p)->bobpos += vec;
-
-					getPlayer(p)->GetActor()->spr.Angles.Yaw += diffangle;
+					p->bobpos += vec;
+					pact->spr.Angles.Yaw += diffangle;
 
 					if (numplayers > 1)
 					{
-						getPlayer(p)->GetActor()->backupvec2();
+						pact->backupvec2();
 					}
-					if (psp->spr.extra <= 0)
+					if (pact->spr.extra <= 0)
 					{
-						psp->spr.pos.XY() = getPlayer(p)->GetActor()->spr.pos.XY();
+						pact->spr.pos.XY() = pact->spr.pos.XY();
 					}
 				}
 			}
@@ -1848,26 +1850,28 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 		// I have no idea why this is here, but the SE's sector must never, *EVER* change, or the map will corrupt.
 		//SetActor(actor, actor->spr.pos);
 
-		if ((sc->floorz - sc->ceilingz) < 108)
+		if (((sc->floorz - sc->ceilingz) < 108) && (ud.clipping == 0 && actor->vel.X >= 12))
 		{
-			if (ud.clipping == 0 && actor->vel.X >=  12)
-				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-				{
-					if (getPlayer(p)->GetActor()->spr.extra > 0)
-					{
-						auto k = getPlayer(p)->cursector;
-						updatesector(getPlayer(p)->GetActor()->getPosWithOffsetZ(), &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && getPlayer(p)->cursector != actor->sector()))
-						{
-							getPlayer(p)->GetActor()->spr.pos.XY() = actor->spr.pos.XY();
-							getPlayer(p)->GetActor()->backupvec2();
-							getPlayer(p)->setCursector(actor->sector());
+			for (int i = connecthead; i >= 0; i = connectpoint2[i])
+			{
+				const auto p = getPlayer(i);
+				const auto pact = p->GetActor();
 
-							SetActor(getPlayer(p)->GetActor(), actor->spr.pos);
-							quickkill(getPlayer(p));
-						}
+				if (pact->spr.extra > 0)
+				{
+					auto k = p->cursector;
+					updatesector(pact->getPosWithOffsetZ(), &k);
+					if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && p->cursector != actor->sector()))
+					{
+						pact->spr.pos.XY() = actor->spr.pos.XY();
+						pact->backupvec2();
+						p->setCursector(actor->sector());
+
+						SetActor(pact, actor->spr.pos);
+						quickkill(p);
 					}
 				}
+			}
 
 			auto actOwner = actor->GetOwner();
 			if (actOwner)
