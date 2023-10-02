@@ -2397,8 +2397,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTURE& w, POSTUR
 
 void DBloodPlayer::Serialize(FSerializer& arc)
 {
-	arc
-	("newweapon", newWeapon)
+	Super::Serialize(arc);
+	arc("newweapon", newWeapon)
 		("weaponqav", weaponQav)
 		("qavcallback", qavCallback)
 		("isrunning", isRunning)
