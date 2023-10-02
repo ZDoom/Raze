@@ -58,13 +58,12 @@ const char *GameInterface::CheckCheatMode()
 }
 
 
-static const char *cheatGod(int myconnectindex, int state)
+static const char *cheatGod(DDukePlayer* const p, int state)
 {
 	if (state == -1) state = !ud.god;
 	ud.god = state;
 
-	auto* p = getPlayer(myconnectindex);
-	auto act = p->GetActor();
+	const auto act = p->GetActor();
 
 	act->spr.extra = gs.max_player_health;
 	act->hitextra = 0;
@@ -82,8 +81,7 @@ static const char *cheatGod(int myconnectindex, int state)
 
 		act->spr.hitag = 0;
 		act->spr.lotag = 0;
-		act->spr.pal =
-			getPlayer(myconnectindex)->palookup;
+		act->spr.pal = p->palookup;
 
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_ON);
 	}
@@ -92,14 +90,15 @@ static const char *cheatGod(int myconnectindex, int state)
 		ud.god = 0;
 		act->spr.extra = gs.max_player_health;
 		act->hitextra = -1;
-		getPlayer(myconnectindex)->last_extra = gs.max_player_health;
+		p->last_extra = gs.max_player_health;
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_OFF);
 	}
 }
 
-static const char* cheatUnlock()
+static const char* cheatUnlock(DDukePlayer* const p)
 {
 	if (isShareware()) return nullptr;
+	const auto pact = p->GetActor();
 	for (auto&sect: sector)
 	{
 		int j = sect.lotag;
@@ -108,19 +107,19 @@ static const char* cheatUnlock()
 		{
 			if (j & (0xffff - 16384))
 				sect.lotag &= (0xffff - 16384);
-			operatesectors(&sect, getPlayer(myconnectindex)->GetActor());
+			operatesectors(&sect, pact);
 		}
 	}
-	operateforcefields(getPlayer(myconnectindex)->GetActor(), -1);
+	operateforcefields(pact, -1);
 	return quoteMgr.GetQuote(QUOTE_CHEAT_UNLOCK);
 }
 
-static const char *cheatKfc(int player)
+static const char *cheatKfc(DDukePlayer* const p)
 {
+	const auto pact = p->GetActor();
 	for (int i = 0; i < 7; i++)
 	{
-		auto spr = spawn(getPlayer(player)->GetActor(), RedneckHenClass);
-		if (spr)
+		if (const auto spr = spawn(pact, RedneckHenClass))
 		{
 			spr->spr.pal = 1;
 			spr->spr.scale *= 4;
@@ -142,47 +141,49 @@ static const char * cheatMonsters()
 
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
+	const auto p = getPlayer(player);
+
 	switch (cheat)
 	{
 	case CHT_GOD:
-		return cheatGod(player, -1);
+		return cheatGod(p, -1);
 
 	case CHT_GODOFF:
-		return cheatGod(player, 0);
+		return cheatGod(p, 0);
 
 	case CHT_GODON:
-		return cheatGod(player, 1);
+		return cheatGod(p, 1);
 
 	case CHT_NOCLIP:
 		ud.clipping = 1 - ud.clipping;
 		return quoteMgr.GetQuote(ud.clipping ? QUOTE_CHEAT_NOCLIP : QUOTE_CHEAT_CLIP);
 
 	case CHT_UNLOCK:
-		return cheatUnlock();
+		return cheatUnlock(p);
 
 	case CHT_CASHMAN:
 		ud.cashman = 1 - ud.cashman;
 		return nullptr;
 
 	case CHT_HYPER:
-		getPlayer(player)->steroids_amount = 399;
+		p->steroids_amount = 399;
 		return quoteMgr.GetQuote(QUOTE_CHEAT_STEROIDS);
 
 	case CHT_KILL:
-		quickkill(getPlayer(player));
+		quickkill(p);
 		return quoteMgr.GetQuote(QUOTE_CHEAT_KILL);
 
 	case CHT_MONSTERS:
 		return cheatMonsters();
 
 	case CHT_BIKE:
-		OnMotorcycle(getPlayer(player));
-		getPlayer(player)->ammo_amount[MOTORCYCLE_WEAPON] = gs.max_ammo_amount[MOTORCYCLE_WEAPON];
+		OnMotorcycle(p);
+		p->ammo_amount[MOTORCYCLE_WEAPON] = gs.max_ammo_amount[MOTORCYCLE_WEAPON];
 		return quoteMgr.GetQuote(QUOTE_ON_BIKE);
 
 	case CHT_BOAT:
-		OnBoat(getPlayer(player));
-		getPlayer(player)->ammo_amount[BOAT_WEAPON] = gs.max_ammo_amount[BOAT_WEAPON];
+		OnBoat(p);
+		p->ammo_amount[BOAT_WEAPON] = gs.max_ammo_amount[BOAT_WEAPON];
 		return quoteMgr.GetQuote(QUOTE_ON_BOAT);
 
 	case CHT_TONY:
@@ -195,95 +196,95 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
 	case CHT_RHETT:
 		ud.god = 0;
-		memset(getPlayer(player)->gotweapon, 0, sizeof(getPlayer(player)->gotweapon));
-		getPlayer(player)->curr_weapon = KNEE_WEAPON;
-		getPlayer(player)->nocheat = 1;
-		getPlayer(player)->GetActor()->spr.extra = 1;
+		memset(p->gotweapon, 0, sizeof(p->gotweapon));
+		p->curr_weapon = KNEE_WEAPON;
+		p->nocheat = 1;
+		p->GetActor()->spr.extra = 1;
 		return quoteMgr.GetQuote(QUOTE_YERFUCKED);
 
 	case CHT_AARON:
-		getPlayer(player)->DrugMode = !getPlayer(player)->DrugMode;
+		p->DrugMode = !p->DrugMode;
 		return nullptr;
 
 	case CHT_NOCHEAT:
-		getPlayer(player)->nocheat = 1;
+		p->nocheat = 1;
 		return quoteMgr.GetQuote(QUOTE_NOCHEATS);
 
 	case CHT_DRINK:
-		getPlayer(player)->drink_amt = getPlayer(player)->drink_amt ? 0 : 90;
-		return quoteMgr.GetQuote(getPlayer(player)->drink_amt ? QUOTE_INSTADRUNK : QUOTE_INSTASOBER);
+		p->drink_amt = p->drink_amt ? 0 : 90;
+		return quoteMgr.GetQuote(p->drink_amt ? QUOTE_INSTADRUNK : QUOTE_INSTASOBER);
 
 	case CHT_SEASICK:
-		getPlayer(player)->sea_sick_stat = !getPlayer(player)->sea_sick_stat;
-		return quoteMgr.GetQuote(getPlayer(player)->sea_sick_stat ? QUOTE_BOATMODEON : QUOTE_BOATMODEOFF);
+		p->sea_sick_stat = !p->sea_sick_stat;
+		return quoteMgr.GetQuote(p->sea_sick_stat ? QUOTE_BOATMODEON : QUOTE_BOATMODEOFF);
 
 	case CHT_KFC:
-		return cheatKfc(player);
+		return cheatKfc(p);
 
 	default:
 		return nullptr;
 	}
 }
 
-static bool cheatWeapons(int player)
+static bool cheatWeapons(DDukePlayer* const p)
 {
 	int weaponLimit = (isShareware()) ? SHRINKER_WEAPON : MAX_WEAPONS;
 
 	for (int weapon = PISTOL_WEAPON; weapon < weaponLimit; weapon++ )
 	{
-		addammo( weapon, getPlayer(player), gs.max_ammo_amount[weapon] );
-		getPlayer(player)->gotweapon[weapon] = true;;
+		addammo( weapon, p, gs.max_ammo_amount[weapon] );
+		p->gotweapon[weapon] = true;;
 	}
 	if (isRRRA())
-		getPlayer(player)->ammo_amount[SLINGBLADE_WEAPON] = 1;
+		p->ammo_amount[SLINGBLADE_WEAPON] = 1;
 
 	return true;
 }
 
-static bool cheatInventory(int player)
+static bool cheatInventory(DDukePlayer* const p)
 {
 	auto invGet = [=](int defvalue, int evtype, int16_t &dest)
 	{
-		SetGameVarID(g_iReturnVarID, defvalue, nullptr, player);
-		OnEvent(evtype, player, nullptr, -1);
-		if (GetGameVarID(g_iReturnVarID, nullptr, player).safeValue() >= 0)
+		SetGameVarID(g_iReturnVarID, defvalue, nullptr, p->pnum);
+		OnEvent(evtype, p->pnum, nullptr, -1);
+		if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).safeValue() >= 0)
 		{
-			dest = GetGameVarID(g_iReturnVarID, nullptr, player).value();
+			dest = GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value();
 		}
 	};
 
-	invGet(400, EVENT_CHEATGETSTEROIDS, getPlayer(player)->steroids_amount);
-	if (!isRR()) invGet(1200, EVENT_CHEATGETHEAT, getPlayer(player)->heat_amount);
-	invGet(isRR() ? 2000 : 200, EVENT_CHEATGETBOOT, getPlayer(player)->boot_amount);
-	invGet(100, EVENT_CHEATGETSHIELD, getPlayer(player)->shield_amount);
-	invGet(6400, EVENT_CHEATGETSCUBA, getPlayer(player)->scuba_amount);
-	invGet(2400, EVENT_CHEATGETHOLODUKE, getPlayer(player)->holoduke_amount);
-	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, getPlayer(player)->jetpack_amount);
-	invGet(gs.max_player_health, EVENT_CHEATGETFIRSTAID, getPlayer(player)->firstaid_amount);
+	invGet(400, EVENT_CHEATGETSTEROIDS, p->steroids_amount);
+	if (!isRR()) invGet(1200, EVENT_CHEATGETHEAT, p->heat_amount);
+	invGet(isRR() ? 2000 : 200, EVENT_CHEATGETBOOT, p->boot_amount);
+	invGet(100, EVENT_CHEATGETSHIELD, p->shield_amount);
+	invGet(6400, EVENT_CHEATGETSCUBA, p->scuba_amount);
+	invGet(2400, EVENT_CHEATGETHOLODUKE, p->holoduke_amount);
+	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, p->jetpack_amount);
+	invGet(gs.max_player_health, EVENT_CHEATGETFIRSTAID, p->firstaid_amount);
 	return true;
 }
 
-static bool cheatKeys(int player)
+static bool cheatKeys(DDukePlayer* const p)
 {
-	getPlayer(player)->got_access = 7;
+	p->got_access = 7;
 	if (isRR()) for (int ikey = 0; ikey < 5; ikey++)
-		getPlayer(player)->keys[ikey] = 1;
+		p->keys[ikey] = 1;
 	return true;
 }
 
-static bool cheatStuff(int player)
+static bool cheatStuff(DDukePlayer* const p)
 {
-	cheatWeapons(player);
-	cheatInventory(player);
-	if (!isNamWW2GI()) cheatKeys(player);
+	cheatWeapons(p);
+	cheatInventory(p);
+	if (!isNamWW2GI()) cheatKeys(p);
 	return true;
 
 }
 
-static bool cheatItems(int player)
+static bool cheatItems(DDukePlayer* const p)
 {
-	cheatInventory(player);
-	if (!isNamWW2GI()) cheatKeys(player);
+	cheatInventory(p);
+	if (!isNamWW2GI()) cheatKeys(p);
 	return true;
 }
 
@@ -474,7 +475,10 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (numplayers != 1 || gamestate != GS_LEVEL || getPlayer(player)->GetActor()->spr.extra <= 0)
+	const auto p = getPlayer(player);
+	const auto pact = p->GetActor();
+
+	if (numplayers != 1 || gamestate != GS_LEVEL || pact->spr.extra <= 0)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -483,44 +487,44 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	switch (type)
 	{
 	case GIVE_ALL:
-		cheatStuff(player);
-		FTA(5, getPlayer(player));
+		cheatStuff(p);
+		FTA(5, p);
 		break;
 
 	case GIVE_HEALTH:
-		getPlayer(player)->GetActor()->spr.extra = gs.max_player_health << 1;
+		pact->spr.extra = gs.max_player_health << 1;
 		break;
 
 	case GIVE_WEAPONS:
-		cheatWeapons(player);
-		FTA(119, getPlayer(player));
+		cheatWeapons(p);
+		FTA(119, p);
 		break;
 
 	case GIVE_AMMO:
 	{
 		int maxw = isShareware() ? SHRINKER_WEAPON : MAX_WEAPONS;
 		for (int i = maxw; i >= PISTOL_WEAPON; i--)
-			addammo(i, getPlayer(player), gs.max_ammo_amount[i]);
+			addammo(i, p, gs.max_ammo_amount[i]);
 		break;
 	}
 
 	case GIVE_ARMOR:
-		getPlayer(player)->shield_amount = 100;
+		p->shield_amount = 100;
 		break;
 
 	case GIVE_KEYS:
-		cheatKeys(player);
-		FTA(121, getPlayer(player));
+		cheatKeys(p);
+		FTA(121, p);
 		break;
 
 	case GIVE_INVENTORY:
-		cheatInventory(player);
-		FTA(120, getPlayer(player));
+		cheatInventory(p);
+		FTA(120, p);
 		break;
 
 	case GIVE_ITEMS:
-		cheatItems(player);
-		FTA(5, getPlayer(player));
+		cheatItems(p);
+		FTA(5, p);
 		break;
 	}
 }
