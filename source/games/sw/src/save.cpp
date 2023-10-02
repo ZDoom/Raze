@@ -559,7 +559,6 @@ void DSWPlayer::Serialize(FSerializer& arc)
 	{
 		ovect = vect;
 		obob_z = bob_z;
-		cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
         memset(cookieQuote, 0, sizeof(cookieQuote)); // no need to remember this.
         StartColor = 0;
 

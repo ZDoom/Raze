@@ -2138,13 +2138,7 @@ void DExhumedPlayer::Serialize(FSerializer& arc)
         ("save", sPlayerSave)
         ("totalvel", totalvel)
         ("grenade", pPlayerGrenade)
-        ("bUnderwater", bUnderwater)
-        ("actions", cmd.ucmd.actions);
-
-    if (arc.isReading())
-    {
-        cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
-    }
+        ("bUnderwater", bUnderwater);
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerSave& w, PlayerSave* def)

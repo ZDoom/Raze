@@ -635,9 +635,15 @@ void DCorePlayer::Serialize(FSerializer& arc)
 	arc("pnum", pnum)
 		("actor", actor)
 		("angles", Angles)
+		("actions", cmd.ucmd.actions)
 		//("cmd", cmd)
 		//("lastcmd", lastcmd)
 		;
+
+	if (arc.isReading())
+	{
+		cmd.ucmd.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
+	}
 }
 
 void DCoreActor::Serialize(FSerializer& arc)
