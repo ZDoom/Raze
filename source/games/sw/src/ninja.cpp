@@ -2109,7 +2109,7 @@ void InitAllPlayerSprites(const DVector3& spawnpos, const DAngle startang)
 
     TRAVERSE_CONNECT(i)
     {
-        InitPlayerSprite(Player + i, spawnpos, startang);
+        InitPlayerSprite(&Player[i], spawnpos, startang);
     }
 }
 

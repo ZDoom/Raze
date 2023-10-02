@@ -421,7 +421,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPl
 {
 	int ndx = w ? int(w - Player) : -1;
 	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : Player + ndx;
+	w = ndx == -1 ? nullptr : &Player[ndx];
 	return arc;
 }
 
@@ -1162,8 +1162,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		// this is not a new game
 		ShadowWarrior::NewGame = false;
 
-		DoPlayerDivePalette(Player + myconnectindex);
-		DoPlayerNightVisionPalette(Player + myconnectindex);
+		DoPlayerDivePalette(&Player[myconnectindex]);
+		DoPlayerNightVisionPalette(&Player[myconnectindex]);
 		InitLevelGlobals();
 	}
 }

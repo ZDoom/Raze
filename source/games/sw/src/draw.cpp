@@ -1369,7 +1369,7 @@ void drawscreen(SWPlayer* pp, double interpfrac, bool sceneonly)
 
 bool GameInterface::GenerateSavePic()
 {
-    drawscreen(Player + myconnectindex, 65536, true);
+    drawscreen(&Player[myconnectindex], 65536, true);
     return true;
 }
 

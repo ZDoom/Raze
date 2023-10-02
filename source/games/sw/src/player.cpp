@@ -5467,7 +5467,7 @@ void DoPlayerDeathMessage(SWPlayer* pp, SWPlayer* killer)
     }
     else
     // I am being killed
-    if (killer == Player + myconnectindex)
+    if (killer == &Player[myconnectindex])
     {
         sprintf(ds,"%s",KilledPlayerMessage(pp,killer));
         SEND_OK = true;

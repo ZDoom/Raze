@@ -720,7 +720,7 @@ void GameInterface::Render()
 {
     drawtime.Reset();
     drawtime.Clock();
-    drawscreen(Player + screenpeek, paused || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac(), false);
+    drawscreen(&Player[screenpeek], paused || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac(), false);
     drawtime.Unclock();
 }
 

@@ -7784,7 +7784,7 @@ void UpdatePanel(double interpfrac)
     TRAVERSE_CONNECT(pnum)
     {
         if (pnum == screenpeek)
-            pDisplaySprites(Player + pnum, interpfrac);
+            pDisplaySprites(&Player[pnum], interpfrac);
     }
 }
 
@@ -7803,7 +7803,7 @@ void PreUpdatePanel(double interpfrac)
     TRAVERSE_CONNECT(pnum)
     {
         if (pnum == screenpeek)
-            pDisplaySprites(Player + pnum, interpfrac);
+            pDisplaySprites(&Player[pnum], interpfrac);
     }
 
     DrawBeforeView = false;
