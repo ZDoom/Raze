@@ -1297,11 +1297,14 @@ void move(DDukeActor* actor, int pnum, double pdist)
 
 	actor->counter++;
 
+	const auto p = getPlayer(pnum);
+	const auto pact = p->GetActor();
+
 	if (a & face_player)
 	{
-		if (getPlayer(pnum)->newOwner != nullptr)
-			goalang = (getPlayer(pnum)->GetActor()->opos.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (getPlayer(pnum)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+		if (p->newOwner != nullptr)
+			goalang = (pact->opos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (pact->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.Angles.Yaw, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.Angles.Yaw += angdif;
@@ -1312,18 +1315,18 @@ void move(DDukeActor* actor, int pnum, double pdist)
 
 	if (a & face_player_slow)
 	{
-		if (getPlayer(pnum)->newOwner != nullptr)
-			goalang = (getPlayer(pnum)->GetActor()->opos.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (getPlayer(pnum)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+		if (p->newOwner != nullptr)
+			goalang = (pact->opos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (pact->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.Angles.Yaw, goalang).Degrees()); // this looks very wrong...
 		actor->spr.Angles.Yaw += angdif;
 	}
 
 	if (a & antifaceplayerslow)
 	{
-		if (getPlayer(pnum)->newOwner != nullptr)
-			goalang = ((getPlayer(pnum)->GetActor()->opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
-		else goalang = ((getPlayer(pnum)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+		if (p->newOwner != nullptr)
+			goalang = ((pact->opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+		else goalang = ((pact->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.Angles.Yaw, goalang).Degrees()); // this looks very wrong...
 		actor->spr.Angles.Yaw += angdif;
 	}
@@ -1352,7 +1355,7 @@ void move(DDukeActor* actor, int pnum, double pdist)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = getPlayer(pnum)->GetActor()->spr.pos.XY() + (getPlayer(pnum)->vel.XY() * (4. / 3.));
+		DVector2 newpos = pact->spr.pos.XY() + (p->vel.XY() * (4. / 3.));
 		goalang = (newpos - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.Angles.Yaw, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
@@ -1450,16 +1453,16 @@ void move(DDukeActor* actor, int pnum, double pdist)
 			{
 
 				daxvel = -(64 - pdist);
-				angdif = (getPlayer(pnum)->GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+				angdif = (pact->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 				if (pdist < 32)
 				{
-					getPlayer(pnum)->vel.X = 0;
-					getPlayer(pnum)->vel.Y = 0;
+					p->vel.X = 0;
+					p->vel.Y = 0;
 				}
 				else
 				{
-					getPlayer(pnum)->vel.XY() *= gs.playerfriction - 0.125;
+					p->vel.XY() *= gs.playerfriction - 0.125;
 				}
 			}
 			else if (!(actor->flags2 & SFLAG2_FLOATING))
@@ -1468,12 +1471,12 @@ void move(DDukeActor* actor, int pnum, double pdist)
 				{
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
-						if ((actor->counter & 1) || getPlayer(pnum)->actorsqu == actor) return;
+						if ((actor->counter & 1) || p->actorsqu == actor) return;
 						else daxvel *= 2;
 					}
 					else
 					{
-						if ((actor->counter & 3) || getPlayer(pnum)->actorsqu == actor) return;
+						if ((actor->counter & 3) || p->actorsqu == actor) return;
 						else daxvel *= 4;
 					}
 				}
