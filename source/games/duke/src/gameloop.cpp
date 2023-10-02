@@ -64,8 +64,8 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 		// this must be done before the view is backed up.
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			ps[i].Angles.resetCameraAngles();
-			ps[i].input = playercmds[i].ucmd;
+			getPlayer(i)->Angles.resetCameraAngles();
+			getPlayer(i)->input = playercmds[i].ucmd;
 		}
 
 		// disable synchronised input if set by game.
@@ -83,7 +83,7 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			auto p = &ps[i];
+			auto p = getPlayer(i);
 			if (p->pals.a > 0)
 				p->pals.a--;
 
@@ -118,7 +118,7 @@ void GameInterface::Ticker(const ticcmd_t* playercmds)
 
 void GameInterface::Startup()
 {
-	ps[myconnectindex].ftq = 0;
+	getPlayer(myconnectindex)->ftq = 0;
 	PlayLogos(ga_mainmenunostopsound, ga_mainmenunostopsound, false);
 }
 

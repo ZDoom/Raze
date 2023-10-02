@@ -59,17 +59,17 @@ void PlayerColorChanged(void)
 	if (ud.recstat != 0)
 		return;
 
-	auto& pp = ps[myconnectindex];
+	auto pp = getPlayer(myconnectindex);
 	if (ud.multimode > 1)
 	{
 		//Net_SendClientInfo();
 	}
 	else
 	{
-		pp.palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
+		pp->palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
 	}
-	if (pp.GetActor()->isPlayer() && pp.GetActor()->spr.pal != 1)
-		pp.GetActor()->spr.pal = ud.user_pals[myconnectindex];
+	if (pp->GetActor()->isPlayer() && pp->GetActor()->spr.pal != 1)
+		pp->GetActor()->spr.pal = ud.user_pals[myconnectindex];
 }
 
 //---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 	// Autoaim from DukeGDX.
 	if (actor->isPlayer())
 	{
-		auto* plr = &ps[actor->PlayerIndex()];
+		auto* plr = getPlayer(actor->PlayerIndex());
 		int autoaim = force? 1 : Autoaim(actor->PlayerIndex());
 
 		bool ww2gipistol = (plr->curr_weapon == PISTOL_WEAPON && isWW2GI());
@@ -267,13 +267,13 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 	}
 	else if (isWW2GI())
 	{
-		gotshrinker = actor->isPlayer() && aplWeaponWorksLike(ps[actor->PlayerIndex()].curr_weapon, actor->PlayerIndex()) == SHRINKER_WEAPON;
-		gotfreezer = actor->isPlayer() && aplWeaponWorksLike(ps[actor->PlayerIndex()].curr_weapon, actor->PlayerIndex()) == FREEZE_WEAPON;
+		gotshrinker = actor->isPlayer() && aplWeaponWorksLike(getPlayer(actor->PlayerIndex())->curr_weapon, actor->PlayerIndex()) == SHRINKER_WEAPON;
+		gotfreezer = actor->isPlayer() && aplWeaponWorksLike(getPlayer(actor->PlayerIndex())->curr_weapon, actor->PlayerIndex()) == FREEZE_WEAPON;
 	}
 	else
 	{
-		gotshrinker = actor->isPlayer() && ps[actor->PlayerIndex()].curr_weapon == SHRINKER_WEAPON;
-		gotfreezer = actor->isPlayer() && ps[actor->PlayerIndex()].curr_weapon == FREEZE_WEAPON;
+		gotshrinker = actor->isPlayer() && getPlayer(actor->PlayerIndex())->curr_weapon == SHRINKER_WEAPON;
+		gotfreezer = actor->isPlayer() && getPlayer(actor->PlayerIndex())->curr_weapon == FREEZE_WEAPON;
 	}
 
 	double smax = 0x7fffffff;
@@ -318,7 +318,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 								if (actor->isPlayer())
 								{
 									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 1.25 / sdist;
-									double horiz = ps[actor->PlayerIndex()].Angles.getPitchWithView().Tan();
+									double horiz = getPlayer(actor->PlayerIndex())->Angles.getPitchWithView().Tan();
 									check = abs(checkval - horiz) < 0.78125;
 								}
 								else check = 1;
@@ -354,7 +354,7 @@ DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle, bool* b
 
 void dokneeattack(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->knee_incs > 0)
@@ -382,8 +382,8 @@ void dokneeattack(int snum)
 
 				if (p->actorsqu->isPlayer())
 				{
-					quickkill(&ps[p->actorsqu->PlayerIndex()]);
-					ps[p->actorsqu->PlayerIndex()].frag_ps = snum;
+					quickkill(getPlayer(p->actorsqu->PlayerIndex()));
+					getPlayer(p->actorsqu->PlayerIndex())->frag_ps = snum;
 				}
 				else
 				{
@@ -405,7 +405,7 @@ void dokneeattack(int snum)
 
 int makepainsounds(int snum, int type)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto actor = p->GetActor();
 	int k = 0;
 
@@ -478,7 +478,7 @@ int makepainsounds(int snum, int type)
 
 void footprints(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto actor = p->GetActor();
 
 	if (p->footprintcount > 0 && p->on_ground)
@@ -521,7 +521,7 @@ void footprints(int snum)
 
 void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto actor = p->GetActor();
 
 	// lock input when dead.
@@ -555,8 +555,8 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		{
 			if (p->frag_ps != snum)
 			{
-				ps[p->frag_ps].frag++;
-				ps[p->frag_ps].frags[snum]++;
+				getPlayer(p->frag_ps)->frag++;
+				getPlayer(p->frag_ps)->frags[snum]++;
 
 				auto pname = PlayerName(p->frag_ps);
 				if (snum == screenpeek)
@@ -615,7 +615,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 int endoflevel(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 
 	// the fist puching the end-of-level thing...
 	p->ofist_incs = p->fist_incs;
@@ -644,7 +644,7 @@ int endoflevel(int snum)
 
 int timedexit(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	p->timebeforeexit--;
 	if (p->timebeforeexit == 26 * 5)
 	{
@@ -671,7 +671,7 @@ int timedexit(int snum)
 
 void playerCrouch(int snum)
 {
-	const auto p = &ps[snum];
+	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	const auto nVelMoveDown = abs(p->input.uvel * (p->input.uvel < 0));
 	constexpr double vel = 8 + 3;
@@ -686,7 +686,7 @@ void playerCrouch(int snum)
 
 void playerJump(int snum, double floorz, double ceilingz)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (p->jumping_toggle == 0 && p->jumping_counter == 0)
 	{
 		if ((floorz - ceilingz) > 56)
@@ -820,7 +820,7 @@ void DukePlayer::playerweaponsway(double xvel)
 
 void checklook(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 
 	if ((actions & SB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
@@ -851,7 +851,7 @@ void checklook(int snum, ESyncBits actions)
 
 void playerCenterView(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 	OnEvent(EVENT_RETURNTOCENTER, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
@@ -868,7 +868,7 @@ void playerCenterView(int snum)
 
 void playerLookUp(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 	OnEvent(EVENT_LOOKUP, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
@@ -883,7 +883,7 @@ void playerLookUp(int snum, ESyncBits actions)
 
 void playerLookDown(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 	OnEvent(EVENT_LOOKDOWN, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
@@ -898,7 +898,7 @@ void playerLookDown(int snum, ESyncBits actions)
 
 void playerAimUp(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 	OnEvent(EVENT_AIMUP, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
@@ -909,7 +909,7 @@ void playerAimUp(int snum, ESyncBits actions)
 
 void playerAimDown(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);	// due to a typo in WW2GI's CON files this is the same as EVENT_AIMUP.
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
@@ -936,9 +936,9 @@ void shoot(DDukeActor* actor, PClass* cls)
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
-		spos = actor->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
+		spos = actor->getPosWithOffsetZ().plusZ(getPlayer(p)->pyoff + 4);
 
-		ps[p].crack_time = CRACK_TIME;
+		getPlayer(p)->crack_time = CRACK_TIME;
 	}
 	else
 	{
@@ -1000,7 +1000,7 @@ bool movementBlocked(DukePlayer *p)
 
 int haslock(sectortype* sectp, int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (!sectp)
 		return 0;
 	if (!sectp->lockinfo)
@@ -1229,21 +1229,21 @@ int playeraddammo(DukePlayer* p, int weaponindex, int amount)
 	}
 	addammo(weaponindex, p, amount);
 	if (p->curr_weapon == KNEE_WEAPON)
-		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - ps) & 1))
+		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - PlayerArray) & 1))
 			fi.addweapon(p, weaponindex, true);
 	return true;
 }
 
 int playeraddweapon(DukePlayer* p, int weaponindex, int amount)
 {
-	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p- ps) & 1));
+	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p- PlayerArray) & 1));
 	else if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
 	{
 		return false;
 	}
 	addammo(weaponindex, p, amount);
 	if (p->curr_weapon == KNEE_WEAPON)
-		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - ps) & 1))
+		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - PlayerArray) & 1))
 			fi.addweapon(p, weaponindex, true);
 
 	return true;
@@ -1327,7 +1327,7 @@ int checkp(DDukeActor* self, DukePlayer* p, int flags)
 	bool j = 0;
 
 	double vel = self->vel.X;
-	unsigned plindex = unsigned(p - ps);
+	unsigned plindex = unsigned(p - PlayerArray);
 
 	// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 	if ((flags & pducking) && p->on_ground && PlayerInput(plindex, SB_CROUCH))
@@ -1366,7 +1366,7 @@ int checkp(DDukeActor* self, DukePlayer* p, int flags)
 	{
 		DAngle ang;
 		if (self->isPlayer() && ud.multimode > 1)
-			ang = absangle(ps[otherp].GetActor()->spr.Angles.Yaw, (p->GetActor()->spr.pos.XY() - ps[otherp].GetActor()->spr.pos.XY()).Angle());
+			ang = absangle(getPlayer(otherp)->GetActor()->spr.Angles.Yaw, (p->GetActor()->spr.pos.XY() - getPlayer(otherp)->GetActor()->spr.pos.XY()).Angle());
 		else
 			ang = absangle(p->GetActor()->spr.Angles.Yaw, (self->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle());
 
@@ -1484,7 +1484,7 @@ void playerreset(DukePlayer* p, DDukeActor* g_ac)
 	else
 	{
 		// I am not convinced this is even remotely smart to be executed from here..
-		pickrandomspot(int(p - ps));
+		pickrandomspot(int(p - PlayerArray));
 		g_ac->spr.pos = p->GetActor()->getPosWithOffsetZ();
 		p->GetActor()->backuppos();
 		p->setbobpos();
@@ -1504,7 +1504,7 @@ void playerreset(DukePlayer* p, DDukeActor* g_ac)
 		p->wantweaponfire = -1;
 		p->GetActor()->PrevAngles.Pitch = p->GetActor()->spr.Angles.Pitch = nullAngle;
 		p->on_crane = nullptr;
-		p->frag_ps = int(p - ps);
+		p->frag_ps = int(p - PlayerArray);
 		p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
 		p->opyoff = 0;
 		p->wackedbyactor = nullptr;
@@ -1563,8 +1563,8 @@ void playerkick(DukePlayer* p, DDukeActor* g_ac)
 {
 	if (ud.multimode > 1 && g_ac->isPlayer())
 	{
-		if (ps[otherp].quick_kick == 0)
-			ps[otherp].quick_kick = 14;
+		if (getPlayer(otherp)->quick_kick == 0)
+			getPlayer(otherp)->quick_kick = 14;
 	}
 	else if (!g_ac->isPlayer() && p->quick_kick == 0)
 		p->quick_kick = 14;
@@ -1578,7 +1578,7 @@ void playerkick(DukePlayer* p, DDukeActor* g_ac)
 
 void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 {
-	const auto p = &ps[snum];
+	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	constexpr double dist = (348. / 256.);
 	const auto kbdDir = ((actions & SB_JUMP) && !p->OnMotorcycle) - ((actions & SB_CROUCH) || p->OnMotorcycle);

@@ -89,7 +89,7 @@ void incur_damage_d(DukePlayer* p)
 void selectweapon_d(int snum, int weap) // playernum, weaponnum
 {
 	int i, j, k;
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.5  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
@@ -577,7 +577,7 @@ void checkweapons_d(DukePlayer* p)
 
 static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double floorz, double ceilingz, int shrunk)
 {
-	const auto p = &ps[snum];
+	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
@@ -646,7 +646,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 static void movement(int snum, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
 {
 	int j;
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->airleft != 15 * 26)
@@ -830,7 +830,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 int operateTripbomb(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	HitInfo hit{};
 	double vel = 1024, zvel = 0;
 	setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 16.);
@@ -882,7 +882,7 @@ int operateTripbomb(int snum)
 
 static void fireweapon(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
@@ -1000,7 +1000,7 @@ static void fireweapon(int snum)
 
 static void operateweapon(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	// already firing...
@@ -1453,7 +1453,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 static void processweapon(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int shrunk = (pact->spr.scale.Y < 0.5);
 
@@ -1538,7 +1538,7 @@ void processinput_d(int snum)
 	int psectlotag;
 	DukePlayer* p;
 
-	p = &ps[snum];
+	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	ESyncBits& actions = p->input.actions;
@@ -1952,7 +1952,7 @@ HORIZONLY:
 	if (p->show_empty_weapon > 0)
 	{
 		p->show_empty_weapon--;
-		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - ps) & 2))
+		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - PlayerArray) & 2))
 		{
 			if (p->last_full_weapon == GROW_WEAPON)
 				p->subweapon |= (1 << GROW_WEAPON);

@@ -15,7 +15,7 @@ void resetswitch(int tag);
 
 DukePlayer* duke_getviewplayer()
 {
-	return &ps[screenpeek];
+	return getPlayer(screenpeek);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getviewplayer, duke_getviewplayer)
@@ -26,7 +26,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getviewplayer, duke_getviewplayer)
 
 DukePlayer* duke_getlocalplayer()
 {
-	return &ps[myconnectindex];
+	return getPlayer(myconnectindex);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getlocalplayer, duke_getlocalplayer)
@@ -101,7 +101,7 @@ DukePlayer* duke_checkcursectnums(sectortype* sector)
 {
 	if (!sector) return nullptr;
 	int pp = checkcursectnums(sector);
-	return pp >= 0 ? &ps[pp] : nullptr;
+	return pp >= 0 ? getPlayer(pp) : nullptr;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, checkcursectnums, duke_checkcursectnums)
@@ -179,7 +179,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopCommentary, StopCommentary)
 int getPlayerIndex(DukePlayer* p)
 {
 	if (!p) return -1;
-	return int(p - ps);
+	return int(p - PlayerArray);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getPlayerIndex, getPlayerIndex)
@@ -338,7 +338,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getglobalz, getglobalz)
 DukePlayer* DukeActor_findplayer(DDukeActor* self, double* dist)
 {
 	double a;
-	return &ps[findplayer(self, dist? dist : &a)];
+	return getPlayer(findplayer(self, dist? dist : &a));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, findplayer, DukeActor_findplayer)
@@ -353,7 +353,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, findplayer, DukeActor_findplayer)
 
 DukePlayer* DukeActor_getplayer(DDukeActor* self)
 {
-	return self->isPlayer() ? &ps[self->PlayerIndex()] : nullptr;
+	return self->isPlayer() ? getPlayer(self->PlayerIndex()) : nullptr;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getplayer, DukeActor_getplayer)

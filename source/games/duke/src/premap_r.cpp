@@ -52,10 +52,10 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	sound = 0;
 
 	prelevel_common(g);
-	p = &ps[screenpeek];
+	p = getPlayer(screenpeek);
 
 	if (currentLevel->gameflags & LEVEL_RR_CLEARMOONSHINE)
-		ps[myconnectindex].steroids_amount = 0;
+		getPlayer(myconnectindex)->steroids_amount = 0;
 
 	if (isRRRA())
 	{
@@ -166,7 +166,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 
 		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].Exit = ac->spr.pos.XY();
+			getPlayer(0)->Exit = ac->spr.pos.XY();
 		}
 		else
 		{

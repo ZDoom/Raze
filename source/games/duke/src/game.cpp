@@ -83,7 +83,7 @@ static void markgcroots()
 	GC::MarkArray(spriteq, 1024);
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
-	for (auto& pl : ps)
+	for (auto& pl : PlayerArray)
 	{
 		GC::Mark(pl.actor);
 		GC::Mark(pl.actorsqu);
@@ -408,7 +408,7 @@ void GameInterface::app_init()
 	ud.wchoice[0][9] = 1;
 	ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;
-	ps[0].aim_mode = 1;
+	getPlayer(0)->aim_mode = 1;
 	ud.cameraactor = nullptr;
 
 	if (fileSystem.FileExists("DUKESW.BIN"))
@@ -711,7 +711,7 @@ bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3
 	VMReturn ret(&rv);
 	IFVIRTUALPTR(clsdef, DDukeActor, ShootThis)
 	{
-		VMValue val[] = {clsdef, actor, pn >= 0? &ps[pn] : nullptr, spos.X, spos.Y, spos.Z, sang.Degrees()};
+		VMValue val[] = {clsdef, actor, pn >= 0? getPlayer(pn) : nullptr, spos.X, spos.Y, spos.Z, sang.Degrees()};
 		VMCall(func, val, 7, &ret, 1);
 	}
 	return rv;
@@ -905,7 +905,7 @@ CCMD(changewalltexture)
 	FTextureID tile = TexMan.CheckForTexture(argv[1], ETextureType::Any);
 	if (!tile.isValid()) tile = tileGetTextureID((int)strtol(argv[1], nullptr, 10));
 	HitInfoBase hit;
-	hitscan(ps[0].GetActor()->spr.pos, ps[0].cursector, DVector3(ps[0].GetActor()->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
+	hitscan(getPlayer(0)->GetActor()->spr.pos, getPlayer(0)->cursector, DVector3(getPlayer(0)->GetActor()->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
 	if (hit.hitWall)
 	{
 		hit.hitWall->setwalltexture(tile);

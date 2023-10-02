@@ -52,7 +52,7 @@ inline static void hud_drawpal(double x, double y, const char* tilenum, int shad
 
 void displaymasks_r(int snum, int p, double interpfrac)
 {
-	if (ps[snum].scuba_on)
+	if (getPlayer(snum)->scuba_on)
 	{
 		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK0", ETextureType::Any);
 		auto scuba3 = TexMan.CheckForTexture("SCUBAMASK3", ETextureType::Any);
@@ -215,7 +215,7 @@ void displayweapon_r(int snum, double interpfrac)
 	double weapon_sway, gun_pos, hard_landing;
 	DAngle TiltStatus;
 
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto kb = &p->kickback_pic;
 
 	int o = 0;

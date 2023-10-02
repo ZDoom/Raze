@@ -70,7 +70,7 @@ extern int screenpeek;
 // Variables that must be saved
 extern int rtsplaying;
 
-extern DukePlayer ps[MAXPLAYERS];
+extern DukePlayer PlayerArray[MAXPLAYERS];
 extern int spriteqamount;
 extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];

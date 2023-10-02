@@ -91,7 +91,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 bool GameInterface::CanSave()
 {
 	if (ud.recstat == 2) return false;
-	auto pActor = ps[myconnectindex].GetActor();
+	auto pActor = getPlayer(myconnectindex)->GetActor();
 	return (pActor && pActor->spr.extra > 0);
 }
 

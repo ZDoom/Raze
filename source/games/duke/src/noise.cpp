@@ -33,7 +33,7 @@ BEGIN_DUKE_NS
 int madenoise(int snum)
 {
 	DukePlayer *p;
-	p = &ps[snum];
+	p = getPlayer(snum);
 	p->donoise = 1;
 	p->noise = p->GetActor()->spr.pos.XY();
 	return 1;
@@ -41,7 +41,7 @@ int madenoise(int snum)
 
 int wakeup(DDukeActor* actor, int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (!p->donoise)
 		return 0;
 	if (actor->spr.pal == 30 || actor->spr.pal == 32 || actor->spr.pal == 33 || (isRRRA() && actor->spr.pal == 8))

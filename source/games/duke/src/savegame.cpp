@@ -415,7 +415,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("rtsplaying", rtsplaying)
 			//("tempwallptr", tempwallptr)
 			("joe9000", ud.joe9000)
-			.Array("players", ps, ud.multimode)
+			.Array("players", PlayerArray, ud.multimode)
 			("spriteqamount", spriteqamount)
 			("lastvisinc", lastvisinc)
 			("numanimwalls", numanimwalls)
@@ -487,11 +487,11 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			ud.m_monsters_off = ud.monsters_off;
 			ud.m_coop = ud.coop;
 			ud.m_ffire = ud.ffire;
-			if (ps[myconnectindex].over_shoulder_on != 0)
+			if (getPlayer(myconnectindex)->over_shoulder_on != 0)
 			{
 				cameradist = 0;
 				cameraclock = 0;
-				ps[myconnectindex].over_shoulder_on = 1;
+				getPlayer(myconnectindex)->over_shoulder_on = 1;
 			}
 
 			cacheit();

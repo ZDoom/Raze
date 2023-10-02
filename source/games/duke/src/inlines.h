@@ -10,6 +10,11 @@
 // all inline functions.
 BEGIN_DUKE_NS
 
+inline DukePlayer* getPlayer(int index)
+{
+	return &PlayerArray[index];
+}
+
 inline int rnd(int X)
 {
 	return ((krand() >> 8) >= (255 - (X)));
@@ -79,7 +84,7 @@ inline int checkcursectnums(sectortype* se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(ps[i].GetActor() && ps[i].GetActor()->sector() == se ) return i;
+		if(getPlayer(i)->GetActor() && getPlayer(i)->GetActor()->sector() == se ) return i;
 	return -1;
 }
 
@@ -103,60 +108,60 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
-	return (!!((ps[pl].input.actions) & bit));
+	return (!!((getPlayer(pl)->input.actions) & bit));
 }
 
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
-	return (ps[pl].input.actions & bits);
+	return (getPlayer(pl)->input.actions & bits);
 }
 
 inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-	ps[pl].input.actions |= bit;
+	getPlayer(pl)->input.actions |= bit;
 }
 
 
 inline int PlayerNewWeapon(int pl)
 {
-	return ps[pl].input.getNewWeapon();
+	return getPlayer(pl)->input.getNewWeapon();
 }
 
 inline void PlayerSetItemUsed(int pl, int num)
 {
-	ps[pl].input.setItemUsed(num - 1);
+	getPlayer(pl)->input.setItemUsed(num - 1);
 }
 
 inline bool PlayerUseItem(int pl, int num)
 {
-	return ps[pl].input.isItemUsed(num - 1);
+	return getPlayer(pl)->input.isItemUsed(num - 1);
 }
 
 inline float PlayerInputSideVel(int pl)
 {
-	return ps[pl].input.svel;
+	return getPlayer(pl)->input.svel;
 }
 
 inline float PlayerInputForwardVel(int pl)
 {
-	return ps[pl].input.fvel;
+	return getPlayer(pl)->input.fvel;
 }
 
 inline float PlayerInputAngVel(int pl)
 {
-	return ps[pl].input.avel;
+	return getPlayer(pl)->input.avel;
 }
 
 inline DAngle GetPlayerHorizon(int pl)
 {
-	return DAngle::fromDeg(ps[pl].input.horz);
+	return DAngle::fromDeg(getPlayer(pl)->input.horz);
 }
 
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		ps[i].fric.X = ps[i].fric.Y = 0;
+		getPlayer(i)->fric.X = getPlayer(i)->fric.Y = 0;
 	}
 }
 
@@ -273,7 +278,7 @@ inline int monsterCheatCheck(DDukeActor* self)
 
 inline void processinputvel(int snum)
 {
-	const auto p = &ps[snum];
+	const auto p = getPlayer(snum);
 	const auto velvect = DVector2(p->input.fvel, p->input.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
 	p->input.fvel = (float)velvect.X;
 	p->input.svel = (float)velvect.Y;

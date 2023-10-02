@@ -88,7 +88,7 @@ void incur_damage_r(DukePlayer* p)
 void selectweapon_r(int snum, int weap)
 {
 	int i, j, k;
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.125  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
@@ -273,7 +273,7 @@ void selectweapon_r(int snum, int weap)
 			case SLINGBLADE_WEAPON:
 				if (isRRRA())
 				{
-					S_PlayActorSound(496, ps[screenpeek].GetActor());
+					S_PlayActorSound(496, getPlayer(screenpeek)->GetActor());
 					fi.addweapon(p, j, true);
 				}
 				break;
@@ -966,7 +966,7 @@ static void doVehicleThrottling(DukePlayer* p, DDukeActor* pact, unsigned& flags
 
 static void onMotorcycle(int snum, ESyncBits &actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	unsigned flags = outVehicleFlags(p, actions);
@@ -1045,7 +1045,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 static void onBoat(int snum, ESyncBits &actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->NotOnWater)
@@ -1115,7 +1115,7 @@ static void onBoat(int snum, ESyncBits &actions)
 
 static void movement(int snum, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->airleft != 15 * 26)
@@ -1342,7 +1342,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 void onMotorcycleMove(int snum, walltype* wal)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	double angleDelta = absangle(p->GetActor()->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
@@ -1398,7 +1398,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 
 void onBoatMove(int snum, int psectlotag, walltype* wal)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	double angleDelta = absangle(p->GetActor()->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
 
@@ -1440,7 +1440,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 
 void onMotorcycleHit(int snum, DDukeActor* victim)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	if (badguy(victim) || victim->isPlayer())
 	{
 		if (!victim->isPlayer())
@@ -1473,7 +1473,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 
 void onBoatHit(int snum, DDukeActor* victim)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 
 	if (badguy(victim) || victim->isPlayer())
 	{
@@ -1503,7 +1503,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 
 static void fireweapon(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 
 	p->crack_time = CRACK_TIME;
 
@@ -1635,7 +1635,7 @@ static void fireweapon(int snum)
 
 static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int psectlotag = psectp ? psectp->lotag : 857;
 
@@ -2207,7 +2207,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int shrunk = (pact->spr.scale.Y < 0.125);
 
@@ -2268,7 +2268,7 @@ void processinput_r(int snum)
 	int psectlotag;
 	double floorz = 0, ceilingz = 0;
 
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	ESyncBits& actions = p->input.actions;
@@ -2910,7 +2910,7 @@ HORIZONLY:
 	{
 		p->show_empty_weapon--;
 
-		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - ps) & 2))
+		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - PlayerArray) & 2))
 		{
 			fi.addweapon(p, p->last_full_weapon, true);
 			return;

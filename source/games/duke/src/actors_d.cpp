@@ -123,7 +123,7 @@ int ifsquished(DDukeActor* actor, int p)
 
 	if (squishme)
 	{
-		FTA(QUOTE_SQUISHED, &ps[p]);
+		FTA(QUOTE_SQUISHED, getPlayer(p));
 
 		if (badguy(actor))
 			actor->vel.X = 0;
@@ -176,23 +176,23 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					{
 						actor->spr.extra = 0;
 
-						ps[p].wackedbyactor = hitowner;
+						getPlayer(p)->wackedbyactor = hitowner;
 
 						if (hitowner->isPlayer() && p != hitowner->PlayerIndex())
 						{
-							ps[p].frag_ps = hitowner->PlayerIndex();
+							getPlayer(p)->frag_ps = hitowner->PlayerIndex();
 						}
-						actor->SetHitOwner(ps[p].GetActor());
+						actor->SetHitOwner(getPlayer(p)->GetActor());
 					}
 				}
 
 				if (adef->flags2 & SFLAG2_DOUBLEDMGTHRUST)
 				{
-					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
+					getPlayer(p)->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
 				else
 				{
-					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
+					getPlayer(p)->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
 				}
 			}
 			else
@@ -228,7 +228,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 		|| actor->hitextra >= 0
 		|| actor->spr.extra > 0
 		|| !actor->isPlayer()
-		|| ps[actor->PlayerIndex()].numloogs > 0
+		|| getPlayer(actor->PlayerIndex())->numloogs > 0
 		|| hitowner == nullptr)
 	{
 		actor->hitextra = -1;
@@ -238,12 +238,12 @@ int ifhitbyweapon_d(DDukeActor *actor)
 	{
 		p = actor->PlayerIndex();
 		actor->spr.extra = 0;
-		ps[p].wackedbyactor = hitowner;
+		getPlayer(p)->wackedbyactor = hitowner;
 
-		if (hitowner->isPlayer() && hitowner != ps[p].GetActor())
-			ps[p].frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
+		if (hitowner->isPlayer() && hitowner != getPlayer(p)->GetActor())
+			getPlayer(p)->frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
 
-		actor->SetHitOwner(ps[p].GetActor());
+		actor->SetHitOwner(getPlayer(p)->GetActor());
 		actor->hitextra = -1;
 
 		return 0;
@@ -287,11 +287,11 @@ void movetransports_d(void)
 				{
 					int p = act2->PlayerIndex();
 
-					ps[p].on_warping_sector = 1;
+					getPlayer(p)->on_warping_sector = 1;
 
-					if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
+					if (getPlayer(p)->transporter_hold == 0 && getPlayer(p)->jumping_counter == 0)
 					{
-						if (ps[p].on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && ps[p].jetpack_on == 0)
+						if (getPlayer(p)->on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && getPlayer(p)->jetpack_on == 0)
 						{
 							if (act->spr.pal == 0)
 							{
@@ -300,27 +300,27 @@ void movetransports_d(void)
 							}
 
 							for (int k = connecthead; k >= 0; k = connectpoint2[k])
-							if (ps[k].cursector == Owner->sector())
+							if (getPlayer(k)->cursector == Owner->sector())
 							{
-								ps[k].frag_ps = p;
-								ps[k].GetActor()->spr.extra = 0;
+								getPlayer(k)->frag_ps = p;
+								getPlayer(k)->GetActor()->spr.extra = 0;
 							}
 
-							ps[p].GetActor()->PrevAngles.Yaw = ps[p].GetActor()->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+							getPlayer(p)->GetActor()->PrevAngles.Yaw = getPlayer(p)->GetActor()->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
 
 							if (Owner->GetOwner() != Owner)
 							{
 								act->counter = 13;
 								Owner->counter = 13;
-								ps[p].transporter_hold = 13;
+								getPlayer(p)->transporter_hold = 13;
 							}
 
-							ps[p].GetActor()->spr.pos = Owner->spr.pos;
-							ps[p].GetActor()->backuppos();
-							ps[p].setbobpos();
+							getPlayer(p)->GetActor()->spr.pos = Owner->spr.pos;
+							getPlayer(p)->GetActor()->backuppos();
+							getPlayer(p)->setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());
-							ps[p].setCursector(act2->sector());
+							getPlayer(p)->setCursector(act2->sector());
 
 							if (act->spr.pal == 0)
 							{
@@ -331,25 +331,25 @@ void movetransports_d(void)
 							break;
 						}
 					}
-					else if (!(sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground == 1)) break;
+					else if (!(sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground == 1)) break;
 
-					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) < 24)
-						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].input.uvel > 0)) ||
-							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) || ps[p].input.uvel < 0)))
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - getPlayer(p)->GetActor()->getOffsetZ()) < 24)
+						if ((getPlayer(p)->jetpack_on == 0) || (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->input.uvel > 0)) ||
+							(getPlayer(p)->jetpack_on && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->input.uvel < 0)))
 						{
-							ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							ps[p].GetActor()->backupvec2();
+							getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							getPlayer(p)->GetActor()->backupvec2();
 
-							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].GetActor()->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
-							else ps[p].GetActor()->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
-							ps[p].GetActor()->backupz();
+							if (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->jetpack_on < 11))
+								getPlayer(p)->GetActor()->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
+							else getPlayer(p)->GetActor()->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
+							getPlayer(p)->GetActor()->backupz();
 
-							auto pa = ps[p].GetActor();
-							pa->opos = ps[p].GetActor()->getPosWithOffsetZ();
+							auto pa = getPlayer(p)->GetActor();
+							pa->opos = getPlayer(p)->GetActor()->getPosWithOffsetZ();
 
 							ChangeActorSect(act2, Owner->sector());
-							ps[p].setCursector(Owner->sector());
+							getPlayer(p)->setCursector(Owner->sector());
 
 							break;
 						}
@@ -358,24 +358,24 @@ void movetransports_d(void)
 
 					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 					{
-						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && ps[p].GetActor()->getOffsetZ() > sectp->floorz - 48)
+						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && getPlayer(p)->GetActor()->getOffsetZ() > sectp->floorz - 48)
 						{
 							k = 2;
-							ps[p].GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
-							ps[p].GetActor()->backupz();
+							getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+							getPlayer(p)->GetActor()->backupz();
 						}
 
-						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && ps[p].GetActor()->getOffsetZ() < sectp->ceilingz + 6)
+						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && getPlayer(p)->GetActor()->getOffsetZ() < sectp->ceilingz + 6)
 						{
 							k = 2;
-							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].GetActor()->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
-							ps[p].GetActor()->backupz();
+							if (getPlayer(p)->GetActor()->spr.extra <= 0) break;
+							getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
+							getPlayer(p)->GetActor()->backupz();
 						}
 					}
 
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].input.uvel < 0 || ps[p].vel.Z > 8))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->on_ground && getPlayer(p)->GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->input.uvel < 0 || getPlayer(p)->vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -383,18 +383,18 @@ void movetransports_d(void)
 						{
 							FX_StopAllSounds();
 						}
-						if (ps[p].GetActor()->spr.extra > 0)
+						if (getPlayer(p)->GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
-						ps[p].GetActor()->backupz();
+						getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+						getPlayer(p)->GetActor()->backupz();
 
 						// this is actually below the precision óf the original Build coordinate system...
-						ps[p].vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
-						ps[p].vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
+						getPlayer(p)->vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
+						getPlayer(p)->vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
 
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].GetActor()->getOffsetZ() < (sectp->ceilingz + 6))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && getPlayer(p)->GetActor()->getOffsetZ() < (sectp->ceilingz + 6))
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
@@ -404,21 +404,21 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						ps[p].GetActor()->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
-						ps[p].GetActor()->backupz();
+						getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
+						getPlayer(p)->GetActor()->backupz();
 
-						ps[p].jumping_toggle = 1;
-						ps[p].jumping_counter = 0;
+						getPlayer(p)->jumping_toggle = 1;
+						getPlayer(p)->jumping_counter = 0;
 					}
 
 					if (k == 1)
 					{
-						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-						ps[p].GetActor()->backupvec2();
+						getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						getPlayer(p)->GetActor()->backupvec2();
 
 						if (!Owner || Owner->GetOwner() != Owner)
-							ps[p].transporter_hold = -2;
-						ps[p].setCursector(Owner->sector());
+							getPlayer(p)->transporter_hold = -2;
+						getPlayer(p)->setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
 						SetActor(act2, act2->spr.pos);
@@ -429,18 +429,18 @@ void movetransports_d(void)
 						if (sectlotag == ST_1_ABOVE_WATER)
 							for (int l = 0; l < 9; l++)
 						{
-							auto q = spawn(ps[p].GetActor(), DukeWaterBubbleClass);
+							auto q = spawn(getPlayer(p)->GetActor(), DukeWaterBubbleClass);
 							if (q) q->spr.pos.Z += krandf(64);
 						}
 					}
 					else if (k == 2)
 					{
-						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-						ps[p].GetActor()->backupvec2();
+						getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						getPlayer(p)->GetActor()->backupvec2();
 
 						if (Owner->GetOwner() != Owner)
-							ps[p].transporter_hold = -2;
-						ps[p].setCursector(Owner->sector());
+							getPlayer(p)->transporter_hold = -2;
+						getPlayer(p)->setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
 					}
@@ -545,7 +545,7 @@ static void handle_se28(DDukeActor* actor)
 		if (actor->temp_data[2] > actor->temp_data[1])
 		{
 			actor->counter = 0;
-			ps[screenpeek].visibility = ud.const_visibility;
+			getPlayer(screenpeek)->visibility = ud.const_visibility;
 			return;
 		}
 		else if (actor->temp_data[2] == (actor->temp_data[1] >> 1))
@@ -563,13 +563,13 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (actor->temp_data[2] > (actor->temp_data[1] >> 3) && actor->temp_data[2] < (actor->temp_data[1] >> 2))
 		{
-			int j = !!cansee(actor->spr.pos, actor->sector(), ps[screenpeek].GetActor()->getPosWithOffsetZ(), ps[screenpeek].cursector);
+			int j = !!cansee(actor->spr.pos, actor->sector(), getPlayer(screenpeek)->GetActor()->getPosWithOffsetZ(), getPlayer(screenpeek)->cursector);
 
 			if (rnd(192) && (actor->temp_data[2] & 1))
 			{
-				if (j) ps[screenpeek].visibility = 0;
+				if (j) getPlayer(screenpeek)->visibility = 0;
 			}
-			else if (j)	ps[screenpeek].visibility = ud.const_visibility;
+			else if (j)	getPlayer(screenpeek)->visibility = ud.const_visibility;
 
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
@@ -583,7 +583,7 @@ static void handle_se28(DDukeActor* actor)
 
 						double x;
 						int p = findplayer(actor, &x);
-						auto psa = ps[p].GetActor();
+						auto psa = getPlayer(p)->GetActor();
 						double dist = (psa->spr.pos.XY() - act2->spr.pos.XY()).LengthSquared();
 						if (dist < 49*48)
 						{
@@ -591,7 +591,7 @@ static void handle_se28(DDukeActor* actor)
 								S_PlayActorSound(DUKE_LONGTERM_PAIN, psa);
 							S_PlayActorSound(SHORT_CIRCUIT, psa);
 							psa->spr.extra -= 8 + (krand() & 7);
-							SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
+							SetPlayerPal(getPlayer(p), PalEntry(32, 16, 0, 0));
 						}
 						return;
 					}

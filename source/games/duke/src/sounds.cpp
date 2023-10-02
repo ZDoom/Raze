@@ -311,7 +311,7 @@ void S_GetCamera(DVector3* c, DAngle* ca, sectortype** cs)
 {
 	if (ud.cameraactor == nullptr)
 	{
-		auto p = &ps[screenpeek];
+		auto p = getPlayer(screenpeek);
 		auto pact = p->GetActor();
 		if (c)
 		{
@@ -422,11 +422,11 @@ void GameInterface::UpdateSounds(void)
 
 int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int channel, EChanFlags flags)
 {
-	auto const pl = &ps[myconnectindex];
+	auto const pl = getPlayer(myconnectindex);
 	if (!soundEngine->isValidSoundId(soundid) || !SoundEnabled() || actor == nullptr || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
-	if (flags & CHANF_LOCAL && actor != ps[screenpeek].GetActor() && !ud.coop) return -1;	// makes no sense...
+	if (flags & CHANF_LOCAL && actor != getPlayer(screenpeek)->GetActor() && !ud.coop) return -1;	// makes no sense...
 
 	soundid = GetReplacementSound(soundid);
 	int userflags = S_GetUserFlags(soundid);
@@ -470,7 +470,7 @@ int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int 
 	bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || 
 		((sfx->ResourceId == PIPEBOMB_EXPLODE || sfx->ResourceId == LASERTRIP_EXPLODE || sfx->ResourceId == RPG_EXPLODE));
 
-	bool underwater = ps[screenpeek].insector() && ps[screenpeek].cursector->lotag == ST_2_UNDERWATER;
+	bool underwater = getPlayer(screenpeek)->insector() && getPlayer(screenpeek)->cursector->lotag == ST_2_UNDERWATER;
 	float pitch = 0;
 	if (!explosion)
 	{

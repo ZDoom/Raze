@@ -140,7 +140,7 @@ void DoSpawn(DukePlayer *p, int snum)
 
 void fireweapon_ww(int snum)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
@@ -307,7 +307,7 @@ void fireweapon_ww(int snum)
 
 void operateweapon_ww(int snum, ESyncBits actions)
 {
-	auto p = &ps[snum];
+	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	// already firing...

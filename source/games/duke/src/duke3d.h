@@ -19,7 +19,7 @@
 
 BEGIN_DUKE_NS
 
-extern DukePlayer ps[MAXPLAYERS];
+extern DukePlayer PlayerArray[MAXPLAYERS];
 
 struct GameInterface : public ::GameInterface
 {
@@ -39,7 +39,7 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	void ExitFromMenu() override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void reapplyInputBits(InputPacket* const input) override { input->actions |= ps[myconnectindex].input.actions & SB_CENTERVIEW; }
+	void reapplyInputBits(InputPacket* const input) override { input->actions |= PlayerArray[myconnectindex].input.actions & SB_CENTERVIEW; }
 	void doPlayerMovement(const float scaleAdjust) override;
 	unsigned getCrouchState() override;
 	void UpdateSounds() override;
@@ -53,7 +53,7 @@ struct GameInterface : public ::GameInterface
 	void NewGame(MapRecord* map, int skill, bool) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-	DCoreActor* getConsoleActor() override { return ps[myconnectindex].GetActor(); }
+	DCoreActor* getConsoleActor() override { return PlayerArray[myconnectindex].GetActor(); }
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;

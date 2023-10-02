@@ -56,7 +56,7 @@ void hud_input(int plnum)
 	uint8_t dainv;
 	DukePlayer* p;
 
-	p = &ps[plnum];
+	p = getPlayer(plnum);
 	auto pact = p->GetActor();
 
 	i = p->aim_mode;
@@ -496,7 +496,7 @@ void hud_input(int plnum)
 
 unsigned GameInterface::getCrouchState()
 {
-	const auto p = &ps[myconnectindex];
+	const auto p = getPlayer(myconnectindex);
 	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
 	const int crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge) && !p->jetpack_on;
 	const int disableToggle = (!crouchable && p->on_ground) || p->jetpack_on || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
@@ -511,7 +511,7 @@ unsigned GameInterface::getCrouchState()
 
 void GameInterface::doPlayerMovement(const float scaleAdjust)
 {
-	auto const p = &ps[myconnectindex];
+	auto const p = getPlayer(myconnectindex);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{

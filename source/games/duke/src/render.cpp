@@ -72,7 +72,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 	if (camsprite == nullptr)
 		return;
 
-	auto p = &ps[screenpeek];
+	auto p = getPlayer(screenpeek);
 	if (p->newOwner != nullptr) camsprite->SetOwner(p->newOwner);
 
 	if (camsprite->GetOwner() && (p->GetActor()->spr.pos - camsprite->spr.pos).Length() < VIEWSCREEN_ACTIVE_DISTANCE)
@@ -218,7 +218,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	DVector3 cpos;
 	DRotator cangles;
 
-	DukePlayer* p = &ps[snum];
+	DukePlayer* p = getPlayer(snum);
 
 	// update render angles.
 	p->Angles.updateCameraAngles(interpfrac);

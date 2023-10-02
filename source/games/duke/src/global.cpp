@@ -46,7 +46,7 @@ DukeGameInfo gs;
 int screenpeek;
 
 // serialized
-DukePlayer ps[MAXPLAYERS];
+DukePlayer PlayerArray[MAXPLAYERS];
 
 //------------------------------------------------------------------------- 
 //

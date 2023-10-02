@@ -141,7 +141,7 @@ static bool animateknuckles(int gs, DukePlayer* p, double xoffset, double yoffse
 
 void displaymasks_d(int snum, int p, double interpfrac)
 {
-	if (ps[snum].scuba_on)
+	if (getPlayer(snum)->scuba_on)
 	{
 		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK", ETextureType::Any);
 		auto tex0 = TexMan.GetGameTexture(scuba0);
@@ -204,7 +204,7 @@ static bool animateaccess(int gs, DukePlayer* p, double xoffset, double yoffset,
 void animateshrunken(DukePlayer* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac)
 {
 	const double fistsign = BobVal(interpolatedvalue<double>(p->ofistsign, p->fistsign, interpfrac)) * 16;
-	int pal = ps[screenpeek].cursector->floorpal;
+	int pal = getPlayer(screenpeek)->cursector->floorpal;
 	if (p->jetpack_on == 0)	yoffset += 32 - (p->GetActor()->vel.X * 8);
 	hud_drawpal(250 + fistsign + xoffset, 258 - fabs(fistsign * 4) + yoffset, "FIST", shade, o, pal, nullAngle);
 	hud_drawpal(40 - fistsign + xoffset, 200 + fabs(fistsign * 4) + yoffset, "FIST", shade, o | 4, pal, nullAngle);
@@ -220,7 +220,7 @@ void animateshrunken(DukePlayer* p, double xoffset, double yoffset, int8_t shade
 void displayweapon_d(int snum, double interpfrac)
 {
 	int pal, pal2;
-	DukePlayer* p = &ps[snum];
+	DukePlayer* p = getPlayer(snum);
 
 	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
 		return;

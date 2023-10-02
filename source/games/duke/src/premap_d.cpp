@@ -60,7 +60,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].Exit = ac->spr.pos.XY();
+			getPlayer(0)->Exit = ac->spr.pos.XY();
 		}
 		else
 			premapcontroller(ac);
