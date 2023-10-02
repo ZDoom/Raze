@@ -262,125 +262,129 @@ void movetransports_r(void)
 
 				if (act2->GetOwner())
 				{
-					int p = act2->PlayerIndex();
+					const auto pnum = act2->PlayerIndex();
+					const auto p = getPlayer(pnum);
+					p->on_warping_sector = 1;
 
-					getPlayer(p)->on_warping_sector = 1;
-
-					if (getPlayer(p)->transporter_hold == 0 && getPlayer(p)->jumping_counter == 0)
+					if (p->transporter_hold == 0 && p->jumping_counter == 0)
 					{
-						if (getPlayer(p)->on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && getPlayer(p)->jetpack_on == 0)
+						if (p->on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && p->jetpack_on == 0)
 						{
 							spawn(act, DukeTransporterBeamClass);
 							S_PlayActorSound(TELEPORTER, act);
 
-							for (int k = connecthead; k >= 0; k = connectpoint2[k])
-							if (getPlayer(k)->cursector == Owner->sector())
+							for (int i = connecthead; i >= 0; i = connectpoint2[i])
 							{
-								getPlayer(k)->frag_ps = p;
-								getPlayer(k)->GetActor()->spr.extra = 0;
+								const auto k = getPlayer(i);
+
+								if (k->cursector == Owner->sector())
+								{
+									k->frag_ps = pnum;
+									k->GetActor()->spr.extra = 0;
+								}
 							}
 
-							getPlayer(p)->GetActor()->PrevAngles.Yaw = getPlayer(p)->GetActor()->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+							act2->PrevAngles.Yaw = act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
 
 							if (Owner->GetOwner() != Owner)
 							{
 								act->counter = 13;
 								Owner->counter = 13;
-								getPlayer(p)->transporter_hold = 13;
+								p->transporter_hold = 13;
 							}
 
-							getPlayer(p)->GetActor()->spr.pos = Owner->spr.pos.plusZ(4);
-							getPlayer(p)->GetActor()->backuppos();
-							getPlayer(p)->setbobpos();
+							act2->spr.pos = Owner->spr.pos.plusZ(4);
+							act2->backuppos();
+							p->setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());
-							getPlayer(p)->setCursector(act2->sector());
+							p->setCursector(act2->sector());
 
 							auto beam = spawn(Owner, DukeTransporterBeamClass);
 							if (beam) S_PlayActorSound(TELEPORTER, beam);
-
 							break;
 						}
 					}
 					else break;
 
-					if (onfloorz == 0 && fabs(act->spr.pos.Z - getPlayer(p)->GetActor()->getOffsetZ()) < 24)
-						if ((getPlayer(p)->jetpack_on == 0) || (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->cmd.ucmd.uvel > 0)) ||
-							(getPlayer(p)->jetpack_on && (PlayerInput(p, SB_CROUCH) || getPlayer(p)->cmd.ucmd.uvel < 0)))
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - act2->getOffsetZ()) < 24)
+					{
+						if ((p->jetpack_on == 0) || (p->jetpack_on && (PlayerInput(pnum, SB_JUMP) || p->cmd.ucmd.uvel > 0)) ||
+							(p->jetpack_on && (PlayerInput(pnum, SB_CROUCH) || p->cmd.ucmd.uvel < 0)))
 						{
-							getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							getPlayer(p)->GetActor()->backupvec2();
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->backupvec2();
 
-							if (getPlayer(p)->jetpack_on && (PlayerInput(p, SB_JUMP) || getPlayer(p)->jetpack_on < 11))
-								getPlayer(p)->GetActor()->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
-							else getPlayer(p)->GetActor()->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
-							getPlayer(p)->GetActor()->backupz();
+							if (p->jetpack_on && (PlayerInput(pnum, SB_JUMP) || p->jetpack_on < 11))
+								act2->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
+							else act2->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
+							act2->backupz();
 
 							ChangeActorSect(act2, Owner->sector());
-							getPlayer(p)->setCursector(Owner->sector());
-
+							p->setCursector(Owner->sector());
 							break;
 						}
+					}
 
 					int k = 0;
 
 					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 					{
-						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && getPlayer(p)->GetActor()->getOffsetZ() > sectp->floorz - 48)
+						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && act2->getOffsetZ() > sectp->floorz - 48)
 						{
 							k = 2;
-							getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
-							getPlayer(p)->GetActor()->backupz();
+							act2->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+							act2->backupz();
 						}
 
-						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && getPlayer(p)->GetActor()->getOffsetZ() < sectp->ceilingz + 6)
+						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && act2->getOffsetZ() < sectp->ceilingz + 6)
 						{
 							k = 2;
-							if (getPlayer(p)->GetActor()->spr.extra <= 0) break;
-							getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
-							getPlayer(p)->GetActor()->backupz();
+							if (act2->spr.extra <= 0) break;
+							act2->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
+							act2->backupz();
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->GetActor()->getOffsetZ() > sectp->floorz - 6) ||
-						(onfloorz && sectlotag == ST_1_ABOVE_WATER && getPlayer(p)->OnMotorcycle))
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && act2->getOffsetZ() > sectp->floorz - 6) ||
+						(onfloorz && sectlotag == ST_1_ABOVE_WATER && p->OnMotorcycle))
 					{
-						if (getPlayer(p)->OnBoat) break;
+						if (p->OnBoat) break;
 						k = 1;
-						if (screenpeek == p)
+						if (getPlayer(screenpeek) == p)
 						{
 							FX_StopAllSounds();
 						}
-						S_PlayActorSound(DUKE_UNDERWATER, getPlayer(p)->GetActor());
-						getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
-						getPlayer(p)->GetActor()->backupz();
-						if (getPlayer(p)->OnMotorcycle)
-							getPlayer(p)->moto_underwater = 1;
+						S_PlayActorSound(DUKE_UNDERWATER, act2);
+						act2->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+						act2->backupz();
+						if (p->OnMotorcycle)
+							p->moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && getPlayer(p)->GetActor()->getOffsetZ() < sectp->ceilingz + 6)
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && act2->getOffsetZ() < sectp->ceilingz + 6)
 					{
 						k = 1;
-						if (getPlayer(p)->GetActor()->spr.extra <= 0) break;
-						if (screenpeek == p)
+						if (act2->spr.extra <= 0) break;
+						if (getPlayer(screenpeek) == p)
 						{
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						getPlayer(p)->GetActor()->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
-						getPlayer(p)->GetActor()->backupz();
+						act2->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
+						act2->backupz();
 					}
 
 					if (k == 1)
 					{
-						getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-						getPlayer(p)->GetActor()->backupvec2();
+						act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						act2->backupvec2();
 
 						if (!Owner || Owner->GetOwner() != Owner)
-							getPlayer(p)->transporter_hold = -2;
-						getPlayer(p)->setCursector(Owner->sector());
+							p->transporter_hold = -2;
 
+						p->setCursector(Owner->sector());
 						ChangeActorSect(act2, Owner->sector());
 
 						if ((krand() & 255) < 32)
@@ -388,13 +392,13 @@ void movetransports_r(void)
 					}
 					else if (k == 2)
 					{
-						getPlayer(p)->GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-						getPlayer(p)->GetActor()->backupvec2();
+						act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						act2->backupvec2();
 
 						if (Owner->GetOwner() != Owner)
-							getPlayer(p)->transporter_hold = -2;
-						getPlayer(p)->setCursector(Owner->sector());
+							p->transporter_hold = -2;
 
+						p->setCursector(Owner->sector());
 						ChangeActorSect(act2, Owner->sector());
 					}
 				}
