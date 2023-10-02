@@ -43,7 +43,7 @@ BEGIN_SW_NS
 //
 //---------------------------------------------------------------------------
 
-Collision MultiClipMove(SWPlayer* pp, double zz, double floordist)
+Collision MultiClipMove(DSWPlayer* pp, double zz, double floordist)
 {
     int i;
     DVector3 opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
@@ -122,7 +122,7 @@ Collision MultiClipMove(SWPlayer* pp, double zz, double floordist)
 //
 //---------------------------------------------------------------------------
 
-int MultiClipTurn(SWPlayer* pp, DAngle new_ang, double zz, double floordist)
+int MultiClipTurn(DSWPlayer* pp, DAngle new_ang, double zz, double floordist)
 {
     int i;
     SECTOR_OBJECT* sop = pp->sop;
@@ -192,7 +192,7 @@ int testquadinsect(int *point_num, DVector2 const * qp, sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-int RectClipMove(SWPlayer* pp, DVector2* qpos)
+int RectClipMove(DSWPlayer* pp, DVector2* qpos)
 {
     int i;
     DVector2 xy[4];
@@ -253,7 +253,7 @@ int RectClipMove(SWPlayer* pp, DVector2* qpos)
 //
 //---------------------------------------------------------------------------
 
-short RectClipTurn(SWPlayer* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
+short RectClipTurn(DSWPlayer* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
 {
     int i;
     DVector2 xy[4];

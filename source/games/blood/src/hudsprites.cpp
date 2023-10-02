@@ -100,7 +100,7 @@ static void viewBurnTime(int gScale)
 //
 //---------------------------------------------------------------------------
 
-void hudDraw(BloodPlayer* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, DAngle angle, int basepal, double interpfrac)
+void hudDraw(DBloodPlayer* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, DAngle angle, int basepal, double interpfrac)
 {
 	if (gViewPos == 0)
 	{

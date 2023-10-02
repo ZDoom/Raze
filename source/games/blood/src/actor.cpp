@@ -3629,7 +3629,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 //
 //---------------------------------------------------------------------------
 
-static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, BloodPlayer* pSourcePlayer)
+static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, DBloodPlayer* pSourcePlayer)
 {
 	assert(actor->IsThingActor());
 	int nType = actor->GetType() - kThingBase;
@@ -3738,7 +3738,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 
 	if (source == nullptr) source = actor;
 
-	BloodPlayer* pSourcePlayer = nullptr;
+	DBloodPlayer* pSourcePlayer = nullptr;
 	if (source->IsPlayerActor()) pSourcePlayer = getPlayer(source);
 	if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, actor)) return 0;
 
@@ -4333,7 +4333,7 @@ static void checkFloorHit(DBloodActor* actor)
 			}
 #endif
 
-			BloodPlayer* pPlayer = nullptr;
+			DBloodPlayer* pPlayer = nullptr;
 			if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 
 			switch (actor2->GetType())
@@ -4690,7 +4690,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 void MoveDude(DBloodActor* actor)
 {
-	BloodPlayer* pPlayer = nullptr;
+	DBloodPlayer* pPlayer = nullptr;
 	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 	if (!(actor->IsDudeActor()))
 	{
@@ -5543,7 +5543,7 @@ static void actCheckProximity()
 							if (!Owner->IsPlayerActor()) continue;
 
 							auto pPlayer = getPlayer(Owner);
-							BloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? getPlayer(dudeactor) : nullptr;
+							DBloodPlayer* pPlayer2 = dudeactor->IsPlayerActor() ? getPlayer(dudeactor) : nullptr;
 
 							if (dudeactor == Owner || dudeactor->GetType() == kDudeZombieAxeBuried || dudeactor->GetType() == kDudeRat || dudeactor->GetType() == kDudeBat) continue;
 							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;

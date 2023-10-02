@@ -145,10 +145,9 @@ struct SW native
 }
 
 
-struct SWPlayer native
+class SWPlayer  : CorePlayer native
 {
-    native uint8 pnum; // carry along the player number
-
+    native readonly SWActor actor;
     // variable that fit in the sprite or user structure
 	/*
     union

@@ -42,7 +42,7 @@ void moveminecart();
 //
 //---------------------------------------------------------------------------
 
-void addweapon_r(DukePlayer* p, int weapon, bool wswitch)
+void addweapon_r(DDukePlayer* p, int weapon, bool wswitch)
 {
 	int cw = p->curr_weapon;
 	if (p->OnMotorcycle || p->OnBoat)
@@ -819,7 +819,7 @@ void moveeffectors_r(void)   //STATNUM 3
 //
 //---------------------------------------------------------------------------
 
-void fakebubbaspawn(DDukeActor *actor, DukePlayer* p)
+void fakebubbaspawn(DDukeActor *actor, DDukePlayer* p)
 {
 	fakebubba_spawn++;
 	switch (fakebubba_spawn)

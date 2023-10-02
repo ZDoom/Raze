@@ -224,8 +224,14 @@ struct player_orig
 	sectortype* os;
 };
 
-struct DukePlayer final : public CorePlayer
+class DDukePlayer final : public DCorePlayer
 {
+	DECLARE_CLASS(DDukePlayer, DCorePlayer)
+	HAS_OBJECT_POINTERS
+	size_t PropagateMark() override;
+	DDukePlayer() = default;
+public:
+	DDukePlayer(uint8_t p) : DCorePlayer(p) {}
 	DVector3 vel;
 	DVector2 bobpos;
 	DVector2 fric;

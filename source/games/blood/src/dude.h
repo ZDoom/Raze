@@ -100,6 +100,6 @@ inline DUDEINFO* getDudeInfo(int const nType)
 }
 
 DUDEINFO* getDudeInfo(DBloodActor* actor);
-BloodPlayer* getPlayer(DBloodActor* actor);
+DBloodPlayer* getPlayer(DBloodActor* actor);
 
 END_BLD_NS

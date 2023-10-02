@@ -49,7 +49,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void addweapon_d(DukePlayer *p, int weapon, bool wswitch)
+void addweapon_d(DDukePlayer *p, int weapon, bool wswitch)
 {
 	if (p->gotweapon[weapon] == 0 )
 	{

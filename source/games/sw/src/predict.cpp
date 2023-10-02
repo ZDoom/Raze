@@ -38,9 +38,9 @@ BEGIN_SW_NS
 
 bool PredictionOn = true;
 bool Prediction = false;
-SWPlayer PredictPlayer;
+//DSWPlayer PredictPlayer;
 //USER PredictUser;
-SWPlayer* ppp = &PredictPlayer;
+//DSWPlayer* ppp = &PredictPlayer;
 
 struct PREDICT
 {
@@ -53,11 +53,11 @@ struct PREDICT
 PREDICT Predict[/*MOVEFIFOSIZ*/256];
 int predictmovefifoplc;
 
-void DoPlayerSectorUpdatePreMove(SWPlayer*);
-void DoPlayerSectorUpdatePostMove(SWPlayer*);
+void DoPlayerSectorUpdatePreMove(DSWPlayer*);
+void DoPlayerSectorUpdatePostMove(DSWPlayer*);
 
 
-void InitPrediction(SWPlayer* pp)
+void InitPrediction(DSWPlayer* pp)
 {
     if (!PredictionOn)
         return;
@@ -67,7 +67,7 @@ void InitPrediction(SWPlayer* pp)
     //PredictUser = *pp->actor->user;
 }
 
-void DoPrediction(SWPlayer* ppp)
+void DoPrediction(DSWPlayer* ppp)
 {
 #if 0
     spritetype spr;

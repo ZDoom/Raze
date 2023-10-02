@@ -453,7 +453,7 @@ void moveminecart(void)
 
 void thunder(void)
 {
-	DukePlayer* p;
+	DDukePlayer* p;
 	int r1, r2;
 	int i = 0;
 	uint8_t shade;

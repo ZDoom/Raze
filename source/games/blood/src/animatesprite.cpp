@@ -527,7 +527,7 @@ static int GetOctant(const DVector2& dPos)
 
 void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA, double interpfrac)
 {
-	BloodPlayer* pPlayer = getPlayer(gViewIndex);
+	DBloodPlayer* pPlayer = getPlayer(gViewIndex);
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
 	DAngle myclock = DAngle::fromBuild((PlayClock << 3) + (4 << 3) * interpfrac);

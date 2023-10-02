@@ -78,7 +78,7 @@ struct POSTURE
 
 extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
-struct BloodPlayer;
+class DBloodPlayer;
 
 struct AMMOINFO
 {
@@ -95,7 +95,7 @@ struct POWERUPINFO
 	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
-void playerResetPosture(BloodPlayer* pPlayer);
+void playerResetPosture(DBloodPlayer* pPlayer);
 
 extern bool gBlueFlagDropped;
 extern bool gRedFlagDropped;
@@ -105,40 +105,40 @@ extern int team_ticker[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 
-bool IsTargetTeammate(BloodPlayer* pSourcePlayer, DBloodActor* target);
-int powerupCheck(BloodPlayer* pPlayer, int nPowerUp);
-bool powerupActivate(BloodPlayer* pPlayer, int nPowerUp);
-void powerupDeactivate(BloodPlayer* pPlayer, int nPowerUp);
-void powerupSetState(BloodPlayer* pPlayer, int nPowerUp, bool bState);
-void powerupProcess(BloodPlayer* pPlayer);
-void powerupClear(BloodPlayer* pPlayer);
+bool IsTargetTeammate(DBloodPlayer* pSourcePlayer, DBloodActor* target);
+int powerupCheck(DBloodPlayer* pPlayer, int nPowerUp);
+bool powerupActivate(DBloodPlayer* pPlayer, int nPowerUp);
+void powerupDeactivate(DBloodPlayer* pPlayer, int nPowerUp);
+void powerupSetState(DBloodPlayer* pPlayer, int nPowerUp, bool bState);
+void powerupProcess(DBloodPlayer* pPlayer);
+void powerupClear(DBloodPlayer* pPlayer);
 int packItemToPowerup(int nPack);
 int powerupToPackItem(int nPowerUp);
-bool packAddItem(BloodPlayer* pPlayer, unsigned int nPack);
-int packCheckItem(BloodPlayer* pPlayer, int nPack);
-bool packItemActive(BloodPlayer* pPlayer, int nPack);
-void packUseItem(BloodPlayer* pPlayer, int nPack);
-void packPrevItem(BloodPlayer* pPlayer);
-void packNextItem(BloodPlayer* pPlayer);
-bool playerSeqPlaying(BloodPlayer* pPlayer, int nSeq);
-void playerSetRace(BloodPlayer* pPlayer, int nLifeMode);
-void playerSetGodMode(BloodPlayer* pPlayer, bool bGodMode);
-void playerResetInertia(BloodPlayer* pPlayer);
-void playerCorrectInertia(BloodPlayer* pPlayer, const DVector3& oldpos);
+bool packAddItem(DBloodPlayer* pPlayer, unsigned int nPack);
+int packCheckItem(DBloodPlayer* pPlayer, int nPack);
+bool packItemActive(DBloodPlayer* pPlayer, int nPack);
+void packUseItem(DBloodPlayer* pPlayer, int nPack);
+void packPrevItem(DBloodPlayer* pPlayer);
+void packNextItem(DBloodPlayer* pPlayer);
+bool playerSeqPlaying(DBloodPlayer* pPlayer, int nSeq);
+void playerSetRace(DBloodPlayer* pPlayer, int nLifeMode);
+void playerSetGodMode(DBloodPlayer* pPlayer, bool bGodMode);
+void playerResetInertia(DBloodPlayer* pPlayer);
+void playerCorrectInertia(DBloodPlayer* pPlayer, const DVector3& oldpos);
 void playerStart(int nPlayer, int bNewLevel = 0);
-void playerReset(BloodPlayer* pPlayer);
+void playerReset(DBloodPlayer* pPlayer);
 void playerInit(int nPlayer, unsigned int a2);
-void CheckPickUp(BloodPlayer* pPlayer);
-void ProcessInput(BloodPlayer* pPlayer);
-void playerProcess(BloodPlayer* pPlayer);
-DBloodActor* playerFireMissile(BloodPlayer* pPlayer, double xyoff, const DVector3& vec, int nType);
-DBloodActor* playerFireThing(BloodPlayer* pPlayer, double xyoff, double zvel, int thingType, double nSpeed);
-void playerFrag(BloodPlayer* pKiller, BloodPlayer* pVictim);
-int playerDamageArmor(BloodPlayer* pPlayer, DAMAGE_TYPE nType, int nDamage);
-int playerDamageSprite(DBloodActor* nSource, BloodPlayer* pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
-int UseAmmo(BloodPlayer* pPlayer, int nAmmoType, int nDec);
-void voodooTarget(BloodPlayer* pPlayer);
-void playerLandingSound(BloodPlayer* pPlayer);
+void CheckPickUp(DBloodPlayer* pPlayer);
+void ProcessInput(DBloodPlayer* pPlayer);
+void playerProcess(DBloodPlayer* pPlayer);
+DBloodActor* playerFireMissile(DBloodPlayer* pPlayer, double xyoff, const DVector3& vec, int nType);
+DBloodActor* playerFireThing(DBloodPlayer* pPlayer, double xyoff, double zvel, int thingType, double nSpeed);
+void playerFrag(DBloodPlayer* pKiller, DBloodPlayer* pVictim);
+int playerDamageArmor(DBloodPlayer* pPlayer, DAMAGE_TYPE nType, int nDamage);
+int playerDamageSprite(DBloodActor* nSource, DBloodPlayer* pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
+int UseAmmo(DBloodPlayer* pPlayer, int nAmmoType, int nDec);
+void voodooTarget(DBloodPlayer* pPlayer);
+void playerLandingSound(DBloodPlayer* pPlayer);
 void PlayerSurvive(int, DBloodActor*);
 
 END_BLD_NS

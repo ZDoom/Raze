@@ -138,7 +138,7 @@ void SetNewWeaponIfBetter(int nPlayer, int nWeapon);
 void SelectNewWeapon(int nPlayer);
 void CheckClip(int nPlayer);
 void MoveWeapons(int nPlayer);
-void DrawWeapons(ExhumedPlayer* const pPlayer, double interpfrac);
+void DrawWeapons(DExhumedPlayer* const pPlayer, double interpfrac);
 
 // items
 

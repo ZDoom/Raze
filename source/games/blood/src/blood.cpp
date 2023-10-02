@@ -70,6 +70,31 @@ IMPLEMENT_POINTER(xspr.burnSource)
 IMPLEMENT_POINTER(xspr.target)
 IMPLEMENT_POINTERS_END
 
+IMPLEMENT_CLASS(DBloodPlayer, false, true)
+IMPLEMENT_POINTERS_START(DBloodPlayer)
+IMPLEMENT_POINTER(ctfFlagState[0])
+IMPLEMENT_POINTER(ctfFlagState[1])
+IMPLEMENT_POINTER(aimTarget)
+IMPLEMENT_POINTER(fragger)
+IMPLEMENT_POINTER(voodooTarget)
+IMPLEMENT_POINTER(aimTargets[0])
+IMPLEMENT_POINTER(aimTargets[1])
+IMPLEMENT_POINTER(aimTargets[2])
+IMPLEMENT_POINTER(aimTargets[3])
+IMPLEMENT_POINTER(aimTargets[4])
+IMPLEMENT_POINTER(aimTargets[5])
+IMPLEMENT_POINTER(aimTargets[6])
+IMPLEMENT_POINTER(aimTargets[7])
+IMPLEMENT_POINTER(aimTargets[8])
+IMPLEMENT_POINTER(aimTargets[9])
+IMPLEMENT_POINTER(aimTargets[10])
+IMPLEMENT_POINTER(aimTargets[11])
+IMPLEMENT_POINTER(aimTargets[12])
+IMPLEMENT_POINTER(aimTargets[13])
+IMPLEMENT_POINTER(aimTargets[14])
+IMPLEMENT_POINTER(aimTargets[15])
+IMPLEMENT_POINTERS_END
+
 //---------------------------------------------------------------------------
 //
 //
@@ -96,19 +121,6 @@ static void markgcroots()
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
 	MarkSprInSect();
-	for (int i = 0; i < MAXPLAYERS; i++)
-	{
-		auto plr = getPlayer(i);
-		if (plr)
-		{
-			GC::Mark(plr->actor);
-			GC::MarkArray(plr->ctfFlagState, 2);
-			GC::Mark(plr->aimTarget);
-			GC::MarkArray(plr->aimTargets, 16);
-			GC::Mark(plr->fragger);
-			GC::Mark(plr->voodooTarget);
-		}
-	}
 	for (auto& evobj : rxBucket)
 	{
 		evobj.Mark();
@@ -127,7 +139,7 @@ bool bNoDemo = false;
 int gNetPlayers;
 int gChokeCounter = 0;
 int blood_globalflags;
-BloodPlayer gPlayerTemp[kMaxPlayers];
+PlayerSave gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 int16_t startang;
 sectortype* startsector;
@@ -343,19 +355,10 @@ void StartLevel(MapRecord* level, bool newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			BloodPlayer* pPlayer = getPlayer(i);
+			DBloodPlayer* pPlayer = getPlayer(i);
 			pPlayer->GetActor()->xspr.health &= 0xf000;
 			pPlayer->GetActor()->xspr.health |= gHealthTemp[i];
-			pPlayer->weaponQav = gPlayerTemp[i].weaponQav;
-			pPlayer->curWeapon = gPlayerTemp[i].curWeapon;
-			pPlayer->weaponState = gPlayerTemp[i].weaponState;
-			pPlayer->weaponAmmo = gPlayerTemp[i].weaponAmmo;
-			pPlayer->qavCallback = gPlayerTemp[i].qavCallback;
-			pPlayer->qavLoop = gPlayerTemp[i].qavLoop;
-			pPlayer->weaponTimer = gPlayerTemp[i].weaponTimer;
-			pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
-			pPlayer->qavLastTick = gPlayerTemp[i].qavLastTick;
-			pPlayer->qavTimer = gPlayerTemp[i].qavTimer;			
+			gPlayerTemp[i].CopyToPlayer(pPlayer);
 		}
 	}
 	PreloadCache();
@@ -425,7 +428,7 @@ void GameInterface::Ticker()
 		thinktime.Reset();
 		thinktime.Clock();
 
-		BloodPlayer* pPlayer = getPlayer(myconnectindex);
+		DBloodPlayer* pPlayer = getPlayer(myconnectindex);
 
 		// disable synchronised input if set by game.
 		resetForcedSyncInput();
@@ -592,8 +595,8 @@ void GameInterface::app_init()
 	// Initialise player array.
 	for (unsigned i = 0; i < MAXPLAYERS; i++)
 	{
-		PlayerArray[i] = new BloodPlayer;
-		*getPlayer(i) = {};
+		PlayerArray[i] = Create<DBloodPlayer>(i);
+		GC::WriteBarrier(PlayerArray[i]);
 	}
 
 	mirrortile = tileGetTextureID(504);
@@ -711,7 +714,7 @@ inline DUDEINFO* getDudeInfo(DBloodActor* actor)
 	return getDudeInfo(actor->GetType());
 }
 
-inline BloodPlayer* getPlayer(DBloodActor* actor)
+inline DBloodPlayer* getPlayer(DBloodActor* actor)
 {
 	return getPlayer(actor->GetType() - kDudePlayer1);
 }
@@ -782,13 +785,13 @@ DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(BloodPlayer);
+	PARAM_SELF_STRUCT_PROLOGUE(DBloodPlayer);
 	ACTION_RETURN_INT(self->GetActor()->xspr.health);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
 {
-	PARAM_SELF_STRUCT_PROLOGUE(BloodPlayer);
+	PARAM_SELF_STRUCT_PROLOGUE(DBloodPlayer);
 	PARAM_INT(pwup);
 	ACTION_RETURN_INT(powerupCheck(self, pwup));
 }

@@ -80,7 +80,7 @@ static int faderamp[32] =
 // Set the amount of redness for damage
 // the player just took
 //////////////////////////////////////////
-void SetFadeAmt(SWPlayer* pp, short damage, uint8_t startcolor)
+void SetFadeAmt(DSWPlayer* pp, short damage, uint8_t startcolor)
 {
     const int FADE_DAMAGE_FACTOR = 3;   // 100 health / 32 shade cycles = 3.125
 
@@ -143,7 +143,7 @@ void SetFadeAmt(SWPlayer* pp, short damage, uint8_t startcolor)
 //////////////////////////////////////////
 // Do the screen reddness based on damage
 //////////////////////////////////////////
-void DoPaletteFlash(SWPlayer* pp)
+void DoPaletteFlash(DSWPlayer* pp)
 {
     const int MAXFADETICS = 5;
 

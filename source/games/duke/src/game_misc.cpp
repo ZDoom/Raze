@@ -96,7 +96,7 @@ void GameInterface::ExitFromMenu()
 //
 //---------------------------------------------------------------------------
 
-void FTA(int q, DukePlayer* p)
+void FTA(int q, DDukePlayer* p)
 {
 	if (q < 0 || gamestate != GS_LEVEL)
 		return;
@@ -211,7 +211,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double interpfrac)
 {
-	DukePlayer* pp;
+	DDukePlayer* pp;
 	DVector2 cposxy;
 	DAngle cang;
 

@@ -226,8 +226,9 @@ struct Duke native
 
 }
 
-struct DukePlayer native
+class DukePlayer : CorePlayer native
 {
+    native readonly DukeActor actor;
 	/*
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -282,12 +283,12 @@ struct DukePlayer native
 	native int16 cheat_phase;
 	native int16 extra_extra8, quick_kick, last_quick_kick;
 	native int16 heat_amount, timebeforeexit, customexitsound;
-	native DukeActor actor, actorsqu, wackedbyactor, on_crane, somethingonplayer, access_spritenum, dummyplayersprite, newOwner, holoduke_on;
+	native DukeActor actorsqu, wackedbyactor, on_crane, somethingonplayer, access_spritenum, dummyplayersprite, newOwner, holoduke_on;
 	native sectortype cursector;
 
 	native uint interface_toggle_flag;
 
-	native int16 dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
+	native int16 dead_flag, show_empty_weapon;
 	native int16 scuba_amount, jetpack_amount, steroids_amount, shield_amount;
 	native int16 pycount, frag_ps;
 	native int16 transporter_hold, last_full_weapon, footprintshade, boot_amount;

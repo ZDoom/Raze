@@ -60,7 +60,7 @@ void premapcontroller(DDukeActor* ac)
 
 void pickrandomspot(int snum)
 {
-	DukePlayer* p;
+	DDukePlayer* p;
 	int i;
 
 	p = getPlayer(snum);
@@ -85,7 +85,7 @@ void pickrandomspot(int snum)
 
 void resetplayerstats(int snum)
 {
-	DukePlayer* p;
+	DDukePlayer* p;
 
 	p = getPlayer(snum);
 
@@ -259,7 +259,7 @@ void resetplayerstats(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetweapons(DukePlayer* p)
+void resetweapons(DDukePlayer* p)
 {
 	for (int weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
 	{
@@ -293,7 +293,7 @@ void resetweapons(DukePlayer* p)
 		p->gotweapon[SLINGBLADE_WEAPON] = true;
 		p->ammo_amount[SLINGBLADE_WEAPON] = 1;
 	}
-	OnEvent(EVENT_RESETWEAPONS, int(p - (DukePlayer*)PlayerArray), nullptr, -1);
+	OnEvent(EVENT_RESETWEAPONS, p->pnum, nullptr, -1);
 }
 
 //---------------------------------------------------------------------------
@@ -302,7 +302,7 @@ void resetweapons(DukePlayer* p)
 //
 //---------------------------------------------------------------------------
 
-void resetinventory(DukePlayer* p)
+void resetinventory(DDukePlayer* p)
 {
 	p->inven_icon = 0;
 	p->boot_amount = 0;
@@ -362,7 +362,7 @@ void resetinventory(DukePlayer* p)
 		ufocnt = 0;
 		hulkspawn = 2;
 	}
-	OnEvent(EVENT_RESETINVENTORY, int(p - (DukePlayer*)PlayerArray), p->GetActor());
+	OnEvent(EVENT_RESETINVENTORY, p->pnum, p->GetActor());
 }
 
 
@@ -374,7 +374,7 @@ void resetinventory(DukePlayer* p)
 
 void resetprestat(int snum,int g)
 {
-	DukePlayer* p;
+	DDukePlayer* p;
 
 	p = getPlayer(snum);
 
@@ -1058,7 +1058,7 @@ void cacheit(void)
 //
 //---------------------------------------------------------------------------
 
-static int LoadTheMap(MapRecord *mi, DukePlayer*p, int gamemode)
+static int LoadTheMap(MapRecord *mi, DDukePlayer*p, int gamemode)
 {
 	int16_t lbang;
 	if (isShareware() && (mi->flags & MI_USERMAP))

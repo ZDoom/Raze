@@ -56,8 +56,10 @@ struct Seq native
     native SeqFrame getFrame(int frameId);
 }
 
-struct ExhumedPlayer native
+class ExhumedPlayer : CorePlayer native
 {
+    native readonly ExhumedActor actor;
+
 	native int16 nHealth;
 	native int16 nLives;
 	native int16 nDouble;

@@ -10,9 +10,9 @@
 // all inline functions.
 BEGIN_DUKE_NS
 
-inline DukePlayer* getPlayer(int index)
+inline DDukePlayer* getPlayer(int index)
 {
-	return static_cast<DukePlayer*>(PlayerArray[index]);
+	return static_cast<DDukePlayer*>(PlayerArray[index]);
 }
 
 inline int rnd(int X)
@@ -165,7 +165,7 @@ inline void clearfriction()
 	}
 }
 
-inline void SetPlayerPal(DukePlayer* p, PalEntry pe)
+inline void SetPlayerPal(DDukePlayer* p, PalEntry pe)
 {
 	p->pals = pe;
 }
@@ -175,7 +175,7 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline void doslopetilting(DukePlayer* p)
+inline void doslopetilting(DDukePlayer* p)
 {
 	p->Angles.doViewPitch(p->aim_mode == 0 && p->on_ground && p->cursector->lotag != ST_2_UNDERWATER);
 }
@@ -343,7 +343,7 @@ inline void subkill(DDukeActor* actor)
 	}
 }
 
-inline void dokill(DukePlayer* p, DDukeActor* g_ac, int amount)
+inline void dokill(DDukePlayer* p, DDukeActor* g_ac, int amount)
 {
 	if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128 || !isRR())
 	{

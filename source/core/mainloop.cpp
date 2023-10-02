@@ -101,7 +101,17 @@ static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
 static double inputScale;
 
-CorePlayer* PlayerArray[MAXPLAYERS];
+DCorePlayer* PlayerArray[MAXPLAYERS];
+
+IMPLEMENT_CLASS(DCorePlayer, true, true)
+IMPLEMENT_POINTERS_START(DCorePlayer)
+IMPLEMENT_POINTER(actor)
+IMPLEMENT_POINTERS_END
+
+void MarkPlayers()
+{
+	GC::MarkArray(PlayerArray, MAXPLAYERS);
+}
 
 bool r_NoInterpolate;
 int entertic;

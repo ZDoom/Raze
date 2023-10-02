@@ -1298,7 +1298,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 //
 //---------------------------------------------------------------------------
 
-int CheckWeapRec(DukePlayer* p, DDukeActor* g_ac, int testonly)
+int CheckWeapRec(DDukePlayer* p, DDukeActor* g_ac, int testonly)
 {
 	int j;
 	for (j = 0; j < p->weapreccnt; j++)
@@ -1416,7 +1416,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 //
 //---------------------------------------------------------------------------
 
-int ifcansee(DDukeActor* actor, DukePlayer* p)
+int ifcansee(DDukeActor* actor, DDukePlayer* p)
 {
 	int j;
 	DDukeActor* tosee;

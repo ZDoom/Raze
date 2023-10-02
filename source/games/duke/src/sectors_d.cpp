@@ -117,7 +117,7 @@ void activatebysector_d(sectortype* sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_d(DukePlayer* p, const Collision& coll)
+void checkplayerhurt_d(DDukePlayer* p, const Collision& coll)
 {
 	if (coll.type == kHitSprite)
 	{
@@ -158,7 +158,7 @@ void checkplayerhurt_d(DukePlayer* p, const Collision& coll)
 //
 //---------------------------------------------------------------------------
 
-void clearcameras(DukePlayer* p)
+void clearcameras(DDukePlayer* p)
 {
 	p->GetActor()->restorepos();
 	p->newOwner = nullptr;
@@ -181,7 +181,7 @@ void clearcameras(DukePlayer* p)
 void checksectors_d(int snum)
 {
 	int i = -1;
-	DukePlayer* p;
+	DDukePlayer* p;
 	walltype* hitscanwall;
 	HitInfo near;
 

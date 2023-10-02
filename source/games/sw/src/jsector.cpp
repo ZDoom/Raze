@@ -376,7 +376,7 @@ void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* 
 
 void JS_ProcessEchoSpot()
 {
-    SWPlayer* pp = getPlayer(screenpeek);
+    DSWPlayer* pp = getPlayer(screenpeek);
     int16_t reverb;
     bool reverb_set = false;
 
@@ -417,7 +417,7 @@ short camplayerview = 1;                // Don't show yourself!
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
 // So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
-void JS_DrawCameras(SWPlayer* pp, const DVector3& campos, double smoothratio)
+void JS_DrawCameras(DSWPlayer* pp, const DVector3& campos, double smoothratio)
 {
     int  cnt;
     double dist;
@@ -557,7 +557,7 @@ void JS_DrawCameras(SWPlayer* pp, const DVector3& campos, double smoothratio)
                     {
                         if (dist < MAXCAMDIST)
                         {
-                            SWPlayer* cp = getPlayer(camplayerview);
+                            DSWPlayer* cp = getPlayer(camplayerview);
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
@@ -577,11 +577,11 @@ void JS_DrawCameras(SWPlayer* pp, const DVector3& campos, double smoothratio)
 
 // Workaround until the camera code can be refactored to process all camera textures that were visible last frame.
 // Need to stash the parameters for later use. This is only used to find the nearest camera.
-static SWPlayer* cam_pp;
+static DSWPlayer* cam_pp;
 DVector3 cam_pos;
 static int oldstat;
 
-void JS_CameraParms(SWPlayer* pp, const DVector3& tpos)
+void JS_CameraParms(DSWPlayer* pp, const DVector3& tpos)
 {
     cam_pp = pp;
     cam_pos = tpos;

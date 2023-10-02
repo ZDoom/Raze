@@ -1453,9 +1453,9 @@ void PlaceActorsOnTracks(void)
 }
 
 
-void MovePlayer(SWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
+void MovePlayer(DSWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
 {
-    void DoPlayerZrange(SWPlayer* pp);
+    void DoPlayerZrange(DSWPlayer* pp);
 
     // make sure your standing on the so
     if (pp->Flags & (PF_JUMPING | PF_FALLING | PF_FLYING))
@@ -1527,7 +1527,7 @@ void MovePoints(SECTOR_OBJECT* sop, DAngle deltaangle, const DVector2& move)
 {
     int j;
     int pnum;
-    SWPlayer* pp;
+    DSWPlayer* pp;
     sectortype** sectp;
     int i;
     DAngle rot_ang;
@@ -3316,7 +3316,7 @@ present time.
 
 int ActorFollowTrack(DSWActor* actor, short locktics)
 {
-    SWPlayer* pp;
+    DSWPlayer* pp;
 
     TRACK_POINT* tpoint;
     short pnum;

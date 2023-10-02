@@ -46,7 +46,7 @@ void sub_5A928(void)
 		buttonMap.ClearButton(i);
 }
 
-const char* SetGodMode(BloodPlayer* pPlayer, bool god)
+const char* SetGodMode(DBloodPlayer* pPlayer, bool god)
 {
 	playerSetGodMode(pPlayer, god);
 	bPlayerCheated = true;
@@ -60,13 +60,13 @@ const char* SetClipMode(bool noclip)
 	return gNoClip ? GStrings("TXTB_NOCLIP") : GStrings("TXTB_NOCLIPOFF");
 }
 
-void packStuff(BloodPlayer* pPlayer)
+void packStuff(DBloodPlayer* pPlayer)
 {
 	for (int i = 0; i < 5; i++)
 		packAddItem(pPlayer, i);
 }
 
-void packClear(BloodPlayer* pPlayer)
+void packClear(DBloodPlayer* pPlayer)
 {
 	pPlayer->packItemId = 0;
 	for (int i = 0; i < 5; i++)
@@ -76,7 +76,7 @@ void packClear(BloodPlayer* pPlayer)
 	}
 }
 
-void SetAmmo(BloodPlayer* pPlayer, bool stat)
+void SetAmmo(DBloodPlayer* pPlayer, bool stat)
 {
 	if (stat)
 	{
@@ -92,7 +92,7 @@ void SetAmmo(BloodPlayer* pPlayer, bool stat)
 	}
 }
 
-void SetWeapons(BloodPlayer* pPlayer, bool stat)
+void SetWeapons(DBloodPlayer* pPlayer, bool stat)
 {
 	for (int i = 0; i < 14; i++)
 	{
@@ -114,7 +114,7 @@ void SetWeapons(BloodPlayer* pPlayer, bool stat)
 	}
 }
 
-void SetToys(BloodPlayer* pPlayer, bool stat)
+void SetToys(DBloodPlayer* pPlayer, bool stat)
 {
 	if (stat)
 	{
@@ -128,7 +128,7 @@ void SetToys(BloodPlayer* pPlayer, bool stat)
 	}
 }
 
-void SetArmor(BloodPlayer* pPlayer, bool stat)
+void SetArmor(DBloodPlayer* pPlayer, bool stat)
 {
 	int nAmount;
 	if (stat)
@@ -145,7 +145,7 @@ void SetArmor(BloodPlayer* pPlayer, bool stat)
 		pPlayer->armor[i] = nAmount;
 }
 
-void SetKeys(BloodPlayer* pPlayer, bool stat)
+void SetKeys(DBloodPlayer* pPlayer, bool stat)
 {
 	for (int i = 1; i <= 7; i++)
 		pPlayer->hasKey[i] = stat;
@@ -173,7 +173,7 @@ void SetMap(bool stat)
 		viewSetMessage(GStrings("TXTB_NOALLMAP"));
 }
 
-void SetWooMode(BloodPlayer* pPlayer, bool stat)
+void SetWooMode(DBloodPlayer* pPlayer, bool stat)
 {
 	if (stat)
 	{
@@ -191,12 +191,12 @@ void SetWooMode(BloodPlayer* pPlayer, bool stat)
 	}
 }
 
-void ToggleWooMode(BloodPlayer* pPlayer)
+void ToggleWooMode(DBloodPlayer* pPlayer)
 {
 	SetWooMode(pPlayer, !(powerupCheck(pPlayer, kPwUpTwoGuns) != 0));
 }
 
-void ToggleBoots(BloodPlayer* pPlayer)
+void ToggleBoots(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpJumpBoots))
 	{
@@ -217,7 +217,7 @@ void ToggleBoots(BloodPlayer* pPlayer)
 	}
 }
 
-void ToggleInvisibility(BloodPlayer* pPlayer)
+void ToggleInvisibility(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpShadowCloak))
 	{
@@ -233,7 +233,7 @@ void ToggleInvisibility(BloodPlayer* pPlayer)
 	}
 }
 
-void ToggleInvulnerability(BloodPlayer* pPlayer)
+void ToggleInvulnerability(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpDeathMask))
 	{
@@ -249,7 +249,7 @@ void ToggleInvulnerability(BloodPlayer* pPlayer)
 	}
 }
 
-void ToggleDelirium(BloodPlayer* pPlayer)
+void ToggleDelirium(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpDeliriumShroom))
 	{
@@ -292,7 +292,7 @@ static int parseArgs(char* pzArgs, int* nArg1, int* nArg2)
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
 	// message processing is not perfect because many cheats output multiple messages.
-	BloodPlayer* pPlayer = getPlayer(player);
+	DBloodPlayer* pPlayer = getPlayer(player);
 
 	if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
 		return nullptr;
@@ -512,7 +512,7 @@ static cheatseq_t s_CheatInfo[] = {
 
 void cheatReset(void)
 {
-	BloodPlayer* pPlayer = getPlayer(myconnectindex);
+	DBloodPlayer* pPlayer = getPlayer(myconnectindex);
 	bPlayerCheated = 0;
 	playerSetGodMode(pPlayer, 0);
 	gNoClip = 0;
@@ -530,7 +530,7 @@ void cheatReset(void)
 
 static void cmd_Give(int player, uint8_t** stream, bool skip)
 {
-	BloodPlayer* pPlayer = getPlayer(player);
+	DBloodPlayer* pPlayer = getPlayer(player);
 	int type = ReadByte(stream);
 	if (skip) return;
 

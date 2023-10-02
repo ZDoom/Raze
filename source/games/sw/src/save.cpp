@@ -417,9 +417,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPlayer** def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWPlayer*& w, DSWPlayer** def)
 {
-	int ndx = w ? int(w - (SWPlayer*)PlayerArray) : -1;
+	int ndx = w ? int(w->pnum) : -1;
 	arc(keyname, ndx);
 	w = ndx == -1 ? nullptr : getPlayer(ndx);
 	return arc;
@@ -431,7 +431,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer*& w, SWPl
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SWPlayer& w, SWPlayer* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWPlayer& w, DSWPlayer* def)
 {
 	if (arc.BeginObject(keyname))
 	{

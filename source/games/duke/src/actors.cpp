@@ -212,7 +212,7 @@ void RANDOMSCRAP(DDukeActor* origin)
 //
 //---------------------------------------------------------------------------
 
-void addammo(int weapon, DukePlayer* player, int amount)
+void addammo(int weapon, DDukePlayer* player, int amount)
 {
 	player->ammo_amount[weapon] += amount;
 
@@ -226,7 +226,7 @@ void addammo(int weapon, DukePlayer* player, int amount)
 //
 //---------------------------------------------------------------------------
 
-void checkavailinven(DukePlayer* player)
+void checkavailinven(DDukePlayer* player)
 {
 
 	if (player->firstaid_amount > 0)
@@ -252,7 +252,7 @@ void checkavailinven(DukePlayer* player)
 //
 //---------------------------------------------------------------------------
 
-void checkavailweapon(DukePlayer* player)
+void checkavailweapon(DDukePlayer* player)
 {
 	int i, snum;
 	int weap;
@@ -273,7 +273,7 @@ void checkavailweapon(DukePlayer* player)
 	weap = player->curr_weapon;
 	if (player->gotweapon[weap])
 	{
-		if (player->ammo_amount[weap] > 0 || (WeaponSwitch(player - (DukePlayer*)PlayerArray) & 2) == 0)
+		if (player->ammo_amount[weap] > 0 || (WeaponSwitch(player->pnum) & 2) == 0)
 			return;
 	}
 
@@ -330,7 +330,7 @@ void checkavailweapon(DukePlayer* player)
 //
 //---------------------------------------------------------------------------
 
-void clearcamera(DukePlayer* ps)
+void clearcamera(DDukePlayer* ps)
 {
 	const auto pact = ps->GetActor();
 	ps->newOwner = nullptr;

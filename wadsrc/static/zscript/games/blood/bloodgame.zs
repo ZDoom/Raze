@@ -69,12 +69,13 @@ struct PACKINFO // not native!
 	int curAmount;
 }
 
-struct BloodPlayer native
+class BloodPlayer : CorePlayer native
 {
-	native uint8        pnum;  // Connect id
-
 	native int GetHealth(); // health is stored in the XSPRITE which cannot be safely exported to scripting at the moment due to pending refactoring.
 	native int powerupCheck(int pwup);
+
+    native readonly BloodActor actor;
+
 	//DUDEINFO*       pDudeInfo;
 	//PlayerHorizon   horizon;
 	//PlayerAngle     angle;
@@ -151,4 +152,4 @@ struct BloodPlayer native
 	native int        player_par;
 	native int        nWaterPal;
 	//POSTURE             pPosture[kModeMax][kPostureMax];
-};
+}
