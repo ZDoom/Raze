@@ -283,11 +283,10 @@ void RenderToSavePic(FRenderViewpoint& vp, FileWriter* file, int width, int heig
 
 
 	int numpixels = width * height;
-	uint8_t* scr = (uint8_t*)M_Malloc(numpixels * 3);
-	screen->CopyScreenToBuffer(width, height, scr);
+	TArray<uint8_t> scr(numpixels * 3, true);
+	screen->CopyScreenToBuffer(width, height, scr.Data());
 
-	DoWriteSavePic(file, scr, width, height, screen->FlipSavePic());
-	M_Free(scr);
+	DoWriteSavePic(file, scr.Data(), width, height, screen->FlipSavePic());
 
 	// Switch back the screen render buffers
 	screen->SetViewportRects(nullptr);
