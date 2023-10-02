@@ -721,7 +721,7 @@ CCMD(warptocoords)
 		return;
 	}
 
-	if (const auto pActor = gi->getConsoleActor())
+	if (const auto pActor = PlayerArray[myconnectindex]->actor)
 	{
 		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
 		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));
