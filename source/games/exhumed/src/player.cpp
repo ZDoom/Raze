@@ -2238,7 +2238,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(ExhumedPlayer);
     auto nLocalPlayer = self - (ExhumedPlayer*)PlayerArray;
-    ACTION_RETURN_BOOL(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & kSectUnderwater);
+    ACTION_RETURN_BOOL(getPlayer((int)nLocalPlayer)->pPlayerViewSect->Flag & kSectUnderwater);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
