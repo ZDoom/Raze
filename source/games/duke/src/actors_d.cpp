@@ -51,7 +51,7 @@ BEGIN_DUKE_NS
 
 void addweapon_d(DukePlayer *p, int weapon, bool wswitch)
 {
-	if ( p->gotweapon[weapon] == 0 )
+	if (p->gotweapon[weapon] == 0 )
 	{
 		p->gotweapon[weapon] = true;
 		if (weapon == SHRINKER_WEAPON)
@@ -77,6 +77,7 @@ void addweapon_d(DukePlayer *p, int weapon, bool wswitch)
 	p->curr_weapon = weapon;
 	p->wantweaponfire = -1;
 
+	const auto pact = p->GetActor();
 	switch (weapon)
 	{
 	case KNEE_WEAPON:
@@ -85,13 +86,13 @@ void addweapon_d(DukePlayer *p, int weapon, bool wswitch)
 	case HANDBOMB_WEAPON:	 
 		break;
 	case SHOTGUN_WEAPON:	  
-		S_PlayActorSound(SHOTGUN_COCK, p->GetActor()); 
+		S_PlayActorSound(SHOTGUN_COCK, pact); 
 		break;
 	case PISTOL_WEAPON:	   
-		S_PlayActorSound(INSERT_CLIP, p->GetActor());
+		S_PlayActorSound(INSERT_CLIP, pact);
 		break;
 	default:	  
-		S_PlayActorSound(SELECT_WEAPON, p->GetActor());
+		S_PlayActorSound(SELECT_WEAPON, pact);
 		break;
 	}
 }
