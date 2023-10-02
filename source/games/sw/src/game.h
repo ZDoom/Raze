@@ -1690,6 +1690,7 @@ public:
     }
 
     DSWPlayer(uint8_t p) : DCorePlayer(p) {}
+    void Serialize(FSerializer& arc) override;
     TObjPtr<DSWActor*> lowActor, highActor;
     TObjPtr<DSWActor*> remoteActor;
     TObjPtr<DSWActor*> PlayerUnderActor;

@@ -143,10 +143,13 @@ struct PlayerAngles
 	}
 	void resetCameraAngles()
 	{
-		// Apply any last remaining ticrate angle updates and reset variables.
-		CameraAngles += pActor->spr.Angles - PrevLerpAngles;
-		PrevLerpAngles = pActor->spr.Angles = CameraAngles;
-		PrevViewAngles = ViewAngles;
+		if (pActor != nullptr)
+		{
+			// Apply any last remaining ticrate angle updates and reset variables.
+			CameraAngles += pActor->spr.Angles - PrevLerpAngles;
+			PrevLerpAngles = pActor->spr.Angles = CameraAngles;
+			PrevViewAngles = ViewAngles;
+		}
 	}
 
 	// Draw code helpers.

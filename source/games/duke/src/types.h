@@ -232,6 +232,7 @@ class DDukePlayer final : public DCorePlayer
 	DDukePlayer() = default;
 public:
 	DDukePlayer(uint8_t p) : DCorePlayer(p) {}
+	void Serialize(FSerializer& arc) override;
 	DVector3 vel;
 	DVector2 bobpos;
 	DVector2 fric;
