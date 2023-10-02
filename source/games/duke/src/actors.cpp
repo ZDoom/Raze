@@ -4008,6 +4008,8 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 	int j;
 	int ticselapsed;
 
+	const auto p = getPlayer(playernum);
+	const auto pact = p->GetActor();
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
 	ticselapsed = (actor->counter) & 31;
@@ -4024,13 +4026,13 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		actor->spr.Angles.Yaw = WindDir;
 	else if (ang & seekplayer)
 	{
-		DDukeActor* holoduke = !isRR()? getPlayer(playernum)->holoduke_on.Get() : nullptr;
+		DDukeActor* holoduke = !isRR()? p->holoduke_on.Get() : nullptr;
 
 		// NOTE: looks like 'Owner' is set to target sprite ID...
 
 		if (holoduke && cansee(holoduke->spr.pos, holoduke->sector(), actor->spr.pos, actor->sector()))
 			actor->SetOwner(holoduke);
-		else actor->SetOwner(getPlayer(playernum)->GetActor());
+		else actor->SetOwner(pact);
 
 		auto Owner = actor->GetOwner();
 		if (Owner->isPlayer())
@@ -4068,7 +4070,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		{
 			goalang = furthestangle(actor, j);
 			actor->spr.Angles.Yaw = goalang;
-			actor->SetOwner(getPlayer(playernum)->GetActor());
+			actor->SetOwner(pact);
 		}
 
 		if (ang & fleeenemy)
