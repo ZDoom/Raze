@@ -3134,14 +3134,18 @@ void handle_se20(DDukeActor* actor)
 		dragpoint(wal[0], wal[0]->pos + vec);
 		dragpoint(wal[1], wal[1]->pos + vec);
 
-		for (int p = connecthead; p >= 0; p = connectpoint2[p])
-			if (getPlayer(p)->cursector == actor->sector() && getPlayer(p)->on_ground)
-			{
-				getPlayer(p)->GetActor()->spr.pos.XY() += vec;
-				getPlayer(p)->GetActor()->backupvec2();
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
+		{
+			const auto p = getPlayer(i);
+			const auto pact = p->GetActor();
 
-				SetActor(getPlayer(p)->GetActor(), getPlayer(p)->GetActor()->spr.pos);
+			if (p->cursector == actor->sector() && p->on_ground)
+			{
+				pact->spr.pos.XY() += vec;
+				pact->backupvec2();
+				SetActor(pact, pact->spr.pos);
 			}
+		}
 
 		sc->addfloorxpan(-(float)vec.X * 2);
 		sc->addfloorypan(-(float)vec.Y * 2);
