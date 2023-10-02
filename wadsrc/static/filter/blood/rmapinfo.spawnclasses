@@ -69,6 +69,24 @@ spawnclasses
 	147 = BloodItemFlagA
 	148 = BloodItemFlagB
 
+	// other items
+	116 = BloodItemRavenFlight
+	120 = BloodItemClone
+	122 = BloodItemDecoy
+	123 = BloodItemDoppleganger
+	126 = BloodItemShadowCloakUseless
+	127 = BloodItemRageShroom
+	129 = BloodItemGrowShroom
+	130 = BloodItemShrinkShroom
+	131 = BloodItemDeathMaskUseless
+	132 = BloodItemWineGoblet
+	133 = BloodItemWineBottle
+	134 = BloodItemSkullGrail
+	135 = BloodItemSilverGrail
+	136 = BloodItemTome
+	137 = BloodItemBlackChest
+	138 = BloodItemWoodenChest
+
 	// dudes
 	201 = BloodDudeCultistTommy
 	202 = BloodDudeCultistShotgun
