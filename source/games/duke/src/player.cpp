@@ -857,7 +857,7 @@ void playerCenterView(int snum)
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
-		p->cmd.ucmd.horz = 0;
+		p->cmd.ucmd.ang.Pitch = nullFAngle;
 		setForcedSyncInput(snum);
 	}
 	else

@@ -714,8 +714,8 @@ static unsigned outVehicleFlags(DDukePlayer* p, ESyncBits& actions)
 	unsigned flags = 0;
 	flags += VEH_FORWARD * (p->cmd.ucmd.vel.X > 0);
 	flags += VEH_REVERSE * (p->cmd.ucmd.vel.X < 0);
-	flags += VEH_TURNLEFT * (p->cmd.ucmd.avel < 0);
-	flags += VEH_TURNRIGHT * (p->cmd.ucmd.avel > 0);
+	flags += VEH_TURNLEFT * (p->cmd.ucmd.ang.Yaw.Degrees() < 0);
+	flags += VEH_TURNRIGHT * (p->cmd.ucmd.ang.Yaw.Degrees() > 0);
 	flags += VEH_BRAKING * (!!(actions & SB_CROUCH) || (p->cmd.ucmd.vel.X < 0 && p->MotoSpeed > 0));
 	actions &= ~SB_CROUCH;
 	return flags;
@@ -729,7 +729,7 @@ static unsigned outVehicleFlags(DDukePlayer* p, ESyncBits& actions)
 
 static void doVehicleTilting(DDukePlayer* const p, const bool canTilt)
 {
-	auto adj = DAngle::fromDeg(p->cmd.ucmd.avel * (545943. / 3200000.) * canTilt);
+	auto adj = DAngle::fromDeg(p->cmd.ucmd.ang.Yaw.Degrees() * (545943. / 3200000.) * canTilt);
 	if (p->OnMotorcycle) adj *= 5 * Sgn(p->MotoSpeed);
 	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
@@ -970,7 +970,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 
 	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, !p->on_ground || p->cmd.ucmd.avel);
+	doVehicleTilting(p, !p->on_ground || p->cmd.ucmd.ang.Yaw.Degrees());
 
 	if (p->MotoSpeed < 0 || p->moto_underwater)
 		p->MotoSpeed = 0;
@@ -1066,7 +1066,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->MotoSpeed = 0;
 
 	unsigned flags = outVehicleFlags(p, actions);
-	doVehicleTilting(p, (p->MotoSpeed != 0 && (p->cmd.ucmd.avel || p->moto_drink)) || !p->NotOnWater); 
+	doVehicleTilting(p, (p->MotoSpeed != 0 && (p->cmd.ucmd.ang.Yaw.Degrees() || p->moto_drink)) || !p->NotOnWater);
 	doVehicleSounds(p, pact, flags, 87, 88, 89, 90);
 
 	if (!p->NotOnWater)
@@ -2541,7 +2541,7 @@ void processinput_r(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->cmd.ucmd.avel = 0;
+		p->cmd.ucmd.ang.Yaw = nullFAngle;
 		setForcedSyncInput(snum);
 	}
 

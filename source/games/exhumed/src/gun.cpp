@@ -46,7 +46,7 @@ Weapon WeaponInfo[] = {
 };
 
 static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
-static float lastavel;
+static FAngle lastavel;
 int isRed = 0;
 
 
@@ -933,8 +933,8 @@ void DrawWeapons(DExhumedPlayer* const pPlayer, double interpfrac)
     double xPos = 160 + weaponOffsets.first.X;
     double yPos = 100 + weaponOffsets.first.Y;
 
-    double nFlameAng = interpolatedvalue(lastavel, pPlayer->cmd.ucmd.avel, interpfrac);
-    lastavel = pPlayer->cmd.ucmd.avel;
+    double nFlameAng = interpolatedvalue(lastavel, pPlayer->cmd.ucmd.ang.Yaw, interpfrac).Degrees();
+    lastavel = pPlayer->cmd.ucmd.ang.Yaw;
 
     if (cl_weaponsway)
     {

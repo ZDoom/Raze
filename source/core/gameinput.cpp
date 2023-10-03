@@ -129,10 +129,10 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 		const float turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
 		const float tttscale = 1.f / (!(cl_noturnscaling || isTurboTurnTime()) * 2.8f + 1.f);
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * tttscale);
-		thisInput.avel += mouseInput.X * MOUSE_SCALE * m_yaw;
-		thisInput.avel -= joyAxes[JOYAXIS_Yaw] * hidspeed * scaleAdjust;
-		thisInput.avel += turndir * turnspeed * scaleAdjust;
-		thisInput.avel *= turnscale;
+		thisInput.ang.Yaw += FAngle::fromDeg(mouseInput.X * MOUSE_SCALE * m_yaw);
+		thisInput.ang.Yaw -= FAngle::fromDeg(joyAxes[JOYAXIS_Yaw] * hidspeed * scaleAdjust);
+		thisInput.ang.Yaw += FAngle::fromDeg(turndir * turnspeed * scaleAdjust);
+		thisInput.ang.Yaw *= turnscale;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
@@ -145,9 +145,9 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	// process player pitch input.
 	if (!(inputBuffer.actions & SB_AIMMODE))
 	{
-		thisInput.horz -= mouseInput.Y * MOUSE_SCALE * m_pitch;
-		thisInput.horz -= joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
-		thisInput.horz *= turnscale;
+		thisInput.ang.Pitch -= FAngle::fromDeg(mouseInput.Y * MOUSE_SCALE * m_pitch);
+		thisInput.ang.Pitch -= FAngle::fromDeg(joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust);
+		thisInput.ang.Pitch *= turnscale;
 	}
 	else
 	{
@@ -171,15 +171,15 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -(double)keymove, (double)keymove);
 	inputBuffer.vel.Y = clamp(inputBuffer.vel.Y + thisInput.vel.Y, -(double)keymove, (double)keymove);
 	inputBuffer.vel.Z = clamp(inputBuffer.vel.Z + thisInput.vel.Z, -1., 1.);
-	inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -179.f, 179.f);
-	inputBuffer.horz = clamp(inputBuffer.horz + thisInput.horz, -179.f, 179.f);
+	inputBuffer.ang.Yaw = clamp(inputBuffer.ang.Yaw + thisInput.ang.Yaw, FAngle::fromDeg(-179.f), FAngle::fromDeg(179.f));
+	inputBuffer.ang.Pitch = clamp(inputBuffer.ang.Pitch + thisInput.ang.Pitch, FAngle::fromDeg(-179.f), FAngle::fromDeg(179.f));
 
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(thisInput.avel);
-		plrAngles->CameraAngles.Roll += DAngle::fromDeg(thisInput.roll);
-		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(thisInput.horz);
+		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(thisInput.ang.Yaw.Degrees());
+		plrAngles->CameraAngles.Roll += DAngle::fromDeg(thisInput.ang.Roll.Degrees());
+		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(thisInput.ang.Pitch.Degrees());
 	}
 }
 
@@ -226,14 +226,14 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		const auto scaleVel = !(flags & VEH_SCALETURN) && (cl_noturnscaling || hidDir || isTurboTurnTime());
 		const auto turnVel = scaleVel ? baseVel : baseVel * velScale;
 		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
-		const auto maxVel = abs(turnVel * 1.5f);
+		const auto maxVel = FAngle::fromDeg(abs(turnVel * 1.5f));
 
 		// Apply inputs.
-		thisInput.avel += ((mouseVel > 1) ? sqrtf(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw);
-		thisInput.avel -= turnVel * joyAxes[JOYAXIS_Yaw];
-		thisInput.avel += turnVel * kbdDir;
-		thisInput.avel *= scaleAdjust;
-		inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -maxVel, maxVel);
+		thisInput.ang.Yaw += FAngle::fromDeg(((mouseVel > 1) ? sqrtf(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw));
+		thisInput.ang.Yaw -= FAngle::fromDeg(turnVel * joyAxes[JOYAXIS_Yaw]);
+		thisInput.ang.Yaw += FAngle::fromDeg(turnVel * kbdDir);
+		thisInput.ang.Yaw *= scaleAdjust;
+		inputBuffer.ang.Yaw = clamp(inputBuffer.ang.Yaw + thisInput.ang.Yaw, -maxVel, maxVel);
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
@@ -244,9 +244,9 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(thisInput.avel);
-		plrAngles->CameraAngles.Roll += DAngle::fromDeg(thisInput.roll);
-		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(thisInput.horz);
+		plrAngles->CameraAngles.Yaw += DAngle::fromDeg(thisInput.ang.Yaw.Degrees());
+		plrAngles->CameraAngles.Roll += DAngle::fromDeg(thisInput.ang.Roll.Degrees());
+		plrAngles->CameraAngles.Pitch += DAngle::fromDeg(thisInput.ang.Pitch.Degrees());
 	}
 }
 
@@ -388,9 +388,9 @@ void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 void PlayerAngles::doPitchInput(InputPacket* const input)
 {
 	// Add player's mouse/device input.
-	if (input->horz)
+	if (input->ang.Pitch.Degrees())
 	{
-		pActor->spr.Angles.Pitch += DAngle::fromDeg(input->horz * SyncInput());
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(input->ang.Pitch.Degrees() * SyncInput());
 		input->actions &= ~SB_CENTERVIEW;
 	}
 
@@ -437,7 +437,7 @@ void PlayerAngles::doPitchInput(InputPacket* const input)
 void PlayerAngles::doYawInput(InputPacket* const input)
 {
 	// Add player's mouse/device input.
-	pActor->spr.Angles.Yaw += DAngle::fromDeg(input->avel * SyncInput());
+	pActor->spr.Angles.Yaw += DAngle::fromDeg(input->ang.Yaw.Degrees() * SyncInput());
 
 	if (input->actions & SB_TURNAROUND)
 	{
@@ -560,7 +560,7 @@ void PlayerAngles::doRollInput(InputPacket* const input, const DVector2& nVelVec
 		if (cl_viewtilting == 1)
 		{
 			// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
-			const auto rollAdj = DAngle::fromDeg(input->avel * ROLL_TILTAVELSCALE * rollAmp);
+			const auto rollAdj = DAngle::fromDeg(input->ang.Yaw.Degrees() * ROLL_TILTAVELSCALE * rollAmp);
 			const auto rollMax = DAngle::fromDeg((90. / 32. * 1.5) * cl_viewtiltscale);
 			scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
 			pActor->spr.Angles.Roll = clamp(pActor->spr.Angles.Roll + rollAdj, -rollMax, rollMax);
@@ -588,7 +588,7 @@ void PlayerAngles::doRollInput(InputPacket* const input, const DVector2& nVelVec
 	else
 	{
 		// Add player's device input.
-		pActor->spr.Angles.Roll += DAngle::fromDeg(input->roll * SyncInput());
+		pActor->spr.Angles.Roll += DAngle::fromDeg(input->ang.Roll.Degrees() * SyncInput());
 	}
 }
 

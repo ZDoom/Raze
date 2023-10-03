@@ -857,10 +857,10 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->deathTime = 0;
 	pPlayer->nextWeapon = kWeapNone;
 	actor->vel.Zero();
-	pInput->avel = 0;
+	pInput->ang.Yaw = nullFAngle;
 	pInput->actions = 0;
 	pInput->vel.Zero();
-	pInput->horz = 0;
+	pInput->ang.Pitch = nullFAngle;
 	pPlayer->flickerEffect = 0;
 	pPlayer->quakeEffect = 0;
 	pPlayer->tiltEffect = 0;
@@ -1525,7 +1525,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	// Allow it to become true behind a CVAR to offer an alternate playing experience if desired.
 	pPlayer->isRunning = !!(pInput->actions & SB_RUN) && !cl_bloodvanillarun;
 
-	if ((pInput->actions & SB_BUTTON_MASK) || !pInput->vel.XY().isZero() || pInput->avel)
+	if ((pInput->actions & SB_BUTTON_MASK) || !pInput->vel.XY().isZero() || pInput->ang.Yaw.Degrees())
 		pPlayer->restTime = 0;
 	else if (pPlayer->restTime >= 0)
 		pPlayer->restTime += 4;
