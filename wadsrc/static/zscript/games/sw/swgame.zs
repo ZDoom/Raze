@@ -200,7 +200,6 @@ class SWPlayer  : CorePlayer native
     native int friction;
     native int16 slide_ang;
     native int slide_dec;
-    native float drive_avel;
 
     native double circle_camera_ang;
     native int16 camera_check_time_delay;

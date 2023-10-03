@@ -1192,7 +1192,6 @@ void DoPlayerResetMovement(DSWPlayer* pp)
     pp->vect.Zero();
     pp->ovect.Zero();
     pp->slide_vect.Zero();
-    pp->drive_avel = 0;
     pp->Flags &= ~(PF_PLAYER_MOVED);
 }
 
@@ -1451,10 +1450,7 @@ void DoPlayerTurnVehicle(DSWPlayer* pp, double zz, double floordist)
 
     if (sop->drive_angspeed)
     {
-        float drive_oavel = pp->drive_avel;
-        pp->drive_avel = float((pp->cmd.ucmd.avel * sop->drive_angspeed + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
-
-        pp->cmd.ucmd.avel = pp->drive_avel;
+        pp->cmd.ucmd.avel = float(((pp->cmd.ucmd.avel * sop->drive_angspeed) + (pp->lastcmd.ucmd.avel * (sop->drive_angslide - 1))) / sop->drive_angslide);
     }
     else
     {
@@ -1479,24 +1475,20 @@ void DoPlayerTurnVehicle(DSWPlayer* pp, double zz, double floordist)
 
 void DoPlayerTurnVehicleRect(DSWPlayer* pp, DVector2* pos, DVector2* opos)
 {
-    float avel;
     SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        float drive_oavel = pp->drive_avel;
-        pp->drive_avel = float((pp->cmd.ucmd.avel * sop->drive_angspeed + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
-
-        avel = pp->drive_avel;
+        pp->cmd.ucmd.avel = float(((pp->cmd.ucmd.avel * sop->drive_angspeed) + (pp->lastcmd.ucmd.avel * (sop->drive_angslide - 1))) / sop->drive_angslide);
     }
     else
     {
-        avel = pp->cmd.ucmd.avel * synctics * 0.125f;
+        pp->cmd.ucmd.avel *= synctics * 0.125f;
     }
 
-    if (avel != 0)
+    if (pp->cmd.ucmd.avel != 0)
     {
-        auto sum = pp->GetActor()->spr.Angles.Yaw + DAngle::fromDeg(avel);
+        auto sum = pp->GetActor()->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
         if (RectClipTurn(pp, sum, pos, opos))
         {
             pp->GetActor()->spr.Angles.Yaw = sum;
@@ -1517,14 +1509,11 @@ void DoPlayerTurnTurret(DSWPlayer* pp)
 
     if (sop->drive_angspeed)
     {
-        float drive_oavel = pp->drive_avel;
-        pp->drive_avel = float((pp->cmd.ucmd.avel * sop->drive_angspeed + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
-
-        pp->cmd.ucmd.avel = pp->drive_avel;
+        pp->cmd.ucmd.avel = float(((pp->cmd.ucmd.avel * sop->drive_angspeed) + (pp->lastcmd.ucmd.avel * (sop->drive_angslide - 1))) / sop->drive_angslide);
     }
     else
     {
-        pp->cmd.ucmd.avel = pp->cmd.ucmd.avel * synctics * 0.25f;
+        pp->cmd.ucmd.avel *= synctics * 0.25f;
     }
 
     if (fabs(pp->cmd.ucmd.avel) >= FLT_EPSILON)
@@ -7280,7 +7269,6 @@ DEFINE_FIELD(DSWPlayer, friction)
 //DEFINE_FIELD(DSWPlayer, slide_yvect)
 DEFINE_FIELD(DSWPlayer, slide_ang)
 DEFINE_FIELD(DSWPlayer, slide_dec)
-DEFINE_FIELD(DSWPlayer, drive_avel)
 DEFINE_FIELD(DSWPlayer, circle_camera_ang)
 DEFINE_FIELD(DSWPlayer, camera_check_time_delay)
 DEFINE_FIELD(DSWPlayer, cursector)
