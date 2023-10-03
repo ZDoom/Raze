@@ -129,7 +129,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (!isRR() && PlayerUseItem(plnum, ICON_HEATS))
+		if (!isRR() && p->itemUsed(ICON_HEATS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
@@ -142,7 +142,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerUseItem(plnum, ICON_STEROIDS))
+		if (p->itemUsed(ICON_STEROIDS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USESTEROIDS, plnum, nullptr, -1);
@@ -269,7 +269,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerUseItem(plnum, ICON_HOLODUKE) && (isRR() || p->newOwner == nullptr))
+		if (p->itemUsed(ICON_HOLODUKE) && (isRR() || p->newOwner == nullptr))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_HOLODUKEON, plnum, nullptr, -1);
@@ -323,7 +323,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (isRR() && PlayerUseItem(plnum, ICON_HEATS) && p->newOwner == nullptr)
+		if (isRR() && p->itemUsed(ICON_HEATS) && p->newOwner == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
@@ -355,7 +355,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerUseItem(plnum, ICON_FIRSTAID))
+		if (p->itemUsed(ICON_FIRSTAID))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
@@ -408,7 +408,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerUseItem(plnum, ICON_JETPACK) && (isRR() || p->newOwner == nullptr))
+		if (p->itemUsed(ICON_JETPACK) && (isRR() || p->newOwner == nullptr))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEJETPACK, plnum, nullptr, -1);

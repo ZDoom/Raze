@@ -111,11 +111,6 @@ inline void PlayerSetItemUsed(int pl, int num)
 	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
 }
 
-inline bool PlayerUseItem(int pl, int num)
-{
-	return getPlayer(pl)->cmd.ucmd.isItemUsed(num - 1);
-}
-
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
