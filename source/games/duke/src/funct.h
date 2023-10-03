@@ -205,7 +205,6 @@ int startrts(int lumpNum, int localPlayer);
 void pickrandomspot(int pn);
 void premapcontroller(DDukeActor* ac);
 void resetinventory(DDukePlayer* pn);
-void resetplayerstats(int pn);
 void resetweapons(DDukePlayer* pn);
 void resetprestat(int snum, int g);
 void prelevel_common(int g);

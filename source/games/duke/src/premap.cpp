@@ -83,12 +83,8 @@ void pickrandomspot(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetplayerstats(int snum)
+static void resetplayerstats(DDukePlayer* const p)
 {
-	DDukePlayer* p;
-
-	p = getPlayer(snum);
-
 	gFullMap = 0; 
 	p->pnum             = 0;
 	p->dead_flag        = 0;
@@ -489,67 +485,67 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 	int circ;
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
-	const auto firstp = getPlayer(0);
 
-	auto newActor = CreateActor(firstp->cursector, startpos,
+	auto newActor = CreateActor(getPlayer(0)->cursector, startpos,
 		DukePlayerPawnClass /*fixme for RR later!*/, 0, DVector2(0, 0), startang, 0., 0., nullptr, 10);
 
 	newActor->spr.Angles.Pitch = DAngle::fromDeg(-17.354);
 	newActor->backuploc();
 
-	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
-	{
-		const auto p = getPlayer(i);
-		const auto ptsbar = &tsbar[i];
-		aimmode[i] = p->aim_mode;
-		if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
-		{
-			for (j = 0; j < MAX_WEAPONS; j++)
-			{
-				ptsbar->ammo_amount[j] = p->ammo_amount[j];
-				ptsbar->gotweapon[j] = p->gotweapon[j];
-			}
-
-			ptsbar->shield_amount = p->shield_amount;
-			ptsbar->curr_weapon = p->curr_weapon;
-			ptsbar->inven_icon = p->inven_icon;
-
-			ptsbar->firstaid_amount = p->firstaid_amount;
-			ptsbar->steroids_amount = p->steroids_amount;
-			ptsbar->holoduke_amount = p->holoduke_amount;
-			ptsbar->jetpack_amount = p->jetpack_amount;
-			ptsbar->heat_amount = p->heat_amount;
-			ptsbar->scuba_amount = p->scuba_amount;
-			ptsbar->boot_amount = p->boot_amount;
-		}
-	}
-
 	for (i = 0; i < MAXPLAYERS; i++)
-		resetplayerstats(i);
-
-	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
 		const auto p = getPlayer(i);
 		const auto ptsbar = &tsbar[i];
-		p->aim_mode = aimmode[i];
-		if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
-		{
-			for (j = 0; j < MAX_WEAPONS; j++)
-			{
-				p->ammo_amount[j] = ptsbar->ammo_amount[j];
-				p->gotweapon[j] = ptsbar->gotweapon[j];
-			}
-			p->shield_amount = ptsbar->shield_amount;
-			p->curr_weapon = ptsbar->curr_weapon;
-			p->inven_icon = ptsbar->inven_icon;
 
-			p->firstaid_amount = ptsbar->firstaid_amount;
-			p->steroids_amount = ptsbar->steroids_amount;
-			p->holoduke_amount = ptsbar->holoduke_amount;
-			p->jetpack_amount = ptsbar->jetpack_amount;
-			p->heat_amount = ptsbar->heat_amount;
-			p->scuba_amount = ptsbar->scuba_amount;
-			p->boot_amount = ptsbar->boot_amount;
+		if (ud.recstat != 2)
+		{
+			aimmode[i] = p->aim_mode;
+			if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
+			{
+				for (j = 0; j < MAX_WEAPONS; j++)
+				{
+					ptsbar->ammo_amount[j] = p->ammo_amount[j];
+					ptsbar->gotweapon[j] = p->gotweapon[j];
+				}
+
+				ptsbar->shield_amount = p->shield_amount;
+				ptsbar->curr_weapon = p->curr_weapon;
+				ptsbar->inven_icon = p->inven_icon;
+
+				ptsbar->firstaid_amount = p->firstaid_amount;
+				ptsbar->steroids_amount = p->steroids_amount;
+				ptsbar->holoduke_amount = p->holoduke_amount;
+				ptsbar->jetpack_amount = p->jetpack_amount;
+				ptsbar->heat_amount = p->heat_amount;
+				ptsbar->scuba_amount = p->scuba_amount;
+				ptsbar->boot_amount = p->boot_amount;
+			}
+		}
+
+		resetplayerstats(p);
+
+		if (ud.recstat != 2)
+		{
+			p->aim_mode = aimmode[i];
+			if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
+			{
+				for (j = 0; j < MAX_WEAPONS; j++)
+				{
+					p->ammo_amount[j] = ptsbar->ammo_amount[j];
+					p->gotweapon[j] = ptsbar->gotweapon[j];
+				}
+				p->shield_amount = ptsbar->shield_amount;
+				p->curr_weapon = ptsbar->curr_weapon;
+				p->inven_icon = ptsbar->inven_icon;
+
+				p->firstaid_amount = ptsbar->firstaid_amount;
+				p->steroids_amount = ptsbar->steroids_amount;
+				p->holoduke_amount = ptsbar->holoduke_amount;
+				p->jetpack_amount = ptsbar->jetpack_amount;
+				p->heat_amount = ptsbar->heat_amount;
+				p->scuba_amount = ptsbar->scuba_amount;
+				p->boot_amount = ptsbar->boot_amount;
+			}
 		}
 	}
 
