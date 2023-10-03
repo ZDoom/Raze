@@ -2908,7 +2908,7 @@ HORIZONLY:
 			return;
 		}
 	}
-	dokneeattack(snum);
+	dokneeattack(p);
 
 
 	if (fi.doincrements(p)) return;
