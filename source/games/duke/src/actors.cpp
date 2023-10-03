@@ -1224,7 +1224,7 @@ int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int clipty
 	if (bg)
 	{
 		if (actor->spr.scale.X > 0.9375)
-			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
+			clipmove(ppos, &dasectp, change.XY() * 0.5, 64., 4., 4., cliptype, result);
 		else
 		{
 			// todo: move this mess to the actor definitions once we have them all available.
@@ -1237,7 +1237,7 @@ int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int clipty
 					clipdist = 12;
 			}
 
-			clipmove(ppos, &dasectp, change * 0.5, clipdist, 4., 4., cliptype, result);
+			clipmove(ppos, &dasectp, change.XY() * 0.5, clipdist, 4., 4., cliptype, result);
 		}
 
 		// conditional code from hell...
@@ -1262,9 +1262,9 @@ int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int clipty
 	else
 	{
 		if (actor->spr.statnum == STAT_PROJECTILE)
-			clipmove(ppos, &dasectp, change * 0.5, 0.5, 4., 4., cliptype, result);
+			clipmove(ppos, &dasectp, change.XY() * 0.5, 0.5, 4., 4., cliptype, result);
 		else
-			clipmove(ppos, &dasectp, change * 0.5, actor->clipdist, 4., 4., cliptype, result);
+			clipmove(ppos, &dasectp, change.XY() * 0.5, actor->clipdist, 4., 4., cliptype, result);
 	}
 	actor->spr.pos.XY() = ppos.XY();
 
@@ -1640,7 +1640,7 @@ void handle_se00(DDukeActor* actor)
 				pact->spr.Angles.Yaw += ang_amount * direction;
 				pact->spr.pos.Z += zchange;
 
-				auto result = rotatepoint(Owner->spr.pos, pact->spr.pos.XY(), ang_amount * direction);
+				auto result = rotatepoint(Owner->spr.pos.XY(), pact->spr.pos.XY(), ang_amount * direction);
 				p->bobpos += (result - pact->spr.pos.XY());
 				pact->spr.pos.XY() = result;
 			}
@@ -1660,7 +1660,7 @@ void handle_se00(DDukeActor* actor)
 
 				act2->spr.pos.Z += zchange;
 
-				auto pos = rotatepoint(Owner->spr.pos, act2->spr.pos.XY(), ang_amount * direction);
+				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), ang_amount * direction);
 				act2->spr.pos.X = pos.X;
 				act2->spr.pos.Y = pos.Y;
 			}

@@ -1150,7 +1150,7 @@ bool TestKillSectorObject(SECTOR_OBJECT* sop)
     {
         KillMatchingCrackSprites(sop->match_event);
         // get new sectnums
-        CollapseSectorObject(sop, sop->pmid);
+        CollapseSectorObject(sop, sop->pmid.XY());
         DoSpawnSpotsForKill(sop->match_event);
         KillSectorObjectSprites(sop);
         return true;
@@ -1315,7 +1315,7 @@ void DoDeleteSpriteMatch(short match)
             if (actor->spr.lotag == match)
             {
                 found = actor;
-                del = actor->spr.pos;
+                del = actor->spr.pos.XY();
                 break;
             }
         }
@@ -1328,7 +1328,7 @@ void DoDeleteSpriteMatch(short match)
             it.Reset(StatList[stat]);
             while (auto actor = it.Next())
             {
-                if (del == actor->spr.pos)
+                if (del == actor->spr.pos.XY())
                 {
                     // special case lighting delete of Fade On/off after fades
                     if (StatList[stat] == STAT_LIGHTING)

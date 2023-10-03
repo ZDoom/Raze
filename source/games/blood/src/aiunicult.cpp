@@ -486,7 +486,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	if (inAttack(actor->xspr.aiState))
 		velocity.X = velocity.Y = max(actor->clipdist, 0.5) / 32768;
 
-	aiGenDudeChooseDirection(actor, nAngle, velocity);
+	aiGenDudeChooseDirection(actor, nAngle, velocity.XY());
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	if (!pExtra->canAttack)

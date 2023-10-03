@@ -173,7 +173,7 @@ static int BelowNear(DExhumedActor* pActor, const Collision& loHit, double walld
                 {
                     if (!search.Check(wal.nextSector()))
                     {
-                        if (IsCloseToWall(pActor->spr.pos, &wal, walldist) != EClose::Outside)
+                        if (IsCloseToWall(pActor->spr.pos.XY(), &wal, walldist) != EClose::Outside)
                         {
                             search.Add(wal.nextSector());
                         }

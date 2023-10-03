@@ -60,7 +60,7 @@ Collision MultiClipMove(DSWPlayer* pp, double zz, double floordist)
         // move the box to position instead of using offset- this prevents small rounding errors
         // allowing you to move through wall
         DAngle ang = (pp->GetActor()->spr.Angles.Yaw + sop->clipbox_ang[i]);
-        DVector3 spos(pp->GetActor()->getPosWithOffsetZ(), zz);
+        DVector3 spos(pp->GetActor()->spr.pos.XY(), zz);
 
         DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];
         Collision coll;
@@ -73,7 +73,7 @@ Collision MultiClipMove(DSWPlayer* pp, double zz, double floordist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].XY() = pp->GetActor()->getPosWithOffsetZ() + ang.ToVector() * sop->clipbox_vdist[i];
+            opos[i].XY() = pp->GetActor()->spr.pos.XY() + ang.ToVector() * sop->clipbox_vdist[i];
 
             // spos.x is where it hit
             pos[i].XY() = spos.XY();
@@ -133,7 +133,7 @@ int MultiClipTurn(DSWPlayer* pp, DAngle new_ang, double zz, double floordist)
     {
         DAngle ang = new_ang + sop->clipbox_ang[i];
 
-        DVector3 spos(pp->GetActor()->getPosWithOffsetZ(), zz);
+        DVector3 spos(pp->GetActor()->spr.pos.XY(), zz);
 
         DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];
         Collision coll;

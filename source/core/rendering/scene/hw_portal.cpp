@@ -472,7 +472,7 @@ bool P_ClipLineToPortal(walltype* line, walltype* portal, DVector2 view)
 
 int HWLinePortal::ClipSeg(walltype *seg, const DVector3 &viewpos)
 {
-	return P_ClipLineToPortal(seg, line, viewpos) ? PClip_InFront : PClip_Inside;
+	return P_ClipLineToPortal(seg, line, viewpos.XY()) ? PClip_InFront : PClip_Inside;
 }
 
 int HWLinePortal::ClipSector(sectortype *sub)
@@ -607,7 +607,7 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	auto destcenter = line->center();
 	destcenter.Y = -destcenter.Y;
 
-	DVector2 npos = vp.Pos - srccenter + destcenter;
+	DVector2 npos = vp.Pos.XY() - srccenter + destcenter;
 
 #if 0 // Blood does not rotate these. Needs map checking to make sure it can be added.
 	int dx = origin->point2Wall()->x - origin->x;
@@ -674,7 +674,7 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	auto srccenter = origin->center();
 	srccenter.Y = -srccenter.Y;
 	DVector2 destcenter = { camera->spr.pos.X, -camera->spr.pos.Y };
-	DVector2 npos = vp.Pos - srccenter + destcenter;
+	DVector2 npos = vp.Pos.XY() - srccenter + destcenter;
 
 	double origx = vp.Pos.X;
 	double origy = vp.Pos.Y;

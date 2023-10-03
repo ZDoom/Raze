@@ -599,7 +599,7 @@ void TrackSetup(void)
             it.Reset(STAT_TRACK + ndx);
             while (auto actor = it.Next())
             {
-                dist = Distance((tp + t->NumPoints - 1)->pos, actor->spr.pos);
+                dist = Distance((tp + t->NumPoints - 1)->pos.XY(), actor->spr.pos.XY());
 
                 if (dist < low_dist)
                 {
@@ -683,7 +683,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
         I_Error("SOP bound sprite with hitag %d not found", 500 + (int(sop - SectorObject) * 5));
     }
 
-    DVector2 vlow = BoundActor->spr.pos;
+    DVector2 vlow = BoundActor->spr.pos.XY();
 
     KillActor(BoundActor);
 
@@ -692,7 +692,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     {
         I_Error("SOP bound sprite with hitag %d not found", 501 + (int(sop - SectorObject) * 5));
     }
-    DVector2 vhigh = BoundActor->spr.pos;
+    DVector2 vhigh = BoundActor->spr.pos.XY();
 
     KillActor(BoundActor);
 
@@ -1348,7 +1348,7 @@ void PlaceSectorObjectsOnTracks(void)
             // move all walls in sectors
             for (auto& wal : sop->sectp[j]->walls)
             {
-                sop->orig[sop->num_walls] = sop->pmid - wal.pos;
+                sop->orig[sop->num_walls] = sop->pmid.XY() - wal.pos;
                 sop->num_walls++;
             }
         }
@@ -1367,7 +1367,7 @@ void PlaceSectorObjectsOnTracks(void)
         {
             tpoint = Track[sop->track].TrackPoint;
 
-            dist = Distance((tpoint + j)->pos, sop->pmid);
+            dist = Distance((tpoint + j)->pos.XY(), sop->pmid.XY());
 
             if (dist < low_dist)
             {
@@ -1430,7 +1430,7 @@ void PlaceActorsOnTracks(void)
         {
             tpoint = Track[actor->user.track].TrackPoint;
 
-            dist = Distance((tpoint + j)->pos, actor->spr.pos);
+            dist = Distance((tpoint + j)->pos.XY(), actor->spr.pos.XY());
 
             if (dist < low_dist)
             {
@@ -2655,7 +2655,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, pos - sop->pmid.XY(), true);
+    RefreshPoints(sop, pos.XY() - sop->pmid.XY(), true);
 }
 
 void DoAutoTurretObject(SECTOR_OBJECT* sop)
@@ -2744,7 +2744,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        OperateSectorObjectForTics(sop, sop->ang, sop->pmid, 2*synctics);
+        OperateSectorObjectForTics(sop, sop->ang, sop->pmid.XY(), 2*synctics);
     }
 }
 

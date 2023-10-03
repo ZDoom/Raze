@@ -2239,7 +2239,7 @@ void DriveCrush(DSWPlayer* pp, DVector2* quad)
     SWSectIterator it(sop->op_main_sector);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->spr.pos, quad))
+        if (testpointinquad(actor->spr.pos.XY(), quad))
         {
             if ((actor->spr.extra & SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
@@ -2274,7 +2274,7 @@ void DriveCrush(DSWPlayer* pp, DVector2* quad)
     SWStatIterator it2(STAT_ENEMY);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->spr.pos, quad))
+        if (testpointinquad(actor->spr.pos.XY(), quad))
         {
             //if (actor->spr.z < pp->posz)
             if (actor->spr.pos.Z < sop->crush_z)
@@ -2301,7 +2301,7 @@ void DriveCrush(DSWPlayer* pp, DVector2* quad)
     it2.Reset(STAT_DEAD_ACTOR);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->spr.pos, quad))
+        if (testpointinquad(actor->spr.pos.XY(), quad))
         {
             if (actor->spr.pos.Z < sop->crush_z)
                 continue;
@@ -2323,7 +2323,7 @@ void DriveCrush(DSWPlayer* pp, DVector2* quad)
         if (actor->user.PlayerP == pp)
             continue;
 
-        if (testpointinquad(actor->spr.pos, quad))
+        if (testpointinquad(actor->spr.pos.XY(), quad))
         {
             int damage;
 
@@ -2437,7 +2437,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
                 if (wal.extra && (wal.extra & (WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY)) == WALLFX_LOOP_OUTER)
                 {
                     pos[count] = wal.pos;
-                    opos[count] = sop->pmid - sop->orig[wallcount];
+                    opos[count] = sop->pmid.XY() - sop->orig[wallcount];
                     count++;
                 }
 
@@ -2613,7 +2613,7 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
         pact->spr.Angles.Yaw = new_ang;
     }
 
-    OperateSectorObject(pp->sop, pact->spr.Angles.Yaw, pp->sop->pmid);
+    OperateSectorObject(pp->sop, pact->spr.Angles.Yaw, pp->sop->pmid.XY());
 
     if (PLAYER_MOVING(pp) == 0)
         pp->Flags &= ~(PF_PLAYER_MOVED);
@@ -3626,7 +3626,7 @@ bool PlayerOnLadder(DSWPlayer* pp)
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite
 
-	pp->LadderPosition = lActor->spr.pos + npos;
+	pp->LadderPosition = lActor->spr.pos.XY() + npos;
     pp->GetActor()->spr.Angles.Yaw = lActor->spr.Angles.Yaw + DAngle180;
 
     return true;
@@ -3975,7 +3975,7 @@ void DoPlayerWarpToUnderwater(DSWPlayer* pp)
     auto over  = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->GetActor()->getPosWithOffsetZ(), &over, &under) == 2)
+    if (GetOverlapSector(pp->GetActor()->spr.pos.XY(), &over, &under) == 2)
     {
         pp->setcursector(under);
     }
@@ -4047,7 +4047,7 @@ void DoPlayerWarpToSurface(DSWPlayer* pp)
     auto over = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->GetActor()->getPosWithOffsetZ(), &over, &under))
+    if (GetOverlapSector(pp->GetActor()->spr.pos.XY(), &over, &under))
     {
         pp->setcursector(over);
     }
@@ -4378,7 +4378,7 @@ void DoPlayerDive(DSWPlayer* pp)
             auto sect = pp->cursector;
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(DVector3(pp->GetActor()->getPosWithOffsetZ(), pp->cursector->ceilingz - 8), &sect);
+            updatesectorz(DVector3(plActor->spr.pos.XY(), pp->cursector->ceilingz - 8), &sect);
 
             if (!SectorIsUnderwaterArea(sect))
             {

@@ -2317,7 +2317,7 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 {
     auto nPoint = sTrailPoint.Reserve(1);
 
-    sTrailPoint[nPoint].pos = pActor->spr.pos;
+    sTrailPoint[nPoint].pos = pActor->spr.pos.XY();
 
     int nTrail = FindTrail(nHitag);
 
