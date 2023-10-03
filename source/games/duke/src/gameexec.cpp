@@ -1469,6 +1469,9 @@ int ParseState::parse(void)
 
 	if(killit_flag) return 1;
 
+	const auto p = getPlayer(g_p);
+	const auto pact = p->GetActor();
+
 	switch (*insptr)
 	{
 	case concmd_ifrnd:
@@ -1488,12 +1491,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), getPlayer(g_p)->GetActor()->getPosWithOffsetZ(), getPlayer(g_p)->GetActor()->sector());
+		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), pact->getPosWithOffsetZ(), pact->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.pos, g_ac->sector(), getPlayer(g_p)->GetActor()->getPosWithOffsetZ(), getPlayer(g_p)->GetActor()->sector());
+		j = cansee(g_ac->spr.pos, g_ac->sector(), pact->getPosWithOffsetZ(), pact->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -1502,7 +1505,7 @@ int ParseState::parse(void)
 		parseifelse(g_ac->actorstayput == nullptr);
 		break;
 	case concmd_ifcansee:
-		parseifelse(ifcansee(g_ac, getPlayer(g_p)));
+		parseifelse(ifcansee(g_ac, p));
 		break;
 
 	case concmd_ifhitweapon:
@@ -1580,7 +1583,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_fakebubba:
 		insptr++;
-		fakebubbaspawn(g_ac, getPlayer(g_p));
+		fakebubbaspawn(g_ac, p);
 		break;
 
 	case concmd_rndmove:
@@ -1589,7 +1592,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_mamatrigger:
-		operateactivators(667, getPlayer(g_p));
+		operateactivators(667, p);
 		insptr++;
 		break;
 	case concmd_mamaspawn:
@@ -1617,7 +1620,7 @@ int ParseState::parse(void)
 
 		if (ud.coop >= 1 && ud.multimode > 1)
 		{
-			parseifelse(CheckWeapRec(getPlayer(g_p), g_ac, !*insptr));
+			parseifelse(CheckWeapRec(p, g_ac, !*insptr));
 		}
 		else parseifelse(0);
 		break;
@@ -1645,7 +1648,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_pkick:
 		insptr++;
-		playerkick(getPlayer(g_p), g_ac);
+		playerkick(p, g_ac);
 		break;
 	case concmd_sizeto:
 		insptr++;
@@ -1740,7 +1743,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_tip:
 		insptr++;
-		getPlayer(g_p)->tipincs = 26;
+		p->tipincs = 26;
 		break;
 	case concmd_iftipcow:
 	case concmd_ifhittruck: // both have the same code. Note that 'iftipcpw' ONLY works when used on the cow!
@@ -1773,7 +1776,7 @@ int ParseState::parse(void)
 		return 1;
 	case concmd_addammo:
 		insptr++;
-		if (!playeraddammo(getPlayer(g_p), *insptr, *(insptr + 1))) killit_flag = 2;
+		if (!playeraddammo(p, *insptr, *(insptr + 1))) killit_flag = 2;
 		insptr += 2;
 		break;
 	case concmd_money:
@@ -1798,7 +1801,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_addkills:
 		insptr++;
-		dokill(getPlayer(g_p), g_ac, *insptr++);
+		dokill(p, g_ac, *insptr++);
 		break;
 	case concmd_lotsofglass:
 		insptr++;
@@ -1811,7 +1814,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_addweapon:
 		insptr++;
-		if (!playeraddweapon(getPlayer(g_p), *insptr, *(insptr + 1))) killit_flag = 2;
+		if (!playeraddweapon(p, *insptr, *(insptr + 1))) killit_flag = 2;
 		insptr+=2;
 		break;
 	case concmd_debug:
@@ -1821,15 +1824,15 @@ int ParseState::parse(void)
 		break;
 	case concmd_endofgame:
 		insptr++;
-		getPlayer(g_p)->timebeforeexit = *insptr;
-		getPlayer(g_p)->customexitsound = -1;
+		p->timebeforeexit = *insptr;
+		p->customexitsound = -1;
 		ud.eog = true;
 		insptr++;
 		break;
 
 	case concmd_isdrunk: // todo: move out to player_r.
 		insptr++;
-		playerdrink(getPlayer(g_p), *insptr++);
+		playerdrink(p, *insptr++);
 		break;
 	case concmd_strafeleft:
 		insptr++;
@@ -1841,7 +1844,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		getPlayer(g_p)->GetActor()->spr.pos.Z = getPlayer(g_p)->GetActor()->sector()->ceilingz;
+		pact->spr.pos.Z = pact->sector()->ceilingz;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -1849,11 +1852,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_iseat:
 		insptr++;
-		playereat(getPlayer(g_p), *insptr++, !!(g_ac->flags3 & SFLAG3_BIGHEALTH));
+		playereat(p, *insptr++, !!(g_ac->flags3 & SFLAG3_BIGHEALTH));
 		break;
 	case concmd_addphealth:
 		insptr++;
-		addphealth(getPlayer(g_p), *insptr++, !!(g_ac->flags3 & SFLAG3_BIGHEALTH));
+		addphealth(p, *insptr++, !!(g_ac->flags3 & SFLAG3_BIGHEALTH));
 		break;
 
 	case concmd_state:
@@ -1936,7 +1939,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_resetplayer:
 		insptr++;
-		playerreset(getPlayer(g_p), g_ac);
+		playerreset(p, g_ac);
 		break;
 	case concmd_ifcoop:
 		parseifelse(ud.coop || numplayers > 2);
@@ -1948,13 +1951,13 @@ int ParseState::parse(void)
 		parseifelse( abs(g_ac->spr.pos.Z-g_ac->sector()->floorz) < 32 && g_ac->sector()->lotag == ST_1_ABOVE_WATER);
 		break;
 	case concmd_ifmotofast:
-		parseifelse(getPlayer(g_p)->MotoSpeed > 60);
+		parseifelse(p->MotoSpeed > 60);
 		break;
 	case concmd_ifonmoto:
-		parseifelse(getPlayer(g_p)->OnMotorcycle == 1);
+		parseifelse(p->OnMotorcycle == 1);
 		break;
 	case concmd_ifonboat:
-		parseifelse(getPlayer(g_p)->OnBoat == 1);
+		parseifelse(p->OnBoat == 1);
 		break;
 	case concmd_ifsizedown:
 		g_ac->spr.scale.X -= REPEAT_SCALE;
@@ -1982,7 +1985,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_addinventory:
 		insptr++;
-		playeraddinventory(getPlayer(g_p), g_ac, *insptr, *(insptr+1));
+		playeraddinventory(p, g_ac, *insptr, *(insptr+1));
 		insptr += 2;
 		break;
 	case concmd_hitradius:
@@ -1999,11 +2002,11 @@ int ParseState::parse(void)
 			double vel = g_ac->vel.X;
 
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-			if( (l& pducking) && getPlayer(g_p)->on_ground && PlayerInput(g_p, SB_CROUCH))
+			if( (l& pducking) && p->on_ground && PlayerInput(g_p, SB_CROUCH))
 					j = 1;
-			else if( (l& pfalling) && getPlayer(g_p)->jumping_counter == 0 && !getPlayer(g_p)->on_ground &&	getPlayer(g_p)->vel.Z > 8 )
+			else if( (l& pfalling) && p->jumping_counter == 0 && !p->on_ground &&	p->vel.Z > 8 )
 					j = 1;
-			else if( (l& pjumping) && getPlayer(g_p)->jumping_counter > 348 )
+			else if( (l& pjumping) && p->jumping_counter > 348 )
 					j = 1;
 			else if( (l& pstanding) && vel >= 0 && vel < 0.5)
 					j = 1;
@@ -2011,33 +2014,38 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && vel >= 0.5 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && getPlayer(g_p)->GetActor()->getOffsetZ() < g_ac->spr.pos.Z - 48)
+			else if( (l& phigher) && pact->getOffsetZ() < g_ac->spr.pos.Z - 48)
 					j = 1;
 			else if( (l& pwalkingback) && vel <= -0.5 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
 			else if( (l& prunningback) && vel <= -0.5 && (PlayerInput(g_p, SB_RUN)) )
 					j = 1;
-			else if( (l& pkicking) && ( getPlayer(g_p)->quick_kick > 0 || ( getPlayer(g_p)->curr_weapon == KNEE_WEAPON && getPlayer(g_p)->kickback_pic > 0 ) ) )
+			else if( (l& pkicking) && ( p->quick_kick > 0 || ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l& pshrunk) && getPlayer(g_p)->GetActor()->spr.scale.X < (isRR() ? 0.125 : 0.5))
+			else if( (l& pshrunk) && pact->spr.scale.X < (isRR() ? 0.125 : 0.5))
 					j = 1;
-			else if( (l& pjetpack) && getPlayer(g_p)->jetpack_on )
+			else if( (l& pjetpack) && p->jetpack_on )
 					j = 1;
-			else if( (l& ponsteroids) && getPlayer(g_p)->steroids_amount > 0 && getPlayer(g_p)->steroids_amount < 400 )
+			else if( (l& ponsteroids) && p->steroids_amount > 0 && p->steroids_amount < 400 )
 					j = 1;
-			else if( (l& ponground) && getPlayer(g_p)->on_ground)
+			else if( (l& ponground) && p->on_ground)
 					j = 1;
-			else if( (l& palive) && getPlayer(g_p)->GetActor()->spr.scale.X > (isRR() ? 0.125 : 0.5) && getPlayer(g_p)->GetActor()->spr.extra > 0 && getPlayer(g_p)->timebeforeexit == 0)
+			else if( (l& palive) && pact->spr.scale.X > (isRR() ? 0.125 : 0.5) && pact->spr.extra > 0 && p->timebeforeexit == 0)
 					j = 1;
-			else if( (l& pdead) && getPlayer(g_p)->GetActor()->spr.extra <= 0)
+			else if( (l& pdead) && pact->spr.extra <= 0)
 					j = 1;
 			else if( (l& pfacing) )
 			{
 				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					ang = absangle(getPlayer(otherp)->GetActor()->spr.Angles.Yaw, (getPlayer(g_p)->GetActor()->spr.pos.XY() - getPlayer(otherp)->GetActor()->spr.pos.XY()).Angle());
+				{
+					const auto pact2 = getPlayer(otherp)->GetActor();
+					ang = absangle(pact2->spr.Angles.Yaw, (pact->spr.pos.XY() - pact2->spr.pos.XY()).Angle());
+				}
 				else
-					ang = absangle(getPlayer(g_p)->GetActor()->spr.Angles.Yaw, (g_ac->spr.pos.XY() - getPlayer(g_p)->GetActor()->spr.pos.XY()).Angle());
+				{
+					ang = absangle(pact->spr.Angles.Yaw, (g_ac->spr.pos.XY() - pact->spr.pos.XY()).Angle());
+				}
 
 				j = ang < DAngle22_5;
 			}
@@ -2060,12 +2068,12 @@ int ParseState::parse(void)
 	}
 	case concmd_slapplayer:
 		insptr++;
-		forceplayerangle(getPlayer(g_p));
-		getPlayer(g_p)->vel.XY() -= getPlayer(g_p)->GetActor()->spr.Angles.Yaw.ToVector() * 8;
+		forceplayerangle(p);
+		p->vel.XY() -= pact->spr.Angles.Yaw.ToVector() * 8;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
-		wackplayer(getPlayer(g_p));
+		wackplayer(p);
 		return 0;
 	case concmd_ifgapzl:
 		insptr++;
@@ -2130,7 +2138,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_palfrom:
 		insptr++;
-		SetPlayerPal(getPlayer(g_p), PalEntry(insptr[0], insptr[1], insptr[2], insptr[3]));
+		SetPlayerPal(p, PalEntry(insptr[0], insptr[1], insptr[2], insptr[3]));
 		insptr += 4;
 		break;
 
@@ -2299,26 +2307,26 @@ int ParseState::parse(void)
 	}
 	case concmd_ifphealthl:
 		insptr++;
-		parseifelse( getPlayer(g_p)->GetActor()->spr.extra < *insptr);
+		parseifelse( pact->spr.extra < *insptr);
 		break;
 
 	case concmd_ifpinventory:
 	{
 		insptr++;
-		j = playercheckinventory(getPlayer(g_p), g_ac, *insptr, *(insptr + 1));
+		j = playercheckinventory(p, g_ac, *insptr, *(insptr + 1));
 		insptr ++;
 		parseifelse(j);
 		break;
 		}
 	case concmd_pstomp:
 		insptr++;
-		if( getPlayer(g_p)->knee_incs == 0 && getPlayer(g_p)->GetActor()->spr.scale.X >= (isRR()? 0.140625 : 0.625) )
-			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), getPlayer(g_p)->GetActor()->getPosWithOffsetZ().plusZ(16), getPlayer(g_p)->GetActor()->sector()))
+		if( p->knee_incs == 0 && pact->spr.scale.X >= (isRR()? 0.140625 : 0.625) )
+			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), pact->getPosWithOffsetZ().plusZ(16), pact->sector()))
 		{
-			getPlayer(g_p)->knee_incs = 1;
-			if(getPlayer(g_p)->weapon_pos == 0)
-				getPlayer(g_p)->weapon_pos = -1;
-			getPlayer(g_p)->actorsqu = g_ac;
+			p->knee_incs = 1;
+			if(p->weapon_pos == 0)
+				p->weapon_pos = -1;
+			p->actorsqu = g_ac;
 		}
 		break;
 	case concmd_ifawayfromwall:
@@ -2332,7 +2340,7 @@ int ParseState::parse(void)
 
 	case concmd_quote:
 		insptr++;
-		FTA(*insptr,getPlayer(g_p));
+		FTA(*insptr,p);
 		insptr++;
 		break;
 	case concmd_ifinouterspace:
@@ -2353,7 +2361,7 @@ int ParseState::parse(void)
 	case concmd_ifangdiffl:
 		{
 		insptr++;
-		auto ang = absangle(getPlayer(g_p)->GetActor()->spr.Angles.Yaw, g_ac->spr.Angles.Yaw);
+		auto ang = absangle(pact->spr.Angles.Yaw, g_ac->spr.Angles.Yaw);
 		parseifelse( ang <= mapangle(*insptr));
 		break;
 		}
@@ -2643,7 +2651,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		getPlayer(g_p)->transporter_hold = GetGameVarID(i, g_ac, g_p).safeValue();
+		p->transporter_hold = GetGameVarID(i, g_ac, g_p).safeValue();
 		break;
 	}
 	case concmd_getplayerangle:
@@ -2651,7 +2659,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, getPlayer(g_p)->GetActor()->spr.Angles.Yaw.Buildang(), g_ac, g_p);
+		SetGameVarID(i, pact->spr.Angles.Yaw.Buildang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setplayerangle:
@@ -2659,7 +2667,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		getPlayer(g_p)->GetActor()->spr.Angles.Yaw = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		pact->spr.Angles.Yaw = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_getactorangle:
