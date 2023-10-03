@@ -309,8 +309,8 @@ void movetransports_r(void)
 
 					if (onfloorz == 0 && fabs(act->spr.pos.Z - act2->getOffsetZ()) < 24)
 					{
-						if ((p->jetpack_on == 0) || (p->jetpack_on && (PlayerInput(pnum, SB_JUMP) || p->cmd.ucmd.uvel > 0)) ||
-							(p->jetpack_on && (PlayerInput(pnum, SB_CROUCH) || p->cmd.ucmd.uvel < 0)))
+						if ((p->jetpack_on == 0) || (p->jetpack_on && (PlayerInput(pnum, SB_JUMP) || p->cmd.ucmd.vel.Z > 0)) ||
+							(p->jetpack_on && (PlayerInput(pnum, SB_CROUCH) || p->cmd.ucmd.vel.Z < 0)))
 						{
 							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 							act2->backupvec2();

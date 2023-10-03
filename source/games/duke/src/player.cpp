@@ -673,7 +673,7 @@ void playerCrouch(int snum)
 {
 	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
-	const auto nVelMoveDown = abs(p->cmd.ucmd.uvel * (p->cmd.ucmd.uvel < 0));
+	const auto nVelMoveDown = abs(p->cmd.ucmd.vel.Z * (p->cmd.ucmd.vel.Z < 0));
 	constexpr double vel = 8 + 3;
 	SetGameVarID(g_iReturnVarID, 0, pact, snum);
 	OnEvent(EVENT_CROUCH, snum, pact, -1);
@@ -1582,7 +1582,7 @@ void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 	const auto pact = p->GetActor();
 	constexpr double dist = (348. / 256.);
 	const auto kbdDir = ((actions & SB_JUMP) && !p->OnMotorcycle) - ((actions & SB_CROUCH) || p->OnMotorcycle);
-	const auto velZ = clamp(dist * kbdDir + dist * p->cmd.ucmd.uvel, -dist, dist);
+	const auto velZ = clamp(dist * kbdDir + dist * p->cmd.ucmd.vel.Z, -dist, dist);
 
 	p->jumping_counter = 0;
 	p->pycount += 32;

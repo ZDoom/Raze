@@ -712,11 +712,11 @@ enum : unsigned
 static unsigned outVehicleFlags(DDukePlayer* p, ESyncBits& actions)
 {
 	unsigned flags = 0;
-	flags += VEH_FORWARD * (p->cmd.ucmd.fvel > 0);
-	flags += VEH_REVERSE * (p->cmd.ucmd.fvel < 0);
+	flags += VEH_FORWARD * (p->cmd.ucmd.vel.X > 0);
+	flags += VEH_REVERSE * (p->cmd.ucmd.vel.X < 0);
 	flags += VEH_TURNLEFT * (p->cmd.ucmd.avel < 0);
 	flags += VEH_TURNRIGHT * (p->cmd.ucmd.avel > 0);
-	flags += VEH_BRAKING * (!!(actions & SB_CROUCH) || (p->cmd.ucmd.fvel < 0 && p->MotoSpeed > 0));
+	flags += VEH_BRAKING * (!!(actions & SB_CROUCH) || (p->cmd.ucmd.vel.X < 0 && p->MotoSpeed > 0));
 	actions &= ~SB_CROUCH;
 	return flags;
 }
@@ -907,7 +907,7 @@ static void doVehicleThrottling(DDukePlayer* p, DDukeActor* pact, unsigned& flag
 		else if ((flags & VEH_BRAKING) && p->MotoSpeed > 0)
 		{
 			const auto kbdBraking = brakeSpeed * !!(flags & VEH_BRAKING);
-			const auto hidBraking = brakeSpeed * p->cmd.ucmd.fvel * (p->cmd.ucmd.fvel < 0);
+			const auto hidBraking = brakeSpeed * p->cmd.ucmd.vel.X * (p->cmd.ucmd.vel.X < 0);
 			p->MotoSpeed -= clamp<double>(kbdBraking - hidBraking, -brakeSpeed, brakeSpeed);
 			if (p->MotoSpeed < 0)
 				p->MotoSpeed = 0;
@@ -922,7 +922,7 @@ static void doVehicleThrottling(DDukePlayer* p, DDukeActor* pact, unsigned& flag
 				p->moto_bump_fast = 1;
 			}
 
-			p->MotoSpeed += fwdSpeed * p->cmd.ucmd.fvel;
+			p->MotoSpeed += fwdSpeed * p->cmd.ucmd.vel.X;
 			flags &= ~VEH_FORWARD;
 
 			if (p->MotoSpeed > 120)
@@ -952,7 +952,7 @@ static void doVehicleThrottling(DDukePlayer* p, DDukeActor* pact, unsigned& flag
 				flags &= ~VEH_TURNRIGHT;
 				flags |= VEH_TURNLEFT;
 			}
-			p->MotoSpeed = revSpeed * p->cmd.ucmd.fvel;
+			p->MotoSpeed = revSpeed * p->cmd.ucmd.vel.X;
 			flags &= ~VEH_REVERSE;
 		}
 	}
@@ -1034,7 +1034,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
-	p->cmd.ucmd.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	p->cmd.ucmd.vel.X = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
 }
 
 //---------------------------------------------------------------------------
@@ -1104,7 +1104,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed *= 0.5;
 
-	p->cmd.ucmd.fvel = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	p->cmd.ucmd.vel.X = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
 }
 
 //---------------------------------------------------------------------------
@@ -1282,7 +1282,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if (((actions & SB_CROUCH) || p->cmd.ucmd.uvel < 0) && !p->OnMotorcycle)
+		if (((actions & SB_CROUCH) || p->cmd.ucmd.vel.Z < 0) && !p->OnMotorcycle)
 		{
 			playerCrouch(snum);
 		}

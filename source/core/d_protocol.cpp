@@ -164,11 +164,11 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_YAW)
 			ucmd->avel = ReadFloat(stream);
 		if (flags & UCMDF_FORWARDMOVE)
-			ucmd->fvel = ReadFloat(stream);
+			ucmd->vel.X = ReadFloat(stream);
 		if (flags & UCMDF_SIDEMOVE)
-			ucmd->svel = ReadFloat(stream);
+			ucmd->vel.Y = ReadFloat(stream);
 		if (flags & UCMDF_UPMOVE)
-			ucmd->uvel = ReadFloat(stream);
+			ucmd->vel.Z = ReadFloat(stream);
 		if (flags & UCMDF_ROLL)
 			ucmd->roll = ReadFloat(stream);
 	}
@@ -207,20 +207,20 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 		flags |= UCMDF_YAW;
 		WriteFloat (ucmd->avel, stream);
 	}
-	if (ucmd->fvel != basis->fvel)
+	if (ucmd->vel.X != basis->vel.X)
 	{
 		flags |= UCMDF_FORWARDMOVE;
-		WriteFloat (ucmd->fvel, stream);
+		WriteFloat (ucmd->vel.X, stream);
 	}
-	if (ucmd->svel != basis->svel)
+	if (ucmd->vel.Y != basis->vel.Y)
 	{
 		flags |= UCMDF_SIDEMOVE;
-		WriteFloat (ucmd->svel, stream);
+		WriteFloat (ucmd->vel.Y, stream);
 	}
-	if (ucmd->uvel != basis->uvel)
+	if (ucmd->vel.Z != basis->vel.Z)
 	{
 		flags |= UCMDF_UPMOVE;
-		WriteFloat (ucmd->uvel, stream);
+		WriteFloat (ucmd->vel.Z, stream);
 	}
 	if (ucmd->roll != basis->roll)
 	{
@@ -252,9 +252,9 @@ FSerializer &Serialize(FSerializer &arc, const char *key, InputPacket &cmd, Inpu
 		arc("actions", cmd.actions)
 			("horz", cmd.horz)
 			("avel", cmd.avel)
-			("fvel", cmd.fvel)
-			("svel", cmd.svel)
-			("uvel", cmd.uvel)
+			("fvel", cmd.vel.X)
+			("svel", cmd.vel.Y)
+			("uvel", cmd.vel.Z)
 			("roll", cmd.roll)
 			.EndObject();
 	}
@@ -268,9 +268,9 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 		if (ucmd->actions != 0 ||
 			ucmd->horz != 0 ||
 			ucmd->avel != 0 ||
-			ucmd->fvel != 0 ||
-			ucmd->svel != 0 ||
-			ucmd->uvel != 0 ||
+			ucmd->vel.X != 0 ||
+			ucmd->vel.Y != 0 ||
+			ucmd->vel.Z != 0 ||
 			ucmd->roll != 0)
 		{
 			WriteByte (DEM_USERCMD, stream);
@@ -281,9 +281,9 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 	if (ucmd->actions != basis->actions ||
 		ucmd->horz != basis->horz ||
 		ucmd->avel != basis->avel ||
-		ucmd->fvel != basis->fvel ||
-		ucmd->svel != basis->svel ||
-		ucmd->uvel != basis->uvel ||
+		ucmd->vel.X != basis->vel.X ||
+		ucmd->vel.Y != basis->vel.Y ||
+		ucmd->vel.Z != basis->vel.Z ||
 		ucmd->roll != basis->roll)
 	{
 		WriteByte (DEM_USERCMD, stream);

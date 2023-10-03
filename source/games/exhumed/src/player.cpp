@@ -1102,13 +1102,13 @@ static void updatePlayerVelocity(DExhumedPlayer* const pPlayer)
     if (pPlayer->nHealth > 0)
     {
         const auto pInput = &pPlayer->cmd.ucmd;
-        const auto inputvect = DVector2(pInput->fvel, pInput->svel).Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
+        const auto inputvect = DVector2(pInput->vel.X, pInput->vel.Y).Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {
             pPlayerActor->vel.XY() += inputvect;
             pPlayerActor->vel.XY() *= 0.953125;
-            pPlayer->Angles.StrafeVel += pInput->svel * 0.375;
+            pPlayer->Angles.StrafeVel += pInput->vel.Y * 0.375;
             pPlayer->Angles.StrafeVel *= 0.953125;
         }
     }
@@ -1231,7 +1231,7 @@ static void updatePlayerAction(DExhumedPlayer* const pPlayer)
     const auto pInput = &pPlayer->cmd.ucmd;
     const auto kbdDir = !!(pInput->actions & SB_CROUCH) - !!(pInput->actions & SB_JUMP);
     const double dist = pPlayer->bUnderwater ? 8 : 14;
-    const double velZ = clamp(dist * kbdDir - dist * pInput->uvel, -dist, dist);
+    const double velZ = clamp(dist * kbdDir - dist * pInput->vel.Z, -dist, dist);
     int nextAction = pPlayerActor->nAction;
 
     const auto scaleViewZ = [&](const double target)
