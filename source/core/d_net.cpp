@@ -1041,9 +1041,9 @@ void NetUpdate (void)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
 					vel += localcmds[modp].ucmd.vel;
-					avel += localcmds[modp].ucmd.avel;
-					horz += localcmds[modp].ucmd.horz;
-					roll += localcmds[modp].ucmd.roll;
+					avel += localcmds[modp].ucmd.ang.Yaw.Degrees();
+					horz += localcmds[modp].ucmd.ang.Pitch.Degrees();
+					roll += localcmds[modp].ucmd.ang.Roll.Degrees();
 				}
 
 				vel /= ticdup;
@@ -1055,9 +1055,9 @@ void NetUpdate (void)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
 					localcmds[modp].ucmd.vel = vel;
-					localcmds[modp].ucmd.avel = avel;
-					localcmds[modp].ucmd.horz = horz;
-					localcmds[modp].ucmd.roll = roll;
+					localcmds[modp].ucmd.ang.Yaw = FAngle::fromDeg(avel);
+					localcmds[modp].ucmd.ang.Pitch = FAngle::fromDeg(horz);
+					localcmds[modp].ucmd.ang.Roll = FAngle::fromDeg(roll);
 				}
 
 				Net_NewMakeTic ();

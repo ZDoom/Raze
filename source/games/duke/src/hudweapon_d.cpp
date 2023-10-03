@@ -41,7 +41,7 @@ BEGIN_DUKE_NS
 
 inline static double getavel(DDukePlayer* const p)
 {
-	return p->cmd.ucmd.avel * (2048. / 360.);
+	return p->cmd.ucmd.ang.Yaw.Degrees() * (2048. / 360.);
 }
 
 //---------------------------------------------------------------------------

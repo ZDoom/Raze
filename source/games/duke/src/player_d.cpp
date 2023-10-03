@@ -1714,7 +1714,7 @@ void processinput_d(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->cmd.ucmd.avel = 0;
+		p->cmd.ucmd.ang.Yaw = nullFAngle;
 		setForcedSyncInput(snum);
 	}
 

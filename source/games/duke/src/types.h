@@ -384,10 +384,10 @@ public:
 		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
 		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370; // Build horizon value of 5.
 
-		if ((centertest && returnlock) || !cmd.ucmd.horz)
+		if ((centertest && returnlock) || !cmd.ucmd.ang.Pitch.Degrees())
 		{
 			setForcedSyncInput(snum);
-			cmd.ucmd.horz = 0;
+			cmd.ucmd.ang.Pitch = nullFAngle;
 		}
 		else
 		{

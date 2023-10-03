@@ -71,9 +71,7 @@ enum
 struct InputPacket
 {
     DVector3 vel;
-    float avel;
-    float horz;
-    float roll;
+    FRotator ang;
     ESyncBits actions;
 
 
