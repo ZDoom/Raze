@@ -484,8 +484,6 @@ void DSWPlayer::Serialize(FSerializer& arc)
 		("WpnFlags", WpnFlags)
 		.Array("WpnAmmo", WpnAmmo, countof(WpnAmmo))
 		("WpnNum", WpnNum)
-		("panelnext", PanelSpriteList.Next)
-		("panelprev", PanelSpriteList.Prev)
 		("curwpn", CurWpn)
 		.Array("wpn", Wpn, countof(Wpn))
 		("WpnRocketType", WpnRocketType)
@@ -536,7 +534,6 @@ void DSWPlayer::Serialize(FSerializer& arc)
 		("keypressbits", KeyPressBits)
 		("chops", Chops);
 
-
 	SerializeCodePtr(arc, "DoPlayerAction", (void**)&DoPlayerAction);
 	if (arc.isReading())
 	{
@@ -544,7 +541,6 @@ void DSWPlayer::Serialize(FSerializer& arc)
 		obob_z = bob_z;
         memset(cookieQuote, 0, sizeof(cookieQuote)); // no need to remember this.
         StartColor = 0;
-
 	}
 }
 
@@ -1063,9 +1059,9 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	pspAsArray.Clear();
     Saveable_Init();
 
+	preSerializePanelSprites(arc);
 	if (arc.BeginObject("state"))
 	{
-		preSerializePanelSprites(arc);
 		so_serializeinterpolations(arc);
 		arc("numplayers", numplayers)
 			("skill", Skill)
@@ -1107,9 +1103,26 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
 			;
-		postSerializePanelSprites(arc);
 		arc.EndObject();
 	}
+
+	// these cannot be deferred to writing out the actors because we need to fill in pspAsArray before calling postSerializePanelSprites.
+	// The organization of this list is a mess and needs to be refactored into something workable.
+	if (arc.BeginArray("playerpanelsprites"))
+	{
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (arc.BeginObject(nullptr))
+			{
+				auto p = getPlayer(i);
+				arc("panelnext", p->PanelSpriteList.Next)
+					("panelprev", p->PanelSpriteList.Prev)
+					.EndObject();
+			}
+		}
+		arc.EndArray();
+	}
+	postSerializePanelSprites(arc);
 
 	if (arc.isReading())
 	{
