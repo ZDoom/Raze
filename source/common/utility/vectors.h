@@ -80,56 +80,56 @@ struct TVector2
 {
 	vec_t X, Y;
 
-	TVector2() = default;
+	constexpr TVector2() = default;
 
-	TVector2 (vec_t a, vec_t b)
+	constexpr TVector2 (vec_t a, vec_t b)
 		: X(a), Y(b)
 	{
 	}
 
-	TVector2(const TVector2 &other) = default;
+	constexpr TVector2(const TVector2 &other) = default;
 
-	TVector2(vec_t *o)
+	constexpr TVector2(vec_t *o)
 		: X(o[0]), Y(o[1])
 	{
 	}
 
 	template<typename U>
-	explicit operator TVector2<U> () const noexcept {
+	constexpr explicit operator TVector2<U> () const noexcept {
 		return TVector2<U>(static_cast<U>(X), static_cast<U>(Y));
 	}
 
-	void Zero()
+	constexpr void Zero()
 	{
 		Y = X = 0;
 	}
 
-	bool isZero() const
+	constexpr bool isZero() const
 	{
 		return X == 0 && Y == 0;
 	}
 
-	TVector2 &operator= (const TVector2 &other) = default;
+	constexpr TVector2 &operator= (const TVector2 &other) = default;
 
 	// Access X and Y as an array
-	vec_t &operator[] (int index)
+	constexpr vec_t &operator[] (int index)
 	{
 		return index == 0 ? X : Y;
 	}
 
-	const vec_t &operator[] (int index) const
+	constexpr const vec_t &operator[] (int index) const
 	{
 		return index == 0 ? X : Y;
 	}
 
 	// Test for equality
-	bool operator== (const TVector2 &other) const
+	constexpr bool operator== (const TVector2 &other) const
 	{
 		return X == other.X && Y == other.Y;
 	}
 
 	// Test for inequality
-	bool operator!= (const TVector2 &other) const
+	constexpr bool operator!= (const TVector2 &other) const
 	{
 		return X != other.X || Y != other.Y;
 	}
@@ -147,92 +147,92 @@ struct TVector2
 	}
 
 	// Unary negation
-	TVector2 operator- () const
+	constexpr TVector2 operator- () const
 	{
 		return TVector2(-X, -Y);
 	}
 
 	// Scalar addition
 #if 0
-	TVector2 &operator+= (double scalar)
+	constexpr TVector2 &operator+= (double scalar)
 	{
 		X += scalar, Y += scalar;
 		return *this;
 	}
 #endif
 
-	friend TVector2 operator+ (const TVector2 &v, vec_t scalar)
+	constexpr friend TVector2 operator+ (const TVector2 &v, vec_t scalar)
 	{
 		return TVector2(v.X + scalar, v.Y + scalar);
 	}
 
-	friend TVector2 operator+ (vec_t scalar, const TVector2 &v)
+	constexpr friend TVector2 operator+ (vec_t scalar, const TVector2 &v)
 	{
 		return TVector2(v.X + scalar, v.Y + scalar);
 	}
 
 	// Scalar subtraction
-	TVector2 &operator-= (vec_t scalar)
+	constexpr TVector2 &operator-= (vec_t scalar)
 	{
 		X -= scalar, Y -= scalar;
 		return *this;
 	}
 
-	TVector2 operator- (vec_t scalar) const
+	constexpr TVector2 operator- (vec_t scalar) const
 	{
 		return TVector2(X - scalar, Y - scalar);
 	}
 
 	// Scalar multiplication
-	TVector2 &operator*= (vec_t scalar)
+	constexpr TVector2 &operator*= (vec_t scalar)
 	{
 		X *= scalar, Y *= scalar;
 		return *this;
 	}
 
-	friend TVector2 operator* (const TVector2 &v, vec_t scalar)
+	constexpr friend TVector2 operator* (const TVector2 &v, vec_t scalar)
 	{
 		return TVector2(v.X * scalar, v.Y * scalar);
 	}
 
-	friend TVector2 operator* (vec_t scalar, const TVector2 &v)
+	constexpr friend TVector2 operator* (vec_t scalar, const TVector2 &v)
 	{
 		return TVector2(v.X * scalar, v.Y * scalar);
 	}
 
 	// Scalar division
-	TVector2 &operator/= (vec_t scalar)
+	constexpr TVector2 &operator/= (vec_t scalar)
 	{
 		scalar = 1 / scalar, X *= scalar, Y *= scalar;
 		return *this;
 	}
 
-	TVector2 operator/ (vec_t scalar) const
+	constexpr TVector2 operator/ (vec_t scalar) const
 	{
 		scalar = 1 / scalar;
 		return TVector2(X * scalar, Y * scalar);
 	}
 
 	// Vector addition
-	TVector2 &operator+= (const TVector2 &other)
+	constexpr TVector2 &operator+= (const TVector2 &other)
 	{
 		X += other.X, Y += other.Y;
 		return *this;
 	}
 
-	TVector2 operator+ (const TVector2 &other) const
+	constexpr TVector2 operator+ (const TVector2 &other) const
 	{
 		return TVector2(X + other.X, Y + other.Y);
 	}
 
 	// Vector subtraction
-	TVector2 &operator-= (const TVector2 &other)
+	constexpr TVector2 &operator-= (const TVector2 &other)
 	{
 		X -= other.X, Y -= other.Y;
 		return *this;
 	}
 
-	TVector2 operator- (const TVector2 &other) const
+	constexpr TVector2 operator- (const TVector2 &other) const
 	{
 		return TVector2(X - other.X, Y - other.Y);
 	}
@@ -243,7 +243,7 @@ struct TVector2
 		return (vec_t)g_sqrt (LengthSquared());
 	}
 
-	vec_t LengthSquared() const
+	constexpr vec_t LengthSquared() const
 	{
 		return X*X + Y*Y;
 	}
@@ -296,12 +296,12 @@ struct TVector2
 	}
 
 	// Dot product
-	vec_t operator | (const TVector2 &other) const
+	constexpr vec_t operator | (const TVector2 &other) const
 	{
 		return X*other.X + Y*other.Y;
 	}
 
-	vec_t dot(const TVector2 &other) const
+	constexpr vec_t dot(const TVector2 &other) const
 	{
 		return X*other.X + Y*other.Y;
 	}
@@ -327,19 +327,19 @@ struct TVector2
 	}
 
 	// Returns a rotated vector. angle is in degrees.
-	TVector2 Rotated(const double cosval, const double sinval) const
+	constexpr TVector2 Rotated(const double cosval, const double sinval) const
 	{
 		return TVector2(X*cosval - Y*sinval, Y*cosval + X*sinval);
 	}
 
 	// Returns a vector rotated 90 degrees clockwise.
-	TVector2 Rotated90CW() const
+	constexpr TVector2 Rotated90CW() const
 	{
 		return TVector2(Y, -X);
 	}
 
 	// Returns a vector rotated 90 degrees counterclockwise.
-	TVector2 Rotated90CCW() const
+	constexpr TVector2 Rotated90CCW() const
 	{
 		return TVector2(-Y, X);
 	}
