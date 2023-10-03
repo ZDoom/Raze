@@ -167,9 +167,8 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	}
 
 	// add collected input to game's local input accumulation packet.
-	inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -(float)keymove, (float)keymove);
-	inputBuffer.vel.Y = clamp(inputBuffer.vel.Y + thisInput.vel.Y, -(float)keymove, (float)keymove);
-	inputBuffer.vel.Z = clamp(inputBuffer.vel.Z + thisInput.vel.Z, -1.00f, 1.00f);
+	const DVector3 maxVel{ (double)keymove, (double)keymove, 1. };
+	inputBuffer.vel = clamp(inputBuffer.vel + thisInput.vel, -maxVel, maxVel);
 	inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -179.f, 179.f);
 	inputBuffer.horz = clamp(inputBuffer.horz + thisInput.horz, -179.f, 179.f);
 
@@ -203,7 +202,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
 		thisInput.vel.X = kbdForwards - kbdBackward + joyAxes[JOYAXIS_Forward];
-		inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -1.f, 1.f);
+		inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -1., 1.);
 
 		// This sync bit is the brake key.
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;

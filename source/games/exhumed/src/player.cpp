@@ -1102,7 +1102,7 @@ static void updatePlayerVelocity(DExhumedPlayer* const pPlayer)
     if (pPlayer->nHealth > 0)
     {
         const auto pInput = &pPlayer->cmd.ucmd;
-        const auto inputvect = DVector2(pInput->vel.X, pInput->vel.Y).Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
+        const auto inputvect = pInput->vel.XY().Rotated(pPlayerActor->spr.Angles.Yaw) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {
