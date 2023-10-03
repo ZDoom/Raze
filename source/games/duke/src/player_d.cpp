@@ -40,8 +40,8 @@ source as it is released.
 
 BEGIN_DUKE_NS 
 
-void fireweapon_ww(int snum);
-void operateweapon_ww(int snum, ESyncBits actions);
+void fireweapon_ww(DDukePlayer* const p);
+void operateweapon_ww(DDukePlayer* const p, ESyncBits actions);
 
 //---------------------------------------------------------------------------
 //
@@ -1510,12 +1510,12 @@ static void processweapon(int snum, ESyncBits actions)
 		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
 	{
 		if (!isWW2GI()) fireweapon(p);
-		else fireweapon_ww(snum);
+		else fireweapon_ww(p);
 	}
 	else if (p->kickback_pic)
 	{
 		if (!isWW2GI()) operateweapon(p, actions);
-		else operateweapon_ww(snum, actions);
+		else operateweapon_ww(p, actions);
 	}
 }
 //---------------------------------------------------------------------------

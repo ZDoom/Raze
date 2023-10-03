@@ -48,9 +48,9 @@ int operateTripbomb(DDukePlayer* const p);
 //
 //---------------------------------------------------------------------------
 
-void DoFire(DDukePlayer* p, int snum)
+static void DoFire(DDukePlayer* const p)
 {
-	int i;
+	const auto pact = p->GetActor();
 
 	if (aplWeaponWorksLike(p->curr_weapon, p) != KNEE_WEAPON)
 	{
@@ -59,15 +59,15 @@ void DoFire(DDukePlayer* p, int snum)
 
 	if (aplWeaponFireSound(p->curr_weapon, p))
 	{
-		S_PlayActorSound(aplWeaponFireSound(p->curr_weapon, p), p->GetActor());
+		S_PlayActorSound(aplWeaponFireSound(p->curr_weapon, p), pact);
 	}
 
-	SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-	SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
-	shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
-	for (i = 1; i < aplWeaponShotsPerBurst(p->curr_weapon, p); i++)
+	SetGameVarID(g_iWeaponVarID, p->curr_weapon, pact, p->pnum);
+	SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), pact, p->pnum);
+	shoot(pact, GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
+	for (int i = 1; i < aplWeaponShotsPerBurst(p->curr_weapon, p); i++)
 	{
-		shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
+		shoot(pact, GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
 		if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_AMMOPERSHOT)
 		{
 			p->ammo_amount[p->curr_weapon]--;
@@ -105,7 +105,7 @@ void DoFire(DDukePlayer* p, int snum)
 //
 //---------------------------------------------------------------------------
 
-void DoSpawn(DDukePlayer *p, int snum)
+static void DoSpawn(DDukePlayer* const p)
 {
 	if(!aplWeaponSpawn(p->curr_weapon, p))
 		return;
@@ -138,9 +138,8 @@ void DoSpawn(DDukePlayer *p, int snum)
 //
 //---------------------------------------------------------------------------
 
-void fireweapon_ww(int snum)
+void fireweapon_ww(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
@@ -156,11 +155,11 @@ void fireweapon_ww(int snum)
 	}
 	else
 	{
-		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
-		OnEvent(EVENT_FIRE, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+		SetGameVarID(g_iWeaponVarID, p->curr_weapon, pact, p->pnum);
+		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), pact, p->pnum);
+		OnEvent(EVENT_FIRE, p->pnum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 		{
 			switch (aplWeaponWorksLike(p->curr_weapon, p))
 			{
@@ -305,9 +304,8 @@ void fireweapon_ww(int snum)
 //
 //---------------------------------------------------------------------------
 
-void operateweapon_ww(int snum, ESyncBits actions)
+void operateweapon_ww(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	// already firing...
@@ -341,14 +339,14 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, DukePipeBombClass, -16, DVector2(0.140625, 0.140625),
-				p->GetActor()->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
+			auto spawned = CreateActor(p->cursector, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 16, DukePipeBombClass, -16, DVector2(0.140625, 0.140625),
+				pact->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (spawned)
 			{
 				{
-					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum).value();
-					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum).value();
+					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p->pnum).value();
+					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p->pnum).value();
 					// set timer.  blows up when at zero....
 					spawned->spr.extra = lGrenadeLifetime
 						+ MulScale(krand(), lGrenadeLifetimeVar, 14)
@@ -361,7 +359,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 					spawned->spr.pos.Z += 8;
 				}
 
-				double hd = hits(p->GetActor());
+				double hd = hits(pact);
 				if (hd < 32)
 				{
 					spawned->spr.Angles.Yaw += DAngle180;
@@ -402,9 +400,9 @@ void operateweapon_ww(int snum, ESyncBits actions)
 					lastvisinc = PlayClock + 32;
 					p->visibility = 0;
 				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
-				shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
+				SetGameVarID(g_iWeaponVarID, p->curr_weapon, pact, p->pnum);
+				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), pact, p->pnum);
+				shoot(pact, GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
 			}
 		}
 
@@ -435,7 +433,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 		if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_STANDSTILL
 			&& p->kickback_pic < (aplWeaponFireDelay(p->curr_weapon, p) + 1))
 		{
-			p->GetActor()->restorez();
+			pact->restorez();
 			p->vel.Z = 0;
 		}
 		if (p->kickback_pic == aplWeaponSound2Time(p->curr_weapon, p))
@@ -447,11 +445,11 @@ void operateweapon_ww(int snum, ESyncBits actions)
 		}
 		if (p->kickback_pic == aplWeaponSpawnTime(p->curr_weapon, p))
 		{
-			DoSpawn(p, snum);
+			DoSpawn(p);
 		}
 		if (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, p))
 		{
-			DoFire(p, snum);
+			DoFire(p);
 		}
 
 		if (p->kickback_pic > aplWeaponFireDelay(p->curr_weapon, p)
@@ -469,16 +467,16 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				{
 					if (((p->kickback_pic) % 3) == 0)
 					{
-						DoFire(p, snum);
-						DoSpawn(p, snum);
+						DoFire(p);
+						DoSpawn(p);
 					}
 
 				}
 				if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_FIREEVERYOTHER)
 				{
 					// fire every other...
-					DoFire(p, snum);
-					DoSpawn(p, snum);
+					DoFire(p);
+					DoSpawn(p);
 				}
 
 			} // 'automatic
