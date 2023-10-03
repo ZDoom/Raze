@@ -104,7 +104,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const double scal
 {
 	// set up variables.
 	InputPacket thisInput{};
-	const auto keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
+	keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
 	const auto hidspeed = DAngle::fromDeg(getTicrateScale(YAW_TURNSPEEDS[2]));
 
 	// get all input amounts.
@@ -167,10 +167,8 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const double scal
 	}
 
 	// add collected input to game's local input accumulation packet.
-	const DVector3 maxVel{ (double)keymove, (double)keymove, 1. };
-	const DRotator maxAng{ MAXANG, MAXANG, MAXANG };
-	inputBuffer.vel = clamp(inputBuffer.vel + thisInput.vel, -maxVel, maxVel);
-	inputBuffer.ang = clamp(inputBuffer.ang + thisInput.ang, -maxAng, maxAng);
+	inputBuffer.vel += thisInput.vel;
+	inputBuffer.ang += thisInput.ang;
 
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
@@ -195,12 +193,12 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const double scale
 	inputBuffer.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 		SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 
-	if (flags & VEH_CANMOVE)
+	if ((keymove = !!(flags & VEH_CANMOVE)))
 	{
 		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
 		thisInput.vel.X = kbdForwards - kbdBackward + joyAxes[JOYAXIS_Forward];
-		inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -1., 1.);
+		inputBuffer.vel.X += thisInput.vel.X;
 
 		// This sync bit is the brake key.
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
@@ -222,14 +220,13 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const double scale
 		const auto scaleVel = !(flags & VEH_SCALETURN) && (cl_noturnscaling || hidDir || isTurboTurnTime());
 		const auto turnVel = scaleVel ? baseVel : baseVel * velScale;
 		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
-		const auto maxVel = DAngle::fromDeg(abs(turnVel * 1.5f));
 
 		// Apply inputs.
 		thisInput.ang.Yaw += DAngle::fromDeg(((mouseVel > 1) ? sqrt(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw));
 		thisInput.ang.Yaw -= DAngle::fromDeg(turnVel * joyAxes[JOYAXIS_Yaw]);
 		thisInput.ang.Yaw += DAngle::fromDeg(turnVel * kbdDir);
 		thisInput.ang.Yaw *= scaleAdjust;
-		inputBuffer.ang.Yaw = clamp(inputBuffer.ang.Yaw + thisInput.ang.Yaw, -maxVel, maxVel);
+		inputBuffer.ang.Yaw += thisInput.ang.Yaw;
 		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
@@ -367,7 +364,8 @@ void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 
 	if (packet)
 	{
-		*packet = inputBuffer;
+		const DVector3& maxVel = MAXVEL[keymove];
+		*packet = {	clamp(inputBuffer.vel, -maxVel, maxVel), clamp(inputBuffer.ang, -MAXANG, MAXANG), inputBuffer.actions };
 		inputBuffer = {};
 	}
 }
