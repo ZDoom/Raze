@@ -688,20 +688,17 @@ void playerCrouch(DDukePlayer* const p)
 	}
 }
 
-void playerJump(int snum, double floorz, double ceilingz)
+void playerJump(DDukePlayer* const p, double floorz, double ceilingz)
 {
-	auto p = getPlayer(snum);
-	if (p->jumping_toggle == 0 && p->jumping_counter == 0)
+	if (p->jumping_toggle == 0 && p->jumping_counter == 0 && (floorz - ceilingz) > 56)
 	{
-		if ((floorz - ceilingz) > 56)
+		const auto pact = p->GetActor();
+		SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+		OnEvent(EVENT_JUMP, p->pnum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 		{
-			SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-			OnEvent(EVENT_JUMP, snum, p->GetActor(), -1);
-			if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
-			{
-				p->jumping_counter = 1;
-				p->jumping_toggle = 1;
-			}
+			p->jumping_counter = 1;
+			p->jumping_toggle = 1;
 		}
 	}
 }
