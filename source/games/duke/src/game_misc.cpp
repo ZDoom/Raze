@@ -243,6 +243,7 @@ void drawoverlays(double interpfrac)
 	{
 		if (automapMode != am_off)
 		{
+			const auto pact = pp->GetActor();
 			DoInterpolations(interpfrac);
 
 			if (pp->newOwner == nullptr && playrunning())
@@ -254,14 +255,14 @@ void drawoverlays(double interpfrac)
 				}
 				else
 				{
-					cposxy = pp->GetActor()->interpolatedpos(interpfrac).XY();
+					cposxy = pact->interpolatedpos(interpfrac).XY();
 					cang = pp->Angles.getRenderAngles(interpfrac).Yaw;
 				}
 			}
 			else
 			{
-				cposxy = pp->GetActor()->opos.XY();
-				cang = pp->GetActor()->PrevAngles.Yaw;
+				cposxy = pact->opos.XY();
+				cang = pact->PrevAngles.Yaw;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);
 			RestoreInterpolations();
@@ -269,11 +270,12 @@ void drawoverlays(double interpfrac)
 	}
 
 	DrawStatusBar();
+	const auto spp = getPlayer(myconnectindex);
 
-	if (getPlayer(myconnectindex)->newOwner == nullptr && ud.cameraactor == nullptr)
+	if (spp->newOwner == nullptr && ud.cameraactor == nullptr)
 	{
 		auto offsets = pp->Angles.getCrosshairOffsets(interpfrac);
-		DrawCrosshair(getPlayer(screenpeek)->last_extra, offsets.first.X, offsets.first.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, offsets.second);
+		DrawCrosshair(pp->last_extra, offsets.first.X, offsets.first.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, offsets.second);
 	}
 
 	if (paused == 2)
@@ -371,13 +373,15 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 	// Draw sprites
 	if (gFullMap)
 	{
+		const auto spact = getPlayer(screenpeek)->GetActor();
+
 		for (unsigned ii = 0; ii < sector.Size(); ii++)
 		{
 			if (show2dsector[ii]) continue;
 			DukeSectIterator it(ii);
 			while (auto act = it.Next())
 			{
-				if (act == getPlayer(screenpeek)->GetActor() || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.scale.X == 0) continue;
+				if (act == spact || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.scale.X == 0) continue;
 
 				if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
 				{
