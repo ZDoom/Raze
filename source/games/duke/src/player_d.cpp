@@ -574,9 +574,8 @@ void checkweapons_d(DDukePlayer* p)
 //
 //---------------------------------------------------------------------------
 
-static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double floorz, double ceilingz, int shrunk)
+static void operateJetpack(DDukePlayer* const p, ESyncBits actions, int psectlotag, double floorz, double ceilingz, int shrunk)
 {
-	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
@@ -603,9 +602,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (velZ > 0) //A (soar high)
 	{
 		// jump
-		SetGameVarID(g_iReturnVarID, 0, pact, snum);
-		OnEvent(EVENT_SOARUP, snum, pact, -1);
-		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+		OnEvent(EVENT_SOARUP, p->pnum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 		{
 			pact->spr.pos.Z -= velZ;
 			p->crack_time = CRACK_TIME;
@@ -615,9 +614,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (velZ < 0) //Z (soar low)
 	{
 		// crouch
-		SetGameVarID(g_iReturnVarID, 0, pact, snum);
-		OnEvent(EVENT_SOARDOWN, snum, pact, -1);
-		if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+		OnEvent(EVENT_SOARDOWN, p->pnum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 		{
 			pact->spr.pos.Z -= velZ;
 			p->crack_time = CRACK_TIME;
@@ -1697,7 +1696,7 @@ void processinput_d(int snum)
 	}
 	else if (p->jetpack_on)
 	{
-		operateJetpack(snum, actions, psectlotag, floorz, ceilingz, shrunk);
+		operateJetpack(p, actions, psectlotag, floorz, ceilingz, shrunk);
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
