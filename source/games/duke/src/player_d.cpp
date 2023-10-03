@@ -1544,12 +1544,10 @@ void processinput_d(int snum)
 	ESyncBits& actions = p->cmd.ucmd.actions;
 
 	// Get strafe value before it's rotated by the angle.
-	const auto strafeVel = PlayerInputSideVel(snum);
+	const auto strafeVel = p->cmd.ucmd.vel.Y;
 	constexpr auto maxVel = (117351124. / 10884538.);
 
 	processinputvel(snum);
-	auto sb_fvel = PlayerInputForwardVel(snum);
-	auto sb_svel = PlayerInputSideVel(snum);
 
 	auto psectp = p->cursector;
 	if (psectp == nullptr)
@@ -1743,7 +1741,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	if (p->vel.X || p->vel.Y || sb_fvel || sb_svel)
+	if (p->vel.X || p->vel.Y || !p->cmd.ucmd.vel.XY().isZero())
 	{
 		p->crack_time = CRACK_TIME;
 
@@ -1783,8 +1781,7 @@ void processinput_d(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.X += sb_fvel * doubvel * (5. / 16.);
-		p->vel.Y += sb_svel * doubvel * (5. / 16.);
+		p->vel.XY() += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
 		p->Angles.StrafeVel += strafeVel * doubvel * (5. / 16.);
 
 		bool check;

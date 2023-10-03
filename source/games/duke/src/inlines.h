@@ -137,16 +137,6 @@ inline bool PlayerUseItem(int pl, int num)
 	return getPlayer(pl)->cmd.ucmd.isItemUsed(num - 1);
 }
 
-inline double PlayerInputSideVel(int pl)
-{
-	return getPlayer(pl)->cmd.ucmd.vel.Y;
-}
-
-inline double PlayerInputForwardVel(int pl)
-{
-	return getPlayer(pl)->cmd.ucmd.vel.X;
-}
-
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
