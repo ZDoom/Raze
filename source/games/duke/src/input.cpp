@@ -511,7 +511,7 @@ unsigned GameInterface::getCrouchState()
 
 void GameInterface::doPlayerMovement(const float scaleAdjust)
 {
-	auto const p = getPlayer(myconnectindex);
+	const auto p = getPlayer(myconnectindex);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
@@ -535,7 +535,7 @@ void GameInterface::doPlayerMovement(const float scaleAdjust)
 	}
 	else
 	{
-		gameInput.processMovement(&p->Angles, scaleAdjust, p->drink_amt);
+		gameInput.processMovement(&p->Angles, scaleAdjust, p->drink_amt, true, (p->psectlotag != ST_2_UNDERWATER) ? 1.f : 0.875f);
 	}
 }
 
