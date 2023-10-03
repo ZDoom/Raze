@@ -147,21 +147,11 @@ inline float PlayerInputForwardVel(int pl)
 	return getPlayer(pl)->cmd.ucmd.fvel;
 }
 
-inline float PlayerInputAngVel(int pl)
-{
-	return getPlayer(pl)->cmd.ucmd.avel;
-}
-
-inline DAngle GetPlayerHorizon(int pl)
-{
-	return DAngle::fromDeg(getPlayer(pl)->cmd.ucmd.horz);
-}
-
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		getPlayer(i)->fric.X = getPlayer(i)->fric.Y = 0;
+		getPlayer(i)->fric.Zero();
 	}
 }
 

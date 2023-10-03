@@ -39,9 +39,9 @@ source as it is released.
 
 BEGIN_DUKE_NS 
 
-inline static double getavel(int snum)
+inline static double getavel(DDukePlayer* const p)
 {
-	return PlayerInputAngVel(snum) * (2048. / 360.);
+	return p->cmd.ucmd.avel * (2048. / 360.);
 }
 
 //---------------------------------------------------------------------------
@@ -72,7 +72,7 @@ static void displayloogie(DDukePlayer* p, double const interpfrac)
 	{
 		const double a = fabs(BobVal((loogi + i) * 32.) * 90);
 		const double z = 4096. + ((loogi + i) * 512.);
-		const double x = -getavel(p->GetPlayerNum()) + BobVal((loogi + i) * 64.) * 16;
+		const double x = -getavel(p) + BobVal((loogi + i) * 64.) * 16;
 
 		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), (z - (i << 8)) / 65536., a - 22.5, TexMan.CheckForTexture("LOOGIE", ETextureType::Any), 0, 0, 0);
 	}
@@ -252,7 +252,7 @@ void displayweapon_d(int snum, double interpfrac)
 	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
 	auto pitchoffset = 16. * (p->Angles.getRenderAngles(interpfrac).Pitch / DAngle90);
-	auto yawinput = getavel(snum) * (1. / 16.);
+	auto yawinput = getavel(p) * (1. / 16.);
 	auto angle = offpair.second;
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
 	auto shade = min(p->GetActor()->spr.shade, (int8_t)24);
