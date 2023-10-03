@@ -183,13 +183,10 @@ class SWPlayer  : CorePlayer native
     SECTOR_OBJECTp sop_control; // sector object pointer
     SECTOR_OBJECTp sop_riding; // sector object pointer
 
-    struct
-    {
-        PANEL_SPRITEp Next, Prev;
-    } PanelSpriteList;
-    PANEL_SPRITEp CurWpn;
-    PANEL_SPRITEp Wpn[SW.MAX_WEAPONS];
-    PANEL_SPRITEp Chops;
+    PanelSprite PanelSpriteList;
+    PanelSprite CurWpn;
+    PanelSprite Wpn[SW.MAX_WEAPONS];
+    PanelSprite Chops;
 	*/
     native voidptr sop_remote;	// the status bar needs to check this - remove once the underlying type can be supported.
 

@@ -32,37 +32,33 @@ BEGIN_SW_NS
 
 /********************************************************************/
 
-struct List
+inline void INITLIST(DPanelSprite* list)
 {
-    struct List *Next;
-    struct List *Prev;
-};
-
-inline void INITLIST(void* listp)
-{
-    List* list = (List*)listp;
     list->Prev = list->Next = list;
 }
 
-inline void INSERT(void* listp, void* nodepp)
+inline void INSERT(DPanelSprite* list, DPanelSprite* nodep)
 {
-    List* list = (List*)listp;
-    List* nodep = (List*)nodepp;
+    GC::WriteBarrier(list);
+    GC::WriteBarrier(list->Next);
+    GC::WriteBarrier(nodep);
+
     nodep->Prev = list;
     nodep->Next = list->Next;
     list->Next = nodep;
     nodep->Next->Prev = nodep;
 }
 
-inline void REMOVE(PANEL_SPRITE* nodep)
+inline void REMOVE(DPanelSprite* nodep)
 {
+    GC::WriteBarrier(nodep->Next);
+    GC::WriteBarrier(nodep->Prev);
     nodep->Prev->Next = nodep->Next;
     nodep->Next->Prev = nodep->Prev;
 }
 
-inline bool EMPTY(void* listp)
+inline bool EMPTY(DPanelSprite* list)
 {
-    List* list = (List*)listp;
     return list->Next == list;
 }
 

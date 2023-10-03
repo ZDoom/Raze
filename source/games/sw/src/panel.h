@@ -59,7 +59,7 @@ struct PANEL_STATE
 {
 	short picndx;                       // for pip stuff in conpic.h
 	int tics;
-	void (*Animator)(PANEL_SPRITE*);    // JBF: return type was long
+	void (*Animator)(DPanelSprite*);    // JBF: return type was long
 	PANEL_STATE* NextState;
 	uint32_t flags;
 	uint8_t xvel;
@@ -92,7 +92,7 @@ enum
 	PANF_DRAW_BEFORE_VIEW = (BIT(30)), // draw before drawrooms
 };
 
-typedef void (*PANEL_SPRITE_FUNCp)(PANEL_SPRITE*);
+typedef void (*PANEL_SPRITE_FUNCp)(DPanelSprite*);
 
 struct PANEL_SPRITE_OVERLAY
 {
@@ -104,12 +104,16 @@ struct PANEL_SPRITE_OVERLAY
 	short yoff; // from panel sprite center y
 };
 
-struct PANEL_SPRITE
+class DPanelSprite : public DObject
 {
-	PANEL_SPRITE* Next, * Prev;
-	PANEL_SPRITE* sibling;
+	DECLARE_CLASS(DPanelSprite, DObject)
+	HAS_OBJECT_POINTERS
+	void Serialize(FSerializer& arc) override;
+public:
+	DPanelSprite* Next, * Prev;
+	TObjPtr<DPanelSprite*> sibling;
 	PANEL_STATE* State, *RetractState, *PresentState, *ActionState, *RestState;
-	DSWPlayer* PlayerP;
+	TObjPtr<DSWPlayer*> PlayerP;
 	DVector2 pos, opos, bobpos;
 
 	PANEL_SPRITE_OVERLAY over[8];
@@ -177,14 +181,14 @@ enum
 };
 
 
-PANEL_SPRITE* pSpawnSprite(DSWPlayer* pp, PANEL_STATE* state, uint8_t priority, double x, double y);
-void pSetSuicide(PANEL_SPRITE* psp);
+DPanelSprite* pSpawnSprite(DSWPlayer* pp, PANEL_STATE* state, uint8_t priority, double x, double y);
+void pSetSuicide(DPanelSprite* psp);
 bool pKillScreenSpiteIDs(DSWPlayer* pp, short id);
 void PreUpdatePanel(double interpfrac);
 void UpdatePanel(double interpfrac);
 void PlayerUpdateArmor(DSWPlayer* pp,short value);
 void pToggleCrosshair(void);
-void pKillSprite(PANEL_SPRITE* psp);
+void pKillSprite(DPanelSprite* psp);
 void InitChops(DSWPlayer* pp);
 void ChopsSetRetract(DSWPlayer* pp);
 

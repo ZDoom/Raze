@@ -331,11 +331,11 @@ class DSWPlayer;
 struct PERSONALITY;
 struct ATTRIBUTE;
 struct SECTOR_OBJECT;
-struct PANEL_SPRITE;
+class DPanelSprite;
 struct ANIM;
 class DSWActor;
 
-typedef void pANIMATOR (PANEL_SPRITE*);
+typedef void pANIMATOR (DPanelSprite*);
 typedef void (*soANIMATORp) (SECTOR_OBJECT*);
 
 // this needs to work with incomplete data, so avoid the asserting macros.
@@ -1682,14 +1682,11 @@ class DSWPlayer final : public DCorePlayer
     HAS_OBJECT_POINTERS
     DSWPlayer() = default;
 public:
-    void Clear()
-    {
-        Super::Clear();
-        // Quick'n dirty clear
-        memset(&lowActor, 0, sizeof(DSWPlayer) - myoffsetof(DSWPlayer, lowActor));
-    }
-
-    DSWPlayer(uint8_t p) : DCorePlayer(p) {}
+    void Clear();
+    DSWPlayer(uint8_t p);
+    DSWPlayer& operator=(DSWPlayer&) = delete;
+    DSWPlayer(DSWPlayer&) = delete;
+    void OnDestroy() override;
     void Serialize(FSerializer& arc) override;
     TObjPtr<DSWActor*> lowActor, highActor;
     TObjPtr<DSWActor*> remoteActor;
@@ -1765,17 +1762,11 @@ public:
     SECTOR_OBJECT* sop_control; // sector object pointer
     SECTOR_OBJECT* sop_riding; // sector object pointer
 
-    struct
-    {
-        PANEL_SPRITE* Next, *Prev;
-    } PanelSpriteList;
+    DPanelSprite* PanelSpriteList; // this is just a sentinel object that does not do anything. No read barrier here as this is strictly owned by the player.
 
-    // hack stuff to get a working pointer to this list element without running into type punning warnings with GCC.
-    // The list uses itself as sentinel element despite the type mismatch.
-    PANEL_SPRITE* GetPanelSpriteList()
+    DPanelSprite* GetPanelSpriteList()
     {
-        void* p = &PanelSpriteList;
-        return reinterpret_cast<PANEL_SPRITE*>(p);
+        return PanelSpriteList;
     }
 
     // Key stuff
@@ -1787,9 +1778,9 @@ public:
     int WpnFlags;
     int16_t WpnAmmo[MAX_WEAPONS];
     int16_t WpnNum;
-    PANEL_SPRITE* CurWpn;
-    PANEL_SPRITE* Wpn[MAX_WEAPONS];
-    PANEL_SPRITE* Chops;
+    TObjPtr<DPanelSprite*> CurWpn;
+    TObjPtr<DPanelSprite*> Wpn[MAX_WEAPONS];
+    TObjPtr<DPanelSprite*> Chops;
     uint8_t WpnRocketType; // rocket type
     uint8_t WpnRocketHeat; // 5 to 0 range
     uint8_t WpnRocketNuke; // 1, you have it, or you don't

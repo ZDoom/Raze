@@ -205,91 +205,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ATTRIBUTE*& w, ATT
 //
 //---------------------------------------------------------------------------
 
-// Temporary array to serialize the panel sprites.
-static TArray<PANEL_SPRITE*> pspAsArray;
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE*& w, PANEL_SPRITE** def)
-{
-	unsigned idx = ~0u;
-	if (arc.isWriting())
-	{
-		if (w != nullptr) 
-		{
-			idx = pspAsArray.Find(w);
-			if ((unsigned)idx >= pspAsArray.Size())
-			{
-				for (unsigned i = 0; i < MAX_SW_PLAYERS_REG; i++)
-				{
-					// special case for pointing to the list head
-					if ((List*)w == (List*)&getPlayer(i)->PanelSpriteList)
-					{
-						idx = 1000'0000 + i;
-						break;
-					}
-				}
-				if (idx >= pspAsArray.Size() && idx < 1000'0000)
-					idx = pspAsArray.Push(w);
-			}
-		}
-		arc(keyname, idx);
-	}
-	else
-	{
-		unsigned int ndx;
-		arc(keyname, ndx);
-
-		if (ndx == ~0u) w = nullptr;
-		else if (ndx >= 1000'0000) w = (PANEL_SPRITE*)&(getPlayer(ndx - 1000'0000)->PanelSpriteList);
-		else if ((unsigned)ndx >= pspAsArray.Size())
-			I_Error("Bad panel sprite index in savegame");
-		else w = pspAsArray[ndx];
-	}
-	return arc;
-}
-
-//---------------------------------------------------------------------------
-//
-// we need to allocate the needed panel sprites before loading anything else
-//
-//---------------------------------------------------------------------------
-
-void preSerializePanelSprites(FSerializer& arc)
-{
-	if (arc.isReading())
-	{
-		unsigned siz;
-		arc("panelcount", siz);
-		pspAsArray.Resize(siz);
-		for (unsigned i = 0; i < siz; i++)
-		{
-			pspAsArray[i] = (PANEL_SPRITE*)CallocMem(sizeof(PANEL_SPRITE), 1);
-		}
-	}
-}
-
-void postSerializePanelSprites(FSerializer& arc)
-{
-	if (arc.BeginArray("panelsprites"))
-	{
-		for(unsigned i = 0; i < pspAsArray.Size(); i++)
-		{
-			arc(nullptr, *pspAsArray[i]);
-		}
-		arc.EndArray();
-	}
-	if (arc.isWriting())
-	{
-		unsigned siz = pspAsArray.Size();
-		arc("panelcount", siz);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE_OVERLAY& w, PANEL_SPRITE_OVERLAY* def)
 {
 	if (arc.BeginObject(keyname))
@@ -311,62 +226,50 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE_OVERL
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE& w, PANEL_SPRITE* def)
+void DPanelSprite::Serialize(FSerializer& arc)
 {
-	static PANEL_SPRITE nul;
-	if (!def)
-	{
-		def = &nul;
-		if (arc.isReading()) w = {};
-	}
+	Super::Serialize(arc);
+	arc("Next", Next)
+		("Prev", Prev)
+		("sibling", sibling)
+		("State", State)
+		("RetractState", RetractState)
+		("PresentState", PresentState)
+		("ActionState", ActionState)
+		("RestState", RestState)
+		("pos", pos)
+		.Array("over", over, countof(over))
+		("id", ID)
+		("picndx", picndx)
+		("picnum", picnum)
+		("vel", vel)
+		("vel_adj", vel_adj)
+		("orig", bobpos)
+		("flags", flags)
+		("priority", priority)
+		("scale", scale)
+		("jump_speed", jump_speed)
+		("jump_grav", jump_grav)
+		("xspeed", xspeed)
+		("tics", tics)
+		("delay", delay)
+		("ang", ang)
+		("rotate_ang", rotate_ang)
+		("sin_ndx", sin_ndx)
+		("sin_amt", sin_amt)
+		("sin_arc_speed", sin_arc_speed)
+		("bob_height_divider", bob_height_divider)
+		("shade", shade)
+		("pal", pal)
+		("kill_tics", kill_tics)
+		("WeaponType", WeaponType)
+		("playerp", PlayerP);
 
-	if (arc.BeginObject(keyname))
-	{
-		arc("Next", w.Next)
-			("Prev", w.Prev)
-			("sibling", w.sibling)
-			("State", w.State)
-			("RetractState", w.RetractState)
-			("PresentState", w.PresentState)
-			("ActionState", w.ActionState)
-			("RestState", w.RestState)
-			("pos", w.pos)
-			.Array("over", w.over, countof(w.over))
-			("id", w.ID)
-			("picndx", w.picndx)
-			("picnum", w.picnum)
-			("vel", w.vel)
-			("vel_adj", w.vel_adj)
-			("orig", w.bobpos)
-			("flags", w.flags)
-			("priority", w.priority)
-			("scale", w.scale)
-			("jump_speed", w.jump_speed)
-			("jump_grav", w.jump_grav)
-			("xspeed", w.xspeed)
-			("tics", w.tics)
-			("delay", w.delay)
-			("ang", w.ang)
-			("rotate_ang", w.rotate_ang)
-			("sin_ndx", w.sin_ndx)
-			("sin_amt", w.sin_amt)
-			("sin_arc_speed", w.sin_arc_speed)
-			("bob_height_divider", w.bob_height_divider)
-			("shade", w.shade)
-			("pal", w.pal)
-			("kill_tics", w.kill_tics)
-			("WeaponType", w.WeaponType)
-			("playerp", w.PlayerP);
-
-		SerializeCodePtr(arc, "PanelSpriteFunc", (void**)&w.PanelSpriteFunc);
-
-		arc.EndObject();
-	}
+	SerializeCodePtr(arc, "PanelSpriteFunc", (void**)&PanelSpriteFunc);
 	if (arc.isReading())
 	{
-		w.opos = w.pos;
+		opos = pos;
 	}
-	return arc;
 }
 
 //---------------------------------------------------------------------------
@@ -399,20 +302,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 	{
 		w.ovect = w.vect;
 	}
-	return arc;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWPlayer*& w, DSWPlayer** def)
-{
-	int ndx = w ? int(w->pnum) : -1;
-	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : getPlayer(ndx);
 	return arc;
 }
 
@@ -532,6 +421,7 @@ void DSWPlayer::Serialize(FSerializer& arc)
 		("cookieTime", cookieTime)
 		("WpnReloadState", WpnReloadState)
 		("keypressbits", KeyPressBits)
+		("PanelSpriteList", PanelSpriteList)
 		("chops", Chops);
 
 	SerializeCodePtr(arc, "DoPlayerAction", (void**)&DoPlayerAction);
@@ -735,9 +625,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("hi_sp", w.highActor, def->highActor)
 			("lo_sp", w.lowActor, def->lowActor)
 			("active_range", w.active_range, def->active_range)
-			("Attach", w.attachActor, def->attachActor)
-			("PlayerP", w.PlayerP, def->PlayerP)
-			("Sibling", w.Sibling, def->Sibling)
+			("Attach", w.attachActor, def->attachActor);
+		arc("PlayerP", w.PlayerP, def->PlayerP);
+			arc("Sibling", w.Sibling, def->Sibling)
 			("change", w.change, def->change)
 			("z_tgt", w.z_tgt, def->z_tgt)
 			("vel_tgt", w.vel_tgt, def->vel_tgt)
@@ -1056,10 +946,8 @@ void DSWActor::Serialize(FSerializer& arc)
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
-	pspAsArray.Clear();
     Saveable_Init();
 
-	preSerializePanelSprites(arc);
 	if (arc.BeginObject("state"))
 	{
 		so_serializeinterpolations(arc);
@@ -1105,24 +993,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			;
 		arc.EndObject();
 	}
-
-	// these cannot be deferred to writing out the actors because we need to fill in pspAsArray before calling postSerializePanelSprites.
-	// The organization of this list is a mess and needs to be refactored into something workable.
-	if (arc.BeginArray("playerpanelsprites"))
-	{
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (arc.BeginObject(nullptr))
-			{
-				auto p = getPlayer(i);
-				arc("panelnext", p->PanelSpriteList.Next)
-					("panelprev", p->PanelSpriteList.Prev)
-					.EndObject();
-			}
-		}
-		arc.EndArray();
-	}
-	postSerializePanelSprites(arc);
 
 	if (arc.isReading())
 	{

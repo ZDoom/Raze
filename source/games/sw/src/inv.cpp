@@ -88,7 +88,7 @@ INVENTORY_DATA InventoryData[MAX_INVENTORY+1] =
 //
 //---------------------------------------------------------------------------
 
-void PanelInvTestSuicide(PANEL_SPRITE* psp)
+void PanelInvTestSuicide(DPanelSprite* psp)
 {
     if (psp->flags & (PANF_SUICIDE))
     {
