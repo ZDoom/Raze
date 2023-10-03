@@ -1568,8 +1568,10 @@ void playerkick(DDukePlayer* p, DDukeActor* g_ac)
 {
 	if (ud.multimode > 1 && g_ac->isPlayer())
 	{
-		if (getPlayer(otherp)->quick_kick == 0)
-			getPlayer(otherp)->quick_kick = 14;
+		const auto p2 = getPlayer(otherp);
+
+		if (p2->quick_kick == 0)
+			p2->quick_kick = 14;
 	}
 	else if (!g_ac->isPlayer() && p->quick_kick == 0)
 		p->quick_kick = 14;
@@ -1581,9 +1583,8 @@ void playerkick(DDukePlayer* p, DDukeActor* g_ac)
 //
 //---------------------------------------------------------------------------
 
-void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
+void underwater(DDukePlayer* const p, ESyncBits actions, double floorz, double ceilingz)
 {
-	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	constexpr double dist = (348. / 256.);
 	const auto kbdDir = ((actions & SB_JUMP) && !p->OnMotorcycle) - ((actions & SB_CROUCH) || p->OnMotorcycle);

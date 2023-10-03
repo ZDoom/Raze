@@ -236,7 +236,7 @@ void donewgame(MapRecord* map, int sk);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 bool movementBlocked(DDukePlayer *p);
-void underwater(int snum, ESyncBits actions, double floorz, double ceilingz);
+void underwater(DDukePlayer* p, ESyncBits actions, double floorz, double ceilingz);
 void loadcons();
 void DrawStatusBar();
 void thunder(void);
