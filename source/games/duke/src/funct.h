@@ -93,7 +93,8 @@ void addammo(int weapon, DDukePlayer* p, int amount);
 
 int ssp(DDukeActor* i, unsigned int cliptype); //The set sprite function
 void insertspriteq(DDukeActor *i);
-int wakeup(DDukeActor* sn, int pn);
+int madenoise(DDukePlayer* const p);
+int wakeup(DDukeActor* sn, DDukePlayer* const p);
 
 
 int timedexit(int snum);
@@ -118,7 +119,6 @@ void checkweapons(DDukePlayer* const p);
 int findotherplayer(int p, double* d);
 void quickkill(DDukePlayer* p);
 int setpal(DDukePlayer* p);
-int madenoise(int playerNum);
 int haslock(sectortype* sect, int snum);
 void purplelavacheck(DDukePlayer* p);
 void addphealth(DDukePlayer* p, int amount, bool bigitem);

@@ -30,18 +30,15 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
-int madenoise(int snum)
+int madenoise(DDukePlayer* const p)
 {
-	DDukePlayer *p;
-	p = getPlayer(snum);
 	p->donoise = 1;
 	p->noise = p->GetActor()->spr.pos.XY();
 	return 1;
 }
 
-int wakeup(DDukeActor* actor, int snum)
+int wakeup(DDukeActor* actor, DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	if (!p->donoise)
 		return 0;
 	if (actor->spr.pal == 30 || actor->spr.pal == 32 || actor->spr.pal == 33 || (isRRRA() && actor->spr.pal == 8))
