@@ -243,7 +243,7 @@ void hud_input(int plnum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		int weap = PlayerNewWeapon(plnum);
+		int weap = p->cmd.ucmd.getNewWeapon();
 		if (weap > 1 && p->kickback_pic > 0)
 			p->wantweaponfire = weap - 1;
 
