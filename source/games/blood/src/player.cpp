@@ -857,10 +857,9 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->deathTime = 0;
 	pPlayer->nextWeapon = kWeapNone;
 	actor->vel.Zero();
-	pInput->ang.Yaw = nullFAngle;
 	pInput->actions = 0;
 	pInput->vel.Zero();
-	pInput->ang.Pitch = nullFAngle;
+	pInput->ang.Zero();
 	pPlayer->flickerEffect = 0;
 	pPlayer->quakeEffect = 0;
 	pPlayer->tiltEffect = 0;

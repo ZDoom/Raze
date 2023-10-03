@@ -1033,31 +1033,23 @@ void NetUpdate (void)
 				int modp, tic;
 
 				DVector3 vel{};
-				float avel = 0;
-				float horz = 0;
-				float roll = 0;
+				DRotator ang{};
 
 				for (tic = 0; tic < ticdup; ++tic)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
 					vel += localcmds[modp].ucmd.vel;
-					avel += localcmds[modp].ucmd.ang.Yaw.Degrees();
-					horz += localcmds[modp].ucmd.ang.Pitch.Degrees();
-					roll += localcmds[modp].ucmd.ang.Roll.Degrees();
+					ang += localcmds[modp].ucmd.ang;
 				}
 
 				vel /= ticdup;
-				avel /= ticdup;
-				horz /= ticdup;
-				roll /= ticdup;
+				ang /= ticdup;
 
 				for (tic = 0; tic < ticdup; ++tic)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
 					localcmds[modp].ucmd.vel = vel;
-					localcmds[modp].ucmd.ang.Yaw = FAngle::fromDeg(avel);
-					localcmds[modp].ucmd.ang.Pitch = FAngle::fromDeg(horz);
-					localcmds[modp].ucmd.ang.Roll = FAngle::fromDeg(roll);
+					localcmds[modp].ucmd.ang = ang;
 				}
 
 				Net_NewMakeTic ();

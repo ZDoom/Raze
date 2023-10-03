@@ -509,25 +509,25 @@ unsigned GameInterface::getCrouchState()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::doPlayerMovement(const float scaleAdjust)
+void GameInterface::doPlayerMovement(const double scaleAdjust)
 {
 	const auto p = getPlayer(myconnectindex);
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		static constexpr float VEHICLETURN = (20.f * 360.f / 2048.f);
-		float baseVel, velScale; unsigned vehFlags;
+		static constexpr double VEHICLETURN = (20.f * 360.f / 2048.f);
+		double baseVel, velScale; unsigned vehFlags;
 
 		if (p->OnMotorcycle)
 		{
 			vehFlags = VEH_CANTURN | (VEH_CANMOVE * !p->moto_underwater) | (VEH_SCALETURN * (p->MotoSpeed <= 0));
-			velScale = (3.f / 10.f);
+			velScale = (3. / 10.);
 			baseVel = VEHICLETURN * Sgn(p->MotoSpeed);
 		}
 		else
 		{
 			vehFlags = VEH_CANMOVE | (VEH_CANTURN * (p->MotoSpeed || p->moto_drink));
-			velScale = !p->NotOnWater? 1.f : (6.f / 19.f);
+			velScale = !p->NotOnWater? 1. : (6. / 19.);
 			baseVel = VEHICLETURN * velScale;
 		}
 
@@ -535,7 +535,7 @@ void GameInterface::doPlayerMovement(const float scaleAdjust)
 	}
 	else
 	{
-		gameInput.processMovement(&p->Angles, scaleAdjust, p->drink_amt, true, (p->psectlotag != ST_2_UNDERWATER) ? 1.f : 0.875f);
+		gameInput.processMovement(&p->Angles, scaleAdjust, p->drink_amt, true, (p->psectlotag != ST_2_UNDERWATER) ? 1. : 0.875);
 	}
 }
 

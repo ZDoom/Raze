@@ -46,7 +46,7 @@ Weapon WeaponInfo[] = {
 };
 
 static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
-static FAngle lastavel;
+static DAngle lastavel;
 int isRed = 0;
 
 

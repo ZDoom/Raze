@@ -729,7 +729,7 @@ static unsigned outVehicleFlags(DDukePlayer* p, ESyncBits& actions)
 
 static void doVehicleTilting(DDukePlayer* const p, const bool canTilt)
 {
-	auto adj = DAngle::fromDeg(p->cmd.ucmd.ang.Yaw.Degrees() * (545943. / 3200000.) * canTilt);
+	auto adj = p->cmd.ucmd.ang.Yaw * (545943. / 3200000.) * canTilt;
 	if (p->OnMotorcycle) adj *= 5 * Sgn(p->MotoSpeed);
 	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
@@ -2541,7 +2541,7 @@ void processinput_r(int snum)
 		doubvel = 0;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->cmd.ucmd.ang.Yaw = nullFAngle;
+		p->cmd.ucmd.ang.Yaw = nullAngle;
 		setForcedSyncInput(snum);
 	}
 

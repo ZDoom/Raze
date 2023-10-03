@@ -1457,6 +1457,24 @@ public:
 	}
 };
 
+typedef TAngle<float>		FAngle;
+typedef TAngle<double>		DAngle;
+
+constexpr DAngle nullAngle = DAngle::fromDeg(0.);
+constexpr FAngle nullFAngle = FAngle::fromDeg(0.);
+constexpr DAngle minAngle = DAngle::fromDeg(1. / 65536.);
+constexpr FAngle minFAngle = FAngle::fromDeg(1. / 65536.);
+
+constexpr DAngle DAngle1 = DAngle::fromDeg(1);
+constexpr DAngle DAngle15 = DAngle::fromDeg(15);
+constexpr DAngle DAngle22_5 = DAngle::fromDeg(22.5);
+constexpr DAngle DAngle45 = DAngle::fromDeg(45);
+constexpr DAngle DAngle60 = DAngle::fromDeg(60);
+constexpr DAngle DAngle90 = DAngle::fromDeg(90);
+constexpr DAngle DAngle180 = DAngle::fromDeg(180);
+constexpr DAngle DAngle270 = DAngle::fromDeg(270);
+constexpr DAngle DAngle360 = DAngle::fromDeg(360);
+
 template<class T>
 inline TAngle<T> fabs (const TAngle<T> &deg)
 {
@@ -1529,6 +1547,12 @@ inline TVector3<T> clamp(const TVector3<T> &vec, const TVector3<T> &min, const T
 }
 
 template<class T>
+inline TRotator<T> clamp(const TRotator<T> &rot, const TRotator<T> &min, const TRotator<T> &max)
+{
+	return TRotator<T>(clamp(rot.Pitch, min.Pitch, max.Pitch), clamp(rot.Yaw, min.Yaw, max.Yaw), clamp(rot.Roll, min.Roll, max.Roll));
+}
+
+template<class T>
 inline TAngle<T> interpolatedvalue(const TAngle<T> &oang, const TAngle<T> &ang, const double interpfrac)
 {
 	return oang + (deltaangle(oang, ang) * interpfrac);
@@ -1570,6 +1594,16 @@ struct TRotator
 	TRotator(const TRotator &other) = default;
 	TRotator &operator= (const TRotator &other) = default;
 
+	void Zero()
+	{
+		Roll = Yaw = Pitch = nullAngle;
+	}
+
+	bool isZero() const
+	{
+		return Pitch == nullAngle && Yaw == nullAngle && Roll == nullAngle;
+	}
+
 	// Access angles as an array
 	Angle &operator[] (int index)
 	{
@@ -1584,13 +1618,27 @@ struct TRotator
 	// Test for equality
 	bool operator== (const TRotator &other) const
 	{
-		return fabs(Pitch - other.Pitch) < Angle(EQUAL_EPSILON) && fabs(Yaw - other.Yaw) < Angle(EQUAL_EPSILON) && fabs(Roll - other.Roll) < Angle(EQUAL_EPSILON);
+		return Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll;
 	}
 
 	// Test for inequality
 	bool operator!= (const TRotator &other) const
 	{
-		return fabs(Pitch - other.Pitch) >= Angle(EQUAL_EPSILON) && fabs(Yaw - other.Yaw) >= Angle(EQUAL_EPSILON) && fabs(Roll - other.Roll) >= Angle(EQUAL_EPSILON);
+		return Pitch != other.Pitch || Yaw != other.Yaw || Roll != other.Roll;
+	}
+
+	// Test for approximate equality
+	bool ApproximatelyEquals (const TRotator &other) const
+	{
+		constexpr auto epsilon = Angle(EQUAL_EPSILON);
+		return fabs(Pitch - other.Pitch) < epsilon && fabs(Yaw - other.Yaw) < epsilon && fabs(Roll - other.Roll) < epsilon;
+	}
+
+	// Test for approximate inequality
+	bool DoesNotApproximatelyEqual (const TRotator &other) const
+	{
+		constexpr auto epsilon = Angle(EQUAL_EPSILON);
+		return fabs(Pitch - other.Pitch) >= epsilon && fabs(Yaw - other.Yaw) >= epsilon && fabs(Roll - other.Roll) >= epsilon;
 	}
 
 	// Unary negation
@@ -1653,9 +1701,22 @@ struct TRotator
 		return *this;
 	}
 
+	TRotator &operator/= (const vec_t &scalar)
+	{
+		const auto mul = 1. / scalar;
+		Pitch *= mul, Yaw *= mul, Roll *= mul;
+		return *this;
+	}
+
 	TRotator operator/ (const Angle &scalar) const
 	{
 		Angle mul(1 / scalar.Degrees_);
+		return TRotator(Pitch * mul, Yaw * mul, Roll * mul);
+	}
+
+	TRotator operator/ (const vec_t &scalar) const
+	{
+		const auto mul = 1. / scalar;
 		return TRotator(Pitch * mul, Yaw * mul, Roll * mul);
 	}
 
@@ -1719,28 +1780,12 @@ typedef TVector3<float>		FVector3;
 typedef TVector4<float>		FVector4;
 typedef TRotator<float>		FRotator;
 typedef TMatrix3x3<float>	FMatrix3x3;
-typedef TAngle<float>		FAngle;
 
 typedef TVector2<double>		DVector2;
 typedef TVector3<double>		DVector3;
 typedef TVector4<double>		DVector4;
 typedef TRotator<double>		DRotator;
 typedef TMatrix3x3<double>		DMatrix3x3;
-typedef TAngle<double>			DAngle;
-
-constexpr DAngle nullAngle = DAngle::fromDeg(0.);
-constexpr DAngle minAngle = DAngle::fromDeg(1. / 65536.);
-constexpr FAngle nullFAngle = FAngle::fromDeg(0.);
-
-constexpr DAngle DAngle1 = DAngle::fromDeg(1);
-constexpr DAngle DAngle15 = DAngle::fromDeg(15);
-constexpr DAngle DAngle22_5 = DAngle::fromDeg(22.5);
-constexpr DAngle DAngle45 = DAngle::fromDeg(45);
-constexpr DAngle DAngle60 = DAngle::fromDeg(60);
-constexpr DAngle DAngle90 = DAngle::fromDeg(90);
-constexpr DAngle DAngle180 = DAngle::fromDeg(180);
-constexpr DAngle DAngle270 = DAngle::fromDeg(270);
-constexpr DAngle DAngle360 = DAngle::fromDeg(360);
 
 class Plane
 {
