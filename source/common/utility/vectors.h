@@ -1585,45 +1585,45 @@ struct TRotator
 	Angle Yaw;		// left/right
 	Angle Roll;		// rotation about the forward axis.
 
-	TRotator() = default;
+	constexpr TRotator() = default;
 
-	TRotator (const Angle &p, const Angle &y, const Angle &r)
+	constexpr TRotator (const Angle &p, const Angle &y, const Angle &r)
 		: Pitch(p), Yaw(y), Roll(r)
 	{
 	}
 
-	TRotator(const TRotator &other) = default;
-	TRotator &operator= (const TRotator &other) = default;
+	constexpr TRotator(const TRotator &other) = default;
+	constexpr TRotator &operator= (const TRotator &other) = default;
 
-	void Zero()
+	constexpr void Zero()
 	{
 		Roll = Yaw = Pitch = nullAngle;
 	}
 
-	bool isZero() const
+	constexpr bool isZero() const
 	{
 		return Pitch == nullAngle && Yaw == nullAngle && Roll == nullAngle;
 	}
 
 	// Access angles as an array
-	Angle &operator[] (int index)
+	constexpr Angle &operator[] (int index)
 	{
 		return *(&Pitch + index);
 	}
 
-	const Angle &operator[] (int index) const
+	constexpr const Angle &operator[] (int index) const
 	{
 		return *(&Pitch + index);
 	}
 
 	// Test for equality
-	bool operator== (const TRotator &other) const
+	constexpr bool operator== (const TRotator &other) const
 	{
 		return Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll;
 	}
 
 	// Test for inequality
-	bool operator!= (const TRotator &other) const
+	constexpr bool operator!= (const TRotator &other) const
 	{
 		return Pitch != other.Pitch || Yaw != other.Yaw || Roll != other.Roll;
 	}
@@ -1643,104 +1643,104 @@ struct TRotator
 	}
 
 	// Unary negation
-	TRotator operator- () const
+	constexpr TRotator operator- () const
 	{
 		return TRotator(-Pitch, -Yaw, -Roll);
 	}
 
 	// Scalar addition
-	TRotator &operator+= (const Angle &scalar)
+	constexpr TRotator &operator+= (const Angle &scalar)
 	{
 		Pitch += scalar, Yaw += scalar, Roll += scalar;
 		return *this;
 	}
 
-	friend TRotator operator+ (const TRotator &v, const Angle &scalar)
+	constexpr friend TRotator operator+ (const TRotator &v, const Angle &scalar)
 	{
 		return TRotator(v.Pitch + scalar, v.Yaw + scalar, v.Roll + scalar);
 	}
 
-	friend TRotator operator+ (const Angle &scalar, const TRotator &v)
+	constexpr friend TRotator operator+ (const Angle &scalar, const TRotator &v)
 	{
 		return TRotator(v.Pitch + scalar, v.Yaw + scalar, v.Roll + scalar);
 	}
 
 	// Scalar subtraction
-	TRotator &operator-= (const Angle &scalar)
+	constexpr TRotator &operator-= (const Angle &scalar)
 	{
 		Pitch -= scalar, Yaw -= scalar, Roll -= scalar;
 		return *this;
 	}
 
-	TRotator operator- (const Angle &scalar) const
+	constexpr TRotator operator- (const Angle &scalar) const
 	{
 		return TRotator(Pitch - scalar, Yaw - scalar, Roll - scalar);
 	}
 
 	// Scalar multiplication
-	TRotator &operator*= (const Angle &scalar)
+	constexpr TRotator &operator*= (const Angle &scalar)
 	{
 		Pitch *= scalar, Yaw *= scalar, Roll *= scalar;
 		return *this;
 	}
 
-	friend TRotator operator* (const TRotator &v, const Angle &scalar)
+	constexpr friend TRotator operator* (const TRotator &v, const Angle &scalar)
 	{
 		return TRotator(v.Pitch * scalar, v.Yaw * scalar, v.Roll * scalar);
 	}
 
-	friend TRotator operator* (const Angle &scalar, const TRotator &v)
+	constexpr friend TRotator operator* (const Angle &scalar, const TRotator &v)
 	{
 		return TRotator(v.Pitch * scalar, v.Yaw * scalar, v.Roll * scalar);
 	}
 
 	// Scalar division
-	TRotator &operator/= (const Angle &scalar)
+	constexpr TRotator &operator/= (const Angle &scalar)
 	{
 		Angle mul(1 / scalar.Degrees_);
 		Pitch *= mul, Yaw *= mul, Roll *= mul;
 		return *this;
 	}
 
-	TRotator &operator/= (const vec_t &scalar)
+	constexpr TRotator &operator/= (const vec_t &scalar)
 	{
 		const auto mul = 1. / scalar;
 		Pitch *= mul, Yaw *= mul, Roll *= mul;
 		return *this;
 	}
 
-	TRotator operator/ (const Angle &scalar) const
+	constexpr TRotator operator/ (const Angle &scalar) const
 	{
 		Angle mul(1 / scalar.Degrees_);
 		return TRotator(Pitch * mul, Yaw * mul, Roll * mul);
 	}
 
-	TRotator operator/ (const vec_t &scalar) const
+	constexpr TRotator operator/ (const vec_t &scalar) const
 	{
 		const auto mul = 1. / scalar;
 		return TRotator(Pitch * mul, Yaw * mul, Roll * mul);
 	}
 
 	// Vector addition
-	TRotator &operator+= (const TRotator &other)
+	constexpr TRotator &operator+= (const TRotator &other)
 	{
 		Pitch += other.Pitch, Yaw += other.Yaw, Roll += other.Roll;
 		return *this;
 	}
 
-	TRotator operator+ (const TRotator &other) const
+	constexpr TRotator operator+ (const TRotator &other) const
 	{
 		return TRotator(Pitch + other.Pitch, Yaw + other.Yaw, Roll + other.Roll);
 	}
 
 	// Vector subtraction
-	TRotator &operator-= (const TRotator &other)
+	constexpr TRotator &operator-= (const TRotator &other)
 	{
 		Pitch -= other.Pitch, Yaw -= other.Yaw, Roll -= other.Roll;
 		return *this;
 	}
 
-	TRotator operator- (const TRotator &other) const
+	constexpr TRotator operator- (const TRotator &other) const
 	{
 		return TRotator(Pitch - other.Pitch, Yaw - other.Yaw, Roll - other.Roll);
 	}
