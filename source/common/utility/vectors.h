@@ -354,23 +354,23 @@ struct TVector3
 
 	vec_t X, Y, Z;
 
-	TVector3() = default;
+	constexpr TVector3() = default;
 
-	TVector3 (vec_t a, vec_t b, vec_t c)
+	constexpr TVector3 (vec_t a, vec_t b, vec_t c)
 		: X(a), Y(b), Z(c)
 	{
 	}
 
-	TVector3(vec_t *o)
+	constexpr TVector3(vec_t *o)
 		: X(o[0]), Y(o[1]), Z(o[2])
 	{
 	}
 
-	TVector3(std::nullptr_t nul) = delete;
+	constexpr TVector3(std::nullptr_t nul) = delete;
 
-	TVector3(const TVector3 &other) = default;
+	constexpr TVector3(const TVector3 &other) = default;
 
-	TVector3 (const Vector2 &xy, vec_t z)
+	constexpr TVector3 (const Vector2 &xy, vec_t z)
 		: X(xy.X), Y(xy.Y), Z(z)
 	{
 	}
@@ -378,46 +378,46 @@ struct TVector3
 	TVector3 (const TRotator<vec_t> &rot);
 	
 	template<typename U>
-	explicit operator TVector3<U> () const noexcept {
+	constexpr explicit operator TVector3<U> () const noexcept {
 		return TVector3<U>(static_cast<U>(X), static_cast<U>(Y), static_cast<U>(Z));
 	}
 
-	void Zero()
+	constexpr void Zero()
 	{
 		Z = Y = X = 0;
 	}
 
-	bool isZero() const
+	constexpr bool isZero() const
 	{
 		return X == 0 && Y == 0 && Z == 0;
 	}
 
-	TVector3 plusZ(double z) const
+	constexpr TVector3 plusZ(double z) const
 	{
 		return { X, Y, Z + z };
 	}
 
-	TVector3 &operator= (const TVector3 &other) = default;
+	constexpr TVector3 &operator= (const TVector3 &other) = default;
 
 	// Access X and Y and Z as an array
-	vec_t &operator[] (int index)
+	constexpr vec_t &operator[] (int index)
 	{
 		return index == 0 ? X : index == 1 ? Y : Z;
 	}
 
-	const vec_t &operator[] (int index) const
+	constexpr const vec_t &operator[] (int index) const
 	{
 		return index == 0 ? X : index == 1 ? Y : Z;
 	}
 
 	// Test for equality
-	bool operator== (const TVector3 &other) const
+	constexpr bool operator== (const TVector3 &other) const
 	{
 		return X == other.X && Y == other.Y && Z == other.Z;
 	}
 
 	// Test for inequality
-	bool operator!= (const TVector3 &other) const
+	constexpr bool operator!= (const TVector3 &other) const
 	{
 		return X != other.X || Y != other.Y || Z != other.Z;
 	}
@@ -435,140 +435,140 @@ struct TVector3
 	}
 
 	// Unary negation
-	TVector3 operator- () const
+	constexpr TVector3 operator- () const
 	{
 		return TVector3(-X, -Y, -Z);
 	}
 
 	// Scalar addition
 #if 0
-	TVector3 &operator+= (vec_t scalar)
+	constexpr TVector3 &operator+= (vec_t scalar)
 	{
 		X += scalar, Y += scalar, Z += scalar;
 		return *this;
 	}
 #endif
 
-	friend TVector3 operator+ (const TVector3 &v, vec_t scalar)
+	constexpr friend TVector3 operator+ (const TVector3 &v, vec_t scalar)
 	{
 		return TVector3(v.X + scalar, v.Y + scalar, v.Z + scalar);
 	}
 
-	friend TVector3 operator+ (vec_t scalar, const TVector3 &v)
+	constexpr friend TVector3 operator+ (vec_t scalar, const TVector3 &v)
 	{
 		return TVector3(v.X + scalar, v.Y + scalar, v.Z + scalar);
 	}
 
 	// Scalar subtraction
-	TVector3 &operator-= (vec_t scalar)
+	constexpr TVector3 &operator-= (vec_t scalar)
 	{
 		X -= scalar, Y -= scalar, Z -= scalar;
 		return *this;
 	}
 
-	TVector3 operator- (vec_t scalar) const
+	constexpr TVector3 operator- (vec_t scalar) const
 	{
 		return TVector3(X - scalar, Y - scalar, Z - scalar);
 	}
 
 	// Scalar multiplication
-	TVector3 &operator*= (vec_t scalar)
+	constexpr TVector3 &operator*= (vec_t scalar)
 	{
 		X = vec_t(X *scalar), Y = vec_t(Y * scalar), Z = vec_t(Z * scalar);
 		return *this;
 	}
 
-	friend TVector3 operator* (const TVector3 &v, vec_t scalar)
+	constexpr friend TVector3 operator* (const TVector3 &v, vec_t scalar)
 	{
 		return TVector3(v.X * scalar, v.Y * scalar, v.Z * scalar);
 	}
 
-	friend TVector3 operator* (vec_t scalar, const TVector3 &v)
+	constexpr friend TVector3 operator* (vec_t scalar, const TVector3 &v)
 	{
 		return TVector3(v.X * scalar, v.Y * scalar, v.Z * scalar);
 	}
 
 	// Scalar division
-	TVector3 &operator/= (vec_t scalar)
+	constexpr TVector3 &operator/= (vec_t scalar)
 	{
 		scalar = 1 / scalar, X = vec_t(X * scalar), Y = vec_t(Y * scalar), Z = vec_t(Z * scalar);
 		return *this;
 	}
 
-	TVector3 operator/ (vec_t scalar) const
+	constexpr TVector3 operator/ (vec_t scalar) const
 	{
 		scalar = 1 / scalar;
 		return TVector3(X * scalar, Y * scalar, Z * scalar);
 	}
 
 	// Vector addition
-	TVector3 &operator+= (const TVector3 &other)
+	constexpr TVector3 &operator+= (const TVector3 &other)
 	{
 		X += other.X, Y += other.Y, Z += other.Z;
 		return *this;
 	}
 
-	TVector3 operator+ (const TVector3 &other) const
+	constexpr TVector3 operator+ (const TVector3 &other) const
 	{
 		return TVector3(X + other.X, Y + other.Y, Z + other.Z);
 	}
 
 	// Vector subtraction
-	TVector3 &operator-= (const TVector3 &other)
+	constexpr TVector3 &operator-= (const TVector3 &other)
 	{
 		X -= other.X, Y -= other.Y, Z -= other.Z;
 		return *this;
 	}
 
-	TVector3 operator- (const TVector3 &other) const
+	constexpr TVector3 operator- (const TVector3 &other) const
 	{
 		return TVector3(X - other.X, Y - other.Y, Z - other.Z);
 	}
 
 	// Add a 2D vector to this 3D vector, leaving Z unchanged.
-	TVector3 &operator+= (const Vector2 &other)
+	constexpr TVector3 &operator+= (const Vector2 &other)
 	{
 		X += other.X, Y += other.Y;
 		return *this;
 	}
 
 	// Subtract a 2D vector from this 3D vector, leaving Z unchanged.
-	TVector3 &operator-= (const Vector2 &other)
+	constexpr TVector3 &operator-= (const Vector2 &other)
 	{
 		X -= other.X, Y -= other.Y;
 		return *this;
 	}
 
 	// returns the XY fields as a 2D-vector.
-	const Vector2& XY() const
+	constexpr const Vector2& XY() const
 	{
 		return *reinterpret_cast<const Vector2*>(this);
 	}
 
-	Vector2& XY()
+	constexpr Vector2& XY()
 	{
 		return *reinterpret_cast<Vector2*>(this);
 	}
 
 	// Add a 3D vector and a 2D vector.
-	friend TVector3 operator+ (const TVector3 &v3, const Vector2 &v2)
+	constexpr friend TVector3 operator+ (const TVector3 &v3, const Vector2 &v2)
 	{
 		return TVector3(v3.X + v2.X, v3.Y + v2.Y, v3.Z);
 	}
 
-	friend TVector3 operator- (const TVector3 &v3, const Vector2 &v2)
+	constexpr friend TVector3 operator- (const TVector3 &v3, const Vector2 &v2)
 	{
 		return TVector3(v3.X - v2.X, v3.Y - v2.Y, v3.Z);
 	}
 
-	friend Vector2 operator+ (const Vector2 &v2, const TVector3 &v3)
+	constexpr friend Vector2 operator+ (const Vector2 &v2, const TVector3 &v3)
 	{
 		return Vector2(v2.X + v3.X, v2.Y + v3.Y);
 	}
 
 	// Subtract a 3D vector and a 2D vector.
 	// Discards the Z component of the 3D vector and returns a 2D vector.
-	friend Vector2 operator- (const TVector2<vec_t> &v2, const TVector3 &v3)
+	constexpr friend Vector2 operator- (const TVector2<vec_t> &v2, const TVector3 &v3)
 	{
 		return Vector2(v2.X - v3.X, v2.Y - v3.Y);
 	}
@@ -631,7 +631,7 @@ struct TVector3
 		return g_sqrt (LengthSquared());
 	}
 
-	double LengthSquared() const
+	constexpr double LengthSquared() const
 	{
 		return X*X + Y*Y + Z*Z;
 	}
@@ -687,25 +687,25 @@ struct TVector3
 	}
 
 	// Dot product
-	vec_t operator | (const TVector3 &other) const
+	constexpr vec_t operator | (const TVector3 &other) const
 	{
 		return X*other.X + Y*other.Y + Z*other.Z;
 	}
 
-	vec_t dot (const TVector3& other) const
+	constexpr vec_t dot (const TVector3& other) const
 	{
 		return X * other.X + Y * other.Y + Z * other.Z;
 	}
 
 	// Cross product
-	TVector3 operator ^ (const TVector3 &other) const
+	constexpr TVector3 operator ^ (const TVector3 &other) const
 	{
 		return TVector3(Y*other.Z - Z*other.Y,
 					   Z*other.X - X*other.Z,
 					   X*other.Y - Y*other.X);
 	}
 
-	TVector3 &operator ^= (const TVector3 &other)
+	constexpr TVector3 &operator ^= (const TVector3 &other)
 	{
 		*this = *this ^ other;
 		return *this;
