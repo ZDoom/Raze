@@ -232,7 +232,10 @@ class DDukePlayer final : public DCorePlayer
 	DDukePlayer() = default;
 public:
 	DDukePlayer(uint8_t p) : DCorePlayer(p) {}
+	DDukePlayer& operator=(DDukePlayer&) = delete;
+	DDukePlayer(DDukePlayer&) = delete;
 	void Serialize(FSerializer& arc) override;
+	TArray<GameVarValue> uservars;
 	DVector3 vel;
 	DVector2 bobpos;
 	DVector2 fric;
@@ -349,8 +352,6 @@ public:
 	uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
 	double MotoSpeed;
-
-	TArray<GameVarValue> uservars;
 
 	int GetPlayerNum();
 

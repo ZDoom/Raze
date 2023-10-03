@@ -524,14 +524,8 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 		}
 	}
 
-	resetplayerstats(0);
-
 	for (i = 1; i < MAXPLAYERS; i++)
-	{
-		const auto thisp = getPlayer(i);
-		*thisp = *firstp;
-		thisp->pnum = i;
-	}
+		resetplayerstats(i);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
