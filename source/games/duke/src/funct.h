@@ -119,7 +119,7 @@ void checkweapons(DDukePlayer* const p);
 int findotherplayer(int p, double* d);
 void quickkill(DDukePlayer* p);
 int setpal(DDukePlayer* p);
-int haslock(sectortype* sect, int snum);
+int haslock(sectortype* sect, DDukePlayer* const p);
 void purplelavacheck(DDukePlayer* p);
 void addphealth(DDukePlayer* p, int amount, bool bigitem);
 int playereat(DDukePlayer* p, int amount, bool bigitem);

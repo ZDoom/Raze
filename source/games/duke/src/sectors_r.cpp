@@ -368,7 +368,7 @@ void checksectors_r(int snum)
 				if (isactivator(act) || ismasterswitch(act))
 					return;
 			}
-			if (haslock(near.hitSector, snum))
+			if (haslock(near.hitSector, p))
 				operatesectors(near.hitSector, p->GetActor());
 			else
 			{
@@ -389,7 +389,7 @@ void checksectors_r(int snum)
 					if (isactivator(act) || ismasterswitch(act))
 						return;
 				}
-				if (haslock(near.hitSector, snum))
+				if (haslock(near.hitSector, p))
 					operatesectors(p->GetActor()->sector(), p->GetActor());
 				else
 				{
