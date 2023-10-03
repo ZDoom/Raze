@@ -108,7 +108,7 @@ void hud_input(int plnum)
 	}
 	if (!PlayerInput(plnum, SB_QUICK_KICK)) p->quick_kick_msg = false;
 
-	if (!PlayerInputBits(plnum, SB_INTERFACE_BITS))
+	if (!(p->cmd.ucmd.actions & SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
 	{
