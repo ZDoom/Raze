@@ -1239,7 +1239,7 @@ private:
 	}
 public:
 
-	vec_t& Degrees__() { return Degrees_; }
+	constexpr vec_t& Degrees__() { return Degrees_; }
 	
 	static constexpr TAngle fromDeg(float deg)
 	{
@@ -1286,8 +1286,8 @@ public:
 		return TAngle(bang * (90. / 16384));
 	}
 
-	TAngle(const TAngle &other) = default;
-	TAngle &operator= (const TAngle &other) = default;
+	constexpr TAngle(const TAngle &other) = default;
+	constexpr TAngle &operator= (const TAngle &other) = default;
 
 	constexpr TAngle operator- () const
 	{
@@ -1536,19 +1536,19 @@ TAngle<T> TVector3<T>::Pitch() const
 }
 
 template<class T>
-inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const TVector2<T> &max)
+constexpr inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const TVector2<T> &max)
 {
 	return TVector2<T>(clamp(vec.X, min.X, max.X), clamp(vec.Y, min.Y, max.Y));
 }
 
 template<class T>
-inline TVector3<T> clamp(const TVector3<T> &vec, const TVector3<T> &min, const TVector3<T> &max)
+constexpr inline TVector3<T> clamp(const TVector3<T> &vec, const TVector3<T> &min, const TVector3<T> &max)
 {
 	return TVector3<T>(std::clamp<T>(vec.X, min.X, max.X), std::clamp<T>(vec.Y, min.Y, max.Y), std::clamp<T>(vec.Z, min.Z, max.Z));
 }
 
 template<class T>
-inline TRotator<T> clamp(const TRotator<T> &rot, const TRotator<T> &min, const TRotator<T> &max)
+constexpr inline TRotator<T> clamp(const TRotator<T> &rot, const TRotator<T> &min, const TRotator<T> &max)
 {
 	return TRotator<T>(clamp(rot.Pitch, min.Pitch, max.Pitch), clamp(rot.Yaw, min.Yaw, max.Yaw), clamp(rot.Roll, min.Roll, max.Roll));
 }
@@ -1570,7 +1570,7 @@ inline TRotator<T> interpolatedvalue(const TRotator<T> &oang, const TRotator<T> 
 }
 
 template <class T>
-inline T interpolatedvalue(const T& oval, const T& val, const double interpfrac)
+constexpr inline T interpolatedvalue(const T& oval, const T& val, const double interpfrac)
 {
 	return T(oval + (val - oval) * interpfrac);
 }
