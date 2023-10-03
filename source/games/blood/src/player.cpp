@@ -1277,39 +1277,32 @@ bool PickupAmmo(DBloodPlayer* pPlayer, DBloodActor* ammoactor)
 
 bool PickupWeapon(DBloodPlayer* pPlayer, DBloodActor* weaponactor)
 {
-	const WEAPONITEMDATA* pWeaponItemData = &gWeaponItemData[weaponactor->GetType() - kItemWeaponBase];
-	int nWeaponType = pWeaponItemData->type;
-	int nAmmoType = pWeaponItemData->ammoType;
-	if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
+	int nWeaponType = weaponactor->IntVar("type");
+	int nAmmoType = weaponactor->IntVar("ammotype");
+	int nCount = (currentLevel->featureflags & kFeatureCustomAmmoCount) && weaponactor->xspr.data1 ?
+		weaponactor->xspr.data1 : weaponactor->IntVar("count");
+
+	if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) 
+	{
 		if (weaponactor->GetType() == kItemWeaponLifeLeech && gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, NULL))
 			return 0;
 		pPlayer->hasWeapon[nWeaponType] = 1;
 		if (nAmmoType == -1) return 0;
 		// allow to set custom ammo count for weapon pickups
-#ifdef NOONE_EXTENSIONS
-		else if (gModernMap && weaponactor->hasX() && weaponactor->xspr.data1 > 0)
-			pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->xspr.data1, gAmmoInfo[nAmmoType].max);
-#endif
-		else
-			pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
+
+		pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + nCount, gAmmoInfo[nAmmoType].max);
 
 		int nNewWeapon = WeaponUpgrade(pPlayer, nWeaponType);
 		if (nNewWeapon != pPlayer->curWeapon) {
 			pPlayer->weaponState = 0;
 			pPlayer->nextWeapon = nNewWeapon;
 		}
-		sfxPlay3DSound(pPlayer->GetActor(), 777, -1, 0);
-		return 1;
 	}
-
-	if (!actGetRespawnTime(weaponactor) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
-#ifdef NOONE_EXTENSIONS
-	else if (gModernMap && weaponactor->hasX() && weaponactor->xspr.data1 > 0)
-		pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->xspr.data1, gAmmoInfo[nAmmoType].max);
-#endif
 	else
-		pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
-
+	{
+		if (!actGetRespawnTime(weaponactor) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
+		pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + nCount, gAmmoInfo[nAmmoType].max);
+	}
 	sfxPlay3DSound(pPlayer->GetActor(), 777, -1, 0);
 	return 1;
 }

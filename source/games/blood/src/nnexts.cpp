@@ -2283,15 +2283,17 @@ void trPlayerCtrlGiveStuff(int data2, int weapon, int data4, DBloodPlayer* pPlay
 		default:
 			for (int i = 0; i < 11; i++)
 			{
-				if (gWeaponItemData[i].type != weapon) continue;
-
-				const WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i];
-				int nAmmoType = pWeaponData->ammoType;
+				auto cls = GetSpawnType(kItemWeaponBase + i);
+				if (!cls) continue;
+				auto defaults = GetDefaultByType(cls);
+				if (defaults->IntVar("type") != weapon) continue;
+				int count = defaults->IntVar("count");
+				int nAmmoType = defaults->IntVar("ammotype");
 				switch (data2) {
 				case 1:
 					pPlayer->hasWeapon[weapon] = true;
-					if (pPlayer->ammoCount[nAmmoType] >= pWeaponData->count) break;
-					pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponData->count, gAmmoInfo[nAmmoType].max);
+					if (pPlayer->ammoCount[nAmmoType] >= count) break;
+					pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + count, gAmmoInfo[nAmmoType].max);
 					break;
 				case 2:
 					pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + data4, gAmmoInfo[nAmmoType].max);
