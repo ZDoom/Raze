@@ -1523,16 +1523,14 @@ static void processweapon(DDukePlayer* const p, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-void processinput_d(int snum)
+void processinput_d(DDukePlayer* const p)
 {
 	int k, doubvel;
 	double floorz, ceilingz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
-	DDukePlayer* p;
 
-	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	ESyncBits& actions = p->cmd.ucmd.actions;
@@ -1541,7 +1539,7 @@ void processinput_d(int snum)
 	const auto strafeVel = p->cmd.ucmd.vel.Y;
 	constexpr auto maxVel = (117351124. / 10884538.);
 
-	processinputvel(snum);
+	processinputvel(p->pnum);
 
 	auto psectp = p->cursector;
 	if (psectp == nullptr)
@@ -1558,14 +1556,14 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.scale.Y < 0.5);
-	getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
+	getzrange(pact->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 
 	setPlayerActorViewZOffset(pact);
 
-	p->truefz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
-	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
+	p->truefz = getflorzofslopeptr(psectp, pact->getPosWithOffsetZ());
+	p->truecz = getceilzofslopeptr(psectp, pact->getPosWithOffsetZ());
 
-	truefdist = abs(p->GetActor()->getOffsetZ() - p->truefz);
+	truefdist = abs(pact->getOffsetZ() - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
@@ -1593,7 +1591,7 @@ void processinput_d(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = (clz.actor()->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
+			auto ang = (clz.actor()->spr.pos.XY() - pact->spr.pos.XY()).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 		CallStandingOn(clz.actor(), p);
@@ -1636,10 +1634,10 @@ void processinput_d(int snum)
 		return;
 	}
 
-	if (p->GetActor()->spr.scale.X < 0.625 && p->jetpack_on == 0)
+	if (pact->spr.scale.X < 0.625 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += int(p->GetActor()->vel.X * 16);
+		p->fistsign += int(pact->vel.X * 16);
 	}
 
 	if (p->transporter_hold > 0)
@@ -1653,7 +1651,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
@@ -1669,18 +1667,18 @@ void processinput_d(int snum)
 	checklook(p, actions);
 	p->Angles.doViewYaw(&p->cmd.ucmd);
 
-	p->updatecentering(snum);
+	p->updatecentering();
 
 	if (p->on_crane != nullptr)
 	{
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 		goto HORIZONLY;
 	}
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
-	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
+	pact->vel.X = clamp((pact->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
+	if (p->on_ground) p->bobcounter += int(pact->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
 
@@ -1707,7 +1705,7 @@ void processinput_d(int snum)
 		p->vel.X = 0;
 		p->vel.Y = 0;
 		p->cmd.ucmd.ang.Yaw = nullAngle;
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 	}
 
 	p->Angles.doYawInput(&p->cmd.ucmd);
@@ -1826,15 +1824,15 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->GetActor()->spr.pos.XY() += p->vel.XY() ;
-		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+		pact->spr.pos.XY() += p->vel.XY() ;
+		updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, p->vel.XY(), 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, p->vel.XY(), 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->GetActor()->spr.pos.Z += 32;
+		pact->spr.pos.Z += 32;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_d(p, clip);
@@ -1879,12 +1877,12 @@ HORIZONLY:
 	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
-	auto oldpos = p->GetActor()->opos;
+	auto oldpos = pact->opos;
 	int retry = 0;
 	while (ud.clipping == 0)
 	{
 		int blocked;
-		blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+		blocked = (pushmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(pact, 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
@@ -1895,8 +1893,8 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->GetActor()->spr.pos = oldpos;
-					p->GetActor()->backuppos();
+					pact->spr.pos = oldpos;
+					pact->backuppos();
 					continue;
 				}
 				quickkill(p);

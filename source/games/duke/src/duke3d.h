@@ -82,7 +82,7 @@ struct Dispatcher
 	void (*selectweapon)(DDukePlayer* const p, int j);
 	int (*doincrements)(DDukePlayer* p);
 	void (*checkweapons)(DDukePlayer* p);
-	void (*processinput)(int snum);
+	void (*processinput)(DDukePlayer* const p);
 	void (*displayweapon)(DDukePlayer* const p, double interpfrac);
 	void (*displaymasks)(DDukePlayer* const p, int pal, double interpfrac);
 

@@ -963,9 +963,8 @@ static void doVehicleThrottling(DDukePlayer* p, DDukeActor* pact, unsigned& flag
 //
 //---------------------------------------------------------------------------
 
-static void onMotorcycle(int snum, ESyncBits &actions)
+static void onMotorcycle(DDukePlayer* const p, ESyncBits &actions)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	unsigned flags = outVehicleFlags(p, actions);
@@ -1042,9 +1041,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 //
 //---------------------------------------------------------------------------
 
-static void onBoat(int snum, ESyncBits &actions)
+static void onBoat(DDukePlayer* const p, ESyncBits &actions)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->NotOnWater)
@@ -1338,15 +1336,14 @@ static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect,
 //
 //---------------------------------------------------------------------------
 
-void onMotorcycleMove(int snum, walltype* wal)
+static void onMotorcycleMove(DDukePlayer* const p, walltype* wal)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
-	double angleDelta = absangle(p->GetActor()->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
+	double angleDelta = absangle(pact->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	const double scale = (180. / 2048.);
-	p->GetActor()->spr.Angles.Yaw += DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale));
+	pact->spr.Angles.Yaw += DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale));
 
 	// That's some very weird angles here...
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
@@ -1394,14 +1391,13 @@ void onMotorcycleMove(int snum, walltype* wal)
 //
 //---------------------------------------------------------------------------
 
-void onBoatMove(int snum, int psectlotag, walltype* wal)
+void onBoatMove(DDukePlayer* const p, int psectlotag, walltype* wal)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
-	double angleDelta = absangle(p->GetActor()->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
+	double angleDelta = absangle(pact->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
 
 	const double scale = (90. / 2048.);
-	p->GetActor()->spr.Angles.Yaw += DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale));
+	pact->spr.Angles.Yaw += DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale));
 
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
 	{
@@ -1436,22 +1432,23 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 //
 //---------------------------------------------------------------------------
 
-void onMotorcycleHit(int snum, DDukeActor* victim)
+static void onMotorcycleHit(DDukePlayer* const p, DDukeActor* victim)
 {
-	auto p = getPlayer(snum);
 	if (badguy(victim) || victim->isPlayer())
 	{
+		const auto pact = p->GetActor();
+
 		if (!victim->isPlayer())
 		{
 			if (numplayers == 1)
 			{
 				Collision coll;
-				DAngle ang = p->TiltStatus * 20 + p->GetActor()->spr.Angles.Yaw;
+				DAngle ang = p->TiltStatus * 20 + pact->spr.Angles.Yaw;
 				movesprite_ex(victim, DVector3(ang.ToVector() * 4, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
 		else
-			victim->SetHitOwner(p->GetActor());
+			victim->SetHitOwner(pact);
 		victim->attackertype = RedneckMotoHitClass;
 		victim->hitextra = int(p->MotoSpeed * 0.5);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
@@ -1469,23 +1466,23 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 //
 //---------------------------------------------------------------------------
 
-void onBoatHit(int snum, DDukeActor* victim)
+static void onBoatHit(DDukePlayer* const p, DDukeActor* victim)
 {
-	auto p = getPlayer(snum);
-
 	if (badguy(victim) || victim->isPlayer())
 	{
+		const auto pact = p->GetActor();
+
 		if (!victim->isPlayer())
 		{
 			if (numplayers == 1)
 			{
 				Collision coll;
-				DAngle ang = p->TiltStatus * 20 + p->GetActor()->spr.Angles.Yaw;
+				DAngle ang = p->TiltStatus * 20 + pact->spr.Angles.Yaw;
 				movesprite_ex(victim, DVector3(ang.ToVector() * 2, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
 		else
-			victim->SetHitOwner(p->GetActor());
+			victim->SetHitOwner(pact);
 		victim->attackertype = RedneckMotoHitClass;
 		victim->hitextra = int(p->MotoSpeed * 0.25);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
@@ -2255,7 +2252,7 @@ static void processweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 //
 //---------------------------------------------------------------------------
 
-void processinput_r(int snum)
+void processinput_r(DDukePlayer* const p)
 {
 	int k, doubvel;
 	Collision chz, clz;
@@ -2263,7 +2260,6 @@ void processinput_r(int snum)
 	int psectlotag;
 	double floorz = 0, ceilingz = 0;
 
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	ESyncBits& actions = p->cmd.ucmd.actions;
@@ -2275,14 +2271,14 @@ void processinput_r(int snum)
 	auto psectp = p->cursector;
 	if (p->OnMotorcycle && pact->spr.extra > 0)
 	{
-		onMotorcycle(snum, actions);
+		onMotorcycle(p, actions);
 	}
 	else if (p->OnBoat && pact->spr.extra > 0)
 	{
-		onBoat(snum, actions);
+		onBoat(p, actions);
 	}
 
-	processinputvel(snum);
+	processinputvel(p->pnum);
 
 	if (psectp == nullptr)
 	{
@@ -2301,7 +2297,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->GetClass() == RedneckWaterSurfaceClass)
-				if (act2->spr.pos.Z - 8 < p->GetActor()->getOffsetZ())
+				if (act2->spr.pos.Z - 8 < pact->getOffsetZ())
 					psectlotag = ST_2_UNDERWATER;
 		}
 	}
@@ -2321,19 +2317,19 @@ void processinput_r(int snum)
 	shrunk = (pact->spr.scale.Y < 0.125);
 	if (pact->clipdist == 16)
 	{
-		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
+		getzrange(pact->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 	}
 	else
 	{
-		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
+		getzrange(pact->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
 	}
 
 	setPlayerActorViewZOffset(pact);
 
-	p->truefz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
-	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
+	p->truefz = getflorzofslopeptr(psectp, pact->getPosWithOffsetZ());
+	p->truecz = getceilzofslopeptr(psectp, pact->getPosWithOffsetZ());
 
-	double truefdist = abs(p->GetActor()->getOffsetZ() - p->truefz);
+	double truefdist = abs(pact->getOffsetZ() - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
@@ -2391,7 +2387,7 @@ void processinput_r(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = (clz.actor()->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
+			auto ang = (clz.actor()->spr.pos.XY() - pact->spr.pos.XY()).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 		if (clz.actor()->GetClass() == RedneckLadderClass)
@@ -2449,10 +2445,10 @@ void processinput_r(int snum)
 		return;
 	}
 
-	if (p->GetActor()->spr.scale.X < 0.125 && p->jetpack_on == 0)
+	if (pact->spr.scale.X < 0.125 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += int(p->GetActor()->vel.X * 16);
+		p->fistsign += int(pact->vel.X * 16);
 	}
 
 	if (p->transporter_hold > 0)
@@ -2466,7 +2462,7 @@ void processinput_r(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
@@ -2482,18 +2478,18 @@ void processinput_r(int snum)
 	p->Angles.doViewYaw(&p->cmd.ucmd);
 	p->apply_seasick();
 
-	p->updatecentering(snum);
+	p->updatecentering();
 
 	if (p->on_crane != nullptr)
 	{
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 		goto HORIZONLY;
 	}
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
-	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
+	pact->vel.X = clamp((pact->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
+	if (p->on_ground) p->bobcounter += int(pact->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
 
@@ -2535,7 +2531,7 @@ void processinput_r(int snum)
 		p->vel.X = 0;
 		p->vel.Y = 0;
 		p->cmd.ucmd.ang.Yaw = nullAngle;
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 	}
 
 	p->Angles.doYawInput(&p->cmd.ucmd);
@@ -2709,15 +2705,15 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->GetActor()->spr.pos.XY() += p->vel.XY() ;
-		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+		pact->spr.pos.XY() += p->vel.XY() ;
+		updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, p->vel.XY(), 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, p->vel.XY(), 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->GetActor()->spr.pos.Z += 32;
+		pact->spr.pos.Z += 32;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);
@@ -2730,11 +2726,11 @@ HORIZONLY:
 		auto wal = clip.hitWall;
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleMove(snum, wal);
+			onMotorcycleMove(p, wal);
 		}
 		else if (p->OnBoat)
 		{
-			onBoatMove(snum, psectlotag, wal);
+			onBoatMove(p, psectlotag, wal);
 		}
 		else
 		{
@@ -2742,11 +2738,11 @@ HORIZONLY:
 			{
 				if (wal->lotag < 44)
 				{
-					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					dofurniture(p, clip.hitWall);
+					pushmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 				}
 				else
-					pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 			}
 		}
 	}
@@ -2755,11 +2751,11 @@ HORIZONLY:
 	{
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleHit(snum, clip.actor());
+			onMotorcycleHit(p, clip.actor());
 		}
 		else if (p->OnBoat)
 		{
-			onBoatHit(snum, clip.actor());
+			onBoatHit(p, clip.actor());
 		}
 		else if (badguy(clip.actor()))
 		{
@@ -2821,15 +2817,15 @@ HORIZONLY:
 	if (p->cursector != pact->sector())
 		ChangeActorSect(pact, p->cursector);
 
-	auto oldpos = p->GetActor()->opos;
+	auto oldpos = pact->opos;
 	int retry = 0;
 	while (ud.clipping == 0)
 	{
 		int blocked;
 		if (pact->clipdist == 16)
-			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(pact, 8) < DAngle90);
 		else
-			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(pact->spr.pos.XY(), pact->getOffsetZ(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(pact, 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
@@ -2840,8 +2836,8 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->GetActor()->spr.pos = oldpos;
-					p->GetActor()->backuppos();
+					pact->spr.pos = oldpos;
+					pact->backuppos();
 					continue;
 				}
 				quickkill(p);
@@ -2885,7 +2881,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
+		pact->spr.Angles.Pitch += maphoriz(d);
 	}
 
 	p->Angles.doPitchInput(&p->cmd.ucmd);

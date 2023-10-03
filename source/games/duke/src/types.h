@@ -376,7 +376,7 @@ public:
 		bobpos = GetActor()->spr.pos.XY();
 	}
 
-	void updatecentering(const int snum)
+	void updatecentering()
 	{
 		if (!(cmd.ucmd.actions & SB_CENTERVIEW))
 			return;
@@ -386,7 +386,7 @@ public:
 
 		if ((centertest && returnlock) || !cmd.ucmd.ang.Pitch.Degrees())
 		{
-			setForcedSyncInput(snum);
+			setForcedSyncInput(pnum);
 			cmd.ucmd.ang.Pitch = nullAngle;
 		}
 		else
