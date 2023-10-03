@@ -169,9 +169,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const double scal
 	// add collected input to game's local input accumulation packet.
 	const DVector3 maxVel{ (double)keymove, (double)keymove, 1. };
 	const DRotator maxAng{ MAXANG, MAXANG, MAXANG };
-	inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -(double)keymove, (double)keymove);
-	inputBuffer.vel.Y = clamp(inputBuffer.vel.Y + thisInput.vel.Y, -(double)keymove, (double)keymove);
-	inputBuffer.vel.Z = clamp(inputBuffer.vel.Z + thisInput.vel.Z, -1., 1.);
+	inputBuffer.vel = clamp(inputBuffer.vel + thisInput.vel, -maxVel, maxVel);
 	inputBuffer.ang = clamp(inputBuffer.ang + thisInput.ang, -maxAng, maxAng);
 
 	// directly update player angles if we can.
