@@ -683,7 +683,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 	}
 	else
 	{
-		footprints(snum);
+		footprints(p);
 	}
 
 	if (pact->getOffsetZ() < floorz - i) //falling

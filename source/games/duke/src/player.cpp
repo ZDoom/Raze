@@ -484,9 +484,8 @@ int makepainsounds(DDukePlayer* const p, int type)
 //
 //---------------------------------------------------------------------------
 
-void footprints(int snum)
+void footprints(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	auto actor = p->GetActor();
 
 	if (p->footprintcount > 0 && p->on_ground)
@@ -497,8 +496,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->IsKindOf(DukeFootprintsClass))
-					if (abs(act->spr.pos.X - p->GetActor()->spr.pos.X) < 24)
-						if (abs(act->spr.pos.Y - p->GetActor()->spr.pos.Y) < 24)
+					if (abs(act->spr.pos.X - actor->spr.pos.X) < 24)
+						if (abs(act->spr.pos.Y - actor->spr.pos.Y) < 24)
 						{
 							j = 1;
 							break;
@@ -512,7 +511,7 @@ void footprints(int snum)
 					DDukeActor* fprint = spawn(actor, DukeFootprintsClass);
 					if (fprint)
 					{
-						fprint->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
+						fprint->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 						fprint->spr.pal = p->footprintpal;
 						fprint->spr.shade = (int8_t)p->footprintshade;
 					}
