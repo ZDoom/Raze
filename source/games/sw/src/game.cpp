@@ -102,6 +102,7 @@ IMPLEMENT_POINTER(user.targetActor)
 IMPLEMENT_POINTER(user.flameActor)
 IMPLEMENT_POINTER(user.attachActor)
 IMPLEMENT_POINTER(user.WpnGoalActor)
+IMPLEMENT_POINTER(user.PlayerP)
 IMPLEMENT_POINTERS_END
 
 IMPLEMENT_CLASS(DSWPlayer, false, true)
@@ -113,7 +114,35 @@ IMPLEMENT_POINTER(PlayerUnderActor)
 IMPLEMENT_POINTER(KillerActor)
 IMPLEMENT_POINTER(HitBy)
 IMPLEMENT_POINTER(last_camera_act)
+IMPLEMENT_POINTER(CurWpn)
+IMPLEMENT_POINTER(Chops)
+IMPLEMENT_POINTER(PanelSpriteList)
+IMPLEMENT_POINTER(Wpn[0])
+IMPLEMENT_POINTER(Wpn[1])
+IMPLEMENT_POINTER(Wpn[2])
+IMPLEMENT_POINTER(Wpn[3])
+IMPLEMENT_POINTER(Wpn[4])
+IMPLEMENT_POINTER(Wpn[5])
+IMPLEMENT_POINTER(Wpn[6])
+IMPLEMENT_POINTER(Wpn[7])
+IMPLEMENT_POINTER(Wpn[8])
+IMPLEMENT_POINTER(Wpn[9])
+IMPLEMENT_POINTER(Wpn[10])
+IMPLEMENT_POINTER(Wpn[11])
+IMPLEMENT_POINTER(Wpn[12])
+IMPLEMENT_POINTER(Wpn[13])
 IMPLEMENT_POINTERS_END
+
+static_assert(MAX_WEAPONS == 14);
+
+IMPLEMENT_CLASS(DPanelSprite, false, true)
+IMPLEMENT_POINTERS_START(DPanelSprite)
+IMPLEMENT_POINTER(Next)
+IMPLEMENT_POINTER(Prev)
+IMPLEMENT_POINTER(sibling)
+IMPLEMENT_POINTER(PlayerP)
+IMPLEMENT_POINTERS_END
+
 
 void MarkSOInterp();
 extern int FinishTimer;
@@ -271,7 +300,7 @@ void GameInterface::app_init()
     gs = gs_defaults;
 
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
-        INITLIST(&getPlayer(i)->PanelSpriteList);
+        INITLIST(getPlayer(i)->PanelSpriteList);
 
     DebugOperate = true;
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
@@ -300,7 +329,7 @@ void GameInterface::app_init()
 
     memset(Track, 0, sizeof(Track));
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
-        INITLIST(&(getPlayer(i)->PanelSpriteList));
+        INITLIST(getPlayer(i)->PanelSpriteList);
 
     LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
@@ -423,7 +452,7 @@ void InitLevel(MapRecord *maprec)
             getPlayer(i)->Clear();
             getPlayer(i)->playerreadyflag = ready_bak;
             getPlayer(i)->PlayerVersion = ver_bak;
-            INITLIST(&getPlayer(i)->PanelSpriteList);
+            INITLIST(getPlayer(i)->PanelSpriteList);
         }
 
         memset(puser, 0, sizeof(puser));
@@ -594,7 +623,6 @@ void TerminateLevel(void)
         pp->hi_sectp = pp->lo_sectp = nullptr;
         pp->cursector = pp->lastcursector = pp->lv_sector = nullptr;
         pp->sop_control = pp->sop_riding = nullptr;
-        pp->PanelSpriteList = {};
 
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
         pp->DoPlayerAction = nullptr;
@@ -614,7 +642,7 @@ void TerminateLevel(void)
 
         pp->KillerActor = nullptr;;
 
-        INITLIST(&pp->PanelSpriteList);
+        INITLIST(pp->PanelSpriteList);
     }
 }
 

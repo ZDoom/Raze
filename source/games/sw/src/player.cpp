@@ -175,6 +175,29 @@ void processWeapon(DSWPlayer* const pp);
 
 extern short target_ang;
 
+void DSWPlayer::Clear()
+{
+    Super::Clear();
+    // Quick'n dirty clear. PanelSpriteList must be preserved, though, but cleared itself.
+    auto p = PanelSpriteList;
+    memset(&lowActor, 0, sizeof(DSWPlayer) - myoffsetof(DSWPlayer, lowActor));
+    PanelSpriteList = p;
+    INITLIST(p);
+}
+
+DSWPlayer::DSWPlayer(uint8_t p) : DCorePlayer(p)
+{
+    PanelSpriteList = Create<DPanelSprite>();
+    GC::WriteBarrier(this, PanelSpriteList);
+}
+void DSWPlayer::OnDestroy()
+{
+    pClearSpriteList(this);
+    PanelSpriteList->Destroy();
+    PanelSpriteList = nullptr;
+}
+
+
 //////////////////////
 //
 // PLAYER SPECIFIC
@@ -1008,7 +1031,7 @@ int SetVisNorm(void)
     return 0;
 }
 
-void pSetVisNorm(PANEL_SPRITE* psp)
+void pSetVisNorm(DPanelSprite* psp)
 {
 //    SetVisNorm();
 }
@@ -6905,7 +6928,7 @@ void InitAllPlayers(void)
         pp->FadeTics = 0;
         pp->StartColor = 0;
 
-        INITLIST(&pp->PanelSpriteList);
+        INITLIST(pp->PanelSpriteList);
     }
 }
 
