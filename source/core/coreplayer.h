@@ -32,3 +32,8 @@ public:
 };
 
 extern DCorePlayer* PlayerArray[MAXPLAYERS];
+
+inline ESyncBits GetPersistentActions()
+{
+	return PlayerArray[myconnectindex]->cmd.ucmd.actions & SB_CENTERVIEW;
+}
