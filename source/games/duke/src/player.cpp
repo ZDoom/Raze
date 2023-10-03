@@ -999,9 +999,8 @@ bool movementBlocked(DDukePlayer *p)
 //
 //---------------------------------------------------------------------------
 
-int haslock(sectortype* sectp, int snum)
+int haslock(sectortype* sectp, DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	if (!sectp)
 		return 0;
 	if (!sectp->lockinfo)
