@@ -362,9 +362,8 @@ DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle, bool* b
 //
 //---------------------------------------------------------------------------
 
-void dokneeattack(int snum)
+void dokneeattack(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->knee_incs > 0)
@@ -393,7 +392,7 @@ void dokneeattack(int snum)
 				if (p->actorsqu->isPlayer())
 				{
 					quickkill(getPlayer(p->actorsqu->PlayerIndex()));
-					getPlayer(p->actorsqu->PlayerIndex())->frag_ps = snum;
+					getPlayer(p->actorsqu->PlayerIndex())->frag_ps = p->pnum;
 				}
 				else
 				{

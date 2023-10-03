@@ -1955,7 +1955,7 @@ HORIZONLY:
 		}
 	}
 
-	dokneeattack(snum);
+	dokneeattack(p);
 
 	if (fi.doincrements(p)) return;
 

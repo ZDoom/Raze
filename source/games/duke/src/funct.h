@@ -98,7 +98,7 @@ int wakeup(DDukeActor* sn, DDukePlayer* const p);
 
 
 int timedexit(int snum);
-void dokneeattack(int snum);
+void dokneeattack(DDukePlayer* const p);
 int endoflevel(int snum);
 void playerisdead(int snum, int psectlotag, double fz, double cz);
 void footprints(int snum);
