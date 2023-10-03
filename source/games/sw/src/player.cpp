@@ -1444,99 +1444,18 @@ void UpdatePlayerSpriteAngle(DSWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTurnVehicle(DSWPlayer* pp, double zz, double floordist)
+void DoPlayerVehicleInputScaling(DSWPlayer* const pp, float InputPacket::* angle, const float scale)
 {
     SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        pp->cmd.ucmd.avel = float(((pp->cmd.ucmd.avel * sop->drive_angspeed) + (pp->lastcmd.ucmd.avel * (sop->drive_angslide - 1))) / sop->drive_angslide);
+        pp->cmd.ucmd.*angle = float(((pp->cmd.ucmd.*angle * sop->drive_angspeed) + (pp->lastcmd.ucmd.*angle * (sop->drive_angslide - 1))) / sop->drive_angslide);
     }
     else
     {
-        pp->cmd.ucmd.avel *= synctics * 0.125f;
+        pp->cmd.ucmd.*angle *= synctics * scale;
     }
-
-    if (pp->cmd.ucmd.avel != 0)
-    {
-        auto sum = pp->GetActor()->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
-        if (MultiClipTurn(pp, sum, zz, floordist))
-        {
-            pp->GetActor()->spr.Angles.Yaw = sum;
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void DoPlayerTurnVehicleRect(DSWPlayer* pp, DVector2* pos, DVector2* opos)
-{
-    SECTOR_OBJECT* sop = pp->sop;
-
-    if (sop->drive_angspeed)
-    {
-        pp->cmd.ucmd.avel = float(((pp->cmd.ucmd.avel * sop->drive_angspeed) + (pp->lastcmd.ucmd.avel * (sop->drive_angslide - 1))) / sop->drive_angslide);
-    }
-    else
-    {
-        pp->cmd.ucmd.avel *= synctics * 0.125f;
-    }
-
-    if (pp->cmd.ucmd.avel != 0)
-    {
-        auto sum = pp->GetActor()->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
-        if (RectClipTurn(pp, sum, pos, opos))
-        {
-            pp->GetActor()->spr.Angles.Yaw = sum;
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void DoPlayerTurnTurret(DSWPlayer* pp)
-{
-    DAngle new_ang, diff;
-    SECTOR_OBJECT* sop = pp->sop;
-
-    if (sop->drive_angspeed)
-    {
-        pp->cmd.ucmd.avel = float(((pp->cmd.ucmd.avel * sop->drive_angspeed) + (pp->lastcmd.ucmd.avel * (sop->drive_angslide - 1))) / sop->drive_angslide);
-    }
-    else
-    {
-        pp->cmd.ucmd.avel *= synctics * 0.25f;
-    }
-
-    if (fabs(pp->cmd.ucmd.avel) >= FLT_EPSILON)
-    {
-        new_ang = pp->GetActor()->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
-
-        if (sop->limit_ang_center >= nullAngle)
-        {
-            diff = deltaangle(sop->limit_ang_center, new_ang);
-
-            if (abs(diff) >= sop->limit_ang_delta)
-            {
-                if (diff < nullAngle)
-                    new_ang = sop->limit_ang_center - sop->limit_ang_delta;
-                else
-                    new_ang = sop->limit_ang_center + sop->limit_ang_delta;
-            }
-        }
-
-        pp->GetActor()->spr.Angles.Yaw = new_ang;
-    }
-
-    OperateSectorObject(pp->sop, pp->GetActor()->spr.Angles.Yaw, pp->sop->pmid);
 }
 
 //---------------------------------------------------------------------------
@@ -2505,7 +2424,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
         pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
-    double zz = pp->GetActor()->getOffsetZ() + 10;
+    double zz = plActor->getOffsetZ() + 10;
 
     DVector2 pos[4], opos[4];
 
@@ -2530,11 +2449,14 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     }
 
     auto save_sect = pp->cursector;
-    OperateSectorObject(pp->sop, pp->GetActor()->spr.Angles.Yaw, { MAXSO, MAXSO });
+    OperateSectorObject(pp->sop, plActor->spr.Angles.Yaw, { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     double floordist = abs(zz - pp->sop->floor_loz);
     setForcedSyncInput(pp->pnum);
+
+    DoPlayerVehicleInputScaling(pp, &InputPacket::avel, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &InputPacket::horz, 0.125f);
 
     if (RectClip)
     {
@@ -2543,7 +2465,15 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
 
         auto save_cstat = plActor->spr.cstat;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-        DoPlayerTurnVehicleRect(pp, pos, opos);
+
+        if (pp->cmd.ucmd.avel != 0)
+        {
+            auto sum = plActor->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
+            if (RectClipTurn(pp, sum, pos, opos))
+            {
+                plActor->spr.Angles.Yaw = sum;
+            }
+        }
 
         ret = RectClipMove(pp, pos);
         DriveCrush(pp, pos);
@@ -2558,7 +2488,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
                 DVector3 hitpos((pos[0] + pos[1]) * 0.5, pp->cursector->floorz - 10);
 
                 hitscan(hitpos, pp->cursector,
-                    DVector3(pp->GetActor()->spr.Angles.Yaw.ToVector() * 16, 0),
+                    DVector3(plActor->spr.Angles.Yaw.ToVector() * 16, 0),
                     hit, CLIPMASK_PLAYER);
 
                 if ((hit.hitpos.XY() - hitpos.XY()).LengthSquared() < 50 * 50)
@@ -2588,14 +2518,21 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     }
     else
     {
-        DoPlayerTurnVehicle(pp, zz, floordist);
+        if (pp->cmd.ucmd.avel != 0)
+        {
+            auto sum = plActor->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
+            if (MultiClipTurn(pp, sum, zz, floordist))
+            {
+                plActor->spr.Angles.Yaw = sum;
+            }
+        }
 
         auto save_cstat = plActor->spr.cstat;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->GetActor()->spr.pos.XY(), zz, &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(plActor->spr.pos.XY(), zz, &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -2624,7 +2561,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
         }
     }
 
-    OperateSectorObject(pp->sop, pp->GetActor()->spr.Angles.Yaw, pp->GetActor()->spr.pos.XY());
+    OperateSectorObject(pp->sop, plActor->spr.Angles.Yaw, plActor->spr.pos.XY());
     pp->cursector = save_sect; // for speed
 
     DoPlayerSlopeTilting(pp);
@@ -2641,6 +2578,8 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
 
 void DoPlayerMoveTurret(DSWPlayer* pp)
 {
+    const auto pact = pp->GetActor();
+
     if (!Prediction)
     {
         if (pp->cmd.ucmd.avel && !pp->lastcmd.ucmd.avel)
@@ -2650,7 +2589,31 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
     }
 
     setForcedSyncInput(pp->pnum);
-    DoPlayerTurnTurret(pp);
+
+    DoPlayerVehicleInputScaling(pp, &InputPacket::avel, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &InputPacket::horz, 0.125f);
+
+    if (fabs(pp->cmd.ucmd.avel) >= FLT_EPSILON)
+    {
+        DAngle new_ang = pact->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.avel);
+
+        if (pp->sop->limit_ang_center >= nullAngle)
+        {
+            DAngle diff = deltaangle(pp->sop->limit_ang_center, new_ang);
+
+            if (abs(diff) >= pp->sop->limit_ang_delta)
+            {
+                if (diff < nullAngle)
+                    new_ang = pp->sop->limit_ang_center - pp->sop->limit_ang_delta;
+                else
+                    new_ang = pp->sop->limit_ang_center + pp->sop->limit_ang_delta;
+            }
+        }
+
+        pact->spr.Angles.Yaw = new_ang;
+    }
+
+    OperateSectorObject(pp->sop, pact->spr.Angles.Yaw, pp->sop->pmid);
 
     if (PLAYER_MOVING(pp) == 0)
         pp->Flags &= ~(PF_PLAYER_MOVED);
