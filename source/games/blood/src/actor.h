@@ -112,18 +112,6 @@ struct WEAPONITEMDATA
 	FTextureID textureID() const { return tileGetTextureID(picno); }
 };
 
-struct ITEMDATA
-{
-	int16_t __cstat_;
-	int16_t picno;
-	int8_t __shade_;
-	uint8_t __pal_;
-	uint8_t __xrepeat_;
-	uint8_t __yrepeat_;
-	int16_t packSlot;
-	FTextureID __textureID_() const { return tileGetTextureID(picno); }
-};
-
 struct MissileType
 {
 	int16_t picno;
@@ -181,7 +169,6 @@ struct VECTORDATA {
 
 extern const AMMOITEMDATA gAmmoItemData[];
 extern const WEAPONITEMDATA gWeaponItemData[];
-extern const ITEMDATA gItemData[];
 extern const MissileType missileInfo[];
 extern const EXPLOSION explodeInfo[];
 extern const THINGINFO thingInfo[];

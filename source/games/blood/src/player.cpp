@@ -1236,7 +1236,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 	case kItemJumpBoots:
 	case kItemDivingSuit:
 	case kItemBeastVision:
-		if (!packAddItem(pPlayer, gItemData[nType].packSlot)) return 0;
+		if (!packAddItem(pPlayer, itemactor->IntVar("packslot"))) return 0;
 		break;
 	default:
 		if (!powerupActivate(pPlayer, nType)) return 0;
