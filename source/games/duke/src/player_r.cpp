@@ -2201,9 +2201,8 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
+static void processweapon(DDukePlayer* const p, ESyncBits actions, sectortype* psectp)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int shrunk = (pact->spr.scale.Y < 0.125);
 
@@ -2473,7 +2472,7 @@ void processinput_r(int snum)
 
 		fi.doincrements(p);
 
-		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, actions, psectp);
+		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(p, actions, psectp);
 		return;
 	}
 
@@ -2926,7 +2925,7 @@ HORIZONLY:
 		else p->weapon_pos--;
 	}
 
-	processweapon(snum, actions, psectp);
+	processweapon(p, actions, psectp);
 }
 
 //---------------------------------------------------------------------------

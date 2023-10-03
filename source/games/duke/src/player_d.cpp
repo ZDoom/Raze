@@ -1446,9 +1446,8 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits actions)
+static void processweapon(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int shrunk = (pact->spr.scale.Y < 0.5);
 
@@ -1456,11 +1455,11 @@ static void processweapon(int snum, ESyncBits actions)
 	{
 		if (isWW2GI())
 		{
-			SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-			SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
-			OnEvent(EVENT_HOLSTER, snum, p->GetActor(), -1);
-			if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+			SetGameVarID(g_iWeaponVarID, p->curr_weapon, pact, p->pnum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), pact, p->pnum);
+			OnEvent(EVENT_HOLSTER, p->pnum, pact, -1);
+			if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 			{
 				// now it uses the game definitions...
 				if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
@@ -1660,8 +1659,8 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike(p->curr_weapon, p) == HANDREMOTE_WEAPON) processweapon(snum, actions);
-		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions);
+		if (isWW2GI() && aplWeaponWorksLike(p->curr_weapon, p) == HANDREMOTE_WEAPON) processweapon(p, actions);
+		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(p, actions);
 		return;
 	}
 
@@ -1972,7 +1971,7 @@ HORIZONLY:
 	}
 
 	// HACKS
-	processweapon(snum, actions);
+	processweapon(p, actions);
 }
 
 END_DUKE_NS
