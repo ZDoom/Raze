@@ -217,10 +217,9 @@ void animateshrunken(DDukePlayer* p, double xoffset, double yoffset, int8_t shad
 //
 //---------------------------------------------------------------------------
 
-void displayweapon_d(int snum, double interpfrac)
+void displayweapon_d(DDukePlayer* const p, double interpfrac)
 {
 	int pal, pal2;
-	DDukePlayer* p = getPlayer(snum);
 
 	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
 		return;

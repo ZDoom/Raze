@@ -83,7 +83,7 @@ struct Dispatcher
 	int (*doincrements)(DDukePlayer* p);
 	void (*checkweapons)(DDukePlayer* p);
 	void (*processinput)(int snum);
-	void (*displayweapon)(int snum, double interpfrac);
+	void (*displayweapon)(DDukePlayer* const p, double interpfrac);
 	void (*displaymasks)(DDukePlayer* const p, int pal, double interpfrac);
 
 	void (*animatesprites)(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac);
