@@ -1397,7 +1397,7 @@ void move(DDukeActor* actor, int pnum, double pdist)
 		dodge(actor);
 
 	if (!actor->isPlayer())
-		alterang(a, actor, pnum);
+		alterang(a, actor, p);
 
 	if (abs(actor->vel.X) < 6 / 16.) actor->vel.X = 0;
 
@@ -4002,13 +4002,12 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, DVector2& pos)
 //
 //---------------------------------------------------------------------------
 
-void alterang(int ang, DDukeActor* actor, int playernum)
+void alterang(int ang, DDukeActor* actor, DDukePlayer* const p)
 {
 	DAngle goalang, aang, angdif;
 	int j;
 	int ticselapsed;
 
-	const auto p = getPlayer(playernum);
 	const auto pact = p->GetActor();
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
