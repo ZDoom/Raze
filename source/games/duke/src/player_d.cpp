@@ -1728,7 +1728,7 @@ void processinput_d(int snum)
 		{
 			int surface = tilesurface(sect->floortexture);
 			int whichsound = surface == TSURF_ELECTRIC? 0 : surface == TSURF_SLIME? 1 : surface == TSURF_PLASMA? 2 : -1;
-			k = makepainsounds(snum, whichsound);
+			k = makepainsounds(p, whichsound);
 		}
 
 		if (k)

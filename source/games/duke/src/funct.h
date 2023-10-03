@@ -102,7 +102,7 @@ void dokneeattack(DDukePlayer* const p);
 int endoflevel(int snum);
 void playerisdead(int snum, int psectlotag, double fz, double cz);
 void footprints(int snum);
-int makepainsounds(int snum, int type);
+int makepainsounds(DDukePlayer* const p, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, double fz, double cz);
 
