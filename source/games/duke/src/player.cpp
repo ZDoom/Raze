@@ -59,17 +59,22 @@ void PlayerColorChanged(void)
 	if (ud.recstat != 0)
 		return;
 
-	auto pp = getPlayer(myconnectindex);
+	const auto p = getPlayer(myconnectindex);
+	const auto pact = p->GetActor();
+
 	if (ud.multimode > 1)
 	{
 		//Net_SendClientInfo();
 	}
 	else
 	{
-		pp->palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
+		p->palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
 	}
-	if (pp->GetActor()->isPlayer() && pp->GetActor()->spr.pal != 1)
-		pp->GetActor()->spr.pal = ud.user_pals[myconnectindex];
+
+	if (pact && pact->spr.pal != 1)
+	{
+		pact->spr.pal = ud.user_pals[myconnectindex];
+	}
 }
 
 //---------------------------------------------------------------------------
