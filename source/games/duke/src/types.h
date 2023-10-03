@@ -399,6 +399,11 @@ public:
 	{
 		Angles.doViewPitch(aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER);
 	}
+
+	inline bool itemUsed(int num)
+	{
+		return cmd.ucmd.isItemUsed(num - 1);
+	}
 };
 
 struct Cycler
