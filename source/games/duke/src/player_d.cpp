@@ -877,9 +877,8 @@ int operateTripbomb(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-static void fireweapon(int snum)
+static void fireweapon(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
@@ -1511,7 +1510,7 @@ static void processweapon(int snum, ESyncBits actions)
 	else if (shrunk == 0 && (actions & SB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
 		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
 	{
-		if (!isWW2GI()) fireweapon(snum);
+		if (!isWW2GI()) fireweapon(p);
 		else fireweapon_ww(snum);
 	}
 	else if (p->kickback_pic)
