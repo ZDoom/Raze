@@ -78,13 +78,13 @@ inline bool isablockdoor(FTextureID dapic)
 	return tileflags(dapic) & TFLAG_BLOCKDOOR;
 }
 
-
-
 inline int checkcursectnums(sectortype* se)
 {
-	int i;
-	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(getPlayer(i)->GetActor() && getPlayer(i)->GetActor()->sector() == se ) return i;
+	for (int i = connecthead; i >= 0; i = connectpoint2[i])
+	{
+		const auto pact = getPlayer(i)->GetActor();
+		if (pact && pact->sector() == se) return i;
+	}
 	return -1;
 }
 
