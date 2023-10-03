@@ -2449,7 +2449,7 @@ void processinput_r(int snum)
 
 	if (pact->spr.extra <= 0 && !ud.god)
 	{
-		playerisdead(snum, psectlotag, floorz, ceilingz);
+		playerisdead(p, psectlotag, floorz, ceilingz);
 		return;
 	}
 

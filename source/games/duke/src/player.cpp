@@ -526,13 +526,12 @@ void footprints(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
+void playerisdead(DDukePlayer* const p, int psectlotag, double floorz, double ceilingz)
 {
-	auto p = getPlayer(snum);
 	auto actor = p->GetActor();
 
 	// lock input when dead.
-	setForcedSyncInput(snum);
+	setForcedSyncInput(p->pnum);
 
 	if (p->dead_flag == 0)
 	{
@@ -560,13 +559,14 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 		if (ud.multimode > 1 && (actor->spr.pal != 1 || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)))
 		{
-			if (p->frag_ps != snum)
+			if (p->frag_ps != p->pnum)
 			{
-				getPlayer(p->frag_ps)->frag++;
-				getPlayer(p->frag_ps)->frags[snum]++;
+				const auto fragp = getPlayer(p->frag_ps);
+				fragp->frag++;
+				fragp->frags[p->pnum]++;
 
 				auto pname = PlayerName(p->frag_ps);
-				if (snum == screenpeek)
+				if (p->pnum == screenpeek)
 				{
 					Printf(PRINT_NOTIFY, "Killed by %s", pname);
 				}
@@ -578,7 +578,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 			}
 			else p->fraggedself++;
 
-			p->frag_ps = snum;
+			p->frag_ps = p->pnum;
 		}
 	}
 
