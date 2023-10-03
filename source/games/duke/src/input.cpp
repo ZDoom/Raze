@@ -246,7 +246,7 @@ void hud_input(DDukePlayer* const p)
 			p->wantweaponfire = weap - 1;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
-		fi.selectweapon(p->pnum, weap);
+		fi.selectweapon(p, weap);
 
 		if (!!(p->cmd.ucmd.actions & SB_HOLSTER))
 		{
