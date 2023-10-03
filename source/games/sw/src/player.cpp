@@ -1444,13 +1444,13 @@ void UpdatePlayerSpriteAngle(DSWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerVehicleInputScaling(DSWPlayer* const pp, FAngle FRotator::* angle, const float scale)
+void DoPlayerVehicleInputScaling(DSWPlayer* const pp, DAngle DRotator::* angle, const float scale)
 {
     SECTOR_OBJECT* sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        pp->cmd.ucmd.ang.*angle = FAngle::fromDeg(float((((pp->cmd.ucmd.ang.*angle).Degrees() * sop->drive_angspeed) + ((pp->lastcmd.ucmd.ang.*angle).Degrees() * (sop->drive_angslide - 1))) / sop->drive_angslide));
+        pp->cmd.ucmd.ang.*angle = ((pp->cmd.ucmd.ang.*angle * sop->drive_angspeed) + (pp->lastcmd.ucmd.ang.*angle * (sop->drive_angslide - 1))) / sop->drive_angslide;
     }
     else
     {
@@ -2231,7 +2231,7 @@ void DriveCrush(DSWPlayer* pp, DVector2* quad)
         return;
 
     // not moving - don't crush
-    if ((pp->vect.isZero()) == 0 && pp->cmd.ucmd.ang.Yaw == nullFAngle)
+    if ((pp->vect.isZero()) == 0 && pp->cmd.ucmd.ang.Yaw == nullAngle)
         return;
 
     // main sector
@@ -2455,8 +2455,8 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     double floordist = abs(zz - pp->sop->floor_loz);
     setForcedSyncInput(pp->pnum);
 
-    DoPlayerVehicleInputScaling(pp, &FRotator::Yaw, 0.125f);
-    DoPlayerVehicleInputScaling(pp, &FRotator::Pitch, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125f);
 
     if (RectClip)
     {
@@ -2466,9 +2466,9 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
         auto save_cstat = plActor->spr.cstat;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-        if (pp->cmd.ucmd.ang.Yaw != nullFAngle)
+        if (pp->cmd.ucmd.ang.Yaw != nullAngle)
         {
-            auto sum = plActor->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.ang.Yaw.Degrees());
+            auto sum = plActor->spr.Angles.Yaw + pp->cmd.ucmd.ang.Yaw;
             if (RectClipTurn(pp, sum, pos, opos))
             {
                 plActor->spr.Angles.Yaw = sum;
@@ -2518,9 +2518,9 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     }
     else
     {
-        if (pp->cmd.ucmd.ang.Yaw != nullFAngle)
+        if (pp->cmd.ucmd.ang.Yaw != nullAngle)
         {
-            auto sum = plActor->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.ang.Yaw.Degrees());
+            auto sum = plActor->spr.Angles.Yaw + pp->cmd.ucmd.ang.Yaw;
             if (MultiClipTurn(pp, sum, zz, floordist))
             {
                 plActor->spr.Angles.Yaw = sum;
@@ -2590,12 +2590,12 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
 
     setForcedSyncInput(pp->pnum);
 
-    DoPlayerVehicleInputScaling(pp, &FRotator::Yaw, 0.125f);
-    DoPlayerVehicleInputScaling(pp, &FRotator::Pitch, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125f);
 
-    if (fabs(pp->cmd.ucmd.ang.Yaw) >= FAngle::fromDeg(FLT_EPSILON))
+    if (pp->cmd.ucmd.ang.Yaw != nullAngle)
     {
-        DAngle new_ang = pact->spr.Angles.Yaw + DAngle::fromDeg(pp->cmd.ucmd.ang.Yaw.Degrees());
+        DAngle new_ang = pact->spr.Angles.Yaw + pp->cmd.ucmd.ang.Yaw;
 
         if (pp->sop->limit_ang_center >= nullAngle)
         {
@@ -5769,7 +5769,7 @@ void DoPlayerDeathFollowKiller(DSWPlayer* pp)
     // allow turning
     if (pp->Flags & (PF_DEAD_HEAD|PF_HEAD_CONTROL))
     {  
-        pp->GetActor()->spr.Angles.Yaw += DAngle::fromDeg(pp->cmd.ucmd.ang.Yaw.Degrees());
+        pp->GetActor()->spr.Angles.Yaw += pp->cmd.ucmd.ang.Yaw;
         UpdatePlayerSpriteAngle(pp);
     }
 
@@ -6550,7 +6550,7 @@ void ChopsCheck(DSWPlayer* pp)
 {
     if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if (pp->cmd.ucmd.actions & ~SB_RUN || !pp->cmd.ucmd.vel.XY().isZero() || pp->cmd.ucmd.ang.Yaw.Degrees() || pp->cmd.ucmd.ang.Pitch.Degrees() ||
+        if (pp->cmd.ucmd.actions & ~SB_RUN || !pp->cmd.ucmd.vel.XY().isZero() || !pp->cmd.ucmd.ang.isZero() ||
             (pp->Flags & (PF_CLIMBING | PF_FALLING | PF_DIVING)))
         {
             // Hit a input key or other reason to stop chops

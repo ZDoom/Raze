@@ -1901,10 +1901,10 @@ struct GameInterface : public ::GameInterface
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
     unsigned getCrouchState() override;
-    void doPlayerMovement(const float scaleAdjust) override
+    void doPlayerMovement(const double scaleAdjust) override
     {
         const auto pp = getPlayer(myconnectindex);
-        gameInput.processMovement(&pp->Angles, scaleAdjust, 0, !pp->sop, pp->sop_control ? (3.f / 1.40625f) : 1.f);
+        gameInput.processMovement(&pp->Angles, scaleAdjust, 0, !pp->sop, pp->sop_control ? (3. / 1.40625) : 1.);
     }
 };
 
