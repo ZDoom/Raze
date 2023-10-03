@@ -116,11 +116,6 @@ inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 	return (getPlayer(pl)->cmd.ucmd.actions & bits);
 }
 
-inline void PlayerSetInput(int pl, ESyncBits bit)
-{
-	getPlayer(pl)->cmd.ucmd.actions |= bit;
-}
-
 inline void PlayerSetItemUsed(int pl, int num)
 {
 	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
