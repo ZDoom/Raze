@@ -1864,8 +1864,8 @@ void DoPlayerMove(DSWPlayer* pp)
     pp->ovect = pp->vect;
     pp->Angles.PrevStrafeVel = pp->Angles.StrafeVel;
 
-    pp->vect.X += pp->cmd.ucmd.fvel * INPUT_SCALE;
-    pp->vect.Y += pp->cmd.ucmd.svel * INPUT_SCALE;
+    pp->vect.X += pp->cmd.ucmd.vel.X * INPUT_SCALE;
+    pp->vect.Y += pp->cmd.ucmd.vel.Y * INPUT_SCALE;
     pp->Angles.StrafeVel += pp->svel * INPUT_SCALE;
 
     friction = pp->friction;
@@ -2390,9 +2390,9 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
 
     if (!Prediction)
     {
-        if (abs(pp->cmd.ucmd.fvel + pp->cmd.ucmd.svel) && !abs(pp->lastcmd.ucmd.fvel + pp->lastcmd.ucmd.svel))
+        if (abs(pp->cmd.ucmd.vel.X + pp->cmd.ucmd.vel.Y) && !abs(pp->lastcmd.ucmd.vel.X + pp->lastcmd.ucmd.vel.Y))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!abs(pp->cmd.ucmd.fvel + pp->cmd.ucmd.svel) && abs(pp->lastcmd.ucmd.fvel + pp->lastcmd.ucmd.svel))
+        else if (!abs(pp->cmd.ucmd.vel.X + pp->cmd.ucmd.vel.Y) && abs(pp->lastcmd.ucmd.vel.X + pp->lastcmd.ucmd.vel.Y))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -2405,16 +2405,16 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
 
     if (sop->drive_speed)
     {
-        pp->vect.X = pp->cmd.ucmd.fvel * sop->drive_speed * (70. / 1048576.);
-        pp->vect.Y = pp->cmd.ucmd.svel * sop->drive_speed * (70. / 1048576.);
+        pp->vect.X = pp->cmd.ucmd.vel.X * sop->drive_speed * (70. / 1048576.);
+        pp->vect.Y = pp->cmd.ucmd.vel.Y * sop->drive_speed * (70. / 1048576.);
 
         // does sliding/momentum
         pp->vect = (pp->vect + (pp->ovect * (sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
-		pp->vect.X += pp->cmd.ucmd.fvel * INPUT_SCALE;
-		pp->vect.Y += pp->cmd.ucmd.svel * INPUT_SCALE;
+		pp->vect.X += pp->cmd.ucmd.vel.X * INPUT_SCALE;
+		pp->vect.Y += pp->cmd.ucmd.vel.Y * INPUT_SCALE;
 		pp->vect *= TANK_FRICTION;
 
         pp->vect = (pp->vect + (pp->ovect*1))/2;
@@ -3008,7 +3008,7 @@ void DoPlayerFall(DSWPlayer* pp)
                     return;
             }
 
-            if ((pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.uvel < 0)
+            if ((pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.vel.Z < 0)
             {
                 StackedWaterSplash(pp);
                 DoPlayerBeginCrawl(pp);
@@ -3079,8 +3079,8 @@ void DoPlayerClimb(DSWPlayer* pp)
     if (Prediction)
         return;
 
-	pp->vect.X += pp->cmd.ucmd.fvel * INPUT_SCALE;
-	pp->vect.Y += pp->cmd.ucmd.svel * INPUT_SCALE;
+	pp->vect.X += pp->cmd.ucmd.vel.X * INPUT_SCALE;
+	pp->vect.Y += pp->cmd.ucmd.vel.Y * INPUT_SCALE;
 	pp->vect *= PLAYER_CLIMB_FRICTION;
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
         pp->vect.X = pp->vect.Y = 0;
@@ -3382,7 +3382,7 @@ void DoPlayerCrawl(DSWPlayer* pp)
         return;
     }
 
-    if ((!(pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.uvel > 0) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
+    if ((!(pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.vel.Z > 0) && abs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
     {
         // Let off of crawl to get up
         pp->Flags &= ~PF_CRAWLING;
@@ -3485,7 +3485,7 @@ void DoPlayerFly(DSWPlayer* pp)
     }
 
     const auto kbdDir = !!(pp->cmd.ucmd.actions & SB_CROUCH) - !!(pp->cmd.ucmd.actions & SB_JUMP);
-    const double velZ = clamp(PLAYER_FLY_INC * kbdDir - PLAYER_FLY_INC * pp->cmd.ucmd.uvel, -PLAYER_FLY_INC, PLAYER_FLY_INC);
+    const double velZ = clamp(PLAYER_FLY_INC * kbdDir - PLAYER_FLY_INC * pp->cmd.ucmd.vel.Z, -PLAYER_FLY_INC, PLAYER_FLY_INC);
     pp->z_speed = clamp(pp->z_speed + velZ, -PLAYER_FLY_MAX_SPEED, PLAYER_FLY_MAX_SPEED) * FixedToFloat(58000);
     pp->GetActor()->spr.pos.Z += pp->z_speed;
 
@@ -3684,7 +3684,7 @@ int PlayerCanDive(DSWPlayer* pp)
     if (Prediction)
         return false;
 
-    const double velZ = clamp(20. * !!(pp->cmd.ucmd.actions & SB_CROUCH) - 20. * pp->cmd.ucmd.uvel, -20., 20.);
+    const double velZ = clamp(20. * !!(pp->cmd.ucmd.actions & SB_CROUCH) - 20. * pp->cmd.ucmd.vel.Z, -20., 20.);
 
     // Crawl - check for diving
     if (velZ > 0 || pp->jump_speed > 0)
@@ -4363,7 +4363,7 @@ void DoPlayerDive(DSWPlayer* pp)
     }
 
     const auto kbdDir = !!(pp->cmd.ucmd.actions & SB_CROUCH) - !!(pp->cmd.ucmd.actions & SB_JUMP);
-    const double velZ = clamp(PLAYER_DIVE_INC * kbdDir - PLAYER_DIVE_INC * pp->cmd.ucmd.uvel, -PLAYER_DIVE_INC, PLAYER_DIVE_INC);
+    const double velZ = clamp(PLAYER_DIVE_INC * kbdDir - PLAYER_DIVE_INC * pp->cmd.ucmd.vel.Z, -PLAYER_DIVE_INC, PLAYER_DIVE_INC);
     pp->z_speed = clamp(pp->z_speed + velZ, -PLAYER_DIVE_MAX_SPEED, PLAYER_DIVE_MAX_SPEED) * FixedToFloat(58000);
 
     if (abs(pp->z_speed) < 1./16)
@@ -4677,7 +4677,7 @@ void DoPlayerWade(DSWPlayer* pp)
     }
 
     // Crawl Commanded
-    if (((pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.uvel < 0) && pp->WadeDepth <= PLAYER_CRAWL_WADE_DEPTH)
+    if (((pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.vel.Z < 0) && pp->WadeDepth <= PLAYER_CRAWL_WADE_DEPTH)
     {
         DoPlayerBeginCrawl(pp);
         return;
@@ -4957,7 +4957,7 @@ void DoPlayerBeginOperate(DSWPlayer* pp)
     switch (sop->track)
     {
     case SO_VEHICLE:
-        if (pp->cmd.ucmd.fvel || pp->cmd.ucmd.svel)
+        if (pp->cmd.ucmd.vel.X || pp->cmd.ucmd.vel.Y)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5050,7 +5050,7 @@ void DoPlayerBeginRemoteOperate(DSWPlayer* pp, SECTOR_OBJECT* sop)
     switch (sop->track)
     {
     case SO_VEHICLE:
-        if (pp->cmd.ucmd.fvel || pp->cmd.ucmd.svel)
+        if (pp->cmd.ucmd.vel.X || pp->cmd.ucmd.vel.Y)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -6283,7 +6283,7 @@ void DoPlayerRun(DSWPlayer* pp)
     }
 
     // Crawl Commanded
-    if ((pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.uvel < 0)
+    if ((pp->cmd.ucmd.actions & SB_CROUCH) || pp->cmd.ucmd.vel.Z < 0)
     {
         DoPlayerBeginCrawl(pp);
         return;
@@ -6551,7 +6551,7 @@ void ChopsCheck(DSWPlayer* pp)
 {
     if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if (pp->cmd.ucmd.actions & ~SB_RUN || pp->cmd.ucmd.fvel || pp->cmd.ucmd.svel || pp->cmd.ucmd.avel || pp->cmd.ucmd.horz ||
+        if (pp->cmd.ucmd.actions & ~SB_RUN || pp->cmd.ucmd.vel.X || pp->cmd.ucmd.vel.Y || pp->cmd.ucmd.avel || pp->cmd.ucmd.horz ||
             (pp->Flags & (PF_CLIMBING | PF_FALLING | PF_DIVING)))
         {
             // Hit a input key or other reason to stop chops
@@ -6782,14 +6782,14 @@ void domovethings(void)
         ChopsCheck(pp);
 
         // Get strafe value before it's rotated by the angle.
-        pp->svel = pp->cmd.ucmd.svel;
+        pp->svel = pp->cmd.ucmd.vel.Y;
 
         // convert fvel/svel into a vector before performing actions.
-        const auto fvel = pp->cmd.ucmd.fvel + pp->cmd.ucmd.uvel * (pp->DoPlayerAction == DoPlayerClimb);
-        const auto svel = pp->cmd.ucmd.svel;
+        const auto fvel = pp->cmd.ucmd.vel.X + pp->cmd.ucmd.vel.Z * (pp->DoPlayerAction == DoPlayerClimb);
+        const auto svel = pp->cmd.ucmd.vel.Y;
         const auto velvect = DVector2(fvel, svel).Rotated(pp->GetActor()->spr.Angles.Yaw);
-        pp->cmd.ucmd.fvel = (float)velvect.X;
-        pp->cmd.ucmd.svel = (float)velvect.Y;
+        pp->cmd.ucmd.vel.X = (float)velvect.X;
+        pp->cmd.ucmd.vel.Y = (float)velvect.Y;
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 

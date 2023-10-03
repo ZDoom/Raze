@@ -139,12 +139,12 @@ inline bool PlayerUseItem(int pl, int num)
 
 inline float PlayerInputSideVel(int pl)
 {
-	return getPlayer(pl)->cmd.ucmd.svel;
+	return getPlayer(pl)->cmd.ucmd.vel.Y;
 }
 
 inline float PlayerInputForwardVel(int pl)
 {
-	return getPlayer(pl)->cmd.ucmd.fvel;
+	return getPlayer(pl)->cmd.ucmd.vel.X;
 }
 
 inline void clearfriction()
@@ -264,9 +264,9 @@ inline int monsterCheatCheck(DDukeActor* self)
 inline void processinputvel(int snum)
 {
 	const auto p = getPlayer(snum);
-	const auto velvect = DVector2(p->cmd.ucmd.fvel, p->cmd.ucmd.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
-	p->cmd.ucmd.fvel = (float)velvect.X;
-	p->cmd.ucmd.svel = (float)velvect.Y;
+	const auto velvect = DVector2(p->cmd.ucmd.vel.X, p->cmd.ucmd.vel.Y).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
+	p->cmd.ucmd.vel.X = (float)velvect.X;
+	p->cmd.ucmd.vel.Y = (float)velvect.Y;
 }
 
 

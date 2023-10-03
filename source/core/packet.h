@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "m_fixed.h"
 #include "tflags.h"
+#include "vectors.h"
 
 enum ESyncBits_ : uint32_t
 {
@@ -69,9 +70,7 @@ enum
 
 struct InputPacket
 {
-    float svel;
-    float fvel;
-    float uvel;
+    FVector3 vel;
     float avel;
     float horz;
     float roll;

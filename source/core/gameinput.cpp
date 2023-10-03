@@ -137,9 +137,9 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	}
 	else
 	{
-		thisInput.svel += mouseInput.X * MOUSE_SCALE * m_side;
-		thisInput.svel -= joyAxes[JOYAXIS_Yaw] * keymove * scaleAdjust;
-		thisInput.svel += turning * keymove * scaleAdjust;
+		thisInput.vel.Y += mouseInput.X * MOUSE_SCALE * m_side;
+		thisInput.vel.Y -= joyAxes[JOYAXIS_Yaw] * keymove * scaleAdjust;
+		thisInput.vel.Y += turning * keymove * scaleAdjust;
 	}
 
 	// process player pitch input.
@@ -151,25 +151,25 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	}
 	else
 	{
-		thisInput.fvel += mouseInput.Y * MOUSE_SCALE * m_forward;
-		thisInput.fvel += joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
+		thisInput.vel.X += mouseInput.Y * MOUSE_SCALE * m_forward;
+		thisInput.vel.X += joyAxes[JOYAXIS_Pitch] * keymove * scaleAdjust;
 	}
 
 	// process movement input.
-	thisInput.fvel += moving * keymove;
-	thisInput.svel += strafing * keymove * allowstrafe;
-	thisInput.uvel += soaring; // this isn't scaled by running.
+	thisInput.vel.X += moving * keymove;
+	thisInput.vel.Y += strafing * keymove * allowstrafe;
+	thisInput.vel.Z += soaring; // this isn't scaled by running.
 
 	// process RR's drunk state.
 	if (isRR() && drink_amt >= 66 && drink_amt <= 87)
 	{
-		thisInput.svel += drink_amt & 1 ? -thisInput.fvel : thisInput.fvel;
+		thisInput.vel.Y += drink_amt & 1 ? -thisInput.vel.X : thisInput.vel.X;
 	}
 
 	// add collected input to game's local input accumulation packet.
-	inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -(float)keymove, (float)keymove);
-	inputBuffer.svel = clamp(inputBuffer.svel + thisInput.svel, -(float)keymove, (float)keymove);
-	inputBuffer.uvel = clamp(inputBuffer.uvel + thisInput.uvel, -1.00f, 1.00f);
+	inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -(float)keymove, (float)keymove);
+	inputBuffer.vel.Y = clamp(inputBuffer.vel.Y + thisInput.vel.Y, -(float)keymove, (float)keymove);
+	inputBuffer.vel.Z = clamp(inputBuffer.vel.Z + thisInput.vel.Z, -1.00f, 1.00f);
 	inputBuffer.avel = clamp(inputBuffer.avel + thisInput.avel, -179.f, 179.f);
 	inputBuffer.horz = clamp(inputBuffer.horz + thisInput.horz, -179.f, 179.f);
 
@@ -202,8 +202,8 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const float scaleA
 	{
 		const auto kbdForwards = buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe);
 		const auto kbdBackward = buttonMap.ButtonDown(gamefunc_Move_Backward);
-		thisInput.fvel = kbdForwards - kbdBackward + joyAxes[JOYAXIS_Forward];
-		inputBuffer.fvel = clamp(inputBuffer.fvel + thisInput.fvel, -1.f, 1.f);
+		thisInput.vel.X = kbdForwards - kbdBackward + joyAxes[JOYAXIS_Forward];
+		inputBuffer.vel.X = clamp(inputBuffer.vel.X + thisInput.vel.X, -1.f, 1.f);
 
 		// This sync bit is the brake key.
 		if (buttonMap.ButtonDown(gamefunc_Run)) inputBuffer.actions |= SB_CROUCH;
@@ -554,7 +554,7 @@ void PlayerAngles::doRollInput(InputPacket* const input, const DVector2& nVelVec
 		// Scale/attenuate tilting based on player actions.
 		const auto rollAmp = cl_viewtiltscale / (bUnderwater + 1);
 		const auto runScale = 1. / (!(input->actions & SB_RUN) + 1);
-		const auto strafeScale = !!input->svel + 1;
+		const auto strafeScale = !!input->vel.Y + 1;
 
 		if (cl_viewtilting == 1)
 		{

@@ -858,8 +858,8 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->vel.Zero();
 	pInput->avel = 0;
 	pInput->actions = 0;
-	pInput->fvel = 0;
-	pInput->svel = 0;
+	pInput->vel.X = 0;
+	pInput->vel.Y = 0;
 	pInput->horz = 0;
 	pPlayer->flickerEffect = 0;
 	pPlayer->quakeEffect = 0;
@@ -1525,7 +1525,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	// Allow it to become true behind a CVAR to offer an alternate playing experience if desired.
 	pPlayer->isRunning = !!(pInput->actions & SB_RUN) && !cl_bloodvanillarun;
 
-	if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->avel)
+	if ((pInput->actions & SB_BUTTON_MASK) || pInput->vel.X || pInput->vel.Y || pInput->avel)
 		pPlayer->restTime = 0;
 	else if (pPlayer->restTime >= 0)
 		pPlayer->restTime += 4;
@@ -1572,13 +1572,13 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		return;
 	}
 
-	if ((pInput->fvel || pInput->svel) && (pPlayer->posture == 1 || actor->xspr.height < 256))
+	if ((pInput->vel.X || pInput->vel.Y) && (pPlayer->posture == 1 || actor->xspr.height < 256))
 	{
 		const double speed = pPlayer->posture == 1? 1. : 1. - (actor->xspr.height * (1. / 256.) * (actor->xspr.height < 256));
-		const double fvAccel = pInput->fvel > 0 ? pPosture->frontAccel : pPosture->backAccel;
+		const double fvAccel = pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		const double svAccel = pPosture->sideAccel;
-		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
-		pPlayer->Angles.StrafeVel += pInput->svel * svAccel * speed;
+		actor->vel.XY() += DVector2(pInput->vel.X * fvAccel, pInput->vel.Y * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
+		pPlayer->Angles.StrafeVel += pInput->vel.Y * svAccel * speed;
 	}
 
 	pPlayer->Angles.doViewYaw(pInput);
@@ -1592,7 +1592,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	{
 		const auto kbdDir = !!(pInput->actions & SB_JUMP) - !!(pInput->actions & SB_CROUCH);
 		const double dist = pPosture->normalJumpZ;
-		actor->vel.Z -= clamp(dist * kbdDir + dist * pInput->uvel, -dist, dist);
+		actor->vel.Z -= clamp(dist * kbdDir + dist * pInput->vel.Z, -dist, dist);
 		break;
 	}
 	case kPostureCrouch:

@@ -581,7 +581,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	const auto pact = p->GetActor();
 	const auto kbdDir = !!(actions & SB_JUMP) - !!(actions & SB_CROUCH);
 	const double dist = shrunk ? 2 : 8;
-	const double velZ = clamp(dist * kbdDir + dist * p->cmd.ucmd.uvel, -dist, dist);
+	const double velZ = clamp(dist * kbdDir + dist * p->cmd.ucmd.vel.Z, -dist, dist);
 
 	p->on_ground = 0;
 	p->jumping_counter = 0;
@@ -766,7 +766,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_warping_sector = 0;
 
-		if ((actions & SB_CROUCH) || p->cmd.ucmd.uvel < 0)
+		if ((actions & SB_CROUCH) || p->cmd.ucmd.vel.Z < 0)
 		{
 			playerCrouch(snum);
 		}

@@ -1042,9 +1042,9 @@ void NetUpdate (void)
 				for (tic = 0; tic < ticdup; ++tic)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
-					svel += localcmds[modp].ucmd.svel;
-					fvel += localcmds[modp].ucmd.fvel;
-					uvel += localcmds[modp].ucmd.uvel;
+					fvel += localcmds[modp].ucmd.vel.X;
+					svel += localcmds[modp].ucmd.vel.Y;
+					uvel += localcmds[modp].ucmd.vel.Z;
 					avel += localcmds[modp].ucmd.avel;
 					horz += localcmds[modp].ucmd.horz;
 					roll += localcmds[modp].ucmd.roll;
@@ -1060,9 +1060,9 @@ void NetUpdate (void)
 				for (tic = 0; tic < ticdup; ++tic)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
-					localcmds[modp].ucmd.svel = svel;
-					localcmds[modp].ucmd.fvel = fvel;
-					localcmds[modp].ucmd.uvel = uvel;
+					localcmds[modp].ucmd.vel.X = fvel;
+					localcmds[modp].ucmd.vel.Y = svel;
+					localcmds[modp].ucmd.vel.Z = uvel;
 					localcmds[modp].ucmd.avel = avel;
 					localcmds[modp].ucmd.horz = horz;
 					localcmds[modp].ucmd.roll = roll;

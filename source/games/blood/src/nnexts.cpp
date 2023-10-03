@@ -4354,10 +4354,10 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 		return true;
 	case 10: // check keys pressed
 		switch (arg1) {
-		case 1:  return (pPlayer->cmd.ucmd.fvel > 0);            // forward
-		case 2:  return (pPlayer->cmd.ucmd.fvel < 0);            // backward
-		case 3:  return (pPlayer->cmd.ucmd.svel < 0);             // left
-		case 4:  return (pPlayer->cmd.ucmd.svel > 0);             // right
+		case 1:  return (pPlayer->cmd.ucmd.vel.X > 0);            // forward
+		case 2:  return (pPlayer->cmd.ucmd.vel.X < 0);            // backward
+		case 3:  return (pPlayer->cmd.ucmd.vel.Y < 0);             // left
+		case 4:  return (pPlayer->cmd.ucmd.vel.Y > 0);             // right
 		case 5:  return !!(pPlayer->cmd.ucmd.actions & SB_JUMP);       // jump
 		case 6:  return !!(pPlayer->cmd.ucmd.actions & SB_CROUCH);     // crouch
 		case 7:  return !!(pPlayer->cmd.ucmd.actions & SB_FIRE);      // normal fire weapon
