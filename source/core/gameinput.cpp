@@ -105,7 +105,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	// set up variables.
 	InputPacket thisInput{};
 	const auto keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
-	const auto hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
+	const auto hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]));
 
 	// get all input amounts.
 	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) -
@@ -131,14 +131,15 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 		const float turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * tttscale);
 		thisInput.avel += mouseInput.X * MOUSE_SCALE * m_yaw;
 		thisInput.avel -= joyAxes[JOYAXIS_Yaw] * hidspeed * scaleAdjust;
-		thisInput.avel += turndir * turnscale * turnspeed * scaleAdjust;
+		thisInput.avel += turndir * turnspeed * scaleAdjust;
+		thisInput.avel *= turnscale;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
 	}
 	else
 	{
 		thisInput.svel += mouseInput.X * MOUSE_SCALE * m_side;
 		thisInput.svel -= joyAxes[JOYAXIS_Yaw] * keymove * scaleAdjust;
-		thisInput.svel += turning * turnscale * keymove * scaleAdjust;
+		thisInput.svel += turning * keymove * scaleAdjust;
 	}
 
 	// process player pitch input.
@@ -146,6 +147,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const float scale
 	{
 		thisInput.horz -= mouseInput.Y * MOUSE_SCALE * m_pitch;
 		thisInput.horz -= joyAxes[JOYAXIS_Pitch] * hidspeed * scaleAdjust;
+		thisInput.horz *= turnscale;
 	}
 	else
 	{
