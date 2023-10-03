@@ -284,7 +284,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SB_HOLSTER);
+				p->cmd.ucmd.actions |= SB_HOLSTER;
 				p->oweapon_pos = p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
