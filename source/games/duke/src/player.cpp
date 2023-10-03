@@ -927,7 +927,7 @@ void playerAimDown(DDukePlayer* const p, ESyncBits actions)
 
 void shoot(DDukeActor* actor, PClass* cls)
 {
-	int p;
+	int pnum;
 	DVector3 spos;
 	DAngle sang;
 
@@ -936,14 +936,14 @@ void shoot(DDukeActor* actor, PClass* cls)
 	sang = actor->spr.Angles.Yaw;
 	if (actor->isPlayer())
 	{
-		p = actor->PlayerIndex();
-		spos = actor->getPosWithOffsetZ().plusZ(getPlayer(p)->pyoff + 4);
-
-		getPlayer(p)->crack_time = CRACK_TIME;
+		pnum = actor->PlayerIndex();
+		const auto p = getPlayer(pnum);
+		spos = actor->getPosWithOffsetZ().plusZ(p->pyoff + 4);
+		p->crack_time = CRACK_TIME;
 	}
 	else
 	{
-		p = -1;
+		pnum = -1;
 		auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
 		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tex->GetDisplayHeight() * 0.5) + 4);
 
@@ -958,7 +958,7 @@ void shoot(DDukeActor* actor, PClass* cls)
 	if (cls == nullptr)
 		return;
 
-	CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang);
+	CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, pnum, spos, sang);
 }
 
 //---------------------------------------------------------------------------
