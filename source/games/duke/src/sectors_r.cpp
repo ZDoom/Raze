@@ -411,9 +411,10 @@ void checksectors_r(int snum)
 //
 //---------------------------------------------------------------------------
 
-void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
+void dofurniture(DDukePlayer* const p, walltype* wlwal)
 {
 	assert(wlwal->twoSided());
+	auto sectp = p->cursector;
 	auto nextsect = wlwal->nextSector();
 
 	double movestep = min(sectp->hitag * maptoworld, 1.);
@@ -464,8 +465,10 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 
 	if (pos_ok)
 	{
-		if (S_CheckActorSoundPlaying(getPlayer(snum)->GetActor(), 389) == 0)
-			S_PlayActorSound(389, getPlayer(snum)->GetActor());
+		const auto pact = p->GetActor();
+
+		if (S_CheckActorSoundPlaying(pact, 389) == 0)
+			S_PlayActorSound(389, pact);
 		for(auto& wal : nextsect->walls)
 		{
 			auto vec = wal.pos;

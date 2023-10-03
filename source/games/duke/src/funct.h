@@ -166,7 +166,7 @@ bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
 int setanimation(sectortype* animsect, int animtype, walltype* animtarget, double thegoal, double thevel);
 int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, double thegoal, double thevel);
-void dofurniture(walltype* wallNum, sectortype* sectnum, int playerNum);
+void dofurniture(DDukePlayer* const p, walltype* wallNum);
 void dotorch();
 double hitawall(DDukePlayer* pl, walltype** hitWall);
 double hits(DDukeActor* snum);
