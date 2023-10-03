@@ -1631,7 +1631,7 @@ void processinput_d(int snum)
 
 	if (p->timebeforeexit > 1 && p->last_extra > 0)
 	{
-		if (timedexit(snum))
+		if (timedexit(p))
 			return;
 	}
 

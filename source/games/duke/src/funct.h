@@ -97,7 +97,7 @@ int madenoise(DDukePlayer* const p);
 int wakeup(DDukeActor* sn, DDukePlayer* const p);
 
 
-int timedexit(int snum);
+int timedexit(DDukePlayer* const p);
 void dokneeattack(DDukePlayer* const p);
 int endoflevel(DDukePlayer* const p);
 void playerisdead(DDukePlayer* const p, int psectlotag, double fz, double cz);
