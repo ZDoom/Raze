@@ -121,12 +121,6 @@ inline void PlayerSetInput(int pl, ESyncBits bit)
 	getPlayer(pl)->cmd.ucmd.actions |= bit;
 }
 
-
-inline int PlayerNewWeapon(int pl)
-{
-	return getPlayer(pl)->cmd.ucmd.getNewWeapon();
-}
-
 inline void PlayerSetItemUsed(int pl, int num)
 {
 	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
