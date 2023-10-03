@@ -105,12 +105,6 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 	return false;
 }
 
-// these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
-inline void PlayerSetItemUsed(int pl, int num)
-{
-	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
-}
-
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])

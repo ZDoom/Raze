@@ -123,9 +123,9 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0 && p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS)
 			{
-				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(plnum, p->inven_icon);
+				p->useItem(p->inven_icon);
 			}
 		}
 
