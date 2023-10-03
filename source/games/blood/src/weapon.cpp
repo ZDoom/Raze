@@ -1206,7 +1206,7 @@ void ThrowCan(int, DBloodPlayer* pPlayer)
 		spawned->spr.shade = -128;
 		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->GetActor());
 		spawned->xspr.Impact = 1;
-		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
+		UseAmmo(pPlayer, 6, 480/*gAmmoItemData[0].count*/);
 		pPlayer->throwPower = 0;
 	}
 }
@@ -1224,7 +1224,7 @@ void DropCan(int, DBloodPlayer* pPlayer)
 	if (spawned)
 	{
 		evPostActor(spawned, pPlayer->fuseTime, kCmdOn, pPlayer->GetActor());
-		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
+		UseAmmo(pPlayer, 6, 480/*gAmmoItemData[0].count*/);
 	}
 }
 
@@ -1241,7 +1241,7 @@ void ExplodeCan(int, DBloodPlayer* pPlayer)
 	if (spawned)
 	{
 		evPostActor(spawned, 0, kCmdOn, pPlayer->GetActor());
-		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
+		UseAmmo(pPlayer, 6, 480/*gAmmoItemData[0].count*/);
 		StartQAV(pPlayer, kQAVCANBOOM);
 		pPlayer->curWeapon = kWeapNone;
 		pPlayer->throwPower = 0;
@@ -1822,7 +1822,7 @@ void DropVoodoo(int, DBloodPlayer* pPlayer)
 	{
 		spawned->xspr.data1 = pPlayer->ammoCount[9];
 		evPostActor(spawned, 90, kCallbackDropVoodoo);
-		UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
+		UseAmmo(pPlayer, 6, 480/*gAmmoItemData[0].count*/);
 		UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
 		pPlayer->hasWeapon[kWeapVoodooDoll] = 0;
 	}
