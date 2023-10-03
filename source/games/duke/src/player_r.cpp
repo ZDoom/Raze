@@ -2524,7 +2524,7 @@ void processinput_r(int snum)
 	}
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, floorz, ceilingz);
+		underwater(p, actions, floorz, ceilingz);
 	}
 	else
 	{
