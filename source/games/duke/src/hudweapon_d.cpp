@@ -139,16 +139,16 @@ static bool animateknuckles(int gs, DDukePlayer* p, double xoffset, double yoffs
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_d(int snum, int p, double interpfrac)
+void displaymasks_d(DDukePlayer* const p, int pal, double interpfrac)
 {
-	if (getPlayer(snum)->scuba_on)
+	if (p->scuba_on)
 	{
 		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK", ETextureType::Any);
 		auto tex0 = TexMan.GetGameTexture(scuba0);
 
 		double y = 200 - tex0->GetDisplayHeight();
-		hud_drawsprite(44, y, 1., 0, scuba0, 0, p, 2 + 16);
-		hud_drawsprite((320 - 43), y, 1, 0, scuba0, 0, p, 2 + 4 + 16);
+		hud_drawsprite(44, y, 1., 0, scuba0, 0, pal, 2 + 16);
+		hud_drawsprite((320 - 43), y, 1, 0, scuba0, 0, pal, 2 + 4 + 16);
 	}
 }
 
