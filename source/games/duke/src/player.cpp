@@ -244,7 +244,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 			}
 			else
 			{
-				weap = aplWeaponWorksLike(plr->curr_weapon, actor->PlayerIndex());
+				weap = aplWeaponWorksLike(plr->curr_weapon, plr);
 			}
 			// The chickens in RRRA are homing and must always autoaim.
 			if (!isRRRA() || plr->curr_weapon != CHICKEN_WEAPON)
@@ -265,15 +265,20 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 		gotshrinker = false;
 		gotfreezer = false;
 	}
-	else if (isWW2GI())
+	else if (actor->isPlayer())
 	{
-		gotshrinker = actor->isPlayer() && aplWeaponWorksLike(getPlayer(actor->PlayerIndex())->curr_weapon, actor->PlayerIndex()) == SHRINKER_WEAPON;
-		gotfreezer = actor->isPlayer() && aplWeaponWorksLike(getPlayer(actor->PlayerIndex())->curr_weapon, actor->PlayerIndex()) == FREEZE_WEAPON;
-	}
-	else
-	{
-		gotshrinker = actor->isPlayer() && getPlayer(actor->PlayerIndex())->curr_weapon == SHRINKER_WEAPON;
-		gotfreezer = actor->isPlayer() && getPlayer(actor->PlayerIndex())->curr_weapon == FREEZE_WEAPON;
+		const auto plr = getPlayer(actor->PlayerIndex());
+
+		if (isWW2GI())
+		{
+			gotshrinker = aplWeaponWorksLike(plr->curr_weapon, plr) == SHRINKER_WEAPON;
+			gotfreezer = aplWeaponWorksLike(plr->curr_weapon, plr) == FREEZE_WEAPON;
+		}
+		else
+		{
+			gotshrinker = plr->curr_weapon == SHRINKER_WEAPON;
+			gotfreezer = plr->curr_weapon == FREEZE_WEAPON;
+		}
 	}
 
 	double smax = 0x7fffffff;
@@ -971,13 +976,13 @@ bool movementBlocked(DDukePlayer *p)
 	auto blockingweapon = [=]()
 	{
 		if (isRR()) return false;
-		if (isWW2GI()) return aplWeaponWorksLike(p->curr_weapon, p->GetPlayerNum()) == TRIPBOMB_WEAPON;
+		if (isWW2GI()) return aplWeaponWorksLike(p->curr_weapon, p) == TRIPBOMB_WEAPON;
 		else return p->curr_weapon == TRIPBOMB_WEAPON;
 	};
 
 	auto weapondelay = [=]()
 	{
-		if (isWW2GI()) return aplWeaponFireDelay(p->curr_weapon, p->GetPlayerNum());
+		if (isWW2GI()) return aplWeaponFireDelay(p->curr_weapon, p);
 		else return 4;
 	};
 

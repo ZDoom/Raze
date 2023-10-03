@@ -797,13 +797,13 @@ void donewgame(MapRecord* map, int sk)
 		{
 			for (int i = 0; i < 12/*MAX_WEAPONS*/; i++) // aboive 12 have no data defined and would crash.
 			{
-				if (aplWeaponWorksLike(i, 0) == PISTOL_WEAPON)
+				if (aplWeaponWorksLike(i, p) == PISTOL_WEAPON)
 				{
 					p->curr_weapon = i;
 					p->gotweapon[i] = true;
 					p->ammo_amount[i] = 48;
 				}
-				else if (aplWeaponWorksLike(i, 0) == KNEE_WEAPON || aplWeaponWorksLike(i, 0) == HANDREMOTE_WEAPON)
+				else if (aplWeaponWorksLike(i, p) == KNEE_WEAPON || aplWeaponWorksLike(i, p) == HANDREMOTE_WEAPON)
 				{
 					p->gotweapon[i] = true;
 				}

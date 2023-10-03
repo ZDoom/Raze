@@ -547,7 +547,7 @@ void checkweapons_d(DDukePlayer* p)
 	if (isWW2GI())
 	{
 		int snum = p->GetActor()->PlayerIndex();
-		cw = aplWeaponWorksLike(p->curr_weapon, snum);
+		cw = aplWeaponWorksLike(p->curr_weapon, p);
 	}
 	else 
 		cw = p->curr_weapon;
@@ -1463,20 +1463,20 @@ static void processweapon(int snum, ESyncBits actions)
 		{
 			SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 			SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
 			OnEvent(EVENT_HOLSTER, snum, p->GetActor(), -1);
 			if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 			{
 				// now it uses the game definitions...
-				if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
+				if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
 				{
-					if (p->ammo_amount[p->curr_weapon] > aplWeaponClip(p->curr_weapon, snum)
-						&& (p->ammo_amount[p->curr_weapon] % aplWeaponClip(p->curr_weapon, snum)) != 0)
+					if (p->ammo_amount[p->curr_weapon] > aplWeaponClip(p->curr_weapon, p)
+						&& (p->ammo_amount[p->curr_weapon] % aplWeaponClip(p->curr_weapon, p)) != 0)
 					{
 						// throw away the remaining clip
 						p->ammo_amount[p->curr_weapon] -=
-							p->ammo_amount[p->curr_weapon] % aplWeaponClip(p->curr_weapon, snum);
-						p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, snum) + 1;	// animate, but don't shoot...
+							p->ammo_amount[p->curr_weapon] % aplWeaponClip(p->curr_weapon, p);
+						p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, p) + 1;	// animate, but don't shoot...
 						actions &= ~SB_FIRE; // not firing...
 					}
 					return;
@@ -1497,7 +1497,7 @@ static void processweapon(int snum, ESyncBits actions)
 	}
 
 
-	if (isWW2GI() && (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_GLOWS))
+	if (isWW2GI() && (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_GLOWS))
 		p->random_club_frame += 64; // Glowing
 
 	if (!isWW2GI() && (p->curr_weapon == SHRINKER_WEAPON || p->curr_weapon == GROW_WEAPON))
@@ -1665,7 +1665,7 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike(p->curr_weapon, snum) == HANDREMOTE_WEAPON) processweapon(snum, actions);
+		if (isWW2GI() && aplWeaponWorksLike(p->curr_weapon, p) == HANDREMOTE_WEAPON) processweapon(snum, actions);
 		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions);
 		return;
 	}
@@ -1787,7 +1787,7 @@ void processinput_d(int snum)
 		bool check;
 
 		if (!isWW2GI()) check = ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
-		else check = ((aplWeaponWorksLike(p->curr_weapon, snum) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
+		else check = ((aplWeaponWorksLike(p->curr_weapon, p) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
 			p->vel.XY() *= gs.playerfriction - 0.125;
