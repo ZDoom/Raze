@@ -1447,14 +1447,16 @@ void UpdatePlayerSpriteAngle(DSWPlayer* pp)
 void DoPlayerVehicleInputScaling(DSWPlayer* const pp, DAngle DRotator::* angle, const float scale)
 {
     SECTOR_OBJECT* sop = pp->sop;
+    DAngle& lastYaw = pp->lastcmd.ucmd.ang.*angle;
+    DAngle& currYaw = pp->cmd.ucmd.ang.*angle;
 
     if (sop->drive_angspeed)
     {
-        pp->cmd.ucmd.ang.*angle = ((pp->cmd.ucmd.ang.*angle * sop->drive_angspeed) + (pp->lastcmd.ucmd.ang.*angle * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        currYaw = ((currYaw * sop->drive_angspeed) + (lastYaw * (sop->drive_angslide - 1))) / sop->drive_angslide;
     }
     else
     {
-        pp->cmd.ucmd.ang.*angle *= synctics * scale;
+        currYaw *= synctics * scale;
     }
 }
 
