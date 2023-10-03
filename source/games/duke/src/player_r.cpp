@@ -85,10 +85,9 @@ void incur_damage_r(DDukePlayer* p)
 //
 //---------------------------------------------------------------------------
 
-void selectweapon_r(int snum, int weap)
+void selectweapon_r(DDukePlayer* const p, int weap)
 {
 	int i, j, k;
-	auto p = getPlayer(snum);
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.125  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))

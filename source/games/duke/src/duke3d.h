@@ -79,7 +79,7 @@ struct Dispatcher
 
 	// player
 	void (*incur_damage)(DDukePlayer* p);
-	void (*selectweapon)(int snum, int j);
+	void (*selectweapon)(DDukePlayer* const p, int j);
 	int (*doincrements)(DDukePlayer* p);
 	void (*checkweapons)(DDukePlayer* p);
 	void (*processinput)(int snum);
