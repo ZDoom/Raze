@@ -50,9 +50,9 @@ inline static void hud_drawpal(double x, double y, const char* tilenum, int shad
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_r(int snum, int p, double interpfrac)
+void displaymasks_r(DDukePlayer* const p, int pal, double interpfrac)
 {
-	if (getPlayer(snum)->scuba_on)
+	if (p->scuba_on)
 	{
 		auto scuba0 = TexMan.CheckForTexture("SCUBAMASK0", ETextureType::Any);
 		auto scuba3 = TexMan.CheckForTexture("SCUBAMASK3", ETextureType::Any);
@@ -63,11 +63,11 @@ void displaymasks_r(int snum, int p, double interpfrac)
 		// to get the proper clock value with regards to interpolation we have add a interpfrac based offset to the value.
 		double interpclock = PlayClock + TICSPERFRAME * interpfrac;
 		int pin = RS_STRETCH;
-		hud_drawsprite((320 - (tex0->GetDisplayWidth() * 0.5) - 15), (200 - (tex0->GetDisplayHeight() * 0.5) + BobVal(interpclock) * 16), 0.75, 0, scuba0, 0, p, 2 + 16 + pin);
-		hud_drawsprite((320 - tex4->GetDisplayWidth()), (200 - tex4->GetDisplayHeight()), 1., 0, scuba4, 0, p, 2 + 16 + pin);
-		hud_drawsprite(tex4->GetDisplayWidth(), (200 - tex4->GetDisplayHeight()), 1., 0, scuba4, 0, p, 2 + 4 + 16 + pin);
-		hud_drawsprite(35, (-1), 1., 0, scuba3, 0, p, 2 + 16 + pin);
-		hud_drawsprite(285, 200, 1., -180, scuba3, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tex0->GetDisplayWidth() * 0.5) - 15), (200 - (tex0->GetDisplayHeight() * 0.5) + BobVal(interpclock) * 16), 0.75, 0, scuba0, 0, pal, 2 + 16 + pin);
+		hud_drawsprite((320 - tex4->GetDisplayWidth()), (200 - tex4->GetDisplayHeight()), 1., 0, scuba4, 0, pal, 2 + 16 + pin);
+		hud_drawsprite(tex4->GetDisplayWidth(), (200 - tex4->GetDisplayHeight()), 1., 0, scuba4, 0, pal, 2 + 4 + 16 + pin);
+		hud_drawsprite(35, (-1), 1., 0, scuba3, 0, pal, 2 + 16 + pin);
+		hud_drawsprite(285, 200, 1., -180, scuba3, 0, pal, 2 + 16 + pin);
 	}
 }
 
