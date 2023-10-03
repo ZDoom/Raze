@@ -420,17 +420,14 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 	def = &zsp; // always delta against 0
 	if (arc.BeginObject(key))
 	{
-		arc("x", c.pos.X, def->pos.X)
-			("y", c.pos.Y, def->pos.Y)
-			("z", c.pos.Z, def->pos.Z)
+		arc("pos", c.pos, def->pos)
 			("cstat", c.cstat, def->cstat)
 			("picnum", c.picnum, def->picnum)
 			("shade", c.shade, def->shade)
 			("pal", c.pal, def->pal)
 			("clipdist", c.clipdist, def->clipdist)
 			("blend", c.blend, def->blend)
-			("xrepeat", c.scale.X, def->scale.X)
-			("yrepeat", c.scale.Y, def->scale.Y)
+			("repeat", c.scale, def->scale)
 			("xoffset", c.xoffset, def->xoffset)
 			("yoffset", c.yoffset, def->yoffset)
 			("statnum", c.statnum)
@@ -572,8 +569,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 {
 	if (arc.BeginObject(key))
 	{
-		arc("x", c.pos.X, def->pos.X)
-			("y", c.pos.Y, def->pos.Y)
+		arc("pos", c.pos, def->pos)
 			("point2", c.point2, def->point2)
 			("nextwall", c.nextwall, def->nextwall)
 			("nextsector", c.nextsector, def->nextsector)
@@ -660,9 +656,7 @@ void DCoreActor::Serialize(FSerializer& arc)
 		("time", time)
 		("spritesetindex", spritesetindex)
 		("spriteext", sprext)
-		("xvel", vel.X)
-		("yvel", vel.Y)
-		("zvel", vel.Z)
+		("vel", vel)
 		("viewzoffset", viewzoffset)
 		("dispicnum", dispictex);
 
