@@ -50,13 +50,11 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void hud_input(int plnum)
+void hud_input(DDukePlayer* const p)
 {
 	int i, k;
 	uint8_t dainv;
-	DDukePlayer* p;
 
-	p = getPlayer(plnum);
 	auto pact = p->GetActor();
 
 	i = p->aim_mode;
@@ -78,17 +76,17 @@ void hud_input(int plnum)
 	{
 		if (!!(p->cmd.ucmd.actions & SB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
-			if (!isRRRA() || p->GetActor()->spr.extra > 0)
+			if (!isRRRA() || pact->spr.extra > 0)
 			{
 				p->last_pissed_time = 4000;
 				S_PlayActorSound(437, pact);
-				if (p->GetActor()->spr.extra <= gs.max_player_health - gs.max_player_health / 10)
+				if (pact->spr.extra <= gs.max_player_health - gs.max_player_health / 10)
 				{
-					p->GetActor()->spr.extra += 2;
-					p->last_extra = p->GetActor()->spr.extra;
+					pact->spr.extra += 2;
+					p->last_extra = pact->spr.extra;
 				}
-				else if (p->GetActor()->spr.extra < gs.max_player_health)
-					p->GetActor()->spr.extra = gs.max_player_health;
+				else if (pact->spr.extra < gs.max_player_health)
+					pact->spr.extra = gs.max_player_health;
 			}
 		}
 	}
@@ -96,12 +94,12 @@ void hud_input(int plnum)
 	{
 		if (!!(p->cmd.ucmd.actions & SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_QUICKKICK, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_QUICKKICK, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0)
 			{
 				p->quick_kick = 14;
-				if (!p->quick_kick_msg && plnum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
+				if (!p->quick_kick_msg && p->pnum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
 				p->quick_kick_msg = true;
 			}
 		}
@@ -116,14 +114,14 @@ void hud_input(int plnum)
 
 		// Don't go on if paused or dead.
 		if (paused) return;
-		if (p->GetActor()->spr.extra <= 0) return;
+		if (pact->spr.extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
 		if (!!(p->cmd.ucmd.actions & SB_INVUSE) && p->newOwner == nullptr)
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0 && p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_INVENTORY, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0 && p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS)
 			{
 				p->useItem(p->inven_icon);
 			}
@@ -131,9 +129,9 @@ void hud_input(int plnum)
 
 		if (!isRR() && p->itemUsed(ICON_HEATS))
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0 && p->heat_amount > 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_USENIGHTVISION, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0 && p->heat_amount > 0)
 			{
 				p->heat_on = !p->heat_on;
 				p->inven_icon = 5;
@@ -144,9 +142,9 @@ void hud_input(int plnum)
 
 		if (p->itemUsed(ICON_STEROIDS))
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_USESTEROIDS, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_USESTEROIDS, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0)
 			{
 				if (p->steroids_amount == 400)
 				{
@@ -227,15 +225,15 @@ void hud_input(int plnum)
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
 			if (!!(p->cmd.ucmd.actions & SB_INVPREV))
 			{
-				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
-				OnEvent(EVENT_INVENTORYLEFT, plnum, nullptr, -1);
-				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum).safeValue();
+				SetGameVarID(g_iReturnVarID, dainv, nullptr, p->pnum);
+				OnEvent(EVENT_INVENTORYLEFT, p->pnum, nullptr, -1);
+				dainv = GetGameVarID(g_iReturnVarID, nullptr, p->pnum).safeValue();
 			}
 			if (!!(p->cmd.ucmd.actions & SB_INVNEXT))
 			{
-				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
-				OnEvent(EVENT_INVENTORYRIGHT, plnum, nullptr, -1);
-				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum).safeValue();
+				SetGameVarID(g_iReturnVarID, dainv, nullptr, p->pnum);
+				OnEvent(EVENT_INVENTORYRIGHT, p->pnum, nullptr, -1);
+				dainv = GetGameVarID(g_iReturnVarID, nullptr, p->pnum).safeValue();
 			}
 			p->inven_icon = dainv;
 			// Someone must have really hated constant data, doing this with a switch/case (and of course also with literal numbers...)
@@ -248,7 +246,7 @@ void hud_input(int plnum)
 			p->wantweaponfire = weap - 1;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
-		fi.selectweapon(plnum, weap);
+		fi.selectweapon(p->pnum, weap);
 
 		if (!!(p->cmd.ucmd.actions & SB_HOLSTER))
 		{
@@ -271,9 +269,9 @@ void hud_input(int plnum)
 
 		if (p->itemUsed(ICON_HOLODUKE) && (isRR() || p->newOwner == nullptr))
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_HOLODUKEON, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_HOLODUKEON, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0)
 			{
 				if (!isRR())
 				{
@@ -284,10 +282,10 @@ void hud_input(int plnum)
 							p->inven_icon = 3;
 
 							auto pactor =
-								CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ().plusZ(30), DukePlayerPawnClass, -64, DVector2(0, 0), p->GetActor()->spr.Angles.Yaw, 0., 0., nullptr, 10);
+								CreateActor(p->cursector, pact->getPosWithOffsetZ().plusZ(30), DukePlayerPawnClass, -64, DVector2(0, 0), pact->spr.Angles.Yaw, 0., 0., nullptr, 10);
 							pactor->temp_data[3] = pactor->temp_data[4] = 0;
 							p->holoduke_on = pactor;
-							pactor->spr.yint = plnum;
+							pactor->spr.yint = p->pnum;
 							pactor->spr.extra = 0;
 							FTA(QUOTE_HOLODUKE_ON, p);
 							S_PlayActorSound(TELEPORTER, p->holoduke_on);
@@ -304,12 +302,12 @@ void hud_input(int plnum)
 				}
 				else // In RR this means drinking whiskey.
 				{
-					if (p->holoduke_amount > 0 && p->GetActor()->spr.extra < gs.max_player_health)
+					if (p->holoduke_amount > 0 && pact->spr.extra < gs.max_player_health)
 					{
 						p->holoduke_amount -= 400;
-						p->GetActor()->spr.extra += 5;
-						if (p->GetActor()->spr.extra > gs.max_player_health)
-							p->GetActor()->spr.extra = gs.max_player_health;
+						pact->spr.extra += 5;
+						if (pact->spr.extra > gs.max_player_health)
+							pact->spr.extra = gs.max_player_health;
 
 						p->drink_amt += 5;
 						p->inven_icon = 3;
@@ -325,30 +323,30 @@ void hud_input(int plnum)
 
 		if (isRR() && p->itemUsed(ICON_HEATS) && p->newOwner == nullptr)
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_USENIGHTVISION, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0)
 			{
 				if (p->yehaa_timer == 0)
 				{
 					p->yehaa_timer = 126;
 					S_PlayActorSound(390, pact);
 					p->noise_radius = 1024;
-					madenoise(plnum);
+					madenoise(p->pnum);
 					if (p->cursector->lotag == 857)
 					{
-						if (p->GetActor()->spr.extra <= gs.max_player_health)
+						if (pact->spr.extra <= gs.max_player_health)
 						{
-							p->GetActor()->spr.extra += 10;
-							if (p->GetActor()->spr.extra >= gs.max_player_health)
-								p->GetActor()->spr.extra = gs.max_player_health;
+							pact->spr.extra += 10;
+							if (pact->spr.extra >= gs.max_player_health)
+								pact->spr.extra = gs.max_player_health;
 						}
 					}
 					else
 					{
-						if (p->GetActor()->spr.extra + 1 <= gs.max_player_health)
+						if (pact->spr.extra + 1 <= gs.max_player_health)
 						{
-							p->GetActor()->spr.extra++;
+							pact->spr.extra++;
 						}
 					}
 				}
@@ -357,25 +355,25 @@ void hud_input(int plnum)
 
 		if (p->itemUsed(ICON_FIRSTAID))
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_USEMEDKIT, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0)
 			{
-				if (p->firstaid_amount > 0 && p->GetActor()->spr.extra < gs.max_player_health)
+				if (p->firstaid_amount > 0 && pact->spr.extra < gs.max_player_health)
 				{
 					if (!isRR())
 					{
-						int j = gs.max_player_health - p->GetActor()->spr.extra;
+						int j = gs.max_player_health - pact->spr.extra;
 
 						if (p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
-							p->GetActor()->spr.extra = gs.max_player_health;
+							pact->spr.extra = gs.max_player_health;
 							p->inven_icon = 1;
 						}
 						else
 						{
-							p->GetActor()->spr.extra += p->firstaid_amount;
+							pact->spr.extra += p->firstaid_amount;
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
@@ -387,19 +385,19 @@ void hud_input(int plnum)
 						if (p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
-							p->GetActor()->spr.extra += j;
-							if (p->GetActor()->spr.extra > gs.max_player_health)
-								p->GetActor()->spr.extra = gs.max_player_health;
+							pact->spr.extra += j;
+							if (pact->spr.extra > gs.max_player_health)
+								pact->spr.extra = gs.max_player_health;
 							p->inven_icon = 1;
 						}
 						else
 						{
-							p->GetActor()->spr.extra += p->firstaid_amount;
+							pact->spr.extra += p->firstaid_amount;
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
-						if (p->GetActor()->spr.extra > gs.max_player_health)
-							p->GetActor()->spr.extra = gs.max_player_health;
+						if (pact->spr.extra > gs.max_player_health)
+							pact->spr.extra = gs.max_player_health;
 						p->drink_amt += 10;
 						if (p->drink_amt <= 100 && !S_CheckActorSoundPlaying(pact, DUKE_USEMEDKIT))
 							S_PlayActorSound(DUKE_USEMEDKIT, pact);
@@ -410,9 +408,9 @@ void hud_input(int plnum)
 
 		if (p->itemUsed(ICON_JETPACK) && (isRR() || p->newOwner == nullptr))
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_USEJETPACK, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_USEJETPACK, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() == 0)
 			{
 				if (!isRR())
 				{
@@ -442,7 +440,7 @@ void hud_input(int plnum)
 				else
 				{
 					// eat cow pie
-					if (p->jetpack_amount > 0 && p->GetActor()->spr.extra < gs.max_player_health)
+					if (p->jetpack_amount > 0 && pact->spr.extra < gs.max_player_health)
 					{
 						if (!S_CheckActorSoundPlaying(pact, 429))
 							S_PlayActorSound(429, pact);
@@ -462,12 +460,12 @@ void hud_input(int plnum)
 								p->eat = 100;
 						}
 
-						p->GetActor()->spr.extra += 5;
+						pact->spr.extra += 5;
 
 						p->inven_icon = 4;
 
-						if (p->GetActor()->spr.extra > gs.max_player_health)
-							p->GetActor()->spr.extra = gs.max_player_health;
+						if (pact->spr.extra > gs.max_player_health)
+							pact->spr.extra = gs.max_player_health;
 
 						if (p->jetpack_amount <= 0)
 							checkavailinven(p);
@@ -478,9 +476,9 @@ void hud_input(int plnum)
 
 		if (!!(p->cmd.ucmd.actions & SB_TURNAROUND) && p->Angles.YawSpin == nullAngle && p->on_crane == nullptr)
 		{
-			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
-			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() != 0)
+			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
+			OnEvent(EVENT_TURNAROUND, p->pnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, nullptr, p->pnum).value() != 0)
 			{
 				p->cmd.ucmd.actions &= ~SB_TURNAROUND;
 			}
