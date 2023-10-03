@@ -84,20 +84,6 @@ struct THINGINFO
 	double fClipdist() const { return clipdist * 0.25; }
 };
 
-struct AMMOITEMDATA
-{
-	int16_t cstat;
-	int16_t picno;
-	int8_t shade;
-	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
-	int16_t count;
-	uint8_t type;
-	uint8_t weaponType;
-	FTextureID textureID() const { return tileGetTextureID(picno); }
-};
-
 struct WEAPONITEMDATA
 {
 	int16_t cstat;
@@ -167,7 +153,6 @@ struct VECTORDATA {
 	double fMaxDist() const { return maxDist * maptoworld; }
 };
 
-extern const AMMOITEMDATA gAmmoItemData[];
 extern const WEAPONITEMDATA gWeaponItemData[];
 extern const MissileType missileInfo[];
 extern const EXPLOSION explodeInfo[];

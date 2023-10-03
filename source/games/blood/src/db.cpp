@@ -173,6 +173,8 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 	if ((LittleShort(header.version) & 0xff00) == 0x700) {
 		encrypted = 1;
 
+	currentLevel->featureflags = 0;
+
 #ifdef NOONE_EXTENSIONS
 		// indicate if the map requires modern features to work properly
 		// for maps wich created in PMAPEDIT BETA13 or higher versions. Since only minor version changed,
@@ -183,9 +185,11 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		switch (tmp) {
 		case 0x001:
 			gModernMap = 1;
+			currentLevel->featureflags = ~0;
 			break;
 		case 0x002:
 			gModernMap = 2;
+			currentLevel->featureflags = ~0;
 			break;
 		}
 #endif

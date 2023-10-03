@@ -1255,18 +1255,16 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 
 bool PickupAmmo(DBloodPlayer* pPlayer, DBloodActor* ammoactor)
 {
-	const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[ammoactor->GetType() - kItemAmmoBase];
-	int nAmmoType = pAmmoItemData->type;
+	int nAmmoType = ammoactor->IntVar("type");
+	int nWeaponType = ammoactor->IntVar("weapontype");
+	int nCount = (currentLevel->featureflags & kFeatureCustomAmmoCount) && ammoactor->xspr.data1? 
+		ammoactor->xspr.data1 : ammoactor->IntVar("count");
+
 
 	if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
-#ifdef NOONE_EXTENSIONS
-	else if (gModernMap && ammoactor->hasX() && ammoactor->xspr.data1 > 0) // allow custom amount for item
-		pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + ammoactor->xspr.data1, gAmmoInfo[nAmmoType].max);
-#endif
-	else
-		pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
+	pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + nCount, gAmmoInfo[nAmmoType].max);
 
-	if (pAmmoItemData->weaponType)  pPlayer->hasWeapon[pAmmoItemData->weaponType] = 1;
+	if (nWeaponType)  pPlayer->hasWeapon[nWeaponType] = 1;
 	sfxPlay3DSound(pPlayer->GetActor(), 782, -1, 0);
 	return 1;
 }

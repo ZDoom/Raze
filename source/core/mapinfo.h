@@ -131,6 +131,7 @@ struct MapRecord
 	CutsceneDef intro;
 	CutsceneDef outro;
 	int flags = 0;
+	int featureflags = 0;
 	int gameflags = 0;
 	int levelNumber = -1;
 	int cluster = -1;
