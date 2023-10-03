@@ -210,12 +210,11 @@ void DrawBoat(int const kb, const DVector2& offsets, DAngle angle, int shade, in
 //---------------------------------------------------------------------------
 void animateshrunken(DDukePlayer* p, double xoffset, double yoffset, int8_t shade, int o, double interpfrac);
 
-void displayweapon_r(int snum, double interpfrac)
+void displayweapon_r(DDukePlayer* const p, double interpfrac)
 {
 	double weapon_sway, gun_pos, hard_landing;
 	DAngle TiltStatus;
 
-	auto p = getPlayer(snum);
 	auto kb = &p->kickback_pic;
 
 	int o = 0;
