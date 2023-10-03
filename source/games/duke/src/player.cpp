@@ -819,15 +819,15 @@ void DDukePlayer::playerweaponsway(double xvel)
 //
 //---------------------------------------------------------------------------
 
-void checklook(int snum, ESyncBits actions)
+void checklook(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
+	const auto pact = p->GetActor();
 
 	if ((actions & SB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
-		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-		OnEvent(EVENT_LOOKLEFT, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+		OnEvent(EVENT_LOOKLEFT, p->pnum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() != 0)
 		{
 			actions &= ~SB_LOOK_LEFT;
 		}
@@ -835,9 +835,9 @@ void checklook(int snum, ESyncBits actions)
 
 	if ((actions & SB_LOOK_RIGHT) && !p->OnMotorcycle)
 	{
-		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-		OnEvent(EVENT_LOOKRIGHT, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
+		SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+		OnEvent(EVENT_LOOKRIGHT, p->pnum, pact, -1);
+		if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() != 0)
 		{
 			actions &= ~SB_LOOK_RIGHT;
 		}
@@ -850,16 +850,16 @@ void checklook(int snum, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-void playerCenterView(int snum)
+void playerCenterView(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
-	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_RETURNTOCENTER, snum, p->GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+	const auto pact = p->GetActor();
+	SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+	OnEvent(EVENT_RETURNTOCENTER, p->pnum, pact, -1);
+	if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 	{
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 		p->cmd.ucmd.ang.Pitch = nullAngle;
-		setForcedSyncInput(snum);
+		setForcedSyncInput(p->pnum);
 	}
 	else
 	{
@@ -867,12 +867,12 @@ void playerCenterView(int snum)
 	}
 }
 
-void playerLookUp(int snum, ESyncBits actions)
+void playerLookUp(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
-	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_LOOKUP, snum, p->GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+	const auto pact = p->GetActor();
+	SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+	OnEvent(EVENT_LOOKUP, p->pnum, pact, -1);
+	if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 	{
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 	}
@@ -882,12 +882,12 @@ void playerLookUp(int snum, ESyncBits actions)
 	}
 }
 
-void playerLookDown(int snum, ESyncBits actions)
+void playerLookDown(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
-	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_LOOKDOWN, snum, p->GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
+	const auto pact = p->GetActor();
+	SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+	OnEvent(EVENT_LOOKDOWN, p->pnum, pact, -1);
+	if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 	{
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 	}
@@ -897,23 +897,23 @@ void playerLookDown(int snum, ESyncBits actions)
 	}
 }
 
-void playerAimUp(int snum, ESyncBits actions)
+void playerAimUp(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
-	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_AIMUP, snum, p->GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
+	const auto pact = p->GetActor();
+	SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+	OnEvent(EVENT_AIMUP, p->pnum, pact, -1);
+	if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() != 0)
 	{
 		p->cmd.ucmd.actions &= ~SB_AIM_UP;
 	}
 }
 
-void playerAimDown(int snum, ESyncBits actions)
+void playerAimDown(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
-	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);	// due to a typo in WW2GI's CON files this is the same as EVENT_AIMUP.
-	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() != 0)
+	const auto pact = p->GetActor();
+	SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+	OnEvent(EVENT_AIMDOWN, p->pnum, pact, -1);	// due to a typo in WW2GI's CON files this is the same as EVENT_AIMUP.
+	if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() != 0)
 	{
 		p->cmd.ucmd.actions &= ~SB_AIM_DOWN;
 	}

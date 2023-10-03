@@ -106,12 +106,12 @@ int makepainsounds(DDukePlayer* const p, int type);
 void playerCrouch(DDukePlayer* const p);
 void playerJump(DDukePlayer* const p, double fz, double cz);
 
-void checklook(int snum, ESyncBits actions);
-void playerCenterView(int snum);
-void playerLookUp(int snum, ESyncBits actions);
-void playerLookDown(int snum, ESyncBits actions);
-void playerAimUp(int snum, ESyncBits actions);
-void playerAimDown(int snum, ESyncBits actions);
+void checklook(DDukePlayer* const p, ESyncBits actions);
+void playerCenterView(DDukePlayer* const p);
+void playerLookUp(DDukePlayer* const p, ESyncBits actions);
+void playerLookDown(DDukePlayer* const p, ESyncBits actions);
+void playerAimUp(DDukePlayer* const p, ESyncBits actions);
+void playerAimDown(DDukePlayer* const p, ESyncBits actions);
 DDukeActor* aim(DDukeActor* s, int aang, bool force = true, bool* b = nullptr);
 DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle, bool* b = nullptr);
 void shoot(DDukeActor* actor, PClass* cls);

@@ -1671,7 +1671,7 @@ void processinput_d(int snum)
 
 	doubvel = TICSPERFRAME;
 
-	checklook(snum,actions);
+	checklook(p, actions);
 	p->Angles.doViewYaw(&p->cmd.ucmd);
 
 	p->updatecentering(snum);
@@ -1916,23 +1916,23 @@ HORIZONLY:
 	// center_view
 	if (actions & SB_CENTERVIEW || (p->hard_landing && (cl_dukepitchmode & kDukePitchLandingRecenter)))
 	{
-		playerCenterView(snum);
+		playerCenterView(p);
 	}
 	else if ((actions & SB_LOOK_UP) == SB_LOOK_UP)
 	{
-		playerLookUp(snum, actions);
+		playerLookUp(p, actions);
 	}
 	else if ((actions & SB_LOOK_DOWN) == SB_LOOK_DOWN)
 	{
-		playerLookDown(snum, actions);
+		playerLookDown(p, actions);
 	}
 	else if ((actions & SB_LOOK_UP) == SB_AIM_UP)
 	{
-		playerAimUp(snum, actions);
+		playerAimUp(p, actions);
 	}
 	else if ((actions & SB_LOOK_DOWN) == SB_AIM_DOWN)
 	{	// aim_down
-		playerAimDown(snum, actions);
+		playerAimDown(p, actions);
 	}
 
 	p->Angles.doPitchInput(&p->cmd.ucmd);
