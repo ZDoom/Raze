@@ -1630,9 +1630,8 @@ static void fireweapon(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
+static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* psectp)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 	int psectlotag = psectp ? psectp->lotag : 857;
 
@@ -1695,8 +1694,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, RedneckDynamiteClass, -16, DVector2(0.140625, 0.140625),
-				p->GetActor()->spr.Angles.Yaw, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
+			auto spawned = CreateActor(p->cursector, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 16, RedneckDynamiteClass, -16, DVector2(0.140625, 0.140625),
+				pact->spr.Angles.Yaw, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
 
 			if (spawned)
 			{
@@ -1706,7 +1705,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					spawned->spr.pos.Z += 8;
 				}
 
-				double hd = hits(p->GetActor());
+				double hd = hits(pact);
 				if (hd < 32)
 				{
 					spawned->spr.Angles.Yaw += DAngle180;
@@ -1747,7 +1746,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector();
+				p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -1830,12 +1829,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector() * 2;
+					p->vel.XY() -= pact->spr.Angles.Yaw.ToVector() * 2;
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector();
+				p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
 			}
 		}
 
@@ -1890,7 +1889,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(0.4476);
+		pact->spr.Angles.Pitch -= DAngle::fromDeg(0.4476);
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -1921,7 +1920,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector();
+					p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
 				}
 				checkavailweapon(p);
 
@@ -1981,11 +1980,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->GetActor()->spr.Angles.Yaw += mapangle(16);
+			pact->spr.Angles.Yaw += mapangle(16);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->GetActor()->spr.Angles.Yaw -= mapangle(16);
+			pact->spr.Angles.Yaw -= mapangle(16);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -2011,11 +2010,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->GetActor()->spr.Angles.Yaw += mapangle(4);
+			pact->spr.Angles.Yaw += mapangle(4);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->GetActor()->spr.Angles.Yaw -= mapangle(4);
+			pact->spr.Angles.Yaw -= mapangle(4);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -2061,8 +2060,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector();
-			p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(8.88);
+			p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
+			pact->spr.Angles.Pitch -= DAngle::fromDeg(8.88);
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -2087,7 +2086,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, RedneckPowderKegClass, -16, DVector2(0.140625, 0.140625), p->GetActor()->spr.Angles.Yaw, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 16, RedneckPowderKegClass, -16, DVector2(0.140625, 0.140625), p->GetActor()->spr.Angles.Yaw, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -2108,7 +2107,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->vel.XY() += p->GetActor()->spr.Angles.Yaw.ToVector();
+			p->vel.XY() += pact->spr.Angles.Yaw.ToVector();
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -2247,7 +2246,7 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 	}
 	else if (p->kickback_pic)
 	{
-		operateweapon(snum, actions, psectp);
+		operateweapon(p, actions, psectp);
 	}
 }
 
