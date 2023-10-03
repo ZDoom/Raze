@@ -647,9 +647,8 @@ int endoflevel(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-int timedexit(int snum)
+int timedexit(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
 	p->timebeforeexit--;
 	if (p->timebeforeexit == 26 * 5)
 	{
