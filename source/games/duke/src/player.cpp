@@ -412,9 +412,8 @@ void dokneeattack(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-int makepainsounds(int snum, int type)
+int makepainsounds(DDukePlayer* const p, int type)
 {
-	auto p = getPlayer(snum);
 	auto actor = p->GetActor();
 	int k = 0;
 
