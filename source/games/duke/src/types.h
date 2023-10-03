@@ -361,11 +361,6 @@ public:
 	void checkhardlanding();
 	void playerweaponsway(double xvel);
 
-	inline float adjustavel(float avel)
-	{
-		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
-	}
-
 	inline void setCursector(sectortype* sect)
 	{
 		cursector = sect;

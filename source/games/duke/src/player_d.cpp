@@ -1717,10 +1717,6 @@ void processinput_d(int snum)
 		p->cmd.ucmd.avel = 0;
 		setForcedSyncInput(snum);
 	}
-	else
-	{
-		p->cmd.ucmd.avel = p->adjustavel(PlayerInputAngVel(snum));
-	}
 
 	p->Angles.doYawInput(&p->cmd.ucmd);
 
