@@ -641,10 +641,9 @@ static void operateJetpack(DDukePlayer* const p, ESyncBits actions, int psectlot
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
+static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
 {
 	int j;
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (p->airleft != 15 * 26)
@@ -1700,7 +1699,7 @@ void processinput_d(int snum)
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
-		movement(snum, actions, psectp, floorz, ceilingz, shrunk, truefdist, psectlotag);
+		movement(p, actions, psectp, floorz, ceilingz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
