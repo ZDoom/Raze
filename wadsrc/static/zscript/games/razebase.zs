@@ -175,8 +175,9 @@ struct SummaryInfo native
 // this only allows function getters to enable validation on the target.
 struct CollisionData
 {
-	native readonly int type;
-	native readonly int exbits;
+	int type;
+	int exbits;
+	voidptr hit;	// do not access!
 	native walltype hitWall();
 	native sectortype hitSector();
 	native CoreActor hitActor();
