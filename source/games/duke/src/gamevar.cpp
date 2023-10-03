@@ -266,7 +266,7 @@ void ResetGameVars(void)
 		{
 			if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER))
 			{
-				for (int j = 0; i < MAXPLAYERS; i++)
+				for (int j = 0; j < MAXPLAYERS; j++)
 				{
 					getPlayer(j)->uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
 				}
