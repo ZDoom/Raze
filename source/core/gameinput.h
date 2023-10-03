@@ -30,14 +30,16 @@ class GameInput
 	};
 
 	static constexpr double YAW_TURNSPEEDS[3] = { 234.375 * (360. / 2048.), 890.625 * (360. / 2048.), 1548.75 * (360. / 2048.) };
+	static constexpr DVector3 MAXVEL[3] = { { 0., 0., 1. }, { 1., 1., 1. }, { 2., 2., 1. } };
+	static constexpr DRotator MAXANG = { DAngle180 - minAngle, DAngle180 - minAngle, DAngle180 - minAngle };
 	static constexpr DAngle MOUSE_SCALE = DAngle::fromDeg(1. / 16.);
-	static constexpr DAngle MAXANG = DAngle180 - minAngle;
 
 	// Input received from the OS.
 	float joyAxes[NUM_JOYAXIS];
 	FVector2 mouseInput;	
 
 	// Internal variables when generating a packet.
+	int keymove;
 	InputPacket inputBuffer;
 	double turnheldtime;
 	int WeaponToSend;
