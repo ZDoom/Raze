@@ -1580,7 +1580,7 @@ void processinput_d(int snum)
 	pact->floorz = floorz;
 	pact->ceilingz = ceilingz;
 
-	doslopetilting(p);
+	p->doslopetilting();
 
 	if (chz.type == kHitSprite)
 	{

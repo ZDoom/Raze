@@ -361,22 +361,22 @@ public:
 	void checkhardlanding();
 	void playerweaponsway(double xvel);
 
-	float adjustavel(float avel)
+	inline float adjustavel(float avel)
 	{
 		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
 	}
 
-	void setCursector(sectortype* sect)
+	inline void setCursector(sectortype* sect)
 	{
 		cursector = sect;
 	}
 
-	bool insector() const
+	inline bool insector() const
 	{
 		return cursector != nullptr;
 	}
 
-	void setbobpos()
+	inline void setbobpos()
 	{
 		bobpos = GetActor()->spr.pos.XY();
 	}
@@ -398,6 +398,11 @@ public:
 		{
 			cmd.ucmd.actions &= ~SB_CENTERVIEW;
 		}
+	}
+
+	inline void doslopetilting()
+	{
+		Angles.doViewPitch(aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER);
 	}
 };
 

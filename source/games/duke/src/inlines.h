@@ -175,11 +175,6 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline void doslopetilting(DDukePlayer* p)
-{
-	p->Angles.doViewPitch(p->aim_mode == 0 && p->on_ground && p->cursector->lotag != ST_2_UNDERWATER);
-}
-
 //---------------------------------------------------------------------------
 //
 //
