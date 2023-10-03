@@ -859,8 +859,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->vel.Zero();
 	pInput->avel = 0;
 	pInput->actions = 0;
-	pInput->vel.X = 0;
-	pInput->vel.Y = 0;
+	pInput->vel.Zero();
 	pInput->horz = 0;
 	pPlayer->flickerEffect = 0;
 	pPlayer->quakeEffect = 0;
@@ -1526,7 +1525,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	// Allow it to become true behind a CVAR to offer an alternate playing experience if desired.
 	pPlayer->isRunning = !!(pInput->actions & SB_RUN) && !cl_bloodvanillarun;
 
-	if ((pInput->actions & SB_BUTTON_MASK) || pInput->vel.X || pInput->vel.Y || pInput->avel)
+	if ((pInput->actions & SB_BUTTON_MASK) || !pInput->vel.XY().isZero() || pInput->avel)
 		pPlayer->restTime = 0;
 	else if (pPlayer->restTime >= 0)
 		pPlayer->restTime += 4;
@@ -1573,7 +1572,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		return;
 	}
 
-	if ((pInput->vel.X || pInput->vel.Y) && (pPlayer->posture == 1 || actor->xspr.height < 256))
+	if (!pInput->vel.XY().isZero() && (pPlayer->posture == 1 || actor->xspr.height < 256))
 	{
 		const double speed = pPlayer->posture == 1? 1. : 1. - (actor->xspr.height * (1. / 256.) * (actor->xspr.height < 256));
 		const double fvAccel = pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;

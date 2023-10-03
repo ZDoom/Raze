@@ -1864,8 +1864,7 @@ void DoPlayerMove(DSWPlayer* pp)
     pp->ovect = pp->vect;
     pp->Angles.PrevStrafeVel = pp->Angles.StrafeVel;
 
-    pp->vect.X += pp->cmd.ucmd.vel.X * INPUT_SCALE;
-    pp->vect.Y += pp->cmd.ucmd.vel.Y * INPUT_SCALE;
+    pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
     pp->Angles.StrafeVel += pp->svel * INPUT_SCALE;
 
     friction = pp->friction;
@@ -2390,9 +2389,12 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
 
     if (!Prediction)
     {
-        if (abs(pp->cmd.ucmd.vel.X + pp->cmd.ucmd.vel.Y) && !abs(pp->lastcmd.ucmd.vel.X + pp->lastcmd.ucmd.vel.Y))
+        const auto lastvel = pp->lastcmd.ucmd.vel.XY().Sum();
+        const auto thisvel = pp->cmd.ucmd.vel.XY().Sum();
+
+        if (thisvel && !lastvel)
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!abs(pp->cmd.ucmd.vel.X + pp->cmd.ucmd.vel.Y) && abs(pp->lastcmd.ucmd.vel.X + pp->lastcmd.ucmd.vel.Y))
+        else if (!thisvel && lastvel)
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -2405,16 +2407,14 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
 
     if (sop->drive_speed)
     {
-        pp->vect.X = pp->cmd.ucmd.vel.X * sop->drive_speed * (70. / 1048576.);
-        pp->vect.Y = pp->cmd.ucmd.vel.Y * sop->drive_speed * (70. / 1048576.);
+        pp->vect = pp->cmd.ucmd.vel.XY() * sop->drive_speed * (70. / 1048576.);
 
         // does sliding/momentum
         pp->vect = (pp->vect + (pp->ovect * (sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
-		pp->vect.X += pp->cmd.ucmd.vel.X * INPUT_SCALE;
-		pp->vect.Y += pp->cmd.ucmd.vel.Y * INPUT_SCALE;
+		pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
 		pp->vect *= TANK_FRICTION;
 
         pp->vect = (pp->vect + (pp->ovect*1))/2;
@@ -3079,8 +3079,7 @@ void DoPlayerClimb(DSWPlayer* pp)
     if (Prediction)
         return;
 
-	pp->vect.X += pp->cmd.ucmd.vel.X * INPUT_SCALE;
-	pp->vect.Y += pp->cmd.ucmd.vel.Y * INPUT_SCALE;
+	pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
 	pp->vect *= PLAYER_CLIMB_FRICTION;
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
         pp->vect.X = pp->vect.Y = 0;
@@ -4957,7 +4956,7 @@ void DoPlayerBeginOperate(DSWPlayer* pp)
     switch (sop->track)
     {
     case SO_VEHICLE:
-        if (pp->cmd.ucmd.vel.X || pp->cmd.ucmd.vel.Y)
+        if (!pp->cmd.ucmd.vel.XY().isZero())
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -4975,7 +4974,7 @@ void DoPlayerBeginOperate(DSWPlayer* pp)
         break;
 #if 0
     case SO_SPEED_BOAT:
-        if (pp->input.fvel || pp->input.svel)
+        if (!pp->cmd.ucmd.vel.XY().isZero())
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5050,7 +5049,7 @@ void DoPlayerBeginRemoteOperate(DSWPlayer* pp, SECTOR_OBJECT* sop)
     switch (sop->track)
     {
     case SO_VEHICLE:
-        if (pp->cmd.ucmd.vel.X || pp->cmd.ucmd.vel.Y)
+        if (!pp->cmd.ucmd.vel.XY().isZero())
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -6551,7 +6550,7 @@ void ChopsCheck(DSWPlayer* pp)
 {
     if (!M_Active() && !(pp->Flags & PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if (pp->cmd.ucmd.actions & ~SB_RUN || pp->cmd.ucmd.vel.X || pp->cmd.ucmd.vel.Y || pp->cmd.ucmd.avel || pp->cmd.ucmd.horz ||
+        if (pp->cmd.ucmd.actions & ~SB_RUN || !pp->cmd.ucmd.vel.XY().isZero() || pp->cmd.ucmd.avel || pp->cmd.ucmd.horz ||
             (pp->Flags & (PF_CLIMBING | PF_FALLING | PF_DIVING)))
         {
             // Hit a input key or other reason to stop chops
@@ -6785,11 +6784,8 @@ void domovethings(void)
         pp->svel = pp->cmd.ucmd.vel.Y;
 
         // convert fvel/svel into a vector before performing actions.
-        const auto fvel = pp->cmd.ucmd.vel.X + pp->cmd.ucmd.vel.Z * (pp->DoPlayerAction == DoPlayerClimb);
-        const auto svel = pp->cmd.ucmd.vel.Y;
-        const auto velvect = DVector2(fvel, svel).Rotated(pp->GetActor()->spr.Angles.Yaw);
-        pp->cmd.ucmd.vel.X = (float)velvect.X;
-        pp->cmd.ucmd.vel.Y = (float)velvect.Y;
+        pp->cmd.ucmd.vel.X += pp->cmd.ucmd.vel.Z * (pp->DoPlayerAction == DoPlayerClimb);
+        pp->cmd.ucmd.vel.XY() = pp->cmd.ucmd.vel.XY().Rotated(pp->GetActor()->spr.Angles.Yaw);
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 

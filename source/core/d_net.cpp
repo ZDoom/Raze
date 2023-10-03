@@ -1032,9 +1032,7 @@ void NetUpdate (void)
 				int mod = maketic - ticdup;
 				int modp, tic;
 
-				float svel = 0;
-				float fvel = 0;
-				float uvel = 0;
+				DVector3 vel{};
 				float avel = 0;
 				float horz = 0;
 				float roll = 0;
@@ -1042,17 +1040,13 @@ void NetUpdate (void)
 				for (tic = 0; tic < ticdup; ++tic)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
-					fvel += localcmds[modp].ucmd.vel.X;
-					svel += localcmds[modp].ucmd.vel.Y;
-					uvel += localcmds[modp].ucmd.vel.Z;
+					vel += localcmds[modp].ucmd.vel;
 					avel += localcmds[modp].ucmd.avel;
 					horz += localcmds[modp].ucmd.horz;
 					roll += localcmds[modp].ucmd.roll;
 				}
 
-				svel /= ticdup;
-				fvel /= ticdup;
-				uvel /= ticdup;
+				vel /= ticdup;
 				avel /= ticdup;
 				horz /= ticdup;
 				roll /= ticdup;
@@ -1060,9 +1054,7 @@ void NetUpdate (void)
 				for (tic = 0; tic < ticdup; ++tic)
 				{
 					modp = (mod + tic) % LOCALCMDTICS;
-					localcmds[modp].ucmd.vel.X = fvel;
-					localcmds[modp].ucmd.vel.Y = svel;
-					localcmds[modp].ucmd.vel.Z = uvel;
+					localcmds[modp].ucmd.vel = vel;
 					localcmds[modp].ucmd.avel = avel;
 					localcmds[modp].ucmd.horz = horz;
 					localcmds[modp].ucmd.roll = roll;

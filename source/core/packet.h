@@ -70,7 +70,7 @@ enum
 
 struct InputPacket
 {
-    FVector3 vel;
+    DVector3 vel;
     float avel;
     float horz;
     float roll;

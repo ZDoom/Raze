@@ -137,12 +137,12 @@ inline bool PlayerUseItem(int pl, int num)
 	return getPlayer(pl)->cmd.ucmd.isItemUsed(num - 1);
 }
 
-inline float PlayerInputSideVel(int pl)
+inline double PlayerInputSideVel(int pl)
 {
 	return getPlayer(pl)->cmd.ucmd.vel.Y;
 }
 
-inline float PlayerInputForwardVel(int pl)
+inline double PlayerInputForwardVel(int pl)
 {
 	return getPlayer(pl)->cmd.ucmd.vel.X;
 }
@@ -264,11 +264,8 @@ inline int monsterCheatCheck(DDukeActor* self)
 inline void processinputvel(int snum)
 {
 	const auto p = getPlayer(snum);
-	const auto velvect = DVector2(p->cmd.ucmd.vel.X, p->cmd.ucmd.vel.Y).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
-	p->cmd.ucmd.vel.X = (float)velvect.X;
-	p->cmd.ucmd.vel.Y = (float)velvect.Y;
+	p->cmd.ucmd.vel.XY() = p->cmd.ucmd.vel.XY().Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
 }
-
 
 inline const ActorInfo* DDukeActor::conInfo() const
 {

@@ -1523,6 +1523,12 @@ inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const T
 }
 
 template<class T>
+inline TVector3<T> clamp(const TVector3<T> &vec, const TVector3<T> &min, const TVector3<T> &max)
+{
+	return TVector3<T>(clamp(vec.X, min.X, max.X), clamp(vec.Y, min.Y, max.Y), clamp(vec.Z, min.Z, max.Z));
+}
+
+template<class T>
 inline TAngle<T> interpolatedvalue(const TAngle<T> &oang, const TAngle<T> &ang, const double interpfrac)
 {
 	return oang + (deltaangle(oang, ang) * interpfrac);

@@ -210,17 +210,17 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 	if (ucmd->vel.X != basis->vel.X)
 	{
 		flags |= UCMDF_FORWARDMOVE;
-		WriteFloat (ucmd->vel.X, stream);
+		WriteFloat ((float)ucmd->vel.X, stream);
 	}
 	if (ucmd->vel.Y != basis->vel.Y)
 	{
 		flags |= UCMDF_SIDEMOVE;
-		WriteFloat (ucmd->vel.Y, stream);
+		WriteFloat ((float)ucmd->vel.Y, stream);
 	}
 	if (ucmd->vel.Z != basis->vel.Z)
 	{
 		flags |= UCMDF_UPMOVE;
-		WriteFloat (ucmd->vel.Z, stream);
+		WriteFloat ((float)ucmd->vel.Z, stream);
 	}
 	if (ucmd->roll != basis->roll)
 	{
@@ -252,9 +252,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, InputPacket &cmd, Inpu
 		arc("actions", cmd.actions)
 			("horz", cmd.horz)
 			("avel", cmd.avel)
-			("fvel", cmd.vel.X)
-			("svel", cmd.vel.Y)
-			("uvel", cmd.vel.Z)
+			("vel", cmd.vel)
 			("roll", cmd.roll)
 			.EndObject();
 	}
@@ -268,9 +266,7 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 		if (ucmd->actions != 0 ||
 			ucmd->horz != 0 ||
 			ucmd->avel != 0 ||
-			ucmd->vel.X != 0 ||
-			ucmd->vel.Y != 0 ||
-			ucmd->vel.Z != 0 ||
+			!ucmd->vel.isZero() ||
 			ucmd->roll != 0)
 		{
 			WriteByte (DEM_USERCMD, stream);
@@ -281,9 +277,7 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 	if (ucmd->actions != basis->actions ||
 		ucmd->horz != basis->horz ||
 		ucmd->avel != basis->avel ||
-		ucmd->vel.X != basis->vel.X ||
-		ucmd->vel.Y != basis->vel.Y ||
-		ucmd->vel.Z != basis->vel.Z ||
+		ucmd->vel != basis->vel ||
 		ucmd->roll != basis->roll)
 	{
 		WriteByte (DEM_USERCMD, stream);
