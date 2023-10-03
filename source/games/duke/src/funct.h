@@ -87,7 +87,7 @@ void handle_se128(DDukeActor* i);
 void handle_se130(DDukeActor* i, int countmax);
 
 int dodge(DDukeActor*);
-void alterang(int ang, DDukeActor* actor, int g_p);
+void alterang(int ang, DDukeActor* actor, DDukePlayer* const p);
 void checkavailweapon(DDukePlayer* p);
 void addammo(int weapon, DDukePlayer* p, int amount);
 
