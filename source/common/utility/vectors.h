@@ -1026,11 +1026,11 @@ struct TMatrix3x3
 
 	vec_t Cells[3][3];
 
-	TMatrix3x3() = default;
-	TMatrix3x3(const TMatrix3x3 &other) = default;
-	TMatrix3x3& operator=(const TMatrix3x3& other) = default;
+	constexpr TMatrix3x3() = default;
+	constexpr TMatrix3x3(const TMatrix3x3 &other) = default;
+	constexpr TMatrix3x3& operator=(const TMatrix3x3& other) = default;
 
-	TMatrix3x3(const Vector3 &row1, const Vector3 &row2, const Vector3 &row3)
+	constexpr TMatrix3x3(const Vector3 &row1, const Vector3 &row2, const Vector3 &row3)
 	{
 		(*this)[0] = row1;
 		(*this)[1] = row2;
@@ -1039,12 +1039,12 @@ struct TMatrix3x3
 
 	// Construct a rotation matrix about an arbitrary axis.
 	// (The axis vector must be normalized.)
-	TMatrix3x3(const Vector3 &axis, double degrees)
+	constexpr TMatrix3x3(const Vector3 &axis, double degrees)
 		: TMatrix3x3(axis, g_sindeg(degrees), g_cosdeg(degrees))
 	{
 	}
 
-	TMatrix3x3(const Vector3 &axis, double c/*cosine*/, double s/*sine*/)
+	constexpr TMatrix3x3(const Vector3 &axis, double c/*cosine*/, double s/*sine*/)
 	{
 		double t = 1 - c;
 		double sx = s*axis.X, sy = s*axis.Y, sz = s*axis.Z;
@@ -1078,7 +1078,7 @@ struct TMatrix3x3
 		return ret;
 	}
 
-	static TMatrix3x3 Scale2D(TVector2<vec_t> scaleVec)
+	constexpr static TMatrix3x3 Scale2D(TVector2<vec_t> scaleVec)
 	{
 		TMatrix3x3 ret;
 		ret.Cells[0][0] = scaleVec.X; ret.Cells[0][1] =          0; ret.Cells[0][2] = 0;
@@ -1087,7 +1087,7 @@ struct TMatrix3x3
 		return ret;
 	}
 
-	static TMatrix3x3 Translate2D(TVector2<vec_t> translateVec)
+	constexpr static TMatrix3x3 Translate2D(TVector2<vec_t> translateVec)
 	{
 		TMatrix3x3 ret;
 		ret.Cells[0][0] = 1; ret.Cells[0][1] = 0; ret.Cells[0][2] = translateVec.X;
@@ -1096,30 +1096,30 @@ struct TMatrix3x3
 		return ret;
 	}
 
-	void Zero()
+	constexpr void Zero()
 	{
 		memset (this, 0, sizeof *this);
 	}
 
-	void Identity()
+	constexpr void Identity()
 	{
 		Cells[0][0] = 1; Cells[0][1] = 0; Cells[0][2] = 0;
 		Cells[1][0] = 0; Cells[1][1] = 1; Cells[1][2] = 0;
 		Cells[2][0] = 0; Cells[2][1] = 0; Cells[2][2] = 1;
 	}
 
-	Vector3 &operator[] (int index)
+	constexpr Vector3 &operator[] (int index)
 	{
 		return *((Vector3 *)&Cells[index]);
 	}
 
-	const Vector3 &operator[] (int index) const
+	constexpr const Vector3 &operator[] (int index) const
 	{
 		return *((Vector3 *)&Cells[index]);
 	}
 
 	// Multiply a scalar
-	TMatrix3x3 &operator*= (double scalar)
+	constexpr TMatrix3x3 &operator*= (double scalar)
 	{
 		(*this)[0] *= scalar;
 		(*this)[1] *= scalar;
@@ -1127,29 +1127,29 @@ struct TMatrix3x3
 		return *this;
 	}
 
-	friend TMatrix3x3 operator* (double s, const TMatrix3x3 &m)
+	constexpr friend TMatrix3x3 operator* (double s, const TMatrix3x3 &m)
 	{
 		return TMatrix3x3(m[0]*s, m[1]*s, m[2]*s);
 	}
 
-	TMatrix3x3 operator* (double s) const
+	constexpr TMatrix3x3 operator* (double s) const
 	{
 		return TMatrix3x3((*this)[0]*s, (*this)[1]*s, (*this)[2]*s);
 	}
 
 	// Divide a scalar
-	TMatrix3x3 &operator/= (double scalar)
+	constexpr TMatrix3x3 &operator/= (double scalar)
 	{
 		return *this *= 1 / scalar;
 	}
 
-	TMatrix3x3 operator/ (double s) const
+	constexpr TMatrix3x3 operator/ (double s) const
 	{
 		return *this * (1 / s);
 	}
 
 	// Add two 3x3 matrices together
-	TMatrix3x3 &operator+= (const TMatrix3x3 &o)
+	constexpr TMatrix3x3 &operator+= (const TMatrix3x3 &o)
 	{
 		(*this)[0] += o[0];
 		(*this)[1] += o[1];
@@ -1157,13 +1157,13 @@ struct TMatrix3x3
 		return *this;
 	}
 
-	TMatrix3x3 operator+ (const TMatrix3x3 &o) const
+	constexpr TMatrix3x3 operator+ (const TMatrix3x3 &o) const
 	{
 		return TMatrix3x3((*this)[0] + o[0], (*this)[1] + o[1], (*this)[2] + o[2]);
 	}
 
 	// Subtract two 3x3 matrices
-	TMatrix3x3 &operator-= (const TMatrix3x3 &o)
+	constexpr TMatrix3x3 &operator-= (const TMatrix3x3 &o)
 	{
 		(*this)[0] -= o[0];
 		(*this)[1] -= o[1];
@@ -1171,18 +1171,18 @@ struct TMatrix3x3
 		return *this;
 	}
 
-	TMatrix3x3 operator- (const TMatrix3x3 &o) const
+	constexpr TMatrix3x3 operator- (const TMatrix3x3 &o) const
 	{
 		return TMatrix3x3((*this)[0] - o[0], (*this)[1] - o[1], (*this)[2] - o[2]);
 	}
 
 	// Concatenate two 3x3 matrices
-	TMatrix3x3 &operator*= (const TMatrix3x3 &o)
+	constexpr TMatrix3x3 &operator*= (const TMatrix3x3 &o)
 	{
 		return *this = *this * o;
 	}
 
-	TMatrix3x3 operator* (const TMatrix3x3 &o) const
+	constexpr TMatrix3x3 operator* (const TMatrix3x3 &o) const
 	{
 		return TMatrix3x3(
 			Vector3(Cells[0][0]*o[0][0] + Cells[0][1]*o[1][0] + Cells[0][2]*o[2][0],
@@ -1197,12 +1197,12 @@ struct TMatrix3x3
 	}
 
 	// Multiply a 3D vector by a rotation matrix
-	friend Vector3 operator* (const Vector3 &v, const TMatrix3x3 &m)
+	constexpr friend Vector3 operator* (const Vector3 &v, const TMatrix3x3 &m)
 	{
 		return Vector3(m[0] | v, m[1] | v, m[2] | v);
 	}
 
-	friend Vector3 operator* (const TMatrix3x3 &m, const Vector3 &v)
+	constexpr friend Vector3 operator* (const TMatrix3x3 &m, const Vector3 &v)
 	{
 		return Vector3(m[0] | v, m[1] | v, m[2] | v);
 	}
