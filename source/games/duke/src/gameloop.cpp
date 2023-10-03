@@ -86,7 +86,7 @@ void GameInterface::Ticker()
 			if (p->pals.a > 0)
 				p->pals.a--;
 
-			hud_input(i);
+			hud_input(p);
 			fi.processinput(i);
 			fi.checksectors(i);
 		}

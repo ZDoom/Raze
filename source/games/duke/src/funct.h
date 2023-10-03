@@ -160,7 +160,7 @@ void operateactivators(int l, DDukePlayer* w);
 void operateforcefields(DDukeActor* s, int low);
 void operatemasterswitches(int lotag);
 void operatesectors(sectortype* s, DDukeActor* i);
-void hud_input(int playerNum);
+void hud_input(DDukePlayer* const p);
 int getanimationindex(int animtype, sectortype* animindex);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
