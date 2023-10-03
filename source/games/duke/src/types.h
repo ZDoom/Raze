@@ -404,6 +404,11 @@ public:
 	{
 		return cmd.ucmd.isItemUsed(num - 1);
 	}
+
+	inline void useItem(int num)
+	{
+		cmd.ucmd.setItemUsed(num - 1);
+	}
 };
 
 struct Cycler
