@@ -825,14 +825,14 @@ static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect,
 //
 //---------------------------------------------------------------------------
 
-int operateTripbomb(int snum)
+int operateTripbomb(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
+	const auto pact = p->GetActor();
 	HitInfo hit{};
 	double vel = 1024, zvel = 0;
 	setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 16.);
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->GetActor()->spr.Angles.Yaw.ToVector() * vel, zvel), hit, CLIPMASK1);
+	hitscan(pact->getPosWithOffsetZ(), p->cursector, DVector3(pact->spr.Angles.Yaw.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
@@ -859,10 +859,10 @@ int operateTripbomb(int snum)
 	if (act == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 		{
-			auto delta = hit.hitpos.XY() - p->GetActor()->spr.pos.XY();
+			auto delta = hit.hitpos.XY() - pact->spr.pos.XY();
 			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
-				p->GetActor()->restorez();
+				pact->restorez();
 				p->vel.Z = 0;
 				return 1;
 			}
@@ -926,7 +926,7 @@ static void fireweapon(int snum)
 	case TRIPBOMB_WEAPON:
 		if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
 		{
-			if (operateTripbomb(snum))
+			if (operateTripbomb(p))
 				p->kickback_pic = 1;
 		}
 		break;

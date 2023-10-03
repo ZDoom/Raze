@@ -40,7 +40,7 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-int operateTripbomb(int snum);
+int operateTripbomb(DDukePlayer* const p);
 
 //---------------------------------------------------------------------------
 //
@@ -219,7 +219,7 @@ void fireweapon_ww(int snum)
 				}
 				break;
 			case TRIPBOMB_WEAPON:
-				if (operateTripbomb(snum))
+				if (operateTripbomb(p))
 				{
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound(p->curr_weapon, p))
