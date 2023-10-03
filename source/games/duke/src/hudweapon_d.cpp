@@ -277,7 +277,7 @@ void displayweapon_d(int snum, double interpfrac)
 	offsets.Y -= gun_pos;
 
 	int cw = p->last_weapon >= 0 ? p->last_weapon : p->curr_weapon;
-	if (isWW2GI()) cw = aplWeaponWorksLike(cw, snum);
+	if (isWW2GI()) cw = aplWeaponWorksLike(cw, p);
 
 	// onevent should go here..
 	// rest of code should be moved to CON..
@@ -305,9 +305,9 @@ void displayweapon_d(int snum, double interpfrac)
 		int weapTotalTime = 0, weapFireDelay = 0, weapReload = 0;
 		if (isWW2GI())
 		{
-			weapTotalTime = aplWeaponTotalTime(p->curr_weapon, snum);
-			weapFireDelay = aplWeaponFireDelay(p->curr_weapon, snum);
-			weapReload = aplWeaponReload(p->curr_weapon, snum);
+			weapTotalTime = aplWeaponTotalTime(p->curr_weapon, p);
+			weapFireDelay = aplWeaponFireDelay(p->curr_weapon, p);
+			weapReload = aplWeaponReload(p->curr_weapon, p);
 		}
 
 		//---------------------------------------------------------------------------

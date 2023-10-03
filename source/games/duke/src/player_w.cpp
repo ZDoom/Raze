@@ -52,48 +52,48 @@ void DoFire(DDukePlayer* p, int snum)
 {
 	int i;
 
-	if (aplWeaponWorksLike(p->curr_weapon, snum) != KNEE_WEAPON)
+	if (aplWeaponWorksLike(p->curr_weapon, p) != KNEE_WEAPON)
 	{
 		p->ammo_amount[p->curr_weapon]--;
 	}
 
-	if (aplWeaponFireSound(p->curr_weapon, snum))
+	if (aplWeaponFireSound(p->curr_weapon, p))
 	{
-		S_PlayActorSound(aplWeaponFireSound(p->curr_weapon, snum), p->GetActor());
+		S_PlayActorSound(aplWeaponFireSound(p->curr_weapon, p), p->GetActor());
 	}
 
 	SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-	SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
-	shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, snum)));
-	for (i = 1; i < aplWeaponShotsPerBurst(p->curr_weapon, snum); i++)
+	SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
+	shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
+	for (i = 1; i < aplWeaponShotsPerBurst(p->curr_weapon, p); i++)
 	{
-		shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, snum)));
-		if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_AMMOPERSHOT)
+		shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
+		if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_AMMOPERSHOT)
 		{
 			p->ammo_amount[p->curr_weapon]--;
 		}
 	}
 
-	if (!(aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_NOVISIBLE))
+	if (!(aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_NOVISIBLE))
 	{
 		// make them visible if not set...
 		lastvisinc = PlayClock + 32;
 		p->visibility = 0;
 	}
 
-	if ( //!(aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_CHECKATRELOAD) &&
-		aplWeaponReload(p->curr_weapon, snum) > aplWeaponTotalTime(p->curr_weapon, snum)
+	if ( //!(aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_CHECKATRELOAD) &&
+		aplWeaponReload(p->curr_weapon, p) > aplWeaponTotalTime(p->curr_weapon, p)
 		&& p->ammo_amount[p->curr_weapon] > 0
-		&& (aplWeaponClip(p->curr_weapon, snum))
-		&& ((p->ammo_amount[p->curr_weapon] % (aplWeaponClip(p->curr_weapon, snum))) == 0)
+		&& (aplWeaponClip(p->curr_weapon, p))
+		&& ((p->ammo_amount[p->curr_weapon] % (aplWeaponClip(p->curr_weapon, p))) == 0)
 		)
 	{
 		// do clip check...
-		p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, snum);
+		p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, p);
 		// is same as p->kickback_pic....
 	}
 
-	if (aplWeaponWorksLike(p->curr_weapon, snum) != KNEE_WEAPON)
+	if (aplWeaponWorksLike(p->curr_weapon, p) != KNEE_WEAPON)
 	{
 		checkavailweapon(p);
 	}
@@ -107,13 +107,13 @@ void DoFire(DDukePlayer* p, int snum)
 
 void DoSpawn(DDukePlayer *p, int snum)
 {
-	if(!aplWeaponSpawn(p->curr_weapon, snum))
+	if(!aplWeaponSpawn(p->curr_weapon, p))
 		return;
 
-	auto j = spawn(p->GetActor(), GetSpawnType(aplWeaponSpawn(p->curr_weapon, snum)));
+	auto j = spawn(p->GetActor(), GetSpawnType(aplWeaponSpawn(p->curr_weapon, p)));
 	if (!j) return;
 
-	if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE2 ) )
+	if((aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{
 		// like shotgun shells
 		j->spr.Angles.Yaw += DAngle180;
@@ -121,7 +121,7 @@ void DoSpawn(DDukePlayer *p, int snum)
 		j->spr.Angles.Yaw += DAngle180;
 //		p->kickback_pic++;
 	}
-	else if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE3 ) )
+	else if((aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_SPAWNTYPE3 ) )
 	{
 		// like chaingun shells
 		j->spr.Angles.Yaw += DAngle90;
@@ -158,29 +158,29 @@ void fireweapon_ww(int snum)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
+		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
 		OnEvent(EVENT_FIRE, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
-			switch (aplWeaponWorksLike(p->curr_weapon, snum))
+			switch (aplWeaponWorksLike(p->curr_weapon, p))
 			{
 			case HANDBOMB_WEAPON:
 				p->hbomb_hold_delay = 0;
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
 			case HANDREMOTE_WEAPON:
 				p->hbomb_hold_delay = 0;
 				p->kickback_pic = 1;
-				if (aplWeaponInitialSound(p->curr_weapon, snum))
+				if (aplWeaponInitialSound(p->curr_weapon, p))
 				{
-					S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+					S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 				}
 				break;
 
@@ -189,9 +189,9 @@ void fireweapon_ww(int snum)
 				{
 					//p->ammo_amount[p->curr_weapon]--;
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -201,9 +201,9 @@ void fireweapon_ww(int snum)
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -212,9 +212,9 @@ void fireweapon_ww(int snum)
 				if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -222,9 +222,9 @@ void fireweapon_ww(int snum)
 				if (operateTripbomb(snum))
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -233,9 +233,9 @@ void fireweapon_ww(int snum)
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -244,9 +244,9 @@ void fireweapon_ww(int snum)
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -255,9 +255,9 @@ void fireweapon_ww(int snum)
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -266,9 +266,9 @@ void fireweapon_ww(int snum)
 				{
 					p->kickback_pic = 1;
 					p->hbomb_hold_delay = !p->hbomb_hold_delay;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -277,9 +277,9 @@ void fireweapon_ww(int snum)
 				if (p->ammo_amount[RPG_WEAPON] > 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -288,9 +288,9 @@ void fireweapon_ww(int snum)
 				if (p->quick_kick == 0)
 				{
 					p->kickback_pic = 1;
-					if (aplWeaponInitialSound(p->curr_weapon, snum))
+					if (aplWeaponInitialSound(p->curr_weapon, p))
 					{
-						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, snum), pact);
+						S_PlayActorSound(aplWeaponInitialSound(p->curr_weapon, p), pact);
 					}
 				}
 				break;
@@ -311,10 +311,10 @@ void operateweapon_ww(int snum, ESyncBits actions)
 	auto pact = p->GetActor();
 
 	// already firing...
-	if (aplWeaponWorksLike(p->curr_weapon, snum) == HANDBOMB_WEAPON)
+	if (aplWeaponWorksLike(p->curr_weapon, p) == HANDBOMB_WEAPON)
 	{
-		if (aplWeaponHoldDelay(p->curr_weapon, snum)	// there is a hold delay
-			&& (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, snum))	// and we are 'at' hold
+		if (aplWeaponHoldDelay(p->curr_weapon, p)	// there is a hold delay
+			&& (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, p))	// and we are 'at' hold
 			&& (actions & SB_FIRE)	// and 'fire' button is still down
 			)
 			// just hold here...
@@ -323,7 +323,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			return;
 		}
 		p->kickback_pic++;
-		if (p->kickback_pic == aplWeaponHoldDelay(p->curr_weapon, snum))
+		if (p->kickback_pic == aplWeaponHoldDelay(p->curr_weapon, p))
 		{
 			double zvel, vel;
 
@@ -372,43 +372,43 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			}
 
 		}
-		else if (p->kickback_pic < aplWeaponHoldDelay(p->curr_weapon, snum) &&
+		else if (p->kickback_pic < aplWeaponHoldDelay(p->curr_weapon, p) &&
 			(actions & SB_CROUCH))
 		{
 			p->hbomb_hold_delay++;
 		}
-		else if (p->kickback_pic > aplWeaponTotalTime(p->curr_weapon, snum))
+		else if (p->kickback_pic > aplWeaponTotalTime(p->curr_weapon, p))
 		{
 			p->okickback_pic = p->kickback_pic = 0;
 			// don't change to remote when in NAM: grenades are timed
 			checkavailweapon(p);
 		}
 	}
-	else if (aplWeaponWorksLike(p->curr_weapon, snum) == HANDREMOTE_WEAPON)
+	else if (aplWeaponWorksLike(p->curr_weapon, p) == HANDREMOTE_WEAPON)
 	{
 		p->kickback_pic++;
 
-		if (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, snum))
+		if (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, p))
 		{
-			if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_BOMB_TRIGGER)
+			if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_BOMB_TRIGGER)
 			{
 				p->hbomb_on = 0;
 			}
-			if (aplWeaponShoots(p->curr_weapon, snum) != 0)
+			if (aplWeaponShoots(p->curr_weapon, p) != 0)
 			{
-				if (!(aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_NOVISIBLE))
+				if (!(aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_NOVISIBLE))
 				{
 					// make them visible if not set...
 					lastvisinc = PlayClock + 32;
 					p->visibility = 0;
 				}
 				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
-				shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, snum)));
+				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, p), p->GetActor(), snum);
+				shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, p)));
 			}
 		}
 
-		if (p->kickback_pic >= aplWeaponTotalTime(p->curr_weapon, snum))
+		if (p->kickback_pic >= aplWeaponTotalTime(p->curr_weapon, p))
 		{
 			p->okickback_pic = p->kickback_pic = 0;
 			/// WHAT THE HELL DOES THIS DO....?????????????
@@ -425,47 +425,47 @@ void operateweapon_ww(int snum, ESyncBits actions)
 		// the basic weapon...
 		p->kickback_pic++;
 
-		if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_CHECKATRELOAD)
+		if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_CHECKATRELOAD)
 		{
-			if (p->kickback_pic == aplWeaponReload(p->curr_weapon, snum))
+			if (p->kickback_pic == aplWeaponReload(p->curr_weapon, p))
 			{
 				checkavailweapon(p);
 			}
 		}
-		if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_STANDSTILL
-			&& p->kickback_pic < (aplWeaponFireDelay(p->curr_weapon, snum) + 1))
+		if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_STANDSTILL
+			&& p->kickback_pic < (aplWeaponFireDelay(p->curr_weapon, p) + 1))
 		{
 			p->GetActor()->restorez();
 			p->vel.Z = 0;
 		}
-		if (p->kickback_pic == aplWeaponSound2Time(p->curr_weapon, snum))
+		if (p->kickback_pic == aplWeaponSound2Time(p->curr_weapon, p))
 		{
-			if (aplWeaponSound2Sound(p->curr_weapon, snum))
+			if (aplWeaponSound2Sound(p->curr_weapon, p))
 			{
-				S_PlayActorSound(aplWeaponSound2Sound(p->curr_weapon, snum), pact);
+				S_PlayActorSound(aplWeaponSound2Sound(p->curr_weapon, p), pact);
 			}
 		}
-		if (p->kickback_pic == aplWeaponSpawnTime(p->curr_weapon, snum))
+		if (p->kickback_pic == aplWeaponSpawnTime(p->curr_weapon, p))
 		{
 			DoSpawn(p, snum);
 		}
-		if (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, snum))
+		if (p->kickback_pic == aplWeaponFireDelay(p->curr_weapon, p))
 		{
 			DoFire(p, snum);
 		}
 
-		if (p->kickback_pic > aplWeaponFireDelay(p->curr_weapon, snum)
-			&& p->kickback_pic < aplWeaponTotalTime(p->curr_weapon, snum))
+		if (p->kickback_pic > aplWeaponFireDelay(p->curr_weapon, p)
+			&& p->kickback_pic < aplWeaponTotalTime(p->curr_weapon, p))
 		{
 
-			if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_AUTOMATIC)
+			if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_AUTOMATIC)
 			{ // an 'automatic'
 				if ((actions & SB_FIRE) == 0)
 				{
-					p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, snum);
+					p->kickback_pic = aplWeaponTotalTime(p->curr_weapon, p);
 				}
 
-				if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_FIREEVERYTHIRD)
+				if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_FIREEVERYTHIRD)
 				{
 					if (((p->kickback_pic) % 3) == 0)
 					{
@@ -474,7 +474,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 					}
 
 				}
-				if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_FIREEVERYOTHER)
+				if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_FIREEVERYOTHER)
 				{
 					// fire every other...
 					DoFire(p, snum);
@@ -483,30 +483,30 @@ void operateweapon_ww(int snum, ESyncBits actions)
 
 			} // 'automatic
 		}
-		else if (p->kickback_pic >= aplWeaponTotalTime(p->curr_weapon, snum))
+		else if (p->kickback_pic >= aplWeaponTotalTime(p->curr_weapon, p))
 		{
-			if ( //!(aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_CHECKATRELOAD) &&
-				aplWeaponReload(p->curr_weapon, snum) > aplWeaponTotalTime(p->curr_weapon, snum)
+			if ( //!(aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_CHECKATRELOAD) &&
+				aplWeaponReload(p->curr_weapon, p) > aplWeaponTotalTime(p->curr_weapon, p)
 				&& p->ammo_amount[p->curr_weapon] > 0
-				&& (aplWeaponClip(p->curr_weapon, snum))
-				&& ((p->ammo_amount[p->curr_weapon] % (aplWeaponClip(p->curr_weapon, snum))) == 0)
+				&& (aplWeaponClip(p->curr_weapon, p))
+				&& ((p->ammo_amount[p->curr_weapon] % (aplWeaponClip(p->curr_weapon, p))) == 0)
 				)
 			{
 				// reload in progress...
-				int timer = aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum);
+				int timer = aplWeaponReload(p->curr_weapon, p) - aplWeaponTotalTime(p->curr_weapon, p);
 				// time for 'reload'
 
-				if (p->kickback_pic == (aplWeaponTotalTime(p->curr_weapon, snum) + 1))
+				if (p->kickback_pic == (aplWeaponTotalTime(p->curr_weapon, p) + 1))
 				{ // eject shortly after 'total time'
 					S_PlayActorSound(EJECT_CLIP, pact);
 				}
-				else if (p->kickback_pic == (aplWeaponReload(p->curr_weapon, snum) - (timer / 3)))
+				else if (p->kickback_pic == (aplWeaponReload(p->curr_weapon, p) - (timer / 3)))
 				{
 					// insert occurs 2/3 of way through reload delay
 					S_PlayActorSound(INSERT_CLIP, pact);
 				}
 
-				if (p->kickback_pic >= (aplWeaponReload(p->curr_weapon, snum)))
+				if (p->kickback_pic >= (aplWeaponReload(p->curr_weapon, p)))
 				{
 					p->okickback_pic = p->kickback_pic = 0;
 				}
@@ -514,12 +514,12 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			}
 			else
 			{
-				if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_AUTOMATIC)
+				if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_AUTOMATIC)
 				{ // an 'automatic'
 					if (actions & SB_FIRE)
 					{
 						// we are an AUTOMATIC.  Fire again...
-						if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_RANDOMRESTART)
+						if (aplWeaponFlags(p->curr_weapon, p) & WEAPON_FLAG_RANDOMRESTART)
 						{
 							p->kickback_pic = 1 + (krand() & 3);
 						}

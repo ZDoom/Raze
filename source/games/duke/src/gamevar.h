@@ -7,6 +7,7 @@ BEGIN_DUKE_NS
 // gamedef.c
 
 class DDukeActor;
+class DDukePlayer;
 
 // Game vars can reference actors, we need a type-safe way to handle that so that index values won't get misappropriated and actors can be GC'd.
 class GameVarValue
@@ -76,21 +77,21 @@ enum
 
 // Keep the gory details away from the main game code.
 
-int aplWeaponClip(int weapon, int player);		// number of items in clip
-int aplWeaponReload(int weapon, int player);		// delay to reload (include fire)
-int aplWeaponFireDelay(int weapon, int player);	// delay to fire
-int aplWeaponHoldDelay(int weapon, int player);	// delay after release fire button to fire (0 for none)
-int aplWeaponTotalTime(int weapon, int player);	// The total time the weapon is cycling before next fire.
-int aplWeaponFlags(int weapon, int player);		// Flags for weapon
-int aplWeaponShoots(int weapon, int player);		// what the weapon shoots
-int aplWeaponSpawnTime(int weapon, int player);	// the frame at which to spawn an item
-int aplWeaponSpawn(int weapon, int player);		// the item to spawn
-int aplWeaponShotsPerBurst(int weapon, int player);	// number of shots per 'burst' (one ammo per 'burst'
-int aplWeaponWorksLike(int weapon, int player);	// What original the weapon works like
-int aplWeaponInitialSound(int weapon, int player);	// Sound made when initialy firing. zero for no sound
-int aplWeaponFireSound(int weapon, int player);	// Sound made when firing (each time for automatic)
-int aplWeaponSound2Time(int weapon, int player);	// Alternate sound time
-int aplWeaponSound2Sound(int weapon, int player);	// Alternate sound sound ID
+int aplWeaponClip(int weapon, DDukePlayer* const p);		// number of items in clip
+int aplWeaponReload(int weapon, DDukePlayer* const p);		// delay to reload (include fire)
+int aplWeaponFireDelay(int weapon, DDukePlayer* const p);	// delay to fire
+int aplWeaponHoldDelay(int weapon, DDukePlayer* const p);	// delay after release fire button to fire (0 for none)
+int aplWeaponTotalTime(int weapon, DDukePlayer* const p);	// The total time the weapon is cycling before next fire.
+int aplWeaponFlags(int weapon, DDukePlayer* const p);		// Flags for weapon
+int aplWeaponShoots(int weapon, DDukePlayer* const p);		// what the weapon shoots
+int aplWeaponSpawnTime(int weapon, DDukePlayer* const p);	// the frame at which to spawn an item
+int aplWeaponSpawn(int weapon, DDukePlayer* const p);		// the item to spawn
+int aplWeaponShotsPerBurst(int weapon, DDukePlayer* const p);	// number of shots per 'burst' (one ammo per 'burst'
+int aplWeaponWorksLike(int weapon, DDukePlayer* const p);	// What original the weapon works like
+int aplWeaponInitialSound(int weapon, DDukePlayer* const p);	// Sound made when initialy firing. zero for no sound
+int aplWeaponFireSound(int weapon, DDukePlayer* const p);	// Sound made when firing (each time for automatic)
+int aplWeaponSound2Time(int weapon, DDukePlayer* const p);	// Alternate sound time
+int aplWeaponSound2Sound(int weapon, DDukePlayer* const p);	// Alternate sound sound ID
 
 
 enum

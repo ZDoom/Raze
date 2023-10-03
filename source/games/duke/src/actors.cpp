@@ -306,7 +306,7 @@ void checkavailweapon(DDukePlayer* player)
 
 		if (player->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, snum), pact, snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, player), pact, snum);
 		}
 		else
 		{

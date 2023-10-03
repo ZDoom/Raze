@@ -518,21 +518,21 @@ static int i_aplWeaponFireSound[MAX_WEAPONS];	// Sound made when firing (each ti
 static int i_aplWeaponSound2Time[MAX_WEAPONS];	// Alternate sound time
 static int i_aplWeaponSound2Sound[MAX_WEAPONS];	// Alternate sound sound ID
 
-int aplWeaponClip(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponClip[weapon]].safeValue(); }
-int aplWeaponReload(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponReload[weapon]].safeValue(); }
-int aplWeaponFireDelay(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponFireDelay[weapon]].safeValue(); }
-int aplWeaponHoldDelay(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponHoldDelay[weapon]].safeValue(); }
-int aplWeaponTotalTime(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponTotalTime[weapon]].safeValue(); }
-int aplWeaponFlags(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponFlags[weapon]].safeValue(); }
-int aplWeaponShoots(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponShoots[weapon]].safeValue(); }
-int aplWeaponSpawnTime(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSpawnTime[weapon]].safeValue(); }
-int aplWeaponSpawn(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSpawn[weapon]].safeValue(); }
-int aplWeaponShotsPerBurst(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponShotsPerBurst[weapon]].safeValue(); }
-int aplWeaponWorksLike(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponWorksLike[weapon]].safeValue(); }
-int aplWeaponInitialSound(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponInitialSound[weapon]].safeValue(); }
-int aplWeaponFireSound(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponFireSound[weapon]].safeValue(); }
-int aplWeaponSound2Time(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSound2Time[weapon]].safeValue(); }
-int aplWeaponSound2Sound(int weapon, int player) { return getPlayer(player)->uservars[i_aplWeaponSound2Sound[weapon]].safeValue(); }
+int aplWeaponClip(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponClip[weapon]].safeValue(); }
+int aplWeaponReload(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponReload[weapon]].safeValue(); }
+int aplWeaponFireDelay(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponFireDelay[weapon]].safeValue(); }
+int aplWeaponHoldDelay(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponHoldDelay[weapon]].safeValue(); }
+int aplWeaponTotalTime(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponTotalTime[weapon]].safeValue(); }
+int aplWeaponFlags(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponFlags[weapon]].safeValue(); }
+int aplWeaponShoots(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponShoots[weapon]].safeValue(); }
+int aplWeaponSpawnTime(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponSpawnTime[weapon]].safeValue(); }
+int aplWeaponSpawn(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponSpawn[weapon]].safeValue(); }
+int aplWeaponShotsPerBurst(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponShotsPerBurst[weapon]].safeValue(); }
+int aplWeaponWorksLike(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponWorksLike[weapon]].safeValue(); }
+int aplWeaponInitialSound(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponInitialSound[weapon]].safeValue(); }
+int aplWeaponFireSound(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponFireSound[weapon]].safeValue(); }
+int aplWeaponSound2Time(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponSound2Time[weapon]].safeValue(); }
+int aplWeaponSound2Sound(int weapon, DDukePlayer* const p) { return p->uservars[i_aplWeaponSound2Sound[weapon]].safeValue(); }
 
 //---------------------------------------------------------------------------
 //
