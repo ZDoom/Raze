@@ -636,7 +636,7 @@ int GameMain()
 		gi->FreeLevelData();
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			PlayerArray[i]->Destroy();
+			if (PlayerArray[i]) PlayerArray[i]->Destroy();
 			PlayerArray[i] = nullptr;
 		}
 	}

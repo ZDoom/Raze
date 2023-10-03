@@ -43,6 +43,18 @@
 
 #include "buildtiles.h"
 
+int Raze_getspawnnum(PClassActor* actor)
+{
+	return actor->ActorInfo()->TypeNum;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, getspawnnum, Raze_getspawnnum)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(p, PClassActor);
+	ACTION_RETURN_INT(Raze_getspawnnum(p));
+}
+
 sectortype* Raze_updatesector(double x, double y, sectortype* sec, double dist)
 {
 	updatesector(DVector2(x, y), &sec, dist);
@@ -1132,6 +1144,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setvoid, collision_setvoid)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	collision_setvoid(self);
+	return 0;
+}
+
+void collision_setnone(CollisionBase* coll)
+{
+	coll->type = kHitNone;
+	coll->hitActor = nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setnone, collision_setnone)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	collision_setnone(self);
 	return 0;
 }
 

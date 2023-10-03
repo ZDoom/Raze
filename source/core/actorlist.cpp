@@ -378,8 +378,18 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 	spr.sectp = mspr->sectp;
 	spr.clipdist = mspr->clipdist;
 
-	// picnum may only be used if the class allows it. 
-	if (!(actorinfo->DefaultFlags & DEFF_PICNUM)) spr.picnum = mspr->picnum;
+	// picnum may only be used if the class allows it.
+	if (!isBlood())
+	{
+		if (!(actorinfo->DefaultFlags & DEFF_PICNUM)) spr.picnum = mspr->picnum;
+	}
+	else
+	{
+		// In Blood, actor type and picnum are distinct entities so the logic must be different.
+		// Here this only gets set if the map sprite's pic is 0
+		if (mspr->picnum != 0) spr.picnum = mspr->picnum;
+	}
+	if (!mspr->scale.isZero()) spr.scale = mspr->scale;	// only use default scale if not set in the map.
 
 #define setter(var) spr.var = mspr->var;
 
@@ -395,7 +405,6 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 	setter(shade);
 	setter(pal);
 	setter(blend);
-	setter(scale);
 	setter(xoffset);
 	setter(yoffset);
 	setter(intowner);

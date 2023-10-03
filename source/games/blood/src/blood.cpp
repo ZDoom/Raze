@@ -695,6 +695,23 @@ void GameInterface::FreeLevelData()
 	return new GameInterface;
 }
 
+void GameInterface::FinalizeSetup()
+{
+	// assign spawn types to actor classes. Some code will need them.
+	SpawnMap::Iterator it(spawnMap);
+	SpawnMap::Pair* pair;
+	// this is only reliable for unambiguous assignments, which applies to everything aside from BloodActor itself.
+	while (it.NextPair(pair))
+	{
+		auto cls = pair->Value.cls;
+		if (cls != RUNTIME_CLASS(DBloodActor))
+		{
+			auto actorinfo = static_cast<PClassActor*>(cls)->ActorInfo();
+			actorinfo->TypeNum = pair->Key;
+		}
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -717,83 +734,6 @@ inline DUDEINFO* getDudeInfo(DBloodActor* actor)
 inline DBloodPlayer* getPlayer(DBloodActor* actor)
 {
 	return getPlayer(actor->GetType() - kDudePlayer1);
-}
-
-
-DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
-{
-	static int bLoadScreenCrcMatch = -1;
-	if (bLoadScreenCrcMatch == -1)
-	{
-		auto gtex = TexMan.FindGameTexture("LOADSCREEN", ETextureType::Any);
-		if (gtex)
-		{
-			auto img = gtex->GetTexture()->GetImage();
-			bLoadScreenCrcMatch = tileGetCRC32(img) == kLoadScreenCRC;
-		}
-		else bLoadScreenCrcMatch = true;	// if the LOADSCREEN texture is invalid, allow the widescreen fallback.
-	}
-	ACTION_RETURN_INT(bLoadScreenCrcMatch);
-}
-
-DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
-{
-	Mus_Play("PESTIS.MID", false);
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION(_Blood, sndStartSample)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(id);
-	PARAM_INT(vol);
-	PARAM_INT(chan);
-	PARAM_BOOL(looped);
-	PARAM_INT(chanflags);
-	sndStartSample(id, vol, chan, looped, EChanFlags::FromInt(chanflags));
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
-{
-	PARAM_PROLOGUE;
-	PARAM_STRING(id);
-	PARAM_INT(vol);
-	PARAM_INT(chan);
-	sndStartSample(id.GetChars(), vol, chan);
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(pwup);
-	FTextureID tile = FNullTextureID();
-	if (pwup >= 0 && pwup < (int)countof(gPowerUpInfo))
-	{
-		tile = gPowerUpInfo[pwup].textureID();
-	}
-	FGameTexture* tex = TexMan.GetGameTexture(tile);
-	ACTION_RETURN_INT(tex ? tex->GetID().GetIndex() : -1);
-}
-
-DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
-{
-	PARAM_PROLOGUE;
-	ACTION_RETURN_POINTER(getPlayer(gViewIndex));
-}
-
-DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(DBloodPlayer);
-	ACTION_RETURN_INT(self->GetActor()->xspr.health);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(DBloodPlayer);
-	PARAM_INT(pwup);
-	ACTION_RETURN_INT(powerupCheck(self, pwup));
 }
 
 END_BLD_NS

@@ -1204,9 +1204,6 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		pickupSnd = 779;
 		break;
 	}
-	case kItemCrystalBall:
-		if (gGameOptions.nGameType == 0 || !packAddItem(pPlayer, gItemData[nType].packSlot)) return 0;
-		break;
 	case kItemKeySkull:
 	case kItemKeyEye:
 	case kItemKeyFire:
@@ -1232,6 +1229,9 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		if (!actHealDude(pPlayer->GetActor(), addPower, gPowerUpInfo[nType].maxTime)) return 0;
 		return 1;
 	}
+
+	case kItemCrystalBall:
+		if (gGameOptions.nGameType == 0) return 0;
 	case kItemHealthDoctorBag:
 	case kItemJumpBoots:
 	case kItemDivingSuit:
@@ -2199,7 +2199,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 		if (gModernMap && gGameOptions.nGameType != 0 && pPlayer->GetActor()->xspr.health <= 0) {
 
 			DBloodActor* pItem = nullptr;
-			if (pPlayer->GetActor()->xspr.dropMsg && (pItem = actDropItem(pActor, pPlayer->GetActor()->xspr.dropMsg)) != NULL)
+			if (pPlayer->GetActor()->xspr.dropMsg && (pItem = actDropObject(pActor, pPlayer->GetActor()->xspr.dropMsg)) != NULL)
 				evPostActor(pItem, 500, kCallbackRemove);
 
 			if (pPlayer->GetActor()->xspr.key) {
@@ -2210,7 +2210,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 						break;
 				}
 
-				if (i == 0 && (pItem = actDropKey(pActor, (pPlayer->GetActor()->xspr.key + kItemKeyBase) - 1)) != NULL)
+				if (i == 0 && (pItem = actDropObject(pActor, (pPlayer->GetActor()->xspr.key + kItemKeyBase) - 1)) != NULL)
 					evPostActor(pItem, 500, kCallbackRemove);
 
 			}

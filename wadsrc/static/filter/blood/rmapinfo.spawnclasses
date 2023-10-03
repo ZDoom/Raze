@@ -26,6 +26,12 @@ spawnclasses
 	73 = BloodAmmoTeslaCharge
 	76 = BloodAmmoFlares
 	79 = BloodAmmoGasolineCan
+	61 = BloodAmmoObsolete61
+	71 = BloodAmmoObsolete71
+	74 = BloodAmmoObsolete74
+	75 = BloodAmmoObsolete75
+	77 = BloodAmmoObsolete77
+	78 = BloodAmmoObsolete78
 
 
 	// items (keys)

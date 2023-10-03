@@ -185,6 +185,7 @@ struct CollisionData
 	native void setWall(walltype w);
 	native void setActor(CoreActor a);
 	native void setVoid();
+	native void setNone();
 }
 
 struct HitInfo
@@ -213,6 +214,7 @@ struct Raze
 	native static void SetReverb(int r);
 	native static void SetReverbDelay(int d);
 	native static Sound FindSoundByResID(int id);
+	native static int getSpawnNum(class<CoreActor> act);
 
 	native static int tileflags(TextureID tex);
 	native static int tilesurface(TextureID tex);

@@ -53,7 +53,10 @@ DBloodActor* InsertSprite(sectortype* pSector, int nStat, PClass* cls)
 	auto act = static_cast<DBloodActor*>(::InsertActor(cls, pSector, nStat));
 	act->spr.cstat = CSTAT_SPRITE_YCENTER;
 	act->clipdist = 8;
-	act->spr.scale = DVector2(1, 1);
+
+	// default to full scale.
+	if (act->spr.scale.isZero())
+		act->spr.scale = DVector2(1, 1);
 	return act;
 }
 

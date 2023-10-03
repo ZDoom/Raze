@@ -90,6 +90,71 @@ struct DUDEEXTRA
 
 class BloodActor : CoreActor native
 {
+	meta int defshade;
+	meta int defpal;
+	Property prefix: none;
+	property shade: defshade;
+	property pal: defpal;
+	
+	enum GAME_TYPE
+	{
+		kSingleplayer = 1,
+		kDeathmatch = 2,
+		kTeamplay = 3
+	}
+	
+	enum STAT_ID {
+		kStatDecoration = 0,
+		kStatFX = 1,
+		kStatExplosion = 2,
+		kStatItem = 3,
+		kStatThing = 4,
+		kStatProjectile = 5,
+		kStatDude = 6,
+		kStatInactive = 7, // inactive (ambush) dudes
+		kStatRespawn = 8,
+		kStatPurge = 9,
+		kStatMarker = 10,
+		kStatTraps = 11,
+		kStatAmbience = 12,
+		kStatSpares = 13,
+		kStatFlare = 14,
+		kStatDebris = 15,
+		kStatPathMarker = 16,
+		kStatFree = 1024,
+	};
+	
+	enum CALLBACK_ID {
+		kCallbackNone = -1,
+		kCallbackFXFlameLick = 0,
+		kCallbackRemove = 1,
+		kCallbackFXFlareBurst = 2,
+		kCallbackFXFlareSpark = 3,
+		kCallbackFXFlareSparkLite = 4,
+		kCallbackFXZombieSpurt = 5,
+		kCallbackFXBloodSpurt = 6,
+		kCallbackFXArcSpark = 7,
+		kCallbackFXDynPuff = 8,
+		kCallbackRespawn = 9,
+		kCallbackPlayerBubble = 10,
+		kCallbackEnemeyBubble = 11,
+		kCallbackCounterCheck = 12,
+		kCallbackFinishHim = 13,
+		kCallbackFXBloodBits = 14,
+		kCallbackFXTeslaAlt = 15,
+		kCallbackFXBouncingSleeve = 16,
+		kCallbackReturnFlag = 17,
+		kCallbackFXPodBloodSpray = 18,
+		kCallbackFXPodBloodSplat = 19,
+		kCallbackLeechStateTimer = 20,
+		kCallbackDropVoodoo = 21, // unused
+
+		kCallbackMissileBurst = 22,
+		kCallbackMissileSpriteBlock = 23,
+		kCallbackGenDudeUpdate = 24,
+		kCallbackCondition = 25,
+	}
+	
 	native double dudeSlope;
 	native readonly bool hasx;
 	native bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
@@ -111,5 +176,71 @@ class BloodActor : CoreActor native
 
 
 	native void ChangeType(class<BloodActor> newtype);
+	native static BloodActor InsertSprite(sectortype pSector, int nStat, Class<BloodActor> cls);
+	native void addX();
+	native void evPostActorCallback(int delta, int callback);
+	native double, double getActorExtents();
+	
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static BloodActor spawnSprite(sectortype pSector, Vector3 pos, int nStat, bool setextra, Class<BloodActor> cls)
+	{
+		let spawned = InsertSprite(pSector, nStat, cls);
+		spawned.lotag = Raze.getSpawnNum(cls);	// we still need this, mapping may not be ambiguous.
+
+		spawned.setposition(pos);
+		if (setextra && !spawned.hasX)
+		{
+			spawned.addX();
+			spawned.hit.florhit.setNone();
+			spawned.hit.ceilhit.setNone();
+		}
+		return spawned;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	BloodActor dropObject(class<BloodActor> itemtype)
+	{
+		if (!(itemtype is 'BloodItemBase') &&
+			!(itemtype is 'BloodAmmoBase') &&
+			!(itemtype is 'BloodWeaponBase')) return null;
+
+		let pos = self.pos;
+		let sector = Raze.updatesector(pos.XY, self.sector);
+		double c,f;
+		[c, f] = sector.getSlopes(pos.XY);
+		
+		let spawned = spawnSprite(sector, (pos.xy, f), kStatItem, false, itemtype);
+		if (!spawned) return null;
+		
+		spawned.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		spawned.shade = spawned.defshade;
+		
+		if (itemtype is 'BloodKeyBase' && Blood.GameType() == kSingleplayer)
+		{
+			spawned.xspr.respawn = 3;
+		}
+		if (itemtype is 'BloodFlagBase' && Blood.GameType() == kTeamplay)
+		{
+			spawned.evPostActorCallback(1800, kCallbackReturnFlag);
+		}
+
+		double top, bottom;
+		[top, bottom] = spawned.GetActorExtents();
+		if (bottom >= spawned.pos.Z)
+			spawned.pos.Z -= (bottom - spawned.pos.Z);
+
+		return spawned;
+	}
+
 
 }

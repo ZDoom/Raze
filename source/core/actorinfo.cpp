@@ -247,7 +247,7 @@ PClassActor *PClassActor::GetReplacee()
 
 void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 {
-	SpriteSet.Resize(SpriteSetNames.Size());
+	SpriteSet.Set((FTextureID*)ClassDataAllocator.Alloc(SpriteSetNames.Size() * sizeof(FTextureID)), SpriteSetNames.Size());
 	for (unsigned i = 0; i < SpriteSet.Size(); i++)
 	{
 		SpriteSet[i] = TexMan.CheckForTexture(SpriteSetNames[i].GetChars(), ETextureType::Any);
@@ -259,6 +259,7 @@ void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 		if (defaults->spritesetindex < 0 || defaults->spritesetindex >= (int)SpriteSet.Size()) defaults->spritesetindex = 0;
 		defaults->spr.setspritetexture(SpriteSet[defaults->spritesetindex]);
 	}
+	if (!DefaultScale.isZero()) defaults->spr.scale = DefaultScale;
 	SpriteSetNames.Reset();
 }
 

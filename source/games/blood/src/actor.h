@@ -114,14 +114,14 @@ struct WEAPONITEMDATA
 
 struct ITEMDATA
 {
-	int16_t cstat;
+	int16_t __cstat_;
 	int16_t picno;
-	int8_t shade;
-	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
+	int8_t __shade_;
+	uint8_t __pal_;
+	uint8_t __xrepeat_;
+	uint8_t __yrepeat_;
 	int16_t packSlot;
-	FTextureID textureID() const { return tileGetTextureID(picno); }
+	FTextureID __textureID_() const { return tileGetTextureID(picno); }
 };
 
 struct MissileType

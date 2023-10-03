@@ -22,7 +22,7 @@ enum EDefaultFlags
 struct FActorInfo
 {
 	TArray<FInternalLightAssociation *> LightAssociations;
-	TArray<FTextureID> SpriteSet;
+	TArrayView<FTextureID> SpriteSet;
 	PClassActor *Replacement = nullptr;
 	PClassActor *Replacee = nullptr;
 	DVector2 DefaultScale = { 0, 0 };

@@ -136,6 +136,7 @@ struct GameInterface : public ::GameInterface
 	void RemoveQAVInterpProps(const int res_id) override;
 	void StartSoundEngine() override;
 	unsigned getCrouchState() override;
+	void FinalizeSetup() override;
 };
 
 END_BLD_NS

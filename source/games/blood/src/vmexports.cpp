@@ -24,6 +24,92 @@ See the GNU General Public License for more details.
 #include "blood.h"
 BEGIN_BLD_NS
 
+DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
+{
+	static int bLoadScreenCrcMatch = -1;
+	if (bLoadScreenCrcMatch == -1)
+	{
+		auto gtex = TexMan.FindGameTexture("LOADSCREEN", ETextureType::Any);
+		if (gtex)
+		{
+			auto img = gtex->GetTexture()->GetImage();
+			bLoadScreenCrcMatch = tileGetCRC32(img) == kLoadScreenCRC;
+		}
+		else bLoadScreenCrcMatch = true;	// if the LOADSCREEN texture is invalid, allow the widescreen fallback.
+	}
+	ACTION_RETURN_INT(bLoadScreenCrcMatch);
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
+{
+	Mus_Play("PESTIS.MID", false);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, sndStartSample)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(id);
+	PARAM_INT(vol);
+	PARAM_INT(chan);
+	PARAM_BOOL(looped);
+	PARAM_INT(chanflags);
+	sndStartSample(id, vol, chan, looped, EChanFlags::FromInt(chanflags));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(id);
+	PARAM_INT(vol);
+	PARAM_INT(chan);
+	sndStartSample(id.GetChars(), vol, chan);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(pwup);
+	FTextureID tile = FNullTextureID();
+	if (pwup >= 0 && pwup < (int)countof(gPowerUpInfo))
+	{
+		tile = gPowerUpInfo[pwup].textureID();
+	}
+	FGameTexture* tex = TexMan.GetGameTexture(tile);
+	ACTION_RETURN_INT(tex ? tex->GetID().GetIndex() : -1);
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_POINTER(getPlayer(gViewIndex));
+}
+
+static int blood_gameMode()
+{
+	return gGameOptions.nGameType;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_Blood, gameType, blood_gameMode)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_INT(gGameOptions.nGameType);
+}
+
+DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DBloodPlayer);
+	ACTION_RETURN_INT(self->GetActor()->xspr.health);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DBloodPlayer);
+	PARAM_INT(pwup);
+	ACTION_RETURN_INT(powerupCheck(self, pwup));
+}
+
 
 DEFINE_FIELD_X(XSECTOR, XSECTOR, flags)
 DEFINE_FIELD_X(XSECTOR, XSECTOR, flags2)
@@ -135,7 +221,7 @@ DEFINE_FIELD(DBloodActor, cumulDamage)
 DEFINE_FIELD(DBloodActor, interpolated)
 
 
-void Blood_ChangeType(DBloodActor* self, PClassActor* type)
+static void Blood_ChangeType(DBloodActor* self, PClassActor* type)
 {
 	self->ChangeType(type);
 }
@@ -147,5 +233,79 @@ DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, ChangeType, Blood_ChangeType)
 	self->ChangeType(type);
 	return 0;
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, InsertSprite, InsertSprite)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	PARAM_INT(stat);
+	PARAM_POINTER(type, PClassActor);
+	ACTION_RETURN_POINTER(InsertSprite(sect, stat, type));
+}
+
+static void bloodactor_addX(DBloodActor* a)
+{
+	a->addX();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, addX, bloodactor_addX)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	self->addX();
+	return 0;
+}
+
+static void bloodactor_evPostActorCallback(DBloodActor* act, int delta, int id)
+{
+	evPostActor(act, delta, (CALLBACK_ID)id);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, evPostActorCallback, bloodactor_evPostActorCallback)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_INT(d);
+	PARAM_INT(id);
+	bloodactor_evPostActorCallback(self, d, id);
+	return 0;
+}
+
+double bloodactor_getActorExtents(DBloodActor* act, double* bottom)
+{
+	double top;
+	GetActorExtents(act, &top, bottom);
+	return top;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, getActorExtents, bloodactor_getActorExtents)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	double top, bottom;
+	GetActorExtents(self, &top, &bottom);
+	if (numret > 0) ret[0].SetFloat(top);
+	if (numret > 1) ret[1].SetFloat(bottom);
+	return min(numret, 2);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* actDropObject(DBloodActor* actor, int nType)
+{
+	IFVM(BloodActor, dropObject)
+	{
+		PClass* ty = GetSpawnType(nType);
+		if (ty == nullptr) ty = RUNTIME_CLASS(DBloodActor);
+		DBloodActor* spawned;
+		VMReturn ret((void**)&spawned);
+		VMValue param[] = { actor, ty };
+		VMCall(func, param, 2, &ret, 1);
+		return spawned;
+	}
+	return nullptr;
+}
+
 
 END_BLD_NS
