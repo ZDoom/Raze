@@ -620,10 +620,8 @@ void playerisdead(DDukePlayer* const p, int psectlotag, double floorz, double ce
 //
 //---------------------------------------------------------------------------
 
-int endoflevel(int snum)
+int endoflevel(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
-
 	// the fist puching the end-of-level thing...
 	p->ofist_incs = p->fist_incs;
 	p->fist_incs++;
