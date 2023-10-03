@@ -1283,7 +1283,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		if (((actions & SB_CROUCH) || p->cmd.ucmd.vel.Z < 0) && !p->OnMotorcycle)
 		{
-			playerCrouch(snum);
+			playerCrouch(p);
 		}
 
 		if ((actions & SB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)

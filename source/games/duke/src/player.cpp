@@ -673,15 +673,15 @@ int timedexit(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-void playerCrouch(int snum)
+void playerCrouch(DDukePlayer* const p)
 {
-	const auto p = getPlayer(snum);
 	const auto pact = p->GetActor();
 	const auto nVelMoveDown = abs(p->cmd.ucmd.vel.Z * (p->cmd.ucmd.vel.Z < 0));
 	constexpr double vel = 8 + 3;
-	SetGameVarID(g_iReturnVarID, 0, pact, snum);
-	OnEvent(EVENT_CROUCH, snum, pact, -1);
-	if (GetGameVarID(g_iReturnVarID, pact, snum).value() == 0)
+
+	SetGameVarID(g_iReturnVarID, 0, pact, p->pnum);
+	OnEvent(EVENT_CROUCH, p->pnum, pact, -1);
+	if (GetGameVarID(g_iReturnVarID, pact, p->pnum).value() == 0)
 	{
 		pact->spr.pos.Z += clamp(vel * !!(p->cmd.ucmd.actions & SB_CROUCH) + vel * nVelMoveDown, -vel, vel);
 		p->crack_time = CRACK_TIME;
