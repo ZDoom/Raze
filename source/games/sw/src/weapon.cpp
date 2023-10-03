@@ -3571,7 +3571,7 @@ int DoVomit(DSWActor* actor)
 {
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     // notreallypos
-    auto v = actor->user.pos + mapangle(actor->user.Counter).ToVector() * 12 * REPEAT_SCALE;
+    auto v = actor->user.pos.XY() + mapangle(actor->user.Counter).ToVector() * 12 * REPEAT_SCALE;
     actor->spr.scale = v;
     if (actor->user.Flags & (SPR_JUMPING))
     {
@@ -11791,7 +11791,7 @@ int InitEnemyNapalm(DSWActor* actor)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->sector(),
-                        DVector3(actor->spr.pos, ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25)), actor->spr.Angles.Yaw, NAPALM_VELOCITY);
+                        DVector3(actor->spr.pos.XY(), ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25)), actor->spr.Angles.Yaw, NAPALM_VELOCITY);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         if (i==0) // Only attach sound to first projectile
@@ -11893,7 +11893,7 @@ int InitEnemyMirv(DSWActor* actor)
     PlaySound(DIGI_MIRVFIRE, actor, v3df_none);
 
     auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, s_Mirv, actor->sector(),
-							   DVector3(actor->spr.pos, ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25)), actor->spr.Angles.Yaw, MIRV_VELOCITY);
+							   DVector3(actor->spr.pos.XY(), ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25)), actor->spr.Angles.Yaw, MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -13975,7 +13975,7 @@ int InitSerpSlash(DSWActor* actor)
 bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 {
     DVector2 out[2];
-    GetWallSpritePosition(&wactor->spr, wactor->spr.pos, out);
+    GetWallSpritePosition(&wactor->spr, wactor->spr.pos.XY(), out);
     return IsCloseToLine(actor->spr.pos.XY(), out[0], out[1], actor->clipdist) != EClose::Outside;
 }
 
@@ -16758,7 +16758,7 @@ int InitEnemyFireball(DSWActor* actor)
     for (int i = 0; i < 2; i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, GORO_FIREBALL, s_Fireball, actor->sector(),
-                        DVector3(actor->spr.pos, nz), actor->spr.Angles.Yaw, GORO_FIREBALL_VELOCITY);
+                        DVector3(actor->spr.pos.XY(), nz), actor->spr.Angles.Yaw, GORO_FIREBALL_VELOCITY);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->spr.scale = DVector2(0.3125, 0.3125);
@@ -16858,7 +16858,7 @@ bool WarpToUnderwater(DVector3& pos, sectortype** psectu)
 	spos = overActor->spr.pos.XY() - pos.XY();
 
     // update to the new x y position
-	pos.XY() = underActor->spr.pos - spos;
+	pos.XY() = underActor->spr.pos.XY() - spos;
 
     auto over = overActor->sector();
     auto under = underActor->sector();
@@ -17001,7 +17001,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     auto over = overActor->sector();
     auto under = underActor->sector();
 
-    if (GetOverlapSector(actor->spr.pos, &over, &under) == 2)
+    if (GetOverlapSector(actor->spr.pos.XY(), &over, &under) == 2)
     {
         ChangeActorSect(actor, under);
     }
@@ -17077,7 +17077,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     auto over = overActor->sector();
     auto under = underActor->sector();
 
-    if (GetOverlapSector(actor->spr.pos, &over, &under))
+    if (GetOverlapSector(actor->spr.pos.XY(), &over, &under))
     {
         ChangeActorSect(actor, over);
     }

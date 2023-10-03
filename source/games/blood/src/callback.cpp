@@ -452,7 +452,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	DAngle nAngle = RandomAngle();
 	int nDist = Random(16);
 	auto pos = actor->spr.pos + nAngle.ToVector() * nDist * 4;
-	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z));
+	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos.XY(), actor->spr.pos.Z));
 	if (actor->spr.Angles.Yaw == DAngle180)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
@@ -460,7 +460,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	}
 	if (Chance(0x5000))
 	{
-		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), DVector3(pos, floorZ - 0.25));
+		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), DVector3(pos.XY(), floorZ - 0.25));
 		if (pFX)
 			pFX->spr.Angles.Yaw = nAngle;
 	}

@@ -88,11 +88,6 @@ struct TVector2
 
 	TVector2(const TVector2 &other) = default;
 
-	TVector2 (const TVector3<vec_t> &other)	// Copy the X and Y from the 3D vector and discard the Z
-		: X(other.X), Y(other.Y)
-	{
-	}
-
 	TVector2(vec_t *o)
 		: X(o[0]), Y(o[1])
 	{

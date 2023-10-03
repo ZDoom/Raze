@@ -380,8 +380,8 @@ void HWDrawInfo::CreateScene(bool portal)
 
 	if(!portal) mClipper->SetVisibleRange(vp.RotAngle, a1);
 
-	if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos, vp.RotAngle - a1, vp.RotAngle + a1);
-	else mDrawer.Init(this, mClipper, vp.Pos, 0, 0);
+	if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos.XY(), vp.RotAngle - a1, vp.RotAngle + a1);
+	else mDrawer.Init(this, mClipper, vp.Pos.XY(), 0, 0);
 	if (vp.SectNums)
 		mDrawer.RenderScene(vp.SectNums, vp.SectCount, portal);
 	else
@@ -417,8 +417,8 @@ void HWDrawInfo::CreateScene(bool portal)
 			if (eff.geosector[i] == drawsectp) drawsectp = eff.geosectorwarp[i];
 		}
 
-		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos, vp.RotAngle - a1, vp.RotAngle + a1);
-		else mDrawer.Init(this, mClipper, vp.Pos, 0, 0);
+		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos.XY(), vp.RotAngle - a1, vp.RotAngle + a1);
+		else mDrawer.Init(this, mClipper, vp.Pos.XY(), 0, 0);
 
 		int drawsect = sectindex(drawsectp);
 		mDrawer.RenderScene(&drawsect, 1, false);
@@ -449,8 +449,8 @@ void HWDrawInfo::CreateScene(bool portal)
 			if (eff.geosector[i] == orgdrawsectp) drawsectp = eff.geosectorwarp2[i];
 		}
 
-		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos, vp.RotAngle - a1, vp.RotAngle + a1);
-		else mDrawer.Init(this, mClipper, vp.Pos, 0, 0);
+		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos.XY(), vp.RotAngle - a1, vp.RotAngle + a1);
+		else mDrawer.Init(this, mClipper, vp.Pos.XY(), 0, 0);
 		drawsect = sectindex(drawsectp);
 		mDrawer.RenderScene(&drawsect, 1, false);
 

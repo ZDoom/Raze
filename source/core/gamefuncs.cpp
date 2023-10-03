@@ -559,7 +559,7 @@ double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVect
 {
 	DVector2 points[2];
 
-	GetWallSpritePosition(&actor->spr, actor->spr.pos, points, false);
+	GetWallSpritePosition(&actor->spr, actor->spr.pos.XY(), points, false);
 
 	points[1] -= points[0];
 	if ((actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE))   //check for back side of one way sprite
@@ -617,7 +617,7 @@ double intersectFloorSprite(DCoreActor* actor, const DVector3& start, const DVec
 	}
 
 	DVector2 points[4];
-	GetFlatSpritePosition(actor, actor->spr.pos, points, nullptr, false);
+	GetFlatSpritePosition(actor, actor->spr.pos.XY(), points, nullptr, false);
 	double factor = (actor->spr.pos.Z - start.Z) / direction.Z;
 	if (factor <= 0 || factor > maxfactor) return -1;
 	result = start + factor * direction;
@@ -635,7 +635,7 @@ double intersectSlopeSprite(DCoreActor* actor, const DVector3& start, const DVec
 {
 	DVector2 points[4];
 	double ptz[4];
-	GetFlatSpritePosition(actor, actor->spr.pos, points, ptz, false);
+	GetFlatSpritePosition(actor, actor->spr.pos.XY(), points, ptz, false);
 	DVector3 pt1(points[0], ptz[0]);
 	DVector3 pt2(points[1], ptz[1]);
 	DVector3 pt3(points[2], ptz[2]);
@@ -854,8 +854,8 @@ bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, d
 	auto pos2 = wal->point2Wall()->pos;
 
 	// Checks borrowed from GZDoom.
-	DVector2 boxtl = pos - DVector2(maxdist, maxdist);
-	DVector2 boxbr = pos + DVector2(maxdist, maxdist);
+	DVector2 boxtl = pos.XY() - DVector2(maxdist, maxdist);
+	DVector2 boxbr = pos.XY() + DVector2(maxdist, maxdist);
 	if (!BoxInRange(boxtl, boxbr, pos1, pos2)) return false;
 	if (BoxOnLineSide(boxtl, boxbr, pos1, pos2 - pos1) != -1) return false;
 
@@ -1211,7 +1211,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 						for (int t = 0; t < 16; t++)
 						{
 							pos += dv;
-							if (IsCloseToWall(pos, wal, (walldist - 0.25)) == EClose::Outside) break;
+							if (IsCloseToWall(pos.XY(), wal, (walldist - 0.25)) == EClose::Outside) break;
 						}
 						pushed = true;
 

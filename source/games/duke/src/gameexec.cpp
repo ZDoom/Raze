@@ -1451,7 +1451,7 @@ int ifcansee(DDukeActor* actor, DDukePlayer* p)
 	{
 		// else, they did see it.
 		// save where we were looking..
-		actor->ovel = tosee->spr.pos;
+		actor->ovel = tosee->spr.pos.XY();
 	}
 
 	if (j == 1 && (actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_STANDABLE))

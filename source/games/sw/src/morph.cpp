@@ -326,7 +326,7 @@ void MorphTornado(SECTOR_OBJECT* sop)
         return;
 
     // place at correct x,y offset from center
-    DVector2 pos = sop->pmid - sop->morph_off;
+    DVector2 pos = sop->pmid.XY() - sop->morph_off;
     DVector2 spos = pos;
 
     // move it from last x,y
@@ -343,7 +343,7 @@ void MorphTornado(SECTOR_OBJECT* sop)
     }
 
     // save x,y back as offset info
-    sop->morph_off = sop->pmid - mpos;
+    sop->morph_off = sop->pmid.XY() - mpos;
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)
         sop->morph_ang = RandomAngle();
@@ -399,10 +399,10 @@ void MorphFloor(SECTOR_OBJECT* sop)
     auto pos = sop->pmid - sop->morph_off;
 
     // move it from last x,y
-    DVector2 mpos = pos + sop->morph_ang.ToVector() * sop->morph_speed;
+    DVector2 mpos = pos.XY() + sop->morph_ang.ToVector() * sop->morph_speed;
 
     // save x,y back as offset info
-    sop->morph_off = sop->pmid - mpos;
+    sop->morph_off = sop->pmid.XY() - mpos;
 
     // bound check radius
     if ((sop->pmid - mpos).Length() > sop->morph_dist_max)
@@ -411,8 +411,8 @@ void MorphFloor(SECTOR_OBJECT* sop)
         sop->morph_ang = sop->morph_ang + DAngle180;
 
         // back it up and save it off
-        mpos = pos + sop->morph_ang.ToVector() * sop->morph_speed;
-        sop->morph_off = sop->pmid - mpos;
+        mpos = pos.XY() + sop->morph_ang.ToVector() * sop->morph_speed;
+        sop->morph_off = sop->pmid.XY() - mpos;
     }
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)

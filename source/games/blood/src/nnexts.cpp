@@ -1837,7 +1837,7 @@ void debrisMove(int listIndex)
 
 		if ((floorColl.actor()->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
-			actor->vel.XY() += (actor->spr.pos - floorColl.actor()->spr.pos) / 4096.;
+			actor->vel.XY() += (actor->spr.pos.XY() - floorColl.actor()->spr.pos.XY()) / 4096.;
 			return;
 		}
 	}
@@ -8238,10 +8238,10 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 
 		double eaz2 = (getDudeInfo(targetactor)->eyeHeight * targetactor->spr.scale.Y);
 		double nDist = (dudeactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
-		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
+		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos.XY(), zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
 			nDist = (dudeactor->spr.pos.XY() - targetactor->spr.pos.XY()).LengthSquared();
-			if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(targetactor->spr.pos, zt2), targetactor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
+			if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(targetactor->spr.pos.XY(), zt2), targetactor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 				continue;
 		}
 

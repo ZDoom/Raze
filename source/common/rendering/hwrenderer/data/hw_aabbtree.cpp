@@ -53,7 +53,7 @@ TArray<int> LevelAABBTree::FindNodePath(unsigned int line, unsigned int node)
 	return path;
 }
 
-double LevelAABBTree::RayTest(const DVector3 &ray_start, const DVector3 &ray_end)
+double LevelAABBTree::RayTest(const DVector2 &ray_start, const DVector2 &ray_end)
 {
 	// Precalculate some of the variables used by the ray/line intersection test
 	DVector2 raydelta = ray_end - ray_start;

@@ -451,7 +451,7 @@ void JS_DrawCameras(DSWPlayer* pp, const DVector3& campos, double smoothratio)
             if (tex && tex->isSeen(true))
             {
                 DSWActor* camactor = mirror[cnt].camspriteActor;
-                DVector2 vec = camactor->spr.pos - campos.XY();
+                DVector2 vec = camactor->spr.pos.XY() - campos.XY();
                 dist = abs(vec.X) + abs(vec.Y);
 
 

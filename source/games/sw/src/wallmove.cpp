@@ -123,7 +123,7 @@ int DoWallMove(DSWActor* actor)
             }
             else
             {
-                wal.move(actor->spr.pos + nvec);
+                wal.move(actor->spr.pos.XY() + nvec);
             }
 
             if (shade1)

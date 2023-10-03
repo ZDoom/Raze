@@ -396,7 +396,7 @@ int DoRotator(DSWActor* actor)
     ndx = 0;
     for(auto& wal : actor->sector()->walls)
     {
-        auto nxy = rotatepoint(pivot->spr.pos, r->orig[ndx], DAngle::fromBuild(r->pos));
+        auto nxy = rotatepoint(pivot->spr.pos.XY(), r->orig[ndx], DAngle::fromBuild(r->pos));
 
         dragpoint(&wal, nxy);
         ndx++;
