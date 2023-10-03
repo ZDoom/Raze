@@ -994,9 +994,8 @@ static void fireweapon(DDukePlayer* const p)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits actions)
+static void operateweapon(DDukePlayer* const p, ESyncBits actions)
 {
-	auto p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	// already firing...
@@ -1028,8 +1027,8 @@ static void operateweapon(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, DukePipeBombClass, -16, DVector2(0.140625, 0.140625),
-				p->GetActor()->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, STAT_ACTOR);
+			auto spawned = CreateActor(p->cursector, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 16, DukePipeBombClass, -16, DVector2(0.140625, 0.140625),
+				pact->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, STAT_ACTOR);
 
 			if (isNam())
 			{
@@ -1397,7 +1396,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
 		if (p->kickback_pic < 4)
 		{
-			p->GetActor()->restorez();
+			pact->restorez();
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				shoot(pact, DukeHandHoldingLaserClass);
@@ -1515,7 +1514,7 @@ static void processweapon(int snum, ESyncBits actions)
 	}
 	else if (p->kickback_pic)
 	{
-		if (!isWW2GI()) operateweapon(snum, actions);
+		if (!isWW2GI()) operateweapon(p, actions);
 		else operateweapon_ww(snum, actions);
 	}
 }
