@@ -2482,7 +2482,7 @@ void processinput_r(int snum)
 
 	doubvel = TICSPERFRAME;
 
-	checklook(snum, actions);
+	checklook(p, actions);
 	p->Angles.doViewYaw(&p->cmd.ucmd);
 	p->apply_seasick();
 
@@ -2865,23 +2865,23 @@ HORIZONLY:
 
 	if (actions & SB_CENTERVIEW || (p->hard_landing && (cl_dukepitchmode & kDukePitchLandingRecenter)))
 	{
-		playerCenterView(snum);
+		playerCenterView(p);
 	}
 	else if ((actions & SB_LOOK_UP) == SB_LOOK_UP)
 	{
-		playerLookUp(snum, actions);
+		playerLookUp(p, actions);
 	}
 	else if ((actions & SB_LOOK_DOWN) == SB_LOOK_DOWN)
 	{
-		playerLookDown(snum, actions);
+		playerLookDown(p, actions);
 	}
 	else if ((actions & SB_LOOK_UP) == SB_AIM_UP && !p->OnMotorcycle)
 	{
-		playerAimUp(snum, actions);
+		playerAimUp(p, actions);
 	}
 	else if ((actions & SB_LOOK_DOWN) == SB_AIM_DOWN && !p->OnMotorcycle)
 	{
-		playerAimDown(snum, actions);
+		playerAimDown(p, actions);
 	}
 	if (p->recoil && p->kickback_pic == 0)
 	{
