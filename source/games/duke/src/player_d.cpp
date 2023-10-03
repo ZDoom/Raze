@@ -51,11 +51,12 @@ void operateweapon_ww(DDukePlayer* const p, ESyncBits actions);
 
 void incur_damage_d(DDukePlayer* p)
 {
-	int  damage = 0L, shield_damage = 0L;
+	const auto pact = p->GetActor();
+	int damage = 0L, shield_damage = 0L;
 
-	p->GetActor()->spr.extra -= p->extra_extra8 >> 8;
+	pact->spr.extra -= p->extra_extra8 >> 8;
 
-	damage = p->GetActor()->spr.extra - p->last_extra;
+	damage = pact->spr.extra - p->last_extra;
 
 	if (damage < 0)
 	{
@@ -75,7 +76,7 @@ void incur_damage_d(DDukePlayer* p)
 			}
 		}
 
-		p->GetActor()->spr.extra = p->last_extra + damage;
+		pact->spr.extra = p->last_extra + damage;
 	}
 }
 
@@ -88,8 +89,9 @@ void incur_damage_d(DDukePlayer* p)
 
 void selectweapon_d(DDukePlayer* const p, int weap) // playernum, weaponnum
 {
+	const auto pact = p->GetActor();
 	int i, j, k;
-	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.5  && p->access_incs == 0 && p->knee_incs == 0)
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && pact->spr.scale.X > 0.5  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
@@ -219,7 +221,7 @@ void selectweapon_d(DDukePlayer* const p, int weap) // playernum, weaponnum
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto act = it.Next())
 				{
-					if (act->GetClass() == DukePipeBombClass && act->GetOwner() == p->GetActor())
+					if (act->GetClass() == DukePipeBombClass && act->GetOwner() == pact)
 					{
 						p->gotweapon[HANDBOMB_WEAPON] = true;
 						j = HANDREMOTE_WEAPON;
@@ -427,21 +429,21 @@ int doincrements_d(DDukePlayer* p)
 		}
 	}
 
-	if (p->quick_kick > 0 && p->GetActor()->spr.pal != 1)
+	if (p->quick_kick > 0 && pact->spr.pal != 1)
 	{
 		p->last_quick_kick = p->quick_kick + 1;
 		p->quick_kick--;
 		if (p->quick_kick == 8)
-			shoot(p->GetActor(), DukeMeleeAttackClass);
+			shoot(pact, DukeMeleeAttackClass);
 	}
 	else if (p->last_quick_kick > 0)
 		p->last_quick_kick--;
 
-	if (p->access_incs && p->GetActor()->spr.pal != 1)
+	if (p->access_incs && pact->spr.pal != 1)
 	{
 		p->oaccess_incs = p->access_incs;
 		p->access_incs++;
-		if (p->GetActor()->spr.extra <= 0)
+		if (pact->spr.extra <= 0)
 			p->access_incs = 12;
 		if (p->access_incs == 12)
 		{
@@ -545,7 +547,6 @@ void checkweapons_d(DDukePlayer* p)
 
 	if (isWW2GI())
 	{
-		int snum = p->GetActor()->PlayerIndex();
 		cw = aplWeaponWorksLike(p->curr_weapon, p);
 	}
 	else 
@@ -556,13 +557,15 @@ void checkweapons_d(DDukePlayer* p)
 
 	if (cw)
 	{
+		const auto pact = p->GetActor();
+
 		if (krand() & 1)
-			spawn(p->GetActor(), *weapon_sprites[cw]);
+			spawn(pact, *weapon_sprites[cw]);
 		else switch (cw)
 		{
 		case RPG_WEAPON:
 		case HANDBOMB_WEAPON:
-			spawn(p->GetActor(), DukeExplosion2Class);
+			spawn(pact, DukeExplosion2Class);
 			break;
 		}
 	}
