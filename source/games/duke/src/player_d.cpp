@@ -521,7 +521,7 @@ int doincrements_d(DDukePlayer* p)
 				}
 			S_PlayActorSound(DUKE_CRACK_FIRST, pact);
 		}
-		else if (p->knuckle_incs == 22 || PlayerInput(snum, SB_FIRE))
+		else if (p->knuckle_incs == 22 || !!(p->cmd.ucmd.actions & SB_FIRE))
 			p->knuckle_incs = 0;
 
 		return 1;

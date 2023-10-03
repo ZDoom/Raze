@@ -1330,7 +1330,7 @@ int checkp(DDukeActor* self, DDukePlayer* p, int flags)
 	unsigned plindex = unsigned(p->pnum);
 
 	// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-	if ((flags & pducking) && p->on_ground && PlayerInput(plindex, SB_CROUCH))
+	if ((flags & pducking) && p->on_ground && !!(p->cmd.ucmd.actions & SB_CROUCH))
 		j = 1;
 	else if ((flags & pfalling) && p->jumping_counter == 0 && !p->on_ground && p->vel.Z > 8)
 		j = 1;
@@ -1338,15 +1338,15 @@ int checkp(DDukeActor* self, DDukePlayer* p, int flags)
 		j = 1;
 	else if ((flags & pstanding) && vel >= 0 && vel < 0.5)
 		j = 1;
-	else if ((flags & pwalking) && vel >= 0.5 && !(PlayerInput(plindex, SB_RUN)))
+	else if ((flags & pwalking) && vel >= 0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)))
 		j = 1;
-	else if ((flags & prunning) && vel >= 0.5 && PlayerInput(plindex, SB_RUN))
+	else if ((flags & prunning) && vel >= 0.5 && !!(p->cmd.ucmd.actions & SB_RUN))
 		j = 1;
 	else if ((flags & phigher) && p->GetActor()->getOffsetZ() < self->spr.pos.Z - 48)
 		j = 1;
-	else if ((flags & pwalkingback) && vel <= -0.5 && !(PlayerInput(plindex, SB_RUN)))
+	else if ((flags & pwalkingback) && vel <= -0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)))
 		j = 1;
-	else if ((flags & prunningback) && vel <= -0.5 && (PlayerInput(plindex, SB_RUN)))
+	else if ((flags & prunningback) && vel <= -0.5 && (!!(p->cmd.ucmd.actions & SB_RUN)))
 		j = 1;
 	else if ((flags & pkicking) && (p->quick_kick > 0 || (p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 0)))
 		j = 1;

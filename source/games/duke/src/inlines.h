@@ -106,11 +106,6 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 }
 
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
-inline bool PlayerInput(int pl, ESyncBits bit)
-{
-	return (!!((getPlayer(pl)->cmd.ucmd.actions) & bit));
-}
-
 inline void PlayerSetItemUsed(int pl, int num)
 {
 	getPlayer(pl)->cmd.ucmd.setItemUsed(num - 1);
