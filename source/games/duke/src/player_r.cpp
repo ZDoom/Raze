@@ -2438,7 +2438,7 @@ void processinput_r(int snum)
 
 	if (p->fist_incs)
 	{
-		if (endoflevel(snum)) return;
+		if (endoflevel(p)) return;
 	}
 
 	if (p->timebeforeexit > 1 && p->last_extra > 0)

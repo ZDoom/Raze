@@ -99,7 +99,7 @@ int wakeup(DDukeActor* sn, DDukePlayer* const p);
 
 int timedexit(int snum);
 void dokneeattack(DDukePlayer* const p);
-int endoflevel(int snum);
+int endoflevel(DDukePlayer* const p);
 void playerisdead(DDukePlayer* const p, int psectlotag, double fz, double cz);
 void footprints(DDukePlayer* const p);
 int makepainsounds(DDukePlayer* const p, int type);
