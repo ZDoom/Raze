@@ -1499,10 +1499,9 @@ void onBoatHit(int snum, DDukeActor* victim)
 //
 //---------------------------------------------------------------------------
 
-static void fireweapon(int snum)
+static void fireweapon(DDukePlayer* const p)
 {
-	auto p = getPlayer(snum);
-
+	const auto pact = p->GetActor();
 	p->crack_time = CRACK_TIME;
 
 	if (p->holster_weapon == 1)
@@ -1563,13 +1562,13 @@ static void fireweapon(int snum)
 				if (p->ammo_amount[BUZZSAW_WEAPON] > 0)
 				{
 					p->kickback_pic = 1;
-					S_PlayActorSound(431, p->GetActor());
+					S_PlayActorSound(431, pact);
 				}
 			}
 			else if (p->ammo_amount[THROWSAW_WEAPON] > 0)
 			{
 				p->kickback_pic = 1;
-				S_PlayActorSound(SHRINKER_FIRE, p->GetActor());
+				S_PlayActorSound(SHRINKER_FIRE, pact);
 			}
 			break;
 
@@ -2244,7 +2243,7 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 	else if (shrunk == 0 && (actions & SB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
 		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
 	{
-		fireweapon(snum);
+		fireweapon(p);
 	}
 	else if (p->kickback_pic)
 	{
