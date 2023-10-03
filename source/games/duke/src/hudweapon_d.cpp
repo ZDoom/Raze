@@ -220,8 +220,9 @@ void animateshrunken(DDukePlayer* p, double xoffset, double yoffset, int8_t shad
 void displayweapon_d(DDukePlayer* const p, double interpfrac)
 {
 	int pal, pal2;
+	const auto pact = p->GetActor();
 
-	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
+	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (pact->spr.pal != 1 && pact->spr.extra <= 0))
 		return;
 
 	double weapon_sway, gun_pos, kickback_pic, random_club_frame, hard_landing;
@@ -246,7 +247,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 	}
 
 	hard_landing *= 8.;
-	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
+	gun_pos -= fabs(pact->spr.scale.X < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
 
 	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
@@ -254,9 +255,9 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 	auto yawinput = getavel(p) * (1. / 16.);
 	auto angle = offpair.second;
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
-	auto shade = min(p->GetActor()->spr.shade, (int8_t)24);
+	auto shade = min(pact->spr.shade, (int8_t)24);
 
-	pal2 = pal = !p->insector() ? 0 : p->GetActor()->spr.pal == 1 ? 1 : p->cursector->floorpal;
+	pal2 = pal = !p->insector() ? 0 : pact->spr.pal == 1 ? 1 : p->cursector->floorpal;
 	if (pal2 == 0) pal2 = p->palookup;
 
 	auto animoffs = offsets + DVector2(yawinput, -hard_landing + pitchoffset);
@@ -294,7 +295,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 		}
 	}
 
-	if (p->GetActor()->spr.scale.X < 0.625)
+	if (pact->spr.scale.X < 0.625)
 	{
 		//shrunken..
 		animateshrunken(p, offsets.X, offsets.Y + gun_pos, shade, o, interpfrac);
@@ -410,7 +411,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
-			if (*kb > 0 && p->GetActor()->spr.pal != 1)
+			if (*kb > 0 && pact->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
 			const char* pic = "SHOTGUN";
@@ -518,7 +519,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
-			if (*kb > 0 && p->GetActor()->spr.pal != 1)
+			if (*kb > 0 && pact->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
 			if (*kb == 0)
@@ -591,7 +592,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
-			if (*kb > 0 && p->GetActor()->spr.pal != 1)
+			if (*kb > 0 && pact->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
 			hud_drawpal(168 + offsets.X, 260 + offsets.Y, "CHAINGUN", shade, o, pal, angle);
@@ -604,10 +605,10 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 				default:
 					if (*kb > 4 && *kb < 12)
 					{
-						auto rnd = p->GetActor()->spr.pal != 1 ? rand() & 7 : 0;
+						auto rnd = pact->spr.pal != 1 ? rand() & 7 : 0;
 						hud_drawpal(136 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), flashframes[((*kb - 4) / 5)], shade, o, pal, angle);
 
-						if (p->GetActor()->spr.pal != 1) rnd = rand() & 7;
+						if (pact->spr.pal != 1) rnd = rand() & 7;
 						hud_drawpal(180 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), flashframes[((*kb - 4) / 5)], shade, o, pal, angle);
 					}
 
@@ -840,7 +841,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 				static const char* const cat[] = { "FREEZECAT0", "FREEZECAT1", "FREEZECAT2" };
 				static constexpr uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += rand() & 3;
 					offsets.Y += rand() & 3;
@@ -886,7 +887,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			else
 			{
 				// the 'active' display.
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += rand() & 3;
 					offsets.Y -= rand() & 3;
@@ -936,7 +937,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			}
 			else
 			{
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += rand() & 3;
 					offsets.Y -= rand() & 3;
@@ -986,7 +987,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			}
 			else
 			{
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += rand() & 3;
 					offsets.Y -= rand() & 3;
@@ -1015,7 +1016,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 			}
 			else
 			{
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += rand() & 3;
 					offsets.Y -= rand() & 3;
@@ -1044,7 +1045,7 @@ void displayweapon_d(DDukePlayer* const p, double interpfrac)
 				static const char* const cat[] = { "FLAMETHROWERCAT0", "FLAMETHROWERCAT1", "FLAMETHROWERCAT2" };
 				static constexpr uint8_t cat_frames[] = { 0, 0, 1, 1, 2, 2 };
 
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += krand() & 1;
 					offsets.Y += krand() & 1;

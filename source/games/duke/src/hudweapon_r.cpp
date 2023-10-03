@@ -216,6 +216,7 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 	DAngle TiltStatus;
 
 	auto kb = &p->kickback_pic;
+	const auto pact = p->GetActor();
 
 	int o = 0;
 
@@ -235,22 +236,22 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 	}
 
 	hard_landing *= 8.;
-	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
+	gun_pos -= fabs(pact->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
 
 	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
 	auto angle = offpair.second;
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
-	auto shade = min(p->insector() && p->cursector->shadedsector == 1 ? 16 : p->GetActor()->spr.shade, 24);
-	auto pal = !p->insector()? 0 : p->GetActor()->spr.pal == 1? 1 : p->cursector->floorpal;
+	auto shade = min(p->insector() && p->cursector->shadedsector == 1 ? 16 : pact->spr.shade, 24);
+	auto pal = !p->insector()? 0 : pact->spr.pal == 1? 1 : p->cursector->floorpal;
 	auto cw = p->last_weapon >= 0 ? p->last_weapon : p->curr_weapon;
 
-	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
+	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (pact->spr.pal != 1 && pact->spr.extra <= 0))
 		return;
 
 	if ((14 - p->quick_kick) != 14)
 	{
-		pal = p->GetActor()->spr.pal == 1 ? 1 : p->palookup;
+		pal = pact->spr.pal == 1 ? 1 : p->palookup;
 	}
 
 	if (p->OnMotorcycle)
@@ -267,7 +268,7 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 	offsets.X += weapon_xoffset;
 	offsets.Y -= gun_pos;
 
-	if (p->GetActor()->spr.scale.X < 0.125)
+	if (pact->spr.scale.X < 0.125)
 	{
 		animateshrunken(p, offsets.X, offsets.Y + gun_pos, shade, o, interpfrac);
 	}
@@ -419,7 +420,7 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 					}
 					else if ((krand() & 15) == 5)
 					{
-						S_PlayActorSound(327, p->GetActor());
+						S_PlayActorSound(327, pact);
 						hud_drawpal(210 + offsets.X, 222 + offsets.Y, "CBOW2GUNATK7", shade, o |  pin, pal, angle, 36700);
 						chickenphase = 6;
 					}
@@ -555,7 +556,7 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 			if (*kb > 0)
 				offsets.Y += BobVal((*kb) << 7) * 4;
 
-			if (*kb > 0 && p->GetActor()->spr.pal != 1) offsets.X += 1 - (rand() & 3);
+			if (*kb > 0 && pact->spr.pal != 1) offsets.X += 1 - (rand() & 3);
 
 			switch (*kb)
 			{
@@ -761,7 +762,7 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 			}
 			else
 			{
-				if (p->GetActor()->spr.pal != 1)
+				if (pact->spr.pal != 1)
 				{
 					offsets.X += rand() & 3;
 					offsets.Y -= rand() & 3;
