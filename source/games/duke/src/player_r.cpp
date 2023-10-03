@@ -1291,7 +1291,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		else if ((actions & SB_JUMP) && !p->OnMotorcycle && p->jumping_toggle == 0)
 		{
-			playerJump(snum, floorz, ceilingz);
+			playerJump(p, floorz, ceilingz);
 		}
 	}
 
