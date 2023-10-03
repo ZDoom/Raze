@@ -252,7 +252,8 @@ ADD_STAT(fps)
 ADD_STAT(coord)
 {
 	FString out;
-	if (const auto pActor = PlayerArray[myconnectindex]->GetActor())
+	const auto p = PlayerArray[myconnectindex];
+	if (const auto pActor = p->GetActor())
 	{
 		out.AppendFormat("X: %.4f  ", pActor->spr.pos.X);
 		out.AppendFormat("Y: %.4f  ", pActor->spr.pos.Y);
@@ -260,6 +261,9 @@ ADD_STAT(coord)
 		out.AppendFormat("Yaw: %.4f  ", pActor->spr.Angles.Yaw.Degrees());
 		out.AppendFormat("Pitch: %.4f  ", pActor->spr.Angles.Pitch.Degrees());
 		out.AppendFormat("Roll: %.4f\n", pActor->spr.Angles.Roll.Degrees());
+		out.AppendFormat("View Yaw: %.4f  ", p->Angles.ViewAngles.Yaw.Degrees());
+		out.AppendFormat("View Pitch: %.4f  ", p->Angles.ViewAngles.Pitch.Degrees());
+		out.AppendFormat("View Roll: %.4f\n", p->Angles.ViewAngles.Roll.Degrees());
 	}
 	return out;
 }
