@@ -228,7 +228,7 @@ void checksectors_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		if (abs(PlayerInputSideVel(snum)) > 0.75 || abs(PlayerInputForwardVel(snum)) > 0.75)
+		if (abs(p->cmd.ucmd.vel.Y) > 0.75 || abs(p->cmd.ucmd.vel.X) > 0.75)
 		{
 			clearcameras(p);
 			return;
