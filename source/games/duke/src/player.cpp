@@ -181,12 +181,13 @@ double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 double hitawall(DDukePlayer* p, walltype** hitw)
 {
+	const auto pact = p->GetActor();
 	HitInfo hit{};
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->GetActor()->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK0);
+	hitscan(pact->getPosWithOffsetZ(), p->cursector, DVector3(pact->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (hit.hitpos.XY() - p->GetActor()->spr.pos.XY()).Length();
+	return (hit.hitpos.XY() - pact->spr.pos.XY()).Length();
 }
 
 
@@ -222,7 +223,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 			setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
 
 			HitInfo hit{};
-			hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
+			hitscan(actor->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 			if (hit.actor() != nullptr)
 			{
@@ -739,17 +740,19 @@ void DDukePlayer::apply_seasick()
 
 void DDukePlayer::backuppos(bool noclipping)
 {
+	const auto pact = GetActor();
+
 	if (!noclipping)
 	{
-		GetActor()->backupvec2();
+		pact->backupvec2();
 	}
 	else
 	{
-		GetActor()->restorevec2();
+		pact->restorevec2();
 	}
 
-	GetActor()->backupz();
-	bobpos = GetActor()->spr.pos.XY();
+	pact->backupz();
+	bobpos = pact->spr.pos.XY();
 	opyoff = pyoff;
 }
 
@@ -1062,11 +1065,13 @@ void purplelavacheck(DDukePlayer* p)
 
 void addphealth(DDukePlayer* p, int amount, bool bigitem)
 {
+	const auto pact = p->GetActor();
+
 	if (p->newOwner != nullptr)
 	{
 		p->newOwner = nullptr;
-		p->GetActor()->restoreloc();
-		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+		pact->restoreloc();
+		updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto actj = it.Next())
@@ -1076,7 +1081,7 @@ void addphealth(DDukePlayer* p, int amount, bool bigitem)
 		}
 	}
 
-	int curhealth = p->GetActor()->spr.extra;
+	int curhealth = pact->spr.extra;
 
 	if (!bigitem)
 	{
@@ -1108,13 +1113,13 @@ void addphealth(DDukePlayer* p, int amount, bool bigitem)
 		{
 			if ((curhealth - amount) < (gs.max_player_health >> 2) &&
 				curhealth >= (gs.max_player_health >> 2))
-				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, p->GetActor());
+				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, pact);
 
 			p->last_extra = curhealth;
 		}
 
 
-		p->GetActor()->spr.extra = curhealth;
+		pact->spr.extra = curhealth;
 	}
 }
 
@@ -1126,6 +1131,8 @@ void addphealth(DDukePlayer* p, int amount, bool bigitem)
 
 int playereat(DDukePlayer* p, int amount, bool bigitem)
 {
+	const auto pact = p->GetActor();
+
 	p->eat += amount;
 	if (p->eat > 100)
 	{
@@ -1134,7 +1141,7 @@ int playereat(DDukePlayer* p, int amount, bool bigitem)
 	p->drink_amt -= amount;
 	if (p->drink_amt < 0)
 		p->drink_amt = 0;
-	int curhealth = p->GetActor()->spr.extra;
+	int curhealth = pact->spr.extra;
 	if (!bigitem)
 	{
 		if (curhealth > gs.max_player_health && amount > 0)
@@ -1165,12 +1172,12 @@ int playereat(DDukePlayer* p, int amount, bool bigitem)
 		{
 			if ((curhealth - amount) < (gs.max_player_health >> 2) &&
 				curhealth >= (gs.max_player_health >> 2))
-				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, p->GetActor());
+				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, pact);
 
 			p->last_extra = curhealth;
 		}
 
-		p->GetActor()->spr.extra = curhealth;
+		pact->spr.extra = curhealth;
 	}
 	return true;
 }
@@ -1183,8 +1190,10 @@ int playereat(DDukePlayer* p, int amount, bool bigitem)
 
 void playerdrink(DDukePlayer* p, int amount)
 {
+	const auto pact = p->GetActor();
+
 	p->drink_amt += amount;
-	int curhealth = p->GetActor()->spr.extra;
+	int curhealth = pact->spr.extra;
 	if (curhealth > 0)
 		curhealth += amount;
 	if (curhealth > gs.max_player_health * 2)
@@ -1198,19 +1207,19 @@ void playerdrink(DDukePlayer* p, int amount)
 		{
 			if ((curhealth - amount) < (gs.max_player_health >> 2) &&
 				curhealth >= (gs.max_player_health >> 2))
-				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, p->GetActor());
+				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, pact);
 
 			p->last_extra = curhealth;
 		}
 
-		p->GetActor()->spr.extra = curhealth;
+		pact->spr.extra = curhealth;
 	}
 	if (p->drink_amt > 100)
 		p->drink_amt = 100;
 
-	if (p->GetActor()->spr.extra >= gs.max_player_health)
+	if (pact->spr.extra >= gs.max_player_health)
 	{
-		p->GetActor()->spr.extra = gs.max_player_health;
+		pact->spr.extra = gs.max_player_health;
 		p->last_extra = gs.max_player_health;
 	}
 }
@@ -1464,8 +1473,10 @@ int playercheckinventory(DDukePlayer* p, DDukeActor* item, int type, int amount)
 
 void playerstomp(DDukePlayer* p, DDukeActor* stomped)
 {
-	if (p->knee_incs == 0 && p->GetActor()->spr.scale.X >= (isRR() ? 0.140625 : 0.625))
-		if (cansee(stomped->spr.pos.plusZ(-4), stomped->sector(), p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector()))
+	const auto pact = p->GetActor();
+
+	if (p->knee_incs == 0 && pact->spr.scale.X >= (isRR() ? 0.140625 : 0.625))
+		if (cansee(stomped->spr.pos.plusZ(-4), stomped->sector(), pact->getPosWithOffsetZ().plusZ(16), pact->sector()))
 		{
 			p->knee_incs = 1;
 			if (p->weapon_pos == 0)
@@ -1489,13 +1500,14 @@ void playerreset(DDukePlayer* p, DDukeActor* g_ac)
 	else
 	{
 		// I am not convinced this is even remotely smart to be executed from here..
+		const auto pact = p->GetActor();
 		pickrandomspot(p->pnum);
-		g_ac->spr.pos = p->GetActor()->getPosWithOffsetZ();
-		p->GetActor()->backuppos();
+		g_ac->spr.pos = pact->getPosWithOffsetZ();
+		pact->backuppos();
 		p->setbobpos();
 		g_ac->backuppos();
-		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
-		SetActor(p->GetActor(), p->GetActor()->spr.pos);
+		updatesector(pact->getPosWithOffsetZ(), &p->cursector);
+		SetActor(pact, pact->spr.pos);
 		g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 		g_ac->spr.shade = -12;
@@ -1507,7 +1519,7 @@ void playerreset(DDukePlayer* p, DDukeActor* g_ac)
 
 		p->last_extra = g_ac->spr.extra = gs.max_player_health;
 		p->wantweaponfire = -1;
-		p->GetActor()->PrevAngles.Pitch = p->GetActor()->spr.Angles.Pitch = nullAngle;
+		pact->PrevAngles.Pitch = pact->spr.Angles.Pitch = nullAngle;
 		p->on_crane = nullptr;
 		p->frag_ps = p->pnum;
 		p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
@@ -1531,7 +1543,7 @@ void playerreset(DDukePlayer* p, DDukeActor* g_ac)
 		g_ac->tempval = 0;
 		g_ac->actorstayput = nullptr;
 		g_ac->dispictex = FNullTextureID();
-		g_ac->SetHitOwner(p->GetActor());
+		g_ac->SetHitOwner(pact);
 		g_ac->temp_data[4] = 0;
 
 		resetinventory(p);
