@@ -767,7 +767,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		if ((actions & SB_CROUCH) || p->cmd.ucmd.vel.Z < 0)
 		{
-			playerCrouch(snum);
+			playerCrouch(p);
 		}
 
 		// jumping

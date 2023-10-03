@@ -103,7 +103,7 @@ int endoflevel(DDukePlayer* const p);
 void playerisdead(DDukePlayer* const p, int psectlotag, double fz, double cz);
 void footprints(DDukePlayer* const p);
 int makepainsounds(DDukePlayer* const p, int type);
-void playerCrouch(int snum);
+void playerCrouch(DDukePlayer* const p);
 void playerJump(int snum, double fz, double cz);
 
 void checklook(int snum, ESyncBits actions);
