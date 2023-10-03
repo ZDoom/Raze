@@ -60,7 +60,7 @@ void hud_input(int plnum)
 	auto pact = p->GetActor();
 
 	i = p->aim_mode;
-	p->aim_mode = !PlayerInput(plnum, SB_AIMMODE);
+	p->aim_mode = !!!(p->cmd.ucmd.actions & SB_AIMMODE);
 	if (p->aim_mode < i)
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 
@@ -76,7 +76,7 @@ void hud_input(int plnum)
 
 	if (isRR())
 	{
-		if (PlayerInput(plnum, SB_QUICK_KICK) && p->last_pissed_time == 0)
+		if (!!(p->cmd.ucmd.actions & SB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
 			if (!isRRRA() || p->GetActor()->spr.extra > 0)
 			{
@@ -94,7 +94,7 @@ void hud_input(int plnum)
 	}
 	else
 	{
-		if (PlayerInput(plnum, SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
+		if (!!(p->cmd.ucmd.actions & SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_QUICKKICK, plnum, nullptr, -1);
@@ -106,7 +106,7 @@ void hud_input(int plnum)
 			}
 		}
 	}
-	if (!PlayerInput(plnum, SB_QUICK_KICK)) p->quick_kick_msg = false;
+	if (!!!(p->cmd.ucmd.actions & SB_QUICK_KICK)) p->quick_kick_msg = false;
 
 	if (!(p->cmd.ucmd.actions & SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
@@ -119,7 +119,7 @@ void hud_input(int plnum)
 		if (p->GetActor()->spr.extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-		if (PlayerInput(plnum, SB_INVUSE) && p->newOwner == nullptr)
+		if (!!(p->cmd.ucmd.actions & SB_INVUSE) && p->newOwner == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
@@ -159,11 +159,11 @@ void hud_input(int plnum)
 			return;
 		}
 
-		if (PlayerInput(plnum, SB_INVPREV) || PlayerInput(plnum, SB_INVNEXT))
+		if (!!(p->cmd.ucmd.actions & SB_INVPREV) || !!(p->cmd.ucmd.actions & SB_INVNEXT))
 		{
 			p->invdisptime = 26 * 2;
 
-			if (PlayerInput(plnum, SB_INVNEXT)) k = 1;
+			if (!!(p->cmd.ucmd.actions & SB_INVNEXT)) k = 1;
 			else k = 0;
 
 			dainv = p->inven_icon;
@@ -225,13 +225,13 @@ void hud_input(int plnum)
 			else dainv = 0;
 
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
-			if (PlayerInput(plnum, SB_INVPREV))
+			if (!!(p->cmd.ucmd.actions & SB_INVPREV))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
 				OnEvent(EVENT_INVENTORYLEFT, plnum, nullptr, -1);
 				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum).safeValue();
 			}
-			if (PlayerInput(plnum, SB_INVNEXT))
+			if (!!(p->cmd.ucmd.actions & SB_INVNEXT))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
 				OnEvent(EVENT_INVENTORYRIGHT, plnum, nullptr, -1);
@@ -250,7 +250,7 @@ void hud_input(int plnum)
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
 		fi.selectweapon(plnum, weap);
 
-		if (PlayerInput(plnum, SB_HOLSTER))
+		if (!!(p->cmd.ucmd.actions & SB_HOLSTER))
 		{
 			if (p->curr_weapon > KNEE_WEAPON)
 			{
@@ -476,7 +476,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerInput(plnum, SB_TURNAROUND) && p->Angles.YawSpin == nullAngle && p->on_crane == nullptr)
+		if (!!(p->cmd.ucmd.actions & SB_TURNAROUND) && p->Angles.YawSpin == nullAngle && p->on_crane == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);

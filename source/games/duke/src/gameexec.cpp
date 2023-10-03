@@ -2002,7 +2002,7 @@ int ParseState::parse(void)
 			double vel = g_ac->vel.X;
 
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-			if( (l& pducking) && p->on_ground && PlayerInput(g_p, SB_CROUCH))
+			if( (l& pducking) && p->on_ground && !!(p->cmd.ucmd.actions & SB_CROUCH))
 					j = 1;
 			else if( (l& pfalling) && p->jumping_counter == 0 && !p->on_ground &&	p->vel.Z > 8 )
 					j = 1;
@@ -2010,15 +2010,15 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pstanding) && vel >= 0 && vel < 0.5)
 					j = 1;
-			else if( (l& pwalking) && vel >= 0.5 && !(PlayerInput(g_p, SB_RUN)) )
+			else if( (l& pwalking) && vel >= 0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)) )
 					j = 1;
-			else if( (l& prunning) && vel >= 0.5 && PlayerInput(g_p, SB_RUN) )
+			else if( (l& prunning) && vel >= 0.5 && !!(p->cmd.ucmd.actions & SB_RUN) )
 					j = 1;
 			else if( (l& phigher) && pact->getOffsetZ() < g_ac->spr.pos.Z - 48)
 					j = 1;
-			else if( (l& pwalkingback) && vel <= -0.5 && !(PlayerInput(g_p, SB_RUN)) )
+			else if( (l& pwalkingback) && vel <= -0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)) )
 					j = 1;
-			else if( (l& prunningback) && vel <= -0.5 && (PlayerInput(g_p, SB_RUN)) )
+			else if( (l& prunningback) && vel <= -0.5 && (!!(p->cmd.ucmd.actions & SB_RUN)) )
 					j = 1;
 			else if( (l& pkicking) && ( p->quick_kick > 0 || ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 0 ) ) )
 					j = 1;
@@ -2080,7 +2080,7 @@ int ParseState::parse(void)
 		parseifelse(int(g_ac->floorz - g_ac->ceilingz) < *insptr);	// Note: int cast here is needed to use the same truncation behavior as the old fixed point code.
 		break;
 	case concmd_ifhitspace:
-		parseifelse(PlayerInput(g_p, SB_OPEN));
+		parseifelse(!!(p->cmd.ucmd.actions & SB_OPEN));
 		break;
 	case concmd_ifoutside:
 		parseifelse(g_ac->sector()->ceilingstat & CSTAT_SECTOR_SKY);

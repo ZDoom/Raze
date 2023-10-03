@@ -223,7 +223,7 @@ void checksectors_d(int snum)
 
 	if (chatmodeon || p->GetActor()->spr.extra <= 0) return;
 
-	if (ud.cashman && PlayerInput(snum, SB_OPEN))
+	if (ud.cashman && !!(p->cmd.ucmd.actions & SB_OPEN))
 		lotsofstuff(p->GetActor(), 2, DukeMailClass);
 
 	if (p->newOwner != nullptr)
@@ -233,14 +233,14 @@ void checksectors_d(int snum)
 			clearcameras(p);
 			return;
 		}
-		else if (PlayerInput(snum, SB_ESCAPE))
+		else if (!!(p->cmd.ucmd.actions & SB_ESCAPE))
 		{
 			clearcameras(p);
 			return;
 		}
 	}
 
-	if (!(PlayerInput(snum, SB_OPEN)))
+	if (!(!!(p->cmd.ucmd.actions & SB_OPEN)))
 		p->toggle_key_flag = 0;
 
 	else if (!p->toggle_key_flag)
@@ -312,7 +312,7 @@ void checksectors_d(int snum)
 				return;
 		}
 
-		if (!PlayerInput(snum, SB_OPEN)) return;
+		if (!!!(p->cmd.ucmd.actions & SB_OPEN)) return;
 		else if (p->newOwner != nullptr)
 		{
 			clearcameras(p);
