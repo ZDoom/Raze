@@ -427,7 +427,7 @@ int doincrements_r(DDukePlayer* p)
 		if (numplayers < 2)
 		{
 			p->noise_radius = 1024;
-			madenoise(screenpeek);
+			madenoise(getPlayer(screenpeek));
 			p->vel.XY() += p->GetActor()->spr.Angles.Yaw.ToVector();
 		}
 		p->eat -= 4;
@@ -1675,7 +1675,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			p->hbomb_on = 0;
 			p->noise_radius = 512;
-			madenoise(snum);
+			madenoise(p);
 		}
 		if (p->kickback_pic == 12)
 		{
@@ -1743,7 +1743,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			shoot(pact, DukeShotSparkClass);
 			S_PlayActorSound(PISTOL_FIRE, pact);
 			p->noise_radius = 512;
-			madenoise(snum);
+			madenoise(p);
 
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
@@ -1813,7 +1813,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			S_PlayActorSound(SHOTGUN_FIRE, pact);
 
 			p->noise_radius = 512;
-			madenoise(snum);
+			madenoise(p);
 
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
@@ -1917,7 +1917,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
 				shoot(pact, DukeChaingunShotClass);
 				p->noise_radius = 512;
-				madenoise(snum);
+				madenoise(p);
 				lastvisinc = PlayClock + 32;
 				p->visibility = 0;
 
@@ -1949,7 +1949,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->okickback_pic = p->kickback_pic = 0;
 			shoot(pact, RedneckBuzzSawClass);
 			p->noise_radius = 64;
-			madenoise(snum);
+			madenoise(p);
 			checkavailweapon(p);
 		}
 		else p->kickback_pic++;
@@ -1977,7 +1977,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
 			shoot(pact, DukeShotSparkClass);
 			p->noise_radius = 1024;
-			madenoise(snum);
+			madenoise(p);
 			p->ammo_amount[TIT_WEAPON]--;
 			checkavailweapon(p);
 		}
@@ -2004,7 +2004,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
 			shoot(pact, DukeChaingunShotClass);
 			p->noise_radius = 1024;
-			madenoise(snum);
+			madenoise(p);
 			p->ammo_amount[MOTORCYCLE_WEAPON]--;
 			if (p->ammo_amount[MOTORCYCLE_WEAPON] <= 0)
 				p->okickback_pic = p->kickback_pic = 0;
@@ -2052,7 +2052,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			S_PlayActorSound(CAT_FIRE, pact);
 			p->noise_radius = 128;
-			madenoise(snum);
+			madenoise(p);
 		}
 		else if (p->kickback_pic == 9)
 		{
@@ -2106,7 +2106,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			S_PlayActorSound(354, pact);
 			shoot(pact, RedneckBowlingBallClass);
 			p->noise_radius = 64;
-			madenoise(snum);
+			madenoise(p);
 		}
 		if (p->kickback_pic < 30)
 		{
@@ -2129,7 +2129,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			shoot(pact, DukeMeleeAttackClass);
 			p->noise_radius = 64;
-			madenoise(snum);
+			madenoise(p);
 		}
 		else if (p->kickback_pic == 16)
 			p->okickback_pic = p->kickback_pic = 0;
@@ -2147,7 +2147,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			shoot(pact, RedneckSlingbladeAttackClass);
 			p->noise_radius = 64;
-			madenoise(snum);
+			madenoise(p);
 		}
 		else if (p->kickback_pic == 16)
 			p->okickback_pic = p->kickback_pic = 0;
@@ -2167,7 +2167,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			shoot(pact, RedneckDynamiteArrowClass);
 			p->noise_radius = 2048;
-			madenoise(snum);
+			madenoise(p);
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 16)
@@ -2185,7 +2185,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			shoot(pact, RedneckChickenArrowClass);
 			p->noise_radius = 2048;
-			madenoise(snum);
+			madenoise(p);
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 16)

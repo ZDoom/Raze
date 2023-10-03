@@ -4285,8 +4285,7 @@ void movefta(void)
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
 	while (auto act = it.Next())
 	{
-		const auto pnum = findplayer(act, &xx);
-		const auto p = getPlayer(pnum);
+		const auto p = getPlayer(findplayer(act, &xx));
 		const auto pact = p->GetActor();
 		canseeme = 0;
 		ssect = psect = act->sector();
@@ -4360,7 +4359,7 @@ void movefta(void)
 				// wakeup is an RR feature, this flag will allow it to use in Duke, too.
 				if ((act->flags1 & SFLAG_MOVEFTA_WAKEUPCHECK))
 				{
-					if (wakeup(act, pnum))
+					if (wakeup(act, p))
 					{
 						act->timetosleep = 0;
 						check_fta_sounds(act);

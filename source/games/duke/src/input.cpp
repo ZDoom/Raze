@@ -332,7 +332,7 @@ void hud_input(DDukePlayer* const p)
 					p->yehaa_timer = 126;
 					S_PlayActorSound(390, pact);
 					p->noise_radius = 1024;
-					madenoise(p->pnum);
+					madenoise(p);
 					if (p->cursector->lotag == 857)
 					{
 						if (pact->spr.extra <= gs.max_player_health)
