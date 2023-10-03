@@ -1163,7 +1163,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 	}
 	else if (!p->OnMotorcycle)
 	{
-		footprints(snum);
+		footprints(p);
 	}
 
 	if (pact->getOffsetZ() < floorz - i) //falling
