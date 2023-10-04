@@ -312,7 +312,7 @@ void checksectors_d(DDukePlayer* const p)
 				return;
 		}
 
-		if (!!!(p->cmd.ucmd.actions & SB_OPEN)) return;
+		if (!(p->cmd.ucmd.actions & SB_OPEN)) return;
 		else if (p->newOwner != nullptr)
 		{
 			clearcameras(p);
