@@ -311,17 +311,17 @@ void RestartPlayer(DExhumedPlayer* const pPlayer)
     if (pPlayer->nRun < 0)
         pPlayer->nRun = runlist_AddRunRec(NewRun, pPlayer->pnum, 0xA0000);
 
-	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
-	{
-		RestoreMinAmmo(pPlayer);
-	}
-	else
-	{
-		ResetPlayerWeapons(pPlayer);
-		pPlayer->nMagic = 0;
-	}
+    if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
+    {
+        RestoreMinAmmo(pPlayer);
+    }
+    else
+    {
+        ResetPlayerWeapons(pPlayer);
+        pPlayer->nMagic = 0;
+    }
 
-	BuildRa(pPlayer->pnum);
+    BuildRa(pPlayer->pnum);
 }
 
 //---------------------------------------------------------------------------
@@ -775,7 +775,7 @@ static void doPickupWeapon(DExhumedPlayer* pPlayer, DExhumedActor* pPickupActor,
 
 static void doPickupHealth(DExhumedPlayer* pPlayer, DExhumedActor* pPickupActor, int nItem, const int nAmount, int nSound)
 {
-    if (!pPickupActor->spr.hitag || nAmount > 0 && pPlayer->nHealth >= 800)
+    if (!pPickupActor->spr.hitag || (nAmount > 0 && pPlayer->nHealth >= 800))
         return;
 
     int tintRed = 0, tintGreen = 16;

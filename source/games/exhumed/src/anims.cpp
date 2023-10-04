@@ -97,10 +97,10 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, const FName seqFile, int seqInde
     if (nFlag & 0x80)
         pActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT; // set transluscence
 
-	pActor->spr.pos = pos;
+    pActor->spr.pos = pos;
     pActor->spr.cstat = 0;
     pActor->clipdist = 2.5;
-	pActor->spr.scale = DVector2(nScale, nScale);
+    pActor->spr.scale = DVector2(nScale, nScale);
     setvalidpic(pActor);
     pActor->spr.Angles.Yaw = nullAngle;
     pActor->spr.xoffset = 0;

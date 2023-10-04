@@ -4337,7 +4337,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 	case 0: // check if this player is connected
 		if (!condCmp(pPlayer->pnum + 1, arg1, arg2, cmpOp) || pPlayer->GetActor() == nullptr) return false;
 		else if (PUSH) condPush(aCond, pPlayer->GetActor());
-		return (pPlayer->pnum >= 0);
+		return true;
 	case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
 	case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
 	case 3: return (arg1 > 0 && arg1 < 15 && pPlayer->hasWeapon[arg1 - 1]);

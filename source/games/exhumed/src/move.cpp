@@ -586,10 +586,10 @@ double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 {
     if (pActor1 == nullptr || pActor2 == nullptr)
         return -1;
-	
-	auto vect = pActor2->spr.pos.XY() - pActor1->spr.pos.XY();
-	pActor1->spr.Angles.Yaw = vect.Angle();
-	return vect.Length();
+
+    auto vect = pActor2->spr.pos.XY() - pActor1->spr.pos.XY();
+    pActor1->spr.Angles.Yaw = vect.Angle();
+    return vect.Length();
 
 }
 
@@ -606,7 +606,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
     if (nDistance < 0)
         nDistance = 100;
 
-	auto pSector =pActor->sector();
+    auto pSector =pActor->sector();
     nDistance <<= 4;
 
     DExhumedActor* pPlayerActor = nullptr;

@@ -126,7 +126,7 @@ static TMap<FName, TArray<Seq>> FileSeqMap;
 //
 //---------------------------------------------------------------------------
 
-const TArray<Seq>* const getFileSeqs(const FName nSeqFile)
+TArray<Seq>* getFileSeqs(const FName nSeqFile)
 {
     return FileSeqMap.CheckKey(nSeqFile);
 }

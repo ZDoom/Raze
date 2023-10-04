@@ -4694,7 +4694,7 @@ void MoveDude(DBloodActor* actor)
 	if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
 	if (!(actor->IsDudeActor()))
 	{
-		Printf(PRINT_HIGH, "%s is not a dude actor type\n", actor->GetClass()->TypeName);
+		Printf(PRINT_HIGH, "%s is not a dude actor type\n", actor->GetClass()->TypeName.GetChars());
 		return;
 	}
 

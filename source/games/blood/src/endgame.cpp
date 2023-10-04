@@ -61,7 +61,8 @@ bool AllowedKillType(DBloodActor* actor)
 {
     if (!actor || actor->spr.statnum != kStatDude)
         return false;
-	auto type = actor->GetType();
+
+    auto type = actor->GetType();
     return type != kDudeBat && type != kDudeRat && type != kDudeInnocent && type != kDudeBurningInnocent;
 }
 

@@ -54,7 +54,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
-		if (!(h->flags2 & SFLAG2_FORCESECTORSHADE) && ((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguy(static_cast<DDukeActor*>(t->ownerActor)) && t->extra > 0) || t->statnum == STAT_PLAYER)
+		if ((!(h->flags2 & SFLAG2_FORCESECTORSHADE) && (t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguy(static_cast<DDukeActor*>(t->ownerActor)) && t->extra > 0) || t->statnum == STAT_PLAYER)
 		{
 			if (h->sector()->shadedsector == 1 && h->spr.statnum != STAT_ACTOR)
 			{

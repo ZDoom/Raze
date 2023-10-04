@@ -391,6 +391,7 @@ MOVEEND:
                     hitactor = coll.actor();
                     goto HITSPRITE;
                 }
+                break;
             default:
                 if (coll.exbits)
                     goto HITSECT;

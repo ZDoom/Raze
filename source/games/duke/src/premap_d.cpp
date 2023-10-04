@@ -48,7 +48,7 @@ BEGIN_DUKE_NS
 
 void prelevel_d(int g, TArray<DDukeActor*>& actors)
 {
-	int j, lotaglist;
+	unsigned j;
 	TArray<short> lotags;
 
 	prelevel_common(g);
@@ -85,7 +85,6 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 				spriteinit(actor, actors);
 		}
 	}
-	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
 	while (auto actor = it.Next())
