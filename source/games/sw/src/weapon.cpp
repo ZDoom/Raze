@@ -11397,7 +11397,7 @@ int DoSerpRing(DSWActor* actor)
         zz = own->spr.pos.Z - actor->user.pos.Z;
 
     // move the center with the player
-	actor->spr.pos = DVector3(own->spr.pos.XY(), zz);
+    actor->spr.pos = DVector3(own->spr.pos.XY(), zz);
 
 
     // go out until its time to come back in

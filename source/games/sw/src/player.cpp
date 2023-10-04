@@ -3620,7 +3620,7 @@ bool PlayerOnLadder(DSWPlayer* pp)
 
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
-	auto npos = lActor->spr.Angles.Yaw.ToVector() * 31.25;
+    auto npos = lActor->spr.Angles.Yaw.ToVector() * 31.25;
 
     pp->LadderSector = near.hitWall->twoSided() ? near.hitWall->nextSector() : near.hitWall->sectorp();
 

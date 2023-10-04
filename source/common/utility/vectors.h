@@ -1048,7 +1048,7 @@ struct TMatrix3x3
 	{
 		double t = 1 - c;
 		double sx = s*axis.X, sy = s*axis.Y, sz = s*axis.Z;
-		double tx, ty, txx, tyy, u, v;
+		double tx = 0, ty = 0, txx = 0, tyy = 0, u = 0, v = 0;
 
 		tx = t*axis.X;
 		Cells[0][0] = vec_t( (txx=tx*axis.X) + c );
