@@ -156,10 +156,10 @@ extern const int16_t nItemMagic[];
 
 void BuildItemAnim(DExhumedActor* nSprite);
 void ItemFlash();
-void FillItems(int nPlayer);
-void UseItem(int nPlayer, int nItem);
+void FillItems(DExhumedPlayer* const pPlayer);
+void UseItem(DExhumedPlayer* const pPlayer, int nItem);
 void UseCurItem(int nPlayer);
-int GrabItem(int nPlayer, int nItem);
+int GrabItem(DExhumedPlayer* const pPlayer, int nItem);
 void DropMagic(DExhumedActor* actor);
 void InitItems();
 void StartRegenerate(DExhumedActor* nSprite);
@@ -177,7 +177,7 @@ void FuncLava(int, int, int, int);
 
 void InitLights();
 void AddFlash(sectortype* pSector, const DVector3& pos, int val);
-void SetTorch(int nPlayer, int bTorchOnOff);
+void SetTorch(DExhumedPlayer* const pPlayer, int bTorchOnOff);
 void UndoFlashes();
 void DoLights();
 void AddFlow(sectortype* pSect, int nSpeed, int b, DAngle ang = -minAngle);
