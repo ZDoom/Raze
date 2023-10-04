@@ -259,8 +259,9 @@ int findplayer(const DDukeActor* actor, double* d)
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		double x = (getPlayer(j)->GetActor()->getPrevPosWithOffsetZ() - s).plusZ(28).Sum();
-		if (x < closest && getPlayer(j)->GetActor()->spr.extra > 0)
+		const auto jact = getPlayer(j)->GetActor();
+		double x = (jact->getPrevPosWithOffsetZ() - s).plusZ(28).Sum();
+		if (x < closest && jact->spr.extra > 0)
 		{
 			closest_player = j;
 			closest = x;
@@ -279,15 +280,19 @@ int findplayer(const DDukeActor* actor, double* d)
 
 int findotherplayer(int p, double* d)
 {
+	const auto ppos = getPlayer(p)->GetActor()->getPosWithOffsetZ();
 	int j, closest_player;
 
 	double closest = 0x7fffffff;
 	closest_player = p;
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
-		if (p != j && getPlayer(j)->GetActor()->spr.extra > 0)
+	{
+		const auto jact = getPlayer(j)->GetActor();
+
+		if (p != j && jact->spr.extra > 0)
 		{
-			double x = (getPlayer(j)->GetActor()->getPrevPosWithOffsetZ() - getPlayer(p)->GetActor()->getPosWithOffsetZ()).Sum();
+			double x = (jact->getPrevPosWithOffsetZ() - ppos).Sum();
 
 			if (x < closest)
 			{
@@ -295,6 +300,7 @@ int findotherplayer(int p, double* d)
 				closest = x;
 			}
 		}
+	}
 
 	*d = closest;
 	return closest_player;
