@@ -299,7 +299,7 @@ void AIRa::Tick(RunListEvent* ev)
                 if (pPlayer->nAmmo[kWeaponRing] > 0)
                 {
                     runlist_DamageEnemy(pRa->pTarget, getPlayer(pRa->nPlayer)->GetActor(), BulletInfo[kWeaponRing].nDamage);
-                    AddAmmo(pPlayer->pnum, kWeaponRing, -WeaponInfo[kWeaponRing].d);
+                    AddAmmo(pPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
                     SetQuake(pActor, 100);
                 }
                 else

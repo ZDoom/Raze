@@ -436,7 +436,7 @@ void MoveWeapons(int nPlayer)
                                 if (nWeapon == kWeaponGrenade)
                                 {
                                     BuildGrenade(nPlayer);
-                                    AddAmmo(nPlayer, 4, -1);
+                                    AddAmmo(pPlayer, 4, -1);
                                 }
                                 else if (nWeapon == kWeaponMummified)
                                 {
@@ -866,7 +866,7 @@ loc_flag:
                 if (nWeapon != kWeaponGrenade)
                 {   
                     if (WeaponInfo[nWeapon].d) {
-                        AddAmmo(nPlayer, nAmmoType, -1);
+                        AddAmmo(pPlayer, nAmmoType, -1);
                     }
 
                     if (nWeapon == kWeaponM60) {

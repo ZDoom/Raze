@@ -140,7 +140,7 @@ extern int nCurStartSprite;
 
 int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(DExhumedPlayer* const pPlayer, int bIsMummified);
-int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
+int AddAmmo(DExhumedPlayer* const pPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
 void updatePlayerTarget(DExhumedPlayer* const pPlayer);
 

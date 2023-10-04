@@ -417,10 +417,8 @@ void StartDeathSeq(int nPlayer, int nVal)
 //
 //---------------------------------------------------------------------------
 
-int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
+int AddAmmo(DExhumedPlayer* const pPlayer, int nWeapon, int nAmmoAmount)
 {
-    const auto pPlayer = getPlayer(nPlayer);
-
     if (!nAmmoAmount)
         nAmmoAmount = 1;
 
@@ -752,13 +750,13 @@ static void doPickupWeapon(DExhumedPlayer* pPlayer, DExhumedActor* pPickupActor,
     if (pPlayer->nPlayerWeapons & weapFlag)
     {
         if (currentLevel->gameflags & LEVEL_EX_MULTI)
-            AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
+            AddAmmo(pPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
     else
     {
         SetNewWeaponIfBetter(pPlayer, nWeapon);
         pPlayer->nPlayerWeapons |= weapFlag;
-        AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
+        AddAmmo(pPlayer, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
 
     if (nWeapon == 2)
@@ -848,7 +846,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
         case 6: // Speed Loader
         case 7: // Fuel Canister
         case 8: // M - 60 Ammo Belt
-            if (AddAmmo(pPlayer->pnum, ammoArray[nItem - 6], pPickupActor->spr.hitag))
+            if (AddAmmo(pPlayer, ammoArray[nItem - 6], pPickupActor->spr.hitag))
             {
                 if (nItem == 8) CheckClip(pPlayer->pnum);
                 doPickupDestroy(pPickupActor, nItem);
@@ -859,7 +857,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
         case 9: // Grenade
         case 27: // May not be grenade, needs confirmation
         case 55:
-            if (AddAmmo(pPlayer->pnum, 4, 1))
+            if (AddAmmo(pPlayer, 4, 1))
             {
                 if (!(pPlayer->nPlayerWeapons & 0x10))
                 {
@@ -969,7 +967,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
 
         case 37: // Cobra staff ammo
         case 38: // Raw Energy
-            if (AddAmmo(pPlayer->pnum, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
+            if (AddAmmo(pPlayer, nItem - 32, (nItem == 38) ? pPickupActor->spr.hitag : 1))
             {
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
