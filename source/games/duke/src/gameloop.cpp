@@ -88,7 +88,7 @@ void GameInterface::Ticker()
 
 			hud_input(p);
 			fi.processinput(p);
-			fi.checksectors(i);
+			fi.checksectors(p);
 		}
 
 		fi.think();
