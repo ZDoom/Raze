@@ -1539,7 +1539,7 @@ void processinput_d(DDukePlayer* const p)
 	const auto strafeVel = p->cmd.ucmd.vel.Y;
 	constexpr auto maxVel = (117351124. / 10884538.);
 
-	processinputvel(p);
+	rotateInputVel(p);
 
 	auto psectp = p->cursector;
 	if (psectp == nullptr)

@@ -219,7 +219,7 @@ inline int monsterCheatCheck(DDukeActor* self)
 	return false;
 }
 
-inline void processinputvel(DDukePlayer* const p)
+inline void rotateInputVel(DDukePlayer* const p)
 {
 	p->cmd.ucmd.vel.XY() = p->cmd.ucmd.vel.XY().Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
 }
