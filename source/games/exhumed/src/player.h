@@ -139,7 +139,7 @@ extern int nNetStartSprites;
 extern int nCurStartSprite;
 
 int GetPlayerFromActor(DExhumedActor* actor);
-void SetPlayerMummified(int nPlayer, int bIsMummified);
+void SetPlayerMummified(DExhumedPlayer* const pPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
 void updatePlayerTarget(DExhumedPlayer* const pPlayer);

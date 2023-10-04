@@ -267,23 +267,23 @@ void AIGrenade::Tick(RunListEvent* ev)
     pActor->nIndex2--;
     if (!pActor->nIndex2)
     {
-        int nPlayer = pActor->spr.intowner;
+        const auto pPlayer = getPlayer(pActor->spr.intowner);
 
         if (pActor->nTurn < 0)
         {
-            getPlayer(nPlayer)->nState = 0;
-            getPlayer(nPlayer)->nWeapFrame = 0;
+            pPlayer->nState = 0;
+            pPlayer->nWeapFrame = 0;
 
-            if (getPlayer(nPlayer)->nAmmo[kWeaponGrenade])
+            if (pPlayer->nAmmo[kWeaponGrenade])
             {
-                getPlayer(nPlayer)->bIsFiring = false;
+                pPlayer->bIsFiring = false;
             }
             else
             {
-                SelectNewWeapon(nPlayer);
+                SelectNewWeapon(pPlayer);
 
-                getPlayer(nPlayer)->nCurrentWeapon = getPlayer(nPlayer)->nNextWeapon;
-                getPlayer(nPlayer)->nNextWeapon = -1;
+                pPlayer->nCurrentWeapon = pPlayer->nNextWeapon;
+                pPlayer->nNextWeapon = -1;
             }
         }
 
