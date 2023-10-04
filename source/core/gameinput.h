@@ -39,15 +39,16 @@ class GameInput
 	FVector2 mouseInput;	
 
 	// Internal variables when generating a packet.
-	int keymove;
 	InputPacket inputBuffer;
+	ESyncBits ActionsToSend;
 	double turnheldtime;
+	double scaleAdjust;
 	int WeaponToSend;
 	int dpad_lock;
-	ESyncBits ActionsToSend;
+	int keymove;
 
 	// Turn speed doubling after x amount of tics.
-	void updateTurnHeldAmt(const double scaleAdjust)
+	void updateTurnHeldAmt()
 	{
 		turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
 	}
@@ -83,10 +84,17 @@ public:
 		mouseInput.Y += y;
 	}
 
+	// Receives the current input scale from the engine's main loop.
+	void UpdateInputScale()
+	{
+		const double frac = I_GetInputFrac();
+		scaleAdjust = !SyncInput() ? frac : 1;
+	}
+
 	// Prototypes for large member functions.
-	void processMovement(const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
-	void processVehicle(const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags);
-	void getInput(const double scaleAdjust, InputPacket* packet = nullptr);
+	void processMovement(const double turnscale = 1, const bool allowstrafe = true, const int drink_amt = 0);
+	void processVehicle(const double baseVel, const double velScale, const unsigned flags);
+	void getInput(InputPacket* packet = nullptr);
 	void resetCrouchToggle();
 };
 

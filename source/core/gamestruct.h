@@ -112,7 +112,7 @@ struct GameInterface
 	virtual void RemoveQAVInterpProps(const int res_id) { }
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
-	virtual void doPlayerMovement(const double scaleAdjust);
+	virtual void doPlayerMovement();
 	virtual unsigned getCrouchState() = 0;
 
 	virtual FString statFPS()
