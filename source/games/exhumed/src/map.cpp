@@ -45,8 +45,9 @@ void GrabMap()
 
 void UpdateMap()
 {
-    const auto initsectp = getPlayer(nLocalPlayer)->GetActor()->sector();
-    if (initsectp->ceilingpal != 3 || (getPlayer(nLocalPlayer)->nTorch != 0)) {
+    const auto pPlayer = getPlayer(nLocalPlayer);
+    const auto initsectp = pPlayer->GetActor()->sector();
+    if (initsectp->ceilingpal != 3 || (pPlayer->nTorch != 0)) {
         MarkSectorSeen(initsectp);
     }
 }
