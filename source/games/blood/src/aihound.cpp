@@ -52,7 +52,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DVector3 vec(actor->spr.Angles.Yaw.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
-	if (target->IsPlayerActor() || gModernMap) // allow to hit non-player targets
+	if (target->IsPlayerActor() || currentLevel->featureflags & kFeatureEnemyAttacks)
 		actFireVector(actor, 0, 0, vec, kVectorHoundBite);
 }
 

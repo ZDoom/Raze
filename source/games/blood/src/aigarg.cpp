@@ -160,7 +160,8 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 		}
 	}
 	// allow to fire missile in non-player targets
-	if (target->IsPlayerActor() || gModernMap) {
+	if (target->IsPlayerActor() || currentLevel->featureflags & kFeatureEnemyAttacks)
+	{
 		actFireMissile(actor, -7.5, 0, Aim, kMissileArcGargoyle);
 		actFireMissile(actor, 7.5, 0, Aim, kMissileArcGargoyle);
 	}

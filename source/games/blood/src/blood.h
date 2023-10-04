@@ -62,6 +62,7 @@ BEGIN_BLD_NS
 enum EFeatureFlags
 {
 	kFeatureCustomAmmoCount = 1,
+	kFeatureEnemyAttacks = 2,
 };
 
 constexpr int BMAX_PATH = 260;

@@ -147,7 +147,8 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 		}
 	}
 	// allow fire missile in non-player targets if not a demo
-	if (target->IsPlayerActor() || gModernMap) {
+	if (target->IsPlayerActor() || currentLevel->featureflags & kFeatureEnemyAttacks)
+	{
 		sfxPlay3DSound(actor, 489, 0, 0);
 		actFireMissile(actor, 0, 0, Aim, kMissileEctoSkull);
 	}
