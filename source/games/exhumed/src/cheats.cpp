@@ -266,7 +266,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	}
 	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
 	{
-		FillItems(player);
+		FillItems(pPlayer);
 		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_ITEMS"));
 	}
 

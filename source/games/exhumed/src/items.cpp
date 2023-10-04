@@ -174,22 +174,22 @@ void ItemFlash()
 //
 //---------------------------------------------------------------------------
 
-void FillItems(int nPlayer)
+void FillItems(DExhumedPlayer* const pPlayer)
 {
     for (int i = 0; i < 6; i++)
     {
-        getPlayer(nPlayer)->items[i] = 5;
+        pPlayer->items[i] = 5;
     }
 
-    getPlayer(nPlayer)->nMagic = 1000;
+    pPlayer->nMagic = 1000;
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         ItemFlash();
     }
 
-    if (getPlayer(nPlayer)->nItem == -1) {
-        getPlayer(nPlayer)->nItem = 0;
+    if (pPlayer->nItem == -1) {
+        pPlayer->nItem = 0;
     }
 }
 
@@ -199,20 +199,20 @@ void FillItems(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-static bool UseEye(int nPlayer)
+static bool UseEye(DExhumedPlayer* const pPlayer)
 {
-    if (getPlayer(nPlayer)->nInvisible >= 0) 
-        getPlayer(nPlayer)->nInvisible = 900;
+    if (pPlayer->nInvisible >= 0) 
+        pPlayer->nInvisible = 900;
 
-    auto pActor = getPlayer(nPlayer)->GetActor();
+    auto pActor = pPlayer->GetActor();
 
     pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-    if (getPlayer(nPlayer)->pPlayerFloorSprite != nullptr) {
+    if (pPlayer->pPlayerFloorSprite != nullptr) {
         pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], pActor);
@@ -226,14 +226,14 @@ static bool UseEye(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-static bool UseMask(int nPlayer)
+static bool UseMask(DExhumedPlayer* const pPlayer)
 {
-    getPlayer(nPlayer)->nMaskAmount = 1350;
-    getPlayer(nPlayer)->nAir = 100;
+    pPlayer->nMaskAmount = 1350;
+    pPlayer->nAir = 100;
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
-        D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
+        D3PlayFX(StaticSound[kSound31], pPlayer->GetActor());
     }
     return true;
 }
@@ -244,14 +244,14 @@ static bool UseMask(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-bool UseTorch(int nPlayer)
+bool UseTorch(DExhumedPlayer* const pPlayer)
 {
-    if (!getPlayer(nPlayer)->nTorch) 
+    if (!pPlayer->nTorch) 
     {
-        SetTorch(nPlayer, 1);
+        SetTorch(pPlayer, 1);
     }
 
-    getPlayer(nPlayer)->nTorch = 900;
+    pPlayer->nTorch = 900;
     return true;
 }
 
@@ -261,15 +261,15 @@ bool UseTorch(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-bool UseHeart(int nPlayer)
+bool UseHeart(DExhumedPlayer* const pPlayer)
 {
-    if (getPlayer(nPlayer)->nHealth < kMaxHealth) {
-        getPlayer(nPlayer)->nHealth = kMaxHealth;
+    if (pPlayer->nHealth < kMaxHealth) {
+        pPlayer->nHealth = kMaxHealth;
 
-        if (nPlayer == nLocalPlayer)
+        if (pPlayer->pnum == nLocalPlayer)
         {
             ItemFlash();
-            D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
+            D3PlayFX(StaticSound[kSound31], pPlayer->GetActor());
         }
         return true;
     }
@@ -282,28 +282,28 @@ bool UseHeart(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-bool UseScarab(int nPlayer)
+bool UseScarab(DExhumedPlayer* const pPlayer)
 {
-    if (getPlayer(nPlayer)->invincibility >= 0 && getPlayer(nPlayer)->invincibility < 900)
-        getPlayer(nPlayer)->invincibility = 900;
+    if (pPlayer->invincibility >= 0 && pPlayer->invincibility < 900)
+        pPlayer->invincibility = 900;
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         ItemFlash();
-        D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
+        D3PlayFX(StaticSound[kSound31], pPlayer->GetActor());
     }
     return true;
 }
 
 // faster firing
-static bool UseHand(int nPlayer)
+static bool UseHand(DExhumedPlayer* const pPlayer)
 {
-    getPlayer(nPlayer)->nDouble = 1350;
+    pPlayer->nDouble = 1350;
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         ItemFlash();
-        D3PlayFX(StaticSound[kSound31], getPlayer(nPlayer)->GetActor());
+        D3PlayFX(StaticSound[kSound31], pPlayer->GetActor());
     }
     return true;
 }
@@ -314,36 +314,36 @@ static bool UseHand(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void UseItem(int nPlayer, int nItem)
+void UseItem(DExhumedPlayer* const pPlayer, int nItem)
 {
     bool didit = false;
     switch (nItem)
     {
         case 0:
-            didit = UseHeart(nPlayer);
+            didit = UseHeart(pPlayer);
             break;
         case 1:
-            didit = UseScarab(nPlayer);
+            didit = UseScarab(pPlayer);
             break;
         case 2:
-            didit = UseTorch(nPlayer);
+            didit = UseTorch(pPlayer);
             break;
         case 3:
-            didit = UseHand(nPlayer);
+            didit = UseHand(pPlayer);
             break;
         case 4:
-            didit = UseEye(nPlayer);
+            didit = UseEye(pPlayer);
             break;
         case 5:
-            didit = UseMask(nPlayer);
+            didit = UseMask(pPlayer);
             break;
         default:
             break;
     }
     if (!didit) return;
 
-    getPlayer(nPlayer)->items[nItem]--;
-    int nItemCount = getPlayer(nPlayer)->items[nItem];
+    pPlayer->items[nItem]--;
+    int nItemCount = pPlayer->items[nItem];
 
     int nMagic = nItemMagic[nItem];
 
@@ -351,7 +351,7 @@ void UseItem(int nPlayer, int nItem)
     {
         for (nItem = 0; nItem < 6; nItem++)
         {
-            if (getPlayer(nPlayer)->items[nItem] > 0) {
+            if (pPlayer->items[nItem] > 0) {
                 break;
             }
         }
@@ -361,8 +361,8 @@ void UseItem(int nPlayer, int nItem)
         }
     }
 
-    getPlayer(nPlayer)->nMagic -= nMagic;
-    getPlayer(nPlayer)->nItem = nItem;
+    pPlayer->nMagic -= nMagic;
+    pPlayer->nItem = nItem;
 }
 
 //---------------------------------------------------------------------------
@@ -371,16 +371,16 @@ void UseItem(int nPlayer, int nItem)
 //
 //---------------------------------------------------------------------------
 
-int GrabItem(int nPlayer, int nItem)
+int GrabItem(DExhumedPlayer* const pPlayer, int nItem)
 {
-    if (getPlayer(nPlayer)->items[nItem] >= 5) {
+    if (pPlayer->items[nItem] >= 5) {
         return 0;
     }
 
-    getPlayer(nPlayer)->items[nItem]++;
+    pPlayer->items[nItem]++;
 
-    if (getPlayer(nPlayer)->nItem < 0 || nItem == getPlayer(nPlayer)->nItem) {
-        getPlayer(nPlayer)->nItem = nItem;
+    if (pPlayer->nItem < 0 || nItem == pPlayer->nItem) {
+        pPlayer->nItem = nItem;
     }
 
     return 1;

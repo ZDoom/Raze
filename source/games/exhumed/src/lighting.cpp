@@ -783,13 +783,13 @@ void DoLights()
 //
 //---------------------------------------------------------------------------
 
-void SetTorch(int nPlayer, int bTorchOnOff)
+void SetTorch(DExhumedPlayer* const pPlayer, int bTorchOnOff)
 {
     if (bTorchOnOff == bTorch) {
         return;
     }
 
-    if (nPlayer != nLocalPlayer) {
+    if (pPlayer->pnum != nLocalPlayer) {
         return;
     }
 

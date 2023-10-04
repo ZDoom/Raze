@@ -298,7 +298,7 @@ void RestartPlayer(int nPlayer)
     pPlayer->nQuake = 0;
     pPlayer->nTemperature = 0;
     pPlayer->nStandHeight = GetActorHeight(pPlayerActor);
-    SetTorch(nPlayer, 0);
+    SetTorch(pPlayer, 0);
 
     if (nNetPlayerCount)
         pPlayer->nHealth = 1600; // TODO - define
@@ -925,7 +925,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
         case 21: // Unseen eye(Invisibility)
         case 22: // Torch
         case 23: // Sobek Mask
-            if (GrabItem(pPlayer->pnum, itemArray[nItem - 18]))
+            if (GrabItem(pPlayer, itemArray[nItem - 18]))
             {
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem);
@@ -1149,7 +1149,7 @@ static void updatePlayerInventory(DExhumedPlayer* const pPlayer)
 
             if (pPlayer->items[i] > 0 && nItemMagic[i] <= pPlayer->nMagic)
             {
-                UseItem(pPlayer->pnum, i);
+                UseItem(pPlayer, i);
                 break;
             }
         }
@@ -1348,7 +1348,7 @@ static void doPlayerCounters(DExhumedPlayer* const pPlayer)
 
         if (pPlayer->nTorch == 0)
         {
-            SetTorch(pPlayer->pnum, 0);
+            SetTorch(pPlayer, 0);
         }
         else if (!bConsolePlayer)
         {
@@ -1471,7 +1471,7 @@ static void doPlayerUnderwater(DExhumedPlayer* const pPlayer, const bool oUnderw
         if (pPlayer->nTorch > 0)
         {
             pPlayer->nTorch = 0;
-            SetTorch(pPlayer->pnum, 0);
+            SetTorch(pPlayer, 0);
         }
     }
     else
