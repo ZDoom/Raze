@@ -96,7 +96,7 @@ void FuncFishLimb(int a, int b, int c);
 
 enum { kMaxGrenades = 50 };
 
-void BuildGrenade(int nPlayer);
+void BuildGrenade(DExhumedPlayer* const pPlayer);
 void ThrowGrenade(int nPlayer, double ecx, double push1);
 void FuncGrenade(int, int, int, int);
 
