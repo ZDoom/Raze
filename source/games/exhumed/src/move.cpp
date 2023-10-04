@@ -231,9 +231,10 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
     *overridesect = pSector;
     const auto pSect2 = pSector;
+    const auto pPlayer = (pActor->spr.statnum == 100) ? getPlayer(GetPlayerFromActor(pActor)) : nullptr;
 
-    if (pActor->spr.statnum == 100)
-        getPlayer(GetPlayerFromActor(pActor))->bTouchFloor = false;
+    if (pPlayer)
+        pPlayer->bTouchFloor = false;
 
     // backup cstat
     const auto cstat = pActor->spr.cstat;
@@ -305,8 +306,8 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
     {
         if (z > 0)
         {
-            if (pActor->spr.statnum == 100)
-                getPlayer(GetPlayerFromActor(pActor))->bTouchFloor = true;
+            if (pPlayer)
+                pPlayer->bTouchFloor = true;
 
             if (loHit.type == kHitSprite)
             {
@@ -436,16 +437,16 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
 
     if (pActor->spr.statnum == 100)
     {
-        int nPlayer = GetPlayerFromActor(pActor);
+        const auto pPlayer = getPlayer(GetPlayerFromActor(pActor));
         DVector2 thrust(0, 0);
 
         CheckSectorFloor(overridesect, pActor->spr.pos.Z, thrust);
         if (!thrust.isZero())
         {
-            getPlayer(nPlayer)->nThrust = thrust;
+            pPlayer->nThrust = thrust;
         }
 
-        vect += getPlayer(nPlayer)->nThrust;
+        vect += pPlayer->nThrust;
     }
     else
     {
@@ -930,16 +931,17 @@ void SetQuake(DExhumedActor* pActor, int nVal)
 {
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        auto nSqrt = ((getPlayer(i)->GetActor()->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
+        const auto pPlayer = getPlayer(i);
+        auto nSqrt = ((pPlayer->GetActor()->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
 
         if (nSqrt)
         {
             nVal = clamp(int(nVal / nSqrt), 0, 15);
         }
 
-        if (nVal > getPlayer(i)->nQuake)
+        if (nVal > pPlayer->nQuake)
         {
-            getPlayer(i)->nQuake = nVal;
+            pPlayer->nQuake = nVal;
         }
     }
 }
