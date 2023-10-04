@@ -57,7 +57,7 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 	}
 }
 
-void SpidBiteSeqCallback(int, DBloodActor* actor)
+void SpidBiteSeqCallback(DBloodActor* actor)
 {
 	DVector3 vec(actor->spr.Angles.Yaw.ToVector(), 0);
 
@@ -105,7 +105,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void SpidJumpSeqCallback(int, DBloodActor* actor)
+void SpidJumpSeqCallback(DBloodActor* actor)
 {
 	DVector3 vec(actor->spr.Angles.Yaw.ToVector(), 0);
 
@@ -129,7 +129,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void SpidBirthSeqCallback(int, DBloodActor* actor)
+void SpidBirthSeqCallback(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

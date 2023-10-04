@@ -50,17 +50,17 @@ AISTATE tentacleStartChase = { kAiStateOther, 6, nTentacleStartSearchClient, 120
 AISTATE tentacleRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, aiPodChase, NULL };
 
-void sub_6FF08(int, DBloodActor* actor)
+void podPlaySound1(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 2503, -1, 0);
 }
 
-void sub_6FF54(int, DBloodActor* actor)
+void podPlaySound2(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 2500, -1, 0);
 }
 
-void podAttack(int, DBloodActor* actor)
+void podAttack(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -101,7 +101,7 @@ void podAttack(int, DBloodActor* actor)
 		fxSpawnPodStuff(actor, 240);
 }
 
-void sub_70284(int, DBloodActor* actor)
+void podExplode(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 2502, -1, 0);
 	int nDist, nBurn;

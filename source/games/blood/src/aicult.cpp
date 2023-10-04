@@ -73,7 +73,7 @@ AISTATE cultistTSwimFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn
 AISTATE cultistTsSwimFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsSwimFire };
 AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistSwimDodge };
 
-void TommySeqCallback(int, DBloodActor* actor)
+void TommySeqCallback(DBloodActor* actor)
 {
 	DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
@@ -83,7 +83,7 @@ void TommySeqCallback(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 4001, -1, 0);
 }
 
-void TeslaSeqCallback(int, DBloodActor* actor)
+void TeslaSeqCallback(DBloodActor* actor)
 {
 	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
@@ -96,7 +96,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void ShotSeqCallback(int, DBloodActor* actor)
+void ShotSeqCallback(DBloodActor* actor)
 {
 	DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
@@ -115,7 +115,7 @@ void ShotSeqCallback(int, DBloodActor* actor)
 		sfxPlay3DSound(actor, 1002, -1, 0);
 }
 
-void cultThrowSeqCallback(int, DBloodActor* actor)
+void cultThrowSeqCallback(DBloodActor* actor)
 {
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
@@ -137,7 +137,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 		evPostActor(pMissile, 120 * (1 + Random(2)), kCmdOn, actor);
 }
 
-void cultThrowSeqCallback2(int, DBloodActor* actor)
+void cultThrowSeqCallback2(DBloodActor* actor)
 {
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
@@ -147,7 +147,7 @@ void cultThrowSeqCallback2(int, DBloodActor* actor)
 	evPostActor(pMissile, 120 * (2 + Random(2)), kCmdOn, actor);
 }
 
-void cultThrowSeqCallback3(int, DBloodActor* actor)
+void cultThrowSeqCallback3(DBloodActor* actor)
 {
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)

@@ -62,7 +62,7 @@ AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, beastThinkSw
 AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
 AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
 
-void SlashSeqCallback(int, DBloodActor* actor)
+void SlashSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -80,7 +80,7 @@ void SlashSeqCallback(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 9012 + Random(2), -1, 0);
 }
 
-void StompSeqCallback(int, DBloodActor* actor)
+void StompSeqCallback(DBloodActor* actor)
 {
 	auto pos = actor->spr.pos;
 	const int nDist = 400;

@@ -61,7 +61,7 @@ AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL,
 AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
-void eelBiteSeqCallback(int, DBloodActor* actor)
+void eelBiteSeqCallback(DBloodActor* actor)
 {
 	/*
 	 * workaround for

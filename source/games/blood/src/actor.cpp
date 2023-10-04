@@ -5711,7 +5711,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 //
 //---------------------------------------------------------------------------
 
-void FireballSeqCallback(int, DBloodActor* actor)
+void FireballSeqCallback(DBloodActor* actor)
 {
 	auto pFX = gFX.fxSpawnActor(FX_11, actor->sector(), actor->spr.pos);
 	if (pFX)
@@ -5720,7 +5720,7 @@ void FireballSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void NapalmSeqCallback(int, DBloodActor* actor)
+void NapalmSeqCallback(DBloodActor* actor)
 {
 	auto pFX = gFX.fxSpawnActor(FX_12, actor->sector(), actor->spr.pos);
 	if (pFX)
@@ -5729,7 +5729,7 @@ void NapalmSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void Fx32Callback(int, DBloodActor* actor)
+void Fx32Callback(DBloodActor* actor)
 {
 	auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), actor->spr.pos);
 	if (pFX)
@@ -5738,7 +5738,7 @@ void Fx32Callback(int, DBloodActor* actor)
 	}
 }
 
-void Fx33Callback(int, DBloodActor* actor)
+void Fx33Callback(DBloodActor* actor)
 {
 	auto pFX = gFX.fxSpawnActor(FX_33, actor->sector(), actor->spr.pos);
 	if (pFX)
@@ -5753,7 +5753,7 @@ void Fx33Callback(int, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void TreeToGibCallback(int, DBloodActor* actor)
+void TreeToGibCallback(DBloodActor* actor)
 {
 	actor->ChangeType(kThingObjectExplode);
 	actor->xspr.state = 1;
@@ -5765,7 +5765,7 @@ void TreeToGibCallback(int, DBloodActor* actor)
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 }
 
-void DudeToGibCallback1(int, DBloodActor* actor)
+void DudeToGibCallback1(DBloodActor* actor)
 {
 	actor->ChangeType(kThingBloodChunks);
 	actor->xspr.data1 = 8;
@@ -5780,7 +5780,7 @@ void DudeToGibCallback1(int, DBloodActor* actor)
 	actor->xspr.state = 1;
 }
 
-void DudeToGibCallback2(int, DBloodActor* actor)
+void DudeToGibCallback2(DBloodActor* actor)
 {
 	actor->ChangeType(kThingBloodChunks);
 	actor->xspr.data1 = 3;

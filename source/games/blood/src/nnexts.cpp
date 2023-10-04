@@ -5680,7 +5680,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		// let's allow only specific commands here to avoid this.
 		if (actor->spr.inittype < kDudeBase || actor->spr.inittype >= kDudeMax) return false;
 		else if (event.cmd != kCmdToggle && event.cmd != kCmdOff && event.cmd != kCmdSpriteImpact) return true;
-		DudeToGibCallback1(0, actor); // set proper gib type just in case DATAs was changed from the outside.
+		DudeToGibCallback1(actor); // set proper gib type just in case DATAs was changed from the outside.
 		return false;
 
 	case kModernCondition:

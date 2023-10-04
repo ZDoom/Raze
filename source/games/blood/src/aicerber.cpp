@@ -58,7 +58,7 @@ AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &c
 static constexpr double Cerberus_XYOff = 350. / 16;
 static constexpr double Cerberus_ZOff = 100. / 256;
 
-void cerberusBiteSeqCallback(int, DBloodActor* actor)
+void cerberusBiteSeqCallback(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -75,7 +75,7 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 	actFireVector(actor, 0, 0, vec, kVectorCerberusHack);
 }
 
-void cerberusBurnSeqCallback(int, DBloodActor* actor)
+void cerberusBurnSeqCallback(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
@@ -136,7 +136,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void cerberusBurnSeqCallback2(int, DBloodActor* actor)
+void cerberusBurnSeqCallback2(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

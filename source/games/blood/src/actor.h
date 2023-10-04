@@ -153,12 +153,6 @@ void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange
 void actDoLight(int spriteNum);
 #endif
 
-void FireballSeqCallback(int, int);
-void sub_38938(int, int);
-void NapalmSeqCallback(int, int);
-void sub_3888C(int, int);
-void TreeToGibCallback(int, int);
-
 bool IsUnderwaterSector(sectortype* pSector);
 void actInit(TArray<DBloodActor*>& actors);
 void actWallBounceVector(DBloodActor* actor, walltype* pWall, double factor);
@@ -193,6 +187,21 @@ void MakeSplash(DBloodActor *actor);
 void actBuildMissile(DBloodActor* spawned, DBloodActor* actor);
 
 extern const int16_t DudeDifficulty[];
+
+
+bool IsUnderwaterSector(sectortype* pSector);
+
+// route state callbacks through the scripting interface.
+// this needs to work with incomplete data, so avoid the asserting macros.
+#define DEF_ANIMATOR(func) \
+    int func(DBloodActor*); \
+    DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, func, func) \
+    { \
+        auto self = (DBloodActor *)(param[0].a); \
+        func(self); \
+		return 0; \
+    }
+#define AF(func) DBloodActor_##func##_VMPtr
 
 
 END_BLD_NS

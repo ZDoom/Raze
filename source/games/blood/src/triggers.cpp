@@ -2482,7 +2482,7 @@ void ActivateGenerator(DBloodActor* actor)
 	case kGenMissileFireball:
 		switch (actor->xspr.data2) {
 		case 0:
-			FireballTrapSeqCallback(3, actor);
+			FireballTrapSeqCallback(actor);
 			break;
 		case 1:
 			seqSpawn(35, actor, nFireballTrapClient);
@@ -2510,7 +2510,7 @@ void ActivateGenerator(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void FireballTrapSeqCallback(int, DBloodActor* actor)
+void FireballTrapSeqCallback(DBloodActor* actor)
 {
 	if (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
 		actFireMissile(actor, 0, 0, DVector3(0, 0, (actor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 1 : -1), kMissileFireball);
@@ -2525,7 +2525,7 @@ void FireballTrapSeqCallback(int, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void MGunFireSeqCallback(int, DBloodActor* actor)
+void MGunFireSeqCallback(DBloodActor* actor)
 {
 	if (actor->xspr.data2 > 0 || actor->xspr.data1 == 0)
 	{
@@ -2545,7 +2545,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 	}
 }
 
-void MGunOpenSeqCallback(int, DBloodActor* actor)
+void MGunOpenSeqCallback(DBloodActor* actor)
 {
 	seqSpawn(39, actor, nMGunFireClient);
 }

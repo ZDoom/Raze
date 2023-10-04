@@ -75,7 +75,7 @@ static void playStatueBreakSnd(DBloodActor* actor) {
 	aiPlay3DSound(actor, 313, AI_SFX_PRIORITY_1, -1);
 }
 
-void SlashFSeqCallback(int, DBloodActor* actor)
+void SlashFSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -94,12 +94,12 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 	actFireVector(actor, 0, 0, vec + DVector2(r1, r2), kVectorGargSlash);
 }
 
-void ThrowFSeqCallback(int, DBloodActor* actor)
+void ThrowFSeqCallback(DBloodActor* actor)
 {
 	actFireThing(actor, 0., 0., actor->dudeSlope * 0.25 - 0.11444, kThingBone, 0xeeeee / 65536.);
 }
 
-void BlastSSeqCallback(int, DBloodActor* actor)
+void BlastSSeqCallback(DBloodActor* actor)
 {
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -168,7 +168,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 
 }
 
-void ThrowSSeqCallback(int, DBloodActor* actor)
+void ThrowSSeqCallback(DBloodActor* actor)
 {
 	actFireThing(actor, 0., 0., actor->dudeSlope * 0.25 - 0.11444, kThingBone, Chance(0x6000) ? 19.2 : 17.066666);
 }

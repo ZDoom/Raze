@@ -60,7 +60,7 @@ AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, ghostMoveDodgeDown, N
 AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 
-void ghostSlashSeqCallback(int, DBloodActor* actor)
+void ghostSlashSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -80,13 +80,13 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 	actFireVector(actor, 0, 0, dv + DVector2(-r2, r1), kVectorGhost);
 }
 
-void ghostThrowSeqCallback(int, DBloodActor* actor)
+void ghostThrowSeqCallback(DBloodActor* actor)
 {
 	actFireThing(actor, 0., 0., actor->dudeSlope * 0.25 - 0.11444, kThingBone, 14.93333);
 }
 
 // This functions seems to be identical with BlastSSeqCallback except for the spawn calls at the end.
-void ghostBlastSeqCallback(int, DBloodActor* actor)
+void ghostBlastSeqCallback(DBloodActor* actor)
 {
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

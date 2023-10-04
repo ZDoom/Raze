@@ -47,7 +47,7 @@ AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tch
 
 static constexpr double Tchernnobog_XYOff = 350. / 16;
 
-void sub_71A90(int, DBloodActor* actor)
+void tchernobogFire(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -58,7 +58,7 @@ void sub_71A90(int, DBloodActor* actor)
 		aiNewState(actor, &tcherno13A9D4);
 }
 
-void tchernobogBurnSeqCallback(int, DBloodActor* actor)
+void tchernobogBurnSeqCallback(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	double height = actor->spr.scale.Y * pDudeInfo->eyeHeight * 0.25;
@@ -115,7 +115,7 @@ void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 	actFireMissile(actor, Tchernnobog_XYOff, 0., Aim, kMissileFireballTchernobog);
 }
 
-void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
+void tchernobogBurnSeqCallback2(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 

@@ -58,7 +58,7 @@ AISTATE zombie2Search = { kAiStateSearch, 8, -1, 1800, NULL, NULL, myThinkSearch
 AISTATE zombieSIdle = { kAiStateIdle, 10, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL, NULL, &zombieAPonder };
 
-void HackSeqCallback(int, DBloodActor* actor)
+void HackSeqCallback(DBloodActor* actor)
 {
 	auto target = actor->GetTarget();
 	if (!target) return;
@@ -75,7 +75,7 @@ void HackSeqCallback(int, DBloodActor* actor)
 	actFireVector(actor, 0, 0, dv, kVectorAxe);
 }
 
-void StandSeqCallback(int, DBloodActor* actor)
+void StandSeqCallback(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 1102, -1, 0);
 }

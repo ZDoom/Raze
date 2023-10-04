@@ -57,7 +57,7 @@ AISTATE tinycaleb139660 = { kAiStateOther, 8, -1, 120, NULL, sub_65F44, calebThi
 AISTATE tinycaleb13967C = { kAiStateOther, 8, -1, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
 AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
 
-void SeqAttackCallback(int, DBloodActor* actor)
+void SeqAttackCallback(DBloodActor* actor)
 {
 	DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	vect.X += Random2F(1500, 4);

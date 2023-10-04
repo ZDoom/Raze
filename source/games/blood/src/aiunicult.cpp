@@ -113,7 +113,7 @@ const GENDUDESND gCustomDudeSnd[] = {
 static void forcePunch(DBloodActor* actor)
 {
 	if (actor->genDudeExtra.forcePunch && seqGetStatus(actor) == -1)
-		punchCallback(0, actor);
+		punchCallback(actor);
 }
 
 //---------------------------------------------------------------------------
@@ -181,7 +181,7 @@ void genDudeUpdate(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void punchCallback(int, DBloodActor* actor)
+void punchCallback(DBloodActor* actor)
 {
 	auto const target = actor->GetTarget();
 	if (target != nullptr)
@@ -206,7 +206,7 @@ void punchCallback(int, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void genDudeAttack1(int, DBloodActor* actor)
+void genDudeAttack1(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) return;
 
@@ -278,12 +278,12 @@ void genDudeAttack1(int, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void ThrowCallback1(int, DBloodActor* actor)
+void ThrowCallback1(DBloodActor* actor)
 {
 	ThrowThing(actor, true);
 }
 
-void ThrowCallback2(int, DBloodActor* actor)
+void ThrowCallback2(DBloodActor* actor)
 {
 	ThrowThing(actor, false);
 }

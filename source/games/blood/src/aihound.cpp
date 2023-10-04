@@ -42,7 +42,7 @@ AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, houndThinkG
 AISTATE houndBite = { kAiStateChase, 6, nHoundBiteClient, 60, NULL, NULL, NULL, &houndChase };
 AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, &houndChase };
 
-void houndBiteSeqCallback(int, DBloodActor* actor)
+void houndBiteSeqCallback(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -56,7 +56,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 		actFireVector(actor, 0, 0, vec, kVectorHoundBite);
 }
 
-void houndBurnSeqCallback(int, DBloodActor* actor)
+void houndBurnSeqCallback(DBloodActor* actor)
 {
 	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileFlameHound);
 }

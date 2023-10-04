@@ -45,7 +45,7 @@ AISTATE zombieFSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, zomb
 AISTATE zombieFRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &zombieFChase };
 AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zombieFChase };
 
-void zombfHackSeqCallback(int, DBloodActor* actor)
+void zombfHackSeqCallback(DBloodActor* actor)
 {
 	if (actor->GetType() != kDudeZombieButcher)
 		return;
@@ -58,7 +58,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 	actFireVector(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector() * 64, height - height2), kVectorCleaver);
 }
 
-void PukeSeqCallback(int, DBloodActor* actor)
+void PukeSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
@@ -75,7 +75,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	actFireMissile(actor, 0, -z, DVector3(dv, 0), kMissilePukeGreen);
 }
 
-void ThrowSeqCallback(int, DBloodActor* actor)
+void ThrowSeqCallback(DBloodActor* actor)
 {
 	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileButcherKnife);
 }

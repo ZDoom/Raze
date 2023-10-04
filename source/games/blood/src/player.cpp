@@ -2301,7 +2301,7 @@ void playerLandingSound(DBloodPlayer* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void PlayerSurvive(int, DBloodActor* actor)
+void PlayerSurvive(DBloodActor* actor)
 {
 	char buffer[80];
 	actHealDude(actor, 1, 2);
@@ -2329,7 +2329,7 @@ void PlayerSurvive(int, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void PlayerKneelsOver(int, DBloodActor* actor)
+void PlayerKneelsOver(DBloodActor* actor)
 {
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{

@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void (*seqClientCallback[])(int, DBloodActor*) = {
+static void (*seqClientCallback[])(DBloodActor*) = {
 	FireballSeqCallback,
 	Fx33Callback,
 	NapalmSeqCallback,
@@ -71,16 +71,16 @@ static void (*seqClientCallback[])(int, DBloodActor*) = {
 	houndBiteSeqCallback,
 	houndBurnSeqCallback,
 	podAttack,
-	sub_70284,
-	sub_6FF08,
-	sub_6FF54,
+	podExplode,
+	podPlaySound1,
+	podPlaySound2,
 	ratBiteSeqCallback,
 	SpidBiteSeqCallback,
 	SpidJumpSeqCallback,
 	SpidBirthSeqCallback,
 	tchernobogBurnSeqCallback,
 	tchernobogBurnSeqCallback2,
-	sub_71A90,
+	tchernobogFire,
 	genDudeAttack1,
 	punchCallback,
 	ThrowCallback1,
@@ -402,7 +402,7 @@ void SEQINST::Update()
 	if (pSequence->frames[frameIndex].trigger && callback != -1)
 	{
 		assert(type == SS_SPRITE);
-		if (target.isActor()) seqClientCallback[callback](type, target.actor());
+		if (target.isActor()) seqClientCallback[callback](target.actor());
 	}
 
 }

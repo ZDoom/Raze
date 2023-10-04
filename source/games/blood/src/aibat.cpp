@@ -61,7 +61,7 @@ AISTATE batDodgeDown = { kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &b
 AISTATE batDodgeDownRight = { kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 AISTATE batDodgeDownLeft = { kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
-void batBiteSeqCallback(int, DBloodActor* actor)
+void batBiteSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();

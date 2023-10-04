@@ -41,7 +41,7 @@ AISTATE ratRecoil = { kAiStateRecoil, 7, -1, 0, NULL, NULL, NULL, &ratDodge };
 AISTATE ratGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, ratThinkGoto, &ratIdle };
 AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ratChase };
 
-void ratBiteSeqCallback(int, DBloodActor* actor)
+void ratBiteSeqCallback(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
