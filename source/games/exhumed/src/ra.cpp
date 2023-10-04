@@ -305,7 +305,7 @@ void AIRa::Tick(RunListEvent* ev)
                 {
                     Ra[nPlayer].nAction = 3;
                     Ra[nPlayer].nFrame = 0;
-                    SelectNewWeapon(nPlayer);
+                    SelectNewWeapon(getPlayer(nPlayer));
                 }
             }
         }

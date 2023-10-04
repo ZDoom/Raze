@@ -448,11 +448,11 @@ MOVEEND:
 HITSPRITE:
             if (pActor->spr.pal == 5 && hitactor->spr.statnum == 100)
             {
-                int nPlayer = GetPlayerFromActor(hitactor);
-                if (!getPlayer(nPlayer)->bIsMummified)
+                const auto pPlayer = getPlayer(GetPlayerFromActor(hitactor));
+                if (!pPlayer->bIsMummified)
                 {
-                    getPlayer(nPlayer)->bIsMummified = true;
-                    SetNewWeapon(nPlayer, kWeaponMummified);
+                    pPlayer->bIsMummified = true;
+                    SetNewWeapon(pPlayer, kWeaponMummified);
                 }
             }
             else

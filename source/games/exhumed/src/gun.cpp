@@ -141,37 +141,37 @@ void InitWeapons()
 //
 //---------------------------------------------------------------------------
 
-void SetNewWeapon(int nPlayer, int nWeapon)
+void SetNewWeapon(DExhumedPlayer* const pPlayer, int nWeapon)
 {
     if (nWeapon == kWeaponMummified)
     {
-        getPlayer(nPlayer)->nLastWeapon = getPlayer(nPlayer)->nCurrentWeapon;
-        getPlayer(nPlayer)->bIsFiring = false;
-        getPlayer(nPlayer)->nState = 5;
-        SetPlayerMummified(nPlayer, true);
+        pPlayer->nLastWeapon = pPlayer->nCurrentWeapon;
+        pPlayer->bIsFiring = false;
+        pPlayer->nState = 5;
+        SetPlayerMummified(pPlayer, true);
 
-        getPlayer(nPlayer)->nWeapFrame = 0;
+        pPlayer->nWeapFrame = 0;
     }
     else
     {
         if (nWeapon < 0)
         {
-            getPlayer(nPlayer)->nPlayerOldWeapon = getPlayer(nPlayer)->nCurrentWeapon;
+            pPlayer->nPlayerOldWeapon = pPlayer->nCurrentWeapon;
         }
-        else if (nWeapon != kWeaponGrenade || getPlayer(nPlayer)->nAmmo[kWeaponGrenade] > 0)
+        else if (nWeapon != kWeaponGrenade || pPlayer->nAmmo[kWeaponGrenade] > 0)
         {
-            int nCurrentWeapon = getPlayer(nPlayer)->nCurrentWeapon;
+            int nCurrentWeapon = pPlayer->nCurrentWeapon;
 
             if (nCurrentWeapon != kWeaponMummified)
             {
-                if (getPlayer(nPlayer)->bIsFiring || nWeapon == nCurrentWeapon) {
+                if (pPlayer->bIsFiring || nWeapon == nCurrentWeapon) {
                     return;
                 }
             }
             else
             {
-                getPlayer(nPlayer)->nCurrentWeapon = nWeapon;
-                getPlayer(nPlayer)->nWeapFrame = 0;
+                pPlayer->nCurrentWeapon = nWeapon;
+                pPlayer->nWeapFrame = 0;
             }
         }
         else {
@@ -179,7 +179,7 @@ void SetNewWeapon(int nPlayer, int nWeapon)
         }
     }
 
-    getPlayer(nPlayer)->nNextWeapon = nWeapon;
+    pPlayer->nNextWeapon = nWeapon;
 }
 
 //---------------------------------------------------------------------------
@@ -188,20 +188,20 @@ void SetNewWeapon(int nPlayer, int nWeapon)
 //
 //---------------------------------------------------------------------------
 
-void SetNewWeaponImmediate(int nPlayer, int nWeapon)
+void SetNewWeaponImmediate(DExhumedPlayer* const pPlayer, int nWeapon)
 {
-    SetNewWeapon(nPlayer, nWeapon);
+    SetNewWeapon(pPlayer, nWeapon);
 
-    getPlayer(nPlayer)->nCurrentWeapon = nWeapon;
-    getPlayer(nPlayer)->nNextWeapon = -1;
-    getPlayer(nPlayer)->nWeapFrame = 0;
-    getPlayer(nPlayer)->nState = 0;
+    pPlayer->nCurrentWeapon = nWeapon;
+    pPlayer->nNextWeapon = -1;
+    pPlayer->nWeapFrame = 0;
+    pPlayer->nState = 0;
 }
 
-void SetNewWeaponIfBetter(int nPlayer, int nWeapon)
+void SetNewWeaponIfBetter(DExhumedPlayer* const pPlayer, int nWeapon)
 {
-    if (nWeapon > getPlayer(nPlayer)->nCurrentWeapon) {
-        SetNewWeapon(nPlayer, nWeapon);
+    if (nWeapon > pPlayer->nCurrentWeapon) {
+        SetNewWeapon(pPlayer, nWeapon);
     }
 }
 
@@ -211,11 +211,11 @@ void SetNewWeaponIfBetter(int nPlayer, int nWeapon)
 //
 //---------------------------------------------------------------------------
 
-void SelectNewWeapon(int nPlayer)
+void SelectNewWeapon(DExhumedPlayer* const pPlayer)
 {
     int nWeapon = kWeaponRing; // start at the highest weapon number
 
-    uint16_t di = getPlayer(nPlayer)->nPlayerWeapons;
+    uint16_t di = pPlayer->nPlayerWeapons;
     uint16_t dx = 0x40; // bit 7 turned on
 
     while (dx)
@@ -223,7 +223,7 @@ void SelectNewWeapon(int nPlayer)
         if (di & dx)
         {
             // we have this weapon
-            if (!WeaponInfo[nWeapon].d || getPlayer(nPlayer)->nAmmo[WeaponInfo[nWeapon].nAmmoType])
+            if (!WeaponInfo[nWeapon].d || pPlayer->nAmmo[WeaponInfo[nWeapon].nAmmoType])
                 break;
         }
 
@@ -234,9 +234,9 @@ void SelectNewWeapon(int nPlayer)
     if (nWeapon < 0)
         nWeapon = kWeaponSword;
 
-    getPlayer(nPlayer)->bIsFiring = false;
+    pPlayer->bIsFiring = false;
 
-    SetNewWeapon(nPlayer, nWeapon);
+    SetNewWeapon(pPlayer, nWeapon);
 }
 
 //---------------------------------------------------------------------------
@@ -480,7 +480,7 @@ void MoveWeapons(int nPlayer)
 
                             nWeapon = pPlayer->nCurrentWeapon;
 
-                            SetPlayerMummified(nPlayer, false);
+                            SetPlayerMummified(pPlayer, false);
                             break;
                         }
                         else
@@ -542,7 +542,7 @@ void MoveWeapons(int nPlayer)
                             }
                             else
                             {
-                                SelectNewWeapon(nPlayer);
+                                SelectNewWeapon(pPlayer);
                             }
 
                             Ra[nPlayer].nState = 0;
@@ -563,7 +563,7 @@ void MoveWeapons(int nPlayer)
                             }
                             else
                             {
-                                SelectNewWeapon(nPlayer);
+                                SelectNewWeapon(pPlayer);
                                 pPlayer->nState = 5;
 
                                 pPlayer->nWeapFrame = getSequence(nSeqFile, WeaponInfo[kWeaponGrenade].b[0])->frames.Size() - 1; // CHECKME
@@ -888,7 +888,7 @@ loc_flag:
                 }
                 else if (nWeapon != kWeaponGrenade)
                 {
-                    SelectNewWeapon(nPlayer);
+                    SelectNewWeapon(pPlayer);
                     // go to loc_27609:
                 }
             }

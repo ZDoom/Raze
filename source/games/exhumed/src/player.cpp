@@ -399,7 +399,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     pPlayerActor->oviewzoffset = pPlayerActor->viewzoffset = -55;
     pPlayerActor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_BLOCK_ALL);
 
-    SetNewWeaponImmediate(nPlayer, -2);
+    SetNewWeaponImmediate(pPlayer, -2);
 
     if (nTotalPlayers == 1)
     {
@@ -443,9 +443,8 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 //
 //---------------------------------------------------------------------------
 
-void SetPlayerMummified(int nPlayer, int bIsMummified)
+void SetPlayerMummified(DExhumedPlayer* const pPlayer, int bIsMummified)
 {
-    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
 
     pPlayerActor->vel.XY().Zero();
@@ -757,7 +756,7 @@ static void doPickupWeapon(DExhumedPlayer* pPlayer, DExhumedActor* pPickupActor,
     }
     else
     {
-        SetNewWeaponIfBetter(pPlayer->pnum, nWeapon);
+        SetNewWeaponIfBetter(pPlayer, nWeapon);
         pPlayer->nPlayerWeapons |= weapFlag;
         AddAmmo(pPlayer->pnum, WeaponInfo[nWeapon].nAmmoType, nAmount);
     }
@@ -865,7 +864,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
                 if (!(pPlayer->nPlayerWeapons & 0x10))
                 {
                     pPlayer->nPlayerWeapons |= 0x10;
-                    SetNewWeaponIfBetter(pPlayer->pnum, 4);
+                    SetNewWeaponIfBetter(pPlayer, 4);
                 }
 
                 if (nItem == 55)
@@ -1195,7 +1194,7 @@ static void updatePlayerWeapon(DExhumedPlayer* const pPlayer)
         }
         while (nextWeap && (!haveWeap || (haveWeap && !pPlayer->nAmmo[nextWeap])));
 
-        SetNewWeapon(pPlayer->pnum, nextWeap);
+        SetNewWeapon(pPlayer, nextWeap);
     }
     else if (newWeap == WeaponSel_Alt)
     {
@@ -1203,7 +1202,7 @@ static void updatePlayerWeapon(DExhumedPlayer* const pPlayer)
     }
     else if (pPlayer->nPlayerWeapons & (1 << (newWeap - 1)))
     {
-        SetNewWeapon(pPlayer->pnum, newWeap - 1);
+        SetNewWeapon(pPlayer, newWeap - 1);
     }
 }
 
@@ -2031,7 +2030,7 @@ static void doPlayerDeathPitch(DExhumedPlayer* const pPlayer)
         }
         else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0 && !(pPlayerActor->sector()->Flag & kSectUnderwater))
         {
-            SetNewWeapon(pPlayer->pnum, pPlayer->nDeathType + 8);
+            SetNewWeapon(pPlayer, pPlayer->nDeathType + 8);
         }
 
         pPlayer->dVertPan--;
