@@ -194,7 +194,7 @@ bool IsUnderwaterSector(sectortype* pSector);
 // route state callbacks through the scripting interface.
 // this needs to work with incomplete data, so avoid the asserting macros.
 #define DEF_ANIMATOR(func) \
-    int func(DBloodActor*); \
+    void func(DBloodActor*); \
     DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, func, func) \
     { \
         auto self = (DBloodActor *)(param[0].a); \

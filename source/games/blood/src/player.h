@@ -139,6 +139,6 @@ int playerDamageSprite(DBloodActor* nSource, DBloodPlayer* pPlayer, DAMAGE_TYPE 
 int UseAmmo(DBloodPlayer* pPlayer, int nAmmoType, int nDec);
 void voodooTarget(DBloodPlayer* pPlayer);
 void playerLandingSound(DBloodPlayer* pPlayer);
-void PlayerSurvive(int, DBloodActor*);
+void PlayerSurvive(DBloodActor*);
 
 END_BLD_NS
