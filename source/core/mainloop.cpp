@@ -99,7 +99,6 @@ CVAR(Bool, cl_resumesavegame, true, CVAR_ARCHIVE)
 
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
-static double inputScale;
 
 DCorePlayer* PlayerArray[MAXPLAYERS];
 
@@ -145,7 +144,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 		savegamefile = "";
 	}
 	cmd->ucmd = {};
-	gameInput.getInput(inputScale, &cmd->ucmd);
+	gameInput.getInput(&cmd->ucmd);
 	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
@@ -620,7 +619,7 @@ void TryRunTics (void)
 		}
 		if (!SyncInput())
 		{
-			gameInput.getInput(inputScale);
+			gameInput.getInput();
 		}
 		return;
 	}
@@ -752,7 +751,7 @@ void MainLoop ()
 			I_SetFrameTime();
 
 			// update the scale factor for unsynchronised input here.
-			inputScale = I_GetInputFrac();
+			gameInput.UpdateInputScale();
 
 			TryRunTics (); // will run at least one tic
 			// Update display, next frame, with current state.

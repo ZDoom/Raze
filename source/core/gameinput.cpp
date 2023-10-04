@@ -105,9 +105,9 @@ void GameInput::resetCrouchToggle()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::doPlayerMovement(const double scaleAdjust)
+void GameInterface::doPlayerMovement()
 {
-	gameInput.processMovement(scaleAdjust);
+	gameInput.processMovement();
 }
 
 
@@ -117,7 +117,7 @@ void GameInterface::doPlayerMovement(const double scaleAdjust)
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processMovement(const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void GameInput::processMovement(const double turnscale, const bool allowstrafe, const int drink_amt)
 {
 	// set up variables.
 	InputPacket thisInput{};
@@ -150,7 +150,7 @@ void GameInput::processMovement(const double scaleAdjust, const int drink_amt, c
 		thisInput.ang.Yaw -= hidspeed * joyAxes[JOYAXIS_Yaw] * scaleAdjust;
 		thisInput.ang.Yaw += turnspeed * turndir * scaleAdjust;
 		thisInput.ang.Yaw *= turnscale;
-		if (turndir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
+		if (turndir) updateTurnHeldAmt(); else turnheldtime = 0;
 	}
 	else
 	{
@@ -201,7 +201,7 @@ void GameInput::processMovement(const double scaleAdjust, const int drink_amt, c
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processVehicle(const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags)
+void GameInput::processVehicle(const double baseVel, const double velScale, const unsigned flags)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
@@ -244,7 +244,7 @@ void GameInput::processVehicle(const double scaleAdjust, const double baseVel, c
 		thisInput.ang.Yaw += DAngle::fromDeg(turnVel * kbdDir);
 		thisInput.ang.Yaw *= scaleAdjust;
 		inputBuffer.ang.Yaw += thisInput.ang.Yaw;
-		if (kbdDir) updateTurnHeldAmt(scaleAdjust); else turnheldtime = 0;
+		if (kbdDir) updateTurnHeldAmt(); else turnheldtime = 0;
 	}
 	else
 	{
@@ -364,7 +364,7 @@ void GameInput::processInputBits()
 //
 //---------------------------------------------------------------------------
 
-void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
+void GameInput::getInput(InputPacket* packet)
 {
 	I_GetEvent();
 
@@ -376,7 +376,7 @@ void GameInput::getInput(const double scaleAdjust, InputPacket* packet)
 
 	I_GetAxes(joyAxes);
 	processInputBits();
-	gi->doPlayerMovement(!SyncInput() ? scaleAdjust : 1.);
+	gi->doPlayerMovement();
 	mouseInput.Zero();
 
 	if (packet)
