@@ -202,11 +202,11 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors);
 int startrts(int lumpNum, int localPlayer);
 
-void pickrandomspot(int pn);
+void pickrandomspot(DDukePlayer* const p);
 void premapcontroller(DDukeActor* ac);
 void resetinventory(DDukePlayer* pn);
 void resetweapons(DDukePlayer* pn);
-void resetprestat(int snum, int g);
+void resetprestat(DDukePlayer* const p, int g);
 void prelevel_common(int g);
 void cacheit();
 

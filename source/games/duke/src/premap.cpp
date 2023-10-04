@@ -58,21 +58,15 @@ void premapcontroller(DDukeActor* ac)
 //
 //---------------------------------------------------------------------------
 
-void pickrandomspot(int snum)
+void pickrandomspot(DDukePlayer* const p)
 {
-	DDukePlayer* p;
-	int i;
+	const auto pact = p->GetActor();
+	const int i = (ud.multimode > 1 && ud.coop != 1) ? (krand() % numplayersprites) : p->pnum;
 
-	p = getPlayer(snum);
-
-	if( ud.multimode > 1 && ud.coop != 1)
-		i = krand()%numplayersprites;
-	else i = snum;
-
-	p->GetActor()->spr.pos = po[i].opos;
-	p->GetActor()->backuppos();
+	pact->spr.pos = po[i].opos;
+	pact->backuppos();
 	p->setbobpos();
-	p->GetActor()->PrevAngles.Yaw = p->GetActor()->spr.Angles.Yaw = po[i].oa;
+	pact->PrevAngles.Yaw = pact->spr.Angles.Yaw = po[i].oa;
 	p->setCursector(po[i].os);
 }
 
@@ -369,12 +363,8 @@ void resetinventory(DDukePlayer* p)
 //
 //---------------------------------------------------------------------------
 
-void resetprestat(int snum,int g)
+void resetprestat(DDukePlayer* const p, int g)
 {
-	DDukePlayer* p;
-
-	p = getPlayer(snum);
-
 	spriteqloc = 0;
 	for(auto& p : spriteq) p = nullptr;
 
@@ -651,7 +641,8 @@ void prelevel_common(int g)
 	// RRRA E2L1 fog handling.
 	ud.fogactive = 0;
 
-	resetprestat(0, g);
+	const auto firstp = getPlayer(0);
+	resetprestat(firstp, g);
 	numclouds = 0;
 
 	memset(geosectorwarp, -1, sizeof(geosectorwarp));
@@ -676,8 +667,8 @@ void prelevel_common(int g)
 			if (tilesurface(sectp->ceilingtexture) == TSURF_SCROLLSKY && numclouds < 127)
 				clouds[numclouds++] = sectp;
 
-			if (getPlayer(0)->one_parallax_sectnum == nullptr)
-				getPlayer(0)->one_parallax_sectnum = sectp;
+			if (firstp->one_parallax_sectnum == nullptr)
+				firstp->one_parallax_sectnum = sectp;
 		}
 
 		if (sectp->lotag == 32767) //Found a secret room
@@ -688,7 +679,7 @@ void prelevel_common(int g)
 
 		if (sectp->lotag == -1)
 		{
-			getPlayer(0)->Exit = sectp->walls[0].pos;
+			firstp->Exit = sectp->walls[0].pos;
 			continue;
 		}
 	}
@@ -1117,8 +1108,9 @@ static void clearfrags(void)
 {
 	for (int i = 0; i < ud.multimode; i++)
 	{
-		getPlayer(i)->frag = getPlayer(i)->fraggedself = 0;
-		memset(getPlayer(i)->frags, 0, sizeof(getPlayer(i)->frags));
+		const auto p = getPlayer(i);
+		p->frag = p->fraggedself = 0;
+		memset(p->frags, 0, sizeof(p->frags));
 	}
 }
 
@@ -1147,9 +1139,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	FX_StopAllSounds();
 	S_SetReverb(0);
 
-	auto p = getPlayer(0);
-
-	LoadTheMap(mi, p, gamemode);
+	LoadTheMap(mi, getPlayer(0), gamemode);
 
 	// Try this first so that it can disable the CD player if no tracks are found.
 	if (isRR())
@@ -1162,23 +1152,23 @@ void enterlevel(MapRecord *mi, int gamemode)
 
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
+		const auto p = getPlayer(i);
 		bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
-		auto pn = getPlayer(i)->GetActor()->sector()->floortexture;
-		if (tileflags(pn) & TFLAG_CLEARINVENTORY)
+		if (tileflags(p->GetActor()->sector()->floortexture) & TFLAG_CLEARINVENTORY)
 		{
-			resetinventory(getPlayer(i));
+			resetinventory(p);
 			clearweapon = true;
 		}
 		if (clearweapon)
 		{
-			resetweapons(getPlayer(i));
-			getPlayer(i)->gotweapon[PISTOL_WEAPON] = false;
-			getPlayer(i)->ammo_amount[PISTOL_WEAPON] = 0;
-			getPlayer(i)->curr_weapon = KNEE_WEAPON;
-			getPlayer(i)->kickback_pic = 0;
-			getPlayer(i)->okickback_pic = getPlayer(i)->kickback_pic = 0;
+			resetweapons(p);
+			p->gotweapon[PISTOL_WEAPON] = false;
+			p->ammo_amount[PISTOL_WEAPON] = 0;
+			p->curr_weapon = KNEE_WEAPON;
+			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		}
-		if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(getPlayer(i));
+		if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(p);
 	}
 	resetmys();
 
@@ -1206,8 +1196,9 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		resetweapons(getPlayer(i));
-		resetinventory(getPlayer(i));
+		const auto p = getPlayer(i);
+		resetweapons(p);
+		resetinventory(p);
 	}
 
 	getPlayer(0)->last_extra = gs.max_player_health;
