@@ -29,8 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-#pragma pack(push, 1)
-
 enum EGameFlag
 {
 	GF_AdvanceLevel = 1,
@@ -54,8 +52,6 @@ struct GAMEOPTIONS {
 	bool bFriendlyFire;
 	bool bKeepKeysOnRespawn;
 };
-
-#pragma pack(pop)
 
 extern GAMEOPTIONS gSingleGameOptions;
 extern GAMEOPTIONS gGameOptions;
