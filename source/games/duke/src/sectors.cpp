@@ -1737,6 +1737,7 @@ void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& c
 
 bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 {
+	const auto pact = p->GetActor();
 	uint8_t switchpal;
 	int lotag, hitag, correctdips, numdips;
 	DVector2 spos;
@@ -1812,11 +1813,11 @@ bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 				p->SeaSick = 350;
 			operateactivators(668, p);
 			operatemasterswitches(668);
-			S_PlayActorSound(328, p->GetActor());
+			S_PlayActorSound(328, pact);
 			return 1;
 		}
 	}
-	DVector3 v(spos, p->GetActor()->getOffsetZ());
+	DVector3 v(spos, pact->getOffsetZ());
 
 	if (swdef.type != SwitchDef::None || isadoorwall(texid))
 	{
@@ -1826,9 +1827,9 @@ bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 			{
 				FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
 				if (act) S_PlaySound3D(sound, act, v);
-				else S_PlaySound3D(sound, p->GetActor(), v);
+				else S_PlaySound3D(sound, pact, v);
 				if (numdips != correctdips) return 0;
-				S_PlaySound3D(END_OF_LEVEL_WARN, p->GetActor(), v);
+				S_PlaySound3D(END_OF_LEVEL_WARN, pact, v);
 			}
 			if (swdef.type == SwitchDef::Multi)
 			{
@@ -1877,7 +1878,7 @@ bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 		}
 
 		operateactivators(lotag, p);
-		operateforcefields(p->GetActor(), lotag);
+		operateforcefields(pact, lotag);
 		operatemasterswitches(lotag);
 
 		if (swdef.type == SwitchDef::Combo) return 1;
@@ -1886,7 +1887,7 @@ bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 		{
 			FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
 			if (act) S_PlaySound3D(sound, act, v);
-			else S_PlaySound3D(sound, p->GetActor(), v);
+			else S_PlaySound3D(sound, pact, v);
 		}
 		else if (hitag != 0)
 		{
@@ -1895,7 +1896,7 @@ bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 			if (act && (flags & SF_TALK) == 0)
 				S_PlaySound3D(hitag, act, v);
 			else
-				S_PlayActorSound(hitag, p->GetActor());
+				S_PlayActorSound(hitag, pact);
 		}
 
 		return 1;

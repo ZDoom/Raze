@@ -147,8 +147,9 @@ void checkplayerhurt_r(DDukePlayer* p, const Collision &coll)
 			int tf = tileflags(wal->overtexture);
 			if (tf & TFLAG_FORCEFIELD)
 			{
+				const auto pact = p->GetActor();
 				p->hurt_delay = 26;
-				checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
+				checkhitwall(pact, wal, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 2);
 			}
 		}
 	}
