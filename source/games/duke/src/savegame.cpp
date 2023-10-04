@@ -468,11 +468,12 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			ud.m_monsters_off = ud.monsters_off;
 			ud.m_coop = ud.coop;
 			ud.m_ffire = ud.ffire;
-			if (getPlayer(myconnectindex)->over_shoulder_on != 0)
+			const auto p = getPlayer(myconnectindex);
+			if (p->over_shoulder_on != 0)
 			{
 				cameradist = 0;
 				cameraclock = 0;
-				getPlayer(myconnectindex)->over_shoulder_on = 1;
+				p->over_shoulder_on = 1;
 			}
 
 			cacheit();
