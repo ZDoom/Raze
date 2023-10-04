@@ -508,7 +508,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         const auto pSector = pTSprite->sectp;
         const double nFloorZ = pSector->floorz;
 
-        if (nFloorZ <= getPlayer(nLocalPlayer)->GetActor()->viewzoffset + getPlayer(nLocalPlayer)->GetActor()->spr.pos.Z)
+        if (nFloorZ <= getPlayer(nLocalPlayer)->GetActor()->getOffsetZ())
         {
             pTSprite->ownerActor = nullptr;
         }

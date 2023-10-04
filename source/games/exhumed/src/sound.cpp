@@ -702,7 +702,9 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (Level.kills.got < Level.kills.max && !(getPlayer(nLocalPlayer)->pPlayerViewSect->Flag & 0x2000))
+        const auto pPlayer = getPlayer(nLocalPlayer);
+
+        if (Level.kills.got < Level.kills.max && !(pPlayer->pPlayerViewSect->Flag & 0x2000))
         {
             const auto creepySeq = getSequence("creepy");
             const auto seqFrameSound = creepySeq->frames[totalmoves % creepySeq->frames.Size()].sound;
@@ -716,7 +718,7 @@ void UpdateCreepySounds()
                 if (totalmoves & 2)
 					adder.Y = -adder.Y;
 
-                auto sp = getPlayer(nLocalPlayer)->GetActor()->spr.pos + adder;
+                auto sp = pPlayer->GetActor()->spr.pos + adder;
                 creepy = GetSoundPos(sp);
 
                 auto soundid = FSoundID::fromInt((seqFrameSound & 0x1ff) + 1);
