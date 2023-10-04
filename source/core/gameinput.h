@@ -84,8 +84,8 @@ public:
 	}
 
 	// Prototypes for large member functions.
-	void processMovement(PlayerAngles* const plrAngles, const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
-	void processVehicle(PlayerAngles* const plrAngles, const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags);
+	void processMovement(const double scaleAdjust, const int drink_amt = 0, const bool allowstrafe = true, const double turnscale = 1.);
+	void processVehicle(const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags);
 	void getInput(const double scaleAdjust, InputPacket* packet = nullptr);
 	void resetCrouchToggle();
 };
@@ -102,8 +102,7 @@ struct PlayerAngles
 	DAngle YawSpin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-	friend void GameInput::processMovement(PlayerAngles* const plrAngles, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale);
-	friend void GameInput::processVehicle(PlayerAngles* const plrAngles, const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags);
+	friend void addCameraAngles(const DRotator& input);
 
 	// Prototypes.
 	void doPitchInput(InputPacket* const input);

@@ -6,7 +6,6 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "vectors.h"
 #include "engineerrors.h"
 #include "stats.h"
-#include "packet.h"
 #include "serializer.h"
 #include "inputstate.h"
 #include "maptypes.h"
@@ -15,9 +14,7 @@ class FSerializer;
 struct FRenderViewpoint;
 struct sectortype;
 struct tspritetype;
-class DCoreActor;
 struct MapRecord;
-struct PlayerAngles;
 
 struct GameStats
 {
@@ -115,7 +112,7 @@ struct GameInterface
 	virtual void RemoveQAVInterpProps(const int res_id) { }
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
-	virtual void doPlayerMovement(const double scaleAdjust) = 0;
+	virtual void doPlayerMovement(const double scaleAdjust);
 	virtual unsigned getCrouchState() = 0;
 
 	virtual FString statFPS()

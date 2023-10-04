@@ -529,11 +529,11 @@ void GameInterface::doPlayerMovement(const double scaleAdjust)
 			baseVel = VEHICLETURN * velScale;
 		}
 
-		gameInput.processVehicle(&p->Angles, scaleAdjust, baseVel, velScale, vehFlags);
+		gameInput.processVehicle(scaleAdjust, baseVel, velScale, vehFlags);
 	}
 	else
 	{
-		gameInput.processMovement(&p->Angles, scaleAdjust, p->drink_amt, true, (p->psectlotag != ST_2_UNDERWATER) ? 1. : 0.875);
+		gameInput.processMovement(scaleAdjust, p->drink_amt, true, (p->psectlotag != ST_2_UNDERWATER) ? 1. : 0.875);
 	}
 }
 
