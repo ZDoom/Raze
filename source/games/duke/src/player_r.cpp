@@ -963,6 +963,17 @@ static void doVehicleThrottling(DDukePlayer* p, DDukeActor* pact, unsigned& flag
 //
 //---------------------------------------------------------------------------
 
+static inline void setVehicleInputVel(DDukePlayer* const p)
+{
+	p->cmd.ucmd.vel.X = clamp(p->MotoSpeed, -15., 120.) * (1. / 40.);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void onMotorcycle(DDukePlayer* const p, ESyncBits &actions)
 {
 	auto pact = p->GetActor();
@@ -1032,7 +1043,7 @@ static void onMotorcycle(DDukePlayer* const p, ESyncBits &actions)
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
-	p->cmd.ucmd.vel.X = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	setVehicleInputVel(p);
 }
 
 //---------------------------------------------------------------------------
@@ -1101,7 +1112,7 @@ static void onBoat(DDukePlayer* const p, ESyncBits &actions)
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed *= 0.5;
 
-	p->cmd.ucmd.vel.X = clamp<float>((float)p->MotoSpeed, -15.f, 120.f) * (1.f / 40.f);
+	setVehicleInputVel(p);
 }
 
 //---------------------------------------------------------------------------
@@ -2278,7 +2289,7 @@ void processinput_r(DDukePlayer* const p)
 		onBoat(p, actions);
 	}
 
-	processinputvel(p);
+	rotateInputVel(p);
 
 	if (psectp == nullptr)
 	{
