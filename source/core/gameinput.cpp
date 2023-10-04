@@ -60,9 +60,14 @@ bool crouch_toggle = false;
 
 //---------------------------------------------------------------------------
 //
-// Input scale helper functions.
+// Input helper functions.
 //
 //---------------------------------------------------------------------------
+
+inline void addCameraAngles(const DRotator& input)
+{
+	PlayerArray[myconnectindex]->Angles.CameraAngles += input;
+}
 
 static inline DAngle getscaledangle(const DAngle angle, const double scale, const double push)
 {
@@ -96,11 +101,23 @@ void GameInput::resetCrouchToggle()
 
 //---------------------------------------------------------------------------
 //
+// Default player movement function for the games. Can be overridden.
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::doPlayerMovement(const double scaleAdjust)
+{
+	gameInput.processMovement(scaleAdjust);
+}
+
+
+//---------------------------------------------------------------------------
+//
 // Player's movement function, called from game's ticker or from gi->doPlayerMovement() as required.
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processMovement(PlayerAngles* const plrAngles, const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
+void GameInput::processMovement(const double scaleAdjust, const int drink_amt, const bool allowstrafe, const double turnscale)
 {
 	// set up variables.
 	InputPacket thisInput{};
@@ -173,7 +190,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const double scal
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		plrAngles->CameraAngles += thisInput.ang;
+		addCameraAngles(thisInput.ang);
 	}
 }
 
@@ -184,7 +201,7 @@ void GameInput::processMovement(PlayerAngles* const plrAngles, const double scal
 //
 //---------------------------------------------------------------------------
 
-void GameInput::processVehicle(PlayerAngles* const plrAngles, const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags)
+void GameInput::processVehicle(const double scaleAdjust, const double baseVel, const double velScale, const unsigned flags)
 {
 	// open up input packet for this session.
 	InputPacket thisInput{};
@@ -237,7 +254,7 @@ void GameInput::processVehicle(PlayerAngles* const plrAngles, const double scale
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		plrAngles->CameraAngles += thisInput.ang;
+		addCameraAngles(thisInput.ang);
 	}
 }
 
