@@ -93,10 +93,8 @@ size_t MarkPlayers()
 //
 //---------------------------------------------------------------------------
 
-void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
+void SetSavePoint(DExhumedPlayer* const pPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
-    const auto pPlayer = getPlayer(nPlayer);
-
     pPlayer->sPlayerSave.pos = pos;
     pPlayer->sPlayerSave.pSector = pSector;
     pPlayer->sPlayerSave.nAngle = nAngle;
@@ -121,9 +119,9 @@ void InitPlayer()
     }
 }
 
-void InitPlayerKeys(int nPlayer)
+void InitPlayerKeys(DExhumedPlayer* const pPlayer)
 {
-    getPlayer(nPlayer)->keys = 0;
+    pPlayer->keys = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -177,9 +175,8 @@ int GetPlayerFromActor(DExhumedActor* pActor)
 //
 //---------------------------------------------------------------------------
 
-void RestartPlayer(int nPlayer)
+void RestartPlayer(DExhumedPlayer* const pPlayer)
 {
-	const auto pPlayer = getPlayer(nPlayer);
     DExhumedActor* pPlayerActor = pPlayer->GetActor();
     DExhumedActor* pDopSprite = pPlayer->pDoppleSprite;
     DExhumedActor* pFloorSprite = pPlayer->pPlayerFloorSprite;
@@ -225,7 +222,7 @@ void RestartPlayer(int nPlayer)
     pPlayerActor->vel.Y = 0;
     pPlayerActor->vel.Z = 0;
     pPlayerActor->spr.Angles.Pitch = nullAngle;
-    pPlayerActor->spr.intowner = runlist_AddRunRec(pPlayerActor->spr.lotag - 1, nPlayer, 0xA0000);
+    pPlayerActor->spr.intowner = runlist_AddRunRec(pPlayerActor->spr.lotag - 1, pPlayer->pnum, 0xA0000);
     ChangeActorStat(pPlayerActor, 100);
 
 	if (nTotalPlayers > 1)
@@ -244,7 +241,7 @@ void RestartPlayer(int nPlayer)
 		pFloorSprite->spr.pos = pPlayerActor->spr.pos;
 		pFloorSprite->spr.scale = DVector2(1, 1);
 		pFloorSprite->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-        pFloorSprite->spr.setspritetexture(aTexIds[kTexPlayermarker1 + nPlayer]);
+        pFloorSprite->spr.setspritetexture(aTexIds[kTexPlayermarker1 + pPlayer->pnum]);
 
 	}
 	else
@@ -267,13 +264,12 @@ void RestartPlayer(int nPlayer)
 	pDopSprite->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
 	pDopSprite->spr.cstat = pPlayerActor->spr.cstat;
 	pDopSprite->spr.lotag = runlist_HeadRun() + 1;
-    pDopSprite->spr.intowner = runlist_AddRunRec(pDopSprite->spr.lotag - 1, nPlayer, 0xA0000);
+    pDopSprite->spr.intowner = runlist_AddRunRec(pDopSprite->spr.lotag - 1, pPlayer->pnum, 0xA0000);
 
     pPlayer->actor = pPlayerActor;
     pPlayer->pDoppleSprite = pDopSprite;
     pPlayer->pPlayerFloorSprite = pFloorSprite;
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
-    pPlayer->pnum = nPlayer;
     pPlayer->nHealth = 800; // TODO - define
     pPlayer->Angles.initialize(pPlayerActor);
 	pPlayer->bIsMummified = false;
@@ -309,11 +305,11 @@ void RestartPlayer(int nPlayer)
     if (pPlayer->nCurrentWeapon == 7)
         pPlayer->nCurrentWeapon = pPlayer->nLastWeapon;
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
         RestoreGreenPal();
 
     if (pPlayer->nRun < 0)
-        pPlayer->nRun = runlist_AddRunRec(NewRun, nPlayer, 0xA0000);
+        pPlayer->nRun = runlist_AddRunRec(NewRun, pPlayer->pnum, 0xA0000);
 
 	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
 	{
@@ -325,7 +321,7 @@ void RestartPlayer(int nPlayer)
 		pPlayer->nMagic = 0;
 	}
 
-	BuildRa(nPlayer);
+	BuildRa(pPlayer->pnum);
 }
 
 //---------------------------------------------------------------------------
@@ -1007,7 +1003,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
                 pPickupActor->nFrame = 0;
                 ChangeActorStat(pPickupActor, 899);
             }
-            SetSavePoint(pPlayer->pnum, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);
+            SetSavePoint(pPlayer, pPlayerActor->spr.pos, pPlayerSect, pPlayerActor->spr.Angles.Yaw);
             break;
 
         case 60: // Golden Sarcophagus (End Level)
@@ -1925,7 +1921,7 @@ static bool doPlayerDeathRestart(DExhumedPlayer* const pPlayer)
         }
 
         // will invalidate nPlayerSprite
-        RestartPlayer(pPlayer->pnum);
+        RestartPlayer(pPlayer);
         inputState.ClearAllInput();
         gameInput.Clear();
     }

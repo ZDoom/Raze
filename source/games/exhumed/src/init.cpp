@@ -170,9 +170,10 @@ uint8_t LoadLevel(MapRecord* map)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        SetSavePoint(i, initpos, initsect, DAngle::fromBuild(mapang));
-        RestartPlayer(i);
-        InitPlayerKeys(i);
+        const auto pPlayer = getPlayer(i);
+        SetSavePoint(pPlayer, initpos, initsect, DAngle::fromBuild(mapang));
+        RestartPlayer(pPlayer);
+        InitPlayerKeys(pPlayer);
     }
     return true;
 }
