@@ -53,18 +53,18 @@ enum {
 //
 //---------------------------------------------------------------------------
 
-static const char* GodCheat(int nPlayer, int state)
+static const char* GodCheat(DExhumedPlayer* const pPlayer, int state)
 {
 	if (state == -1)
 	{
-		if (getPlayer(nPlayer)->invincibility >= 0)
-			getPlayer(nPlayer)->invincibility = -1;
+		if (pPlayer->invincibility >= 0)
+			pPlayer->invincibility = -1;
 		else
-			getPlayer(nPlayer)->invincibility = 0;
+			pPlayer->invincibility = 0;
 	}
-	else getPlayer(nPlayer)->invincibility = -state;
+	else pPlayer->invincibility = -state;
 
-	return GStrings(getPlayer(nPlayer)->invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
+	return GStrings(pPlayer->invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
 }
 
 //---------------------------------------------------------------------------
@@ -96,16 +96,18 @@ static const char* SlipCheat()
 
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
+	const auto pPlayer = getPlayer(player);
+
 	switch (cheat)
 	{
 	case CHT_GOD:
-		return GodCheat(player, -1);
+		return GodCheat(pPlayer, -1);
 
 	case CHT_GODOFF:
-		return GodCheat(player, 0);
+		return GodCheat(pPlayer, 0);
 
 	case CHT_GODON:
-		return GodCheat(player, 1);
+		return GodCheat(pPlayer, 1);
 
 	case CHT_NOCLIP:
 		return SlipCheat();
@@ -211,7 +213,9 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (getPlayer(player)->nHealth <= 0 || nNetPlayerCount || gamestate != GS_LEVEL)
+	const auto pPlayer = getPlayer(player);
+
+	if (pPlayer->nHealth <= 0 || nNetPlayerCount || gamestate != GS_LEVEL)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -225,7 +229,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		getPlayer(player)->nHealth = 800;
+		pPlayer->nHealth = 800;
 		return;
 
 	case GIVE_WEAPONS:
@@ -257,7 +261,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	}
 	if (buttons & kButtonCheatKeys) // LOBOPICK cheat
 	{
-		getPlayer(player)->keys = 0xFFFF;
+		pPlayer->keys = 0xFFFF;
 		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_KEYS"));
 	}
 	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
