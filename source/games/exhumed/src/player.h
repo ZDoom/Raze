@@ -131,12 +131,12 @@ extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;
 extern int nCurStartSprite;
 
-void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle);
+void SetSavePoint(DExhumedPlayer* const pPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle);
 void InitPlayer();
-void InitPlayerKeys(int nPlayer);
+void InitPlayerKeys(DExhumedPlayer* const pPlayer);
 int GrabPlayer();
 void InitPlayerInventory(DExhumedPlayer* const pPlayer);
-void RestartPlayer(int nPlayer);
+void RestartPlayer(DExhumedPlayer* const pPlayer);
 int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(DExhumedPlayer* const pPlayer, int bIsMummified);
 int AddAmmo(DExhumedPlayer* const pPlayer, int nWeapon, int nAmmoAmount);
