@@ -301,7 +301,7 @@ static Collision CheckCloseRange(DExhumedPlayer* const pPlayer, DVector3& pos, s
     if (sqrtNum >= ecx * ecx)
         return c;
 
-	pos = hit.hitpos;
+    pos = hit.hitpos;
     *ppSector = hit.hitSector;
 
     if (hit.actor()) {

@@ -46,7 +46,7 @@ struct SeqFrame
         return chunks.Size() ? chunks[0].tex : FNullTextureID();
     }
 
-    const void playSound(DExhumedActor* const pActor) const
+    void playSound(DExhumedActor* const pActor) const
     {
         if (sound == -1)
             return;
@@ -84,9 +84,9 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle);
 
-const TArray<Seq>* const getFileSeqs(const FName nSeqFile);
+TArray<Seq>* getFileSeqs(const FName nSeqFile);
 
-inline const Seq* const getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
+inline Seq* getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
 {
     return getFileSeqs(nSeqFile)->Data(nSeqIndex);
 }

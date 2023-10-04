@@ -412,7 +412,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 {
     if (pos != nullptr)
     {
-        DVector3 campos;
+        DVector3 campos{};
         if (nSnakeCam > -1)
         {
             Snake* pSnake = &SnakeList[nSnakeCam];
@@ -487,8 +487,8 @@ void GameInterface::UpdateSounds()
 
     const auto pActor = getPlayer(nLocalPlayer)->GetActor();
 
-    DVector3 pos;
-    DAngle ang;
+    DVector3 pos{};
+    DAngle ang{};
     if (nSnakeCam > -1)
     {
         Snake* pSnake = &SnakeList[nSnakeCam];

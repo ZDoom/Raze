@@ -746,7 +746,7 @@ void checkdive(DDukeActor* transporter, DDukeActor* transported)
 	int onfloorz = transporter->temp_data[4];
 	Collision coll;
 
-	double ll = abs(transported->vel.Z), ll2;
+	double ll = abs(transported->vel.Z), ll2 = 0;
 	if (transported->vel.Z >= 0)
 		warpdir = 2;
 	else

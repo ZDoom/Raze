@@ -3931,7 +3931,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
             actorNew->user.jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             actorNew->user.jump_speed = -actorNew->user.jump_speed;
 
-			UpdateChangeXY(actorNew);
+            UpdateChangeXY(actorNew);
 
             // for FastShrap
             actorNew->user.change.Z = (abs(actorNew->user.jump_speed*4) - RandomRange(abs(actorNew->user.jump_speed)*8)) * JUMP_FACTOR;
@@ -9556,8 +9556,8 @@ int DoElectro(DSWActor* actor)
     if (actor->user.Counter > 0)
         MissileSeek(actor, 30, DAngle90/*, 3, 52, 2*/);
 
-	auto vec = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
-	double daz = actor->vel.Z;
+    auto vec = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
+    double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11251,7 +11251,7 @@ int DoRing(DSWActor* actor)
     else
         z = ActorZOfMiddle(own) + 30;
 
-	actor->spr.pos = DVector3(own->spr.pos.XY(), z);
+    actor->spr.pos = DVector3(own->spr.pos.XY(), z);
 
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
@@ -11607,7 +11607,7 @@ void InitVulcanBoulder(DSWActor* actor)
         zvel_rand = 40;
     }
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = -zvel -RandomRange(zvel_rand);
 }
 
@@ -12760,7 +12760,7 @@ int InitStar(DSWPlayer* pp)
         zvel = actorNew->vel.Z;
     }
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
@@ -13276,7 +13276,7 @@ int InitRail(DSWPlayer* pp)
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     return 0;
@@ -13349,7 +13349,7 @@ int InitZillaRail(DSWActor* actor)
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     return 0;
@@ -13459,7 +13459,7 @@ int InitRocket(DSWPlayer* pp)
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     return 0;
@@ -13563,7 +13563,7 @@ int InitBunnyRocket(DSWPlayer* pp)
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
     actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER1;
 
@@ -13656,7 +13656,7 @@ int InitNuke(DSWPlayer* pp)
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     PlayerDamageSlide(pp, -40, pp->GetActor()->spr.Angles.Yaw + DAngle180); // Recoil slide
@@ -13731,7 +13731,7 @@ int InitEnemyNuke(DSWActor* actor)
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     return 0;
@@ -16626,7 +16626,7 @@ int InitEnemyMine(DSWActor* actor)
     actorNew->spr.Angles.Yaw += DAngle90;
 
     actorNew->user.change. Z = -5000 / 256.;
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
 
     return 0;
 }
@@ -16722,7 +16722,7 @@ int InitFireball(DSWPlayer* pp)
         actorNew->spr.Angles.Yaw -= mapangle(9);
     }
 
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
     return 0;
@@ -17321,7 +17321,7 @@ int SpawnSmokePuff(DSWActor* actor)
 
     actorNew->spr.Angles.Yaw = RandomAngle();
     actorNew->vel.X = RandomRangeF(2);
-	UpdateChangeXY(actorNew);
+    UpdateChangeXY(actorNew);
     actorNew->vel.Z = 4 + RandomRangeF(4);
 
     return false;
@@ -17742,9 +17742,9 @@ int QueueFootPrint(DSWActor* actor)
 
     if (TestDontStickSector(actor->sector()))
         return -1;   // Not on special sectors you don't
-	
-	if (!isAwayFromWall(actor, 5.25))
-		return -1;	// not if it goes ouzside the sector
+
+    if (!isAwayFromWall(actor, 5.25))
+        return -1;	// not if it goes ouzside the sector
 
     // So, are we like, done checking now!?
     if (FloorBloodQueue[FloorBloodQueueHead] != nullptr)

@@ -69,7 +69,7 @@ public:
 
     Type& operator[](size_t index)
     {
-        return DataList[index];
+        return DataList[std::min(index, (size_t)count-1)];
     }
 
     void Serialize(FSerializer& arc, const char* key)

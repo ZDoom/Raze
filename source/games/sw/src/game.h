@@ -2129,6 +2129,7 @@ struct ANIM
         case ANIM_Spritez:
             if (animactor == nullptr) return;
             animactor->spr.pos.Z = value;
+            break;
         case ANIM_Userz:
             if (animactor == nullptr) return;
             animactor->user.pos.Z = value;

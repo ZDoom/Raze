@@ -299,7 +299,7 @@ void SpawnMidSplash(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
-	actor->user.change.Zero();
+    actor->user.change.Zero();
 
     if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -325,7 +325,7 @@ void SpawnFloorSplash(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);
 
-	actor->user.change.Zero();
+    actor->user.change.Zero();
 
     if (actor->user.Flags & (SPR_UNDERWATER))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -1370,7 +1370,7 @@ int InitChemBomb(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-	actorNew->vel.Z = RandomZVel();
+    actorNew->vel.Z = RandomZVel();
     actorNew->clipdist = 0;
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP

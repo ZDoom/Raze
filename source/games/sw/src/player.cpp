@@ -1744,7 +1744,7 @@ void DoPlayerSlide(DSWPlayer* pp)
     if (pp->sop)
         return;
 
-	pp->slide_vect *= PLAYER_SLIDE_FRICTION;
+    pp->slide_vect *= PLAYER_SLIDE_FRICTION;
 
     if (abs(pp->slide_vect.X) < 0.05 && abs(pp->slide_vect.Y) < 0.05)
         pp->slide_vect.Zero();
@@ -2416,8 +2416,8 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     }
     else
     {
-		pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
-		pp->vect *= TANK_FRICTION;
+        pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
+        pp->vect *= TANK_FRICTION;
 
         pp->vect = (pp->vect + (pp->ovect*1))/2;
     }
@@ -3081,8 +3081,8 @@ void DoPlayerClimb(DSWPlayer* pp)
     if (Prediction)
         return;
 
-	pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
-	pp->vect *= PLAYER_CLIMB_FRICTION;
+    pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
+    pp->vect *= PLAYER_CLIMB_FRICTION;
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
         pp->vect.X = pp->vect.Y = 0;
 
@@ -4518,7 +4518,7 @@ void DoPlayerCurrent(DSWPlayer* pp)
     if (!sectu)
         return;
 
-	auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
+    auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
 
     push_ret = pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)

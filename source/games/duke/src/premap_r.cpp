@@ -43,8 +43,7 @@ BEGIN_DUKE_NS
 void prelevel_r(int g, TArray<DDukeActor*>& actors)
 {
 	DDukePlayer* p;
-	int j;
-	int lotaglist;
+	unsigned j;
 	TArray<short> lotags;
 	int speed = 0;
 	int dist;
@@ -234,8 +233,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			}
 		}
 	}
-
-	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
 	while (auto ac = it.Next())

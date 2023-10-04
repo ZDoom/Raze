@@ -201,7 +201,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 {
 	DAngle aang = mapangle(abase);
 
-	bool gotshrinker, gotfreezer;
+	bool gotshrinker = false, gotfreezer = false;
 	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 
 	DAngle a = actor->spr.Angles.Yaw;
@@ -266,12 +266,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 	DDukeActor* aimed = nullptr;
 	//	  if(actor->isPlayer() && ps[actor->PlayerIndex()].aim_mode) return -1;
 
-	if (isRR())
-	{
-		gotshrinker = false;
-		gotfreezer = false;
-	}
-	else if (actor->isPlayer())
+	if (!isRR() && actor->isPlayer())
 	{
 		const auto plr = getPlayer(actor->PlayerIndex());
 
