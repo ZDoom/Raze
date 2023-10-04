@@ -340,7 +340,7 @@ void checksectors_r(DDukePlayer* const p)
 			}
 		}
 
-		if (!!!(p->cmd.ucmd.actions & SB_OPEN)) return;
+		if (!(p->cmd.ucmd.actions & SB_OPEN)) return;
 
 		if (near.hitWall == nullptr && near.hitSector == nullptr && near.actor() == nullptr)
 			if (hits(pact) < 32)

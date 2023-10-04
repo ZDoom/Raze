@@ -58,7 +58,7 @@ void hud_input(DDukePlayer* const p)
 	auto pact = p->GetActor();
 
 	i = p->aim_mode;
-	p->aim_mode = !!!(p->cmd.ucmd.actions & SB_AIMMODE);
+	p->aim_mode = !(p->cmd.ucmd.actions & SB_AIMMODE);
 	if (p->aim_mode < i)
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 
@@ -104,7 +104,7 @@ void hud_input(DDukePlayer* const p)
 			}
 		}
 	}
-	if (!!!(p->cmd.ucmd.actions & SB_QUICK_KICK)) p->quick_kick_msg = false;
+	if (!(p->cmd.ucmd.actions & SB_QUICK_KICK)) p->quick_kick_msg = false;
 
 	if (!(p->cmd.ucmd.actions & SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
