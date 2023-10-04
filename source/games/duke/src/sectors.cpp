@@ -1544,11 +1544,12 @@ void moveclouds(double interpfrac)
 	int myclock = interpfrac < 0.5 ? PlayClock-2 : PlayClock;
 	if (myclock > cloudclock || myclock < (cloudclock - 7))
 	{
+		const auto pact = getPlayer(screenpeek)->GetActor();
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += (float)getPlayer(screenpeek)->GetActor()->spr.Angles.Yaw.Cos() * 0.5f;
-		cloudy += (float)getPlayer(screenpeek)->GetActor()->spr.Angles.Yaw.Sin() * 0.5f;
+		cloudx += (float)pact->spr.Angles.Yaw.Cos() * 0.5f;
+		cloudy += (float)pact->spr.Angles.Yaw.Sin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
 			// no clamping here!
