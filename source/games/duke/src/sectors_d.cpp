@@ -131,23 +131,24 @@ void checkplayerhurt_d(DDukePlayer* p, const Collision& coll)
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN))
 	{
+		const auto pact = p->GetActor();
 		int tf = tileflags(wal->overtexture);
 		if (tf & TFLAG_ANIMFORCEFIELD)
 		{
-			p->GetActor()->spr.extra -= 5;
+			pact->spr.extra -= 5;
 
 			p->hurt_delay = 16;
 			SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-			p->vel.XY() = -p->GetActor()->spr.Angles.Yaw.ToVector() * 16;
-			S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
+			p->vel.XY() = -pact->spr.Angles.Yaw.ToVector() * 16;
+			S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 
-			checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
+			checkhitwall(pact, wal, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 2);
 		}
 		else if (tf & TFLAG_FORCEFIELD)
 		{
 			p->hurt_delay = 26;
-			checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
+			checkhitwall(pact, wal, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 2);
 		}
 	}
 }
@@ -160,10 +161,11 @@ void checkplayerhurt_d(DDukePlayer* p, const Collision& coll)
 
 void clearcameras(DDukePlayer* p)
 {
-	p->GetActor()->restorepos();
+	const auto pact = p->GetActor();
+	pact->restorepos();
 	p->newOwner = nullptr;
 
-	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+	updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())

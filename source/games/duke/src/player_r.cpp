@@ -87,8 +87,9 @@ void incur_damage_r(DDukePlayer* p)
 
 void selectweapon_r(DDukePlayer* const p, int weap)
 {
+	const auto pact = p->GetActor();
 	int i, j, k;
-	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.125  && p->access_incs == 0 && p->knee_incs == 0)
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && pact->spr.scale.X > 0.125  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
@@ -195,7 +196,7 @@ void selectweapon_r(DDukePlayer* const p, int weap)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto act = it.Next())
 				{
-					if (act->GetClass() == RedneckDynamiteClass && act->GetOwner() == p->GetActor())
+					if (act->GetClass() == RedneckDynamiteClass && act->GetOwner() == pact)
 					{
 						p->gotweapon[DYNAMITE_WEAPON] = true;
 						j = THROWINGDYNAMITE_WEAPON;
@@ -425,7 +426,7 @@ int doincrements_r(DDukePlayer* p)
 		{
 			p->noise_radius = 1024;
 			madenoise(getPlayer(screenpeek));
-			p->vel.XY() += p->GetActor()->spr.Angles.Yaw.ToVector();
+			p->vel.XY() += pact->spr.Angles.Yaw.ToVector();
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -494,11 +495,11 @@ int doincrements_r(DDukePlayer* p)
 				S_PlayActorSound(DUKE_TAKEPILLS, pact);
 	}
 
-	if (p->access_incs && p->GetActor()->spr.pal != 1)
+	if (p->access_incs && pact->spr.pal != 1)
 	{
 		p->oaccess_incs = p->access_incs;
 		p->access_incs++;
-		if (p->GetActor()->spr.extra <= 0)
+		if (pact->spr.extra <= 0)
 			p->access_incs = 12;
 		if (p->access_incs == 12)
 		{
@@ -603,19 +604,21 @@ void checkweapons_r(DDukePlayer* p)
 			&RedneckPowderKegClass, &RedneckTitgunClass, &RedneckDynamiteClass, &RedneckRipsawClass, &RedneckBowlingBallClass, 
 			nullptr, nullptr, nullptr, &RedneckCrossbowClass };
 
+	const auto pact = p->GetActor();
+
 	if (isRRRA())
 	{
 		if (p->OnMotorcycle && numplayers > 1)
 		{
-			auto j = spawn(p->GetActor(), RedneckEmptyBikeClass);
+			auto j = spawn(pact, RedneckEmptyBikeClass);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
+				j->spr.Angles.Yaw = pact->spr.Angles.Yaw;
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
 			p->gotweapon[MOTORCYCLE_WEAPON] = false;
-			p->GetActor()->spr.Angles.Pitch = nullAngle;
+			pact->spr.Angles.Pitch = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = nullAngle;
@@ -626,15 +629,15 @@ void checkweapons_r(DDukePlayer* p)
 		}
 		else if (p->OnBoat && numplayers > 1)
 		{
-			auto j = spawn(p->GetActor(), RedneckEmptyBoatClass);
+			auto j = spawn(pact, RedneckEmptyBoatClass);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
+				j->spr.Angles.Yaw = pact->spr.Angles.Yaw;
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
 			p->gotweapon[BOAT_WEAPON] = false;
-			p->GetActor()->spr.Angles.Pitch = nullAngle;
+			pact->spr.Angles.Pitch = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = nullAngle;
@@ -650,7 +653,7 @@ void checkweapons_r(DDukePlayer* p)
 		if (krand() & 1)
 		{
 			auto weap = weapon_sprites[p->curr_weapon];
-			if (weap && *weap) spawn(p->GetActor(), *weap);
+			if (weap && *weap) spawn(pact, *weap);
 		}
 		else switch (p->curr_weapon)
 		{
@@ -659,7 +662,7 @@ void checkweapons_r(DDukePlayer* p)
 			[[fallthrough]];
 		case DYNAMITE_WEAPON:
 		case CROSSBOW_WEAPON:
-			spawn(p->GetActor(), DukeExplosion2Class);
+			spawn(pact, DukeExplosion2Class);
 			break;
 		}
 	}
@@ -668,7 +671,7 @@ void checkweapons_r(DDukePlayer* p)
 	{
 		if (p->keys[i] == 1)
 		{
-			auto j = spawn(p->GetActor(), RedneckDoorkeyClass);
+			auto j = spawn(pact, RedneckDoorkeyClass);
 			if (j) switch (i)
 			{
 			case 1:
@@ -2080,7 +2083,7 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 				zvel -= 4;
 			}
 
-			CreateActor(p->cursector, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 16, RedneckPowderKegClass, -16, DVector2(0.140625, 0.140625), p->GetActor()->spr.Angles.Yaw, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 16, RedneckPowderKegClass, -16, DVector2(0.140625, 0.140625), pact->spr.Angles.Yaw, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -2929,6 +2932,8 @@ HORIZONLY:
 
 void OnMotorcycle(DDukePlayer *p)
 {
+	const auto pact = p->GetActor();
+
 	if (!p->OnMotorcycle && p->cursector->lotag != ST_2_UNDERWATER)
 	{
 		p->over_shoulder_on = 0;
@@ -2938,10 +2943,10 @@ void OnMotorcycle(DDukePlayer *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->GetActor()->spr.Angles.Pitch = nullAngle;
+		pact->spr.Angles.Pitch = nullAngle;
 	}
-	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
-		S_PlayActorSound(186, p->GetActor());
+	if (!S_CheckActorSoundPlaying(pact, 186))
+		S_PlayActorSound(186, pact);
 }
 
 //---------------------------------------------------------------------------
@@ -2969,7 +2974,7 @@ void OffMotorcycle(DDukePlayer *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->GetActor()->spr.Angles.Pitch = nullAngle;
+		pact->spr.Angles.Pitch = nullAngle;
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = nullAngle;
@@ -2977,12 +2982,12 @@ void OffMotorcycle(DDukePlayer *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = p->GetActor()->spr.Angles.Yaw.ToVector() / 2048.;
+		p->vel.XY() = pact->spr.Angles.Yaw.ToVector() / 2048.;
 		p->moto_underwater = 0;
-		auto spawned = spawn(p->GetActor(), RedneckEmptyBikeClass);
+		auto spawned = spawn(pact, RedneckEmptyBikeClass);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
+			spawned->spr.Angles.Yaw = pact->spr.Angles.Yaw;
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -3019,11 +3024,12 @@ void OffBoat(DDukePlayer *p)
 {
 	if (p->OnBoat)
 	{
+		const auto pact = p->GetActor();
 		p->OnBoat = 0;
 		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->GetActor()->spr.Angles.Pitch = nullAngle;
+		pact->spr.Angles.Pitch = nullAngle;
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = nullAngle;
@@ -3031,12 +3037,12 @@ void OffBoat(DDukePlayer *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = p->GetActor()->spr.Angles.Yaw.ToVector() / 2048.;
+		p->vel.XY() = pact->spr.Angles.Yaw.ToVector() / 2048.;
 		p->moto_underwater = 0;
-		auto spawned = spawn(p->GetActor(), RedneckEmptyBoatClass);
+		auto spawned = spawn(pact, RedneckEmptyBoatClass);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
+			spawned->spr.Angles.Yaw = pact->spr.Angles.Yaw;
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}
