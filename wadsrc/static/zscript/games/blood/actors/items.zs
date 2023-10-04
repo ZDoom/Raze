@@ -1,9 +1,35 @@
 class BloodItemBase : BloodActor
 {
 	meta int packslot;
+	meta int respawntype;
 	Property prefix: none;
 	property packslot: packslot;
+	property respawntype: respawntype;
+	
+	default
+	{
+		respawntype 0;
+	}
 
+
+	override int getRespawnTime()
+	{
+		if (!self.hasX) return -1;
+		if (self.xspr.respawn == 3 && gGameOptions.nGameType == Blood.kSinglePlayer) return 0;
+		else if (self.xspr.respawn == 2 || (self.xspr.respawn != 1 && gGameOptions.nItemSettings != Blood.ITEMSETTINGS_0))
+		{
+			switch (self.respawntype)
+			{
+			case 1:
+				return gGameOptions.nSpecialRespawnTime;
+			case 2:
+				return gGameOptions.nSpecialRespawnTime << 1;
+			default:
+				return gGameOptions.nItemRespawnTime;
+			}
+		}
+		return -1;
+	}
 }
 
 class BloodKeyBase : BloodItemBase
@@ -159,6 +185,7 @@ class BloodItemShadowCloak : BloodItemBase
 		pic "ShadowCloakIcon";
 		shade -8;
 		scale 0.625, 0.625;
+		respawntype 1;
 	}
 }
 
@@ -169,6 +196,7 @@ class BloodItemDeathMask : BloodItemBase
 		pic "DeathMaskIcon";
 		shade -8;
 		scale 0.625, 0.625;
+		respawntype 2;
 	}
 }
 
@@ -190,6 +218,7 @@ class BloodItemTwoGuns : BloodItemBase
 		pic "GunsAkimboIcon";
 		shade -8;
 		scale 0.625, 0.625;
+		respawntype 1;
 	}
 }
 
@@ -232,6 +261,7 @@ class BloodItemReflectShots : BloodItemBase
 		pic "ReflectiveIcon";
 		shade -8;
 		scale 0.625, 0.625;
+		respawntype 1;
 	}
 }
 

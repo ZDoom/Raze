@@ -9,6 +9,15 @@ class BloodWeaponBase : BloodActor
 	property count: count;
 	property type: type;
 	property ammotype: ammotype;
+	
+	override int getRespawnTime()
+	{
+		if (!self.hasX) return -1;
+		if (self.xspr.respawn == 2 || (self.xspr.respawn != 1 && gGameOptions.nWeaponSettings != Blood.WEAPONSETTINGS_0))
+			return gGameOptions.nWeaponRespawnTime;
+		return -1;
+	}
+	
 }
 
 class BloodWeaponSawedoff : BloodWeaponBase
@@ -138,6 +147,16 @@ class BloodAmmoBase : BloodActor
 	property count: count;
 	property type: type;
 	property weapontype: weapontype;
+	
+	override int getRespawnTime()
+	{
+		if (!self.hasX) return -1;
+		if (self.xspr.respawn == 3 || gGameOptions.nWeaponSettings == Blood.WEAPONSETTINGS_1) return 0;
+		else if (self.xspr.respawn != 1 && gGameOptions.nWeaponSettings != Blood.WEAPONSETTINGS_0)
+			return gGameOptions.nWeaponRespawnTime;
+		return -1;
+	}
+	
 }
 
 class BloodAmmoSprayCan : BloodAmmoBase

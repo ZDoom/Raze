@@ -317,5 +317,24 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 	return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int actGetRespawnTime(DBloodActor* actor)
+{
+	IFVIRTUALPTR(actor, DBloodActor, getRespawnTime)
+	{
+		int time;
+		VMReturn ret(&time);
+		VMValue param[] = { actor };
+		VMCall(func, param, 1, &ret, 1);
+		return time;
+	}
+	return -1;
+}
+
 
 END_BLD_NS

@@ -1,6 +1,45 @@
 // contains all global Blood definitions
 struct Blood native
 {
+	enum DIFFICULTY
+	{
+		DIFFICULTY_0 = 0,
+		DIFFICULTY_1,
+		DIFFICULTY_2,
+		DIFFICULTY_3,
+		DIFFICULTY_4,
+	};
+
+	enum MONSTERSETTINGS
+	{
+		MONSTERSETTINGS_0 = 0,
+		MONSTERSETTINGS_1,
+		MONSTERSETTINGS_2,
+	};
+
+	enum WEAPONSETTINGS
+	{
+		WEAPONSETTINGS_0 = 0,
+		WEAPONSETTINGS_1,
+		WEAPONSETTINGS_2,
+		WEAPONSETTINGS_3,
+	};
+
+	enum ITEMSETTINGS
+	{
+		ITEMSETTINGS_0 = 0,
+		ITEMSETTINGS_1,
+		ITEMSETTINGS_2,
+	};
+	
+	enum GAME_TYPE
+	{
+		kSingleplayer = 1,
+		kDeathmatch = 2,
+		kTeamplay = 3
+	}
+	
+	
 	// POWERUPS /////////////////////////////////////////////////////
 	enum EPowerupType {
 		kPwUpFeatherFall = 12,

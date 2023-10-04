@@ -1,53 +1,72 @@
-class BloodDudeCultistTommy : BloodActor {}
-class BloodDudeCultistShotgun : BloodActor {}
-class BloodDudeZombieAxeNormal : BloodActor {}
-class BloodDudeZombieButcher : BloodActor {}
-class BloodDudeZombieAxeBuried : BloodActor {}
-class BloodDudeGargoyleFlesh : BloodActor {}
-class BloodDudeGargoyleStone : BloodActor {}
-class BloodDudeGargoyleStatueFlesh : BloodActor {}
-class BloodDudeGargoyleStatueStone : BloodActor {}
-class BloodDudePhantasm : BloodActor {}
-class BloodDudeHellHound : BloodActor {}
-class BloodDudeHand : BloodActor {}
-class BloodDudeSpiderBrown : BloodActor {}
-class BloodDudeSpiderRed : BloodActor {}
-class BloodDudeSpiderBlack : BloodActor {}
-class BloodDudeSpiderMother : BloodActor {}
-class BloodDudeGillBeast : BloodActor {}
-class BloodDudeBoneEel : BloodActor {}
-class BloodDudeBat : BloodActor {}
-class BloodDudeRat : BloodActor {}
-class BloodDudePodGreen : BloodActor {}
-class BloodDudeTentacleGreen : BloodActor {}
-class BloodDudePodFire : BloodActor {}
-class BloodDudeTentacleFire : BloodActor {}
-class BloodDudePodMother : BloodActor {}
-class BloodDudeTentacleMother : BloodActor {}
-class BloodDudeCerberusTwoHead : BloodActor {}
-class BloodDudeCerberusOneHead : BloodActor {}
-class BloodDudeTchernobog : BloodActor {}
-class BloodDudeCultistTommyProne : BloodActor {}
-class BloodDudePlayer1 : BloodActor {}
-class BloodDudePlayer2 : BloodActor {}
-class BloodDudePlayer3 : BloodActor {}
-class BloodDudePlayer4 : BloodActor {}
-class BloodDudePlayer5 : BloodActor {}
-class BloodDudePlayer6 : BloodActor {}
-class BloodDudePlayer7 : BloodActor {}
-class BloodDudePlayer8 : BloodActor {}
-class BloodDudeBurningInnocent : BloodActor {}
-class BloodDudeBurningCultist : BloodActor {}
-class BloodDudeBurningZombieAxe : BloodActor {}
-class BloodDudeBurningZombieButcher : BloodActor {}
-class BloodDudeCultistReserved : BloodActor {} // unused
-class BloodDudeZombieAxeLaying : BloodActor {}
-class BloodDudeInnocent : BloodActor {}
-class BloodDudeCultistShotgunProne : BloodActor {}
-class BloodDudeCultistTesla : BloodActor {}
-class BloodDudeCultistTNT : BloodActor {}
-class BloodDudeCultistBeast : BloodActor {}
-class BloodDudeTinyCaleb : BloodActor {}
-class BloodDudeBeast : BloodActor {}
-class BloodDudeBurningTinyCaleb : BloodActor {}
-class BloodDudeBurningBeast : BloodActor {}
+class BloodDudeBase : Bloodactor
+{
+	override int getRespawnTime()
+	{
+		if (!self.hasX) return -1;
+		if (self.xspr.respawn == 2 || (self.xspr.respawn != 1 && gGameOptions.nMonsterSettings == Blood.MONSTERSETTINGS_2))
+			return gGameOptions.nMonsterRespawnTime;
+		return -1;
+	}
+}
+
+class BloodPlayerBase : BloodDudeBase
+{
+	override int getRespawnTime()
+	{
+		return -1;	// no respawn for players.
+	}
+}
+
+class BloodDudeCultistTommy : BloodDudeBase {}
+class BloodDudeCultistShotgun : BloodDudeBase {}
+class BloodDudeZombieAxeNormal : BloodDudeBase {}
+class BloodDudeZombieButcher : BloodDudeBase {}
+class BloodDudeZombieAxeBuried : BloodDudeBase {}
+class BloodDudeGargoyleFlesh : BloodDudeBase {}
+class BloodDudeGargoyleStone : BloodDudeBase {}
+class BloodDudeGargoyleStatueFlesh : BloodDudeBase {}
+class BloodDudeGargoyleStatueStone : BloodDudeBase {}
+class BloodDudePhantasm : BloodDudeBase {}
+class BloodDudeHellHound : BloodDudeBase {}
+class BloodDudeHand : BloodDudeBase {}
+class BloodDudeSpiderBrown : BloodDudeBase {}
+class BloodDudeSpiderRed : BloodDudeBase {}
+class BloodDudeSpiderBlack : BloodDudeBase {}
+class BloodDudeSpiderMother : BloodDudeBase {}
+class BloodDudeGillBeast : BloodDudeBase {}
+class BloodDudeBoneEel : BloodDudeBase {}
+class BloodDudeBat : BloodDudeBase {}
+class BloodDudeRat : BloodDudeBase {}
+class BloodDudePodGreen : BloodDudeBase {}
+class BloodDudeTentacleGreen : BloodDudeBase {}
+class BloodDudePodFire : BloodDudeBase {}
+class BloodDudeTentacleFire : BloodDudeBase {}
+class BloodDudePodMother : BloodDudeBase {}
+class BloodDudeTentacleMother : BloodDudeBase {}
+class BloodDudeCerberusTwoHead : BloodDudeBase {}
+class BloodDudeCerberusOneHead : BloodDudeBase {}
+class BloodDudeTchernobog : BloodDudeBase {}
+class BloodDudeCultistTommyProne : BloodDudeBase {}
+class BloodDudePlayer1 : BloodPlayerBase {}
+class BloodDudePlayer2 : BloodPlayerBase {}
+class BloodDudePlayer3 : BloodPlayerBase {}
+class BloodDudePlayer4 : BloodPlayerBase {}
+class BloodDudePlayer5 : BloodPlayerBase {}
+class BloodDudePlayer6 : BloodPlayerBase {}
+class BloodDudePlayer7 : BloodPlayerBase {}
+class BloodDudePlayer8 : BloodPlayerBase {}
+class BloodDudeBurningInnocent : BloodDudeBase {}
+class BloodDudeBurningCultist : BloodDudeBase {}
+class BloodDudeBurningZombieAxe : BloodDudeBase {}
+class BloodDudeBurningZombieButcher : BloodDudeBase {}
+class BloodDudeCultistReserved : BloodDudeBase {} // unused
+class BloodDudeZombieAxeLaying : BloodDudeBase {}
+class BloodDudeInnocent : BloodDudeBase {}
+class BloodDudeCultistShotgunProne : BloodDudeBase {}
+class BloodDudeCultistTesla : BloodDudeBase {}
+class BloodDudeCultistTNT : BloodDudeBase {}
+class BloodDudeCultistBeast : BloodDudeBase {}
+class BloodDudeTinyCaleb : BloodDudeBase {}
+class BloodDudeBeast : BloodDudeBase {}
+class BloodDudeBurningTinyCaleb : BloodDudeBase {}
+class BloodDudeBurningBeast : BloodDudeBase {}

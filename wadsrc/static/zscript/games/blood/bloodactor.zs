@@ -96,13 +96,6 @@ class BloodActor : CoreActor native
 	property shade: defshade;
 	property pal: defpal;
 	
-	enum GAME_TYPE
-	{
-		kSingleplayer = 1,
-		kDeathmatch = 2,
-		kTeamplay = 3
-	}
-	
 	enum STAT_ID {
 		kStatDecoration = 0,
 		kStatFX = 1,
@@ -181,6 +174,12 @@ class BloodActor : CoreActor native
 	native void evPostActorCallback(int delta, int callback);
 	native double, double getActorExtents();
 	
+	
+	virtual int getRespawnTime()
+	{
+		return -1;	// no respawn by default.
+	}
+	
 	//---------------------------------------------------------------------------
 	//
 	//
@@ -225,11 +224,11 @@ class BloodActor : CoreActor native
 		spawned.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawned.shade = spawned.defshade;
 		
-		if (itemtype is 'BloodKeyBase' && gGameOptions.nGameType == kSingleplayer)
+		if (itemtype is 'BloodKeyBase' && gGameOptions.nGameType == Blood.kSingleplayer)
 		{
 			spawned.xspr.respawn = 3;
 		}
-		if (itemtype is 'BloodFlagBase' && gGameOptions.nGameType == kTeamplay)
+		if (itemtype is 'BloodFlagBase' && gGameOptions.nGameType == Blood.kTeamplay)
 		{
 			spawned.evPostActorCallback(1800, kCallbackReturnFlag);
 		}

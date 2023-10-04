@@ -5414,60 +5414,6 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 //
 //---------------------------------------------------------------------------
 
-int actGetRespawnTime(DBloodActor* actor)
-{
-	if (!actor->hasX()) return -1;
-
-	if (actor->IsDudeActor() && !actor->IsPlayerActor())
-	{
-		if (actor->xspr.respawn == 2 || (actor->xspr.respawn != 1 && gGameOptions.nMonsterSettings == 2))
-			return gGameOptions.nMonsterRespawnTime;
-		return -1;
-	}
-
-	if (actor->IsWeaponActor())
-	{
-		if (actor->xspr.respawn == 3 || gGameOptions.nWeaponSettings == 1) return 0;
-		else if (actor->xspr.respawn != 1 && gGameOptions.nWeaponSettings != 0)
-			return gGameOptions.nWeaponRespawnTime;
-		return -1;
-	}
-
-	if (actor->IsAmmoActor())
-	{
-		if (actor->xspr.respawn == 2 || (actor->xspr.respawn != 1 && gGameOptions.nWeaponSettings != 0))
-			return gGameOptions.nWeaponRespawnTime;
-		return -1;
-	}
-
-	if (actor->IsItemActor())
-	{
-		if (actor->xspr.respawn == 3 && gGameOptions.nGameType == 1) return 0;
-		else if (actor->xspr.respawn == 2 || (actor->xspr.respawn != 1 && gGameOptions.nItemSettings != 0))
-		{
-			switch (actor->GetType())
-			{
-			case kItemShadowCloak:
-			case kItemTwoGuns:
-			case kItemReflectShots:
-				return gGameOptions.nSpecialRespawnTime;
-			case kItemDeathMask:
-				return gGameOptions.nSpecialRespawnTime << 1;
-			default:
-				return gGameOptions.nItemRespawnTime;
-			}
-		}
-		return -1;
-	}
-	return -1;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 bool actCheckRespawn(DBloodActor* actor)
 {
 	if (actor->hasX())
