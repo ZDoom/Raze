@@ -422,9 +422,11 @@ void GameInterface::UpdateSounds(void)
 
 int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int channel, EChanFlags flags)
 {
-	auto const pl = getPlayer(myconnectindex);
+	const auto mcip = getPlayer(myconnectindex);
+	const auto spp = getPlayer(screenpeek);
+
 	if (!soundEngine->isValidSoundId(soundid) || !SoundEnabled() || actor == nullptr || !playrunning() ||
-		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
+		(mcip->timebeforeexit > 0 && mcip->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
 	if (flags & CHANF_LOCAL && actor != getPlayer(screenpeek)->GetActor() && !ud.coop) return -1;	// makes no sense...
 
@@ -453,7 +455,7 @@ int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int 
 		// Fixes a problem with quake06.voc in E3L4.
 		if (ud.multimode == 1)
 		{
-			actor = pl->GetActor();
+			actor = mcip->GetActor();
 		}
 	}
 
@@ -470,7 +472,7 @@ int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int 
 	bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || 
 		((sfx->ResourceId == PIPEBOMB_EXPLODE || sfx->ResourceId == LASERTRIP_EXPLODE || sfx->ResourceId == RPG_EXPLODE));
 
-	bool underwater = getPlayer(screenpeek)->insector() && getPlayer(screenpeek)->cursector->lotag == ST_2_UNDERWATER;
+	bool underwater = spp->insector() && spp->cursector->lotag == ST_2_UNDERWATER;
 	float pitch = 0;
 	if (!explosion)
 	{

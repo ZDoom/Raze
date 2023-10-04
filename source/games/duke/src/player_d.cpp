@@ -340,10 +340,7 @@ void selectweapon_d(DDukePlayer* const p, int weap) // playernum, weaponnum
 
 int doincrements_d(DDukePlayer* p)
 {
-	int snum;
-
 	auto pact = p->GetActor();
-	snum = pact->PlayerIndex();
 
 	p->player_par++;
 
@@ -363,7 +360,7 @@ int doincrements_d(DDukePlayer* p)
 		if (p->last_pissed_time == (26 * 219))
 		{
 			S_PlayActorSound(FLUSH_TOILET, pact);
-			if (snum == screenpeek || ud.coop == 1)
+			if (p->pnum == screenpeek || ud.coop == 1)
 				S_PlayActorSound(DUKE_PISSRELIEF, pact);
 		}
 
@@ -390,7 +387,7 @@ int doincrements_d(DDukePlayer* p)
 		if (p->steroids_amount == 0)
 			checkavailinven(p);
 		if (!(p->steroids_amount & 7))
-			if (snum == screenpeek || ud.coop == 1)
+			if (p->pnum == screenpeek || ud.coop == 1)
 				S_PlayActorSound(DUKE_HARTBEAT, pact);
 	}
 
@@ -514,7 +511,7 @@ int doincrements_d(DDukePlayer* p)
 		if (p->knuckle_incs == 10 && !isWW2GI())
 		{
 			if (PlayClock > 1024)
-				if (snum == screenpeek || ud.coop == 1)
+				if (p->pnum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
 						S_PlayActorSound(DUKE_CRACK, pact);
@@ -1542,7 +1539,7 @@ void processinput_d(DDukePlayer* const p)
 	const auto strafeVel = p->cmd.ucmd.vel.Y;
 	constexpr auto maxVel = (117351124. / 10884538.);
 
-	processinputvel(p->pnum);
+	processinputvel(p);
 
 	auto psectp = p->cursector;
 	if (psectp == nullptr)

@@ -103,7 +103,7 @@ void addweapon_d(DDukePlayer *p, int weapon, bool wswitch)
 //
 //---------------------------------------------------------------------------
 
-int ifsquished(DDukeActor* actor, int p)
+int ifsquished(DDukeActor* actor, DDukePlayer* const p)
 {
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 
@@ -124,7 +124,7 @@ int ifsquished(DDukeActor* actor, int p)
 
 	if (squishme)
 	{
-		FTA(QUOTE_SQUISHED, getPlayer(p));
+		FTA(QUOTE_SQUISHED, p);
 
 		if (badguy(actor))
 			actor->vel.X = 0;
@@ -382,7 +382,7 @@ void movetransports_d(void)
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
-						if (getPlayer(screenpeek) == p)
+						if (screenpeek == p->pnum)
 						{
 							FX_StopAllSounds();
 						}
@@ -401,7 +401,7 @@ void movetransports_d(void)
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
-						if (getPlayer(screenpeek) == p)
+						if (screenpeek == p->pnum)
 						{
 							FX_StopAllSounds();
 						}
