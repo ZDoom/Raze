@@ -344,7 +344,6 @@ void selectweapon_r(DDukePlayer* const p, int weap)
 
 int doincrements_r(DDukePlayer* p)
 {
-	int snum;
 	auto pact = p->GetActor();
 
 	if (isRRRA())
@@ -366,8 +365,6 @@ int doincrements_r(DDukePlayer* p)
 				p->sea_sick_stat = 0;
 		}
 	}
-
-	snum = p->GetActor()->PlayerIndex();
 
 	p->player_par++;
 	if (p->yehaa_timer)
@@ -493,7 +490,7 @@ int doincrements_r(DDukePlayer* p)
 			p->eatang = p->drunkang = 1647;
 		}
 		if (!(p->steroids_amount & 14))
-			if (snum == screenpeek || ud.coop == 1)
+			if (p->pnum == screenpeek || ud.coop == 1)
 				S_PlayActorSound(DUKE_TAKEPILLS, pact);
 	}
 
@@ -578,7 +575,7 @@ int doincrements_r(DDukePlayer* p)
 				S_PlayActorSound(snd, pact);
 			}
 			else if (PlayClock > 1024)
-				if (snum == screenpeek || ud.coop == 1)
+				if (p->pnum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
 						S_PlayActorSound(DUKE_CRACK, pact);
@@ -2278,7 +2275,7 @@ void processinput_r(DDukePlayer* const p)
 		onBoat(p, actions);
 	}
 
-	processinputvel(p->pnum);
+	processinputvel(p);
 
 	if (psectp == nullptr)
 	{

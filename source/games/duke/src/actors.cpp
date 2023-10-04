@@ -50,18 +50,17 @@ This file is a combination of code from the following sources:
 BEGIN_DUKE_NS
 
 
-void moveactor(DDukeActor* actor, int p, double pdist, const int killit_flag)
+static void moveactor(DDukeActor* actor, DDukePlayer* const pp, double pdist, const int killit_flag)
 {
 	if (killit_flag == 1)
 	{
 		// if player was set to squish, first stop that..
-		const auto pp = getPlayer(p);
 		if (pp->actorsqu == actor) pp->actorsqu = nullptr;
 		actor->flags2 |= SFLAG2_DIENOW;
 	}
 	else
 	{
-		move(actor, p, pdist);
+		move(actor, pp, pdist);
 
 		if (actor->spr.statnum == STAT_ACTOR)
 		{
@@ -95,22 +94,23 @@ void TickActor(DDukeActor* self)
 	if (self->spr.statnum == STAT_ACTOR || self->spr.statnum == STAT_PLAYER || (self->flags3 & SFLAG3_FORCERUNCON))
 	{
 		double pdist;
-		int p;
+		int pnum;
 		
 		if (self->spr.statnum != STAT_PLAYER)
 		{
-			p = findplayer(self, &pdist);
+			pnum = findplayer(self, &pdist);
 		}
 		else
 		{
 			if (ud.multimode > 1)
-				p = findotherplayer(self->PlayerIndex(), &pdist);
+				pnum = findotherplayer(self->PlayerIndex(), &pdist);
 			else
 			{
-				p = self->PlayerIndex();
+				pnum = self->PlayerIndex();
 				pdist = 0;
 			}
 		}
+		const auto p = getPlayer(pnum);
 
 		// Run sprite animations.
 		if (self->curAction->name != NAME_None)
@@ -138,7 +138,7 @@ void TickActor(DDukeActor* self)
 			self->flags4 |= SFLAG4_INRUNSTATE;
 			IFVIRTUALPTR(self, DDukeActor, RunState)
 			{
-				VMValue val[] = { self, getPlayer(p), pdist};
+				VMValue val[] = { self, p, pdist};
 				try
 				{
 					VMCall(func, val, 3, nullptr, 0);
@@ -254,7 +254,7 @@ void checkavailinven(DDukePlayer* player)
 
 void checkavailweapon(DDukePlayer* player)
 {
-	int i, snum;
+	int i;
 	int weap;
 
 	if (player->wantweaponfire >= 0)
@@ -269,20 +269,18 @@ void checkavailweapon(DDukePlayer* player)
 			return;
 		}
 	}
-
 	weap = player->curr_weapon;
+
 	if (player->gotweapon[weap])
 	{
 		if (player->ammo_amount[weap] > 0 || (WeaponSwitch(player->pnum) & 2) == 0)
 			return;
 	}
 
-	snum = player->GetPlayerNum();
-
 	int max = MAX_WEAPON;
 	for (i = 0; i <= max; i++)
 	{
-		weap = ud.wchoice[snum][i];
+		weap = ud.wchoice[player->pnum][i];
 		if ((g_gameType & GAMEFLAG_SHAREWARE) && weap > 6) continue;
 
 		if (weap == 0) weap = max;
@@ -302,17 +300,17 @@ void checkavailweapon(DDukePlayer* player)
 	if (isWW2GI())
 	{
 		const auto pact = player->GetActor();
-		SetGameVarID(g_iWeaponVarID, player->curr_weapon, pact, snum); // snum is player index!
+		SetGameVarID(g_iWeaponVarID, player->curr_weapon, pact, player->pnum); // snum is player index!
 
 		if (player->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, player), pact, snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, player), pact, player->pnum);
 		}
 		else
 		{
-			SetGameVarID(g_iWorksLikeVarID, -1, pact, snum);
+			SetGameVarID(g_iWorksLikeVarID, -1, pact, player->pnum);
 		}
-		OnEvent(EVENT_CHANGEWEAPON, snum, pact, -1);
+		OnEvent(EVENT_CHANGEWEAPON, player->pnum, pact, -1);
 	}
 
 	player->okickback_pic = player->kickback_pic = 0;
@@ -1286,7 +1284,7 @@ int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int clipty
 //
 //---------------------------------------------------------------------------
 
-void move(DDukeActor* actor, int pnum, double pdist)
+void move(DDukeActor* actor, DDukePlayer* const p, double pdist)
 {
 	DAngle goalang, angdif;
 	double daxvel;
@@ -1297,7 +1295,6 @@ void move(DDukeActor* actor, int pnum, double pdist)
 
 	actor->counter++;
 
-	const auto p = getPlayer(pnum);
 	const auto pact = p->GetActor();
 
 	if (a & face_player)

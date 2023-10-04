@@ -1512,7 +1512,7 @@ int ParseState::parse(void)
 		parseifelse(fi.ifhitbyweapon(g_ac) >= 0);
 		break;
 	case concmd_ifsquished:
-		parseifelse(ifsquished(g_ac, g_p) == 1);
+		parseifelse(ifsquished(g_ac, p) == 1);
 		break;
 	case concmd_ifdead:
 	{
@@ -3211,7 +3211,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-bool execute(DDukeActor *actor,int p,double pdist, int* killit_flag)
+bool execute(DDukeActor *actor, DDukePlayer* const p, double pdist, int* killit_flag)
 {
 	if (killit_flag) *killit_flag = 0;
 	if ((actor->flags4 & SFLAG4_CONOVERRIDE) && overridecon) return false;
@@ -3221,7 +3221,7 @@ bool execute(DDukeActor *actor,int p,double pdist, int* killit_flag)
 		return false;
 
 	ParseState s;
-	s.g_p = p;	// Player ID
+	s.g_p = p->pnum;	// Player ID
 	s.g_x = int(pdist / maptoworld);	// ??
 	s.g_ac = actor;
 	s.killit_flag = 0;

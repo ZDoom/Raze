@@ -105,7 +105,7 @@ void FTA(int q, DDukePlayer* p)
 	{
 		p->ftq = q;
 		auto qu = quoteMgr.GetQuote(q);
-		if (p == getPlayer(screenpeek) && qu[0] != '\0')
+		if (p->pnum == screenpeek && qu[0] != '\0')
 		{
 #if 0
 			if (q >= 70 && q <= 72)

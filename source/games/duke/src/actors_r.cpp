@@ -351,7 +351,7 @@ void movetransports_r(void)
 					{
 						if (p->OnBoat) break;
 						k = 1;
-						if (getPlayer(screenpeek) == p)
+						if (screenpeek == p->pnum)
 						{
 							FX_StopAllSounds();
 						}
@@ -366,7 +366,7 @@ void movetransports_r(void)
 					{
 						k = 1;
 						if (act2->spr.extra <= 0) break;
-						if (getPlayer(screenpeek) == p)
+						if (screenpeek == p->pnum)
 						{
 							FX_StopAllSounds();
 						}
