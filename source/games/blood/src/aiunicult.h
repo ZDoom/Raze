@@ -229,5 +229,10 @@ bool genDudePrepare(DBloodActor* pSprite, int propId);
 void genDudeUpdate(DBloodActor* pSprite);
 void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage);
 void aiGenDudeInitSprite(DBloodActor* actor);
+
+bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType);
+void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType);
+void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq);
+
 #endif
 END_BLD_NS

@@ -2516,5 +2516,147 @@ void aiGenDudeInitSprite(DBloodActor* actor)
 	return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
+{
+	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
+	removeDudeStuff(actor);
+	if (actor->xspr.txID <= 0 || getNextIncarnation(actor) == nullptr)
+	{
+		if (pExtra->weaponType == kGenDudeWeaponKamikaze && Chance(0x4000) && damageType != kDamageSpirit && damageType != kDamageDrown)
+		{
+			doExplosion(actor, actor->xspr.data1 - kTrapExploder);
+			if (Chance(0x9000)) damageType = kDamageExplode;
+		}
+
+		if (damageType == kDamageBurn)
+		{
+			if (pExtra->availDeaths[kDamageBurn] && !spriteIsUnderwater(actor))
+			{
+				if (pExtra->canBurn)
+				{
+					actor->ChangeType(kDudeModernCustomBurning);
+					if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
+						actor->spr.pal = 0;
+
+					aiGenDudeNewState(actor, &genDudeBurnGoto);
+					actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
+					if (actor->xspr.burnTime <= 0) actor->xspr.burnTime = 1200;
+					actor->dudeExtra.time = PlayClock + 360;
+					return true;
+				}
+
+			}
+			else
+			{
+				actor->xspr.burnTime = 0;
+				actor->SetBurnSource(nullptr);
+				damageType = kDamageFall;
+			}
+		}
+	}
+	else
+	{
+		actor->xspr.locked = 1; // lock while transforming
+
+		aiSetGenIdleState(actor); // set idle state
+
+		if (actor->xspr.key > 0) // drop keys
+			actDropObject(actor, kItemKeyBase + actor->xspr.key - 1);
+
+		if (actor->xspr.dropMsg > 0) // drop items
+			actDropObject(actor, actor->xspr.dropMsg);
+
+		actor->spr.flags &= ~kPhysMove;
+		actor->vel.XY().Zero();
+
+		playGenDudeSound(actor, kGenDudeSndTransforming);
+		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
+		if (getSequence(seqId)) seqSpawn(seqId, actor, -1);
+		else
+		{
+			seqKill(actor);
+			DBloodActor* pEffect = gFX.fxSpawnActor((FX_ID)52, actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw);
+			if (pEffect != nullptr)
+			{
+				pEffect->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
+				pEffect->spr.pal = 6;
+				pEffect->spr.scale = actor->spr.scale;
+			}
+
+			GIBTYPE nGibType;
+			for (int i = 0; i < 3; i++)
+			{
+				if (Chance(0x3000)) nGibType = GIBTYPE_6;
+				else if (Chance(0x2000)) nGibType = GIBTYPE_5;
+				else nGibType = GIBTYPE_17;
+
+				double top, bottom;
+				GetActorExtents(actor, &top, &bottom);
+				DVector3 gibPos(actor->spr.pos.XY(), top);
+				DVector3 gibVel(actor->vel.XY() * 0.5, -FixedToFloat(0xccccc));
+				GibSprite(actor, nGibType, &gibPos, &gibVel);
+			}
+		}
+
+		actor->xspr.sysData1 = kGenDudeTransformStatus; // in transform
+		return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
+{
+	playGenDudeSound(actor, kGenDudeSndDeathNormal);
+	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
+	if (nSeq == 3)
+	{
+		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
+		if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + actor->xspr.data2, actor, dudeToGib);
+		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + actor->xspr.data2, actor, dudeToGib);
+		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + actor->xspr.data2, actor, dudeToGib);
+		else if (getSequence(actor->xspr.data2 + nSeq))seqSpawn(nSeq + actor->xspr.data2, actor, dudeToGib);
+		else seqSpawn(1 + actor->xspr.data2, actor, dudeToGib);
+
+	}
+	else
+	{
+		seqSpawn(nSeq + actor->xspr.data2, actor, dudeToGib);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
+{
+	playGenDudeSound(actor, kGenDudeSndDeathExplode);
+	int dudeToGib = (actCheckRespawn(actor)) ? -1 : nDudeToGibClient1;
+
+	if (Chance(0x4000)) spawnGibs(actor, GIBTYPE_27, -0xccccc);
+
+	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
+	int seqofs = actor->xspr.data2;
+	if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + seqofs, actor, dudeToGib);
+	else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + seqofs, actor, dudeToGib);
+	else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + seqofs, actor, dudeToGib);
+	else seqSpawn(1 + seqofs, actor, dudeToGib);
+}
+
+
 END_BLD_NS
 #endif
