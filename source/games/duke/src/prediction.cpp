@@ -51,16 +51,18 @@ short myangbak[MOVEFIFOSIZ];
 
 void resetmys()
 {
-	mypos = omypos = getPlayer(myconnectindex)->GetActor()->getPosWithOffsetZ();
+	const auto p = getPlayer(myconnectindex);
+	const auto pact = p->GetActor();
+	mypos = omypos = pact->getPosWithOffsetZ();
 	myxvel = myyvel = myzvel = 0;
-	myang = getPlayer(myconnectindex)->GetActor()->spr.Angles.Yaw;
-	myhoriz = omyhoriz = getPlayer(myconnectindex)->GetActor()->spr.Angles.Pitch;
-	myhorizoff = omyhorizoff = getPlayer(myconnectindex)->Angles.ViewAngles.Pitch;
-	mycursectnum = sectindex(getPlayer(myconnectindex)->cursector);
-	myjumpingcounter = getPlayer(myconnectindex)->jumping_counter;
-	myjumpingtoggle = getPlayer(myconnectindex)->jumping_toggle;
-	myonground = getPlayer(myconnectindex)->on_ground;
-	myhardlanding = getPlayer(myconnectindex)->hard_landing;
+	myang = pact->spr.Angles.Yaw;
+	myhoriz = omyhoriz = pact->spr.Angles.Pitch;
+	myhorizoff = omyhorizoff = p->Angles.ViewAngles.Pitch;
+	mycursectnum = sectindex(p->cursector);
+	myjumpingcounter = p->jumping_counter;
+	myjumpingtoggle = p->jumping_toggle;
+	myonground = p->on_ground;
+	myhardlanding = p->hard_landing;
 }
 
 #if 0 // todo: fix this when networking works again

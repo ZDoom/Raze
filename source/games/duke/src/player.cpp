@@ -1501,7 +1501,7 @@ void playerreset(DDukePlayer* p, DDukeActor* g_ac)
 	{
 		// I am not convinced this is even remotely smart to be executed from here..
 		const auto pact = p->GetActor();
-		pickrandomspot(p->pnum);
+		pickrandomspot(p);
 		g_ac->spr.pos = pact->getPosWithOffsetZ();
 		pact->backuppos();
 		p->setbobpos();
