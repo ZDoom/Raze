@@ -148,24 +148,24 @@ void InitRa()
 //
 //---------------------------------------------------------------------------
 
-void MoveRaToEnemy(int nPlayer)
+void MoveRaToEnemy(RA* const pRa)
 {
-    DExhumedActor* pTarget = Ra[nPlayer].pTarget;
-    DExhumedActor* pActor = Ra[nPlayer].pActor;
+    DExhumedActor* pTarget = pRa->pTarget;
+    DExhumedActor* pActor = pRa->pActor;
     if (!pActor) return;
-    int nAction = Ra[nPlayer].nAction;
+    int nAction = pRa->nAction;
 
     if (pTarget)
     {
         if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || pTarget->spr.statnum == MAXSTATUS)
         {
-            Ra[nPlayer].pTarget = nullptr;
+            pRa->pTarget = nullptr;
             if (nAction == 0 || nAction == 3) {
                 return;
             }
 
-            Ra[nPlayer].nAction = 3;
-            Ra[nPlayer].nFrame  = 0;
+            pRa->nAction = 3;
+            pRa->nFrame  = 0;
             return;
         }
         else
@@ -179,8 +179,8 @@ void MoveRaToEnemy(int nPlayer)
     {
         if (nAction == 1 || nAction == 2)
         {
-            Ra[nPlayer].nAction = 3;
-            Ra[nPlayer].nFrame  = 0;
+            pRa->nAction = 3;
+            pRa->nFrame  = 0;
             return;
         }
 
@@ -189,7 +189,7 @@ void MoveRaToEnemy(int nPlayer)
         }
 
         pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-        pTarget = getPlayer(nPlayer)->GetActor();
+        pTarget = getPlayer(pRa->nPlayer)->GetActor();
     }
 
     pActor->spr.pos = pTarget->spr.pos.plusZ(-GetActorHeight(pTarget));
@@ -207,47 +207,48 @@ void MoveRaToEnemy(int nPlayer)
 
 void AIRa::Tick(RunListEvent* ev)
 {
-    int nPlayer = RunData[ev->nRun].nObjIndex;
-    int nCurrentWeapon = getPlayer(nPlayer)->nCurrentWeapon;
+    const auto pPlayer = getPlayer(RunData[ev->nRun].nObjIndex);
+    const auto pRa = &Ra[pPlayer->pnum];
+    int nCurrentWeapon = pPlayer->nCurrentWeapon;
 
-    DExhumedActor* pActor = Ra[nPlayer].pActor;
+    DExhumedActor* pActor = pRa->pActor;
     if (!pActor) return;
 
-    const auto raSeq = getSequence(Ra[nPlayer].pActor->nSeqFile, RaSeq[Ra[nPlayer].nAction].nSeqId);
-    const auto& seqFrame = raSeq->frames[Ra[nPlayer].nFrame];
+    const auto raSeq = getSequence(pRa->pActor->nSeqFile, RaSeq[pRa->nAction].nSeqId);
+    const auto& seqFrame = raSeq->frames[pRa->nFrame];
 
     bool bVal = false;
 
-    Ra[nPlayer].pTarget = getPlayer(nPlayer)->pTarget;
+    pRa->pTarget = pPlayer->pTarget;
     pActor->spr.setspritetexture(seqFrame.getFirstChunkTexture());
 
-    if (Ra[nPlayer].nAction)
+    if (pRa->nAction)
     {
         seqFrame.playSound(pActor);
 
-        Ra[nPlayer].nFrame++;
-        if (Ra[nPlayer].nFrame >= raSeq->frames.Size())
+        pRa->nFrame++;
+        if (pRa->nFrame >= raSeq->frames.Size())
         {
-            Ra[nPlayer].nFrame = 0;
+            pRa->nFrame = 0;
             bVal = true;
         }
     }
 
-    switch (Ra[nPlayer].nAction)
+    switch (pRa->nAction)
     {
     case 0:
     {
-        MoveRaToEnemy(nPlayer);
+        MoveRaToEnemy(pRa);
 
-        if (!Ra[nPlayer].nState || Ra[nPlayer].pTarget == nullptr)
+        if (!pRa->nState || pRa->pTarget == nullptr)
         {
             pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
             pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-            Ra[nPlayer].nAction = 1;
-            Ra[nPlayer].nFrame = 0;
+            pRa->nAction = 1;
+            pRa->nFrame = 0;
         }
 
         return;
@@ -255,19 +256,19 @@ void AIRa::Tick(RunListEvent* ev)
 
     case 1:
     {
-        if (!Ra[nPlayer].nState)
+        if (!pRa->nState)
         {
-            Ra[nPlayer].nAction = 3;
-            Ra[nPlayer].nFrame = 0;
+            pRa->nAction = 3;
+            pRa->nFrame = 0;
         }
         else
         {
             if (bVal) {
-                Ra[nPlayer].nAction = 2;
-                Ra[nPlayer].nFrame = 0;
+                pRa->nAction = 2;
+                pRa->nFrame = 0;
             }
 
-            MoveRaToEnemy(nPlayer);
+            MoveRaToEnemy(pRa);
         }
 
         return;
@@ -275,37 +276,37 @@ void AIRa::Tick(RunListEvent* ev)
 
     case 2:
     {
-        MoveRaToEnemy(nPlayer);
+        MoveRaToEnemy(pRa);
 
         if (nCurrentWeapon != kWeaponRing)
         {
-            Ra[nPlayer].nAction = 3;
-            Ra[nPlayer].nFrame = 0;
+            pRa->nAction = 3;
+            pRa->nFrame = 0;
         }
         else
         {
-            if (Ra[nPlayer].nFrame || Ra[nPlayer].pTarget == nullptr)
+            if (pRa->nFrame || pRa->pTarget == nullptr)
             {
                 if (!bVal) {
                     return;
                 }
 
-                Ra[nPlayer].nAction = 3;
-                Ra[nPlayer].nFrame = 0;
+                pRa->nAction = 3;
+                pRa->nFrame = 0;
             }
             else
             {
-                if (getPlayer(nPlayer)->nAmmo[kWeaponRing] > 0)
+                if (pPlayer->nAmmo[kWeaponRing] > 0)
                 {
-                    runlist_DamageEnemy(Ra[nPlayer].pTarget, getPlayer(Ra[nPlayer].nPlayer)->GetActor(), BulletInfo[kWeaponRing].nDamage);
-                    AddAmmo(nPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
+                    runlist_DamageEnemy(pRa->pTarget, getPlayer(pRa->nPlayer)->GetActor(), BulletInfo[kWeaponRing].nDamage);
+                    AddAmmo(pPlayer->pnum, kWeaponRing, -WeaponInfo[kWeaponRing].d);
                     SetQuake(pActor, 100);
                 }
                 else
                 {
-                    Ra[nPlayer].nAction = 3;
-                    Ra[nPlayer].nFrame = 0;
-                    SelectNewWeapon(getPlayer(nPlayer));
+                    pRa->nAction = 3;
+                    pRa->nFrame = 0;
+                    SelectNewWeapon(pPlayer);
                 }
             }
         }
@@ -318,9 +319,9 @@ void AIRa::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-            Ra[nPlayer].nAction = 0;
-            Ra[nPlayer].nFrame = 0;
-            Ra[nPlayer].nState = 0;
+            pRa->nAction = 0;
+            pRa->nFrame = 0;
+            pRa->nState = 0;
         }
 
         return;
