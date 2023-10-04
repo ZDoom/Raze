@@ -107,11 +107,11 @@ void DrawView(double interpfrac, bool sceneonly)
     {
         nCamerapos = pPlayerActor->getRenderPos(interpfrac);
 
-        pSector = getPlayer(nLocalPlayer)->pPlayerViewSect;
+        pSector = pPlayer->pPlayerViewSect;
         updatesector(nCamerapos, &pSector);
-        if (pSector == nullptr) pSector = getPlayer(nLocalPlayer)->pPlayerViewSect;
+        if (pSector == nullptr) pSector = pPlayer->pPlayerViewSect;
 
-        nCameraangles = getPlayer(nLocalPlayer)->Angles.getRenderAngles(interpfrac);
+        nCameraangles = pPlayer->Angles.getRenderAngles(interpfrac);
 
         if (!bCamera)
         {

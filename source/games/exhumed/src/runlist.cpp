@@ -1856,30 +1856,30 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
             return;
         }
 
-        int nPlayer = GetPlayerFromActor(pActor2);
+        const auto pPlayer = getPlayer(GetPlayerFromActor(pActor2));
         // Due to the horrible setup we can award the kill to the player only here. Yuck!
-        Level.kills.player[nPlayer]++;
+        Level.kills.player[pPlayer->pnum]++;
 
-        getPlayer(nPlayer)->nTauntTimer--;
+        pPlayer->nTauntTimer--;
 
-        if (getPlayer(nPlayer)->nTauntTimer <= 0)
+        if (pPlayer->nTauntTimer <= 0)
         {
             // Do a taunt
-            auto pPlayerActor = getPlayer(nPlayer)->GetActor();
+            auto pPlayerActor = pPlayer->GetActor();
             auto pSector = pPlayerActor->sector();
 
             if (!(pSector->Flag & kSectUnderwater))
             {
                 int ebx = 0x4000;
 
-                if (nPlayer == nLocalPlayer) {
+                if (pPlayer->pnum == nLocalPlayer) {
                     ebx = 0x6000;
                 }
 
-                D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], getPlayer(nPlayer)->pDoppleSprite, ebx);
+                D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], pPlayer->pDoppleSprite, ebx);
             }
 
-            getPlayer(nPlayer)->nTauntTimer = RandomSize(3) + 3;
+            pPlayer->nTauntTimer = RandomSize(3) + 3;
         }
     }
 }
