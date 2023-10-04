@@ -435,7 +435,7 @@ void MoveWeapons(int nPlayer)
 
                                 if (nWeapon == kWeaponGrenade)
                                 {
-                                    BuildGrenade(nPlayer);
+                                    BuildGrenade(pPlayer);
                                     AddAmmo(pPlayer, 4, -1);
                                 }
                                 else if (nWeapon == kWeaponMummified)
@@ -834,7 +834,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, nHeight - 10, pPlayerActor->spr.Angles.Pitch.Tan());
+                    ThrowGrenade(pPlayer, nHeight - 10, pPlayerActor->spr.Angles.Pitch.Tan());
                     break;
                 }
                 case kWeaponStaff:

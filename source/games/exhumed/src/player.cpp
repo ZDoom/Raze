@@ -349,24 +349,23 @@ int GrabPlayer()
 //
 //---------------------------------------------------------------------------
 
-void StartDeathSeq(int nPlayer, int nVal)
+static void StartDeathSeq(DExhumedPlayer* const pPlayer, int nVal)
 {
-    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
 
-    FreeRa(nPlayer);
+    FreeRa(pPlayer->pnum);
 
     pPlayer->nHealth = 0;
 
     if (pPlayerSect->lotag > 0)
     {
-        runlist_SignalRun(pPlayerSect->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
+        runlist_SignalRun(pPlayerSect->lotag - 1, pPlayer->pnum, &ExhumedAI::EnterSector);
     }
 
     if (pPlayer->pPlayerGrenade)
     {
-        ThrowGrenade(nPlayer, 0, -10000);
+        ThrowGrenade(pPlayer, 0, -10000);
     }
     else
     {
@@ -635,11 +634,11 @@ void AIPlayer::Damage(RunListEvent* ev)
                 BuildCreatureChunk(pPlayerActor, joeSeqs->Data(i)->getFirstFrameTexture());
             }
 
-            StartDeathSeq(nPlayer, 1);
+            StartDeathSeq(pPlayer, 1);
         }
         else
         {
-            StartDeathSeq(nPlayer, 0);
+            StartDeathSeq(pPlayer, 0);
         }
     }
 }
@@ -799,7 +798,7 @@ static void doPickupHealth(DExhumedPlayer* pPlayer, DExhumedActor* pPickupActor,
         else if (pPlayer->nHealth < 0)
         {
             nSound = -1;
-            StartDeathSeq(pPlayer->pnum, 0);
+            StartDeathSeq(pPlayer, 0);
         }
     }
 
@@ -1457,7 +1456,7 @@ static void doPlayerUnderwater(DExhumedPlayer* const pPlayer, const bool oUnderw
                         if (pPlayer->nHealth <= 0)
                         {
                             pPlayer->nHealth = 0;
-                            StartDeathSeq(pPlayer->pnum, 0);
+                            StartDeathSeq(pPlayer, 0);
                         }
 
                         pPlayer->nAir = 0;
