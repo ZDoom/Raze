@@ -1476,13 +1476,15 @@ void checkhitdefault(DDukeActor* targ, DDukeActor* proj)
 
 		if (targ->spr.statnum == STAT_PLAYER)
 		{
-			auto p = targ->PlayerIndex();
-			if (getPlayer(p)->newOwner != nullptr)
-			{
-				getPlayer(p)->newOwner = nullptr;
-				getPlayer(p)->GetActor()->restoreloc();
+			const auto p = getPlayer(targ->PlayerIndex());
+			const auto pact = p->GetActor();
 
-				updatesector(getPlayer(p)->GetActor()->getPosWithOffsetZ(), &getPlayer(p)->cursector);
+			if (p->newOwner != nullptr)
+			{
+				p->newOwner = nullptr;
+				pact->restoreloc();
+
+				updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto itActor = it.Next())
