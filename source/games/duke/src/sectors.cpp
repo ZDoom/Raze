@@ -1589,7 +1589,7 @@ void resetswitch(int tag)
 //
 //---------------------------------------------------------------------------
 
-void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v)
+static void tag10000specialswitch(DDukePlayer* const p, DDukeActor* act, const DVector3& v)
 {
 	DDukeActor* switches[3];
 	int switchcount = 0, j;
@@ -1620,7 +1620,7 @@ void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v)
 		{
 			switches[j]->spr.hitag = 0;
 			switches[j]->spr.setspritetexture(::switches[GetExtInfo(switches[j]->spr.spritetexture()).switchindex].states[3]);
-			checkhitswitch(snum, nullptr, switches[j]);
+			checkhitswitch(p, nullptr, switches[j]);
 		}
 	}
 }
@@ -1735,7 +1735,7 @@ void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& c
 //
 //---------------------------------------------------------------------------
 
-bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
+bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 {
 	uint8_t switchpal;
 	int lotag, hitag, correctdips, numdips;
@@ -1757,7 +1757,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		switchpal = act->spr.pal;
 
 		// custom switches that maintain themselves can immediately abort.
-		swresult = CallTriggerSwitch(act, getPlayer(snum));
+		swresult = CallTriggerSwitch(act, p);
 		if (swresult == 1) return true;
 	}
 	else
@@ -1781,7 +1781,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			break;
 
 		case SwitchDef::Access:
-			if (fi.checkaccessswitch(snum, switchpal, act, wwal))
+			if (fi.checkaccessswitch(p, switchpal, act, wwal))
 				return 0;
 			[[fallthrough]];
 
@@ -1808,15 +1808,15 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		if (hitag == 10001 && swdef.flags & SwitchDef::oneway && isRRRA())
 		{
 			act->spr.setspritetexture(swdef.states[1]);
-			if (getPlayer(snum)->SeaSick == 0)
-				getPlayer(snum)->SeaSick = 350;
-			operateactivators(668, getPlayer(snum));
+			if (p->SeaSick == 0)
+				p->SeaSick = 350;
+			operateactivators(668, p);
 			operatemasterswitches(668);
-			S_PlayActorSound(328, getPlayer(snum)->GetActor());
+			S_PlayActorSound(328, p->GetActor());
 			return 1;
 		}
 	}
-	DVector3 v(spos, getPlayer(snum)->GetActor()->getOffsetZ());
+	DVector3 v(spos, p->GetActor()->getOffsetZ());
 
 	if (swdef.type != SwitchDef::None || isadoorwall(texid))
 	{
@@ -1826,16 +1826,16 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			{
 				FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
 				if (act) S_PlaySound3D(sound, act, v);
-				else S_PlaySound3D(sound, getPlayer(snum)->GetActor(), v);
+				else S_PlaySound3D(sound, p->GetActor(), v);
 				if (numdips != correctdips) return 0;
-				S_PlaySound3D(END_OF_LEVEL_WARN, getPlayer(snum)->GetActor(), v);
+				S_PlaySound3D(END_OF_LEVEL_WARN, p->GetActor(), v);
 			}
 			if (swdef.type == SwitchDef::Multi)
 			{
 				lotag += ext.switchphase;
 				if (hitag == 10000 && act && isRRRA())	// no idea if the game check is really needed for something this far off the beaten path...
 				{
-					tag10000specialswitch(snum, act, v);
+					tag10000specialswitch(p, act, v);
 					return 1;
 				}
 			}
@@ -1866,8 +1866,8 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 				case SE_25_PISTON:
 					other->temp_data[4] = !other->temp_data[4];
 					if (other->temp_data[4])
-						FTA(15, getPlayer(snum));
-					else FTA(2, getPlayer(snum));
+						FTA(15, p);
+					else FTA(2, p);
 					break;
 				case SE_21_DROP_FLOOR:
 					FTA(2, getPlayer(screenpeek));
@@ -1876,8 +1876,8 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			}
 		}
 
-		operateactivators(lotag, getPlayer(snum));
-		operateforcefields(getPlayer(snum)->GetActor(), lotag);
+		operateactivators(lotag, p);
+		operateforcefields(p->GetActor(), lotag);
 		operatemasterswitches(lotag);
 
 		if (swdef.type == SwitchDef::Combo) return 1;
@@ -1886,7 +1886,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		{
 			FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
 			if (act) S_PlaySound3D(sound, act, v);
-			else S_PlaySound3D(sound, getPlayer(snum)->GetActor(), v);
+			else S_PlaySound3D(sound, p->GetActor(), v);
 		}
 		else if (hitag != 0)
 		{
@@ -1895,7 +1895,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 			if (act && (flags & SF_TALK) == 0)
 				S_PlaySound3D(hitag, act, v);
 			else
-				S_PlayActorSound(hitag, getPlayer(snum)->GetActor());
+				S_PlayActorSound(hitag, p->GetActor());
 		}
 
 		return 1;

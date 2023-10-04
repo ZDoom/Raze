@@ -32,8 +32,8 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-bool checkaccessswitch_d(int snum, int pal, DDukeActor *act, walltype* w);
-bool checkaccessswitch_r(int snum, int pal, DDukeActor* act, walltype* w);
+bool checkaccessswitch_d(DDukePlayer* const p, int pal, DDukeActor *act, walltype* w);
+bool checkaccessswitch_r(DDukePlayer* const p, int pal, DDukeActor* act, walltype* w);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
 void activatebysector_r(sectortype* sect, DDukeActor* j);
 void checksectors_d(int snum);

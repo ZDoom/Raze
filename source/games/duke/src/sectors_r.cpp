@@ -49,49 +49,51 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwal)
+bool checkaccessswitch_r(DDukePlayer* const p, int switchpal, DDukeActor* act, walltype* wwal)
 {
-	if (getPlayer(snum)->access_incs == 0)
+	const auto pact = p->GetActor();
+
+	if (p->access_incs == 0)
 	{
 		if (switchpal == 0)
 		{
-			if (getPlayer(snum)->keys[1])
-				getPlayer(snum)->access_incs = 1;
+			if (p->keys[1])
+				p->access_incs = 1;
 			else
 			{
-				FTA(70, getPlayer(snum));
-				if (isRRRA()) S_PlayActorSound(99, act ? act : getPlayer(snum)->GetActor());
+				FTA(70, p);
+				if (isRRRA()) S_PlayActorSound(99, act ? act : pact);
 			}
 		}
 
 		else if (switchpal == 21)
 		{
-			if (getPlayer(snum)->keys[2])
-				getPlayer(snum)->access_incs = 1;
+			if (p->keys[2])
+				p->access_incs = 1;
 			else
 			{
-				FTA(71, getPlayer(snum));
-				if (isRRRA()) S_PlayActorSound(99, act ? act : getPlayer(snum)->GetActor());
+				FTA(71, p);
+				if (isRRRA()) S_PlayActorSound(99, act ? act : pact);
 			}
 		}
 
 		else if (switchpal == 23)
 		{
-			if (getPlayer(snum)->keys[3])
-				getPlayer(snum)->access_incs = 1;
+			if (p->keys[3])
+				p->access_incs = 1;
 			else
 			{
-				FTA(72, getPlayer(snum));
-				if (isRRRA()) S_PlayActorSound(99, act ? act : getPlayer(snum)->GetActor());
+				FTA(72, p);
+				if (isRRRA()) S_PlayActorSound(99, act ? act : pact);
 			}
 		}
 
-		if (getPlayer(snum)->access_incs == 1)
+		if (p->access_incs == 1)
 		{
 			if (!act)
-				getPlayer(snum)->access_wall = wwal;
+				p->access_wall = wwal;
 			else
-				getPlayer(snum)->access_spritenum = act;
+				p->access_spritenum = act;
 		}
 		return 1;
 	}
@@ -330,7 +332,7 @@ void checksectors_r(int snum)
 		auto const neartagsprite = near.actor();
 		if (neartagsprite != nullptr)
 		{
-			if (checkhitswitch(snum, nullptr, neartagsprite)) return;
+			if (checkhitswitch(p, nullptr, neartagsprite)) return;
 
 			if (neartagsprite->GetClass() != RUNTIME_CLASS(DDukeActor))
 			{
@@ -355,7 +357,7 @@ void checksectors_r(int snum)
 			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
-					checkhitswitch(snum, near.hitWall, nullptr);
+					checkhitswitch(p, near.hitWall, nullptr);
 				return;
 			}
 		}
@@ -400,7 +402,7 @@ void checksectors_r(int snum)
 					FTA(41, p);
 				}
 			}
-			else checkhitswitch(snum, near.hitWall, nullptr);
+			else checkhitswitch(p, near.hitWall, nullptr);
 		}
 	}
 }

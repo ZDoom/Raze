@@ -48,37 +48,37 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-bool checkaccessswitch_d(int snum, int switchpal, DDukeActor* act, walltype* wwal)
+bool checkaccessswitch_d(DDukePlayer* const p, int switchpal, DDukeActor* act, walltype* wwal)
 {
-	if (getPlayer(snum)->access_incs == 0)
+	if (p->access_incs == 0)
 	{
 		if (switchpal == 0)
 		{
-			if ((getPlayer(snum)->got_access & 1))
-				getPlayer(snum)->access_incs = 1;
-			else FTA(70, getPlayer(snum));
+			if ((p->got_access & 1))
+				p->access_incs = 1;
+			else FTA(70, p);
 		}
 
 		else if (switchpal == 21)
 		{
-			if (getPlayer(snum)->got_access & 2)
-				getPlayer(snum)->access_incs = 1;
-			else FTA(71, getPlayer(snum));
+			if (p->got_access & 2)
+				p->access_incs = 1;
+			else FTA(71, p);
 		}
 
 		else if (switchpal == 23)
 		{
-			if (getPlayer(snum)->got_access & 4)
-				getPlayer(snum)->access_incs = 1;
-			else FTA(72, getPlayer(snum));
+			if (p->got_access & 4)
+				p->access_incs = 1;
+			else FTA(72, p);
 		}
 
-		if (getPlayer(snum)->access_incs == 1)
+		if (p->access_incs == 1)
 		{
 			if (!act)
-				getPlayer(snum)->access_wall = wwal;
+				p->access_wall = wwal;
 			else
-				getPlayer(snum)->access_spritenum = act;
+				p->access_spritenum = act;
 		}
 
 		return 1;
@@ -306,7 +306,7 @@ void checksectors_d(int snum)
 		auto const neartagsprite = near.actor();
 		if (neartagsprite != nullptr)
 		{
-			if (checkhitswitch(snum, nullptr, neartagsprite)) return;
+			if (checkhitswitch(p, nullptr, neartagsprite)) return;
 
 			if (CallOnUse(neartagsprite, p))
 				return;
@@ -333,7 +333,7 @@ void checksectors_d(int snum)
 			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
-					checkhitswitch(snum, near.hitWall, nullptr);
+					checkhitswitch(p, near.hitWall, nullptr);
 				return;
 			}
 			else if (p->newOwner != nullptr)
@@ -364,7 +364,7 @@ void checksectors_d(int snum)
 				}
 				operatesectors(p->GetActor()->sector(), p->GetActor());
 			}
-			else checkhitswitch(snum, near.hitWall, nullptr);
+			else checkhitswitch(p, near.hitWall, nullptr);
 		}
 	}
 }

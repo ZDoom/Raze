@@ -1359,7 +1359,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, StartBoat, OnBoat)
 
 void pl_checkhitswitch(DDukePlayer* p, walltype* wal, DDukeActor* act)
 {
-	checkhitswitch(p->GetPlayerNum(), wal, act);
+	checkhitswitch(p, wal, act);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, checkhitswitch, pl_checkhitswitch)
