@@ -225,11 +225,11 @@ class BloodActor : CoreActor native
 		spawned.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawned.shade = spawned.defshade;
 		
-		if (itemtype is 'BloodKeyBase' && Blood.GameType() == kSingleplayer)
+		if (itemtype is 'BloodKeyBase' && gGameOptions.nGameType == kSingleplayer)
 		{
 			spawned.xspr.respawn = 3;
 		}
-		if (itemtype is 'BloodFlagBase' && Blood.GameType() == kTeamplay)
+		if (itemtype is 'BloodFlagBase' && gGameOptions.nGameType == kTeamplay)
 		{
 			spawned.evPostActorCallback(1800, kCallbackReturnFlag);
 		}

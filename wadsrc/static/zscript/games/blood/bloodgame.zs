@@ -49,7 +49,6 @@ struct Blood native
 	native static void sndStartSampleNamed(String sname, int volume, int channel);
 	native static TextureID PowerupIcon(int pwup);
 	native static BloodPlayer GetViewPlayer();
-	native static int gameType();
 
 	// These are just dummies to make the MP statusbar code compile.
 
@@ -62,6 +61,31 @@ struct Blood native
 	{
 		return 0;
 	}
+}
+
+struct GAMEOPTIONS native
+{
+	native readonly uint8 nGameType;
+	native readonly uint8 nDifficulty;
+	native readonly uint8 nMonsterSettings;
+	native readonly int uGameFlags;
+	native readonly int uNetGameFlags;
+	native readonly uint8 nWeaponSettings;
+	native readonly uint8 nItemSettings;
+	native readonly uint8 nRespawnSettings;
+	native readonly uint8 nTeamSettings;
+	native readonly int nMonsterRespawnTime;
+	native readonly int nWeaponRespawnTime;
+	native readonly int nItemRespawnTime;
+	native readonly int nSpecialRespawnTime;
+	native readonly int weaponsV10x;
+	native readonly bool bFriendlyFire;
+	native readonly bool bKeepKeysOnRespawn;
+}
+
+extend struct _
+{
+	native readonly @GAMEOPTIONS gGameOptions;
 }
 
 struct PACKINFO // not native!
