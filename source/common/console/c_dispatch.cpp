@@ -209,7 +209,7 @@ void C_DoCommand (const char *cmd, int keynum)
 	else
 	{
 		beg = cmd;
-		for (end = cmd+1; *end > ' ' || *end < 0; ++end)
+		for (end = cmd+1; *end > ' ' || (signed char)(*end) < 0; ++end)
 			;
 	}
 

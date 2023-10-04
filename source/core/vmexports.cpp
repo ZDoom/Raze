@@ -800,7 +800,7 @@ void tspritetype_setSpritePic(tspritetype* targ, DCoreActor* self, unsigned z)
 	{
 		targ->setspritetexture(spriteset[z]);
 	}
-	else if (z == ~0)
+	else if ((signed)z == ~0)
 	{
 		targ->setspritetexture(self->dispictex);
 	}

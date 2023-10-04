@@ -36,7 +36,7 @@ class GameInput
 
 	// Input received from the OS.
 	float joyAxes[NUM_JOYAXIS];
-	FVector2 mouseInput;	
+	FVector2 mouseInput;
 
 	// Internal variables when generating a packet.
 	InputPacket inputBuffer;
