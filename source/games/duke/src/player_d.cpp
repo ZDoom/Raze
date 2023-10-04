@@ -449,7 +449,7 @@ int doincrements_d(DDukePlayer* p)
 		{
 			if (p->access_spritenum != nullptr)
 			{
-				checkhitswitch(snum, nullptr, p->access_spritenum);
+				checkhitswitch(p, nullptr, p->access_spritenum);
 				switch (p->access_spritenum->spr.pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;
@@ -460,7 +460,7 @@ int doincrements_d(DDukePlayer* p)
 			}
 			else
 			{
-				checkhitswitch(snum, p->access_wall, nullptr);
+				checkhitswitch(p, p->access_wall, nullptr);
 				switch (p->access_wall->pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;

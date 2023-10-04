@@ -240,7 +240,7 @@ void underwater(DDukePlayer* p, ESyncBits actions, double floorz, double ceiling
 void loadcons();
 void DrawStatusBar();
 void thunder(void);
-bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act);
+bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act);
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang);

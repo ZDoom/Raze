@@ -70,7 +70,7 @@ struct Dispatcher
 	// sectors_?.cpp
 	void (*think)();
 	void (*movetransports)();
-	bool (*checkaccessswitch)(int snum, int switchpal, DDukeActor* act, walltype* w);
+	bool (*checkaccessswitch)(DDukePlayer* const p, int switchpal, DDukeActor* act, walltype* w);
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
 	void (*checksectors)(int low);
 
