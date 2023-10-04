@@ -23,13 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle);
-void InitPlayer();
-void InitPlayerKeys(int nPlayer);
-int GrabPlayer();
-void InitPlayerInventory(int nPlayer);
-void RestartPlayer(int nPlayer);
-
 enum
 {
 	kMaxPlayers			= 8,
@@ -138,10 +131,16 @@ extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;
 extern int nCurStartSprite;
 
+void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle);
+void InitPlayer();
+void InitPlayerKeys(int nPlayer);
+int GrabPlayer();
+void InitPlayerInventory(DExhumedPlayer* const pPlayer);
+void RestartPlayer(int nPlayer);
 int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(DExhumedPlayer* const pPlayer, int bIsMummified);
 int AddAmmo(DExhumedPlayer* const pPlayer, int nWeapon, int nAmmoAmount);
-void ShootStaff(int nPlayer);
+void ShootStaff(DExhumedPlayer* const pPlayer);
 void updatePlayerTarget(DExhumedPlayer* const pPlayer);
 
 inline void doPlayerVertPanning(DExhumedPlayer* const pPlayer, const double nDestVertPan)

@@ -128,17 +128,17 @@ void DestroySnake(int nSnake)
 //
 //---------------------------------------------------------------------------
 
-void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
+static void ExplodeSnakeSprite(DExhumedActor* pActor, DExhumedPlayer* const pPlayer)
 {
     int nDamage = BulletInfo[kWeaponStaff].nDamage;
 
-    if (getPlayer(nPlayer)->nDouble > 0) {
+    if (pPlayer->nDouble > 0) {
         nDamage *= 2;
     }
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
     DExhumedActor* nOwner = pActor->pTarget;
-    pActor->pTarget = getPlayer(nPlayer)->GetActor();
+    pActor->pTarget = pPlayer->GetActor();
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
@@ -157,14 +157,13 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void BuildSnake(int nPlayer, double zVal)
+void BuildSnake(DExhumedPlayer* const pPlayer, double zVal)
 {
     zVal -= 5;
 
-    auto pPlayerActor = getPlayer(nPlayer)->GetActor();
-    auto pViewSect = getPlayer(nPlayer)->pPlayerViewSect;
+    auto pPlayerActor = pPlayer->GetActor();
+    auto pViewSect = pPlayer->pPlayerViewSect;
     auto nPic = getSequence("snakbody", 0)->getFirstFrameTexture();
-
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 
     HitInfo hit{};
@@ -178,7 +177,7 @@ void BuildSnake(int nPlayer, double zVal)
         auto pActor = insertActor(hit.hitSector, 202);
         pActor->spr.pos = hit.hitpos;
 
-        ExplodeSnakeSprite(pActor, nPlayer);
+        ExplodeSnakeSprite(pActor, pPlayer);
         DeleteActor(pActor);
         return;
     }
@@ -189,9 +188,9 @@ void BuildSnake(int nPlayer, double zVal)
         if (hitactor && hitactor->spr.statnum >= 90 && hitactor->spr.statnum <= 199) {
             pTarget = hitactor;
         }
-        else if (getPlayer(nPlayer)->pTarget != nullptr)
+        else if (pPlayer->pTarget != nullptr)
         {
-            pTarget = getPlayer(nPlayer)->pTarget;
+            pTarget = pPlayer->pTarget;
         }
 
         int nSnake = GrabSnake();
@@ -254,8 +253,8 @@ void BuildSnake(int nPlayer, double zVal)
         SnakeList[nSnake].pEnemy = pTarget;
 		SnakeList[nSnake].nCountdown = 0;
         SnakeList[nSnake].nAngle = 0;
-        SnakeList[nSnake].nSnakePlayer = nPlayer;
-        nPlayerSnake[nPlayer] = nSnake;
+        SnakeList[nSnake].nSnakePlayer = pPlayer->pnum;
+        nPlayerSnake[pPlayer->pnum] = nSnake;
 
         if (bSnakeCam)
         {
@@ -373,7 +372,7 @@ void AISnake::Tick(RunListEvent* ev)
     if (nMov.type || nMov.exbits)
     {
         int nPlayer = SnakeList[nSnake].nSnakePlayer;
-        ExplodeSnakeSprite(SnakeList[nSnake].pSprites[0], nPlayer);
+        ExplodeSnakeSprite(SnakeList[nSnake].pSprites[0], getPlayer(nPlayer));
 
         nPlayerSnake[nPlayer] = -1;
         SnakeList[nSnake].nSnakePlayer = -1;

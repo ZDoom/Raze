@@ -1013,9 +1013,9 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
 //
 //---------------------------------------------------------------------------
 
-DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
+DVector3 WheresMyMouth(DExhumedPlayer* const pPlayer, sectortype **sectnum)
 {
-    auto pActor = getPlayer(nPlayer)->GetActor();
+    auto pActor = pPlayer->GetActor();
     double height = GetActorHeight(pActor) * 0.5;
 
     *sectnum = pActor->sector();

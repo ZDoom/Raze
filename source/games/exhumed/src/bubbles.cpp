@@ -177,11 +177,11 @@ void BuildBubbleMachine(DExhumedActor* pActor)
 //
 //---------------------------------------------------------------------------
 
-void DoBubbles(int nPlayer)
+void DoBubbles(DExhumedPlayer* const pPlayer)
 {
     sectortype* pSector;
-    const auto pos = WheresMyMouth(nPlayer, &pSector);
-    const auto pActor = BuildBubble(pos, pSector, nPlayer);
-    pActor->spr.hitag = nPlayer;
+    const auto pos = WheresMyMouth(pPlayer, &pSector);
+    const auto pActor = BuildBubble(pos, pSector, pPlayer->pnum);
+    pActor->spr.hitag = pPlayer->pnum;
 }
 END_PS_NS

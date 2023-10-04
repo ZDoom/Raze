@@ -219,7 +219,7 @@ void InitNewGame()
             I_Error("Can't create local player\n");
         }
 
-        InitPlayerInventory(nPlayer);
+        InitPlayerInventory(getPlayer(nPlayer));
     }
 }
 

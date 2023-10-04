@@ -132,12 +132,11 @@ void InitPlayerKeys(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void InitPlayerInventory(int nPlayer)
+void InitPlayerInventory(DExhumedPlayer* const pPlayer)
 {
-    const auto pPlayer = getPlayer(nPlayer);
     pPlayer->Clear();
 
-    ResetPlayerWeapons(nPlayer);
+    ResetPlayerWeapons(pPlayer);
 
     pPlayer->nItem = -1;
     pPlayer->nPlayerSwear = 4;
@@ -150,15 +149,15 @@ void InitPlayerInventory(int nPlayer)
     pPlayer->nCurrentWeapon = 0;
     pPlayer->nPlayerScore = 0;
 
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
         automapMode = am_off;
 
 
-    auto tex = aTexIds[kTexPlayermarker1 + nPlayer];
+    auto tex = aTexIds[kTexPlayermarker1 + pPlayer->pnum];
     auto texp = TexMan.GetGameTexture(tex);
     auto pixels = GetRawPixels(tex);
 
-    getPlayer(nPlayer)->nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
+    pPlayer->nPlayerColor = pixels[texp->GetTexelWidth() * texp->GetTexelHeight() / 2];
 }
 
 //---------------------------------------------------------------------------
@@ -318,11 +317,11 @@ void RestartPlayer(int nPlayer)
 
 	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
 	{
-		RestoreMinAmmo(nPlayer);
+		RestoreMinAmmo(pPlayer);
 	}
 	else
 	{
-		ResetPlayerWeapons(nPlayer);
+		ResetPlayerWeapons(pPlayer);
 		pPlayer->nMagic = 0;
 	}
 
@@ -466,11 +465,9 @@ void SetPlayerMummified(DExhumedPlayer* const pPlayer, int bIsMummified)
 //
 //---------------------------------------------------------------------------
 
-void ShootStaff(int nPlayer)
+void ShootStaff(DExhumedPlayer* const pPlayer)
 {
-    const auto pPlayer = getPlayer(nPlayer);
     const auto pPlayerActor = pPlayer->GetActor();
-
     pPlayerActor->nAction = 15;
     pPlayerActor->nFrame = 0;
     pPlayerActor->nSeqFile = "joe";
@@ -759,7 +756,7 @@ static void doPickupWeapon(DExhumedPlayer* pPlayer, DExhumedActor* pPickupActor,
     }
 
     if (nWeapon == 2)
-        CheckClip(pPlayer->pnum);
+        CheckClip(pPlayer);
 
     if (nItem > 50)
     {
@@ -847,7 +844,7 @@ void doPlayerItemPickups(DExhumedPlayer* const pPlayer)
         case 8: // M - 60 Ammo Belt
             if (AddAmmo(pPlayer, ammoArray[nItem - 6], pPickupActor->spr.hitag))
             {
-                if (nItem == 8) CheckClip(pPlayer->pnum);
+                if (nItem == 8) CheckClip(pPlayer);
                 doPickupDestroy(pPickupActor, nItem);
                 doPickupNotification(pPlayer, nItem, StaticSound[kSoundAmmoPickup]);
             }
@@ -1464,7 +1461,7 @@ static void doPlayerUnderwater(DExhumedPlayer* const pPlayer, const bool oUnderw
                     }
                 }
 
-                DoBubbles(pPlayer->pnum);
+                DoBubbles(pPlayer);
             }
         }
     }
@@ -1982,7 +1979,7 @@ static void doPlayerActionSequence(DExhumedPlayer* const pPlayer)
         if (!RandomSize(5))
         {
             sectortype* mouthSect;
-            const auto pos = WheresMyMouth(pPlayer->pnum, &mouthSect);
+            const auto pos = WheresMyMouth(pPlayer, &mouthSect);
             BuildAnim(nullptr, "blood", 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
         }
         break;
@@ -2082,7 +2079,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     doPlayerActionSequence(pPlayer);
     updatePlayerDoppleActor(pPlayer);
-    MoveWeapons(nPlayer);
+    MoveWeapons(pPlayer);
 }
 
 //---------------------------------------------------------------------------
