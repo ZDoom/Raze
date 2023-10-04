@@ -1285,7 +1285,7 @@ int FindBestSector(const DVector3& pos)
 
 int isAwayFromWall(DCoreActor* ac, double delta)
 {
-	sectortype* s1;
+	sectortype* s1 = nullptr;
 
 	updatesector(ac->spr.pos + DVector2(delta, delta), &s1);
 	if (s1 == ac->sector())

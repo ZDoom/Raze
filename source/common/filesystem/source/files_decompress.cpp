@@ -173,7 +173,7 @@ public:
 
 	ptrdiff_t Read (void *buffer, ptrdiff_t len) override
 	{
-		int err;
+		int err = 0;
 
 		if (File == nullptr)
 		{
