@@ -36,8 +36,8 @@ bool checkaccessswitch_d(DDukePlayer* const p, int pal, DDukeActor *act, walltyp
 bool checkaccessswitch_r(DDukePlayer* const p, int pal, DDukeActor* act, walltype* w);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
 void activatebysector_r(sectortype* sect, DDukeActor* j);
-void checksectors_d(int snum);
-void checksectors_r(int snum);
+void checksectors_d(DDukePlayer* const p);
+void checksectors_r(DDukePlayer* const p);
 
 void addweapon_d(DDukePlayer* p, int weapon, bool wswitch);
 void addweapon_r(DDukePlayer* p, int weapon, bool wswitch);

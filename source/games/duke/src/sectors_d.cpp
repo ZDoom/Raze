@@ -178,14 +178,12 @@ void clearcameras(DDukePlayer* p)
 //
 //---------------------------------------------------------------------------
 
-void checksectors_d(int snum)
+void checksectors_d(DDukePlayer* const p)
 {
 	int i = -1;
-	DDukePlayer* p;
 	walltype* hitscanwall;
 	HitInfo near;
 
-	p = getPlayer(snum);
 	auto pact = p->GetActor();
 
 	if (!p->insector()) return;
@@ -196,7 +194,7 @@ void checksectors_d(int snum)
 	case 32767:
 		p->cursector->lotag = 0;
 		FTA(9, p);
-		Level.addSecret(snum);
+		Level.addSecret(p->pnum);
 		SECRET_Trigger(sectindex(p->cursector));
 		return;
 	case -1:
@@ -211,7 +209,7 @@ void checksectors_d(int snum)
 	default:
 		if (p->cursector->lotag >= 10000 && p->cursector->lotag < 16383)
 		{
-			if (snum == screenpeek || ud.coop == 1)
+			if (p->pnum == screenpeek || ud.coop == 1)
 				S_PlayActorSound(p->cursector->lotag - 10000, pact);
 			p->cursector->lotag = 0;
 		}
@@ -221,10 +219,10 @@ void checksectors_d(int snum)
 
 	//After this point the the player effects the map with space
 
-	if (chatmodeon || p->GetActor()->spr.extra <= 0) return;
+	if (chatmodeon || pact->spr.extra <= 0) return;
 
 	if (ud.cashman && !!(p->cmd.ucmd.actions & SB_OPEN))
-		lotsofstuff(p->GetActor(), 2, DukeMailClass);
+		lotsofstuff(pact, 2, DukeMailClass);
 
 	if (p->newOwner != nullptr)
 	{
@@ -254,7 +252,7 @@ void checksectors_d(int snum)
 		if (hitscanwall != nullptr)
 		{
 			if (dist < 80 && hitscanwall->overtexture == mirrortex)
-				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && snum == screenpeek)
+				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && p->pnum == screenpeek)
 				{
 					S_PlayActorSound(hitscanwall->lotag, pact);
 					return;
@@ -265,17 +263,17 @@ void checksectors_d(int snum)
 					return;
 		}
 		if (p->newOwner != nullptr)
-			neartag(p->GetActor()->getPrevPosWithOffsetZ(), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
+			neartag(pact->getPrevPosWithOffsetZ(), pact->sector(), pact->PrevAngles.Yaw, near, 80., NT_Lotag);
 		else
 		{
-			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
+			neartag(pact->getPosWithOffsetZ(), pact->sector(), pact->PrevAngles.Yaw, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(8), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
+				neartag(pact->getPosWithOffsetZ().plusZ(8), pact->sector(), pact->PrevAngles.Yaw, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
+				neartag(pact->getPosWithOffsetZ().plusZ(16), pact->sector(), pact->PrevAngles.Yaw, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
+				neartag(pact->getPosWithOffsetZ().plusZ(16), pact->sector(), pact->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
 					if (near.actor()->flags2 & SFLAG2_TRIGGERRESPAWN)
@@ -287,8 +285,8 @@ void checksectors_d(int snum)
 		}
 
 		if (p->newOwner == nullptr && near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-			if (isanunderoperator(p->GetActor()->sector()->lotag))
-				near.hitSector = p->GetActor()->sector();
+			if (isanunderoperator(pact->sector()->lotag))
+				near.hitSector = pact->sector();
 
 		if (near.hitSector && (near.hitSector->lotag & 16384))
 			return;
@@ -297,7 +295,7 @@ void checksectors_d(int snum)
 			if (p->cursector->lotag == ST_2_UNDERWATER)
 			{
 				DDukeActor* hit;
-				dist = hitasprite(p->GetActor(), &hit);
+				dist = hitasprite(pact, &hit);
 				if (hit) near.hitActor = hit;
 				if (dist > 80) near.hitActor = nullptr;
 
@@ -320,7 +318,7 @@ void checksectors_d(int snum)
 		}
 
 		if (near.hitWall == nullptr && near.hitSector == nullptr && near.actor() == nullptr)
-			if (hits(p->GetActor()) < 32)
+			if (hits(pact) < 32)
 			{
 				if ((krand() & 255) < 16)
 					S_PlayActorSound(DUKE_SEARCH2, pact);
@@ -351,18 +349,18 @@ void checksectors_d(int snum)
 				if (isactivator(act) || ismasterswitch(act))
 					return;
 			}
-			operatesectors(near.hitSector, p->GetActor());
+			operatesectors(near.hitSector, pact);
 		}
-		else if ((p->GetActor()->sector()->lotag & 16384) == 0)
+		else if ((pact->sector()->lotag & 16384) == 0)
 		{
-			if (isanunderoperator(p->GetActor()->sector()->lotag))
+			if (isanunderoperator(pact->sector()->lotag))
 			{
-				DukeSectIterator it(p->GetActor()->sector());
+				DukeSectIterator it(pact->sector());
 				while (auto act = it.Next())
 				{
 					if (isactivator(act) || ismasterswitch(act)) return;
 				}
-				operatesectors(p->GetActor()->sector(), p->GetActor());
+				operatesectors(pact->sector(), pact);
 			}
 			else checkhitswitch(p, near.hitWall, nullptr);
 		}

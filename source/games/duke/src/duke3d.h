@@ -72,7 +72,7 @@ struct Dispatcher
 	void (*movetransports)();
 	bool (*checkaccessswitch)(DDukePlayer* const p, int switchpal, DDukeActor* act, walltype* w);
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
-	void (*checksectors)(int low);
+	void (*checksectors)(DDukePlayer* const p);
 
 	void (*addweapon)(DDukePlayer *p, int weapon, bool wswitch);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
