@@ -314,7 +314,7 @@ extern RA Ra[];
 void FreeRa(int nPlayer);
 void BuildRa(int nPlayer);
 void InitRa();
-void MoveRaToEnemy(int nPlayer);
+void MoveRaToEnemy(RA* const pRa);
 void FuncRa(int, int, int, int);
 
 // rat
