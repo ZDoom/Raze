@@ -70,7 +70,7 @@ void SerializeGun(FSerializer& arc)
 //
 //---------------------------------------------------------------------------
 
-void RestoreMinAmmo(int nPlayer)
+void RestoreMinAmmo(DExhumedPlayer* const pPlayer)
 {
     for (int i = 0; i < kMaxWeapons; i++)
     {
@@ -78,15 +78,15 @@ void RestoreMinAmmo(int nPlayer)
             continue;
         }
 
-        if ((1 << i) & getPlayer(nPlayer)->nPlayerWeapons)
+        if ((1 << i) & pPlayer->nPlayerWeapons)
         {
-            if (nMinAmmo[i] > getPlayer(nPlayer)->nAmmo[i]) {
-                getPlayer(nPlayer)->nAmmo[i] = nMinAmmo[i];
+            if (nMinAmmo[i] > pPlayer->nAmmo[i]) {
+                pPlayer->nAmmo[i] = nMinAmmo[i];
             }
         }
     }
 
-    CheckClip(nPlayer);
+    CheckClip(pPlayer);
 }
 
 //---------------------------------------------------------------------------
@@ -95,18 +95,18 @@ void RestoreMinAmmo(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void FillWeapons(int nPlayer)
+void FillWeapons(DExhumedPlayer* const pPlayer)
 {
-    getPlayer(nPlayer)->nPlayerWeapons = 0xFFFF; // turn on all bits
+    pPlayer->nPlayerWeapons = 0xFFFF; // turn on all bits
 
     for (int i = 0; i < kMaxWeapons; i++)
     {
         if (WeaponInfo[i].d) {
-            getPlayer(nPlayer)->nAmmo[i] = 300;
+            pPlayer->nAmmo[i] = 300;
         }
     }
 
-    CheckClip(nPlayer);
+    CheckClip(pPlayer);
 }
 
 //---------------------------------------------------------------------------
@@ -115,19 +115,19 @@ void FillWeapons(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void ResetPlayerWeapons(int nPlayer)
+void ResetPlayerWeapons(DExhumedPlayer* const pPlayer)
 {
     for (int i = 0; i < kMaxWeapons; i++)
     {
-        getPlayer(nPlayer)->nAmmo[i] = 0;
+        pPlayer->nAmmo[i] = 0;
     }
 
-    getPlayer(nPlayer)->nCurrentWeapon = 0;
-    getPlayer(nPlayer)->nState = 0;
-    getPlayer(nPlayer)->nWeapFrame = 0;
+    pPlayer->nCurrentWeapon = 0;
+    pPlayer->nState = 0;
+    pPlayer->nWeapFrame = 0;
 
-    getPlayer(nPlayer)->pPlayerGrenade = nullptr;
-    getPlayer(nPlayer)->nPlayerWeapons = 0x1; // turn on bit 1 only
+    pPlayer->pPlayerGrenade = nullptr;
+    pPlayer->nPlayerWeapons = 0x1; // turn on bit 1 only
 }
 
 void InitWeapons()
@@ -245,7 +245,7 @@ void SelectNewWeapon(DExhumedPlayer* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void SetWeaponStatus(int nPlayer)
+static void SetWeaponStatus(DExhumedPlayer* const pPlayer)
 {
 }
 
@@ -255,16 +255,16 @@ void SetWeaponStatus(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-uint8_t WeaponCanFire(int nPlayer)
+static uint8_t WeaponCanFire(DExhumedPlayer* const pPlayer)
 {
-    int nWeapon = getPlayer(nPlayer)->nCurrentWeapon;
-    auto pSector =getPlayer(nPlayer)->pPlayerViewSect;
+    int nWeapon = pPlayer->nCurrentWeapon;
+    auto pSector = pPlayer->pPlayerViewSect;
 
     if (!(pSector->Flag & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
         int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
 
-        if (WeaponInfo[nWeapon].d <= getPlayer(nPlayer)->nAmmo[nAmmoType]) {
+        if (WeaponInfo[nWeapon].d <= pPlayer->nAmmo[nAmmoType]) {
             return true;
         }
     }
@@ -285,9 +285,9 @@ void ResetSwordSeqs()
 //
 //---------------------------------------------------------------------------
 
-Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
+static Collision CheckCloseRange(DExhumedPlayer* const pPlayer, DVector3& pos, sectortype* *ppSector)
 {
-    auto pActor = getPlayer(nPlayer)->GetActor();
+    auto pActor = pPlayer->GetActor();
 
     HitInfo hit{};
     hitscan(pos, *ppSector, DVector3(pActor->spr.Angles.Yaw.ToVector() * 1024, 0 ), hit, CLIPMASK1);
@@ -320,10 +320,8 @@ Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 //
 //---------------------------------------------------------------------------
 
-void CheckClip(int nPlayer)
+void CheckClip(DExhumedPlayer* const pPlayer)
 {
-    const auto pPlayer = getPlayer(nPlayer);
-
     if (pPlayer->nPlayerClip <= 0)
         pPlayer->nPlayerClip = min(pPlayer->nAmmo[kWeaponM60], (int16_t)100);
 
@@ -337,10 +335,9 @@ void CheckClip(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void MoveWeapons(int nPlayer)
+void MoveWeapons(DExhumedPlayer* const pPlayer)
 {
-    const auto pPlayer = getPlayer(nPlayer);
-
+    const auto pRa = &Ra[pPlayer->pnum];
     static int dword_96E22 = 0;
 
     int nSectFlag = pPlayer->pPlayerViewSect->Flag;
@@ -403,14 +400,14 @@ void MoveWeapons(int nPlayer)
                     case 0:
                     {
                         pPlayer->nState = 1;
-                        SetWeaponStatus(nPlayer);
+                        SetWeaponStatus(pPlayer);
                         break;
                     }
                     case 1:
                     {
                         if (pPlayer->bIsFiring)
                         {
-                            if (!WeaponCanFire(nPlayer))
+                            if (!WeaponCanFire(pPlayer))
                             {
                                 if (!dword_96E22) {
                                     D3PlayFX(StaticSound[4], pPlayer->GetActor());
@@ -420,12 +417,12 @@ void MoveWeapons(int nPlayer)
                             {
                                 if (nWeapon == kWeaponRing)
                                 {
-                                    if (Ra[nPlayer].pTarget == nullptr)
+                                    if (pRa->pTarget == nullptr)
                                         break;
 
-                                    Ra[nPlayer].nAction = 0;
-                                    Ra[nPlayer].nFrame  = 0;
-                                    Ra[nPlayer].nState = 1;
+                                    pRa->nAction = 0;
+                                    pRa->nFrame  = 0;
+                                    pRa->nState = 1;
                                 }
 
                                 pPlayer->nState = 2;
@@ -440,7 +437,7 @@ void MoveWeapons(int nPlayer)
                                 }
                                 else if (nWeapon == kWeaponMummified)
                                 {
-                                    ShootStaff(nPlayer);
+                                    ShootStaff(pPlayer);
                                 }
                             }
                         }
@@ -486,7 +483,7 @@ void MoveWeapons(int nPlayer)
                         else
                         {
                             // loc_26D88:
-                            if (pPlayer->bIsFiring && WeaponCanFire(nPlayer))
+                            if (pPlayer->bIsFiring && WeaponCanFire(pPlayer))
                             {
                                 if (nWeapon != kWeaponM60 && nWeapon != kWeaponPistol) {
                                     pPlayer->nState = 3;
@@ -545,12 +542,12 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(pPlayer);
                             }
 
-                            Ra[nPlayer].nState = 0;
+                            pRa->nState = 0;
                             break;
                         }
                         else if (nWeapon == kWeaponM60)
                         {
-                            CheckClip(nPlayer);
+                            CheckClip(pPlayer);
                             pPlayer->nState = 1;
                             break;
                         }
@@ -572,7 +569,7 @@ void MoveWeapons(int nPlayer)
                         }
                         else
                         {
-                            if (pPlayer->bIsFiring && WeaponCanFire(nPlayer)) {
+                            if (pPlayer->bIsFiring && WeaponCanFire(pPlayer)) {
                                 pPlayer->nState = 2;
                                 break;
                             }
@@ -610,7 +607,7 @@ void MoveWeapons(int nPlayer)
                         pPlayer->nState = 0;
                         pPlayer->nNextWeapon = -1;
 
-                        SetWeaponStatus(nPlayer);
+                        SetWeaponStatus(pPlayer);
                         break;
                     }
                 }
@@ -644,7 +641,7 @@ loc_flag:
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (seqFrame->flags & 4))
         {
-            BuildFlash(nPlayer, 512);
+            BuildFlash(pPlayer, 512);
             AddFlash(
                 pPlayerActor->sector(),
                 pPlayerActor->spr.pos,
@@ -661,7 +658,7 @@ loc_flag:
                 var_38 = 0;
             }
 
-            if (nPlayer == nLocalPlayer) {
+            if (pPlayer->pnum == nLocalPlayer) {
                 pPlayer->nPrevWeapBob = pPlayer->nWeapBob = 512;
             }
 
@@ -718,7 +715,7 @@ loc_flag:
                         newState = 9;
                     }
 
-                    auto cRange = CheckCloseRange(nPlayer, thePos, &pSectorB);
+                    auto cRange = CheckCloseRange(pPlayer, thePos, &pSectorB);
 
                     if (cRange.type != kHitNone)
                     {
@@ -780,7 +777,7 @@ loc_flag:
                 {
                     if (nSectFlag & kSectUnderwater)
                     {
-                        DoBubbles(nPlayer);
+                        DoBubbles(pPlayer);
                         pPlayer->nState = 1;
                         pPlayer->nWeapFrame = 0;
                         StopActorSound(pPlayerActor);
@@ -814,7 +811,7 @@ loc_flag:
                     nHeight += h;
 
                     DExhumedActor* target = nullptr;
-                    if (pPlayer->pTarget != nullptr && Autoaim(nPlayer))
+                    if (pPlayer->pTarget != nullptr && Autoaim(pPlayer->pnum))
                     {
                         DExhumedActor* t = pPlayer->pTarget;
                         // only autoaim if target is in front of the player.
@@ -839,7 +836,7 @@ loc_flag:
                 }
                 case kWeaponStaff:
                 {
-                    BuildSnake(nPlayer, nHeight);
+                    BuildSnake(pPlayer, nHeight);
                     pPlayer->nQuake = 2.;
 
                     pPlayer->nThrust -= pPlayerActor->spr.Angles.Yaw.ToVector() * 2;

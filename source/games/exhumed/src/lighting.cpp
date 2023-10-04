@@ -814,9 +814,9 @@ void SetTorch(int nPlayer, int bTorchOnOff)
 //
 //---------------------------------------------------------------------------
 
-void BuildFlash(int nPlayer, int nVal)
+void BuildFlash(DExhumedPlayer* const pPlayer, int nVal)
 {
-    if (nPlayer == nLocalPlayer)
+    if (pPlayer->pnum == nLocalPlayer)
     {
         flash = nVal;
         flash = -nVal; // ???

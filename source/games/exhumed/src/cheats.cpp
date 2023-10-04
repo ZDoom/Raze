@@ -256,7 +256,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 
 	if (buttons & kButtonCheatGuns) // LOBOCOP cheat
 	{
-		FillWeapons(player);
+		FillWeapons(pPlayer);
 		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_WEAPONS"));
 	}
 	if (buttons & kButtonCheatKeys) // LOBOPICK cheat

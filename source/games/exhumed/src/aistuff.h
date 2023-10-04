@@ -50,7 +50,7 @@ void FuncAnubis(int, int a, int b, int c);
 
 void BuildBubbleMachine(DExhumedActor* nSprite);
 void DoBubbleMachines();
-void DoBubbles(int nPlayer);
+void DoBubbles(DExhumedPlayer* const pPlayer);
 void FuncBubble(int, int, int, int);
 
 // bullet
@@ -128,16 +128,16 @@ struct Weapon
 
 extern Weapon WeaponInfo[];
 
-void RestoreMinAmmo(int nPlayer);
-void FillWeapons(int nPlayer);
-void ResetPlayerWeapons(int nPlayer);
+void RestoreMinAmmo(DExhumedPlayer* const pPlayer);
+void FillWeapons(DExhumedPlayer* const pPlayer);
+void ResetPlayerWeapons(DExhumedPlayer* const pPlayer);
 void InitWeapons();
 void SetNewWeapon(DExhumedPlayer* const pPlayer, int nWeapon);
 void SetNewWeaponImmediate(DExhumedPlayer* const pPlayer, int nWeapon);
 void SetNewWeaponIfBetter(DExhumedPlayer* const pPlayer, int nWeapon);
 void SelectNewWeapon(DExhumedPlayer* const pPlayer);
-void CheckClip(int nPlayer);
-void MoveWeapons(int nPlayer);
+void CheckClip(DExhumedPlayer* const pPlayer);
+void MoveWeapons(DExhumedPlayer* const pPlayer);
 void DrawWeapons(DExhumedPlayer* const pPlayer, double interpfrac);
 
 // items
@@ -182,7 +182,7 @@ void UndoFlashes();
 void DoLights();
 void AddFlow(sectortype* pSect, int nSpeed, int b, DAngle ang = -minAngle);
 void AddFlow(walltype* pWall, int nSpeed, int b);
-void BuildFlash(int nPlayer, int nVal);
+void BuildFlash(DExhumedPlayer* const pPlayer, int nVal);
 void AddGlow(sectortype* pSector, int nVal);
 void AddFlicker(sectortype* pSector, int nVal);
 
@@ -214,7 +214,7 @@ void Gravity(DExhumedActor* actor);
 DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
-DVector3 WheresMyMouth(int nPlayer, sectortype** sectnum);
+DVector3 WheresMyMouth(DExhumedPlayer* const pPlayer, sectortype** sectnum);
 double GetActorHeight(DExhumedActor* nSprite);
 DExhumedActor* insertActor(sectortype* s, int st);
 DExhumedActor* GrabBody();
@@ -725,7 +725,7 @@ extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 int GrabSnake();
-void BuildSnake(int nPlayer, double zVal);
+void BuildSnake(DExhumedPlayer* const pPlayer, double zVal);
 void FuncSnake(int, int, int, int);
 
 // spider

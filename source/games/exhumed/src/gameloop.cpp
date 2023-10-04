@@ -78,9 +78,10 @@ void GameInterface::Render()
 
     if (nFreeze != 2) // Hide when Ramses is talking.
     {
+        const auto pPlayer = getPlayer(nLocalPlayer);
         DrawStatusBar();
-        auto offsets = getPlayer(nLocalPlayer)->Angles.getCrosshairOffsets(interpfrac);
-        DrawCrosshair(getPlayer(nLocalPlayer)->nHealth >> 3, offsets.first.X, offsets.first.Y, 1, offsets.second);
+        auto offsets = pPlayer->Angles.getCrosshairOffsets(interpfrac);
+        DrawCrosshair(pPlayer->nHealth >> 3, offsets.first.X, offsets.first.Y, 1, offsets.second);
 
         if (paused && !M_Active())
         {
