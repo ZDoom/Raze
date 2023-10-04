@@ -408,14 +408,17 @@ void doanimations(void)
 
 		if (type == anim_floorz)
 		{
-			for (auto p = connecthead; p >= 0; p = connectpoint2[p])
-				if (getPlayer(p)->cursector == dasectp)
-					if ((dasectp->floorz - getPlayer(p)->GetActor()->getOffsetZ()) < 64)
-						if (getPlayer(p)->GetActor()->GetOwner() != nullptr)
-						{
-							getPlayer(p)->GetActor()->spr.pos.Z += v;
-							getPlayer(p)->vel.Z = 0;
-						}
+			for (auto j = connecthead; j >= 0; j = connectpoint2[j])
+			{
+				const auto p = getPlayer(j);
+				const auto pact = p->GetActor();
+
+				if ((p->cursector == dasectp) && ((dasectp->floorz - pact->getOffsetZ()) < 64) && (pact->GetOwner() != nullptr))
+				{
+					pact->spr.pos.Z += v;
+					p->vel.Z = 0;
+				}
+			}
 
 			DukeSectIterator it(dasectp);
 			while (auto act = it.Next())
