@@ -24,7 +24,7 @@ See the GNU General Public License for more details.
 #include "blood.h"
 BEGIN_BLD_NS
 
-
+// ai callbacks
 DEF_ANIMATOR(aiGenDudeMoveForward)
 DEF_ANIMATOR(aiMoveDodge)
 DEF_ANIMATOR(aiMoveForward)
@@ -149,6 +149,7 @@ DEF_ANIMATOR(zombaThinkSearch)
 DEF_ANIMATOR(zombfThinkChase)
 DEF_ANIMATOR(zombfThinkGoto)
 DEF_ANIMATOR(zombfThinkSearch)
+// seq callbacks
 DEF_ANIMATOR(FireballSeqCallback)
 DEF_ANIMATOR(Fx33Callback)
 DEF_ANIMATOR(NapalmSeqCallback)
@@ -207,6 +208,29 @@ DEF_ANIMATOR(PlayerKneelsOver)
 DEF_ANIMATOR(FireballTrapSeqCallback)
 DEF_ANIMATOR(MGunFireSeqCallback)
 DEF_ANIMATOR(MGunOpenSeqCallback)
+// event callbacks
+DEF_ANIMATOR(fxFlameLick) // 0
+DEF_ANIMATOR(Remove) // 1
+DEF_ANIMATOR(FlareBurst) // 2
+DEF_ANIMATOR(fxFlareSpark) // 3
+DEF_ANIMATOR(fxFlareSparkLite) // 4
+DEF_ANIMATOR(fxZombieBloodSpurt) // 5
+DEF_ANIMATOR(fxBloodSpurt) // 6
+DEF_ANIMATOR(fxArcSpark) // 7
+DEF_ANIMATOR(fxDynPuff) // 8
+DEF_ANIMATOR(Respawn) // 9
+DEF_ANIMATOR(PlayerBubble) // 10
+DEF_ANIMATOR(EnemyBubble) // 11
+DEF_ANIMATOR(FinishHim) // 13
+DEF_ANIMATOR(fxBloodBits) // 14
+DEF_ANIMATOR(fxTeslaAlt) // 15
+DEF_ANIMATOR(fxBouncingSleeve) // 16
+DEF_ANIMATOR(returnFlagToBase) // 17
+DEF_ANIMATOR(fxPodBloodSpray) // 18
+DEF_ANIMATOR(fxPodBloodSplat) // 19
+DEF_ANIMATOR(LeechStateTimer) // 20
+DEF_ANIMATOR(DropVoodooCb) // unused
+
 
 
 DEFINE_FIELD_X(GAMEOPTIONS, GAMEOPTIONS, nGameType)
@@ -226,6 +250,7 @@ DEFINE_FIELD_X(GAMEOPTIONS, GAMEOPTIONS, weaponsV10x)
 DEFINE_FIELD_X(GAMEOPTIONS, GAMEOPTIONS, bFriendlyFire)
 DEFINE_FIELD_X(GAMEOPTIONS, GAMEOPTIONS, bKeepKeysOnRespawn)
 DEFINE_GLOBAL_UNSIZED(gGameOptions)
+DEFINE_GLOBAL_UNSIZED(gHitInfo)
 
 
 DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
@@ -248,6 +273,21 @@ DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
 {
 	Mus_Play("PESTIS.MID", false);
 	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Blood, Random2F, Random2F)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(val);
+	PARAM_INT(scale);
+	ACTION_RETURN_FLOAT(Random2F(val));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Blood, Chance, Chance)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(val);
+	ACTION_RETURN_INT(Chance(val));
 }
 
 DEFINE_ACTION_FUNCTION(_Blood, sndStartSample)
@@ -303,7 +343,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
 	PARAM_INT(pwup);
 	ACTION_RETURN_INT(powerupCheck(self, pwup));
 }
-
 
 DEFINE_FIELD_X(XSECTOR, XSECTOR, flags)
 DEFINE_FIELD_X(XSECTOR, XSECTOR, flags2)
@@ -480,6 +519,49 @@ DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, getActorExtents, bloodactor_getActorE
 	return min(numret, 2);
 }
 
+int bloodactor_HitScan(DBloodActor* self, double z, double x, double y, double zz, int clipmask, double clipdist)
+{
+	return HitScan(self, z, DVector3(x, y, zz), clipmask, clipdist);
+}
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, HitScan, bloodactor_HitScan)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_FLOAT(z);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(zz);
+	PARAM_INT(clipmask);
+	PARAM_FLOAT(clipdist);
+	ACTION_RETURN_INT(bloodactor_HitScan(self, z, x, y, zz, clipmask, clipdist));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, play3DSoundID, sfxPlay3DSound)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_INT(sound);
+	PARAM_INT(chan);
+	PARAM_INT(flags);
+	sfxPlay3DSound(self, sound, chan, flags);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DBloodActor, seqSpawnID)	// will be changed later.
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_INT(seqid);
+	PARAM_INT(cbid);
+	seqSpawn(seqid, self, cbid);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, impactMissile, actImpactMissile)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_INT(hitcode);
+	actImpactMissile(self, hitcode);
+	return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -518,6 +600,26 @@ int actGetRespawnTime(DBloodActor* actor)
 		return time;
 	}
 	return -1;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dv, int nType)
+{
+	IFVM(BloodActor, fireMissile)
+	{
+		PClass* ty = GetSpawnType(nType);
+		DBloodActor* spawned;
+		VMReturn ret((void**)&spawned);
+		VMValue param[] = { actor, xyoff, zoff, dv.X, dv.Y, dv.Z, ty};
+		VMCall(func, param, 1, &ret, 1);
+		return spawned;
+	}
+	return nullptr;
 }
 
 

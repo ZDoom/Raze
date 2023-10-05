@@ -184,7 +184,6 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);
-void actBuildMissile(DBloodActor* spawned, DBloodActor* actor);
 
 extern const int16_t DudeDifficulty[];
 

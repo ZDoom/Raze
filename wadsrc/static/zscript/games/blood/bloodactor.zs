@@ -117,6 +117,7 @@ class BloodActor : CoreActor native
 		kStatFree = 1024,
 	};
 	
+	// the callback ids are only temporary. This should work with direct function references.
 	enum CALLBACK_ID {
 		kCallbackNone = -1,
 		kCallbackFXFlameLick = 0,
@@ -148,6 +149,70 @@ class BloodActor : CoreActor native
 		kCallbackCondition = 25,
 	}
 	
+	enum SEQ_CALLBACK_ID
+	{
+		nFireballClient,
+		dword_2192D8,
+		nNapalmClient,
+		dword_2192E0,
+		nTreeToGibClient,
+		nDudeToGibClient1,
+		nDudeToGibClient2,
+		nBatBiteClient,
+		nSlashClient,
+		nStompClient,
+		nEelBiteClient,
+		nBurnClient,
+		nAttackClient,
+		nCerberusBiteClient,
+		nCerberusBurnClient,
+		nCerberusBurnClient2,
+		nTommyClient,
+		nTeslaClient,
+		nShotClient,
+		nThrowClient,
+		n68170Client,
+		n68230Client,
+		nSlashFClient,
+		nThrowFClient,
+		nThrowSClient,
+		nBlastSClient,
+		nGhostSlashClient,
+		nGhostThrowClient,
+		nGhostBlastClient,
+		nGillBiteClient,
+		nJumpClient,
+		nHoundBiteClient,
+		nHoundBurnClient,
+		nPodStartChaseClient,
+		nTentacleStartSearchClient,
+		dword_279B3C,
+		dword_279B40,
+		nRatBiteClient,
+		nSpidBiteClient,
+		nSpidJumpClient,
+		nSpidBirthClient,
+		dword_279B54,
+		dword_279B58,
+		dword_279B5C,
+		nGenDudeAttack1,
+		nGenDudePunch,
+		nGenDudeThrow1,
+		nGenDudeThrow2,
+		nHackClient,
+		nStandClient,
+		nZombfHackClient,
+		nZombfPukeClient,
+		nZombfThrowClient,
+		nPlayerSurviveClient,
+		nPlayerKneelClient,
+		nFireballTrapClient,
+		nMGunFireClient,
+		nMGunOpenClient,
+	};
+	
+	
+// all callbacks, this is to allow using VM functions for all of them
 native void aiGenDudeMoveForward();
 native void aiMoveDodge();
 native void aiMoveForward();
@@ -330,7 +395,26 @@ native void PlayerKneelsOver();
 native void FireballTrapSeqCallback();
 native void MGunFireSeqCallback();
 native void MGunOpenSeqCallback();
-	
+native void fxFlameLick(); // 0
+native void FlareBurst(); // 2
+native void fxFlareSpark(); // 3
+native void fxFlareSparkLite(); // 4
+native void fxZombieBloodSpurt(); // 5
+native void fxBloodSpurt(); // 6
+native void fxArcSpark(); // 7
+native void fxDynPuff(); // 8
+native void Respawn(); // 9
+native void PlayerBubble(); // 10
+native void EnemyBubble(); // 11
+native void FinishHim(); // 13
+native void fxBloodBits(); // 14
+native void fxTeslaAlt(); // 15
+native void fxBouncingSleeve(); // 16
+native void returnFlagToBase(); // 17
+native void fxPodBloodSpray(); // 18
+native void fxPodBloodSplat(); // 19
+native void LeechStateTimer(); // 20
+native void DropVoodooCb(); // unused	
 	
 	native double dudeSlope;
 	native readonly bool hasx;
@@ -343,7 +427,7 @@ native void MGunOpenSeqCallback();
 	// nnext stuff. For now not exported to scripting.
 	//SPRITEMASS spriteMass;
 	//GENDUDEEXTRA genDudeExtra;
-	//TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+	//TObjPtr<BloodActor> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	//DVector3 basePoint;
 	//EventObject condition[2];
 
@@ -357,6 +441,11 @@ native void MGunOpenSeqCallback();
 	native void addX();
 	native void evPostActorCallback(int delta, int callback);
 	native double, double getActorExtents();
+	native int HitScan(double z, vector3 xyz, int clipmask, double clipdist); 
+	native void impactMissile(int hitcode);
+
+	native void play3DSoundID(int soundId, int a3 = -1, int a4 = 0);
+	native void seqSpawnID(int seqID, int seqCallbackID); // temporary. Callback will be turned into a function
 	
 	
 	virtual int getRespawnTime()
@@ -425,5 +514,59 @@ native void MGunOpenSeqCallback();
 		return spawned;
 	}
 
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
+	BloodActor fireMissile(double xyoff, double zoff, Vector3 dv, class<BloodMissileBase> type)
+	{
+		if (type == null || !(type is 'BloodMissileBase')) return null;
+
+		bool impact = false;
+		Vector3 spawnpos = self.pos + ((self.angle + 90.).ToVector() * xyoff, zoff);
+
+		double clipdist = GetDefaultByType(type).defclipdist + self.clipdist;
+		spawnpos.xy += self.angle.ToVector() * clipdist;
+
+		int hit = self.HitScan(spawnpos.Z, (spawnpos.XY - self.pos.XY, 0), CLIPMASK0, clipdist * 4); 
+		if (hit != -1)
+		{
+			if (hit == 3 || hit == 0)
+			{
+				impact = true;
+				spawnpos.XY = gHitInfo.hitpos.XY - self.angle.ToVector() * 1;
+			}
+			else
+			{
+				spawnpos.XY = gHitInfo.hitpos.XY - self.angle.ToVector() * GetDefaultByType(type).defclipdist * 2;
+			}
+		}
+		let spawned = BloodMissileBase(self.spawnSprite(self.sector, spawnpos, kStatProjectile, true, type));
+		if (spawned == null) return null;
+
+		spawned.cstat2 |= CSTAT2_SPRITE_MAPPED;
+		spawned.shade = spawned.defshade;
+		spawned.pal = spawned.defpal;
+		spawned.clipdist = clipdist;
+		spawned.flags = 1;
+
+		spawned.Angle = self.angle + spawned.angleofs;
+		spawned.vel = dv.Unit() * spawned.speed;
+		spawned.ownerActor = self;
+		spawned.cstat |= CSTAT_SPRITE_BLOCK;
+		spawned.xspr.target = null;
+
+		spawned.evPostActorCallback(600, kCallbackRemove);
+
+		spawned.initMissile(self); // handle type specific init.
+
+		if (impact)
+		{
+			spawned.impactMissile(hit);
+			return nullptr;
+		}
+		return spawned;
+	}
 }

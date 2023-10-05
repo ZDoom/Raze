@@ -498,7 +498,7 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel)
 	center.Z = (ceilZ + floorZ) * 0.5;
 
 	GIBLIST* pGib = &gibList[nGibType];
-	sfxPlay3DSound(center, pGib->sound, pSector);
+	sfxPlay3DSectorSound(center, pGib->sound, pSector);
 	for (int i = 0; i < pGib->FXCount; i++)
 	{
 		GIBFX* pGibFX = &pGib->gibFX[i];

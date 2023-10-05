@@ -89,6 +89,9 @@ struct Blood native
 	native static TextureID PowerupIcon(int pwup);
 	native static BloodPlayer GetViewPlayer();
 
+	native static double Random2F(int max, int scale = 16);
+	native static int Chance(int ch);
+
 	// These are just dummies to make the MP statusbar code compile.
 
 	static void GetPlayers(Array<BloodPlayer> players)
@@ -125,6 +128,7 @@ struct GAMEOPTIONS native
 extend struct _
 {
 	native readonly @GAMEOPTIONS gGameOptions;
+	native HitInfo gHitInfo;	// having this global sucks but there's too many side effects depending on it...
 }
 
 struct PACKINFO // not native!

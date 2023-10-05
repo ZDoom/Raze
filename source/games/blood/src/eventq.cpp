@@ -552,9 +552,10 @@ void evProcess(unsigned int time)
 
 		if (event.cmd == kCmdCallback)
 		{
+			// Except for CounterCheck all other callbacks are for actors only.
 			assert(event.funcID < kCallbackMax);
-			if (event.target.isActor()) gCallback[event.funcID](event.target.actor(), nullptr);
-			else if (event.target.isSector()) gCallback[event.funcID](nullptr, event.target.sector());
+			if (event.target.isActor()) gCallback[event.funcID](event.target.actor());
+			else if (event.target.isSector() && event.funcID == kCallbackCounterCheck) CounterCheck(event.target.sector());
 			// no case for walls defined here.
 		}
 		else

@@ -227,7 +227,7 @@ void CFX::fxProcess(void)
 					remove(actor);
 					continue;
 				}
-				gCallback[pFXData->funcID](actor, nullptr);
+				gCallback[pFXData->funcID](actor);
 				continue;
 			}
 			if (pSector != actor->sector())
@@ -252,7 +252,7 @@ void CFX::fxProcess(void)
 					remove(actor);
 					continue;
 				}
-				gCallback[pFXData->funcID](actor, nullptr);
+				gCallback[pFXData->funcID](actor);
 				continue;
 			}
 		}

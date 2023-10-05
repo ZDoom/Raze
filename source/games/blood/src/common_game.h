@@ -529,7 +529,7 @@ inline int ClipRange(int a, int b, int c)
 	return a;
 }
 
-inline uint8_t Chance(int a1)
+inline int Chance(int a1)
 {
 	return wrand() < (a1 >> 1);
 }

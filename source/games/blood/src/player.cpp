@@ -1243,7 +1243,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		return 1;
 	}
 
-	sfxPlay3DSound(plActor->spr.pos, pickupSnd, plActor->sector());
+	sfxPlay3DSectorSound(plActor->spr.pos, pickupSnd, plActor->sector());
 	return 1;
 }
 

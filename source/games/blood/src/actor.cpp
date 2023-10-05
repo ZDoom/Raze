@@ -1934,7 +1934,7 @@ bool actHealDude(DBloodActor* actor, int add, int threshold)
 	threshold <<= 4;
 	if (actor->xspr.health < (unsigned)threshold)
 	{
-		if (actor->IsPlayerActor()) sfxPlay3DSound(actor->spr.pos, 780, actor->sector());
+		if (actor->IsPlayerActor()) sfxPlay3DSectorSound(actor->spr.pos, 780, actor->sector());
 		actor->xspr.health = min<uint32_t>(actor->xspr.health + add, threshold);
 		return true;
 	}
@@ -2620,7 +2620,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			{
 			case -1:
 				GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
-				sfxPlay3DSound(actor->spr.pos, 312, actor->sector());
+				sfxPlay3DSectorSound(actor->spr.pos, 312, actor->sector());
 				actPostSprite(actor, kStatFree);
 				break;
 
@@ -2793,7 +2793,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileArcGargoyle:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(missileActor->spr.pos, 306, missileActor->sector());
+		sfxPlay3DSectorSound(missileActor->spr.pos, 306, missileActor->sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
 		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
@@ -2807,7 +2807,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileLifeLeechAltNormal:
 	case kMissileLifeLeechAltSmall:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(missileActor->spr.pos, 306, missileActor->sector());
+		sfxPlay3DSectorSound(missileActor->spr.pos, 306, missileActor->sector());
 
 		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
@@ -2921,7 +2921,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileEctoSkull:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(missileActor->spr.pos, 522, missileActor->sector());
+		sfxPlay3DSectorSound(missileActor->spr.pos, 522, missileActor->sector());
 		actPostSprite(missileActor, kStatDebris);
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
@@ -2954,7 +2954,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileTeslaRegular:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(missileActor->spr.pos, 518, missileActor->sector());
+		sfxPlay3DSectorSound(missileActor->spr.pos, 518, missileActor->sector());
 		GibSprite(missileActor, (hitCode == 2) ? GIBTYPE_23 : GIBTYPE_22, NULL, NULL);
 		evKillActor(missileActor);
 		seqKill(missileActor);
@@ -3185,7 +3185,7 @@ static void checkHit(DBloodActor* actor)
 				break;
 
 			case kThingZombieHead:
-				sfxPlay3DSound(actor->spr.pos, 357, actor->sector());
+				sfxPlay3DSectorSound(actor->spr.pos, 357, actor->sector());
 				actKickObject(actor, actor2);
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
@@ -3263,7 +3263,7 @@ static void checkFloorHit(DBloodActor* actor)
 					pPlayer->kickPower = PlayClock + 60;
 				}
 				actKickObject(actor, actor2);
-				sfxPlay3DSound(actor->spr.pos, 357, actor->sector());
+				sfxPlay3DSectorSound(actor->spr.pos, 357, actor->sector());
 				sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			case kThingZombieHead:
@@ -3273,7 +3273,7 @@ static void checkFloorHit(DBloodActor* actor)
 					pPlayer->kickPower = PlayClock + 60;
 				}
 				actKickObject(actor, actor2);
-				sfxPlay3DSound(actor->spr.pos, 357, actor->sector());
+				sfxPlay3DSectorSound(actor->spr.pos, 357, actor->sector());
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
 			case kTrapSawCircular:
@@ -4392,7 +4392,7 @@ void actActivateGibObject(DBloodActor* actor)
 	if (gib1 > 0) GibSprite(actor, (GIBTYPE)(gib1 - 1), nullptr, nullptr);
 	if (gib2 > 0) GibSprite(actor, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
 	if (gib3 > 0 && actor->xspr.burnTime > 0) GibSprite(actor, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
-	if (sound > 0) sfxPlay3DSound(actor->spr.pos, sound, actor->sector());
+	if (sound > 0) sfxPlay3DSectorSound(actor->spr.pos, sound, actor->sector());
 	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
 	if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) && !(actor->spr.flags & kHitagRespawn))
@@ -5275,145 +5275,6 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 //
 //---------------------------------------------------------------------------
 
-void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
-{
-	switch (spawned->GetType())
-	{
-	case kMissileLifeLeechRegular:
-		evPostActor(spawned, 0, kCallbackFXFlameLick);
-		break;
-	case kMissileTeslaAlt:
-		evPostActor(spawned, 0, kCallbackFXTeslaAlt);
-		break;
-	case kMissilePukeGreen:
-		seqSpawn(29, spawned, -1);
-		break;
-	case kMissileButcherKnife:
-		spawned->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
-		break;
-	case kMissileTeslaRegular:
-		sfxPlay3DSound(spawned, 251, 0, 0);
-		break;
-	case kMissileEctoSkull:
-		seqSpawn(2, spawned, -1);
-		sfxPlay3DSound(spawned, 493, 0, 0);
-		break;
-	case kMissileFireballNapalm:
-		seqSpawn(61, spawned, nNapalmClient);
-		sfxPlay3DSound(spawned, 441, 0, 0);
-		break;
-	case kMissileFireball:
-		seqSpawn(22, spawned, nFireballClient);
-		sfxPlay3DSound(spawned, 441, 0, 0);
-		break;
-	case kMissileFlameHound:
-		seqSpawn(27, spawned, -1);
-		spawned->vel += actor->vel * 0.5;
-		spawned->vel.X += Random2F(0x11111);
-		spawned->vel.Y += Random2F(0x11111);
-		spawned->vel.Z += Random2F(0x11111);
-		break;
-	case kMissileFireballCerberus:
-		seqSpawn(61, spawned, dword_2192E0);
-		sfxPlay3DSound(spawned, 441, 0, 0);
-		break;
-	case kMissileFireballTchernobog:
-		seqSpawn(23, spawned, dword_2192D8);
-		spawned->vel += actor->vel * 0.5;
-		spawned->vel.X += Random2F(0x11111);
-		spawned->vel.Y += Random2F(0x11111);
-		spawned->vel.Z += Random2F(0x11111);
-		break;
-	case kMissileFlameSpray:
-		if (Chance(0x8000))	seqSpawn(0, spawned, -1);
-		else seqSpawn(1, spawned, -1);
-		spawned->vel += actor->vel * 0.5;
-		spawned->vel.X += Random2F(0x11111);
-		spawned->vel.Y += Random2F(0x11111);
-		spawned->vel.Z += Random2F(0x11111);
-		break;
-	case kMissileFlareAlt:
-		evPostActor(spawned, 30, kCallbackFXFlareBurst);
-		evPostActor(spawned, 0, kCallbackFXFlareSpark);
-		sfxPlay3DSound(spawned, 422, 0, 0);
-		break;
-	case kMissileFlareRegular:
-		evPostActor(spawned, 0, kCallbackFXFlareSpark);
-		sfxPlay3DSound(spawned, 422, 0, 0);
-		break;
-	case kMissileLifeLeechAltSmall:
-		evPostActor(spawned, 0, kCallbackFXArcSpark);
-		break;
-	case kMissileArcGargoyle:
-		sfxPlay3DSound(spawned, 252, 0, 0);
-		break;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dv, int nType)
-{
-	assert(nType >= kMissileBase && nType < kMissileMax);
-	bool impact = false;
-	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
-
-	auto vect = actor->spr.pos.plusZ(zoff) + (actor->spr.Angles.Yaw + DAngle90).ToVector() * xyoff;
-
-	double clipdist = pMissileInfo->fClipDist() + actor->clipdist;
-	vect += actor->spr.Angles.Yaw.ToVector() * clipdist;
-
-	int hit = HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, clipdist * 4); 
-	if (hit != -1)
-	{
-		if (hit == 3 || hit == 0)
-		{
-			impact = true;
-			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * 1;
-		}
-		else
-		{
-			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * pMissileInfo->fClipDist() * 2;
-		}
-	}
-	auto cls = GetSpawnType(nType);
-	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1, cls, nType);
-
-	spawned->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
-	spawned->spr.shade = pMissileInfo->shade;
-	spawned->spr.pal = 0;
-	spawned->clipdist = pMissileInfo->fClipDist();
-	spawned->spr.flags = 1;
-
-	spawned->spr.scale = DVector2(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
-	spawned->spr.setspritetexture(pMissileInfo->textureID());
-	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw + mapangle(pMissileInfo->angleOfs);
-	spawned->vel = dv.Unit() * pMissileInfo->fVelocity();
-	spawned->SetOwner(actor);
-	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
-	spawned->SetTarget(nullptr);
-	evPostActor(spawned, 600, kCallbackRemove);
-
-	actBuildMissile(spawned, actor);
-
-	if (impact)
-	{
-		actImpactMissile(spawned, hit);
-		return nullptr;
-	}
-	return spawned;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 bool actCheckRespawn(DBloodActor* actor)
 {
 	if (actor->hasX())
@@ -5702,7 +5563,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 #endif
 
 	if (pVectorData->surfHit[nSurf].fxSnd >= 0)
-		sfxPlay3DSound(pos, pVectorData->surfHit[nSurf].fxSnd, pSector);
+		sfxPlay3DSectorSound(pos, pVectorData->surfHit[nSurf].fxSnd, pSector);
 }
 
 //---------------------------------------------------------------------------

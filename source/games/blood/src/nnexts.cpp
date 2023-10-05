@@ -3735,7 +3735,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 				floorZ = min(floorZ, floorZ2);
 				cpos.Z = (ceilZ + floorZ) * 0.5;
 
-				sfxPlay3DSound(cpos, sourceactor->xspr.data4, pSector);
+				sfxPlay3DSectorSound(cpos, sourceactor->xspr.data4, pSector);
 			}
 		}
 		return;
@@ -9170,7 +9170,7 @@ void levelEndLevelCustom(int nLevel)
 //
 //---------------------------------------------------------------------------
 
-void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
+void callbackUniMissileBurst(DBloodActor* actor) // 22
 {
 	if (!actor) return;
 	if (actor->spr.statnum != kStatProjectile) return;
@@ -9202,7 +9202,11 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.Angles.Yaw = actor->spr.Angles.Yaw + mapangle(missileInfo[actor->GetType() - kMissileBase].angleOfs);
 		burstactor->SetOwner(actor);
 
-		actBuildMissile(burstactor, actor);
+		IFVIRTUALPTRNAME(burstactor, NAME_BloodMissileBase, initMissile) // note: delete the name if this get scriptified.
+		{
+			VMValue p[] = { burstactor, actor };
+			VMCall(func, p, 2, nullptr, 0);
+		}
 
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
 		if (i & 1) spAngVec *= 0.5;
@@ -9219,13 +9223,13 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 //
 //---------------------------------------------------------------------------
 
-void callbackMakeMissileBlocking(DBloodActor* actor, sectortype*) // 23
+void callbackMakeMissileBlocking(DBloodActor* actor) // 23
 {
 	if (!actor || actor->spr.statnum != kStatProjectile) return;
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
 }
 
-void callbackGenDudeUpdate(DBloodActor* actor, sectortype*) // 24
+void callbackGenDudeUpdate(DBloodActor* actor) // 24
 {
 	if (actor)
 		genDudeUpdate(actor);
