@@ -182,8 +182,6 @@ extern int hud_size_max;
 static bool sendPause;
 bool pausedWithKey;
 
-static bool gamesetinput = false;
-
 int PlayClock;
 extern int nextwipe;
 
@@ -1529,26 +1527,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 	ACTION_RETURN_INT(I_GetBuildTime());
 }
 
-bool SyncInput()
-{
-	return gamesetinput || cl_syncinput || cl_capfps;
-}
-
-void setForcedSyncInput(const int playeridx)
-{
-	if (playeridx == myconnectindex) gamesetinput = true;
-}
-
-void resetForcedSyncInput()
-{
-	gamesetinput = false;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, forceSyncInput, setForcedSyncInput)
+DEFINE_ACTION_FUNCTION(_Raze, forceSyncInput)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(playeridx);
-	setForcedSyncInput(playeridx);
+	gameInput.ForceInputSync(playeridx);
 	return 0;
 }
 

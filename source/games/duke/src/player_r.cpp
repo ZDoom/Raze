@@ -2473,7 +2473,7 @@ void processinput_r(DDukePlayer* const p)
 
 	if (p->newOwner != nullptr)
 	{
-		setForcedSyncInput(p->pnum);
+		gameInput.ForceInputSync(p->pnum);
 		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
@@ -2493,7 +2493,7 @@ void processinput_r(DDukePlayer* const p)
 
 	if (p->on_crane != nullptr)
 	{
-		setForcedSyncInput(p->pnum);
+		gameInput.ForceInputSync(p->pnum);
 		goto HORIZONLY;
 	}
 
@@ -2542,7 +2542,7 @@ void processinput_r(DDukePlayer* const p)
 		p->vel.X = 0;
 		p->vel.Y = 0;
 		p->cmd.ucmd.ang.Yaw = nullAngle;
-		setForcedSyncInput(p->pnum);
+		gameInput.ForceInputSync(p->pnum);
 	}
 
 	p->Angles.doYawInput(&p->cmd.ucmd);

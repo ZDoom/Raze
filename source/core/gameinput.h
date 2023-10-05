@@ -2,6 +2,7 @@
 
 #include "serializer.h"
 #include "gamefuncs.h"
+#include "d_net.h"
 
 enum : unsigned
 {
@@ -43,6 +44,7 @@ class GameInput
 	ESyncBits ActionsToSend;
 	double turnheldtime;
 	double scaleAdjust;
+	bool syncinput;
 	int WeaponToSend;
 	int dpad_lock;
 	int keymove;
@@ -89,6 +91,23 @@ public:
 	{
 		const double frac = I_GetInputFrac();
 		scaleAdjust = !SyncInput() ? frac : 1;
+	}
+
+	// Handling of whether to allow unsynchronised input.
+	bool SyncInput()
+	{
+		return syncinput || cl_syncinput || cl_capfps;
+	}
+	void ForceInputSync(const int pnum)
+	{
+		if (pnum == myconnectindex)
+		{
+			syncinput = true;
+		}
+	}
+	void ResetInputSync()
+	{
+		syncinput = false;
 	}
 
 	// Prototypes for large member functions.

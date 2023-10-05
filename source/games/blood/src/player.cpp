@@ -1531,7 +1531,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	if (actor->xspr.health == 0)
 	{
 		// force synchronised input upon death.
-		setForcedSyncInput(pPlayer->pnum);
+		gameInput.ForceInputSync(pPlayer->pnum);
 
 		bool bSeqStat = playerSeqPlaying(pPlayer, 16);
 		DBloodActor* fragger = pPlayer->fragger;

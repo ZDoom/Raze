@@ -327,7 +327,7 @@ void GameInterface::Ticker()
     else if (EndLevel == 0)
     {
         // disable synchronised input if set by game.
-        resetForcedSyncInput();
+        gameInput.ResetInputSync();
 
         for (int i = connecthead; i >= 0; i = connectpoint2[i])
         {

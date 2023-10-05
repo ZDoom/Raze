@@ -617,7 +617,7 @@ void TryRunTics (void)
 			gi->Predict(myconnectindex);
 #endif
 		}
-		if (!SyncInput())
+		if (!gameInput.SyncInput())
 		{
 			gameInput.getInput();
 		}

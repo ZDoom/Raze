@@ -1506,7 +1506,7 @@ static void doPlayerUnderwater(DExhumedPlayer* const pPlayer, const bool oUnderw
 
 static void doPlayerRamses(DExhumedPlayer* const pPlayer)
 {
-    setForcedSyncInput(pPlayer->pnum);
+    gameInput.ForceInputSync(pPlayer->pnum);
 
     if (nTotalPlayers <= 1)
     {
@@ -2064,7 +2064,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
     else
     {
-        setForcedSyncInput(nPlayer);
+        gameInput.ForceInputSync(nPlayer);
         doPlayerDeathPitch(pPlayer);
 
         if (!doPlayerDeathRestart(pPlayer))

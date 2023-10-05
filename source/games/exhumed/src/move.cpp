@@ -109,7 +109,7 @@ void MoveThings()
     {
         if (nFreeze == 1 || nFreeze == 2)
         {
-            setForcedSyncInput(nLocalPlayer);
+            gameInput.ForceInputSync(nLocalPlayer);
             DoSpiritHead();
         }
     }

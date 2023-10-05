@@ -251,7 +251,7 @@ void drawoverlays(double interpfrac)
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
 					cposxy = interpolatedvalue(omypos, mypos, interpfrac).XY();
-					cang = !SyncInput() ? myang : interpolatedvalue(omyang, myang, interpfrac);
+					cang = interpolatedvalue(omyang, myang, interpfrac);
 				}
 				else
 				{
