@@ -63,11 +63,6 @@ bool crouch_toggle = false;
 //
 //---------------------------------------------------------------------------
 
-inline void addCameraAngles(const DRotator& input)
-{
-	PlayerArray[myconnectindex]->Angles.CameraAngles += input;
-}
-
 static inline DAngle getscaledangle(const DAngle angle, const double scale, const double push)
 {
 	return (angle.Normalized180() * getTicrateScale(scale)) + DAngle::fromDeg(push);
@@ -189,7 +184,7 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		addCameraAngles(thisInput.ang);
+		PlayerArray[myconnectindex]->Angles.CameraAngles += thisInput.ang;
 	}
 }
 
@@ -235,10 +230,10 @@ void GameInput::processVehicle(const double baseVel, const double velScale, cons
 		// Velocity setup.
 		const auto scaleVel = !(flags & VEH_SCALETURN) && (cl_noturnscaling || hidDir || isTurboTurnTime());
 		const auto turnVel = scaleVel ? baseVel : baseVel * velScale;
-		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45.f / 2048.f) / scaleAdjust;
+		const auto mouseVel = abs(turnVel * mouseInput.X * m_yaw) * (45. / 2048.) / scaleAdjust;
 
 		// Apply inputs.
-		thisInput.ang.Yaw += DAngle::fromDeg(((mouseVel > 1) ? sqrt(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw));
+		thisInput.ang.Yaw += DAngle::fromDeg(((mouseVel > 1) ? g_sqrt(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw));
 		thisInput.ang.Yaw -= DAngle::fromDeg(turnVel * joyAxes[JOYAXIS_Yaw]);
 		thisInput.ang.Yaw += DAngle::fromDeg(turnVel * kbdDir);
 		thisInput.ang.Yaw *= scaleAdjust;
@@ -253,7 +248,7 @@ void GameInput::processVehicle(const double baseVel, const double velScale, cons
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		addCameraAngles(thisInput.ang);
+		PlayerArray[myconnectindex]->Angles.CameraAngles += thisInput.ang;
 	}
 }
 

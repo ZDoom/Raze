@@ -129,7 +129,8 @@ struct PlayerAngles
 	DAngle YawSpin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-	friend void addCameraAngles(const DRotator& input);
+	friend void GameInput::processMovement(const double turnscale, const bool allowstrafe, const int drink_amt);
+	friend void GameInput::processVehicle(const double baseVel, const double velScale, const unsigned flags);
 
 	// Prototypes.
 	void doPitchInput(InputPacket* const input);
