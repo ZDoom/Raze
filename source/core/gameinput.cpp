@@ -522,9 +522,6 @@ void PlayerAngles::doViewPitch(const bool canslopetilt, const bool climbing)
 		// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
 		scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
 	}
-
-	// Clamp off against the maximum allowed pitch.
-	ViewAngles.Pitch = ClampViewPitch(ViewAngles.Pitch);
 }
 
 
