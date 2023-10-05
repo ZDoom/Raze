@@ -106,9 +106,10 @@ void FreeRa(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void BuildRa(int nPlayer)
+void BuildRa(DExhumedPlayer* const pPlayer)
 {
-    auto pPlayerActor = getPlayer(nPlayer)->GetActor();
+    auto pPlayerActor = pPlayer->GetActor();
+    auto pRa = &Ra[pPlayer->pnum];
 
     auto pActor = insertActor(pPlayerActor->sector(), 203);
 
@@ -119,7 +120,7 @@ void BuildRa(int nPlayer)
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
-    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0x210000);
+    pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pPlayer->pnum, 0x210000);
     pActor->spr.pal = 1;
     pActor->spr.scale = DVector2(1, 1);
     pActor->spr.pos = pPlayerActor->spr.pos;
@@ -127,14 +128,14 @@ void BuildRa(int nPlayer)
 
 //	GrabTimeSlot(3);
 
-    Ra[nPlayer].pActor = pActor;
+    pRa->pActor = pActor;
 
-    Ra[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer, 0x210000);
-    Ra[nPlayer].pTarget = nullptr;
-    Ra[nPlayer].nFrame  = 0;
-    Ra[nPlayer].nAction = 0;
-    Ra[nPlayer].nState = 0;
-    Ra[nPlayer].nPlayer = nPlayer;
+    pRa->nRun = runlist_AddRunRec(NewRun, pPlayer->pnum, 0x210000);
+    pRa->pTarget = nullptr;
+    pRa->nFrame  = 0;
+    pRa->nAction = 0;
+    pRa->nState = 0;
+    pRa->nPlayer = pPlayer->pnum;
 }
 
 void InitRa()

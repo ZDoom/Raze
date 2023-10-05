@@ -321,7 +321,7 @@ void RestartPlayer(DExhumedPlayer* const pPlayer)
         pPlayer->nMagic = 0;
     }
 
-    BuildRa(pPlayer->pnum);
+    BuildRa(pPlayer);
 }
 
 //---------------------------------------------------------------------------
