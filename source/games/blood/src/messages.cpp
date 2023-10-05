@@ -328,7 +328,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	case kCheatMcGee:
 	{
 		if (!pPlayer->GetActor()->xspr.burnTime)
-			evPostActor(pPlayer->GetActor(), 0, kCallbackFXFlameLick);
+			evPostActor(pPlayer->GetActor(), 0, AF(fxFlameLick));
 		actBurnSprite(pPlayer->GetActor(), pPlayer->GetActor(), 2400);
 		return GStrings("TXTB_FIRED");
 	}
@@ -341,7 +341,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		actHealDude(pPlayer->GetActor(), 200, 200);
 		pPlayer->armor[1] = VanillaMode() ? 200 : 3200;
 		if (!pPlayer->GetActor()->xspr.burnTime)
-			evPostActor(pPlayer->GetActor(), 0, kCallbackFXFlameLick);
+			evPostActor(pPlayer->GetActor(), 0, AF(fxFlameLick));
 		actBurnSprite(pPlayer->GetActor(), pPlayer->GetActor(), 2400);
 		return GStrings("TXTB_RETARD");
 	}

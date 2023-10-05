@@ -1821,7 +1821,7 @@ void DropVoodoo(int, DBloodPlayer* pPlayer)
 	if (spawned)
 	{
 		spawned->xspr.data1 = pPlayer->ammoCount[9];
-		evPostActor(spawned, 90, kCallbackDropVoodoo);
+		evPostActor(spawned, 90, AF(DropVoodooCb));
 		UseAmmo(pPlayer, 6, 480/*gAmmoItemData[0].count*/);
 		UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
 		pPlayer->hasWeapon[kWeapVoodooDoll] = 0;
@@ -1951,7 +1951,7 @@ void AltFireNapalm(int, DBloodPlayer* pPlayer)
 		UseAmmo(pPlayer, 4, missile->xspr.data4);
 		seqSpawn(22, missile, -1);
 		actBurnSprite(pPlayer->GetActor(), missile, 600);
-		evPostActor(missile, 0, kCallbackFXFlameLick);
+		evPostActor(missile, 0, AF(fxFlameLick));
 		sfxPlay3DSound(missile, 480, 2, 0);
 		pPlayer->visibility = 30;
 		pPlayer->flashEffect = 1;
@@ -2003,7 +2003,7 @@ void AltFireLifeLeech(int, DBloodPlayer* pPlayer)
 		missile->xspr.Proximity = 1;
 		missile->xspr.DudeLockout = 1;
 		missile->xspr.stateTimer = 1;
-		evPostActor(missile, 120, kCallbackLeechStateTimer);
+		evPostActor(missile, 120, AF(LeechStateTimer));
 		if (gGameOptions.nGameType <= 1)
 		{
 			int nAmmo = pPlayer->ammoCount[8];

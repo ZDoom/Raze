@@ -1047,7 +1047,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 							aiGenDudeNewState(actor, &genDudeBurnGoto);
 							actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
 							actor->dudeExtra.time = PlayClock + 360;
-							evKillActor(actor, kCallbackFXFlameLick);
+							evKillActor(actor, AF(fxFlameLick));
 
 						}
 					}
@@ -1121,7 +1121,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				aiPlay3DSound(actor, 1031 + Random(2), AI_SFX_PRIORITY_2, -1);
 				actor->dudeExtra.time = PlayClock + 360;
 				actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
-				evKillActor(actor, kCallbackFXFlameLick);
+				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeInnocent:
@@ -1132,7 +1132,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
 				actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
-				evKillActor(actor, kCallbackFXFlameLick);
+				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeBurningCultist:
@@ -1168,7 +1168,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				actor->ChangeType(kDudeBurningZombieButcher);
 				aiNewState(actor, &zombieFBurnGoto);
 				actHealDude(actor, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
-				evKillActor(actor, kCallbackFXFlameLick);
+				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeTinyCaleb:
@@ -1187,7 +1187,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
 				actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
-				evKillActor(actor, kCallbackFXFlameLick);
+				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeCultistBeast:
@@ -1208,7 +1208,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				actor->ChangeType(kDudeBurningZombieAxe);
 				aiNewState(actor, &zombieABurnGoto);
 				actHealDude(actor, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
-				evKillActor(actor, kCallbackFXFlameLick);
+				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		}

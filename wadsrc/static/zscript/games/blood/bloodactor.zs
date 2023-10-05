@@ -117,37 +117,6 @@ class BloodActor : CoreActor native
 		kStatFree = 1024,
 	};
 	
-	// the callback ids are only temporary. This should work with direct function references.
-	enum CALLBACK_ID {
-		kCallbackNone = -1,
-		kCallbackFXFlameLick = 0,
-		kCallbackRemove = 1,
-		kCallbackFXFlareBurst = 2,
-		kCallbackFXFlareSpark = 3,
-		kCallbackFXFlareSparkLite = 4,
-		kCallbackFXZombieSpurt = 5,
-		kCallbackFXBloodSpurt = 6,
-		kCallbackFXArcSpark = 7,
-		kCallbackFXDynPuff = 8,
-		kCallbackRespawn = 9,
-		kCallbackPlayerBubble = 10,
-		kCallbackEnemeyBubble = 11,
-		kCallbackCounterCheck = 12,
-		kCallbackFinishHim = 13,
-		kCallbackFXBloodBits = 14,
-		kCallbackFXTeslaAlt = 15,
-		kCallbackFXBouncingSleeve = 16,
-		kCallbackReturnFlag = 17,
-		kCallbackFXPodBloodSpray = 18,
-		kCallbackFXPodBloodSplat = 19,
-		kCallbackLeechStateTimer = 20,
-		kCallbackDropVoodoo = 21, // unused
-
-		kCallbackMissileBurst = 22,
-		kCallbackMissileSpriteBlock = 23,
-		kCallbackGenDudeUpdate = 24,
-		kCallbackCondition = 25,
-	}
 	
 	enum SEQ_CALLBACK_ID
 	{
@@ -503,7 +472,7 @@ native void DropVoodooCb(); // unused
 		}
 		if (itemtype is 'BloodFlagBase' && gGameOptions.nGameType == Blood.kTeamplay)
 		{
-			spawned.evPostActorCallback(1800, kCallbackReturnFlag);
+			spawned.evPostActorCallback(1800, AF(returnFlagToBase));
 		}
 
 		double top, bottom;
@@ -558,7 +527,7 @@ native void DropVoodooCb(); // unused
 		spawned.cstat |= CSTAT_SPRITE_BLOCK;
 		spawned.xspr.target = null;
 
-		spawned.evPostActorCallback(600, kCallbackRemove);
+		spawned.evPostActorCallback(600, AF(Remove));
 
 		spawned.initMissile(self); // handle type specific init.
 

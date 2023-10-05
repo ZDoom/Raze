@@ -32,7 +32,7 @@ BEGIN_BLD_NS
 CFX gFX;
 
 struct FXDATA {
-	CALLBACK_ID funcID;
+	VMNativeFunction** funcID;
 	uint8_t detail;
 	int16_t seq;
 	int16_t flags;
@@ -49,63 +49,63 @@ struct FXDATA {
 };
 
 FXDATA gFXData[] = {
-	{ kCallbackNone, 0, 49, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 50, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 51, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 52, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 45, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 0, 46, 1, -128, 8192, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 2, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 2, 42, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 2, 43, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 48, 3, -256, 8192, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 60, 3, -256, 8192, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackFXBloodBits, 2, 0, 1, 46603, 2048, 480, 2154, 40, 40, 0, -12, 0 },
-	{ kCallbackNone, 2, 0, 3, 46603, 5120, 480, 2269, 24, 24, 0, -128, 0 },
-	{ kCallbackNone, 2, 0, 3, 46603, 5120, 480, 1720, 24, 24, 0, -128, 0 },
-	{ kCallbackNone, 1, 0, 1, 58254, 3072, 480, 2280, 48, 48, 0, -128, 0 },
-	{ kCallbackNone, 1, 0, 1, 58254, 3072, 480, 3135, 48, 48, 0, -128, 0 },
-	{ kCallbackNone, 0, 0, 3, 58254, 1024, 480, 3261, 32, 32, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 58254, 1024, 480, 3265, 32, 32, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 58254, 1024, 480, 3269, 32, 32, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 58254, 1024, 480, 3273, 32, 32, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 58254, 1024, 480, 3277, 32, 32, 0, 0, 0 },
-	{ kCallbackNone, 2, 0, 1, -27962, 8192, 600, 1128, 16, 16, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 }, // bubble 1
-	{ kCallbackNone, 2, 0, 1, -18641, 8192, 600, 1128, 12, 12, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 }, // bubble 2
-	{ kCallbackNone, 2, 0, 1, -9320, 8192, 600, 1128, 8, 8, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 }, // bubble 3
-	{ kCallbackNone, 2, 0, 1, -18641, 8192, 600, 1131, 32, 32, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 },
-	{ kCallbackFXBloodBits, 2, 0, 3, 27962, 4096, 480, 733, 32, 32, 0, -16, 0 },
-	{ kCallbackNone, 1, 0, 3, 18641, 4096, 120, 2261, 12, 12, 0, -128, 0 },
-	{ kCallbackNone, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 58254, 3328, 480, 2185, 48, 48, 0, 0, 0 },
-	{ kCallbackNone, 0, 0, 3, 58254, 1024, 480, 2620, 48, 48, 0, 0, 0 },
-	{ kCallbackNone, 1, 55, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 56, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 57, 1, 0, 2048, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 58, 1, 0, 2048, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 2, 0, 0, 0, 0, 960, 956, 32, 32, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR, 0, 0 },
-	{ kCallbackFXBouncingSleeve, 2, 62, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackFXBouncingSleeve, 2, 63, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackFXBouncingSleeve, 2, 64, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackFXBouncingSleeve, 2, 65, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackFXBouncingSleeve, 2, 66, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackFXBouncingSleeve, 2, 67, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 0, 0, 0, 838, 16, 16, CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL, -8, 0 },
-	{ kCallbackNone, 0, 0, 3, 34952, 8192, 0, 2078, 64, 64, 0, -8, 0 },
-	{ kCallbackNone, 0, 0, 3, 34952, 8192, 0, 1106, 64, 64, 0, -8, 0 },
-	{ kCallbackNone, 0, 0, 3, 58254, 3328, 480, 2406, 48, 48, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 3, 46603, 4096, 480, 3511, 64, 64, 0, -128, 0 },
-	{ kCallbackNone, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 2, 11, 3, -256, 8192, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 2, 11, 3, 0, 8192, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ kCallbackNone, 1, 30, 3, 0, 0, 0, 0, 40, 40, CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL, -8, 0 },
-	{ kCallbackFXPodBloodSplat, 2, 0, 3, 27962, 4096, 480, 4023, 32, 32, 0, -16, 0 },
-	{ kCallbackFXPodBloodSplat, 2, 0, 3, 27962, 4096, 480, 4028, 32, 32, 0, -16, 0 },
-	{ kCallbackNone, 2, 0, 0, 0, 0, 480, 926, 32, 32, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR, -12, 0 },
-	{ kCallbackNone, 1, 70, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 }
+	{ nullptr, 0, 49, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 50, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 51, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 52, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 45, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 0, 46, 1, -128, 8192, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 2, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 2, 42, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 2, 43, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 48, 3, -256, 8192, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 60, 3, -256, 8192, 0, 0, 0, 0, 0, 0, 0 },
+	{ &AF(fxBloodBits), 2, 0, 1, 46603, 2048, 480, 2154, 40, 40, 0, -12, 0 },
+	{ nullptr, 2, 0, 3, 46603, 5120, 480, 2269, 24, 24, 0, -128, 0 },
+	{ nullptr, 2, 0, 3, 46603, 5120, 480, 1720, 24, 24, 0, -128, 0 },
+	{ nullptr, 1, 0, 1, 58254, 3072, 480, 2280, 48, 48, 0, -128, 0 },
+	{ nullptr, 1, 0, 1, 58254, 3072, 480, 3135, 48, 48, 0, -128, 0 },
+	{ nullptr, 0, 0, 3, 58254, 1024, 480, 3261, 32, 32, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 58254, 1024, 480, 3265, 32, 32, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 58254, 1024, 480, 3269, 32, 32, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 58254, 1024, 480, 3273, 32, 32, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 58254, 1024, 480, 3277, 32, 32, 0, 0, 0 },
+	{ nullptr, 2, 0, 1, -27962, 8192, 600, 1128, 16, 16, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 }, // bubble 1
+	{ nullptr, 2, 0, 1, -18641, 8192, 600, 1128, 12, 12, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 }, // bubble 2
+	{ nullptr, 2, 0, 1, -9320, 8192, 600, 1128, 8, 8, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 }, // bubble 3
+	{ nullptr, 2, 0, 1, -18641, 8192, 600, 1131, 32, 32, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP, -16, 0 },
+	{ &AF(fxBloodBits), 2, 0, 3, 27962, 4096, 480, 733, 32, 32, 0, -16, 0 },
+	{ nullptr, 1, 0, 3, 18641, 4096, 120, 2261, 12, 12, 0, -128, 0 },
+	{ nullptr, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 58254, 3328, 480, 2185, 48, 48, 0, 0, 0 },
+	{ nullptr, 0, 0, 3, 58254, 1024, 480, 2620, 48, 48, 0, 0, 0 },
+	{ nullptr, 1, 55, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 56, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 57, 1, 0, 2048, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 58, 1, 0, 2048, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 2, 0, 0, 0, 0, 960, 956, 32, 32, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR, 0, 0 },
+	{ &AF(fxBouncingSleeve), 2, 62, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
+	{ &AF(fxBouncingSleeve), 2, 63, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
+	{ &AF(fxBouncingSleeve), 2, 64, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
+	{ &AF(fxBouncingSleeve), 2, 65, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
+	{ &AF(fxBouncingSleeve), 2, 66, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
+	{ &AF(fxBouncingSleeve), 2, 67, 0, 46603, 1024, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 0, 0, 0, 838, 16, 16, CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL, -8, 0 },
+	{ nullptr, 0, 0, 3, 34952, 8192, 0, 2078, 64, 64, 0, -8, 0 },
+	{ nullptr, 0, 0, 3, 34952, 8192, 0, 1106, 64, 64, 0, -8, 0 },
+	{ nullptr, 0, 0, 3, 58254, 3328, 480, 2406, 48, 48, 0, 0, 0 },
+	{ nullptr, 1, 0, 3, 46603, 4096, 480, 3511, 64, 64, 0, -128, 0 },
+	{ nullptr, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 2, 11, 3, -256, 8192, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 2, 11, 3, 0, 8192, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ nullptr, 1, 30, 3, 0, 0, 0, 0, 40, 40, CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL, -8, 0 },
+	{ &AF(fxPodBloodSplat), 2, 0, 3, 27962, 4096, 480, 4023, 32, 32, 0, -16, 0 },
+	{ &AF(fxPodBloodSplat), 2, 0, 3, 27962, 4096, 480, 4028, 32, 32, 0, -16, 0 },
+	{ nullptr, 2, 0, 0, 0, 0, 480, 926, 32, 32, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR, -12, 0 },
+	{ nullptr, 1, 70, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 }
 };
 
 //---------------------------------------------------------------------------
@@ -189,7 +189,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 	if (angle == nullAngle)
 		angle = mapangle(pFX->defangle);
 	if (angle != nullAngle)
-		evPostActor(actor, angle.Buildang() + Random2(angle.Buildang() >> 1), kCallbackRemove);
+		evPostActor(actor, angle.Buildang() + Random2(angle.Buildang() >> 1), AF(Remove));
 	return actor;
 }
 
@@ -222,12 +222,12 @@ void CFX::fxProcess(void)
 			}
 			if (getflorzofslopeptr(actor->sector(), actor->spr.pos) <= actor->spr.pos.Z)
 			{
-				if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
+				if (pFXData->funcID == nullptr)
 				{
 					remove(actor);
 					continue;
 				}
-				gCallback[pFXData->funcID](actor);
+				callActorFunction(*pFXData->funcID, actor);
 				continue;
 			}
 			if (pSector != actor->sector())
@@ -247,12 +247,12 @@ void CFX::fxProcess(void)
 			}
 			if (floorZ < actor->spr.pos.Z)
 			{
-				if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
+				if (pFXData->funcID == nullptr)
 				{
 					remove(actor);
 					continue;
 				}
-				gCallback[pFXData->funcID](actor);
+				callActorFunction(*pFXData->funcID, actor);
 				continue;
 			}
 		}
@@ -282,7 +282,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 		bloodactor->vel.X = Random2F(0x6aaaa);
 		bloodactor->vel.Y = Random2F(0x6aaaa);
 		bloodactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
-		evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
+		evPostActor(bloodactor, 8, AF(fxBloodSpurt));
 	}
 }
 
@@ -312,7 +312,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 		spawnactor->vel.X = Random2F(0x6aaaa);
 		spawnactor->vel.Y = Random2F(0x6aaaa);
 		spawnactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
-		evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
+		evPostActor(spawnactor, 8, AF(fxPodBloodSpray));
 	}
 }
 

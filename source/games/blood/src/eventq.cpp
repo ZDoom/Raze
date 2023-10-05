@@ -400,9 +400,9 @@ void evPost_(EventObject& eob, unsigned int nDelta, COMMAND_ID command, DBloodAc
 	queue.insert(evn);
 }
 
-void evPost_(const EventObject& eob, unsigned int nDelta, CALLBACK_ID callback)
+void evPost_(const EventObject& eob, unsigned int nDelta, VMFunction* callback)
 {
-	EVENT evn = { eob, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = { eob, kCmdCallback, callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
@@ -413,7 +413,7 @@ void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command, DB
 	evPost_(ev, nDelta, command, initiator);
 }
 
-void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, VMFunction* callback)
 {
 	evPost_(EventObject(actor), nDelta, callback);
 }
@@ -422,11 +422,6 @@ void evPostSector(sectortype* sect, unsigned int nDelta, COMMAND_ID command, DBl
 {
 	auto ev = EventObject(sect);
 	evPost_(ev, nDelta, command, initiator);
-}
-
-void evPostSector(sectortype* sect, unsigned int nDelta, CALLBACK_ID callback)
-{
-	evPost_(EventObject(sect), nDelta, callback);
 }
 
 void evPostWall(walltype* wal, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator)
@@ -460,7 +455,7 @@ void evKill_(const EventObject& eob, DBloodActor* initiator)
 	}
 }
 
-void evKill_(const EventObject& eob, CALLBACK_ID cb)
+void evKill_(const EventObject& eob, VMFunction* cb)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
@@ -482,7 +477,7 @@ void evKillActor(DBloodActor* actor, DBloodActor* initiator)
 		evKill_(EventObject(actor), initiator);
 }
 
-void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
+void evKillActor(DBloodActor* actor, VMFunction* cb)
 {
 	evKill_(EventObject(actor));
 }
@@ -553,9 +548,12 @@ void evProcess(unsigned int time)
 		if (event.cmd == kCmdCallback)
 		{
 			// Except for CounterCheck all other callbacks are for actors only.
-			assert(event.funcID < kCallbackMax);
-			if (event.target.isActor()) gCallback[event.funcID](event.target.actor());
-			else if (event.target.isSector() && event.funcID == kCallbackCounterCheck) CounterCheck(event.target.sector());
+			if (event.target.isActor())
+			{
+				callActorFunction(event.funcID, event.target.actor());
+			}
+			// this is the only one, so no further checks for now.
+			else if (event.target.isSector()) CounterCheck(event.target.sector());
 			// no case for walls defined here.
 		}
 		else

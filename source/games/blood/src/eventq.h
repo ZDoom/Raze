@@ -192,7 +192,7 @@ struct EVENT
 {
 	EventObject target;
 	int8_t cmd;
-	int16_t funcID;
+	VMFunction* funcID;
 	int priority;
 	TObjPtr<DBloodActor*> initiator;
 
@@ -242,16 +242,16 @@ struct EVENT
 
 void evInit(TArray<DBloodActor*>& actors);
 void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator);
-void evPostActor(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
+void evPostActor(DBloodActor*, unsigned int nDelta, VMFunction* callback);
 
 void evPostSector(sectortype* index, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator);
-void evPostSector(sectortype* index, unsigned int nDelta, CALLBACK_ID callback);
+void evPostSector(sectortype* index, unsigned int nDelta, VMFunction* callback);
 
 void evPostWall(walltype* index, unsigned int nDelta, COMMAND_ID command, DBloodActor* initiator);
 
 void evProcess(unsigned int nTime);
 void evKillActor(DBloodActor*);
 void evKillActor(DBloodActor*, DBloodActor* initiator);
-void evKillActor(DBloodActor*, CALLBACK_ID a3);
+void evKillActor(DBloodActor*, VMFunction* a3);
 
 END_BLD_NS

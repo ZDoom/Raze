@@ -52,7 +52,7 @@ void tchernobogFire(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->xspr.burnTime == 0)
-		evPostActor(target, 0, kCallbackFXFlameLick);
+		evPostActor(target, 0, AF(fxFlameLick));
 	actBurnSprite(actor->GetOwner(), target, 40);
 	if (Chance(0x6000))
 		aiNewState(actor, &tcherno13A9D4);

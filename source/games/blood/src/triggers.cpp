@@ -71,7 +71,7 @@ bool SetSpriteState(DBloodActor* actor, int nState, DBloodActor* initiator)
 	if ((actor->spr.flags & kHitagRespawn) != 0 && actor->spr.inittype >= kDudeBase && actor->spr.inittype < kDudeMax)
 	{
 		actor->xspr.respawnPending = 3;
-		evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+		evPostActor(actor, gGameOptions.nMonsterRespawnTime, AF(Respawn));
 		return 1;
 	}
 	if (actor->xspr.restState != nState && actor->xspr.waitTime > 0)
@@ -280,7 +280,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 						{
 							missile->SetOwner(actor);
 							actor->xspr.stateTimer = 1;
-							evPostActor(actor, (!actor->xspr.data3 ? 120 : 3 * 120) / 10, kCallbackLeechStateTimer);
+							evPostActor(actor, (!actor->xspr.data3 ? 120 : 3 * 120) / 10, AF(LeechStateTimer));
 							actor->xspr.data3 = ClipLow(actor->xspr.data3 - 1, 0);
 							if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
 								missile->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -2313,7 +2313,7 @@ void trInit(TArray<DBloodActor*>& actors)
 				else
 #endif
 					pXSector->triggerOnce = 1;
-				evPostSector(pSector, 0, kCallbackCounterCheck);
+				evPostSector(pSector, 0, kCmdCallback, nullptr);
 				break;
 			case kSectorZMotion:
 			case kSectorZMotionSprite:

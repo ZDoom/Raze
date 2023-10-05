@@ -2190,7 +2190,7 @@ static void zombieAxeNormalDeath(DBloodActor* actor, int nSeq)
 	else if (nSeq == 1 && Chance(0x4000))
 	{
 		seqSpawn(pDudeInfo->seqStartID + 7, actor, nDudeToGibClient1);
-		evPostActor(actor, 0, kCallbackFXZombieSpurt);
+		evPostActor(actor, 0, AF(fxZombieBloodSpurt));
 		sfxPlay3DSound(actor, 362, -1, 0);
 		actor->xspr.data1 = 35;
 		actor->xspr.data2 = 5;
@@ -2823,7 +2823,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
 			if (pThingInfo && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
-				evPostActor(actorHit, 0, kCallbackFXFlameLick);
+				evPostActor(actorHit, 0, AF(fxFlameLick));
 
 			int nDamage = (50 + Random(50)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
@@ -2843,7 +2843,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			if ((pThingInfo && pThingInfo->dmgControl[kDamageBurn] != 0) || (pDudeInfo && pDudeInfo->damageVal[kDamageBurn] != 0))
 			{
 				if (pThingInfo && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
-					evPostActor(actorHit, 0, kCallbackFXFlameLick);
+					evPostActor(actorHit, 0, AF(fxFlameLick));
 
 				actBurnSprite(missileOwner, actorHit, 480);
 				actRadiusDamage(missileOwner, missileActor->spr.pos, missileActor->sector(), 16, 20, 10, kDamageBullet, 6, 480);
@@ -2882,7 +2882,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && actorHit->xspr.burnTime == 0)
-				evPostActor(actorHit, 0, kCallbackFXFlameLick);
+				evPostActor(actorHit, 0, AF(fxFlameLick));
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
 			actDamageSprite(missileOwner, actorHit, kDamageBurn, 8);
@@ -2894,7 +2894,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && actorHit->xspr.burnTime == 0)
-				evPostActor(actorHit, 0, kCallbackFXFlameLick);
+				evPostActor(actorHit, 0, AF(fxFlameLick));
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
 			actDamageSprite(missileOwner, actorHit, kDamageBurn, 8);
@@ -2909,7 +2909,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && actorHit->xspr.burnTime == 0)
-				evPostActor(actorHit, 0, kCallbackFXFlameLick);
+				evPostActor(actorHit, 0, AF(fxFlameLick));
 
 			actBurnSprite(missileOwner, actorHit, 32);
 			actDamageSprite(missileOwner, actorHit, kDamageSpirit, 12);
@@ -3871,7 +3871,7 @@ void MoveDude(DBloodActor* actor)
 				pPlayer->posture = 1;
 				actor->xspr.burnTime = 0;
 				pPlayer->bubbleTime = int(abs(actor->vel.Z * 16));
-				evPostActor(actor, 0, kCallbackPlayerBubble);
+				evPostActor(actor, 0, AF(PlayerBubble));
 				sfxPlay3DSound(actor, 720, -1, 0);
 			}
 			else
@@ -3881,7 +3881,7 @@ void MoveDude(DBloodActor* actor)
 				case kDudeCultistTommy:
 				case kDudeCultistShotgun:
 					actor->xspr.burnTime = 0;
-					evPostActor(actor, 0, kCallbackEnemeyBubble);
+					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &cultistSwimGoto);
 					break;
@@ -3895,26 +3895,26 @@ void MoveDude(DBloodActor* actor)
 					if (fixRandomCultist) // fix burning cultists randomly switching types underwater
 						actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
 					actor->xspr.burnTime = 0;
-					evPostActor(actor, 0, kCallbackEnemeyBubble);
+					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &cultistSwimGoto);
 					break;
 				}
 				case kDudeZombieAxeNormal:
 					actor->xspr.burnTime = 0;
-					evPostActor(actor, 0, kCallbackEnemeyBubble);
+					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &zombieAGoto);
 					break;
 				case kDudeZombieButcher:
 					actor->xspr.burnTime = 0;
-					evPostActor(actor, 0, kCallbackEnemeyBubble);
+					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &zombieFGoto);
 					break;
 				case kDudeGillBeast:
 					actor->xspr.burnTime = 0;
-					evPostActor(actor, 0, kCallbackEnemeyBubble);
+					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
 					aiNewState(actor, &gillBeastSwimGoto);
 
@@ -3937,7 +3937,7 @@ void MoveDude(DBloodActor* actor)
 
 					if (actor->GetType() == kDudeModernCustom) {
 
-						evPostActor(actor, 0, kCallbackEnemeyBubble);
+						evPostActor(actor, 0, AF(EnemyBubble));
 						if (!canSwim(actor)) actKillDude(actor, actor, kDamageFall, 1000 << 4);
 						break;
 					}
@@ -4587,12 +4587,12 @@ static void actCheckThings()
 						if (hit.type == kHitSector)
 						{
 							actRadiusDamage(actor->GetOwner(), actor->spr.pos, actor->sector(), 200, 1, 20, kDamageExplode, 6, 0);
-							evPostActor(actor, 0, kCallbackFXPodBloodSplat);
+							evPostActor(actor, 0, AF(fxPodBloodSplat));
 						}
 						else if (hit.type == kHitSprite)
 						{
 							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, 12);
-							evPostActor(actor, 0, kCallbackFXPodBloodSplat);
+							evPostActor(actor, 0, AF(fxPodBloodSplat));
 						}
 						break;
 
@@ -4687,7 +4687,7 @@ static void actCheckExplosion()
 
 					if (pExplodeInfo->burnTime && dudeactor->hasX())
 					{
-						if (!dudeactor->xspr.burnTime) evPostActor(dudeactor, 0, kCallbackFXFlameLick);
+						if (!dudeactor->xspr.burnTime) evPostActor(dudeactor, 0, AF(fxFlameLick));
 						actBurnSprite(Owner, dudeactor, pExplodeInfo->burnTime << 2);
 					}
 				}
@@ -4710,7 +4710,7 @@ static void actCheckExplosion()
 						if (pExplodeInfo->burnTime)
 						{
 							if (thingactor->GetType() == kThingTNTBarrel && !thingactor->xspr.burnTime)
-								evPostActor(thingactor, 0, kCallbackFXFlameLick);
+								evPostActor(thingactor, 0, AF(fxFlameLick));
 							actBurnSprite(Owner, thingactor, pExplodeInfo->burnTime << 2);
 						}
 					}
@@ -5230,17 +5230,17 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 		break;
 
 	case kThingArmedTNTStick:
-		evPostActor(actor, 0, kCallbackFXDynPuff);
+		evPostActor(actor, 0, AF(fxDynPuff));
 		sfxPlay3DSound(actor, 450, 0, 0);
 		break;
 
 	case kThingArmedTNTBundle:
 		sfxPlay3DSound(actor, 450, 0, 0);
-		evPostActor(actor, 0, kCallbackFXDynPuff);
+		evPostActor(actor, 0, AF(fxDynPuff));
 		break;
 
 	case kThingArmedSpray:
-		evPostActor(actor, 0, kCallbackFXDynPuff);
+		evPostActor(actor, 0, AF(fxDynPuff));
 		break;
 	}
 	return actor;
@@ -5300,7 +5300,7 @@ bool actCheckRespawn(DBloodActor* actor)
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				actor->spr.pos = actor->basePoint;
 			}
-			evPostActor(actor, nRespawnTime, kCallbackRespawn);
+			evPostActor(actor, nRespawnTime, AF(Respawn));
 		}
 		return 1;
 	}
@@ -5435,7 +5435,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 				}
 				if (pVectorData->burnTime)
 				{
-					if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
+					if (!actor->xspr.burnTime) evPostActor(actor, 0, AF(fxFlameLick));
 					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 				}
 			}
@@ -5463,7 +5463,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 				}
 				if (pVectorData->burnTime)
 				{
-					if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
+					if (!actor->xspr.burnTime) evPostActor(actor, 0, AF(fxFlameLick));
 					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 				}
 				if (Chance(pVectorData->fxChance))
@@ -5518,7 +5518,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 						actor->vel += dv * thrust;
 
 						if (pVectorData->burnTime != 0) {
-							if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
+							if (!actor->xspr.burnTime) evPostActor(actor, 0, AF(fxFlameLick));
 							actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 						}
 

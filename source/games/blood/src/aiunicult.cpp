@@ -376,7 +376,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		spawned->xspr.stateTimer = 1;
 
 		actor->genDudeExtra.pLifeLeech = spawned;
-		evPostActor(spawned, 80, kCallbackLeechStateTimer);
+		evPostActor(spawned, 80, AF(LeechStateTimer));
 		return;
 	}
 
@@ -1791,7 +1791,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				{
 					missile->SetOwner(actor);
 					actor->xspr.stateTimer = 1;
-					evPostActor(actor, t2, kCallbackLeechStateTimer);
+					evPostActor(actor, t2, AF(LeechStateTimer));
 					actor->xspr.data3 = ClipLow(actor->xspr.data3 - 1, 0);
 				}
 				actor->spr.Angles.Yaw = angBak;

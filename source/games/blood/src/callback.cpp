@@ -59,7 +59,7 @@ void fxFlameLick(DBloodActor* actor) // 0
 		}
 	}
 	if (actor->xspr.burnTime > 0)
-		evPostActor(actor, 5, kCallbackFXFlameLick);
+		evPostActor(actor, 5, AF(fxFlameLick));
 }
 
 //---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ void fxFlameLick(DBloodActor* actor) // 0
 void Remove(DBloodActor* actor) // 1
 {
 	if (!actor) return;
-	evKillActor(actor, kCallbackFXFlareSpark);
+	evKillActor(actor, AF(fxFlareSpark));
 	if (actor->hasX())
 		seqKill(actor);
 	sfxKill3DSound(actor, 0, -1);
@@ -101,9 +101,9 @@ void FlareBurst(DBloodActor* actor) // 2
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
 		if (i & 1) spAngVec *= 0.5;
 		spawnedactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
-		evPostActor(spawnedactor, 960, kCallbackRemove);
+		evPostActor(spawnedactor, 960, AF(Remove));
 	}
-	evPostActor(actor, 0, kCallbackRemove);
+	evPostActor(actor, 0, AF(Remove));
 }
 
 //---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ void fxFlareSpark(DBloodActor* actor) // 3
 		pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
 		pFX->vel.Z = actor->vel.Z - Random2F(0x1aaaa);
 	}
-	evPostActor(actor, 4, kCallbackFXFlareSpark);
+	evPostActor(actor, 4, AF(fxFlareSpark));
 }
 
 //---------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void fxFlareSparkLite(DBloodActor* actor) // 4
 		pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
 		pFX->vel.Z = actor->vel.Z - Random2F(0x1aaaa);
 	}
-	evPostActor(actor, 12, kCallbackFXFlareSparkLite);
+	evPostActor(actor, 12, AF(fxFlareSparkLite));
 }
 
 //---------------------------------------------------------------------------
@@ -165,12 +165,12 @@ void fxZombieBloodSpurt(DBloodActor* actor) // 5
 	}
 	if (actor->xspr.data1 > 0)
 	{
-		evPostActor(actor, 4, kCallbackFXZombieSpurt);
+		evPostActor(actor, 4, AF(fxZombieBloodSpurt));
 		actor->xspr.data1 -= 4;
 	}
 	else if (actor->xspr.data2 > 0)
 	{
-		evPostActor(actor, 60, kCallbackFXZombieSpurt);
+		evPostActor(actor, 60, AF(fxZombieBloodSpurt));
 		actor->xspr.data1 = 40;
 		actor->xspr.data2--;
 	}
@@ -191,7 +191,7 @@ void fxBloodSpurt(DBloodActor* actor) // 6
 		pFX->spr.Angles.Yaw = nullAngle;
 		pFX->vel = actor->vel * (1./256);
 	}
-	evPostActor(actor, 6, kCallbackFXBloodSpurt);
+	evPostActor(actor, 6, AF(fxBloodSpurt));
 }
 
 //---------------------------------------------------------------------------
@@ -210,7 +210,7 @@ void fxArcSpark(DBloodActor* actor) // 7
 		pFX->vel.Y = actor->vel.Y + Random2F(0x10000);
 		pFX->vel.Z = actor->vel.Z - Random2F(0x1aaaa);
 	}
-	evPostActor(actor, 3, kCallbackFXArcSpark);
+	evPostActor(actor, 3, AF(fxArcSpark));
 }
 
 //---------------------------------------------------------------------------
@@ -233,7 +233,7 @@ void fxDynPuff(DBloodActor* actor) // 8
 			pFX->vel = actor->vel;
 		}
 	}
-	evPostActor(actor, 12, kCallbackFXDynPuff);
+	evPostActor(actor, 12, AF(fxDynPuff));
 }
 
 //---------------------------------------------------------------------------
@@ -260,13 +260,13 @@ void Respawn(DBloodActor* actor) // 9
 	case 1: {
 		int nTime = MulScale(actGetRespawnTime(actor), 0x4000, 16);
 		actor->xspr.respawnPending = 2;
-		evPostActor(actor, nTime, kCallbackRespawn);
+		evPostActor(actor, nTime, AF(Respawn));
 		break;
 	}
 	case 2: {
 		int nTime = MulScale(actGetRespawnTime(actor), 0x2000, 16);
 		actor->xspr.respawnPending = 3;
-		evPostActor(actor, nTime, kCallbackRespawn);
+		evPostActor(actor, nTime, AF(Respawn));
 		break;
 	}
 	case 3: {
@@ -358,7 +358,7 @@ void PlayerBubble(DBloodActor* actor) // 10
 				pFX->vel.Z = actor->vel.Z + Random2F(0x1aaaa);
 			}
 		}
-		evPostActor(actor, 4, kCallbackPlayerBubble);
+		evPostActor(actor, 4, AF(PlayerBubble));
 	}
 }
 
@@ -389,7 +389,7 @@ void EnemyBubble(DBloodActor* actor) // 11
 			pFX->vel.Z = actor->vel.Z + Random2F(0x1aaaa);
 		}
 	}
-	evPostActor(actor, 4, kCallbackEnemeyBubble);
+	evPostActor(actor, 4, AF(EnemyBubble));
 }
 
 //---------------------------------------------------------------------------
@@ -416,7 +416,7 @@ void CounterCheck(sectortype* pSector) // 12
 	}
 
 	if (nCount < nReq) {
-		evPostSector(pSector, 5, kCallbackCounterCheck);
+		evPostSector(pSector, 5, kCmdCallback, nullptr);
 		return;
 	}
 	else {
@@ -484,7 +484,7 @@ void fxTeslaAlt(DBloodActor* actor) // 15
 		pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
 		pFX->vel.Z = actor->vel.Z - Random2F(0x1aaaa);
 	}
-	evPostActor(actor, 3, kCallbackFXTeslaAlt);
+	evPostActor(actor, 3, AF(fxTeslaAlt));
 }
 
 
@@ -598,7 +598,7 @@ void returnFlagToBase(DBloodActor* actor) // 17
 			break;
 		}
 	}
-	evPostActor(actor, 0, kCallbackRemove);
+	evPostActor(actor, 0, AF(Remove));
 }
 
 //---------------------------------------------------------------------------
@@ -620,7 +620,7 @@ void fxPodBloodSpray(DBloodActor* actor) // 18
 		pFX->spr.Angles.Yaw = nullAngle;
 		pFX->vel = actor->vel * (1./256);
 	}
-	evPostActor(actor, 6, kCallbackFXPodBloodSpray);
+	evPostActor(actor, 6, AF(fxPodBloodSpray));
 }
 
 //---------------------------------------------------------------------------
@@ -723,7 +723,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 	auto Owner = actor->GetOwner();
 	if (Owner == nullptr)
 	{
-		evPostActor(actor, 0, kCallbackRemove);
+		evPostActor(actor, 0, AF(Remove));
 		return;
 	}
 	DBloodPlayer* pPlayer;
@@ -733,7 +733,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 		pPlayer = nullptr;
 	if (!pPlayer)
 	{
-		evPostActor(actor, 0, kCallbackRemove);
+		evPostActor(actor, 0, AF(Remove));
 		return;
 	}
 	actor->spr.Angles.Yaw = (Owner->spr.pos - actor->spr.pos).Angle();
@@ -741,7 +741,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 	{
 		if (actor->xspr.data1 == 0)
 		{
-			evPostActor(actor, 0, kCallbackRemove);
+			evPostActor(actor, 0, AF(Remove));
 			return;
 		}
 
@@ -775,7 +775,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 							int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, actor->xspr.data1 << 4);
 							actor->xspr.data1 = ClipLow(actor->xspr.data1 - nDmg, 0);
 							sub_76A08(actor2, actor, pPlayer2);
-							evPostActor(actor, 0, kCallbackRemove);
+							evPostActor(actor, 0, AF(Remove));
 							return;
 						}
 					}
@@ -816,7 +816,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 						if (vd && (Chance(vd) || nextactor == nullptr))
 						{
 							sub_76A08(actor2, actor, NULL);
-							evPostActor(actor, 0, kCallbackRemove);
+							evPostActor(actor, 0, AF(Remove));
 							return;
 						}
 					}
@@ -824,70 +824,8 @@ void DropVoodooCb(DBloodActor* actor) // unused
 			}
 		}
 		actor->xspr.data1 = ClipLow(actor->xspr.data1 - 1, 0);
-		evPostActor(actor, 0, kCallbackRemove);
+		evPostActor(actor, 0, AF(Remove));
 	}
 }
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void callbackCondition(DBloodActor* actor)
-{
-	if (actor->xspr.isTriggered) return;
-
-	TRCONDITION const* pCond = &gConditions[actor->xspr.sysData1];
-	for (auto& obj : pCond->objects) 
-	{
-		EVENT evn;
-		evn.target = obj.obj;
-		evn.cmd = obj.cmd;
-		evn.funcID = kCallbackCondition;
-		useCondition(actor, evn);
-	}
-
-	evPostActor(actor, actor->xspr.busyTime, kCallbackCondition);
-	return;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void(*gCallback[kCallbackMax])(DBloodActor*) =
-{
-	fxFlameLick,
-	Remove,
-	FlareBurst,
-	fxFlareSpark,
-	fxFlareSparkLite,
-	fxZombieBloodSpurt,
-	fxBloodSpurt,
-	fxArcSpark,
-	fxDynPuff,
-	Respawn,
-	PlayerBubble,
-	EnemyBubble,
-	nullptr,
-	FinishHim,
-	fxBloodBits,
-	fxTeslaAlt,
-	fxBouncingSleeve,
-	returnFlagToBase,
-	fxPodBloodSpray,
-	fxPodBloodSplat,
-	LeechStateTimer,
-	DropVoodooCb, // unused
-	#ifdef NOONE_EXTENSIONS
-	callbackUniMissileBurst, // the code is in nnexts.cpp
-	callbackMakeMissileBlocking, // the code is in nnexts.cpp
-	callbackGenDudeUpdate, // the code is in nnexts.cpp
-	callbackCondition,
-	#endif
-};
 
 END_BLD_NS

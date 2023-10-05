@@ -44,15 +44,15 @@ CVARD(Bool, nnext_showconditionsprites, false, 0, "makes kModernCondition sprite
 
 
 
-short gEffectGenCallbacks[] = {
+VMNativeFunction** gEffectGenCallbacks[] = {
 
-	kCallbackFXFlameLick,
-	kCallbackFXFlareSpark,
-	kCallbackFXFlareSparkLite,
-	kCallbackFXZombieSpurt,
-	kCallbackFXBloodSpurt,
-	kCallbackFXArcSpark,
-	kCallbackFXTeslaAlt,
+	&AF(fxFlameLick),
+	&AF(fxFlareSpark),
+	&AF(fxFlareSparkLite),
+	&AF(fxZombieBloodSpurt),
+	&AF(fxBloodSpurt),
+	&AF(fxArcSpark),
+	&AF(fxTeslaAlt),
 
 };
 
@@ -1078,7 +1078,7 @@ void nnExtProcessSuperSprites()
 					EVENT evn;
 					evn.target = pCond->objects[k].obj;
 					evn.cmd = pCond->objects[k].cmd;
-					evn.funcID = kCallbackMax;
+					evn.funcID = nullptr;
 					evn.initiator = nullptr;
 					useCondition(pCond->actor, evn);
 				}
@@ -1088,7 +1088,7 @@ void nnExtProcessSuperSprites()
 				EVENT evn;
 				evn.target = EventObject(pCond->actor);
 				evn.cmd = (int8_t)aCond->xspr.command;
-				evn.funcID = kCallbackMax;
+				evn.funcID = nullptr;
 				evn.initiator = nullptr;
 				useCondition(pCond->actor, evn);
 			}
@@ -1330,7 +1330,7 @@ void nnExtProcessSuperSprites()
 
 			debrisactor->norm_ang();
 			DAngle ang = debrisactor->spr.Angles.Yaw;
-			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
+			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, AF(EnemyBubble));
 			else if (Chance(0x1000 - mass))
 			{
 				if (debrisactor->vel.Z > 0x100) debrisBubble(debrisactor);
@@ -1611,7 +1611,7 @@ void debrisBubble(DBloodActor* actor)
 	}
 
 	if (Chance(0x2000))
-		evPostActor(actor, 0, kCallbackEnemeyBubble);
+		evPostActor(actor, 0, AF(EnemyBubble));
 }
 
 //---------------------------------------------------------------------------
@@ -1742,15 +1742,15 @@ void debrisMove(int listIndex)
 				sfxPlay3DSoundVolume(actor, 720, -1, 0, pitch, 75 - Random(40));
 				if (!spriteIsUnderwater(actor))
 				{
-					evKillActor(actor, kCallbackEnemeyBubble);
+					evKillActor(actor, AF(EnemyBubble));
 				}
 				else
 				{
-					evPostActor(actor, 0, kCallbackEnemeyBubble);
+					evPostActor(actor, 0, AF(EnemyBubble));
 					for (int ii = 2; ii <= 5; ii++)
 					{
 						if (Chance(0x5000 * ii))
-							evPostActor(actor, Random(5), kCallbackEnemeyBubble);
+							evPostActor(actor, Random(5), AF(EnemyBubble));
 					}
 				}
 				break;
@@ -2462,7 +2462,7 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 			targetactor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
 			targetactor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
 			targetactor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-			evPostActor(targetactor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+			evPostActor(targetactor, kGenDudeUpdTimeRate, AF(GenDudeUpdate));
 
 		}
 
@@ -3300,9 +3300,9 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 		int length = sizeof(gEffectGenCallbacks) / sizeof(gEffectGenCallbacks[0]);
 		if (fxId < kEffectGenCallbackBase + length)
 		{
-			fxId = gEffectGenCallbacks[fxId - kEffectGenCallbackBase];
-			evKillActor(actor, (CALLBACK_ID)fxId);
-			evPostActor(actor, 0, (CALLBACK_ID)fxId);
+			auto fxfunc = gEffectGenCallbacks[fxId - kEffectGenCallbackBase];
+			evKillActor(actor, *fxfunc);
+			evPostActor(actor, 0, *fxfunc);
 		}
 
 	}
@@ -3628,14 +3628,14 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 			case kDmgBurn:
 				if (actor->xspr.burnTime > 0) break;
 				actBurnSprite(sourceactor, actor, ClipLow(dmg >> 1, 128));
-				evKillActor(actor, kCallbackFXFlameLick);
-				evPostActor(actor, 0, kCallbackFXFlameLick); // show flames
+				evKillActor(actor, AF(fxFlameLick));
+				evPostActor(actor, 0, AF(fxFlameLick)); // show flames
 				break;
 			case kDmgElectric:
 				forceRecoil = true; // show tesla recoil animation
 				break;
 			case kDmgBullet:
-				evKillActor(actor, kCallbackFXBloodSpurt);
+				evKillActor(actor, AF(fxBloodSpurt));
 				for (int i = 1; i < 6; i++)
 				{
 					if (Chance(0x16000 >> i))
@@ -3804,7 +3804,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					}
 
 					// should be: the more is seqs, the shorter is timer
-					evPostActor(spawned, 1000, kCallbackRemove);
+					evPostActor(spawned, 1000, AF(Remove));
 				}
 			}
 			else
@@ -5529,7 +5529,7 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 		case kSectorCounter:
 			if (pXSector->locked != 1) break;
 			SetSectorState(pSector, 0, event.initiator.Get());
-			evPostSector(pSector, 0, kCallbackCounterCheck);
+			evPostSector(pSector, 0, kCmdCallback, nullptr);
 			break;
 		}
 		return true;
@@ -6350,7 +6350,7 @@ int useCondition(DBloodActor* sourceactor, EVENT& event)
 		srcIsCondition = (pActor->GetType() == kModernCondition || pActor->GetType() == kModernConditionFalse);
 
 	// if it's a tracking condition, it must ignore all the commands sent from objects
-	if (sourceactor->xspr.busyTime > 0 && event.funcID != kCallbackMax) return -1;
+	if (sourceactor->xspr.busyTime > 0 && event.funcID != nullptr) return -1;
 	else if (!srcIsCondition) // save object serials in the stack and make copy of initial object
 	{
 		condPush(sourceactor, event.target);
@@ -6553,7 +6553,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 		// add bursting for missiles
 		if (missileactor->GetType() != kMissileFlareAlt && sourceactor->xspr.data4 > 0)
-			evPostActor(missileactor, ClipHigh(sourceactor->xspr.data4, 500), kCallbackMissileBurst);
+			evPostActor(missileactor, ClipHigh(sourceactor->xspr.data4, 500), AF(callbackUniMissileBurst));
 	}
 
 }
@@ -7614,7 +7614,7 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 			case kDudeModernCustomBurning:
 				objActor->genDudeExtra.updReq[kGenDudePropertyWeapon] = true;
 				objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-				evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+				evPostActor(objActor, kGenDudeUpdTimeRate, AF(GenDudeUpdate));
 				break;
 			}
 			return true;
@@ -7629,7 +7629,7 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 				objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
 				objActor->genDudeExtra.updReq[kGenDudePropertyStates] = true;
 				objActor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
-				evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+				evPostActor(objActor, kGenDudeUpdTimeRate, AF(GenDudeUpdate));
 				break;
 			}
 			return true;
@@ -9190,7 +9190,7 @@ void callbackUniMissileBurst(DBloodActor* actor) // 22
 		if ((burstactor->spr.cstat & CSTAT_SPRITE_BLOCK))
 		{
 			burstactor->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-			evPostActor(burstactor, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
+			evPostActor(burstactor, 100, AF(callbackMakeMissileBlocking)); // so set blocking flag a bit later
 		}
 
 		burstactor->spr.pal = actor->spr.pal;
@@ -9211,9 +9211,9 @@ void callbackUniMissileBurst(DBloodActor* actor) // 22
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
 		if (i & 1) spAngVec *= 0.5;
 		burstactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
-		evPostActor(burstactor, 960, kCallbackRemove);
+		evPostActor(burstactor, 960, AF(Remove));
 	}
-	evPostActor(actor, 0, kCallbackRemove);
+	evPostActor(actor, 0, AF(Remove));
 }
 
 
@@ -9317,7 +9317,7 @@ static void dokillEffectGenCallbacks(DBloodActor* actor)
 {
 	int l = sizeof(gEffectGenCallbacks) / sizeof(gEffectGenCallbacks[0]);
 	while (--l >= 0)
-		evKillActor(actor, (CALLBACK_ID)gEffectGenCallbacks[l]);
+		evKillActor(actor, *gEffectGenCallbacks[l]);
 }
 
 void killEffectGenCallbacks(DBloodActor* actor)
