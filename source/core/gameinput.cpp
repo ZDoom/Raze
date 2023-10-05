@@ -367,7 +367,7 @@ void GameInput::getInput(InputPacket* packet)
 {
 	I_GetEvent();
 
-	if (M_Active() || gamestate != GS_LEVEL)
+	if (paused || M_Active() || gamestate != GS_LEVEL)
 	{
 		inputBuffer = {};
 		return;
