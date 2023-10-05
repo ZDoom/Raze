@@ -7163,7 +7163,6 @@ static saveable_code saveable_player_code[] =
 
 static saveable_data saveable_player_data[] =
 {
-    SAVE_DATA(PlayerArray),
     SAVE_DATA(s_PlayerNinjaRun),
     SAVE_DATA(sg_PlayerNinjaRun),
     SAVE_DATA(s_PlayerNinjaStand),
