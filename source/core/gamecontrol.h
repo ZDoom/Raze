@@ -46,9 +46,6 @@ void ChangeLevel(MapRecord* map, int skill, bool bossexit = false);
 void CompleteLevel(MapRecord* map);
 bool CheckCheatmode(bool printmsg = true, bool sponly = false);
 void setVideoMode();
-bool SyncInput();
-void setForcedSyncInput(const int playeridx);
-void resetForcedSyncInput();
 
 void TITLE_InformName(const char* newname);
 

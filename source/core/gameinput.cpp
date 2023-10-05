@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameinput.h"
 #include "coreplayer.h"
 #include "g_input.h"
-#include "d_net.h"
 
 //---------------------------------------------------------------------------
 //
@@ -399,7 +398,7 @@ void PlayerAngles::doPitchInput(InputPacket* const input)
 	// Add player's mouse/device input.
 	if (input->ang.Pitch.Degrees())
 	{
-		pActor->spr.Angles.Pitch += input->ang.Pitch * SyncInput();
+		pActor->spr.Angles.Pitch += input->ang.Pitch * gameInput.SyncInput();
 		input->actions &= ~SB_CENTERVIEW;
 	}
 
@@ -446,7 +445,7 @@ void PlayerAngles::doPitchInput(InputPacket* const input)
 void PlayerAngles::doYawInput(InputPacket* const input)
 {
 	// Add player's mouse/device input.
-	pActor->spr.Angles.Yaw += input->ang.Yaw * SyncInput();
+	pActor->spr.Angles.Yaw += input->ang.Yaw * gameInput.SyncInput();
 
 	if (input->actions & SB_TURNAROUND)
 	{
@@ -597,7 +596,7 @@ void PlayerAngles::doRollInput(InputPacket* const input, const DVector2& nVelVec
 	else
 	{
 		// Add player's device input.
-		pActor->spr.Angles.Roll += input->ang.Roll * SyncInput();
+		pActor->spr.Angles.Roll += input->ang.Roll * gameInput.SyncInput();
 	}
 }
 

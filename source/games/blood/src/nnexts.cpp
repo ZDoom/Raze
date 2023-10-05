@@ -2192,7 +2192,7 @@ void trPlayerCtrlSetLookAngle(int value, DBloodPlayer* pPlayer)
 
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
-		setForcedSyncInput(pPlayer->pnum);
+		gameInput.ForceInputSync(pPlayer->pnum);
 		pPlayer->GetActor()->spr.Angles.Pitch = maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.)));
 	}
 }
@@ -6064,12 +6064,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				setForcedSyncInput(pPlayer->pnum);
+				gameInput.ForceInputSync(pPlayer->pnum);
 				pPlayer->GetActor()->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				setForcedSyncInput(pPlayer->pnum);
+				gameInput.ForceInputSync(pPlayer->pnum);
 				pPlayer->GetActor()->spr.Angles.Yaw = mapangle(actor->xspr.data2);
 			}
 			break;

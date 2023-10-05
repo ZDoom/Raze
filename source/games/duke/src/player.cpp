@@ -527,7 +527,7 @@ void playerisdead(DDukePlayer* const p, int psectlotag, double floorz, double ce
 	auto actor = p->GetActor();
 
 	// lock input when dead.
-	setForcedSyncInput(p->pnum);
+	gameInput.ForceInputSync(p->pnum);
 
 	if (p->dead_flag == 0)
 	{
@@ -857,7 +857,7 @@ void playerCenterView(DDukePlayer* const p)
 	{
 		p->cmd.ucmd.actions |= SB_CENTERVIEW;
 		p->cmd.ucmd.ang.Pitch = nullAngle;
-		setForcedSyncInput(p->pnum);
+		gameInput.ForceInputSync(p->pnum);
 	}
 	else
 	{

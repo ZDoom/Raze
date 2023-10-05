@@ -2455,7 +2455,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     double floordist = abs(zz - pp->sop->floor_loz);
-    setForcedSyncInput(pp->pnum);
+    gameInput.ForceInputSync(pp->pnum);
 
     DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125f);
     DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125f);
@@ -2590,7 +2590,7 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
-    setForcedSyncInput(pp->pnum);
+    gameInput.ForceInputSync(pp->pnum);
 
     DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125f);
     DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125f);
@@ -5678,7 +5678,7 @@ void DoPlayerBeginDie(DSWPlayer* pp)
     pp->Flags |= (PF_DEAD);
     plActor->user.Flags &= ~(SPR_BOUNCE);
     pp->Flags &= ~(PF_HEAD_CONTROL);
-    setForcedSyncInput(pp->pnum);
+    gameInput.ForceInputSync(pp->pnum);
 }
 
 //---------------------------------------------------------------------------
@@ -6775,7 +6775,7 @@ void domovethings(void)
         {
             WeaponOperate(pp);
             PlayerOperateEnv(pp);
-            resetForcedSyncInput();
+            gameInput.ResetInputSync();
         }
 
         // do for moving sectors

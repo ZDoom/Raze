@@ -386,7 +386,7 @@ public:
 
 		if ((centertest && returnlock) || !cmd.ucmd.ang.Pitch.Degrees())
 		{
-			setForcedSyncInput(pnum);
+			gameInput.ForceInputSync(pnum);
 			cmd.ucmd.ang.Pitch = nullAngle;
 		}
 		else

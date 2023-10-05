@@ -540,7 +540,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_NEWOWNER:
-		if (bSet && (p->newOwner = vValue.safeActor())) setForcedSyncInput(iPlayer);
+		if (bSet && (p->newOwner = vValue.safeActor())) gameInput.ForceInputSync(iPlayer);
 		else SetGameVarID(lVar2, p->newOwner, sActor, sPlayer);
 		break;
 
@@ -610,7 +610,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ON_CRANE:
-		if (bSet && (p->on_crane = vValue.safeActor())) setForcedSyncInput(iPlayer);
+		if (bSet && (p->on_crane = vValue.safeActor())) gameInput.ForceInputSync(iPlayer);
 		else SetGameVarID(lVar2, (p->on_crane), sActor, sPlayer);
 		break;
 
