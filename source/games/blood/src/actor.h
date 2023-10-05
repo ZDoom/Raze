@@ -203,4 +203,11 @@ bool IsUnderwaterSector(sectortype* pSector);
 #define AF(func) DBloodActor_##func##_VMPtr
 
 
+#define xx(n) inline PClassActor* n##Class;
+#include "classnames.h"
+#undef xx
+
+void RegisterClasses();
+
+
 END_BLD_NS

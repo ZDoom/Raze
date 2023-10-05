@@ -598,6 +598,7 @@ void GameInterface::app_init()
 		PlayerArray[i] = Create<DBloodPlayer>(i);
 		GC::WriteBarrier(PlayerArray[i]);
 	}
+	RegisterClasses();
 
 	mirrortile = tileGetTextureID(504);
 	InitTextureIDs();
@@ -734,6 +735,34 @@ inline DUDEINFO* getDudeInfo(DBloodActor* actor)
 inline DBloodPlayer* getPlayer(DBloodActor* actor)
 {
 	return getPlayer(actor->GetType() - kDudePlayer1);
+}
+
+
+// Register all internally used classes at game startup so that we can find naming errors right away without having them cause bugs later.
+void RegisterClasses()
+{
+#define xx(n) { #n, &n##Class},
+	static std::pair<const char*, PClassActor**> classreg[] = {
+	#include "classnames.h"
+	};
+#undef xx
+
+	int error = 0;
+	for (auto& classdef : classreg)
+	{
+		auto cls = PClass::FindActor(classdef.first);
+		if (cls == nullptr || !cls->IsDescendantOf(RUNTIME_CLASS(DBloodActor)))
+		{
+			Printf(TEXTCOLOR_RED "%s: Attempt to register unknown actor class\n", classdef.first);
+			error++;
+		}
+
+		*classdef.second = cls;
+	}
+	if (error > 0)
+	{
+		I_FatalError("Unable to register %d actor classes", error);
+	}
 }
 
 END_BLD_NS
