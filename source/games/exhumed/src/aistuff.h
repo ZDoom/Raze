@@ -97,7 +97,7 @@ void FuncFishLimb(int a, int b, int c);
 enum { kMaxGrenades = 50 };
 
 void BuildGrenade(DExhumedPlayer* const pPlayer);
-void ThrowGrenade(int nPlayer, double ecx, double push1);
+void ThrowGrenade(DExhumedPlayer* const pPlayer, double ecx, double push1);
 void FuncGrenade(int, int, int, int);
 
 // gun
@@ -158,7 +158,6 @@ void BuildItemAnim(DExhumedActor* nSprite);
 void ItemFlash();
 void FillItems(DExhumedPlayer* const pPlayer);
 void UseItem(DExhumedPlayer* const pPlayer, int nItem);
-void UseCurItem(int nPlayer);
 int GrabItem(DExhumedPlayer* const pPlayer, int nItem);
 void DropMagic(DExhumedActor* actor);
 void InitItems();
@@ -312,7 +311,7 @@ struct RA
 extern RA Ra[];
 
 void FreeRa(int nPlayer);
-void BuildRa(int nPlayer);
+void BuildRa(DExhumedPlayer* const pPlayer);
 void InitRa();
 void MoveRaToEnemy(RA* const pRa);
 void FuncRa(int, int, int, int);
