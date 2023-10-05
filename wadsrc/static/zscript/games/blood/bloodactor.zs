@@ -118,69 +118,6 @@ class BloodActor : CoreActor native
 	};
 	
 	
-	enum SEQ_CALLBACK_ID
-	{
-		nFireballClient,
-		dword_2192D8,
-		nNapalmClient,
-		dword_2192E0,
-		nTreeToGibClient,
-		nDudeToGibClient1,
-		nDudeToGibClient2,
-		nBatBiteClient,
-		nSlashClient,
-		nStompClient,
-		nEelBiteClient,
-		nBurnClient,
-		nAttackClient,
-		nCerberusBiteClient,
-		nCerberusBurnClient,
-		nCerberusBurnClient2,
-		nTommyClient,
-		nTeslaClient,
-		nShotClient,
-		nThrowClient,
-		n68170Client,
-		n68230Client,
-		nSlashFClient,
-		nThrowFClient,
-		nThrowSClient,
-		nBlastSClient,
-		nGhostSlashClient,
-		nGhostThrowClient,
-		nGhostBlastClient,
-		nGillBiteClient,
-		nJumpClient,
-		nHoundBiteClient,
-		nHoundBurnClient,
-		nPodStartChaseClient,
-		nTentacleStartSearchClient,
-		dword_279B3C,
-		dword_279B40,
-		nRatBiteClient,
-		nSpidBiteClient,
-		nSpidJumpClient,
-		nSpidBirthClient,
-		dword_279B54,
-		dword_279B58,
-		dword_279B5C,
-		nGenDudeAttack1,
-		nGenDudePunch,
-		nGenDudeThrow1,
-		nGenDudeThrow2,
-		nHackClient,
-		nStandClient,
-		nZombfHackClient,
-		nZombfPukeClient,
-		nZombfThrowClient,
-		nPlayerSurviveClient,
-		nPlayerKneelClient,
-		nFireballTrapClient,
-		nMGunFireClient,
-		nMGunOpenClient,
-	};
-	
-	
 // all callbacks, this is to allow using VM functions for all of them
 native void aiGenDudeMoveForward();
 native void aiMoveDodge();
@@ -415,7 +352,7 @@ native void DropVoodooCb(); // unused
 	native void impactMissile(int hitcode);
 
 	native void play3DSoundID(int soundId, int a3 = -1, int a4 = 0);
-	native void seqSpawnID(int seqID, int seqCallbackID); // temporary. Callback will be turned into a function
+	native void seqSpawnID(int seqID, VMFunction seqCallbackID);
 	
 	
 	virtual int getRespawnTime()

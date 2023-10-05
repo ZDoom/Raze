@@ -39,54 +39,54 @@ static void unicultThinkGoto(DBloodActor*);
 static void unicultThinkChase(DBloodActor*);
 static void forcePunch(DBloodActor*);
 
-AISTATE genDudeIdleL = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE genDudeIdleW = { kAiStateIdle, 13, -1, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE genDudeIdleL = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE genDudeIdleW = { kAiStateIdle, 13, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
 // ---------------------
-AISTATE genDudeSearchL = { kAiStateSearch, 9, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchW = { kAiStateSearch, 13, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchL = { kAiStateSearch, 9, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchW = { kAiStateSearch, 13, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeSearchShortL = { kAiStateSearch, 9, -1, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchShortW = { kAiStateSearch, 13, -1, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchShortL = { kAiStateSearch, 9, nullptr, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchShortW = { kAiStateSearch, 13, nullptr, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeSearchNoWalkL = { kAiStateSearch, 0, -1, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchNoWalkW = { kAiStateSearch, 13, -1, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchNoWalkL = { kAiStateSearch, 0, nullptr, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchNoWalkW = { kAiStateSearch, 13, nullptr, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeGotoL = { kAiStateMove, 9, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleL };
-AISTATE genDudeGotoW = { kAiStateMove, 13, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleW };
+AISTATE genDudeGotoL = { kAiStateMove, 9, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleL };
+AISTATE genDudeGotoW = { kAiStateMove, 13, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeDodgeL = { kAiStateMove, 9, -1, 90, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
-AISTATE genDudeDodgeD = { kAiStateMove, 14, -1, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
-AISTATE genDudeDodgeW = { kAiStateMove, 13, -1, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
+AISTATE genDudeDodgeL = { kAiStateMove, 9, nullptr, 90, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
+AISTATE genDudeDodgeD = { kAiStateMove, 14, nullptr, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
+AISTATE genDudeDodgeW = { kAiStateMove, 13, nullptr, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
 // ---------------------
-AISTATE genDudeDodgeShortL = { kAiStateMove, 9, -1, 60, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
-AISTATE genDudeDodgeShortD = { kAiStateMove, 14, -1, 60, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
-AISTATE genDudeDodgeShortW = { kAiStateMove, 13, -1, 60, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
+AISTATE genDudeDodgeShortL = { kAiStateMove, 9, nullptr, 60, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
+AISTATE genDudeDodgeShortD = { kAiStateMove, 14, nullptr, 60, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
+AISTATE genDudeDodgeShortW = { kAiStateMove, 13, nullptr, 60, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
 // ---------------------
-AISTATE genDudeDodgeShorterL = { kAiStateMove, 9, -1, 20, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
-AISTATE genDudeDodgeShorterD = { kAiStateMove, 14, -1, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
-AISTATE genDudeDodgeShorterW = { kAiStateMove, 13, -1, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
+AISTATE genDudeDodgeShorterL = { kAiStateMove, 9, nullptr, 20, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
+AISTATE genDudeDodgeShorterD = { kAiStateMove, 14, nullptr, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
+AISTATE genDudeDodgeShorterW = { kAiStateMove, 13, nullptr, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
 // ---------------------
-AISTATE genDudeChaseL = { kAiStateChase, 9, -1, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
-AISTATE genDudeChaseD = { kAiStateChase, 14, -1, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
-AISTATE genDudeChaseW = { kAiStateChase, 13, -1, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
+AISTATE genDudeChaseL = { kAiStateChase, 9, nullptr, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
+AISTATE genDudeChaseD = { kAiStateChase, 14, nullptr, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
+AISTATE genDudeChaseW = { kAiStateChase, 13, nullptr, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
 // ---------------------
-AISTATE genDudeChaseNoWalkL = { kAiStateChase, 0, -1, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
-AISTATE genDudeChaseNoWalkD = { kAiStateChase, 14, -1, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
-AISTATE genDudeChaseNoWalkW = { kAiStateChase, 13, -1, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
+AISTATE genDudeChaseNoWalkL = { kAiStateChase, 0, nullptr, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
+AISTATE genDudeChaseNoWalkD = { kAiStateChase, 14, nullptr, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
+AISTATE genDudeChaseNoWalkW = { kAiStateChase, 13, nullptr, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
 // ---------------------
-AISTATE genDudeFireL = { kAiStateChase, 6, nGenDudeAttack1, 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireL };
-AISTATE genDudeFireD = { kAiStateChase, 8, nGenDudeAttack1, 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireD };
-AISTATE genDudeFireW = { kAiStateChase, 8, nGenDudeAttack1, 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireW };
+AISTATE genDudeFireL = { kAiStateChase, 6, &AF(genDudeAttack1), 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireL };
+AISTATE genDudeFireD = { kAiStateChase, 8, &AF(genDudeAttack1), 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireD };
+AISTATE genDudeFireW = { kAiStateChase, 8, &AF(genDudeAttack1), 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireW };
 // ---------------------z
-AISTATE genDudeRecoilL = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &genDudeChaseL };
-AISTATE genDudeRecoilD = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &genDudeChaseD };
-AISTATE genDudeRecoilW = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &genDudeChaseW };
-AISTATE genDudeRecoilTesla = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &genDudeDodgeShortL };
+AISTATE genDudeRecoilL = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &genDudeChaseL };
+AISTATE genDudeRecoilD = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &genDudeChaseD };
+AISTATE genDudeRecoilW = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &genDudeChaseW };
+AISTATE genDudeRecoilTesla = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &genDudeDodgeShortL };
 // ---------------------
-AISTATE genDudeThrow = { kAiStateChase, 7, nGenDudeThrow1, 0, NULL, NULL, NULL, &genDudeChaseL };
-AISTATE genDudeThrow2 = { kAiStateChase, 7, nGenDudeThrow2, 0, NULL, NULL, NULL, &genDudeChaseL };
+AISTATE genDudeThrow = { kAiStateChase, 7, &AF(ThrowCallback1), 0, NULL, NULL, NULL, &genDudeChaseL };
+AISTATE genDudeThrow2 = { kAiStateChase, 7, &AF(ThrowCallback2), 0, NULL, NULL, NULL, &genDudeChaseL };
 // ---------------------
-AISTATE genDudePunch = { kAiStateChase,10, nGenDudePunch, 0, NULL, NULL, forcePunch, &genDudeChaseL };
+AISTATE genDudePunch = { kAiStateChase,10, &AF(punchCallback), 0, NULL, NULL, forcePunch, &genDudeChaseL };
 // ---------------------
 
 const GENDUDESND gCustomDudeSnd[] = {
@@ -1259,7 +1259,7 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
 	int stateSeq = actor->xspr.data2 + pAIState->seqId;
 	if (pAIState->seqId >= 0 && getSequence(stateSeq))
 	{
-		seqSpawn(stateSeq, actor, pAIState->funcId);
+		seqSpawn(stateSeq, actor, *pAIState->funcId);
 	}
 
 	if (pAIState->enterFunc)
@@ -1832,7 +1832,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 	else if (nType <= 6) { nSeq = 4; nSnd = 303; }
 	else if (nType == 7) { nSeq = 4; nSnd = 303; }
 
-	seqSpawn(nSeq, actExplosion, -1);
+	seqSpawn(nSeq, actExplosion);
 	sfxPlay3DSound(actExplosion, nSnd, -1, 0);
 
 	return true;
@@ -1869,7 +1869,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	spawned->xspr.data3 = 0;
 
 	// spawn seq
-	seqSpawn(genDudeSeqStartId(spawned), spawned, -1);
+	seqSpawn(genDudeSeqStartId(spawned), spawned);
 
 	// inherit movement speed.
 	spawned->xspr.busyTime = source->xspr.busyTime;
@@ -2012,7 +2012,7 @@ void genDudeTransform(DBloodActor* actor)
 		genDudePrepare(actor, kGenDudePropertyMass);
 		[[fallthrough]]; // go below
 	default:
-		seqSpawn(seqId, actor, -1);
+		seqSpawn(seqId, actor);
 
 		// save target
 		auto target = actor->GetTarget();
@@ -2446,7 +2446,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 	}
 	case kGenDudePropertySpriteSize: {
 		if (seqGetStatus(actor) == -1)
-			seqSpawn(actor->xspr.data2 + actor->xspr.aiState->seqId, actor, -1);
+			seqSpawn(actor->xspr.data2 + actor->xspr.aiState->seqId, actor);
 
 		// make sure dudes aren't in the floor or ceiling
 		double zTop, zBot;
@@ -2577,7 +2577,7 @@ bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 
 		playGenDudeSound(actor, kGenDudeSndTransforming);
 		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
-		if (getSequence(seqId)) seqSpawn(seqId, actor, -1);
+		if (getSequence(seqId)) seqSpawn(seqId, actor);
 		else
 		{
 			seqKill(actor);
@@ -2619,7 +2619,7 @@ bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 {
 	playGenDudeSound(actor, kGenDudeSndDeathNormal);
-	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
+	auto dudeToGib = (actCheckRespawn(actor)) ? nullptr : ((nSeq == 3) ? AF(DudeToGibCallback2) : AF(DudeToGibCallback1));
 	if (nSeq == 3)
 	{
 		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
@@ -2645,7 +2645,7 @@ void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 {
 	playGenDudeSound(actor, kGenDudeSndDeathExplode);
-	int dudeToGib = (actCheckRespawn(actor)) ? -1 : nDudeToGibClient1;
+	auto dudeToGib = (actCheckRespawn(actor)) ? nullptr : AF(DudeToGibCallback1);
 
 	if (Chance(0x4000)) spawnGibs(actor, GIBTYPE_27, -0xccccc);
 

@@ -80,7 +80,7 @@ struct SEQINST
 	int type;
 
 	int nSeqID;
-	int callback;
+	VMFunction* callback;
 	int16_t timeCounter;
 	uint8_t frameIndex;
 	void Update();
@@ -101,9 +101,9 @@ void seqPrecacheId(int id, int palette);
 SEQINST* GetInstance(int a1, EventObject& a2);
 SEQINST* GetInstance(DBloodActor* actor);
 void UnlockInstance(SEQINST* pInst);
-void seqSpawn(int a1, int ty, walltype* a2, int a4 = -1);
-void seqSpawn(int a1, int ty, sectortype* a2, int a4 = -1);
-void seqSpawn(int a1, DBloodActor* actor, int a4 = -1);
+void seqSpawn(int a1, int ty, walltype* a2, VMFunction* a4 = nullptr);
+void seqSpawn(int a1, int ty, sectortype* a2, VMFunction* a4 = nullptr);
+void seqSpawn(int a1, DBloodActor* actor, VMFunction* a4 = nullptr);
 
 void seqKill(int a1, walltype* a2);
 void seqKill(int a1, sectortype* a2);

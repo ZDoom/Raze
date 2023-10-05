@@ -40,23 +40,23 @@ static void entryAIdle(DBloodActor*);
 static void entryEStand(DBloodActor*);
 
 
-AISTATE zombieAIdle = { kAiStateIdle, 0, -1, 0, entryAIdle, NULL, aiThinkTarget, NULL };
-AISTATE zombieAChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, zombaThinkChase, NULL };
-AISTATE zombieAPonder = { kAiStateOther, 0, -1, 0, NULL, aiMoveTurn, zombaThinkPonder, NULL };
-AISTATE zombieAGoto = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, zombaThinkGoto, &zombieAIdle };
-AISTATE zombieAHack = { kAiStateChase, 6, nHackClient, 80, NULL, NULL, NULL, &zombieAPonder };
-AISTATE zombieASearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, zombaThinkSearch, &zombieAIdle };
-AISTATE zombieARecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &zombieAPonder };
-AISTATE zombieATeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zombieAPonder };
-AISTATE zombieARecoil2 = { kAiStateRecoil, 1, -1, 360, NULL, NULL, NULL, &zombieAStand };
-AISTATE zombieAStand = { kAiStateMove, 11, nStandClient, 0, NULL, NULL, NULL, &zombieAPonder };
-AISTATE zombieEIdle = { kAiStateIdle, 12, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE zombieEUp2 = { kAiStateMove, 0, -1, 1, entryEZombie, NULL, NULL, &zombieASearch };
-AISTATE zombieEUp = { kAiStateMove, 9, -1, 180, entryEStand, NULL, NULL, &zombieEUp2 };
-AISTATE zombie2Idle = { kAiStateIdle, 0, -1, 0, entryAIdle, NULL, myThinkTarget, NULL };
-AISTATE zombie2Search = { kAiStateSearch, 8, -1, 1800, NULL, NULL, myThinkSearch, &zombie2Idle };
-AISTATE zombieSIdle = { kAiStateIdle, 10, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL, NULL, &zombieAPonder };
+AISTATE zombieAIdle = { kAiStateIdle, 0, nullptr, 0, entryAIdle, NULL, aiThinkTarget, NULL };
+AISTATE zombieAChase = { kAiStateChase, 8, nullptr, 0, NULL, aiMoveForward, zombaThinkChase, NULL };
+AISTATE zombieAPonder = { kAiStateOther, 0, nullptr, 0, NULL, aiMoveTurn, zombaThinkPonder, NULL };
+AISTATE zombieAGoto = { kAiStateMove, 8, nullptr, 1800, NULL, aiMoveForward, zombaThinkGoto, &zombieAIdle };
+AISTATE zombieAHack = { kAiStateChase, 6, &AF(HackSeqCallback), 80, NULL, NULL, NULL, &zombieAPonder };
+AISTATE zombieASearch = { kAiStateSearch, 8, nullptr, 1800, NULL, aiMoveForward, zombaThinkSearch, &zombieAIdle };
+AISTATE zombieARecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &zombieAPonder };
+AISTATE zombieATeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &zombieAPonder };
+AISTATE zombieARecoil2 = { kAiStateRecoil, 1, nullptr, 360, NULL, NULL, NULL, &zombieAStand };
+AISTATE zombieAStand = { kAiStateMove, 11, &AF(StandSeqCallback), 0, NULL, NULL, NULL, &zombieAPonder };
+AISTATE zombieEIdle = { kAiStateIdle, 12, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE zombieEUp2 = { kAiStateMove, 0, nullptr, 1, entryEZombie, NULL, NULL, &zombieASearch };
+AISTATE zombieEUp = { kAiStateMove, 9, nullptr, 180, entryEStand, NULL, NULL, &zombieEUp2 };
+AISTATE zombie2Idle = { kAiStateIdle, 0, nullptr, 0, entryAIdle, NULL, myThinkTarget, NULL };
+AISTATE zombie2Search = { kAiStateSearch, 8, nullptr, 1800, NULL, NULL, myThinkSearch, &zombie2Idle };
+AISTATE zombieSIdle = { kAiStateIdle, 10, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE zombie13AC2C = { kAiStateOther, 11, &AF(StandSeqCallback), 0, entryEZombie, NULL, NULL, &zombieAPonder };
 
 void HackSeqCallback(DBloodActor* actor)
 {

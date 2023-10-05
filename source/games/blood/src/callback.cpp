@@ -293,10 +293,10 @@ void Respawn(DBloodActor* actor) // 9
 			default:
 				actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
 				if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-					seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
+					seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor);
 				break;
 			case kDudeModernCustom:
-				seqSpawn(genDudeSeqStartId(actor), actor, -1);
+				seqSpawn(genDudeSeqStartId(actor), actor);
 				break;
 			}
 
@@ -309,7 +309,7 @@ void Respawn(DBloodActor* actor) // 9
 			actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
 			actor->xspr.health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
 			if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-				seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
+				seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor);
 #endif
 			aiInitSprite(actor);
 			actor->xspr.key = 0;

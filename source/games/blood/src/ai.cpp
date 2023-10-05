@@ -32,8 +32,8 @@ BEGIN_BLD_NS
 
 void RecoilDude(DBloodActor* actor);
 
-AISTATE genIdle = { kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
-AISTATE genRecoil = { kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
+AISTATE genIdle = { kAiStateGenIdle, 0, nullptr, 0, NULL, NULL, NULL, NULL };
+AISTATE genRecoil = { kAiStateRecoil, 5, nullptr, 20, NULL, NULL, NULL, &genIdle };
 
 const int gCultTeslaFireChance[5] = { 0x2000, 0x4000, 0x8000, 0xa000, 0xe000 };
 
@@ -91,7 +91,7 @@ void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 	{
 		seqStartId += pAIState->seqId;
 		if (getSequence(seqStartId))
-			seqSpawn(seqStartId, actor, pAIState->funcId);
+			seqSpawn(seqStartId, actor, *pAIState->funcId);
 	}
 
 	if (pAIState->enterFunc)

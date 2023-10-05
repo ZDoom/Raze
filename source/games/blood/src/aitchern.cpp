@@ -35,15 +35,15 @@ static void sub_72850(DBloodActor*);
 static void tchernobogThinkChase(DBloodActor*);
 
 
-AISTATE tchernobogIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, sub_725A4, NULL };
-AISTATE tchernobogSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, sub_72580, &tchernobogIdle };
-AISTATE tchernobogChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, tchernobogThinkChase, NULL };
-AISTATE tchernobogRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tchernobogSearch };
-AISTATE tcherno13A9B8 = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, sub_72850, &tchernobogIdle };
-AISTATE tcherno13A9D4 = { kAiStateMove, 6, dword_279B54, 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tcherno13A9F0 = { kAiStateChase, 6, dword_279B58, 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tcherno13AA0C = { kAiStateChase, 7, dword_279B5C, 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tchernobogChase };
+AISTATE tchernobogIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, sub_725A4, NULL };
+AISTATE tchernobogSearch = { kAiStateSearch, 8, nullptr, 1800, NULL, aiMoveForward, sub_72580, &tchernobogIdle };
+AISTATE tchernobogChase = { kAiStateChase, 8, nullptr, 0, NULL, aiMoveForward, tchernobogThinkChase, NULL };
+AISTATE tchernobogRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tchernobogSearch };
+AISTATE tcherno13A9B8 = { kAiStateMove, 8, nullptr, 600, NULL, aiMoveForward, sub_72850, &tchernobogIdle };
+AISTATE tcherno13A9D4 = { kAiStateMove, 6, &AF(tchernobogBurnSeqCallback), 60, NULL, NULL, NULL, &tchernobogChase };
+AISTATE tcherno13A9F0 = { kAiStateChase, 6, &AF(tchernobogBurnSeqCallback2), 60, NULL, NULL, NULL, &tchernobogChase };
+AISTATE tcherno13AA0C = { kAiStateChase, 7, &AF(tchernobogFire), 60, NULL, NULL, NULL, &tchernobogChase };
+AISTATE tcherno13AA28 = { kAiStateChase, 8, nullptr, 60, NULL, aiMoveTurn, NULL, &tchernobogChase };
 
 static constexpr double Tchernnobog_XYOff = 350. / 16;
 

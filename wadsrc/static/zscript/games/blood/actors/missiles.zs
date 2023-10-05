@@ -10,7 +10,7 @@ class BloodMissileBase : BloodActor
 	meta double randomVel;
 	meta int seqID;
 	meta name seqName;
-	meta int seqCallbackID;	// make this a function name later
+	meta VMFunction seqCallbackID;
 	
 	property prefix: none;
 	property speed: speed;
@@ -29,7 +29,6 @@ class BloodMissileBase : BloodActor
 	{
 		seqID -1;
 		spawnsoundID -1;
-		seqCallbackID -1;
 	}
 	
 	virtual void initMissile(BloodActor spawner)
@@ -143,7 +142,7 @@ class BloodMissileFlameSpray : BloodMissileBase
 	{
 		super.InitMissile(spawner);
 		int index = Blood.Chance(0x8000)? 1 : 0;
-		self.seqSpawnID(index, -1);
+		self.seqSpawnID(index, nullptr);
 	}
 	
 }
@@ -157,7 +156,7 @@ class BloodMissileFireball : BloodMissileBase
 		clipdist 8.000000;
 		spawnsoundID 441;
 		seqID 22;
-		seqCallbackID nFireballClient;
+		seqCallbackID "BloodActor.FireballSeqCallback";
 	}
 }
 class BloodMissileTeslaRegular : BloodMissileBase
@@ -239,7 +238,7 @@ class BloodMissileFireballNapalm : BloodMissileBase
 		clipdist 6.000000;
 		spawnsoundID 441;
 		seqID 61;
-		seqCallbackID nNapalmClient;
+		seqCallbackID "BloodActor.NapalmSeqCallback";
 	}
 }
 class BloodMissileFireballCerberus : BloodMissileBase
@@ -251,7 +250,7 @@ class BloodMissileFireballCerberus : BloodMissileBase
 		shade -128;
 		clipdist 6.000000;
 		seqID 61;
-		seqCallbackID dword_2192E0;
+		seqCallbackID "BloodActor.Fx32Callback";
 	}
 }
 class BloodMissileFireballTchernobog : BloodMissileBase
@@ -263,7 +262,7 @@ class BloodMissileFireballTchernobog : BloodMissileBase
 		shade -128;
 		clipdist 4.000000;
 		seqID 23;
-		seqCallbackID dword_2192D8;
+		seqCallbackID "BloodActor.Fx33Callback";
 		movementAdd 0.5;
 		RandomVel 0x11111;
 	}

@@ -806,7 +806,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->pDudeInfo = pDudeInfo;
 	playerSetRace(pPlayer, kModeHuman);
 	playerResetPosture(pPlayer);
-	seqSpawn(pDudeInfo->seqStartID, actor, -1);
+	seqSpawn(pDudeInfo->seqStartID, actor);
 	if (nPlayer == myconnectindex)
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	double top, bottom;
@@ -1541,14 +1541,14 @@ void ProcessInput(DBloodPlayer* pPlayer)
 			if (bSeqStat)
 			{
 				if (pPlayer->deathTime > 360)
-					seqSpawn(pPlayer->pDudeInfo->seqStartID + 14, pPlayer->GetActor(), nPlayerSurviveClient);
+					seqSpawn(pPlayer->pDudeInfo->seqStartID + 14, pPlayer->GetActor(), AF(PlayerSurvive));
 			}
 			else if (seqGetStatus(pPlayer->GetActor()) < 0)
 			{
 				if (pPlayer->GetActor())
 					pPlayer->GetActor()->ChangeType(kThingBloodChunks);
 				actPostSprite(pPlayer->GetActor(), kStatThing);
-				seqSpawn(pPlayer->pDudeInfo->seqStartID + 15, pPlayer->GetActor(), -1);
+				seqSpawn(pPlayer->pDudeInfo->seqStartID + 15, pPlayer->GetActor());
 				playerReset(pPlayer);
 				if (gGameOptions.nGameType == 0 && numplayers == 1)
 				{
@@ -1860,16 +1860,16 @@ void playerProcess(DBloodPlayer* pPlayer)
 	switch (pPlayer->posture)
 	{
 	case 1:
-		seqSpawn(dudeInfo[nType].seqStartID + 9, actor, -1);
+		seqSpawn(dudeInfo[nType].seqStartID + 9, actor);
 		break;
 	case 2:
-		seqSpawn(dudeInfo[nType].seqStartID + 10, actor, -1);
+		seqSpawn(dudeInfo[nType].seqStartID + 10, actor);
 		break;
 	default:
 		if (!nSpeed)
-			seqSpawn(dudeInfo[nType].seqStartID, actor, -1);
+			seqSpawn(dudeInfo[nType].seqStartID, actor);
 		else
-			seqSpawn(dudeInfo[nType].seqStartID + 8, actor, -1);
+			seqSpawn(dudeInfo[nType].seqStartID + 8, actor);
 		break;
 	}
 }
@@ -2065,7 +2065,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 	DBloodActor* pActor = pPlayer->GetActor();
 	DUDEINFO* pDudeInfo = getDudeInfo(pActor->GetType());
 	int nDeathSeqID = -1;
-	int nKneelingPlayer = -1;
+	VMFunction* nKneelingPlayer = nullptr;
 	bool va = playerSeqPlaying(pPlayer, 16);
 	if (!pActor->xspr.health)
 	{
@@ -2156,7 +2156,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 				DAMAGEINFO* pDamageInfo = &damageInfo[nDamageType];
 				sfxPlay3DSound(pPlayer->GetActor(), pDamageInfo->at10[0], 0, 2);
 				nDeathSeqID = 16;
-				nKneelingPlayer = nPlayerKneelClient;
+				nKneelingPlayer = AF(PlayerKneelsOver);
 				powerupActivate(pPlayer, kPwUpDeliriumShroom);
 				pActor->SetTarget(source);
 				evPostActor(pPlayer->GetActor(), 15, AF(FinishHim));

@@ -203,6 +203,7 @@ bool IsUnderwaterSector(sectortype* pSector);
     }
 #define AF(func) DBloodActor_##func##_VMPtr
 
+void callActorFunction(VMFunction* callback, DBloodActor* actor);
 
 #define xx(n) inline PClassActor* n##Class;
 #include "classnames.h"

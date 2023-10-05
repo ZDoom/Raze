@@ -34,16 +34,16 @@ static void zombfThinkGoto(DBloodActor* actor);
 static void zombfThinkChase(DBloodActor* actor);
 
 
-AISTATE zombieFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE zombieFChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, zombfThinkChase, NULL };
-AISTATE zombieFGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, zombfThinkGoto, &zombieFIdle };
-AISTATE zombieFDodge = { kAiStateMove, 8, -1, 0, NULL, aiMoveDodge, zombfThinkChase, &zombieFChase };
-AISTATE zombieFHack = { kAiStateChase, 6, nZombfHackClient, 120, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFPuke = { kAiStateChase, 9, nZombfPukeClient, 120, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFThrow = { kAiStateChase, 6, nZombfThrowClient, 120, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, zombfThinkSearch, &zombieFIdle };
-AISTATE zombieFRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE zombieFChase = { kAiStateChase, 8, nullptr, 0, NULL, aiMoveForward, zombfThinkChase, NULL };
+AISTATE zombieFGoto = { kAiStateMove, 8, nullptr, 600, NULL, aiMoveForward, zombfThinkGoto, &zombieFIdle };
+AISTATE zombieFDodge = { kAiStateMove, 8, nullptr, 0, NULL, aiMoveDodge, zombfThinkChase, &zombieFChase };
+AISTATE zombieFHack = { kAiStateChase, 6, &AF(zombfHackSeqCallback), 120, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFPuke = { kAiStateChase, 9, &AF(PukeSeqCallback), 120, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFThrow = { kAiStateChase, 6, &AF(ThrowSeqCallback), 120, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFSearch = { kAiStateSearch, 8, nullptr, 1800, NULL, aiMoveForward, zombfThinkSearch, &zombieFIdle };
+AISTATE zombieFRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &zombieFChase };
 
 void zombfHackSeqCallback(DBloodActor* actor)
 {

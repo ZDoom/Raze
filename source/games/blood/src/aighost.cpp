@@ -41,24 +41,24 @@ static void ghostMoveSwoop(DBloodActor*);
 static void ghostMoveFly(DBloodActor*);
 
 
-AISTATE ghostIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, ghostThinkTarget, NULL };
-AISTATE ghostChase = { kAiStateChase, 0, -1, 0, NULL, ghostMoveForward, ghostThinkChase, &ghostIdle };
-AISTATE ghostGoto = { kAiStateMove, 0, -1, 600, NULL, ghostMoveForward, ghostThinkGoto, &ghostIdle };
-AISTATE ghostSlash = { kAiStateChase, 6, nGhostSlashClient, 120, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostThrow = { kAiStateChase, 6, nGhostThrowClient, 120, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostBlast = { kAiStateChase, 6, nGhostBlastClient, 120, NULL, ghostMoveSlow, NULL, &ghostChase };
-AISTATE ghostRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostSearch = { kAiStateSearch, 0, -1, 120, NULL, ghostMoveForward, ghostThinkSearch, &ghostIdle };
-AISTATE ghostSwoop = { kAiStateOther, 0, -1, 120, NULL, ghostMoveSwoop, ghostThinkChase, &ghostChase };
-AISTATE ghostFly = { kAiStateMove, 0, -1, 0, NULL, ghostMoveFly, ghostThinkChase, &ghostChase };
-AISTATE ghostTurn = { kAiStateMove, 0, -1, 120, NULL, aiMoveTurn, NULL, &ghostChase };
-AISTATE ghostDodgeUp = { kAiStateMove, 0, -1, 60, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
-AISTATE ghostDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
-AISTATE ghostDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
-AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
-AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
-AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
+AISTATE ghostIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, ghostThinkTarget, NULL };
+AISTATE ghostChase = { kAiStateChase, 0, nullptr, 0, NULL, ghostMoveForward, ghostThinkChase, &ghostIdle };
+AISTATE ghostGoto = { kAiStateMove, 0, nullptr, 600, NULL, ghostMoveForward, ghostThinkGoto, &ghostIdle };
+AISTATE ghostSlash = { kAiStateChase, 6, &AF(ghostSlashSeqCallback), 120, NULL, NULL, NULL, &ghostChase };
+AISTATE ghostThrow = { kAiStateChase, 6, &AF(ghostThrowSeqCallback), 120, NULL, NULL, NULL, &ghostChase };
+AISTATE ghostBlast = { kAiStateChase, 6, &AF(ghostBlastSeqCallback), 120, NULL, ghostMoveSlow, NULL, &ghostChase };
+AISTATE ghostRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &ghostChase };
+AISTATE ghostTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &ghostChase };
+AISTATE ghostSearch = { kAiStateSearch, 0, nullptr, 120, NULL, ghostMoveForward, ghostThinkSearch, &ghostIdle };
+AISTATE ghostSwoop = { kAiStateOther, 0, nullptr, 120, NULL, ghostMoveSwoop, ghostThinkChase, &ghostChase };
+AISTATE ghostFly = { kAiStateMove, 0, nullptr, 0, NULL, ghostMoveFly, ghostThinkChase, &ghostChase };
+AISTATE ghostTurn = { kAiStateMove, 0, nullptr, 120, NULL, aiMoveTurn, NULL, &ghostChase };
+AISTATE ghostDodgeUp = { kAiStateMove, 0, nullptr, 60, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
+AISTATE ghostDodgeUpRight = { kAiStateMove, 0, nullptr, 90, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
+AISTATE ghostDodgeUpLeft = { kAiStateMove, 0, nullptr, 90, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
+AISTATE ghostDodgeDown = { kAiStateMove, 0, nullptr, 120, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
+AISTATE ghostDodgeDownRight = { kAiStateMove, 0, nullptr, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
+AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, nullptr, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 
 void ghostSlashSeqCallback(DBloodActor* actor)
 {

@@ -33,42 +33,42 @@ static void burnThinkSearch(DBloodActor*);
 static void burnThinkGoto(DBloodActor*);
 static void burnThinkChase(DBloodActor*);
 
-AISTATE cultistBurnIdle = { kAiStateIdle, 3, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE cultistBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &cultistBurnSearch };
-AISTATE cultistBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, &cultistBurnSearch };
-AISTATE cultistBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &cultistBurnChase };
+AISTATE cultistBurnIdle = { kAiStateIdle, 3, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE cultistBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE cultistBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &cultistBurnSearch };
+AISTATE cultistBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, &cultistBurnSearch };
+AISTATE cultistBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &cultistBurnChase };
 
-AISTATE zombieABurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE zombieABurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &zombieABurnSearch };
-AISTATE zombieABurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, NULL };
-AISTATE zombieABurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &zombieABurnChase };
+AISTATE zombieABurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE zombieABurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &zombieABurnSearch };
+AISTATE zombieABurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, NULL };
+AISTATE zombieABurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &zombieABurnChase };
 
-AISTATE zombieFBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE zombieFBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &zombieFBurnSearch };
-AISTATE zombieFBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, NULL };
-AISTATE zombieFBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &zombieFBurnChase };
+AISTATE zombieFBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE zombieFBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &zombieFBurnSearch };
+AISTATE zombieFBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, NULL };
+AISTATE zombieFBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &zombieFBurnChase };
 
-AISTATE innocentBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE innocentBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &zombieFBurnSearch };
-AISTATE innocentBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, NULL };
-AISTATE innocentBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &zombieFBurnChase };
+AISTATE innocentBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE innocentBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &zombieFBurnSearch };
+AISTATE innocentBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, NULL };
+AISTATE innocentBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &zombieFBurnChase };
 
-AISTATE beastBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE beastBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &beastBurnSearch };
-AISTATE beastBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, &beastBurnSearch };
-AISTATE beastBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &beastBurnChase };
+AISTATE beastBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE beastBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &beastBurnSearch };
+AISTATE beastBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, &beastBurnSearch };
+AISTATE beastBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &beastBurnChase };
 
-AISTATE tinycalebBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE tinycalebBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &tinycalebBurnSearch };
-AISTATE tinycalebBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, &tinycalebBurnSearch };
-AISTATE tinycalebBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &tinycalebBurnChase };
+AISTATE tinycalebBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE tinycalebBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &tinycalebBurnSearch };
+AISTATE tinycalebBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, &tinycalebBurnSearch };
+AISTATE tinycalebBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &tinycalebBurnChase };
 
-AISTATE genDudeBurnIdle = { kAiStateIdle, 3, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE genDudeBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
-AISTATE genDudeBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burnThinkGoto, &genDudeBurnSearch };
-AISTATE genDudeBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, &genDudeBurnSearch };
-AISTATE genDudeBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &genDudeBurnChase };
+AISTATE genDudeBurnIdle = { kAiStateIdle, 3, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE genDudeBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, aiMoveForward, burnThinkChase, NULL };
+AISTATE genDudeBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkGoto, &genDudeBurnSearch };
+AISTATE genDudeBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, aiMoveForward, burnThinkSearch, &genDudeBurnSearch };
+AISTATE genDudeBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &genDudeBurnChase };
 
 void BurnSeqCallback(DBloodActor*)
 {

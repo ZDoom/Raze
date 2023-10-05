@@ -38,24 +38,24 @@ static void sub_65D04(DBloodActor*);
 static void sub_65F44(DBloodActor*);
 static void sub_661E0(DBloodActor*);
 
-AISTATE tinycalebIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE tinycalebChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, calebThinkChase, NULL };
-AISTATE tinycalebDodge = { kAiStateMove, 6, -1, 90, NULL, aiMoveDodge, NULL, &tinycalebChase };
-AISTATE tinycalebGoto = { kAiStateMove, 6, -1, 600, NULL, aiMoveForward, calebThinkGoto, &tinycalebIdle };
-AISTATE tinycalebAttack = { kAiStateChase, 0, nAttackClient, 120, NULL, NULL, NULL, &tinycalebChase };
-AISTATE tinycalebSearch = { kAiStateSearch, 6, -1, 120, NULL, aiMoveForward, calebThinkSearch, &tinycalebIdle };
-AISTATE tinycalebRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tinycalebDodge };
-AISTATE tinycalebTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &tinycalebDodge };
-AISTATE tinycalebSwimIdle = { kAiStateIdle, 10, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE tinycalebSwimChase = { kAiStateChase, 8, -1, 0, NULL, sub_65D04, calebThinkSwimChase, NULL };
-AISTATE tinycalebSwimDodge = { kAiStateMove, 8, -1, 90, NULL, aiMoveDodge, NULL, &tinycalebSwimChase };
-AISTATE tinycalebSwimGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, calebThinkSwimGoto, &tinycalebSwimIdle };
-AISTATE tinycalebSwimSearch = { kAiStateSearch, 8, -1, 120, NULL, aiMoveForward, calebThinkSearch, &tinycalebSwimIdle };
-AISTATE tinycalebSwimAttack = { kAiStateChase, 10, nAttackClient, 0, NULL, NULL, NULL, &tinycalebSwimChase };
-AISTATE tinycalebSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tinycalebSwimDodge };
-AISTATE tinycaleb139660 = { kAiStateOther, 8, -1, 120, NULL, sub_65F44, calebThinkSwimChase, &tinycalebSwimChase };
-AISTATE tinycaleb13967C = { kAiStateOther, 8, -1, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
-AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
+AISTATE tinycalebIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE tinycalebChase = { kAiStateChase, 6, nullptr, 0, NULL, aiMoveForward, calebThinkChase, NULL };
+AISTATE tinycalebDodge = { kAiStateMove, 6, nullptr, 90, NULL, aiMoveDodge, NULL, &tinycalebChase };
+AISTATE tinycalebGoto = { kAiStateMove, 6, nullptr, 600, NULL, aiMoveForward, calebThinkGoto, &tinycalebIdle };
+AISTATE tinycalebAttack = { kAiStateChase, 0, &AF(SeqAttackCallback), 120, NULL, NULL, NULL, &tinycalebChase };
+AISTATE tinycalebSearch = { kAiStateSearch, 6, nullptr, 120, NULL, aiMoveForward, calebThinkSearch, &tinycalebIdle };
+AISTATE tinycalebRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tinycalebDodge };
+AISTATE tinycalebTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &tinycalebDodge };
+AISTATE tinycalebSwimIdle = { kAiStateIdle, 10, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE tinycalebSwimChase = { kAiStateChase, 8, nullptr, 0, NULL, sub_65D04, calebThinkSwimChase, NULL };
+AISTATE tinycalebSwimDodge = { kAiStateMove, 8, nullptr, 90, NULL, aiMoveDodge, NULL, &tinycalebSwimChase };
+AISTATE tinycalebSwimGoto = { kAiStateMove, 8, nullptr, 600, NULL, aiMoveForward, calebThinkSwimGoto, &tinycalebSwimIdle };
+AISTATE tinycalebSwimSearch = { kAiStateSearch, 8, nullptr, 120, NULL, aiMoveForward, calebThinkSearch, &tinycalebSwimIdle };
+AISTATE tinycalebSwimAttack = { kAiStateChase, 10, &AF(SeqAttackCallback), 0, NULL, NULL, NULL, &tinycalebSwimChase };
+AISTATE tinycalebSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tinycalebSwimDodge };
+AISTATE tinycaleb139660 = { kAiStateOther, 8, nullptr, 120, NULL, sub_65F44, calebThinkSwimChase, &tinycalebSwimChase };
+AISTATE tinycaleb13967C = { kAiStateOther, 8, nullptr, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
+AISTATE tinycaleb139698 = { kAiStateOther, 8, nullptr, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
 
 void SeqAttackCallback(DBloodActor* actor)
 {

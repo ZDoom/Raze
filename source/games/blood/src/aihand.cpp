@@ -33,13 +33,13 @@ static void handThinkSearch(DBloodActor*);
 static void handThinkGoto(DBloodActor*);
 static void handThinkChase(DBloodActor*);
 
-AISTATE handIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE hand13A3B4 = { kAiStateOther, 0, -1, 0, NULL, NULL, NULL, NULL };
-AISTATE handSearch = { kAiStateMove, 6, -1, 600, NULL, aiMoveForward, handThinkSearch, &handIdle };
-AISTATE handChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, handThinkChase, NULL };
-AISTATE handRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &handSearch };
-AISTATE handGoto = { kAiStateMove, 6, -1, 1800, NULL, aiMoveForward, handThinkGoto, &handIdle };
-AISTATE handJump = { kAiStateChase, 7, nJumpClient, 120, NULL, NULL, NULL, &handChase };
+AISTATE handIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE hand13A3B4 = { kAiStateOther, 0, nullptr, 0, NULL, NULL, NULL, NULL };
+AISTATE handSearch = { kAiStateMove, 6, nullptr, 600, NULL, aiMoveForward, handThinkSearch, &handIdle };
+AISTATE handChase = { kAiStateChase, 6, nullptr, 0, NULL, aiMoveForward, handThinkChase, NULL };
+AISTATE handRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &handSearch };
+AISTATE handGoto = { kAiStateMove, 6, nullptr, 1800, NULL, aiMoveForward, handThinkGoto, &handIdle };
+AISTATE handJump = { kAiStateChase, 7, &AF(HandJumpSeqCallback), 120, NULL, NULL, NULL, &handChase };
 
 void HandJumpSeqCallback(DBloodActor* actor)
 {

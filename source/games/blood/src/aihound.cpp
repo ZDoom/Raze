@@ -33,14 +33,14 @@ static void houndThinkSearch(DBloodActor*);
 static void houndThinkGoto(DBloodActor*);
 static void houndThinkChase(DBloodActor*);
 
-AISTATE houndIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE houndSearch = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, houndThinkSearch, &houndIdle };
-AISTATE houndChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, houndThinkChase, NULL };
-AISTATE houndRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &houndSearch };
-AISTATE houndTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &houndSearch };
-AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, houndThinkGoto, &houndIdle };
-AISTATE houndBite = { kAiStateChase, 6, nHoundBiteClient, 60, NULL, NULL, NULL, &houndChase };
-AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, &houndChase };
+AISTATE houndIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE houndSearch = { kAiStateMove, 8, nullptr, 1800, NULL, aiMoveForward, houndThinkSearch, &houndIdle };
+AISTATE houndChase = { kAiStateChase, 8, nullptr, 0, NULL, aiMoveForward, houndThinkChase, NULL };
+AISTATE houndRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &houndSearch };
+AISTATE houndTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &houndSearch };
+AISTATE houndGoto = { kAiStateMove, 8, nullptr, 600, NULL, aiMoveForward, houndThinkGoto, &houndIdle };
+AISTATE houndBite = { kAiStateChase, 6, &AF(houndBiteSeqCallback), 60, NULL, NULL, NULL, &houndChase };
+AISTATE houndBurn = { kAiStateChase, 7, &AF(houndBurnSeqCallback), 60, NULL, NULL, NULL, &houndChase };
 
 void houndBiteSeqCallback(DBloodActor* actor)
 {

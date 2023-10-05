@@ -42,24 +42,24 @@ static void eelMoveAscend(DBloodActor* actor);
 static void eelMoveToCeil(DBloodActor*);
 
 
-AISTATE eelIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
-AISTATE eelFlyIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
-AISTATE eelChase = { kAiStateChase, 0, -1, 0, NULL, eelMoveForward, eelThinkChase, &eelIdle };
-AISTATE eelPonder = { kAiStateOther, 0, -1, 0, NULL, NULL, eelThinkPonder, NULL };
-AISTATE eelGoto = { kAiStateMove, 0, -1, 600, NULL, NULL, eelThinkGoto, &eelIdle };
-AISTATE eelBite = { kAiStateChase, 7, nEelBiteClient, 60, NULL, NULL, NULL, &eelChase };
-AISTATE eelRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &eelChase };
-AISTATE eelSearch = { kAiStateSearch, 0, -1, 120, NULL, eelMoveForward, eelThinkSearch, &eelIdle };
-AISTATE eelSwoop = { kAiStateOther, 0, -1, 60, NULL, eelMoveSwoop, eelThinkChase, &eelChase };
-AISTATE eelFly = { kAiStateMove, 0, -1, 0, NULL, eelMoveAscend, eelThinkChase, &eelChase };
-AISTATE eelTurn = { kAiStateMove, 0, -1, 60, NULL, aiMoveTurn, NULL, &eelChase };
-AISTATE eelHide = { kAiStateOther, 0, -1, 0, NULL, eelMoveToCeil, eelMoveForward, NULL };
-AISTATE eelDodgeUp = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeUp, NULL, &eelChase };
-AISTATE eelDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeUp, NULL, &eelChase };
-AISTATE eelDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeUp, NULL, &eelChase };
-AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL, &eelChase };
-AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
-AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
+AISTATE eelIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, eelThinkTarget, NULL };
+AISTATE eelFlyIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, eelThinkTarget, NULL };
+AISTATE eelChase = { kAiStateChase, 0, nullptr, 0, NULL, eelMoveForward, eelThinkChase, &eelIdle };
+AISTATE eelPonder = { kAiStateOther, 0, nullptr, 0, NULL, NULL, eelThinkPonder, NULL };
+AISTATE eelGoto = { kAiStateMove, 0, nullptr, 600, NULL, NULL, eelThinkGoto, &eelIdle };
+AISTATE eelBite = { kAiStateChase, 7, &AF(eelBiteSeqCallback), 60, NULL, NULL, NULL, &eelChase };
+AISTATE eelRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &eelChase };
+AISTATE eelSearch = { kAiStateSearch, 0, nullptr, 120, NULL, eelMoveForward, eelThinkSearch, &eelIdle };
+AISTATE eelSwoop = { kAiStateOther, 0, nullptr, 60, NULL, eelMoveSwoop, eelThinkChase, &eelChase };
+AISTATE eelFly = { kAiStateMove, 0, nullptr, 0, NULL, eelMoveAscend, eelThinkChase, &eelChase };
+AISTATE eelTurn = { kAiStateMove, 0, nullptr, 60, NULL, aiMoveTurn, NULL, &eelChase };
+AISTATE eelHide = { kAiStateOther, 0, nullptr, 0, NULL, eelMoveToCeil, eelMoveForward, NULL };
+AISTATE eelDodgeUp = { kAiStateMove, 0, nullptr, 120, NULL, eelMoveDodgeUp, NULL, &eelChase };
+AISTATE eelDodgeUpRight = { kAiStateMove, 0, nullptr, 90, NULL, eelMoveDodgeUp, NULL, &eelChase };
+AISTATE eelDodgeUpLeft = { kAiStateMove, 0, nullptr, 90, NULL, eelMoveDodgeUp, NULL, &eelChase };
+AISTATE eelDodgeDown = { kAiStateMove, 0, nullptr, 120, NULL, eelMoveDodgeDown, NULL, &eelChase };
+AISTATE eelDodgeDownRight = { kAiStateMove, 0, nullptr, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
+AISTATE eelDodgeDownLeft = { kAiStateMove, 0, nullptr, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
 void eelBiteSeqCallback(DBloodActor* actor)
 {

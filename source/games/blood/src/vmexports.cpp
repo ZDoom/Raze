@@ -341,7 +341,7 @@ DEFINE_ACTION_FUNCTION(DBloodActor, seqSpawnID)	// will be changed later.
 {
 	PARAM_SELF_PROLOGUE(DBloodActor);
 	PARAM_INT(seqid);
-	PARAM_INT(cbid);
+	PARAM_POINTER(cbid, VMFunction);
 	seqSpawn(seqid, self, cbid);
 	return 0;
 }
@@ -414,6 +414,11 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 void callActorFunction(VMFunction* funcID, DBloodActor* actor)
 {
 	if (funcID)

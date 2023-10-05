@@ -184,7 +184,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 	if (pFX->seq)
 	{
 		actor->addX();
-		seqSpawn(pFX->seq, actor, -1);
+		seqSpawn(pFX->seq, actor);
 	}
 	if (angle == nullAngle)
 		angle = mapangle(pFX->defangle);

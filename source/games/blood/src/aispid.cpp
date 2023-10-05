@@ -34,14 +34,14 @@ static void spidThinkGoto(DBloodActor*);
 static void spidThinkChase(DBloodActor*);
 
 
-AISTATE spidIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE spidChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, spidThinkChase, NULL };
-AISTATE spidDodge = { kAiStateMove, 7, -1, 90, NULL, aiMoveDodge, NULL, &spidChase };
-AISTATE spidGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, spidThinkGoto, &spidIdle };
-AISTATE spidSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, spidThinkSearch, &spidIdle };
-AISTATE spidBite = { kAiStateChase, 6, nSpidBiteClient, 60, NULL, NULL, NULL, &spidChase };
-AISTATE spidJump = { kAiStateChase, 8, nSpidJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
-AISTATE spidBirth = { kAiStateOther, 0, nSpidBirthClient, 60, NULL, NULL, NULL, &spidIdle };
+AISTATE spidIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE spidChase = { kAiStateChase, 7, nullptr, 0, NULL, aiMoveForward, spidThinkChase, NULL };
+AISTATE spidDodge = { kAiStateMove, 7, nullptr, 90, NULL, aiMoveDodge, NULL, &spidChase };
+AISTATE spidGoto = { kAiStateMove, 7, nullptr, 600, NULL, aiMoveForward, spidThinkGoto, &spidIdle };
+AISTATE spidSearch = { kAiStateSearch, 7, nullptr, 1800, NULL, aiMoveForward, spidThinkSearch, &spidIdle };
+AISTATE spidBite = { kAiStateChase, 6, &AF(SpidBiteSeqCallback), 60, NULL, NULL, NULL, &spidChase };
+AISTATE spidJump = { kAiStateChase, 8, &AF(SpidJumpSeqCallback), 60, NULL, aiMoveForward, NULL, &spidChase };
+AISTATE spidBirth = { kAiStateOther, 0, &AF(SpidBirthSeqCallback), 60, NULL, NULL, NULL, &spidIdle };
 
 static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 {

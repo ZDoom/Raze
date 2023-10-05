@@ -36,68 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void (*seqClientCallback[])(DBloodActor*) = {
-	FireballSeqCallback,
-	Fx33Callback,
-	NapalmSeqCallback,
-	Fx32Callback,
-	TreeToGibCallback,
-	DudeToGibCallback1,
-	DudeToGibCallback2,
-	batBiteSeqCallback,
-	SlashSeqCallback,
-	StompSeqCallback,
-	eelBiteSeqCallback,
-	BurnSeqCallback,
-	SeqAttackCallback,
-	cerberusBiteSeqCallback,
-	cerberusBurnSeqCallback,
-	cerberusBurnSeqCallback2,
-	TommySeqCallback,
-	TeslaSeqCallback,
-	ShotSeqCallback,
-	cultThrowSeqCallback,
-	cultThrowSeqCallback2,
-	cultThrowSeqCallback3,
-	SlashFSeqCallback,
-	ThrowFSeqCallback,
-	ThrowSSeqCallback,
-	BlastSSeqCallback,
-	ghostSlashSeqCallback,
-	ghostThrowSeqCallback,
-	ghostBlastSeqCallback,
-	GillBiteSeqCallback,
-	HandJumpSeqCallback,
-	houndBiteSeqCallback,
-	houndBurnSeqCallback,
-	podAttack,
-	podExplode,
-	podPlaySound1,
-	podPlaySound2,
-	ratBiteSeqCallback,
-	SpidBiteSeqCallback,
-	SpidJumpSeqCallback,
-	SpidBirthSeqCallback,
-	tchernobogBurnSeqCallback,
-	tchernobogBurnSeqCallback2,
-	tchernobogFire,
-	genDudeAttack1,
-	punchCallback,
-	ThrowCallback1,
-	ThrowCallback2,
-	HackSeqCallback,
-	StandSeqCallback,
-	zombfHackSeqCallback,
-	PukeSeqCallback,
-	ThrowSeqCallback,
-	PlayerSurvive,
-	PlayerKneelsOver,
-	FireballTrapSeqCallback,
-	MGunFireSeqCallback,
-	MGunOpenSeqCallback,
-};
-
-
 //---------------------------------------------------------------------------
 //
 //
@@ -399,10 +337,10 @@ void SEQINST::Update()
 	}
 
 	// all seq callbacks are for sprites, but there's no sanity checks here that what gets passed is meant to be for a sprite...
-	if (pSequence->frames[frameIndex].trigger && callback != -1)
+	if (pSequence->frames[frameIndex].trigger && callback != nullptr)
 	{
 		assert(type == SS_SPRITE);
-		if (target.isActor()) seqClientCallback[callback](target.actor());
+		if (target.isActor()) callActorFunction(callback, target.actor());
 	}
 
 }
@@ -593,7 +531,7 @@ Seq* getSequence(int res_id)
 //
 //---------------------------------------------------------------------------
 
-void seqSpawn_(int nSeqID, int type, const EventObject& eob, int callback)
+void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callback)
 {
 	Seq* pSequence = getSequence(nSeqID);
 
@@ -621,18 +559,18 @@ void seqSpawn_(int nSeqID, int type, const EventObject& eob, int callback)
 	pInst->Update();
 }
 
-void seqSpawn(int nSeqID, DBloodActor* actor, int callback)
+void seqSpawn(int nSeqID, DBloodActor* actor, VMFunction* callback)
 {
 	seqSpawn_(nSeqID, SS_SPRITE, EventObject(actor), callback);
 }
 
-void seqSpawn(int nSeqID, int type, sectortype* sect, int callback)
+void seqSpawn(int nSeqID, int type, sectortype* sect, VMFunction* callback)
 {
 	assert(type == SS_FLOOR || type == SS_CEILING);
 	seqSpawn_(nSeqID, type, EventObject(sect), callback);
 }
 
-void seqSpawn(int nSeqID, int type, walltype* wal, int callback)
+void seqSpawn(int nSeqID, int type, walltype* wal, VMFunction* callback)
 {
 	assert(type == SS_WALL || type == SS_MASKED);
 	seqSpawn_(nSeqID, type, EventObject(wal), callback);

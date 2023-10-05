@@ -172,60 +172,60 @@ AISTATE genPatrolStates[] = {
 
 	//-------------------------------------------------------------------------------
 
-	{ kAiStatePatrolWaitL, 0, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitL, 7, -1, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitL, 0, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitL, 7, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
 
-	{ kAiStatePatrolMoveL, 9, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 8, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 0, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 6, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 7, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveL, 9, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveL, 8, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveL, 0, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveL, 6, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveL, 7, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
 
-	{ kAiStatePatrolTurnL, 9, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 8, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 0, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 6, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 7, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-
-	//-------------------------------------------------------------------------------
-
-	{ kAiStatePatrolWaitW, 0, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 10, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 13, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 17, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 8, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 9, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-
-	{ kAiStatePatrolMoveW, 0, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 10, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 13, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 8, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 9, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 7, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 6, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-
-	{ kAiStatePatrolTurnW, 0, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 10, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 13, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 8, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 9, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 7, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 6, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnL, 9, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnL, 8, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnL, 0, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnL, 6, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnL, 7, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
 
 	//-------------------------------------------------------------------------------
 
-	{ kAiStatePatrolWaitC, 17, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitC, 11, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitC, 10, -1, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitC, 14, -1, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 0, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 10, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 13, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 17, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 8, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 9, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
 
-	{ kAiStatePatrolMoveC, 14, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveC, 10, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveC, 9, -1, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 0, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 10, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 13, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 8, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 9, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 7, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 6, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
 
-	{ kAiStatePatrolTurnC, 14, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnC, 10, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnC, 9, -1, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 0, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 10, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 13, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 8, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 9, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 7, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 6, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+
+	//-------------------------------------------------------------------------------
+
+	{ kAiStatePatrolWaitC, 17, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitC, 11, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitC, 10, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitC, 14, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+
+	{ kAiStatePatrolMoveC, 14, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveC, 10, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveC, 9, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+
+	{ kAiStatePatrolTurnC, 14, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnC, 10, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnC, 9, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
 
 	//-------------------------------------------------------------------------------
 
@@ -283,7 +283,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	pDudeActor->xspr.health = getDudeInfo(nType)->startHealth << 4;
 
 	if (fileSystem.FindResource(getDudeInfo(nType)->seqStartID, "SEQ"))
-		seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor, -1);
+		seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor);
 
 	// add a way to inherit some values of spawner by dude.
 	if (sourceactor->spr.flags & kModernTypeFlag1) {
@@ -3686,9 +3686,9 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 		else
 		{
 			if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 1)
-				seqSpawn(sourceactor->xspr.data2, SS_FLOOR, pSector, -1);
+				seqSpawn(sourceactor->xspr.data2, SS_FLOOR, pSector);
 			if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 2)
-				seqSpawn(sourceactor->xspr.data2, SS_CEILING, pSector, -1);
+				seqSpawn(sourceactor->xspr.data2, SS_CEILING, pSector);
 		}
 		return;
 	}
@@ -3704,20 +3704,20 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 		else
 		{
 			if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 1)
-				seqSpawn(sourceactor->xspr.data2, SS_WALL, pWall, -1);
+				seqSpawn(sourceactor->xspr.data2, SS_WALL, pWall);
 
 			if (sourceactor->xspr.data3 == 3 || sourceactor->xspr.data3 == 2) {
 
 				if (!pWall->twoSided()) {
 					if (sourceactor->xspr.data3 == 3)
-						seqSpawn(sourceactor->xspr.data2, SS_WALL, pWall, -1);
+						seqSpawn(sourceactor->xspr.data2, SS_WALL, pWall);
 
 				}
 				else {
 					if (!(pWall->cstat & CSTAT_WALL_MASKED))
 						pWall->cstat |= CSTAT_WALL_MASKED;
 
-					seqSpawn(sourceactor->xspr.data2, SS_MASKED, pWall, -1);
+					seqSpawn(sourceactor->xspr.data2, SS_MASKED, pWall);
 				}
 			}
 
@@ -3783,7 +3783,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					spawned->spr.pos = pos;
 
 					spawned->addX();
-					seqSpawn(sourceactor->xspr.data2, spawned, -1);
+					seqSpawn(sourceactor->xspr.data2, spawned);
 					if (sourceactor->spr.flags & kModernTypeFlag1)
 					{
 						spawned->spr.pal = sourceactor->spr.pal;
@@ -3809,7 +3809,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 			}
 			else
 			{
-				seqSpawn(sourceactor->xspr.data2, iactor, -1);
+				seqSpawn(sourceactor->xspr.data2, iactor);
 			}
 
 			if (sourceactor->xspr.data4 > 0)

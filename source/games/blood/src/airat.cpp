@@ -33,13 +33,13 @@ static void ratThinkSearch(DBloodActor*);
 static void ratThinkGoto(DBloodActor*);
 static void ratThinkChase(DBloodActor*);
 
-AISTATE ratIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE ratSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, ratThinkSearch, &ratIdle };
-AISTATE ratChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, ratThinkChase, NULL };
-AISTATE ratDodge = { kAiStateMove, 7, -1, 0, NULL, NULL, NULL, &ratChase };
-AISTATE ratRecoil = { kAiStateRecoil, 7, -1, 0, NULL, NULL, NULL, &ratDodge };
-AISTATE ratGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, ratThinkGoto, &ratIdle };
-AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ratChase };
+AISTATE ratIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE ratSearch = { kAiStateSearch, 7, nullptr, 1800, NULL, aiMoveForward, ratThinkSearch, &ratIdle };
+AISTATE ratChase = { kAiStateChase, 7, nullptr, 0, NULL, aiMoveForward, ratThinkChase, NULL };
+AISTATE ratDodge = { kAiStateMove, 7, nullptr, 0, NULL, NULL, NULL, &ratChase };
+AISTATE ratRecoil = { kAiStateRecoil, 7, nullptr, 0, NULL, NULL, NULL, &ratDodge };
+AISTATE ratGoto = { kAiStateMove, 7, nullptr, 600, NULL, aiMoveForward, ratThinkGoto, &ratIdle };
+AISTATE ratBite = { kAiStateChase, 6, &AF(ratBiteSeqCallback), 120, NULL, NULL, NULL, &ratChase };
 
 void ratBiteSeqCallback(DBloodActor* actor)
 {

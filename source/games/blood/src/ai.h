@@ -32,7 +32,7 @@ BEGIN_BLD_NS
 struct AISTATE {
 	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
 	int seqId;
-	int funcId; // seq callback
+	VMNativeFunction** funcId;
 	int stateTicks;
 	void(*enterFunc)(DBloodActor *);
 	void(*moveFunc)(DBloodActor *);

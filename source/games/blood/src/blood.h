@@ -230,10 +230,6 @@ DEF_ANIMATOR(SpidBirthSeqCallback)
 DEF_ANIMATOR(tchernobogFire)
 DEF_ANIMATOR(tchernobogBurnSeqCallback)
 DEF_ANIMATOR(tchernobogBurnSeqCallback2)
-DEF_ANIMATOR(genDudeAttack1)
-DEF_ANIMATOR(punchCallback)
-DEF_ANIMATOR(ThrowCallback1)
-DEF_ANIMATOR(ThrowCallback2)
 DEF_ANIMATOR(HackSeqCallback)
 DEF_ANIMATOR(StandSeqCallback)
 DEF_ANIMATOR(zombfHackSeqCallback)
@@ -244,6 +240,13 @@ DEF_ANIMATOR(PlayerKneelsOver)
 DEF_ANIMATOR(FireballTrapSeqCallback)
 DEF_ANIMATOR(MGunFireSeqCallback)
 DEF_ANIMATOR(MGunOpenSeqCallback)
+
+// nnext
+DEF_ANIMATOR(genDudeAttack1)
+DEF_ANIMATOR(punchCallback)
+DEF_ANIMATOR(ThrowCallback1)
+DEF_ANIMATOR(ThrowCallback2)
+
 // event callbacks
 DEF_ANIMATOR(fxFlameLick) // 0
 DEF_ANIMATOR(Remove) // 1
