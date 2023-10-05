@@ -66,8 +66,8 @@ int ZCCRazeCompiler::Compile()
 	CompileAllConstants();
 	CompileAllFields();
 	CompileAllProperties();
-	InitDefaults();
 	InitFunctions();
+	InitDefaults();
 	return FScriptPosition::ErrorCounter;
 }
 
@@ -607,6 +607,16 @@ void ZCCRazeCompiler::DispatchScriptProperty(PProperty *prop, ZCC_PropertyStmt *
 		else if (f->Type == TypeName)
 		{
 			*(FName*)addr = GetStringConst(ex, ctx);
+		}
+		else if (f->Type == TypeVMFunction)
+		{
+			auto name = GetStringConst(ex, ctx);
+			auto vmfunc = FindVMFunction(name);
+			if (!vmfunc)
+			{
+				Error(property, "'%s': Unknown function", name);
+			}
+			*(void**)addr = vmfunc;
 		}
 		else if (f->Type == TypeSound)
 		{

@@ -365,6 +365,7 @@ native void FireballTrapSeqCallback();
 native void MGunFireSeqCallback();
 native void MGunOpenSeqCallback();
 native void fxFlameLick(); // 0
+native void Remove(); // 1
 native void FlareBurst(); // 2
 native void fxFlareSpark(); // 3
 native void fxFlareSparkLite(); // 4
@@ -408,7 +409,7 @@ native void DropVoodooCb(); // unused
 	native void ChangeType(class<BloodActor> newtype);
 	native static BloodActor InsertSprite(sectortype pSector, int nStat, Class<BloodActor> cls);
 	native void addX();
-	native void evPostActorCallback(int delta, int callback);
+	native void evPostActorCallback(int delta, VMFunction callback);
 	native double, double getActorExtents();
 	native int HitScan(double z, vector3 xyz, int clipmask, double clipdist); 
 	native void impactMissile(int hitcode);
@@ -472,7 +473,7 @@ native void DropVoodooCb(); // unused
 		}
 		if (itemtype is 'BloodFlagBase' && gGameOptions.nGameType == Blood.kTeamplay)
 		{
-			spawned.evPostActorCallback(1800, AF(returnFlagToBase));
+			spawned.evPostActorCallback(1800, "BloodActor.returnFlagToBase");
 		}
 
 		double top, bottom;
@@ -527,7 +528,7 @@ native void DropVoodooCb(); // unused
 		spawned.cstat |= CSTAT_SPRITE_BLOCK;
 		spawned.xspr.target = null;
 
-		spawned.evPostActorCallback(600, AF(Remove));
+		spawned.evPostActorCallback(600, "BloodActor.Remove");
 
 		spawned.initMissile(self); // handle type specific init.
 

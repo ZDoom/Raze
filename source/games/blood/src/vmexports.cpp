@@ -408,10 +408,20 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 		DBloodActor* spawned;
 		VMReturn ret((void**)&spawned);
 		VMValue param[] = { actor, xyoff, zoff, dv.X, dv.Y, dv.Z, ty};
-		VMCall(func, param, 1, &ret, 1);
+		VMCall(func, param, 7, &ret, 1);
 		return spawned;
 	}
 	return nullptr;
+}
+
+void callActorFunction(VMFunction* funcID, DBloodActor* actor)
+{
+	if (funcID)
+	{
+		VMValue param[] = { actor };
+		VMCall(funcID, param, 1, nullptr, 0);
+	}
+
 }
 
 

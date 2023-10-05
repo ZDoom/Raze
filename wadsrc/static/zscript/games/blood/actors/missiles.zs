@@ -3,7 +3,7 @@ class BloodMissileBase : BloodActor
 	meta double speed;
 	meta double defclipdist;
 	meta double angleofs;
-	meta int callbackID;	// make this a function name later
+	meta VMFunction callback;
 	meta int spawnsoundID;
 	meta Sound spawnsound;
 	meta double movementAdd;
@@ -16,7 +16,7 @@ class BloodMissileBase : BloodActor
 	property speed: speed;
 	property clipdist: defclipdist;
 	property angleofs: angleofs;
-	property callbackID: callbackID;
+	property callback: callback;
 	property spawnsound: spawnsound;
 	property spawnsoundID: spawnsoundID;
 	property movementAdd: movementAdd;
@@ -27,7 +27,6 @@ class BloodMissileBase : BloodActor
 	
 	default
 	{
-		callbackID -1;
 		seqID -1;
 		spawnsoundID -1;
 		seqCallbackID -1;
@@ -48,9 +47,9 @@ class BloodMissileBase : BloodActor
 		{
 			self.seqSpawnID(self.seqID, self.seqCallbackID);
 		}
-		if (self.callbackID > -1)
+		if (self.callback != null)
 		{
-			self.evPostActorCallback(0, self.callbackID);
+			self.evPostActorCallback(0, self.callback);
 		}
 		if (self.spawnsound != 0)
 		{
@@ -93,7 +92,7 @@ class BloodMissileFlareRegular : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 8.000000;
-		callbackID kCallbackFXFlareSpark;
+		callback "BloodActor.fxFlareSpark";
 		spawnsoundID 422;
 	}
 }
@@ -106,7 +105,7 @@ class BloodMissileTeslaAlt : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 8.000000;
-		callbackID kCallbackFXTeslaAlt;
+		callback "BloodActor.fxTeslaAlt";
 	}
 }
 class BloodMissileFlareAlt : BloodMissileBase
@@ -118,14 +117,14 @@ class BloodMissileFlareAlt : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 1.000000;
-		callbackID kCallbackFXFlareSpark;
+		callback "BloodActor.fxFlareSpark";
 		spawnsoundID 422;
 	}
 		
 	override void initMissile(BloodActor spawner)
 	{
 		super.initMissile(spawner);
-		self.evPostActorCallback(30, kCallbackFXFlareBurst);
+		self.evPostActorCallback(30, "BloodActor.FlareBurst");
 	}
 }
 class BloodMissileFlameSpray : BloodMissileBase
@@ -278,7 +277,7 @@ class BloodMissileLifeLeechRegular : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 4.000000;
-		callbackID kCallbackFXFlameLick;
+		callback "BloodActor.fxFlameLick";
 	}
 }
 class BloodMissileLifeLeechAltNormal : BloodMissileBase
@@ -301,7 +300,7 @@ class BloodMissileLifeLeechAltSmall : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 4.000000;
-		callbackID kCallbackFXArcSpark;
+		callback "BloodActor.fxArcSpark";
 	}
 }
 

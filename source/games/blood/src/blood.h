@@ -268,7 +268,7 @@ DEF_ANIMATOR(LeechStateTimer) // 20
 DEF_ANIMATOR(DropVoodooCb) // unused
 
 DEF_ANIMATOR(callbackMakeMissileBlocking)
-DEF_ANIMATOR(GenDudeUpdate)
+DEF_ANIMATOR(callbackGenDudeUpdate)
 DEF_ANIMATOR(callbackUniMissileBurst)
 
 enum EFeatureFlags

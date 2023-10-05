@@ -2462,7 +2462,7 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 			targetactor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
 			targetactor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
 			targetactor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-			evPostActor(targetactor, kGenDudeUpdTimeRate, AF(GenDudeUpdate));
+			evPostActor(targetactor, kGenDudeUpdTimeRate, AF(callbackGenDudeUpdate));
 
 		}
 
@@ -7614,7 +7614,7 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 			case kDudeModernCustomBurning:
 				objActor->genDudeExtra.updReq[kGenDudePropertyWeapon] = true;
 				objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-				evPostActor(objActor, kGenDudeUpdTimeRate, AF(GenDudeUpdate));
+				evPostActor(objActor, kGenDudeUpdTimeRate, AF(callbackGenDudeUpdate));
 				break;
 			}
 			return true;
@@ -7629,7 +7629,7 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 				objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
 				objActor->genDudeExtra.updReq[kGenDudePropertyStates] = true;
 				objActor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
-				evPostActor(objActor, kGenDudeUpdTimeRate, AF(GenDudeUpdate));
+				evPostActor(objActor, kGenDudeUpdTimeRate, AF(callbackGenDudeUpdate));
 				break;
 			}
 			return true;

@@ -1639,6 +1639,23 @@ FxExpression *FxTypeCast::Resolve(FCompileContext &ctx)
 		// don't go through the entire list if the types are the same.
 		goto basereturn;
 	}
+	else if ((basex->ValueType == TypeString || basex->ValueType == TypeName) && ValueType == TypeVMFunction && basex->isConstant())
+	{
+		FxExpression* x = new FxStringCast(basex);
+		x = x->Resolve(ctx);
+		basex = nullptr;
+		auto c = static_cast<FxConstant*>(x)->GetValue().GetString().GetChars();
+		auto func = FindVMFunction(c);
+		if (func == nullptr)
+		{
+			ScriptPosition.Message(MSG_ERROR, "VM function %s not found", c);
+			delete this;
+			return nullptr;
+		}
+		auto newx = new FxConstant(func, ScriptPosition);
+		delete this;
+		return newx->Resolve(ctx);
+	}
 	else if (basex->ValueType == TypeNullPtr && ValueType->isPointer())
 	{
 		goto basereturn;
