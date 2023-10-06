@@ -175,6 +175,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_STATE*& w, P
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PANEL_STATE));
 }
 
+FSerializer& _Serialize(FSerializer& arc, const char* keyname, FState*& w, FState** def)
+{
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(FState));
+}
+
+FSerializer& _Serialize(FSerializer& arc, const char* keyname, FState**& w, FState*** def)
+{
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(FState*));
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SET*& w, ACTOR_ACTION_SET** def)
 {
 	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(ACTOR_ACTION_SET));
@@ -583,12 +593,21 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	}
 	if (arc.BeginObject(keyname))
 	{
-		arc("WallP", w.WallP, def->WallP)
+		// The default serializer cannot handle the statically defined states so call these functons explicitly.
+		_Serialize(arc, "State", w.__legacyState.State, &def->__legacyState.State);
+		_Serialize(arc, "Rot", w.__legacyState.Rot, &def->__legacyState.Rot);
+		_Serialize(arc, "StateStart", w.__legacyState.StateStart, &def->__legacyState.StateStart);
+		_Serialize(arc, "StateEnd", w.__legacyState.StateEnd, &def->__legacyState.StateEnd);
+		_Serialize(arc, "StateFallOverride", w.__legacyState.StateFallOverride, &def->__legacyState.StateFallOverride);
+		/*
 			("State", w.__legacyState.State, def->__legacyState.State)
-			//("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
+			("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
 			("StateStart", w.__legacyState.StateStart, def->__legacyState.StateStart)
 			("StateEnd", w.__legacyState.StateEnd, def->__legacyState.StateEnd)
-			//("StateFallOverride", w.__legacyState.StateFallOverride, def->__legacyState.StateFallOverride)
+			("StateFallOverride", w.__legacyState.StateFallOverride, def->__legacyState.StateFallOverride)
+			*/
+		arc
+			("WallP", w.WallP, def->WallP)
 			("ActorActionSet", w.__legacyState.ActorActionSet, def->__legacyState.ActorActionSet)
 			("Personality", w.Personality, def->Personality)
 			("Attrib", w.__legacyState.Attrib, def->__legacyState.Attrib)
