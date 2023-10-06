@@ -63,12 +63,17 @@ bool crouch_toggle = false;
 //
 //---------------------------------------------------------------------------
 
-static inline DAngle getscaledangle(const DAngle angle, const double scale, const double push)
+static inline DAngle getTicrateAngle(const double value)
 {
-	return (angle.Normalized180() * getTicrateScale(scale)) + DAngle::fromDeg(push);
+	return DAngle::fromDeg(getTicrateScale(value));
 }
 
-bool scaletozero(DAngle& angle, const double scale, const double push)
+static inline DAngle getscaledangle(const DAngle angle, const double scale, const DAngle push)
+{
+	return (angle.Normalized180() * getTicrateScale(scale)) + push;
+}
+
+bool scaletozero(DAngle& angle, const double scale, const DAngle push)
 {
 	const auto sgn = angle.Sgn();
 
@@ -116,7 +121,7 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	// set up variables.
 	InputPacket thisInput{};
 	keymove = 1 << int(!!(inputBuffer.actions & SB_RUN));
-	const auto hidspeed = DAngle::fromDeg(getTicrateScale(YAW_TURNSPEEDS[2]));
+	const auto hidspeed = getTicrateAngle(YAW_TURNSPEEDS[2]);
 
 	// get all input amounts.
 	const auto turning = buttonMap.ButtonDown(gamefunc_Turn_Right) -
@@ -139,7 +144,7 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	{
 		const double turndir = clamp(turning + strafing * !allowstrafe, -1., 1.);
 		const double tttscale = 1. / (1 + !(cl_noturnscaling || isTurboTurnTime()) * 2.8);
-		const DAngle turnspeed = DAngle::fromDeg(getTicrateScale(YAW_TURNSPEEDS[keymove]) * tttscale);
+		const DAngle turnspeed = getTicrateAngle(YAW_TURNSPEEDS[keymove]) * tttscale;
 		thisInput.ang.Yaw += MOUSE_SCALE * mouseInput.X * m_yaw;
 		thisInput.ang.Yaw -= hidspeed * joyAxes[JOYAXIS_Yaw] * scaleAdjust;
 		thisInput.ang.Yaw += turnspeed * turndir * scaleAdjust;
@@ -234,8 +239,7 @@ void GameInput::processVehicle(const double baseVel, const double velScale, cons
 
 		// Apply inputs.
 		thisInput.ang.Yaw += DAngle::fromDeg(((mouseVel > 1) ? g_sqrt(mouseVel) : mouseVel) * Sgn(turnVel) * Sgn(mouseInput.X) * Sgn(m_yaw));
-		thisInput.ang.Yaw -= DAngle::fromDeg(turnVel * joyAxes[JOYAXIS_Yaw]);
-		thisInput.ang.Yaw += DAngle::fromDeg(turnVel * kbdDir);
+		thisInput.ang.Yaw -= DAngle::fromDeg(turnVel * joyAxes[JOYAXIS_Yaw] - turnVel * kbdDir);
 		thisInput.ang.Yaw *= scaleAdjust;
 		inputBuffer.ang.Yaw += thisInput.ang.Yaw;
 		if (kbdDir) updateTurnHeldAmt(); else turnheldtime = 0;
@@ -406,12 +410,12 @@ void PlayerAngles::doPitchInput(InputPacket* const input)
 	// Process keyboard input.
 	if (const auto aiming = aimingDown - aimingUp)
 	{
-		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_AIMSPEED) * aiming);
+		pActor->spr.Angles.Pitch += getTicrateAngle(PITCH_AIMSPEED) * aiming;
 		input->actions &= ~SB_CENTERVIEW;
 	}
 	if (const auto looking = lookingDown - lookingUp)
 	{
-		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_LOOKSPEED) * looking);
+		pActor->spr.Angles.Pitch += getTicrateAngle(PITCH_LOOKSPEED) * looking;
 		input->actions |= SB_CENTERVIEW;
 	}
 
@@ -455,7 +459,7 @@ void PlayerAngles::doYawInput(InputPacket* const input)
 	if (YawSpin < nullAngle)
 	{
 		// return spin to 0
-		DAngle add = DAngle::fromDeg(getTicrateScale(!(input->actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH));
+		DAngle add = getTicrateAngle(!(input->actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH);
 		YawSpin += add;
 		if (YawSpin > nullAngle)
 		{
@@ -535,8 +539,8 @@ void PlayerAngles::doViewYaw(InputPacket* const input)
 	// Process keyboard input.
 	if (const auto looking = !!(input->actions & SB_LOOK_RIGHT) - !!(input->actions & SB_LOOK_LEFT))
 	{
-		ViewAngles.Yaw += DAngle::fromDeg(getTicrateScale(YAW_LOOKINGSPEED) * looking);
-		ViewAngles.Roll += DAngle::fromDeg(getTicrateScale(YAW_ROTATESPEED) * looking);
+		ViewAngles.Yaw += getTicrateAngle(YAW_LOOKINGSPEED) * looking;
+		ViewAngles.Roll += getTicrateAngle(YAW_ROTATESPEED) * looking;
 	}
 }
 
@@ -561,7 +565,7 @@ void PlayerAngles::doRollInput(InputPacket* const input, const DVector2& nVelVec
 		{
 			// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
 			const auto rollAdj = input->ang.Yaw * ROLL_TILTAVELSCALE * rollAmp;
-			const auto rollMax = DAngle::fromDeg((90. / 32. * 1.5) * cl_viewtiltscale);
+			const auto rollMax = ROLL_TILTAVELMAX * cl_viewtiltscale;
 			scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
 			pActor->spr.Angles.Roll = clamp(pActor->spr.Angles.Roll + rollAdj, -rollMax, rollMax);
 		}
