@@ -84,27 +84,6 @@ struct THINGINFO
 	double fClipdist() const { return clipdist * 0.25; }
 };
 
-struct MissileType
-{
-	int16_t picno;
-	int velocity;
-	int angleOfs;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
-	int8_t shade;
-	uint8_t clipDist;
-
-	double fClipDist() const
-	{
-		return clipDist * 0.25;
-	}
-	double fVelocity() const
-	{
-		return FixedToFloat(velocity);
-	}
-	FTextureID textureID() const { return tileGetTextureID(picno); }
-};
-
 struct EXPLOSION
 {
 	uint8_t repeat;
@@ -139,7 +118,6 @@ struct VECTORDATA {
 	double fMaxDist() const { return maxDist * maptoworld; }
 };
 
-extern const MissileType missileInfo[];
 extern const EXPLOSION explodeInfo[];
 extern const THINGINFO thingInfo[];
 extern const VECTORDATA gVectorData[];

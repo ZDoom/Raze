@@ -9199,7 +9199,7 @@ void callbackUniMissileBurst(DBloodActor* actor) // 22
 		burstactor->spr.scale = actor->spr.scale;
 		burstactor->spr.scale *= 0.5;
 
-		burstactor->spr.Angles.Yaw = actor->spr.Angles.Yaw + mapangle(missileInfo[actor->GetType() - kMissileBase].angleOfs);
+		burstactor->spr.Angles.Yaw = actor->spr.Angles.Yaw + DAngle::fromDeg(actor->FloatVar("angleofs"));
 		burstactor->SetOwner(actor);
 
 		IFVIRTUALPTRNAME(burstactor, NAME_BloodMissileBase, initMissile) // note: delete the name if this get scriptified.

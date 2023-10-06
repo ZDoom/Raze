@@ -151,8 +151,9 @@ static bool genDudeAdjustSlope(DBloodActor* actor, double dist, int weaponType, 
 			}
 			else if (weaponType == kGenDudeWeaponMissile)
 			{
-				const MissileType* pMissile = &missileInfo[pExtra->curWeapon - kMissileBase];
-				actor->dudeSlope = (fStart - ((fStart - fEnd) * 0.25)) - (pMissile->fClipDist()) / 2048;
+				auto type = GetSpawnType(pExtra->curWeapon);
+				auto clipdist = GetDefaultByType(type)->FloatVar("clipdist");
+				actor->dudeSlope = (fStart - ((fStart - fEnd) * 0.25)) - clipdist / 2048;
 			}
 			return true;
 		}
