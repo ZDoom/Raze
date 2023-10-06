@@ -1133,7 +1133,10 @@ void enterlevel(MapRecord *mi, int gamemode)
 	ud.ffire = ud.m_ffire;
 	lastlevel = 0;
 
-	OnEvent(EVENT_ENTERLEVEL);
+	for (int i = connecthead; i >= 0; i = connectpoint2[i])
+	{
+		OnEvent(EVENT_ENTERLEVEL, i);
+	}
 
 	// Stop all sounds
 	FX_StopAllSounds();
