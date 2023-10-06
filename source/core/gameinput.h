@@ -203,6 +203,7 @@ private:
 
 	// Constants used throughout input functions.
 	static constexpr double ROLL_TILTAVELSCALE = (1966426. / 12000000.);
+	static constexpr DAngle ROLL_TILTAVELMAX = DAngle::fromDeg(90. / 32. * 1.5);
 	static constexpr double ROLL_TILTRETURN = 15.;
 	static constexpr double YAW_LOOKINGSPEED = 801.5625;
 	static constexpr double YAW_ROTATESPEED = 63.28125;
@@ -215,11 +216,11 @@ private:
 	static constexpr double PITCH_HORIZOFFSPEED = 4.375;
 	static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
 	static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-127076387. / 3344227.);
-	static constexpr double PITCH_HORIZOFFPUSH = (14115687. / 31535389.);
+	static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(14115687. / 31535389.);
 };
 
 extern GameInput gameInput;
 
 class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-bool scaletozero(DAngle& angle, const double scale, const double push = (7646143. / 110386328.));
+bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(7646143. / 110386328.));
