@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "vm.h"
 #include "tilesetbuilder.h"
 #include "nnexts.h"
+#include "thingdef.h"
 
 BEGIN_BLD_NS
 
@@ -762,6 +763,15 @@ void RegisterClasses()
 	if (error > 0)
 	{
 		I_FatalError("Unable to register %d actor classes", error);
+	}
+}
+
+DEFINE_PROPERTY(dmgcontrol, IIIIIII, BloodActor)
+{
+	for (int i = 0; i < kDamageMax; i++)
+	{
+		PROP_INT_PARM(j, i);
+		defaults->dmgControl[i] = (int16_t)clamp(j, -32768, 32767);
 	}
 }
 

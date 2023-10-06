@@ -1393,16 +1393,13 @@ static void actInitThings()
 		if (!act->hasX()) continue;
 
 		int nType = act->GetType() - kThingBase;
-		act->xspr.health = thingInfo[nType].startHealth << 4;
-#ifdef NOONE_EXTENSIONS
-		// allow level designer to set custom clipdist.
-		// this is especially useful for various Gib and Explode objects which have clipdist 1 for some reason predefined,
-		// but what if it have voxel model...?
-		if (!gModernMap)
-#endif
-			act->clipdist = thingInfo[nType].fClipdist();
 
-		act->spr.flags = thingInfo[nType].flags;
+		act->xspr.health = act->IntVar("defhealth");
+		// allow levels to set custom clipdist.
+		if (act->clipdist == 0 || !(currentLevel->featureflags & kFeatureCustomClipdist))
+			act->clipdist = act->FloatVar("defclipdist");
+
+		act->spr.flags = act->IntVar("defflags");
 		if (act->spr.flags & kPhysGravity) act->spr.flags |= kPhysFalling;
 		act->vel.Zero();
 
@@ -1465,18 +1462,18 @@ static void actInitDudes()
 		}
 		Level.setKills(TotalKills);
 
-		///////////////
-
-		for (int i = 0; i < kDudeMax - kDudeBase; i++)
-			for (int j = 0; j < 7; j++)
-				dudeInfo[i].damageVal[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
-
 		it.Reset(kStatDude);
 		while (auto act = it.Next())
 		{
-			if (!act->hasX()) continue;
+			///////////////
 
 			auto pDudeInfo = getDudeInfo(act);
+			for (int j = 0; j < 7; j++)
+				act->dmgControl[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], pDudeInfo->startDamage[j], 8);
+
+
+			if (!act->hasX()) continue;
+
 			int seqStartId = pDudeInfo->seqStartID;
 			if (!act->IsPlayerActor())
 			{
@@ -1580,7 +1577,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 		}
 		else if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax)
 		{
-			mass = thingInfo[actor->GetType() - kThingBase].mass;
+			mass = actor->IntVar("mass");
 		}
 		else
 		{
@@ -2331,12 +2328,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 		return damage >> 4;
 	}
 
-	auto pDudeInfo = getDudeInfo(actor);
-	int nDamageFactor = pDudeInfo->damageVal[damageType];
-#ifdef NOONE_EXTENSIONS
-	if (actor->GetType() == kDudeModernCustom)
-		nDamageFactor = actor->genDudeExtra.dmgControl[damageType];
-#endif
+	int nDamageFactor = actor->dmgControl[damageType];
 
 	if (!nDamageFactor) return 0;
 	else if (nDamageFactor != 256) damage = MulScale(damage, nDamageFactor, 8);
@@ -2368,7 +2360,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 {
 	assert(actor->IsThingActor());
 	int nType = actor->GetType() - kThingBase;
-	int nDamageFactor = thingInfo[nType].dmgControl[damageType];
+	int nDamageFactor = actor->dmgControl[damageType];
 
 	if (!nDamageFactor) return 0;
 	else if (nDamageFactor != 256) damage = MulScale(damage, nDamageFactor, 8);
@@ -2533,15 +2525,16 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	actHitcodeToData(hitCode, &gHitInfo, &actorHit, &pWallHit);
 
-	const THINGINFO* pThingInfo = nullptr;
 	DUDEINFO* pDudeInfo = nullptr;
+	bool pIsThing = false;
+	int nThingDamage = actorHit->dmgControl[kDamageBurn];
 
 	if (hitCode == 3 && actorHit)
 	{
 		switch (actorHit->spr.statnum)
 		{
 		case kStatThing:
-			pThingInfo = &thingInfo[actorHit->GetType() - kThingBase];
+			pIsThing = true;
 			break;
 		case kStatDude:
 			pDudeInfo = getDudeInfo(actorHit);
@@ -2551,13 +2544,13 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	switch (missileActor->GetType())
 	{
 	case kMissileLifeLeechRegular:
-		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
 		{
 			DAMAGE_TYPE rand1 = (DAMAGE_TYPE)Random(7);
 			int rand2 = (7 + Random(7)) << 4;
 			int nDamage = actDamageSprite(missileOwner, actorHit, rand1, rand2);
 
-			if ((pThingInfo && pThingInfo->dmgControl[kDamageBurn] != 0) || (pDudeInfo && pDudeInfo->damageVal[kDamageBurn] != 0))
+			if (nThingDamage != 0)
 				actBurnSprite(missileActor->GetOwner(), actorHit, 360);
 
 			// by NoOne: make Life Leech heal user, just like it was in 1.0x versions
@@ -2600,7 +2593,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissilePukeGreen:
 		seqKill(missileActor);
-		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
 		{
 			int nDamage = (15 + Random(7)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
@@ -2613,7 +2606,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxPlay3DSectorSound(missileActor->spr.pos, 306, missileActor->sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
-		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
 		{
 			int nDamage = (25 + Random(20)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
@@ -2626,7 +2619,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSectorSound(missileActor->spr.pos, 306, missileActor->sector());
 
-		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
 		{
 			int nDmgMul = (missileActor->GetType() == kMissileLifeLeechAltSmall) ? 6 : 3;
 			int nDamage = (nDmgMul + Random(nDmgMul)) << 4;
@@ -2637,9 +2630,9 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileFireball:
 	case kMissileFireballNapalm:
-		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
 		{
-			if (pThingInfo && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
+			if (pIsThing && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, AF(fxFlameLick));
 
 			int nDamage = (50 + Random(50)) << 4;
@@ -2655,11 +2648,11 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileFlareRegular:
 		sfxKill3DSound(missileActor, -1, -1);
-		if ((hitCode == 3 && actorHit) && (pThingInfo || pDudeInfo))
+		if ((hitCode == 3 && actorHit) && (pIsThing || pDudeInfo))
 		{
-			if ((pThingInfo && pThingInfo->dmgControl[kDamageBurn] != 0) || (pDudeInfo && pDudeInfo->damageVal[kDamageBurn] != 0))
+			if (nThingDamage != 0)
 			{
-				if (pThingInfo && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
+				if (pIsThing && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 					evPostActor(actorHit, 0, AF(fxFlameLick));
 
 				actBurnSprite(missileOwner, actorHit, 480);
@@ -2875,10 +2868,9 @@ static void checkCeilHit(DBloodActor* actor)
 
 				if (actor2->spr.statnum == kStatThing)
 				{
-					int nType = actor2->GetType() - kThingBase;
-					const THINGINFO* pThingInfo = &thingInfo[nType];
-					if (pThingInfo->flags & 1) actor2->spr.flags |= 1;
-					if (pThingInfo->flags & 2) actor2->spr.flags |= 4;
+					auto flags = actor2->IntVar("defflags");
+					if (flags & 1) actor2->spr.flags |= 1;
+					if (flags & 2) actor2->spr.flags |= 4;
 				}
 				else
 				{
@@ -3228,7 +3220,6 @@ static Collision MoveThing(DBloodActor* actor)
 {
 	assert(actor->hasX());
 	assert(actor->GetType() >= kThingBase && actor->GetType() < kThingMax);
-	const THINGINFO* pThingInfo = &thingInfo[actor->GetType() - kThingBase];
 	auto pSector = actor->sector();
 	assert(pSector);
 	double top, bottom;
@@ -3257,7 +3248,7 @@ static Collision MoveThing(DBloodActor* actor)
 		auto& coll = actor->hit.hit;
 		if (coll.type == kHitWall)
 		{
-			actWallBounceVector(actor, coll.hitWall, FixedToFloat(pThingInfo->elastic));
+			actWallBounceVector(actor, coll.hitWall, actor->FloatVar("bouncefactor"));
 			switch (actor->GetType())
 			{
 			case kThingZombieHead:
@@ -3316,11 +3307,11 @@ static Collision MoveThing(DBloodActor* actor)
 		{
 			actor->spr.flags |= 4;
 
-			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), FixedToFloat(pThingInfo->elastic));
+			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), actor->FloatVar("bouncefactor"));
 			actor->vel.XY() = vec4.XY();
 			int vax = FloatToFixed(vec4.W);
 
-			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
+			int nDamage = MulScale(vax, vax, 30) - actor->IntVar("dmgresist");
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
 			actor->vel.Z = vec4.Z;
@@ -4117,7 +4108,7 @@ void actExplodeSprite(DBloodActor* actor)
 		if (actCheckRespawn(actor))
 		{
 			actor->xspr.state = 1;
-			actor->xspr.health = thingInfo[0].startHealth << 4;
+			actor->xspr.health = actor->IntVar("defhealth") << 4;
 		}
 		else actPostSprite(actor, kStatFree);
 
@@ -4339,10 +4330,9 @@ static void actCheckThings()
 		XSECTOR* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 		if (pXSector && pXSector->panVel && (pXSector->panAlways || pXSector->state || pXSector->busy))
 		{
-			int nType = actor->GetType() - kThingBase;
-			const THINGINFO* pThingInfo = &thingInfo[nType];
-			if (pThingInfo->flags & 1) actor->spr.flags |= 1;
-			if (pThingInfo->flags & 2) actor->spr.flags |= 4;
+			auto flags = actor->IntVar("defflags");
+			if (flags & 1) actor->spr.flags |= 1;
+			if (flags & 2) actor->spr.flags |= 4;
 		}
 
 		if (actor->spr.flags & 3)
@@ -4984,17 +4974,13 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	int nType = nThingType - kThingBase;
 	actor->ChangeType(nThingType);
 	assert(actor->hasX());
-	const THINGINFO* pThingInfo = &thingInfo[nType];
-	actor->xspr.health = pThingInfo->startHealth << 4;
-	actor->clipdist = pThingInfo->fClipdist();
-	actor->spr.flags = pThingInfo->flags;
+	actor->xspr.health = actor->IntVar("defhealth") << 4;
+	actor->clipdist = actor->FloatVar("defclipdist");
+	actor->spr.flags = actor->IntVar("defflags");
 	if (actor->spr.flags & 2) actor->spr.flags |= 4;
-	actor->spr.cstat |= pThingInfo->cstat;
-	actor->spr.setspritetexture(pThingInfo->textureID());
-	actor->spr.shade = pThingInfo->shade;
-	actor->spr.pal = pThingInfo->pal;
-	if (pThingInfo->xrepeat) actor->spr.scale.X = (pThingInfo->xrepeat * REPEAT_SCALE);
-	if (pThingInfo->yrepeat) actor->spr.scale.Y = (pThingInfo->yrepeat * REPEAT_SCALE);
+	actor->spr.cstat |= ESpriteFlags::FromInt(actor->IntVar("defcstat"));
+	actor->spr.shade = actor->IntVar("defshade");
+	actor->spr.pal = actor->IntVar("defpal");
 	actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	switch (nThingType)
 	{
@@ -5244,7 +5230,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 
 			if (actor->spr.statnum == kStatThing)
 			{
-				int mass = thingInfo[actor->GetType() - kThingBase].mass;
+				int mass = actor->IntVar("mass");
 				if (mass > 0 && pVectorData->impulse)
 				{
 					double thrust = double(pVectorData->impulse) / (mass * 1024);
@@ -5438,7 +5424,7 @@ void TreeToGibCallback(DBloodActor* actor)
 	actor->xspr.data1 = 15;
 	actor->xspr.data2 = 0;
 	actor->xspr.data3 = 0;
-	actor->xspr.health = thingInfo[17].startHealth;
+	actor->xspr.health = GetDefaultByType(actor->GetClass())->IntVar("defhealth");
 	actor->xspr.data4 = 312;
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 }
@@ -5449,7 +5435,7 @@ void DudeToGibCallback1(DBloodActor* actor)
 	actor->xspr.data1 = 8;
 	actor->xspr.data2 = 0;
 	actor->xspr.data3 = 0;
-	actor->xspr.health = thingInfo[26].startHealth;
+	actor->xspr.health = GetDefaultByType(actor->GetClass())->IntVar("defhealth");
 	actor->xspr.data4 = 319;
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
@@ -5464,7 +5450,7 @@ void DudeToGibCallback2(DBloodActor* actor)
 	actor->xspr.data1 = 3;
 	actor->xspr.data2 = 0;
 	actor->xspr.data3 = 0;
-	actor->xspr.health = thingInfo[26].startHealth;
+	actor->xspr.health = GetDefaultByType(actor->GetClass())->IntVar("defhealth");
 	actor->xspr.data4 = 319;
 	actor->xspr.triggerOnce = 0;
 	actor->xspr.isTriggered = 0;
@@ -5576,14 +5562,5 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRI
 	return arc;
 }
 
-void SerializeActor(FSerializer& arc)
-{
-	if (arc.isReading() && gGameOptions.nMonsterSettings != 0)
-	{
-		for (int i = 0; i < kDudeMax - kDudeBase; i++)
-			for (int j = 0; j < 7; j++)
-				dudeInfo[i].damageVal[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
-	}
-}
 
 END_BLD_NS

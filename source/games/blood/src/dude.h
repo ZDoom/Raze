@@ -48,8 +48,8 @@ struct DUDEINFO {
 	int backSpeed; // backward speed (unused)
 	int angSpeed; // turn speed
 	int nGibType[3]; // which gib used when explode dude
-	int startDamage[7]; // start damage shift
-	int damageVal[7]; // real damage? Hmm?
+	int16_t startDamage[7]; // start damage shift
+	int16_t __filler__[7]; // not used anymore
 	int at8c; // unused ?
 	int at90; // unused ?
 

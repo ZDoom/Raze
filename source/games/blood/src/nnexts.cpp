@@ -338,13 +338,12 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 	{
 		if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax)
 		{
-			return (thingInfo[actor->GetType() - kThingBase].dmgControl[dmgType] <= minScale);
+			return (actor->dmgControl[dmgType] <= minScale);
 		}
 		else if (actor->IsDudeActor())
 		{
 			if (actor->IsPlayerActor()) return (getPlayer(actor)->damageControl[dmgType]);
-			else if (actor->GetType() == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
-			else return (getDudeInfo(actor)->damageVal[dmgType] <= minScale);
+			return (actor->dmgControl[dmgType] <= minScale);
 		}
 	}
 
@@ -4693,7 +4692,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		case 50: // compare hp (in %)
 			if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(objActor)->startHealth << 4;
 			else if (objActor->GetType() == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
-			else if (objActor->GetType() >= kThingBase && objActor->GetType() < kThingMax) var = thingInfo[objActor->GetType() - kThingBase].startHealth << 4;
+			else if (objActor->GetType() >= kThingBase && objActor->GetType() < kThingMax) var = objActor->IntVar("defhealth") << 4;
 			return condCmp((kPercFull * objActor->xspr.health) / ClipLow(var, 1), arg1, arg2, cmpOp);
 		case 55: // touching ceil of sector?
 			if (objActor->hit.ceilhit.type != kHitSector) return false;
@@ -9407,7 +9406,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, G
 			("slavecount", w.slaveCount)
 			("lifeleech", w.pLifeLeech)
 			.Array("slaves", w.slave, w.slaveCount)
-			.Array("dmgcontrol", w.dmgControl, kDamageMax)
 			.Array("updreq", w.updReq, kGenDudePropertyMax)
 			("flags", w.flags)
 			.EndObject();

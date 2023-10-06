@@ -694,7 +694,7 @@ void playerSetRace(DBloodPlayer* pPlayer, int nLifeMode)
 	pPlayer->GetActor()->clipdist = pDudeInfo->fClipdist();
 
 	for (int i = 0; i < 7; i++)
-		pDudeInfo->damageVal[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
+		pPlayer->GetActor()->dmgControl[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
 }
 
 //---------------------------------------------------------------------------
@@ -2410,7 +2410,7 @@ void DBloodPlayer::Serialize(FSerializer& arc)
 		.Array("haskey", hasKey, 8)
 		("hasflag", hasFlag)
 		.Array("ctfflagstate", ctfFlagState, 2)
-		.Array("dmgcontrol", damageControl, 7)
+		.Array("dmgcontrol", damageControl, kDamageMax)
 		("curweapon", curWeapon)
 		("nextweapon", nextWeapon)
 		("weapontimer", weaponTimer)

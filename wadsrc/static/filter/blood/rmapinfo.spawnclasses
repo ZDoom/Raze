@@ -171,10 +171,13 @@ spawnclasses
 	400 = BloodThingTNTBarrel
 	401 = BloodThingArmedProxBomb
 	402 = BloodThingArmedRemoteBomb
+	403 = BloodThingVase1
+	404 = BloodThingVase2
 	405 = BloodThingCrateFace
 	406 = BloodThingGlassWindow
 	407 = BloodThingFluorescent
 	408 = BloodThingWallCrack
+	409 = BloodThingWoodBeam
 	410 = BloodThingSpiderWeb
 	411 = BloodThingMetalGrate
 	412 = BloodThingFlammableTree
@@ -187,6 +190,7 @@ spawnclasses
 	419 = BloodThingArmedTNTBundle
 	420 = BloodThingArmedSpray
 	421 = BloodThingBone
+	422 = BloodThing422
 	423 = BloodThingDripWater
 	424 = BloodThingDripBlood
 	425 = BloodThingBloodBits
@@ -197,6 +201,9 @@ spawnclasses
 	430 = BloodThingPodGreenBall
 	431 = BloodThingDroppedLifeLeech
 	432 = BloodThingVoodooHead
+	433 = BloodThingTNTProx
+	434 = BloodThingThrowableRock
+	435 = BloodThingEnemyLifeLeech
 
 	// traps
 	452 = BloodTrapFlame

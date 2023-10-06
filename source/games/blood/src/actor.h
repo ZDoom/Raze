@@ -66,19 +66,19 @@ enum VECTOR_TYPE {
 
 struct THINGINFO
 {
-	int16_t startHealth;
+	int16_t startHealth; // defhealth
 	int16_t mass;
-	uint8_t clipdist;
-	int16_t flags;
-	int32_t elastic;
+	uint8_t clipdist;	// defclipdist
+	int16_t flags;		// defflags
+	int32_t elastic;// fixed, bouncefactor
 	int32_t dmgResist;
-	ESpriteFlags cstat;
+	ESpriteFlags cstat;	// defcstat
 	int16_t picno;
 	int8_t shade;
 	uint8_t pal;
 	uint8_t xrepeat;
 	uint8_t yrepeat;
-	int dmgControl[kDamageMax]; // damage
+	int16_t dmgControl[kDamageMax]; // damage, also for dudes, rename there.
 	
 	FTextureID textureID() const { return tileGetTextureID(picno); }
 	double fClipdist() const { return clipdist * 0.25; }

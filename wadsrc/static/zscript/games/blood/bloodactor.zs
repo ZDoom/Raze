@@ -92,9 +92,11 @@ class BloodActor : CoreActor native
 {
 	meta int defshade;
 	meta int defpal;
+	meta double defclipdist;
 	Property prefix: none;
 	property shade: defshade;
 	property pal: defpal;
+	property clipdist: defclipdist;
 	
 	enum STAT_ID {
 		kStatDecoration = 0,

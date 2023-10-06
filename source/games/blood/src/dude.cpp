@@ -53,7 +53,6 @@ DUDEINFO dudeInfo[kDudeMax - kDudeBase] =
 		0,
 		0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0,
 		0,
 		0
 	},

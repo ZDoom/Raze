@@ -34,6 +34,7 @@ public:
 	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	DVector3 basePoint;
 	EventObject condition[2];
+	int16_t dmgControl[kDamageMax];    // combination of the ones in DUDEINFO, THINGINFO and GENDUDEEXTRA, needs to be modifiable
 
 	// transient data (not written to savegame)
 	int cumulDamage;

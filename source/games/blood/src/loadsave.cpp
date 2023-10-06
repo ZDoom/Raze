@@ -480,7 +480,8 @@ void DBloodActor::Serialize(FSerializer& arc)
 			("dudeextra", dudeExtra)
 			("explosionflag", explosionhackflag)
 			("spritehit", hit)
-			("owneractor", ownerActor);
+			("owneractor", ownerActor)
+			.Array("dmgcontrol", dmgControl, kDamageMax);
 
 	}
 
@@ -717,7 +718,6 @@ void SerializeEvents(FSerializer& arc);
 void SerializeSequences(FSerializer& arc);
 void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
-void SerializeActor(FSerializer& arc);
 void SerializePlayers(FSerializer& arc);
 void SerializeView(FSerializer& arc);
 void SerializeNNExts(FSerializer& arc);
@@ -741,7 +741,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		seqKillAll();
 	}
 	SerializeState(arc);
-	SerializeActor(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);
 	SerializeSequences(arc);

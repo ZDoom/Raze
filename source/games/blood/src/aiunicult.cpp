@@ -152,7 +152,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, double dist, int weaponType, 
 			else if (weaponType == kGenDudeWeaponMissile)
 			{
 				auto type = GetSpawnType(pExtra->curWeapon);
-				auto clipdist = GetDefaultByType(type)->FloatVar("clipdist");
+				auto clipdist = GetDefaultByType(type)->FloatVar("defclipdist");
 				actor->dudeSlope = (fStart - ((fStart - fEnd) * 0.25)) - clipdist / 2048;
 			}
 			return true;
@@ -303,7 +303,6 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	int weaponType = actor->genDudeExtra.weaponType;
 	if (weaponType != kGenDudeWeaponThrow) return;
 
-	const THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
 	if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) return;
 	else if (!playGenDudeSound(actor, kGenDudeSndAttackThrow))
 		sfxPlay3DSound(actor, 455, -1, 0);
@@ -325,8 +324,6 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 
 	DBloodActor* spawned = nullptr;
 	if ((spawned = actFireThing(actor, 0., 0., (dv.Z / 32768.) - zThrow, curWeapon, dist * (2048. / 64800))) == nullptr) return;
-
-	if (pThinkInfo->picno < 0 && spawned->GetType() != kModernThingThrowableRock) spawned->spr.setspritetexture(FNullTextureID());
 
 	spawned->SetOwner(actor);
 
@@ -364,7 +361,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		return;
 	case kModernThingEnemyLifeLeech:
 		if (actLeech != nullptr) spawned->xspr.health = actLeech->xspr.health;
-		else spawned->xspr.health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
+		else spawned->xspr.health = ((spawned->IntVar("health") << 4) * gGameOptions.nDifficulty) >> 1;
 
 		sfxPlay3DSound(actor, 490, -1, 0);
 
@@ -1452,7 +1449,7 @@ static void scaleDamage(DBloodActor* actor)
 {
 	int curWeapon = actor->genDudeExtra.curWeapon;
 	int weaponType = actor->genDudeExtra.weaponType;
-	signed short* curScale = actor->genDudeExtra.dmgControl;
+	signed short* curScale = actor->dmgControl;
 	for (int i = 0; i < kDmgMax; i++)
 		curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
 

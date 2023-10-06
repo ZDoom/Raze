@@ -1,7 +1,6 @@
 class BloodMissileBase : BloodActor
 {
 	meta double speed;
-	meta double defclipdist;
 	meta double angleofs;
 	meta VMFunction callback;
 	meta int spawnsoundID;
@@ -14,7 +13,6 @@ class BloodMissileBase : BloodActor
 	
 	property prefix: none;
 	property speed: speed;
-	property clipdist: defclipdist;
 	property angleofs: angleofs;
 	property callback: callback;
 	property spawnsound: spawnsound;

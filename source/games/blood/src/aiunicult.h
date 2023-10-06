@@ -172,7 +172,6 @@ struct GENDUDEEXTRA
     uint16_t slaveCount;              // how many dudes is summoned
     TObjPtr<DBloodActor*> pLifeLeech;        // spritenum of dropped dude's leech
     TObjPtr<DBloodActor*> slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
-    signed short dmgControl[kDamageMax];    // depends of current weapon, drop armor item, sprite repeat and surface type
     bool updReq[kGenDudePropertyMax]; // update requests
     union
     {
