@@ -3804,7 +3804,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					}
 
 					// should be: the more is seqs, the shorter is timer
-					evPostActor(spawned, 1000, AF(Remove));
+					evPostActor(spawned, 1000, AF(RemoveActor));
 				}
 			}
 			else
@@ -9211,9 +9211,9 @@ void callbackUniMissileBurst(DBloodActor* actor) // 22
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
 		if (i & 1) spAngVec *= 0.5;
 		burstactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
-		evPostActor(burstactor, 960, AF(Remove));
+		evPostActor(burstactor, 960, AF(RemoveActor));
 	}
-	evPostActor(actor, 0, AF(Remove));
+	evPostActor(actor, 0, AF(RemoveActor));
 }
 
 

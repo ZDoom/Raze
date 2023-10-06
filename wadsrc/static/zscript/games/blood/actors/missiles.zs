@@ -10,7 +10,7 @@ class BloodMissileBase : BloodActor
 	meta double randomVel;
 	meta int seqID;
 	meta name seqName;
-	meta VMFunction seqCallbackID;
+	meta VMFunction seqCallback;
 	
 	property prefix: none;
 	property speed: speed;
@@ -23,7 +23,7 @@ class BloodMissileBase : BloodActor
 	property randomVel: randomVel;
 	property seqID: seqID;
 	property seqName: seqName;
-	property seqCallbackID: seqCallbackID;
+	property seqCallback: seqCallback;
 	
 	default
 	{
@@ -44,7 +44,7 @@ class BloodMissileBase : BloodActor
 		}
 		else if (self.seqID > -1)
 		{
-			self.seqSpawnID(self.seqID, self.seqCallbackID);
+			self.seqSpawnID(self.seqID, self.seqCallback);
 		}
 		if (self.callback != null)
 		{
@@ -91,7 +91,7 @@ class BloodMissileFlareRegular : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 8.000000;
-		callback "BloodActor.fxFlareSpark";
+		callback fxFlareSpark;
 		spawnsoundID 422;
 	}
 }
@@ -104,7 +104,7 @@ class BloodMissileTeslaAlt : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 8.000000;
-		callback "BloodActor.fxTeslaAlt";
+		callback fxTeslaAlt;
 	}
 }
 class BloodMissileFlareAlt : BloodMissileBase
@@ -116,14 +116,14 @@ class BloodMissileFlareAlt : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 1.000000;
-		callback "BloodActor.fxFlareSpark";
+		callback fxFlareSpark;
 		spawnsoundID 422;
 	}
 		
 	override void initMissile(BloodActor spawner)
 	{
 		super.initMissile(spawner);
-		self.evPostActorCallback(30, "BloodActor.FlareBurst");
+		self.evPostActorCallback(30, FlareBurst);
 	}
 }
 class BloodMissileFlameSpray : BloodMissileBase
@@ -156,7 +156,7 @@ class BloodMissileFireball : BloodMissileBase
 		clipdist 8.000000;
 		spawnsoundID 441;
 		seqID 22;
-		seqCallbackID "BloodActor.FireballSeqCallback";
+		seqCallback FireballSeqCallback;
 	}
 }
 class BloodMissileTeslaRegular : BloodMissileBase
@@ -238,7 +238,7 @@ class BloodMissileFireballNapalm : BloodMissileBase
 		clipdist 6.000000;
 		spawnsoundID 441;
 		seqID 61;
-		seqCallbackID "BloodActor.NapalmSeqCallback";
+		seqCallback NapalmSeqCallback;
 	}
 }
 class BloodMissileFireballCerberus : BloodMissileBase
@@ -250,7 +250,7 @@ class BloodMissileFireballCerberus : BloodMissileBase
 		shade -128;
 		clipdist 6.000000;
 		seqID 61;
-		seqCallbackID "BloodActor.Fx32Callback";
+		seqCallback Fx32Callback;
 	}
 }
 class BloodMissileFireballTchernobog : BloodMissileBase
@@ -262,7 +262,7 @@ class BloodMissileFireballTchernobog : BloodMissileBase
 		shade -128;
 		clipdist 4.000000;
 		seqID 23;
-		seqCallbackID "BloodActor.Fx33Callback";
+		seqCallback Fx33Callback;
 		movementAdd 0.5;
 		RandomVel 0x11111;
 	}
@@ -276,7 +276,7 @@ class BloodMissileLifeLeechRegular : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 4.000000;
-		callback "BloodActor.fxFlameLick";
+		callback fxFlameLick;
 	}
 }
 class BloodMissileLifeLeechAltNormal : BloodMissileBase
@@ -299,7 +299,7 @@ class BloodMissileLifeLeechAltSmall : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 4.000000;
-		callback "BloodActor.fxArcSpark";
+		callback fxArcSpark;
 	}
 }
 

@@ -302,7 +302,7 @@ native void FireballTrapSeqCallback();
 native void MGunFireSeqCallback();
 native void MGunOpenSeqCallback();
 native void fxFlameLick(); // 0
-native void Remove(); // 1
+native void RemoveActor(); // 1
 native void FlareBurst(); // 2
 native void fxFlareSpark(); // 3
 native void fxFlareSparkLite(); // 4
@@ -410,7 +410,7 @@ native void DropVoodooCb(); // unused
 		}
 		if (itemtype is 'BloodFlagBase' && gGameOptions.nGameType == Blood.kTeamplay)
 		{
-			spawned.evPostActorCallback(1800, "BloodActor.returnFlagToBase");
+			spawned.evPostActorCallback(1800, returnFlagToBase);
 		}
 
 		double top, bottom;
@@ -465,7 +465,7 @@ native void DropVoodooCb(); // unused
 		spawned.cstat |= CSTAT_SPRITE_BLOCK;
 		spawned.xspr.target = null;
 
-		spawned.evPostActorCallback(600, "BloodActor.Remove");
+		spawned.evPostActorCallback(600, RemoveActor);
 
 		spawned.initMissile(self); // handle type specific init.
 

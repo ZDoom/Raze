@@ -99,7 +99,10 @@ struct FStateParamInfo
 struct FState
 {
 	FState		*NextState;
-	VMFunction	*ActionFunc;
+	VMFunction	*ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
+	VMFunction  *EnterFunc;  // called when entering the state.
+	VMFunction  *TickFunc;   // called when ticking the state.
+	VMFunction  *MoveFunc;   // called when moving the actor
 	int16_t		sprite;
 	int16_t		Tics;
 	uint8_t	Frame;

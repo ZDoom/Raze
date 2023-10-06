@@ -68,7 +68,7 @@ void fxFlameLick(DBloodActor* actor) // 0
 //
 //---------------------------------------------------------------------------
 
-void Remove(DBloodActor* actor) // 1
+void RemoveActor(DBloodActor* actor) // 1
 {
 	if (!actor) return;
 	evKillActor(actor, AF(fxFlareSpark));
@@ -101,9 +101,9 @@ void FlareBurst(DBloodActor* actor) // 2
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
 		if (i & 1) spAngVec *= 0.5;
 		spawnedactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
-		evPostActor(spawnedactor, 960, AF(Remove));
+		evPostActor(spawnedactor, 960, AF(RemoveActor));
 	}
-	evPostActor(actor, 0, AF(Remove));
+	evPostActor(actor, 0, AF(RemoveActor));
 }
 
 //---------------------------------------------------------------------------
@@ -598,7 +598,7 @@ void returnFlagToBase(DBloodActor* actor) // 17
 			break;
 		}
 	}
-	evPostActor(actor, 0, AF(Remove));
+	evPostActor(actor, 0, AF(RemoveActor));
 }
 
 //---------------------------------------------------------------------------
@@ -723,7 +723,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 	auto Owner = actor->GetOwner();
 	if (Owner == nullptr)
 	{
-		evPostActor(actor, 0, AF(Remove));
+		evPostActor(actor, 0, AF(RemoveActor));
 		return;
 	}
 	DBloodPlayer* pPlayer;
@@ -733,7 +733,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 		pPlayer = nullptr;
 	if (!pPlayer)
 	{
-		evPostActor(actor, 0, AF(Remove));
+		evPostActor(actor, 0, AF(RemoveActor));
 		return;
 	}
 	actor->spr.Angles.Yaw = (Owner->spr.pos - actor->spr.pos).Angle();
@@ -741,7 +741,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 	{
 		if (actor->xspr.data1 == 0)
 		{
-			evPostActor(actor, 0, AF(Remove));
+			evPostActor(actor, 0, AF(RemoveActor));
 			return;
 		}
 
@@ -775,7 +775,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 							int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, actor->xspr.data1 << 4);
 							actor->xspr.data1 = ClipLow(actor->xspr.data1 - nDmg, 0);
 							sub_76A08(actor2, actor, pPlayer2);
-							evPostActor(actor, 0, AF(Remove));
+							evPostActor(actor, 0, AF(RemoveActor));
 							return;
 						}
 					}
@@ -816,7 +816,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 						if (vd && (Chance(vd) || nextactor == nullptr))
 						{
 							sub_76A08(actor2, actor, NULL);
-							evPostActor(actor, 0, AF(Remove));
+							evPostActor(actor, 0, AF(RemoveActor));
 							return;
 						}
 					}
@@ -824,7 +824,7 @@ void DropVoodooCb(DBloodActor* actor) // unused
 			}
 		}
 		actor->xspr.data1 = ClipLow(actor->xspr.data1 - 1, 0);
-		evPostActor(actor, 0, AF(Remove));
+		evPostActor(actor, 0, AF(RemoveActor));
 	}
 }
 

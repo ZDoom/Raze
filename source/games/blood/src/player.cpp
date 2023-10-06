@@ -2191,7 +2191,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 
 			DBloodActor* pItem = nullptr;
 			if (pPlayer->GetActor()->xspr.dropMsg && (pItem = actDropObject(pActor, pPlayer->GetActor()->xspr.dropMsg)) != NULL)
-				evPostActor(pItem, 500, AF(Remove));
+				evPostActor(pItem, 500, AF(RemoveActor));
 
 			if (pPlayer->GetActor()->xspr.key) {
 
@@ -2202,7 +2202,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 				}
 
 				if (i == 0 && (pItem = actDropObject(pActor, (pPlayer->GetActor()->xspr.key + kItemKeyBase) - 1)) != NULL)
-					evPostActor(pItem, 500, AF(Remove));
+					evPostActor(pItem, 500, AF(RemoveActor));
 
 			}
 

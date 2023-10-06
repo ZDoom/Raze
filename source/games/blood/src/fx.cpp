@@ -189,7 +189,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 	if (angle == nullAngle)
 		angle = mapangle(pFX->defangle);
 	if (angle != nullAngle)
-		evPostActor(actor, angle.Buildang() + Random2(angle.Buildang() >> 1), AF(Remove));
+		evPostActor(actor, angle.Buildang() + Random2(angle.Buildang() >> 1), AF(RemoveActor));
 	return actor;
 }
 

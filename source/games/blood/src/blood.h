@@ -249,7 +249,7 @@ DEF_ANIMATOR(ThrowCallback2)
 
 // event callbacks
 DEF_ANIMATOR(fxFlameLick) // 0
-DEF_ANIMATOR(Remove) // 1
+DEF_ANIMATOR(RemoveActor) // 1
 DEF_ANIMATOR(FlareBurst) // 2
 DEF_ANIMATOR(fxFlareSpark) // 3
 DEF_ANIMATOR(fxFlareSparkLite) // 4

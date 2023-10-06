@@ -91,7 +91,7 @@ void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 	{
 		seqStartId += pAIState->seqId;
 		if (getSequence(seqStartId))
-			seqSpawn(seqStartId, actor, *pAIState->funcId);
+			seqSpawn(seqStartId, actor, pAIState->funcId? *pAIState->funcId : nullptr);
 	}
 
 	if (pAIState->enterFunc)

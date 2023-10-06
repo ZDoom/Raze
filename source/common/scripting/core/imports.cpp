@@ -150,6 +150,7 @@ VMFunction *FindVMFunction(PClass *cls, const char *name)
 //==========================================================================
 //
 // Find an action function in AActor's table from a qualified name
+// This cannot search in structs. sorry. :(
 //
 //==========================================================================
 

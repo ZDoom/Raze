@@ -49,8 +49,8 @@ const char *GetVersionString();
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 4
-#define VER_MINOR 10
-#define VER_REVISION 0
+#define VER_MINOR 11
+#define VER_REVISION 100
 
 #define ENG_MAJOR 1
 #define ENG_MINOR 7
@@ -71,15 +71,15 @@ const char *GetVersionString();
 
 #define SAVEGAME_EXT "dsave"
 
-#define MINSAVEVER_DN3D 19
-#define MINSAVEVER_BLD 19
-#define MINSAVEVER_SW 19
-#define MINSAVEVER_PS 19
+#define MINSAVEVER_DN3D 20
+#define MINSAVEVER_BLD 20
+#define MINSAVEVER_SW 20
+#define MINSAVEVER_PS 20
 
-#define SAVEVER_DN3D 19
-#define SAVEVER_BLD 19
-#define SAVEVER_SW 19
-#define SAVEVER_PS 19
+#define SAVEVER_DN3D 20
+#define SAVEVER_BLD 20
+#define SAVEVER_SW 20
+#define SAVEVER_PS 20
 
 #define NETGAMEVERSION 1
 

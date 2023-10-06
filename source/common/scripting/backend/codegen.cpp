@@ -1639,23 +1639,6 @@ FxExpression *FxTypeCast::Resolve(FCompileContext &ctx)
 		// don't go through the entire list if the types are the same.
 		goto basereturn;
 	}
-	else if ((basex->ValueType == TypeString || basex->ValueType == TypeName) && ValueType == TypeVMFunction && basex->isConstant())
-	{
-		FxExpression* x = new FxStringCast(basex);
-		x = x->Resolve(ctx);
-		basex = nullptr;
-		auto c = static_cast<FxConstant*>(x)->GetValue().GetString().GetChars();
-		auto func = FindVMFunction(c);
-		if (func == nullptr)
-		{
-			ScriptPosition.Message(MSG_ERROR, "VM function %s not found", c);
-			delete this;
-			return nullptr;
-		}
-		auto newx = new FxConstant(func, ScriptPosition);
-		delete this;
-		return newx->Resolve(ctx);
-	}
 	else if (basex->ValueType == TypeNullPtr && ValueType->isPointer())
 	{
 		goto basereturn;
@@ -6375,6 +6358,16 @@ FxExpression *FxIdentifier::Resolve(FCompileContext& ctx)
 			ABORT(newex);
 			goto foundit;
 		}
+		else if (sym->IsKindOf(RUNTIME_CLASS(PFunction)))
+		{
+			if (ctx.Version >= MakeVersion(4, 11, 100))
+			{
+				// VMFunction is only supported since 4.12 and Raze 1.8.
+				newex = new FxConstant(static_cast<PFunction*>(sym)->Variants[0].Implementation, ScriptPosition);
+				goto foundit;
+
+			}
+		}
 	}
 
 	// now check in the owning class.
@@ -6385,6 +6378,15 @@ FxExpression *FxIdentifier::Resolve(FCompileContext& ctx)
 			ScriptPosition.Message(MSG_DEBUGLOG, "Resolving name '%s' as class constant\n", Identifier.GetChars());
 			newex = FxConstant::MakeConstant(sym, ScriptPosition);
 			goto foundit;
+		}
+		else if (sym->IsKindOf(RUNTIME_CLASS(PFunction)))
+		{
+			if (ctx.Version >= MakeVersion(4, 11, 100))
+			{
+				// VMFunction is only supported since 4.12 and Raze 1.8.
+				newex = new FxConstant(static_cast<PFunction*>(sym)->Variants[0].Implementation, ScriptPosition);
+				goto foundit;
+			}
 		}
 		else if (ctx.Function == nullptr)
 		{
