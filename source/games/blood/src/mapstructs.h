@@ -61,7 +61,7 @@ struct AISTATE;
 
 struct XSPRITE {
 
-	AISTATE* aiState;                   // ai
+	FDefiningState* aiState;                   // ai
 	union
 	{
 		uint32_t flags;

@@ -68,7 +68,7 @@ static void ratThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &ratSearch);
+		aiNewState(actor, NAME_ratSearch);
 	aiThinkTarget(actor);
 }
 
@@ -76,7 +76,7 @@ static void ratThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &ratGoto);
+		aiNewState(actor, NAME_ratGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -89,12 +89,12 @@ static void ratThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &ratSearch);
+		aiNewState(actor, NAME_ratSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &ratSearch);
+		aiNewState(actor, NAME_ratSearch);
 		return;
 	}
 
@@ -108,13 +108,13 @@ static void ratThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 57.5625 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &ratBite);
+					aiNewState(actor, NAME_ratBite);
 				return;
 			}
 		}
 	}
 
-	aiNewState(actor, &ratGoto);
+	aiNewState(actor, NAME_ratGoto);
 	actor->SetTarget(nullptr);
 }
 

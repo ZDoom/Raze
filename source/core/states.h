@@ -156,11 +156,15 @@ struct FDefiningState
 	int     Type;
 	int     Tics;
 	FName Label;
-	FName	NextState;
+	FName	NextStaten;
 	VMFunction* ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
 	VMFunction* EnterFunc;  // called when entering the state.
 	VMFunction* TickFunc;   // called when ticking the state.
 	VMFunction* MoveFunc;   // called when moving the actor
+
+	// these are only here so we can use this struct directly in the first stage of transitioning the states in Blood.
+	FDefiningState* NextState;
+	int seqId;
 };
 
 struct FStateLabels;

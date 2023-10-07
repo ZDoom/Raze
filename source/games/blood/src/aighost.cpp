@@ -168,7 +168,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		aiNewState(actor, &ghostTurn);
+		aiNewState(actor, NAME_ghostTurn);
 		return;
 	}
 	if (Chance(pDudeInfo->alertChance))
@@ -224,7 +224,7 @@ static void ghostThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &ghostSearch);
+		aiNewState(actor, NAME_ghostSearch);
 	aiThinkTarget(actor);
 }
 
@@ -273,7 +273,7 @@ static void ghostThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &ghostGoto);
+		aiNewState(actor, NAME_ghostGoto);
 		return;
 	}
 	///assert(actor->IsDudeActor());
@@ -289,12 +289,12 @@ static void ghostThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, dxyAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &ghostSearch);
+		aiNewState(actor, NAME_ghostSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &ghostSearch);
+		aiNewState(actor, NAME_ghostSearch);
 		return;
 	}
 	double nDist = dxy.Length();
@@ -322,17 +322,17 @@ static void ghostThinkChase(DBloodActor* actor)
 						switch (hit)
 						{
 						case -1:
-							aiNewState(actor, &ghostBlast);
+							aiNewState(actor, NAME_ghostBlast);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudePhantasm)
-								aiNewState(actor, &ghostBlast);
+								aiNewState(actor, NAME_ghostBlast);
 							break;
 						default:
-							aiNewState(actor, &ghostBlast);
+							aiNewState(actor, NAME_ghostBlast);
 							break;
 						}
 					}
@@ -342,24 +342,24 @@ static void ghostThinkChase(DBloodActor* actor)
 						switch (hit)
 						{
 						case -1:
-							aiNewState(actor, &ghostSlash);
+							aiNewState(actor, NAME_ghostSlash);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudePhantasm)
-								aiNewState(actor, &ghostSlash);
+								aiNewState(actor, NAME_ghostSlash);
 							break;
 						default:
-							aiNewState(actor, &ghostSlash);
+							aiNewState(actor, NAME_ghostSlash);
 							break;
 						}
 					}
 					else if ((heightDelta > 32 || floorDelta > 32) && nDist < 0x140 && nDist > 0x80)
 					{
 						aiPlay3DSound(actor, 1600, AI_SFX_PRIORITY_1, -1);
-						aiNewState(actor, &ghostSwoop);
+						aiNewState(actor, NAME_ghostSwoop);
 					}
 					else if ((heightDelta < 32 || floorDelta < 32) &&angWithinRange)
 						aiPlay3DSound(actor, 1600, AI_SFX_PRIORITY_1, -1);
@@ -370,12 +370,12 @@ static void ghostThinkChase(DBloodActor* actor)
 		}
 		else
 		{
-			aiNewState(actor, &ghostFly);
+			aiNewState(actor, NAME_ghostFly);
 			return;
 		}
 	}
 
-	aiNewState(actor, &ghostGoto);
+	aiNewState(actor, NAME_ghostGoto);
 	actor->SetTarget(nullptr);
 }
 

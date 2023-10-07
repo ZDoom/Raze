@@ -55,7 +55,7 @@ static void innocThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &innocentSearch);
+		aiNewState(actor, NAME_innocentSearch);
 	aiThinkTarget(actor);
 }
 
@@ -63,7 +63,7 @@ static void innocThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &innocentGoto);
+		aiNewState(actor, NAME_innocentGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -77,12 +77,12 @@ static void innocThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &innocentSearch);
+		aiNewState(actor, NAME_innocentSearch);
 		return;
 	}
 	if (target->IsPlayerActor())
 	{
-		aiNewState(actor, &innocentSearch);
+		aiNewState(actor, NAME_innocentSearch);
 		return;
 	}
 
@@ -96,14 +96,14 @@ static void innocThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 102.375 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &innocentIdle);
+					aiNewState(actor, NAME_innocentIdle);
 				return;
 			}
 		}
 	}
 
 	aiPlay3DSound(actor, 7000 + Random(6), AI_SFX_PRIORITY_1, -1);
-	aiNewState(actor, &innocentGoto);
+	aiNewState(actor, NAME_innocentGoto);
 	actor->SetTarget(nullptr);
 }
 

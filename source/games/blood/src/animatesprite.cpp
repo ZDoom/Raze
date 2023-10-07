@@ -805,7 +805,8 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		case kStatDude:
 		{
-			if (owneractor->GetType() == kDudeHand && owneractor->hasX() && owneractor->xspr.aiState == &hand13A3B4)
+			/* the state being checked here is never used, this looks like old development garbage.
+			if (owneractor->GetType() == kDudeHand && owneractor->hasX() && owneractor->xspr.aiState == &handChoke)
 			{
 				auto target = owneractor->GetTarget();
 				if (target && target->IsPlayerActor())
@@ -814,6 +815,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					break;
 				}
 			}
+			*/
 
 			if (pXSector && pXSector->color) copyfloorpal(pTSprite, pSector);
 			if (powerupCheck(pPlayer, kPwUpBeastVision) > 0) pTSprite->shade = -128;

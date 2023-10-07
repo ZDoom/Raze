@@ -100,9 +100,9 @@ static void calebThinkGoto(DBloodActor* actor)
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &tinycalebSwimSearch);
+			aiNewState(actor, NAME_tinycalebSwimSearch);
 		else
-			aiNewState(actor, &tinycalebSearch);
+			aiNewState(actor, NAME_tinycalebSearch);
 	}
 	aiThinkTarget(actor);
 }
@@ -115,9 +115,9 @@ static void calebThinkChase(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &tinycalebSwimSearch);
+			aiNewState(actor, NAME_tinycalebSwimSearch);
 		else
-			aiNewState(actor, &tinycalebSearch);
+			aiNewState(actor, NAME_tinycalebSearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -132,20 +132,20 @@ static void calebThinkChase(DBloodActor* actor)
 	if (target->xspr.health == 0)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &tinycalebSwimSearch);
+			aiNewState(actor, NAME_tinycalebSwimSearch);
 		else
 		{
 			aiPlay3DSound(actor, 11000 + Random(4), AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &tinycalebSearch);
+			aiNewState(actor, NAME_tinycalebSearch);
 		}
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &tinycalebSwimSearch);
+			aiNewState(actor, NAME_tinycalebSwimSearch);
 		else
-			aiNewState(actor, &tinycalebSearch);
+			aiNewState(actor, NAME_tinycalebSearch);
 		return;
 	}
 
@@ -166,31 +166,31 @@ static void calebThinkChase(DBloodActor* actor)
 					{
 					case -1:
 						if (pXSector && pXSector->Underwater)
-							aiNewState(actor, &tinycalebSwimAttack);
+							aiNewState(actor, NAME_tinycalebSwimAttack);
 						else
-							aiNewState(actor, &tinycalebAttack);
+							aiNewState(actor, NAME_tinycalebAttack);
 						break;
 					case 3:
 						if (actor->GetType() != gHitInfo.actor()->GetType())
 						{
 							if (pXSector && pXSector->Underwater)
-								aiNewState(actor, &tinycalebSwimAttack);
+								aiNewState(actor, NAME_tinycalebSwimAttack);
 							else
-								aiNewState(actor, &tinycalebAttack);
+								aiNewState(actor, NAME_tinycalebAttack);
 						}
 						else
 						{
 							if (pXSector && pXSector->Underwater)
-								aiNewState(actor, &tinycalebSwimDodge);
+								aiNewState(actor, NAME_tinycalebSwimDodge);
 							else
-								aiNewState(actor, &tinycalebDodge);
+								aiNewState(actor, NAME_tinycalebDodge);
 						}
 						break;
 					default:
 						if (pXSector && pXSector->Underwater)
-							aiNewState(actor, &tinycalebSwimAttack);
+							aiNewState(actor, NAME_tinycalebSwimAttack);
 						else
-							aiNewState(actor, &tinycalebAttack);
+							aiNewState(actor, NAME_tinycalebAttack);
 						break;
 					}
 				}
@@ -200,9 +200,9 @@ static void calebThinkChase(DBloodActor* actor)
 	}
 
 	if (pXSector && pXSector->Underwater)
-		aiNewState(actor, &tinycalebSwimGoto);
+		aiNewState(actor, NAME_tinycalebSwimGoto);
 	else
-		aiNewState(actor, &tinycalebGoto);
+		aiNewState(actor, NAME_tinycalebGoto);
 	if (Chance(0x2000))
 		sfxPlay3DSound(actor, 10000 + Random(5), -1, 0);
 	actor->SetTarget(nullptr);
@@ -217,7 +217,7 @@ static void calebThinkSwimGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &tinycalebSwimSearch);
+		aiNewState(actor, NAME_tinycalebSwimSearch);
 	aiThinkTarget(actor);
 }
 
@@ -225,7 +225,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &tinycalebSwimGoto);
+		aiNewState(actor, NAME_tinycalebSwimGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -239,12 +239,12 @@ static void calebThinkSwimChase(DBloodActor* actor)
 
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &tinycalebSwimSearch);
+		aiNewState(actor, NAME_tinycalebSwimSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &tinycalebSwimSearch);
+		aiNewState(actor, NAME_tinycalebSwimSearch);
 		return;
 	}
 
@@ -259,16 +259,16 @@ static void calebThinkSwimChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x40 && abs(nDeltaAngle) < DAngle15)
-					aiNewState(actor, &tinycalebSwimAttack);
+					aiNewState(actor, NAME_tinycalebSwimAttack);
 				else
-					aiNewState(actor, &tinycalebSwimMoveIn);
+					aiNewState(actor, NAME_tinycalebSwimMoveIn);
 			}
 		}
 		else
-			aiNewState(actor, &tinycalebSwimMoveIn);
+			aiNewState(actor, NAME_tinycalebSwimMoveIn);
 		return;
 	}
-	aiNewState(actor, &tinycalebSwimGoto);
+	aiNewState(actor, NAME_tinycalebSwimGoto);
 	actor->SetTarget(nullptr);
 }
 

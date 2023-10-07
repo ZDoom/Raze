@@ -87,7 +87,7 @@ static void batThinkTarget(DBloodActor* actor)
 		actor->dudeExtra.thinkTime = 0;
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		aiNewState(actor, &batTurn);
+		aiNewState(actor, NAME_batTurn);
 		return;
 	}
 	if (Chance(pDudeInfo->alertChance))
@@ -140,7 +140,7 @@ static void batThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &batSearch);
+		aiNewState(actor, NAME_batSearch);
 	batThinkTarget(actor);
 }
 
@@ -148,7 +148,7 @@ static void batThinkPonder(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &batSearch);
+		aiNewState(actor, NAME_batSearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -159,7 +159,7 @@ static void batThinkPonder(DBloodActor* actor)
 	aiChooseDirection(actor, dvec.Angle());
 	if (pTarget->xspr.health == 0)
 	{
-		aiNewState(actor, &batSearch);
+		aiNewState(actor, NAME_batSearch);
 		return;
 	}
 	double nDist = dvec.Length();
@@ -174,25 +174,25 @@ static void batThinkPonder(DBloodActor* actor)
 		{
 			aiSetTarget(actor, actor->GetTarget());
 			if (height2 - height < 48 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &batDodgeUp);
+				aiNewState(actor, NAME_batDodgeUp);
 			else if (height2 - height > 0x50 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &batDodgeDown);
+				aiNewState(actor, NAME_batDodgeDown);
 			else if (height2 - height < 0x20 && nDist < 0x20 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &batDodgeUp);
+				aiNewState(actor, NAME_batDodgeUp);
 			else if (height2 - height > 0x60 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &batDodgeDown);
+				aiNewState(actor, NAME_batDodgeDown);
 			else if (height2 - height < 0x20 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &batDodgeUp);
+				aiNewState(actor, NAME_batDodgeUp);
 			else if (height2 - height < 0x20 && nDeltaAngle < DAngle15 && nDist > 0x140)
-				aiNewState(actor, &batDodgeUp);
+				aiNewState(actor, NAME_batDodgeUp);
 			else if (height2 - height > 0x40)
-				aiNewState(actor, &batDodgeDown);
+				aiNewState(actor, NAME_batDodgeDown);
 			else
-				aiNewState(actor, &batDodgeUp);
+				aiNewState(actor, NAME_batDodgeUp);
 			return;
 		}
 	}
-	aiNewState(actor, &batGoto);
+	aiNewState(actor, NAME_batGoto);
 	actor->SetTarget(nullptr);
 }
 
@@ -236,7 +236,7 @@ static void batThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &batGoto);
+		aiNewState(actor, NAME_batGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -248,12 +248,12 @@ static void batThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, dvec.Angle());
 	if (pTarget->xspr.health == 0)
 	{
-		aiNewState(actor, &batSearch);
+		aiNewState(actor, NAME_batSearch);
 		return;
 	}
 	if (pTarget->IsPlayerActor() && powerupCheck(getPlayer(pTarget), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &batSearch);
+		aiNewState(actor, NAME_batSearch);
 		return;
 	}
 	double nDist = dvec.Length();
@@ -275,23 +275,23 @@ static void batThinkChase(DBloodActor* actor)
 				double heightDelta = height2 - height;
 				bool angWithinRange = nDeltaAngle < DAngle15;
 				if (heightDelta < 32 && nDist < 0x20 && angWithinRange)
-					aiNewState(actor, &batBite);
+					aiNewState(actor, NAME_batBite);
 				else if ((heightDelta > 80 || floorDelta > 80) && nDist < 0x140 && nDist > 0x80 && angWithinRange)
-					aiNewState(actor, &batSwoop);
+					aiNewState(actor, NAME_batSwoop);
 				else if ((heightDelta < 48 || floorDelta < 48) && angWithinRange)
-					aiNewState(actor, &batFly);
+					aiNewState(actor, NAME_batFly);
 				return;
 			}
 		}
 		else
 		{
-			aiNewState(actor, &batFly);
+			aiNewState(actor, NAME_batFly);
 			return;
 		}
 	}
 
 	actor->SetTarget(nullptr);
-	aiNewState(actor, &batHide);
+	aiNewState(actor, NAME_batHide);
 }
 
 static void batMoveForward(DBloodActor* actor)
@@ -373,7 +373,7 @@ void batMoveToCeil(DBloodActor* actor)
 		
 		actor->dudeExtra.thinkTime = 0;
 		actor->spr.flags = 0;
-		aiNewState(actor, &batIdle);
+		aiNewState(actor, NAME_batIdle);
 	}
 	else
 		aiSetTarget(actor, DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz));

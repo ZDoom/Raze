@@ -187,7 +187,7 @@ static void gargThinkTarget(DBloodActor* actor)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		aiNewState(actor, &gargoyleTurn);
+		aiNewState(actor, NAME_gargoyleTurn);
 		return;
 	}
 	if (Chance(pDudeInfo->alertChance))
@@ -244,7 +244,7 @@ static void gargThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &gargoyleFSearch);
+		aiNewState(actor, NAME_gargoyleFSearch);
 	aiThinkTarget(actor);
 }
 
@@ -294,7 +294,7 @@ static void gargThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &gargoyleFGoto);
+		aiNewState(actor, NAME_gargoyleFGoto);
 		return;
 	}
 	///assert(actor->IsDudeActor());
@@ -310,12 +310,12 @@ static void gargThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, dxyAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &gargoyleFSearch);
+		aiNewState(actor, NAME_gargoyleFSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &gargoyleFSearch);
+		aiNewState(actor, NAME_gargoyleFSearch);
 		return;
 	}
 	double nDist = dxy.Length();
@@ -346,7 +346,7 @@ static void gargThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							sfxPlay3DSound(actor, 1408, 0, 0);
-							aiNewState(actor, &gargoyleFThrow);
+							aiNewState(actor, NAME_gargoyleFThrow);
 							break;
 						case 0:
 						case 4:
@@ -355,12 +355,12 @@ static void gargThinkChase(DBloodActor* actor)
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleStone)
 							{
 								sfxPlay3DSound(actor, 1408, 0, 0);
-								aiNewState(actor, &gargoyleFThrow);
+								aiNewState(actor, NAME_gargoyleFThrow);
 							}
 							break;
 						default:
 							sfxPlay3DSound(actor, 1408, 0, 0);
-							aiNewState(actor, &gargoyleFThrow);
+							aiNewState(actor, NAME_gargoyleFThrow);
 							break;
 						}
 					}
@@ -371,7 +371,7 @@ static void gargThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							sfxPlay3DSound(actor, 1406, 0, 0);
-							aiNewState(actor, &gargoyleFSlash);
+							aiNewState(actor, NAME_gargoyleFSlash);
 							break;
 						case 0:
 						case 4:
@@ -380,19 +380,19 @@ static void gargThinkChase(DBloodActor* actor)
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleStone)
 							{
 								sfxPlay3DSound(actor, 1406, 0, 0);
-								aiNewState(actor, &gargoyleFSlash);
+								aiNewState(actor, NAME_gargoyleFSlash);
 							}
 							break;
 						default:
 							sfxPlay3DSound(actor, 1406, 0, 0);
-							aiNewState(actor, &gargoyleFSlash);
+							aiNewState(actor, NAME_gargoyleFSlash);
 							break;
 						}
 					}
 					else if ((heightDelta > 32 || floorDelta > 32) && nDist < 0x140 && nDist > 0xa0)
 					{
 						aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
-						aiNewState(actor, &gargoyleSwoop);
+						aiNewState(actor, NAME_gargoyleSwoop);
 					}
 					else if ((heightDelta < 32 || floorDelta < 32) && angWithinRange)
 						aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
@@ -405,7 +405,7 @@ static void gargThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							sfxPlay3DSound(actor, 1457, 0, 0);
-							aiNewState(actor, &gargoyleSBlast);
+							aiNewState(actor, NAME_gargoyleSBlast);
 							break;
 						case 0:
 						case 4:
@@ -414,12 +414,12 @@ static void gargThinkChase(DBloodActor* actor)
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleFlesh)
 							{
 								sfxPlay3DSound(actor, 1457, 0, 0);
-								aiNewState(actor, &gargoyleSBlast);
+								aiNewState(actor, NAME_gargoyleSBlast);
 							}
 							break;
 						default:
 							sfxPlay3DSound(actor, 1457, 0, 0);
-							aiNewState(actor, &gargoyleSBlast);
+							aiNewState(actor, NAME_gargoyleSBlast);
 							break;
 						}
 					}
@@ -429,17 +429,17 @@ static void gargThinkChase(DBloodActor* actor)
 						switch (hit)
 						{
 						case -1:
-							aiNewState(actor, &gargoyleFSlash);
+							aiNewState(actor, NAME_gargoyleFSlash);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeGargoyleFlesh)
-								aiNewState(actor, &gargoyleFSlash);
+								aiNewState(actor, NAME_gargoyleFSlash);
 							break;
 						default:
-							aiNewState(actor, &gargoyleFSlash);
+							aiNewState(actor, NAME_gargoyleFSlash);
 							break;
 						}
 					}
@@ -449,7 +449,7 @@ static void gargThinkChase(DBloodActor* actor)
 							aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
 						else
 							aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
-						aiNewState(actor, &gargoyleSwoop);
+						aiNewState(actor, NAME_gargoyleSwoop);
 					}
 					else if ((heightDelta < 32 || floorDelta < 32) && angWithinRange)
 						aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
@@ -460,12 +460,12 @@ static void gargThinkChase(DBloodActor* actor)
 		}
 		else
 		{
-			aiNewState(actor, &gargoyleFly);
+			aiNewState(actor, NAME_gargoyleFly);
 			return;
 		}
 	}
 
-	aiNewState(actor, &gargoyleFGoto);
+	aiNewState(actor, NAME_gargoyleFGoto);
 	actor->SetTarget(nullptr);
 }
 

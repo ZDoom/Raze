@@ -55,7 +55,7 @@ void tchernobogFire(DBloodActor* actor)
 		evPostActor(target, 0, AF(fxFlameLick));
 	actBurnSprite(actor->GetOwner(), target, 40);
 	if (Chance(0x6000))
-		aiNewState(actor, &tchernobogBurn1);
+		aiNewState(actor, NAME_tchernobogBurn1);
 }
 
 void tchernobogBurnSeqCallback(DBloodActor* actor)
@@ -191,7 +191,7 @@ static void tchernobogThinkTarget(DBloodActor* actor)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		aiNewState(actor, &tchernobogTurn);
+		aiNewState(actor, NAME_tchernobogTurn);
 		return;
 	}
 	if (Chance(pDudeInfo->alertChance))
@@ -244,7 +244,7 @@ static void tchernobogThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &tchernobogSearch);
+		aiNewState(actor, NAME_tchernobogSearch);
 	aiThinkTarget(actor);
 }
 
@@ -252,7 +252,7 @@ static void tchernobogThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &tchernobogGoto);
+		aiNewState(actor, NAME_tchernobogGoto);
 		return;
 	}
 	if (!(actor->IsDudeActor())) {
@@ -269,12 +269,12 @@ static void tchernobogThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &tchernobogSearch);
+		aiNewState(actor, NAME_tchernobogSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &tchernobogSearch);
+		aiNewState(actor, NAME_tchernobogSearch);
 		return;
 	}
 
@@ -288,17 +288,17 @@ static void tchernobogThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x1f0 && nDist > 0xd0 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &tchernobogFireAtk);
+					aiNewState(actor, NAME_tchernobogFireAtk);
 				else if (nDist < 0xd0 && nDist > 0xb0 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &tchernobogBurn1);
+					aiNewState(actor, NAME_tchernobogBurn1);
 				else if (nDist < 0xb0 && nDist > 0x50 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &tchernobogBurn2);
+					aiNewState(actor, NAME_tchernobogBurn2);
 				return;
 			}
 		}
 	}
 
-	aiNewState(actor, &tchernobogGoto);
+	aiNewState(actor, NAME_tchernobogGoto);
 	actor->SetTarget(nullptr);
 }
 

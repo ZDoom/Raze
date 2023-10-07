@@ -153,6 +153,7 @@ class BloodDudeBase : Bloodactor
 		AISTATE "cultistSProneFire", "+8", 4, 60, ShotSeqCallback, null, null, null, "cultistProneChase";
 		AISTATE "cultistTProneFire", "+8", 4, 0, TommySeqCallback, null, aiMoveTurn, cultThinkChase, "cultistTProneFire";
 		AISTATE "cultistTsProneFire", "+8", 4, 0, TeslaSeqCallback, null, aiMoveTurn, null, "cultistTsProneFire";
+		AISTATE "cultistTsProneFireFixed", "+0", 8, 0, TeslaSeqCallback, null, aiMoveTurn, null, "cultistTsProneFireFixed";
 		AISTATE "cultistRecoil", "+5", 5, 0, null, null, null, null, "cultistDodge";
 		AISTATE "cultistProneRecoil", "+5", 5, 0, null, null, null, null, "cultistProneDodge";
 		AISTATE "cultistTeslaRecoil", "+4", 5, 0, null, null, null, null, "cultistDodge";
@@ -224,7 +225,7 @@ class BloodDudeBase : Bloodactor
 		AISTATE "gillBeastSwimMoveIn", "+10", -1, 0, null, null, gillSwimMoveIn, gillThinkSwimChase, "gillBeastSwimChase";
 		AISTATE "gillBeastSwimTurn", "+10", -1, 120, null, null, null, aiMoveTurn, "gillBeastSwimChase";
 		AISTATE "handIdle", "+0", 0, 0, null, null, null, aiThinkTarget, "none";
-		AISTATE "hand13A3B4", "+0", -1, 0, null, null, null, null, "none";
+		AISTATE "handChoke", "+0", -1, 0, null, null, null, null, "none";
 		AISTATE "handSearch", "+6", 2, 600, null, null, aiMoveForward, handThinkSearch, "handIdle";
 		AISTATE "handChase", "+6", 4, 0, null, null, aiMoveForward, handThinkChase, "none";
 		AISTATE "handRecoil", "+5", 5, 0, null, null, null, null, "handSearch";

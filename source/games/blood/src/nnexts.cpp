@@ -1888,7 +1888,7 @@ void aiSetGenIdleState(DBloodActor* actor)
 		aiGenDudeNewState(actor, &genIdle);
 		break;
 	default:
-		aiNewState(actor, &genIdle);
+		aiNewState(actor, NAME_genIdle);
 		break;
 	}
 }

@@ -90,9 +90,9 @@ static void gillThinkGoto(DBloodActor* actor)
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &gillBeastSwimSearch);
+			aiNewState(actor, NAME_gillBeastSwimSearch);
 		else
-			aiNewState(actor, &gillBeastSearch);
+			aiNewState(actor, NAME_gillBeastSearch);
 	}
 	aiThinkTarget(actor);
 }
@@ -105,9 +105,9 @@ static void gillThinkChase(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &gillBeastSwimSearch);
+			aiNewState(actor, NAME_gillBeastSwimSearch);
 		else
-			aiNewState(actor, &gillBeastSearch);
+			aiNewState(actor, NAME_gillBeastSearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -120,17 +120,17 @@ static void gillThinkChase(DBloodActor* actor)
 	if (actor->xspr.health == 0)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &gillBeastSwimSearch);
+			aiNewState(actor, NAME_gillBeastSwimSearch);
 		else
-			aiNewState(actor, &gillBeastSearch);
+			aiNewState(actor, NAME_gillBeastSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &gillBeastSwimSearch);
+			aiNewState(actor, NAME_gillBeastSwimSearch);
 		else
-			aiNewState(actor, &gillBeastSearch);
+			aiNewState(actor, NAME_gillBeastSearch);
 		return;
 	}
 	double nDist = dv.Length();
@@ -151,31 +151,31 @@ static void gillThinkChase(DBloodActor* actor)
 					{
 					case -1:
 						if (pXSector && pXSector->Underwater)
-							aiNewState(actor, &gillBeastSwimBite);
+							aiNewState(actor, NAME_gillBeastSwimBite);
 						else
-							aiNewState(actor, &gillBeastBite);
+							aiNewState(actor, NAME_gillBeastBite);
 						break;
 					case 3:
 						if (actor->GetType() != gHitInfo.actor()->GetType())
 						{
 							if (pXSector && pXSector->Underwater)
-								aiNewState(actor, &gillBeastSwimBite);
+								aiNewState(actor, NAME_gillBeastSwimBite);
 							else
-								aiNewState(actor, &gillBeastBite);
+								aiNewState(actor, NAME_gillBeastBite);
 						}
 						else
 						{
 							if (pXSector && pXSector->Underwater)
-								aiNewState(actor, &gillBeastSwimDodge);
+								aiNewState(actor, NAME_gillBeastSwimDodge);
 							else
-								aiNewState(actor, &gillBeastDodge);
+								aiNewState(actor, NAME_gillBeastDodge);
 						}
 						break;
 					default:
 						if (pXSector && pXSector->Underwater)
-							aiNewState(actor, &gillBeastSwimBite);
+							aiNewState(actor, NAME_gillBeastSwimBite);
 						else
-							aiNewState(actor, &gillBeastBite);
+							aiNewState(actor, NAME_gillBeastBite);
 						break;
 					}
 				}
@@ -185,9 +185,9 @@ static void gillThinkChase(DBloodActor* actor)
 	}
 
 	if (pXSector && pXSector->Underwater)
-		aiNewState(actor, &gillBeastSwimGoto);
+		aiNewState(actor, NAME_gillBeastSwimGoto);
 	else
-		aiNewState(actor, &gillBeastGoto);
+		aiNewState(actor, NAME_gillBeastGoto);
 	sfxPlay3DSound(actor, 1701, -1, 0);
 	actor->SetTarget(nullptr);
 }
@@ -201,7 +201,7 @@ static void gillThinkSwimGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &gillBeastSwimSearch);
+		aiNewState(actor, NAME_gillBeastSwimSearch);
 	aiThinkTarget(actor);
 }
 
@@ -209,7 +209,7 @@ static void gillThinkSwimChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &gillBeastSwimSearch);
+		aiNewState(actor, NAME_gillBeastSwimSearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -223,12 +223,12 @@ static void gillThinkSwimChase(DBloodActor* actor)
 	
 	if (actor->xspr.health == 0)
 	{
-		aiNewState(actor, &gillBeastSwimSearch);
+		aiNewState(actor, NAME_gillBeastSwimSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &gillBeastSwimSearch);
+		aiNewState(actor, NAME_gillBeastSwimSearch);
 		return;
 	}
 
@@ -244,19 +244,19 @@ static void gillThinkSwimChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x40 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &gillBeastSwimBite);
+					aiNewState(actor, NAME_gillBeastSwimBite);
 				else
 				{
 					aiPlay3DSound(actor, 1700, AI_SFX_PRIORITY_1, -1);
-					aiNewState(actor, &gillBeastSwimMoveIn);
+					aiNewState(actor, NAME_gillBeastSwimMoveIn);
 				}
 			}
 		}
 		else
-			aiNewState(actor, &gillBeastSwimMoveIn);
+			aiNewState(actor, NAME_gillBeastSwimMoveIn);
 		return;
 	}
-	aiNewState(actor, &gillBeastSwimGoto);
+	aiNewState(actor, NAME_gillBeastSwimGoto);
 	actor->SetTarget(nullptr);
 }
 

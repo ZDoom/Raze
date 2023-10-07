@@ -135,7 +135,7 @@ public:
 		if (!hasX())
 			return false;
 
-		switch (xspr.aiState->stateType)
+		switch (xspr.aiState->Type)
 		{
 		case kAiStateIdle:
 		case kAiStateGenIdle:

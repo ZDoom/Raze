@@ -182,9 +182,9 @@ static void beastThinkGoto(DBloodActor* actor)
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &beastSwimSearch);
+			aiNewState(actor, NAME_beastSwimSearch);
 		else
-			aiNewState(actor, &beastSearch);
+			aiNewState(actor, NAME_beastSearch);
 	}
 	aiThinkTarget(actor);
 }
@@ -197,9 +197,9 @@ static void beastThinkChase(DBloodActor* actor)
 		auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &beastSwimSearch);
+			aiNewState(actor, NAME_beastSwimSearch);
 		else
-			aiNewState(actor, &beastSearch);
+			aiNewState(actor, NAME_beastSearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -216,17 +216,17 @@ static void beastThinkChase(DBloodActor* actor)
 	if (target->xspr.health == 0)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &beastSwimSearch);
+			aiNewState(actor, NAME_beastSwimSearch);
 		else
-			aiNewState(actor, &beastSearch);
+			aiNewState(actor, NAME_beastSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
 		if (pXSector && pXSector->Underwater)
-			aiNewState(actor, &beastSwimSearch);
+			aiNewState(actor, NAME_beastSwimSearch);
 		else
-			aiNewState(actor, &beastSearch);
+			aiNewState(actor, NAME_beastSearch);
 		return;
 	}
 	double nDist = dv.Length();
@@ -250,25 +250,25 @@ static void beastThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (!pXSector || !pXSector->Underwater)
-								aiNewState(actor, &beastStomp);
+								aiNewState(actor, NAME_beastStomp);
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType())
 							{
 								if (!pXSector || !pXSector->Underwater)
-									aiNewState(actor, &beastStomp);
+									aiNewState(actor, NAME_beastStomp);
 							}
 							else
 							{
 								if (pXSector && pXSector->Underwater)
-									aiNewState(actor, &beastSwimDodge);
+									aiNewState(actor, NAME_beastSwimDodge);
 								else
-									aiNewState(actor, &beastDodge);
+									aiNewState(actor, NAME_beastDodge);
 							}
 							break;
 						default:
 							if (!pXSector || !pXSector->Underwater)
-								aiNewState(actor, &beastStomp);
+								aiNewState(actor, NAME_beastStomp);
 							break;
 						}
 					}
@@ -280,31 +280,31 @@ static void beastThinkChase(DBloodActor* actor)
 					{
 					case -1:
 						if (pXSector && pXSector->Underwater)
-							aiNewState(actor, &beastSwimSlash);
+							aiNewState(actor, NAME_beastSwimSlash);
 						else
-							aiNewState(actor, &beastSlash);
+							aiNewState(actor, NAME_beastSlash);
 						break;
 					case 3:
 						if (actor->GetType() != gHitInfo.actor()->GetType())
 						{
 							if (pXSector && pXSector->Underwater)
-								aiNewState(actor, &beastSwimSlash);
+								aiNewState(actor, NAME_beastSwimSlash);
 							else
-								aiNewState(actor, &beastSlash);
+								aiNewState(actor, NAME_beastSlash);
 						}
 						else
 						{
 							if (pXSector && pXSector->Underwater)
-								aiNewState(actor, &beastSwimDodge);
+								aiNewState(actor, NAME_beastSwimDodge);
 							else
-								aiNewState(actor, &beastDodge);
+								aiNewState(actor, NAME_beastDodge);
 						}
 						break;
 					default:
 						if (pXSector && pXSector->Underwater)
-							aiNewState(actor, &beastSwimSlash);
+							aiNewState(actor, NAME_beastSwimSlash);
 						else
-							aiNewState(actor, &beastSlash);
+							aiNewState(actor, NAME_beastSlash);
 						break;
 					}
 				}
@@ -314,9 +314,9 @@ static void beastThinkChase(DBloodActor* actor)
 	}
 
 	if (pXSector && pXSector->Underwater)
-		aiNewState(actor, &beastSwimGoto);
+		aiNewState(actor, NAME_beastSwimGoto);
 	else
-		aiNewState(actor, &beastGoto);
+		aiNewState(actor, NAME_beastGoto);
 	actor->SetTarget(nullptr);
 }
 
@@ -329,7 +329,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &beastSwimSearch);
+		aiNewState(actor, NAME_beastSwimSearch);
 	aiThinkTarget(actor);
 }
 
@@ -337,7 +337,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &beastSwimGoto);
+		aiNewState(actor, NAME_beastSwimGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -352,12 +352,12 @@ static void beastThinkSwimChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &beastSwimSearch);
+		aiNewState(actor, NAME_beastSwimSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &beastSwimSearch);
+		aiNewState(actor, NAME_beastSwimSearch);
 		return;
 	}
 
@@ -371,19 +371,19 @@ static void beastThinkSwimChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 64 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &beastSwimSlash);
+					aiNewState(actor, NAME_beastSwimSlash);
 				else
 				{
 					aiPlay3DSound(actor, 9009 + Random(2), AI_SFX_PRIORITY_1, -1);
-					aiNewState(actor, &beastSwimAttack);
+					aiNewState(actor, NAME_beastSwimAttack);
 				}
 			}
 		}
 		else
-			aiNewState(actor, &beastSwimAttack);
+			aiNewState(actor, NAME_beastSwimAttack);
 		return;
 	}
-	aiNewState(actor, &beastSwimGoto);
+	aiNewState(actor, NAME_beastSwimGoto);
 	actor->SetTarget(nullptr);
 }
 

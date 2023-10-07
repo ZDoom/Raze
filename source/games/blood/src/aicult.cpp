@@ -193,11 +193,11 @@ static void cultThinkGoto(DBloodActor* actor)
 		switch (actor->xspr.medium)
 		{
 		case kMediumNormal:
-			aiNewState(actor, &cultistSearch);
+			aiNewState(actor, NAME_cultistSearch);
 			break;
 		case kMediumWater:
 		case kMediumGoo:
-			aiNewState(actor, &cultistSwimSearch);
+			aiNewState(actor, NAME_cultistSwimSearch);
 			break;
 		}
 	}
@@ -211,11 +211,11 @@ static void cultThinkChase(DBloodActor* actor)
 		switch (actor->xspr.medium)
 		{
 		case kMediumNormal:
-			aiNewState(actor, &cultistGoto);
+			aiNewState(actor, NAME_cultistGoto);
 			break;
 		case kMediumWater:
 		case kMediumGoo:
-			aiNewState(actor, &cultistSwimGoto);
+			aiNewState(actor, NAME_cultistSwimGoto);
 			break;
 		}
 		return;
@@ -234,7 +234,7 @@ static void cultThinkChase(DBloodActor* actor)
 		switch (actor->xspr.medium)
 		{
 		case kMediumNormal:
-			aiNewState(actor, &cultistSearch);
+			aiNewState(actor, NAME_cultistSearch);
 			if (actor->GetType() == kDudeCultistTommy)
 				aiPlay3DSound(actor, 4021 + Random(4), AI_SFX_PRIORITY_1, -1);
 			else
@@ -242,7 +242,7 @@ static void cultThinkChase(DBloodActor* actor)
 			break;
 		case kMediumWater:
 		case kMediumGoo:
-			aiNewState(actor, &cultistSwimSearch);
+			aiNewState(actor, NAME_cultistSwimSearch);
 			break;
 		}
 		return;
@@ -252,11 +252,11 @@ static void cultThinkChase(DBloodActor* actor)
 		switch (actor->xspr.medium)
 		{
 		case kMediumNormal:
-			aiNewState(actor, &cultistSearch);
+			aiNewState(actor, NAME_cultistSearch);
 			break;
 		case kMediumWater:
 		case kMediumGoo:
-			aiNewState(actor, &cultistSwimSearch);
+			aiNewState(actor, NAME_cultistSwimSearch);
 			break;
 		}
 		return;
@@ -283,17 +283,17 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistTThrow);
+								aiNewState(actor, NAME_cultistTThrow);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistTThrow);
+								aiNewState(actor, NAME_cultistTThrow);
 							break;
 						default:
-							aiNewState(actor, &cultistTThrow);
+							aiNewState(actor, NAME_cultistTThrow);
 							break;
 						}
 					}
@@ -304,39 +304,39 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTFire);
+								aiNewState(actor, NAME_cultistTFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTProneFire);
+								aiNewState(actor, NAME_cultistTProneFire);
 							else if (dudeIsPlayingSeq(actor, 13) && (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo))
-								aiNewState(actor, &cultistTSwimFire);
+								aiNewState(actor, NAME_cultistTSwimFire);
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistTFire);
+									aiNewState(actor, NAME_cultistTFire);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistTProneFire);
+									aiNewState(actor, NAME_cultistTProneFire);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistTSwimFire);
+									aiNewState(actor, NAME_cultistTSwimFire);
 							}
 							else
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistDodge);
+									aiNewState(actor, NAME_cultistDodge);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistProneDodge);
+									aiNewState(actor, NAME_cultistProneDodge);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistSwimDodge);
+									aiNewState(actor, NAME_cultistSwimDodge);
 							}
 							break;
 						default:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTFire);
+								aiNewState(actor, NAME_cultistTFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTProneFire);
+								aiNewState(actor, NAME_cultistTProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistTSwimFire);
+								aiNewState(actor, NAME_cultistTSwimFire);
 							break;
 						}
 					}
@@ -351,17 +351,17 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistSThrow);
+								aiNewState(actor, NAME_cultistSThrow);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistSThrow);
+								aiNewState(actor, NAME_cultistSThrow);
 							break;
 						default:
-							aiNewState(actor, &cultistSThrow);
+							aiNewState(actor, NAME_cultistSThrow);
 							break;
 						}
 					}
@@ -372,39 +372,39 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSFire);
+								aiNewState(actor, NAME_cultistSFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSProneFire);
+								aiNewState(actor, NAME_cultistSProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistSSwimFire);
+								aiNewState(actor, NAME_cultistSSwimFire);
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistTommy)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistSFire);
+									aiNewState(actor, NAME_cultistSFire);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistSProneFire);
+									aiNewState(actor, NAME_cultistSProneFire);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistSSwimFire);
+									aiNewState(actor, NAME_cultistSSwimFire);
 							}
 							else
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistDodge);
+									aiNewState(actor, NAME_cultistDodge);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistProneDodge);
+									aiNewState(actor, NAME_cultistProneDodge);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistSwimDodge);
+									aiNewState(actor, NAME_cultistSwimDodge);
 							}
 							break;
 						default:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSFire);
+								aiNewState(actor, NAME_cultistSFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSProneFire);
+								aiNewState(actor, NAME_cultistSProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistSSwimFire);
+								aiNewState(actor, NAME_cultistSSwimFire);
 							break;
 						}
 					}
@@ -419,61 +419,61 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistTsThrow);
+								aiNewState(actor, NAME_cultistTsThrow);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistTsThrow);
+								aiNewState(actor, NAME_cultistTsThrow);
 							break;
 						default:
-							aiNewState(actor, &cultistTsThrow);
+							aiNewState(actor, NAME_cultistTsThrow);
 							break;
 						}
 					}
 					else if (nDist < 0x320 && nDeltaAngle < DAngle1 * 5)
 					{
-						AISTATE *pCultistTsProneFire = !cl_bloodvanillaenemies && !VanillaMode() ? &cultistTsProneFireFixed : &cultistTsProneFire;
+						FName pCultistTsProneFire = !cl_bloodvanillaenemies && !VanillaMode() ? NAME_cultistTsProneFireFixed : NAME_cultistTsProneFire;
 						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec.XY(), 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTsFire);
+								aiNewState(actor, NAME_cultistTsFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 								aiNewState(actor, pCultistTsProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistTsSwimFire);
+								aiNewState(actor, NAME_cultistTsSwimFire);
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistTommy)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistTsFire);
+									aiNewState(actor, NAME_cultistTsFire);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 									aiNewState(actor, pCultistTsProneFire);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistTsSwimFire);
+									aiNewState(actor, NAME_cultistTsSwimFire);
 							}
 							else
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistDodge);
+									aiNewState(actor, NAME_cultistDodge);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistProneDodge);
+									aiNewState(actor, NAME_cultistProneDodge);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistSwimDodge);
+									aiNewState(actor, NAME_cultistSwimDodge);
 							}
 							break;
 						default:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistTsFire);
+								aiNewState(actor, NAME_cultistTsFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
 								aiNewState(actor, pCultistTsProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistTsSwimFire);
+								aiNewState(actor, NAME_cultistTsSwimFire);
 							break;
 						}
 					}
@@ -486,16 +486,16 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistDThrow);
+								aiNewState(actor, NAME_cultistDThrow);
 							break;
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistDThrow);
+								aiNewState(actor, NAME_cultistDThrow);
 							break;
 						default:
-							aiNewState(actor, &cultistDThrow);
+							aiNewState(actor, NAME_cultistDThrow);
 							break;
 						}
 					}
@@ -506,16 +506,16 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != 1 && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistDThrow2);
+								aiNewState(actor, NAME_cultistDThrow2);
 							break;
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistDThrow2);
+								aiNewState(actor, NAME_cultistDThrow2);
 							break;
 						default:
-							aiNewState(actor, &cultistDThrow2);
+							aiNewState(actor, NAME_cultistDThrow2);
 							break;
 						}
 					}
@@ -530,17 +530,17 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistSThrow);
+								aiNewState(actor, NAME_cultistSThrow);
 							break;
 						case 0:
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultistSThrow);
+								aiNewState(actor, NAME_cultistSThrow);
 							break;
 						default:
-							aiNewState(actor, &cultistSThrow);
+							aiNewState(actor, NAME_cultistSThrow);
 							break;
 						}
 					}
@@ -551,39 +551,39 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSFire);
+								aiNewState(actor, NAME_cultistSFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSProneFire);
+								aiNewState(actor, NAME_cultistSProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistSSwimFire);
+								aiNewState(actor, NAME_cultistSSwimFire);
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistTommy)
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistSFire);
+									aiNewState(actor, NAME_cultistSFire);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistSProneFire);
+									aiNewState(actor, NAME_cultistSProneFire);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistSSwimFire);
+									aiNewState(actor, NAME_cultistSSwimFire);
 							}
 							else
 							{
 								if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistDodge);
+									aiNewState(actor, NAME_cultistDodge);
 								else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-									aiNewState(actor, &cultistProneDodge);
+									aiNewState(actor, NAME_cultistProneDodge);
 								else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-									aiNewState(actor, &cultistSwimDodge);
+									aiNewState(actor, NAME_cultistSwimDodge);
 							}
 							break;
 						default:
 							if (!dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSFire);
+								aiNewState(actor, NAME_cultistSFire);
 							else if (dudeIsPlayingSeq(actor, 14) && actor->xspr.medium == kMediumNormal)
-								aiNewState(actor, &cultistSProneFire);
+								aiNewState(actor, NAME_cultistSProneFire);
 							else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-								aiNewState(actor, &cultistSSwimFire);
+								aiNewState(actor, NAME_cultistSSwimFire);
 							break;
 						}
 					}
@@ -596,11 +596,11 @@ static void cultThinkChase(DBloodActor* actor)
 	switch (actor->xspr.medium)
 	{
 	case kMediumNormal:
-		aiNewState(actor, &cultistGoto);
+		aiNewState(actor, NAME_cultistGoto);
 		break;
 	case kMediumWater:
 	case kMediumGoo:
-		aiNewState(actor, &cultistSwimGoto);
+		aiNewState(actor, NAME_cultistSwimGoto);
 		break;
 	}
 	actor->SetTarget(nullptr);

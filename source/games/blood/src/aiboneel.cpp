@@ -72,7 +72,7 @@ void eelBiteSeqCallback(DBloodActor* actor)
 	 */
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &eelSearch);
+		aiNewState(actor, NAME_eelSearch);
 		return;
 	}
 
@@ -99,7 +99,7 @@ static void eelThinkTarget(DBloodActor* actor)
 		actor->dudeExtra.thinkTime = 0;
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		aiNewState(actor, &eelTurn);
+		aiNewState(actor, NAME_eelTurn);
 		return;
 	}
 	if (Chance(pDudeInfo->alertChance))
@@ -153,7 +153,7 @@ static void eelThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &eelSearch);
+		aiNewState(actor, NAME_eelSearch);
 	eelThinkTarget(actor);
 }
 
@@ -161,7 +161,7 @@ static void eelThinkPonder(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &eelSearch);
+		aiNewState(actor, NAME_eelSearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -174,7 +174,7 @@ static void eelThinkPonder(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &eelSearch);
+		aiNewState(actor, NAME_eelSearch);
 		return;
 	}
 
@@ -189,25 +189,25 @@ static void eelThinkPonder(DBloodActor* actor)
 		{
 			aiSetTarget(actor, actor->GetTarget());
 			if (height2 - height < -0x20 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &eelDodgeUp);
+				aiNewState(actor, NAME_eelDodgeUp);
 			else if (height2 - height > 12.8 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &eelDodgeDown);
+				aiNewState(actor, NAME_eelDodgeDown);
 			else if (height2 - height < 12.8 && nDist < 57.5625 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &eelDodgeUp);
+				aiNewState(actor, NAME_eelDodgeUp);
 			else if (height2 - height > 12.8 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &eelDodgeDown);
+				aiNewState(actor, NAME_eelDodgeDown);
 			else if (height2 - height < -0x20 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
-				aiNewState(actor, &eelDodgeUp);
+				aiNewState(actor, NAME_eelDodgeUp);
 			else if (height2 - height < -0x20 && nDeltaAngle < DAngle15 && nDist > 0x140)
-				aiNewState(actor, &eelDodgeUp);
+				aiNewState(actor, NAME_eelDodgeUp);
 			else if (height2 - height > 12.8)
-				aiNewState(actor, &eelDodgeDown);
+				aiNewState(actor, NAME_eelDodgeDown);
 			else
-				aiNewState(actor, &eelDodgeUp);
+				aiNewState(actor, NAME_eelDodgeUp);
 			return;
 		}
 	}
-	aiNewState(actor, &eelGoto);
+	aiNewState(actor, NAME_eelGoto);
 	actor->SetTarget(nullptr);
 }
 
@@ -251,7 +251,7 @@ static void eelThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &eelGoto);
+		aiNewState(actor, NAME_eelGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -264,12 +264,12 @@ static void eelThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &eelSearch);
+		aiNewState(actor, NAME_eelSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &eelSearch);
+		aiNewState(actor, NAME_eelSearch);
 		return;
 	}
 
@@ -288,20 +288,20 @@ static void eelThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 57.5625 && top2 > top && nDeltaAngle < DAngle15)
-					aiNewState(actor, &eelSwoop);
+					aiNewState(actor, NAME_eelSwoop);
 				else if (nDist <= 57.5625 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &eelBite);
+					aiNewState(actor, NAME_eelBite);
 				else if (bottom2 > top && nDeltaAngle < DAngle15)
-					aiNewState(actor, &eelSwoop);
+					aiNewState(actor, NAME_eelSwoop);
 				else if (top2 < top && nDeltaAngle < DAngle15)
-					aiNewState(actor, &eelFly);
+					aiNewState(actor, NAME_eelFly);
 			}
 		}
 		return;
 	}
 
 	actor->SetTarget(nullptr);
-	aiNewState(actor, &eelSearch);
+	aiNewState(actor, NAME_eelSearch);
 }
 
 static void eelMoveForward(DBloodActor* actor)
@@ -378,7 +378,7 @@ void eelMoveToCeil(DBloodActor* actor)
 		
 		actor->dudeExtra.active = 0;
 		actor->spr.flags = 0;
-		aiNewState(actor, &eelIdle);
+		aiNewState(actor, NAME_eelIdle);
 	}
 	else
 		aiSetTarget(actor, DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz));

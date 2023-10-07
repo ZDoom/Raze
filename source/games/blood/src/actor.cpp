@@ -1781,7 +1781,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningCultist);
-			aiNewState(actor, &cultistBurnGoto);
+			aiNewState(actor, NAME_cultistBurnGoto);
 			actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
 			return true;
 		}
@@ -1791,7 +1791,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningBeast);
-			aiNewState(actor, &beastBurnGoto);
+			aiNewState(actor, NAME_beastBurnGoto);
 			actHealDude(actor, dudeInfo[53].startHealth, dudeInfo[53].startHealth);
 			return true;
 		}
@@ -1801,7 +1801,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningInnocent);
-			aiNewState(actor, &innocentBurnGoto);
+			aiNewState(actor, NAME_innocentBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
 		}
@@ -1813,7 +1813,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningTinyCaleb);
-			aiNewState(actor, &tinycalebBurnGoto);
+			aiNewState(actor, NAME_tinycalebBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
 		}
@@ -2527,7 +2527,6 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	DUDEINFO* pDudeInfo = nullptr;
 	bool pIsThing = false;
-	int nThingDamage = actorHit->dmgControl[kDamageBurn];
 
 	if (hitCode == 3 && actorHit)
 	{
@@ -2549,6 +2548,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			DAMAGE_TYPE rand1 = (DAMAGE_TYPE)Random(7);
 			int rand2 = (7 + Random(7)) << 4;
 			int nDamage = actDamageSprite(missileOwner, actorHit, rand1, rand2);
+			int nThingDamage = actorHit->dmgControl[kDamageBurn];
 
 			if (nThingDamage != 0)
 				actBurnSprite(missileActor->GetOwner(), actorHit, 360);
@@ -2650,6 +2650,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxKill3DSound(missileActor, -1, -1);
 		if ((hitCode == 3 && actorHit) && (pIsThing || pDudeInfo))
 		{
+			int nThingDamage = actorHit->dmgControl[kDamageBurn];
 			if (nThingDamage != 0)
 			{
 				if (pIsThing && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
@@ -3431,7 +3432,7 @@ void MoveDude(DBloodActor* actor)
 	double tz = (actor->spr.pos.Z - top) / 4;
 	double wdf = actor->clipdist;
 	auto pSector = actor->sector();
-	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->stateType : -1;
+	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->Type : -1;
 
 	assert(pSector);
 
@@ -3636,10 +3637,10 @@ void MoveDude(DBloodActor* actor)
 				{
 				case kDudeCultistTommy:
 				case kDudeCultistShotgun:
-					aiNewState(actor, &cultistGoto);
+					aiNewState(actor, NAME_cultistGoto);
 					break;
 				case kDudeGillBeast:
-					aiNewState(actor, &gillBeastGoto);
+					aiNewState(actor, NAME_gillBeastGoto);
 					actor->spr.flags |= 6;
 					break;
 				case kDudeBoneEel:
@@ -3691,7 +3692,7 @@ void MoveDude(DBloodActor* actor)
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &cultistSwimGoto);
+					aiNewState(actor, NAME_cultistSwimGoto);
 					break;
 				case kDudeBurningCultist:
 				{
@@ -3705,26 +3706,26 @@ void MoveDude(DBloodActor* actor)
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &cultistSwimGoto);
+					aiNewState(actor, NAME_cultistSwimGoto);
 					break;
 				}
 				case kDudeZombieAxeNormal:
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &zombieAGoto);
+					aiNewState(actor, NAME_zombieAGoto);
 					break;
 				case kDudeZombieButcher:
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &zombieFGoto);
+					aiNewState(actor, NAME_zombieFGoto);
 					break;
 				case kDudeGillBeast:
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &gillBeastSwimGoto);
+					aiNewState(actor, NAME_gillBeastSwimGoto);
 
 					actor->spr.flags &= ~6;
 					break;

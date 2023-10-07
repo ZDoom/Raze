@@ -95,7 +95,7 @@ static void zombaThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 51.3125 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &zombieASearch);
+		aiNewState(actor, NAME_zombieASearch);
 	aiThinkTarget(actor);
 }
 
@@ -103,7 +103,7 @@ static void zombaThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &zombieASearch);
+		aiNewState(actor, NAME_zombieASearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -118,12 +118,12 @@ static void zombaThinkChase(DBloodActor* actor)
 
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &zombieASearch);
+		aiNewState(actor, NAME_zombieASearch);
 		return;
 	}
 	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target), kPwUpDeathMaskUseless) > 0))
 	{
-		aiNewState(actor, &zombieAGoto);
+		aiNewState(actor, NAME_zombieAGoto);
 		return;
 	}
 	// If the zombie gets whacked while rising from the grave it never executes this change and if it isn't done here at the very latest, will just aimlessly run around.
@@ -141,13 +141,13 @@ static void zombaThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x40 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &zombieAHack);
+					aiNewState(actor, NAME_zombieAHack);
 				return;
 			}
 		}
 	}
 
-	aiNewState(actor, &zombieAGoto);
+	aiNewState(actor, NAME_zombieAGoto);
 	actor->SetTarget(nullptr);
 }
 
@@ -155,7 +155,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &zombieASearch);
+		aiNewState(actor, NAME_zombieASearch);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -169,12 +169,12 @@ static void zombaThinkPonder(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &zombieASearch);
+		aiNewState(actor, NAME_zombieASearch);
 		return;
 	}
 	if (target->IsPlayerActor() && (powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0 || powerupCheck(getPlayer(target), kPwUpDeathMaskUseless) > 0))
 	{
-		aiNewState(actor, &zombieAGoto);
+		aiNewState(actor, NAME_zombieAGoto);
 		return;
 	}
 
@@ -192,7 +192,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 					if (nDeltaAngle < DAngle15)
 					{
 						sfxPlay3DSound(actor, 1101, 1, 0);
-						aiNewState(actor, &zombieAHack);
+						aiNewState(actor, NAME_zombieAHack);
 					}
 					return;
 				}
@@ -200,7 +200,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 		}
 	}
 
-	aiNewState(actor, &zombieAChase);
+	aiNewState(actor, NAME_zombieAChase);
 }
 
 static void myThinkTarget(DBloodActor* actor)

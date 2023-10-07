@@ -145,11 +145,11 @@ static void aiPodMove(DBloodActor* actor)
 		switch (actor->GetType()) {
 		case kDudePodGreen:
 		case kDudePodFire:
-			aiNewState(actor, &podSearch);
+			aiNewState(actor, NAME_podSearch);
 			break;
 		case kDudeTentacleGreen:
 		case kDudeTentacleFire:
-			aiNewState(actor, &tentacleSearch);
+			aiNewState(actor, NAME_tentacleSearch);
 			break;
 		}
 	}
@@ -162,11 +162,11 @@ static void aiPodChase(DBloodActor* actor)
 		switch (actor->GetType()) {
 		case kDudePodGreen:
 		case kDudePodFire:
-			aiNewState(actor, &podMove);
+			aiNewState(actor, NAME_podMove);
 			break;
 		case kDudeTentacleGreen:
 		case kDudeTentacleFire:
-			aiNewState(actor, &tentacleMove);
+			aiNewState(actor, NAME_tentacleMove);
 			break;
 		}
 		return;
@@ -187,11 +187,11 @@ static void aiPodChase(DBloodActor* actor)
 		switch (actor->GetType()) {
 		case kDudePodGreen:
 		case kDudePodFire:
-			aiNewState(actor, &podSearch);
+			aiNewState(actor, NAME_podSearch);
 			break;
 		case kDudeTentacleGreen:
 		case kDudeTentacleFire:
-			aiNewState(actor, &tentacleSearch);
+			aiNewState(actor, NAME_tentacleSearch);
 			break;
 		}
 		return;
@@ -209,11 +209,11 @@ static void aiPodChase(DBloodActor* actor)
 					switch (actor->GetType()) {
 					case kDudePodGreen:
 					case kDudePodFire:
-						aiNewState(actor, &podStartChase);
+						aiNewState(actor, NAME_podStartChase);
 						break;
 					case kDudeTentacleGreen:
 					case kDudeTentacleFire:
-						aiNewState(actor, &tentacleStartChase);
+						aiNewState(actor, NAME_tentacleStartChase);
 						break;
 					}
 				}
@@ -225,11 +225,11 @@ static void aiPodChase(DBloodActor* actor)
 	switch (actor->GetType()) {
 	case kDudePodGreen:
 	case kDudePodFire:
-		aiNewState(actor, &podMove);
+		aiNewState(actor, NAME_podMove);
 		break;
 	case kDudeTentacleGreen:
 	case kDudeTentacleFire:
-		aiNewState(actor, &tentacleMove);
+		aiNewState(actor, NAME_tentacleMove);
 		break;
 	}
 	actor->SetTarget(nullptr);

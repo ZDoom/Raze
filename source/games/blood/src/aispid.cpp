@@ -176,7 +176,7 @@ static void spidThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &spidSearch);
+		aiNewState(actor, NAME_spidSearch);
 	aiThinkTarget(actor);
 }
 
@@ -184,7 +184,7 @@ static void spidThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &spidGoto);
+		aiNewState(actor, NAME_spidGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -197,12 +197,12 @@ static void spidThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &spidSearch);
+		aiNewState(actor, NAME_spidSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &spidSearch);
+		aiNewState(actor, NAME_spidSearch);
 		return;
 	}
 
@@ -219,20 +219,20 @@ static void spidThinkChase(DBloodActor* actor)
 				switch (actor->GetType()) {
 				case kDudeSpiderRed:
 					if (nDist < 57.5625 && nDeltaAngle < DAngle15)
-						aiNewState(actor, &spidBite);
+						aiNewState(actor, NAME_spidBite);
 					break;
 				case kDudeSpiderBrown:
 				case kDudeSpiderBlack:
 					if (nDist < 115.1875 && nDist > 57.5625 && nDeltaAngle < DAngle15)
-						aiNewState(actor, &spidJump);
+						aiNewState(actor, NAME_spidJump);
 					else if (nDist < 57.5625 && nDeltaAngle < DAngle15)
-						aiNewState(actor, &spidBite);
+						aiNewState(actor, NAME_spidBite);
 					break;
 				case kDudeSpiderMother:
 					if (nDist < 115.1875 && nDist > 57.5625 && nDeltaAngle < DAngle15)
-						aiNewState(actor, &spidJump);
+						aiNewState(actor, NAME_spidJump);
 					else if (Chance(0x8000))
-						aiNewState(actor, &spidBirth);
+						aiNewState(actor, NAME_spidBirth);
 					break;
 				}
 
@@ -241,7 +241,7 @@ static void spidThinkChase(DBloodActor* actor)
 		}
 	}
 
-	aiNewState(actor, &spidGoto);
+	aiNewState(actor, NAME_spidGoto);
 	actor->SetTarget(nullptr);
 }
 

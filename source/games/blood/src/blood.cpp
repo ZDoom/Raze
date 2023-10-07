@@ -718,6 +718,19 @@ void GameInterface::FinalizeSetup()
 			actorinfo->TypeNum = pair->Key;
 		}
 	}
+
+// Make the StatesToDefine array temporarily operable to allow transitioning the state calls without first altering the state table implementation.
+#pragma message("remove after state transitioning")
+	auto cls = PClass::FindActor("BloodDudeBase");
+	for (auto& state : cls->ActorInfo()->AIStates)
+	{
+		state.seqId = state.sprite == 0 ? -1 : state.sprite & 0xffff;
+		state.NextState = nullptr;
+		for (auto& state2 : cls->ActorInfo()->AIStates)
+		{
+			if (state.NextStaten == state2.Label) state.NextState = &state2;
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -790,8 +803,8 @@ DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
 	PROP_INT_PARM(duration, 3);
 	PROP_FUNC_PARM(action, 4);
 	PROP_FUNC_PARM(enter, 5);
-	PROP_FUNC_PARM(tick, 6);
-	PROP_FUNC_PARM(move, 7);
+	PROP_FUNC_PARM(move, 6);
+	PROP_FUNC_PARM(tick, 7);
 	const char* next = nullptr;
 	if (PROP_PARM_COUNT > 8)
 	{
@@ -813,7 +826,7 @@ DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
 	state.EnterFunc = enter;
 	state.MoveFunc = move;
 	state.TickFunc = tick;
-	state.NextState = next ? FName(next) : FName(NAME_None);
+	state.NextStaten = next ? FName(next) : FName(NAME_None);
 }
 
 END_BLD_NS

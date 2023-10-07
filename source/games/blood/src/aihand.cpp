@@ -34,7 +34,7 @@ static void handThinkGoto(DBloodActor*);
 static void handThinkChase(DBloodActor*);
 
 AISTATE handIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE hand13A3B4 = { kAiStateOther, 0, nullptr, 0, NULL, NULL, NULL, NULL };
+AISTATE handChoke = { kAiStateOther, 0, nullptr, 0, NULL, NULL, NULL, NULL };
 AISTATE handSearch = { kAiStateMove, 6, nullptr, 600, NULL, &AF(aiMoveForward), &AF(handThinkSearch), &handIdle };
 AISTATE handChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveForward), &AF(handThinkChase), NULL };
 AISTATE handRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &handSearch };
@@ -71,7 +71,7 @@ static void handThinkGoto(DBloodActor* actor)
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
-		aiNewState(actor, &handSearch);
+		aiNewState(actor, NAME_handSearch);
 	aiThinkTarget(actor);
 }
 
@@ -79,7 +79,7 @@ static void handThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &handGoto);
+		aiNewState(actor, NAME_handGoto);
 		return;
 	}
 	assert(actor->IsDudeActor());
@@ -93,12 +93,12 @@ static void handThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
-		aiNewState(actor, &handSearch);
+		aiNewState(actor, NAME_handSearch);
 		return;
 	}
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0)
 	{
-		aiNewState(actor, &handSearch);
+		aiNewState(actor, NAME_handSearch);
 		return;
 	}
 	if (nDist <= pDudeInfo->SeeDist())
@@ -111,13 +111,13 @@ static void handThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 35.1875 && nDeltaAngle < DAngle15 && gGameOptions.nGameType == 0)
-					aiNewState(actor, &handJump);
+					aiNewState(actor, NAME_handJump);
 				return;
 			}
 		}
 	}
 
-	aiNewState(actor, &handGoto);
+	aiNewState(actor, NAME_handGoto);
 	actor->SetTarget(nullptr);
 }
 
