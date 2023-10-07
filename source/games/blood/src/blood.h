@@ -61,7 +61,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 // ai callbacks
-DEF_ANIMATOR(aiGenDudeMoveForward)
 DEF_ANIMATOR(aiMoveDodge)
 DEF_ANIMATOR(aiMoveForward)
 DEF_ANIMATOR(aiMoveTurn)
@@ -117,7 +116,6 @@ DEF_ANIMATOR(entryEStand)
 DEF_ANIMATOR(entryEZombie)
 DEF_ANIMATOR(entryFStatue)
 DEF_ANIMATOR(entrySStatue)
-DEF_ANIMATOR(forcePunch)
 DEF_ANIMATOR(gargMoveDodgeDown)
 DEF_ANIMATOR(gargMoveDodgeUp)
 DEF_ANIMATOR(gargMoveFly)
@@ -175,9 +173,6 @@ DEF_ANIMATOR(sub_72580)
 DEF_ANIMATOR(sub_725A4)
 DEF_ANIMATOR(sub_72850)
 DEF_ANIMATOR(tchernobogThinkChase)
-DEF_ANIMATOR(unicultThinkChase)
-DEF_ANIMATOR(unicultThinkGoto)
-DEF_ANIMATOR(unicultThinkSearch)
 DEF_ANIMATOR(zombaThinkChase)
 DEF_ANIMATOR(zombaThinkGoto)
 DEF_ANIMATOR(zombaThinkPonder)
@@ -241,11 +236,6 @@ DEF_ANIMATOR(FireballTrapSeqCallback)
 DEF_ANIMATOR(MGunFireSeqCallback)
 DEF_ANIMATOR(MGunOpenSeqCallback)
 
-// nnext
-DEF_ANIMATOR(genDudeAttack1)
-DEF_ANIMATOR(punchCallback)
-DEF_ANIMATOR(ThrowCallback1)
-DEF_ANIMATOR(ThrowCallback2)
 
 // event callbacks
 DEF_ANIMATOR(fxFlameLick) // 0
@@ -269,10 +259,22 @@ DEF_ANIMATOR(fxPodBloodSpray) // 18
 DEF_ANIMATOR(fxPodBloodSplat) // 19
 DEF_ANIMATOR(LeechStateTimer) // 20
 DEF_ANIMATOR(DropVoodooCb) // unused
+DEF_ANIMATOR(callbackMakeMissileBlocking) // 23
+DEF_ANIMATOR(callbackMissileBurst)
 
-DEF_ANIMATOR(callbackMakeMissileBlocking)
+#ifdef NOONE_EXTENSIONS
+DEF_ANIMATOR(forcePunch)
+DEF_ANIMATOR(aiGenDudeMoveForward)
+DEF_ANIMATOR(unicultThinkChase)
+DEF_ANIMATOR(unicultThinkGoto)
+DEF_ANIMATOR(unicultThinkSearch)
+DEF_ANIMATOR(genDudeAttack1)
+DEF_ANIMATOR(punchCallback)
+DEF_ANIMATOR(ThrowCallback1)
+DEF_ANIMATOR(ThrowCallback2)
 DEF_ANIMATOR(callbackGenDudeUpdate)
-DEF_ANIMATOR(callbackUniMissileBurst)
+#endif
+
 
 enum EFeatureFlags
 {

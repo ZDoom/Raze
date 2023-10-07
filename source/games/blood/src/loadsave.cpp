@@ -324,6 +324,35 @@ static AISTATE* const allAIStates[] =
 	&tcherno13A9F0,
 	&tcherno13AA0C,
 	&tcherno13AA28,
+	&zombieAIdle,
+	&zombieAChase,
+	&zombieAPonder,
+	&zombieAGoto,
+	&zombieAHack,
+	&zombieASearch,
+	&zombieARecoil,
+	&zombieATeslaRecoil,
+	&zombieARecoil2,
+	&zombieAStand,
+	&zombieEIdle,
+	&zombieEUp2,
+	&zombieEUp,
+	&zombie2Idle,
+	&zombie2Search,
+	&zombieSIdle,
+	&zombie13AC2C,
+	&zombieFIdle,
+	&zombieFChase,
+	&zombieFGoto,
+	&zombieFDodge,
+	&zombieFHack,
+	&zombieFPuke,
+	&zombieFThrow,
+	&zombieFSearch,
+	&zombieFRecoil,
+	&zombieFTeslaRecoil,
+
+#ifdef NOONE_EXTENSIONS
 	&genDudeIdleL,
 	&genDudeIdleW,
 	&genDudeSearchL,
@@ -359,33 +388,8 @@ static AISTATE* const allAIStates[] =
 	&genDudeThrow,
 	&genDudeThrow2,
 	&genDudePunch,
-	&zombieAIdle,
-	&zombieAChase,
-	&zombieAPonder,
-	&zombieAGoto,
-	&zombieAHack,
-	&zombieASearch,
-	&zombieARecoil,
-	&zombieATeslaRecoil,
-	&zombieARecoil2,
-	&zombieAStand,
-	&zombieEIdle,
-	&zombieEUp2,
-	&zombieEUp,
-	&zombie2Idle,
-	&zombie2Search,
-	&zombieSIdle,
-	&zombie13AC2C,
-	&zombieFIdle,
-	&zombieFChase,
-	&zombieFGoto,
-	&zombieFDodge,
-	&zombieFHack,
-	&zombieFPuke,
-	&zombieFThrow,
-	&zombieFSearch,
-	&zombieFRecoil,
-	&zombieFTeslaRecoil,
+#endif
+
 };
 
 //---------------------------------------------------------------------------
@@ -409,11 +413,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 			}
 			i++;
 		}
+#ifdef NOONE_EXTENSIONS
 		if (w >= genPatrolStates && w < genPatrolStates + kPatrolStateSize)
 		{
 			i = int(w - genPatrolStates) + 1000;
 			arc(keyname, i);
 		}
+#endif
 	}
 	else
 	{
@@ -422,10 +428,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 		{
 			w = allAIStates[i];
 		}
+#ifdef NOONE_EXTENSIONS
 		else if (i >= 1000 && i < 1000 + kPatrolStateSize)
 		{
 			w = genPatrolStates + (i - 1000);
 		}
+#endif
 		else
 		{
 			w = nullptr;

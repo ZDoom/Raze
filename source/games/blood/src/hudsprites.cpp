@@ -143,7 +143,7 @@ void hudDraw(DBloodPlayer* pPlayer, sectortype* pSector, double bobx, double bob
 			pPlayer->qavTimer = pPlayer->weaponTimer = pPlayer->curWeapon = 0;
 		}
 		#else
-			WeaponDraw(pPlayer, nShade, cX, cY, nPalette);
+			WeaponDraw(pPlayer, nShade, cXY.X, cXY.Y, nPalette, angle);
 		#endif
 	}
 	if (gViewPos == 0 && pPlayer->GetActor()->xspr.burnTime > 60)

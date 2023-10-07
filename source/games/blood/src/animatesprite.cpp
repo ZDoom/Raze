@@ -120,6 +120,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	auto pTTex = TexMan.GetGameTexture(pTSprite->spritetexture());
 	switch (nViewEffect)
 	{
+#ifdef NOONE_EXTENSIONS
 	case kViewEffectSpotProgress: {
 		int perc = (100 * owneractor->xspr.data3) / kMaxPatrolSpotValue;
 		int width = (94 * owneractor->xspr.data3) / kMaxPatrolSpotValue;
@@ -142,6 +143,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite2->shade = -128;
 		break;
 	}
+#endif
 	case kViewEffectAtom:
 		for (int i = 0; i < 16; i++)
 		{
@@ -874,10 +876,12 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				}
 			}
 
+#ifdef NOONE_EXTENSIONS
 			if (gModernMap && owneractor->hasX()) { // add target spot indicator for patrol dudes
 				if (owneractor->xspr.dudeFlag4 && aiInPatrolState(owneractor->xspr.aiState) && owneractor->xspr.data3 > 0 && owneractor->xspr.data3 <= kMaxPatrolSpotValue)
 					viewAddEffect(tsprites, nTSprite, kViewEffectSpotProgress);
 			}
+#endif
 			break;
 		}
 		case kStatTraps: {

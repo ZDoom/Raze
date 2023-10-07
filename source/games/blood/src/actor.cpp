@@ -3487,7 +3487,7 @@ void MoveDude(DBloodActor* actor)
 				trTriggerSprite(coll.actor(), kCmdSpriteTouch, actor);
 #else
 			if (hitActor->hasX() && hitActor->xspr.Touch && !hitActor->xspr.state && !hitActor->xspr.isTriggered)
-				trTriggerSprite(coll.actor, kCmdSpriteTouch);
+				trTriggerSprite(coll.actor(), kCmdSpriteTouch);
 #endif
 
 			if (pDudeInfo->lockOut && hitActor->hasX() && hitActor->xspr.Push && !hitActor->xspr.key && !hitActor->xspr.DudeLockout && !hitActor->xspr.state && !hitActor->xspr.busy && !pPlayer)
@@ -4628,6 +4628,32 @@ static void actCheckTraps()
 			break;
 		}
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool IsBurningDude(DBloodActor* actor)
+{
+	if (actor == NULL) return false;
+	switch (actor->GetType())
+	{
+	case kDudeBurningInnocent:
+	case kDudeBurningCultist:
+	case kDudeBurningZombieAxe:
+	case kDudeBurningZombieButcher:
+	case kDudeBurningTinyCaleb:
+	case kDudeBurningBeast:
+#ifdef NOONE_EXTENSIONS
+	case kDudeModernCustomBurning:
+#endif
+		return true;
+	}
+
+	return false;
 }
 
 //---------------------------------------------------------------------------

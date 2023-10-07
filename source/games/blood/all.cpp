@@ -1,6 +1,13 @@
+
+#ifdef NOONE_EXTENSIONS
+#undef NOONE_EXTENSIONS
+#endif
+
+/*
 #ifndef NOONE_EXTENSIONS
 #define NOONE_EXTENSIONS
 #endif
+*/
 
 #include "src/actor.cpp"
 #include "src/ai.cpp"

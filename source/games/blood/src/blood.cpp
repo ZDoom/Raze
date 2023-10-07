@@ -57,6 +57,7 @@ BEGIN_BLD_NS
 
 IMPLEMENT_CLASS(DBloodActor, false, true)
 IMPLEMENT_POINTERS_START(DBloodActor)
+#ifdef NOONE_EXTENSIONS
 IMPLEMENT_POINTER(prevmarker)
 IMPLEMENT_POINTER(ownerActor)
 IMPLEMENT_POINTER(genDudeExtra.pLifeLeech)
@@ -67,6 +68,7 @@ IMPLEMENT_POINTER(genDudeExtra.slave[3])
 IMPLEMENT_POINTER(genDudeExtra.slave[4])
 IMPLEMENT_POINTER(genDudeExtra.slave[5])
 IMPLEMENT_POINTER(genDudeExtra.slave[6])
+#endif
 IMPLEMENT_POINTER(xspr.burnSource)
 IMPLEMENT_POINTER(xspr.target)
 IMPLEMENT_POINTERS_END
@@ -110,25 +112,29 @@ size_t DBloodActor::PropagateMark()
 	if (hit.hit.type == kHitSprite) GC::Mark(hit.hit.hitActor);
 	if (hit.ceilhit.type == kHitSprite) GC::Mark(hit.ceilhit.hitActor);
 	if (hit.florhit.type == kHitSprite) GC::Mark(hit.florhit.hitActor);
+#ifdef NOONE_EXTENSIONS
 	condition[0].Mark();
 	condition[1].Mark();
+#endif
 	return Super::PropagateMark();
 }
 
 static void markgcroots()
 {
+#ifdef NOONE_EXTENSIONS
 	GC::MarkArray(gProxySpritesList, gProxySpritesCount);
 	GC::MarkArray(gSightSpritesList, gSightSpritesCount);
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
-	MarkSprInSect();
-	for (auto& evobj : rxBucket)
-	{
-		evobj.Mark();
-	}
 	for (auto& cond : gConditions)
 	{
 		for (auto& obj : cond.objects) obj.obj.Mark();
+	}
+	MarkSprInSect();
+#endif
+	for (auto& evobj : rxBucket)
+	{
+		evobj.Mark();
 	}
 	MarkSeq();
 }

@@ -118,10 +118,13 @@ class BloodActor : CoreActor native
 		kStatPathMarker = 16,
 		kStatFree = 1024,
 	};
+
+	states
+	{
+	}
 	
 	
 // all callbacks, this is to allow using VM functions for all of them
-native void aiGenDudeMoveForward();
 native void aiMoveDodge();
 native void aiMoveForward();
 native void aiMoveTurn();
@@ -177,7 +180,6 @@ native void entryEStand();
 native void entryEZombie();
 native void entryFStatue();
 native void entrySStatue();
-native void forcePunch();
 native void gargMoveDodgeDown();
 native void gargMoveDodgeUp();
 native void gargMoveFly();
@@ -235,9 +237,6 @@ native void sub_72580();
 native void sub_725A4();
 native void sub_72850();
 native void tchernobogThinkChase();
-native void unicultThinkChase();
-native void unicultThinkGoto();
-native void unicultThinkSearch();
 native void zombaThinkChase();
 native void zombaThinkGoto();
 native void zombaThinkPonder();
@@ -289,10 +288,6 @@ native void SpidBirthSeqCallback();
 native void tchernobogFire();
 native void tchernobogBurnSeqCallback();
 native void tchernobogBurnSeqCallback2();
-native void genDudeAttack1();
-native void punchCallback();
-native void ThrowCallback1();
-native void ThrowCallback2();
 native void HackSeqCallback();
 native void StandSeqCallback();
 native void zombfHackSeqCallback();
@@ -324,7 +319,20 @@ native void fxPodBloodSpray(); // 18
 native void fxPodBloodSplat(); // 19
 native void LeechStateTimer(); // 20
 native void DropVoodooCb(); // unused	
+native void callbackMakeMissileBlocking(); // 23
+native void callbackMissileBurst();
 	
+
+//native void unicultThinkChase();
+//native void unicultThinkGoto();
+//native void unicultThinkSearch();
+//native void forcePunch();
+//native void aiGenDudeMoveForward();
+//native void genDudeAttack1();
+//native void punchCallback();
+//native void ThrowCallback1();
+//native void ThrowCallback2();
+
 	native double dudeSlope;
 	native readonly bool hasx;
 	native bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.

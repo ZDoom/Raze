@@ -29,11 +29,13 @@ public:
 	TObjPtr<DBloodActor*> ownerActor;	// was previously stored in the sprite's owner field.
 
 	// nnext stuff. For now not exported to scripting.
+#ifdef NOONE_EXTENSIONS
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
-	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
-	DVector3 basePoint;
 	EventObject condition[2];
+	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+#endif
+	DVector3 basePoint;
 	int16_t dmgControl[kDamageMax];    // combination of the ones in DUDEINFO, THINGINFO and GENDUDEEXTRA, needs to be modifiable
 
 	// transient data (not written to savegame)

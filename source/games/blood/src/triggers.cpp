@@ -2208,7 +2208,7 @@ void trProcessBusy(void)
 		if (!gModernMap || !gBusy[i].sect->xs().pauseMotion) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy, nullptr);
 		else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
 #else
-		nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
+		nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy, nullptr);
 #endif
 		switch (nStatus) {
 		case 1:

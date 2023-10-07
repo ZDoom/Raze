@@ -828,4 +828,64 @@ void DropVoodooCb(DBloodActor* actor) // unused
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void callbackMissileBurst(DBloodActor* actor) // 22
+{
+	if (!actor) return;
+	if (actor->spr.statnum != kStatProjectile) return;
+	auto nAngVec = actor->vel.XY().Angle().ToVector();
+	double nRadius = FixedToFloat(0x55555);
+
+	for (int i = 0; i < 8; i++)
+	{
+		auto burstactor = actSpawnSprite(actor, kStatProjectile, actor->GetClass(), actor->GetType());
+		if (!burstactor) break;
+
+		burstactor->spr.shade = actor->spr.shade;
+		burstactor->spr.setspritetexture(actor->spr.spritetexture());
+
+
+		burstactor->spr.cstat = actor->spr.cstat;
+		if ((burstactor->spr.cstat & CSTAT_SPRITE_BLOCK))
+		{
+			burstactor->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
+			evPostActor(burstactor, 100, AF(callbackMakeMissileBlocking)); // so set blocking flag a bit later
+		}
+
+		burstactor->spr.pal = actor->spr.pal;
+		burstactor->clipdist = actor->clipdist * 0.25;
+		burstactor->spr.flags = actor->spr.flags;
+		burstactor->spr.scale = actor->spr.scale;
+		burstactor->spr.scale *= 0.5;
+
+		burstactor->spr.Angles.Yaw = actor->spr.Angles.Yaw + DAngle::fromDeg(actor->FloatVar("angleofs"));
+		burstactor->SetOwner(actor);
+
+		IFVIRTUALPTRNAME(burstactor, NAME_BloodMissileBase, initMissile) // note: delete the name if this get scriptified.
+		{
+			VMValue p[] = { burstactor, actor };
+			VMCall(func, p, 2, nullptr, 0);
+		}
+
+		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
+		if (i & 1) spAngVec *= 0.5;
+		burstactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
+		evPostActor(burstactor, 960, AF(RemoveActor));
+	}
+	evPostActor(actor, 0, AF(RemoveActor));
+}
+
+
+void callbackMakeMissileBlocking(DBloodActor* actor) // 23
+{
+	if (!actor || actor->spr.statnum != kStatProjectile) return;
+	actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
+}
+
+
 END_BLD_NS

@@ -351,7 +351,7 @@ void playerQavScenePlay(DBloodPlayer* pPlayer);
 void playerQavSceneDraw(DBloodPlayer* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle);
 void playerQavSceneReset(DBloodPlayer* pPlayer);
 //  -------------------------------------------------------------------------   //
-void callbackUniMissileBurst(DBloodActor* actor);
+void callbackMissileBurst(DBloodActor* actor);
 void callbackMakeMissileBlocking(DBloodActor* actor);
 void callbackGenDudeUpdate(DBloodActor* actor);
 //  -------------------------------------------------------------------------   //
@@ -423,7 +423,6 @@ bool isMovableSector(int nType);
 bool isMovableSector(sectortype* pSect);
 void killEffectGenCallbacks(DBloodActor* actor);
 bool xsprIsFine(DBloodActor* pSpr);
-#endif
 
 inline bool valueIsBetween(int val, int min, int max)
 {
@@ -437,3 +436,4 @@ inline bool valueIsBetween(int val, int min, int max)
 ////////////////////////////////////////////////////////////////////////////////////
 END_BLD_NS
 
+#endif

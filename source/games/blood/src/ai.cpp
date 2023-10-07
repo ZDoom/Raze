@@ -1612,8 +1612,8 @@ void aiProcessDudes(void)
 				actor->xspr.aiState->thinkFunc(actor);
 		}
 
-		switch (actor->GetType()) {
 #ifdef NOONE_EXTENSIONS
+		switch (actor->GetType()) {
 		case kDudeModernCustom:
 		case kDudeModernCustomBurning: {
 			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
@@ -1630,8 +1630,8 @@ void aiProcessDudes(void)
 			RecoilDude(actor);
 			break;
 		}
-#endif
 		default:
+#endif
 			if (actor->xspr.stateTimer == 0 && actor->xspr.aiState && actor->xspr.aiState->nextState) {
 				if (actor->xspr.aiState->stateTicks > 0)
 					aiNewState(actor, actor->xspr.aiState->nextState);
@@ -1644,8 +1644,10 @@ void aiProcessDudes(void)
 				actor->xspr.data3 = actor->cumulDamage;
 				RecoilDude(actor);
 			}
+#ifdef NOONE_EXTENSIONS
 			break;
 		}
+#endif
 	}
 
 	it.Reset(kStatDude);
@@ -1935,5 +1937,6 @@ void aiInitSprite(DBloodActor* actor)
 	}
 #endif
 }
+
 
 END_BLD_NS
