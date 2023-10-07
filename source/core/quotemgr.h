@@ -26,12 +26,12 @@ public:
 
 	const char *GetQuote(int num)
 	{
-		return GStrings.localize(quotes[num]);
+		return GStrings.localize(quotes[num].GetChars());
 	}
 
 	const char *GetRawQuote(int num)
 	{
-		return quotes[num];
+		return quotes[num].GetChars();
 	}
 
 	void CopyQuote(int dst, int src)

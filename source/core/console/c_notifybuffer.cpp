@@ -144,14 +144,14 @@ void FNotifyBuffer::DrawNative()
 
 			if (!center)
 			{
-				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text,
+				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text.GetChars(),
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
 					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale, DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			}
 			else
 			{
-				DrawText(twod, font, CR_UNTRANSLATED, 160 * scale - font->StringWidth(notify.Text) / 2, line, notify.Text,
+				DrawText(twod, font, CR_UNTRANSLATED, 160 * scale - font->StringWidth(notify.Text) / 2, line, notify.Text.GetChars(),
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
 					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale,
 					DTA_Alpha, alpha, TAG_DONE);
@@ -222,7 +222,7 @@ void FNotifyBuffer::Draw()
 				color = PrintColors[notify.PrintLevel];
 
 			if (!center)
-				DrawText(twod, font, color, 0, line * NotifyFontScale, notify.Text,
+				DrawText(twod, font, color, 0, line * NotifyFontScale, notify.Text.GetChars(),
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
 					DTA_VirtualWidthF, 320. * scale,
 					DTA_VirtualHeightF, 200. * scale,
@@ -230,7 +230,7 @@ void FNotifyBuffer::Draw()
 					DTA_Alpha, alpha, TAG_DONE);
 			else
 				DrawText(twod, font, color, 160 * scale - font->StringWidth (notify.Text) / 2.,
-					line, notify.Text,
+					line, notify.Text.GetChars(),
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
 					DTA_VirtualWidthF, 320. * scale,
 					DTA_VirtualHeightF, 200. * scale,

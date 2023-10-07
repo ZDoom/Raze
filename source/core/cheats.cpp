@@ -254,7 +254,7 @@ void ChangeLevel(MapRecord* map, int skill, bool bossexit)
 	Net_WriteByte(DEM_CHANGEMAP);
 	Net_WriteByte(skill);
 	Net_WriteByte(bossexit);
-	Net_WriteString(map? map->labelName : nullptr);
+	Net_WriteString(map? map->labelName.GetChars() : nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -302,7 +302,7 @@ static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, cons
 		else Printf(PRINT_BOLD, "Level %s not found!\n", argv[1]);
 		return nullptr;
 	}
-	if (fileSystem.FindFile(map->fileName) < 0)
+	if (fileSystem.FindFile(map->fileName.GetChars()) < 0)
 	{
 		Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 	}
@@ -387,7 +387,7 @@ CCMD(changemap)
 #endif
 
 	FString mapname = argv[1];
-	auto map = FindMapByName(mapname);
+	auto map = FindMapByName(mapname.GetChars());
 	if (map == nullptr)
 	{
 		// got a user map
@@ -400,7 +400,7 @@ CCMD(changemap)
 		Printf(PRINT_BOLD, "%s: Cannot warp to user maps.\n", mapname.GetChars());
 		return;
 	}
-	if (fileSystem.FindFile(map->fileName) < 0)
+	if (fileSystem.FindFile(map->fileName.GetChars()) < 0)
 	{
 		Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 	}
@@ -435,11 +435,11 @@ CCMD(map)
 	auto map = FindMapByName(argv[1]);
 	if (map == nullptr)
 	{
-		map = SetupUserMap(mapfilename, g_gameType & GAMEFLAG_DUKE ? "dethtoll.mid" : nullptr);
+		map = SetupUserMap(mapfilename.GetChars(), g_gameType & GAMEFLAG_DUKE ? "dethtoll.mid" : nullptr);
 	}
 	if (map)
 	{
-		if (fileSystem.FindFile(map->fileName) < 0)
+		if (fileSystem.FindFile(map->fileName.GetChars()) < 0)
 		{
 			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 		}
@@ -512,7 +512,7 @@ CCMD(skill)
 			auto currentSkill = gi->GetCurrentSkill();
 			if (currentSkill >= 0)
 			{
-				Printf("Current skill is %d (%s)\n", currentSkill, GStrings.localize(gSkillNames[currentSkill]));
+				Printf("Current skill is %d (%s)\n", currentSkill, GStrings.localize(gSkillNames[currentSkill].GetChars()));
 			}
 			else if (currentSkill == -1)
 			{
@@ -551,7 +551,7 @@ CCMD(skill)
 				Printf("Please specify a skill level between 0 and %d\n", maxvalidskills - 1);
 				for (auto i = 0; i < maxvalidskills; i++)
 				{
-					Printf("%d = '%s'\n", i, GStrings.localize(gSkillNames[i]));
+					Printf("%d = '%s'\n", i, GStrings.localize(gSkillNames[i].GetChars()));
 				}
 			}
 		}
