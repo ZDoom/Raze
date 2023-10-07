@@ -29,22 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void tchernobogThinkSearch(DBloodActor*);
-static void tchernobogThinkTarget(DBloodActor*);
-static void tchernobogThinkGoto(DBloodActor*);
-static void tchernobogThinkChase(DBloodActor*);
-
-
-AISTATE tchernobogIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(tchernobogThinkTarget), NULL };
-AISTATE tchernobogSearch = { kAiStateSearch, 8, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(tchernobogThinkSearch), &tchernobogIdle };
-AISTATE tchernobogChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(aiMoveForward), &AF(tchernobogThinkChase), NULL };
-AISTATE tchernobogRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tchernobogSearch };
-AISTATE tchernobogGoto = { kAiStateMove, 8, nullptr, 600, NULL, &AF(aiMoveForward), &AF(tchernobogThinkGoto), &tchernobogIdle };
-AISTATE tchernobogBurn1 = { kAiStateMove, 6, &AF(tchernobogBurnSeqCallback), 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tchernobogBurn2 = { kAiStateChase, 6, &AF(tchernobogBurnSeqCallback2), 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tchernobogFireAtk = { kAiStateChase, 7, &AF(tchernobogFire), 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tchernobogTurn = { kAiStateChase, 8, nullptr, 60, NULL, &AF(aiMoveTurn), NULL, &tchernobogChase };
-
 static constexpr double Tchernnobog_XYOff = 350. / 16;
 
 void tchernobogFire(DBloodActor* actor)

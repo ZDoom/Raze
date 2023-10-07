@@ -29,32 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void cerberusThinkSearch(DBloodActor* actor);
-static void cerberusThinkTarget(DBloodActor* actor);
-static void cerberusThinkGoto(DBloodActor* actor);
-static void cerberusThinkChase(DBloodActor* actor);
-
-
-AISTATE cerberusIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(cerberusThinkTarget), NULL };
-AISTATE cerberusSearch = { kAiStateSearch, 7, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(cerberusThinkSearch), &cerberusIdle };
-AISTATE cerberusChase = { kAiStateChase, 7, nullptr, 0, NULL, &AF(aiMoveForward), &AF(cerberusThinkChase), NULL };
-AISTATE cerberusRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &cerberusSearch };
-AISTATE cerberusTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &cerberusSearch };
-AISTATE cerberusGoto = { kAiStateMove, 7, nullptr, 600, NULL, &AF(aiMoveForward), &AF(cerberusThinkGoto), &cerberusIdle };
-AISTATE cerberusBite = { kAiStateChase, 6, &AF(cerberusBiteSeqCallback), 60, NULL, NULL, NULL, &cerberusChase };
-AISTATE cerberusBurn = { kAiStateChase, 6, &AF(cerberusBurnSeqCallback), 60, NULL, NULL, NULL, &cerberusChase };
-AISTATE cerberus3Burn = { kAiStateChase, 6, &AF(cerberusBurnSeqCallback2), 60, NULL, NULL, NULL, &cerberusChase };
-AISTATE cerberus2Idle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(cerberusThinkTarget), NULL };
-AISTATE cerberus2Search = { kAiStateSearch, 7, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(cerberusThinkSearch), &cerberus2Idle };
-AISTATE cerberus2Chase = { kAiStateChase, 7, nullptr, 0, NULL, &AF(aiMoveForward), &AF(cerberusThinkChase), NULL };
-AISTATE cerberus2Recoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &cerberus2Search };
-AISTATE cerberus2Goto = { kAiStateMove, 7, nullptr, 600, NULL, &AF(aiMoveForward), &AF(cerberusThinkGoto), &cerberus2Idle };
-AISTATE cerberus2Bite = { kAiStateChase, 6, &AF(cerberusBiteSeqCallback), 60, NULL, NULL, NULL, &cerberus2Chase };
-AISTATE cerberus2Burn = { kAiStateChase, 6, &AF(cerberusBurnSeqCallback), 60, NULL, NULL, NULL, &cerberus2Chase };
-AISTATE cerberus4Burn = { kAiStateChase, 6, &AF(cerberusBurnSeqCallback2), 60, NULL, NULL, NULL, &cerberus2Chase };
-AISTATE cerberusTurn1 = { kAiStateOther, 7, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &cerberusChase };
-AISTATE cerberusTurn2 = { kAiStateOther, 7, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &cerberusChase };
-
 static constexpr double Cerberus_XYOff = 350. / 16;
 static constexpr double Cerberus_ZOff = 100. / 256;
 

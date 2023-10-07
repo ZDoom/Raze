@@ -29,17 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void innocThinkSearch(DBloodActor*);
-static void innocThinkGoto(DBloodActor*);
-static void innocThinkChase(DBloodActor*);
-
-AISTATE innocentIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE innocentSearch = { kAiStateSearch, 6, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(innocThinkSearch), &innocentIdle };
-AISTATE innocentChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveForward), &AF(innocThinkChase), NULL };
-AISTATE innocentRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &innocentChase };
-AISTATE innocentTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &innocentChase };
-AISTATE innocentGoto = { kAiStateMove, 6, nullptr, 600, NULL, &AF(aiMoveForward), &AF(innocThinkGoto), &innocentIdle };
-
 static void innocThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);

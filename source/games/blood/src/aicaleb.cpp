@@ -29,34 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void calebThinkSearch(DBloodActor*);
-static void calebThinkGoto(DBloodActor*);
-static void calebThinkChase(DBloodActor*);
-static void calebThinkSwimGoto(DBloodActor*);
-static void calebThinkSwimChase(DBloodActor*);
-static void calebMoveSwimChase(DBloodActor*);
-static void calebSwimUnused(DBloodActor*);
-static void calebSwimMoveIn(DBloodActor*);
-
-AISTATE tinycalebIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE tinycalebChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveForward), &AF(calebThinkChase), NULL };
-AISTATE tinycalebDodge = { kAiStateMove, 6, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &tinycalebChase };
-AISTATE tinycalebGoto = { kAiStateMove, 6, nullptr, 600, NULL, &AF(aiMoveForward), &AF(calebThinkGoto), &tinycalebIdle };
-AISTATE tinycalebAttack = { kAiStateChase, 0, &AF(SeqAttackCallback), 120, NULL, NULL, NULL, &tinycalebChase };
-AISTATE tinycalebSearch = { kAiStateSearch, 6, nullptr, 120, NULL, &AF(aiMoveForward), &AF(calebThinkSearch), &tinycalebIdle };
-AISTATE tinycalebRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tinycalebDodge };
-AISTATE tinycalebTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &tinycalebDodge };
-AISTATE tinycalebSwimIdle = { kAiStateIdle, 10, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE tinycalebSwimChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(calebMoveSwimChase), &AF(calebThinkSwimChase), NULL };
-AISTATE tinycalebSwimDodge = { kAiStateMove, 8, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &tinycalebSwimChase };
-AISTATE tinycalebSwimGoto = { kAiStateMove, 8, nullptr, 600, NULL, &AF(aiMoveForward), &AF(calebThinkSwimGoto), &tinycalebSwimIdle };
-AISTATE tinycalebSwimSearch = { kAiStateSearch, 8, nullptr, 120, NULL, &AF(aiMoveForward), &AF(calebThinkSearch), &tinycalebSwimIdle };
-AISTATE tinycalebSwimAttack = { kAiStateChase, 10, &AF(SeqAttackCallback), 0, NULL, NULL, NULL, &tinycalebSwimChase };
-AISTATE tinycalebSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tinycalebSwimDodge };
-AISTATE tinycalebSwimUnused = { kAiStateOther, 8, nullptr, 120, NULL, &AF(calebSwimUnused), &AF(calebThinkSwimChase), &tinycalebSwimChase };
-AISTATE tinycalebSwimMoveIn = { kAiStateOther, 8, nullptr, 0, NULL, &AF(calebSwimMoveIn), &AF(calebThinkSwimChase), &tinycalebSwimChase };
-AISTATE tinycalebSwimTurn = { kAiStateOther, 8, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &tinycalebSwimChase };
-
 void SeqAttackCallback(DBloodActor* actor)
 {
 	DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);

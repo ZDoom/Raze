@@ -29,37 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void eelThinkTarget(DBloodActor*);
-static void eelThinkSearch(DBloodActor*);
-static void eelThinkGoto(DBloodActor*);
-static void eelThinkPonder(DBloodActor*);
-static void eelMoveDodgeUp(DBloodActor*);
-static void eelMoveDodgeDown(DBloodActor*);
-static void eelThinkChase(DBloodActor*);
-static void eelMoveForward(DBloodActor*);
-static void eelMoveSwoop(DBloodActor*);
-static void eelMoveAscend(DBloodActor* actor);
-static void eelMoveToCeil(DBloodActor*);
-
-
-AISTATE eelIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(eelThinkTarget), NULL };
-AISTATE eelFlyIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(eelThinkTarget), NULL };
-AISTATE eelChase = { kAiStateChase, 0, nullptr, 0, NULL, &AF(eelMoveForward), &AF(eelThinkChase), &eelIdle };
-AISTATE eelPonder = { kAiStateOther, 0, nullptr, 0, NULL, NULL, &AF(eelThinkPonder), NULL };
-AISTATE eelGoto = { kAiStateMove, 0, nullptr, 600, NULL, NULL, &AF(eelThinkGoto), &eelIdle };
-AISTATE eelBite = { kAiStateChase, 7, &AF(eelBiteSeqCallback), 60, NULL, NULL, NULL, &eelChase };
-AISTATE eelRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &eelChase };
-AISTATE eelSearch = { kAiStateSearch, 0, nullptr, 120, NULL, &AF(eelMoveForward), &AF(eelThinkSearch), &eelIdle };
-AISTATE eelSwoop = { kAiStateOther, 0, nullptr, 60, NULL, &AF(eelMoveSwoop), &AF(eelThinkChase), &eelChase };
-AISTATE eelFly = { kAiStateMove, 0, nullptr, 0, NULL, &AF(eelMoveAscend), &AF(eelThinkChase), &eelChase };
-AISTATE eelTurn = { kAiStateMove, 0, nullptr, 60, NULL, &AF(aiMoveTurn), NULL, &eelChase };
-AISTATE eelHide = { kAiStateOther, 0, nullptr, 0, NULL, &AF(eelMoveToCeil), &AF(eelMoveForward), NULL };
-AISTATE eelDodgeUp = { kAiStateMove, 0, nullptr, 120, NULL, &AF(eelMoveDodgeUp), NULL, &eelChase };
-AISTATE eelDodgeUpRight = { kAiStateMove, 0, nullptr, 90, NULL, &AF(eelMoveDodgeUp), NULL, &eelChase };
-AISTATE eelDodgeUpLeft = { kAiStateMove, 0, nullptr, 90, NULL, &AF(eelMoveDodgeUp), NULL, &eelChase };
-AISTATE eelDodgeDown = { kAiStateMove, 0, nullptr, 120, NULL, &AF(eelMoveDodgeDown), NULL, &eelChase };
-AISTATE eelDodgeDownRight = { kAiStateMove, 0, nullptr, 90, NULL, &AF(eelMoveDodgeDown), NULL, &eelChase };
-AISTATE eelDodgeDownLeft = { kAiStateMove, 0, nullptr, 90, NULL, &AF(eelMoveDodgeDown), NULL, &eelChase };
 
 void eelBiteSeqCallback(DBloodActor* actor)
 {

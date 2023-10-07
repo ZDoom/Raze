@@ -29,38 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void batThinkTarget(DBloodActor*);
-static void batThinkSearch(DBloodActor*);
-static void batThinkGoto(DBloodActor*);
-static void batThinkPonder(DBloodActor*);
-static void batMoveDodgeUp(DBloodActor*);
-static void batMoveDodgeDown(DBloodActor*);
-static void batThinkChase(DBloodActor*);
-static void batMoveForward(DBloodActor*);
-static void batMoveSwoop(DBloodActor*);
-static void batMoveFly(DBloodActor*);
-static void batMoveToCeil(DBloodActor*);
-
-
-AISTATE batIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(batThinkTarget), NULL };
-AISTATE batFlyIdle = { kAiStateIdle, 6, nullptr, 0, NULL, NULL, &AF(batThinkTarget), NULL };
-AISTATE batChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(batMoveForward), &AF(batThinkChase), &batFlyIdle };
-AISTATE batPonder = { kAiStateOther, 6, nullptr, 0, NULL, NULL, &AF(batThinkPonder), NULL };
-AISTATE batGoto = { kAiStateMove, 6, nullptr, 600, NULL, &AF(batMoveForward), &AF(batThinkGoto), &batFlyIdle };
-AISTATE batBite = { kAiStateChase, 7, &AF(batBiteSeqCallback), 60, NULL, NULL, NULL, &batPonder };
-AISTATE batRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &batChase };
-AISTATE batSearch = { kAiStateSearch, 6, nullptr, 120, NULL, &AF(batMoveForward), &AF(batThinkSearch), &batFlyIdle };
-AISTATE batSwoop = { kAiStateOther, 6, nullptr, 60, NULL, &AF(batMoveSwoop), &AF(batThinkChase), &batChase };
-AISTATE batFly = { kAiStateMove, 6, nullptr, 0, NULL, &AF(batMoveFly), &AF(batThinkChase), &batChase };
-AISTATE batTurn = { kAiStateMove, 6, nullptr, 60, NULL, &AF(aiMoveTurn), NULL, &batChase };
-AISTATE batHide = { kAiStateOther, 6, nullptr, 0, NULL, &AF(batMoveToCeil), &AF(batMoveForward), NULL };
-AISTATE batDodgeUp = { kAiStateMove, 6, nullptr, 120, NULL, &AF(batMoveDodgeUp), 0, &batChase };
-AISTATE batDodgeUpRight = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeUp), 0, &batChase };
-AISTATE batDodgeUpLeft = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeUp), 0, &batChase };
-AISTATE batDodgeDown = { kAiStateMove, 6, nullptr, 120, NULL, &AF(batMoveDodgeDown), 0, &batChase };
-AISTATE batDodgeDownRight = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeDown), 0, &batChase };
-AISTATE batDodgeDownLeft = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeDown), 0, &batChase };
-
 void batBiteSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

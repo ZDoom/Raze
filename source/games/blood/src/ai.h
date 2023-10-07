@@ -29,26 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-struct AISTATE {
-	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
-	int seqId;
-	VMNativeFunction** funcId;
-	int stateTicks;
-#if 0
-	void(*enterFunc)(DBloodActor *);
-	void(*moveFunc)(DBloodActor *);
-	void(*thinkFunc)(DBloodActor *);
-#else
-	VMNativeFunction** enterFunc;
-	VMNativeFunction** moveFunc;
-	VMNativeFunction** thinkFunc;
-#endif
-	AISTATE *nextState;
-};
-extern AISTATE aiState[];
-extern AISTATE genIdle;
-extern AISTATE genRecoil;
-
 enum AI_SFX_PRIORITY {
 	AI_SFX_PRIORITY_0 = 0,
 	AI_SFX_PRIORITY_1,

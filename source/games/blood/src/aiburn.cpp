@@ -29,46 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void burnThinkSearch(DBloodActor*);
-static void burnThinkGoto(DBloodActor*);
-static void burnThinkChase(DBloodActor*);
-
-AISTATE cultistBurnIdle = { kAiStateIdle, 3, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE cultistBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE cultistBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &cultistBurnSearch };
-AISTATE cultistBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), &cultistBurnSearch };
-AISTATE cultistBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &cultistBurnChase };
-
-AISTATE zombieABurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE zombieABurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &zombieABurnSearch };
-AISTATE zombieABurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), NULL };
-AISTATE zombieABurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &zombieABurnChase };
-
-AISTATE zombieFBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE zombieFBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &zombieFBurnSearch };
-AISTATE zombieFBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), NULL };
-AISTATE zombieFBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &zombieFBurnChase };
-
-AISTATE innocentBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE innocentBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &zombieFBurnSearch };
-AISTATE innocentBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), NULL };
-AISTATE innocentBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &zombieFBurnChase };
-
-AISTATE beastBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE beastBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &beastBurnSearch };
-AISTATE beastBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), &beastBurnSearch };
-AISTATE beastBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &beastBurnChase };
-
-AISTATE tinycalebBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE tinycalebBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &tinycalebBurnSearch };
-AISTATE tinycalebBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), &tinycalebBurnSearch };
-AISTATE tinycalebBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &tinycalebBurnChase };
-
-AISTATE genDudeBurnIdle = { kAiStateIdle, 3, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE genDudeBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE genDudeBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &genDudeBurnSearch };
-AISTATE genDudeBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), &genDudeBurnSearch };
-AISTATE genDudeBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &genDudeBurnChase };
 
 void BurnSeqCallback(DBloodActor*)
 {
