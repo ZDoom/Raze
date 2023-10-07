@@ -83,7 +83,7 @@ CUSTOM_CVAR(Int, gl_shadowmap_quality, 512, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 	}
 }
 
-bool IShadowMap::ShadowTest(const DVector2 &lpos, const DVector2 &pos)
+bool IShadowMap::ShadowTest(const DVector3 &lpos, const DVector3 &pos)
 {
 	if (mAABBTree && gl_light_shadowmap)
 		return mAABBTree->RayTest(lpos, pos) >= 1.0f;
