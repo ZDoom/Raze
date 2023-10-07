@@ -44,6 +44,7 @@ struct FActorInfo
 
 	// these are temporary. Due to how Build games handle their tiles, we cannot look up the textures when scripts are being parsed.
 	TArray<FString> SpriteSetNames;
+	TArray<FDefiningState> AIStates;	// these can only get fully resolved after parsing everything.
 
 	FState* OwnedStates = nullptr;
 	int NumOwnedStates = 0;

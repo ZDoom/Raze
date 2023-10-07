@@ -149,6 +149,20 @@ public:
 
 };
 
+// used during definition of AIState properties.
+struct FDefiningState
+{
+	int     sprite;
+	int     Type;
+	int     Tics;
+	FName Label;
+	FName	NextState;
+	VMFunction* ActionFunc; // called when an attached animation triggers an event. (i.e. Blood's SEQs. Should be made game independent.)
+	VMFunction* EnterFunc;  // called when entering the state.
+	VMFunction* TickFunc;   // called when ticking the state.
+	VMFunction* MoveFunc;   // called when moving the actor
+};
+
 struct FStateLabels;
 struct FStateLabel
 {

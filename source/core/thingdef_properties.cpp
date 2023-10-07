@@ -392,24 +392,4 @@ DEFINE_PROPERTY(precacheclass, Sssssssssssssssssssssssssssssss, CoreActor)
 	}
 }
 
-// hopefully this can later be integrated into the state block and made usable for all games.
-// for now we need something that can be made to work quickly without messing around with the parser.
-DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
-{
-	PROP_STRING_PARM(label, 0);
-	PROP_STRING_PARM(seq, 1); // either a sequence name or an Id as '#123'.
-	PROP_INT_PARM(type, 2);
-	PROP_INT_PARM(duration, 3);
-	PROP_FUNC_PARM(action, 4);
-	PROP_FUNC_PARM(enter, 5);
-	PROP_FUNC_PARM(tick, 6);
-	PROP_FUNC_PARM(move, 7);
-	const char* next = nullptr;
-	if (PROP_PARM_COUNT > 8)
-	{
-		PROP_STRING_PARM(_next, 8);
-		next = _next;
-	}
-
-}
 

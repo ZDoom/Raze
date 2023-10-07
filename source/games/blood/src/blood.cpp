@@ -781,4 +781,39 @@ DEFINE_PROPERTY(dmgcontrol, IIIIIII, BloodActor)
 	}
 }
 
+// the state parser with its special semantics cannot be extended to handle this right. :(
+DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
+{
+	PROP_STRING_PARM(label, 0);
+	PROP_STRING_PARM(seq, 1); // either a name, an absolute ID with #000 or a relative ID with +000. Empty string means nothing
+	PROP_INT_PARM(type, 2);
+	PROP_INT_PARM(duration, 3);
+	PROP_FUNC_PARM(action, 4);
+	PROP_FUNC_PARM(enter, 5);
+	PROP_FUNC_PARM(tick, 6);
+	PROP_FUNC_PARM(move, 7);
+	const char* next = nullptr;
+	if (PROP_PARM_COUNT > 8)
+	{
+		PROP_STRING_PARM(_next, 8);
+		next = _next;
+	}
+	bag.Info->ActorInfo()->AIStates.Reserve(1);
+	auto& state = bag.Info->ActorInfo()->AIStates.Last();
+
+	char* endp = (char*)"";
+	if (*seq == 0) state.sprite = 0;
+	else if (*seq == '#') state.sprite = strtoull(seq + 1, &endp, 10) | 0x10000000;
+	else if (*seq == '+') state.sprite = strtoull(seq + 1, &endp, 10) | 0x20000000;
+
+	state.Label = label;
+	state.Type = type;
+	state.Tics = duration;
+	state.ActionFunc = action;
+	state.EnterFunc = enter;
+	state.MoveFunc = move;
+	state.TickFunc = tick;
+	state.NextState = next ? FName(next) : FName(NAME_None);
+}
+
 END_BLD_NS
