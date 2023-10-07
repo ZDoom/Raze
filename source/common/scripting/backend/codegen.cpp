@@ -1394,7 +1394,7 @@ FxExpression *FxColorCast::Resolve(FCompileContext &ctx)
 			}
 			else
 			{
-				FxExpression *x = new FxConstant(V_GetColor(constval.GetString(), &ScriptPosition), ScriptPosition);
+				FxExpression *x = new FxConstant(V_GetColor(constval.GetString().GetChars(), &ScriptPosition), ScriptPosition);
 				delete this;
 				return x;
 			}
@@ -1474,7 +1474,7 @@ FxExpression *FxSoundCast::Resolve(FCompileContext &ctx)
 		if (basex->isConstant())
 		{
 			ExpVal constval = static_cast<FxConstant *>(basex)->GetValue();
-			FxExpression *x = new FxConstant(S_FindSound(constval.GetString()), ScriptPosition);
+			FxExpression *x = new FxConstant(S_FindSound(constval.GetString().GetChars()), ScriptPosition);
 			delete this;
 			return x;
 		}
@@ -1552,7 +1552,7 @@ FxExpression *FxFontCast::Resolve(FCompileContext &ctx)
 	else if ((basex->ValueType == TypeString || basex->ValueType == TypeName) && basex->isConstant())
 	{
 		ExpVal constval = static_cast<FxConstant *>(basex)->GetValue();
-		FFont *font = V_GetFont(constval.GetString());
+		FFont *font = V_GetFont(constval.GetString().GetChars());
 		// Font must exist. Most internal functions working with fonts do not like null pointers.
 		// If checking is needed scripts will have to call Font.GetFont themselves.
 		if (font == nullptr)
@@ -2454,7 +2454,17 @@ FxExpression *FxAssign::Resolve(FCompileContext &ctx)
 			SAFE_RESOLVE(Right, ctx);
 		}
 	}
-	else if (Base->ValueType == Right->ValueType)
+	else if (Right->IsNativeStruct() && Base->ValueType->isRealPointer() && Base->ValueType->toPointer()->PointedType == Right->ValueType)
+	{
+		// allow conversion of native structs to pointers of the same type. This is necessary to assign elements from global arrays like players, sectors, etc. to local pointers.
+		// For all other types this is not needed. Structs are not assignable and classes can only exist as references.
+		Right->RequestAddress(ctx, nullptr);
+		Right->ValueType = Base->ValueType;
+	}
+	else if (	Base->ValueType == Right->ValueType
+			|| (Base->ValueType->isRealPointer() && Base->ValueType->toPointer()->PointedType == Right->ValueType)
+			|| (Right->ValueType->isRealPointer() && Right->ValueType->toPointer()->PointedType == Base->ValueType)
+			)
 	{
 		if (Base->ValueType->isArray())
 		{
@@ -2462,27 +2472,102 @@ FxExpression *FxAssign::Resolve(FCompileContext &ctx)
 			delete this;
 			return nullptr;
 		}
-		else if (Base->IsDynamicArray())
+		else if(!Base->IsVector() && !Base->IsQuaternion())
 		{
-			ScriptPosition.Message(MSG_ERROR, "Cannot assign dynamic arrays, use Copy() or Move() function instead");
-			delete this;
-			return nullptr;
+			PType * btype = Base->ValueType;
+
+			if(btype->isRealPointer())
+			{
+				PType * p = static_cast<PPointer *>(btype)->PointedType;
+				if(	  p->isDynArray() || p->isMap()
+				  || (p->isStruct() && !static_cast<PStruct*>(p)->isNative)
+				  )
+				{ //un-pointer dynarrays, maps and non-native structs for assignment checking
+					btype = p;
+				}
+			}
+
+			if (btype->isDynArray())
+			{
+				if(ctx.Version >= MakeVersion(4, 11, 1))
+				{
+					FArgumentList args;
+					args.Push(Right);
+					auto call = new FxMemberFunctionCall(Base, NAME_Copy, args, ScriptPosition);
+					Right = Base = nullptr;
+					delete this;
+					return call->Resolve(ctx);
+				}
+				else
+				{
+					if(Base->ValueType->isRealPointer() && Right->ValueType->isRealPointer())
+					{
+						ScriptPosition.Message(MSG_WARNING, "Dynamic Array assignments not allowed in ZScript versions below 4.11.1, use the Copy() or Move() functions instead\n"
+											  TEXTCOLOR_RED "  Assigning an out array pointer to another out array pointer\n"
+															"  does not alter either of the underlying arrays' values\n"
+															"  it only swaps the pointers below ZScript version 4.11.1!!");
+					}
+					else
+					{
+						ScriptPosition.Message(MSG_ERROR, "Dynamic Array assignments not allowed in ZScript versions below 4.11.1, use the Copy() or Move() functions instead");
+						delete this;
+						return nullptr;
+					}
+				}
+			}
+			else if (btype->isMap())
+			{
+				if(ctx.Version >= MakeVersion(4, 11, 1))
+				{
+					FArgumentList args;
+					args.Push(Right);
+					auto call = new FxMemberFunctionCall(Base, NAME_Copy, args, ScriptPosition);
+					Right = Base = nullptr;
+					delete this;
+					return call->Resolve(ctx);
+				}
+				else
+				{
+					if(Base->ValueType->isRealPointer() && Right->ValueType->isRealPointer())
+					{ // don't break existing code, but warn that it's a no-op
+						ScriptPosition.Message(MSG_WARNING, "Map assignments not allowed in ZScript versions below 4.11.1, use the Copy() or Move() functions instead\n"
+											  TEXTCOLOR_RED "  Assigning an out map pointer to another out map pointer\n"
+															"  does not alter either of the underlying maps' values\n"
+															"  it only swaps the pointers below ZScript version 4.11.1!!");
+					}
+					else
+					{
+						ScriptPosition.Message(MSG_ERROR, "Map assignments not allowed in ZScript versions below 4.11.1, use the Copy() or Move() functions instead");
+						delete this;
+						return nullptr;
+					}
+				}
+			}
+			else if (btype->isMapIterator())
+			{
+				ScriptPosition.Message(MSG_ERROR, "Cannot assign map iterators");
+				delete this;
+				return nullptr;
+			}
+			else if (btype->isStruct())
+			{
+				if(Base->ValueType->isRealPointer() && Right->ValueType->isRealPointer())
+				{ // don't break existing code, but warn that it's a no-op
+					ScriptPosition.Message(MSG_WARNING, "Struct assignment not implemented yet\n"
+										  TEXTCOLOR_RED "  Assigning an out struct pointer to another out struct pointer\n"
+														"  does not alter either of the underlying structs' values\n"
+														"  it only swaps the pointers!!");
+				}
+				else
+				{
+					ScriptPosition.Message(MSG_ERROR, "Struct assignment not implemented yet");
+					delete this;
+					return nullptr;
+				}
+			}
 		}
-		if (!Base->IsVector() && !Base->IsQuaternion() && Base->ValueType->isStruct())
-		{
-			ScriptPosition.Message(MSG_ERROR, "Struct assignment not implemented yet");
-			delete this;
-			return nullptr;
-		}
+
 		// Both types are the same so this is ok.
-	}
-	else if (Right->IsNativeStruct() && Base->ValueType->isRealPointer() && Base->ValueType->toPointer()->PointedType == Right->ValueType)
-	{
-		// allow conversion of native structs to pointers of the same type. This is necessary to assign elements from global arrays like players, sectors, etc. to local pointers.
-		// For all other types this is not needed. Structs are not assignable and classes can only exist as references.
-		bool writable;
-		Right->RequestAddress(ctx, &writable);
-		Right->ValueType = Base->ValueType;
 	}
 	else
 	{
@@ -7180,7 +7265,7 @@ bool FxStructMember::RequestAddress(FCompileContext &ctx, bool *writable)
 	if (membervar->Flags & VARF_Meta)
 	{
 		// Meta variables are read only.
-		*writable = false;
+		if(writable != nullptr) *writable = false;
 	}
 	else if (writable != nullptr)
 	{

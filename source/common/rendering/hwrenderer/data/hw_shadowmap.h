@@ -17,7 +17,7 @@ public:
 	void Reset();
 
 	// Test if a world position is in shadow relative to the specified light and returns false if it is
-	bool ShadowTest(const DVector2 &lpos, const DVector2 &pos);
+	bool ShadowTest(const DVector3 &lpos, const DVector3 &pos);
 
 	static cycle_t UpdateCycles;
 	static int LightsProcessed;
