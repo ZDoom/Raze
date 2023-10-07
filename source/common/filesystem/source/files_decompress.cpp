@@ -540,7 +540,6 @@ public:
 		}
 
 		uint8_t header[12];
-		int err;
 		File = file;
 
 		Size = uncompressed_size;
