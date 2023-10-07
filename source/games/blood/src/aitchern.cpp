@@ -29,21 +29,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void sub_72580(DBloodActor*);
-static void sub_725A4(DBloodActor*);
-static void sub_72850(DBloodActor*);
+static void tchernobogThinkSearch(DBloodActor*);
+static void tchernobogThinkTarget(DBloodActor*);
+static void tchernobogThinkGoto(DBloodActor*);
 static void tchernobogThinkChase(DBloodActor*);
 
 
-AISTATE tchernobogIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, sub_725A4, NULL };
-AISTATE tchernobogSearch = { kAiStateSearch, 8, nullptr, 1800, NULL, aiMoveForward, sub_72580, &tchernobogIdle };
-AISTATE tchernobogChase = { kAiStateChase, 8, nullptr, 0, NULL, aiMoveForward, tchernobogThinkChase, NULL };
+AISTATE tchernobogIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(tchernobogThinkTarget), NULL };
+AISTATE tchernobogSearch = { kAiStateSearch, 8, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(tchernobogThinkSearch), &tchernobogIdle };
+AISTATE tchernobogChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(aiMoveForward), &AF(tchernobogThinkChase), NULL };
 AISTATE tchernobogRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tchernobogSearch };
-AISTATE tcherno13A9B8 = { kAiStateMove, 8, nullptr, 600, NULL, aiMoveForward, sub_72850, &tchernobogIdle };
-AISTATE tcherno13A9D4 = { kAiStateMove, 6, &AF(tchernobogBurnSeqCallback), 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tcherno13A9F0 = { kAiStateChase, 6, &AF(tchernobogBurnSeqCallback2), 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tcherno13AA0C = { kAiStateChase, 7, &AF(tchernobogFire), 60, NULL, NULL, NULL, &tchernobogChase };
-AISTATE tcherno13AA28 = { kAiStateChase, 8, nullptr, 60, NULL, aiMoveTurn, NULL, &tchernobogChase };
+AISTATE tchernobogGoto = { kAiStateMove, 8, nullptr, 600, NULL, &AF(aiMoveForward), &AF(tchernobogThinkGoto), &tchernobogIdle };
+AISTATE tchernobogBurn1 = { kAiStateMove, 6, &AF(tchernobogBurnSeqCallback), 60, NULL, NULL, NULL, &tchernobogChase };
+AISTATE tchernobogBurn2 = { kAiStateChase, 6, &AF(tchernobogBurnSeqCallback2), 60, NULL, NULL, NULL, &tchernobogChase };
+AISTATE tchernobogFireAtk = { kAiStateChase, 7, &AF(tchernobogFire), 60, NULL, NULL, NULL, &tchernobogChase };
+AISTATE tchernobogTurn = { kAiStateChase, 8, nullptr, 60, NULL, &AF(aiMoveTurn), NULL, &tchernobogChase };
 
 static constexpr double Tchernnobog_XYOff = 350. / 16;
 
@@ -55,7 +55,7 @@ void tchernobogFire(DBloodActor* actor)
 		evPostActor(target, 0, AF(fxFlameLick));
 	actBurnSprite(actor->GetOwner(), target, 40);
 	if (Chance(0x6000))
-		aiNewState(actor, &tcherno13A9D4);
+		aiNewState(actor, &tchernobogBurn1);
 }
 
 void tchernobogBurnSeqCallback(DBloodActor* actor)
@@ -171,13 +171,13 @@ void tchernobogBurnSeqCallback2(DBloodActor* actor)
 	actFireMissile(actor, -Tchernnobog_XYOff, 0, Aim2, kMissileFireballTchernobog);
 }
 
-static void sub_72580(DBloodActor* actor)
+static void tchernobogThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void sub_725A4(DBloodActor* actor)
+static void tchernobogThinkTarget(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -191,7 +191,7 @@ static void sub_725A4(DBloodActor* actor)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		aiNewState(actor, &tcherno13AA28);
+		aiNewState(actor, &tchernobogTurn);
 		return;
 	}
 	if (Chance(pDudeInfo->alertChance))
@@ -232,7 +232,7 @@ static void sub_725A4(DBloodActor* actor)
 	}
 }
 
-static void sub_72850(DBloodActor* actor)
+static void tchernobogThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -252,7 +252,7 @@ static void tchernobogThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
-		aiNewState(actor, &tcherno13A9B8);
+		aiNewState(actor, &tchernobogGoto);
 		return;
 	}
 	if (!(actor->IsDudeActor())) {
@@ -288,17 +288,17 @@ static void tchernobogThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x1f0 && nDist > 0xd0 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &tcherno13AA0C);
+					aiNewState(actor, &tchernobogFireAtk);
 				else if (nDist < 0xd0 && nDist > 0xb0 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &tcherno13A9D4);
+					aiNewState(actor, &tchernobogBurn1);
 				else if (nDist < 0xb0 && nDist > 0x50 && nDeltaAngle < DAngle15)
-					aiNewState(actor, &tcherno13A9F0);
+					aiNewState(actor, &tchernobogBurn2);
 				return;
 			}
 		}
 	}
 
-	aiNewState(actor, &tcherno13A9B8);
+	aiNewState(actor, &tchernobogGoto);
 	actor->SetTarget(nullptr);
 }
 

@@ -34,28 +34,28 @@ static void gillThinkGoto(DBloodActor*);
 static void gillThinkChase(DBloodActor*);
 static void gillThinkSwimGoto(DBloodActor*);
 static void gillThinkSwimChase(DBloodActor*);
-static void sub_6CB00(DBloodActor*);
-static void sub_6CD74(DBloodActor*);
-static void sub_6D03C(DBloodActor*);
+static void gillMoveSwimChase(DBloodActor*);
+static void gillMoveSwimUnused(DBloodActor*);
+static void gillSwimMoveIn(DBloodActor*);
 
 
-AISTATE gillBeastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE gillBeastChase = { kAiStateChase, 9, nullptr, 0, NULL, aiMoveForward, gillThinkChase, NULL };
-AISTATE gillBeastDodge = { kAiStateMove, 9, nullptr, 90, NULL, aiMoveDodge, NULL, &gillBeastChase };
-AISTATE gillBeastGoto = { kAiStateMove, 9, nullptr, 600, NULL, aiMoveForward, gillThinkGoto, &gillBeastIdle };
+AISTATE gillBeastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE gillBeastChase = { kAiStateChase, 9, nullptr, 0, NULL, &AF(aiMoveForward), &AF(gillThinkChase), NULL };
+AISTATE gillBeastDodge = { kAiStateMove, 9, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &gillBeastChase };
+AISTATE gillBeastGoto = { kAiStateMove, 9, nullptr, 600, NULL, &AF(aiMoveForward), &AF(gillThinkGoto), &gillBeastIdle };
 AISTATE gillBeastBite = { kAiStateChase, 6, &AF(GillBiteSeqCallback), 120, NULL, NULL, NULL, &gillBeastChase };
-AISTATE gillBeastSearch = { kAiStateMove, 9, nullptr, 120, NULL, aiMoveForward, gillThinkSearch, &gillBeastIdle };
+AISTATE gillBeastSearch = { kAiStateMove, 9, nullptr, 120, NULL, &AF(aiMoveForward), &AF(gillThinkSearch), &gillBeastIdle };
 AISTATE gillBeastRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &gillBeastDodge };
-AISTATE gillBeastSwimIdle = { kAiStateIdle, 10, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE gillBeastSwimChase = { kAiStateChase, 10, nullptr, 0, NULL, sub_6CB00, gillThinkSwimChase, NULL };
-AISTATE gillBeastSwimDodge = { kAiStateMove, 10, nullptr, 90, NULL, aiMoveDodge, NULL, &gillBeastSwimChase };
-AISTATE gillBeastSwimGoto = { kAiStateMove, 10, nullptr, 600, NULL, aiMoveForward, gillThinkSwimGoto, &gillBeastSwimIdle };
-AISTATE gillBeastSwimSearch = { kAiStateSearch, 10, nullptr, 120, NULL, aiMoveForward, gillThinkSearch, &gillBeastSwimIdle };
-AISTATE gillBeastSwimBite = { kAiStateChase, 7, &AF(GillBiteSeqCallback), 0, NULL, NULL, gillThinkSwimChase, &gillBeastSwimChase };
+AISTATE gillBeastSwimIdle = { kAiStateIdle, 10, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE gillBeastSwimChase = { kAiStateChase, 10, nullptr, 0, NULL, &AF(gillMoveSwimChase), &AF(gillThinkSwimChase), NULL };
+AISTATE gillBeastSwimDodge = { kAiStateMove, 10, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &gillBeastSwimChase };
+AISTATE gillBeastSwimGoto = { kAiStateMove, 10, nullptr, 600, NULL, &AF(aiMoveForward), &AF(gillThinkSwimGoto), &gillBeastSwimIdle };
+AISTATE gillBeastSwimSearch = { kAiStateSearch, 10, nullptr, 120, NULL, &AF(aiMoveForward), &AF(gillThinkSearch), &gillBeastSwimIdle };
+AISTATE gillBeastSwimBite = { kAiStateChase, 7, &AF(GillBiteSeqCallback), 0, NULL, NULL, &AF(gillThinkSwimChase), &gillBeastSwimChase };
 AISTATE gillBeastSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &gillBeastSwimDodge };
-AISTATE gillBeast13A138 = { kAiStateOther, 10, nullptr, 120, NULL, sub_6CD74, gillThinkSwimChase, &gillBeastSwimChase };
-AISTATE gillBeast13A154 = { kAiStateOther, 10, nullptr, 0, NULL, sub_6D03C, gillThinkSwimChase, &gillBeastSwimChase };
-AISTATE gillBeast13A170 = { kAiStateOther, 10, nullptr, 120, NULL, NULL, aiMoveTurn, &gillBeastSwimChase };
+AISTATE gillBeastSwimUnused = { kAiStateOther, 10, nullptr, 120, NULL, &AF(gillMoveSwimUnused), &AF(gillThinkSwimChase), &gillBeastSwimChase };
+AISTATE gillBeastSwimMoveIn = { kAiStateOther, 10, nullptr, 0, NULL, &AF(gillSwimMoveIn), &AF(gillThinkSwimChase), &gillBeastSwimChase };
+AISTATE gillBeastSwimTurn = { kAiStateOther, 10, nullptr, 120, NULL, NULL, &AF(aiMoveTurn), &gillBeastSwimChase };
 
 void GillBiteSeqCallback(DBloodActor* actor)
 {
@@ -248,19 +248,19 @@ static void gillThinkSwimChase(DBloodActor* actor)
 				else
 				{
 					aiPlay3DSound(actor, 1700, AI_SFX_PRIORITY_1, -1);
-					aiNewState(actor, &gillBeast13A154);
+					aiNewState(actor, &gillBeastSwimMoveIn);
 				}
 			}
 		}
 		else
-			aiNewState(actor, &gillBeast13A154);
+			aiNewState(actor, &gillBeastSwimMoveIn);
 		return;
 	}
 	aiNewState(actor, &gillBeastSwimGoto);
 	actor->SetTarget(nullptr);
 }
 
-static void sub_6CB00(DBloodActor* actor)
+static void gillMoveSwimChase(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -285,7 +285,7 @@ static void sub_6CB00(DBloodActor* actor)
 
 }
 
-static void sub_6CD74(DBloodActor* actor)
+static void gillMoveSwimUnused(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -312,7 +312,7 @@ static void sub_6CD74(DBloodActor* actor)
 	actor->vel.Z = -(target->spr.pos.Z - actor->spr.pos.Z) / 256.;
 }
 
-static void sub_6D03C(DBloodActor* actor)
+static void gillSwimMoveIn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

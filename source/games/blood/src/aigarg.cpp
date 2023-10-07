@@ -43,32 +43,32 @@ static void gargMoveSwoop(DBloodActor*);
 static void gargMoveFly(DBloodActor*);
 static void playStatueBreakSnd(DBloodActor*);
 
-AISTATE gargoyleFIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, gargThinkTarget, NULL };
+AISTATE gargoyleFIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(gargThinkTarget), NULL };
 AISTATE gargoyleStatueIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, NULL, NULL };
-AISTATE gargoyleFChase = { kAiStateChase, 0, nullptr, 0, NULL, gargMoveForward, gargThinkChase, &gargoyleFIdle };
-AISTATE gargoyleFGoto = { kAiStateMove, 0, nullptr, 600, NULL, gargMoveForward, gargThinkGoto, &gargoyleFIdle };
+AISTATE gargoyleFChase = { kAiStateChase, 0, nullptr, 0, NULL, &AF(gargMoveForward), &AF(gargThinkChase), &gargoyleFIdle };
+AISTATE gargoyleFGoto = { kAiStateMove, 0, nullptr, 600, NULL, &AF(gargMoveForward), &AF(gargThinkGoto), &gargoyleFIdle };
 AISTATE gargoyleFSlash = { kAiStateChase, 6, &AF(SlashFSeqCallback), 120, NULL, NULL, NULL, &gargoyleFChase };
 AISTATE gargoyleFThrow = { kAiStateChase, 6, &AF(ThrowFSeqCallback), 120, NULL, NULL, NULL, &gargoyleFChase };
-AISTATE gargoyleSThrow = { kAiStateChase, 6, &AF(ThrowSSeqCallback), 120, NULL, gargMoveForward, NULL, &gargoyleFChase };
-AISTATE gargoyleSBlast = { kAiStateChase, 7, &AF(BlastSSeqCallback), 60, NULL, gargMoveSlow, NULL, &gargoyleFChase };
+AISTATE gargoyleSThrow = { kAiStateChase, 6, &AF(ThrowSSeqCallback), 120, NULL, &AF(gargMoveForward), NULL, &gargoyleFChase };
+AISTATE gargoyleSBlast = { kAiStateChase, 7, &AF(BlastSSeqCallback), 60, NULL, &AF(gargMoveSlow), NULL, &gargoyleFChase };
 AISTATE gargoyleFRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &gargoyleFChase };
-AISTATE gargoyleFSearch = { kAiStateSearch, 0, nullptr, 120, NULL, gargMoveForward, gargThinkSearch, &gargoyleFIdle };
-AISTATE gargoyleFMorph2 = { kAiStateOther, -1, nullptr, 0, entryFStatue, NULL, NULL, &gargoyleFIdle };
+AISTATE gargoyleFSearch = { kAiStateSearch, 0, nullptr, 120, NULL, &AF(gargMoveForward), &AF(gargThinkSearch), &gargoyleFIdle };
+AISTATE gargoyleFMorph2 = { kAiStateOther, -1, nullptr, 0, &AF(entryFStatue), NULL, NULL, &gargoyleFIdle };
 AISTATE gargoyleFMorph = { kAiStateOther, 6, nullptr, 0, NULL, NULL, NULL, &gargoyleFMorph2 };
-AISTATE gargoyleSMorph2 = { kAiStateOther, -1, nullptr, 0, entrySStatue, NULL, NULL, &gargoyleFIdle };
+AISTATE gargoyleSMorph2 = { kAiStateOther, -1, nullptr, 0, &AF(entrySStatue), NULL, NULL, &gargoyleFIdle };
 AISTATE gargoyleSMorph = { kAiStateOther, 6, nullptr, 0, NULL, NULL, NULL, &gargoyleSMorph2 };
-AISTATE gargoyleSwoop = { kAiStateOther, 0, nullptr, 120, NULL, gargMoveSwoop, gargThinkChase, &gargoyleFChase };
-AISTATE gargoyleFly = { kAiStateMove, 0, nullptr, 120, NULL, gargMoveFly, gargThinkChase, &gargoyleFChase };
-AISTATE gargoyleTurn = { kAiStateMove, 0, nullptr, 120, NULL, aiMoveTurn, NULL, &gargoyleFChase };
-AISTATE gargoyleDodgeUp = { kAiStateMove, 0, nullptr, 60, NULL, gargMoveDodgeUp, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeUpRight = { kAiStateMove, 0, nullptr, 90, NULL, gargMoveDodgeUp, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeUpLeft = { kAiStateMove, 0, nullptr, 90, NULL, gargMoveDodgeUp, NULL, &gargoyleFChase };
-AISTATE gargoyleDodgeDown = { kAiStateMove, 0, nullptr, 120, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeDownRight = { kAiStateMove, 0, nullptr, 90, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeDownLeft = { kAiStateMove, 0, nullptr, 90, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
+AISTATE gargoyleSwoop = { kAiStateOther, 0, nullptr, 120, NULL, &AF(gargMoveSwoop), &AF(gargThinkChase), &gargoyleFChase };
+AISTATE gargoyleFly = { kAiStateMove, 0, nullptr, 120, NULL, &AF(gargMoveFly), &AF(gargThinkChase), &gargoyleFChase };
+AISTATE gargoyleTurn = { kAiStateMove, 0, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &gargoyleFChase };
+AISTATE gargoyleDodgeUp = { kAiStateMove, 0, nullptr, 60, NULL, &AF(gargMoveDodgeUp), NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeUpRight = { kAiStateMove, 0, nullptr, 90, NULL, &AF(gargMoveDodgeUp), NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeUpLeft = { kAiStateMove, 0, nullptr, 90, NULL, &AF(gargMoveDodgeUp), NULL, &gargoyleFChase };
+AISTATE gargoyleDodgeDown = { kAiStateMove, 0, nullptr, 120, NULL, &AF(gargMoveDodgeDown), NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeDownRight = { kAiStateMove, 0, nullptr, 90, NULL, &AF(gargMoveDodgeDown), NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeDownLeft = { kAiStateMove, 0, nullptr, 90, NULL, &AF(gargMoveDodgeDown), NULL, &gargoyleFChase };
 
-AISTATE statueFBreakSEQ = { kAiStateOther, 5, nullptr, 0, entryFStatue, NULL, playStatueBreakSnd, &gargoyleFMorph2 };
-AISTATE statueSBreakSEQ = { kAiStateOther, 5, nullptr, 0, entrySStatue, NULL, playStatueBreakSnd, &gargoyleSMorph2 };
+AISTATE statueFBreakSEQ = { kAiStateOther, 5, nullptr, 0, &AF(entryFStatue), NULL, &AF(playStatueBreakSnd), &gargoyleFMorph2 };
+AISTATE statueSBreakSEQ = { kAiStateOther, 5, nullptr, 0, &AF(entrySStatue), NULL, &AF(playStatueBreakSnd), &gargoyleSMorph2 };
 
 static void playStatueBreakSnd(DBloodActor* actor) {
 

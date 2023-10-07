@@ -33,22 +33,22 @@ static void aiPodSearch(DBloodActor* actor);
 static void aiPodMove(DBloodActor* actor);
 static void aiPodChase(DBloodActor* actor);
 
-AISTATE podIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE podMove = { kAiStateMove, 7, nullptr, 3600, NULL, aiMoveTurn, aiPodMove, &podSearch };
-AISTATE podSearch = { kAiStateSearch, 0, nullptr, 3600, NULL, aiMoveTurn, aiPodSearch, &podSearch };
+AISTATE podIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE podMove = { kAiStateMove, 7, nullptr, 3600, NULL, &AF(aiMoveTurn), &AF(aiPodMove), &podSearch };
+AISTATE podSearch = { kAiStateSearch, 0, nullptr, 3600, NULL, &AF(aiMoveTurn), &AF(aiPodSearch), &podSearch };
 AISTATE podStartChase = { kAiStateChase, 8, &AF(podAttack), 600, NULL, NULL, NULL, &podChase };
 AISTATE podRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &podChase };
-AISTATE podChase = { kAiStateChase, 6, nullptr, 0, NULL, aiMoveTurn, aiPodChase, NULL };
-AISTATE tentacleIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE podChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveTurn), &AF(aiPodChase), NULL };
+AISTATE tentacleIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE tentacle13A6A8 = { kAiStateOther, 7, &AF(podPlaySound1), 0, NULL, NULL, NULL, &tentacle13A6C4 };
 AISTATE tentacle13A6C4 = { kAiStateOther, -1, nullptr, 0, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacle13A6E0 = { kAiStateOther, 8, &AF(podPlaySound2), 0, NULL, NULL, NULL, &tentacle13A6FC };
 AISTATE tentacle13A6FC = { kAiStateOther, -1, nullptr, 0, NULL, NULL, NULL, &tentacleIdle };
-AISTATE tentacleMove = { kAiStateOther, 8, nullptr, 3600, NULL, aiMoveTurn, aiPodMove, &tentacleSearch };
-AISTATE tentacleSearch = { kAiStateOther, 0, nullptr, 3600, NULL, aiMoveTurn, aiPodSearch, NULL };
+AISTATE tentacleMove = { kAiStateOther, 8, nullptr, 3600, NULL, &AF(aiMoveTurn), &AF(aiPodMove), &tentacleSearch };
+AISTATE tentacleSearch = { kAiStateOther, 0, nullptr, 3600, NULL, &AF(aiMoveTurn), &AF(aiPodSearch), NULL };
 AISTATE tentacleStartChase = { kAiStateOther, 6, &AF(podExplode), 120, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacleRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &tentacleChase };
-AISTATE tentacleChase = { kAiStateChase, 6, nullptr, 0, NULL, aiMoveTurn, aiPodChase, NULL };
+AISTATE tentacleChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveTurn), &AF(aiPodChase), NULL };
 
 void podPlaySound1(DBloodActor* actor)
 {

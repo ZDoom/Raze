@@ -36,31 +36,31 @@ static void beastThinkChase(DBloodActor*);
 static void beastThinkSwimGoto(DBloodActor*);
 static void beastThinkSwimChase(DBloodActor*);
 static void beastMoveForward(DBloodActor*);
-static void sub_628A0(DBloodActor*);
-static void sub_62AE0(DBloodActor*);
-static void sub_62D7C(DBloodActor*);
+static void beastMoveSwim(DBloodActor*);
+static void beastMoveSwimAlt(DBloodActor*);
+static void beastMoveIn(DBloodActor*);
 
-AISTATE beastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE beastChase = { kAiStateChase, 8, nullptr, 0, NULL, beastMoveForward, beastThinkChase, NULL };
-AISTATE beastDodge = { kAiStateMove, 8, nullptr, 60, NULL, aiMoveDodge, NULL, &beastChase };
-AISTATE beastGoto = { kAiStateMove, 8, nullptr, 600, NULL, beastMoveForward, beastThinkGoto, &beastIdle };
+AISTATE beastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE beastChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(beastMoveForward), &AF(beastThinkChase), NULL };
+AISTATE beastDodge = { kAiStateMove, 8, nullptr, 60, NULL, &AF(aiMoveDodge), NULL, &beastChase };
+AISTATE beastGoto = { kAiStateMove, 8, nullptr, 600, NULL, &AF(beastMoveForward), &AF(beastThinkGoto), &beastIdle };
 AISTATE beastSlash = { kAiStateChase, 6, &AF(SlashSeqCallback), 120, NULL, NULL, NULL, &beastChase };
 AISTATE beastStomp = { kAiStateChase, 7, &AF(StompSeqCallback), 120, NULL, NULL, NULL, &beastChase };
-AISTATE beastSearch = { kAiStateSearch, 8, nullptr, 120, NULL, beastMoveForward, beastThinkSearch, &beastIdle };
+AISTATE beastSearch = { kAiStateSearch, 8, nullptr, 120, NULL, &AF(beastMoveForward), &AF(beastThinkSearch), &beastIdle };
 AISTATE beastRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &beastDodge };
 AISTATE beastTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &beastDodge };
-AISTATE beastSwimIdle = { kAiStateIdle, 9, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE beastSwimChase = { kAiStateChase, 9, nullptr, 0, NULL, sub_628A0, beastThinkSwimChase, NULL };
-AISTATE beastSwimDodge = { kAiStateMove, 9, nullptr, 90, NULL, aiMoveDodge, NULL, &beastSwimChase };
-AISTATE beastSwimGoto = { kAiStateMove, 9, nullptr, 600, NULL, beastMoveForward, beastThinkSwimGoto, &beastSwimIdle };
-AISTATE beastSwimSearch = { kAiStateSearch, 9, nullptr, 120, NULL, beastMoveForward, beastThinkSearch, &beastSwimIdle };
-AISTATE beastSwimSlash = { kAiStateChase, 9, &AF(SlashSeqCallback), 0, NULL, NULL, beastThinkSwimChase, &beastSwimChase };
+AISTATE beastSwimIdle = { kAiStateIdle, 9, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE beastSwimChase = { kAiStateChase, 9, nullptr, 0, NULL, &AF(beastMoveSwim), &AF(beastThinkSwimChase), NULL };
+AISTATE beastSwimDodge = { kAiStateMove, 9, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &beastSwimChase };
+AISTATE beastSwimGoto = { kAiStateMove, 9, nullptr, 600, NULL, &AF(beastMoveForward), &AF(beastThinkSwimGoto), &beastSwimIdle };
+AISTATE beastSwimSearch = { kAiStateSearch, 9, nullptr, 120, NULL, &AF(beastMoveForward), &AF(beastThinkSearch), &beastSwimIdle };
+AISTATE beastSwimSlash = { kAiStateChase, 9, &AF(SlashSeqCallback), 0, NULL, NULL, &AF(beastThinkSwimChase), &beastSwimChase };
 AISTATE beastSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &beastSwimDodge };
-AISTATE beastMorphToBeast = { kAiStateOther, -1, nullptr, 0, MorphToBeast, NULL, NULL, &beastIdle };
+AISTATE beastMorphToBeast = { kAiStateOther, -1, nullptr, 0, &AF(MorphToBeast), NULL, NULL, &beastIdle };
 AISTATE beastMorphFromCultist = { kAiStateOther, 2576, nullptr, 0, NULL, NULL, NULL, &beastMorphToBeast };
-AISTATE beast138FB4 = { kAiStateOther, 9, nullptr, 120, NULL, sub_62AE0, beastThinkSwimChase, &beastSwimChase };
-AISTATE beast138FD0 = { kAiStateOther, 9, nullptr, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
-AISTATE beast138FEC = { kAiStateOther, 9, nullptr, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
+AISTATE beastMoveSwimChaseAlt = { kAiStateOther, 9, nullptr, 120, NULL, &AF(beastMoveSwimAlt), &AF(beastThinkSwimChase), &beastSwimChase };
+AISTATE beastSwimAttack = { kAiStateOther, 9, nullptr, 0, NULL, &AF(beastMoveIn), &AF(beastThinkSwimChase), &beastSwimChase };
+AISTATE beastSwimTurn = { kAiStateOther, 9, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &beastSwimChase };
 
 void SlashSeqCallback(DBloodActor* actor)
 {
@@ -375,12 +375,12 @@ static void beastThinkSwimChase(DBloodActor* actor)
 				else
 				{
 					aiPlay3DSound(actor, 9009 + Random(2), AI_SFX_PRIORITY_1, -1);
-					aiNewState(actor, &beast138FD0);
+					aiNewState(actor, &beastSwimAttack);
 				}
 			}
 		}
 		else
-			aiNewState(actor, &beast138FD0);
+			aiNewState(actor, &beastSwimAttack);
 		return;
 	}
 	aiNewState(actor, &beastSwimGoto);
@@ -403,7 +403,7 @@ static void beastMoveForward(DBloodActor* actor)
 	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
 }
 
-static void sub_628A0(DBloodActor* actor)
+static void beastMoveSwim(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -427,7 +427,7 @@ static void sub_628A0(DBloodActor* actor)
 	});
 }
 
-static void sub_62AE0(DBloodActor* actor)
+static void beastMoveSwimAlt(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -457,7 +457,7 @@ static void sub_62AE0(DBloodActor* actor)
 	actor->vel.Z = -dz / 256;
 }
 
-static void sub_62D7C(DBloodActor* actor)
+static void beastMoveIn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

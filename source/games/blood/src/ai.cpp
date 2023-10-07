@@ -95,7 +95,7 @@ void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 	}
 
 	if (pAIState->enterFunc)
-		pAIState->enterFunc(actor);
+		callActorFunction(*pAIState->enterFunc, actor);
 }
 
 //---------------------------------------------------------------------------
@@ -623,7 +623,7 @@ void aiActivateDude(DBloodActor* actor)
 	{
 		
 		actor->dudeExtra.thinkTime = 1;
-		if (actor->xspr.aiState == &zombieSIdle) aiNewState(actor, &zombie13AC2C);
+		if (actor->xspr.aiState == &zombieSIdle) aiNewState(actor, &zombieEStand);
 		break;
 	}
 	case kDudeZombieButcher:
@@ -1606,10 +1606,10 @@ void aiProcessDudes(void)
 		if (actor->xspr.aiState)
 		{
 			if (actor->xspr.aiState->moveFunc)
-				actor->xspr.aiState->moveFunc(actor);
+				callActorFunction(*actor->xspr.aiState->moveFunc, actor);
 
 			if (actor->xspr.aiState->thinkFunc && (gFrameCount & 3) == (actor->GetIndex() & 3))
-				actor->xspr.aiState->thinkFunc(actor);
+				callActorFunction(*actor->xspr.aiState->thinkFunc, actor);
 		}
 
 #ifdef NOONE_EXTENSIONS

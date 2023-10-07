@@ -33,12 +33,12 @@ static void innocThinkSearch(DBloodActor*);
 static void innocThinkGoto(DBloodActor*);
 static void innocThinkChase(DBloodActor*);
 
-AISTATE innocentIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE innocentSearch = { kAiStateSearch, 6, nullptr, 1800, NULL, aiMoveForward, innocThinkSearch, &innocentIdle };
-AISTATE innocentChase = { kAiStateChase, 6, nullptr, 0, NULL, aiMoveForward, innocThinkChase, NULL };
+AISTATE innocentIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE innocentSearch = { kAiStateSearch, 6, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(innocThinkSearch), &innocentIdle };
+AISTATE innocentChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveForward), &AF(innocThinkChase), NULL };
 AISTATE innocentRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &innocentChase };
 AISTATE innocentTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &innocentChase };
-AISTATE innocentGoto = { kAiStateMove, 6, nullptr, 600, NULL, aiMoveForward, innocThinkGoto, &innocentIdle };
+AISTATE innocentGoto = { kAiStateMove, 6, nullptr, 600, NULL, &AF(aiMoveForward), &AF(innocThinkGoto), &innocentIdle };
 
 static void innocThinkSearch(DBloodActor* actor)
 {

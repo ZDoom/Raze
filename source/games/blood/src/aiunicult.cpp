@@ -39,8 +39,8 @@ static void unicultThinkGoto(DBloodActor*);
 static void unicultThinkChase(DBloodActor*);
 static void forcePunch(DBloodActor*);
 
-AISTATE genDudeIdleL = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE genDudeIdleW = { kAiStateIdle, 13, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
+AISTATE genDudeIdleL = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE genDudeIdleW = { kAiStateIdle, 13, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 // ---------------------
 AISTATE genDudeSearchL = { kAiStateSearch, 9, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
 AISTATE genDudeSearchW = { kAiStateSearch, 13, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
@@ -48,23 +48,23 @@ AISTATE genDudeSearchW = { kAiStateSearch, 13, nullptr, 600, NULL, aiGenDudeMove
 AISTATE genDudeSearchShortL = { kAiStateSearch, 9, nullptr, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
 AISTATE genDudeSearchShortW = { kAiStateSearch, 13, nullptr, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeSearchNoWalkL = { kAiStateSearch, 0, nullptr, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchNoWalkW = { kAiStateSearch, 13, nullptr, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchNoWalkL = { kAiStateSearch, 0, nullptr, 600, NULL, &AF(aiMoveTurn), unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchNoWalkW = { kAiStateSearch, 13, nullptr, 600, NULL, &AF(aiMoveTurn), unicultThinkSearch, &genDudeIdleW };
 // ---------------------
 AISTATE genDudeGotoL = { kAiStateMove, 9, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleL };
 AISTATE genDudeGotoW = { kAiStateMove, 13, nullptr, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleW };
 // ---------------------
 AISTATE genDudeDodgeL = { kAiStateMove, 9, nullptr, 90, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
-AISTATE genDudeDodgeD = { kAiStateMove, 14, nullptr, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
-AISTATE genDudeDodgeW = { kAiStateMove, 13, nullptr, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
+AISTATE genDudeDodgeD = { kAiStateMove, 14, nullptr, 90, NULL, &AF(aiMoveDodge),	NULL, &genDudeChaseD };
+AISTATE genDudeDodgeW = { kAiStateMove, 13, nullptr, 90, NULL, &AF(aiMoveDodge),	NULL, &genDudeChaseW };
 // ---------------------
 AISTATE genDudeDodgeShortL = { kAiStateMove, 9, nullptr, 60, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
-AISTATE genDudeDodgeShortD = { kAiStateMove, 14, nullptr, 60, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
-AISTATE genDudeDodgeShortW = { kAiStateMove, 13, nullptr, 60, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
+AISTATE genDudeDodgeShortD = { kAiStateMove, 14, nullptr, 60, NULL, &AF(aiMoveDodge),	NULL, &genDudeChaseD };
+AISTATE genDudeDodgeShortW = { kAiStateMove, 13, nullptr, 60, NULL, &AF(aiMoveDodge),	NULL, &genDudeChaseW };
 // ---------------------
 AISTATE genDudeDodgeShorterL = { kAiStateMove, 9, nullptr, 20, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
-AISTATE genDudeDodgeShorterD = { kAiStateMove, 14, nullptr, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
-AISTATE genDudeDodgeShorterW = { kAiStateMove, 13, nullptr, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
+AISTATE genDudeDodgeShorterD = { kAiStateMove, 14, nullptr, 20, NULL, &AF(aiMoveDodge),	NULL, &genDudeChaseD };
+AISTATE genDudeDodgeShorterW = { kAiStateMove, 13, nullptr, 20, NULL, &AF(aiMoveDodge),	NULL, &genDudeChaseW };
 // ---------------------
 AISTATE genDudeChaseL = { kAiStateChase, 9, nullptr, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
 AISTATE genDudeChaseD = { kAiStateChase, 14, nullptr, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
@@ -74,9 +74,9 @@ AISTATE genDudeChaseNoWalkL = { kAiStateChase, 0, nullptr, 0, NULL,	aiMoveTurn, 
 AISTATE genDudeChaseNoWalkD = { kAiStateChase, 14, nullptr, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
 AISTATE genDudeChaseNoWalkW = { kAiStateChase, 13, nullptr, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
 // ---------------------
-AISTATE genDudeFireL = { kAiStateChase, 6, &AF(genDudeAttack1), 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireL };
-AISTATE genDudeFireD = { kAiStateChase, 8, &AF(genDudeAttack1), 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireD };
-AISTATE genDudeFireW = { kAiStateChase, 8, &AF(genDudeAttack1), 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireW };
+AISTATE genDudeFireL = { kAiStateChase, 6, &AF(genDudeAttack1), 0, NULL, &AF(aiMoveTurn), unicultThinkChase, &genDudeFireL };
+AISTATE genDudeFireD = { kAiStateChase, 8, &AF(genDudeAttack1), 0, NULL, &AF(aiMoveTurn), unicultThinkChase, &genDudeFireD };
+AISTATE genDudeFireW = { kAiStateChase, 8, &AF(genDudeAttack1), 0, NULL, &AF(aiMoveTurn), unicultThinkChase, &genDudeFireW };
 // ---------------------z
 AISTATE genDudeRecoilL = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &genDudeChaseL };
 AISTATE genDudeRecoilD = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &genDudeChaseD };

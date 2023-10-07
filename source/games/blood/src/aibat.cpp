@@ -42,24 +42,24 @@ static void batMoveFly(DBloodActor*);
 static void batMoveToCeil(DBloodActor*);
 
 
-AISTATE batIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, batThinkTarget, NULL };
-AISTATE batFlyIdle = { kAiStateIdle, 6, nullptr, 0, NULL, NULL, batThinkTarget, NULL };
-AISTATE batChase = { kAiStateChase, 6, nullptr, 0, NULL, batMoveForward, batThinkChase, &batFlyIdle };
-AISTATE batPonder = { kAiStateOther, 6, nullptr, 0, NULL, NULL, batThinkPonder, NULL };
-AISTATE batGoto = { kAiStateMove, 6, nullptr, 600, NULL, batMoveForward, batThinkGoto, &batFlyIdle };
+AISTATE batIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(batThinkTarget), NULL };
+AISTATE batFlyIdle = { kAiStateIdle, 6, nullptr, 0, NULL, NULL, &AF(batThinkTarget), NULL };
+AISTATE batChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(batMoveForward), &AF(batThinkChase), &batFlyIdle };
+AISTATE batPonder = { kAiStateOther, 6, nullptr, 0, NULL, NULL, &AF(batThinkPonder), NULL };
+AISTATE batGoto = { kAiStateMove, 6, nullptr, 600, NULL, &AF(batMoveForward), &AF(batThinkGoto), &batFlyIdle };
 AISTATE batBite = { kAiStateChase, 7, &AF(batBiteSeqCallback), 60, NULL, NULL, NULL, &batPonder };
 AISTATE batRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &batChase };
-AISTATE batSearch = { kAiStateSearch, 6, nullptr, 120, NULL, batMoveForward, batThinkSearch, &batFlyIdle };
-AISTATE batSwoop = { kAiStateOther, 6, nullptr, 60, NULL, batMoveSwoop, batThinkChase, &batChase };
-AISTATE batFly = { kAiStateMove, 6, nullptr, 0, NULL, batMoveFly, batThinkChase, &batChase };
-AISTATE batTurn = { kAiStateMove, 6, nullptr, 60, NULL, aiMoveTurn, NULL, &batChase };
-AISTATE batHide = { kAiStateOther, 6, nullptr, 0, NULL, batMoveToCeil, batMoveForward, NULL };
-AISTATE batDodgeUp = { kAiStateMove, 6, nullptr, 120, NULL, batMoveDodgeUp, 0, &batChase };
-AISTATE batDodgeUpRight = { kAiStateMove, 6, nullptr, 90, NULL, batMoveDodgeUp, 0, &batChase };
-AISTATE batDodgeUpLeft = { kAiStateMove, 6, nullptr, 90, NULL, batMoveDodgeUp, 0, &batChase };
-AISTATE batDodgeDown = { kAiStateMove, 6, nullptr, 120, NULL, batMoveDodgeDown, 0, &batChase };
-AISTATE batDodgeDownRight = { kAiStateMove, 6, nullptr, 90, NULL, batMoveDodgeDown, 0, &batChase };
-AISTATE batDodgeDownLeft = { kAiStateMove, 6, nullptr, 90, NULL, batMoveDodgeDown, 0, &batChase };
+AISTATE batSearch = { kAiStateSearch, 6, nullptr, 120, NULL, &AF(batMoveForward), &AF(batThinkSearch), &batFlyIdle };
+AISTATE batSwoop = { kAiStateOther, 6, nullptr, 60, NULL, &AF(batMoveSwoop), &AF(batThinkChase), &batChase };
+AISTATE batFly = { kAiStateMove, 6, nullptr, 0, NULL, &AF(batMoveFly), &AF(batThinkChase), &batChase };
+AISTATE batTurn = { kAiStateMove, 6, nullptr, 60, NULL, &AF(aiMoveTurn), NULL, &batChase };
+AISTATE batHide = { kAiStateOther, 6, nullptr, 0, NULL, &AF(batMoveToCeil), &AF(batMoveForward), NULL };
+AISTATE batDodgeUp = { kAiStateMove, 6, nullptr, 120, NULL, &AF(batMoveDodgeUp), 0, &batChase };
+AISTATE batDodgeUpRight = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeUp), 0, &batChase };
+AISTATE batDodgeUpLeft = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeUp), 0, &batChase };
+AISTATE batDodgeDown = { kAiStateMove, 6, nullptr, 120, NULL, &AF(batMoveDodgeDown), 0, &batChase };
+AISTATE batDodgeDownRight = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeDown), 0, &batChase };
+AISTATE batDodgeDownLeft = { kAiStateMove, 6, nullptr, 90, NULL, &AF(batMoveDodgeDown), 0, &batChase };
 
 void batBiteSeqCallback(DBloodActor* actor)
 {

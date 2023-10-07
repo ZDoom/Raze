@@ -34,9 +34,15 @@ struct AISTATE {
 	int seqId;
 	VMNativeFunction** funcId;
 	int stateTicks;
+#if 0
 	void(*enterFunc)(DBloodActor *);
 	void(*moveFunc)(DBloodActor *);
 	void(*thinkFunc)(DBloodActor *);
+#else
+	VMNativeFunction** enterFunc;
+	VMNativeFunction** moveFunc;
+	VMNativeFunction** thinkFunc;
+#endif
 	AISTATE *nextState;
 };
 extern AISTATE aiState[];

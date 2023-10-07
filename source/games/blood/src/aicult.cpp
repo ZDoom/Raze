@@ -33,44 +33,44 @@ static void cultThinkSearch(DBloodActor*);
 static void cultThinkGoto(DBloodActor*);
 static void cultThinkChase(DBloodActor*);
 
-AISTATE cultistIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistProneIdle = { kAiStateIdle, 17, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE fanaticProneIdle = { kAiStateIdle, 17, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistProneIdle3 = { kAiStateIdle, 17, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistChase = { kAiStateChase, 9, nullptr, 0, NULL, aiMoveForward, cultThinkChase, NULL };
-AISTATE fanaticChase = { kAiStateChase, 0, nullptr, 0, NULL, aiMoveTurn, cultThinkChase, NULL };
-AISTATE cultistDodge = { kAiStateMove, 9, nullptr, 90, NULL, aiMoveDodge, NULL, &cultistChase };
-AISTATE cultistGoto = { kAiStateMove, 9, nullptr, 600, NULL, aiMoveForward, cultThinkGoto, &cultistIdle };
-AISTATE cultistProneChase = { kAiStateChase, 14, nullptr, 0, NULL, aiMoveForward, cultThinkChase, NULL };
-AISTATE cultistProneDodge = { kAiStateMove, 14, nullptr, 90, NULL, aiMoveDodge, NULL, &cultistProneChase };
+AISTATE cultistIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE cultistProneIdle = { kAiStateIdle, 17, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE fanaticProneIdle = { kAiStateIdle, 17, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE cultistProneIdle3 = { kAiStateIdle, 17, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE cultistChase = { kAiStateChase, 9, nullptr, 0, NULL, &AF(aiMoveForward), &AF(cultThinkChase), NULL };
+AISTATE fanaticChase = { kAiStateChase, 0, nullptr, 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), NULL };
+AISTATE cultistDodge = { kAiStateMove, 9, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &cultistChase };
+AISTATE cultistGoto = { kAiStateMove, 9, nullptr, 600, NULL, &AF(aiMoveForward), &AF(cultThinkGoto), &cultistIdle };
+AISTATE cultistProneChase = { kAiStateChase, 14, nullptr, 0, NULL, &AF(aiMoveForward), &AF(cultThinkChase), NULL };
+AISTATE cultistProneDodge = { kAiStateMove, 14, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &cultistProneChase };
 AISTATE cultistTThrow = { kAiStateChase, 7, &AF(cultThrowSeqCallback), 120, NULL, NULL, NULL, &cultistTFire };
 AISTATE cultistSThrow = { kAiStateChase, 7, &AF(cultThrowSeqCallback), 120, NULL, NULL, NULL, &cultistSFire };
 AISTATE cultistTsThrow = { kAiStateChase, 7, &AF(cultThrowSeqCallback), 120, NULL, NULL, NULL, &cultistTsFire };
 AISTATE cultistDThrow = { kAiStateChase, 7, &AF(cultThrowSeqCallback), 120, NULL, NULL, NULL, &cultistChase };
-AISTATE cultist139A78 = { kAiStateChase, 7, &AF(cultThrowSeqCallback2), 120, NULL, NULL, NULL, &cultistChase };
-AISTATE cultist139A94 = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, NULL, &cultistIdle };
-AISTATE cultist139AB0 = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, cultThinkSearch, &cultist139A94 };
-AISTATE cultist139ACC = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, cultThinkSearch, &cultist139AB0 };
-AISTATE cultist139AE8 = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, cultThinkSearch, &cultist139AE8 };
-AISTATE cultistSearch = { kAiStateSearch, 9, nullptr, 1800, NULL, aiMoveForward, cultThinkSearch, &cultistIdle };
+AISTATE cultistDThrow2 = { kAiStateChase, 7, &AF(cultThrowSeqCallback2), 120, NULL, NULL, NULL, &cultistChase };
+AISTATE cultistDThrow3C = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, NULL, &cultistIdle };
+AISTATE cultistDThrow3B = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, &AF(cultThinkSearch), &cultistDThrow3C };
+AISTATE cultistDThrow3A = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, &AF(cultThinkSearch), &cultistDThrow3B };
+AISTATE cultistDThrow4 = { kAiStateChase, 7, &AF(cultThrowSeqCallback3), 120, NULL, NULL, &AF(cultThinkSearch), &cultistDThrow4 };
+AISTATE cultistSearch = { kAiStateSearch, 9, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(cultThinkSearch), &cultistIdle };
 AISTATE cultistSFire = { kAiStateChase, 6, &AF(ShotSeqCallback), 60, NULL, NULL, NULL, &cultistChase };
-AISTATE cultistTFire = { kAiStateChase, 6, &AF(TommySeqCallback), 0, NULL, aiMoveTurn, cultThinkChase, &cultistTFire };
-AISTATE cultistTsFire = { kAiStateChase, 6, &AF(TeslaSeqCallback), 0, NULL, aiMoveTurn, cultThinkChase, &cultistChase };
+AISTATE cultistTFire = { kAiStateChase, 6, &AF(TommySeqCallback), 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), &cultistTFire };
+AISTATE cultistTsFire = { kAiStateChase, 6, &AF(TeslaSeqCallback), 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), &cultistChase };
 AISTATE cultistSProneFire = { kAiStateChase, 8, &AF(ShotSeqCallback), 60, NULL, NULL, NULL, &cultistProneChase };
-AISTATE cultistTProneFire = { kAiStateChase, 8, &AF(TommySeqCallback), 0, NULL, aiMoveTurn, cultThinkChase, &cultistTProneFire };
-AISTATE cultistTsProneFire = { kAiStateChase, 8, &AF(TeslaSeqCallback), 0, NULL, aiMoveTurn, NULL, &cultistTsProneFire }; // vanilla, broken
-AISTATE cultistTsProneFireFixed = { kAiStateChase, 8, &AF(TeslaSeqCallback), 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsProneFireFixed };
+AISTATE cultistTProneFire = { kAiStateChase, 8, &AF(TommySeqCallback), 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), &cultistTProneFire };
+AISTATE cultistTsProneFire = { kAiStateChase, 8, &AF(TeslaSeqCallback), 0, NULL, &AF(aiMoveTurn), NULL, &cultistTsProneFire }; // vanilla, broken
+AISTATE cultistTsProneFireFixed = { kAiStateChase, 8, &AF(TeslaSeqCallback), 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), &cultistTsProneFireFixed };
 AISTATE cultistRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &cultistDodge };
 AISTATE cultistProneRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &cultistProneDodge };
 AISTATE cultistTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &cultistDodge };
-AISTATE cultistSwimIdle = { kAiStateIdle, 13, nullptr, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistSwimChase = { kAiStateChase, 13, nullptr, 0, NULL, aiMoveForward, cultThinkChase, NULL };
-AISTATE cultistSwimDodge = { kAiStateMove, 13, nullptr, 90, NULL, aiMoveDodge, NULL, &cultistSwimChase };
-AISTATE cultistSwimGoto = { kAiStateMove, 13, nullptr, 600, NULL, aiMoveForward, cultThinkGoto, &cultistSwimIdle };
-AISTATE cultistSwimSearch = { kAiStateSearch, 13, nullptr, 1800, NULL, aiMoveForward, cultThinkSearch, &cultistSwimIdle };
+AISTATE cultistSwimIdle = { kAiStateIdle, 13, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
+AISTATE cultistSwimChase = { kAiStateChase, 13, nullptr, 0, NULL, &AF(aiMoveForward), &AF(cultThinkChase), NULL };
+AISTATE cultistSwimDodge = { kAiStateMove, 13, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &cultistSwimChase };
+AISTATE cultistSwimGoto = { kAiStateMove, 13, nullptr, 600, NULL, &AF(aiMoveForward), &AF(cultThinkGoto), &cultistSwimIdle };
+AISTATE cultistSwimSearch = { kAiStateSearch, 13, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(cultThinkSearch), &cultistSwimIdle };
 AISTATE cultistSSwimFire = { kAiStateChase, 8, &AF(ShotSeqCallback), 60, NULL, NULL, NULL, &cultistSwimChase };
-AISTATE cultistTSwimFire = { kAiStateChase, 8, &AF(TommySeqCallback), 0, NULL, aiMoveTurn, cultThinkChase, &cultistTSwimFire };
-AISTATE cultistTsSwimFire = { kAiStateChase, 8, &AF(TeslaSeqCallback), 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsSwimFire };
+AISTATE cultistTSwimFire = { kAiStateChase, 8, &AF(TommySeqCallback), 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), &cultistTSwimFire };
+AISTATE cultistTsSwimFire = { kAiStateChase, 8, &AF(TeslaSeqCallback), 0, NULL, &AF(aiMoveTurn), &AF(cultThinkChase), &cultistTsSwimFire };
 AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &cultistSwimDodge };
 
 void TommySeqCallback(DBloodActor* actor)
@@ -506,16 +506,16 @@ static void cultThinkChase(DBloodActor* actor)
 						{
 						case -1:
 							if (actor->xspr.medium != 1 && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultist139A78);
+								aiNewState(actor, &cultistDThrow2);
 							break;
 						case 4:
 							break;
 						case 3:
 							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeCultistShotgun && actor->xspr.medium != kMediumWater && actor->xspr.medium != kMediumGoo)
-								aiNewState(actor, &cultist139A78);
+								aiNewState(actor, &cultistDThrow2);
 							break;
 						default:
-							aiNewState(actor, &cultist139A78);
+							aiNewState(actor, &cultistDThrow2);
 							break;
 						}
 					}
