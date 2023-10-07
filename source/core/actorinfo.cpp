@@ -250,7 +250,7 @@ void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 	SpriteSet.Resize(SpriteSetNames.Size());
 	for (unsigned i = 0; i < SpriteSet.Size(); i++)
 	{
-		SpriteSet[i] = TexMan.CheckForTexture(SpriteSetNames[i], ETextureType::Any);
+		SpriteSet[i] = TexMan.CheckForTexture(SpriteSetNames[i].GetChars(), ETextureType::Any);
 		// This should later be enabled to user content.
 		//if (SpriteSet[i] == -1) Printf(TEXTCOLOR_RED "Unknown texture '%s' in sprite set for class %s\n", SpriteSetNames[i].GetChars(), clsname);
 	}
