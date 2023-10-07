@@ -5,7 +5,7 @@
 #include "model_kvx.h"
 #include "intvec.h"
 
-constexpr int MAXVOXELS = 1024;
+constexpr int MAXVOXELS = 2048;
 
 struct voxmodel_t // : public mdmodel_t
 {
