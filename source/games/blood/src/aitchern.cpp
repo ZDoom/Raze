@@ -44,8 +44,7 @@ void tchernobogFire(DBloodActor* actor)
 
 void tchernobogBurnSeqCallback(DBloodActor* actor)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	double height = actor->spr.scale.Y * pDudeInfo->eyeHeight * 0.25;
+	double height = actor->spr.scale.Y * actor->eyeHeight() * 0.25;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DVector3 pos(actor->spr.pos.XY(), height);
 
@@ -103,8 +102,7 @@ void tchernobogBurnSeqCallback2(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	double height = actor->spr.scale.Y * pDudeInfo->eyeHeight * 0.25;
+	double height = actor->spr.scale.Y * actor->eyeHeight() * 0.25;
 	
 	DVector3 pos(actor->spr.pos.XY(), height);
 	DVector3 Aim(actor->spr.Angles.Yaw.ToVector(), -actor->dudeSlope);
@@ -167,8 +165,6 @@ void tchernobogThinkTarget(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	
 	if (actor->dudeExtra.active && actor->dudeExtra.thinkTime < 10)
 		actor->dudeExtra.thinkTime++;
 	else if (actor->dudeExtra.thinkTime >= 10 && actor->dudeExtra.active)
@@ -178,7 +174,7 @@ void tchernobogThinkTarget(DBloodActor* actor)
 		aiNewState(actor, NAME_tchernobogTurn);
 		return;
 	}
-	if (Chance(pDudeInfo->alertChance))
+	if (Chance(actor->alertChance()))
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -191,19 +187,19 @@ void tchernobogThinkTarget(DBloodActor* actor)
 			DAngle nAngle = dvect.Angle();
 			double nDist = dvect.Length();
 
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
+			if (nDist > actor->SeeDist() && nDist > actor->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+			double height = (actor->eyeHeight() * actor->spr.scale.Y);
 			if (cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && abs(nDeltaAngle) <= actor->Periphery())
 			{
 				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 			}
-			else if (nDist < pDudeInfo->HearDist())
+			else if (nDist < actor->HearDist())
 			{
 				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, ppos);
@@ -222,12 +218,11 @@ void tchernobogThinkGoto(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 		aiNewState(actor, NAME_tchernobogSearch);
 	aiThinkTarget(actor);
 }
@@ -243,7 +238,6 @@ void tchernobogThinkChase(DBloodActor* actor)
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -262,13 +256,13 @@ void tchernobogThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && abs(nDeltaAngle) <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x1f0 && nDist > 0xd0 && nDeltaAngle < DAngle15)

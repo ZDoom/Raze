@@ -33,13 +33,11 @@ void HackSeqCallback(DBloodActor* actor)
 {
 	auto target = actor->GetTarget();
 	if (!target) return;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 	DVector3 dv;
 	dv.XY() = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
-	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
+	double height = (actor->eyeHeight() * actor->spr.scale.Y);
+	double height2 = (target->eyeHeight() * target->spr.scale.Y);
 	dv.Z = height - height2;
 
 	sfxPlay3DSound(actor, 1101, 1, 0);
@@ -60,12 +58,11 @@ void zombaThinkSearch(DBloodActor* actor)
 void zombaThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 51.3125 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 51.3125 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 		aiNewState(actor, NAME_zombieASearch);
 	aiThinkTarget(actor);
 }
@@ -78,7 +75,6 @@ void zombaThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -102,13 +98,13 @@ void zombaThinkChase(DBloodActor* actor)
 		actor->ChangeType(kDudeZombieAxeNormal);
 
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x40 && nDeltaAngle < DAngle15)
@@ -130,7 +126,6 @@ void zombaThinkPonder(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -149,13 +144,13 @@ void zombaThinkPonder(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x40)
@@ -177,7 +172,6 @@ void zombaThinkPonder(DBloodActor* actor)
 void myThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		DBloodPlayer* pPlayer = getPlayer(p);
@@ -188,18 +182,18 @@ void myThinkTarget(DBloodActor* actor)
 		auto dvect = ppos.XY() - actor->spr.pos;
 		auto pSector = pPlayer->GetActor()->sector();
 		double nDist = dvect.Length();
-		if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
+		if (nDist > actor->SeeDist() && nDist > actor->HearDist())
 			continue;
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 			continue;
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvect.Angle());
-		if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
+		if (nDist < actor->SeeDist() && abs(nDeltaAngle) <= actor->Periphery())
 		{
 			aiSetTarget(actor, pPlayer->GetActor());
 			aiActivateDude(actor);
 		}
-		else if (nDist < pDudeInfo->HearDist())
+		else if (nDist < actor->HearDist())
 		{
 			aiSetTarget(actor, ppos);
 			aiActivateDude(actor);

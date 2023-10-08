@@ -60,7 +60,6 @@ void calebThinkSearch(DBloodActor* actor)
 void calebThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
@@ -69,7 +68,7 @@ void calebThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, NAME_tinycalebSwimSearch);
@@ -93,7 +92,6 @@ void calebThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
@@ -121,13 +119,13 @@ void calebThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				actor->dudeSlope = nDist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / nDist;
@@ -183,12 +181,11 @@ void calebThinkChase(DBloodActor* actor)
 void calebThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 		aiNewState(actor, NAME_tinycalebSwimSearch);
 	aiThinkTarget(actor);
 }
@@ -201,7 +198,6 @@ void calebThinkSwimChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
@@ -220,14 +216,14 @@ void calebThinkSwimChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x40 && abs(nDeltaAngle) < DAngle15)
@@ -247,11 +243,10 @@ void calebThinkSwimChase(DBloodActor* actor)
 void calebMoveSwimChase(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-	double nAccel = pDudeInfo->FrontSpeed() * 4;
+	double nAccel = actor->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -272,14 +267,13 @@ void calebMoveSwimChase(DBloodActor* actor)
 void calebSwimUnused(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto target = actor->GetTarget();
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-	double nAccel = pDudeInfo->FrontSpeed() * 4;
+	double nAccel = actor->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -300,14 +294,13 @@ void calebSwimUnused(DBloodActor* actor)
 void calebSwimMoveIn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto target = actor->GetTarget();
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-	double nAccel = pDudeInfo->FrontSpeed() * 4;
+	double nAccel = actor->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.Angles.Yaw += DAngle90;

@@ -140,12 +140,11 @@ void cultThinkSearch(DBloodActor* actor)
 void cultThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 	{
 		switch (actor->xspr.medium)
 		{
@@ -178,7 +177,6 @@ void cultThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos - actor->spr.pos;
@@ -218,13 +216,13 @@ void cultThinkChase(DBloodActor* actor)
 		}
 		return;
 	}
-	if (nDist > 0 && nDist <= pDudeInfo->SeeDist())
+	if (nDist > 0 && nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				actor->dudeSlope = nDist == 0 ? 0 : (target->spr.pos.Z - actor->spr.pos.Z) / nDist;

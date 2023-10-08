@@ -118,7 +118,6 @@ void SpidJumpSeqCallback(DBloodActor* actor)
 void SpidBirthSeqCallback(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	
@@ -130,11 +129,11 @@ void SpidBirthSeqCallback(DBloodActor* actor)
 	if (target->IsPlayerActor() && actor->dudeExtra.birthCounter < 10)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		if (nDist < 0x1a0 && nDist > 0x140 && nDeltaAngle < pDudeInfo->Periphery())
+		if (nDist < 0x1a0 && nDist > 0x140 && nDeltaAngle < actor->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderRed, actor->clipdist * 0.25);
-		else if (nDist < 0x140 && nDist > 0xc0 && nDeltaAngle < pDudeInfo->Periphery())
+		else if (nDist < 0x140 && nDist > 0xc0 && nDeltaAngle < actor->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->clipdist * 0.25);
-		else if (nDist < 0xc0 && nDeltaAngle < pDudeInfo->Periphery())
+		else if (nDist < 0xc0 && nDeltaAngle < actor->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->clipdist * 0.25);
 
 		if (spawned)
@@ -156,12 +155,11 @@ void spidThinkSearch(DBloodActor* actor)
 void spidThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 		aiNewState(actor, NAME_spidSearch);
 	aiThinkTarget(actor);
 }
@@ -174,7 +172,6 @@ void spidThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
@@ -192,13 +189,13 @@ void spidThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist()) 
+	if (nDist <= actor->SeeDist()) 
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 

@@ -47,10 +47,8 @@ void eelBiteSeqCallback(DBloodActor* actor)
 
 	auto target = actor->GetTarget();
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target);
-	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
+	double height = (actor->eyeHeight() * actor->spr.scale.Y);
+	double height2 = (target->eyeHeight() * target->spr.scale.Y);
 	DVector3 vect(actor->spr.Angles.Yaw.ToVector() * 1024, height2 - height);
 
 	actFireVector(actor, 0., 0., vect, kVectorBoneelBite);
@@ -59,7 +57,6 @@ void eelBiteSeqCallback(DBloodActor* actor)
 void eelThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	
 	if (actor->dudeExtra.active && actor->dudeExtra.thinkTime < 10)
 		actor->dudeExtra.thinkTime++;
@@ -71,7 +68,7 @@ void eelThinkTarget(DBloodActor* actor)
 		aiNewState(actor, NAME_eelTurn);
 		return;
 	}
-	if (Chance(pDudeInfo->alertChance))
+	if (Chance(actor->alertChance()))
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -82,19 +79,19 @@ void eelThinkTarget(DBloodActor* actor)
 			auto dvect = ppos.XY() - actor->spr.pos;
 			auto pSector = pPlayer->GetActor()->sector();
 			double nDist = dvect.Length();
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
+			if (nDist > actor->SeeDist() && nDist > actor->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+			double height = (actor->eyeHeight() * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvect.Angle());
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 			}
-			else if (nDist < pDudeInfo->HearDist())
+			else if (nDist < actor->HearDist())
 			{
 				actor->dudeExtra.thinkTime = 0;
 				aiSetTarget(actor, ppos);
@@ -116,12 +113,11 @@ void eelThinkSearch(DBloodActor* actor)
 void eelThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	auto nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 		aiNewState(actor, NAME_eelSearch);
 	eelThinkTarget(actor);
 }
@@ -134,7 +130,6 @@ void eelThinkPonder(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
@@ -147,11 +142,11 @@ void eelThinkPonder(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-		double height2 = (getDudeInfo(target)->eyeHeight * target->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
+		double height2 = (target->eyeHeight() * target->spr.scale.Y);
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
@@ -183,15 +178,14 @@ void eelThinkPonder(DBloodActor* actor)
 void eelMoveDodgeUp(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->xspr.dodgeDir > 0)
-			t2 += FixedToFloat(pDudeInfo->sideSpeed);
+			t2 += actor->SideSpeed();
 		else
-			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
+			t2 -= actor->SideSpeed();
 	});
 
 	actor->vel.Z = -0.5;
@@ -200,17 +194,16 @@ void eelMoveDodgeUp(DBloodActor* actor)
 void eelMoveDodgeDown(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->xspr.dodgeDir > 0)
-			t2 += FixedToFloat(pDudeInfo->sideSpeed);
+			t2 += actor->SideSpeed();
 		else
-			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
+			t2 -= actor->SideSpeed();
 	});
 
 	actor->vel.Z = 4.26666;
@@ -224,7 +217,6 @@ void eelThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
@@ -242,10 +234,10 @@ void eelThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		double top, bottom;
 		double top2, bottom2;
 		GetActorExtents(actor, &top, &bottom);
@@ -253,7 +245,7 @@ void eelThinkChase(DBloodActor* actor)
 
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 57.5625 && top2 > top && nDeltaAngle < DAngle15)
@@ -276,11 +268,10 @@ void eelThinkChase(DBloodActor* actor)
 void eelMoveForward(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
+	double nAccel = FixedToFloat((actor->FrontSpeedFixed() - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -301,11 +292,10 @@ void eelMoveForward(DBloodActor* actor)
 void eelMoveSwoop(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
+	double nAccel = FixedToFloat((actor->FrontSpeedFixed() - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
@@ -322,11 +312,10 @@ void eelMoveSwoop(DBloodActor* actor)
 void eelMoveAscend(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
+	double nAccel = FixedToFloat((actor->FrontSpeedFixed() - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();

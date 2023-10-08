@@ -35,10 +35,8 @@ void zombfHackSeqCallback(DBloodActor* actor)
 		return;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
-	DUDEINFO* pDudeInfoT = getDudeInfo(target);
-	double height2 = pDudeInfoT->eyeHeight * target->spr.scale.Y * 0.25;
+	double height = actor->eyeHeight() * actor->spr.scale.Y * 0.25;
+	double height2 = target->eyeHeight() * target->spr.scale.Y * 0.25;
 	actFireVector(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector() * 64, height - height2), kVectorCleaver);
 }
 
@@ -46,13 +44,11 @@ void PukeSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	DUDEINFO* pDudeInfoT = getDudeInfo(target);
 
 	DVector2 dv = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
-	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
-	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
+	double height = (actor->eyeHeight() * actor->spr.scale.Y);
+	double height2 = (target->eyeHeight() * target->spr.scale.Y);
 	double z = (height - height2) * 0.25;
 
 	sfxPlay3DSound(actor, 1203, 1, 0);
@@ -73,12 +69,11 @@ void zombfThinkSearch(DBloodActor* actor)
 void zombfThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 		aiNewState(actor, NAME_zombieFSearch);
 	aiThinkTarget(actor);
 }
@@ -91,7 +86,6 @@ void zombfThinkChase(DBloodActor* actor)
 		return;
 	}
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
@@ -109,13 +103,13 @@ void zombfThinkChase(DBloodActor* actor)
 		return;
 	}
 	double nDist = dv.Length();
-	if (nDist <= pDudeInfo->SeeDist())
+	if (nDist <= actor->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height = (actor->eyeHeight() * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x100 && nDist > 0xe0 && abs(nDeltaAngle) < DAngle15)
