@@ -5398,7 +5398,7 @@ void actExplodeSprite(DBloodActor* actor)
 	case kTrapExploder:
 	{
 		// Defaults for exploder
-		nType = 1;
+		nType = kExplosionStandard;
 		int nSnd = 304;
 		int nSeq = 4;
 
@@ -5410,13 +5410,13 @@ void actExplodeSprite(DBloodActor* actor)
 			int tSeq = actor->xspr.data2; // SEQ id
 			int tSnd = actor->xspr.data3; // Sound Id
 
-			if (nType <= 1 || nType > kExplodeMax) { nType = 1; nSeq = 4; nSnd = 304; }
-			else if (nType == 2) { nSeq = 4; nSnd = 305; }
-			else if (nType == 3) { nSeq = 9; nSnd = 307; }
-			else if (nType == 4) { nSeq = 5; nSnd = 307; }
-			else if (nType <= 6) { nSeq = 4; nSnd = 303; }
-			else if (nType == 7) { nSeq = 4; nSnd = 303; }
-			else if (nType == 8) { nType = 0; nSeq = 3; nSnd = 303; }
+			if (nType <= kExplosionStandard || nType > kExplodeMax) { nType = 1; nSeq = 4; nSnd = 304; }
+			else if (nType == kExplosionLarge) { nSeq = 4; nSnd = 305; }
+			else if (nType == kExplosionFireball) { nSeq = 9; nSnd = 307; }
+			else if (nType == kExplosionSpray) { nSeq = 5; nSnd = 307; }
+			else if (nType <= kExplosion6) { nSeq = 4; nSnd = 303; }
+			else if (nType == kExplosionNapalm) { nSeq = 4; nSnd = 303; }
+			else if (nType == kExplosionMax) { nType = 0; nSeq = 3; nSnd = 303; }
 
 			// Override previous sound and seq assigns
 			if (tSeq > 0) nSeq = tSeq;
