@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tilesetbuilder.h"
 #include "nnexts.h"
 #include "thingdef.h"
+#include "types.h"
 
 BEGIN_BLD_NS
 
@@ -718,6 +719,36 @@ void GameInterface::FinalizeSetup()
 			actorinfo->TypeNum = pair->Key;
 		}
 	}
+
+	auto getvar = [](PClassActor* cls, FName name)
+	{
+		auto sym = dyn_cast<PField>(cls->FindSymbol(name, true));
+		if (sym && (sym->Flags & VARF_Meta))
+		{
+			return sym->Offset;
+		}
+		I_Error("failed to get offset for %s", name.GetChars());
+	};
+	// set up some pointers to members to access the dudeinfo properties from the script
+	auto dudedef = PClass::FindActor("BloodDudeBase");
+
+	o_seqStartID = getvar(dudedef, "seqStartID");
+	o_Periphery = getvar(dudedef, "periphery");
+	o_SeeDist = getvar(dudedef, "seedist");
+	o_HearDist = getvar(dudedef, "heardist");
+	o_MeleeDist = getvar(dudedef, "meleedist");
+	o_TurnRange = getvar(dudedef, "turnrange");
+	o_FrontSpeed = getvar(dudedef, "frontspeed");
+	o_SideSpeed = getvar(dudedef, "sidespeed");
+	o_ClipDist = getvar(dudedef, "defclipdist");
+	o_startHealth = getvar(dudedef, "startHealth");
+	o_mass = getvar(dudedef, "mass");
+	o_eyeHeight = getvar(dudedef, "eyeHeight");
+	o_aimHeight = getvar(dudedef, "aimHeight");
+	o_fleeHealth = getvar(dudedef, "fleeHealth");
+	o_alertChance = getvar(dudedef, "alertchance");
+	o_lockout = getvar(dudedef, "lockout");
+
 }
 
 //---------------------------------------------------------------------------

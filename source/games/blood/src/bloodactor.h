@@ -5,6 +5,25 @@
 
 BEGIN_BLD_NS
 
+// access helpers to dudeinfo properties. We do not really want to go through the hashmap each time when reading them.
+inline size_t o_seqStartID;
+inline size_t o_Periphery;
+inline size_t o_SeeDist;
+inline size_t o_HearDist;
+inline size_t o_MeleeDist;
+inline size_t o_TurnRange;
+inline size_t o_FrontSpeed;
+inline size_t o_SideSpeed;
+inline size_t o_ClipDist;
+inline size_t o_startHealth;
+inline size_t o_mass;
+inline size_t o_eyeHeight;
+inline size_t o_aimHeight;
+inline size_t o_fleeHealth;
+inline size_t o_alertChance;
+inline size_t o_lockout;
+
+
 
 struct SPRITEHIT
 {
@@ -172,7 +191,106 @@ public:
 	{
 		return spr.lotag;
 	}
+
+
+	// dudeinfo helpers.
+	inline int seqStartID() const
+	{
+		return *(int*)(GetClass()->Meta + o_seqStartID);
+	}
+
+	inline int startHealth() const
+	{
+		return *(int*)(GetClass()->Meta + o_startHealth);
+	}
+
+	inline int mass() const
+	{
+		return *(int*)(GetClass()->Meta + o_mass);
+	}
+
+	inline int eyeHeight() const
+	{
+		return *(int*)(GetClass()->Meta + o_eyeHeight);
+	}
+
+	inline int aimHeight() const
+	{
+		return *(int*)(GetClass()->Meta + o_aimHeight);
+	}
+
+	inline int fleeHealth() const
+	{
+		return *(int*)(GetClass()->Meta + o_fleeHealth);
+	}
+
+	inline int alertChance() const
+	{
+		return *(int*)(GetClass()->Meta + o_alertChance);
+	}
+
+	inline int lockout() const
+	{
+		return *(int*)(GetClass()->Meta + o_lockout);
+	}
+
+	/*
+	int hinderDamage; // recoil damage
+	int changeTarget; // chance to change target when attacked someone else
+	int changeTargetKin; // chance to change target when attacked by same type
+	int backSpeed; // backward speed (unused)
+	*/
+
+
+	inline double HearDist() const
+	{
+		return *(double*)(GetClass()->Meta + o_HearDist);
+	}
+
+	inline double SeeDist() const
+	{
+		return *(double*)(GetClass()->Meta + o_SeeDist);
+	}
+
+	inline double MeleeDist() const
+	{
+		return *(double*)(GetClass()->Meta + o_MeleeDist);
+	}
+
+	inline DAngle Periphery() const
+	{
+		return *(DAngle*)(GetClass()->Meta + o_Periphery);
+	}
+
+	inline double FrontSpeed() const
+	{
+		return *(double*)(GetClass()->Meta + o_FrontSpeed);
+	}
+
+	inline int FrontSpeedFixed() const
+	{
+		return FloatToFixed(*(double*)(GetClass()->Meta + o_FrontSpeed));
+	}
+
+	inline double SideSpeed() const
+	{
+		return *(double*)(GetClass()->Meta + o_SideSpeed);
+	}
+
+	inline int SideSpeedFixed() const
+	{
+		return FloatToFixed(*(double*)(GetClass()->Meta + o_SideSpeed));
+	}
+
+	inline DAngle TurnRange() const
+	{
+		return *(DAngle*)(GetClass()->Meta + o_TurnRange);
+	}
+
+	double fClipDist() const { return clipdist * 0.25; }
+
 };
+
 
 class DBloodPlayer final : public DCorePlayer
 {

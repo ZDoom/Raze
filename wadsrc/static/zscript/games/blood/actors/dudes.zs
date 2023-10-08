@@ -18,7 +18,7 @@ class BloodDudeBase : Bloodactor
 	meta double frontSpeed;
 	meta double sideSpeed;
 	meta double backSpeed;
-	meta double angSpeed;
+	meta double turnRange;
 	meta int gibType[3]; // which gib used when explode dude
 	
 	property prefix: none;
@@ -40,7 +40,7 @@ class BloodDudeBase : Bloodactor
 	property frontSpeed: frontSpeed;
 	property sideSpeed: sideSpeed;
 	property backSpeed: backSpeed;
-	property angSpeed: angSpeed;
+	property turnRange: turnRange;
 	
 	
 	default
@@ -385,7 +385,7 @@ class BloodPlayerBase : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 11.25;
+		turnrange 11.25;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -419,7 +419,7 @@ class BloodDudeCultistTommy : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.21333313;
-		angspeed 45;
+		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
 	}
@@ -448,7 +448,7 @@ class BloodDudeCultistShotgun : BloodDudeBase
 		frontspeed 0.533325195;
 		sidespeed 0.533325195;
 		backspeed 0.21333313;
-		angspeed 45;
+		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 128, 256, 256, 256, 192;
 	}
@@ -477,7 +477,7 @@ class BloodDudeZombieAxeNormal : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 112, 256, 256, 256, 160;
 	}
@@ -506,7 +506,7 @@ class BloodDudeZombieButcher : BloodDudeBase
 		frontspeed 0.355545044;
 		sidespeed 0.355545044;
 		backspeed 0.21333313;
-		angspeed 45;
+		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 32, 128, 256, 64, 128;
 	}
@@ -535,7 +535,7 @@ class BloodDudeZombieAxeBuried : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
 	}
@@ -564,7 +564,7 @@ class BloodDudeGargoyleFlesh : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.355545044;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 30, -1, -1;
 		dmgcontrol 0, 128, 48, 208, 256, 256, 256;
 	}
@@ -593,7 +593,7 @@ class BloodDudeGargoyleStone : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.355545044;
-		angspeed 45;
+		turnrange 45;
 		gibtype 19, -1, -1;
 		dmgcontrol 0, 0, 10, 10, 0, 128, 64;
 	}
@@ -621,7 +621,7 @@ class BloodDudeGargoyleStatueFlesh : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 0;
+		turnrange 0;
 		gibtype -1, -1, -1;
 	}
 }
@@ -648,7 +648,7 @@ class BloodDudeGargoyleStatueStone : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 0;
+		turnrange 0;
 		gibtype -1, -1, -1;
 	}
 }
@@ -675,7 +675,7 @@ class BloodDudePhantasm : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype -1, -1, -1;
 		dmgcontrol 0, 0, 48, 0, 0, 16, 0;
 	}
@@ -702,7 +702,7 @@ class BloodDudeHellHound : BloodDudeBase
 		frontspeed 1.777771;
 		sidespeed 1.24443054;
 		backspeed 1.06666565;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 29, -1, -1;
 		dmgcontrol 48, 0, 48, 48, 256, 128, 192;
 	}
@@ -729,7 +729,7 @@ class BloodDudeHand : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 64, 256, 256, 256, 0, 64, 256;
 	}
@@ -757,7 +757,7 @@ class BloodDudeSpiderBrown : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 64, 256, 256, 96, 256, 64, 256;
 	}
@@ -785,7 +785,7 @@ class BloodDudeSpiderRed : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 64, 128, 256, 96, 256, 64, 256;
 	}
@@ -813,7 +813,7 @@ class BloodDudeSpiderBlack : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 128, 256, 256, 96, 256, 64, 256;
 	}
@@ -841,7 +841,7 @@ class BloodDudeSpiderMother : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 32, 16, 16, 16, 32, 32, 32;
 	}
@@ -870,7 +870,7 @@ class BloodDudeGillBeast : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 48, 80, 64, 128, 0, 128, 48;
 	}
@@ -897,7 +897,7 @@ class BloodDudeBoneEel : BloodDudeBase
 		frontspeed 0.533325195;
 		sidespeed 0.355545044;
 		backspeed 0.355545044;
-		angspeed 22.5;
+		turnrange 22.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 0, 256, 192;
 	}
@@ -924,7 +924,7 @@ class BloodDudeBat : BloodDudeBase
 		frontspeed 0.355545044;
 		sidespeed 0.355545044;
 		backspeed 0.21333313;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 64, 256;
 	}
@@ -951,7 +951,7 @@ class BloodDudeRat : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 128, 256;
 	}
@@ -977,7 +977,7 @@ class BloodDudePodGreen : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 160, 160, 128, 160, 0, 0, 256;
 	}
@@ -1002,7 +1002,7 @@ class BloodDudeTentacleGreen : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 80, 0, 0, 256;
 	}
@@ -1028,7 +1028,7 @@ class BloodDudePodFire : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 96, 0, 128, 64, 256, 64, 160;
 	}
@@ -1053,7 +1053,7 @@ class BloodDudeTentacleFire : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 128, 0, 128, 128, 0, 0, 128;
 	}
@@ -1079,7 +1079,7 @@ class BloodDudePodMother : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 0;
+		turnrange 0;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1104,7 +1104,7 @@ class BloodDudeTentacleMother : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 0;
+		turnrange 0;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 128, 256, 128, 128, 256;
 	}
@@ -1131,7 +1131,7 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		frontspeed 1.06666565;
 		sidespeed 0.888885498;
 		backspeed 0.711105347;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
 	}
@@ -1158,7 +1158,7 @@ class BloodDudeCerberusOneHead : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.533325195;
 		backspeed 0.391098022;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
 	}
@@ -1185,7 +1185,7 @@ class BloodDudeTchernobog : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.888885498;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 3, 1, 4, 4, 0, 4, 3;
 	}
@@ -1212,7 +1212,7 @@ class BloodDudeCultistTommyProne : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
 	}
@@ -1270,7 +1270,7 @@ class BloodDudeBurningInnocent : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 28.125;
+		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1296,7 +1296,7 @@ class BloodDudeBurningCultist : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.21333313;
-		angspeed 28.125;
+		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1324,7 +1324,7 @@ class BloodDudeBurningZombieAxe : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 28.125;
+		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1352,7 +1352,7 @@ class BloodDudeBurningZombieButcher : BloodDudeBase
 		frontspeed 0.604431152;
 		sidespeed 0.42666626;
 		backspeed 0.21333313;
-		angspeed 17.578125;
+		turnrange 17.578125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1380,7 +1380,7 @@ class BloodDudeCultistReserved : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 11.25;
+		turnrange 11.25;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1409,7 +1409,7 @@ class BloodDudeZombieAxeLaying : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
 	}
@@ -1438,7 +1438,7 @@ class BloodDudeInnocent : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 288, 288, 288, 288, 288, 288, 288;
 	}
@@ -1465,7 +1465,7 @@ class BloodDudeCultistShotgunProne : BloodDudeBase
 		frontspeed 0;
 		sidespeed 0;
 		backspeed 0;
-		angspeed 11.25;
+		turnrange 11.25;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1494,7 +1494,7 @@ class BloodDudeCultistTesla : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.21333313;
-		angspeed 45;
+		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 160, 256, 256, 12;
 	}
@@ -1523,7 +1523,7 @@ class BloodDudeCultistTNT : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.21333313;
-		angspeed 45;
+		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 160, 96, 64, 256, 256, 256;
 	}
@@ -1552,7 +1552,7 @@ class BloodDudeCultistBeast : BloodDudeBase
 		frontspeed 0.711105347;
 		sidespeed 0.533325195;
 		backspeed 0.21333313;
-		angspeed 45;
+		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 128, 128, 16, 16, 0, 64, 48;
 	}
@@ -1579,7 +1579,7 @@ class BloodDudeTinyCaleb : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 160, 160, 160, 160, 256, 128, 288;
 	}
@@ -1608,7 +1608,7 @@ class BloodDudeBeast : BloodDudeBase
 		frontspeed 1.777771;
 		sidespeed 1.24443054;
 		backspeed 1.06666565;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 5, 5, 15, 8, 0, 15, 15;
 	}
@@ -1635,7 +1635,7 @@ class BloodDudeBurningTinyCaleb : BloodDudeBase
 		frontspeed 0.888885498;
 		sidespeed 0.711105347;
 		backspeed 0.533325195;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}
@@ -1664,7 +1664,7 @@ class BloodDudeBurningBeast : BloodDudeBase
 		frontspeed 1.777771;
 		sidespeed 1.24443054;
 		backspeed 1.06666565;
-		angspeed 67.5;
+		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 	}

@@ -144,7 +144,6 @@ class BloodPlayer : CorePlayer native
 
     native readonly BloodActor actor;
 
-	//DUDEINFO*       pDudeInfo;
 	//PlayerHorizon   horizon;
 	//PlayerAngle     angle;
 	native uint8      newWeapon;
