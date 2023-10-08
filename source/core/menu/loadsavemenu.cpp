@@ -117,7 +117,7 @@ void FSavegameManager::PerformSaveGame(const char *f, const char *s)
 
 FString FSavegameManager::BuildSaveName(const char* fn, int slot)
 {
-	return G_BuildSaveName(FStringf("%s%04d", fn, slot));
+	return G_BuildSaveName(FStringf("%s%04d", fn, slot).GetChars());
 }
 
 //=============================================================================

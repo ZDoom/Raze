@@ -59,7 +59,7 @@ FGameTexture* GetSkyTexture(FTextureID baseid, int lognumtiles, const int16_t *t
 	{
 		synthname += 'A' + tilemap[i];
 	};
-	auto tex = TexMan.FindGameTexture(synthname);
+	auto tex = TexMan.FindGameTexture(synthname.GetChars());
 	if (tex) return tex;
 	auto basetex = TexMan.GetGameTexture(baseid);
 	auto scalex = basetex->GetScaleX();
@@ -76,7 +76,7 @@ FGameTexture* GetSkyTexture(FTextureID baseid, int lognumtiles, const int16_t *t
 		build[i].OriginX = tilewidth * i;
 		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
 	}
-	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, basetex->GetTexelHeight(), build, false, false)), synthname, ETextureType::Override);
+	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, basetex->GetTexelHeight(), build, false, false)), synthname.GetChars(), ETextureType::Override);
 	tt->SetScale(scalex, scaley);
 	tt->SetUpscaleFlag(basetex->GetUpscaleFlag(), true);
 	TexMan.AddGameTexture(tt, true);

@@ -678,7 +678,7 @@ int DoSumoDeathMelt(DSWActor* actor)
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
-        PlaySong(currentLevel->music, currentLevel->cdSongId);
+        PlaySong(currentLevel->music.GetChars(), currentLevel->cdSongId);
     }
 
     BossSpriteNum[1] = nullptr; // Sprite is gone, set it back to keep it valid!
@@ -745,7 +745,7 @@ void BossHealthMeter(void)
                     bosswasseen[0] = true;
                     if (!SW_SHAREWARE)
                     {
-                        PlaySong(ThemeSongs[2], ThemeTrack[2], true);
+                        PlaySong(ThemeSongs[2].GetChars(), ThemeTrack[2], true);
                     }
                 }
                 else if (i == 1 && !bosswasseen[1])
@@ -753,7 +753,7 @@ void BossHealthMeter(void)
                     bosswasseen[1] = true;
                     if (!SW_SHAREWARE)
                     {
-                        PlaySong(ThemeSongs[3], ThemeTrack[3], true);
+                        PlaySong(ThemeSongs[3].GetChars(), ThemeTrack[3], true);
                     }
                 }
                 else if (i == 2 && !bosswasseen[2])
@@ -761,7 +761,7 @@ void BossHealthMeter(void)
                     bosswasseen[2] = true;
                     if (!SW_SHAREWARE)
                     {
-                        PlaySong(ThemeSongs[4], ThemeTrack[4], true);
+                        PlaySong(ThemeSongs[4].GetChars(), ThemeTrack[4], true);
                     }
                 }
             }

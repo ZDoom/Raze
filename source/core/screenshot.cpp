@@ -54,7 +54,7 @@ static FileWriter *opennextfile(const char *fn)
     {
 		name.Format(fn, count++);
     } while (FileExists(name));
-    return FileWriter::Open(name);
+    return FileWriter::Open(name.GetChars());
 }
 
 
@@ -70,7 +70,7 @@ static void WritePNGfile(FileWriter* file, const uint8_t* buffer, const PalEntry
 {
 	FStringf software(GAMENAME " %s", GetVersionString());
 	if (!M_CreatePNG(file, buffer, palette, color_type, width, height, pitch, gamma) ||
-		!M_AppendPNGText(file, "Software", software) ||
+		!M_AppendPNGText(file, "Software", software.GetChars()) ||
 		!M_FinishPNG(file))
 	{
 		Printf("Failed writing screenshot\n");
@@ -101,13 +101,13 @@ static int SaveScreenshot()
 			autoname += '/';
 		}
 	}
-	autoname = NicePath(autoname);
-	CreatePath(autoname);
+	autoname = NicePath(autoname.GetChars());
+	CreatePath(autoname.GetChars());
 
 	if (**screenshotname) autoname << screenshotname;
 	else autoname << currentGame;
 	autoname << "_%04d.png";
-    FileWriter *fil = opennextfile(autoname);
+    FileWriter *fil = opennextfile(autoname.GetChars());
 
 	if (fil == nullptr)
     {

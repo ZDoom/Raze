@@ -304,7 +304,7 @@ void TextOverlay::Create(const FString& text, int pal)
 {
     lastclock = 0;
     FString ttext = GStrings(text);
-    font = PickSmallFont(ttext);
+    font = PickSmallFont(ttext.GetChars());
     screentext = ttext.Split("\n");
     ComputeCinemaText();
 }
@@ -343,7 +343,7 @@ void TextOverlay::DisplayText()
         while (i < screentext.Size() && y <= 199)
         {
             if (y >= -10)
-                DrawText(twod, font, CR_NATIVEPAL, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
+                DrawText(twod, font, CR_NATIVEPAL, nLeft[i], y, screentext[i].GetChars(), DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
 
             i++;
             y += 10;

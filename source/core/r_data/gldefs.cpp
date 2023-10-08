@@ -78,7 +78,7 @@ static void do_uniform_set(float value, ExtraUniformCVARData* data)
 		for (unsigned int i = 0; i < PostProcessShaders.Size(); i++)
 		{
 			PostProcessShader& shader = PostProcessShaders[i];
-			if (strcmp(shader.Name, data->Shader) == 0)
+			if (shader.Name.Compare(data->Shader) == 0)
 			{
 				data->vec4 = shader.Uniforms[data->Uniform].Values;
 			}
@@ -1559,7 +1559,7 @@ class GLDefsParser
 						}
 						sc.MustGetString();
 						cvarname = sc.String;
-						cvar = FindCVar(cvarname, NULL);
+						cvar = FindCVar(cvarname.GetChars(), NULL);
 
 						UCVarValue oldval;
 						UCVarValue val;
@@ -1577,7 +1577,7 @@ class GLDefsParser
 						{
 							if (!cvar)
 							{
-								cvar = C_CreateCVar(cvarname, cvartype, cvarflags);
+								cvar = C_CreateCVar(cvarname.GetChars(), cvartype, cvarflags);
 							}
 							else if (cvar && (((cvar->GetFlags()) & CVAR_MOD) == CVAR_MOD))
 							{
@@ -1598,7 +1598,7 @@ class GLDefsParser
 								oldval.Float = cvar->GetGenericRep(CVAR_Float).Float;
 								oldextra = (ExtraUniformCVARData*)cvar->GetExtraDataPointer();
 								delete cvar;
-								cvar = C_CreateCVar(cvarname, cvartype, cvarflags);
+								cvar = C_CreateCVar(cvarname.GetChars(), cvartype, cvarflags);
 							}
 
 							shaderdesc.Uniforms[uniformName].Values[0] = oldval.Float;

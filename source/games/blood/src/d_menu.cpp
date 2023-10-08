@@ -185,7 +185,7 @@ DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, LoadQav)
 {
 	PARAM_PROLOGUE;
 	PARAM_STRING(str);
-	auto qav = new CGameMenuItemQAV(160, 100, str, false, true);
+	auto qav = new CGameMenuItemQAV(160, 100, str.GetChars(), false, true);
 	ACTION_RETURN_POINTER(qav);
 }
 

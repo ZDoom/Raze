@@ -166,7 +166,7 @@ static void fixSeqs()
 static int addSeq(const char *seqName)
 {
     const FStringf seqfilename("%s.seq", seqName);
-    const auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename), true);
+    const auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(seqfilename.GetChars()), true);
 
     if (!hFile.isOpen())
     {

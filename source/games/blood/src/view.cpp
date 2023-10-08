@@ -743,7 +743,7 @@ void viewDrawScreen(bool sceneonly)
 	else if (pPlayer->pnum != myconnectindex)
 	{
 		FStringf gTempStr("] %s [", PlayerName(pPlayer->pnum));
-		viewDrawText(OriginalSmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
+		viewDrawText(OriginalSmallFont, gTempStr.GetChars(), 160, 10, 0, 0, 1, 0);
 	}
 	if (cl_interpolate)
 	{

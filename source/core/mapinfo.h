@@ -158,18 +158,18 @@ struct MapRecord
 	const char* LabelName() const
 	{
 		if (flags & MI_USERMAP) return GStrings("MNU_USERMAP");
-		return labelName;
+		return labelName.GetChars();
 	}
 	const char *DisplayName() const
 	{
-		if (name.IsEmpty()) return labelName;
-		return GStrings.localize(name);
+		if (name.IsEmpty()) return labelName.GetChars();
+		return GStrings.localize(name.GetChars());
 	}
 	void SetName(const char *n)
 	{
 		name = n;
 		name.StripRight();
-		name = FStringTable::MakeMacro(name);
+		name = FStringTable::MakeMacro(name.GetChars());
 	}
 	void SetFileName(const char* n)
 	{

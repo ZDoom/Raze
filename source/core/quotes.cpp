@@ -44,7 +44,7 @@
 void Quotes::MakeStringLabel(FString &quote)
 {
 	// Only prepend a quote if the string is localizable.
-	if (quote.Len() > 0 && quote[0] != '$' && GStrings[quote]) quote.Insert(0, "$");
+	if (quote.Len() > 0 && quote[0] != '$' && GStrings[quote.GetChars()]) quote.Insert(0, "$");
 }
 
 void Quotes::InitializeQuote(int num, const char *text, bool fromscript)
@@ -59,9 +59,9 @@ void Quotes::InitializeQuote(int num, const char *text, bool fromscript)
 void Quotes::AppendQuote(int dst, int src, int len)
 {
 	// This needs to apply the localization because the combined string is not localizable anymore.
-	if (quotes[dst][0] == '$') quotes[dst] = GStrings.localize(quotes[dst]);
-	if (len < 0) quotes[dst] << GStrings.localize(quotes[src]);
-	else quotes[dst] += FString(GStrings.localize(quotes[src]), len);
+	if (quotes[dst][0] == '$') quotes[dst] = GStrings.localize(quotes[dst].GetChars());
+	if (len < 0) quotes[dst] << GStrings.localize(quotes[src].GetChars());
+	else quotes[dst] += FString(GStrings.localize(quotes[src].GetChars()), len);
 }
 
 void Quotes::FormatQuote(int dst, const char* fmt, ...)
@@ -73,7 +73,7 @@ void Quotes::FormatQuote(int dst, const char* fmt, ...)
 
 void Quotes::Substitute(int dst, const char* text, const char* replc)
 {
-	if (quotes[dst][0] == '$') quotes[dst] = GStrings.localize(quotes[dst]);
+	if (quotes[dst][0] == '$') quotes[dst] = GStrings.localize(quotes[dst].GetChars());
 	quotes[dst].Substitute(text, replc);
 }
 

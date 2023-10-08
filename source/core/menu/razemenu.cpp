@@ -102,7 +102,7 @@ static bool DoStartGame(FNewGameStartup& gs)
 			return false;
 		}
 
-		map = FindMapByName(vol->startmap);
+		map = FindMapByName(vol->startmap.GetChars());
 		if (!map) return false;
 	}
 	else
@@ -156,7 +156,7 @@ bool M_SetSpecialMenu(FName& menu, int param)
 			M_ClearMenus();
 			int ep = NewGameStartupInfo.Episode;
 			auto vol = FindVolume(ep);
-			if (vol) STAT_StartNewGame(vol->name, NewGameStartupInfo.Skill);
+			if (vol) STAT_StartNewGame(vol->name.GetChars(), NewGameStartupInfo.Skill);
 		}
 		return false;
 
@@ -236,7 +236,7 @@ CCMD(menu_quit)
 	FString EndString;
 	EndString << GStrings("CONFIRM_QUITMSG") << "\n\n" << GStrings("PRESSYN");
 
-	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, false, NAME_None, []()
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, EndString.GetChars(), 0, false, NAME_None, []()
 		{
             M_ClearMenus();
 			gi->ExitFromMenu();
@@ -261,7 +261,7 @@ CCMD(menu_endgame)
 	M_StartControlPanel(true);
 	FString tempstring;
 	tempstring << GStrings("ENDGAME") << "\n\n" << GStrings("PRESSYN");
-	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring.GetChars(), 0, false, NAME_None, []()
 		{
 			STAT_Cancel();
 			M_ClearMenus();
@@ -301,7 +301,7 @@ CCMD(quicksave)
 	// [mxd]. Just save the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle);
+		G_SaveGame(savegameManager.quickSaveSlot->Filename.GetChars(), savegameManager.quickSaveSlot->SaveTitle.GetChars());
 		return;
 	}
 
@@ -309,10 +309,10 @@ CCMD(quicksave)
 	tempstring.Substitute("%s", slot->SaveTitle.GetChars());
 	M_StartControlPanel(true);
 
-	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring.GetChars(), 0, false, NAME_None, []()
 		{
 			M_ClearMenus();
-			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle);
+			G_SaveGame(savegameManager.quickSaveSlot->Filename.GetChars(), savegameManager.quickSaveSlot->SaveTitle.GetChars());
 		});
 
 	M_ActivateMenu(newmenu);
@@ -345,7 +345,7 @@ CCMD(quickload)
 	// [mxd]. Just load the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		G_LoadGame(savegameManager.quickSaveSlot->Filename);
+		G_LoadGame(savegameManager.quickSaveSlot->Filename.GetChars());
 		return;
 	}
 	FString tempstring = GStrings("QLPROMPT");
@@ -353,10 +353,10 @@ CCMD(quickload)
 
 	M_StartControlPanel(true);
 
-	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring.GetChars(), 0, false, NAME_None, []()
 		{
 			M_ClearMenus();
-			G_LoadGame(savegameManager.quickSaveSlot->Filename);
+			G_LoadGame(savegameManager.quickSaveSlot->Filename.GetChars());
 	});
 	M_ActivateMenu(newmenu);
 }
@@ -416,7 +416,7 @@ static void BuildEpisodeMenu()
 			{
 				bool isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && (vol.flags & VF_SHAREWARELOCK));
 				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, vol.name[0],
-					vol.name, ld->mFont, CR_UNTRANSLATED, int(isShareware), NAME_Skillmenu, vol.index); // font colors are not used, so hijack one for the shareware flag.
+					vol.name.GetChars(), ld->mFont, CR_UNTRANSLATED, int(isShareware), NAME_Skillmenu, vol.index); // font colors are not used, so hijack one for the shareware flag.
 
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
@@ -424,7 +424,7 @@ static void BuildEpisodeMenu()
 				if (vol.subtitle.IsNotEmpty())
 				{
 					auto item = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
-						vol.subtitle, SmallFont, CR_GRAY, false, NAME_None, vol.index);
+						vol.subtitle.GetChars(), SmallFont, CR_GRAY, false, NAME_None, vol.index);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(item);
 					textadded = true;
@@ -466,7 +466,7 @@ static void BuildEpisodeMenu()
 		{
 			if (gSkillNames[i].IsNotEmpty())
 			{
-				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], ld->mFont, CR_UNTRANSLATED, 0, NAME_Startgame, i);
+				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i].GetChars(), ld->mFont, CR_UNTRANSLATED, 0, NAME_Startgame, i);
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedSkills++;
@@ -661,7 +661,7 @@ CCMD(reset2defaults)
 CCMD(reset2saved)
 {
 	GameConfig->DoGlobalSetup();
-	GameConfig->DoGameSetup(currentGame);
+	GameConfig->DoGameSetup(currentGame.GetChars());
 }
 
 CCMD(menu_main)

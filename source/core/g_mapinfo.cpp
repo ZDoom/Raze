@@ -245,7 +245,7 @@ void FMapInfoParser::ParseConstants()
 		FString cname = sc.String;
 		ParseAssign();
 		sc.MustGetNumber(true);
-		sc.AddSymbol(cname, sc.Number);
+		sc.AddSymbol(cname.GetChars(), sc.Number);
 
 	} while (sc.CheckString(","));
 }
@@ -1141,7 +1141,7 @@ CCMD(mapinfo)
 	}
 	for (auto& map : mapList)
 	{
-		int lump = fileSystem.FindFile(map->fileName);
+		int lump = fileSystem.FindFile(map->fileName.GetChars());
 		if (lump >= 0)
 		{
 			Printf("map %s \"%s\"\n{\n", map->labelName.GetChars(), map->DisplayName());
@@ -1354,13 +1354,13 @@ MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 	}
 	else
 	{
-		map = FindMapByName(mapname);
+		map = FindMapByName(mapname.GetChars());
 		if (!map)
 		{
 			map = AllocateMap();
 			*map = defaultinfo;
 			DefaultExtension(mapname, ".map");
-			map->SetFileName(mapname);
+			map->SetFileName(mapname.GetChars());
 		}
 	}
 
@@ -1374,7 +1374,7 @@ MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 		if (map != &sink && map->name.IsEmpty()) sc.ScriptError("Missing level name");
 		sc.UnGet();
 	}
-	if (map->levelNumber <= 0) map->levelNumber = GetDefaultLevelNum(map->labelName);
+	if (map->levelNumber <= 0) map->levelNumber = GetDefaultLevelNum(map->labelName.GetChars());
 	return map;
 }
 

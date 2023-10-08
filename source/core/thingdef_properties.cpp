@@ -138,20 +138,21 @@ void ModActorFlag(DCoreActor *actor, FFlagDef *fd, bool set)
 //
 //==========================================================================
 
-bool ModActorFlag(DCoreActor *actor, const FString &flagname, bool set, bool printerror)
+bool ModActorFlag(DCoreActor *actor, const FString &flagnames, bool set, bool printerror)
 {
 	bool found = false;
 
 	if (actor != NULL)
 	{
+		auto flagname = flagnames.GetChars();
 		const char *dot = strchr(flagname, '.');
 		FFlagDef *fd;
 		PClassActor* cls = static_cast<PClassActor*>(actor->GetClass());
 
 		if (dot != NULL)
 		{
-			FString part1(flagname.GetChars(), dot - flagname);
-			fd = FindFlag(cls, part1, dot + 1);
+			FString part1(flagname, dot - flagname);
+			fd = FindFlag(cls, part1.GetChars(), dot + 1);
 		}
 		else
 		{
@@ -169,7 +170,7 @@ bool ModActorFlag(DCoreActor *actor, const FString &flagname, bool set, bool pri
 		}
 		else if (printerror)
 		{
-			DPrintf(DMSG_ERROR, "ACS/DECORATE: '%s' is not a flag in '%s'\n", flagname.GetChars(), cls->TypeName.GetChars());
+			DPrintf(DMSG_ERROR, "ACS/DECORATE: '%s' is not a flag in '%s'\n", flagname, cls->TypeName.GetChars());
 		}
 	}
 
@@ -217,7 +218,7 @@ INTBOOL CheckActorFlag(DCoreActor *owner, const char *flagname, bool printerror)
 	if (dot != NULL)
 	{
 		FString part1(flagname, dot-flagname);
-		fd = FindFlag (cls, part1, dot+1);
+		fd = FindFlag (cls, part1.GetChars(), dot+1);
 	}
 	else
 	{

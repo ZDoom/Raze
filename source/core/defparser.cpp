@@ -225,7 +225,7 @@ static void processTileImport(FScanner& sc, const char* cmd, FScriptPosition& po
 
 	imp.alphacut = clamp(imp.alphacut, 0, 255);
 
-	if (imp.fn.IsNotEmpty() && tileImportFromTexture(sc, imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
+	if (imp.fn.IsNotEmpty() && tileImportFromTexture(sc, imp.fn.GetChars(), imp.tile, imp.alphacut, imp.istexture) < 0) return;
 
 	tbuild->tile[imp.tile].extinfo.picanm.sf |= imp.flags;
 	if (imp.surface != INT_MAX) tbuild->tile[imp.tile].extinfo.surftype = imp.surface;
@@ -328,7 +328,7 @@ static void parseDefine(FScanner& sc, FScriptPosition& pos)
 	FString name;
 	if (!sc.GetString(name))  return;
 	if (!sc.GetNumber()) return;
-	sc.AddSymbol(name, sc.Number);
+	sc.AddSymbol(name.GetChars(), sc.Number);
 }
 
 //===========================================================================
@@ -389,7 +389,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 	{
 		if ((unsigned)pal >= MAXREALPAL) pos.Message(MSG_ERROR, "texture (%d): invalid palette number %d ", tile, pal);
 		else if (fn.IsEmpty()) pos.Message(MSG_ERROR, "texture (%d): missing file name in palette definition", tile);
-		else if (!fileSystem.FileExists(fn)) pos.Message(MSG_ERROR, "texture (%d): file '%s' not found in palette definition", tile, fn.GetChars());
+		else if (!fileSystem.FileExists(fn.GetChars())) pos.Message(MSG_ERROR, "texture (%d): file '%s' not found in palette definition", tile, fn.GetChars());
 		else
 		{
 			if (xsiz > 0 && ysiz > 0)
@@ -399,7 +399,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 			xscale = 1.0f / xscale;
 			yscale = 1.0f / yscale;
 
-			tileSetHightileReplacement(sc, tile, pal, fn, alphacut, xscale, yscale, specpower, specfactor, indexed);
+			tileSetHightileReplacement(sc, tile, pal, fn.GetChars(), alphacut, xscale, yscale, specpower, specfactor, indexed);
 		}
 	}
 }
@@ -426,7 +426,7 @@ static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 	if ((unsigned)tile < MAXUSERTILES)
 	{
 		if (fn.IsEmpty()) pos.Message(MSG_ERROR, "texture (%d): missing file name for layer definition", tile);
-		else if (!fileSystem.FileExists(fn)) pos.Message(MSG_ERROR, "texture (%d): file '%s' not found in layer definition", tile, fn.GetChars());
+		else if (!fileSystem.FileExists(fn.GetChars())) pos.Message(MSG_ERROR, "texture (%d): file '%s' not found in layer definition", tile, fn.GetChars());
 		else
 		{
 			if (pal == DETAILPAL)
@@ -435,7 +435,7 @@ static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 				yscale = 1.0f / yscale;
 			}
 
-			tileSetHightileReplacement(sc, tile, pal, fn, -1.f, xscale, yscale, specpower, specfactor);
+			tileSetHightileReplacement(sc, tile, pal, fn.GetChars(), -1.f, xscale, yscale, specpower, specfactor);
 		}
 	}
 }
@@ -912,7 +912,7 @@ static void parseVoxel(FScanner& sc, FScriptPosition& pos)
 		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
 		error = true;
 	}
-	else  if (voxDefine(tbuild->nextvoxid, fn))
+	else  if (voxDefine(tbuild->nextvoxid, fn.GetChars()))
 	{
 		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", fn.GetChars());
 		error = true;
@@ -1058,7 +1058,7 @@ static void parseMusic(FScanner& sc, FScriptPosition& pos)
 		if (sc.Compare("id")) sc.GetString(id);
 		else if (sc.Compare("file")) sc.GetString(file);
 	}
-	SetMusicReplacement(id, file);
+	SetMusicReplacement(id.GetChars(), file.GetChars());
 }
 
 //===========================================================================
@@ -1129,7 +1129,7 @@ static void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(resID)) return;
 	if (!sc.GetString()) return;
 	resName.AppendFormat(".%s", resType.GetChars());
-	fileSystem.CreatePathlessCopy(resName, resID, 0);
+	fileSystem.CreatePathlessCopy(resName.GetChars(), resID, 0);
 }
 
 //===========================================================================
@@ -1231,7 +1231,7 @@ static void parseHighpalookup(FScanner& sc, FScriptPosition& pos)
 	{
 		pos.Message(MSG_ERROR, "highpalookup: missing file name");
 	}
-	else if (!fileSystem.FileExists(fn))
+	else if (!fileSystem.FileExists(fn.GetChars()))
 	{
 		pos.Message(MSG_ERROR, "highpalookup: file %s not found", fn.GetChars());
 	}
@@ -1262,7 +1262,7 @@ static void parseDefineModel(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetFloat(scale, true)) return;
 	if (!sc.GetNumber(shadeoffs, true)) return;
 
-	mdglobal.lastmodelid = modelManager.LoadModel(modelfn);
+	mdglobal.lastmodelid = modelManager.LoadModel(modelfn.GetChars());
 	if (mdglobal.lastmodelid < 0)
 	{
 		pos.Message(MSG_WARNING, "definemodel: unable to load model file '%s'", modelfn.GetChars());
@@ -1300,7 +1300,7 @@ static void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
 	}
 	for (int i = firsttile; i <= lasttile && ok; i++)
 	{
-		int err = (modelManager.DefineFrame(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), 0.0f, 0));
+		int err = (modelManager.DefineFrame(mdglobal.lastmodelid, framename.GetChars(), i, max(0, mdglobal.modelskin), 0.0f, 0));
 		if (err < 0) ok = false; 
 		if (err == -2) pos.Message(MSG_ERROR, "Invalid tile number %d", i);
 		else if (err == -3) pos.Message(MSG_ERROR, "Invalid frame name '%s'", framename.GetChars());
@@ -1330,7 +1330,7 @@ static void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
 		pos.Message(MSG_WARNING, "definemodelframe: Ignoring animation definition outside model.");
 		return;
 	}
-	int err = (modelManager.DefineAnimation(mdglobal.lastmodelid, startframe, endframe, (int32_t)(dfps * (65536.0 * .001)), flags));
+	int err = (modelManager.DefineAnimation(mdglobal.lastmodelid, startframe.GetChars(), endframe.GetChars(), (int32_t)(dfps * (65536.0 * .001)), flags));
 	if (err == -2) pos.Message(MSG_ERROR, "Invalid start frame name %s", startframe.GetChars());
 	else if (err == -3) pos.Message(MSG_ERROR, "Invalid end frame name %s", endframe.GetChars());
 }
@@ -1352,9 +1352,9 @@ static void parseDefineModelSkin(FScanner& sc, FScriptPosition& pos)
 	if (mdglobal.seenframe) { mdglobal.modelskin = ++mdglobal.lastmodelskin; }
 	mdglobal.seenframe = 0;
 
-	if (!fileSystem.FileExists(skinfn)) return;
+	if (!fileSystem.FileExists(skinfn.GetChars())) return;
 
-	int err = (modelManager.DefineSkin(mdglobal.lastmodelid, skinfn, palnum, max(0, mdglobal.modelskin), 0, 0.0f, 1.0f, 1.0f, 0));
+	int err = (modelManager.DefineSkin(mdglobal.lastmodelid, skinfn.GetChars(), palnum, max(0, mdglobal.modelskin), 0, 0.0f, 1.0f, 1.0f, 0));
 	if (err == -2) pos.Message(MSG_ERROR, "Invalid skin file name %s", skinfn.GetChars());
 	else if (err == -3) pos.Message(MSG_ERROR, "Invalid palette %d", palnum);
 }
@@ -1441,7 +1441,7 @@ static bool parseModelFrameBlock(FScanner& sc, FixedBitArray<1024>& usedframes)
 	}
 	for (int i = starttile; i <= endtile && ok; i++)
 	{
-		int res = modelManager.DefineFrame(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), smoothduration, pal);
+		int res = modelManager.DefineFrame(mdglobal.lastmodelid, framename.GetChars(), i, max(0, mdglobal.modelskin), smoothduration, pal);
 		if (res < 0)
 		{
 			ok = false;
@@ -1484,7 +1484,7 @@ static bool parseModelAnimBlock(FScanner& sc)
 		return false;
 	}
 
-	int res = modelManager.DefineAnimation(mdglobal.lastmodelid, startframe, endframe, (int)(fps * (65536.0 * .001)), flags);
+	int res = modelManager.DefineAnimation(mdglobal.lastmodelid, startframe.GetChars(), endframe.GetChars(), (int)(fps * (65536.0 * .001)), flags);
 	if (res < 0)
 	{
 		if (res == -2) pos.Message(MSG_ERROR, "Invalid start frame name %s", startframe.GetChars());
@@ -1527,14 +1527,14 @@ static bool parseModelSkinBlock(FScanner& sc, int pal)
 	if (mdglobal.seenframe) mdglobal.modelskin = ++mdglobal.lastmodelskin;
 	mdglobal.seenframe = 0;
 
-	if (!fileSystem.FileExists(filename))
+	if (!fileSystem.FileExists(filename.GetChars()))
 	{
 		pos.Message(MSG_ERROR, "%s: file not found", filename.GetChars());
 		return false;
 	}
 
 	if (pal == DETAILPAL) param = 1.f / param;
-	int res = modelManager.DefineSkin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
+	int res = modelManager.DefineSkin(mdglobal.lastmodelid, filename.GetChars(), pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
 	if (res < 0)
 	{
 		if (res == -2) pos.Message(MSG_ERROR, "Invalid skin filename %s", filename.GetChars());
@@ -1602,7 +1602,7 @@ static void parseModel(FScanner& sc, FScriptPosition& pos)
 
 	if (sc.StartBraces(&blockend)) return;
 
-	mdglobal.lastmodelid = modelManager.LoadModel(modelfn);
+	mdglobal.lastmodelid = modelManager.LoadModel(modelfn.GetChars());
 	if (mdglobal.lastmodelid < 0)
 	{
 		pos.Message(MSG_WARNING, "Unable to load model file '%s'", modelfn.GetChars());
@@ -1695,14 +1695,14 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int res_id,
 			if (temparray.Size() == 2)
 			{
 				// Test if keywords 'first' and 'last' have been used.'
-				output.Push(temparray[0].CompareNoCase("first") == 0 ? 0 : atoi(temparray[0]));
-				output.Push(temparray[1].CompareNoCase("last") == 0 ? maxvalue : atoi(temparray[1]));
+				output.Push(temparray[0].CompareNoCase("first") == 0 ? 0 : atoi(temparray[0].GetChars()));
+				output.Push(temparray[1].CompareNoCase("last") == 0 ? maxvalue : atoi(temparray[1].GetChars()));
 			}
 		}
 		else
 		{
 			// We just have a number. Convert the string into an int and push it twice to the output array.
-			auto tempvalue = atoi(input);
+			auto tempvalue = atoi(input.GetChars());
 			for (auto i = 0; i < 2; i++) output.Push(tempvalue);
 		}
 		if (output.Size() != 2 || output[0] > output[1] || output[0] < 0 || output[1] > maxvalue)
@@ -1801,7 +1801,7 @@ static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 
 			// Test file's validity.
 			FixPathSeperator(fn);
-			auto lump = fileSystem.FindFile(fn);
+			auto lump = fileSystem.FindFile(fn.GetChars());
 			if (lump < 0)
 			{
 				pos.Message(MSG_ERROR, "defineqav (%d): file '%s' could not be found", res_id, fn.GetChars());
@@ -1829,7 +1829,7 @@ static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 	if (!interpolate) gi->RemoveQAVInterpProps(res_id);
 
 	// Add new file to filesystem.
-	fileSystem.CreatePathlessCopy(fn, res_id, 0);
+	fileSystem.CreatePathlessCopy(fn.GetChars(), res_id, 0);
 }
 
 //===========================================================================

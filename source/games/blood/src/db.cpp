@@ -96,7 +96,7 @@ unsigned int dbReadMapCRC(const char* pPath)
 {
 	FString mapname = pPath;
 	DefaultExtension(mapname, ".map");
-	auto fr = fileSystem.OpenFileReader(mapname);
+	auto fr = fileSystem.OpenFileReader(mapname.GetChars());
 
 	if (!fr.isOpen())
 	{
@@ -153,7 +153,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 
 	FString mapname = pPath;
 	DefaultExtension(mapname, ".map");
-	auto fr = fileSystem.OpenFileReader(mapname);
+	auto fr = fileSystem.OpenFileReader(mapname.GetChars());
 
 	if (!fr.isOpen())
 	{
@@ -615,7 +615,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 	uint8_t md4[16];
 	md4once(buffer.data(), (unsigned)buffer.size(), md4);
 	PostProcessLevel(md4, mapname, sprites);
-	loadMapHack(mapname, md4, sprites);
+	loadMapHack(mapname.GetChars(), md4, sprites);
 
 	if (CalcCRC32(buffer.data(), (unsigned)buffer.size() - 4) != nCRC)
 	{

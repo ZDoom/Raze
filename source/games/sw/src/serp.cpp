@@ -790,7 +790,7 @@ int DoDeathSpecial(DSWActor* actor)
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
-        PlaySong(currentLevel->music, currentLevel->cdSongId);
+        PlaySong(currentLevel->music.GetChars(), currentLevel->cdSongId);
     }
 
     BossSpriteNum[0] = nullptr;

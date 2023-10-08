@@ -683,7 +683,7 @@ void ParseScript(int lumpnum)
 				// check if this was defined via command prompt arguments
 				for (int i = 0; i < nCmdDefines; i++)
 				{
-					if (stricmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
+					if (gCmdDefines[i]._text.CompareNoCase(char256_1) == 0) { // string is equivalent
 						bGotDefine = true;
 						break;
 					}

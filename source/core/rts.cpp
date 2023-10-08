@@ -82,7 +82,7 @@ bool RTS_IsInitialized()
 {
 	if (LumpInfo.Size() > 0) return true;
 	if (RTSName.IsEmpty()) return false;
-	auto fr = fileSystem.OpenFileReader(RTSName);
+	auto fr = fileSystem.OpenFileReader(RTSName.GetChars());
 	RTSName = "";	// don't try ever again.
 	if (!fr.isOpen()) return false;
 	RTSFile.Resize((unsigned)fr.GetLength());
@@ -120,8 +120,8 @@ bool RTS_IsInitialized()
 		if (li.size > 0)
 		{
 			FStringf rts("rts%02d", i);
-			int lump = fileSystem.AddFromBuffer(rts, "rts", (char*)RTSFile.Data() + li.position, li.size, -1, 0);
-			li.sid = soundEngine->AddSoundLump(rts, lump, 0, -1);
+			int lump = fileSystem.AddFromBuffer(rts.GetChars(), "rts", (char*)RTSFile.Data() + li.position, li.size, -1, 0);
+			li.sid = soundEngine->AddSoundLump(rts.GetChars(), lump, 0, -1);
 		}
 	}
 	return false;

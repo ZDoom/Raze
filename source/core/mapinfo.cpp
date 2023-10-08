@@ -59,7 +59,7 @@ CCMD(listmaps)
 {
 	for (auto& map : mapList)
 	{
-		int lump = fileSystem.FindFile(map->fileName);
+		int lump = fileSystem.FindFile(map->fileName.GetChars());
 		if (lump >= 0)
 		{
 			int rfnum = fileSystem.GetFileContainer(lump);
@@ -156,7 +156,7 @@ MapRecord* FindNextMap(MapRecord* thismap)
 {
 	MapRecord* next = nullptr;
 	if (!thismap->NextMap.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
-	if (thismap->NextMap.IsNotEmpty()) next = FindMapByName(thismap->NextMap);
+	if (thismap->NextMap.IsNotEmpty()) next = FindMapByName(thismap->NextMap.GetChars());
 	if (!next) next = FindMapByLevelNum(thismap->levelNumber + 1);
 	return next;
 }
@@ -165,7 +165,7 @@ MapRecord* FindNextSecretMap(MapRecord* thismap)
 {
 	MapRecord* next = nullptr;
 	if (!thismap->NextSecret.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
-	if (thismap->NextSecret.IsNotEmpty()) next = FindMapByName(thismap->NextSecret);
+	if (thismap->NextSecret.IsNotEmpty()) next = FindMapByName(thismap->NextSecret.GetChars());
 	return next? next : FindNextMap(thismap);
 }
 
@@ -182,7 +182,7 @@ void ReplaceMusics(bool namehack)
 	{
 		FString mapname = pair->Key;
 		FString music = pair->Value;
-		SetMusicForMap(mapname, music, namehack);
+		SetMusicForMap(mapname.GetChars(), music.GetChars(), namehack);
 	}
 	musicReplacements.Clear();
 }
