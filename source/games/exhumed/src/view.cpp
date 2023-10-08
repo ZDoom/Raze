@@ -224,7 +224,7 @@ void DrawView(double interpfrac, bool sceneonly)
                     if (bSubTitles)
                     {
                         subtitleOverlay.Start(I_GetTimeNS() * (120. / 1'000'000'000));
-                        subtitleOverlay.ReadyCinemaText(currentLevel->ex_ramses_text);
+                        subtitleOverlay.ReadyCinemaText(currentLevel->ex_ramses_text.GetChars());
                     }
                     inputState.ClearAllInput();
                     gameInput.Clear();

@@ -280,11 +280,11 @@ void StartLevel(MapRecord* level, bool newgame)
 	//drawLoadingScreen();
 	BloodSpawnSpriteDef sprites;
 	DVector3 startpos;
-	dbLoadMap(currentLevel->fileName, startpos, &startang, &startsector, nullptr, sprites);
+	dbLoadMap(currentLevel->fileName.GetChars(), startpos, &startang, &startsector, nullptr, sprites);
 	auto startangle = mapangle(startang);
-	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-	STAT_NewLevel(currentLevel->fileName);
-	TITLE_InformName(currentLevel->name);
+	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name.GetChars());
+	STAT_NewLevel(currentLevel->fileName.GetChars());
+	TITLE_InformName(currentLevel->name.GetChars());
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
 	gHitInfo.hitSector = nullptr;
 	gHitInfo.hitWall = nullptr;
@@ -760,7 +760,7 @@ DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
 	PARAM_STRING(id);
 	PARAM_INT(vol);
 	PARAM_INT(chan);
-	sndStartSample(id, vol, chan);
+	sndStartSample(id.GetChars(), vol, chan);
 	return 0;
 }
 

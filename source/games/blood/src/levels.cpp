@@ -65,7 +65,7 @@ static IniFile* levelInitINI(const char* pzIni)
 static void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSection, int epinum, int mapnum, int* nextmap, int* nextsecret)
 {
 	char buffer[16];
-	pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
+	pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName.GetChars()));
 	pLevelInfo->Author = pIni->GetKeyString(pzSection, "Author", "");
 	pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", "");
 	if (pLevelInfo->music.IsNotEmpty()) DefaultExtension(pLevelInfo->music, ".mid");
@@ -102,14 +102,14 @@ static const char* DefFile(void)
 			FString ext = fn.Right(4);
 			if (ext.CompareNoCase(".ini") == 0)
 			{
-				if (fileSystem.CheckNumForFullName(fn) != i) continue;
+				if (fileSystem.CheckNumForFullName(fn.GetChars()) != i) continue;
 				if (found == -1)
 				{
-					IniFile inif(fn);
+					IniFile inif(fn.GetChars());
 					for (int j = 1; j <= 6; j++)
 					{
 						FStringf key("Episode%d", j);
-						if (inif.SectionExists(key))
+						if (inif.SectionExists(key.GetChars()))
 						{
 							found = i;
 							break;
@@ -139,18 +139,18 @@ static FString cleanPath(const char* pth)
 {
 	FString path = pth;
 	FixPathSeperator(path);
-	if (fileSystem.FileExists(path)) return path;
+	if (fileSystem.FileExists(path.GetChars())) return path;
 	if (path.Len() > 3 && path[1] == ':' && isalpha((uint8_t)path[0]) && path[2] == '/')
 	{
 		path = path.Mid(3);
-		if (fileSystem.FileExists(path)) return path;
+		if (fileSystem.FileExists(path.GetChars())) return path;
 	}
 	// optionally strip the first path component to account for poor logic of the DOS EXE.
 	auto pos = path.IndexOf("/");
 	if (pos >= 0)
 	{
 		auto npath = path.Mid(pos + 1);
-		if (fileSystem.FileExists(npath)) return npath;
+		if (fileSystem.FileExists(npath.GetChars())) return npath;
 	}
 	return path;
 }
@@ -182,7 +182,7 @@ void levelLoadDefaults(void)
 		CutsceneDef& csB = cluster->outro;
 		FString ep_str = pIni->GetKeyString(buffer, "Title", buffer);
 		ep_str.StripRight();
-		cluster->name = volume->name = FStringTable::MakeMacro(ep_str);
+		cluster->name = volume->name = FStringTable::MakeMacro(ep_str.GetChars());
 		if (i > 1) volume->flags |= VF_SHAREWARELOCK;
 		if (pIni->GetKeyInt(buffer, "BloodBathOnly", 0)) volume->flags |= VF_HIDEFROMSP;
 
@@ -274,10 +274,10 @@ void levelTryPlayMusic()
 	else
 	{
 		buffer = currentLevel->music;
-		if (Mus_Play(buffer, true)) return;
+		if (Mus_Play(buffer.GetChars(), true)) return;
 		if (buffer.IsNotEmpty()) DefaultExtension(buffer, ".mid");
 	}
-	if (!Mus_Play(buffer, true))
+	if (!Mus_Play(buffer.GetChars(), true))
 	{
 		Mus_Play("", true);
 	}

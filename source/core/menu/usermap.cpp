@@ -72,7 +72,7 @@ void InsertMap(int lumpnum)
 	current->entries.Last().filename = fileSystem.GetFileFullName(lumpnum);
 	current->entries.Last().container = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 	current->entries.Last().size = fileSystem.FileLength(lumpnum);
-	auto mapinfo = FindMapByName(StripExtension(path.Last()));
+	auto mapinfo = FindMapByName(StripExtension(path.Last().GetChars()).GetChars());
 	if (mapinfo) current->entries.Last().info = mapinfo->name;
 }
 
@@ -80,7 +80,7 @@ bool ValidateMap(int lumpnum)
 {
 	FString filename = fileSystem.GetFileFullName(lumpnum);
 
-	if (fileSystem.FindFile(filename) != lumpnum) return false;
+	if (fileSystem.FindFile(filename.GetChars()) != lumpnum) return false;
 	auto fr = fileSystem.OpenFileReader(lumpnum);
 	uint8_t check[4];
 	fr.Read(&check, 4);
@@ -143,7 +143,7 @@ void ReadUserMaps()
 void LoadMapPreview(FUsermapEntry* entry)
 {
 	if (entry->wallsread) return;
-	entry->walls = loadMapWalls(entry->filename);
+	entry->walls = loadMapWalls(entry->filename.GetChars());
 }
 
 void UnloadMapPreviews(FUsermapDirectory* dir)
@@ -257,7 +257,7 @@ DEFINE_ACTION_FUNCTION(_UsermapMenu, StartMap)
 	}
 	NewGameStartupInfo.Episode = -1;
 	NewGameStartupInfo.Level = -1;
-	NewGameStartupInfo.Map = SetupUserMap(entry->filename, g_gameType & GAMEFLAG_DUKE ? "dethtoll.mid" : nullptr);
+	NewGameStartupInfo.Map = SetupUserMap(entry->filename.GetChars(), g_gameType & GAMEFLAG_DUKE ? "dethtoll.mid" : nullptr);
 	M_SetMenu(NAME_Skillmenu, INT_MAX);
 	return 0;
 }

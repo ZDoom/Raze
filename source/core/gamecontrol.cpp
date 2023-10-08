@@ -475,7 +475,7 @@ void UserConfig::ProcessOptions()
 void CheckUserMap()
 {
 	if (userConfig.CommandMap.IsEmpty()) return;
-	if (FindMapByName(userConfig.CommandMap))
+	if (FindMapByName(userConfig.CommandMap.GetChars()))
 	{
 		return;	// we already got a record for this map so no need for further checks.
 	}
@@ -484,7 +484,7 @@ void CheckUserMap()
 	startupMap.Substitute("\\", "/");
 	NormalizeFileName(startupMap);
 
-	if (!fileSystem.FileExists(startupMap))
+	if (!fileSystem.FileExists(startupMap.GetChars()))
 	{
 		Printf(PRINT_HIGH, "Level \"%s\" not found.\n", startupMap.GetChars());
 		startupMap = "";
@@ -800,7 +800,7 @@ static TArray<GrpEntry> SetupGame()
 				for (unsigned i = 0; i < groups.Size(); ++i)
 				{
 					FString& basename = groups[i].FileInfo.name;
-					if (stricmp(basename, defaultiwad) == 0)
+					if (stricmp(basename.GetChars(), defaultiwad) == 0)
 					{
 						pick = i;
 						break;
@@ -814,7 +814,7 @@ static TArray<GrpEntry> SetupGame()
 				{
 					WadStuff stuff;
 					stuff.Name = found.FileInfo.name;
-					stuff.Path = ExtractFileBase(found.FileName);
+					stuff.Path = ExtractFileBase(found.FileName.GetChars());
 					wads.Push(stuff);
 				}
 
@@ -832,7 +832,7 @@ static TArray<GrpEntry> SetupGame()
 					autoloadbrightmaps = !!(flags & 4);
 					autoloadwidescreen = !!(flags & 8);
 					// The newly selected IWAD becomes the new default
-					defaultiwad = groups[pick].FileInfo.name;
+					defaultiwad = groups[pick].FileInfo.name.GetChars();
 				}
 				groupno = pick;
 			}
@@ -869,7 +869,7 @@ static TArray<GrpEntry> SetupGame()
 		if (ugroup.FileInfo.defname.IsNotEmpty()) selectedDef = ugroup.FileInfo.defname;
 
 		// CVAR has priority. This also overwrites the global variable each time. Init here is lazy so this is ok.
-		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname);
+		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname.GetChars());
 
 		// For the game filter the last non-empty one wins.
 		if (ugroup.FileInfo.gamefilter.IsNotEmpty()) LumpFilter = ugroup.FileInfo.gamefilter;
@@ -1041,7 +1041,7 @@ int RunGame()
 
 	if (logfile.IsNotEmpty())
 	{
-		execLogfile(logfile);
+		execLogfile(logfile.GetChars());
 	}
 	I_DetectOS();
 	userConfig.ProcessOptions();
@@ -1096,7 +1096,7 @@ int RunGame()
 		am_nameontop->SetGenericRepDefault(true, CVAR_Bool);	// Blood and RR show the map name on the top of the screen by default.
 	}
 
-	G_ReadConfig(currentGame);
+	G_ReadConfig(currentGame.GetChars());
 
 	V_InitFontColors();
 	InitLanguages();
@@ -1119,7 +1119,7 @@ int RunGame()
 
 	if (userConfig.CommandName.IsNotEmpty())
 	{
-		playername = userConfig.CommandName;
+		playername = userConfig.CommandName.GetChars();
 	}
 	GameTicRate = 30;
 	CheckUserMap();
@@ -1317,7 +1317,7 @@ FString G_GetDemoPath()
 	FString path = M_GetDemoPath();
 
 	path << LumpFilter << '/';
-	CreatePath(path);
+	CreatePath(path.GetChars());
 
 	return path;
 }
@@ -1642,7 +1642,7 @@ void I_UpdateWindowTitle()
 
 	// Strip out any color escape sequences before setting a window title
 	TArray<char> copy(titlestr.Len() + 1);
-	const char* srcp = titlestr;
+	const char* srcp = titlestr.GetChars();
 	char* dstp = copy.Data();
 
 	while (*srcp != 0)

@@ -202,7 +202,7 @@ int compare_episode_names(const void *a, const void *b)
 	FStatistics *A = (FStatistics*)a;
 	FStatistics *B = (FStatistics*)b;
 
-	return strnatcasecmp(A->epi_header, B->epi_header);
+	return strnatcasecmp(A->epi_header.GetChars(), B->epi_header.GetChars());
 }
 
 int compare_level_names(const void *a, const void *b)
@@ -298,7 +298,7 @@ static FStatistics *GetStatisticsList(TArray<FStatistics> &statlist, const char 
 {
 	for(unsigned int i=0;i<statlist.Size();i++)
 	{
-		if (!stricmp(section, statlist[i].epi_header)) 
+		if (!stricmp(section, statlist[i].epi_header.GetChars()))
 		{
 			return &statlist[i];
 		}
@@ -421,23 +421,23 @@ static void StoreLevelStats()
 
 void STAT_Update(bool endofgame)
 {
-	if (*StartEpisode == 0 || *LevelName == 0) return;
+	if (StartEpisode.IsEmpty() || LevelName.IsEmpty()) return;
 	const char* fn = "?";
 	// record the current level's stats.
 	StoreLevelStats();
 
 	if (savestatistics == 1 && endofgame)
 	{
-		auto lump = fileSystem.FindFile(LevelName);
+		auto lump = fileSystem.FindFile(LevelName.GetChars());
 		if (lump >= 0)
 		{
 			int file = fileSystem.GetFileContainer(lump);
 			fn = fileSystem.GetResourceFileName(file);
 		}
 
-		FString section = ExtractFileBase(fn) + "." + ExtractFileBase(LevelData[0].Levelname);
+		FString section = ExtractFileBase(fn) + "." + ExtractFileBase(LevelData[0].Levelname.GetChars());
 		section.ToUpper();
-		FStatistics* sl = GetStatisticsList(EpisodeStatistics, section, StartEpisode);
+		FStatistics* sl = GetStatisticsList(EpisodeStatistics, section.GetChars(), StartEpisode.GetChars());
 
 		int statvals[] = { 0,0,0,0, 0 };
 		FString infostring;
@@ -452,15 +452,15 @@ void STAT_Update(bool endofgame)
 		}
 
 		infostring.Format("%4d/%4d, %3d/%3d, %2d", statvals[0], statvals[1], statvals[2], statvals[3], validlevels);
-		FSessionStatistics* es = StatisticsEntry(sl, infostring, statvals[4]);
+		FSessionStatistics* es = StatisticsEntry(sl, infostring.GetChars(), statvals[4]);
 
 		for (unsigned i = 0; i < LevelData.Size(); i++)
 		{
-			FString lsection = ExtractFileBase(LevelData[i].Levelname);
+			FString lsection = ExtractFileBase(LevelData[i].Levelname.GetChars());
 			lsection.ToUpper();
 			infostring.Format("%4d/%4d, %3d/%3d", LevelData[i].killcount, LevelData[i].totalkills, LevelData[i].secretcount, LevelData[i].totalsecrets);
 			if (LevelData[i].supersecrets > 0) infostring.AppendFormat(":%d", LevelData[i].supersecrets);
-			LevelStatEntry(es, lsection, infostring, LevelData[i].leveltime);
+			LevelStatEntry(es, lsection.GetChars(), infostring.GetChars(), LevelData[i].leveltime);
 		}
 		SaveStatistics(statfile, EpisodeStatistics);
 		LevelData.Clear();
@@ -548,14 +548,14 @@ FString GetStatString()
 
 CCMD(printstats)
 {
-	if (*StartEpisode == 0 || *LevelName == 0) return;
+	if (StartEpisode.IsEmpty() || LevelName.IsEmpty()) return;
 	StoreLevelStats();	// Refresh the current level's results.
 	Printf("%s", GetStatString().GetChars());
 }
 
 ADD_STAT(statistics)
 {
-	if (*StartEpisode == 0 || *LevelName == 0) return "";
+	if (StartEpisode.IsEmpty() || LevelName.IsEmpty()) return "";
 	StoreLevelStats();	// Refresh the current level's results.
 	return GetStatString();
 }

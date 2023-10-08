@@ -3228,7 +3228,7 @@ void loadcons()
 
 	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
 	{
-		comp.compilecon(m);
+		comp.compilecon(m.GetChars());
 	}
 	ScriptCode.ShrinkToFit();
 	labels.ShrinkToFit();

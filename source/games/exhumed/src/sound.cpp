@@ -172,7 +172,7 @@ int LoadSound(const char* name)
     if (sndid.isvalid()) return sndid.index() - 1;
 
     FStringf filename("%s.voc", nname);
-    auto lump = S_LookupSound(filename);
+    auto lump = S_LookupSound(filename.GetChars());
     if (lump > 0)
     {
         auto check = fileSystem.ReadFile(lump);

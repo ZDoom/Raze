@@ -1139,7 +1139,7 @@ DEFINE_ACTION_FUNCTION(_DukePlayer, GetGameVar)
 	PARAM_SELF_STRUCT_PROLOGUE(DDukePlayer);
 	PARAM_STRING(name);
 	PARAM_INT(def);
-	ACTION_RETURN_INT(GetGameVar(name, def, self->GetActor(), self->GetPlayerNum()).safeValue());
+	ACTION_RETURN_INT(GetGameVar(name.GetChars(), def, self->GetActor(), self->GetPlayerNum()).safeValue());
 }
 
 void dukeplayer_backuppos(DDukePlayer* self)

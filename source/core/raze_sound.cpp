@@ -157,10 +157,10 @@ int S_LookupSound(const char* fn)
 	if (snd_extendedlookup)
 	{
 		auto newfn = StripExtension(fn);
-		int lump = fileSystem.FindFileWithExtensions(newfn, sndformats, countof(sndformats));
+		int lump = fileSystem.FindFileWithExtensions(newfn.GetChars(), sndformats, countof(sndformats));
 		if (lump >= 0) return lump;
 		newfn = "sound/" + newfn;
-		lump = fileSystem.FindFileWithExtensions(newfn, sndformats, countof(sndformats));
+		lump = fileSystem.FindFileWithExtensions(newfn.GetChars(), sndformats, countof(sndformats));
 		if (lump >= 0) return lump;
 	}
 	return fileSystem.FindFile(fn);

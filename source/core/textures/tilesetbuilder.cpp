@@ -117,13 +117,13 @@ static void LoadDefinitions(TilesetBuildInfo& info)
 	// otherwise the default rules inherited from older ports apply.
 	if (userConfig.UserDef.IsNotEmpty())
 	{
-		loaddefinitionsfile(info, userConfig.UserDef, false);
+		loaddefinitionsfile(info, userConfig.UserDef.GetChars(), false);
 	}
 	else
 	{
-		if (fileSystem.FileExists(razedefsfile))
+		if (fileSystem.FileExists(razedefsfile.GetChars()))
 		{
-			loaddefinitionsfile(info, razedefsfile, true);
+			loaddefinitionsfile(info, razedefsfile.GetChars(), true);
 		}
 		else if (fileSystem.FileExists(defsfile))
 		{
@@ -135,14 +135,14 @@ static void LoadDefinitions(TilesetBuildInfo& info)
 	{
 		for (auto& m : *userConfig.AddDefs)
 		{
-			loaddefinitionsfile(info, m, false);
+			loaddefinitionsfile(info, m.GetChars(), false);
 		}
 		userConfig.AddDefs.reset();
 	}
 
 	if (GameStartupInfo.def.IsNotEmpty())
 	{
-		loaddefinitionsfile(info, GameStartupInfo.def);	// Stuff from gameinfo.
+		loaddefinitionsfile(info, GameStartupInfo.def.GetChars());	// Stuff from gameinfo.
 	}
 
 	// load the widescreen replacements last. This ensures that mods still get the correct CRCs for their own tile replacements.
@@ -206,7 +206,7 @@ void TilesetBuildInfo::MakeCanvas(int tilenum, int width, int height)
 {
 	auto ftex = new FCanvasTexture(width * 4, height * 4);
 	ftex->aspectRatio = (float)width / height;
-	auto canvas = MakeGameTexture(ftex, FStringf("#%05d", tilenum), ETextureType::Any);
+	auto canvas = MakeGameTexture(ftex, FStringf("#%05d", tilenum).GetChars(), ETextureType::Any);
 	canvas->SetSize(width * 4, height * 4);
 	canvas->SetDisplaySize((float)width, (float)height);
 	canvas->GetTexture()->SetSize(width * 4, height * 4);
@@ -223,7 +223,7 @@ static void GenerateRotations(int firsttileid, const char* basename, int tile, i
 			for (int rotation = 0; rotation < numrotations; rotation++)
 			{
 				FStringf str("%s@%c%x", basename, frame + 'A', rotation + 1);
-				TexMan.AddAlias(str, FSetTextureID(firsttileid + tile));
+				TexMan.AddAlias(str.GetChars(), FSetTextureID(firsttileid + tile));
 				tile++;
 			}
 		}
@@ -235,7 +235,7 @@ static void GenerateRotations(int firsttileid, const char* basename, int tile, i
 			for (int frame = 0; frame < numframes; frame++)
 			{
 				FStringf str("%s@%c%x", basename, frame + 'A', rotation + 1);
-				TexMan.AddAlias(str, FSetTextureID(firsttileid + tile));
+				TexMan.AddAlias(str.GetChars(), FSetTextureID(firsttileid + tile));
 				tile += order;
 			}
 		}
@@ -249,14 +249,14 @@ static void CompleteRotations(int firsttileid, const char* basename, const char*
 		for (int frame = 0; frame < numframes; frame++)
 		{
 			FStringf str("%s@%c%x", getname, frame + 'A', rotation + 1);
-			auto texid = TexMan.CheckForTexture(str, ETextureType::Any);
+			auto texid = TexMan.CheckForTexture(str.GetChars(), ETextureType::Any);
 			if (frame == 0 && !texid.isValid())
 			{
 				// rotation does not exist for the first frame -> we reached the end.
 				return;
 			}
 			str.Format("%s@%c%x", basename, frame + 'A', rotation + 1);
-			TexMan.AddAlias(str, texid);
+			TexMan.AddAlias(str.GetChars(), texid);
 		}
 	}
 }
@@ -266,13 +266,13 @@ static void SubstituteRotations(int firsttileid, const char* basename, int numfr
 	for (int frame = 0; frame < numframes; frame++)
 	{
 		FStringf str("%s@%c%x", basename, frame + 'A', srcrot);
-		auto texid = TexMan.CheckForTexture(str, ETextureType::Any);
+		auto texid = TexMan.CheckForTexture(str.GetChars(), ETextureType::Any);
 		if (!texid.isValid())
 		{
 			continue;
 		}
 		str.Format("%s@%c%x", basename, frame + 'A', destrot);
-		TexMan.AddAlias(str, texid);
+		TexMan.AddAlias(str.GetChars(), texid);
 	}
 }
 
@@ -322,13 +322,13 @@ void LoadAliases(int firsttileid, int maxarttile)
 					sc.ScriptMessage("%d: Bad order\n", order);
 					continue;
 				}
-				GenerateRotations(firsttileid, basename, tile, numframes, numrotations, order);
+				GenerateRotations(firsttileid, basename.GetChars(), tile, numframes, numrotations, order);
 				if (sc.CheckString(","))
 				{
 					sc.MustGetString();
 					if (sc.String[0] != '@')
 					{
-						CompleteRotations(firsttileid, basename, sc.String, numframes, numrotations);
+						CompleteRotations(firsttileid, basename.GetChars(), sc.String, numframes, numrotations);
 					}
 					else
 					{
@@ -340,7 +340,7 @@ void LoadAliases(int firsttileid, int maxarttile)
 							sc.MustGetStringName("=");
 							sc.MustGetString();
 							int srcrot = (int)strtoll(sc.String + 1, nullptr, 10);
-							SubstituteRotations(firsttileid, basename, numframes, destrot, srcrot);
+							SubstituteRotations(firsttileid, basename.GetChars(), numframes, destrot, srcrot);
 						} while (sc.CheckString(","));
 					}
 				}
@@ -414,7 +414,7 @@ void ConstructTileset()
 			if (info.tile[i].imported == nullptr || i == 0)
 			{
 				ftex = nulltex->GetTexture();
-				gtex = MakeGameTexture(ftex, tname, ETextureType::Null);
+				gtex = MakeGameTexture(ftex, tname.GetChars(), ETextureType::Null);
 			}
 			else
 			{
@@ -426,7 +426,7 @@ void ConstructTileset()
 		{
 			if (info.tile[i].imported) ftex = info.tile[i].imported->GetTexture();
 			else ftex = new FImageTexture(info.tile[i].tileimage);
-			gtex = MakeGameTexture(ftex, tname, i == 0? ETextureType::FirstDefined : ETextureType::Any);
+			gtex = MakeGameTexture(ftex, tname.GetChars(), i == 0? ETextureType::FirstDefined : ETextureType::Any);
 			gtex->SetOffsets(info.tile[i].leftOffset, info.tile[i].topOffset);
 		}
 		if (info.tile[i].extinfo.picanm.sf & PICANM_NOFULLBRIGHT_BIT)

@@ -858,10 +858,10 @@ bool PlaySong(const char* song_file_name, int cdaudio_track, bool isThemeTrack) 
     if (cdaudio_track >= 0 && (mus_redbook || !song_file_name || *song_file_name == 0))
     {
         FStringf trackname("shadow%02d.ogg", cdaudio_track);
-        if (!Mus_Play(trackname, true))
+        if (!Mus_Play(trackname.GetChars(), true))
         {
             trackname.Format("track%02d.ogg", cdaudio_track);
-            if (!Mus_Play(trackname, true))
+            if (!Mus_Play(trackname.GetChars(), true))
             {
                 Printf("Can't find CD track %i!\n", cdaudio_track);
             }
@@ -876,10 +876,10 @@ bool PlaySong(const char* song_file_name, int cdaudio_track, bool isThemeTrack) 
     {
         // try the CD track anyway if no MIDI could be found (the original game doesn't have any MIDI, it was CD Audio only, this avoids no music playing if mus_redbook is off.)
         FStringf trackname("shadow%02d.ogg", cdaudio_track);
-        if (!Mus_Play(trackname, true))
+        if (!Mus_Play(trackname.GetChars(), true))
         {
             trackname.Format("track%02d.ogg", cdaudio_track);
-            if (!Mus_Play(trackname, true)) return false;
+            if (!Mus_Play(trackname.GetChars(), true)) return false;
         }
     }
     return true;
@@ -928,7 +928,7 @@ DEFINE_ACTION_FUNCTION(_SW, PlaySong)
 {
     PARAM_PROLOGUE;
     PARAM_INT(song);
-    PlaySong(ThemeSongs[song], ThemeTrack[song], true);
+    PlaySong(ThemeSongs[song].GetChars(), ThemeTrack[song], true);
     return 0;
 }
 

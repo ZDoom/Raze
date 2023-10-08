@@ -101,7 +101,7 @@ int LookupMusic(const char* fn, bool onlyextended)
 	if (mus_extendedlookup || onlyextended)
 	{
 		FString name = StripExtension(fn);
-		int l = fileSystem.FindFileWithExtensions(name, knownMusicExts, countof(knownMusicExts));
+		int l = fileSystem.FindFileWithExtensions(name.GetChars(), knownMusicExts, countof(knownMusicExts));
 		if (l >= 0 || onlyextended) return l;
 	}
 	return fileSystem.CheckNumForFullName(fn, true, FileSys::ns_music);
@@ -128,7 +128,7 @@ FileReader OpenMusic(const char* musicname)
 	if (mus.IsNotEmpty())
 	{
 		// Load an external file.
-		reader.OpenFile(mus);
+		reader.OpenFile(mus.GetChars());
 	}
 	if (!reader.isOpen())
 	{
@@ -141,13 +141,13 @@ FileReader OpenMusic(const char* musicname)
 				auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 				auto rfbase = ExtractFileBase(rfn);
 				FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
-				int newlumpnum = LookupMusic(aliasMusicname);
+				int newlumpnum = LookupMusic(aliasMusicname.GetChars());
 				if (newlumpnum >= 0) lumpnum = newlumpnum;
 			}
 
 			// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
 			FStringf aliasMusicname("music/%s", musicname);
-			int newlumpnum = LookupMusic(aliasMusicname, lumpnum >= 0);
+			int newlumpnum = LookupMusic(aliasMusicname.GetChars(), lumpnum >= 0);
 			if (newlumpnum >= 0) lumpnum = newlumpnum;
 		}
 
@@ -155,7 +155,7 @@ FileReader OpenMusic(const char* musicname)
 		{
 			// Some Shadow Warrior distributions have the music in a subfolder named 'classic'. Check that, too.
 			FStringf aliasMusicname("classic/music/%s", musicname);
-			lumpnum = fileSystem.FindFile(aliasMusicname);
+			lumpnum = fileSystem.FindFile(aliasMusicname.GetChars());
 		}
 		if (lumpnum > -1)
 		{
@@ -223,7 +223,7 @@ void Mus_Serialize(FSerializer &arc)
 			FString music = mus_playing.name;
 			if (music.IsEmpty()) music = mus_playing.LastSong;
 
-			arc.AddString("music", music);
+			arc.AddString("music", music.GetChars());
 		}
 		else arc("music", mus_playing.LastSong);
 

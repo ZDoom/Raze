@@ -63,14 +63,14 @@ FGameConfigFile::FGameConfigFile ()
 	OkayToWrite = false;	// Do not allow saving of the config before DoKeySetup()
 	bModSetup = false;
 	pathname = GetConfigPath (true);
-	ChangePathName (pathname);
+	ChangePathName (pathname.GetChars());
 	LoadConfigFile ();
 
 	// If zdoom.ini was read from the program directory, switch
 	// to the user directory now. If it was read from the user
 	// directory, this effectively does nothing.
 	pathname = GetConfigPath (false);
-	ChangePathName (pathname);
+	ChangePathName (pathname.GetChars());
 
 	// Set default IWAD search paths if none present
 	if (!SetSection ("GameSearch.Directories"))
@@ -371,7 +371,7 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 		while (NextInSection (key, value))
 		{
 			FStringf cmd("alias %s \"%s\"", key, value);
-			C_DoCommand(cmd);
+			C_DoCommand(cmd.GetChars());
 		}
 	}
 }
@@ -635,7 +635,7 @@ void G_SaveConfig()
 {
 	if (!GameConfig) return;
 	GameConfig->ArchiveGlobalData();
-	GameConfig->ArchiveGameData(GameName);
+	GameConfig->ArchiveGameData(GameName.GetChars());
 	GameConfig->WriteConfigFile();
 	delete GameConfig;
 	GameConfig = nullptr;

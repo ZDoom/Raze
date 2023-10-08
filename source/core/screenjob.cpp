@@ -127,7 +127,7 @@ bool CreateCutscene(CutsceneDef* cs, DObject* runner, MapRecord* map, bool trans
 		return true;	// play nothing but return as being validated
 	if (cs->function.IsNotEmpty())
 	{
-		CallCreateMapFunction(cs->function, runner, map);
+		CallCreateMapFunction(cs->function.GetChars(), runner, map);
 		return true;
 	}
 	else if (cs->video.IsNotEmpty())
@@ -173,7 +173,7 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 	Printf("Created runner at %p\n", cutscene.runner);
 	GC::WriteBarrier(cutscene.runner);
 
-	const char* qname = globalCutscenes.MPSummaryScreen;
+	const char* qname = globalCutscenes.MPSummaryScreen.GetChars();
 	auto func = LookupFunction(qname);
 	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
 	if (func->Proto->ArgumentTypes[0] != cutscene.runnerclasstype && func->Proto->ArgumentTypes[1] != TypeSInt32)
@@ -234,7 +234,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 
 		}
 		if ((!cl_noexitscreens && fromMap) || (!cl_nostartscreens && (g_gameType & GAMEFLAG_PSEXHUMED)))
-			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info, toMap);
+			CallCreateSummaryFunction(globalCutscenes.SummaryScreen.GetChars(), runner, fromMap, info, toMap);
 
 		if (toMap) 
 		{

@@ -86,7 +86,7 @@ CCMD(secret)
 		{
 			if (readbuffer[0] == '[')
 			{
-				inlevel = !strnicmp(readbuffer, maphdr, maphdr.Len());
+				inlevel = !strnicmp(readbuffer, maphdr.GetChars(), maphdr.Len());
 				if (!foundsome)
 				{
 					FString levelname;
@@ -114,7 +114,7 @@ CCMD(secret)
 					// line complete so print it.
 					linebuild.Substitute("\r", "");
 					linebuild.StripRight(" \t\n");
-					PrintSecretString(linebuild, thislevel);
+					PrintSecretString(linebuild.GetChars(), thislevel);
 					linebuild = "";
 				}
 			}

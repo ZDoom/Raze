@@ -139,8 +139,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 	{
 		sendsave = false;
 		Net_WriteByte(DEM_SAVEGAME);
-		Net_WriteString(savegamefile);
-		Net_WriteString(savedescription);
+		Net_WriteString(savegamefile.GetChars());
+		Net_WriteString(savedescription.GetChars());
 		savegamefile = "";
 	}
 	cmd->ucmd = {};
@@ -188,7 +188,7 @@ static void GameTicker()
 			C_FlushDisplay();
 			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
 			{
-				DoLoadGame(BackupSaveGame);
+				DoLoadGame(BackupSaveGame.GetChars());
 			}
 			else
 			{
@@ -253,7 +253,7 @@ static void GameTicker()
 			break;
 
 		case ga_savegame:
-			G_DoSaveGame(true, false, savegamefile, savedescription);
+			G_DoSaveGame(true, false, savegamefile.GetChars(), savedescription.GetChars());
 			gameaction = ga_nothing;
 			savegamefile = "";
 			savedescription = "";
@@ -726,10 +726,10 @@ void MainLoop ()
 
 	if (userConfig.CommandMap.IsNotEmpty())
 	{
-		auto maprecord = FindMapByName(userConfig.CommandMap);
+		auto maprecord = FindMapByName(userConfig.CommandMap.GetChars());
 		if (maprecord == nullptr)
 		{
-			maprecord = SetupUserMap(userConfig.CommandMap, g_gameType & GAMEFLAG_DUKE? "dethtoll.mid" : nullptr);
+			maprecord = SetupUserMap(userConfig.CommandMap.GetChars(), g_gameType & GAMEFLAG_DUKE? "dethtoll.mid" : nullptr);
 		}
 		userConfig.CommandMap = "";
 		if (maprecord)

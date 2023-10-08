@@ -689,7 +689,7 @@ void ZCCRazeCompiler::ProcessDefaultProperty(PClassActor *cls, ZCC_PropertyStmt 
 	}
 
 
-	FPropertyInfo *property = FindProperty(propname);
+	FPropertyInfo *property = FindProperty(propname.GetChars());
 
 	if (property != nullptr && property->category != CAT_INFO)
 	{

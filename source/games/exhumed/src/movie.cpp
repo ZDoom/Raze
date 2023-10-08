@@ -238,7 +238,7 @@ public:
 
 int IdentifyLMF(const FString* fn)
 {
-    auto fp = fileSystem.OpenFileReader(*fn);
+    auto fp = fileSystem.OpenFileReader(fn->GetChars());
     if (!fp.isOpen()) return false;
     char buffer[4];
     fp.Read(buffer, 4);
@@ -249,7 +249,7 @@ DEFINE_ACTION_FUNCTION(_LMFDecoder, Create)
 {
     PARAM_PROLOGUE;
     PARAM_STRING(fn);
-    ACTION_RETURN_POINTER(new LMFPlayer(fn));
+    ACTION_RETURN_POINTER(new LMFPlayer(fn.GetChars()));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_LMFDecoder, Identify, IdentifyLMF)

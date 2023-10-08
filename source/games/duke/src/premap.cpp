@@ -1062,12 +1062,12 @@ static int LoadTheMap(MapRecord *mi, DDukePlayer*p, int gamemode)
 	sectortype* sect;
 	SpawnSpriteDef sprites;
 	DVector3 pos;
-	loadMap(mi->fileName, isShareware(), &pos, &lbang, &sect, sprites);
+	loadMap(mi->fileName.GetChars(), isShareware(), &pos, &lbang, &sect, sprites);
 	p->cursector = sect;
 
-	SECRET_SetMapName(mi->DisplayName(), mi->name);
-	STAT_NewLevel(mi->fileName);
-	TITLE_InformName(mi->name);
+	SECRET_SetMapName(mi->DisplayName(), mi->name.GetChars());
+	STAT_NewLevel(mi->fileName.GetChars());
+	TITLE_InformName(mi->name.GetChars());
 
 	auto actorlist = spawnactors(sprites);
 
@@ -1266,7 +1266,7 @@ int setnextmap(bool checksecretexit)
 	if (map)
 	{
 		// If the map doesn't exist, abort with a meaningful message instead of crashing.
-		if (fileSystem.FindFile(map->fileName) < 0)
+		if (fileSystem.FindFile(map->fileName.GetChars()) < 0)
 		{
 			I_Error("Trying to open non-existent %s", map->fileName.GetChars());
 		}

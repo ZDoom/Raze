@@ -463,13 +463,13 @@ void InitLevel(MapRecord *maprec)
     sectortype* cursect;
     SpawnSpriteDef sprites;
     DVector3 ppos;
-    loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
+    loadMap(maprec->fileName.GetChars(), SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
     spawnactors(sprites);
     getPlayer(0)->cursector = cursect;
 
-    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-    STAT_NewLevel(currentLevel->fileName);
-    TITLE_InformName(currentLevel->name);
+    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name.GetChars());
+    STAT_NewLevel(currentLevel->fileName.GetChars());
+    TITLE_InformName(currentLevel->name.GetChars());
 
     auto vissect = &sector[0]; // hack alert!
     if (vissect->extra != -1)
@@ -536,7 +536,7 @@ void InitRunLevel(void)
 
     if (currentLevel)
     {
-        PlaySong(currentLevel->music, currentLevel->cdSongId);
+        PlaySong(currentLevel->music.GetChars(), currentLevel->cdSongId);
     }
 
     InitPrediction(getPlayer(myconnectindex));
@@ -681,7 +681,7 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
             if (map == nullptr)
             {
                 FinishAnim = false;
-                PlaySong(ThemeSongs[0], ThemeTrack[0]);
+                PlaySong(ThemeSongs[0].GetChars(), ThemeTrack[0]);
                 if (isShareware())
                 {
                     PlayOrderSound();

@@ -80,13 +80,13 @@ static void S_AddBloodSFX(int lumpnum)
 	ByteSwapSFX(sfx);
 
 	FStringf rawname("%s.raw", sfx->rawName);
-	auto rawlump = fileSystem.FindFile(rawname);
+	auto rawlump = fileSystem.FindFile(rawname.GetChars());
 
 	if (rawlump != -1)
 	{
 		if (!sfxnum.isvalid())
 		{
-			sfxnum = soundEngine->AddSoundLump(FStringf("SfxSound@%04d", resid), rawlump, 0, resid, 6);	// use a generic name here in case sound replacements are being used.
+			sfxnum = soundEngine->AddSoundLump(FStringf("SfxSound@%04d", resid).GetChars(), rawlump, 0, resid, 6);	// use a generic name here in case sound replacements are being used.
 			soundfx = soundEngine->GetWritableSfx(sfxnum);
 		}
 		if (sfx->format < 5 || sfx->format > 12)
@@ -231,7 +231,7 @@ void sndStartWavDisk(const char* pzFile, int nVolume, int nChannel)
 {
 	FString name = pzFile;
 	FixPathSeperator(name);
-	return sndStartSample(name, nVolume, nChannel);
+	return sndStartSample(name.GetChars(), nVolume, nChannel);
 }
 
 void sndKillAllSounds(void)

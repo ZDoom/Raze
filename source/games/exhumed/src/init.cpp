@@ -159,7 +159,7 @@ uint8_t LoadLevel(MapRecord* map)
     SpawnSpriteDef spawned;
     DVector3 initpos;
     int16_t mapang;
-    loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
+    loadMap(currentLevel->fileName.GetChars(), 0, &initpos, &mapang, &initsect, spawned);
     auto actors = spawnactors(spawned);
 
     g_visibility = 1024;
@@ -197,7 +197,7 @@ void InitLevel(MapRecord* map)
     totalmoves = 0;
     GrabPalette();
 
-    if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->music, true);    // Allow non-CD music if defined for the current level
+    if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->music.GetChars(), true);    // Allow non-CD music if defined for the current level
     playCDtrack(map->cdSongId, true);
 	setLevelStarted(currentLevel);
 }

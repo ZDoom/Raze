@@ -107,7 +107,7 @@ static std::vector<std::string> ParseGameInfo(std::vector<std::string>& pwads, c
 				}
 				else
 				{
-					pos += D_AddFile(pwads, checkpath, true, pos, GameConfig);
+					pos += D_AddFile(pwads, checkpath.GetChars(), true, pos, GameConfig);
 				}
 			} while (sc.CheckToken(','));
 		}
@@ -214,13 +214,13 @@ std::vector<std::string> GetGameFronUserFiles()
 
 	if (userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 	{
-		D_AddFile(Files, file, true, -1, GameConfig);
+		D_AddFile(Files, file.GetChars(), true, -1, GameConfig);
 	}
 	if (userConfig.AddFiles)
 	{
 		for (auto& file : *userConfig.AddFiles)
 		{
-			D_AddFile(Files, file, true, -1, GameConfig);
+			D_AddFile(Files, file.GetChars(), true, -1, GameConfig);
 		}
 
 		// Finally, if the last entry in the chain is a directory, it's being considered the mod directory, and all GRPs inside need to be loaded, too.
@@ -228,14 +228,14 @@ std::vector<std::string> GetGameFronUserFiles()
 		{
 			auto fn = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
 			bool isdir = false;
-			if (DirEntryExists(fn, &isdir) && isdir)
+			if (DirEntryExists(fn.GetChars(), &isdir) && isdir)
 			{
 				// Insert the GRPs before this entry itself.
 				std::string lastfn = std::move(Files.back());
 				Files.pop_back();
 				for (auto ext : validexts)
 				{
-					D_AddDirectory(Files, fn, ext, GameConfig);
+					D_AddDirectory(Files, fn.GetChars(), ext, GameConfig);
 				}
 				Files.push_back(std::move(lastfn));
 			}
@@ -271,7 +271,7 @@ static void DeleteStuff(FileSystem &fileSystem, const TArray<FString>& deletelum
 			auto fname = fileSystem.GetFileFullName(i, false);
 			if (cf >= 1 && cf <= numgamefiles && !str.CompareNoCase(fname))
 			{
-				fileSystem.RenameFile(i, renameTo);
+				fileSystem.RenameFile(i, renameTo.GetChars());
 			}
 		}
 	}
@@ -344,15 +344,15 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		// This can be overridden via command line switch if needed.
 		if (!grp.FileInfo.loaddirectory && grp.FileName.IsNotEmpty())
 		{
-			D_AddFile(Files, grp.FileName, true, -1, GameConfig);
-			fn = ExtractFilePath(grp.FileName);
+			D_AddFile(Files, grp.FileName.GetChars(), true, -1, GameConfig);
+			fn = ExtractFilePath(grp.FileName.GetChars());
 			if (fn.Len() > 0 && fn.Back() != '/') fn += '/';
 		}
 
 		for (auto& fname : grp.FileInfo.loadfiles)
 		{
 			FString newname = fn + fname;
-			D_AddFile(Files, newname, true, -1, GameConfig);
+			D_AddFile(Files, newname.GetChars(), true, -1, GameConfig);
 		}
 		bool insert = (!insertdirectoriesafter && &grp == &groups[0]) || (insertdirectoriesafter && &grp == &groups.Last());
 
@@ -363,10 +363,10 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 			// Do this only if explicitly requested because this severely limits the usability of GRP files.
 			if (insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 			{
-				D_AddFile(Files, file, true, -1, GameConfig);
+				D_AddFile(Files, file.GetChars(), true, -1, GameConfig);
 			}
 
-			D_AddFile(Files, fn, true, -1, GameConfig);
+			D_AddFile(Files, fn.GetChars(), true, -1, GameConfig);
 		}
 		i--;
 	}
@@ -381,19 +381,19 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	while (lastpos < LumpFilter.Len() && (len = strcspn(LumpFilter.GetChars() + lastpos, ".")) > 0)
 	{
 		auto file = LumpFilter.Left(len + lastpos) + ".Autoload";
-		D_AddConfigFiles(Files, file, "*.grp", GameConfig);
+		D_AddConfigFiles(Files, file.GetChars(), "*.grp", GameConfig);
 		lastpos += len + 1;
 	}
 
 	if (!insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 	{
-		D_AddFile(Files, file, true, -1, GameConfig);
+		D_AddFile(Files, file.GetChars(), true, -1, GameConfig);
 	}
 	if (userConfig.AddFiles)
 	{
 		for (auto& file : *userConfig.AddFiles)
 		{
-			D_AddFile(Files, file, true, -1, GameConfig);
+			D_AddFile(Files, file.GetChars(), true, -1, GameConfig);
 		}
 
 		// Finally, if the last entry in the chain is a directory, it's being considered the mod directory, and all GRPs inside need to be loaded, too.
@@ -401,14 +401,14 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		{
 			auto fname = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
 			bool isdir = false;
-			if (DirEntryExists(fname, &isdir) && isdir)
+			if (DirEntryExists(fname.GetChars(), &isdir) && isdir)
 			{
 				// Insert the GRPs before this entry itself.
 				std::string lastfn = std::move(Files.back());
 				Files.pop_back();
 				for (auto ext : validexts)
 				{
-					D_AddDirectory(Files, fname, ext, GameConfig);
+					D_AddDirectory(Files, fname.GetChars(), ext, GameConfig);
 				}
 				Files.push_back(std::move(lastfn));
 			}
@@ -430,7 +430,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		lfi.embeddings = { "blood.rff", "sounds.rff" };
 	}
 
-	lfi.dotFilter = LumpFilter;
+	lfi.dotFilter = LumpFilter.GetChars();
 
 	if (isDukeEngine()) lfi.gameTypeFilter.push_back("DukeEngine");
 	if (isDukeLike()) lfi.gameTypeFilter.push_back("DukeLike");

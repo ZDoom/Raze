@@ -173,7 +173,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	if (!s_index.isvalid())
 	{
 		// If the slot isn't defined, give it a meaningful name containing the index.
-		s_index = soundEngine->FindSoundTentative(FStringf("ConSound@%04d", index));
+		s_index = soundEngine->FindSoundTentative(FStringf("ConSound@%04d", index).GetChars());
 	}
 	auto sfx = soundEngine->GetWritableSfx(s_index);
 
@@ -215,14 +215,14 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	FString fn = filename;
 	fn.Substitute("\\\\", "\\");
 	FixPathSeperator(fn);
-	sfx->lumpnum = S_LookupSound(fn);
+	sfx->lumpnum = S_LookupSound(fn.GetChars());
 	// For World Tour allow falling back on the classic sounds if the Oggs cannot be found
 	if (isWorldTour() && sfx->lumpnum == -1)
 	{
 		fn.ToLower();
 		fn.Substitute("sound/", "");
 		fn.Substitute(".ogg", ".voc");
-		sfx->lumpnum = S_LookupSound(fn);
+		sfx->lumpnum = S_LookupSound(fn.GetChars());
 	}
 	if (minpitch != 0 || maxpitch != 0)
 	{
@@ -657,13 +657,13 @@ static void MusPlay(const char* music, bool loop)
 		{
 			FString alternative = music;
 			alternative.Substitute(".ogg", ".mid");
-			int num = fileSystem.FindFile(alternative);
+			int num = fileSystem.FindFile(alternative.GetChars());
 			if (num >= 0)
 			{
 				int file = fileSystem.GetFileContainer(num);
 				if (file == 1)
 				{
-					Mus_Play(alternative, loop);
+					Mus_Play(alternative.GetChars(), loop);
 					return;
 				}
 			}
@@ -675,14 +675,14 @@ static void MusPlay(const char* music, bool loop)
 	{
 		FString alternative = music;
 		alternative.Substitute(".ogg", ".mid");
-		Mus_Play(alternative, loop);
+		Mus_Play(alternative.GetChars(), loop);
 	}
 }
 
 void S_PlayLevelMusic(MapRecord *mi)
 {
 	if (isRR() && mi->music.IsEmpty() && mus_redbook && !cd_disabled) return;
-	MusPlay(mi->music, true);
+	MusPlay(mi->music.GetChars(), true);
 }
 
 void S_PlaySpecialMusic(unsigned int m)
@@ -691,7 +691,7 @@ void S_PlaySpecialMusic(unsigned int m)
 	auto& musicfn = specialmusic[m];
 	if (musicfn.IsNotEmpty())
 	{
-		MusPlay(musicfn, true);
+		MusPlay(musicfn.GetChars(), true);
 	}
 }
 
@@ -714,10 +714,10 @@ void S_PlayRRMusic(int newTrack)
 			g_cdTrack = 2;
 
 		FStringf filename("redneck%s%02d.ogg", isRRRA()? "rides" : "", g_cdTrack);
-		if (Mus_Play(filename, false)) return;
+		if (Mus_Play(filename.GetChars(), false)) return;
 
 		filename.Format("track%02d.ogg", g_cdTrack);
-		if (Mus_Play(filename, false)) return;
+		if (Mus_Play(filename.GetChars(), false)) return;
 	}
 	// If none of the tracks managed to start, disable the CD music for this session so that regular music can play if defined.
 	cd_disabled = true;
@@ -747,7 +747,7 @@ void S_WorldTourMappingsForOldSounds()
 			fname.ToLower();
 			fname.Substitute("sound/", "");
 			fname.Substitute(".ogg", ".voc");
-			int lump = fileSystem.FindFile(fname); // in this case we absolutely do not want the extended lookup that's optionally performed by S_LookupSound.
+			int lump = fileSystem.FindFile(fname.GetChars()); // in this case we absolutely do not want the extended lookup that's optionally performed by S_LookupSound.
 			if (lump >= 0)
 			{
 				auto newsfx = soundEngine->AllocateSound();
@@ -825,16 +825,17 @@ int StartCommentary(int tag, DDukeActor* actor)
 {
 	if (wt_commentary && Commentaries.Size() > (unsigned)tag && Commentaries[tag].IsNotEmpty())
 	{
-		FSoundID id = soundEngine->FindSound(Commentaries[tag]);
+		auto sname = Commentaries[tag].GetChars();
+		FSoundID id = soundEngine->FindSound(sname);
 		if (!id.isvalid())
 		{
-			int lump = fileSystem.FindFile(Commentaries[tag]);
+			int lump = fileSystem.FindFile(sname);
 			if (lump < 0)
 			{
 				Commentaries[tag] = "";
 				return false;
 			}
-			id = FSoundID(soundEngine->AddSoundLump(Commentaries[tag], lump, 0));
+			id = FSoundID(soundEngine->AddSoundLump(sname, lump, 0));
 		}
 		StopCommentary();
 		MuteSounds();

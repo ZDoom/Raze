@@ -128,8 +128,8 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 		nBestLevel = map->levelNumber - 1;
 	}
 
-	STAT_NewLevel(currentLevel->labelName);
-	TITLE_InformName(currentLevel->name);
+	STAT_NewLevel(currentLevel->labelName.GetChars());
+	TITLE_InformName(currentLevel->name.GetChars());
 }
 
 //---------------------------------------------------------------------------

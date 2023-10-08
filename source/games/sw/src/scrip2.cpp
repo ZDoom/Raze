@@ -652,7 +652,7 @@ void LoadCustomInfoFromScript(const char *filename)
             if (in == -1) break;
             if (name.IsNotEmpty())
             {
-                quoteMgr.InitializeQuote(QUOTE_INVENTORY + in, name);
+                quoteMgr.InitializeQuote(QUOTE_INVENTORY + in, name.GetChars());
             }
             if (amt >= 0)
             {
@@ -728,7 +728,7 @@ void LoadCustomInfoFromScript(const char *filename)
                 if (maxammo >= 0) DamageData[id].max_ammo = maxammo;
                 if (name.IsNotEmpty())
                 {
-                    quoteMgr.InitializeQuote(QUOTE_WPNFIST + in, name);
+                    quoteMgr.InitializeQuote(QUOTE_WPNFIST + in, name.GetChars());
                 }
                 if (wpickup >= 0) DamageData[id].weapon_pickup = wpickup;
             }
@@ -736,7 +736,7 @@ void LoadCustomInfoFromScript(const char *filename)
             {
                 if (ammo.IsNotEmpty())
                 {
-                    quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, ammo);
+                    quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, ammo.GetChars());
                 }
                 if (pickup >= 0) DamageData[id].ammo_pickup = pickup;
             }

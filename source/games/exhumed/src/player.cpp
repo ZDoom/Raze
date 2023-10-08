@@ -494,7 +494,7 @@ static void pickupMessage(int no)
     if (no != -1)
     {
         FStringf label("TXT_EX_PICKUP%d", no + 1);
-        auto str = GStrings[label];
+        auto str = GStrings[label.GetChars()];
         if (str) Printf(PRINT_NOTIFY, "%s\n", str);
     }
 }

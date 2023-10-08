@@ -167,7 +167,7 @@ bool ReadSavegame(const char* name)
 		}
 
 		// Load the savegame.
-		loadMapBackup(currentLevel->fileName);
+		loadMapBackup(currentLevel->fileName.GetChars());
 		SerializeSession(arc);
 		g_nextskill = gi->GetCurrentSkill();
 		arc.Close();
@@ -214,9 +214,9 @@ bool WriteSavegame(const char* filename, const char *name)
 		.AddString("Map Name", lev->DisplayName())
 		.AddString("Creation Time", myasctime())
 		.AddString("Title", name)
-		.AddString("Map File", lev->fileName)
-		.AddString("Map Label", lev->labelName)
-		.AddString("Map Time", timeStr);
+		.AddString("Map File", lev->fileName.GetChars())
+		.AddString("Map Label", lev->labelName.GetChars())
+		.AddString("Map Time", timeStr.GetChars());
 
 	const char *fn = lev->fileName.GetChars();
 	if (*fn == '/') fn++;
@@ -243,7 +243,7 @@ bool WriteSavegame(const char* filename, const char *name)
 	// put some basic info into the PNG so that this isn't lost when the image gets extracted.
 	M_AppendPNGText(&savepic, "Software", buf);
 	M_AppendPNGText(&savepic, "Title", name);
-	M_AppendPNGText(&savepic, "Current Map", lev->labelName);
+	M_AppendPNGText(&savepic, "Current Map", lev->labelName.GetChars());
 	M_FinishPNG(&savepic);
 
 	auto picdata = savepic.GetBuffer();
@@ -371,7 +371,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 	}
 	SaveVersion = savesig.currentsavever;
 
-	MapRecord *curLevel = FindMapByName(label);
+	MapRecord *curLevel = FindMapByName(label.GetChars());
 
 	// If the map does not exist, check if it's a user map.
 	if (!curLevel)
@@ -380,7 +380,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 		if (!formenu)
 		{
 			curLevel->name = "";
-			curLevel->SetFileName(filename);
+			curLevel->SetFileName(filename.GetChars());
 		}
 	}
 	if (!curLevel) return 0;
@@ -397,7 +397,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 		auto ggfn = ExtractFileBase(fileSystem.GetResourceFileName(1), true);
 		if (gamegrp.CompareNoCase(ggfn) == 0)
 		{
-			return G_CheckSaveGameWads(gamegrp, mapgrp, false) ? 1 : -2;
+			return G_CheckSaveGameWads(gamegrp.GetChars(), mapgrp.GetChars(), false) ? 1 : -2;
 		}
 		else
 		{
@@ -782,7 +782,7 @@ void G_DoLoadGame()
 		gamestate = GS_HIDECONSOLE;
 	}
 
-	DoLoadGame(savename);
+	DoLoadGame(savename.GetChars());
 	BackupSaveGame = savename;
 }
 
@@ -831,7 +831,7 @@ void startSaveGame(int player, uint8_t** stream, bool skip)
 		{
 			// Paths sent over the network will be valid for the system that sent
 			// the save command. For other systems, the path needs to be changed.
-			savegamefile = G_BuildSaveName(ExtractFileBase(savegamefile, true));
+			savegamefile = G_BuildSaveName(ExtractFileBase(savegamefile.GetChars(), true).GetChars());
 		}
 		gameaction = ga_savegame;
 	}
@@ -878,11 +878,11 @@ void M_Autosave()
 	num.Int = nextautosave;
 	autosavenum->ForceSet(num, CVAR_Int);
 
-	auto Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
+	auto Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave).GetChars());
 	readableTime = myasctime();
 	FStringf SaveTitle("Autosave %s", readableTime);
 	nextautosave = (nextautosave + 1) % count;
-	G_DoSaveGame(false, false, Filename, SaveTitle);
+	G_DoSaveGame(false, false, Filename.GetChars(), SaveTitle.GetChars());
 }
 
 CCMD(autosave)
@@ -909,11 +909,11 @@ CCMD(rotatingquicksave)
 	quicksavenum->ForceSet(num, CVAR_Int);
 
 	FSaveGameNode sg;
-	auto Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));
+	auto Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave).GetChars());
 	readableTime = myasctime();
 	FStringf SaveTitle("Quicksave %s", readableTime);
 	nextquicksave = (nextquicksave + 1) % count;
-	G_SaveGame(Filename, SaveTitle);
+	G_SaveGame(Filename.GetChars(), SaveTitle.GetChars());
 }
 
 
@@ -938,7 +938,7 @@ UNSAFE_CCMD(load)
 		return;
 	}
 	FString fname = G_BuildSaveName(argv[1]);
-	G_LoadGame(fname);
+	G_LoadGame(fname.GetChars());
 }
 
 //==========================================================================
@@ -957,7 +957,7 @@ UNSAFE_CCMD(save)
 		return;
 	}
 	FString fname = G_BuildSaveName(argv[1]);
-	G_SaveGame(fname, argv.argc() > 2 ? argv[2] : argv[1]);
+	G_SaveGame(fname.GetChars(), argv.argc() > 2 ? argv[2] : argv[1]);
 }
 
 

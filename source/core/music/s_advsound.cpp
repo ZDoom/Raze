@@ -241,7 +241,7 @@ static void S_AddSNDINFO (int lump)
 				sc.MustGetString();
 				int mlump = fileSystem.FindFile(sc.String);
 				if (mlump < 0)
-					mlump = fileSystem.FindFile(FStringf("music/%s", sc.String));
+					mlump = fileSystem.FindFile(FStringf("music/%s", sc.String).GetChars());
 				if (mlump >= 0)
 				{
 					// do not set the alias if a later WAD defines its own music of this name
@@ -583,7 +583,7 @@ static void S_AddSNDINFO (int lump)
 				}
 
 				sc.MustGetString ();
-				S_AddSound (name, sc.String, &sc);
+				S_AddSound (name.GetChars(), sc.String, &sc);
 			}
 
 			}

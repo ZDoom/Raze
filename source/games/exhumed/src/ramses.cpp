@@ -137,7 +137,7 @@ void InitSpiritHead()
     lNextStateChange = PlayClock;
     lHeadStartClock = PlayClock;
 
-	auto headfd = fileSystem.OpenFileReader(currentLevel->ex_ramses_pup);
+	auto headfd = fileSystem.OpenFileReader(currentLevel->ex_ramses_pup.GetChars());
 	if (!headfd.isOpen())
 	{
 		memset(cPupData, 0, sizeof(cPupData));

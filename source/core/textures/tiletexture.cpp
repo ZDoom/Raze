@@ -437,7 +437,7 @@ int CountTiles(const char* fn, const uint8_t* RawData)
 
 static void AddArtFile(const FString& filename)
 {
-	FileReader fr = fileSystem.OpenFileReader(filename);
+	FileReader fr = fileSystem.OpenFileReader(filename.GetChars());
 	if (fr.isOpen())
 	{
 		TArray<uint8_t> artdata(fr.GetLength(), true);
@@ -449,7 +449,7 @@ static void AddArtFile(const FString& filename)
 				artdata.Delete(0, 8);
 			}
 			// Only load the data if the header is present
-			if (CountTiles(filename, artdata.Data()) > 0)
+			if (CountTiles(filename.GetChars(), artdata.Data()) > 0)
 			{
 				// The texture manager already has a store for Build ART files, so let's use it. :)
 				auto& store = TexMan.GetNewBuildTileData();
