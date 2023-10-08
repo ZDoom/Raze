@@ -187,12 +187,12 @@ void punchCallback(DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target != nullptr)
 	{
-		double nZOffset1 = getDudeInfo(actor)->eyeHeight * actor->spr.scale.Y;
+		double nZOffset1 = actor->eyeHeight() * actor->spr.scale.Y;
 		double nZOffset2 = 0;
 
 
 		if (target->IsDudeActor())
-			nZOffset2 = getDudeInfo(target)->eyeHeight * target->spr.scale.Y;
+			nZOffset2 = target->eyeHeight() * target->spr.scale.Y;
 
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
 			sfxPlay3DSound(actor, 530, 1, 0);
@@ -419,7 +419,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 
 	// if reached target, change to search mode
-	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < getDudeInfo(actor)->Periphery())
+	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -506,11 +506,10 @@ static void unicultThinkChase(DBloodActor* actor)
 		}
 	}
 
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	DAngle losAngle = absangle(actor->spr.Angles.Yaw, nAngle);
-	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+	double height = (actor->eyeHeight() * actor->spr.scale.Y);
 
-	if (dist > pDudeInfo->SeeDist() || !cansee(target->spr.pos, target->sector(),
+	if (dist > actor->SeeDist() || !cansee(target->spr.pos, target->sector(),
 		actor->spr.pos.plusZ(-height), actor->sector()))
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
@@ -520,7 +519,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	// is the target visible?
-	if (dist < pDudeInfo->SeeDist() && losAngle <= pDudeInfo->Periphery())
+	if (dist < actor->SeeDist() && losAngle <= actor->Periphery())
 	{
 		if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(actor, false))
 			playGenDudeSound(actor, kGenDudeSndChasing);
@@ -732,7 +731,7 @@ static void unicultThinkChase(DBloodActor* actor)
 			}
 
 			int state = checkAttackState(actor);
-			DAngle kAngle = (dudeIsMelee(actor) || dist <= 256/* kGenDudeMaxMeleeDist */) ? pDudeInfo->Periphery() : DAngle1 * 10;
+			DAngle kAngle = (dudeIsMelee(actor) || dist <= 256/* kGenDudeMaxMeleeDist */) ? actor->Periphery() : DAngle1 * 10;
 
 			if (dist < vdist && losAngle < kAngle)
 			{
@@ -1069,21 +1068,20 @@ int checkAttackState(DBloodActor* actor)
 
 static int getGenDudeMoveSpeed(DBloodActor* actor, int which, bool mul, bool shift)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	int speed = -1; int step = 2500; int maxSpeed = 146603;
 	switch (which)
 	{
 	case 0:
-		speed = pDudeInfo->frontSpeed;
+		speed = actor->FrontSpeedFixed();
 		break;
 	case 1:
-		speed = pDudeInfo->sideSpeed;
+		speed = actor->SideSpeedFixed();
 		break;
 	case 2:
-		speed = pDudeInfo->backSpeed;
+		speed = actor->BackSpeedFixed();
 		break;
 	case 3:
-		speed = pDudeInfo->angSpeed;
+		speed = actor->SideSpeedFixed();
 		break;
 	default:
 		return -1;
@@ -1109,15 +1107,14 @@ static int getGenDudeMoveSpeed(DBloodActor* actor, int which, bool mul, bool shi
 
 void aiGenDudeMoveForward(DBloodActor* actor)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 
 	if (pExtra->canFly)
 	{
 		auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-		auto nTurnRange = pDudeInfo->TurnRange();
+		auto nTurnRange = actor->TurnRange();
 		actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
-		double nAccel = pDudeInfo->FrontSpeed() * 4;
+		double nAccel = actor->FrontSpeed() * 4;
 		if (abs(nAng) > DAngle60)
 			return;
 		if (actor->GetTarget() == nullptr)
@@ -1136,7 +1133,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	}
 	else
 	{
-		DAngle maxTurn = mapangle(pDudeInfo->angSpeed * 4 >> 4);
+		DAngle maxTurn = mapangle(actor->turnAngleFixed() * 4 >> 4);
 
 		DAngle dang = actor->xspr.goalAng - actor->spr.Angles.Yaw;
 		actor->spr.Angles.Yaw += clamp(dang, -maxTurn, maxTurn);
@@ -1451,13 +1448,13 @@ static void scaleDamage(DBloodActor* actor)
 	int weaponType = actor->genDudeExtra.weaponType;
 	signed short* curScale = actor->dmgControl;
 	for (int i = 0; i < kDmgMax; i++)
-		curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
+		curScale[i] = actor->dmgControl[i];
 
 	switch (weaponType) {
 		// just copy damage resistance of dude that should be summoned
 	case kGenDudeWeaponSummon:
 		for (int i = 0; i < kDmgMax; i++)
-			curScale[i] = getDudeInfo(curWeapon)->startDamage[i];
+			curScale[i] = curWeapon->dmgControl[i];
 		break;
 		// these does not like the explosions and burning
 	case kGenDudeWeaponKamikaze:
@@ -1762,7 +1759,6 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
 			int nType = actTarget->GetType() - kDudeBase;
-			DUDEINFO* pDudeInfo = &dudeInfo[nType];
 			double z1 = (top - actor->spr.pos.Z) - 1;
 			auto atpos = actTarget->spr.pos;
 
@@ -1776,7 +1772,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				actor->spr.Angles.Yaw = (atpos - actor->spr.pos.XY()).Angle();
 				DVector3 dv;
 				dv.XY() = actor->spr.Angles.Yaw.ToVector() * 64;
-				double tz = actTarget->spr.pos.Z - (actTarget->spr.scale.Y * pDudeInfo->aimHeight);
+				double tz = actTarget->spr.pos.Z - (actTarget->spr.scale.Y * actTarget->aimHeight());
 				double dz = (tz - top - 1) / nDist * 4;
 				int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
 				int t2;
@@ -1857,8 +1853,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	auto pDudeInfo = getDudeInfo(spawned);
-	spawned->clipdist = pDudeInfo->fClipdist();
+	spawned->clipdist = spawned->fClipDist();
 
 	// inherit weapon, seq and sound settings.
 	spawned->xspr.data1 = source->xspr.data1;
@@ -1877,7 +1872,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 		spawned->copy_clipdist(source);
 
 	// inherit custom hp settings
-	if (source->xspr.data4 <= 0) spawned->xspr.health = pDudeInfo->startHealth << 4;
+	if (source->xspr.data4 <= 0) spawned->xspr.health = actor->startHealth() << 4;
 	else spawned->xspr.health = ClipRange(source->xspr.data4 << 4, 1, 65535);
 
 
@@ -1996,10 +1991,10 @@ void genDudeTransform(DBloodActor* actor)
 	actIncarnation->xspr.key = actIncarnation->xspr.dropMsg = 0;
 
 	// set hp
-	if (actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->GetType() - kDudeBase].startHealth << 4;
+	if (actor->xspr.sysData2 <= 0) actor->xspr.health = actor->startHealth() << 4;
 	else actor->xspr.health = ClipRange(actor->xspr.sysData2 << 4, 1, 65535);
 
-	int seqId = dudeInfo[actor->GetType() - kDudeBase].seqStartID;
+	int seqId = actor->seqStartID();
 	switch (actor->GetType()) {
 	case kDudePodMother: // fake dude
 	case kDudeTentacleMother: // fake dude
@@ -2301,7 +2296,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 
 		// check the animation
 		int seqStartId = -1;
-		if (actor->xspr.data2 <= 0) seqStartId = actor->xspr.data2 = getDudeInfo(actor)->seqStartID;
+		if (actor->xspr.data2 <= 0) seqStartId = actor->xspr.data2 = actor->seqStartID();
 		else seqStartId = actor->xspr.data2;
 
 		for (int i = seqStartId; i < seqStartId + kGenDudeSeqMax; i++) {
@@ -2315,7 +2310,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 				Seq* pSeq = getSequence(i);
 				if (!pSeq)
 				{
-					actor->xspr.data2 = getDudeInfo(actor)->seqStartID;
+					actor->xspr.data2 = actor->seqStartID();
 					viewSetSystemMessage("No SEQ animation id %d found for custom dude #%d!", i, actor->GetIndex());
 					viewSetSystemMessage("SEQ base id: %d", seqStartId);
 				}
@@ -2543,7 +2538,7 @@ bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 						actor->spr.pal = 0;
 
 					aiGenDudeNewState(actor, &genDudeBurnGoto);
-					actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
+					actHealDude(actor, actor->startHealth(), actor->startHealth());
 					if (actor->xspr.burnTime <= 0) actor->xspr.burnTime = 1200;
 					actor->dudeExtra.time = PlayClock + 360;
 					return true;

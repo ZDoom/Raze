@@ -277,13 +277,13 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	pDudeActor->spr.Angles.Yaw = angle;
 
 	pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
-	pDudeActor->clipdist = getDudeInfo(nType)->fClipdist();
+	pDudeActor->clipdist = pDudeActor->fClipDist();
 
 	pDudeActor->xspr.respawn = 1;
-	pDudeActor->xspr.health = getDudeInfo(nType)->startHealth << 4;
+	pDudeActor->xspr.health = pDudeActor->startHealth() << 4;
 
-	if (fileSystem.FindResource(getDudeInfo(nType)->seqStartID, "SEQ"))
-		seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor);
+	if (getSequence(pDudeActor->seqStartID))
+		seqSpawn(pDudeActor->seqStartID, pDudeActor);
 
 	// add a way to inherit some values of spawner by dude.
 	if (sourceactor->spr.flags & kModernTypeFlag1) {
@@ -1409,7 +1409,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 			clipDist = actor->genDudeExtra.clipdist;
 			break;
 		default:
-			seqId = getDudeInfo(actor)->seqStartID;
+			seqId = actor->seqStartID();
 			break;
 		}
 	}
@@ -3576,7 +3576,7 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 	{
 		if (sourceactor->spr.flags & kModernTypeFlag1) dmg = ClipHigh(sourceactor->xspr.data3 << 1, 65535);
 		else if (actor->xspr.sysData2 > 0) dmg = (ClipHigh(actor->xspr.sysData2 << 4, 65535) * sourceactor->xspr.data3) / kPercFull;
-		else dmg = ((getDudeInfo(actor)->startHealth << 4) * sourceactor->xspr.data3) / kPercFull;
+		else dmg = ((actor->startHealth() << 4) * sourceactor->xspr.data3) / kPercFull;
 
 		health = actor->xspr.health - dmg;
 	}
@@ -4690,7 +4690,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		{
 		default: break;
 		case 50: // compare hp (in %)
-			if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(objActor)->startHealth << 4;
+			if (objActor->IsDudeActor()) var = (objActor->xspr.sysData2 > 0) ? ClipRange(objActor->xspr.sysData2 << 4, 1, 65535) : objActor->startHealth() << 4;
 			else if (objActor->GetType() == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
 			else if (objActor->GetType() >= kThingBase && objActor->GetType() < kThingMax) var = objActor->IntVar("defhealth") << 4;
 			return condCmp((kPercFull * objActor->xspr.health) / ClipLow(var, 1), arg1, arg2, cmpOp);
@@ -5150,9 +5150,9 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 	auto dv = targetactor->spr.pos.XY() - dudeactor->spr.pos.XY();
 
 	// check target
-	if (dv.Length() < pDudeInfo->SeeDist())
+	if (dv.Length() < actor->SeeDist())
 	{
-		double height = (pDudeInfo->eyeHeight * dudeactor->spr.scale.Y);
+		double height = (actor->eyeHeight() * dudeactor->spr.scale.Y);
 
 		// is there a line of sight to the target?
 		if (cansee(dudeactor->spr.pos, dudeactor->sector(), targetactor->spr.pos.plusZ(-height), targetactor->sector()))
@@ -5338,8 +5338,8 @@ int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* t
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
 	double dist = dvec.Length();
 
-	if (dist <= pDudeInfo->MeleeDist()) return 0;
-	double seeDist = pDudeInfo->SeeDist();
+	if (dist <= actor->MeleeDist()) return 0;
+	double seeDist = actor->SeeDist();
 	if (dist >= seeDist) return 13;
 	if (dist <= seeDist / 12) return 1;
 	if (dist <= seeDist / 11) return 2;
@@ -6009,7 +6009,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
 			switch (cmd) {
 			case 36:
-				actHealDude(pPlayer->GetActor(), ((actor->xspr.data2 > 0) ? ClipHigh(actor->xspr.data2, 200) : getDudeInfo(pPlayer->GetActor())->startHealth), 200);
+				actHealDude(pPlayer->GetActor(), ((actor->xspr.data2 > 0) ? ClipHigh(actor->xspr.data2, 200) : pPlayer->GetActor()->startHealth()), 200);
 				pPlayer->curWeapon = kWeapPitchFork;
 				break;
 			}
@@ -6961,7 +6961,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 					actor->xspr.burnTime = 0;
 
 					// heal dude a bit in case of friendly fire
-					int startHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
+					int startHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : actor->startHealth() << 4;
 					if (actor->xspr.health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
 				}
 				else if (burnactor->xspr.health <= 0)
@@ -7032,11 +7032,11 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 			auto mateactor = targetactor;
 
 			// heal dude
-			int startHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
+			int startHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : actor->startHealth() << 4;
 			if (actor->xspr.health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
 
 			// heal mate
-			startHp = (mateactor->xspr.sysData2 > 0) ? ClipRange(mateactor->xspr.sysData2 << 4, 1, 65535) : getDudeInfo(mateactor)->startHealth << 4;
+			startHp = (mateactor->xspr.sysData2 > 0) ? ClipRange(mateactor->xspr.sysData2 << 4, 1, 65535) : mateactor->startHealth() << 4;
 			if (mateactor->xspr.health < (unsigned)startHp) actHealDude(mateactor, receiveHp, startHp);
 
 			auto matetarget = mateactor->GetTarget();
@@ -8088,7 +8088,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 
 void aiPatrolTurn(DBloodActor* actor)
 {
-	DAngle nTurnRange = mapangle((getDudeInfo(actor)->angSpeed << 1) >> 4);
+	DAngle nTurnRange = mapangle((actor->angSpeed << 1) >> 4);
 	DAngle nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 
@@ -8119,10 +8119,9 @@ void aiPatrolMove(DBloodActor* actor)
 		break;
 	}
 
-	DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
 
-	DVector3 dv = targetactor->spr.pos - actor->spr.pos.plusZ(-pDudeInfo->eyeHeight); // eyeHeight is in map units!
+	DVector3 dv = targetactor->spr.pos - actor->spr.pos.plusZ(-actor->eyeHeight()); // eyeHeight is in map units!
 
 	DAngle goalAng = DAngle180 / 3;
 
@@ -8138,7 +8137,7 @@ void aiPatrolMove(DBloodActor* actor)
 		actor->spr.flags |= kPhysGravity | kPhysFalling;
 	}
 
-	DAngle nTurnRange = pDudeInfo->TurnRange() / 64;
+	DAngle nTurnRange = actor->TurnRange() / 64;
 	DAngle nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 
@@ -8166,7 +8165,7 @@ void aiPatrolMove(DBloodActor* actor)
 	}
 	else
 	{
-		int frontSpeed = pDudeInfo->frontSpeed;
+		int frontSpeed = actor->FrontSpeedFixed();
 		switch (actor->GetType())
 		{
 			case kDudeModernCustom:
@@ -8175,7 +8174,7 @@ void aiPatrolMove(DBloodActor* actor)
 				break;
 		}
 
-		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
+		frontSpeed = aiPatrolGetVelocity(actor->FrontSpeedFixed(), targetactor->xspr.busyTime);
 		actor->vel += actor->spr.Angles.Yaw.ToVector() * FixedToFloat(frontSpeed);
 	}
 
@@ -8213,7 +8212,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz2 = (getDudeInfo(targetactor)->eyeHeight * targetactor->spr.scale.Y);
+		double eaz2 = (targetactor->eyeHeight() * targetactor->spr.scale.Y);
 		double nDist = (dudeactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
 		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos.XY(), zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
@@ -8245,7 +8244,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 	if (actor->xspr.health <= 0)
 		return;
 
-	double eaz2 = (getDudeInfo(actor)->eyeHeight * actor->spr.scale.Y);
+	double eaz2 = (actor->eyeHeight() * actor->spr.scale.Y);
 	auto pos2 = actor->spr.pos.plusZ(-eaz2);
 
 	auto pSect2 = actor->sector();
@@ -8265,7 +8264,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz1 = (getDudeInfo(dudeactor)->eyeHeight * dudeactor->spr.scale.Y);
+		double eaz1 = (dudeactor->eyeHeight() * dudeactor->spr.scale.Y);
 		auto pos1 = dudeactor->spr.pos.plusZ(-eaz1);
 
 		auto pSect1 = dudeactor->sector();
@@ -8362,7 +8361,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor); DBloodPlayer* pPlayer = NULL;
+	DBloodPlayer* pPlayer = NULL;
 
 	for (int i = 0; i < kMaxPatrolFoundSounds; i++)
 	{
@@ -8393,8 +8392,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		auto pos = plActor->spr.pos;
 		auto dv = pos.XY() - actor->spr.pos.XY();
 		double nDistf = dv.Length();
-		double seeDistf = (stealth) ? pDudeInfo->SeeDist() / 3 : pDudeInfo->SeeDist() / 4;
-		double hearDistf = pDudeInfo->HearDist(); 
+		double seeDistf = (stealth) ? actor->SeeDist() / 3 : actor->SeeDist() / 4;
+		double hearDistf = actor->HearDist(); 
 		double feelDistf = hearDistf / 2;
 
 		// TO-DO: is there any dudes that sees this patrol dude and sees target?
@@ -8403,7 +8402,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		if (nDistf <= seeDistf)
 		{
 			double scratch;
-			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+			double eyeAboveZ = (actor->eyeHeight() * actor->spr.scale.Y);
 			if (nDistf < seeDistf / 8) GetActorExtents(pPlayer->GetActor(), &pos.Z, &scratch); //use ztop of the target sprite
 			if (!cansee(pos, plActor->sector(), actor->spr.pos - eyeAboveZ, actor->sector()))
 				continue;
@@ -8542,7 +8541,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 			if (seeDistf)
 			{
-				DAngle periphery = max(pDudeInfo->Periphery(), DAngle60);
+				DAngle periphery = max(actor->Periphery(), DAngle60);
 				DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dv.Angle());
 				if ((itCanSee = (!blind && nDistf < seeDistf && nDeltaAngle < periphery)) == true)
 				{
@@ -9284,6 +9283,129 @@ void killEffectGenCallbacks(DBloodActor* actor)
 	}
 }
 
+
+int nnextCheckPatrol(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage)
+{
+	// for enemies in patrol mode
+	if (aiInPatrolState(actor->xspr.aiState))
+	{
+		aiPatrolStop(actor, source, actor->xspr.dudeAmbush);
+
+		auto pPlayer = getPlayer(source->GetType());
+		if (!pPlayer) return nDamage;
+		//if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
+		if (readyForCrit(source, actor))
+		{
+			nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
+			if (actor->xspr.health > 0)
+			{
+				int fullHp = (actor->xspr.sysData2 > 0) ? ClipRange(actor->xspr.sysData2 << 4, 1, 65535) : actor->startHealth << 4;
+				if (((100 * actor->xspr.health) / fullHp) <= 75)
+				{
+					actor->cumulDamage += nDamage << 4; // to be sure any enemy will play the recoil animation
+					RecoilDude(actor);
+				}
+			}
+
+			DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->pnum + 1, actor->GetIndex());
+		}
+
+		return nDamage;
+	}
+
+	if (actor->GetType() == kDudeModernCustomBurning)
+	{
+		if (Chance(0x2000) && actor->dudeExtra.time < PlayClock) {
+			playGenDudeSound(actor,kGenDudeSndBurning);
+			actor->dudeExtra.time = PlayClock + 360;
+		}
+
+		if (actor->xspr.burnTime == 0) actor->xspr.burnTime = 2400;
+		if (spriteIsUnderwater(actor, false))
+		{
+			actor->ChangeType(kDudeModernCustom);
+			actor->xspr.burnTime = 0;
+			actor->xspr.health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
+			aiGenDudeNewState(actor, &genDudeGotoW);
+		}
+
+		return nDamage;
+
+	}
+
+	if (actor->GetType() == kDudeModernCustom)
+	{
+		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
+		if (nDmgType == kDamageBurn)
+		{
+			if (actor->xspr.health > (uint32_t)actor->fleeHealth()) return nDamage;
+			else if (actor->xspr.txID <= 0 || getNextIncarnation(actor) == nullptr)
+			{
+				removeDudeStuff(actor);
+
+				if (pExtra->weaponType == kGenDudeWeaponKamikaze)
+					doExplosion(actor, actor->xspr.data1 - kTrapExploder);
+
+				if (spriteIsUnderwater(actor))
+				{
+					actor->xspr.health = 0;
+					return nDamage;
+				}
+
+				if (actor->xspr.burnTime <= 0)
+					actor->xspr.burnTime = 1200;
+
+				if (pExtra->canBurn && pExtra->availDeaths[kDamageBurn] > 0) {
+
+					aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
+					playGenDudeSound(actor,kGenDudeSndBurning);
+					actor->ChangeType(kDudeModernCustomBurning);
+
+					if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
+						actor->spr.pal = 0;
+
+					aiGenDudeNewState(actor, &genDudeBurnGoto);
+					actHealDude(actor, actor->startHealth(), actor->startHealth());
+					actor->dudeExtra.time = PlayClock + 360;
+					evKillActor(actor, AF(fxFlameLick));
+
+				}
+			}
+			else
+			{
+				actKillDude(actor, actor, kDamageFall, 65535);
+			}
+		}
+		else if (canWalk(actor) && !inDodge(actor->xspr.aiState) && !inRecoil(actor->xspr.aiState))
+		{
+			if (!dudeIsMelee(actor))
+			{
+				if (inIdle(actor->xspr.aiState) || Chance(getDodgeChance(actor)))
+				{
+					if (!spriteIsUnderwater(actor))
+					{
+						if (!canDuck(actor) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(actor, &genDudeDodgeShortL);
+						else aiGenDudeNewState(actor, &genDudeDodgeShortD);
+
+						if (Chance(0x0200))
+							playGenDudeSound(actor,kGenDudeSndGotHit);
+
+					}
+					else if (dudeIsPlayingSeq(actor, 13))
+					{
+						aiGenDudeNewState(actor, &genDudeDodgeShortW);
+					}
+				}
+			}
+			else if (Chance(0x0200))
+			{
+				playGenDudeSound(actor,kGenDudeSndGotHit);
+			}
+		}
+		return nDamage;
+	}
+	return -1;
+}
 //---------------------------------------------------------------------------
 //
 //

@@ -78,45 +78,44 @@ void tilePrecacheTile(FTextureID nTex, int nType, int palette)
 void PrecacheDude(DBloodActor* actor)
 {
 	int palette = actor->spr.pal;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	seqPrecacheId(pDudeInfo->seqStartID, palette);
-	seqPrecacheId(pDudeInfo->seqStartID + 5, palette);
-	seqPrecacheId(pDudeInfo->seqStartID + 1, palette);
-	seqPrecacheId(pDudeInfo->seqStartID + 2, palette);
+	seqPrecacheId(actor->seqStartID(), palette);
+	seqPrecacheId(actor->seqStartID() + 5, palette);
+	seqPrecacheId(actor->seqStartID() + 1, palette);
+	seqPrecacheId(actor->seqStartID() + 2, palette);
 	switch (actor->GetType())
 	{
 	case kDudeCultistTommy:
 	case kDudeCultistShotgun:
 	case kDudeCultistTesla:
 	case kDudeCultistTNT:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 13, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 14, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 15, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartID() + 9, palette);
+		seqPrecacheId(actor->seqStartID() + 13, palette);
+		seqPrecacheId(actor->seqStartID() + 14, palette);
+		seqPrecacheId(actor->seqStartID() + 15, palette);
 		break;
 	case kDudeZombieButcher:
 	case kDudeGillBeast:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 10, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 11, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartID() + 9, palette);
+		seqPrecacheId(actor->seqStartID() + 10, palette);
+		seqPrecacheId(actor->seqStartID() + 11, palette);
 		break;
 	case kDudeGargoyleStatueFlesh:
 	case kDudeGargoyleStatueStone:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette); //???
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette); //???
 		[[fallthrough]];
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartID() + 9, palette);
 		break;
 	case kDudePhantasm:
 	case kDudeHellHound:
@@ -125,38 +124,38 @@ void PrecacheDude(DBloodActor* actor)
 	case kDudeSpiderBlack:
 	case kDudeSpiderMother:
 	case kDudeTchernobog:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 8, palette);
 		break;
 	case kDudeCerberusTwoHead:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
 		[[fallthrough]];
 	case kDudeHand:
 	case kDudeBoneEel:
 	case kDudeBat:
 	case kDudeRat:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
 		break;
 	case kDudeCultistBeast:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
 		break;
 	case kDudeZombieAxeBuried:
-		seqPrecacheId(pDudeInfo->seqStartID + 12, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 9, palette);
+		seqPrecacheId(actor->seqStartID() + 12, palette);
+		seqPrecacheId(actor->seqStartID() + 9, palette);
 		[[fallthrough]];
 	case kDudeZombieAxeLaying:
-		seqPrecacheId(pDudeInfo->seqStartID + 10, palette);
+		seqPrecacheId(actor->seqStartID() + 10, palette);
 		[[fallthrough]];
 	case kDudeZombieAxeNormal:
-		seqPrecacheId(pDudeInfo->seqStartID + 6, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 7, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 8, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 11, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 13, palette);
-		seqPrecacheId(pDudeInfo->seqStartID + 14, palette);
+		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartID() + 11, palette);
+		seqPrecacheId(actor->seqStartID() + 13, palette);
+		seqPrecacheId(actor->seqStartID() + 14, palette);
 		break;
 	}
 }
@@ -237,17 +236,19 @@ void PreloadCache()
 	tilePrecacheTile(aTexIds[kTexBLOODDRIP], -1, 0); // blood drip
 
 	// Player SEQs
-	seqPrecacheId(dudeInfo[31].seqStartID + 6, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 7, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 8, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 9, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 10, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 14, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 15, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 12, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 16, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 17, 0);
-	seqPrecacheId(dudeInfo[31].seqStartID + 18, 0);
+	auto playerdef = static_cast<DBloodActor*>(GetDefaultByType(PClass::FindActor("BloodPlayerBase")));
+	int seqStartID = playerdef->seqStartID();
+	seqPrecacheId(seqStartID + 6, 0);
+	seqPrecacheId(seqStartID + 7, 0);
+	seqPrecacheId(seqStartID + 8, 0);
+	seqPrecacheId(seqStartID + 9, 0);
+	seqPrecacheId(seqStartID + 10, 0);
+	seqPrecacheId(seqStartID + 14, 0);
+	seqPrecacheId(seqStartID + 15, 0);
+	seqPrecacheId(seqStartID + 12, 0);
+	seqPrecacheId(seqStartID + 16, 0);
+	seqPrecacheId(seqStartID + 17, 0);
+	seqPrecacheId(seqStartID + 18, 0);
 
 	/* fixme: cache the composite sky. These are useless.
 	for (auto& sect : sector)
