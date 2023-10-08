@@ -1025,6 +1025,28 @@ void ZCCRazeCompiler::CompileStates()
 
 		int numframes = 0;
 
+		// first set up the AI states so that regular states can 'goto' to them.
+		for (auto& defstate : static_cast<PClassActor*>(c->ClassType())->ActorInfo()->AIStates)
+		{
+			statedef.AddStateLabel(defstate.Label.GetChars());
+
+			FState state;
+			memset(&state, 0, sizeof(state));
+			state.UseFlags = SUF_ACTOR;	// AI states are only for actors and nothing else.;
+			state.sprite = defstate.sprite & 0xfffffff;
+			if (defstate.sprite & 0x10000000) state.StateFlags = STF_SPRITESEQINDEX;
+			else if (defstate.sprite & 0x20000000) state.StateFlags = STF_SPRITESEQOFFSET;
+			else state.StateFlags = STF_SPRITESEQNAME;
+			state.Tics = defstate.Tics;
+			//state.? = defstate.Type; // no idea if we will need this.
+			state.ActionFunc = defstate.ActionFunc;
+			state.MoveFunc = defstate.MoveFunc;
+			state.TickFunc = defstate.TickFunc;
+			state.EnterFunc = defstate.EnterFunc;
+			statedef.AddStates(&state, "A", defstate.scriptpos);
+			statedef.SetGotoLabel(defstate.NextStaten.GetChars());
+		}
+
 		for (auto s : c->States)
 		{
 			int flags;

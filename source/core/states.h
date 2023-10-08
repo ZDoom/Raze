@@ -79,6 +79,10 @@ enum EStateFlags
 {
 	STF_TICADJUST = 1,
 	STF_FULLBRIGHT = 4,	// State is fullbright
+	STF_SPRITESEQMASK = 24,
+	STF_SPRITESEQNAME = 8,
+	STF_SPRITESEQINDEX = 16,
+	STF_SPRITESEQOFFSET = 24,
 };
 
 enum EStateType : int // this must ensure proper alignment.
@@ -161,6 +165,7 @@ struct FDefiningState
 	VMFunction* EnterFunc;  // called when entering the state.
 	VMFunction* TickFunc;   // called when ticking the state.
 	VMFunction* MoveFunc;   // called when moving the actor
+	FScriptPosition scriptpos;
 
 	// these are only here so we can use this struct directly in the first stage of transitioning the states in Blood.
 	FDefiningState* NextState;

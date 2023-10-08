@@ -818,6 +818,7 @@ DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
 	if (*seq == 0) state.sprite = 0;
 	else if (*seq == '#') state.sprite = (int)strtoull(seq + 1, &endp, 10) | 0x10000000;
 	else if (*seq == '+') state.sprite = (int)strtoull(seq + 1, &endp, 10) | 0x20000000;
+	else state.sprite = FName(seq).GetIndex();
 
 	state.Label = label;
 	state.Type = type;
