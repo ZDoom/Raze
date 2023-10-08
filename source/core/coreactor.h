@@ -103,6 +103,11 @@ public:
 		return interpolatedvalue(PrevAngles.Yaw, spr.Angles.Yaw, interpfrac);
 	}
 
+	FState* FindState(FName state)
+	{
+		return static_cast<PClassActor*>(GetClass())->FindState(state);
+	}
+
 	void backupz()
 	{
 		opos.Z = spr.pos.Z;
