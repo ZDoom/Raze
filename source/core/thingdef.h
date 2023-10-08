@@ -193,6 +193,13 @@ int MatchString (const char *in, const char **strings);
 	MSVC_PSEG FPropertyInfo *infoptr_##name##_##paramlist##_##clas GCC_PSEG = &Prop_##name##_##paramlist##_##clas; \
 	static void Handler_##name##_##paramlist##_##clas(D##clas *defaults, PClassActor *info, Baggage &bag, FPropParam *params)
 
+#define DEFINE_SCRIPTED_PROPERTY_BASE(name, paramlist, clas, cat) \
+	static void Handler_##name##_##paramlist##_##clas(DCoreActor *defaults, PClassActor *info, Baggage &bag, FPropParam *params); \
+	static FPropertyInfo Prop_##name##_##paramlist##_##clas = \
+		{ #name, #paramlist, #clas, (PropHandler)Handler_##name##_##paramlist##_##clas, cat }; \
+	MSVC_PSEG FPropertyInfo *infoptr_##name##_##paramlist##_##clas GCC_PSEG = &Prop_##name##_##paramlist##_##clas; \
+	static void Handler_##name##_##paramlist##_##clas(DCoreActor *defaults, PClassActor *info, Baggage &bag, FPropParam *params)
+
 #define DEFINE_PREFIXED_PROPERTY_BASE(prefix, name, paramlist, clas, cat) \
 	static void Handler_##name##_##paramlist##_##clas(D##clas *defaults, PClassActor *info, Baggage &bag, FPropParam *params); \
 	static FPropertyInfo Prop_##name##_##paramlist##_##clas = \
@@ -209,6 +216,7 @@ int MatchString (const char *in, const char **strings);
 
 
 #define DEFINE_PROPERTY(name, paramlist, clas) DEFINE_PROPERTY_BASE(name, paramlist, clas, CAT_PROPERTY)
+#define DEFINE_SCRIPTED_PROPERTY(name, paramlist, clas) DEFINE_SCRIPTED_PROPERTY_BASE(name, paramlist, clas, CAT_PROPERTY)
 #define DEFINE_INFO_PROPERTY(name, paramlist, clas) DEFINE_PROPERTY_BASE(name, paramlist, clas, CAT_INFO)
 
 #define DEFINE_CLASS_PROPERTY(name, paramlist, clas) DEFINE_PREFIXED_SCRIPTED_PROPERTY_BASE(clas, name, paramlist, clas, CAT_PROPERTY)

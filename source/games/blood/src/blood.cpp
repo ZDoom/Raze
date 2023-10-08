@@ -782,7 +782,7 @@ DEFINE_PROPERTY(dmgcontrol, IIIIIII, BloodActor)
 }
 
 // the state parser with its special semantics cannot be extended to handle this right. :(
-DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
+DEFINE_PROPERTY(aistate, SSIIGGGGs, BloodActor)
 {
 	PROP_STRING_PARM(label, 0);
 	PROP_STRING_PARM(seq, 1); // either a name, an absolute ID with #000 or a relative ID with +000. Empty string means nothing
@@ -815,6 +815,18 @@ DEFINE_PROPERTY(aistate, SSIIGGGGs, CoreActor)
 	state.MoveFunc = move;
 	state.TickFunc = tick;
 	state.NextStaten = next ? FName(next) : FName(NAME_None);
+}
+
+DEFINE_SCRIPTED_PROPERTY(gibtype, III, BloodDudeBase)
+{
+	PROP_INT_PARM(type1, 0);
+	PROP_INT_PARM(type2, 1);
+	PROP_INT_PARM(type3, 2);
+	int* gibtype = defaults->IntArray(NAME_gibtype);
+	gibtype[0] = type1;
+	gibtype[1] = type2;
+	gibtype[2] = type3;
+
 }
 
 END_BLD_NS

@@ -1,5 +1,48 @@
 class BloodDudeBase : Bloodactor
 {
+	meta int seqStartID;
+	meta int starthealth;
+	meta int mass;
+	meta int eyeHeight;
+	meta int aimHeight; // used by just Cerberus
+	meta double hearDist;
+	meta double seeDist;
+	meta double periphery;
+	meta double meleeDist; // unused?
+	meta int fleeHealth; // at which hp level enemy will turn in burning dude
+	meta int hinderDamage; // recoil dmgcontrol
+	meta int changeTarget; // chance to change target when attacked someone else
+	meta int changeTargetKin; // chance to change target when attacked by same type
+	meta int alertChance;
+	meta int lockOut;
+	meta double frontSpeed;
+	meta double sideSpeed;
+	meta double backSpeed;
+	meta double angSpeed;
+	meta int gibType[3]; // which gib used when explode dude
+	
+	property prefix: none;
+	property seqStartID: seqStartID;
+	property health: startHealth;
+	property mass: mass;
+	property eyeHeight: eyeHeight;
+	property aimHeight: aimHeight;
+	property hearDist: hearDist;
+	property seeDist: seeDist;
+	property periphery: periphery;
+	property meleeDist: meleeDist;
+	property fleeHealth: fleeHealth;
+	property hinderDamage: hinderDamage;
+	property changeTargetChance: changeTarget;
+	property changeTargetKinChance: changeTargetKin;
+	property alertChance: alertChance;
+	property lockOut: lockOut;
+	property frontSpeed: frontSpeed;
+	property sideSpeed: sideSpeed;
+	property backSpeed: backSpeed;
+	property angSpeed: angSpeed;
+	
+	
 	default
 	{
 		AISTATE "genIdle", "+0", 1, 0, null, null, null, null, "none";
@@ -322,62 +365,1308 @@ class BloodDudeBase : Bloodactor
 
 class BloodPlayerBase : BloodDudeBase
 {
+	default
+	{
+		seqstartid 12032;
+		health 100;
+		mass 70;
+		clipdist 12;
+		aimheight 16;
+		heardist 128;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 11.25;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+
 	override int getRespawnTime()
 	{
 		return -1;	// no respawn for players.
 	}
 }
 
-class BloodDudeCultistTommy : BloodDudeBase {}
-class BloodDudeCultistShotgun : BloodDudeBase {}
-class BloodDudeZombieAxeNormal : BloodDudeBase {}
-class BloodDudeZombieButcher : BloodDudeBase {}
-class BloodDudeZombieAxeBuried : BloodDudeBase {}
-class BloodDudeGargoyleFlesh : BloodDudeBase {}
-class BloodDudeGargoyleStone : BloodDudeBase {}
-class BloodDudeGargoyleStatueFlesh : BloodDudeBase {}
-class BloodDudeGargoyleStatueStone : BloodDudeBase {}
-class BloodDudePhantasm : BloodDudeBase {}
-class BloodDudeHellHound : BloodDudeBase {}
-class BloodDudeHand : BloodDudeBase {}
-class BloodDudeSpiderBrown : BloodDudeBase {}
-class BloodDudeSpiderRed : BloodDudeBase {}
-class BloodDudeSpiderBlack : BloodDudeBase {}
-class BloodDudeSpiderMother : BloodDudeBase {}
-class BloodDudeGillBeast : BloodDudeBase {}
-class BloodDudeBoneEel : BloodDudeBase {}
-class BloodDudeBat : BloodDudeBase {}
-class BloodDudeRat : BloodDudeBase {}
-class BloodDudePodGreen : BloodDudeBase {}
-class BloodDudeTentacleGreen : BloodDudeBase {}
-class BloodDudePodFire : BloodDudeBase {}
-class BloodDudeTentacleFire : BloodDudeBase {}
-class BloodDudePodMother : BloodDudeBase {}
-class BloodDudeTentacleMother : BloodDudeBase {}
-class BloodDudeCerberusTwoHead : BloodDudeBase {}
-class BloodDudeCerberusOneHead : BloodDudeBase {}
-class BloodDudeTchernobog : BloodDudeBase {}
-class BloodDudeCultistTommyProne : BloodDudeBase {}
-class BloodDudePlayer1 : BloodPlayerBase {}
-class BloodDudePlayer2 : BloodPlayerBase {}
-class BloodDudePlayer3 : BloodPlayerBase {}
-class BloodDudePlayer4 : BloodPlayerBase {}
-class BloodDudePlayer5 : BloodPlayerBase {}
-class BloodDudePlayer6 : BloodPlayerBase {}
-class BloodDudePlayer7 : BloodPlayerBase {}
-class BloodDudePlayer8 : BloodPlayerBase {}
-class BloodDudeBurningInnocent : BloodDudeBase {}
-class BloodDudeBurningCultist : BloodDudeBase {}
-class BloodDudeBurningZombieAxe : BloodDudeBase {}
-class BloodDudeBurningZombieButcher : BloodDudeBase {}
-class BloodDudeCultistReserved : BloodDudeBase {} // unused
-class BloodDudeZombieAxeLaying : BloodDudeBase {}
-class BloodDudeInnocent : BloodDudeBase {}
-class BloodDudeCultistShotgunProne : BloodDudeBase {}
-class BloodDudeCultistTesla : BloodDudeBase {}
-class BloodDudeCultistTNT : BloodDudeBase {}
-class BloodDudeCultistBeast : BloodDudeBase {}
-class BloodDudeTinyCaleb : BloodDudeBase {}
-class BloodDudeBeast : BloodDudeBase {}
-class BloodDudeBurningTinyCaleb : BloodDudeBase {}
-class BloodDudeBurningBeast : BloodDudeBase {}
+class BloodDudeCultistTommy : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4096;
+		health 40;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 8;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.21333313;
+		angspeed 45;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
+	}
+}
+
+class BloodDudeCultistShotgun : BloodDudeBase
+{
+	default
+	{
+		seqstartid 11520;
+		health 40;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 5;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.533325195;
+		sidespeed 0.533325195;
+		backspeed 0.21333313;
+		angspeed 45;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 128, 256, 256, 256, 192;
+	}
+}
+
+class BloodDudeZombieAxeNormal : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4352;
+		health 60;
+		mass 70;
+		clipdist 12;
+		eyeheight 46;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 112, 256, 256, 256, 160;
+	}
+}
+
+class BloodDudeZombieButcher : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4608;
+		health 80;
+		mass 200;
+		clipdist 12;
+		eyeheight 128;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.355545044;
+		sidespeed 0.355545044;
+		backspeed 0.21333313;
+		angspeed 45;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 32, 128, 256, 64, 128;
+	}
+}
+
+class BloodDudeZombieAxeBuried : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4352;
+		health 60;
+		mass 70;
+		clipdist 12;
+		eyeheight 46;
+		aimheight 20;
+		heardist 320;
+		seedist 0;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeGargoyleFlesh : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4864;
+		health 110;
+		mass 120;
+		clipdist 16;
+		eyeheight 13;
+		aimheight 5;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 25;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.355545044;
+		angspeed 67.5;
+		gibtype 30, -1, -1;
+		dmgcontrol 0, 128, 48, 208, 256, 256, 256;
+	}
+}
+
+class BloodDudeGargoyleStone : BloodDudeBase
+{
+	default
+	{
+		seqstartid 5120;
+		health 200;
+		mass 200;
+		clipdist 21;
+		eyeheight 13;
+		aimheight 5;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 20;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.355545044;
+		angspeed 45;
+		gibtype 19, -1, -1;
+		dmgcontrol 0, 0, 10, 10, 0, 128, 64;
+	}
+}
+
+class BloodDudeGargoyleStatueFlesh : BloodDudeBase
+{
+	default
+	{
+		seqstartid 11008;
+		health 100;
+		mass 200;
+		clipdist 16;
+		eyeheight 13;
+		aimheight 5;
+		heardist 128;
+		seedist 320;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 0;
+		gibtype -1, -1, -1;
+	}
+}
+
+class BloodDudeGargoyleStatueStone : BloodDudeBase
+{
+	default
+	{
+		seqstartid 11264;
+		health 100;
+		mass 200;
+		clipdist 16;
+		eyeheight 13;
+		aimheight 5;
+		heardist 128;
+		seedist 320;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 0;
+		gibtype -1, -1, -1;
+	}
+}
+
+class BloodDudePhantasm : BloodDudeBase
+{
+	default
+	{
+		seqstartid 5376;
+		health 100;
+		mass 70;
+		clipdist 16;
+		eyeheight 25;
+		aimheight 15;
+		heardist 640;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype -1, -1, -1;
+		dmgcontrol 0, 0, 48, 0, 0, 16, 0;
+	}
+}
+
+class BloodDudeHellHound : BloodDudeBase
+{
+	default
+	{
+		seqstartid 5632;
+		health 70;
+		mass 120;
+		clipdist 20;
+		eyeheight 6;
+		heardist 640;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 20;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 1.777771;
+		sidespeed 1.24443054;
+		backspeed 1.06666565;
+		angspeed 67.5;
+		gibtype 29, -1, -1;
+		dmgcontrol 48, 0, 48, 48, 256, 128, 192;
+	}
+}
+
+class BloodDudeHand : BloodDudeBase
+{
+	default
+	{
+		seqstartid 5888;
+		health 10;
+		mass 70;
+		clipdist 8;
+		heardist 320;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 64, 256, 256, 256, 0, 64, 256;
+	}
+}
+
+class BloodDudeSpiderBrown : BloodDudeBase
+{
+	default
+	{
+		seqstartid 6144;
+		health 10;
+		mass 5;
+		clipdist 8;
+		eyeheight -5;
+		aimheight -5;
+		heardist 320;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 64, 256, 256, 96, 256, 64, 256;
+	}
+}
+
+class BloodDudeSpiderRed : BloodDudeBase
+{
+	default
+	{
+		seqstartid 6400;
+		health 25;
+		mass 10;
+		clipdist 8;
+		eyeheight -5;
+		aimheight -5;
+		heardist 320;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 64, 128, 256, 96, 256, 64, 256;
+	}
+}
+
+class BloodDudeSpiderBlack : BloodDudeBase
+{
+	default
+	{
+		seqstartid 6656;
+		health 75;
+		mass 20;
+		clipdist 8;
+		eyeheight -5;
+		aimheight -5;
+		heardist 320;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 128, 256, 256, 96, 256, 64, 256;
+	}
+}
+
+class BloodDudeSpiderMother : BloodDudeBase
+{
+	default
+	{
+		seqstartid 6912;
+		health 100;
+		mass 40;
+		clipdist 8;
+		eyeheight -5;
+		aimheight -5;
+		heardist 320;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 32, 16, 16, 16, 32, 32, 32;
+	}
+}
+
+class BloodDudeGillBeast : BloodDudeBase
+{
+	default
+	{
+		seqstartid 7168;
+		health 50;
+		mass 200;
+		clipdist 16;
+		eyeheight 37;
+		aimheight 20;
+		heardist 320;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 48, 80, 64, 128, 0, 128, 48;
+	}
+}
+
+class BloodDudeBoneEel : BloodDudeBase
+{
+	default
+	{
+		seqstartid 7424;
+		health 25;
+		mass 30;
+		clipdist 8;
+		eyeheight 4;
+		heardist 320;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.533325195;
+		sidespeed 0.355545044;
+		backspeed 0.355545044;
+		angspeed 22.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 0, 256, 192;
+	}
+}
+
+class BloodDudeBat : BloodDudeBase
+{
+	default
+	{
+		seqstartid 7680;
+		health 10;
+		mass 5;
+		clipdist 8;
+		eyeheight 2;
+		heardist 640;
+		seedist 1600;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.355545044;
+		sidespeed 0.355545044;
+		backspeed 0.21333313;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 64, 256;
+	}
+}
+
+class BloodDudeRat : BloodDudeBase
+{
+	default
+	{
+		seqstartid 7936;
+		health 10;
+		mass 5;
+		clipdist 8;
+		eyeheight 3;
+		heardist 800;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 128, 256;
+	}
+}
+
+class BloodDudePodGreen : BloodDudeBase
+{
+	default
+	{
+		seqstartid 8192;
+		health 50;
+		mass 65535;
+		clipdist 16;
+		eyeheight 40;
+		heardist 128;
+		seedist 704;
+		periphery 180;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 160, 160, 128, 160, 0, 0, 256;
+	}
+}
+
+class BloodDudeTentacleGreen : BloodDudeBase
+{
+	default
+	{
+		seqstartid 8448;
+		health 10;
+		mass 65535;
+		clipdist 8;
+		heardist 128;
+		seedist 320;
+		periphery 180;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 80, 0, 0, 256;
+	}
+}
+
+class BloodDudePodFire : BloodDudeBase
+{
+	default
+	{
+		seqstartid 8704;
+		health 100;
+		mass 65535;
+		clipdist 16;
+		eyeheight 40;
+		heardist 128;
+		seedist 960;
+		periphery 180;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 96, 0, 128, 64, 256, 64, 160;
+	}
+}
+
+class BloodDudeTentacleFire : BloodDudeBase
+{
+	default
+	{
+		seqstartid 8960;
+		health 20;
+		mass 65535;
+		clipdist 8;
+		heardist 128;
+		seedist 320;
+		periphery 180;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 128, 0, 128, 128, 0, 0, 128;
+	}
+}
+
+class BloodDudePodMother : BloodDudeBase
+{
+	default
+	{
+		seqstartid 9216;
+		health 200;
+		mass 65535;
+		clipdist 16;
+		eyeheight 40;
+		heardist 128;
+		seedist 3200;
+		periphery 180;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 0;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeTentacleMother : BloodDudeBase
+{
+	default
+	{
+		seqstartid 9472;
+		health 50;
+		mass 65535;
+		clipdist 8;
+		heardist 128;
+		seedist 3200;
+		periphery 180;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 0;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 128, 256, 128, 128, 256;
+	}
+}
+
+class BloodDudeCerberusTwoHead : BloodDudeBase
+{
+	default
+	{
+		seqstartid 9728;
+		health 200;
+		mass 1000;
+		clipdist 16;
+		eyeheight 29;
+		aimheight 10;
+		heardist 2560;
+		seedist 6400;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 1.06666565;
+		sidespeed 0.888885498;
+		backspeed 0.711105347;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
+	}
+}
+
+class BloodDudeCerberusOneHead : BloodDudeBase
+{
+	default
+	{
+		seqstartid 9984;
+		health 100;
+		mass 1000;
+		clipdist 16;
+		eyeheight 29;
+		aimheight 10;
+		heardist 1280;
+		seedist 3200;
+		periphery 119.882813;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.533325195;
+		backspeed 0.391098022;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
+	}
+}
+
+class BloodDudeTchernobog : BloodDudeBase
+{
+	default
+	{
+		seqstartid 10240;
+		health 32;
+		mass 1500;
+		clipdist 32;
+		heardist 1600;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.888885498;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 3, 1, 4, 4, 0, 4, 3;
+	}
+}
+
+class BloodDudeCultistTommyProne : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4096;
+		health 25;
+		mass 20;
+		clipdist 8;
+		heardist 128;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
+	}
+}
+
+class BloodDudePlayer1 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer2 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer3 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer4 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer5 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer6 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer7 : BloodPlayerBase
+{
+}
+
+class BloodDudePlayer8 : BloodPlayerBase
+{
+}
+
+class BloodDudeBurningInnocent : BloodDudeBase
+{
+	default
+	{
+		seqstartid 12544;
+		health 25;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 100;
+		hinderdamage 100;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 28.125;
+		gibtype 7, 5, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeBurningCultist : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4096;
+		health 30;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 100;
+		hinderdamage 100;
+		alertchance 32768;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.21333313;
+		angspeed 28.125;
+		gibtype 7, 5, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeBurningZombieAxe : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4352;
+		health 12;
+		mass 70;
+		clipdist 12;
+		eyeheight 46;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 28.125;
+		gibtype 7, 5, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeBurningZombieButcher : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4352;
+		health 25;
+		mass 120;
+		clipdist 12;
+		eyeheight 44;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.604431152;
+		sidespeed 0.42666626;
+		backspeed 0.21333313;
+		angspeed 17.578125;
+		gibtype 7, 5, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeCultistReserved : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4096;
+		health 100;
+		mass 70;
+		clipdist 16;
+		eyeheight 38;
+		aimheight 20;
+		heardist 128;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 11.25;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeZombieAxeLaying : BloodDudeBase
+{
+	default
+	{
+		seqstartid 4352;
+		health 60;
+		mass 70;
+		clipdist 12;
+		eyeheight 46;
+		aimheight 20;
+		heardist 320;
+		seedist 0;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 15;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeInnocent : BloodDudeBase
+{
+	default
+	{
+		seqstartid 12544;
+		health 50;
+		mass 70;
+		clipdist 12;
+		eyeheight 46;
+		aimheight 20;
+		heardist 160;
+		seedist 0;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 8;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 15, -1, -1;
+		dmgcontrol 288, 288, 288, 288, 288, 288, 288;
+	}
+}
+
+class BloodDudeCultistShotgunProne : BloodDudeBase
+{
+	default
+	{
+		seqstartid 11520;
+		health 25;
+		mass 70;
+		clipdist 8;
+		eyeheight -5;
+		heardist 128;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0;
+		sidespeed 0;
+		backspeed 0;
+		angspeed 11.25;
+		gibtype 7, 5, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeCultistTesla : BloodDudeBase
+{
+	default
+	{
+		seqstartid 12800;
+		health 40;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 8;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.21333313;
+		angspeed 45;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 256, 96, 160, 256, 256, 12;
+	}
+}
+
+class BloodDudeCultistTNT : BloodDudeBase
+{
+	default
+	{
+		seqstartid 13056;
+		health 40;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 8;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.21333313;
+		angspeed 45;
+		gibtype 15, -1, -1;
+		dmgcontrol 256, 160, 96, 64, 256, 256, 256;
+	}
+}
+
+class BloodDudeCultistBeast : BloodDudeBase
+{
+	default
+	{
+		seqstartid 13312;
+		health 40;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 640;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 12;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 0.711105347;
+		sidespeed 0.533325195;
+		backspeed 0.21333313;
+		angspeed 45;
+		gibtype 15, -1, -1;
+		dmgcontrol 128, 128, 16, 16, 0, 64, 48;
+	}
+}
+
+class BloodDudeTinyCaleb : BloodDudeBase
+{
+	default
+	{
+		seqstartid 13568;
+		health 10;
+		mass 5;
+		clipdist 8;
+		eyeheight 3;
+		heardist 800;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 160, 160, 160, 160, 256, 128, 288;
+	}
+}
+
+class BloodDudeBeast : BloodDudeBase
+{
+	default
+	{
+		seqstartid 10752;
+		health 120;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 800;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 1.777771;
+		sidespeed 1.24443054;
+		backspeed 1.06666565;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 5, 5, 15, 8, 0, 15, 15;
+	}
+}
+
+class BloodDudeBurningTinyCaleb : BloodDudeBase
+{
+	default
+	{
+		seqstartid 13568;
+		health 10;
+		mass 5;
+		clipdist 8;
+		eyeheight 3;
+		heardist 800;
+		seedist 3200;
+		periphery 90;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		frontspeed 0.888885498;
+		sidespeed 0.711105347;
+		backspeed 0.533325195;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
+class BloodDudeBurningBeast : BloodDudeBase
+{
+	default
+	{
+		seqstartid 10752;
+		health 25;
+		mass 70;
+		clipdist 12;
+		eyeheight 41;
+		aimheight 20;
+		heardist 800;
+		seedist 3200;
+		periphery 59.9414063;
+		meleedist 0;
+		fleehealth 10;
+		hinderdamage 10;
+		changetargetchance 256;
+		changetargetkinchance 16;
+		alertchance 32768;
+		lockout 1;
+		frontspeed 1.777771;
+		sidespeed 1.24443054;
+		backspeed 1.06666565;
+		angspeed 67.5;
+		gibtype 7, -1, -1;
+		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+	}
+}
+
