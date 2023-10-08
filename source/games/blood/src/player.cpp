@@ -800,9 +800,9 @@ void playerStart(int nPlayer, int bNewLevel)
 	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, kStatDude, 1, cls, kDudePlayer1 + nPlayer);
 	assert(actor->hasX());
 	pPlayer->actor = actor;
-	pPlayer->Angles.initialize(pPlayer->GetActor());
+	pPlayer->Angles.initialize(actor);
 
-	DUDEINFO* pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
+	DUDEINFO* pDudeInfo = &gPlayerTemplate[0];
 	pPlayer->pDudeInfo = pDudeInfo;
 	playerSetRace(pPlayer, kModeHuman);
 	playerResetPosture(pPlayer);
@@ -814,13 +814,13 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->spr.Angles.Yaw = pStartZone->angle;
-	actor->clipdist = pDudeInfo->fClipdist();
+	actor->clipdist = actor->fClipDist();
 	actor->spr.flags = 15;
 	actor->xspr.burnTime = 0;
 	actor->SetBurnSource(nullptr);
-	pPlayer->GetActor()->xspr.health = pDudeInfo->startHealth << 4;
-	pPlayer->GetActor()->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	pPlayer->GetActor()->spr.Angles.Pitch = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
+	actor->xspr.health = pDudeInfo ->startHealth << 4;
+	actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+	actor->spr.Angles.Pitch = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
@@ -905,7 +905,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	if (IsUnderwaterSector(actor->sector()))
 	{
 		pPlayer->posture = 1;
-		pPlayer->GetActor()->xspr.medium = kMediumWater;
+		actor->xspr.medium = kMediumWater;
 	}
 }
 
@@ -1435,7 +1435,7 @@ int ActionScan(DBloodPlayer* pPlayer, HitInfo* out)
 				return 3;
 			if (hitactor->spr.statnum == kStatDude)
 			{
-				int nMass = getDudeInfo(hitactor)->mass;
+				int nMass = hitactor->mass();
 				if (nMass)
 				{
 					hitactor->vel += pos * (FixedToFloat<10>(0xccccc) / nMass);
@@ -1856,20 +1856,20 @@ void playerProcess(DBloodPlayer* pPlayer)
 		if (packItemActive(pPlayer, 1))
 			packUseItem(pPlayer, 1);
 	}
-	int nType = kDudePlayer1 - kDudeBase;
+	int seqStartID = gPlayerTemplate[0].seqStartID;
 	switch (pPlayer->posture)
 	{
 	case 1:
-		seqSpawn(dudeInfo[nType].seqStartID + 9, actor);
+		seqSpawn(seqStartID + 9, actor);
 		break;
 	case 2:
-		seqSpawn(dudeInfo[nType].seqStartID + 10, actor);
+		seqSpawn(seqStartID + 10, actor);
 		break;
 	default:
 		if (!nSpeed)
-			seqSpawn(dudeInfo[nType].seqStartID, actor);
+			seqSpawn(seqStartID, actor);
 		else
-			seqSpawn(dudeInfo[nType].seqStartID + 8, actor);
+			seqSpawn(seqStartID + 8, actor);
 		break;
 	}
 }
@@ -2063,7 +2063,6 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 	pPlayer->painEffect = ClipHigh(pPlayer->painEffect + (nDamage >> 3), 600);
 
 	DBloodActor* pActor = pPlayer->GetActor();
-	DUDEINFO* pDudeInfo = getDudeInfo(pActor->GetType());
 	int nDeathSeqID = -1;
 	VMFunction* nKneelingPlayer = nullptr;
 	bool va = playerSeqPlaying(pPlayer, 16);
@@ -2211,8 +2210,8 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 #endif
 
 	}
-	assert(getSequence(pDudeInfo->seqStartID + nDeathSeqID) != NULL);
-	seqSpawn(pDudeInfo->seqStartID + nDeathSeqID, pPlayer->GetActor(), nKneelingPlayer);
+	assert(getSequence(pActor->seqStartID() + nDeathSeqID) != NULL);
+	seqSpawn(pActor->seqStartID() + nDeathSeqID, pPlayer->GetActor(), nKneelingPlayer);
 	return nDamage;
 }
 
@@ -2518,7 +2517,7 @@ void SerializePlayers(FSerializer& arc)
 	{
 		for (int i = 0; i < gNetPlayers; i++)
 		{
-			getPlayer(i)->pDudeInfo = &dudeInfo[getPlayer(i)->GetActor()->GetType() - kDudeBase];
+			getPlayer(i)->pDudeInfo = &gPlayerTemplate[0];
 
 #ifdef NOONE_EXTENSIONS
 			// load qav scene
