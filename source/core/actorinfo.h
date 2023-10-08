@@ -63,6 +63,10 @@ struct FActorInfo
 		DefaultMove = other.DefaultMove;
 		DefaultMoveflags = other.DefaultMoveflags;
 	}
+	~FActorInfo()
+	{
+		M_Free(StateList);
+	}
 
 	void ResolveTextures(const char* clsname, DCoreActor *defaults);
 
