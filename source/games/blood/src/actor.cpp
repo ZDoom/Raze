@@ -1467,9 +1467,9 @@ static void actInitDudes()
 		{
 			///////////////
 
-			auto pDudeInfo = getDudeInfo(act);
+			auto startdamage = static_cast<DBloodActor*>(GetDefaultByType(act->GetClass()))->dmgControl;
 			for (int j = 0; j < 7; j++)
-				act->dmgControl[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], pDudeInfo->startDamage[j], 8);
+				act->dmgControl[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], startdamage[j], 8);
 
 
 			if (!act->hasX()) continue;
@@ -2288,10 +2288,10 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 
 	if (damageType == kDamageExplode)
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor);
+		auto gibType = actor->IntArray("gibtype");
 		for (int i = 0; i < 3; i++)
-			if (pDudeInfo->nGibType[i] > -1)
-				GibSprite(actor, (GIBTYPE)pDudeInfo->nGibType[i], nullptr, nullptr);
+			if (gibType[i] > -1)
+				GibSprite(actor, (GIBTYPE)gibType[i], nullptr, nullptr);
 		for (int i = 0; i < 4; i++)
 			fxSpawnBlood(actor, damage);
 	}
@@ -2512,8 +2512,8 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	actHitcodeToData(hitCode, &gHitInfo, &actorHit, &pWallHit);
 
-	DUDEINFO* pDudeInfo = nullptr;
 	bool pIsThing = false;
+	bool pIsDude = false;
 
 	if (hitCode == 3 && actorHit)
 	{
@@ -2523,14 +2523,14 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			pIsThing = true;
 			break;
 		case kStatDude:
-			pDudeInfo = getDudeInfo(actorHit);
+			pIsDude = true;
 			break;
 		}
 	}
 	switch (missileActor->GetType())
 	{
 	case kMissileLifeLeechRegular:
-		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pIsDude))
 		{
 			DAMAGE_TYPE rand1 = (DAMAGE_TYPE)Random(7);
 			int rand2 = (7 + Random(7)) << 4;
@@ -2541,10 +2541,10 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				actBurnSprite(missileActor->GetOwner(), actorHit, 360);
 
 			// by NoOne: make Life Leech heal user, just like it was in 1.0x versions
-			if (gGameOptions.weaponsV10x && !VanillaMode() && pDudeInfo != nullptr)
+			if (gGameOptions.weaponsV10x && !VanillaMode() && pIsDude)
 			{
 				if (missileOwner->IsDudeActor() && missileOwner->hasX() && missileOwner->xspr.health != 0)
-					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner)->startHealth);
+					actHealDude(missileOwner, nDamage >> 2, missileOwner->startHealth());
 			}
 		}
 
@@ -2580,7 +2580,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissilePukeGreen:
 		seqKill(missileActor);
-		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pIsDude))
 		{
 			int nDamage = (15 + Random(7)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
@@ -2593,7 +2593,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxPlay3DSectorSound(missileActor->spr.pos, 306, missileActor->sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
-		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pIsDude))
 		{
 			int nDamage = (25 + Random(20)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
@@ -2606,7 +2606,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSectorSound(missileActor->spr.pos, 306, missileActor->sector());
 
-		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pIsDude))
 		{
 			int nDmgMul = (missileActor->GetType() == kMissileLifeLeechAltSmall) ? 6 : 3;
 			int nDamage = (nDmgMul + Random(nDmgMul)) << 4;
@@ -2617,7 +2617,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileFireball:
 	case kMissileFireballNapalm:
-		if (hitCode == 3 && actorHit && (pIsThing || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pIsThing || pIsDude))
 		{
 			if (pIsThing && actorHit->GetType() == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, AF(fxFlameLick));
@@ -2635,7 +2635,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileFlareRegular:
 		sfxKill3DSound(missileActor, -1, -1);
-		if ((hitCode == 3 && actorHit) && (pIsThing || pDudeInfo))
+		if ((hitCode == 3 && actorHit) && (pIsThing || pIsDude))
 		{
 			int nThingDamage = actorHit->dmgControl[kDamageBurn];
 			if (nThingDamage != 0)

@@ -765,11 +765,6 @@ enum
 
 };
 
-inline DUDEINFO* getDudeInfo(DBloodActor* actor)
-{
-	return getDudeInfo(actor->GetType());
-}
-
 inline DBloodPlayer* getPlayer(DBloodActor* actor)
 {
 	return getPlayer(actor->GetType() - kDudePlayer1);

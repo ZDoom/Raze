@@ -44,8 +44,7 @@ bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 {
 	if (actor->spr.statnum == kStatDude && actor->IsDudeActor())
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor);
-		if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
+		if (seqGetID(actor) == actor->seqStartID() + nSeq && seqGetStatus(actor) >= 0)
 			return true;
 	}
 	return false;
@@ -79,7 +78,6 @@ void aiPlay3DSound(DBloodActor* actor, int soundid, AI_SFX_PRIORITY a3, int play
 
 void aiNewState(DBloodActor* actor, FState* pAIState)
 {
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	actor->xspr.stateTimer = pAIState->Tics;
 	actor->xspr.aiState = pAIState;
 	int seqStartId = -1;
@@ -96,7 +94,7 @@ void aiNewState(DBloodActor* actor, FState* pAIState)
 		break;
 
 	case STF_SPRITESEQOFFSET:
-		seqStartId = pAIState->sprite + pDudeInfo->seqStartID;
+		seqStartId = pAIState->sprite + actor->seqStartID();
 		break;
 	}
 
@@ -315,13 +313,12 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 void aiMoveForward(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	if (abs(nAng) > DAngle60)
 		return;
-	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
+	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * actor->FrontSpeed();
 }
 
 //---------------------------------------------------------------------------
@@ -333,9 +330,8 @@ void aiMoveForward(DBloodActor* actor)
 void aiMoveTurn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 }
 
@@ -348,17 +344,16 @@ void aiMoveTurn(DBloodActor* actor)
 void aiMoveDodge(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
-	auto nTurnRange = pDudeInfo->TurnRange();
+	auto nTurnRange = actor->TurnRange();
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir)
 	{
 		AdjustVelocity(actor, ADJUSTER{
 			if (actor->xspr.dodgeDir > 0)
-				t2 += FixedToFloat(pDudeInfo->sideSpeed);
+				t2 += actor->SideSpeed();
 			else
-				t2 -= FixedToFloat(pDudeInfo->sideSpeed);
+				t2 -= actor->SideSpeed();
 		});
 	}
 }
@@ -941,8 +936,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		if (actor->GetOwner() != target)
 		{
 			actor->SetTarget(target);
-			DUDEINFO* pDudeInfo = getDudeInfo(target);
-			double eyeHeight = (pDudeInfo->eyeHeight * target->spr.scale.Y);
+			double eyeHeight = (target->eyeHeight() * target->spr.scale.Y);
 			actor->xspr.TargetPos = target->spr.pos.plusZ(-eyeHeight);
 		}
 	}
@@ -960,7 +954,6 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 		return 0;
 	actor->xspr.health = ClipLow(actor->xspr.health - nDamage, 0);
 	actor->cumulDamage += nDamage;
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 
 	if (source)
 	{
@@ -974,9 +967,9 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 		{
 			int nThresh = nDamage;
 			if (actor->GetType() == source->GetType())
-				nThresh *= pDudeInfo->changeTargetKin;
+				nThresh *= actor->IntVar("changeTargetKin");
 			else
-				nThresh *= pDudeInfo->changeTarget;
+				nThresh *= actor->IntVar("changeTarget");
 			if (Chance(nThresh))
 			{
 				aiSetTarget(actor, source);
@@ -1017,25 +1010,25 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				else if (dudeIsPlayingSeq(actor, 13) && (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo))
 					aiNewState(actor, NAME_cultistSwimDodge);
 			}
-			else if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
+			else if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth()/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				actor->ChangeType(kDudeBurningCultist);
 				aiNewState(actor, NAME_cultistBurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1031 + Random(2), AI_SFX_PRIORITY_2, -1);
 				actor->dudeExtra.time = PlayClock + 360;
-				actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
+				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeInnocent:
-			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
+			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth()/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				actor->ChangeType(kDudeBurningInnocent);
 				aiNewState(actor, NAME_cultistBurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
-				actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
+				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
@@ -1066,17 +1059,17 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			aiNewState(actor, NAME_gargoyleFChase);
 			break;
 		case kDudeZombieButcher:
-			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth) {
+			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth()) {
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
 				actor->ChangeType(kDudeBurningZombieButcher);
 				aiNewState(actor, NAME_zombieFBurnGoto);
-				actHealDude(actor, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
+				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeTinyCaleb:
-			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
+			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth()/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				if (!cl_bloodvanillaenemies && !VanillaMode()) // fix burning sprite for tiny caleb
 				{
@@ -1090,28 +1083,28 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				}
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
-				actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
+				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
 		case kDudeCultistBeast:
-			if (actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth)
+			if (actor->xspr.health <= (unsigned int)actor->fleeHealth())
 			{
 				actor->ChangeType(kDudeBeast);
 				aiPlay3DSound(actor, 9008, AI_SFX_PRIORITY_1, -1);
 				aiNewState(actor, NAME_beastMorphFromCultist);
-				actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
+				actHealDude(actor, actor->startHealth(), actor->startHealth());
 			}
 			break;
 		case kDudeZombieAxeNormal:
 		case kDudeZombieAxeBuried:
-			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth)
+			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth())
 			{
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
 				actor->ChangeType(kDudeBurningZombieAxe);
 				aiNewState(actor, NAME_zombieABurnGoto);
-				actHealDude(actor, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
+				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
 			break;
@@ -1132,7 +1125,6 @@ void RecoilDude(DBloodActor* actor)
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	if (actor->spr.statnum == kStatDude && (actor->IsDudeActor()))
 	{
-		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		switch (actor->GetType())
 		{
 #ifdef NOONE_EXTENSIONS
@@ -1236,9 +1228,9 @@ void RecoilDude(DBloodActor* actor)
 		case kDudeZombieAxeNormal:
 		case kDudeZombieAxeBuried:
 			aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
-			if (pDudeExtra->teslaHit && actor->xspr.data3 > pDudeInfo->startHealth / 3)
+			if (pDudeExtra->teslaHit && actor->xspr.data3 > actor->startHealth() / 3)
 				aiNewState(actor, NAME_zombieATeslaRecoil);
-			else if (actor->xspr.data3 > pDudeInfo->startHealth / 3)
+			else if (actor->xspr.data3 > actor->startHealth() / 3)
 				aiNewState(actor, NAME_zombieARecoil2);
 			else
 				aiNewState(actor, NAME_zombieARecoil);
@@ -1258,7 +1250,7 @@ void RecoilDude(DBloodActor* actor)
 			break;
 		case kDudeCerberusTwoHead:
 			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
-			if (pDudeExtra->teslaHit && actor->xspr.data3 > pDudeInfo->startHealth / 3)
+			if (pDudeExtra->teslaHit && actor->xspr.data3 > actor->startHealth() / 3)
 				aiNewState(actor, NAME_cerberusTeslaRecoil);
 			else
 				aiNewState(actor, NAME_cerberusRecoil);
@@ -1390,8 +1382,7 @@ void RecoilDude(DBloodActor* actor)
 void aiThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	if (Chance(pDudeInfo->alertChance))
+	if (Chance(actor->alertChance()))
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -1403,20 +1394,20 @@ void aiThinkTarget(DBloodActor* actor)
 			auto pSector = pPlayer->GetActor()->sector();
 
 			double nDist = dvec.Length();
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
+			if (nDist > actor->SeeDist() && nDist > actor->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+			double height = (actor->eyeHeight() * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvec.Angle());
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 				return;
 			}
-			else if (nDist < pDudeInfo->HearDist())
+			else if (nDist < actor->HearDist())
 			{
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
@@ -1435,8 +1426,7 @@ void aiThinkTarget(DBloodActor* actor)
 void aiLookForTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor);
-	if (Chance(pDudeInfo->alertChance))
+	if (Chance(actor->alertChance()))
 	{
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -1448,19 +1438,19 @@ void aiLookForTarget(DBloodActor* actor)
 			auto pSector = pPlayer->GetActor()->sector();
 
 			double nDist = dvec.Length();
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
+			if (nDist > actor->SeeDist() && nDist > actor->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+			double height = (actor->eyeHeight() * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvec.Angle());
-			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
+			if (nDist < actor->SeeDist() && nDeltaAngle <= actor->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->GetActor());
 				aiActivateDude(actor);
 				return;
 			}
-			else if (nDist < pDudeInfo->HearDist())
+			else if (nDist < actor->HearDist())
 			{
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
@@ -1478,8 +1468,7 @@ void aiLookForTarget(DBloodActor* actor)
 				double nDist = (actor2->spr.pos.XY() - actor->spr.pos.XY()).Length();
 				if (actor2->GetType() == kDudeInnocent)
 				{
-					pDudeInfo = getDudeInfo(actor2);
-					if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
+					if (nDist > actor->SeeDist() && nDist > actor->HearDist())
 						continue;
 					aiSetTarget(actor, actor2);
 					aiActivateDude(actor);
@@ -1502,7 +1491,6 @@ void aiProcessDudes(void)
 	while (auto actor = it.Next())
 	{
 		if (actor->spr.flags & 32) continue;
-		DUDEINFO* pDudeInfo = getDudeInfo(actor);
 		if (actor->IsPlayerActor() || actor->xspr.health == 0) continue;
 
 		actor->xspr.stateTimer = ClipLow(actor->xspr.stateTimer - 4, 0);
@@ -1543,7 +1531,7 @@ void aiProcessDudes(void)
 					aiNewState(actor, actor->xspr.aiState->NextState);
 			}
 
-			if (actor->xspr.health > 0 && ((pDudeInfo->hinderDamage << 4) <= actor->cumulDamage))
+			if (actor->xspr.health > 0 && ((actor->IntVar("hinderDamage") << 4) <= actor->cumulDamage))
 			{
 				actor->xspr.data3 = actor->cumulDamage;
 				RecoilDude(actor);
