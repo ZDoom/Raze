@@ -171,7 +171,6 @@ template<> FSerializer &Serialize(FSerializer &arc, const char *key, PClassActor
 
 FSerializer &Serialize(FSerializer &arc, const char *key, FState *&state, FState **def, bool *retcode)
 {
-#if 0
 	if (retcode) *retcode = false;
 	if (arc.isWriting())
 	{
@@ -222,7 +221,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FState *&state, FState
 				if (cls.IsString() && ndx.IsUint())
 				{
 					PClassActor *clas = PClass::FindActor(UnicodeToString(cls.GetString()));
-					if (clas && ndx.GetUint() < (unsigned)clas->GetStateCount())
+					if (clas && ndx.GetUint() < (unsigned)clas->ActorInfo()->NumOwnedStates)
 					{
 						state = clas->GetStates() + ndx.GetUint();
 					}
@@ -248,7 +247,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FState *&state, FState
 			}
 		}
 	}
-#endif
 	return arc;
 
 }
