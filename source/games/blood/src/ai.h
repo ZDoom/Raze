@@ -49,7 +49,7 @@ extern const int gCultTeslaFireChance[5];
 bool dudeIsPlayingSeq(DBloodActor* pSprite, int nSeq);
 void aiPlay3DSound(DBloodActor* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiNewState(DBloodActor* actor, FName pAIState);
-void aiNewState(DBloodActor* actor, FDefiningState* pAIState);
+void aiNewState(DBloodActor* actor, FState* pAIState);
 void aiChooseDirection(DBloodActor* actor, DAngle a3);
 void aiMoveForward(DBloodActor*pXSprite);
 void aiMoveTurn(DBloodActor*pXSprite);

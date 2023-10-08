@@ -166,10 +166,6 @@ struct FDefiningState
 	VMFunction* TickFunc;   // called when ticking the state.
 	VMFunction* MoveFunc;   // called when moving the actor
 	FScriptPosition scriptpos;
-
-	// these are only here so we can use this struct directly in the first stage of transitioning the states in Blood.
-	FDefiningState* NextState;
-	int seqId;
 };
 
 struct FStateLabels;

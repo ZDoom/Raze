@@ -77,16 +77,31 @@ void aiPlay3DSound(DBloodActor* actor, int soundid, AI_SFX_PRIORITY a3, int play
 //
 //---------------------------------------------------------------------------
 
-void aiNewState(DBloodActor* actor, FDefiningState* pAIState)
+void aiNewState(DBloodActor* actor, FState* pAIState)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	actor->xspr.stateTimer = pAIState->Tics;
 	actor->xspr.aiState = pAIState;
-	int seqStartId = pDudeInfo->seqStartID;
+	int seqStartId = -1;
 
-	if (pAIState->seqId >= 0)
+	switch (pAIState->StateFlags & STF_SPRITESEQMASK)
 	{
-		seqStartId += pAIState->seqId;
+	case STF_SPRITESEQNAME:
+		if (pAIState->sprite > 0)
+			I_Error("Named SEQs not supported yet!");
+		break;
+
+	case STF_SPRITESEQINDEX:
+		seqStartId = pAIState->sprite;
+		break;
+
+	case STF_SPRITESEQOFFSET:
+		seqStartId = pAIState->sprite + pDudeInfo->seqStartID;
+		break;
+	}
+
+	if (seqStartId >= 0)
+	{
 		if (getSequence(seqStartId))
 			seqSpawn(seqStartId, actor, pAIState->ActionFunc);
 	}
@@ -97,18 +112,10 @@ void aiNewState(DBloodActor* actor, FDefiningState* pAIState)
 
 void aiNewState(DBloodActor* actor, FName nAIState)
 {
-	auto cls = actor->GetClass();
-	while (cls)
+	auto state = actor->FindState(nAIState);
+	if (state != nullptr)
 	{
-		for (auto& state : static_cast<PClassActor*>(cls)->ActorInfo()->AIStates)
-		{
-			if (state.Label == nAIState)
-			{
-				aiNewState(actor, &state);
-				return;
-			}
-		}
-		cls = cls->ParentClass;
+		aiNewState(actor, state);
 	}
 }
 
@@ -630,14 +637,14 @@ void aiActivateDude(DBloodActor* actor)
 	{
 		
 		actor->dudeExtra.thinkTime = 1;
-		if (actor->xspr.aiState->Label == NAME_zombieEIdle) aiNewState(actor, NAME_zombieEUp);
+		if (actor->xspr.aiState == actor->FindState(NAME_zombieEIdle)) aiNewState(actor, NAME_zombieEUp);
 		break;
 	}
 	case kDudeZombieAxeLaying:
 	{
 		
 		actor->dudeExtra.thinkTime = 1;
-		if (actor->xspr.aiState->Label == NAME_zombieSIdle) aiNewState(actor, NAME_zombieEStand);
+		if (actor->xspr.aiState == actor->FindState(NAME_zombieSIdle)) aiNewState(actor, NAME_zombieEStand);
 		break;
 	}
 	case kDudeZombieButcher:

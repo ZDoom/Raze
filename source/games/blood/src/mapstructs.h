@@ -60,7 +60,7 @@ class DBloodActor;
 
 struct XSPRITE {
 
-	FDefiningState* aiState;                   // ai
+	FState* aiState;                   // ai
 	union
 	{
 		uint32_t flags;
