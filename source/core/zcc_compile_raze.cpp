@@ -1046,6 +1046,7 @@ void ZCCRazeCompiler::CompileStates()
 			statedef.AddStates(&state, "A", defstate.scriptpos);
 			if (defstate.NextStaten != NAME_None) statedef.SetGotoLabel(defstate.NextStaten.GetChars());
 		}
+		static_cast<PClassActor*>(c->ClassType())->ActorInfo()->AIStates.Reset();
 
 		for (auto s : c->States)
 		{

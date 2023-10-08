@@ -3432,7 +3432,9 @@ void MoveDude(DBloodActor* actor)
 	double tz = (actor->spr.pos.Z - top) / 4;
 	double wdf = actor->clipdist;
 	auto pSector = actor->sector();
+#ifdef NOONE_EXTENSIONS
 	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->Type : -1;
+#endif
 
 	assert(pSector);
 
