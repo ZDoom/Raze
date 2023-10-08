@@ -44,13 +44,13 @@ void HandJumpSeqCallback(DBloodActor* actor)
 	}
 }
 
-static void handThinkSearch(DBloodActor* actor)
+void handThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void handThinkGoto(DBloodActor* actor)
+void handThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -63,7 +63,7 @@ static void handThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void handThinkChase(DBloodActor* actor)
+void handThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

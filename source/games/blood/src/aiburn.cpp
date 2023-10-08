@@ -34,13 +34,13 @@ void BurnSeqCallback(DBloodActor*)
 {
 }
 
-static void burnThinkSearch(DBloodActor* actor)
+void burnThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void burnThinkGoto(DBloodActor* actor)
+void burnThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -80,7 +80,7 @@ static void burnThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void burnThinkChase(DBloodActor* actor)
+void burnThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static constexpr double Tchernnobog_XYOff = 350. / 16;
+constexpr double Tchernnobog_XYOff = 350. / 16;
 
 void tchernobogFire(DBloodActor* actor)
 {
@@ -155,13 +155,13 @@ void tchernobogBurnSeqCallback2(DBloodActor* actor)
 	actFireMissile(actor, -Tchernnobog_XYOff, 0, Aim2, kMissileFireballTchernobog);
 }
 
-static void tchernobogThinkSearch(DBloodActor* actor)
+void tchernobogThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void tchernobogThinkTarget(DBloodActor* actor)
+void tchernobogThinkTarget(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -216,7 +216,7 @@ static void tchernobogThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void tchernobogThinkGoto(DBloodActor* actor)
+void tchernobogThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -232,7 +232,7 @@ static void tchernobogThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void tchernobogThinkChase(DBloodActor* actor)
+void tchernobogThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

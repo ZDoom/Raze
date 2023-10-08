@@ -43,7 +43,7 @@ void batBiteSeqCallback(DBloodActor* actor)
 	actFireVector(actor, 0., 0., DVector3(actor->spr.Angles.Yaw.ToVector() * 64, height2 - height), kVectorBatBite);
 }
 
-static void batThinkTarget(DBloodActor* actor)
+void batThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -93,13 +93,13 @@ static void batThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void batThinkSearch(DBloodActor* actor)
+void batThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	batThinkTarget(actor);
 }
 
-static void batThinkGoto(DBloodActor* actor)
+void batThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -112,7 +112,7 @@ static void batThinkGoto(DBloodActor* actor)
 	batThinkTarget(actor);
 }
 
-static void batThinkPonder(DBloodActor* actor)
+void batThinkPonder(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -164,7 +164,7 @@ static void batThinkPonder(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void batMoveDodgeUp(DBloodActor* actor)
+void batMoveDodgeUp(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -181,7 +181,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 	actor->vel.Z = FixedToFloat(-0x52aaa);
 }
 
-static void batMoveDodgeDown(DBloodActor* actor)
+void batMoveDodgeDown(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -200,7 +200,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 	actor->vel.Z = 4.26666;
 }
 
-static void batThinkChase(DBloodActor* actor)
+void batThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -262,7 +262,7 @@ static void batThinkChase(DBloodActor* actor)
 	aiNewState(actor, NAME_batHide);
 }
 
-static void batMoveForward(DBloodActor* actor)
+void batMoveForward(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -287,7 +287,7 @@ static void batMoveForward(DBloodActor* actor)
 	});
 }
 
-static void batMoveSwoop(DBloodActor* actor)
+void batMoveSwoop(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -311,7 +311,7 @@ static void batMoveSwoop(DBloodActor* actor)
 	actor->vel.Z = 4.26666;
 }
 
-static void batMoveFly(DBloodActor* actor)
+void batMoveFly(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

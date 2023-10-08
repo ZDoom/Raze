@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-static void playStatueBreakSnd(DBloodActor* actor) {
+void playStatueBreakSnd(DBloodActor* actor) {
 
 	aiPlay3DSound(actor, 313, AI_SFX_PRIORITY_1, -1);
 }
@@ -133,7 +133,7 @@ void ThrowSSeqCallback(DBloodActor* actor)
 	actFireThing(actor, 0., 0., actor->dudeSlope * 0.25 - 0.11444, kThingBone, Chance(0x6000) ? 19.2 : 17.066666);
 }
 
-static void gargThinkTarget(DBloodActor* actor)
+void gargThinkTarget(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -186,13 +186,13 @@ static void gargThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void gargThinkSearch(DBloodActor* actor)
+void gargThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiLookForTarget(actor);
 }
 
-static void gargThinkGoto(DBloodActor* actor)
+void gargThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -208,7 +208,7 @@ static void gargThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void gargMoveDodgeUp(DBloodActor* actor)
+void gargMoveDodgeUp(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -228,7 +228,7 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 	actor->vel.Z = FixedToFloat(-0x1d555);
 }
 
-static void gargMoveDodgeDown(DBloodActor* actor)
+void gargMoveDodgeDown(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -250,7 +250,7 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 	actor->vel.Z = 4.26666;
 }
 
-static void gargThinkChase(DBloodActor* actor)
+void gargThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -429,21 +429,21 @@ static void gargThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void entryFStatue(DBloodActor* actor)
+void entryFStatue(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = &dudeInfo[6];
 	actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
 	actor->ChangeType(kDudeGargoyleFlesh);
 }
 
-static void entrySStatue(DBloodActor* actor)
+void entrySStatue(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = &dudeInfo[7];
 	actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
 	actor->ChangeType(kDudeGargoyleStone);
 }
 
-static void gargMoveForward(DBloodActor* actor)
+void gargMoveForward(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -471,7 +471,7 @@ static void gargMoveForward(DBloodActor* actor)
 
 }
 
-static void gargMoveSlow(DBloodActor* actor)
+void gargMoveSlow(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -506,7 +506,7 @@ static void gargMoveSlow(DBloodActor* actor)
 	}
 }
 
-static void gargMoveSwoop(DBloodActor* actor)
+void gargMoveSwoop(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -541,7 +541,7 @@ static void gargMoveSwoop(DBloodActor* actor)
 
 }
 
-static void gargMoveFly(DBloodActor* actor)
+void gargMoveFly(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");

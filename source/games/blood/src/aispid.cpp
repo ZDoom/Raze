@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
+void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 {
 	if (actor->IsPlayerActor())
 	{
@@ -147,13 +147,13 @@ void SpidBirthSeqCallback(DBloodActor* actor)
 
 }
 
-static void spidThinkSearch(DBloodActor* actor)
+void spidThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void spidThinkGoto(DBloodActor* actor)
+void spidThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -166,7 +166,7 @@ static void spidThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void spidThinkChase(DBloodActor* actor)
+void spidThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

@@ -56,7 +56,7 @@ void eelBiteSeqCallback(DBloodActor* actor)
 	actFireVector(actor, 0., 0., vect, kVectorBoneelBite);
 }
 
-static void eelThinkTarget(DBloodActor* actor)
+void eelThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -107,13 +107,13 @@ static void eelThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void eelThinkSearch(DBloodActor* actor)
+void eelThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	eelThinkTarget(actor);
 }
 
-static void eelThinkGoto(DBloodActor* actor)
+void eelThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -126,7 +126,7 @@ static void eelThinkGoto(DBloodActor* actor)
 	eelThinkTarget(actor);
 }
 
-static void eelThinkPonder(DBloodActor* actor)
+void eelThinkPonder(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -180,7 +180,7 @@ static void eelThinkPonder(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void eelMoveDodgeUp(DBloodActor* actor)
+void eelMoveDodgeUp(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -197,7 +197,7 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 	actor->vel.Z = -0.5;
 }
 
-static void eelMoveDodgeDown(DBloodActor* actor)
+void eelMoveDodgeDown(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -216,7 +216,7 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 	actor->vel.Z = 4.26666;
 }
 
-static void eelThinkChase(DBloodActor* actor)
+void eelThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -273,7 +273,7 @@ static void eelThinkChase(DBloodActor* actor)
 	aiNewState(actor, NAME_eelSearch);
 }
 
-static void eelMoveForward(DBloodActor* actor)
+void eelMoveForward(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -298,7 +298,7 @@ static void eelMoveForward(DBloodActor* actor)
 
 }
 
-static void eelMoveSwoop(DBloodActor* actor)
+void eelMoveSwoop(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -319,7 +319,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	actor->vel.Z = FixedToFloat(0x22222);
 }
 
-static void eelMoveAscend(DBloodActor* actor)
+void eelMoveAscend(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

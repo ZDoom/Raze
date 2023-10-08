@@ -101,13 +101,13 @@ void podExplode(DBloodActor* actor)
 	actRadiusDamage(actor, actor->spr.pos, actor->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
-static void aiPodSearch(DBloodActor* actor)
+void aiPodSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void aiPodMove(DBloodActor* actor)
+void aiPodMove(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -135,7 +135,7 @@ static void aiPodMove(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void aiPodChase(DBloodActor* actor)
+void aiPodChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) {
 		switch (actor->GetType()) {

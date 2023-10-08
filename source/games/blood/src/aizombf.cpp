@@ -64,13 +64,13 @@ void ThrowSeqCallback(DBloodActor* actor)
 	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileButcherKnife);
 }
 
-static void zombfThinkSearch(DBloodActor* actor)
+void zombfThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void zombfThinkGoto(DBloodActor* actor)
+void zombfThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -83,7 +83,7 @@ static void zombfThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void zombfThinkChase(DBloodActor* actor)
+void zombfThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

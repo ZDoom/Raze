@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static constexpr double Cerberus_XYOff = 350. / 16;
-static constexpr double Cerberus_ZOff = 100. / 256;
+constexpr double Cerberus_XYOff = 350. / 16;
+constexpr double Cerberus_ZOff = 100. / 256;
 
 void cerberusBiteSeqCallback(DBloodActor* actor)
 {
@@ -181,13 +181,13 @@ void cerberusBurnSeqCallback2(DBloodActor* actor)
 	}
 }
 
-static void cerberusThinkSearch(DBloodActor* actor)
+void cerberusThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void cerberusThinkTarget(DBloodActor* actor)
+void cerberusThinkTarget(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -243,7 +243,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void cerberusThinkGoto(DBloodActor* actor)
+void cerberusThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -268,7 +268,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void cerberusThinkChase(DBloodActor* actor)
+void cerberusThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) {
 		switch (actor->GetType()) {

@@ -41,13 +41,13 @@ void ratBiteSeqCallback(DBloodActor* actor)
 	}
 }
 
-static void ratThinkSearch(DBloodActor* actor)
+void ratThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void ratThinkGoto(DBloodActor* actor)
+void ratThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -60,7 +60,7 @@ static void ratThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void ratThinkChase(DBloodActor* actor)
+void ratThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

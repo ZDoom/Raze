@@ -48,13 +48,13 @@ void houndBurnSeqCallback(DBloodActor* actor)
 	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileFlameHound);
 }
 
-static void houndThinkSearch(DBloodActor* actor)
+void houndThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void houndThinkGoto(DBloodActor* actor)
+void houndThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -71,7 +71,7 @@ static void houndThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void houndThinkChase(DBloodActor* actor)
+void houndThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

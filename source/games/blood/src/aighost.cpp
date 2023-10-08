@@ -123,7 +123,7 @@ void ghostBlastSeqCallback(DBloodActor* actor)
 	}
 }
 
-static void ghostThinkTarget(DBloodActor* actor)
+void ghostThinkTarget(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -175,13 +175,13 @@ static void ghostThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void ghostThinkSearch(DBloodActor* actor)
+void ghostThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void ghostThinkGoto(DBloodActor* actor)
+void ghostThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -197,7 +197,7 @@ static void ghostThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void ghostMoveDodgeUp(DBloodActor* actor)
+void ghostMoveDodgeUp(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -217,7 +217,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 	actor->vel.Z = FixedToFloat(-0x1d555);
 }
 
-static void ghostMoveDodgeDown(DBloodActor* actor)
+void ghostMoveDodgeDown(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -238,7 +238,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 	actor->vel.Z = 4.26666;
 }
 
-static void ghostThinkChase(DBloodActor* actor)
+void ghostThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -348,7 +348,7 @@ static void ghostThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void ghostMoveForward(DBloodActor* actor)
+void ghostMoveForward(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -375,7 +375,7 @@ static void ghostMoveForward(DBloodActor* actor)
 	});
 }
 
-static void ghostMoveSlow(DBloodActor* actor)
+void ghostMoveSlow(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -406,7 +406,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	}
 }
 
-static void ghostMoveSwoop(DBloodActor* actor)
+void ghostMoveSwoop(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -436,7 +436,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	});
 }
 
-static void ghostMoveFly(DBloodActor* actor)
+void ghostMoveFly(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");

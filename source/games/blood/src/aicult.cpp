@@ -120,7 +120,7 @@ void cultThrowSeqCallback3(DBloodActor* actor)
 	pMissile->xspr.Impact = 1;
 }
 
-static bool TargetNearExplosion(sectortype* sector)
+bool TargetNearExplosion(sectortype* sector)
 {
 	BloodSectIterator it(sector);
 	while (auto actor = it.Next())
@@ -131,13 +131,13 @@ static bool TargetNearExplosion(sectortype* sector)
 	return false;
 }
 
-static void cultThinkSearch(DBloodActor* actor)
+void cultThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiLookForTarget(actor);
 }
 
-static void cultThinkGoto(DBloodActor* actor)
+void cultThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -161,7 +161,7 @@ static void cultThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void cultThinkChase(DBloodActor* actor)
+void cultThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
