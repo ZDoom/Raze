@@ -265,7 +265,6 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 				{
 					double top, bottom;
 					GetActorExtents(actor, &top, &bottom);
-					DUDEINFO* pDudeInfo = getDudeInfo(target);
 					auto pos = target->spr.pos;
 					auto nDist = (pos.XY() - actor->spr.pos.XY()).Length();
 					if (nDist != 0 && cansee(DVector3(actor->spr.pos.XY(), top), actor->sector(), pos, target->sector()))
@@ -273,7 +272,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 						pos.XY() += target->vel.XY() * nDist * (65536. / 0x1aaaaa);
 						auto angBak = actor->spr.Angles.Yaw;
 						actor->spr.Angles.Yaw = (pos.XY() - actor->spr.pos.XY()).Angle();
-						double tz = target->spr.pos.Z - (target->spr.scale.Y * pDudeInfo->aimHeight);
+						double tz = target->spr.pos.Z - (target->spr.scale.Y * target->aimHeight());
 						auto dvec = DVector3(actor->spr.Angles.Yaw.ToVector(), ((tz - top - 1) / nDist) * (1. / 16.));
 						int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
 						if (auto missile = actFireMissile(actor, 0, (top - actor->spr.pos.Z) - 1, dvec, nMissileType))
@@ -493,7 +492,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 				case kDudeBurningZombieButcher:
 				case kDudeBurningTinyCaleb:
 				case kDudeBurningBeast: {
-					spawned->xspr.health = getDudeInfo(actor->xspr.data1)->startHealth << 4;
+					spawned->xspr.health = static_cast<DBloodActor*>(GetDefaultByType(GetSpawnType(actor->xspr.data1)))->startHealth() << 4;
 					spawned->xspr.burnTime = 10;
 					spawned->SetTarget(nullptr);
 					aiActivateDude(spawned);

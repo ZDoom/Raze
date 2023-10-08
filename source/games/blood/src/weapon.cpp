@@ -491,10 +491,9 @@ void UpdateAimVector(DBloodPlayer* pPlayer)
 			if (nDist2 >= nClosest)
 				continue;
 
-			DUDEINFO* pDudeInfo = getDudeInfo(actor);
 			if (cansee(pos, plActor->sector(), pos2, actor->sector()))
 			{
-				double center = (actor->spr.scale.Y * pDudeInfo->aimHeight);
+				double center = (actor->spr.scale.Y * actor->aimHeight());
 				double dzCenter = (pos2.Z - center) - pos.Z;
 
 				nClosest = nDist2;
