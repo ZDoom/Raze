@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void handThinkSearch(DBloodActor*);
-static void handThinkGoto(DBloodActor*);
-static void handThinkChase(DBloodActor*);
 
 AISTATE handIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE hand13A3B4 = { kAiStateOther, 0, nullptr, 0, NULL, NULL, NULL, NULL };
@@ -56,13 +53,13 @@ void HandJumpSeqCallback(DBloodActor* actor)
 	}
 }
 
-static void handThinkSearch(DBloodActor* actor)
+void handThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void handThinkGoto(DBloodActor* actor)
+void handThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -75,7 +72,7 @@ static void handThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void handThinkChase(DBloodActor* actor)
+void handThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

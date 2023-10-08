@@ -29,14 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void gillThinkSearch(DBloodActor*);
-static void gillThinkGoto(DBloodActor*);
-static void gillThinkChase(DBloodActor*);
-static void gillThinkSwimGoto(DBloodActor*);
-static void gillThinkSwimChase(DBloodActor*);
-static void gillMoveSwimChase(DBloodActor*);
-static void gillMoveSwimUnused(DBloodActor*);
-static void gillSwimMoveIn(DBloodActor*);
 
 
 AISTATE gillBeastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
@@ -69,13 +61,13 @@ void GillBiteSeqCallback(DBloodActor* actor)
 	actFireVector(actor, 0, 0, vec, kVectorGillBite);
 }
 
-static void gillThinkSearch(DBloodActor* actor)
+void gillThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void gillThinkGoto(DBloodActor* actor)
+void gillThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -97,7 +89,7 @@ static void gillThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void gillThinkChase(DBloodActor* actor)
+void gillThinkChase(DBloodActor* actor)
 {
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
@@ -192,7 +184,7 @@ static void gillThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void gillThinkSwimGoto(DBloodActor* actor)
+void gillThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -205,7 +197,7 @@ static void gillThinkSwimGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void gillThinkSwimChase(DBloodActor* actor)
+void gillThinkSwimChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -260,7 +252,7 @@ static void gillThinkSwimChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void gillMoveSwimChase(DBloodActor* actor)
+void gillMoveSwimChase(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -285,7 +277,7 @@ static void gillMoveSwimChase(DBloodActor* actor)
 
 }
 
-static void gillMoveSwimUnused(DBloodActor* actor)
+void gillMoveSwimUnused(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -312,7 +304,7 @@ static void gillMoveSwimUnused(DBloodActor* actor)
 	actor->vel.Z = -(target->spr.pos.Z - actor->spr.pos.Z) / 256.;
 }
 
-static void gillSwimMoveIn(DBloodActor* actor)
+void gillSwimMoveIn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void burnThinkSearch(DBloodActor*);
-static void burnThinkGoto(DBloodActor*);
-static void burnThinkChase(DBloodActor*);
 
 AISTATE cultistBurnIdle = { kAiStateIdle, 3, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE cultistBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
@@ -74,13 +71,13 @@ void BurnSeqCallback(DBloodActor*)
 {
 }
 
-static void burnThinkSearch(DBloodActor* actor)
+void burnThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void burnThinkGoto(DBloodActor* actor)
+void burnThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -120,7 +117,7 @@ static void burnThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void burnThinkChase(DBloodActor* actor)
+void burnThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

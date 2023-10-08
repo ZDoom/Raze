@@ -29,16 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void MorphToBeast(DBloodActor*);
-static void beastThinkSearch(DBloodActor*);
-static void beastThinkGoto(DBloodActor*);
-static void beastThinkChase(DBloodActor*);
-static void beastThinkSwimGoto(DBloodActor*);
-static void beastThinkSwimChase(DBloodActor*);
-static void beastMoveForward(DBloodActor*);
-static void beastMoveSwim(DBloodActor*);
-static void beastMoveSwimAlt(DBloodActor*);
-static void beastMoveIn(DBloodActor*);
 
 AISTATE beastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE beastChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(beastMoveForward), &AF(beastThinkChase), NULL };
@@ -156,19 +146,19 @@ void StompSeqCallback(DBloodActor* actor)
 	sfxPlay3DSound(actor, 9015 + Random(2), -1, 0);
 }
 
-static void MorphToBeast(DBloodActor* actor)
+void MorphToBeast(DBloodActor* actor)
 {
 	actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
 	actor->ChangeType(kDudeBeast);
 }
 
-static void beastThinkSearch(DBloodActor* actor)
+void beastThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void beastThinkGoto(DBloodActor* actor)
+void beastThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -189,7 +179,7 @@ static void beastThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void beastThinkChase(DBloodActor* actor)
+void beastThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -320,7 +310,7 @@ static void beastThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void beastThinkSwimGoto(DBloodActor* actor)
+void beastThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -333,7 +323,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void beastThinkSwimChase(DBloodActor* actor)
+void beastThinkSwimChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -387,7 +377,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void beastMoveForward(DBloodActor* actor)
+void beastMoveForward(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -403,7 +393,7 @@ static void beastMoveForward(DBloodActor* actor)
 	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
 }
 
-static void beastMoveSwim(DBloodActor* actor)
+void beastMoveSwim(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -427,7 +417,7 @@ static void beastMoveSwim(DBloodActor* actor)
 	});
 }
 
-static void beastMoveSwimAlt(DBloodActor* actor)
+void beastMoveSwimAlt(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -457,7 +447,7 @@ static void beastMoveSwimAlt(DBloodActor* actor)
 	actor->vel.Z = -dz / 256;
 }
 
-static void beastMoveIn(DBloodActor* actor)
+void beastMoveIn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);

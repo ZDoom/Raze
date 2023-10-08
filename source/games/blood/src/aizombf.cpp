@@ -29,10 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void zombfThinkSearch(DBloodActor* actor);
-static void zombfThinkGoto(DBloodActor* actor);
-static void zombfThinkChase(DBloodActor* actor);
-
 
 AISTATE zombieFIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE zombieFChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(aiMoveForward), &AF(zombfThinkChase), NULL };
@@ -80,13 +76,13 @@ void ThrowSeqCallback(DBloodActor* actor)
 	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileButcherKnife);
 }
 
-static void zombfThinkSearch(DBloodActor* actor)
+void zombfThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void zombfThinkGoto(DBloodActor* actor)
+void zombfThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -99,7 +95,7 @@ static void zombfThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void zombfThinkChase(DBloodActor* actor)
+void zombfThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

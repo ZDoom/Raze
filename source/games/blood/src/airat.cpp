@@ -29,10 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void ratThinkSearch(DBloodActor*);
-static void ratThinkGoto(DBloodActor*);
-static void ratThinkChase(DBloodActor*);
-
 AISTATE ratIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE ratSearch = { kAiStateSearch, 7, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(ratThinkSearch), &ratIdle };
 AISTATE ratChase = { kAiStateChase, 7, nullptr, 0, NULL, &AF(aiMoveForward), &AF(ratThinkChase), NULL };
@@ -53,13 +49,13 @@ void ratBiteSeqCallback(DBloodActor* actor)
 	}
 }
 
-static void ratThinkSearch(DBloodActor* actor)
+void ratThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void ratThinkGoto(DBloodActor* actor)
+void ratThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -72,7 +68,7 @@ static void ratThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void ratThinkChase(DBloodActor* actor)
+void ratThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

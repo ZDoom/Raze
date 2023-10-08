@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void aiPodSearch(DBloodActor* actor);
-static void aiPodMove(DBloodActor* actor);
-static void aiPodChase(DBloodActor* actor);
 
 AISTATE podIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE podMove = { kAiStateMove, 7, nullptr, 3600, NULL, &AF(aiMoveTurn), &AF(aiPodMove), &podSearch };
@@ -122,13 +119,13 @@ void podExplode(DBloodActor* actor)
 	actRadiusDamage(actor, actor->spr.pos, actor->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
-static void aiPodSearch(DBloodActor* actor)
+void aiPodSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void aiPodMove(DBloodActor* actor)
+void aiPodMove(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -156,7 +153,7 @@ static void aiPodMove(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void aiPodChase(DBloodActor* actor)
+void aiPodChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) {
 		switch (actor->GetType()) {

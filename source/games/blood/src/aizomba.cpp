@@ -29,15 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void zombaThinkSearch(DBloodActor*);
-static void zombaThinkGoto(DBloodActor*);
-static void zombaThinkChase(DBloodActor*);
-static void zombaThinkPonder(DBloodActor*);
-static void myThinkTarget(DBloodActor*);
-static void myThinkSearch(DBloodActor*);
-static void entryEZombie(DBloodActor*);
-static void entryAIdle(DBloodActor*);
-static void entryEStand(DBloodActor*);
 
 
 AISTATE zombieAIdle = { kAiStateIdle, 0, nullptr, 0, &AF(entryAIdle), NULL, &AF(aiThinkTarget), NULL };
@@ -80,13 +71,13 @@ void StandSeqCallback(DBloodActor* actor)
 	sfxPlay3DSound(actor, 1102, -1, 0);
 }
 
-static void zombaThinkSearch(DBloodActor* actor)
+void zombaThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiLookForTarget(actor);
 }
 
-static void zombaThinkGoto(DBloodActor* actor)
+void zombaThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -99,7 +90,7 @@ static void zombaThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void zombaThinkChase(DBloodActor* actor)
+void zombaThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -151,7 +142,7 @@ static void zombaThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void zombaThinkPonder(DBloodActor* actor)
+void zombaThinkPonder(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -203,7 +194,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 	aiNewState(actor, &zombieAChase);
 }
 
-static void myThinkTarget(DBloodActor* actor)
+void myThinkTarget(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -245,24 +236,24 @@ static void myThinkTarget(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void myThinkSearch(DBloodActor* actor)
+void myThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	myThinkTarget(actor);
 }
 
-static void entryEZombie(DBloodActor* actor)
+void entryEZombie(DBloodActor* actor)
 {
 	actor->ChangeType(kDudeZombieAxeNormal);
 	actor->spr.flags |= 1;
 }
 
-static void entryAIdle(DBloodActor* actor)
+void entryAIdle(DBloodActor* actor)
 {
 	actor->SetTarget(nullptr);
 }
 
-static void entryEStand(DBloodActor* actor)
+void entryEStand(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 1100, -1, 0);
 	actor->spr.Angles.Yaw = (actor->xspr.TargetPos - actor->spr.pos).Angle();

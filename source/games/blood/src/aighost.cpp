@@ -29,16 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void ghostThinkTarget(DBloodActor*);
-static void ghostThinkSearch(DBloodActor*);
-static void ghostThinkGoto(DBloodActor*);
-static void ghostMoveDodgeUp(DBloodActor*);
-static void ghostMoveDodgeDown(DBloodActor*);
-static void ghostThinkChase(DBloodActor*);
-static void ghostMoveForward(DBloodActor*);
-static void ghostMoveSlow(DBloodActor*);
-static void ghostMoveSwoop(DBloodActor*);
-static void ghostMoveFly(DBloodActor*);
 
 
 AISTATE ghostIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(ghostThinkTarget), NULL };
@@ -154,7 +144,7 @@ void ghostBlastSeqCallback(DBloodActor* actor)
 	}
 }
 
-static void ghostThinkTarget(DBloodActor* actor)
+void ghostThinkTarget(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -206,13 +196,13 @@ static void ghostThinkTarget(DBloodActor* actor)
 	}
 }
 
-static void ghostThinkSearch(DBloodActor* actor)
+void ghostThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void ghostThinkGoto(DBloodActor* actor)
+void ghostThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -228,7 +218,7 @@ static void ghostThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void ghostMoveDodgeUp(DBloodActor* actor)
+void ghostMoveDodgeUp(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -248,7 +238,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 	actor->vel.Z = FixedToFloat(-0x1d555);
 }
 
-static void ghostMoveDodgeDown(DBloodActor* actor)
+void ghostMoveDodgeDown(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -269,7 +259,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 	actor->vel.Z = 4.26666;
 }
 
-static void ghostThinkChase(DBloodActor* actor)
+void ghostThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -379,7 +369,7 @@ static void ghostThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void ghostMoveForward(DBloodActor* actor)
+void ghostMoveForward(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -406,7 +396,7 @@ static void ghostMoveForward(DBloodActor* actor)
 	});
 }
 
-static void ghostMoveSlow(DBloodActor* actor)
+void ghostMoveSlow(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -437,7 +427,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	}
 }
 
-static void ghostMoveSwoop(DBloodActor* actor)
+void ghostMoveSwoop(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -467,7 +457,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	});
 }
 
-static void ghostMoveFly(DBloodActor* actor)
+void ghostMoveFly(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");

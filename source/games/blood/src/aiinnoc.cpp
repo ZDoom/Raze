@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void innocThinkSearch(DBloodActor*);
-static void innocThinkGoto(DBloodActor*);
-static void innocThinkChase(DBloodActor*);
 
 AISTATE innocentIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE innocentSearch = { kAiStateSearch, 6, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(innocThinkSearch), &innocentIdle };
@@ -46,7 +43,7 @@ static void innocThinkSearch(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void innocThinkGoto(DBloodActor* actor)
+void innocThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -59,7 +56,7 @@ static void innocThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void innocThinkChase(DBloodActor* actor)
+void innocThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

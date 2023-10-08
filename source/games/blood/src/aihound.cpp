@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void houndThinkSearch(DBloodActor*);
-static void houndThinkGoto(DBloodActor*);
-static void houndThinkChase(DBloodActor*);
 
 AISTATE houndIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE houndSearch = { kAiStateMove, 8, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(houndThinkSearch), &houndIdle };
@@ -61,13 +58,13 @@ void houndBurnSeqCallback(DBloodActor* actor)
 	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileFlameHound);
 }
 
-static void houndThinkSearch(DBloodActor* actor)
+void houndThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void houndThinkGoto(DBloodActor* actor)
+void houndThinkGoto(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
 		Printf(PRINT_HIGH, "actor->IsDudeActor()");
@@ -84,7 +81,7 @@ static void houndThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void houndThinkChase(DBloodActor* actor)
+void houndThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{

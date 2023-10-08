@@ -29,14 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void calebThinkSearch(DBloodActor*);
-static void calebThinkGoto(DBloodActor*);
-static void calebThinkChase(DBloodActor*);
-static void calebThinkSwimGoto(DBloodActor*);
-static void calebThinkSwimChase(DBloodActor*);
-static void calebMoveSwimChase(DBloodActor*);
-static void calebSwimUnused(DBloodActor*);
-static void calebSwimMoveIn(DBloodActor*);
 
 AISTATE tinycalebIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
 AISTATE tinycalebChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveForward), &AF(calebThinkChase), NULL };
@@ -79,13 +71,13 @@ void SeqAttackCallback(DBloodActor* actor)
 		sfxPlay3DSound(actor, 1002, -1, 0);
 }
 
-static void calebThinkSearch(DBloodActor* actor)
+void calebThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
-static void calebThinkGoto(DBloodActor* actor)
+void calebThinkGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -107,7 +99,7 @@ static void calebThinkGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void calebThinkChase(DBloodActor* actor)
+void calebThinkChase(DBloodActor* actor)
 {
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
@@ -208,7 +200,7 @@ static void calebThinkChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void calebThinkSwimGoto(DBloodActor* actor)
+void calebThinkSwimGoto(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -221,7 +213,7 @@ static void calebThinkSwimGoto(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void calebThinkSwimChase(DBloodActor* actor)
+void calebThinkSwimChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -272,7 +264,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
 	actor->SetTarget(nullptr);
 }
 
-static void calebMoveSwimChase(DBloodActor* actor)
+void calebMoveSwimChase(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -297,7 +289,7 @@ static void calebMoveSwimChase(DBloodActor* actor)
 
 }
 
-static void calebSwimUnused(DBloodActor* actor)
+void calebSwimUnused(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
@@ -325,7 +317,7 @@ static void calebSwimUnused(DBloodActor* actor)
 	actor->vel.Z = -dz / 256;
 }
 
-static void calebSwimMoveIn(DBloodActor* actor)
+void calebSwimMoveIn(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
