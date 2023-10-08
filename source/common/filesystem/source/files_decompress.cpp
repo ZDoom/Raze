@@ -552,7 +552,7 @@ public:
 			return false;
 		}
 
-		File->Seek(-sizeof(header), FileReader::SeekCur);
+		File->Seek(-(ptrdiff_t)sizeof(header), FileReader::SeekCur);
 
 		FillBuffer();
 
