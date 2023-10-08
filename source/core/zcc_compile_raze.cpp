@@ -1044,7 +1044,7 @@ void ZCCRazeCompiler::CompileStates()
 			state.TickFunc = defstate.TickFunc;
 			state.EnterFunc = defstate.EnterFunc;
 			statedef.AddStates(&state, "A", defstate.scriptpos);
-			statedef.SetGotoLabel(defstate.NextStaten.GetChars());
+			if (defstate.NextStaten != NAME_None) statedef.SetGotoLabel(defstate.NextStaten.GetChars());
 		}
 
 		for (auto s : c->States)

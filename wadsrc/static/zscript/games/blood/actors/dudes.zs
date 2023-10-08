@@ -38,6 +38,7 @@ class BloodDudeBase : Bloodactor
 		AISTATE "beastSwimSearch", "+9", 3, 120, null, null, beastMoveForward, beastThinkSearch, "beastSwimIdle";
 		AISTATE "beastSwimSlash", "+9", 4, 0, SlashSeqCallback, null, null, beastThinkSwimChase, "beastSwimChase";
 		AISTATE "beastSwimRecoil", "+5", 5, 0, null, null, null, null, "beastSwimDodge";
+		AISTATE "beastMorphToBeast", "", 0, -1, null, MorphToBeast, null, null, "beastIdle";
 		AISTATE "beastMorphFromCultist", "+2576", -1, 0, null, null, null, null, "beastMorphToBeast";
 		AISTATE "beastMoveSwimChaseAlt", "+9", -1, 120, null, null, beastMoveSwimAlt, beastThinkSwimChase, "beastSwimChase";
 		AISTATE "beastSwimAttack", "+9", -1, 0, null, null, beastMoveIn, beastThinkSwimChase, "beastSwimChase";
@@ -85,11 +86,6 @@ class BloodDudeBase : Bloodactor
 		AISTATE "tinycalebBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "tinycalebBurnSearch";
 		AISTATE "tinycalebBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "tinycalebBurnSearch";
 		AISTATE "tinycalebBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "tinycalebBurnChase";
-		AISTATE "genDudeBurnIdle", "+3", 0, 0, null, null, null, aiThinkTarget, "none";
-		AISTATE "genDudeBurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "genDudeBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "genDudeBurnSearch";
-		AISTATE "genDudeBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "genDudeBurnSearch";
-		AISTATE "genDudeBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "genDudeBurnChase";
 		AISTATE "tinycalebIdle", "+0", 0, 0, null, null, null, aiThinkTarget, "none";
 		AISTATE "tinycalebChase", "+6", 4, 0, null, null, aiMoveForward, calebThinkChase, "none";
 		AISTATE "tinycalebDodge", "+6", 2, 90, null, null, aiMoveDodge, null, "tinycalebChase";
@@ -177,7 +173,9 @@ class BloodDudeBase : Bloodactor
 		AISTATE "gargoyleFRecoil", "+5", 5, 0, null, null, null, null, "gargoyleFChase";
 		AISTATE "gargoyleFSearch", "+0", 3, 120, null, null, gargMoveForward, gargThinkSearch, "gargoyleFIdle";
 		AISTATE "gargoyleFMorph", "+6", -1, 0, null, null, null, null, "gargoyleFMorph2";
+		AISTATE "gargoyleFMorph2", "", -1, 0, null, entryFStatue, NULL, NULL, "gargoyleFIdle";
 		AISTATE "gargoyleSMorph", "+6", -1, 0, null, null, null, null, "gargoyleSMorph2";
+		AISTATE "gargoyleSMorph2", "", -1, 0, null, entrySStatue, NULL, NULL, "gargoyleStatueIdle";
 		AISTATE "gargoyleSwoop", "+0", -1, 120, null, null, gargMoveSwoop, gargThinkChase, "gargoyleFChase";
 		AISTATE "gargoyleFly", "+0", 2, 120, null, null, gargMoveFly, gargThinkChase, "gargoyleFChase";
 		AISTATE "gargoyleTurn", "+0", 2, 120, null, null, aiMoveTurn, null, "gargoyleFChase";
@@ -252,8 +250,10 @@ class BloodDudeBase : Bloodactor
 		AISTATE "podRecoil", "+5", 5, 0, null, null, null, null, "podChase";
 		AISTATE "podChase", "+6", 4, 0, null, null, aiMoveTurn, aiPodChase, "none";
 		AISTATE "tentacleIdle", "+0", 0, 0, null, null, null, aiThinkTarget, "none";
-		AISTATE "tentacle13A6A8", "+7", -1, 0, podPlaySound1, null, null, null, "tentacle13A6C4";
-		AISTATE "tentacle13A6E0", "+8", -1, 0, podPlaySound2, null, null, null, "tentacle13A6FC";
+		AISTATE "tentaclePlaySound1", "+7", -1, 0, podPlaySound1, null, null, null, "tentaclePlaySound1a";
+		AISTATE "tentaclePlaySound1a", "", -1, 0, null, null, null, null, "tentacleChase";
+		AISTATE "tentaclePlaySound2", "+8", -1, 0, podPlaySound2, null, null, null, "tentaclePlaySound2a";
+		AISTATE "tentaclePlaySound2a", "", -1, 0, null, null, null, null, "tentacleChase";
 		AISTATE "tentacleMove", "+8", -1, 3600, null, null, aiMoveTurn, aiPodMove, "tentacleSearch";
 		AISTATE "tentacleSearch", "+0", -1, 3600, null, null, aiMoveTurn, aiPodSearch, "none";
 		AISTATE "tentacleStartChase", "+6", -1, 120, podExplode, null, null, null, "tentacleChase";
