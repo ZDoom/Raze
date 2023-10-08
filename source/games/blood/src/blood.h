@@ -280,6 +280,7 @@ enum EFeatureFlags
 	kFeatureCustomAmmoCount = 1,
 	kFeatureEnemyAttacks = 2,
 	kFeatureCustomClipdist = 4,
+	kFeatureCustomTrapExploder = 8,
 };
 
 constexpr int BMAX_PATH = 260;

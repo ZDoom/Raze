@@ -4130,9 +4130,8 @@ void actExplodeSprite(DBloodActor* actor)
 		int nSnd = 304;
 		int nSeq = 4;
 
-#ifdef NOONE_EXTENSIONS
 		// allow to customize hidden exploder trap
-		if (gModernMap)
+		if (currentLevel->featureflags & kFeatureCustomTrapExploder)
 		{
 			nType = actor->xspr.data1;  // Explosion type
 			int tSeq = actor->xspr.data2; // SEQ id
@@ -4150,7 +4149,6 @@ void actExplodeSprite(DBloodActor* actor)
 			if (tSeq > 0) nSeq = tSeq;
 			if (tSnd > 0) nSnd = tSnd;
 		}
-#endif
 
 		if (getSequence(nSeq)) seqSpawn(nSeq, actor);
 		sfxPlay3DSound(actor, nSnd, -1, 0);
