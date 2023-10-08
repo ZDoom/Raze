@@ -130,6 +130,7 @@ public:
 		return GetType() >= kItemAmmoBase && GetType() < kItemAmmoMax;
 	}
 	
+#ifdef NOONE_EXTENSIONS
 	bool isActive()
 	{
 		if (!hasX())
@@ -147,6 +148,7 @@ public:
 			return true;
 		}
 	}
+#endif
 
 	void ChangeType(PClass* newtype)
 	{
