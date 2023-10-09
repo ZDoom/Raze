@@ -198,7 +198,7 @@ void InitAmbient(int num, DSWActor* actor)
     {
         if (num != -1) // skip message for -1 to allow using it for silencing buggy ambient sound sprites (there is one in SW level 9.)
         {
-            sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
+            snprintf(ds, sizeof(ds), "Invalid or out of range ambient sound number %d\n", num);
             PutStringInfo(getPlayer(screenpeek), ds);
         }
         return;
