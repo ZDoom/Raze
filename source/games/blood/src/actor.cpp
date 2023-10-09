@@ -1506,14 +1506,10 @@ static void actInitDudes()
 
 				act->vel.Zero();
 
-#ifdef NOONE_EXTENSIONS
-				// add a way to set custom hp for every enemy - should work only if map just started and not loaded.
-				if (!gModernMap || act->xspr.sysData2 <= 0) act->xspr.health = pDudeInfo->startHealth << 4;
-				else act->xspr.health = ClipRange(act->xspr.sysData2 << 4, 1, 65535);
-#else
-				act->xspr.health = pDudeInfo->startHealth << 4;
-#endif
-
+				if ((currentLevel->featureflags & kFeatureEnemyAttacks) && act->xspr.sysData2 > 0)
+					act->xspr.health = clamp(act->xspr.sysData2 << 4, 1, 65535);
+				else
+					act->xspr.health = pDudeInfo->startHealth << 4;
 			}
 
 			if (getSequence(seqStartId)) seqSpawn(seqStartId, act);
