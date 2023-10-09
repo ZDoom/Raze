@@ -461,8 +461,9 @@ void InventoryKeys(DSWPlayer* pp)
                 }
                 else
                 {
-                    sprintf(ds,"No %s",InventoryData[pp->InventoryNum].Name);
-                    PutStringInfo(pp,ds); // DONT have message
+                    // this needs to be fixed for localization!
+                    FStringf ds("No %s",InventoryData[pp->InventoryNum].Name);
+                    PutStringInfo(pp,ds.GetChars()); // DONT have message
                 }
             }
         }
