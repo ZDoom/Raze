@@ -215,7 +215,7 @@ public:
 		return *(int*)(GetClass()->Meta + o_startHealth);
 	}
 
-	inline int mass() const
+	/* virtual */inline int mass() const // if we decide to add nnext, this will need a virtual override on the script side or some comparable means to branch off!
 	{
 		return *(int*)(GetClass()->Meta + o_mass);
 	}

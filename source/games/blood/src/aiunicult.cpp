@@ -1714,7 +1714,7 @@ int getBaseChanceModifier(int baseChance)
 
 int getRecoilChance(DBloodActor* actor)
 {
-	int mass = getSpriteMassBySize(actor);
+	int mass = actor->mass();
 	int baseChance = (!dudeIsMelee(actor) ? 0x8000 : 0x4000);
 	baseChance = getBaseChanceModifier(baseChance) + actor->xspr.data3;
 
@@ -1724,7 +1724,7 @@ int getRecoilChance(DBloodActor* actor)
 
 int getDodgeChance(DBloodActor* actor)
 {
-	int mass = getSpriteMassBySize(actor);
+	int mass = actor->mass();
 	int baseChance = (!dudeIsMelee(actor) ? 0x6000 : 0x1000);
 	baseChance = getBaseChanceModifier(baseChance) + actor->xspr.data3;
 

@@ -983,22 +983,13 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 
 	if (actor->spr.flags & kPhysMove)
 	{
-		double mass = actor->mass();
-		if (actor->IsDudeActor())
-		{
-#ifdef NOONE_EXTENSIONS
-			if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
-			{
-				mass = getSpriteMassBySize(actor);
-			}
-#endif
-		}
-		else if (actor->GetType() < kThingBase || actor->GetType() >= kThingMax)
+		if (!actor->IsDudeActor() && !actor->IsThingActor())
 		{
 			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", actor->GetIndex(), (int)actor->GetType(), (int)actor->spr.statnum);
 			return;
 		}
 
+		double mass = actor->mass();
 		if (mass > 0)
 		{
 			auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
@@ -2288,13 +2279,6 @@ static void checkCeilHit(DBloodActor* actor)
 
 						int mass1 = actor2->mass();
 						int mass2 = actor->mass();
-						switch (actor->GetType())
-						{
-						case kDudeModernCustom:
-						case kDudeModernCustomBurning:
-							mass2 = getSpriteMassBySize(actor);
-							break;
-						}
 						if (mass1 > mass2)
 						{
 							int dmg = int(4 * (abs((mass1 - mass2) * actor2->clipdist) - actor->clipdist));
@@ -2317,7 +2301,7 @@ static void checkCeilHit(DBloodActor* actor)
 						case kDudeModernCustom:
 						case kDudeModernCustomBurning:
 							int dmg = 0;
-							if (!actor->IsDudeActor() || (dmg = ClipLow((getSpriteMassBySize(actor2) - getSpriteMassBySize(actor)) >> 1, 0)) == 0)
+							if (!actor->IsDudeActor() || (dmg = ClipLow((actor2->mass() - actor->mass()) >> 1, 0)) == 0)
 								break;
 
 							if (!actor->IsPlayerActor())
@@ -2376,13 +2360,6 @@ static void checkHit(DBloodActor* actor)
 				{
 					int mass1 = actor->mass();
 					int mass2 = actor2->mass();
-					switch (actor2->GetType())
-					{
-					case kDudeModernCustom:
-					case kDudeModernCustomBurning:
-						mass2 = getSpriteMassBySize(actor2);
-						break;
-					}
 					if (mass1 > mass2)
 					{
 						actKickObject(actor, actor2);
@@ -4676,19 +4653,6 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			}
 			else if (actor->spr.statnum == kStatDude && actor->hasX())
 			{
-#ifdef NOONE_EXTENSIONS
-				if (actor->IsDudeActor())
-				{
-					switch (actor->GetType())
-					{
-					case kDudeModernCustom:
-					case kDudeModernCustomBurning:
-						mass = getSpriteMassBySize(actor);
-						break;
-					}
-				}
-#endif
-
 				if (mass > 0 && pVectorData->impulse)
 				{
 					double thrust = double(pVectorData->impulse) / (mass * 1024);
