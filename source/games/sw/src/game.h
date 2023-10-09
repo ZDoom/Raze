@@ -1526,7 +1526,7 @@ extern bool NewGame;
 extern uint8_t CommPlayers;
 extern bool CommEnabled;
 extern int LastFrameTics;
-extern char ds[];
+extern char ds[645];
 extern short Skill;
 extern int GodMode;
 

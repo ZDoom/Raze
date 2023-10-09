@@ -550,52 +550,52 @@ void InitGameVarPointers(void)
 
 	for (i = 0; i < 12/*MAX_WEAPONS*/; i++)	// Setup only exists for the original 12 weapons.
 	{
-		sprintf(aszBuf, "WEAPON%d_CLIP", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", i);
 		i_aplWeaponClip[i] = GetGameValuePtr(aszBuf);
 		if (i_aplWeaponClip[i] < 0)
 		{
 			I_FatalError("ERROR: NULL Weapon\n");
 		}
-		sprintf(aszBuf, "WEAPON%d_RELOAD", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", i);
 		i_aplWeaponReload[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", i);
 		i_aplWeaponFireDelay[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", i);
 		i_aplWeaponTotalTime[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", i);
 		i_aplWeaponHoldDelay[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", i);
 		i_aplWeaponFlags[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", i);
 		i_aplWeaponShoots[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", i);
 		i_aplWeaponSpawnTime[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", i);
 		i_aplWeaponSpawn[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", i);
 		i_aplWeaponShotsPerBurst[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", i);
 		i_aplWeaponWorksLike[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", i);
 		i_aplWeaponInitialSound[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", i);
 		i_aplWeaponFireSound[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", i);
 		i_aplWeaponSound2Time[i] = GetGameValuePtr(aszBuf);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", i);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", i);
 		i_aplWeaponSound2Sound[i] = GetGameValuePtr(aszBuf);
 
 	}
@@ -618,563 +618,563 @@ void AddSystemVars()
 	char aszBuf[64];
 	if (isWW2GI())
 	{
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", KNEE_WEAPON);
 		AddGameVar(aszBuf, KNEE_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", KNEE_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", KNEE_WEAPON);
 		AddGameVar(aszBuf, 7, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", KNEE_WEAPON);
 		AddGameVar(aszBuf, 14, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", KNEE_WEAPON);
 		AddGameVar(aszBuf, 14, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", KNEE_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_NOVISIBLE | WEAPON_FLAG_AUTOMATIC | WEAPON_FLAG_RANDOMRESTART, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", KNEE_WEAPON);
 		AddGameVar(aszBuf, DukeMeleeAttackClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", KNEE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", KNEE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", PISTOL_WEAPON);
 		AddGameVar(aszBuf, PISTOL_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 12, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 2, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 5, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", PISTOL_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_AUTOMATIC | WEAPON_FLAG_HOLSTER_CLEARS_CLIP, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", PISTOL_WEAPON);
 		AddGameVar(aszBuf, DukeShotSparkClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 2, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", PISTOL_WEAPON);
 		AddGameVar(aszBuf, DukeShellClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", PISTOL_WEAPON);
 		AddGameVar(aszBuf, PISTOL_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", PISTOL_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", PISTOL_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, SHOTGUN_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 13, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 4, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 31, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_CHECKATRELOAD, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, DukeShotgunShotClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 24, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, DukeShotgunShellClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 7, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, SHOTGUN_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, 15, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", SHOTGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", SHOTGUN_WEAPON);
 		AddGameVar(aszBuf, SHOTGUN_COCK, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, CHAINGUN_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 1, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 10, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_AUTOMATIC | WEAPON_FLAG_FIREEVERYTHIRD | WEAPON_FLAG_AMMOPERSHOT, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, DukeChaingunShotClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, DukeShellClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, CHAINGUN_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", CHAINGUN_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", CHAINGUN_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", RPG_WEAPON);
 		AddGameVar(aszBuf, RPG_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", RPG_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", RPG_WEAPON);
 		AddGameVar(aszBuf, 4, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", RPG_WEAPON);
 		AddGameVar(aszBuf, 20, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", RPG_WEAPON);
 		AddGameVar(aszBuf, DukeRPGClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", RPG_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", RPG_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, HANDBOMB_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 6, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 19, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 12, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_THROWIT, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, DukePipeBombClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", HANDBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", HANDBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, SHRINKER_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 3, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 12, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_GLOWS, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, DukeShrinkerClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, SHRINKER_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", SHRINKER_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", SHRINKER_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, DEVISTATOR_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 2, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 5, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 5, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_FIREEVERYOTHER, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, DukeRPGClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, CAT_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", DEVISTATOR_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", DEVISTATOR_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, TRIPBOMB_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 30, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 3, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 16, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_STANDSTILL, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, DukeHandHoldingLaserClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", TRIPBOMB_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", TRIPBOMB_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", FREEZE_WEAPON);
 		AddGameVar(aszBuf, FREEZE_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 3, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 5, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", FREEZE_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_FIREEVERYOTHER, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", FREEZE_WEAPON);
 		AddGameVar(aszBuf, DukeFreezeBlastClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", FREEZE_WEAPON);
 		AddGameVar(aszBuf, CAT_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", FREEZE_WEAPON);
 		AddGameVar(aszBuf, CAT_FIRE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", FREEZE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", FREEZE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		/////////////////////////////
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, HANDREMOTE_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 10, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 2, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 10, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_BOMB_TRIGGER | WEAPON_FLAG_NOVISIBLE, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", HANDREMOTE_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", HANDREMOTE_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 		///////////////////////////////////////////////////////		
-		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_WORKSLIKE", GROW_WEAPON);
 		AddGameVar(aszBuf, GROW_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_CLIP", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_CLIP", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_RELOAD", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_RELOAD", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIREDELAY", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIREDELAY", GROW_WEAPON);
 		AddGameVar(aszBuf, 2, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_TOTALTIME", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_TOTALTIME", GROW_WEAPON);
 		AddGameVar(aszBuf, 5, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
 
-		sprintf(aszBuf, "WEAPON%d_HOLDDELAY", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_HOLDDELAY", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FLAGS", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FLAGS", GROW_WEAPON);
 		AddGameVar(aszBuf, WEAPON_FLAG_GLOWS, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOOTS", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOOTS", GROW_WEAPON);
 		AddGameVar(aszBuf, DukeGrowSparkClass->ActorInfo()->TypeNum, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWNTIME", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWNTIME", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SPAWN", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SPAWN", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SHOTSPERBURST", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_INITIALSOUND", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_INITIALSOUND", GROW_WEAPON);
 		AddGameVar(aszBuf, EXPANDERSHOOT, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_FIRESOUND", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_FIRESOUND", GROW_WEAPON);
 		AddGameVar(aszBuf, EXPANDERSHOOT, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2TIME", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2TIME", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
-		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", GROW_WEAPON);
+		snprintf(aszBuf, sizeof(aszBuf), "WEAPON%d_SOUND2SOUND", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 	}
 	AddGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);

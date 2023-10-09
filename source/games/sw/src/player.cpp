@@ -4843,6 +4843,8 @@ const char *SuicideNote[MAX_SUICIDE] =
     "did everyone a favor and offed himself."
 };
 
+// currently unused, if MP ever becomes workable all this needs to be made localization friendly.
+// The texts are already translated for most languages.
 char *KilledPlayerMessage(DSWPlayer* pp, DSWPlayer* killer)
 {
     const int MAX_KILL_NOTES = 16;
@@ -4852,59 +4854,59 @@ char *KilledPlayerMessage(DSWPlayer* pp, DSWPlayer* killer)
 
     if (pp->HitBy == killer->GetActor())
     {
-        sprintf(ds,"%s was killed by %s.",p1,p2);
+        snprintf(ds, sizeof(ds),"%s was killed by %s.",p1,p2);
         return ds;
     }
     else
         switch (rnd)
         {
         case 0:
-            sprintf(ds,"%s was wasted by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s was wasted by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 1:
-            sprintf(ds,"%s got his ass kicked by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s got his ass kicked by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 2:
-            sprintf(ds,"%s bows down before the mighty power of %s.",p1,p2);
+            snprintf(ds, sizeof(ds),"%s bows down before the mighty power of %s.",p1,p2);
             return ds;
         case 3:
-            sprintf(ds,"%s was killed by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s was killed by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 4:
-            sprintf(ds,"%s got slapped down hard by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s got slapped down hard by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 5:
-            sprintf(ds,"%s got on his knees before %s.",p1,p2);
+            snprintf(ds, sizeof(ds),"%s got on his knees before %s.",p1,p2);
             return ds;
         case 6:
-            sprintf(ds,"%s was totally out classed by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s was totally out classed by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 7:
-            sprintf(ds,"%s got chewed apart by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s got chewed apart by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 8:
-            sprintf(ds,"%s was retired by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s was retired by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 9:
-            sprintf(ds,"%s was greased by %s's %s.",p1,p2,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s was greased by %s's %s.",p1,p2,DeathString(pp->HitBy));
             return ds;
         case 10:
-            sprintf(ds,"%s was humbled lower than dirt by %s.",p1,p2);
+            snprintf(ds, sizeof(ds),"%s was humbled lower than dirt by %s.",p1,p2);
             return ds;
         case 11:
-            sprintf(ds,"%s beats %s like a red headed step child.",p2,p1);
+            snprintf(ds, sizeof(ds),"%s beats %s like a red headed step child.",p2,p1);
             return ds;
         case 12:
-            sprintf(ds,"%s begs for mercy as %s terminates him with extreme prejudice.",p1,p2);
+            snprintf(ds, sizeof(ds),"%s begs for mercy as %s terminates him with extreme prejudice.",p1,p2);
             return ds;
         case 13:
-            sprintf(ds,"%s falls before the superior skills of %s.",p1,p2);
+            snprintf(ds, sizeof(ds),"%s falls before the superior skills of %s.",p1,p2);
             return ds;
         case 14:
-            sprintf(ds,"%s gives %s a beating he'll never forget.",p2,p1);
+            snprintf(ds, sizeof(ds),"%s gives %s a beating he'll never forget.",p2,p1);
             return ds;
         case 15:
-            sprintf(ds,"%s puts the Smack Dab on %s with his %s.",p2,p1,DeathString(pp->HitBy));
+            snprintf(ds, sizeof(ds),"%s puts the Smack Dab on %s with his %s.",p2,p1,DeathString(pp->HitBy));
             return ds;
         }
     return nullptr;
@@ -4925,14 +4927,14 @@ void DoPlayerDeathMessage(DSWPlayer* pp, DSWPlayer* killer)
 
     if (pp == killer && pp == getPlayer(myconnectindex))
     {
-        sprintf(ds,"%s %s",pp->PlayerName,SuicideNote[StdRandomRange(MAX_SUICIDE)]);
+        snprintf(ds, sizeof(ds),"%s %s",pp->PlayerName,SuicideNote[StdRandomRange(MAX_SUICIDE)]);
         SEND_OK = true;
     }
     else
     // I am being killed
     if (killer == getPlayer(myconnectindex))
     {
-        sprintf(ds,"%s",KilledPlayerMessage(pp,killer));
+        snprintf(ds, sizeof(ds),"%s",KilledPlayerMessage(pp,killer));
         SEND_OK = true;
     }
 

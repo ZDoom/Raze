@@ -1063,7 +1063,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag |= 1;
 					pPlayer->ctfFlagState[0] = itemactor;
 					trTriggerSprite(itemactor, kCmdOff);
-					sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->pnum));
+					snprintf(buffer, sizeof(buffer), "%s stole Blue Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8007, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1075,7 +1075,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag &= ~1;
 					pPlayer->ctfFlagState[0] = nullptr;
 					trTriggerSprite(itemactor, kCmdOn);
-					sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->pnum));
+					snprintf(buffer, sizeof(buffer), "%s returned Blue Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8003, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1086,7 +1086,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 					team_score[pPlayer->teamId] += 10;
 					team_ticker[pPlayer->teamId] += 240;
 					evSendGame(81, kCmdOn);
-					sprintf(buffer, "%s captured Red Flag!", PlayerName(pPlayer->pnum));
+					snprintf(buffer, sizeof(buffer), "%s captured Red Flag!", PlayerName(pPlayer->pnum));
 					sndStartSample(8001, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1100,7 +1100,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag |= 2;
 					pPlayer->ctfFlagState[1] = itemactor;
 					trTriggerSprite(itemactor, kCmdOff);
-					sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->pnum));
+					snprintf(buffer, sizeof(buffer), "%s stole Red Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8006, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1112,7 +1112,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 					pPlayer->hasFlag &= ~2;
 					pPlayer->ctfFlagState[1] = nullptr;
 					trTriggerSprite(itemactor, kCmdOn);
-					sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->pnum));
+					snprintf(buffer, sizeof(buffer), "%s returned Red Flag", PlayerName(pPlayer->pnum));
 					sndStartSample(8002, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1123,7 +1123,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 					team_score[pPlayer->teamId] += 10;
 					team_ticker[pPlayer->teamId] += 240;
 					evSendGame(80, kCmdOn);
-					sprintf(buffer, "%s captured Blue Flag!", PlayerName(pPlayer->pnum));
+					snprintf(buffer, sizeof(buffer), "%s captured Blue Flag!", PlayerName(pPlayer->pnum));
 					sndStartSample(8000, 255, 2, 0);
 					viewSetMessage(buffer);
 				}
@@ -1140,7 +1140,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 			pPlayer->hasFlag &= ~1;
 			pPlayer->ctfFlagState[0] = nullptr;
 			trTriggerSprite(itemactor->GetOwner(), kCmdOn);
-			sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->pnum));
+			snprintf(buffer, sizeof(buffer), "%s returned Blue Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8003, 255, 2, 0);
 			viewSetMessage(buffer);
 			break;
@@ -1149,7 +1149,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		pPlayer->ctfFlagState[0] = itemactor->GetOwner();
 		if (enemyTeam)
 		{
-			sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->pnum));
+			snprintf(buffer, sizeof(buffer), "%s stole Blue Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8007, 255, 2, 0);
 			viewSetMessage(buffer);
 		}
@@ -1164,7 +1164,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 			pPlayer->hasFlag &= ~2;
 			pPlayer->ctfFlagState[1] = nullptr;
 			trTriggerSprite(itemactor->GetOwner(), kCmdOn);
-			sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->pnum));
+			snprintf(buffer, sizeof(buffer), "%s returned Red Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8002, 255, 2, 0);
 			viewSetMessage(buffer);
 			break;
@@ -1173,7 +1173,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		pPlayer->ctfFlagState[1] = itemactor->GetOwner();
 		if (enemyTeam)
 		{
-			sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->pnum));
+			snprintf(buffer, sizeof(buffer), "%s stole Red Flag", PlayerName(pPlayer->pnum));
 			sndStartSample(8006, 255, 2, 0);
 			viewSetMessage(buffer);
 		}
@@ -1926,7 +1926,7 @@ void playerFrag(DBloodPlayer* pKiller, DBloodPlayer* pVictim)
 		}
 		else
 		{
-			sprintf(buffer, gSuicide[nMessage].message, PlayerName(nVictim));
+			snprintf(buffer, sizeof(buffer), gSuicide[nMessage].message, PlayerName(nVictim));
 		}
 	}
 	else
@@ -1949,7 +1949,7 @@ void playerFrag(DBloodPlayer* pKiller, DBloodPlayer* pVictim)
 		int nMessage = Random(25);
 		int nSound = gVictory[nMessage].Kills;
 		const char* pzMessage = gVictory[nMessage].message;
-		sprintf(buffer, pzMessage, PlayerName(nKiller), PlayerName(nVictim));
+		snprintf(buffer, sizeof(buffer), pzMessage, PlayerName(nKiller), PlayerName(nVictim));
 		if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller->pnum == myconnectindex)
 			sndStartSample(nSound, 255, 2, 0);
 	}
@@ -2032,7 +2032,7 @@ void flagDropped(DBloodPlayer* pPlayer, int a2)
 		actor = actDropObject(playeractor, kItemFlagA);
 		if (actor) actor->SetOwner(pPlayer->ctfFlagState[0]);
 		gBlueFlagDropped = true;
-		sprintf(buffer, "%s dropped Blue Flag", PlayerName(pPlayer->pnum));
+		snprintf(buffer, sizeof(buffer), "%s dropped Blue Flag", PlayerName(pPlayer->pnum));
 		sndStartSample(8005, 255, 2, 0);
 		viewSetMessage(buffer);
 		break;
@@ -2041,7 +2041,7 @@ void flagDropped(DBloodPlayer* pPlayer, int a2)
 		actor = actDropObject(playeractor, kItemFlagB);
 		if (actor) actor->SetOwner(pPlayer->ctfFlagState[1]);
 		gRedFlagDropped = true;
-		sprintf(buffer, "%s dropped Red Flag", PlayerName(pPlayer->pnum));
+		snprintf(buffer, sizeof(buffer), "%s dropped Red Flag", PlayerName(pPlayer->pnum));
 		sndStartSample(8004, 255, 2, 0);
 		viewSetMessage(buffer);
 		break;
@@ -2315,7 +2315,7 @@ void PlayerSurvive(DBloodActor* actor)
 				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
 			else
 			{
-				sprintf(buffer, "%s lives again!", PlayerName(pPlayer->pnum));
+				snprintf(buffer, sizeof(buffer), "%s lives again!", PlayerName(pPlayer->pnum));
 				viewSetMessage(buffer);
 			}
 			pPlayer->newWeapon = kWeapPitchFork;
