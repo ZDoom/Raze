@@ -226,7 +226,7 @@ TArray<FString> I_GetSteamPath()
 		{
 			struct stat st;
 			FString candidate(SteamInstallFolders[i] + "/" + AppInfo[app]);
-			if(DirExists(candidate))
+			if(DirExists(candidate.GetChars()))
 				result.Push(candidate);
 		}
 	}
