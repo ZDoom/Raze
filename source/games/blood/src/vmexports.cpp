@@ -419,6 +419,27 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 //
 //
 //---------------------------------------------------------------------------
+
+DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType)
+{
+	IFVM(BloodThingBase, spawnThing)
+	{
+		PClass* ty = GetSpawnType(nThingType);
+		DBloodActor* spawned;
+		VMReturn ret((void**)&spawned);
+		VMValue param[] = { pSector, pos.X, pos.Y, pos.Z, ty };
+		VMCall(func, param, 5, &ret, 1);
+		return spawned;
+	}
+	return nullptr;
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 void callActorFunction(VMFunction* funcID, DBloodActor* actor)
 {
 	if (funcID)

@@ -254,6 +254,7 @@ bool ZCCRazeCompiler::CompileFlagDefs(PContainerType* type, TArray<ZCC_FlagDef*>
 			if (field == nullptr)
 			{
 				Error(p, "Variable %s not found in %s", referenced.GetChars(), type->TypeName.GetChars());
+				continue;
 			}
 			else if (!field->Type->isInt() || field->Type->Size != 4)
 			{
@@ -262,10 +263,9 @@ bool ZCCRazeCompiler::CompileFlagDefs(PContainerType* type, TArray<ZCC_FlagDef*>
 
 			FName name(p->NodeName);
 			type->AddNativeField(name.GetChars(), TypeSInt32, field->Offset, 0, 1 << (p->BitValue & 0xffff));
-			return true;
 		}
 	}
-	return false;
+	return true;
 }
 
 //==========================================================================

@@ -1217,17 +1217,10 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 	}
 	else if (gGameOptions.nGameType == 1 && killerActor->IsPlayerActor() && actor->spr.statnum == kStatDude)
 	{
-		switch (actor->GetType())
+		if (AllowedKillType(actor))
 		{
-		case kDudeBat:
-		case kDudeRat:
-		case kDudeInnocent:
-		case kDudeBurningInnocent:
-			break;
-		default:
 			auto pKillerPlayer = getPlayer(killerActor);
 			pKillerPlayer->fragCount++;
-			break;
 		}
 
 	}
@@ -4346,95 +4339,6 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType)
-{
-	assert(nThingType >= kThingBase && nThingType < kThingMax);
-	auto cls = GetSpawnType(nThingType);
-	auto actor = actSpawnSprite(pSector, pos, 4, 1, cls, nThingType);
-	int nType = nThingType - kThingBase;
-	actor->ChangeType(nThingType);
-	assert(actor->hasX());
-	actor->xspr.health = actor->IntVar("defhealth") << 4;
-	actor->clipdist = actor->FloatVar("defclipdist");
-	actor->spr.flags = actor->IntVar("defflags");
-	if (actor->spr.flags & 2) actor->spr.flags |= 4;
-	actor->spr.cstat |= ESpriteFlags::FromInt(actor->IntVar("defcstat"));
-	actor->spr.shade = actor->IntVar("defshade");
-	actor->spr.pal = actor->IntVar("defpal");
-	actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
-	switch (nThingType)
-	{
-	case kThingVoodooHead:
-		actor->xspr.data1 = 0;
-		actor->xspr.data2 = 0;
-		actor->xspr.data3 = 0;
-		actor->xspr.data4 = 0;
-		actor->xspr.state = 1;
-		actor->xspr.triggerOnce = 1;
-		actor->xspr.isTriggered = 0;
-		break;
-
-	case kThingDroppedLifeLeech:
-#ifdef NOONE_EXTENSIONS
-	case kModernThingEnemyLifeLeech:
-#endif
-		actor->xspr.data1 = 0;
-		actor->xspr.data2 = 0;
-		actor->xspr.data3 = 0;
-		actor->xspr.data4 = 0;
-		actor->xspr.state = 1;
-		actor->xspr.triggerOnce = 0;
-		actor->xspr.isTriggered = 0;
-		break;
-
-	case kThingZombieHead:
-		actor->xspr.data1 = 8;
-		actor->xspr.data2 = 0;
-		actor->xspr.data3 = 0;
-		actor->xspr.data4 = 318;
-		actor->xspr.TargetPos.X = PlayClock + 180;
-		actor->xspr.locked = 1;
-		actor->xspr.state = 1;
-		actor->xspr.triggerOnce = 0;
-		actor->xspr.isTriggered = 0;
-		break;
-
-	case kThingBloodBits:
-	case kThingBloodChunks:
-		actor->xspr.data1 = (nThingType == kThingBloodBits) ? 19 : 8;
-		actor->xspr.data2 = 0;
-		actor->xspr.data3 = 0;
-		actor->xspr.data4 = 319;
-		actor->xspr.TargetPos.X = PlayClock + 180;
-		actor->xspr.locked = 1;
-		actor->xspr.state = 1;
-		actor->xspr.triggerOnce = 0;
-		actor->xspr.isTriggered = 0;
-		break;
-
-	case kThingArmedTNTStick:
-		evPostActor(actor, 0, AF(fxDynPuff));
-		sfxPlay3DSound(actor, 450, 0, 0);
-		break;
-
-	case kThingArmedTNTBundle:
-		sfxPlay3DSound(actor, 450, 0, 0);
-		evPostActor(actor, 0, AF(fxDynPuff));
-		break;
-
-	case kThingArmedSpray:
-		evPostActor(actor, 0, AF(fxDynPuff));
-		break;
-	}
-	return actor;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed)
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
@@ -4446,9 +4350,12 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * actor->clipdist * 2;
 	}
 	auto fired = actSpawnThing(actor->sector(), vect, thingType);
-	fired->SetOwner(actor);
-	fired->spr.Angles.Yaw = actor->spr.Angles.Yaw;
-	fired->vel = DVector3(fired->spr.Angles.Yaw.ToVector() * nSpeed, nSpeed * zvel * 4) + actor->vel * 0.5;
+	if (fired)
+	{
+		fired->SetOwner(actor);
+		fired->spr.Angles.Yaw = actor->spr.Angles.Yaw;
+		fired->vel = DVector3(fired->spr.Angles.Yaw.ToVector() * nSpeed, nSpeed * zvel * 4) + actor->vel * 0.5;
+	}
 	return fired;
 }
 

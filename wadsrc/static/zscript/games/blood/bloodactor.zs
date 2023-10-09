@@ -438,7 +438,7 @@ native void callbackMissileBurst();
 	//
 	//---------------------------------------------------------------------------
 
-	BloodActor fireMissile(double xyoff, double zoff, Vector3 dv, class<BloodMissileBase> type)
+	BloodMissileBase fireMissile(double xyoff, double zoff, Vector3 dv, class<BloodMissileBase> type)
 	{
 		if (type == null || !(type is 'BloodMissileBase')) return null;
 
@@ -464,20 +464,7 @@ native void callbackMissileBurst();
 		let spawned = BloodMissileBase(self.spawnSprite(self.sector, spawnpos, kStatProjectile, true, type));
 		if (spawned == null) return null;
 
-		spawned.cstat2 |= CSTAT2_SPRITE_MAPPED;
-		spawned.shade = spawned.defshade;
-		spawned.pal = spawned.defpal;
-		spawned.clipdist = clipdist;
-		spawned.flags = 1;
-
-		spawned.Angle = self.angle + spawned.angleofs;
 		spawned.vel = dv.Unit() * spawned.speed;
-		spawned.ownerActor = self;
-		spawned.cstat |= CSTAT_SPRITE_BLOCK;
-		spawned.xspr.target = null;
-
-		spawned.evPostActorCallback(600, RemoveActor);
-
 		spawned.initMissile(self); // handle type specific init.
 
 		if (impact)
@@ -487,4 +474,5 @@ native void callbackMissileBurst();
 		}
 		return spawned;
 	}
+	
 }

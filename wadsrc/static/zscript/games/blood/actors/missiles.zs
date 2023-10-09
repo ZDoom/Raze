@@ -31,6 +31,19 @@ class BloodMissileBase : BloodActor
 	
 	virtual void initMissile(BloodActor spawner)
 	{
+		self.cstat2 |= CSTAT2_SPRITE_MAPPED;
+		self.shade = self.defshade;
+		self.pal = self.defpal;
+		self.clipdist = clipdist;
+		self.flags = 1;
+
+		self.Angle = spawner.angle + self.angleofs;
+		self.ownerActor = spawner;
+		self.cstat |= CSTAT_SPRITE_BLOCK;
+		self.xspr.target = null;
+
+		self.evPostActorCallback(600, RemoveActor);
+		
 		self.vel += self.movementAdd * spawner.vel;
 		if (self.randomVel > 0)
 		{

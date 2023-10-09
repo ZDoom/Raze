@@ -13,6 +13,35 @@ class BloodThingBase : BloodActor
 	property bouncefactor: bouncefactor;
 	property dmgResist: dmgResist;
 	property cstat: defcstat;
+	
+	
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static BloodThingBase spawnThing(sectortype sector, Vector3 pos, class<BloodThingBase> type)
+	{
+		if (type == null || !(type is 'BloodThingBase')) return null;
+		
+		let spawned = BloodThingBase(spawnSprite(sector, pos, kStatThing, true, type));
+		if (spawned == null) return null;
+		spawned.initThing();
+		return spawned;
+	}
+	
+	virtual void initThing()
+	{
+		self.xspr.health = self.defhealth << 4;
+		self.clipdist = self.defclipdist;
+		self.flags = self.defflags;
+		if (self.flags & 2) self.flags |= 4;
+		self.cstat |= self.defcstat;
+		self.shade = self.defshade;
+		self.pal = self.defpal;
+		self.cstat2 |= CSTAT2_SPRITE_MAPPED;
+	}
 }
 
 class BloodThingTNTBarrel : BloodThingBase
@@ -257,6 +286,14 @@ class BloodThingArmedTNTStick : BloodThingBase
 		scale 0.500000, 0.500000;
 		dmgcontrol 64, 256, 128, 64, 0, 0, 256;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.evPostActorCallback(0, fxDynPuff);
+		self.play3DSoundID(450, 0, 0);
+	}
+	
 }
 
 class BloodThingArmedTNTBundle : BloodThingBase
@@ -275,6 +312,14 @@ class BloodThingArmedTNTBundle : BloodThingBase
 		scale 0.500000, 0.500000;
 		dmgcontrol 64, 256, 128, 64, 0, 0, 256;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.play3DSoundID(450, 0, 0);
+		self.evPostActorCallback(0, fxDynPuff);
+	}
+	
 }
 
 class BloodThingArmedSpray : BloodThingBase
@@ -293,6 +338,13 @@ class BloodThingArmedSpray : BloodThingBase
 		scale 0.500000, 0.500000;
 		dmgcontrol 64, 256, 128, 64, 0, 0, 256;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.evPostActorCallback(0, fxDynPuff);
+	}
+	
 }
 
 class BloodThingBone : BloodThingBase
@@ -362,9 +414,20 @@ class BloodThingBloodBits : BloodThingBase
 		cstat CSTAT_SPRITE_BLOCK_ALL;
 		dmgcontrol 128, 64, 256, 256, 0, 0, 256;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.xspr.data1 = 8;
+		self.xspr.data4 = 319;
+		self.xspr.TargetPos.X = PlayClock + 180;
+		self.xspr.locked = 1;
+		self.xspr.state = 1;
+	}
+	
 }
 
-class BloodThingBloodChunks : BloodThingBase
+class BloodThingBloodChunks : BloodThingBloodBits
 {
 	default
 	{
@@ -376,6 +439,13 @@ class BloodThingBloodChunks : BloodThingBase
 		cstat CSTAT_SPRITE_BLOCK_ALL;
 		dmgcontrol 128, 64, 256, 256, 0, 0, 64;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.xspr.data1 = 19;
+	}
+	
 }
 
 class BloodThingZombieHead : BloodThingBase
@@ -393,6 +463,17 @@ class BloodThingZombieHead : BloodThingBase
 		scale 0.625000, 0.625000;
 		dmgcontrol 128, 64, 256, 256, 0, 0, 64;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.xspr.data1 = 8;
+		self.xspr.data4 = 318;
+		self.xspr.TargetPos.X = PlayClock + 180;
+		self.xspr.locked = 1;
+		self.xspr.state = 1;
+	}
+	
 }
 
 class BloodThingNapalmBall : BloodThingBase
@@ -464,6 +545,13 @@ class BloodThingDroppedLifeLeech : BloodThingBase
 		scale 0.750000, 0.750000;
 		dmgcontrol 64, 64, 112, 64, 0, 96, 96;
 	}
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.xspr.state = 1;
+	}
+	
 }
 
 class BloodThingVoodooHead : BloodThingBase
@@ -480,6 +568,15 @@ class BloodThingVoodooHead : BloodThingBase
 		shade -128;
 		scale 0.250000, 0.250000;
 	}
+	
+	
+	override void initThing()
+	{
+		super.initThing();
+		self.xspr.state = 1;
+		self.xspr.triggerOnce = 1;
+	}
+	
 }
 
 class BloodThingTNTProx : BloodThingBase
