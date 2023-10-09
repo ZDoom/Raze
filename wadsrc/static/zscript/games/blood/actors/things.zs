@@ -1,7 +1,6 @@
 class BloodThingBase : BloodActor
 {
 	meta int defhealth;
-	meta int mass;
 	meta int defflags;
 	meta int bouncefactor;
 	meta int dmgResist;

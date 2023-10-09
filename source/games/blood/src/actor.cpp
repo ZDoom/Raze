@@ -1564,10 +1564,9 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 
 	if (actor->spr.flags & kPhysMove)
 	{
-		double mass = 0;
+		double mass = actor->mass();
 		if (actor->IsDudeActor())
 		{
-			mass = actor->mass();
 #ifdef NOONE_EXTENSIONS
 			if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
 			{
@@ -1575,11 +1574,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 			}
 #endif
 		}
-		else if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax)
-		{
-			mass = actor->IntVar("mass");
-		}
-		else
+		else if (actor->GetType() < kThingBase || actor->GetType() >= kThingMax)
 		{
 			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", actor->GetIndex(), (int)actor->GetType(), (int)actor->spr.statnum);
 			return;
@@ -5245,10 +5240,10 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 
 			actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << shift);
 			if (actor->hasX() && actor->xspr.Vector) trTriggerSprite(actor, kCmdSpriteImpact, shooter);
+			int mass = actor->mass();
 
 			if (actor->spr.statnum == kStatThing)
 			{
-				int mass = actor->IntVar("mass");
 				if (mass > 0 && pVectorData->impulse)
 				{
 					double thrust = double(pVectorData->impulse) / (mass * 1024);
@@ -5260,10 +5255,8 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 				}
 			}
-			if (actor->spr.statnum == kStatDude && actor->hasX())
+			else if (actor->spr.statnum == kStatDude && actor->hasX())
 			{
-				int mass = actor->mass();
-
 #ifdef NOONE_EXTENSIONS
 				if (actor->IsDudeActor())
 				{

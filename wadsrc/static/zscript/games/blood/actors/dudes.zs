@@ -2,7 +2,6 @@ class BloodDudeBase : Bloodactor
 {
 	meta int seqStartID;
 	meta int starthealth;
-	meta int mass;
 	meta int eyeHeight;
 	meta int aimHeight; // used by just Cerberus
 	meta double hearDist;

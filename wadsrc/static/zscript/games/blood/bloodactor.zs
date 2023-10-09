@@ -93,6 +93,7 @@ class BloodActor : CoreActor native
 	meta int defshade;
 	meta int defpal;
 	meta double defclipdist;
+	meta int mass;	// this must be here so access is defined for all classes. It can get read after a dude changes type!
 	Property prefix: none;
 	property shade: defshade;
 	property pal: defpal;
