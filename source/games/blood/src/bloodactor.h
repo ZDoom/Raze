@@ -176,6 +176,17 @@ public:
 			// It sucks having to do this but the game heavily depends on being able to swap out the class type and often uses this to manage actor state.
 			// We'll allow this only for classes that do not add their own data, though.
 			SetClass(newtype);
+			// we also must update the dmgControl array to match the new class
+			auto startdamage = static_cast<DBloodActor*>(GetDefaultByType(newtype))->dmgControl;
+			if (newtype->IsDescendantOf(BloodDudeBaseClass))
+			{
+				for (int j = 0; j < 7; j++)
+					dmgControl[j] = (int16_t)MulScale(DudeDifficulty[gGameOptions.nDifficulty], startdamage[j], 8);
+			}
+			else
+			{
+				memcpy(dmgControl, startdamage, sizeof(dmgControl));
+			}
 		}
 	}
 

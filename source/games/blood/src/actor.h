@@ -64,26 +64,6 @@ enum VECTOR_TYPE {
 	kVectorMax,
 };
 
-struct THINGINFO
-{
-	int16_t startHealth; // defhealth
-	int16_t mass;
-	uint8_t clipdist;	// defclipdist
-	int16_t flags;		// defflags
-	int32_t elastic;// fixed, bouncefactor
-	int32_t dmgResist;
-	ESpriteFlags cstat;	// defcstat
-	int16_t picno;
-	int8_t shade;
-	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
-	int16_t dmgControl[kDamageMax]; // damage, also for dudes, rename there.
-	
-	FTextureID textureID() const { return tileGetTextureID(picno); }
-	double fClipdist() const { return clipdist * 0.25; }
-};
-
 struct EXPLOSION
 {
 	uint8_t repeat;
@@ -119,7 +99,6 @@ struct VECTORDATA {
 };
 
 extern const EXPLOSION explodeInfo[];
-extern const THINGINFO thingInfo[];
 extern const VECTORDATA gVectorData[];
 
 const int gDudeDrag = 0x2a00;
