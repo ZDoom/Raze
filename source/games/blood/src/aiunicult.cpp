@@ -2651,5 +2651,21 @@ void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 }
 
 
+void onGenDudeInit() // should be called virtually from actInitDude
+{
+	if (act->xspr.data2 > 0 && getSequence(act->xspr.data2))
+		seqStartId = act->xspr.data2; //  Custom Dude stores it's SEQ in data2
+
+	seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
+	act->xspr.sysData1 = act->xspr.data3; // move sndStartId to sysData1, because data3 used by the game;
+	act->xspr.data3 = 0;
+}
+
+/* onInit
+case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
+	if (gModernMap) break;
+	[[fallthrough]];
+*/
+
 END_BLD_NS
 #endif

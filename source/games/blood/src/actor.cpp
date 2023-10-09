@@ -896,43 +896,14 @@ static void actInitDudes()
 			int seqStartId = act->seqStartID();
 			if (!act->IsPlayerActor())
 			{
-#ifdef NOONE_EXTENSIONS
-				switch (act->GetType())
-				{
-				case kDudeModernCustom:
-				case kDudeModernCustomBurning:
-					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
-					if (act->xspr.data2 > 0 && getSequence(act->xspr.data2))
-						seqStartId = act->xspr.data2; //  Custom Dude stores it's SEQ in data2
-
-					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
-					act->xspr.sysData1 = act->xspr.data3; // move sndStartId to sysData1, because data3 used by the game;
-					act->xspr.data3 = 0;
-					break;
-
-				case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
-					if (gModernMap) break;
-					[[fallthrough]];
-				default:
-					act->clipdist = act->fClipDist();
-					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
-					break;
-				}
-#else
 				act->clipdist = act->fClipDist();
 				act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
-#endif
-
 				act->vel.Zero();
 
-#ifdef NOONE_EXTENSIONS
-				// add a way to set custom hp for every enemy - should work only if map just started and not loaded.
-				if (!gModernMap || act->xspr.sysData2 <= 0) act->xspr.health = act->startHealth() << 4;
-				else act->xspr.health = ClipRange(act->xspr.sysData2 << 4, 1, 65535);
-#else
-				act->xspr.health = act->startHealth() << 4;
-#endif
-
+				if ((currentLevel->featureflags & kFeatureEnemyAttacks) && act->xspr.sysData2 > 0)
+					act->xspr.health = clamp(act->xspr.sysData2 << 4, 1, 65535);
+				else
+					act->xspr.health = act->startHealth() << 4;
 			}
 
 			if (getSequence(seqStartId)) seqSpawn(seqStartId, act);

@@ -281,6 +281,7 @@ enum EFeatureFlags
 	kFeatureEnemyAttacks = 2,
 	kFeatureCustomClipdist = 4,
 	kFeatureCustomTrapExploder = 8,
+	kFeatureCustomEnemyHealth = 16,
 };
 
 constexpr int BMAX_PATH = 260;
