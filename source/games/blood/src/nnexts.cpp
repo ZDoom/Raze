@@ -4379,7 +4379,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 	case 14: return condCmp(pPlayer->posture + 1, arg1, arg2, cmpOp);
 	case 46: return condCmp(pPlayer->sceneQav, arg1, arg2, cmpOp);
 	case 47: return (pPlayer->godMode || powerupCheck(pPlayer, kPwUpDeathMask));
-	case 48: return isShrinked(pPlayer->GetActor());
+	case 48: return isShrunk(pPlayer->GetActor());
 	case 49: return isGrown(pPlayer->GetActor());
 	}
 
@@ -7459,7 +7459,7 @@ bool isGrown(DBloodActor* actor)
 	else return false;
 }
 
-bool isShrinked(DBloodActor* actor)
+bool isShrunk(DBloodActor* actor)
 {
 	if (powerupCheck(getPlayer(actor), kPwUpShrinkShroom) > 0) return true;
 	else if (actor->hasX() && actor->xspr.scale > 0 && actor->xspr.scale <= 128) return true;
