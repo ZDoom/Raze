@@ -234,6 +234,8 @@ enum {
 	kItemReflectShots = 124,
 	kItemBeastVision = 125,
 	kItemShroomDelirium = 128,
+	kItemShroomGrow = 129,
+	kItemShroomShrink = 130,
 
 	kItemArmorAsbest = 139,
 	kItemArmorBasic = 140,

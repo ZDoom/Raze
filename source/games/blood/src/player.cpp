@@ -266,6 +266,41 @@ int powerupCheck(DBloodPlayer* pPlayer, int nPowerUp)
 	return pPlayer->pwUpTime[nPowerUp];
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool playerSizeShrink(DBloodPlayer* pPlayer, int divider)
+{
+	pPlayer->GetActor()->xspr.scale = 256 / divider;
+	playerSetRace(pPlayer, kModeHumanShrink);
+	return true;
+}
+
+bool playerSizeGrow(DBloodPlayer* pPlayer, int multiplier)
+{
+	pPlayer->GetActor()->xspr.scale = 256 * multiplier;
+	playerSetRace(pPlayer, kModeHumanGrown);
+	return true;
+}
+
+bool playerSizeReset(DBloodPlayer* pPlayer)
+{
+	playerSetRace(pPlayer, kModeHuman);
+	pPlayer->GetActor()->xspr.scale = 0;
+	return true;
+}
+
+void playerDeactivateShrooms(DBloodPlayer* pPlayer)
+{
+	powerupDeactivate(pPlayer, kPwUpGrowShroom);
+	pPlayer->pwUpTime[kPwUpGrowShroom] = 0;
+
+	powerupDeactivate(pPlayer, kPwUpShrinkShroom);
+	pPlayer->pwUpTime[kPwUpShrinkShroom] = 0;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -288,17 +323,21 @@ bool powerupActivate(DBloodPlayer* pPlayer, int nPowerUp)
 	case kItemModernMapLevel:
 		if (gModernMap) gFullMap = true;
 		break;
+#endif
 	case kItemShroomShrink:
-		if (!gModernMap) break;
+		if (!(currentLevel->featureflags & kFeaturePlayerSize)) break;
 		else if (isGrown(pPlayer->GetActor())) playerDeactivateShrooms(pPlayer);
 		else playerSizeShrink(pPlayer, 2);
 		break;
+
 	case kItemShroomGrow:
-		if (!gModernMap) break;
+		if (!(currentLevel->featureflags & kFeaturePlayerSize)) break;
 		else if (isShrunk(pPlayer->GetActor())) playerDeactivateShrooms(pPlayer);
-		else {
+		else 
+		{
 			playerSizeGrow(pPlayer, 2);
-			if (powerupCheck(getPlayer(pPlayer->GetActor()), kPwUpShadowCloak) > 0) {
+			if (powerupCheck(getPlayer(pPlayer->GetActor()), kPwUpShadowCloak) > 0) 
+			{
 				powerupDeactivate(pPlayer, kPwUpShadowCloak);
 				pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 			}
@@ -307,7 +346,6 @@ bool powerupActivate(DBloodPlayer* pPlayer, int nPowerUp)
 				actDamageSprite(pPlayer->GetActor(), pPlayer->GetActor(), kDamageExplode, 65535);
 		}
 		break;
-#endif
 	case kItemFeatherFall:
 	case kItemJumpBoots:
 		pPlayer->damageControl[0]++;
@@ -352,19 +390,21 @@ void powerupDeactivate(DBloodPlayer* pPlayer, int nPowerUp)
 	if (nPack >= 0)
 		pPlayer->packSlots[nPack].isActive = 0;
 
-	switch (nPowerUp + kItemBase) {
-#ifdef NOONE_EXTENSIONS
+	switch (nPowerUp + kItemBase) 
+	{
 	case kItemShroomShrink:
-		if (gModernMap) {
+		if (currentLevel->featureflags & kFeaturePlayerSize)
+		{
 			playerSizeReset(pPlayer);
 			if (ceilIsTooLow(pPlayer->GetActor()))
 				actDamageSprite(pPlayer->GetActor(), pPlayer->GetActor(), kDamageExplode, 65535);
 		}
 		break;
 	case kItemShroomGrow:
-		if (gModernMap) playerSizeReset(pPlayer);
+		if (currentLevel->featureflags & kFeaturePlayerSize)
+			playerSizeReset(pPlayer);
 		break;
-#endif
+
 	case kItemFeatherFall:
 	case kItemJumpBoots:
 		pPlayer->damageControl[0]--;
@@ -1029,31 +1069,24 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 
 	switch (itemactor->GetType()) {
 	case kItemShadowCloak:
-#ifdef NOONE_EXTENSIONS
 		if (isGrown(pPlayer->GetActor()) || !powerupActivate(pPlayer, nType)) return false;
-#else
-		if (!powerupActivate(pPlayer, nType)) return false;
-#endif
 		break;
-#ifdef NOONE_EXTENSIONS
 	case kItemShroomShrink:
-	case kItemShroomGrow:
-
-		if (gModernMap) {
-			switch (itemactor->GetType()) {
-			case kItemShroomShrink:
-				if (isShrunk(pPlayer->GetActor())) return false;
-				break;
-			case kItemShroomGrow:
-				if (isGrown(pPlayer->GetActor())) return false;
-				break;
-			}
-
+		if (currentLevel->featureflags & kFeaturePlayerSize)
+		{
+			if (isShrunk(pPlayer->GetActor())) return false;
 			powerupActivate(pPlayer, nType);
 		}
-
 		break;
-#endif
+
+	case kItemShroomGrow:
+		if (currentLevel->featureflags & kFeaturePlayerSize)
+		{
+			if (isGrown(pPlayer->GetActor())) return false;
+			powerupActivate(pPlayer, nType);
+		}
+		break;
+
 	case kItemFlagABase:
 	case kItemFlagBBase: {
 		if (gGameOptions.nGameType != 3 || !itemactor->hasX()) return 0;

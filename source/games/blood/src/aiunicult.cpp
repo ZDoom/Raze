@@ -435,7 +435,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 
 static void unicultThinkChase(DBloodActor* actor)
 {
-	if (actor->GetType() < kDudeBase || actor->GetType() >= kDudeMax) return;
+	if (!actor->IsDudeActor()) return;
 
 	auto const target = actor->GetTarget();
 	if (target == nullptr)

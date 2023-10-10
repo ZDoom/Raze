@@ -356,7 +356,6 @@ static void fakeMoveDude(DBloodActor* actor)
 	int bottom, top;
 	if (IsPlayerSprite(pSprite))
 		pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
-	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	GetSpriteExtents(pSprite, &top, &bottom);
 	top += predict.z - pSprite->z;
 	bottom += predict.z - pSprite->z;

@@ -340,11 +340,6 @@ bool modernTypeOperateSprite(DBloodActor*, EVENT& event);
 bool modernTypeOperateWall(walltype* pWall, const EVENT& event);
 void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command, DBloodActor* initiator);
 //  -------------------------------------------------------------------------   //
-bool playerSizeShrink(DBloodPlayer* pPlayer, int divider);
-bool playerSizeGrow(DBloodPlayer* pPlayer, int multiplier);
-bool playerSizeReset(DBloodPlayer* pPlayer);
-void playerDeactivateShrooms(DBloodPlayer* pPlayer);
-//  -------------------------------------------------------------------------   //
 QAV* playerQavSceneLoad(int qavId);
 void playerQavSceneProcess(DBloodPlayer* pPlayer, QAVSCENE* pQavScene);
 void playerQavScenePlay(DBloodPlayer* pPlayer);
@@ -356,8 +351,6 @@ void callbackMakeMissileBlocking(DBloodActor* actor);
 void callbackGenDudeUpdate(DBloodActor* actor);
 //  -------------------------------------------------------------------------   //
 DBloodPlayer* getPlayerById(int id);
-bool isGrown(DBloodActor* pSprite);
-bool isShrunk(DBloodActor* pSprite);
 bool IsBurningDude(DBloodActor* pSprite);
 bool IsKillableDude(DBloodActor* pSprite);
 bool isActive(DBloodActor* nSprite);
