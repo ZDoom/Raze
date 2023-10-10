@@ -2351,13 +2351,6 @@ static void checkFloorHit(DBloodActor* actor)
 
 				int mass1 = actor->mass();
 				int mass2 = actor2->mass();
-				switch (actor2->GetType())
-				{
-				case kDudeModernCustom:
-				case kDudeModernCustomBurning:
-					mass2 = getSpriteMassBySize(actor2);
-					break;
-				}
 
 				if (mass1 > mass2 && actor2->IsDudeActor())
 				{
@@ -2404,39 +2397,8 @@ static void checkFloorHit(DBloodActor* actor)
 					actDamageSprite(actor, actor, kDamageBullet, 16);
 				}
 				break;
-			case kDudeCultistTommy:
-			case kDudeCultistShotgun:
-			case kDudeZombieAxeNormal:
-			case kDudeZombieButcher:
-			case kDudeZombieAxeBuried:
-			case kDudeGargoyleFlesh:
-			case kDudeGargoyleStone:
-			case kDudePhantasm:
-			case kDudeHellHound:
-			case kDudeHand:
-			case kDudeSpiderBrown:
-			case kDudeSpiderRed:
-			case kDudeSpiderBlack:
-			case kDudeGillBeast:
-			case kDudeBat:
-			case kDudeRat:
-			case kDudePodGreen:
-			case kDudeTentacleGreen:
-			case kDudePodFire:
-			case kDudeTentacleFire:
-			case kDudePodMother:
-			case kDudeTentacleMother:
-			case kDudeCerberusTwoHead:
-			case kDudeCerberusOneHead:
-			case kDudeTchernobog:
-			case kDudePlayer1:
-			case kDudePlayer2:
-			case kDudePlayer3:
-			case kDudePlayer4:
-			case kDudePlayer5:
-			case kDudePlayer6:
-			case kDudePlayer7:
-			case kDudePlayer8:
+			default:
+				if (actor2->IsDudeActor() && (actor2->classflags() & 2))
 #ifdef NOONE_EXTENSIONS
 				if (pPlayer && !isShrinked(actor))
 #else
