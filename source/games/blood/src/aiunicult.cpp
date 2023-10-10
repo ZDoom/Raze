@@ -1947,8 +1947,8 @@ void genDudeTransform(DBloodActor* actor)
 	// trigger dude death before transform
 	trTriggerSprite(actor, kCmdOff, actor);
 
-	actor->spr.inittype = actIncarnation->GetType();
-	actor->ChangeType(actor->spr.inittype);
+	actor->originalType = actIncarnation->GetClass();
+	actor->ChangeType(actor->originalType);
 	actor->spr.flags = actIncarnation->spr.flags;
 	actor->spr.pal = actIncarnation->spr.pal;
 	actor->spr.shade = actIncarnation->spr.shade;

@@ -997,7 +997,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 			pDudeExtra->teslaHit = 0;
 		}
-		const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax)  && (actor->spr.inittype != actor->GetType()) && !VanillaMode(); // fix burning cultists randomly switching types underwater
+		const bool fixRandomCultist = !cl_bloodvanillaenemies && actor->WasDudeActor() && actor->originalType != actor->GetClass() && !VanillaMode(); // fix burning cultists randomly switching types underwater
 		switch (actor->GetType())
 		{
 		case kDudeCultistTommy:
@@ -1045,7 +1045,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				actor->ChangeType(kDudeCultistTommy);
 				if (fixRandomCultist) // fix burning cultists randomly switching types underwater
-					actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
+					actor->ChangeType(actor->originalType); // restore back to spawned cultist type
 				actor->xspr.burnTime = 0;
 				aiNewState(actor, NAME_cultistSwimGoto);
 			}
@@ -1053,7 +1053,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				actor->ChangeType(kDudeCultistShotgun);
 				if (fixRandomCultist) // fix burning cultists randomly switching types underwater
-					actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
+					actor->ChangeType(actor->originalType); // restore back to spawned cultist type
 				actor->xspr.burnTime = 0;
 				aiNewState(actor, NAME_cultistSwimGoto);
 			}

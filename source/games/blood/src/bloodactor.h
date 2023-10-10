@@ -46,6 +46,7 @@ public:
 	XSPRITE xspr;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
+	PClass* originalType;	// what this originally started as.
 	TObjPtr<DBloodActor*> ownerActor;	// was previously stored in the sprite's owner field.
 
 	// nnext stuff. For now not exported to scripting.
@@ -128,6 +129,11 @@ public:
 	bool IsDudeActor()
 	{
 		return IsKindOf(BloodDudeBaseClass);
+	}
+
+	bool WasDudeActor()
+	{
+		return originalType && originalType->IsDescendantOf(BloodDudeBaseClass);
 	}
 
 	bool IsThingActor()

@@ -1647,7 +1647,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 {
 	if (!actor->IsDudeActor())
 	{
-		Printf(PRINT_HIGH, "Bad Dude Failed: initial=%d type=%d %s\n", (int)actor->spr.inittype, (int)actor->GetType(), (int)(actor->spr.flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
+		Printf(PRINT_HIGH, "Bad Dude Failed: initial=%s type=%d %s\n", actor->originalType->TypeName.GetChars(), (int)actor->GetType(), (int)(actor->spr.flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
 		return damage >> 4;
 	}
 
@@ -2970,13 +2970,13 @@ void MoveDude(DBloodActor* actor)
 					break;
 				case kDudeBurningCultist:
 				{
-					const bool fixRandomCultist = !cl_bloodvanillaenemies && (actor->spr.inittype >= kDudeBase) && (actor->spr.inittype < kDudeMax) && (actor->spr.inittype != actor->GetType()) && !VanillaMode(); // fix burning cultists randomly switching types underwater
+					const bool fixRandomCultist = !cl_bloodvanillaenemies && actor->WasDudeActor() && actor->originalType != actor->GetClass() && !VanillaMode(); // fix burning cultists randomly switching types underwater
 					if (Chance(chance))
 						actor->ChangeType(kDudeCultistTommy);
 					else
 						actor->ChangeType(kDudeCultistShotgun);
 					if (fixRandomCultist) // fix burning cultists randomly switching types underwater
-						actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
+						actor->ChangeType(actor->originalType); // restore back to spawned cultist type
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
@@ -4136,8 +4136,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	{
 		pos.XY() += angle.ToVector() * dist;
 	}
-	if (!VanillaMode())
-		 spawned->spr.inittype = nType;
+	spawned->originalType = cls;
 	spawned->spr.Angles.Yaw = angle;
 	SetActor(spawned, pos);
 

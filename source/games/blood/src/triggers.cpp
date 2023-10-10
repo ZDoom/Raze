@@ -68,7 +68,7 @@ bool SetSpriteState(DBloodActor* actor, int nState, DBloodActor* initiator)
 	actor->xspr.busy = IntToFixed(nState);
 	actor->xspr.state = nState;
 	evKillActor(actor, initiator);
-	if ((actor->spr.flags & kHitagRespawn) != 0 && actor->spr.inittype >= kDudeBase && actor->spr.inittype < kDudeMax)
+	if ((actor->spr.flags & kHitagRespawn) != 0 && actor->WasDudeActor())
 	{
 		actor->xspr.respawnPending = 3;
 		evPostActor(actor, gGameOptions.nMonsterRespawnTime, AF(Respawn));
@@ -480,26 +480,22 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 
 		break;
 	case kMarkerDudeSpawn:
-		if (gGameOptions.nMonsterSettings && actor->xspr.data1 >= kDudeBase && actor->xspr.data1 < kDudeMax)
+		if (gGameOptions.nMonsterSettings)
 		{
-			auto spawned = actSpawnDude(actor, actor->xspr.data1, -1);
-			if (spawned) {
-				if (AllowedKillType(spawned)) Level.addKillCount();
-				switch (actor->xspr.data1) {
-				case kDudeBurningInnocent:
-				case kDudeBurningCultist:
-				case kDudeBurningZombieAxe:
-				case kDudeBurningZombieButcher:
-				case kDudeBurningTinyCaleb:
-				case kDudeBurningBeast: {
-					spawned->xspr.health = static_cast<DBloodActor*>(GetDefaultByType(GetSpawnType(actor->xspr.data1)))->startHealth() << 4;
-					spawned->xspr.burnTime = 10;
-					spawned->SetTarget(nullptr);
-					aiActivateDude(spawned);
-					break;
-				default:
-					break;
-				}
+			auto type = GetSpawnType(actor->xspr.data1);
+			if (type->IsDescendantOf(BloodDudeBaseClass))
+			{
+				auto spawned = actSpawnDude(actor, actor->xspr.data1, -1);
+				if (spawned)
+				{
+					if (AllowedKillType(spawned)) Level.addKillCount();
+					if (IsBurningDude(spawned))
+					{
+						spawned->xspr.health = static_cast<DBloodActor*>(GetDefaultByType(GetSpawnType(actor->xspr.data1)))->startHealth() << 4;
+						spawned->xspr.burnTime = 10;
+						spawned->SetTarget(nullptr);
+						aiActivateDude(spawned);
+					}
 				}
 			}
 		}
@@ -2279,7 +2275,7 @@ void trInit(TArray<DBloodActor*>& actors)
 	for (auto actor : actors)
 	{
 		if (!actor->exists()) continue;
-		actor->spr.inittype = actor->GetType();
+		actor->originalType = actor->GetClass();
 		actor->basePoint = actor->spr.pos;
 	}
 	for (auto& wal : wall)

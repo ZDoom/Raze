@@ -693,7 +693,7 @@ void seqProcess(int nTicks)
 							if (actor)
 							{
 								evKillActor(actor);
-								if ((actor->spr.hitag & kAttrRespawn) != 0 && (actor->spr.inittype >= kDudeBase && actor->spr.inittype < kDudeMax))
+								if ((actor->spr.hitag & kAttrRespawn) != 0 && actor->WasDudeActor())
 									evPostActor(actor, gGameOptions.nMonsterRespawnTime, AF(Respawn));
 								else DeleteSprite(actor);	// safe to not use actPostSprite here
 							}

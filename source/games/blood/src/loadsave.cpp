@@ -71,6 +71,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 	Super::Serialize(arc);
 	arc
 		("hasx", hasx)
+		("spawntype", originalType)
 		("basepoint", basePoint);
 
 	// The rest is only relevant if the actor has an xsprite.

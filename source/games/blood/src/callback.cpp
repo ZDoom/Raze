@@ -273,7 +273,7 @@ void Respawn(DBloodActor* actor) // 9
 		assert(actor->spr.intowner != kStatRespawn);
 		assert(actor->spr.intowner >= 0 && actor->spr.intowner < kMaxStatus);
 		ChangeActorStat(actor, actor->spr.intowner);
-		actor->ChangeType(actor->spr.inittype);
+		actor->ChangeType(actor->originalType);
 		actor->SetOwner(nullptr);
 		actor->spr.flags &= ~kHitagRespawn;
 		actor->vel.Zero();

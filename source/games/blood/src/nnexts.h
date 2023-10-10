@@ -351,7 +351,6 @@ void callbackMakeMissileBlocking(DBloodActor* actor);
 void callbackGenDudeUpdate(DBloodActor* actor);
 //  -------------------------------------------------------------------------   //
 DBloodPlayer* getPlayerById(int id);
-bool IsBurningDude(DBloodActor* pSprite);
 bool IsKillableDude(DBloodActor* pSprite);
 bool isActive(DBloodActor* nSprite);
 int getDataFieldOfObject(EventObject& eob, int dataIndex);

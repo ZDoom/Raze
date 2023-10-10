@@ -132,7 +132,9 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed);
 DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dc, int nType);
 
+bool IsBurningDude(DBloodActor* pSprite);
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
+
 bool isGrown(DBloodActor* pSprite);
 bool isShrunk(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* actor);
