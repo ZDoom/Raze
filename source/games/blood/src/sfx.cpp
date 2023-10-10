@@ -181,11 +181,9 @@ void sfxPlay3DSectorSound(const DVector3& pos, int soundId, sectortype* pSector)
 //
 //---------------------------------------------------------------------------
 
-void sfxPlay3DSoundVolume(DBloodActor* pActor, int soundId, int playchannel, int playflags, int pitch, int volume)
+void sfxPlay3DSoundVolume(DBloodActor* pActor, FSoundID sid, int playchannel, int playflags, int pitch, int volume)
 {
-	if (!SoundEnabled() || soundId <= 0 || !pActor) return;
-	auto sid = soundEngine->FindSoundByResID(soundId);
-	if (!sid.isvalid()) return;
+	if (!SoundEnabled() || !sid.isvalid() || !pActor) return;
 
 	auto svec = GetSoundPos(pActor->spr.pos);
 
@@ -224,11 +222,18 @@ void sfxPlay3DSoundVolume(DBloodActor* pActor, int soundId, int playchannel, int
 	soundEngine->StartSound(SOURCE_Actor, pActor, &svec, playchannel, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }
 
-void sfxPlay3DSound(DBloodActor* pActor, int soundId, int a3, int a4)
-{
-	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, -1);
-}
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void sfxPlay3DSoundVolume(DBloodActor* pActor, int soundId, int playchannel, int playflags, int pitch, int volume)
+{
+	if (soundId <= 0) return;
+	auto sid = soundEngine->FindSoundByResID(soundId);
+	if (sid.isvalid()) sfxPlay3DSoundVolume(pActor, sid, playchannel, playflags, pitch, volume);
+}
 
 //---------------------------------------------------------------------------
 //

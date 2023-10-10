@@ -102,6 +102,7 @@ xx(CloseAttackPercent)
 xx(AttackPercent)
 xx(BloodMissileBase)
 xx(gibtype)
+xx(explodeSound)
 
 // Blood state names. Most of these can be removed after the state system refactor is complete.
 xx(genIdle)

@@ -380,6 +380,7 @@ native void callbackMissileBurst();
 	native void explodeSprite();
 	native void radiusDamage(Vector3 pos, sectortype pSector, int dist, int basedmg, int distdmg, int dmgtype, int flags, int burn);
 
+	native void play3DSound(Sound soundId, int a3 = -1, int a4 = 0);
 	native void play3DSoundID(int soundId, int a3 = -1, int a4 = 0);
 	native void seqSpawnID(int seqID, VMFunction seqCallbackID = null);
 	

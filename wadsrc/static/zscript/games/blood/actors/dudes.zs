@@ -19,6 +19,8 @@ class BloodDudeBase : Bloodactor
 	meta double backSpeed;
 	meta double turnRange;
 	meta int gibType[3]; // which gib used when explode dude
+
+	meta Sound explodeSound;
 	
 	property prefix: none;
 	property seqStartID: seqStartID;
@@ -40,6 +42,8 @@ class BloodDudeBase : Bloodactor
 	property sideSpeed: sideSpeed;
 	property backSpeed: backSpeed;
 	property turnRange: turnRange;
+
+	property explodeSound: explodeSound;
 	
 	
 	default
@@ -421,6 +425,8 @@ class BloodDudeCultistTommy : BloodDudeBase
 		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
+
+		explodesound 717;
 	}
 }
 
@@ -450,6 +456,8 @@ class BloodDudeCultistShotgun : BloodDudeBase
 		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 128, 256, 256, 256, 192;
+
+		explodesound 717;
 	}
 }
 
@@ -1214,6 +1222,8 @@ class BloodDudeCultistTommyProne : BloodDudeBase
 		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
+
+		explodesound 717;
 	}
 }
 
@@ -1272,6 +1282,8 @@ class BloodDudeBurningInnocent : BloodDudeBase
 		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		explodesound 717;
 	}
 }
 
@@ -1298,6 +1310,8 @@ class BloodDudeBurningCultist : BloodDudeBase
 		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		explodesound 717;
 	}
 }
 
@@ -1357,7 +1371,7 @@ class BloodDudeBurningZombieButcher : BloodDudeBase
 	}
 }
 
-class BloodDudeCultistReserved : BloodDudeBase
+class BloodDudeCultistReserved : BloodDudeBase // this is never checked as a cultist in the code.
 {
 	default
 	{
@@ -1440,6 +1454,8 @@ class BloodDudeInnocent : BloodDudeBase
 		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 288, 288, 288, 288, 288, 288, 288;
+
+		explodesound 717;
 	}
 }
 
@@ -1467,6 +1483,8 @@ class BloodDudeCultistShotgunProne : BloodDudeBase
 		turnrange 11.25;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		explodesound 717;
 	}
 }
 
@@ -1496,6 +1514,8 @@ class BloodDudeCultistTesla : BloodDudeBase
 		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 160, 256, 256, 12;
+
+		explodesound 717;
 	}
 }
 
@@ -1525,6 +1545,8 @@ class BloodDudeCultistTNT : BloodDudeBase
 		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 160, 96, 64, 256, 256, 256;
+
+		explodesound 717;
 	}
 }
 
@@ -1554,6 +1576,8 @@ class BloodDudeCultistBeast : BloodDudeBase
 		turnrange 45;
 		gibtype 15, -1, -1;
 		dmgcontrol 128, 128, 16, 16, 0, 64, 48;
+
+		explodesound 717;
 	}
 }
 
@@ -1581,6 +1605,8 @@ class BloodDudeTinyCaleb : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 160, 160, 160, 160, 256, 128, 288;
+
+		explodesound 717;
 	}
 }
 
@@ -1637,6 +1663,8 @@ class BloodDudeBurningTinyCaleb : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		explodesound 717;
 	}
 }
 

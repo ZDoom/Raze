@@ -2677,5 +2677,22 @@ case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat
 						}
 						break;
 */
+
+/* checkDamageType
+
+		case kDudeModernCustom:
+		case kDudeModernCustomBurning:
+		{
+			playGenDudeSound(actor, kGenDudeSndDeathExplode);
+			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
+			if (!pExtra->availDeaths[damageType])
+			{
+				nSeq = 1;
+				damageType = kDamageFall;
+			}
+			break;
+		}
+ 
+*/
 END_BLD_NS
 #endif

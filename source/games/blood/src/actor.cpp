@@ -1269,39 +1269,13 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 	switch (damageType)
 	{
 	case kDamageExplode:
+	{
 		nSeq = 2;
-		switch (actor->GetType())
-		{
-#ifdef NOONE_EXTENSIONS
-		case kDudeModernCustom:
-		case kDudeModernCustomBurning:
-		{
-			playGenDudeSound(actor, kGenDudeSndDeathExplode);
-			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-			if (!pExtra->availDeaths[damageType])
-			{
-				nSeq = 1;
-				damageType = kDamageFall;
-			}
-			break;
-		}
-#endif
-		case kDudeCultistTommy:
-		case kDudeCultistShotgun:
-		case kDudeCultistTommyProne:
-		case kDudeBurningInnocent:
-		case kDudeBurningCultist:
-		case kDudeInnocent:
-		case kDudeCultistShotgunProne:
-		case kDudeCultistTesla:
-		case kDudeCultistTNT:
-		case kDudeCultistBeast:
-		case kDudeTinyCaleb:
-		case kDudeBurningTinyCaleb:
-			sfxPlay3DSound(actor, 717, -1, 0);
-			break;
-		}
+
+		auto snd = actor->SoundVar(NAME_explodeSound);
+		sfxPlay3DSound(actor, snd, -1, 0);
 		break;
+	}
 	case kDamageBurn:
 		nSeq = 3;
 		sfxPlay3DSound(actor, 351, -1, 0);
@@ -1321,16 +1295,7 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 		}
 		break;
 	case kDamageFall:
-		switch (actor->GetType())
-		{
-		case kDudeCultistTommy:
-		case kDudeCultistShotgun:
-			nSeq = 1;
-			break;
-		default:
-			nSeq = 1;
-			break;
-		}
+		nSeq = 1;
 		break;
 	default:
 		nSeq = 1;

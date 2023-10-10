@@ -620,6 +620,17 @@ void ZCCRazeCompiler::DispatchScriptProperty(PProperty *prop, ZCC_PropertyStmt *
 		}
 		else if (f->Type == TypeSound)
 		{
+			if (ctx.Version >= MakeVersion(4, 11, 100))
+			{
+				// Check if we got passed a number, if so treat it as a resource ID.
+				ex = ex->Resolve(ctx);
+				if (!ex) goto vector_ok;
+				if (ex->IsNumeric())
+				{
+					*(FSoundID*)addr = S_FindSoundByResID(GetIntConst(ex, ctx));
+					goto vector_ok;
+				}
+			}
 			*(FSoundID*)addr = S_FindSound(GetStringConst(ex, ctx));
 		}
 		else if (f->Type == TypeColor && ex->ValueType == TypeString)	// colors can also be specified as ints.
