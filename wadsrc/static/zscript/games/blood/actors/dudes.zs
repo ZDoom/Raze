@@ -20,9 +20,10 @@ class BloodDudeBase : Bloodactor
 	meta double backSpeed;
 	meta double turnRange;
 	meta int gibType[3]; // which gib used when explode dude
-	meta class<BloodDudeBase> deathMorphType;
 
+	meta int classflags;
 	meta Sound explodeSound;
+	meta class<BloodDudeBase> deathMorphType;
 	
 	property prefix: none;
 	property seqStartName: seqStartName;
@@ -48,6 +49,7 @@ class BloodDudeBase : Bloodactor
 
 	property explodeSound: explodeSound;
 	property deathMorphType: deathMorphType;
+	flagdef burning: classflags, 0;
 	
 	
 	default
@@ -1289,6 +1291,7 @@ class BloodDudeBurningInnocent : BloodDudeBase
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 
 		explodesound 717;
+		+BloodDudeBase.burning;
 	}
 }
 
@@ -1317,6 +1320,7 @@ class BloodDudeBurningCultist : BloodDudeBase
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 
 		explodesound 717;
+		+BloodDudeBase.burning;
 	}
 }
 
@@ -1345,6 +1349,7 @@ class BloodDudeBurningZombieAxe : BloodDudeBase
 		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+		+BloodDudeBase.burning;
 	}
 }
 
@@ -1373,6 +1378,7 @@ class BloodDudeBurningZombieButcher : BloodDudeBase
 		turnrange 17.578125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+		+BloodDudeBase.burning;
 	}
 }
 
@@ -1670,6 +1676,7 @@ class BloodDudeBurningTinyCaleb : BloodDudeBase
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 
 		explodesound 717;
+		+BloodDudeBase.burning;
 	}
 }
 
@@ -1699,6 +1706,7 @@ class BloodDudeBurningBeast : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+		+BloodDudeBase.burning;
 	}
 }
 

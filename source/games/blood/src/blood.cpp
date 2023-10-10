@@ -748,6 +748,7 @@ void GameInterface::FinalizeSetup()
 	o_fleeHealth = getvar(dudedef, "fleeHealth");
 	o_alertChance = getvar(dudedef, "alertchance");
 	o_lockout = getvar(dudedef, "lockout");
+	o_classflags = getvar(dudedef, "classflags");
 
 }
 

@@ -22,6 +22,7 @@ inline size_t o_aimHeight;
 inline size_t o_fleeHealth;
 inline size_t o_alertChance;
 inline size_t o_lockout;
+inline size_t o_classflags;
 
 
 
@@ -249,6 +250,11 @@ public:
 	inline int lockout() const
 	{
 		return *(int*)(GetClass()->Meta + o_lockout);
+	}
+
+	inline int classflags() const
+	{
+		return *(int*)(GetClass()->Meta + o_classflags);
 	}
 
 	/*

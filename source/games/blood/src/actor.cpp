@@ -3907,21 +3907,7 @@ static void actCheckTraps()
 bool IsBurningDude(DBloodActor* actor)
 {
 	if (actor == NULL) return false;
-	switch (actor->GetType())
-	{
-	case kDudeBurningInnocent:
-	case kDudeBurningCultist:
-	case kDudeBurningZombieAxe:
-	case kDudeBurningZombieButcher:
-	case kDudeBurningTinyCaleb:
-	case kDudeBurningBeast:
-#ifdef NOONE_EXTENSIONS
-	case kDudeModernCustomBurning:
-#endif
-		return true;
-	}
-
-	return false;
+	return actor->classflags() & 1;
 }
 
 //---------------------------------------------------------------------------
@@ -3940,10 +3926,11 @@ static void actCheckDudes()
 
 		if (actor->hasX())
 		{
-			const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(actor) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
+			bool burn = IsBurningDude(actor);
+			const bool fixBurnGlitch = !cl_bloodvanillaenemies && burn && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
 			if ((actor->xspr.burnTime > 0) || fixBurnGlitch)
 			{
-				if (!IsBurningDude(actor))
+				if (!burn)
 					actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
 				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 			}
