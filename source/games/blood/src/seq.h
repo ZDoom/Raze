@@ -79,31 +79,36 @@ struct SEQINST
 	EventObject target;
 	int type;
 
-	int nSeqID;
+	int nSeqID;	// only one of these two may be set
+	FName nName;
 	VMFunction* callback;
 	int16_t timeCounter;
 	uint8_t frameIndex;
 	void Update();
 };
 
-inline int seqGetTile(SEQFRAME* pFrame)
-{
-	return pFrame->tile + (pFrame->tile2 << 12);
-}
-
 inline FTextureID seqGetTexture(SEQFRAME* pFrame)
 {
 	return tileGetTextureID(pFrame->tile + (pFrame->tile2 << 12));
 }
 
-int seqRegisterClient(void(*pClient)(int, int));
-void seqPrecacheId(int id, int palette);
+void seqPrecacheId(FName name, int id, int palette);
+
+inline void seqPrecacheId(int id, int palette)
+{
+	seqPrecacheId(NAME_None, id, palette);
+}
+
 SEQINST* GetInstance(int a1, EventObject& a2);
 SEQINST* GetInstance(DBloodActor* actor);
-void UnlockInstance(SEQINST* pInst);
+
 void seqSpawn(int a1, int ty, walltype* a2, VMFunction* a4 = nullptr);
 void seqSpawn(int a1, int ty, sectortype* a2, VMFunction* a4 = nullptr);
 void seqSpawn(int a1, DBloodActor* actor, VMFunction* a4 = nullptr);
+
+void seqSpawn(FName name, int nSeqID, DBloodActor* actor, VMFunction* callback = nullptr);
+void seqSpawn(FName name, int nSeqID, int type, sectortype* sect, VMFunction* callback = nullptr);
+void seqSpawn(FName name, int nSeqID, int type, walltype* wal, VMFunction* callback = nullptr);
 
 void seqKill(int a1, walltype* a2);
 void seqKill(int a1, sectortype* a2);
@@ -117,7 +122,7 @@ int seqGetID(int a1, sectortype* a2);
 int seqGetID(DBloodActor*);
 void seqProcess(int a1);
 
-Seq* getSequence(int res_id);
+Seq* getSequence(FName res_name, int res_id);
 
 
 END_BLD_NS

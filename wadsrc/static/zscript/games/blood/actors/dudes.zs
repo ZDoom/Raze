@@ -1,5 +1,6 @@
 class BloodDudeBase : Bloodactor
 {
+	meta Name seqStartName;
 	meta int seqStartID;
 	meta int starthealth;
 	meta int eyeHeight;
@@ -23,6 +24,7 @@ class BloodDudeBase : Bloodactor
 	meta Sound explodeSound;
 	
 	property prefix: none;
+	property seqStartName: seqStartName;
 	property seqStartID: seqStartID;
 	property health: startHealth;
 	property mass: mass;

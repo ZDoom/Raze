@@ -81,12 +81,16 @@ void aiNewState(DBloodActor* actor, FState* pAIState)
 	actor->xspr.stateTimer = pAIState->Tics;
 	actor->xspr.aiState = pAIState;
 	int seqStartId = -1;
+	FName seqStartName = NAME_None;
 
 	switch (pAIState->StateFlags & STF_SPRITESEQMASK)
 	{
 	case STF_SPRITESEQNAME:
 		if (pAIState->sprite > 0)
-			I_Error("Named SEQs not supported yet!");
+		{
+			seqStartName = ENamedName(pAIState->sprite);
+			seqStartId = 0;
+		}
 		break;
 
 	case STF_SPRITESEQINDEX:
@@ -100,8 +104,7 @@ void aiNewState(DBloodActor* actor, FState* pAIState)
 
 	if (seqStartId >= 0)
 	{
-		if (getSequence(seqStartId))
-			seqSpawn(seqStartId, actor, pAIState->ActionFunc);
+		seqSpawn(seqStartName, seqStartId, actor, pAIState->ActionFunc);
 	}
 
 	if (pAIState->EnterFunc)

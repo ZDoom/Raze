@@ -78,44 +78,44 @@ void tilePrecacheTile(FTextureID nTex, int nType, int palette)
 void PrecacheDude(DBloodActor* actor)
 {
 	int palette = actor->spr.pal;
-	seqPrecacheId(actor->seqStartID(), palette);
-	seqPrecacheId(actor->seqStartID() + 5, palette);
-	seqPrecacheId(actor->seqStartID() + 1, palette);
-	seqPrecacheId(actor->seqStartID() + 2, palette);
+	seqPrecacheId(actor->seqStartName(), actor->seqStartID(), palette);
+	seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 5, palette);
+	seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 1, palette);
+	seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 2, palette);
 	switch (actor->GetType())
 	{
 	case kDudeCultistTommy:
 	case kDudeCultistShotgun:
 	case kDudeCultistTesla:
 	case kDudeCultistTNT:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
-		seqPrecacheId(actor->seqStartID() + 8, palette);
-		seqPrecacheId(actor->seqStartID() + 9, palette);
-		seqPrecacheId(actor->seqStartID() + 13, palette);
-		seqPrecacheId(actor->seqStartID() + 14, palette);
-		seqPrecacheId(actor->seqStartID() + 15, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 9, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 13, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 14, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 15, palette);
 		break;
 	case kDudeZombieButcher:
 	case kDudeGillBeast:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
-		seqPrecacheId(actor->seqStartID() + 8, palette);
-		seqPrecacheId(actor->seqStartID() + 9, palette);
-		seqPrecacheId(actor->seqStartID() + 10, palette);
-		seqPrecacheId(actor->seqStartID() + 11, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 9, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 10, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 11, palette);
 		break;
 	case kDudeGargoyleStatueFlesh:
 	case kDudeGargoyleStatueStone:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 6, palette); //???
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette); //???
 		[[fallthrough]];
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
-		seqPrecacheId(actor->seqStartID() + 8, palette);
-		seqPrecacheId(actor->seqStartID() + 9, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 9, palette);
 		break;
 	case kDudePhantasm:
 	case kDudeHellHound:
@@ -124,38 +124,38 @@ void PrecacheDude(DBloodActor* actor)
 	case kDudeSpiderBlack:
 	case kDudeSpiderMother:
 	case kDudeTchernobog:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
-		seqPrecacheId(actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 8, palette);
 		break;
 	case kDudeCerberusTwoHead:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
 		[[fallthrough]];
 	case kDudeHand:
 	case kDudeBoneEel:
 	case kDudeBat:
 	case kDudeRat:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
 		break;
 	case kDudeCultistBeast:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
 		break;
 	case kDudeZombieAxeBuried:
-		seqPrecacheId(actor->seqStartID() + 12, palette);
-		seqPrecacheId(actor->seqStartID() + 9, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 12, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 9, palette);
 		[[fallthrough]];
 	case kDudeZombieAxeLaying:
-		seqPrecacheId(actor->seqStartID() + 10, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 10, palette);
 		[[fallthrough]];
 	case kDudeZombieAxeNormal:
-		seqPrecacheId(actor->seqStartID() + 6, palette);
-		seqPrecacheId(actor->seqStartID() + 7, palette);
-		seqPrecacheId(actor->seqStartID() + 8, palette);
-		seqPrecacheId(actor->seqStartID() + 11, palette);
-		seqPrecacheId(actor->seqStartID() + 13, palette);
-		seqPrecacheId(actor->seqStartID() + 14, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 6, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 7, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 8, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 11, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 13, palette);
+		seqPrecacheId(actor->seqStartName(), actor->seqStartID() + 14, palette);
 		break;
 	}
 }

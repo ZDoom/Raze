@@ -350,11 +350,11 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		switch (event.cmd) {
 		case kCmdOff:
 			if (!SetSpriteState(actor, 0, initiator)) break;
-			seqSpawn(40, actor);
+			seqSpawn(NAME_None, 40, actor);
 			break;
 		case kCmdOn:
 			if (!SetSpriteState(actor, 1, initiator)) break;
-			seqSpawn(38, actor, AF(MGunOpenSeqCallback));
+			seqSpawn(NAME_None, 38, actor, AF(MGunOpenSeqCallback));
 			if (actor->xspr.data1 > 0)
 				actor->xspr.data2 = actor->xspr.data1;
 			break;
@@ -395,12 +395,12 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		switch (event.cmd) {
 		case kCmdOff:
 			if (!SetSpriteState(actor, 0, initiator)) break;
-			seqSpawn(40, actor);
+			seqSpawn(NAME_None, 40, actor);
 			sfxKill3DSound(actor, 0, -1);
 			break;
 		case kCmdOn:
 			if (!SetSpriteState(actor, 1, initiator)) break;
-			seqSpawn(38, actor);
+			seqSpawn(NAME_None, 38, actor);
 			sfxPlay3DSound(actor, 441, 0, 0);
 			break;
 		}
@@ -412,11 +412,11 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 			break;
 		case kCmdOn:
 			if (!SetSpriteState(actor, 1, initiator)) break;
-			seqSpawn(37, actor);
+			seqSpawn(NAME_None, 37, actor);
 			break;
 		default:
 			SetSpriteState(actor, actor->xspr.state ^ 1, initiator);
-			if (actor->xspr.state) seqSpawn(37, actor);
+			if (actor->xspr.state) seqSpawn(NAME_None, 37, actor);
 			break;
 		}
 		break;
@@ -2484,10 +2484,10 @@ void ActivateGenerator(DBloodActor* actor)
 			FireballTrapSeqCallback(actor);
 			break;
 		case 1:
-			seqSpawn(35, actor, AF(FireballTrapSeqCallback));
+			seqSpawn(NAME_None, 35, actor, AF(FireballTrapSeqCallback));
 			break;
 		case 2:
-			seqSpawn(36, actor, AF(FireballTrapSeqCallback));
+			seqSpawn(NAME_None, 36, actor, AF(FireballTrapSeqCallback));
 			break;
 		}
 		break;
@@ -2546,7 +2546,7 @@ void MGunFireSeqCallback(DBloodActor* actor)
 
 void MGunOpenSeqCallback(DBloodActor* actor)
 {
-	seqSpawn(39, actor, AF(MGunFireSeqCallback));
+	seqSpawn(NAME_None, 39, actor, AF(MGunFireSeqCallback));
 }
 
 

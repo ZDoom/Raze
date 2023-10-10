@@ -1948,7 +1948,7 @@ void AltFireNapalm(int, DBloodPlayer* pPlayer)
 	{
 		missile->xspr.data4 = ClipHigh(pPlayer->ammoCount[4], 12);
 		UseAmmo(pPlayer, 4, missile->xspr.data4);
-		seqSpawn(22, missile);
+		seqSpawn(NAME_None, 22, missile);
 		actBurnSprite(pPlayer->GetActor(), missile, 600);
 		evPostActor(missile, 0, AF(fxFlameLick));
 		sfxPlay3DSound(missile, 480, 2, 0);

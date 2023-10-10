@@ -2210,8 +2210,8 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 #endif
 
 	}
-	assert(getSequence(pActor->seqStartID() + nDeathSeqID) != NULL);
-	seqSpawn(pActor->seqStartID() + nDeathSeqID, pPlayer->GetActor(), nKneelingPlayer);
+	//assert(getSequence(pActor->seqStartID() + nDeathSeqID) != NULL);
+	seqSpawn(pActor->seqStartName(), pActor->seqStartID() + nDeathSeqID, pPlayer->GetActor(), nKneelingPlayer);
 	return nDamage;
 }
 

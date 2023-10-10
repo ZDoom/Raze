@@ -62,7 +62,7 @@ void podAttack(DBloodActor* actor)
 			pMissile = actFireThing(actor, 0., -500., dv.Z / 32768 - 0.22125, kThingPodGreenBall, nDist * (2048. / 64800));
 		}
 		if (pMissile)
-			seqSpawn(68, pMissile);
+			seqSpawn(NAME_None, 68, pMissile);
 		break;
 	case kDudePodFire:
 		dv.Z += 31.25;
@@ -72,7 +72,7 @@ void podAttack(DBloodActor* actor)
 			pMissile = actFireThing(actor, 0., -500., dv.Z / 32768 - 0.22125, kThingPodFireBall, nDist * (2048. / 64800));
 		}
 		if (pMissile)
-			seqSpawn(22, pMissile);
+			seqSpawn(NAME_None, 22, pMissile);
 		break;
 	}
 	for (int i = 0; i < 4; i++)

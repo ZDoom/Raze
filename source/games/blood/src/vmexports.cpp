@@ -362,7 +362,7 @@ DEFINE_ACTION_FUNCTION(DBloodActor, seqSpawnID)	// will be changed later.
 	PARAM_SELF_PROLOGUE(DBloodActor);
 	PARAM_INT(seqid);
 	PARAM_POINTER(cbid, VMFunction);
-	seqSpawn(seqid, self, cbid);
+	seqSpawn(NAME_None, seqid, self, cbid);
 	return 0;
 }
 

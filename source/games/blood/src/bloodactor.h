@@ -205,6 +205,11 @@ public:
 
 
 	// dudeinfo helpers.
+	inline FName seqStartName() const
+	{
+		return NAME_None;
+	}
+
 	inline int seqStartID() const
 	{
 		return *(int*)(GetClass()->Meta + o_seqStartID);

@@ -2617,10 +2617,10 @@ void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 	{
 		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 		if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + actor->xspr.data2, actor, dudeToGib);
-		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + actor->xspr.data2, actor, dudeToGib);
-		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + actor->xspr.data2, actor, dudeToGib);
+		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(NAME_None, 16 + actor->xspr.data2, actor, dudeToGib);
+		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(NAME_None, 15 + actor->xspr.data2, actor, dudeToGib);
 		else if (getSequence(actor->xspr.data2 + nSeq))seqSpawn(nSeq + actor->xspr.data2, actor, dudeToGib);
-		else seqSpawn(1 + actor->xspr.data2, actor, dudeToGib);
+		else seqSpawn(NAME_None, 1 + actor->xspr.data2, actor, dudeToGib);
 
 	}
 	else
@@ -2645,9 +2645,9 @@ void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	int seqofs = actor->xspr.data2;
 	if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + seqofs, actor, dudeToGib);
-	else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + seqofs, actor, dudeToGib);
-	else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + seqofs, actor, dudeToGib);
-	else seqSpawn(1 + seqofs, actor, dudeToGib);
+	else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(NAME_None, 16 + seqofs, actor, dudeToGib);
+	else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(NAME_None, 15 + seqofs, actor, dudeToGib);
+	else seqSpawn(NAME_None, 1 + seqofs, actor, dudeToGib);
 }
 
 
@@ -2669,7 +2669,7 @@ case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat
 
 /* onHit
 					case kModernThingThrowableRock:
-						seqSpawn(24, actor);
+						seqSpawn(NAME_None, 24, actor);
 						if (hit.type == kHitSprite)
 						{
 							self.scale = DVector2(0.5, 0.5);

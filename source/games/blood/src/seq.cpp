@@ -52,9 +52,9 @@ void Seq::Precache(int palette)
 		tilePrecacheTile(seqGetTexture(&frames[i]), -1, palette);
 }
 
-void seqPrecacheId(int id, int palette)
+void seqPrecacheId(FName name, int id, int palette)
 {
-	auto pSeq = getSequence(id);
+	auto pSeq = getSequence(name, id);
 	if (pSeq) pSeq->Precache(palette);
 }
 
@@ -506,21 +506,36 @@ static void ByteSwapSEQ(Seq* pSeq)
 }
 
 FMemArena seqcache;
-static TMap<int, Seq*> sequences;
-Seq* getSequence(int res_id)
+static TMap<int64_t, Seq*> sequences;
+Seq* getSequence(FName res_name, int res_id)
 {
+	int64_t key = ((int64_t)res_name.GetIndex() << 32) | res_id;
 	auto p = sequences.CheckKey(res_id);
 	if (p != nullptr) return *p;
 
-	int index = fileSystem.FindResource(res_id, "SEQ");
+	int index;
+	if (res_name == NAME_None)
+	{
+		index = fileSystem.FindResource(res_id, "SEQ");
+	}
+	else
+	{
+		// named sequences are only read from the seq folder.
+		FString frame;
+		if (res_id > 0) frame.Format("@%d", res_id);
+		FStringf path("seq/%s%s.seq", res_name.GetChars(), frame.GetChars());
+		index = fileSystem.CheckNumForFullName(path.GetChars());
+	}
+
 	if (index < 0)
 	{
 		return nullptr;
 	}
+
 	auto fr = fileSystem.OpenFileReader(index);
 	auto seqdata = (Seq*)seqcache.Alloc(fr.GetLength());
 	fr.Read(seqdata, fr.GetLength());
-	sequences.Insert(res_id, seqdata);
+	sequences.Insert(key, seqdata);
 	ByteSwapSEQ(seqdata);
 	return seqdata;
 }
@@ -531,9 +546,9 @@ Seq* getSequence(int res_id)
 //
 //---------------------------------------------------------------------------
 
-void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callback)
+void seqSpawn_(FName name, int nSeqID, int type, const EventObject& eob, VMFunction* callback)
 {
-	Seq* pSequence = getSequence(nSeqID);
+	Seq* pSequence = getSequence(name, nSeqID);
 
 	if (pSequence == nullptr) return;
 
@@ -551,6 +566,7 @@ void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callbac
 
 	pInst->pSequence = pSequence;
 	pInst->nSeqID = nSeqID;
+	pInst->nName = name;
 	pInst->callback = callback;
 	pInst->timeCounter = (short)pSequence->ticksPerFrame;
 	pInst->frameIndex = 0;
@@ -561,19 +577,36 @@ void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callbac
 
 void seqSpawn(int nSeqID, DBloodActor* actor, VMFunction* callback)
 {
-	seqSpawn_(nSeqID, SS_SPRITE, EventObject(actor), callback);
+	seqSpawn_(NAME_None, nSeqID, SS_SPRITE, EventObject(actor), callback);
 }
 
 void seqSpawn(int nSeqID, int type, sectortype* sect, VMFunction* callback)
 {
 	assert(type == SS_FLOOR || type == SS_CEILING);
-	seqSpawn_(nSeqID, type, EventObject(sect), callback);
+	seqSpawn_(NAME_None, nSeqID, type, EventObject(sect), callback);
 }
 
 void seqSpawn(int nSeqID, int type, walltype* wal, VMFunction* callback)
 {
 	assert(type == SS_WALL || type == SS_MASKED);
-	seqSpawn_(nSeqID, type, EventObject(wal), callback);
+	seqSpawn_(NAME_None, nSeqID, type, EventObject(wal), callback);
+}
+
+void seqSpawn(FName name, int nSeqID, DBloodActor* actor, VMFunction* callback)
+{
+	seqSpawn_(name, nSeqID, SS_SPRITE, EventObject(actor), callback);
+}
+
+void seqSpawn(FName name, int nSeqID, int type, sectortype* sect, VMFunction* callback)
+{
+	assert(type == SS_FLOOR || type == SS_CEILING);
+	seqSpawn_(name, nSeqID, type, EventObject(sect), callback);
+}
+
+void seqSpawn(FName name, int nSeqID, int type, walltype* wal, VMFunction* callback)
+{
+	assert(type == SS_WALL || type == SS_MASKED);
+	seqSpawn_(name, nSeqID, type, EventObject(wal), callback);
 }
 
 //---------------------------------------------------------------------------
@@ -701,6 +734,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 		arc("type", w.type)
 			("callback", w.callback)
 			("seqid", w.nSeqID)
+			("name", w.nName)
 			("timecounter", w.timeCounter)
 			("frameindex", w.frameIndex)
 			("target", w.target);
@@ -715,7 +749,7 @@ void SerializeSequences(FSerializer& arc)
 	arc("sequences", activeList.list);
 	if (arc.isReading()) for (unsigned i = 0; i < activeList.list.Size(); i++)
 	{
-		activeList.list[i].pSequence = getSequence(activeList.list[i].nSeqID);
+		activeList.list[i].pSequence = getSequence(activeList.list[i].nName, activeList.list[i].nSeqID);
 	}
 }
 

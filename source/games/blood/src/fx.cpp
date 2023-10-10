@@ -374,7 +374,7 @@ void fxPrecache()
 	{
 		tilePrecacheTile(gFXData[i].textureID(), 0, 0);
 		if (gFXData[i].seq)
-			seqPrecacheId(gFXData[i].seq, 0);
+			seqPrecacheId(NAME_None, gFXData[i].seq, 0);
 	}
 }
 
