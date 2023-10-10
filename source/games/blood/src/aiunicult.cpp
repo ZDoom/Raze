@@ -296,7 +296,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	if (target == nullptr)
 		return;
 
-	if (!(target->GetType() >= kDudeBase && target->GetType() < kDudeMax))
+	if (!(target->IsDudeActor())
 		return;
 
 	int curWeapon = actor->genDudeExtra.curWeapon;
@@ -1758,7 +1758,6 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			}
 			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			int nType = actTarget->GetType() - kDudeBase;
 			double z1 = (top - actor->spr.pos.Z) - 1;
 			auto atpos = actTarget->spr.pos;
 

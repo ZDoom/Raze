@@ -282,7 +282,6 @@ void Respawn(DBloodActor* actor) // 9
 		actor->xspr.isTriggered = 0;
 		if (actor->IsDudeActor())
 		{
-			int nType = actor->GetType() - kDudeBase;
 			actor->spr.pos = actor->basePoint;
 			actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #ifdef NOONE_EXTENSIONS

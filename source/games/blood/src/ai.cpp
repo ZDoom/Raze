@@ -934,7 +934,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		actor->SetTarget(nullptr);
 		return;
 	}
-	if (target->GetType() >= kDudeBase && target->GetType() < kDudeMax)
+	if (target->IsDudeActor())
 	{
 		if (actor->GetOwner() != target)
 		{

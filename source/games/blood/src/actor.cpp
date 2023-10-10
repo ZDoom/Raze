@@ -2079,7 +2079,6 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				int nDamage = (10 + Random(10)) << 4;
 				actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
-				int nType = missileOwner->GetType() - kDudeBase;
 				if (missileOwner->xspr.health > 0)
 					actHealDude(missileOwner, 10, missileOwner->startHealth());
 			}
@@ -4128,7 +4127,6 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	auto spawned = actSpawnSprite(source, kStatDude, cls, nType);
 	if (!spawned) return nullptr;
 	DAngle angle = source->spr.Angles.Yaw;
-	int nDude = nType - kDudeBase;
 
 	auto pos = source->spr.pos;
 

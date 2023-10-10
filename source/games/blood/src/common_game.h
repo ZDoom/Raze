@@ -251,7 +251,6 @@ enum {
 	kItemMax = 151,
 
 	// dudes
-	kDudeBase = 200,
 	kDudeCultistTommy = 201,
 	kDudeCultistShotgun = 202,
 	kDudeZombieAxeNormal = 203,
@@ -305,8 +304,6 @@ enum {
 	kDudeBeast = 251,
 	kDudeBurningTinyCaleb = 252,
 	kDudeBurningBeast = 253,
-	kDudeVanillaMax = 254,
-	kDudeMax = 256,
 
 	kMissileBase = 300,
 	kMissileButcherKnife = kMissileBase,
