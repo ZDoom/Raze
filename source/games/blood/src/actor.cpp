@@ -2861,7 +2861,7 @@ static void checkCeilHit(DBloodActor* actor)
 					actor2->spr.flags |= 5;
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
-					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
+					if ((actor->IsPlayerActor() && isShrunk(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
 
 						int mass1 = getDudeInfo(actor2)->mass;
 						int mass2 = getDudeInfo(actor)->mass;
@@ -2947,7 +2947,7 @@ static void checkHit(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
-			if ((actor2->IsPlayerActor() && isShrinked(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
+			if ((actor2->IsPlayerActor() && isShrunk(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
 				if (actor->vel.X != 0 && actor2->IsDudeActor())
 				{
@@ -3020,7 +3020,7 @@ static void checkFloorHit(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
-			if ((actor2->IsPlayerActor() && isShrinked(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
+			if ((actor2->IsPlayerActor() && isShrunk(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
 
 				int mass1 = getDudeInfo(actor)->mass;
@@ -3112,7 +3112,7 @@ static void checkFloorHit(DBloodActor* actor)
 			case kDudePlayer7:
 			case kDudePlayer8:
 #ifdef NOONE_EXTENSIONS
-				if (pPlayer && !isShrinked(actor))
+				if (pPlayer && !isShrunk(actor))
 #else
 				if (pPlayer)
 #endif
