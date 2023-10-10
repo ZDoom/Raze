@@ -35,6 +35,7 @@
 #include "texturemanager.h"
 #include "texinfo.h"
 #include "m_crc32.h"
+#include "buildtiles.h"
 
 
 //==========================================================================
