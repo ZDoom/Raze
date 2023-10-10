@@ -3943,20 +3943,9 @@ static void actCheckDudes()
 			const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(actor) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
 			if ((actor->xspr.burnTime > 0) || fixBurnGlitch)
 			{
-				switch (actor->GetType())
-				{
-				case kDudeBurningInnocent:
-				case kDudeBurningCultist:
-				case kDudeBurningZombieAxe:
-				case kDudeBurningZombieButcher:
-					actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
-					break;
-
-				default:
+				if (!IsBurningDude(actor))
 					actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
-					actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
-					break;
-				}
+				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 			}
 
 #ifdef NOONE_EXTENSIONS
