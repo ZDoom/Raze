@@ -122,17 +122,17 @@ public:
 
 	bool IsPlayerActor()
 	{
-		return GetType() >= kDudePlayer1 && GetType() <= kDudePlayer8;
+		return IsKindOf(BloodPlayerBaseClass);
 	}
 
 	bool IsDudeActor()
 	{
-		return GetType() >= kDudeBase && GetType() < kDudeMax;
+		return IsKindOf(BloodDudeBaseClass);
 	}
 
 	bool IsThingActor()
 	{
-		return GetType() >= kThingBase && GetType() < kThingMax;
+		return IsKindOf(BloodThingBaseClass);
 	}
 
 	bool IsItemActor()

@@ -1860,25 +1860,6 @@ void debrisMove(int listIndex)
 //
 //---------------------------------------------------------------------------
 
-bool ceilIsTooLow(DBloodActor* actor)
-{
-	if (actor != nullptr)
-	{
-		sectortype* pSector = actor->sector();
-		double a = pSector->ceilingz - pSector->floorz;
-		double top, bottom;
-		GetActorExtents(actor, &top, &bottom);
-		if (a > top - bottom) return true;
-	}
-	return false;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void aiSetGenIdleState(DBloodActor* actor)
 {
 	switch (actor->GetType())
@@ -7376,36 +7357,6 @@ void playerQavSceneReset(DBloodPlayer* pPlayer)
 	pQavScene->qavResrc = NULL;
 }
 
-bool playerSizeShrink(DBloodPlayer* pPlayer, int divider)
-{
-	pPlayer->GetActor()->xspr.scale = 256 / divider;
-	playerSetRace(pPlayer, kModeHumanShrink);
-	return true;
-}
-
-bool playerSizeGrow(DBloodPlayer* pPlayer, int multiplier)
-{
-	pPlayer->GetActor()->xspr.scale = 256 * multiplier;
-	playerSetRace(pPlayer, kModeHumanGrown);
-	return true;
-}
-
-bool playerSizeReset(DBloodPlayer* pPlayer)
-{
-	playerSetRace(pPlayer, kModeHuman);
-	pPlayer->GetActor()->xspr.scale = 0;
-	return true;
-}
-
-void playerDeactivateShrooms(DBloodPlayer* pPlayer)
-{
-	powerupDeactivate(pPlayer, kPwUpGrowShroom);
-	pPlayer->pwUpTime[kPwUpGrowShroom] = 0;
-
-	powerupDeactivate(pPlayer, kPwUpShrinkShroom);
-	pPlayer->pwUpTime[kPwUpShrinkShroom] = 0;
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -7450,20 +7401,6 @@ bool IsKillableDude(DBloodActor* actor)
 		if (!actor->IsDudeActor() || actor->xspr.locked == 1) return false;
 		return true;
 	}
-}
-
-bool isGrown(DBloodActor* actor)
-{
-	if (powerupCheck(getPlayer(actor), kPwUpGrowShroom) > 0) return true;
-	else if (actor->hasX() && actor->xspr.scale >= 512) return true;
-	else return false;
-}
-
-bool isShrunk(DBloodActor* actor)
-{
-	if (powerupCheck(getPlayer(actor), kPwUpShrinkShroom) > 0) return true;
-	else if (actor->hasX() && actor->xspr.scale > 0 && actor->xspr.scale <= 128) return true;
-	else return false;
 }
 
 bool isActive(DBloodActor* actor)

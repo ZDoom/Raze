@@ -2199,10 +2199,9 @@ static void checkCeilHit(DBloodActor* actor)
 				else
 				{
 					actor2->spr.flags |= 5;
-#ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
-					if ((actor->IsPlayerActor() && isShrunk(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
-
+					if ((actor->IsPlayerActor() && isShrunk(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) 
+					{
 						int mass1 = actor2->mass();
 						int mass2 = actor->mass();
 						if (mass1 > mass2)
@@ -2215,7 +2214,6 @@ static void checkCeilHit(DBloodActor* actor)
 							}
 						}
 					}
-#endif
 					if (!actor->IsPlayerActor() || getPlayer(actor)->godMode == 0)
 					{
 						switch (actor2->GetType())
@@ -2266,6 +2264,18 @@ static void checkCeilHit(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
+bool IsBurningDude(DBloodActor* actor)
+{
+	if (actor == nullptr || !actor->IsDudeActor()) return false;
+	return actor->classflags() & 1;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void checkHit(DBloodActor* actor)
 {
 	const auto& coll = actor->hit.hit;
@@ -2278,7 +2288,6 @@ static void checkHit(DBloodActor* actor)
 		{
 			auto actor2 = coll.actor();
 
-#ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
 			if ((actor2->IsPlayerActor() && isShrunk(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
@@ -2295,7 +2304,6 @@ static void checkHit(DBloodActor* actor)
 					}
 				}
 			}
-#endif
 
 			switch (actor2->GetType())
 			{
@@ -2309,13 +2317,13 @@ static void checkHit(DBloodActor* actor)
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
 
-			case kDudeBurningInnocent:
-			case kDudeBurningCultist:
-			case kDudeBurningZombieAxe:
-			case kDudeBurningZombieButcher:
-				// This does not make sense
-				actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
-				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
+			default:
+				if (IsBurningDude(actor))
+				{
+					// This does not make sense
+					//actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
+					actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
+				}
 				break;
 			}
 		}
@@ -2344,7 +2352,6 @@ static void checkFloorHit(DBloodActor* actor)
 		{
 			auto actor2 = coll.actor();
 
-#ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
 			if ((actor2->IsPlayerActor() && isShrunk(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
@@ -2361,7 +2368,6 @@ static void checkFloorHit(DBloodActor* actor)
 					if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? kDamageFall : kDamageBullet, dmg);
 				}
 			}
-#endif
 
 			DBloodPlayer* pPlayer = nullptr;
 			if (actor->IsPlayerActor()) pPlayer = getPlayer(actor);
@@ -2399,11 +2405,7 @@ static void checkFloorHit(DBloodActor* actor)
 				break;
 			default:
 				if (actor2->IsDudeActor() && (actor2->classflags() & 2))
-#ifdef NOONE_EXTENSIONS
 				if (pPlayer && !isShrunk(actor))
-#else
-				if (pPlayer)
-#endif
 					actDamageSprite(actor, actor2, kDamageBullet, 8);
 				break;
 			}
@@ -3866,18 +3868,6 @@ static void actCheckTraps()
 //
 //---------------------------------------------------------------------------
 
-bool IsBurningDude(DBloodActor* actor)
-{
-	if (actor == NULL) return false;
-	return actor->classflags() & 1;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void actCheckDudes()
 {
 	BloodStatIterator it(kStatDude);
@@ -4641,6 +4631,47 @@ void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
 {
 	pTarget->xspr.burnTime = ClipHigh(pTarget->xspr.burnTime + nTime, pTarget->spr.statnum == kStatDude ? 2400 : 1200);
 	pTarget->SetBurnSource(pSource);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool ceilIsTooLow(DBloodActor* actor)
+{
+	if (actor != nullptr)
+	{
+		sectortype* pSector = actor->sector();
+		double a = pSector->ceilingz - pSector->floorz;
+		double top, bottom;
+		GetActorExtents(actor, &top, &bottom);
+		if (a > top - bottom) return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool isGrown(DBloodActor* actor)
+{
+	if (!(currentLevel->featureflags & kFeaturePlayerSize)) return false;
+	if (powerupCheck(getPlayer(actor), kPwUpGrowShroom) > 0) return true;
+	else if (actor->hasX() && actor->xspr.scale >= 512) return true;
+	else return false;
+}
+
+bool isShrunk(DBloodActor* actor)
+{
+	if (!(currentLevel->featureflags & kFeaturePlayerSize)) return false;
+	if (powerupCheck(getPlayer(actor), kPwUpShrinkShroom) > 0) return true;
+	else if (actor->hasX() && actor->xspr.scale > 0 && actor->xspr.scale <= 128) return true;
+	else return false;
 }
 
 //---------------------------------------------------------------------------
