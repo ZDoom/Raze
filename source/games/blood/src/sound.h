@@ -29,9 +29,18 @@ void sndTerm(void);
 void sndInit(void);
 
 void sfxPlay3DSectorSound(const DVector3& pos, int soundId, sectortype* pSector);
-void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0);
-void sfxPlay3DSoundVolume(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = 0);
-void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1);
+void sfxPlay3DSoundVolume(DBloodActor* pActor, FSoundID sid, int playchannel = -1, int playflags = 0, int pitch = 0, int volume = 0);
+void sfxPlay3DSoundVolume(DBloodActor* pActor, int soundId, int playchannel = -1, int playflags = 0, int pitch = 0, int volume = 0);
+
+inline void sfxPlay3DSound(DBloodActor* pActor, FSoundID soundId, int a3 = -1, int a4 = 0)
+{
+	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, 0, -1);
+}
+inline void sfxPlay3DSound(DBloodActor* pActor, int soundId, int a3 = -1, int a4 = 0)
+{
+	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, 0, -1);
+}
+void sfxKill3DSound(DBloodActor* pActor, int a2 = -1, int a3 = -1);
 void sfxKillAllSounds(void);
 void sfxSetReverb(bool toggle);
 void sfxSetReverb2(bool toggle);

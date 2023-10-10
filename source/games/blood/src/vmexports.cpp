@@ -327,13 +327,33 @@ DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, HitScan, bloodactor_HitScan)
 	ACTION_RETURN_INT(bloodactor_HitScan(self, z, x, y, zz, clipmask, clipdist));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, play3DSoundID, sfxPlay3DSound)
+void blood_play3DSoundID(DBloodActor* actor, int snd, int chn, int flags)
+{
+	sfxPlay3DSoundVolume(actor, snd, chn, flags, 0, -1);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, play3DSoundID, blood_play3DSoundID)
 {
 	PARAM_SELF_PROLOGUE(DBloodActor);
 	PARAM_INT(sound);
 	PARAM_INT(chan);
 	PARAM_INT(flags);
-	sfxPlay3DSound(self, sound, chan, flags);
+	blood_play3DSoundID(self, sound, chan, flags);
+	return 0;
+}
+
+void blood_play3DSound(DBloodActor* actor, int snd, int chn, int flags)
+{
+	sfxPlay3DSoundVolume(actor, FSoundID::fromInt(snd), chn, flags, 0, -1);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, play3DSound, blood_play3DSound)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_INT(sound);
+	PARAM_INT(chan);
+	PARAM_INT(flags);
+	blood_play3DSound(self, sound, chan, flags);
 	return 0;
 }
 

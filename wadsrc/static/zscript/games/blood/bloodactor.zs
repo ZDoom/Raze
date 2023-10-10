@@ -361,6 +361,7 @@ native void callbackMissileBurst();
 	native int HitScan(double z, vector3 xyz, int clipmask, double clipdist); 
 	native void impactMissile(int hitcode);
 
+	native void play3DSound(Sound soundId, int a3 = -1, int a4 = 0);
 	native void play3DSoundID(int soundId, int a3 = -1, int a4 = 0);
 	native void seqSpawnID(int seqID, VMFunction seqCallbackID);
 	

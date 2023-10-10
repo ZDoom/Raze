@@ -1947,18 +1947,6 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 			break;
 		}
 		break;
-	case kDamageFall:
-		switch (actor->GetType())
-		{
-		case kDudeCultistTommy:
-		case kDudeCultistShotgun:
-			nSeq = 1;
-			break;
-		default:
-			nSeq = 1;
-			break;
-		}
-		break;
 	default:
 		nSeq = 1;
 		break;
