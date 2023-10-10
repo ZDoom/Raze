@@ -119,6 +119,21 @@ class BloodActor : CoreActor native
 		kStatPathMarker = 16,
 		kStatFree = 1024,
 	};
+	
+	enum BloodFlags 
+	{
+		// sprite attributes
+		kHitagAutoAim = 0x0008,
+		kHitagRespawn = 0x0010,
+		kHitagFree = 0x0020,
+		kHitagSmoke = 0x0100,
+
+		//  sprite physics attributes
+		kPhysMove = 0x0001, // affected by movement physics
+		kPhysGravity = 0x0002, // affected by gravity
+		kPhysFalling = 0x0004, // currently in z-motion
+	};
+	
 
 	states
 	{
@@ -361,10 +376,16 @@ native void callbackMissileBurst();
 	native double, double getActorExtents();
 	native int HitScan(double z, vector3 xyz, int clipmask, double clipdist); 
 	native void impactMissile(int hitcode);
+	native int damageSprite(BloodActor source, int damageType, int damage);
+	native void explodeSprite();
+	native void radiusDamage(Vector3 pos, sectortype pSector, int dist, int basedmg, int distdmg, int dmgtype, int flags, int burn);
 
 	native void play3DSoundID(int soundId, int a3 = -1, int a4 = 0);
-	native void seqSpawnID(int seqID, VMFunction seqCallbackID);
+	native void seqSpawnID(int seqID, VMFunction seqCallbackID = null);
 	
+	virtual void onHit(CollisionData hit)
+	{
+	}
 	
 	virtual int getRespawnTime()
 	{

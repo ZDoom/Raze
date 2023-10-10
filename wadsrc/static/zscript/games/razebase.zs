@@ -177,7 +177,7 @@ struct CollisionData
 {
 	int type;
 	int exbits;
-	voidptr hit;	// do not access!
+	private voidptr hit;	// do not access!
 	native walltype hitWall();
 	native sectortype hitSector();
 	native CoreActor hitActor();
@@ -186,6 +186,7 @@ struct CollisionData
 	native void setActor(CoreActor a);
 	native void setVoid();
 	native void setNone();
+	native int getSurfaceType();
 }
 
 struct HitInfo

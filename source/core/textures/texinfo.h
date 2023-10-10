@@ -195,3 +195,6 @@ inline uint8_t tilesurface(FTextureID texid)
 	return GetExtInfo(texid).surftype;
 }
 
+struct CollisionBase;
+int tileGetSurfType(const CollisionBase& hit);
+

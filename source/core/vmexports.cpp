@@ -1160,3 +1160,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setnone, collision_setnone)
 	return 0;
 }
 
+void collision_getsu(CollisionBase* coll)
+{
+	coll->type = kHitNone;
+	coll->hitActor = nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, getsurfacetype, tileGetSurfType)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	ACTION_RETURN_INT(tileGetSurfType(*self));
+}
+

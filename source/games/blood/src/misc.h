@@ -98,6 +98,4 @@ inline FTextureID mirrortile;
 
 void tilePrecacheTile(FTextureID nTile, int nType, int palette);
 
-int tileGetSurfType(CollisionBase& hit);
-
 END_BLD_NS

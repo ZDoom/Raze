@@ -111,25 +111,4 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-int tileGetSurfType(CollisionBase& hit)
-{
-    switch (hit.type)
-    {
-    default:
-        return 0;
-    case kHitSector:
-        return GetExtInfo(hit.hitSector->floortexture).surftype;
-    case kHitWall:
-        return GetExtInfo(hit.hitWall->walltexture).surftype;
-    case kHitSprite:
-        return GetExtInfo(hit.hitActor->spr.spritetexture()).surftype;
-    }
-}
-
 END_BLD_NS

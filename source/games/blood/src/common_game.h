@@ -446,17 +446,6 @@ enum
 	kPhysGravity = 0x0002, // affected by gravity
 	kPhysFalling = 0x0004, // currently in z-motion
 
-	//  sector cstat
-	kSecCParallax = 0x01,
-	kSecCSloped = 0x02,
-	kSecCSwapXY = 0x04,
-	kSecCExpand = 0x08,
-	kSecCFlipX = 0x10,
-	kSecCFlipY = 0x20,
-	kSecCFlipMask = 0x34,
-	kSecCRelAlign = 0x40,
-	kSecCFloorShade = 0x8000,
-
 	kAng5 = 28,
 	kAng15 = 85,
 	kAng30 = 170,

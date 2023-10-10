@@ -35,7 +35,7 @@ class BloodMissileBase : BloodActor
 		self.shade = self.defshade;
 		self.pal = self.defpal;
 		self.clipdist = clipdist;
-		self.flags = 1;
+		self.flags = kPhysMove;
 
 		self.Angle = spawner.angle + self.angleofs;
 		self.ownerActor = spawner;

@@ -1,3 +1,4 @@
+
 class BloodThingBase : BloodActor
 {
 	meta int defhealth;
@@ -36,7 +37,7 @@ class BloodThingBase : BloodActor
 		self.xspr.health = self.defhealth << 4;
 		self.clipdist = self.defclipdist;
 		self.flags = self.defflags;
-		if (self.flags & 2) self.flags |= 4;
+		if (self.flags & kPhysGravity) self.flags |= kPhysFalling;
 		self.cstat |= self.defcstat;
 		self.shade = self.defshade;
 		self.pal = self.defpal;
@@ -361,6 +362,17 @@ class BloodThingBone : BloodThingBase
 		pic "Bone";
 		scale 0.500000, 0.500000;
 	}
+	
+	override void onHit(CollisionData hit)
+	{
+		self.seqSpawnID(24);
+		if (hit.type == kHitSprite)
+		{
+			let victim = BloodActor(hit.hitActor());
+			if (victim != null)
+				victim.damageSprite(self.ownerActor, Blood.kDamageFall, 12);
+		}
+	}
 }
 
 class BloodThing422 : BloodThingBase
@@ -388,6 +400,23 @@ class BloodThingDripWater : BloodThingBase
 		pic "DripWater";
 		pal 10;
 	}
+	
+	override void onHit(CollisionData hit)
+	{
+		self.flags &= ~kPhysGravity;
+		self.pos.Z -= 4;
+		int nSurface = self.hit.florhit.getSurfaceType(); // this really checks the actor's hit, not the passed parameter!
+		if (nSurface == Blood.kSurfWater)
+		{
+			self.seqSpawnID(6);
+			self.play3DSoundID(356, -1, 0);
+		}
+		else
+		{
+			self.seqSpawnID(7);
+			self.play3DSoundID(354, -1, 0);
+		}
+	}
 }
 
 class BloodThingDripBlood : BloodThingBase
@@ -399,6 +428,14 @@ class BloodThingDripBlood : BloodThingBase
 		flags 2;
 		pic "DripBlood";
 		pal 2;
+	}
+
+	override void onHit(CollisionData hit)
+	{
+		self.flags &= ~kPhysGravity;
+		self.pos.Z -= 4;
+		self.seqSpawnID(8);
+		self.play3DSoundID(354, -1, 0);
 	}
 }
 
@@ -509,6 +546,12 @@ class BloodThingPodFireBall : BloodThingBase
 		scale 0.500000, 0.500000;
 		dmgcontrol 256, 0, 256, 256, 0, 0, 0;
 	}
+	
+	override void onHit(CollisionData hit)
+	{
+		self.ExplodeSprite();
+	}
+	
 }
 
 class BloodThingPodGreenBall : BloodThingBase
@@ -526,6 +569,22 @@ class BloodThingPodGreenBall : BloodThingBase
 		shade -128;
 		scale 0.500000, 0.500000;
 		dmgcontrol 256, 0, 256, 256, 0, 0, 0;
+	}
+	
+	override void onHit(CollisionData hit)
+	{
+		if (hit.type == kHitSector)
+		{
+			self.ownerActor.radiusDamage(self.pos, self.sector, 200, 1, 20, Blood.kDamageExplode, 6, 0);
+			self.evPostActorCallback(0, fxPodBloodSplat);
+		}
+		else if (hit.type == kHitSprite)
+		{
+			let victim = BloodActor(hit.hitActor());
+			if (victim != null)
+				victim.damageSprite(self.ownerActor, Blood.kDamageFall, 12);
+			self.evPostActorCallback(0, fxPodBloodSplat);
+		}
 	}
 }
 

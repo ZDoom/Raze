@@ -81,6 +81,35 @@ struct Blood native
 		kWeapMax = 14,
 	};
 
+	enum DAMAGE_TYPE {
+		kDamageFall = 0,
+		kDamageBurn,
+		kDamageBullet,
+		kDamageExplode,
+		kDamageDrown,
+		kDamageSpirit,
+		kDamageTesla,
+		kDamageMax = 7,
+	};
+
+	enum SurfaceType {
+		kSurfNone = 0,
+		kSurfStone,
+		kSurfMetal,
+		kSurfWood,
+		kSurfFlesh,
+		kSurfWater,
+		kSurfDirt,
+		kSurfClay,
+		kSurfSnow,
+		kSurfIce,
+		kSurfLeaves,
+		kSurfCloth,
+		kSurfPlant,
+		kSurfGoo,
+		kSurfLava,
+		kSurfMax
+	};
 
 	native static void PlayIntroMusic();
 	native static bool OriginalLoadScreen(); // doing it generically would necessitate exporting the tile manage which we do not want.

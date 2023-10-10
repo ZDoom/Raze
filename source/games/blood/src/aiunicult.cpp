@@ -2667,5 +2667,15 @@ case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat
 	[[fallthrough]];
 */
 
+/* onHit
+					case kModernThingThrowableRock:
+						seqSpawn(24, actor);
+						if (hit.type == kHitSprite)
+						{
+							self.scale = DVector2(0.5, 0.5);
+							actDamageSprite(self.GetOwner(), hit.actor(), kDamageFall, self.xspr.data1);
+						}
+						break;
+*/
 END_BLD_NS
 #endif

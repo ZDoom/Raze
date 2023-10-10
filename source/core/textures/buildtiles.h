@@ -31,3 +31,4 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 	if (animate) tileUpdatePicnum(texid);
 	return TexMan.GetGameTexture(texid);
 }
+

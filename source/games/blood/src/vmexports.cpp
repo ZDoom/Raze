@@ -354,6 +354,49 @@ DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, impactMissile, actImpactMissile)
 	return 0;
 }
 
+static int blood_DamageSprite(DBloodActor* actor, DBloodActor* source, int damageType, int damage)
+{
+	return actDamageSprite(source, actor, DAMAGE_TYPE(damageType), damage);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, damageSprite, blood_DamageSprite)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_POINTER(source, DBloodActor);
+	PARAM_INT(damagetype);
+	PARAM_INT(damage);
+	ACTION_RETURN_INT(blood_DamageSprite(source, self, damagetype, damage));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, explodeSprite, actExplodeSprite)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	actExplodeSprite(self);
+	return 0;
+}
+
+static void blood_RadiusDamage(DBloodActor* source, double x, double y, double z, sectortype* pSector, int dist, int basedmg, int distdmg, int dmgtype, int flags, int burn)
+{
+	actRadiusDamage(source, DVector3(x, y, z), pSector, dist, basedmg, distdmg, DAMAGE_TYPE(dmgtype), flags, burn);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, radiusDamage, blood_RadiusDamage)
+{
+	PARAM_SELF_PROLOGUE(DBloodActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_POINTER(sector, sectortype);
+	PARAM_INT(dist);
+	PARAM_INT(basedmg);
+	PARAM_INT(distdmg);
+	PARAM_INT(dmgtype);
+	PARAM_INT(flags);
+	PARAM_INT(burn);
+	actRadiusDamage(self, DVector3(x, y, z), sector, dist, basedmg, distdmg, DAMAGE_TYPE(dmgtype), flags, burn);
+	return 0;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -434,12 +477,27 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actOnHit(DBloodActor* actor, Collision& hit)
+{
+	IFVIRTUALPTR(actor, DBloodActor, onHit)
+	{
+		VMValue param[] = { actor, &hit };
+		VMCall(func, param, 1, nullptr, 0);
+	}
+}
 
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
+
 void callActorFunction(VMFunction* funcID, DBloodActor* actor)
 {
 	if (funcID)

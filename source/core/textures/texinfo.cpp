@@ -120,3 +120,25 @@ int tilehasmodelorvoxel(FTextureID texid, int pal)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int tileGetSurfType(const CollisionBase& hit)
+{
+	switch (hit.type)
+	{
+	default:
+		return 0;
+	case kHitSector:
+		return tilesurface(hit.hitSector->floortexture);
+	case kHitWall:
+		return tilesurface(hit.hitWall->walltexture);
+	case kHitSprite:
+		return tilesurface(hit.hitActor->spr.spritetexture());
+	}
+}
+
+

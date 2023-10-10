@@ -3712,48 +3712,7 @@ static void actCheckThings()
 				if (hit.type)
 				{
 					if (actor->xspr.Impact) trTriggerSprite(actor, kCmdOff, hit.type == kHitSprite? hit.safeActor() : nullptr);
-
-					switch (actor->GetType())
-					{
-					case kThingDripWater:
-					case kThingDripBlood:
-						MakeSplash(actor);
-						break;
-#ifdef NOONE_EXTENSIONS
-					case kModernThingThrowableRock:
-						seqSpawn(24, actor);
-						if (hit.type == kHitSprite)
-						{
-							actor->spr.scale = DVector2(0.5, 0.5);
-							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, actor->xspr.data1);
-						}
-						break;
-#endif
-					case kThingBone:
-						seqSpawn(24, actor);
-						if (hit.type == kHitSprite)
-						{
-							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, 12);
-						}
-						break;
-
-					case kThingPodGreenBall:
-						if (hit.type == kHitSector)
-						{
-							actRadiusDamage(actor->GetOwner(), actor->spr.pos, actor->sector(), 200, 1, 20, kDamageExplode, 6, 0);
-							evPostActor(actor, 0, AF(fxPodBloodSplat));
-						}
-						else if (hit.type == kHitSprite)
-						{
-							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, 12);
-							evPostActor(actor, 0, AF(fxPodBloodSplat));
-						}
-						break;
-
-					case kThingPodFireBall:
-						actExplodeSprite(actor);
-						break;
-					}
+					actOnHit(actor, hit);
 				}
 			}
 		}
@@ -4775,39 +4734,6 @@ void actPostProcess(void)
 			ChangeActorStat(p.sprite, nStatus);
 	}
 	gPost.Clear();
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void MakeSplash(DBloodActor* actor)
-{
-	actor->spr.flags &= ~2;
-	actor->spr.pos.Z -= 4;
-	int nSurface = tileGetSurfType(actor->hit.florhit);
-	switch (actor->GetType())
-	{
-	case kThingDripWater:
-		switch (nSurface)
-		{
-		case kSurfWater:
-			seqSpawn(6, actor);
-			sfxPlay3DSound(actor, 356, -1, 0);
-			break;
-		default:
-			seqSpawn(7, actor);
-			sfxPlay3DSound(actor, 354, -1, 0);
-			break;
-		}
-		break;
-	case kThingDripBlood:
-		seqSpawn(8, actor);
-		sfxPlay3DSound(actor, 354, -1, 0);
-		break;
-	}
 }
 
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
