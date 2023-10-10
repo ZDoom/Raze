@@ -54,7 +54,6 @@ struct FActorInfo
 	FActorInfo(const FActorInfo& other)
 	{
 		// only copy the fields that get inherited
-		TypeNum = other.TypeNum;
 		DefaultFlags = other.DefaultFlags;
 		DefaultCstat = other.DefaultCstat;
 		SpriteSetNames = other.SpriteSetNames;

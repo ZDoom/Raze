@@ -187,6 +187,7 @@ public:
 			{
 				memcpy(dmgControl, startdamage, sizeof(dmgControl));
 			}
+			spr.lotag = static_cast<PClassActor*>(newtype)->ActorInfo()->TypeNum;
 		}
 	}
 

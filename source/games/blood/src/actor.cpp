@@ -3956,11 +3956,13 @@ static void actCheckDudes()
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif
-			if (actor->GetType() == kDudeCerberusTwoHead)
+			if (actor->xspr.health <= 0 && seqGetStatus(actor) < 0)
 			{
-				if (actor->xspr.health <= 0 && seqGetStatus(actor) < 0)
+				// generalize the morph effect of the dying two headed cerberus.
+				auto dmt = actor->PointerVar<PClassActor>("deathMorphType");
+				if (dmt)
 				{
-					actor->ChangeType(kDudeCerberusOneHead);
+					actor->ChangeType(dmt);
 					actor->xspr.health = actor->startHealth() << 4;
 					if (actor->GetTarget() != nullptr) aiSetTarget(actor, actor->GetTarget());
 					aiActivateDude(actor);

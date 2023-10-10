@@ -20,6 +20,7 @@ class BloodDudeBase : Bloodactor
 	meta double backSpeed;
 	meta double turnRange;
 	meta int gibType[3]; // which gib used when explode dude
+	meta class<BloodDudeBase> deathMorphType;
 
 	meta Sound explodeSound;
 	
@@ -46,6 +47,7 @@ class BloodDudeBase : Bloodactor
 	property turnRange: turnRange;
 
 	property explodeSound: explodeSound;
+	property deathMorphType: deathMorphType;
 	
 	
 	default
@@ -1143,6 +1145,7 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
+		deathMorphType "BloodDudeCerberusOneHead";
 	}
 }
 
