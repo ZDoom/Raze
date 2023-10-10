@@ -357,7 +357,7 @@ void callbackGenDudeUpdate(DBloodActor* actor, sectortype* nSprite);
 //  -------------------------------------------------------------------------   //
 DBloodPlayer* getPlayerById(int id);
 bool isGrown(DBloodActor* pSprite);
-bool isShrinked(DBloodActor* pSprite);
+bool isShrunk(DBloodActor* pSprite);
 bool IsBurningDude(DBloodActor* pSprite);
 bool IsKillableDude(DBloodActor* pSprite);
 bool isActive(DBloodActor* nSprite);

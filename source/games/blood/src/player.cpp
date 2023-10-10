@@ -295,7 +295,7 @@ bool powerupActivate(DBloodPlayer* pPlayer, int nPowerUp)
 		break;
 	case kItemShroomGrow:
 		if (!gModernMap) break;
-		else if (isShrinked(pPlayer->GetActor())) playerDeactivateShrooms(pPlayer);
+		else if (isShrunk(pPlayer->GetActor())) playerDeactivateShrooms(pPlayer);
 		else {
 			playerSizeGrow(pPlayer, 2);
 			if (powerupCheck(getPlayer(pPlayer->GetActor()->spr.type - kDudePlayer1), kPwUpShadowCloak) > 0) {
@@ -1041,7 +1041,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		if (gModernMap) {
 			switch (itemactor->spr.type) {
 			case kItemShroomShrink:
-				if (isShrinked(pPlayer->GetActor())) return false;
+				if (isShrunk(pPlayer->GetActor())) return false;
 				break;
 			case kItemShroomGrow:
 				if (isGrown(pPlayer->GetActor())) return false;
