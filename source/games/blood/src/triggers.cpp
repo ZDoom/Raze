@@ -2395,7 +2395,7 @@ void trInit(TArray<DBloodActor*>& actors)
 				break;
 			}
 			if (actor->xspr.Vector) actor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
-			if (actor->xspr.Push) actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
+			if (actor->xspr.Push) actor->spr.cstat |= CSTAT_SPRITE_BLOOD_PUSHABLE;
 		}
 	}
 

@@ -1997,7 +1997,7 @@ void AltFireLifeLeech(int, DBloodPlayer* pPlayer)
 	auto missile = playerFireThing(pPlayer, 0, -4730 / 65536., kThingDroppedLifeLeech, 1.6);
 	if (missile)
 	{
-		missile->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
+		missile->spr.cstat |= CSTAT_SPRITE_BLOOD_PUSHABLE;
 		missile->xspr.Push = 1;
 		missile->xspr.Proximity = 1;
 		missile->xspr.DudeLockout = 1;

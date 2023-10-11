@@ -4,3 +4,4 @@
 using FileSys::FileReader;
 using FileSys::FileWriter;
 using FileSys::BufferWriter;
+using FileSys::BitReader;

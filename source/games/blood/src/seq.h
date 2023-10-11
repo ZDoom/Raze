@@ -1,65 +1,56 @@
-//-------------------------------------------------------------------------
 /*
-Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
-
-This file is part of NBlood.
-
-NBlood is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-//-------------------------------------------------------------------------
+ * Copyright (C) 2018, 2022 nukeykt
+ * Copyright (C) 2020-2023 Christoph Oelckers
+ *
+ * This file is part of Raze
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
 #pragma once
 
 #include "misc.h"
+#include "common_game.h"
 BEGIN_BLD_NS
 
 
-struct SEQFRAME 
+struct SeqFrame
 {
-	unsigned int tile : 12;
+	FVector2 scale;
+	FTextureID texture;
+	uint8_t palette;
+	int8_t shade;
+	int8_t soundRange;
 	unsigned int transparent : 1;
 	unsigned int transparent2 : 1;
 	unsigned int blockable : 1;
 	unsigned int hittable : 1;
-	unsigned int scalex : 8;
-	unsigned int scaley : 8;
-	signed int shade : 8;
-	unsigned int palette : 5;
 	unsigned int trigger : 1;
 	unsigned int smoke : 1;
 	unsigned int aiming : 1;
 	unsigned int pushable : 1;
 	unsigned int playsound : 1;
-	unsigned int invisible : 1;// invisible
+	unsigned int invisible : 1;
 	unsigned int flipx : 1;
 	unsigned int flipy : 1;
-	unsigned int tile2 : 4;
-	unsigned soundRange : 4; // (by NoOne) random sound range relative to global SEQ sound
-	unsigned surfaceSound : 1; // (by NoOne) trigger surface sound when moving / touching
-	unsigned reserved : 2;
+	unsigned int surfaceSound : 1; // (by NoOne) trigger surface sound when moving / touching
 };
 
-struct Seq {
-	char signature[4];
-	int16_t version;
-	int16_t nFrames;
-	int16_t ticksPerFrame;
-	int16_t soundId;
+struct Seq
+{
+	TArrayView<SeqFrame> frames;
+	int ticksPerFrame;
+	FSoundID soundId;
+	int soundResId;	// still needed for the soundRange feature
 	int flags;
-	SEQFRAME frames[1];
-	void Precache(int palette);
 
 	bool isLooping()
 	{
@@ -70,6 +61,15 @@ struct Seq {
 	{
 		return (flags & 2) != 0;
 	}
+
+	FSoundID getSound(int frame)
+	{
+		if (!frames[frame].playsound) return NO_SOUND;
+		int range = frames[frame].soundRange;
+		if (VanillaMode() || range <= 0) return soundId;
+		return soundEngine->FindSoundByResID(soundResId + Random(max(2, range)));
+	}
+
 };
 
 class DBloodActor;
@@ -77,20 +77,15 @@ struct SEQINST
 {
 	Seq* pSequence;
 	EventObject target;
-	int type;
+	VMFunction* callback;
 
+	int type;
 	int nSeqID;	// only one of these two may be set
 	FName nName;
-	VMFunction* callback;
 	int16_t timeCounter;
-	uint8_t frameIndex;
+	uint16_t frameIndex;
 	void Update();
 };
-
-inline FTextureID seqGetTexture(SEQFRAME* pFrame)
-{
-	return tileGetTextureID(pFrame->tile + (pFrame->tile2 << 12));
-}
 
 void seqPrecacheId(FName name, int id, int palette);
 

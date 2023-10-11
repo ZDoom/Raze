@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "ai.h"
 #include "aiunicult.h"
-#include "callback.h"
 #include "db.h"
 #include "endgame.h"
 #include "eventq.h"
@@ -318,10 +317,6 @@ inline bool DemoRecordStatus(void)
 	return false;
 }
 
-inline bool VanillaMode()
-{
-	return false;
-}
 void sndPlaySpecialMusicOrNothing(int nMusic);
 
 struct GameInterface : public ::GameInterface

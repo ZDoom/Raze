@@ -362,6 +362,42 @@ public:
 	TArray<unsigned char>&& TakeBuffer() { return std::move(mBuffer); }
 };
 
-}
 
+class BitReader
+{
+	const uint8_t* buffer;
+	const size_t size; // counts in bits, not bytes
+	size_t bitofs;
+
+public:
+	BitReader(const uint8_t* data, uint32_t _size) : buffer(data), size(_size * 8), bitofs(0) { }
+	~BitReader() = default;
+	uint32_t getBit()
+	{
+		if (bitofs > size) return ~0u;
+		// maintaining a byte offset costs more than doing this shift for every bit so skip it.
+		uint32_t ret = (buffer[bitofs >> 3] >> (bitofs & 7)) & 1;
+		bitofs++;
+		return ret;
+	}
+	uint32_t getBits(uint32_t n)
+	{
+		if (bitofs > size - n || n > 32) return ~0u;
+		uint32_t ret;
+		for (uint32_t i = 0; i < n; i++) ret |= getBit() << i;
+		return ret;
+	}
+	int32_t getBitsSigned(uint32_t n)
+	{
+		uint32_t notn = 32 - n;
+		return (((int)getBits(n)) << notn) >> notn;
+	}
+
+	void skipBits(uint32_t n)
+	{
+		bitofs += n;
+	}
+};
+
+}
 #endif

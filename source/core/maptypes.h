@@ -39,6 +39,7 @@ void MarkVerticesForSector(int sector);
 static constexpr double zmaptoworld = (1 / 256.);	// this for necessary conversions to convert map data to floating point representation.
 static constexpr double maptoworld = (1 / 16.);	// this for necessary conversions to convert map data to floating point representation.
 static constexpr double REPEAT_SCALE = (1 / 64.);	// map's 'repeat' values use 2.6 fixed point.
+static constexpr float REPEAT_SCALEF = (1 / 64.f);	// map's 'repeat' values use 2.6 fixed point.
 static constexpr double INV_REPEAT_SCALE = 64;
 
 // These are refactoring markers that should be eliminated.
@@ -170,7 +171,7 @@ enum ESpriteBits // names mostly from SW.
 
 	// Blood flags
 	CSTAT_SPRITE_BLOOD_BIT2			= 1024, // Both of these get set but not checked directly, so no idea what they mean...
-	CSTAT_SPRITE_BLOOD_BIT1			= 4096,
+	CSTAT_SPRITE_BLOOD_PUSHABLE			= 4096,
 	CSTAT_SPRITE_MOVE_FORWARD		= 8192,
 	CSTAT_SPRITE_MOVE_REVERSE		= 16384,
 	CSTAT_SPRITE_MOVE_MASK			= CSTAT_SPRITE_MOVE_FORWARD | CSTAT_SPRITE_MOVE_REVERSE,

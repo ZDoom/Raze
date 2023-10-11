@@ -1,61 +1,51 @@
-//-------------------------------------------------------------------------
 /*
-Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
-Copyright (C) 2020 - Christoph Oelckers
+ * Copyright (C) 2018, 2022 nukeykt
+ * Copyright (C) 2020-2023 Christoph Oelckers
+ *
+ * This file is part of Raze
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
 
-This file is part of Raze
-
-Raze is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-//-------------------------------------------------------------------------
 
 #include "ns.h"
 #include "filesystem.h"
 #include "tarray.h"
+#include "files.h"
 
 #include "build.h"
 
 #include "blood.h"
-#include "files.h"
 #include "eventq.h"
-#include "callback.h"
 
 
 BEGIN_BLD_NS
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+FMemArena seqcache; // also used by QAVs.
+static TMap<int64_t, Seq*> sequences;
 
-void Seq::Precache(int palette)
-{
-	if (memcmp(signature, "SEQ\x1a", 4) != 0)
-		I_Error("Invalid sequence");
-	if ((version & 0xff00) != 0x300)
-		I_Error("Obsolete sequence version");
-	for (int i = 0; i < nFrames; i++)
-		tilePrecacheTile(seqGetTexture(&frames[i]), -1, palette);
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void seqPrecacheId(FName name, int id, int palette)
 {
-	auto pSeq = getSequence(name, id);
-	if (pSeq) pSeq->Precache(palette);
+	if (auto pSeq = getSequence(name, id))
+	{
+		for (const auto& frame : pSeq->frames)
+			tilePrecacheTile(frame.texture, -1, palette);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -64,12 +54,10 @@ void seqPrecacheId(FName name, int id, int palette)
 //
 //---------------------------------------------------------------------------
 
-void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
+template<class T, class U> void SetFlag(T& flagvar, U bit, bool condition)
 {
-	pSector->setceilingtexture(seqGetTexture(pFrame));
-	pSector->ceilingshade = pFrame->shade;
-	if (pFrame->palette)
-		pSector->ceilingpal = pFrame->palette;
+	if (condition) flagvar |= bit;
+	else flagvar &= ~bit;
 }
 
 //---------------------------------------------------------------------------
@@ -78,12 +66,49 @@ void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
+void UpdateSprite(DBloodActor* actor, SeqFrame* pFrame)
 {
-	pSector->setfloortexture(seqGetTexture(pFrame));
-	pSector->floorshade = pFrame->shade;
-	if (pFrame->palette)
-		pSector->floorpal = pFrame->palette;
+	assert(actor->hasX());
+	if (actor->spr.flags & kPhysGravity)
+	{
+		auto atex = TexMan.GetGameTexture(actor->spr.spritetexture());
+		auto stex = TexMan.GetGameTexture(pFrame->texture);
+		if (atex->GetDisplayHeight() != stex->GetDisplayHeight() || atex->GetDisplayTopOffset() != stex->GetDisplayTopOffset()
+			|| (pFrame->scale.Y && pFrame->scale.Y != actor->spr.scale.Y))
+			actor->spr.flags |= kPhysFalling;
+	}
+	actor->spr.setspritetexture(pFrame->texture);
+
+	if (pFrame->palette) actor->spr.pal = pFrame->palette;
+	actor->spr.shade = pFrame->shade;
+
+	double scale = VanillaMode() ? 0 : actor->xspr.scale / 256.; // SEQ size scaling (nnext feature)
+	if (pFrame->scale.X)
+	{
+		double s = pFrame->scale.X;
+		if (scale) s = clamp(s * scale, 0., 4.); // Q: Do we need the clamp to 4 here?
+		actor->spr.scale.X = s;
+	}
+
+	if (pFrame->scale.Y)
+	{
+		double s = pFrame->scale.Y * REPEAT_SCALE;
+		if (scale) s = clamp(s * scale, 0., 4.);
+		actor->spr.scale.Y = s;
+	}
+
+	SetFlag(actor->spr.cstat, CSTAT_SPRITE_TRANSLUCENT, pFrame->transparent);
+
+	SetFlag(actor->spr.cstat, CSTAT_SPRITE_TRANS_FLIP, pFrame->transparent2);
+	SetFlag(actor->spr.cstat, CSTAT_SPRITE_BLOCK, pFrame->blockable);
+	SetFlag(actor->spr.cstat, CSTAT_SPRITE_BLOCK_HITSCAN, pFrame->hittable);
+	SetFlag(actor->spr.cstat, CSTAT_SPRITE_INVISIBLE, pFrame->invisible);
+	SetFlag(actor->spr.cstat, CSTAT_SPRITE_BLOOD_PUSHABLE, pFrame->pushable);
+
+	SetFlag(actor->spr.flags, kHitagSmoke, pFrame->smoke);
+	SetFlag(actor->spr.flags, kHitagAutoAim, pFrame->aiming);
+	SetFlag(actor->spr.flags, kHitagFlipX, pFrame->flipx);
+	SetFlag(actor->spr.flags, kHitagFlipY, pFrame->flipy);
 }
 
 //---------------------------------------------------------------------------
@@ -92,28 +117,16 @@ void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
+void UpdateWall(walltype* pWall, SeqFrame* pFrame)
 {
 	assert(pWall->hasX());
-	pWall->setwalltexture(seqGetTexture(pFrame));
-	if (pFrame->palette)
-		pWall->pal = pFrame->palette;
-	if (pFrame->transparent)
-		pWall->cstat |= CSTAT_WALL_TRANSLUCENT;
-	else
-		pWall->cstat &= ~CSTAT_WALL_TRANSLUCENT;
-	if (pFrame->transparent2)
-		pWall->cstat |= CSTAT_WALL_TRANS_FLIP;
-	else
-		pWall->cstat &= ~CSTAT_WALL_TRANS_FLIP;
-	if (pFrame->blockable)
-		pWall->cstat |= CSTAT_WALL_BLOCK;
-	else
-		pWall->cstat &= ~CSTAT_WALL_BLOCK;
-	if (pFrame->hittable)
-		pWall->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
-	else
-		pWall->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
+	pWall->setwalltexture(pFrame->texture);
+	if (pFrame->palette) pWall->pal = pFrame->palette;
+
+	SetFlag(pWall->cstat, CSTAT_WALL_TRANSLUCENT, pFrame->transparent);
+	SetFlag(pWall->cstat, CSTAT_WALL_TRANS_FLIP, pFrame->transparent2);
+	SetFlag(pWall->cstat, CSTAT_WALL_BLOCK, pFrame->blockable);
+	SetFlag(pWall->cstat, CSTAT_WALL_BLOCK_HITSCAN, pFrame->hittable);
 }
 
 //---------------------------------------------------------------------------
@@ -122,135 +135,50 @@ void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
+void UpdateFloor(sectortype* pSector, SeqFrame* pFrame)
+{
+	pSector->setfloortexture(pFrame->texture);
+	pSector->floorshade = pFrame->shade;
+	if (pFrame->palette) pSector->floorpal = pFrame->palette;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void UpdateCeiling(sectortype* pSector, SeqFrame* pFrame)
+{
+	pSector->setceilingtexture(pFrame->texture);
+	pSector->ceilingshade = pFrame->shade;
+	if (pFrame->palette) pSector->ceilingpal = pFrame->palette;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void UpdateMasked(walltype* pWall, SeqFrame* pFrame)
 {
 	assert(pWall->hasX());
 	walltype* pWallNext = pWall->nextWall();
-	auto texid = seqGetTexture(pFrame);
+	auto texid = pFrame->texture;
 	pWall->setovertexture(texid);
 	pWallNext->setovertexture(texid);
 	if (pFrame->palette)
 		pWall->pal = pWallNext->pal = pFrame->palette;
-	if (pFrame->transparent)
-	{
-		pWall->cstat |= CSTAT_WALL_TRANSLUCENT;
-		pWallNext->cstat |= CSTAT_WALL_TRANSLUCENT;
-	}
-	else
-	{
-		pWall->cstat &= ~CSTAT_WALL_TRANSLUCENT;
-		pWallNext->cstat &= ~CSTAT_WALL_TRANSLUCENT;
-	}
-	if (pFrame->transparent2)
-	{
-		pWall->cstat |= CSTAT_WALL_TRANS_FLIP;
-		pWallNext->cstat |= CSTAT_WALL_TRANS_FLIP;
-	}
-	else
-	{
-		pWall->cstat &= ~CSTAT_WALL_TRANS_FLIP;
-		pWallNext->cstat &= ~CSTAT_WALL_TRANS_FLIP;
-	}
-	if (pFrame->blockable)
-	{
-		pWall->cstat |= CSTAT_WALL_BLOCK;
-		pWallNext->cstat |= CSTAT_WALL_BLOCK;
-	}
-	else
-	{
-		pWall->cstat &= ~CSTAT_WALL_BLOCK;
-		pWallNext->cstat &= ~CSTAT_WALL_BLOCK;
-	}
-	if (pFrame->hittable)
-	{
-		pWall->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
-		pWallNext->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
-	}
-	else
-	{
-		pWall->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
-		pWallNext->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
-	}
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
-{
-	assert(actor->hasX());
-	if (actor->spr.flags & 2)
-	{
-		auto atex = TexMan.GetGameTexture(actor->spr.spritetexture());
-		auto stex = TexMan.GetGameTexture(seqGetTexture(pFrame));
-		if (atex->GetDisplayHeight() != stex->GetDisplayHeight() || atex->GetDisplayTopOffset() != stex->GetDisplayTopOffset()
-			|| (pFrame->scaley && pFrame->scaley != int(actor->spr.scale.Y * INV_REPEAT_SCALE)))
-			actor->spr.flags |= 4;
-	}
-	actor->spr.setspritetexture(seqGetTexture(pFrame));
-	if (pFrame->palette)
-		actor->spr.pal = pFrame->palette;
-	actor->spr.shade = pFrame->shade;
-
-	int scale = actor->xspr.scale; // SEQ size scaling
-	if (pFrame->scalex) 
-	{
-		int s;
-		if (scale) s = ClipRange(MulScale(pFrame->scalex, scale, 8), 0, 255);
-		else s = pFrame->scalex;
-		actor->spr.scale.X = (s * REPEAT_SCALE);
-	}
-
-	if (pFrame->scaley) {
-		int s;
-		if (scale) s = ClipRange(MulScale(pFrame->scaley, scale, 8), 0, 255);
-		else s = pFrame->scaley;
-		actor->spr.scale.Y = (s * REPEAT_SCALE);
-	}
-
-	if (pFrame->transparent)
-		actor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
-	if (pFrame->transparent2)
-		actor->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_TRANS_FLIP;
-	if (pFrame->blockable)
-		actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
-	if (pFrame->hittable)
-		actor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
-	if (pFrame->invisible)
-		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	if (pFrame->pushable)
-		actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_BLOOD_BIT1;
-	if (pFrame->smoke)
-		actor->spr.flags |= 256;
-	else
-		actor->spr.flags &= ~256;
-	if (pFrame->aiming)
-		actor->spr.flags |= 8;
-	else
-		actor->spr.flags &= ~8;
-	if (pFrame->flipx)
-		actor->spr.flags |= 1024;
-	else
-		actor->spr.flags &= ~1024;
-	if (pFrame->flipy)
-		actor->spr.flags |= 2048;
-	else
-		actor->spr.flags &= ~2048;
+	SetFlag(pWall->cstat, CSTAT_WALL_TRANSLUCENT, pFrame->transparent);
+	SetFlag(pWallNext->cstat, CSTAT_WALL_TRANSLUCENT, pFrame->transparent);
+	SetFlag(pWall->cstat, CSTAT_WALL_TRANS_FLIP, pFrame->transparent2);
+	SetFlag(pWallNext->cstat, CSTAT_WALL_TRANS_FLIP, pFrame->transparent2);
+	SetFlag(pWall->cstat, CSTAT_WALL_BLOCK, pFrame->blockable);
+	SetFlag(pWallNext->cstat, CSTAT_WALL_BLOCK, pFrame->blockable);
+	SetFlag(pWall->cstat, CSTAT_WALL_BLOCK_HITSCAN, pFrame->hittable);
+	SetFlag(pWallNext->cstat, CSTAT_WALL_BLOCK_HITSCAN, pFrame->hittable);
 }
 
 //---------------------------------------------------------------------------
@@ -261,7 +189,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 
 void SEQINST::Update()
 {
-	assert(frameIndex < pSequence->nFrames);
+	assert(frameIndex < pSequence->frames.Size());
 	switch (type)
 	{
 	case SS_WALL:
@@ -282,50 +210,22 @@ void SEQINST::Update()
 		auto actor = target.actor();
 		if (!actor) break;
 		UpdateSprite(actor, &pSequence->frames[frameIndex]);
-		if (pSequence->frames[frameIndex].playsound) {
+		sfxPlay3DSound(actor, pSequence->getSound(frameIndex), -1, 0);
 
-			int sound = pSequence->soundId;
-
-			// by NoOne: add random sound range feature
-			if (!VanillaMode() && pSequence->frames[frameIndex].soundRange > 0)
-				sound += Random(((pSequence->frames[frameIndex].soundRange == 1) ? 2 : pSequence->frames[frameIndex].soundRange));
-
-			sfxPlay3DSound(actor, sound, -1, 0);
-		}
-
-
-		// by NoOne: add surfaceSound trigger feature
-		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->vel.Z == 0 && actor->vel.X != 0) {
-
+		// NBlood's surfaceSound trigger feature - needs to be reviewed because this never checks if the actor touches the floor!
+		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->vel.Z == 0 && actor->vel.X != 0) 
+		{
 			if (actor->sector()->upperLink) break; // don't play surface sound for stacked sectors
-			int surf = GetExtInfo(actor->sector()->floortexture).surftype;
-			if (!surf) break;
-			static int surfSfxMove[15][4] = {
-				/* {snd1, snd2, gameVolume, myVolume} */
-				{800,801,80,25},
-				{802,803,80,25},
-				{804,805,80,25},
-				{806,807,80,25},
-				{808,809,80,25},
-				{810,811,80,25},
-				{812,813,80,25},
-				{814,815,80,25},
-				{816,817,80,25},
-				{818,819,80,25},
-				{820,821,80,25},
-				{822,823,80,25},
-				{824,825,80,25},
-				{826,827,80,25},
-				{828,829,80,25},
-			};
+			int surf = tilesurface(actor->sector()->floortexture);
+			if (surf <= kSurfNone || surf >= kSurfMax) break;
 
-			int sndId = surfSfxMove[surf][Random(2)];
+			int sndId = 800 + surf * 2 + Random(2);
 			auto snd = soundEngine->FindSoundByResID(sndId);
 			if (snd.isvalid())
 			{
 				auto udata = soundEngine->GetSfx(snd);
 				int relVol = udata ? udata->UserVal : 80;
-				sfxPlay3DSoundVolume(actor, sndId, -1, 0, 0, (surfSfxMove[surf][2] != relVol) ? relVol : surfSfxMove[surf][3]);
+				sfxPlay3DSoundVolume(actor, snd, -1, 0, 0, (relVol != 80) ? relVol : 25); // some weird shit logic here with the volume...
 			}
 		}
 		break;
@@ -336,10 +236,9 @@ void SEQINST::Update()
 		break;
 	}
 
-	// all seq callbacks are for sprites, but there's no sanity checks here that what gets passed is meant to be for a sprite...
-	if (pSequence->frames[frameIndex].trigger && callback != nullptr)
+	// all seq callbacks are for sprites, so skip for other types.
+	if (type == SS_SPRITE && pSequence->frames[frameIndex].trigger && callback != nullptr)
 	{
-		assert(type == SS_SPRITE);
 		if (target.isActor()) callActorFunction(callback, target.actor());
 	}
 
@@ -468,45 +367,77 @@ void seqKill(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void ByteSwapSEQ(Seq* pSeq)
+static Seq* ReadSEQ(int index)
 {
-	pSeq->version = LittleShort(pSeq->version);
-	pSeq->nFrames = LittleShort(pSeq->nFrames);
-	pSeq->ticksPerFrame = LittleShort(pSeq->ticksPerFrame);
-	pSeq->soundId = LittleShort(pSeq->soundId);
-	pSeq->flags = LittleLong(pSeq->flags);
-	for (int i = 0; i < pSeq->nFrames; i++)
+	auto fr = fileSystem.OpenFileReader(index);
+	if (!fr.isOpen())
 	{
-		SEQFRAME* pFrame = &pSeq->frames[i];
-		BitReader bitReader((uint8_t*)pFrame, sizeof(SEQFRAME));
-		SEQFRAME swapFrame;
-		swapFrame.tile = bitReader.readUnsigned(12);
-		swapFrame.transparent = bitReader.readBit();
-		swapFrame.transparent2 = bitReader.readBit();
-		swapFrame.blockable = bitReader.readBit();
-		swapFrame.hittable = bitReader.readBit();
-		swapFrame.scalex = bitReader.readUnsigned(8);
-		swapFrame.scaley = bitReader.readUnsigned(8);
-		swapFrame.shade = bitReader.readSigned(8);
-		swapFrame.palette = bitReader.readUnsigned(5);
-		swapFrame.trigger = bitReader.readBit();
-		swapFrame.smoke = bitReader.readBit();
-		swapFrame.aiming = bitReader.readBit();
-		swapFrame.pushable = bitReader.readBit();
-		swapFrame.playsound = bitReader.readBit();
-		swapFrame.invisible = bitReader.readBit();
-		swapFrame.flipx = bitReader.readBit();
-		swapFrame.flipy = bitReader.readBit();
-		swapFrame.tile2 = bitReader.readUnsigned(4);
-		swapFrame.soundRange = bitReader.readUnsigned(4);
-		swapFrame.surfaceSound = bitReader.readBit();
-		swapFrame.reserved = bitReader.readUnsigned(2);
-		*pFrame = swapFrame;
+		Printf("%s: unable to open", fileSystem.GetFileFullName(index));
+		return nullptr;
 	}
+	char header[4];
+	fr.Read(header, 4);
+	if (memcmp(&header[0], "SEQ\x1a", 4) != 0)
+	{
+		Printf("%s: Invalid sequence", fileSystem.GetFileFullName(index));
+		return nullptr;
+	}
+	int version = fr.ReadInt16();
+	if ((version & 0xff00) != 0x300)
+	{
+		Printf("%s: Obsolete sequence version", fileSystem.GetFileFullName(index));
+		return nullptr;
+	}
+
+	unsigned int frames = fr.ReadUInt16();
+	int ticks = fr.ReadUInt16();
+	int soundid = fr.ReadUInt16();
+	int flags = fr.ReadInt32();
+	// allocate both buffers off our memory arena.
+	auto seqdata = (Seq*)seqcache.Alloc(sizeof(Seq));
+	seqdata->frames.Set((SeqFrame*)seqcache.Alloc(sizeof(SeqFrame) * frames), frames);
+	seqdata->flags = flags;
+	seqdata->ticksPerFrame = ticks;
+	seqdata->soundResId = soundid;
+	seqdata->soundId = soundEngine->FindSoundByResID(soundid);
+
+
+	for (auto& frame : seqdata->frames)
+	{
+		uint8_t framebuf[8];
+		fr.Read(framebuf, 8);
+		BitReader bitReader(framebuf, sizeof(framebuf));
+		int tile = bitReader.getBits(12);
+		frame.transparent = bitReader.getBit();
+		frame.transparent2 = bitReader.getBit();
+		frame.blockable = bitReader.getBit();
+		frame.hittable = bitReader.getBit();
+		frame.scale.X = bitReader.getBits(8) * REPEAT_SCALEF;
+		frame.scale.Y = bitReader.getBits(8) * REPEAT_SCALEF;
+		frame.shade = bitReader.getBitsSigned(8);
+		frame.palette = bitReader.getBits(5);
+		frame.trigger = bitReader.getBit();
+		frame.smoke = bitReader.getBit();
+		frame.aiming = bitReader.getBit();
+		frame.pushable = bitReader.getBit();
+		frame.playsound = bitReader.getBit();
+		frame.invisible = bitReader.getBit();
+		frame.flipx = bitReader.getBit();
+		frame.flipy = bitReader.getBit();
+		tile += bitReader.getBits(4) << 12;;
+		frame.soundRange = bitReader.getBits(4);
+		frame.surfaceSound = bitReader.getBit();
+		frame.texture = tileGetTextureID(tile);
+	}
+	return seqdata;
 }
 
-FMemArena seqcache;
-static TMap<int64_t, Seq*> sequences;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 Seq* getSequence(FName res_name, int res_id)
 {
 	int64_t key = ((int64_t)res_name.GetIndex() << 32) | res_id;
@@ -529,14 +460,13 @@ Seq* getSequence(FName res_name, int res_id)
 
 	if (index < 0)
 	{
+		if (res_name != NAME_None) Printf("%s: sequence not found", res_name.GetChars());
+		sequences.Insert(key, nullptr);	// even store null entries to avoid repeated lookup for them.
 		return nullptr;
 	}
 
-	auto fr = fileSystem.OpenFileReader(index);
-	auto seqdata = (Seq*)seqcache.Alloc(fr.GetLength());
-	fr.Read(seqdata, fr.GetLength());
+	auto seqdata = ReadSEQ(index);
 	sequences.Insert(key, seqdata);
-	ByteSwapSEQ(seqdata);
 	return seqdata;
 }
 
@@ -564,11 +494,11 @@ void seqSpawn_(FName name, int nSeqID, int type, const EventObject& eob, VMFunct
 			return;
 	}
 
-	pInst->pSequence = pSequence;
 	pInst->nSeqID = nSeqID;
+	pInst->pSequence = pSequence;
 	pInst->nName = name;
 	pInst->callback = callback;
-	pInst->timeCounter = (short)pSequence->ticksPerFrame;
+	pInst->timeCounter = pSequence->ticksPerFrame;
 	pInst->frameIndex = 0;
 	pInst->type = type;
 	pInst->target = eob;
@@ -672,7 +602,7 @@ void seqProcess(int nTicks)
 		Seq* pSeq = pInst->pSequence;
 		auto target = pInst->target;
 
-		assert(pInst->frameIndex < pSeq->nFrames);
+		assert(pInst->frameIndex < pSeq->frames.Size());
 
 		pInst->timeCounter -= nTicks;
 		while (pInst->timeCounter < 0)
@@ -680,7 +610,7 @@ void seqProcess(int nTicks)
 			pInst->timeCounter += pSeq->ticksPerFrame;
 			++pInst->frameIndex;
 
-			if (pInst->frameIndex == pSeq->nFrames)
+			if (pInst->frameIndex == pSeq->frames.Size())
 			{
 				if (!pSeq->isLooping())
 				{
@@ -693,7 +623,7 @@ void seqProcess(int nTicks)
 							if (actor)
 							{
 								evKillActor(actor);
-								if ((actor->spr.hitag & kAttrRespawn) != 0 && actor->WasDudeActor())
+								if ((actor->spr.hitag & kHitagRespawn) != 0 && actor->WasDudeActor())
 									evPostActor(actor, gGameOptions.nMonsterRespawnTime, AF(Respawn));
 								else DeleteSprite(actor);	// safe to not use actPostSprite here
 							}

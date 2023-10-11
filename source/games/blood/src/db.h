@@ -28,17 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-enum
-{
-	kAttrMove = 0x0001, // is affected by movement physics
-	kAttrGravity = 0x0002, // is affected by gravity
-	kAttrFalling = 0x0004, // in z motion
-	kAttrAiming = 0x0008,
-	kAttrRespawn = 0x0010,
-	kAttrFree = 0x0020,
-	kAttrSmoke = 0x0100, // receives tsprite smoke/steam 
-};
-
 
 #pragma pack(push, 1)
 

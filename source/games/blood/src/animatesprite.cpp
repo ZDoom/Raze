@@ -689,15 +689,15 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		{
 			pTSprite->shade = ClipRange(pTSprite->shade - 16 - QRandom(8), -128, 127);
 		}
-		if (pTSprite->flags & 256)
+		if (pTSprite->flags & kHitagSmoke)
 		{
 			viewAddEffect(tsprites, nTSprite, kViewEffectSmokeHigh);
 		}
-		if (pTSprite->flags & 1024)
+		if (pTSprite->flags & kHitagFlipX)
 		{
 			pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
 		}
-		if (pTSprite->flags & 2048)
+		if (pTSprite->flags & kHitagFlipY)
 		{
 			pTSprite->cstat |= CSTAT_SPRITE_YFLIP;
 		}

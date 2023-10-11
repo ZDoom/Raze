@@ -894,7 +894,7 @@ static void actInitDudes()
 			if (!act->IsPlayerActor())
 			{
 				act->clipdist = act->fClipDist();
-				act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
+				act->spr.cstat |= CSTAT_SPRITE_BLOOD_PUSHABLE | CSTAT_SPRITE_BLOCK_ALL;
 				act->vel.Zero();
 
 				if ((currentLevel->featureflags & kFeatureEnemyAttacks) && act->xspr.sysData2 > 0)
@@ -4138,7 +4138,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	spawned->spr.Angles.Yaw = angle;
 	SetActor(spawned, pos);
 
-	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
+	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_PUSHABLE;
 	spawned->clipdist = spawned->fClipDist();
 	spawned->xspr.health = spawned->startHealth() << 4;
 	spawned->xspr.respawn = 1;

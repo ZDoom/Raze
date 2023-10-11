@@ -27,11 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "printf.h"
 #include "v_text.h"
-#include "seqcb.h"
 #include "coreactor.h"
 #include "vectors.h"
 
 BEGIN_BLD_NS
+
+inline bool VanillaMode()
+{
+	return false;
+}
 
 void QuitGame(void);
 
@@ -434,16 +438,23 @@ enum {
 
 enum
 {
+
+	//  sprite physics attributes
+	kPhysMove = 0x0001, // affected by movement physics
+	kPhysGravity = 0x0002, // affected by gravity
+	kPhysFalling = 0x0004, // currently in z-motion
+
 	// sprite attributes
 	kHitagAutoAim = 0x0008,
 	kHitagRespawn = 0x0010,
 	kHitagFree = 0x0020,
 	kHitagSmoke = 0x0100,
 
-	//  sprite physics attributes
-	kPhysMove = 0x0001, // affected by movement physics
-	kPhysGravity = 0x0002, // affected by gravity
-	kPhysFalling = 0x0004, // currently in z-motion
+	// why are these needed? They seem redunant.
+	kHitagFlipX = 1024,
+	kHitagFlipY = 2048,
+
+
 
 	kAng5 = 28,
 	kAng15 = 85,
@@ -659,53 +670,5 @@ public:
 		return (x0 <= x && x1 > x && y0 <= y && y1 > y);
 	}
 };
-
-class BitReader {
-public:
-	int nBitPos;
-	int nSize;
-	uint8_t* pBuffer;
-	BitReader(uint8_t* _pBuffer, int _nSize, int _nBitPos) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = _nBitPos; nSize -= nBitPos >> 3; }
-	BitReader(uint8_t* _pBuffer, int _nSize) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = 0; }
-	int readBit()
-	{
-		if (nSize <= 0)
-			I_Error("Buffer overflow in BitReader");
-		int bit = ((*pBuffer) >> nBitPos) & 1;
-		if (++nBitPos >= 8)
-		{
-			nBitPos = 0;
-			pBuffer++;
-			nSize--;
-		}
-		return bit;
-	}
-	void skipBits(int nBits)
-	{
-		nBitPos += nBits;
-		pBuffer += nBitPos >> 3;
-		nSize -= nBitPos >> 3;
-		nBitPos &= 7;
-		if ((nSize == 0 && nBitPos > 0) || nSize < 0)
-			I_Error("Buffer overflow in BitReader");
-	}
-	unsigned int readUnsigned(int nBits)
-	{
-		unsigned int n = 0;
-		assert(nBits <= 32);
-		for (int i = 0; i < nBits; i++)
-			n += readBit() << i;
-		return n;
-	}
-	int readSigned(int nBits)
-	{
-		assert(nBits <= 32);
-		int n = (int)readUnsigned(nBits);
-		n <<= 32 - nBits;
-		n >>= 32 - nBits;
-		return n;
-	}
-};
-
 
 END_BLD_NS
