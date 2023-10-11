@@ -1733,13 +1733,13 @@ void aiInitSprite(DBloodActor* actor)
 	{
 		actor->dudeExtra.thinkTime = 0;
 		aiNewState(actor, &zombieSIdle);
-		actor->spr.flags &= ~1;
+		actor->spr.flags &= ~kPhysMove;
 		break;
 	}
 	case kDudeZombieAxeBuried: {
 		actor->dudeExtra.thinkTime = 0;
 		aiNewState(actor, &zombieEIdle);
-		actor->spr.flags &= ~1;
+		actor->spr.flags &= ~kPhysMove;
 		break;
 	}
 	case kDudeGargoyleFlesh:
@@ -1859,24 +1859,25 @@ void aiInitSprite(DBloodActor* actor)
 	case kDudeSpiderBrown:
 	case kDudeSpiderRed:
 	case kDudeSpiderBlack:
-		if (actor->spr.cstat & CSTAT_SPRITE_YFLIP) actor->spr.flags |= 9;
-		else actor->spr.flags = 15;
+		if (actor->spr.cstat & CSTAT_SPRITE_YFLIP) actor->spr.flags |= kPhysMove | kHitagAutoAim;
+		else actor->spr.flags = kPhysMove | kPhysGravity | kPhysFalling | kHitagAutoAim;
 		break;
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
 	case kDudePhantasm:
 	case kDudeBoneEel:
 	case kDudeBat:
-		actor->spr.flags |= 9;
+		actor->spr.flags |= kPhysMove | kHitagAutoAim;
 		break;
 	case kDudeGillBeast:
-		if (pXSector && pXSector->Underwater) actor->spr.flags |= 9;
-		else actor->spr.flags = 15;
+		if (pXSector && pXSector->Underwater) actor->spr.flags |= kPhysMove | kHitagAutoAim;
+		else actor->spr.flags = kPhysMove | kPhysGravity | kPhysFalling | kHitagAutoAim;
 		break;
 	case kDudeZombieAxeBuried:
 	case kDudeZombieAxeLaying:
-		actor->spr.flags = 7;
+		actor->spr.flags = kPhysMove | kPhysGravity | kPhysFalling;
 		break;
+
 #ifdef NOONE_EXTENSIONS
 	case kDudePodMother: // FakeDude type
 		if (gModernMap) break;
@@ -1896,7 +1897,7 @@ void aiInitSprite(DBloodActor* actor)
 		// go default
 #endif
 	default:
-		actor->spr.flags = 15;
+		actor->spr.flags = kPhysMove | kPhysGravity | kPhysFalling | kHitagAutoAim;
 		break;
 	}
 
