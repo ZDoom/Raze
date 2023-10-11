@@ -1154,7 +1154,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningCultist);
-			aiNewState(actor, NAME_cultistBurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			actHealDude(actor, actor->startHealth(), actor->startHealth());
 			return true;
 		}
@@ -1164,7 +1164,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningBeast);
-			aiNewState(actor, NAME_beastBurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			actHealDude(actor, actor->startHealth(), actor->startHealth());
 			return true;
 		}
@@ -1174,7 +1174,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningInnocent);
-			aiNewState(actor, NAME_innocentBurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			actHealDude(actor, actor->startHealth(), actor->startHealth());
 			return true;
 		}
@@ -1186,7 +1186,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningTinyCaleb);
-			aiNewState(actor, NAME_tinycalebBurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			actHealDude(actor, actor->startHealth(), actor->startHealth());
 			return true;
 		}

@@ -456,10 +456,6 @@ void aiActivateDude(DBloodActor* actor)
 		}
 		break;
 	}
-	case kDudeModernCustomBurning:
-		if (actor->GetTarget() == nullptr) aiGenDudeNewState(actor, &genDudeBurnSearch);
-		else aiGenDudeNewState(actor, &genDudeBurnChase);
-		break;
 #endif
 	case kDudeCultistTommyProne:
 	{
@@ -535,12 +531,6 @@ void aiActivateDude(DBloodActor* actor)
 		}
 		break;
 	}
-	case kDudeBurningCultist:
-		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, NAME_cultistBurnSearch);
-		else
-			aiNewState(actor, NAME_cultistBurnChase);
-		break;
 	case kDudeBat:
 	{
 		
@@ -661,18 +651,15 @@ void aiActivateDude(DBloodActor* actor)
 		}
 		break;
 	}
+	case kDudeBurningCultist:
 	case kDudeBurningZombieAxe:
-		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, NAME_zombieABurnSearch);
-		else
-			aiNewState(actor, NAME_zombieABurnChase);
-		break;
 	case kDudeBurningZombieButcher:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, NAME_zombieFBurnSearch);
+			aiNewState(actor, NAME_BurnSearch);
 		else
-			aiNewState(actor, NAME_zombieFBurnChase);
+			aiNewState(actor, NAME_BurnChase);
 		break;
+
 	case kDudeGargoyleFlesh: {
 		
 		actor->dudeExtra.thinkTime = 0;
@@ -1016,7 +1003,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			else if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth()/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				actor->ChangeType(kDudeBurningCultist);
-				aiNewState(actor, NAME_cultistBurnGoto);
+				aiNewState(actor, NAME_BurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1031 + Random(2), AI_SFX_PRIORITY_2, -1);
 				actor->dudeExtra.time = PlayClock + 360;
@@ -1028,7 +1015,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)actor->fleeHealth()/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				actor->ChangeType(kDudeBurningInnocent);
-				aiNewState(actor, NAME_cultistBurnGoto);
+				aiNewState(actor, NAME_BurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
 				actHealDude(actor, actor->startHealth(), actor->startHealth());
@@ -1066,7 +1053,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
 				actor->ChangeType(kDudeBurningZombieButcher);
-				aiNewState(actor, NAME_zombieFBurnGoto);
+				aiNewState(actor, NAME_BurnGoto);
 				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
@@ -1077,12 +1064,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				if (!cl_bloodvanillaenemies && !VanillaMode()) // fix burning sprite for tiny caleb
 				{
 					actor->ChangeType(kDudeBurningTinyCaleb);
-					aiNewState(actor, NAME_tinycalebBurnGoto);
+					aiNewState(actor, NAME_BurnGoto);
 				}
 				else
 				{
 					actor->ChangeType(kDudeBurningInnocent);
-					aiNewState(actor, NAME_cultistBurnGoto);
+					aiNewState(actor, NAME_BurnGoto);
 				}
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
@@ -1106,7 +1093,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
 				actor->ChangeType(kDudeBurningZombieAxe);
-				aiNewState(actor, NAME_zombieABurnGoto);
+				aiNewState(actor, NAME_BurnGoto);
 				actHealDude(actor, actor->startHealth(), actor->startHealth());
 				evKillActor(actor, AF(fxFlameLick));
 			}
@@ -1214,7 +1201,7 @@ void RecoilDude(DBloodActor* actor)
 			}
 			break;
 		case kDudeBurningCultist:
-			aiNewState(actor, NAME_cultistBurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			break;
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustomBurning:
@@ -1240,11 +1227,11 @@ void RecoilDude(DBloodActor* actor)
 			break;
 		case kDudeBurningZombieAxe:
 			aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, NAME_zombieABurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			break;
 		case kDudeBurningZombieButcher:
 			aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, NAME_zombieFBurnGoto);
+			aiNewState(actor, NAME_BurnGoto);
 			break;
 		case kDudeGargoyleFlesh:
 		case kDudeGargoyleStone:

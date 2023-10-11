@@ -114,31 +114,6 @@ class BloodDudeBase : Bloodactor
 		AISTATE "eelDodgeDown", "+0", 2, 120, null, null, eelMoveDodgeDown, null, "eelChase";
 		AISTATE "eelDodgeDownRight", "+0", 2, 90, null, null, eelMoveDodgeDown, null, "eelChase";
 		AISTATE "eelDodgeDownLeft", "+0", 2, 90, null, null, eelMoveDodgeDown, null, "eelChase";
-		AISTATE "cultistBurnIdle", "+3", 0, 0, null, null, null, aiThinkTarget, "none";
-		AISTATE "cultistBurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "cultistBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "cultistBurnSearch";
-		AISTATE "cultistBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "cultistBurnSearch";
-		AISTATE "cultistBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "cultistBurnChase";
-		AISTATE "zombieABurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "zombieABurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "zombieABurnSearch";
-		AISTATE "zombieABurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
-		AISTATE "zombieABurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "zombieABurnChase";
-		AISTATE "zombieFBurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "zombieFBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "zombieFBurnSearch";
-		AISTATE "zombieFBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
-		AISTATE "zombieFBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "zombieFBurnChase";
-		AISTATE "innocentBurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "innocentBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "zombieFBurnSearch";
-		AISTATE "innocentBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
-		AISTATE "innocentBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "zombieFBurnChase";
-		AISTATE "beastBurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "beastBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "beastBurnSearch";
-		AISTATE "beastBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "beastBurnSearch";
-		AISTATE "beastBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "beastBurnChase";
-		AISTATE "tinycalebBurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
-		AISTATE "tinycalebBurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "tinycalebBurnSearch";
-		AISTATE "tinycalebBurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "tinycalebBurnSearch";
-		AISTATE "tinycalebBurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "tinycalebBurnChase";
 		AISTATE "tinycalebIdle", "+0", 0, 0, null, null, null, aiThinkTarget, "none";
 		AISTATE "tinycalebChase", "+6", 4, 0, null, null, aiMoveForward, calebThinkChase, "none";
 		AISTATE "tinycalebDodge", "+6", 2, 90, null, null, aiMoveDodge, null, "tinycalebChase";
@@ -1342,8 +1317,17 @@ class BloodDudeBurningInnocent : BloodDudeBase
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 
+		AISTATE "BurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
+		AISTATE "BurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "BurnSearch";
+		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
+		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
+
 		explodesound 717;
 		+BloodDudeBase.burning;
+	}
+
+	states
+	{
 	}
 }
 
@@ -1370,6 +1354,12 @@ class BloodDudeBurningCultist : BloodDudeBase
 		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		//AISTATE "BurnIdle", "+3", 0, 0, null, null, null, aiThinkTarget, "none"; //unused
+		AISTATE "BurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
+		AISTATE "BurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "BurnSearch";
+		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "BurnSearch";
+		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
 
 		explodesound 717;
 		+BloodDudeBase.burning;
@@ -1401,6 +1391,12 @@ class BloodDudeBurningZombieAxe : BloodDudeBase
 		turnrange 28.125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		AISTATE "BurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
+		AISTATE "BurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "BurnSearch";
+		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
+		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
+
 		+BloodDudeBase.burning;
 	}
 }
@@ -1430,6 +1426,12 @@ class BloodDudeBurningZombieButcher : BloodDudeBase
 		turnrange 17.578125;
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		AISTATE "BurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
+		AISTATE "BurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "BurnSearch";
+		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
+		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
+
 		+BloodDudeBase.burning;
 	}
 }
@@ -1731,6 +1733,11 @@ class BloodDudeBurningTinyCaleb : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 
+		AISTATE "BurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
+		AISTATE "BurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "BurnSearch";
+		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "BurnSearch";
+		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
+
 		explodesound 717;
 		+BloodDudeBase.burning;
 	}
@@ -1762,6 +1769,12 @@ class BloodDudeBurningBeast : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
+
+		AISTATE "BurnChase", "+3", 4, 0, null, null, aiMoveForward, burnThinkChase, "none";
+		AISTATE "BurnGoto", "+3", 2, 3600, null, null, aiMoveForward, burnThinkGoto, "BurnSearch";
+		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "BurnSearch";
+		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
+
 		+BloodDudeBase.burning;
 	}
 }
