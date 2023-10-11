@@ -363,6 +363,7 @@ class BloodDudeBase : Bloodactor
 		AISTATE "zombieFSearch", "+8", 3, 1800, null, null, aiMoveForward, zombfThinkSearch, "zombieFIdle";
 		AISTATE "zombieFRecoil", "+5", 5, 0, null, null, null, null, "zombieFChase";
 		AISTATE "zombieFTeslaRecoil", "+4", 5, 0, null, null, null, null, "zombieFChase";
+		preloadseq 0, 1, 2, 5;
 	}
 	override int getRespawnTime()
 	{
@@ -436,6 +437,7 @@ class BloodDudeCultistTommy : BloodDudeBase
 
 		explodesound 717;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 9, 13, 14, 15;
 	}
 }
 
@@ -468,6 +470,7 @@ class BloodDudeCultistShotgun : BloodDudeBase
 
 		explodesound 717;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 9, 13, 14, 15;
 	}
 }
 
@@ -498,6 +501,7 @@ class BloodDudeZombieAxeNormal : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 112, 256, 256, 256, 160;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 11, 13, 14;
 	}
 }
 
@@ -528,6 +532,7 @@ class BloodDudeZombieButcher : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 32, 128, 256, 64, 128;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 9, 10, 11;
 	}
 }
 
@@ -558,6 +563,7 @@ class BloodDudeZombieAxeBuried : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 12, 9, 10;
 	}
 }
 
@@ -588,6 +594,7 @@ class BloodDudeGargoyleFlesh : BloodDudeBase
 		gibtype 30, -1, -1;
 		dmgcontrol 0, 128, 48, 208, 256, 256, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 9;
 	}
 }
 
@@ -618,6 +625,7 @@ class BloodDudeGargoyleStone : BloodDudeBase
 		gibtype 19, -1, -1;
 		dmgcontrol 0, 0, 10, 10, 0, 128, 64;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 9;
 	}
 }
 
@@ -645,6 +653,7 @@ class BloodDudeGargoyleStatueFlesh : BloodDudeBase
 		backspeed 0;
 		turnrange 0;
 		gibtype -1, -1, -1;
+		preloadseq 6, 7, 8, 9;
 	}
 }
 
@@ -672,6 +681,7 @@ class BloodDudeGargoyleStatueStone : BloodDudeBase
 		backspeed 0;
 		turnrange 0;
 		gibtype -1, -1, -1;
+		preloadseq 6, 7, 8, 9;
 	}
 }
 
@@ -701,6 +711,7 @@ class BloodDudePhantasm : BloodDudeBase
 		gibtype -1, -1, -1;
 		dmgcontrol 0, 0, 48, 0, 0, 16, 0;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -729,6 +740,7 @@ class BloodDudeHellHound : BloodDudeBase
 		gibtype 29, -1, -1;
 		dmgcontrol 48, 0, 48, 48, 256, 128, 192;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -757,6 +769,7 @@ class BloodDudeHand : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 64, 256, 256, 256, 0, 64, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7;
 	}
 }
 
@@ -786,6 +799,7 @@ class BloodDudeSpiderBrown : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 64, 256, 256, 96, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -815,6 +829,7 @@ class BloodDudeSpiderRed : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 64, 128, 256, 96, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -844,6 +859,7 @@ class BloodDudeSpiderBlack : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 128, 256, 256, 96, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -872,6 +888,7 @@ class BloodDudeSpiderMother : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 32, 16, 16, 16, 32, 32, 32;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -902,6 +919,7 @@ class BloodDudeGillBeast : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 48, 80, 64, 128, 0, 128, 48;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8, 9, 10, 11;
 	}
 }
 
@@ -930,6 +948,7 @@ class BloodDudeBoneEel : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 0, 256, 192;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7;
 	}
 }
 
@@ -958,6 +977,7 @@ class BloodDudeBat : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7;
 	}
 }
 
@@ -986,6 +1006,7 @@ class BloodDudeRat : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 128, 256;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7;
 	}
 }
 
@@ -1174,6 +1195,7 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
 		deathMorphType "BloodDudeCerberusOneHead";
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7;
 	}
 }
 
@@ -1202,6 +1224,7 @@ class BloodDudeCerberusOneHead : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7;
 	}
 }
 
@@ -1230,6 +1253,7 @@ class BloodDudeTchernobog : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 3, 1, 4, 4, 0, 4, 3;
 		+BloodDudeBase.floorhitdamage;
+		preloadseq 6, 7, 8;
 	}
 }
 
@@ -1464,6 +1488,7 @@ class BloodDudeZombieAxeLaying : BloodDudeBase
 		turnrange 67.5;
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
+		preloadseq 10;
 	}
 }
 
@@ -1555,6 +1580,7 @@ class BloodDudeCultistTesla : BloodDudeBase
 		dmgcontrol 256, 256, 96, 160, 256, 256, 12;
 
 		explodesound 717;
+		preloadseq 6, 7, 8, 9, 13, 14, 15;
 	}
 }
 
@@ -1586,6 +1612,7 @@ class BloodDudeCultistTNT : BloodDudeBase
 		dmgcontrol 256, 160, 96, 64, 256, 256, 256;
 
 		explodesound 717;
+		preloadseq 6, 7, 8, 9, 13, 14, 15;
 	}
 }
 
@@ -1617,6 +1644,7 @@ class BloodDudeCultistBeast : BloodDudeBase
 		dmgcontrol 128, 128, 16, 16, 0, 64, 48;
 
 		explodesound 717;
+		preloadseq 6, 7;
 	}
 }
 

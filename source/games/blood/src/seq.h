@@ -89,11 +89,6 @@ struct SEQINST
 
 void seqPrecacheId(FName name, int id, int palette);
 
-inline void seqPrecacheId(int id, int palette)
-{
-	seqPrecacheId(NAME_None, id, palette);
-}
-
 SEQINST* GetInstance(int a1, EventObject& a2);
 SEQINST* GetInstance(DBloodActor* actor);
 

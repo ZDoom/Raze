@@ -856,4 +856,19 @@ DEFINE_SCRIPTED_PROPERTY(gibtype, III, BloodDudeBase)
 
 }
 
+// store all data in a single array.
+TArray<int> preloadseqs;	// this is only useful for sequence IDs.
+
+DEFINE_PROPERTY(preloadseq, iiiiiiiiiiiiiiii, BloodActor)
+{
+	auto start = preloadseqs.Reserve(PROP_PARM_COUNT);
+	for (int i = 0; i < PROP_PARM_COUNT; i++)
+	{
+		PROP_INT_PARM(v3, i);
+		preloadseqs[start + i] = v3;
+	}
+	info->ActorInfo()->FirstAction = start;
+	info->ActorInfo()->NumActions = PROP_PARM_COUNT;
+}
+
 END_BLD_NS
