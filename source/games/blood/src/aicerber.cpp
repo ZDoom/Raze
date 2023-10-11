@@ -98,15 +98,8 @@ void cerberusBurnSeqCallback(DBloodActor* actor)
 			}
 		}
 	}
-	switch (actor->GetType()) {
-	case kDudeCerberusTwoHead:
-		actFireMissile(actor, -Cerberus_XYOff, 0, Aim, kMissileFireballCerberus);
-		actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFireballCerberus);
-		break;
-	case kDudeCerberusOneHead:
-		actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFireballCerberus);
-		break;
-	}
+	if (actor->spr.xint == 0) actFireMissile(actor, -Cerberus_XYOff, 0, Aim, kMissileFireballCerberus);
+	actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFireballCerberus);
 }
 
 void cerberusBurnSeqCallback2(DBloodActor* actor)
@@ -166,16 +159,8 @@ void cerberusBurnSeqCallback2(DBloodActor* actor)
 			}
 		}
 	}
-	switch (actor->GetType()) {
-
-	case kDudeCerberusTwoHead:
-		actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFlameHound);
-		actFireMissile(actor, -Cerberus_XYOff, 0, Aim2, kMissileFlameHound);
-		break;
-	case kDudeCerberusOneHead:
-		actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFlameHound);
-		break;
-	}
+	actFireMissile(actor, Cerberus_XYOff, -Cerberus_ZOff, Aim, kMissileFlameHound);
+	if (actor->spr.xint == 0) actFireMissile(actor, -Cerberus_XYOff, 0, Aim2, kMissileFlameHound);
 }
 
 void cerberusThinkSearch(DBloodActor* actor)
@@ -186,21 +171,13 @@ void cerberusThinkSearch(DBloodActor* actor)
 
 void cerberusThinkTarget(DBloodActor* actor)
 {
-	if (!(actor->IsDudeActor())) {
-		Printf(PRINT_HIGH, "actor->IsDudeActor()");
-		return;
-	}
-	
 	if (actor->dudeExtra.active && actor->dudeExtra.thinkTime < 10)
 		actor->dudeExtra.thinkTime++;
 	else if (actor->dudeExtra.thinkTime >= 10 && actor->dudeExtra.active)
 	{
 		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
-		if (actor->GetType() == kDudeCerberusTwoHead)
-			aiNewState(actor, NAME_cerberusTurn1);
-		else
-			aiNewState(actor, NAME_cerberusTurn2);
+		aiNewState(actor, NAME_Turn);
 		return;
 	}
 	if (Chance(actor->alertChance()))
@@ -251,14 +228,7 @@ void cerberusThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < actor->Periphery())
 	{
-		switch (actor->GetType()) {
-		case kDudeCerberusTwoHead:
-			aiNewState(actor, NAME_cerberusSearch);
-			break;
-		case kDudeCerberusOneHead:
-			aiNewState(actor, NAME_cerberus2Search);
-			break;
-		}
+		aiNewState(actor, NAME_Search);
 	}
 	aiThinkTarget(actor);
 }
@@ -266,14 +236,7 @@ void cerberusThinkGoto(DBloodActor* actor)
 void cerberusThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) {
-		switch (actor->GetType()) {
-		case kDudeCerberusTwoHead:
-			aiNewState(actor, NAME_cerberusGoto);
-			break;
-		case kDudeCerberusOneHead:
-			aiNewState(actor, NAME_cerberus2Goto);
-			break;
-		}
+		aiNewState(actor, NAME_Goto);
 		return;
 	}
 
@@ -293,26 +256,12 @@ void cerberusThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 
 	if (target->xspr.health == 0) {
-		switch (actor->GetType()) {
-		case kDudeCerberusTwoHead:
-			aiNewState(actor, NAME_cerberusSearch);
-			break;
-		case kDudeCerberusOneHead:
-			aiNewState(actor, NAME_cerberus2Search);
-			break;
-		}
+		aiNewState(actor, NAME_Search);
 		return;
 	}
 
 	if (target->IsPlayerActor() && powerupCheck(getPlayer(target), kPwUpShadowCloak) > 0) {
-		switch (actor->GetType()) {
-		case kDudeCerberusTwoHead:
-			aiNewState(actor, NAME_cerberusSearch);
-			break;
-		case kDudeCerberusOneHead:
-			aiNewState(actor, NAME_cerberus2Search);
-			break;
-		}
+		aiNewState(actor, NAME_Search);
 		return;
 	}
 
@@ -329,64 +278,29 @@ void cerberusThinkChase(DBloodActor* actor)
 
 				if (nDist < 0x1b0 && nDist > 0xd0 && nDeltaAngle < DAngle15) 
 				{
-					switch (actor->GetType()) {
-					case kDudeCerberusTwoHead:
-						aiNewState(actor, NAME_cerberusBurn);
-						break;
-					case kDudeCerberusOneHead:
-						aiNewState(actor, NAME_cerberus2Burn);
-						break;
-					}
+					aiNewState(actor, NAME_Burn);
 				}
 
 				else if (nDist < 0xb0 && nDist > 0x50 && nDeltaAngle < DAngle15)
 				{
-					switch (actor->GetType()) {
-					case kDudeCerberusTwoHead:
-						aiNewState(actor, NAME_cerberus3Burn);
-						break;
-					case kDudeCerberusOneHead:
-						aiNewState(actor, NAME_cerberus4Burn);
-						break;
-					}
+					aiNewState(actor, NAME_Burn2);
 				}
 				else if (nDist < 0x20 && nDeltaAngle < DAngle15)
 				{
 					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
-					switch (actor->GetType()) {
-					case kDudeCerberusTwoHead:
-						switch (hit) {
-						case -1:
-							aiNewState(actor, NAME_cerberusBite);
-							break;
-						case 3:
-							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeHellHound)
-								aiNewState(actor, NAME_cerberusBite);
-							break;
-						case 0:
-						case 4:
-							break;
-						default:
-							aiNewState(actor, NAME_cerberusBite);
-							break;
-						}
+					switch (hit) {
+					case -1:
+						aiNewState(actor, NAME_Bite);
 						break;
-					case kDudeCerberusOneHead:
-						switch (hit) {
-						case -1:
-							aiNewState(actor, NAME_cerberus2Bite);
-							break;
-						case 3:
-							if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeHellHound)
-								aiNewState(actor, NAME_cerberus2Bite);
-							break;
-						case 0:
-						case 4:
-							break;
-						default:
-							aiNewState(actor, NAME_cerberus2Bite);
-							break;
-						}
+					case 3:
+						if (actor->GetType() != gHitInfo.actor()->GetType() && gHitInfo.actor()->GetType() != kDudeHellHound)
+							aiNewState(actor, NAME_Bite);
+						break;
+					case 0:
+					case 4:
+						break;
+					default:
+						aiNewState(actor, NAME_Bite);
 						break;
 					}
 				}
@@ -395,14 +309,7 @@ void cerberusThinkChase(DBloodActor* actor)
 		}
 	}
 
-	switch (actor->GetType()) {
-	case kDudeCerberusTwoHead:
-		aiNewState(actor, NAME_cerberusGoto);
-		break;
-	case kDudeCerberusOneHead:
-		aiNewState(actor, NAME_cerberus2Goto);
-		break;
-	}
+	aiNewState(actor, NAME_Goto);
 	actor->SetTarget(nullptr);
 }
 

@@ -720,21 +720,13 @@ void aiActivateDude(DBloodActor* actor)
 #endif
 		break;
 	case kDudeCerberusTwoHead:
-		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, NAME_cerberusSearch);
-		else
-		{
-			aiPlay3DSound(actor, 2300, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, NAME_cerberusChase);
-		}
-		break;
 	case kDudeCerberusOneHead:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, NAME_cerberus2Search);
+			aiNewState(actor, NAME_Search);
 		else
 		{
 			aiPlay3DSound(actor, 2300, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, NAME_cerberus2Chase);
+			aiNewState(actor, NAME_Chase);
 		}
 		break;
 	case kDudeHellHound:
@@ -1239,15 +1231,12 @@ void RecoilDude(DBloodActor* actor)
 			aiNewState(actor, NAME_gargoyleFRecoil);
 			break;
 		case kDudeCerberusTwoHead:
-			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
-			if (pDudeExtra->teslaHit && actor->xspr.data3 > actor->startHealth() / 3)
-				aiNewState(actor, NAME_cerberusTeslaRecoil);
-			else
-				aiNewState(actor, NAME_cerberusRecoil);
-			break;
 		case kDudeCerberusOneHead:
 			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, NAME_cerberus2Recoil);
+			if (pDudeExtra->teslaHit && actor->xspr.data3 > actor->startHealth() / 3 && actor->FindState(NAME_tinycalebTeslaRecoil))
+				aiNewState(actor, NAME_TeslaRecoil);
+			else
+				aiNewState(actor, NAME_Recoil);
 			break;
 		case kDudeHellHound:
 			aiPlay3DSound(actor, 1302, AI_SFX_PRIORITY_2, -1);
@@ -1637,13 +1626,14 @@ void aiInitSprite(DBloodActor* actor)
 		break;
 	case kDudeCerberusTwoHead: {
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, NAME_cerberusIdle);
+		aiNewState(actor, NAME_Idle);
 		break;
 	}
 	case kDudeCerberusOneHead: {
 		if (!VanillaMode()) {
+			actor->spr.xint = 1;
 			actor->dudeExtra.thinkTime = 0;
-			aiNewState(actor, NAME_cerberus2Idle);
+			aiNewState(actor, NAME_Idle);
 			break;
 		}
 		aiNewState(actor, NAME_genIdle);

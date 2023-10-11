@@ -132,25 +132,6 @@ class BloodDudeBase : Bloodactor
 		AISTATE "tinycalebSwimUnused", "+8", -1, 120, null, null, calebSwimUnused, calebThinkSwimChase, "tinycalebSwimChase";
 		AISTATE "tinycalebSwimMoveIn", "+8", -1, 0, null, null, calebSwimMoveIn, calebThinkSwimChase, "tinycalebSwimChase";
 		AISTATE "tinycalebSwimTurn", "+8", -1, 120, null, null, aiMoveTurn, null, "tinycalebSwimChase";
-		AISTATE "cerberusIdle", "+0", 0, 0, null, null, null, cerberusThinkTarget, "none";
-		AISTATE "cerberusSearch", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "cerberusIdle";
-		AISTATE "cerberusChase", "+7", 4, 0, null, null, aiMoveForward, cerberusThinkChase, "none";
-		AISTATE "cerberusRecoil", "+5", 5, 0, null, null, null, null, "cerberusSearch";
-		AISTATE "cerberusTeslaRecoil", "+4", 5, 0, null, null, null, null, "cerberusSearch";
-		AISTATE "cerberusGoto", "+7", 2, 600, null, null, aiMoveForward, cerberusThinkGoto, "cerberusIdle";
-		AISTATE "cerberusBite", "+6", 4, 60, cerberusBiteSeqCallback, null, null, null, "cerberusChase";
-		AISTATE "cerberusBurn", "+6", 4, 60, cerberusBurnSeqCallback, null, null, null, "cerberusChase";
-		AISTATE "cerberus3Burn", "+6", 4, 60, cerberusBurnSeqCallback2, null, null, null, "cerberusChase";
-		AISTATE "cerberus2Idle", "+0", 0, 0, null, null, null, cerberusThinkTarget, "none";
-		AISTATE "cerberus2Search", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "cerberus2Idle";
-		AISTATE "cerberus2Chase", "+7", 4, 0, null, null, aiMoveForward, cerberusThinkChase, "none";
-		AISTATE "cerberus2Recoil", "+5", 5, 0, null, null, null, null, "cerberus2Search";
-		AISTATE "cerberus2Goto", "+7", 2, 600, null, null, aiMoveForward, cerberusThinkGoto, "cerberus2Idle";
-		AISTATE "cerberus2Bite", "+6", 4, 60, cerberusBiteSeqCallback, null, null, null, "cerberus2Chase";
-		AISTATE "cerberus2Burn", "+6", 4, 60, cerberusBurnSeqCallback, null, null, null, "cerberus2Chase";
-		AISTATE "cerberus4Burn", "+6", 4, 60, cerberusBurnSeqCallback2, null, null, null, "cerberus2Chase";
-		AISTATE "cerberusTurn1", "+7", -1, 120, null, null, aiMoveTurn, null, "cerberusChase";
-		AISTATE "cerberusTurn2", "+7", -1, 120, null, null, aiMoveTurn, null, "cerberusChase";
 		AISTATE "cultistIdle", "+0", 0, 0, null, null, null, aiThinkTarget, "none";
 		AISTATE "cultistProneIdle", "+17", 0, 0, null, null, null, aiThinkTarget, "none";
 		AISTATE "fanaticProneIdle", "+17", 0, 0, null, null, null, aiThinkTarget, "none";
@@ -1168,6 +1149,18 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
+
+		AISTATE "Turn", "+7", -1, 120, null, null, aiMoveTurn, null, "cerberusChase";
+		AISTATE "Search", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "cerberusIdle";
+		AISTATE "Idle", "+0", 0, 0, null, null, null, cerberusThinkTarget, "none";
+		AISTATE "Chase", "+7", 4, 0, null, null, aiMoveForward, cerberusThinkChase, "none";
+		AISTATE "Recoil", "+5", 5, 0, null, null, null, null, "Search";
+		AISTATE "TeslaRecoil", "+4", 5, 0, null, null, null, null, "Search";
+		AISTATE "Goto", "+7", 2, 600, null, null, aiMoveForward, cerberusThinkGoto, "Idle";
+		AISTATE "Bite", "+6", 4, 60, cerberusBiteSeqCallback, null, null, null, "Chase";
+		AISTATE "Burn", "+6", 4, 60, cerberusBurnSeqCallback, null, null, null, "Chase";
+		AISTATE "Burn2", "+6", 4, 60, cerberusBurnSeqCallback2, null, null, null, "Chase";
+
 		deathMorphType "BloodDudeCerberusOneHead";
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
@@ -1198,6 +1191,17 @@ class BloodDudeCerberusOneHead : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
+
+		AISTATE "Turn", "+7", -1, 120, null, null, aiMoveTurn, null, "cerberusChase";
+		AISTATE "Search", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "cerberus2Idle";
+		AISTATE "Idle", "+0", 0, 0, null, null, null, cerberusThinkTarget, "none";
+		AISTATE "Chase", "+7", 4, 0, null, null, aiMoveForward, cerberusThinkChase, "none";
+		AISTATE "Recoil", "+5", 5, 0, null, null, null, null, "cerberus2Search";
+		AISTATE "Goto", "+7", 2, 600, null, null, aiMoveForward, cerberusThinkGoto, "Idle";
+		AISTATE "Bite", "+6", 4, 60, cerberusBiteSeqCallback, null, null, null, "Chase";
+		AISTATE "Burn", "+6", 4, 60, cerberusBurnSeqCallback, null, null, null, "Chase";
+		AISTATE "Burn2", "+6", 4, 60, cerberusBurnSeqCallback2, null, null, null, "Chase";
+
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
 	}

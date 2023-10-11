@@ -902,6 +902,7 @@ static void actInitDudes()
 				else
 					act->xspr.health = act->startHealth() << 4;
 			}
+			act->spr.xint = 0;	// not used by default, but if pre-inited it can be used as an internal flag.
 
 			seqSpawn(act->seqStartName(), act->seqStartID(), act);
 		}
@@ -3902,6 +3903,7 @@ static void actCheckDudes()
 				{
 					actor->ChangeType(dmt);
 					actor->xspr.health = actor->startHealth() << 4;
+					actor->spr.xint = 1;
 					if (actor->GetTarget() != nullptr) aiSetTarget(actor, actor->GetTarget());
 					aiActivateDude(actor);
 				}
