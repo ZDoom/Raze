@@ -2877,7 +2877,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 				if (iactor->spr.statnum != kStatDude || !iactor->IsDudeActor() || !iactor->hasX())
 					continue;
 
-				auto pPlayer = getPlayerById(iactor->GetType());
+				auto pPlayer = safeGetPlayer(iactor);
 				if (pXSector->Underwater)
 				{
 					if (aLower)
@@ -3124,7 +3124,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 
 void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 {
-	auto pPlayer = getPlayerById(actor->GetType());
+	auto pPlayer = safeGetPlayer(actor);
 	XSECTOR* pXSector = (sourceactor->sector()->hasX()) ? &sourceactor->sector()->xs() : nullptr;
 	bool isDude = (!pPlayer && actor->IsDudeActor());
 
@@ -3545,7 +3545,7 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 
 	int health = 0;
 
-	auto pPlayer = getPlayerById(actor->GetType());
+	auto pPlayer = safeGetPlayer(actor);
 	int dmgType = (sourceactor->xspr.data2 >= kDmgFall) ? ClipHigh(sourceactor->xspr.data2, kDmgElectric) : -1;
 	int dmg = actor->xspr.health << 4;
 	int armor[3];
@@ -4612,7 +4612,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			}
 
 			double range = arg3 * 2;
-			if ((pPlayer = getPlayerById(objActor->GetType())) != NULL)
+			if ((pPlayer = safeGetPlayer(objActor)) != NULL)
 				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim, arg1, range);
 			else if (objActor->IsDudeActor())
 				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.Angles.Yaw.ToVector(), (!objActor->hasX()) ? 0 : objActor->dudeSlope), arg1, range);
@@ -5971,13 +5971,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : actor->xspr.command;
 
 
-		int playerID;
 		if ((actor->xspr.txID == kChannelEventCauser || actor->xspr.data1 == 0) && initiator && initiator->IsPlayerActor())
-			playerID = initiator->GetType();
+			pPlayer = getPlayer(initiator);
 		else
-			playerID = actor->xspr.data1;
+			pPlayer = getPlayerById(actor->xspr.data1);
 
-		if ((pPlayer = getPlayerById(playerID)) == NULL
+		if (pPlayer == NULL
 			|| ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator)))
 			return true;
 
@@ -7365,6 +7364,7 @@ void playerQavSceneReset(DBloodPlayer* pPlayer)
 
 DBloodPlayer* getPlayerById(int id)
 {
+	const int kPlayerType1 = 231;
 	// relative to connected players
 	if (id >= 1 && id <= kMaxPlayers)
 	{
@@ -7375,9 +7375,9 @@ DBloodPlayer* getPlayerById(int id)
 				return getPlayer(i);
 		}
 
-		// absolute sprite type
 	}
-	else if (id >= kDudePlayer1 && id <= kDudePlayer8)
+	// absolute sprite type (kinda smelly)
+	else if (id >= kPlayerType1 && id < kPlayerType1 + kMaxPlayers)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -9148,7 +9148,7 @@ void changeSpriteAngle(DBloodActor* pSpr, DAngle nAng)
 		pSpr->spr.Angles.Yaw = nAng;
 	else
 	{
-		auto pPlayer = getPlayerById(pSpr->GetType());
+		auto pPlayer = safeGetPlayer(pSpr);
 		if (pPlayer)
 			pPlayer->GetActor()->spr.Angles.Yaw = nAng;
 		else

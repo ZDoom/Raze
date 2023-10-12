@@ -111,7 +111,7 @@ void viewDrawAimedPlayerName(DBloodPlayer* pPlayer)
 		auto actor = gHitInfo.actor();
 		if (actor && actor->IsPlayerActor())
 		{
-			int nPlayer = actor->GetType() - kDudePlayer1;
+			int nPlayer = getPlayer(actor)->pnum;
 			const char* szName = PlayerName(nPlayer);
 			int nPalette = (getPlayer(nPlayer)->teamId & 3) + 11;
 			viewDrawText(DigiFont, szName, 160, 125, -128, nPalette, 1, 1);

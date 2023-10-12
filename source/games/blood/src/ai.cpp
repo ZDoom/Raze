@@ -131,12 +131,11 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 
 	if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->xspr.locked != 1)
 	{
-		int type = actor->GetType();
-		if (type >= kThingBase && type < kThingMax)
+		if (actor->IsThingActor())
 			return (actor->dmgControl[dmgType] <= minScale);
 		else if (actor->IsDudeActor())
 		{
-			if (actor->IsPlayerActor()) return (getPlayer(type - kDudePlayer1)->godMode || getPlayer(type - kDudePlayer1)->damageControl[dmgType] <= minScale);
+			if (actor->IsPlayerActor()) return (getPlayer(actor)->godMode || getPlayer(actor)->damageControl[dmgType] <= minScale);
 			else return (actor->dmgControl[dmgType] <= minScale);
 		}
 	}

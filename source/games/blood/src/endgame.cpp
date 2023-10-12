@@ -70,7 +70,7 @@ void AddKill(DBloodActor* killer, DBloodActor* killed)
 {
 	if (AllowedKillType(killed))
 	{
-		int playernum = killer->IsPlayerActor() ? killer->GetType() - kDudePlayer1 : -1;
+		int playernum = killer->IsPlayerActor() ? getPlayer(killer)->pnum : -1;
 		Level.addKill(playernum, 1);
 	}
 }

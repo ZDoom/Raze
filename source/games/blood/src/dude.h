@@ -91,5 +91,6 @@ struct DUDEINFO {
 extern DUDEINFO gPlayerTemplate[4];
 
 DBloodPlayer* getPlayer(DBloodActor* actor);
+DBloodPlayer* safeGetPlayer(DBloodActor* actor);
 
 END_BLD_NS

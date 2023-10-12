@@ -836,11 +836,11 @@ void playerStart(int nPlayer, int bNewLevel)
 		pStartZone = &gStartZone[Random(8)];
 	}
 
-	auto cls = GetSpawnType(kDudePlayer1 + nPlayer);
-	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, kStatDude, 1, cls, kDudePlayer1 + nPlayer);
+	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, kStatDude, 1, BloodPlayerBaseClass);
 	assert(actor->hasX());
 	pPlayer->actor = actor;
 	pPlayer->Angles.initialize(actor);
+	actor->spr.xint = nPlayer;	// store the index directly so we do not have to rely on the type anymore.
 
 	DUDEINFO* pDudeInfo = &gPlayerTemplate[0];
 	pPlayer->pDudeInfo = pDudeInfo;
@@ -1935,9 +1935,9 @@ void playerFrag(DBloodPlayer* pKiller, DBloodPlayer* pVictim)
 	assert(pVictim != NULL);
 
 	char buffer[128] = "";
-	int nKiller = pKiller->GetActor()->GetType() - kDudePlayer1;
+	int nKiller = pKiller->pnum;
 	assert(nKiller >= 0 && nKiller < kMaxPlayers);
-	int nVictim = pVictim->GetActor()->GetType() - kDudePlayer1;
+	int nVictim = pVictim->pnum;
 	assert(nVictim >= 0 && nVictim < kMaxPlayers);
 	if (nKiller == nVictim)
 	{

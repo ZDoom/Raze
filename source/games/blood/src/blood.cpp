@@ -768,7 +768,12 @@ enum
 
 inline DBloodPlayer* getPlayer(DBloodActor* actor)
 {
-	return getPlayer(actor->GetType() - kDudePlayer1);
+	return getPlayer(actor->spr.xint);
+}
+
+inline DBloodPlayer* safeGetPlayer(DBloodActor* actor)
+{
+	return actor->IsPlayerActor()? getPlayer(actor) : nullptr;
 }
 
 

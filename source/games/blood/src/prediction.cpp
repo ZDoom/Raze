@@ -352,10 +352,8 @@ void fakePlayerProcess(DBloodPlayer* pPlayer, InputPacket* pInput)
 static void fakeMoveDude(DBloodActor* actor)
 {
 #if 0 // not needed for single player, temporarily disabled due to icompatibilities with the refactored API.
-	PLAYER* pPlayer = NULL;
 	int bottom, top;
-	if (IsPlayerSprite(pSprite))
-		pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
+	DBloodPlayer* pPlayer = safeGetPlayer(pSprite);
 	GetSpriteExtents(pSprite, &top, &bottom);
 	top += predict.z - pSprite->z;
 	bottom += predict.z - pSprite->z;

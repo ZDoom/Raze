@@ -1240,38 +1240,6 @@ class BloodDudeCultistTommyProne : BloodDudeBase
 	}
 }
 
-class BloodDudePlayer1 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer2 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer3 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer4 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer5 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer6 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer7 : BloodPlayerBase
-{
-}
-
-class BloodDudePlayer8 : BloodPlayerBase
-{
-}
-
 class BloodDudeBurningInnocent : BloodDudeBase
 {
 	default

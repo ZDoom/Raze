@@ -1355,7 +1355,7 @@ void ThrowRemote(int, DBloodPlayer* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedRemoteBomb, nSpeed);
 	if (spawned)
 	{
-		spawned->xspr.rxID = 90 + (pPlayer->GetActor()->GetType() - kDudePlayer1);
+		spawned->xspr.rxID = 90 + (pPlayer->pnum);
 		UseAmmo(pPlayer, 11, 1);
 		pPlayer->throwPower = 0;
 	}
@@ -1372,14 +1372,14 @@ void DropRemote(int, DBloodPlayer* pPlayer)
 	auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedRemoteBomb, 0);
 	if (spawned)
 	{
-		spawned->xspr.rxID = 90 + (pPlayer->GetActor()->GetType() - kDudePlayer1);
+		spawned->xspr.rxID = 90 + (pPlayer->pnum);
 		UseAmmo(pPlayer, 11, 1);
 	}
 }
 
 void FireRemote(int, DBloodPlayer* pPlayer)
 {
-	evSendGame(90 + (pPlayer->GetActor()->GetType() - kDudePlayer1), kCmdOn);
+	evSendGame(90 + (pPlayer->pnum), kCmdOn);
 }
 
 //---------------------------------------------------------------------------

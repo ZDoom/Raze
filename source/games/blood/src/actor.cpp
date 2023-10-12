@@ -4083,7 +4083,7 @@ void actProcessSprites(void)
 DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool setextra, PClass* cls, int type)
 {
 	DBloodActor* actor = InsertSprite(pSector, nStat, cls);
-	actor->spr.lotag = type;	// we still need this.
+	if (type >= 0) actor->spr.lotag = type;	// we may still need this.
 
 	SetActor(actor, pos);
 	if (setextra && !actor->hasX())
