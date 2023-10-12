@@ -2693,5 +2693,22 @@ case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat
 		}
  
 */
+
+/* onDeath
+
+#ifdef NOONE_EXTENSIONS
+	case kDudeModernCustom:
+		modernCustomDudeDeath(actor, nSeq, damageType);
+		genDudePostDeath(actor, damageType, damage);
+		return;
+
+	case kDudeModernCustomBurning:
+		modernCustomDudeBurningDeath(actor, nSeq);
+		genDudePostDeath(actor, kDamageExplode, damage);
+		return;
+#endif
+
+
+*/
 END_BLD_NS
 #endif

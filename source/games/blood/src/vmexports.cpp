@@ -528,5 +528,15 @@ void callActorFunction(VMFunction* funcID, DBloodActor* actor)
 
 }
 
+void actOnKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
+{
+	IFVIRTUALPTR(actor, DBloodActor, onKillDude)
+	{
+		int postaction = -1;
+		VMValue param[] = { actor, killerActor, (int)damageType, damage };
+		VMCall(func, param, 4, nullptr, 0);
+	}
+}
+
 
 END_BLD_NS

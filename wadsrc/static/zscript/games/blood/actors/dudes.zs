@@ -335,6 +335,225 @@ class BloodDudeBase : Bloodactor
 			return gGameOptions.nMonsterRespawnTime;
 		return -1;
 	}
+
+	virtual int checkDamageType(int damageType)
+	{
+		int nSeq;
+
+		switch (damageType)
+		{
+		case kDamageExplode:
+		{
+			nSeq = 2;
+			self.play3DSound(actor.explodeSound, -1, 0);
+			break;
+		}
+		case kDamageBurn:
+			nSeq = 3;
+			sfxPlay3DSoundID(actor, 351, -1, 0);
+			break;
+
+		default:
+			nSeq = 1;
+			break;
+		}
+		return nSeq;
+	}
+
+	virtual void checkDropObjects()
+	{
+		if (self.xspr.key > 0) self.dropObject(actor, GetSpawnType(kItemKeyBase + self.xspr.key - 1));
+		if (self.xspr.dropMsg > 0) actDropObject(actor, GetSpawnType(self.xspr.dropMsg));
+	}
+
+	virtual int killAction(int damageType, int damage)
+	{
+	// todo: split this up
+	/*
+	auto Owner = actor->GetOwner();
+	switch (actor->GetType())
+	{
+	case kDudeZombieAxeNormal:
+		zombieAxeNormalDeath(actor, nSeq);
+		break;
+
+	case kDudeCultistTommy:
+	case kDudeCultistShotgun:
+	case kDudeCultistTesla:
+	case kDudeCultistTNT:
+		sfxPlay3DSound(actor, 1018 + Random(2), -1, 0);
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor, nSeq == 3 ? AF(DudeToGibCallback2) : AF(DudeToGibCallback1));
+		break;
+
+	case kDudeBurningCultist:
+		burningCultistDeath(actor, nSeq);
+		damageType = kDamageExplode;
+		break;
+
+	case kDudeBurningZombieAxe:
+		zombieAxeBurningDeath(actor, nSeq);
+		damageType = kDamageExplode;
+		break;
+
+	case kDudeBurningZombieButcher:
+		genericDeath(actor, nSeq, 1204, 4608 + 10);	// this was hardcoded to the non-burning butcher's base seq.
+		break;
+
+	case kDudeBurningInnocent:
+		damageType = kDamageExplode;
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + 7, actor, AF(DudeToGibCallback1));
+		break;
+
+	case kDudeZombieButcher:
+		zombieButcherDeath(actor, nSeq);
+		break;
+
+	case kDudeGargoyleFlesh:
+		genericDeath(actor, nSeq, 1403, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeGargoyleStone:
+		genericDeath(actor, nSeq, 1453, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudePhantasm:
+		genericDeath(actor, nSeq, 1603, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeHellHound:
+		genericDeath(actor, nSeq, 1303, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeHand:
+		genericDeath(actor, nSeq, 1903, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeSpiderBrown:
+		if (Owner) Owner->dudeExtra.birthCounter--;
+		genericDeath(actor, nSeq, 1803, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeSpiderRed:
+		if (Owner) Owner->dudeExtra.birthCounter--;
+		genericDeath(actor, nSeq, 1803, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeSpiderBlack:
+		if (Owner) Owner->dudeExtra.birthCounter--;
+		genericDeath(actor, nSeq, 1803, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeSpiderMother:
+		sfxPlay3DSound(actor, 1850, -1, 0);
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor);
+		break;
+
+	case kDudeGillBeast:
+		genericDeath(actor, nSeq, 1703, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeBoneEel:
+		genericDeath(actor, nSeq, 1503, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeBat:
+		genericDeath(actor, nSeq, 2003, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeRat:
+		genericDeath(actor, nSeq, 2103, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudePodGreen:
+	case kDudeTentacleGreen:
+	case kDudePodFire:
+	case kDudeTentacleFire:
+		if ((actor->spr.cstat & CSTAT_SPRITE_YFLIP)) actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
+		switch (actor->GetType())
+		{
+		case kDudePodGreen:
+			genericDeath(actor, nSeq, 2203, actor->seqStartID() + nSeq);
+			break;
+		case kDudeTentacleGreen:
+			sfxPlay3DSound(actor, damage == 5 ? 2471 : 2472, -1, 0);
+			seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor);
+			break;
+		case kDudePodFire:
+			sfxPlay3DSound(actor, damage == 5 ? 2451 : 2452, -1, 0);
+			seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor);
+			break;
+		case kDudeTentacleFire:
+			sfxPlay3DSound(actor, 2501, -1, 0);
+			seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor);
+			break;
+		}
+		break;
+
+	case kDudePodMother:
+	case kDudeTentacleMother:
+		genericDeath(actor, nSeq, 2203, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeCerberusTwoHead:
+	case kDudeCerberusOneHead:
+		genericDeath(actor, nSeq, 2303, actor->seqStartID() + nSeq);
+		break;
+
+	case kDudeTchernobog:
+		sfxPlay3DSound(actor, 2380, -1, 0);
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor);
+		break;
+
+	case kDudeBurningTinyCaleb:
+		damageType = kDamageExplode;
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + 11, actor, AF(DudeToGibCallback1));
+		break;
+
+	case kDudeBeast:
+		sfxPlay3DSound(actor, 9000 + Random(2), -1, 0);
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor, nSeq == 3 ? AF(DudeToGibCallback2) : AF(DudeToGibCallback1));
+		break;
+
+	case kDudeBurningBeast:
+		damageType = kDamageExplode;
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + 12, actor, AF(DudeToGibCallback1));
+		break;
+
+	default:
+		seqSpawn(actor->seqStartName(), actor->seqStartID() + nSeq, actor);
+		break;
+	}
+
+	*/
+	}
+
+	// this should only be overridden in special cases, normally killAction should suffice
+	virtual void onKillDude(BloodActor killerActor, int damageType, int damage)
+	{
+		self.checkDropObjects();
+		int nSeq = self.checkDamageType(damageType);
+
+		if (!getSequence(actor->seqStartName, actor->seqStartID + nSeq))
+		{
+			self.seqKill(actor);
+			self.postSprite(kStatFree);
+			return;
+		}
+
+		int postAction = self.killAction(damageType, damage);
+
+		if (postaction == 1)
+		{
+			for (int i = 0; i < 3; i++)
+				if (self.gibType[i] > -1)
+					self.GibSprite(gibType[i], nullptr, nullptr);
+			for (int i = 0; i < 4; i++)
+				self.fxSpawnBlood(damage);
+		}
+		self.checkRespawn();
+		self.changeType("BloodThingBloodChunks");
+		self.postSprite(kStatThing);
+	}
 }
 
 class BloodPlayerBase : BloodDudeBase
@@ -404,6 +623,14 @@ class BloodDudeCultistTommy : BloodDudeBase
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
 		BurnType "BloodDudeBurningCultist";
 	}
+
+	override void checkDropObjects()
+	{
+		super.checkDropObjects();
+		int nRand = Blood.Random(100);
+		if (nRand < 10) self.dropObject("BloodItemWeaponTommygun");
+		else if (nRand < 50) self.DropObject("BloodItemAmmoTommygunFew");
+	}
 }
 
 class BloodDudeCultistShotgun : BloodDudeBase
@@ -439,6 +666,14 @@ class BloodDudeCultistShotgun : BloodDudeBase
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
 		BurnType "BloodDudeBurningCultist";
 	}
+
+	override void checkDropObjects()
+	{
+		super.checkDropObjects();
+		int nRand = Blood.Random(100);
+		if (nRand < 10) self.dropObject("BloodItemWeaponSawedoff");
+		else if (nRand < 50) self.DropObject("BloodItemAmmoSawedoffFew");
+	}
 }
 
 class BloodDudeZombieAxeNormal : BloodDudeBase
@@ -471,6 +706,13 @@ class BloodDudeZombieAxeNormal : BloodDudeBase
 		preloadseq 6, 7, 8, 11, 13, 14;
 		BurnType "BloodDudeBurningZombieAxe";
 	}
+
+	override int checkDamageType(int damageType)
+	{
+		if (damageType == kDamageSpirit) return 14;
+		return super.checkDamageType(damageType);
+	}
+
 }
 
 class BloodDudeZombieButcher : BloodDudeBase
@@ -503,6 +745,13 @@ class BloodDudeZombieButcher : BloodDudeBase
 		preloadseq 6, 7, 8, 9, 10, 11;
 		BurnType "BloodDudeBurningZombieButcher";
 	}
+
+	override int checkDamageType(int damageType)
+	{
+		if (damageType == kDamageSpirit) return 11;
+		return super.checkDamageType(damageType);
+	}
+
 }
 
 class BloodDudeZombieAxeBuried : BloodDudeBase
@@ -535,6 +784,13 @@ class BloodDudeZombieAxeBuried : BloodDudeBase
 		preloadseq 12, 9, 10;
 		BurnType "BloodDudeBurningZombieAxe";
 	}
+
+	override int checkDamageType(int damageType)
+	{
+		if (damageType == kDamageSpirit) return 14;
+		return super.checkDamageType(damageType);
+	}
+
 }
 
 class BloodDudeGargoyleFlesh : BloodDudeBase
