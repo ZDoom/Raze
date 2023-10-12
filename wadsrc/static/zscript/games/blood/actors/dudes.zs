@@ -1150,8 +1150,8 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
 
-		AISTATE "Turn", "+7", -1, 120, null, null, aiMoveTurn, null, "cerberusChase";
-		AISTATE "Search", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "cerberusIdle";
+		AISTATE "Turn", "+7", -1, 120, null, null, aiMoveTurn, null, "Chase";
+		AISTATE "Search", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "Idle";
 		AISTATE "Idle", "+0", 0, 0, null, null, null, cerberusThinkTarget, "none";
 		AISTATE "Chase", "+7", 4, 0, null, null, aiMoveForward, cerberusThinkChase, "none";
 		AISTATE "Recoil", "+5", 5, 0, null, null, null, null, "Search";
@@ -1167,43 +1167,18 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 	}
 }
 
-class BloodDudeCerberusOneHead : BloodDudeBase
+class BloodDudeCerberusOneHead : BloodDudeCerberusTwoHead
 {
 	default
 	{
 		seqstartid 9984;
 		health 100;
-		mass 1000;
-		clipdist 16;
-		eyeheight 29;
-		aimheight 10;
 		heardist 1280;
 		seedist 3200;
-		periphery 119.882813;
-		meleedist 0;
-		fleehealth 10;
-		hinderdamage 10;
-		changetargetchance 256;
-		alertchance 32768;
 		frontspeed 0.888885498;
 		sidespeed 0.533325195;
 		backspeed 0.391098022;
-		turnrange 67.5;
-		gibtype 7, -1, -1;
-		dmgcontrol 16, 0, 16, 16, 0, 96, 48;
-
-		AISTATE "Turn", "+7", -1, 120, null, null, aiMoveTurn, null, "cerberusChase";
-		AISTATE "Search", "+7", 3, 1800, null, null, aiMoveForward, cerberusThinkSearch, "cerberus2Idle";
-		AISTATE "Idle", "+0", 0, 0, null, null, null, cerberusThinkTarget, "none";
-		AISTATE "Chase", "+7", 4, 0, null, null, aiMoveForward, cerberusThinkChase, "none";
-		AISTATE "Recoil", "+5", 5, 0, null, null, null, null, "cerberus2Search";
-		AISTATE "Goto", "+7", 2, 600, null, null, aiMoveForward, cerberusThinkGoto, "Idle";
-		AISTATE "Bite", "+6", 4, 60, cerberusBiteSeqCallback, null, null, null, "Chase";
-		AISTATE "Burn", "+6", 4, 60, cerberusBurnSeqCallback, null, null, null, "Chase";
-		AISTATE "Burn2", "+6", 4, 60, cerberusBurnSeqCallback2, null, null, null, "Chase";
-
-		+BloodDudeBase.floorhitdamage;
-		preloadseq 6, 7;
+		deathMorphType "none";
 	}
 }
 
