@@ -34,6 +34,13 @@ struct SPRITEHIT
 
 class DBloodActor;
 
+enum classflags
+{
+	CF_BURNING = 1,
+	CF_FLOORHITDAMAGE = 2,
+	CF_QUICKBURN = 4,
+};
+
 class DBloodActor : public DCoreActor
 {
 	DECLARE_CLASS(DBloodActor, DCoreActor)
@@ -262,6 +269,7 @@ public:
 	{
 		return *(int*)(GetClass()->Meta + o_classflags);
 	}
+
 
 	/*
 	int hinderDamage; // recoil damage

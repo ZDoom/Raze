@@ -1137,61 +1137,28 @@ bool actHealDude(DBloodActor* actor, int add, int threshold)
 
 static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 {
-	switch (actor->GetType())
+	auto deathmorph = actor->PointerVar<PClassActor>("deathmorphtype");
+	if (deathmorph)
 	{
-#ifdef NOONE_EXTENSIONS
-	case kDudeModernCustom:
-		if (actKillModernDude(actor, damageType)) return true;
-		break;
-#endif
-	case kDudeCerberusTwoHead: // Cerberus
-		seqSpawn(actor->seqStartName(), actor->seqStartID() + 1, actor, nullptr);
+		auto morphSeq = actor->IntVar("morphSeqID");
+		if (morphSeq != 0)
+		{
+			seqSpawn(actor->seqStartName(), actor->seqStartID() + morphSeq, actor, nullptr);
+			return true;
+		}
+	}
+	if (actor->classflags() & CF_QUICKBURN)
+	{
+		auto burn = actor->PointerVar<PClassActor>("burntype");
+		if (burn && (cl_bloodvanillaenemies || VanillaMode()))
+		{
+			auto burn2 = actor->PointerVar<PClassActor>("vanillaburntype");
+			if (burn2) return false;
+		}
+		actor->ChangeType(burn);
+		aiNewState(actor, NAME_BurnGoto);
+		actHealDude(actor, actor->startHealth(), actor->startHealth());
 		return true;
-
-	case kDudeCultistTommy:
-	case kDudeCultistShotgun:
-	case kDudeCultistTesla:
-	case kDudeCultistTNT:
-		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
-		{
-			actor->ChangeType(kDudeBurningCultist);
-			aiNewState(actor, NAME_BurnGoto);
-			actHealDude(actor, actor->startHealth(), actor->startHealth());
-			return true;
-		}
-		break;
-
-	case kDudeBeast:
-		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
-		{
-			actor->ChangeType(kDudeBurningBeast);
-			aiNewState(actor, NAME_BurnGoto);
-			actHealDude(actor, actor->startHealth(), actor->startHealth());
-			return true;
-		}
-		break;
-
-	case kDudeInnocent:
-		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
-		{
-			actor->ChangeType(kDudeBurningInnocent);
-			aiNewState(actor, NAME_BurnGoto);
-			actHealDude(actor, actor->startHealth(), actor->startHealth());
-			return true;
-		}
-		break;
-
-	case kDudeTinyCaleb:
-		if (cl_bloodvanillaenemies || VanillaMode())
-			break;
-		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
-		{
-			actor->ChangeType(kDudeBurningTinyCaleb);
-			aiNewState(actor, NAME_BurnGoto);
-			actHealDude(actor, actor->startHealth(), actor->startHealth());
-			return true;
-		}
-		break;
 	}
 	return false;
 }
@@ -1432,6 +1399,8 @@ static void genericDeath(DBloodActor* actor, int nSeq, int sound1, int seqnum)
 void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 {
 	assert(actor->IsDudeActor()&& actor->hasX());
+
+	// if (onKill(killerActor, actor, damageType, damage)) return;	// call an optional script handler.
 
 	if (actKillDudeStage1(actor, damageType)) return;
 
@@ -2267,7 +2236,7 @@ static void checkCeilHit(DBloodActor* actor)
 bool IsBurningDude(DBloodActor* actor)
 {
 	if (actor == nullptr || !actor->IsDudeActor()) return false;
-	return actor->classflags() & 1;
+	return actor->classflags() & CF_BURNING;
 }
 
 //---------------------------------------------------------------------------
@@ -2404,7 +2373,7 @@ static void checkFloorHit(DBloodActor* actor)
 				}
 				break;
 			default:
-				if (actor2->IsDudeActor() && (actor2->classflags() & 2))
+				if (actor2->IsDudeActor() && (actor2->classflags() & CF_FLOORHITDAMAGE))
 				if (pPlayer && !isShrunk(actor))
 					actDamageSprite(actor, actor2, kDamageBullet, 8);
 				break;

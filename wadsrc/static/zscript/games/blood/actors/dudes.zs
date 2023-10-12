@@ -23,7 +23,10 @@ class BloodDudeBase : Bloodactor
 
 	meta int classflags;
 	meta Sound explodeSound;
+	meta int morphSeqID; // always an index
 	meta class<BloodDudeBase> deathMorphType;
+	meta class<BloodDudeBase> burnType;
+	meta class<BloodDudeBase> vanillaBurnType;
 	
 	property prefix: none;
 	property seqStartName: seqStartName;
@@ -46,11 +49,15 @@ class BloodDudeBase : Bloodactor
 	property sideSpeed: sideSpeed;
 	property backSpeed: backSpeed;
 	property turnRange: turnRange;
+	property burnType: burnType;
+	property vanillaBurnType: vanillaBurnType;
+	property morphSeqID: morphSeqID;
 
 	property explodeSound: explodeSound;
 	property deathMorphType: deathMorphType;
 	flagdef burning: classflags, 0;
 	flagdef floorhitdamage: classflags, 1;
+	flagdef quickburn: classflags, 2;
 	
 	
 	default
@@ -393,7 +400,9 @@ class BloodDudeCultistTommy : BloodDudeBase
 
 		explodesound 717;
 		+BloodDudeBase.floorhitdamage;
+		+BloodDudeBase.quickBurn;
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
+		BurnType "BloodDudeBurningCultist";
 	}
 }
 
@@ -426,7 +435,9 @@ class BloodDudeCultistShotgun : BloodDudeBase
 
 		explodesound 717;
 		+BloodDudeBase.floorhitdamage;
+		+BloodDudeBase.quickBurn;
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
+		BurnType "BloodDudeBurningCultist";
 	}
 }
 
@@ -458,6 +469,7 @@ class BloodDudeZombieAxeNormal : BloodDudeBase
 		dmgcontrol 256, 256, 112, 256, 256, 256, 160;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8, 11, 13, 14;
+		BurnType "BloodDudeBurningZombieAxe";
 	}
 }
 
@@ -489,6 +501,7 @@ class BloodDudeZombieButcher : BloodDudeBase
 		dmgcontrol 256, 256, 32, 128, 256, 64, 128;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8, 9, 10, 11;
+		BurnType "BloodDudeBurningZombieButcher";
 	}
 }
 
@@ -520,6 +533,7 @@ class BloodDudeZombieAxeBuried : BloodDudeBase
 		dmgcontrol 256, 256, 112, 256, 256, 256, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 12, 9, 10;
+		BurnType "BloodDudeBurningZombieAxe";
 	}
 }
 
@@ -1162,6 +1176,7 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		AISTATE "Burn2", "+6", 4, 60, cerberusBurnSeqCallback2, null, null, null, "Chase";
 
 		deathMorphType "BloodDudeCerberusOneHead";
+		morphseqId 1;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
 	}
@@ -1469,6 +1484,8 @@ class BloodDudeInnocent : BloodDudeBase
 		dmgcontrol 288, 288, 288, 288, 288, 288, 288;
 
 		explodesound 717;
+		+BloodDudeBase.quickBurn;
+		BurnType "BloodDudeBurningInnocent";
 	}
 }
 
@@ -1530,6 +1547,8 @@ class BloodDudeCultistTesla : BloodDudeBase
 
 		explodesound 717;
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
+		+BloodDudeBase.quickBurn;
+		BurnType "BloodDudeBurningCultist";
 	}
 }
 
@@ -1562,6 +1581,8 @@ class BloodDudeCultistTNT : BloodDudeBase
 
 		explodesound 717;
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
+		+BloodDudeBase.quickBurn;
+		BurnType "BloodDudeBurningCultist";
 	}
 }
 
@@ -1621,6 +1642,9 @@ class BloodDudeTinyCaleb : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 160, 160, 160, 160, 256, 128, 288;
+		+BloodDudeBase.quickBurn;
+		VanillaBurnType "BloodDudeBurningInnocent";
+		BurnType "BloodDudeBurningTinyCaleb";
 
 		explodesound 717;
 	}
