@@ -365,7 +365,7 @@ class BloodThingBone : BloodThingBase
 	
 	override void onHit(CollisionData hit)
 	{
-		self.seqSpawnID(24);
+		self.seqSpawn('None', 24);
 		if (hit.type == kHitSprite)
 		{
 			let victim = BloodActor(hit.hitActor());
@@ -408,12 +408,12 @@ class BloodThingDripWater : BloodThingBase
 		int nSurface = self.hit.florhit.getSurfaceType(); // this really checks the actor's hit, not the passed parameter!
 		if (nSurface == Blood.kSurfWater)
 		{
-			self.seqSpawnID(6);
+			self.seqSpawn('None', 6);
 			self.play3DSound("DRIP3", -1, 0);
 		}
 		else
 		{
-			self.seqSpawnID(7);
+			self.seqSpawn('None', 7);
 			self.play3DSound("DRIP1", -1, 0);
 		}
 	}
@@ -434,7 +434,7 @@ class BloodThingDripBlood : BloodThingBase
 	{
 		self.flags &= ~kPhysGravity;
 		self.pos.Z -= 4;
-		self.seqSpawnID(8);
+		self.seqSpawn('None', 8);
 		self.play3DSound("DRIP1", -1, 0);
 	}
 }

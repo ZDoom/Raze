@@ -52,7 +52,7 @@ class BloodMissileBase : BloodActor
 		}
 		else if (self.seqID > -1)
 		{
-			self.seqSpawnID(self.seqID, self.seqCallback);
+			self.seqSpawn(self.seqName, self.seqID, self.seqCallback);
 		}
 		if (self.callback != null)
 		{
@@ -145,7 +145,7 @@ class BloodMissileFlameSpray : BloodMissileBase
 	{
 		super.InitMissile(spawner);
 		int index = Blood.Chance(0x8000)? 1 : 0;
-		self.seqSpawnID(index, nullptr);
+		self.seqSpawn(self.seqName, self.seqID + index, nullptr);
 	}
 	
 }

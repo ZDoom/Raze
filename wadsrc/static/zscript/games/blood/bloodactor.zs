@@ -382,7 +382,7 @@ native void callbackMissileBurst();
 
 	native void play3DSound(Sound soundId, int a3 = -1, int a4 = 0);
 	native void play3DSoundID(int soundId, int a3 = -1, int a4 = 0);
-	native void seqSpawnID(int seqID, VMFunction seqCallbackID = null);
+	native void seqSpawn(Name seqName, int seqID, VMFunction seqCallbackID = null);
 	
 	virtual void onHit(CollisionData hit)
 	{
