@@ -23,6 +23,8 @@ class BloodDudeBase : Bloodactor
 
 	meta int classflags;
 	meta Sound explodeSound;
+	meta Sound deathsound1, deathsound2;
+	meta Sound burndeathsound;
 	meta int morphSeqID; // always an index
 	meta class<BloodDudeBase> deathMorphType;
 	meta class<BloodDudeBase> burnType;
@@ -54,10 +56,13 @@ class BloodDudeBase : Bloodactor
 	property morphSeqID: morphSeqID;
 
 	property explodeSound: explodeSound;
+	property deathsound: deathsound1, deathsound2;
+	property burndeathsound: burndeathsound;
 	property deathMorphType: deathMorphType;
 	flagdef burning: classflags, 0;
 	flagdef floorhitdamage: classflags, 1;
 	flagdef quickburn: classflags, 2;
+	flagdef damage5sound: classflags, 3;
 	
 	
 	default
@@ -617,7 +622,8 @@ class BloodDudeCultistTommy : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
 
-		explodesound 717;
+		explodesound "DIE2";
+		deathsound "CULTDIE1", "CULTDIE2";
 		+BloodDudeBase.floorhitdamage;
 		+BloodDudeBase.quickBurn;
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
@@ -660,7 +666,8 @@ class BloodDudeCultistShotgun : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 128, 256, 256, 256, 192;
 
-		explodesound 717;
+		explodesound "DIE2";
+		deathsound "CULTDIE1", "CULTDIE2";
 		+BloodDudeBase.floorhitdamage;
 		+BloodDudeBase.quickBurn;
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
@@ -821,6 +828,8 @@ class BloodDudeGargoyleFlesh : BloodDudeBase
 		dmgcontrol 0, 128, 48, 208, 256, 256, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8, 9;
+		DeathSound "GARGDIE1", "GARGDIE2";
+		BurnDeathSound "GARGDIE3";
 	}
 }
 
@@ -852,6 +861,8 @@ class BloodDudeGargoyleStone : BloodDudeBase
 		dmgcontrol 0, 0, 10, 10, 0, 128, 64;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8, 9;
+		DeathSound "SARGDIE1", "SARGDIE2";
+		BurnDeathSound "SARGDIE3";
 	}
 }
 
@@ -938,6 +949,8 @@ class BloodDudePhantasm : BloodDudeBase
 		dmgcontrol 0, 0, 48, 0, 0, 16, 0;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8;
+		DeathSound "PHANDIE1", "PHANDIE2";
+		BurnDeathSound "PHANDIE3";
 	}
 }
 
@@ -967,6 +980,8 @@ class BloodDudeHellHound : BloodDudeBase
 		dmgcontrol 48, 0, 48, 48, 256, 128, 192;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8;
+		DeathSound "CERBDIE1", "CERBDIE2";
+		BurnDeathSound "CERBDIE3";
 	}
 }
 
@@ -996,6 +1011,8 @@ class BloodDudeHand : BloodDudeBase
 		dmgcontrol 64, 256, 256, 256, 0, 64, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
+		DeathSound "HANDDIE1", "HANDDIE2";
+		BurnDeathSound "HANDDIE3";
 	}
 }
 
@@ -1026,6 +1043,8 @@ class BloodDudeSpiderBrown : BloodDudeBase
 		dmgcontrol 64, 256, 256, 96, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8;
+		DeathSound "SPIDDIE1", "SPIDDIE2";
+		BurnDeathSound "SPIDDIE3";
 	}
 }
 
@@ -1056,6 +1075,8 @@ class BloodDudeSpiderRed : BloodDudeBase
 		dmgcontrol 64, 128, 256, 96, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8;
+		DeathSound "SPIDDIE1", "SPIDDIE2";
+		BurnDeathSound "SPIDDIE3";
 	}
 }
 
@@ -1086,6 +1107,8 @@ class BloodDudeSpiderBlack : BloodDudeBase
 		dmgcontrol 128, 256, 256, 96, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8;
+		DeathSound "SPIDDIE1", "SPIDDIE2";
+		BurnDeathSound "SPIDDIE3";
 	}
 }
 
@@ -1115,6 +1138,8 @@ class BloodDudeSpiderMother : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 32, 16, 16, 16, 32, 32, 32;
 		preloadseq 6, 7, 8;
+		DeathSound "MSPIDIE", "MSPIPAN1";
+		BurnDeathSound "MSPIPAN2";
 	}
 }
 
@@ -1146,6 +1171,8 @@ class BloodDudeGillBeast : BloodDudeBase
 		dmgcontrol 48, 80, 64, 128, 0, 128, 48;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8, 9, 10, 11;
+		DeathSound "GILLDIE1", "GILLDIE2";
+		BurnDeathSound "GILLDIE3";
 	}
 }
 
@@ -1175,6 +1202,8 @@ class BloodDudeBoneEel : BloodDudeBase
 		dmgcontrol 256, 256, 256, 256, 0, 256, 192;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
+		DeathSound "EELDIE1", "EELDIE2";
+		BurnDeathSound "EELDIE3";
 	}
 }
 
@@ -1204,6 +1233,8 @@ class BloodDudeBat : BloodDudeBase
 		dmgcontrol 256, 256, 256, 256, 256, 64, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
+		DeathSound "BATDIE1", "BATDIE2";
+		BurnDeathSound "BATDIE3";
 	}
 }
 
@@ -1233,6 +1264,8 @@ class BloodDudeRat : BloodDudeBase
 		dmgcontrol 256, 256, 256, 256, 256, 128, 256;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
+		DeathSound "RATDIE1", "RATDIE2";
+		BurnDeathSound "RATDIE3";
 	}
 }
 
@@ -1260,6 +1293,8 @@ class BloodDudePodGreen : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 160, 160, 128, 160, 0, 0, 256;
 		+BloodDudeBase.floorhitdamage;
+		DeathSound "PODDIE1", "PODDIE2";
+		BurnDeathSound "PODDIE3";
 	}
 }
 
@@ -1286,6 +1321,8 @@ class BloodDudeTentacleGreen : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 80, 0, 0, 256;
 		+BloodDudeBase.floorhitdamage;
+		+BloodDudeBase.Damage5Sound;
+		DeathSound "PODEXP2", "PODCOL2"; 
 	}
 }
 
@@ -1313,6 +1350,8 @@ class BloodDudePodFire : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 96, 0, 128, 64, 256, 64, 160;
 		+BloodDudeBase.floorhitdamage;
+		+BloodDudeBase.Damage5Sound;
+		DeathSound "FPODEXP2", "FPODCOL2";
 	}
 }
 
@@ -1339,6 +1378,7 @@ class BloodDudeTentacleFire : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 128, 0, 128, 128, 0, 0, 128;
 		+BloodDudeBase.floorhitdamage;
+		DeathSound "TENTEXP";
 	}
 }
 
@@ -1366,6 +1406,8 @@ class BloodDudePodMother : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 		+BloodDudeBase.floorhitdamage;
+		DeathSound "PODDIE1", "PODDIE2";
+		BurnDeathSound "PODDIE3";
 	}
 }
 
@@ -1392,6 +1434,8 @@ class BloodDudeTentacleMother : BloodDudeBase
 		gibtype 7, -1, -1;
 		dmgcontrol 256, 256, 128, 256, 128, 128, 256;
 		+BloodDudeBase.floorhitdamage;
+		DeathSound "PODDIE1", "PODDIE2";
+		BurnDeathSound "PODDIE3";
 	}
 }
 
@@ -1435,6 +1479,8 @@ class BloodDudeCerberusTwoHead : BloodDudeBase
 		morphseqId 1;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7;
+		DeathSound "CERBDIE1", "CERBDIE2";
+		BurnDeathSound "CERBDIE3";
 	}
 }
 
@@ -1479,6 +1525,7 @@ class BloodDudeTchernobog : BloodDudeBase
 		dmgcontrol 3, 1, 4, 4, 0, 4, 3;
 		+BloodDudeBase.floorhitdamage;
 		preloadseq 6, 7, 8;
+		DeathSound "TBDIES";
 	}
 }
 
@@ -1507,7 +1554,7 @@ class BloodDudeCultistTommyProne : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 256, 256, 256, 192;
 
-		explodesound 717;
+		explodesound "DIE2";
 	}
 }
 
@@ -1540,7 +1587,7 @@ class BloodDudeBurningInnocent : BloodDudeBase
 		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "none";
 		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
 
-		explodesound 717;
+		explodesound "DIE2";
 		+BloodDudeBase.burning;
 	}
 
@@ -1579,7 +1626,7 @@ class BloodDudeBurningCultist : BloodDudeBase
 		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "BurnSearch";
 		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
 
-		explodesound 717;
+		explodesound "DIE2";
 		+BloodDudeBase.burning;
 	}
 }
@@ -1651,6 +1698,8 @@ class BloodDudeBurningZombieButcher : BloodDudeBase
 		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
 
 		+BloodDudeBase.burning;
+		DeathSound "FZOMDIE1", "FZOMDIE2";
+		BurnDeathSound "FZOMDIE3";
 	}
 }
 
@@ -1739,7 +1788,7 @@ class BloodDudeInnocent : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 288, 288, 288, 288, 288, 288, 288;
 
-		explodesound 717;
+		explodesound "DIE2";
 		+BloodDudeBase.quickBurn;
 		BurnType "BloodDudeBurningInnocent";
 	}
@@ -1770,7 +1819,7 @@ class BloodDudeCultistShotgunProne : BloodDudeBase
 		gibtype 7, 5, -1;
 		dmgcontrol 256, 256, 256, 256, 256, 256, 256;
 
-		explodesound 717;
+		explodesound "DIE2";
 	}
 }
 
@@ -1801,7 +1850,8 @@ class BloodDudeCultistTesla : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 256, 96, 160, 256, 256, 12;
 
-		explodesound 717;
+		explodesound "DIE2";
+		deathsound "CULTDIE1", "CULTDIE2";
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
 		+BloodDudeBase.quickBurn;
 		BurnType "BloodDudeBurningCultist";
@@ -1835,7 +1885,8 @@ class BloodDudeCultistTNT : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 256, 160, 96, 64, 256, 256, 256;
 
-		explodesound 717;
+		explodesound "DIE2";
+		deathsound "CULTDIE1", "CULTDIE2";
 		preloadseq 6, 7, 8, 9, 13, 14, 15;
 		+BloodDudeBase.quickBurn;
 		BurnType "BloodDudeBurningCultist";
@@ -1869,7 +1920,7 @@ class BloodDudeCultistBeast : BloodDudeBase
 		gibtype 15, -1, -1;
 		dmgcontrol 128, 128, 16, 16, 0, 64, 48;
 
-		explodesound 717;
+		explodesound "DIE2";
 		preloadseq 6, 7;
 	}
 }
@@ -1902,7 +1953,7 @@ class BloodDudeTinyCaleb : BloodDudeBase
 		VanillaBurnType "BloodDudeBurningInnocent";
 		BurnType "BloodDudeBurningTinyCaleb";
 
-		explodesound 717;
+		explodesound "DIE2";
 	}
 }
 
@@ -1932,6 +1983,7 @@ class BloodDudeBeast : BloodDudeBase
 		turnrange 67.5;
 		gibtype 7, -1, -1;
 		dmgcontrol 5, 5, 15, 8, 0, 15, 15;
+		DeathSound "BEASTD4", "BEASTD3";
 	}
 }
 
@@ -1965,7 +2017,7 @@ class BloodDudeBurningTinyCaleb : BloodDudeBase
 		AISTATE "BurnSearch", "+3", 3, 3600, null, null, aiMoveForward, burnThinkSearch, "BurnSearch";
 		AISTATE "BurnAttack", "+3", 4, 120, BurnSeqCallback, null, null, null, "BurnChase";
 
-		explodesound 717;
+		explodesound "DIE2";
 		+BloodDudeBase.burning;
 	}
 }
