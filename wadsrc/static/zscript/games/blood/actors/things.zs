@@ -292,7 +292,7 @@ class BloodThingArmedTNTStick : BloodThingBase
 	{
 		super.initThing();
 		self.evPostActorCallback(0, fxDynPuff);
-		self.play3DSoundID(450, 0, 0);
+		self.play3DSound("TNTFUSE", 0, 0);
 	}
 	
 }
@@ -317,7 +317,7 @@ class BloodThingArmedTNTBundle : BloodThingBase
 	override void initThing()
 	{
 		super.initThing();
-		self.play3DSoundID(450, 0, 0);
+		self.play3DSound("TNTFUSE", 0, 0);
 		self.evPostActorCallback(0, fxDynPuff);
 	}
 	
@@ -409,12 +409,12 @@ class BloodThingDripWater : BloodThingBase
 		if (nSurface == Blood.kSurfWater)
 		{
 			self.seqSpawnID(6);
-			self.play3DSoundID(356, -1, 0);
+			self.play3DSound("DRIP3", -1, 0);
 		}
 		else
 		{
 			self.seqSpawnID(7);
-			self.play3DSoundID(354, -1, 0);
+			self.play3DSound("DRIP1", -1, 0);
 		}
 	}
 }
@@ -435,7 +435,7 @@ class BloodThingDripBlood : BloodThingBase
 		self.flags &= ~kPhysGravity;
 		self.pos.Z -= 4;
 		self.seqSpawnID(8);
-		self.play3DSoundID(354, -1, 0);
+		self.play3DSound("DRIP1", -1, 0);
 	}
 }
 

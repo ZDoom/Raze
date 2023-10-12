@@ -3,7 +3,6 @@ class BloodMissileBase : BloodActor
 	meta double speed;
 	meta double angleofs;
 	meta VMFunction callback;
-	meta int spawnsoundID;
 	meta Sound spawnsound;
 	meta double movementAdd;
 	meta double randomVel;
@@ -16,7 +15,6 @@ class BloodMissileBase : BloodActor
 	property angleofs: angleofs;
 	property callback: callback;
 	property spawnsound: spawnsound;
-	property spawnsoundID: spawnsoundID;
 	property movementAdd: movementAdd;
 	property randomVel: randomVel;
 	property seqID: seqID;
@@ -26,7 +24,6 @@ class BloodMissileBase : BloodActor
 	default
 	{
 		seqID -1;
-		spawnsoundID -1;
 	}
 	
 	virtual void initMissile(BloodActor spawner)
@@ -63,12 +60,7 @@ class BloodMissileBase : BloodActor
 		}
 		if (self.spawnsound != 0)
 		{
-			// todo: currently only IDs supported.
-			//self.play3DSound(self.spawnsound, 0, 0);
-		}
-		else if (self.spawnsoundID > -1)
-		{
-			self.play3DSoundID(self.spawnsoundID, 0, 0);
+			self.play3DSound(self.spawnsound, 0, 0);
 		}
 	}
 	
@@ -103,7 +95,7 @@ class BloodMissileFlareRegular : BloodMissileBase
 		shade -128;
 		clipdist 8.000000;
 		callback fxFlareSpark;
-		spawnsoundID 422;
+		spawnsound "FLARAIR2";
 	}
 }
 class BloodMissileTeslaAlt : BloodMissileBase
@@ -128,7 +120,7 @@ class BloodMissileFlareAlt : BloodMissileBase
 		shade -128;
 		clipdist 1.000000;
 		callback fxFlareSpark;
-		spawnsoundID 422;
+		spawnsound "FLARAIR2";
 	}
 		
 	override void initMissile(BloodActor spawner)
@@ -165,9 +157,9 @@ class BloodMissileFireball : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 8.000000;
-		spawnsoundID 441;
 		seqID 22;
 		seqCallback FireballSeqCallback;
+		spawnsound "SPRAYFIR";
 	}
 }
 class BloodMissileTeslaRegular : BloodMissileBase
@@ -179,7 +171,7 @@ class BloodMissileTeslaRegular : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 4.000000;
-		spawnsoundID 251;
+		spawnsound "ARC2";
 	}
 }
 class BloodMissileEctoSkull : BloodMissileBase
@@ -191,7 +183,7 @@ class BloodMissileEctoSkull : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -24;
 		clipdist 8.000000;
-		spawnsoundID 493;
+		spawnsound "SKULAIR4";
 	}
 }
 class BloodMissileFlameHound : BloodMissileBase
@@ -236,7 +228,7 @@ class BloodMissileArcGargoyle : BloodMissileBase
 		scale 0.500000, 0.500000;
 		shade -128;
 		clipdist 4.000000;
-		spawnsoundID 252;
+		spawnsound "ARC3";
 	}
 }
 class BloodMissileFireballNapalm : BloodMissileBase
@@ -247,9 +239,9 @@ class BloodMissileFireballNapalm : BloodMissileBase
 		scale 0.468750, 0.468750;
 		shade -128;
 		clipdist 6.000000;
-		spawnsoundID 441;
 		seqID 61;
 		seqCallback NapalmSeqCallback;
+		spawnsound "SPRAYFIR";
 	}
 }
 class BloodMissileFireballCerberus : BloodMissileBase
