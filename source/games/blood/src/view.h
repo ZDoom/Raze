@@ -53,7 +53,9 @@ enum VIEW_EFFECT {
 	kViewEffectFlag,
 	kViewEffectBigFlag,
 	kViewEffectAtom,
+#ifdef NOONE_EXTENSIONS
 	kViewEffectSpotProgress,
+#endif
 };
 
 enum VIEWPOS {

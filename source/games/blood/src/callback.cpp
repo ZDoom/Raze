@@ -285,9 +285,11 @@ void Respawn(DBloodActor* actor) // 9
 			int nType = actor->GetType() - kDudeBase;
 			actor->spr.pos = actor->basePoint;
 			actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
+			if ((currentLevel->featureflags & kFeatureCustomEnemyHealth) && actor->xspr.sysData2 > 0)
+				actor->xspr.health = clamp(actor->xspr.sysData2 << 4, 1, 65535);
+			else
+				actor->xspr.health = getDudeInfo(actor)->startHealth << 4;
 #ifdef NOONE_EXTENSIONS
-			if (!gModernMap || actor->xspr.sysData2 <= 0) actor->xspr.health = dudeInfo[actor->GetType() - kDudeBase].startHealth << 4;
-			else actor->xspr.health = ClipRange(actor->xspr.sysData2 << 4, 1, 65535);
 
 			switch (actor->GetType()) {
 			default:
@@ -307,7 +309,6 @@ void Respawn(DBloodActor* actor) // 9
 			}
 #else
 			actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
-			actor->xspr.health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
 			if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
 				seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor);
 #endif

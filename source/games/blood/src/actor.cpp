@@ -925,7 +925,7 @@ static void actInitDudes()
 
 				act->vel.Zero();
 
-				if ((currentLevel->featureflags & kFeatureEnemyAttacks) && act->xspr.sysData2 > 0)
+				if ((currentLevel->featureflags & kFeatureCustomEnemyHealth) && act->xspr.sysData2 > 0)
 					act->xspr.health = clamp(act->xspr.sysData2 << 4, 1, 65535);
 				else
 					act->xspr.health = pDudeInfo->startHealth << 4;
