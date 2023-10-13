@@ -180,6 +180,11 @@ DEF_ANIMATOR(zombaThinkSearch)
 DEF_ANIMATOR(zombfThinkChase)
 DEF_ANIMATOR(zombfThinkGoto)
 DEF_ANIMATOR(zombfThinkSearch)
+DEF_ANIMATOR(aiPatrolMove)
+DEF_ANIMATOR(aiPatrolThink)
+DEF_ANIMATOR(aiPatrolRandGoalAng)
+DEF_ANIMATOR(aiPatrolTurn)
+
 // seq callbacks
 DEF_ANIMATOR(FireballSeqCallback)
 DEF_ANIMATOR(Fx33Callback)

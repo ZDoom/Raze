@@ -131,8 +131,6 @@ enum {
 	kModernWindGenerator = 39,
 	kModernRandom = 40,
 	kModernRandom2 = 80,
-	kItemShroomGrow = 129,
-	kItemShroomShrink = 130,
 	kItemModernMapLevel = 150,  // once picked up, draws whole minimap
 	kDudeModernCustom = kDudeVanillaMax,
 	kDudeModernCustomBurning = 255,

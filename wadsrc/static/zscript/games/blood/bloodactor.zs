@@ -244,6 +244,11 @@ native void zombaThinkSearch();
 native void zombfThinkChase();
 native void zombfThinkGoto();
 native void zombfThinkSearch();
+native void aiPatrolMove();
+native void aiPatrolThink();
+native void aiPatrolRandGoalAng();
+native void aiPatrolTurn();
+
 native void FireballSeqCallback();
 native void Fx33Callback();
 native void NapalmSeqCallback();

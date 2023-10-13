@@ -172,60 +172,60 @@ AISTATE genPatrolStates[] = {
 
 	//-------------------------------------------------------------------------------
 
-	{ kAiStatePatrolWaitL, 0, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitL, 7, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitL, 0, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitL, 7, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
 
-	{ kAiStatePatrolMoveL, 9, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 8, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 0, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 6, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveL, 7, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveL, 9, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveL, 8, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveL, 0, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveL, 6, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveL, 7, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
 
-	{ kAiStatePatrolTurnL, 9, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 8, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 0, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 6, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnL, 7, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-
-	//-------------------------------------------------------------------------------
-
-	{ kAiStatePatrolWaitW, 0, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 10, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 13, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 17, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 8, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitW, 9, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-
-	{ kAiStatePatrolMoveW, 0, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 10, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 13, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 8, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 9, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 7, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveW, 6, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-
-	{ kAiStatePatrolTurnW, 0, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 10, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 13, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 8, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 9, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 7, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnW, 6, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnL, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnL, 8, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnL, 0, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnL, 6, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnL, 7, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
 
 	//-------------------------------------------------------------------------------
 
-	{ kAiStatePatrolWaitC, 17, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitC, 11, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitC, 10, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
-	{ kAiStatePatrolWaitC, 14, nullptr, 0, NULL, NULL, aiPatrolThink, NULL },
+	{ kAiStatePatrolWaitW, 0, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitW, 10, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitW, 13, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitW, 17, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitW, 8, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitW, 9, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
 
-	{ kAiStatePatrolMoveC, 14, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveC, 10, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
-	{ kAiStatePatrolMoveC, 9, nullptr, 0, NULL, aiPatrolMove, aiPatrolThink, NULL },
+	{ kAiStatePatrolMoveW, 0, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 10, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 13, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 8, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 9, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 7, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 6, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
 
-	{ kAiStatePatrolTurnC, 14, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnC, 10, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
-	{ kAiStatePatrolTurnC, 9, nullptr, 0, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, NULL },
+	{ kAiStatePatrolTurnW, 0, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 10, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 13, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 8, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 7, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 6, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+
+	//-------------------------------------------------------------------------------
+
+	{ kAiStatePatrolWaitC, 17, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitC, 11, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitC, 10, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitC, 14, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+
+	{ kAiStatePatrolMoveC, 14, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveC, 10, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveC, 9, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+
+	{ kAiStatePatrolTurnC, 14, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnC, 10, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnC, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
 
 	//-------------------------------------------------------------------------------
 

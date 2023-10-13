@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 
 #ifdef NOONE_EXTENSIONS
+#if 0
 
 
 BEGIN_BLD_NS
@@ -2657,4 +2658,5 @@ void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 
 
 END_BLD_NS
+#endif
 #endif

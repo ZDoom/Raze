@@ -65,7 +65,6 @@
 #include "src/sfx.cpp"
 #include "src/sound.cpp"
 #include "src/tile.cpp"
-#include "src/triggers.cpp"
 #include "src/view.cpp"
 #include "src/warp.cpp"
 #include "src/weapon.cpp"
@@ -75,6 +74,9 @@
 #include "src/nnexts.cpp"
 #include "src/nnextstr.cpp"
 #endif
+
+// after nnsprinsect
+#include "src/triggers.cpp"
 
 // This includes the VM so it is last
 #include "src/vmexports.cpp"
