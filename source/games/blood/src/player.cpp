@@ -468,22 +468,23 @@ void powerupClear(DBloodPlayer* pPlayer)
 int packItemToPowerup(int nPack)
 {
 	int nPowerUp = -1;
-	switch (nPack) {
-	case 0:
-		break;
-	case 1:
-		nPowerUp = kPwUpDivingSuit;
-		break;
-	case 2:
-		nPowerUp = kPwUpCrystalBall;
-		break;
-	case 3:
-		nPowerUp = kPwUpBeastVision;
-		break;
-	case 4:
-		nPowerUp = kPwUpJumpBoots;
-		break;
-	default:
+	switch (nPack) 
+	{
+		case kPackMedKit:
+			break;
+		case kPackDivingSuit:
+			nPowerUp = kPwUpDivingSuit;
+			break;
+		case kPackCrystalBall:
+			nPowerUp = kPwUpCrystalBall;
+			break;
+		case kPackBeastVision:
+			nPowerUp = kPwUpBeastVision;
+			break;
+		case kPackJumpBoots:
+			nPowerUp = kPwUpJumpBoots;
+			break;
+		default:
 		I_Error("Unhandled pack item %d", nPack);
 		break;
 	}
@@ -498,15 +499,16 @@ int packItemToPowerup(int nPack)
 
 int powerupToPackItem(int nPowerUp)
 {
-	switch (nPowerUp) {
-	case kPwUpDivingSuit:
-		return 1;
-	case kPwUpCrystalBall:
-		return 2;
-	case kPwUpBeastVision:
-		return 3;
-	case kPwUpJumpBoots:
-		return 4;
+	switch (nPowerUp) 
+	{
+		case kPwUpDivingSuit:
+			return kPackDivingSuit;
+		case kPwUpCrystalBall:
+			return kPackCrystalBall;
+		case kPwUpBeastVision:
+			return kPackBeastVision;
+		case kPwUpJumpBoots:
+			return kPackJumpBoots;
 	}
 	return -1;
 }
@@ -1600,7 +1602,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	default:
 		if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && actor->xspr.height == 0) {
 #ifdef NOONE_EXTENSIONS
-			if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
+			if ((packItemActive(pPlayer, kPackJumpBoots) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
 #endif
 				sfxPlay3DSound(actor, 700, 0, 0);
 
@@ -2195,7 +2197,7 @@ int playerDamageSprite(DBloodActor* source, DBloodPlayer* pPlayer, DAMAGE_TYPE n
 
 #ifdef NOONE_EXTENSIONS
 		// allow drop items and keys in multiplayer
-		if (gModernMap && gGameOptions.nGameType != 0 && pPlayer->GetActor()->xspr.health <= 0) {
+		if (gModernMap && gGameOptions.nGameType != kGameTypeSinglePlayer && pPlayer->GetActor()->xspr.health <= 0) {
 
 			DBloodActor* pItem = nullptr;
 			if (pPlayer->GetActor()->xspr.dropMsg && (pItem = actDropItem(pActor, pPlayer->GetActor()->xspr.dropMsg)) != NULL)

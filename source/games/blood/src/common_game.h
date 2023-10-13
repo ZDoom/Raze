@@ -35,6 +35,22 @@ BEGIN_BLD_NS
 
 void QuitGame(void);
 
+enum {
+	kGameTypeSinglePlayer = 0,
+	kGameTypeCoop = 1,
+	kGameTypeBloodBath = 2,
+	kGameTypeTeams = 3,
+};
+
+// GAMEFLAGS //////////////////////////////////////////////////
+enum {
+	kGameFlagNone = 0,
+	kGameFlagContinuing = 1 << 0,
+	kGameFlagEnding = 1 << 1,
+	kGameFlagPlayIntro = 1 << 2,
+	kGameFlagPlayOutro = 1 << 3,
+};
+
 enum
 {
 	kMagicOwner = 16383,

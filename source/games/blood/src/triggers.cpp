@@ -897,7 +897,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 		case kStatMarker:
 		case kStatPathMarker:
 #ifdef NOONE_EXTENSIONS
-			if (!gModernMap || !(actor->spr.flags & 0x1)) continue;
+			if (!gModernMap || !(actor->spr.flags & kPhysMove)) continue;
 #else
 			continue;
 #endif
