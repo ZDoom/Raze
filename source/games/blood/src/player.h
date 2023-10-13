@@ -52,6 +52,18 @@ enum
 	kPostureMax = 3,
 };
 
+// inventory pack
+enum
+{
+	kPackBase        = 0,
+	kPackMedKit      = kPackBase,
+	kPackDivingSuit  = 1,
+	kPackCrystalBall = 2,
+	kPackBeastVision = 3,
+	kPackJumpBoots   = 4,
+	kPackMax         = 5,
+};
+
 struct PACKINFO
 {
 	bool isActive; // is active (0/1)

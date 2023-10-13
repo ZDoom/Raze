@@ -341,7 +341,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 
 void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* pVel)
 {
-	if (adult_lockout && gGameOptions.nGameType <= 0)
+	if (adult_lockout && gGameOptions.nGameType == kGameTypeSinglePlayer)
 		switch (pGThing->type) {
 		case kThingBloodBits:
 		case kThingZombieHead:
