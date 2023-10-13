@@ -1,13 +1,14 @@
 
+/*
 #ifdef NOONE_EXTENSIONS
 #undef NOONE_EXTENSIONS
 #endif
+*/
 
-/*
 #ifndef NOONE_EXTENSIONS
 #define NOONE_EXTENSIONS
 #endif
-*/
+
 
 #include "src/actor.cpp"
 #include "src/ai.cpp"
@@ -53,8 +54,6 @@
 #include "src/messages.cpp"
 #include "src/mirrors.cpp"
 #include "src/misc.cpp"
-#include "src/nnsprinsect.cpp"
-#include "src/nnexts.cpp"
 #include "src/osdcmd.cpp"
 #include "src/player.cpp"
 #include "src/prediction.cpp"
@@ -70,6 +69,12 @@
 #include "src/view.cpp"
 #include "src/warp.cpp"
 #include "src/weapon.cpp"
+
+#ifdef NOONE_EXTENSIONS
+#include "src/nnsprinsect.cpp"
+#include "src/nnexts.cpp"
+#include "src/nnextstr.cpp"
+#endif
 
 // This includes the VM so it is last
 #include "src/vmexports.cpp"
