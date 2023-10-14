@@ -3955,7 +3955,7 @@ static void actCheckExplosion()
 			getPlayer(p)->flickerEffect += t;
 		}
 
-#ifdef NOONE_EXTENSIONS
+#if 0 //def NOONE_EXTENSIONS temporarily disabled
 		if (actor->xspr.data1 != 0)
 		{
 			// add impulse for sprites from physics list
@@ -4719,7 +4719,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			}
 #ifdef NOONE_EXTENSIONS
 			// add impulse for sprites from physics list
-			if (gPhysSpritesCount > 0 && pVectorData->impulse)
+			if (gPhysSpritesList.Size() > 0 && pVectorData->impulse)
 			{
 
 				if (actor->hasX())

@@ -181,6 +181,9 @@ enum {
 	kSwitchPadlock = 23,
 	kSwitchMax = 24,
 
+	kMultiTx1 = 25,
+	kMultiTx2 = 26,
+
 	// decorations
 	kDecorationTorch = 30,
 	kDecorationCandle = 32,

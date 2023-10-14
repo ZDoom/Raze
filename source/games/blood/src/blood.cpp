@@ -122,10 +122,10 @@ size_t DBloodActor::PropagateMark()
 static void markgcroots()
 {
 #ifdef NOONE_EXTENSIONS
-	GC::MarkArray(gProxySpritesList, gProxySpritesCount);
-	GC::MarkArray(gSightSpritesList, gSightSpritesCount);
-	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
-	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
+	GC::MarkArray(gProxySpritesList);
+	GC::MarkArray(gSightSpritesList);
+	GC::MarkArray(gPhysSpritesList);
+	GC::MarkArray(gImpactSpritesList);
 	//MarkModernConditions();
 	MarkSprInSect();
 #endif

@@ -45,6 +45,7 @@ void conditionsTrackingProcess();
 void conditionsLinkPlayer(DBloodActor* pXCtrl, DBloodPlayer* pPlay);
 void conditionsUpdateIndex(int oType, int oldIndex, int newIndex);
 void useCondition(DBloodActor* pSource, EVENT* pEvn);
+void conditionListReset();
 
 #ifdef CONDITIONS_USE_BUBBLE_ACTION
 	void conditionsSetIsLocked(DBloodActor* actor, int nValue);

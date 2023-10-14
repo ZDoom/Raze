@@ -2292,6 +2292,12 @@ void conditionsSetIsLocked(DBloodActor* actor, int nValue)
 	if (actor->xspr.busyTime)
 		actor->xspr.busy = 0;
 }
+
+void conditionListReset()
+{
+	gTrackingConditionsList.Clear();
+}
+
 #endif
 
 END_BLD_NS

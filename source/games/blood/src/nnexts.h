@@ -289,6 +289,7 @@ extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 inline TArray<TObjPtr<DBloodActor*>> gProxySpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gSightSpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gPhysSpritesList;
+inline TArray<TObjPtr<DBloodActor*>> gFlwSpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gImpactSpritesList;
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
@@ -423,6 +424,9 @@ bool isMovableSector(sectortype* pSect);
 void killEffectGenCallbacks(DBloodActor* actor);
 bool xsprIsFine(DBloodActor* pSpr);
 bool isOnRespawn(DBloodActor* pSpr);
+void nnExtOffsetPos(const DVector3& opos, DAngle nAng, DVector3& pos);
+void actPropagateSpriteOwner(DBloodActor* pShot, DBloodActor* pSpr);
+int nnExtDudeStartHealth(DBloodActor* pSpr, int nHealth);
 
 inline bool valueIsBetween(int val, int min, int max)
 {
