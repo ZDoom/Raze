@@ -72,9 +72,17 @@ enum
 
 constexpr int kPercFull = 100;
 
+
+enum {
+	kListEndDefault     = -1,
+
+	kListSKIP = 0,
+	kListOK = 1,
+	kListREMOVE = 2,
+};
 enum
 {
-	kPatrolStateSize = 42,
+	kPatrolStateSize = 50,
 	kPatrolAlarmHearDist = 10000,
 	kMaxPatrolSpotValue = 500,
 	kMinPatrolTurnDelay = 8,
@@ -190,6 +198,14 @@ enum {
 };
 
 // - STRUCTS ------------------------------------------------------------------
+
+struct EXTERNAL_FILES_LIST
+{
+	const char* name;
+	const char* ext;
+};
+
+
 struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 	int seqId;
 	FTextureID texid; // mainly needs for moving debris
@@ -208,6 +224,13 @@ struct QAVSCENE { // this one stores qavs anims that can be played by trigger
 
 struct THINGINFO_EXTRA {
 	bool allowThrow; // indicates if kDudeModernCustom can throw it
+};
+
+struct EXPLOSION_EXTRA
+{
+	uint8_t seq;
+	uint16_t snd;
+	bool ground;
 };
 
 struct VECTORINFO_EXTRA {
@@ -234,16 +257,6 @@ struct DUDEINFO_EXTRA {
 
 struct TRPLAYERCTRL { // this one for controlling the player using triggers (movement speed, jumps and other stuff)
 	QAVSCENE qavScene;
-};
-
-struct OBJECTS_TO_TRACK {
-	uint8_t cmd = 0;
-	EventObject obj = EventObject(nullptr);
-};
-
-struct TRCONDITION {
-	DBloodActor* actor = nullptr;
-	TArray<OBJECTS_TO_TRACK> objects;
 };
 
 struct PATROL_FOUND_SOUNDS {
@@ -273,14 +286,10 @@ extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const DUDEINFO_EXTRA gDudeInfoExtra[kDudeMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-inline TObjPtr<DBloodActor*> gProxySpritesList[kMaxSuperXSprites];
-inline TObjPtr<DBloodActor*> gSightSpritesList[kMaxSuperXSprites];
-inline TObjPtr<DBloodActor*> gPhysSpritesList[kMaxSuperXSprites];
-inline TObjPtr<DBloodActor*> gImpactSpritesList[kMaxSuperXSprites];
-inline int gProxySpritesCount;
-inline int gSightSpritesCount;
-inline int gPhysSpritesCount;
-inline int gImpactSpritesCount;
+inline TArray<TObjPtr<DBloodActor*>> gProxySpritesList;
+inline TArray<TObjPtr<DBloodActor*>> gSightSpritesList;
+inline TArray<TObjPtr<DBloodActor*>> gPhysSpritesList;
+inline TArray<TObjPtr<DBloodActor*>> gImpactSpritesList;
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
 
@@ -297,7 +306,7 @@ void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
 int debrisGetFreeIndex(void);
 void debrisBubble(DBloodActor* nSprite);
-void debrisMove(int listIndex);
+void debrisMove(DBloodActor* act);
 void debrisConcuss(DBloodActor* nOwner, int listIndex, const DVector3& pos, int dmg);
 //  -------------------------------------------------------------------------   //
 void aiSetGenIdleState(DBloodActor*);
@@ -413,6 +422,7 @@ bool isMovableSector(int nType);
 bool isMovableSector(sectortype* pSect);
 void killEffectGenCallbacks(DBloodActor* actor);
 bool xsprIsFine(DBloodActor* pSpr);
+bool isOnRespawn(DBloodActor* pSpr);
 
 inline bool valueIsBetween(int val, int min, int max)
 {

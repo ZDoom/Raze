@@ -38,9 +38,20 @@ BEGIN_BLD_NS
 
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
+bool gExternalFilesAdded = false;
 
 CVARD(Bool, nnext_showconditionsprites, false, 0, "makes kModernCondition sprites visable")
 
+EXTERNAL_FILES_LIST gExternFiles[] =
+{
+	{ "CDUD*", "CDU"},
+};
+
+// indicate if object is part of trigger
+// sequence that contains event
+// causer channel
+TMap<DBloodActor*, bool> gEvCauserActor;
+TMap<sectortype*, bool> gEvCauserSector;
 
 
 
@@ -58,10 +69,14 @@ VMNativeFunction** gEffectGenCallbacks[] = {
 
 
 TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-
-TArray<TRCONDITION> gConditions;
-
 std::default_random_engine gStdRandom;
+
+static const EXPLOSION_EXTRA gExplodeExtra[] =
+{
+	{3, 303, true},     {4, 304, false},    {4, 305, false},
+	{9, 307, true},     {5, 307, true},     {4, 303, false},
+	{4, 303, false},    {4, 303, false},
+};
 
 const VECTORINFO_EXTRA gVectorInfoExtra[] = {
 	1207,1207,      1001,1001,      4001,4002,
@@ -162,7 +177,7 @@ const DUDEINFO_EXTRA gDudeInfoExtra[] = {
 	{ false,  true,   0, 8, 9, 9, 11, 10 },         // 251
 	{ false,  false,  -1, -1, -1, -1, -1, -1 },     // 252
 	{ false,  false,  -1, -1, -1, -1, -1, -1 },     // 253
-	{ false,  false,  0, 9, 17, 13, 17, 14 },       // 254
+	{ false,  false,  0, 3, 2, 5, 1, 4 },           // 254 (seq offsets is dude AI state offsets here!)
 	{ false,  false,  -1, -1, -1, -1, -1, -1 },     // 255
 
 };
@@ -172,79 +187,428 @@ AISTATE genPatrolStates[] = {
 
 	//-------------------------------------------------------------------------------
 
-	{ kAiStatePatrolWaitL, 0, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitL, 7, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitL, 0, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitL, 7, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
 
-	{ kAiStatePatrolMoveL, 9, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveL, 8, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveL, 0, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveL, 6, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveL, 7, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveL, 9, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveL, 8, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveL, 0, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveL, 6, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveL, 7, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveL, 3, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
 
-	{ kAiStatePatrolTurnL, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnL, 8, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnL, 0, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnL, 6, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnL, 7, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-
-	//-------------------------------------------------------------------------------
-
-	{ kAiStatePatrolWaitW, 0, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitW, 10, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitW, 13, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitW, 17, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitW, 8, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitW, 9, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-
-	{ kAiStatePatrolMoveW, 0, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveW, 10, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveW, 13, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveW, 8, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveW, 9, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveW, 7, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveW, 6, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-
-	{ kAiStatePatrolTurnW, 0, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnW, 10, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnW, 13, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnW, 8, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnW, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnW, 7, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnW, 6, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnL, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnL, 8, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnL, 0, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnL, 6, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnL, 7, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnL, 3, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
 
 	//-------------------------------------------------------------------------------
 
-	{ kAiStatePatrolWaitC, 17, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitC, 11, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitC, 10, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolWaitC, 14, nullptr, 0, NULL, NULL, &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolWaitW, 0, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitW, 10, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitW, 13, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitW, 17, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitW, 8, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitW, 9, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitW, 2, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
 
-	{ kAiStatePatrolMoveC, 14, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveC, 10, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolMoveC, 9, nullptr, 0, NULL, &AF(aiPatrolMove), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolMoveW, 0, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 10, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 13, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 8, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 9, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 7, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 6, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveW, 5, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
 
-	{ kAiStatePatrolTurnC, 14, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnC, 10, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
-	{ kAiStatePatrolTurnC, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), NULL },
+	{ kAiStatePatrolTurnW, 0, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 10, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 13, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 8, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 7, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 6, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnW, 5, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+
+	//-------------------------------------------------------------------------------
+
+	{ kAiStatePatrolWaitC, 17, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitC, 11, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitC, 10, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitC, 14, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolWaitC, 1, nullptr, 0, nullptr, nullptr, &AF(aiPatrolThink), nullptr },
+
+	{ kAiStatePatrolMoveC, 14, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveC, 10, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveC, 9, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolMoveC, 4, nullptr, 0, nullptr, &AF(aiPatrolMove), &AF(aiPatrolThink), nullptr },
+
+	{ kAiStatePatrolTurnC, 14, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnC, 10, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnC, 9, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
+	{ kAiStatePatrolTurnC, 4, nullptr, 0, &AF(aiPatrolRandGoalAng), &AF(aiPatrolTurn), &AF(aiPatrolThink), nullptr },
 
 	//-------------------------------------------------------------------------------
 
 };
 
-CONDITION_TYPE_NAMES gCondTypeNames[7] = {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-	{kCondGameBase,     kCondGameMax,   "Game"},
-	{kCondMixedBase,    kCondMixedMax,  "Mixed"},
-	{kCondWallBase,     kCondWallMax,   "Wall"},
-	{kCondSectorBase,   kCondSectorMax, "Sector"},
-	{kCondPlayerBase,   kCondPlayerMax, "Player"},
-	{kCondDudeBase,     kCondDudeMax,   "Enemy"},
-	{kCondSpriteBase,   kCondSpriteMax, "Sprite"},
+char idListProcessProxySprite(DBloodActor* actor)
+{
+	int i, okDist;
+	bool causerPart;
 
-};
+	if (actor->spr.flags & kHitagFree) return kListREMOVE;
+	else if (isOnRespawn(actor))
+		return kListSKIP; // don't process
 
-// for actor.cpp
-//-------------------------------------------------------------------------
+	if (actor->xspr.locked) return kListSKIP; // don't process
+	else if (actor->xspr.isTriggered || !actor->xspr.Proximity) return kListREMOVE; // remove from the list
+	else if (!actor->xspr.Interrutable && actor->xspr.state != actor->xspr.restState) // just time out
+		return kListSKIP;
+
+	okDist = (actor->spr.statnum == kStatDude) ? 96 : ClipLow(actor->spr.clipdist * 3, 32);
+	causerPart = gEvCauserActor.CheckKey(actor) != nullptr;
+
+
+	// only check players
+	if (actor->xspr.DudeLockout)
+	{
+		DBloodPlayer* pPlayer;
+		for (i = connecthead; i >= 0; i = connectpoint2[i])
+		{
+			pPlayer = getPlayer(i);
+			if (!xsprIsFine(pPlayer->GetActor()) || pPlayer->GetActor()->xspr.health <= 0)
+				continue;
+
+			if (CheckProximity(pPlayer->GetActor(), actor->spr.pos, actor->spr.sectp, okDist))
+			{
+				trTriggerSprite(actor, kCmdSpriteProximity, pPlayer->GetActor());
+				if (!causerPart)
+					break; // no point to keep going
+			}
+		}
+	}
+	// check all dudes
+	else
+	{
+		BloodStatIterator it(kStatDude);
+		while (auto pDude = it.Next())
+		{
+			if (!xsprIsFine(pDude) || pDude->xspr.health <= 0) continue;
+			else if (CheckProximity(pDude, actor->spr.pos, actor->spr.sectp, okDist))
+			{
+				trTriggerSprite(actor, kCmdSpriteProximity, pDude);
+				if (!causerPart)
+					break; // no point to keep going
+			}
+		}
+	}
+
+	return kListOK;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+char idListProcessSightSprite(DBloodActor* actor)
+{
+	double z[3];
+	int i, j;
+	DBloodPlayer* pPlayer;
+	bool causerPart;
+
+	if (actor->spr.flags & kHitagFree) return kListREMOVE;
+	else if (isOnRespawn(actor))
+		return kListSKIP; // don't process
+
+	if (actor->xspr.locked)  return kListSKIP; // don't process
+	else if (actor->xspr.isTriggered || (!actor->xspr.Sight && !actor->xspr.sightstuff)) return kListREMOVE; // remove from the list
+	else if (!actor->xspr.Interrutable && actor->xspr.state != actor->xspr.restState)
+		return kListSKIP; // just time out
+
+	// sprite is drawn for one of players
+	if ((actor->xspr.sightstuff & kTriggerSpriteScreen) && gGameOptions.nGameType == kGameTypeSinglePlayer && (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
+	{
+		pPlayer = getPlayer(myconnectindex);
+		if (xsprIsFine(pPlayer->GetActor()) && pPlayer->GetActor()->xspr.health)
+		{
+			trTriggerSprite(actor, kCmdSpriteSight, pPlayer->GetActor());
+			actor->spr.cstat2 &= ~CSTAT2_SPRITE_MAPPED;
+		}
+
+		return kListOK;
+	}
+
+	causerPart = gEvCauserActor.CheckKey(actor) != nullptr;
+
+	// check players
+	DBloodPlayer* pPlayer;
+	for (i = connecthead; i >= 0; i = connectpoint2[i])
+	{
+		pPlayer = getPlayer(i);
+		if (!xsprIsFine(pPlayer->GetActor()) || pPlayer->GetActor()->xspr.health <= 0)
+			continue;
+
+		DBloodActor* pPlayAct = pPlayer->GetActor();
+		z[0] = pPlayAct->spr.pos.Z;
+		GetActorExtents(pPlayAct, &z[1], &z[2]);
+		for (j = 0; j < 3; j++)
+		{
+			if (cansee(actor->spr.pos, actor->spr.sectp, DVector3(pPlayAct->spr.pos.XY(), z[j]), pPlayAct->spr.sectp))
+			{
+				if (actor->xspr.Sight)
+				{
+					trTriggerSprite(actor, kCmdSpriteSight, pPlayAct);
+				}
+				else if (actor->xspr.sightstuff & kTriggerSpriteAim)
+				{
+					bool vector = (actor->spr.cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
+					if (!vector)
+						actor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+
+					HitScan(pPlayAct, pPlayer->zWeapon, pPlayer->aim, CLIPMASK0 | CLIPMASK1, 0);
+					if (gHitInfo.hitActor == actor)
+						trTriggerSprite(actor, kCmdSpriteSight, pPlayAct);
+
+					if (!vector)
+						actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
+				}
+
+				break;
+			}
+		}
+
+		if (j < 3 && !causerPart)
+			break; // no point to keep going
+	}
+
+	return kListOK;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+char idListProcessPhysSprite(DBloodActor* actor)
+{
+	if (actor->spr.flags & kHitagFree)
+		return kListREMOVE;
+
+	if (!(actor->xspr.physAttr & kPhysMove) && !(actor->xspr.physAttr & kPhysGravity))
+		return kListREMOVE;
+
+	viewBackupSpriteLoc(actor);
+
+	XSECTOR* pXSector = actor->spr.sectp->hasX()? &actor->spr.sectp->xs() : nullptr;
+
+	bool uwater = false;
+	int mass = getSpriteMassBySize(actor); // make sure the mass cache is actually set.
+	int airVel = actor->spriteMass.airVel;
+
+	double top, bottom;
+	GetActorExtents(actor, &top, &bottom);
+
+	if (pXSector != nullptr)
+	{
+		if ((uwater = pXSector->Underwater) != 0)
+			airVel <<= 6;
+
+		if (pXSector->panVel != 0 && getflorzofslopeptr(actor->spr.sectp, actor->spr.pos.XY()) <= bottom)
+		{
+			DAngle angle = pXSector->panAngle; 
+			double speed = 0;
+			if (pXSector->panAlways || pXSector->state || pXSector->busy)
+			{
+				speed = pXSector->panVel / 128.;
+				if (!pXSector->panAlways && pXSector->busy)
+					speed *= FixedToFloat(pXSector->busy);
+			}
+
+			if (actor->spr.sectp->floorstat & CSTAT_SECTOR_ALIGN)
+				angle += actor->sector()->walls[0].normalAngle();
+
+			actor->vel += angle.ToVector() * speed;
+		}
+	}
+
+	actAirDrag(actor, airVel);
+
+	if (actor->xspr.physAttr & kPhysDebrisTouch)
+	{
+		DBloodPlayer* pPlayer = nullptr;
+		for (int a = connecthead; a != -1; a = connectpoint2[a])
+		{
+			pPlayer = getPlayer(a);
+			DBloodActor* pact = pPlayer->GetActor();
+
+			if (pact && pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == actor)
+			{
+				double nSpeed = pact->vel.XY().Length();
+				nSpeed = max<double>(nSpeed - nSpeed * FixedToFloat<6>(mass), FixedToFloat(0x9000 - (mass << 3))); // very messy math (TM)...
+
+				actor->vel += pPlayer->GetActor()->spr.Angles.Yaw.ToVector() * nSpeed;
+				actor->hit.hit.setSprite(pPlayer->GetActor());
+			}
+		}
+	}
+
+	if (actor->xspr.physAttr & kPhysGravity) actor->xspr.physAttr |= kPhysFalling;
+	if ((actor->xspr.physAttr & kPhysFalling) || !actor->vel.isZero() || actor->sector()->velFloor || actor->sector()->velCeil)
+		debrisMove(actor);
+
+	if (!actor->vel.XY().isZero())
+		actor->xspr.goalAng = actor->vel.Angle();
+
+	actor->norm_ang();
+	DAngle ang = actor->spr.Angles.Yaw;
+	if ((uwater = spriteIsUnderwater(actor)) == false) evKillActor(actor, AF(EnemyBubble));
+	else if (Chance(0x1000 - mass))
+	{
+		if (actor->vel.Z > 0x100) debrisBubble(actor);
+		if (absangle(ang, actor->xspr.goalAng) < minAngle) // need to be very careful with comparing angles for equality!
+		{
+			actor->xspr.goalAng += RandomAngle(kAng60);
+			actor->norm_ang();
+			debrisBubble(actor);
+		}
+	}
+
+	int vdist = max((int)(abs(actor->vel.X) + abs(actor->vel.Y) * 2048.), (uwater) ? 1 : 0);
+	auto angStep = DAngle::fromBuild(vdist);
+
+	if (ang < actor->xspr.goalAng) actor->spr.Angles.Yaw = min(ang + angStep, actor->xspr.goalAng);
+	else if (ang > actor->xspr.goalAng) actor->spr.Angles.Yaw = max(ang - angStep, actor->xspr.goalAng);
+
+	auto pSector = actor->sector();
+	double fz, cz;
+	calcSlope(pSector, actor->spr.pos, &cz, &fz);
+	GetActorExtents(actor, &top, &bottom);
+
+	if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) actor->spr.pos.Z += max(cz - top, 0.);
+	if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & CSTAT_SECTOR_SKY)) actor->spr.pos.Z += min(fz - bottom, 0.);
+
+	return kListOK;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+char dudeIsAlive(DBloodActor* actor)
+{
+	return (actor && actor->spr.statnum == kStatDude && xsprIsFine(actor) && actor->xspr.health);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int nnExtGetStartHealth(DBloodActor* actor)
+{
+	int nRetn = 0;
+	if (actor->IsDudeActor())
+	{
+		if (actor->IsPlayerActor())
+			nRetn = gPlayerTemplate[actor->GetType() - kDudePlayer1].startHealth;
+		else if (actor->hasX() && actor->xspr.data4)
+			nRetn = actor->xspr.data4;
+		else                          
+			nRetn = getDudeInfo(actor)->startHealth;
+	}
+
+	return ClipHigh(nRetn << 4, 65535);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void followTarget(DBloodActor* actor, DBloodActor* pTarg, DAngle nMaxAng)
+{
+	if (cansee(actor->spr.pos, actor->spr.sectp, pTarg->spr.pos, pTarg->spr.sectp))
+	{
+		double zt, zb;
+		DAngle ang = (pTarg->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+
+		DAngle nDAng = absangle(ang, actor->spr.Angles.Yaw);
+
+		if (nMaxAng != nullAngle && nDAng >= nMaxAng)
+			return;
+
+		GetActorExtents(actor, &zt, &zb);
+
+		double dz = pTarg->spr.pos.Z - zb;
+		int zv = actor->vel.Z;
+		DAngle vAng = actor->vel.Angle();
+		DAngle dAng = (ang - vAng).Normalized360();
+		//actor->vel.XY() = rotatepoint(actor->spr.pos.XY(), actor->vel.XY(), dAng);	// this looks dead wrong...
+		actor->vel.XY() = actor->vel.XY().Rotated(dAng);								// what it should be. Velocity has no pivot
+		actor->spr.Angles.Yaw = ang;
+
+		if (!(actor->spr.flags & kPhysGravity))
+		{
+			if ((zv > 0 && pTarg->spr.pos.Z < zb) || (zv < 0 && pTarg->spr.pos.Z > actor->spr.pos.Z))
+				actor->vel.Z = 0;
+		}
+
+		actor->vel.Z += dz;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+char idListProcessFollowSprite(DBloodActor* actor)
+{
+	if ((actor->spr.flags & kHitagFree) || actor->ownerActor == nullptr)
+		return kListREMOVE;
+
+	DBloodActor* pOwn = actor->ownerActor;
+	if (!dudeIsAlive(pOwn))
+		return kListREMOVE;
+
+	DBloodActor* pTarg = actor->prevmarker; // prevmarker was sysdata1
+	if (pTarg && actor->xspr.goalAng != nullAngle)
+	{
+		if (dudeIsAlive(pTarg))
+		{
+			if (pTarg->IsPlayerActor())
+			{
+				auto pPlayer = getPlayer(pTarg);
+				if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+					return kListSKIP;
+			}
+
+			followTarget(actor, pTarg, actor->xspr.goalAng);
+			return kListOK;
+		}
+	}
+
+	return kListREMOVE;
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -257,7 +621,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	DBloodActor* pDudeActor = nullptr;
 
 	if (nType < kDudeBase || nType >= kDudeMax)
-		return NULL;
+		return nullptr;
 
 	auto cls = GetSpawnType(nType);
 	pDudeActor = actSpawnSprite(origin, kStatDude, cls, nType);
@@ -895,7 +1259,7 @@ static int GetDataVal(DBloodActor* actor, int data)
 
 static int randomGetDataValue(DBloodActor* actor, int randType)
 {
-	if (actor == NULL || !actor->hasX()) return -1;
+	if (actor == nullptr || !actor->hasX()) return -1;
 	int random = 0; int bad = 0; int maxRetries = kMaxRandomizeRetries;
 
 	int rData[4];
@@ -986,7 +1350,7 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
 
 DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, double dist, double zadd)
 {
-	DBloodActor* spawned = NULL; int selected = -1;
+	DBloodActor* spawned = nullptr; int selected = -1;
 
 	if ((selected = randomGetDataValue(sourceactor, kRandomizeDude)) > 0)
 		spawned = nnExtSpawnDude(sourceactor, origin, selected, dist, zadd);
@@ -1303,7 +1667,7 @@ void nnExtProcessSuperSprites()
 
 			if (debrisactor->xspr.physAttr & kPhysDebrisTouch)
 			{
-				DBloodPlayer* pPlayer = NULL;
+				DBloodPlayer* pPlayer = nullptr;
 				for (int a = connecthead; a != -1; a = connectpoint2[a])
 				{
 					pPlayer = getPlayer(a);
@@ -1778,14 +2142,14 @@ void debrisMove(int listIndex)
 			}
 
 			moveHit = floorColl;
-			DBloodActor* pFX = NULL, * pFX2 = NULL;
+			DBloodActor* pFX = nullptr, * pFX2 = nullptr;
 			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfLava:
-				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ))) == NULL) break;
+				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ))) == nullptr) break;
 				for (i = 0; i < 7; i++)
 				{
-					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos)) == NULL) continue;
+					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos)) == nullptr) continue;
 					pFX2->vel.X = Random2F(0x6aaaa);
 					pFX2->vel.Y = Random2F(0x6aaaa);
 					pFX2->vel.Z = -Random2F(0xd5555);
@@ -2978,7 +3342,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 	bool toSrcAng = (actor->spr.flags & kModernTypeFlag4);
 	bool toRndAng = (actor->spr.flags & kModernTypeFlag8);
 	bool chgDstAng = !(actor->spr.flags & kModernTypeFlag16);
-	bool toEvnAng = (toDstAng && toSrcAng && initiator != NULL);
+	bool toEvnAng = (toDstAng && toSrcAng && initiator != nullptr);
 	bool toAng = (toDstAng || toSrcAng || toEvnAng || toRndAng);
 	bool toAng180 = (toRndAng && (toDstAng || toSrcAng || toEvnAng));
 
@@ -4290,7 +4654,7 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
 bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 {
 	int var = -1;
-	DBloodPlayer* pPlayer = NULL;
+	DBloodPlayer* pPlayer = nullptr;
 	int cond = aCond->xspr.data1 - kCondPlayerBase;
 	int arg1 = aCond->xspr.data2;
 	int arg2 = aCond->xspr.data3;
@@ -4536,7 +4900,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 
 bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 {
-	int var = -1, var2 = -1, var3 = -1; DBloodPlayer* pPlayer = NULL; bool retn = false;
+	int var = -1, var2 = -1, var3 = -1; DBloodPlayer* pPlayer = nullptr; bool retn = false;
 	int cond = aCond->xspr.data1 - kCondSpriteBase; int arg1 = aCond->xspr.data2;
 	int arg2 = aCond->xspr.data3; int arg3 = aCond->xspr.data4;
 
@@ -4612,7 +4976,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			}
 
 			double range = arg3 * 2;
-			if ((pPlayer = getPlayerById(objActor->GetType())) != NULL)
+			if ((pPlayer = getPlayerById(objActor->GetType())) != nullptr)
 				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim, arg1, range);
 			else if (objActor->IsDudeActor())
 				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.Angles.Yaw.ToVector(), (!objActor->hasX()) ? 0 : objActor->dudeSlope), arg1, range);
@@ -5714,7 +6078,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			else
 			{
 				DBloodPlayer* pPlayer = getPlayerById(actor->xspr.data1);
-				if (pPlayer != NULL)
+				if (pPlayer != nullptr)
 					useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->GetActor());
 			}
 
@@ -5733,7 +6097,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		if (actor->xspr.txID <= 0) 
 		{
 			DBloodPlayer* pPlayer = getPlayerById(actor->xspr.data1);
-			if (pPlayer != NULL && SetSpriteState(actor, actor->xspr.state ^ 1, initiator) == 1)
+			if (pPlayer != nullptr && SetSpriteState(actor, actor->xspr.state ^ 1, initiator) == 1)
 				useTeleportTarget(actor, pPlayer->GetActor());
 			return true;
 		}
@@ -5967,7 +6331,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		return true;
 	case kModernPlayerControl: 
 	{ // WIP
-		DBloodPlayer* pPlayer = NULL; 
+		DBloodPlayer* pPlayer = nullptr; 
 		int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : actor->xspr.command;
 
 
@@ -5977,7 +6341,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		else
 			playerID = actor->xspr.data1;
 
-		if ((pPlayer = getPlayerById(playerID)) == NULL
+		if ((pPlayer = getPlayerById(playerID)) == nullptr
 			|| ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator)))
 			return true;
 
@@ -7279,7 +7643,7 @@ void playerQavSceneProcess(DBloodPlayer* pPlayer, QAVSCENE* pQavScene)
 
 		pQavScene->initiator = nullptr;
 		pPlayer->sceneQav = -1;
-		pQavScene->qavResrc = NULL;
+		pQavScene->qavResrc = nullptr;
 	}
 }
 
@@ -7291,12 +7655,12 @@ void playerQavSceneProcess(DBloodPlayer* pPlayer, QAVSCENE* pQavScene)
 
 void playerQavSceneDraw(DBloodPlayer* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle)
 {
-	if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
+	if (pPlayer == nullptr || pPlayer->sceneQav == -1) return;
 
 	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->pnum].qavScene;
 	auto actor = pQavScene->initiator;
 
-	if (pQavScene->qavResrc != NULL)
+	if (pQavScene->qavResrc != nullptr)
 	{
 		QAV* pQAV = pQavScene->qavResrc;
 		int duration;
@@ -7335,13 +7699,13 @@ void playerQavSceneDraw(DBloodPlayer* pPlayer, int shade, double xpos, double yp
 
 void playerQavScenePlay(DBloodPlayer* pPlayer)
 {
-	if (pPlayer == NULL) return;
+	if (pPlayer == nullptr) return;
 
 	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->pnum].qavScene;
 	if (pPlayer->sceneQav == -1 && pQavScene->initiator != nullptr)
 		pPlayer->sceneQav = pQavScene->initiator->xspr.data2;
 
-	if (pQavScene->qavResrc != NULL)
+	if (pQavScene->qavResrc != nullptr)
 	{
 		QAV* pQAV = pQavScene->qavResrc;
 		int nTicks = pQAV->duration - pPlayer->weaponTimer;
@@ -7354,7 +7718,7 @@ void playerQavSceneReset(DBloodPlayer* pPlayer)
 	QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->pnum].qavScene;
 	pQavScene->initiator = nullptr;
 	pQavScene->dummy = pPlayer->sceneQav = -1;
-	pQavScene->qavResrc = NULL;
+	pQavScene->qavResrc = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -7387,7 +7751,7 @@ DBloodPlayer* getPlayerById(int id)
 	}
 
 	//viewSetSystemMessage("There is no player id #%d", id);
-	return NULL;
+	return nullptr;
 }
 
 bool IsKillableDude(DBloodActor* actor)
@@ -8299,7 +8663,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
 	assert(actor->IsDudeActor());
-	DUDEINFO* pDudeInfo = getDudeInfo(actor); DBloodPlayer* pPlayer = NULL;
+	DUDEINFO* pDudeInfo = getDudeInfo(actor); DBloodPlayer* pPlayer = nullptr;
 
 	for (int i = 0; i < kMaxPatrolFoundSounds; i++)
 	{
@@ -8994,7 +9358,7 @@ DBloodActor* evrListRedirectors(int objType, sectortype* pSector, walltype* pWal
 	}
 
 	*tx = -1;
-	return NULL;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------
