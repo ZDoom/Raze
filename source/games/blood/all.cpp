@@ -71,7 +71,8 @@
 
 #ifdef NOONE_EXTENSIONS
 #include "src/nnsprinsect.cpp"
-#include "src/nnexts.cpp"
+//#include "src/nnexts.cpp"
+#include "src/nnextsif.cpp"
 #include "src/nnextstr.cpp"
 #endif
 

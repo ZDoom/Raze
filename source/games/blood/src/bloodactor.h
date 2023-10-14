@@ -32,7 +32,7 @@ public:
 #ifdef NOONE_EXTENSIONS
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
-	EventObject condition[2];
+	EventObject condition[4];
 	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 #endif
 	DVector3 basePoint;

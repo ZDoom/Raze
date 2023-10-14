@@ -146,7 +146,7 @@ struct XSECTOR {
 			unsigned int state : 1;             // State
 			unsigned int triggerOn : 1;         // Send at ON
 			unsigned int triggerOff : 1;        // Send at OFF
-			unsigned int restState : 1;
+			unsigned int restState : 1;			// was unused1
 			unsigned int interruptable : 1;     // Interruptable
 			unsigned int reTriggerA : 1;        // OFF->ON wait
 			unsigned int reTriggerB : 1;        // ON->OFF wait

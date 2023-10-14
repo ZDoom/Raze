@@ -273,7 +273,6 @@ extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const DUDEINFO_EXTRA gDudeInfoExtra[kDudeMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-extern TArray<TRCONDITION> gConditions;
 inline TObjPtr<DBloodActor*> gProxySpritesList[kMaxSuperXSprites];
 inline TObjPtr<DBloodActor*> gSightSpritesList[kMaxSuperXSprites];
 inline TObjPtr<DBloodActor*> gPhysSpritesList[kMaxSuperXSprites];
@@ -420,6 +419,10 @@ inline bool valueIsBetween(int val, int min, int max)
 	return (val > min && val < max);
 }
 
+inline bool rngok(int val, int min, int max)
+{
+	return (val > min && val < max);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.
