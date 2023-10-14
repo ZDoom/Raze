@@ -424,6 +424,8 @@ inline bool rngok(int val, int min, int max)
 	return (val > min && val < max);
 }
 
+inline int EVTIME2TICKS(int x) { return ((x * 120) / 10); }
+
 ////////////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.
 // For full documentation please visit http://cruo.bloodgame.ru/xxsystem

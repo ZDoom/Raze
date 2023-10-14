@@ -28,12 +28,6 @@ BEGIN_BLD_NS
 // Object storage helper that packs the value into 8 bytes. This depends on pointer alignment being a multiple of 8 bytes for actors
 class EventObject
 {
-	enum EType
-	{
-		Actor = 0,
-		Sector = 1,
-		Wall = 2
-	};
 	union
 	{
 		DBloodActor* ActorP;
@@ -41,6 +35,14 @@ class EventObject
 	};
 
 public:
+	enum EType
+	{
+		Actor = 0,
+		Sector = 1,
+		Wall = 2,
+		Invalid = 7
+	};
+
 	EventObject() = default;
 	explicit EventObject(std::nullptr_t) { index = -1; }
 	explicit EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); }
@@ -50,10 +52,12 @@ public:
 	bool isActor() const { return (index & 7) == Actor; }
 	bool isSector() const { return (index & 7) == Sector; }
 	bool isWall() const { return (index & 7) == Wall; }
+	int type() const { return index & 7; }
 
+	DBloodActor* actor() const { assert(isActor()); return ActorP; }
 	DBloodActor* actor() { assert(isActor()); return GC::ReadBarrier(ActorP); }
-	sectortype* sector() { assert(isSector()); return &::sector[index >> 8]; }
-	walltype* wall() { assert(isWall()); return &::wall[index >> 8]; }
+	sectortype* sector() const { assert(isSector()); return &::sector[index >> 8]; }
+	walltype* wall() const { assert(isWall()); return &::wall[index >> 8]; }
 	int rawindex() { return int(index >> 8); }
 
 	bool operator==(const EventObject& other) const { return index == other.index; }

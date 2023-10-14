@@ -126,10 +126,7 @@ static void markgcroots()
 	GC::MarkArray(gSightSpritesList, gSightSpritesCount);
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
-	for (auto& cond : gConditions)
-	{
-		for (auto& obj : cond.objects) obj.obj.Mark();
-	}
+	//MarkModernConditions();
 	MarkSprInSect();
 #endif
 	for (auto& evobj : rxBucket)

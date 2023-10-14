@@ -39,7 +39,6 @@ BEGIN_BLD_NS
 
 
 void conditionsInit(bool bSaveLoad);
-void conditionsError(DBloodActor* actor, const char* pFormat, ...);
 void conditionsTrackingAlloc(bool bSaveLoad);
 void conditionsTrackingClear();
 void conditionsTrackingProcess();

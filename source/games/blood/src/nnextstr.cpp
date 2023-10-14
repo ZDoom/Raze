@@ -83,7 +83,7 @@ int enumStr(int nOffs, const char* str, char* key, char* val)
 
 	if (isarray(str))
 	{
-		t = strlen(str);
+		t = (int)strlen(str);
 		strcpy(string, str);
 
 		pStr = &string[(string[0] == '(')];
@@ -117,7 +117,9 @@ int enumStr(int nOffs, const char* str, char* key, char* val)
 						{
 							if ((nOffs = enumStr(nOffs, str, tval)) != 0)
 							{
-								t = strlen(tval); strcat(val, ","); strcat(val, tval);
+								t = (int)strlen(tval);
+								strcat(val, ","); 
+								strcat(val, tval);
 								if (tval[t - 1] != ')')
 									continue;
 							}
@@ -151,7 +153,7 @@ int enumStr(int nOffs, const char* str, char* val)
 	char string[256];
 	int t;
 
-	t = strlen(str);
+	t = (int)strlen(str);
 	strcpy(string, str);
 	string[t] = '\0';
 
@@ -170,7 +172,7 @@ void removeSpaces(char* str)
 {
 	if (str)
 	{
-		int t = strlen(str);
+		int t = (int)strlen(str);
 		for (int i = t - 1; i >= 0; i--)
 		{
 			if (!isspace(str[i]))
@@ -206,7 +208,7 @@ char isarray(const char* str, int* nLen)
 
 	if (str)
 	{
-		int l = strlen(str);
+		int l = (int)strlen(str);
 		if (l && str[0] == '(' && str[l - 1] == ')')
 		{
 			if (nLen)
@@ -228,7 +230,7 @@ char isperc(const char* str)
 {
 	if (str)
 	{
-		int l = strlen(str);
+		int l = (int)strlen(str);
 		if (--l > 0 && str[l] == '%')
 		{
 			while (--l > 0)
@@ -249,7 +251,7 @@ char isfix(const char* str, char flags)
 {
 	if (str)
 	{
-		int l = strlen(str);
+		int l = (int)strlen(str);
 		if (l > 0)
 		{
 			if (!isdigit(str[0]))
