@@ -31,8 +31,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "blood.h"
 #include "texids.h"
+#ifdef NOONE_EXTENSIONS
+#include "aicdud.h"
 #include "nnexts.h"
 #include "nnextcdud.h"
+#endif
 
 BEGIN_BLD_NS
 
@@ -891,17 +894,13 @@ static void actInitDudes()
 				switch (act->GetType())
 				{
 				case kDudeModernCustom:
-					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
-					if (act->xspr.data2 > 0 && getSequence(act->xspr.data2))
-						seqStartId = act->xspr.data2; //  Custom Dude stores it's SEQ in data2
-
-					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
-					act->xspr.sysData1 = act->xspr.data3; // move sndStartId to sysData1, because data3 used by the game;
-					act->xspr.data3 = 0;
-					break;
-
 				case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
-					if (gModernMap) break;
+					if (gModernMap)
+					{
+						act->xspr.sysData1 = act->xspr.data3; // move sndStartId to sysData1, because data3 used by the game;
+						act->xspr.data3 = 0;
+						continue;
+					}
 					[[fallthrough]];
 				default:
 					act->clipdist = pDudeInfo->fClipdist();
@@ -974,13 +973,13 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 		{
 			mass = getDudeInfo(actor)->mass;
 #ifdef NOONE_EXTENSIONS
-			if (actor->GetType() == kDudeModernCustom)
+			if (IsCustomDude(actor))
 			{
-				mass = getSpriteMassBySize(actor);
+				mass = cdudeGet(actor)->mass;
 			}
 #endif
 		}
-		else if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax)
+		else if (actor->IsThingActor())
 		{
 			mass = actor->IntVar("mass");
 		}
@@ -1170,11 +1169,6 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 {
 	switch (actor->GetType())
 	{
-#ifdef NOONE_EXTENSIONS
-	case kDudeModernCustom:
-		if (actKillModernDude(actor, damageType)) return true;
-		break;
-#endif
 	case kDudeCerberusTwoHead: // Cerberus
 		seqSpawn(getDudeInfo(actor)->seqStartID + 1, actor, nullptr);
 		return true;
@@ -1308,19 +1302,6 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 		nSeq = 2;
 		switch (actor->GetType())
 		{
-#ifdef NOONE_EXTENSIONS
-		case kDudeModernCustom:
-		{
-			playGenDudeSound(actor, kGenDudeSndDeathExplode);
-			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-			if (!pExtra->availDeaths[damageType])
-			{
-				nSeq = 1;
-				damageType = kDamageFall;
-			}
-			break;
-		}
-#endif
 		case kDudeCultistTommy:
 		case kDudeCultistShotgun:
 		case kDudeCultistTommyProne:
@@ -1499,9 +1480,16 @@ static void genericDeath(DBloodActor* actor, int nSeq, int sound1, int seqnum)
 void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 {
 	assert(actor->IsDudeActor()&& actor->hasX());
-	auto pDudeInfo = getDudeInfo(actor);
 
+#ifdef NOONE_EXTENSIONS
+	if (IsCustomDude(actor))
+	{
+		cdudeGet(actor)->Kill(killerActor, damageType, damage);
+		return;
+	}
+#endif
 	if (actKillDudeStage1(actor, damageType)) return;
+	auto pDudeInfo = getDudeInfo(actor);
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
@@ -1511,7 +1499,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 	if (actor->GetType() != kDudeCultistBeast)
 		trTriggerSprite(actor, kCmdOff, killerActor);
 
-	actor->spr.flags |= 7;
+	actor->spr.flags |= kPhysMove | kPhysGravity | kPhysFalling;
 	checkAddFrag(killerActor, actor);
 	checkDropObjects(actor);
 
@@ -1544,14 +1532,6 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		burningCultistDeath(actor, nSeq);
 		damageType = kDamageExplode;
 		break;
-
-#ifdef NOONE_EXTENSIONS
-	case kDudeModernCustom:
-		modernCustomDudeDeath(actor, nSeq, damageType);
-		genDudePostDeath(actor, damageType, damage);
-		return;
-
-#endif
 
 	case kDudeBurningZombieAxe:
 		zombieAxeBurningDeath(actor, nSeq);
@@ -1716,7 +1696,14 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 		return damage >> 4;
 	}
 
-	int nDamageFactor = actor->dmgControl[damageType];
+	int nDamageFactor;
+#ifdef NOONE_EXTENSIONS
+	if (IsCustomDude(actor))
+		nDamageFactor = cdudeGet(actor)->GetDamage(source, damageType);
+	else
+#else
+		nDamageFactor = actor->dmgControl[damageType];
+#endif
 
 	if (!nDamageFactor) return 0;
 	else if (nDamageFactor != 256) damage = MulScale(damage, nDamageFactor, 8);
@@ -1768,8 +1755,8 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			actor->xspr.stateTimer = actor->xspr.data4 = actor->xspr.isTriggered = 0;
 
 #ifdef NOONE_EXTENSIONS
-			if (Owner && Owner->GetType() == kDudeModernCustom)
-				Owner->SetSpecialOwner(); // indicates if custom dude had life leech.
+			if (Owner && IsCustomDude(Owner))
+				cdudeGet(Owner)->LeechKill(false);
 #endif
 			break;
 
@@ -2269,12 +2256,8 @@ static void checkCeilHit(DBloodActor* actor)
 						int mass1 = getDudeInfo(actor2)->mass;
 						int mass2 = getDudeInfo(actor)->mass;
 #ifdef NOONE_EXTENSIONS
-						switch (actor->GetType())
-						{
-						case kDudeModernCustom:
-							mass2 = getSpriteMassBySize(actor);
-							break;
-						}
+						if (IsCustomDude(actor))
+							mass2 = cdudeGet(actor)->mass;
 #endif
 						if (mass1 > mass2)
 						{
@@ -2293,22 +2276,6 @@ static void checkCeilHit(DBloodActor* actor)
 						case kDudeTchernobog:
 							actDamageSprite(actor2, actor, kDamageExplode, actor->xspr.health << 2);
 							break;
-#ifdef NOONE_EXTENSIONS
-						case kDudeModernCustom:
-							int dmg = 0;
-							if (!actor->IsDudeActor() || (dmg = ClipLow((getSpriteMassBySize(actor2) - getSpriteMassBySize(actor)) >> 1, 0)) == 0)
-								break;
-
-							if (!actor->IsPlayerActor())
-							{
-								actDamageSprite(actor2, actor, kDamageFall, dmg);
-								if (actor->hasX() && !actor->isActive()) aiActivateDude(actor);
-							}
-							else if (powerupCheck(getPlayer(actor), kPwUpJumpBoots) > 0) actDamageSprite(actor2, actor, kDamageExplode, dmg);
-							else actDamageSprite(actor2, actor, kDamageFall, dmg);
-							break;
-#endif
-
 						}
 
 					}
@@ -2384,12 +2351,8 @@ static void checkHit(DBloodActor* actor)
 					int mass1 = getDudeInfo(actor)->mass;
 					int mass2 = getDudeInfo(actor2)->mass;
 #ifdef NOONE_EXTENSIONS
-					switch (actor2->GetType())
-					{
-					case kDudeModernCustom:
-						mass2 = getSpriteMassBySize(actor2);
-						break;
-					}
+					if (IsCustomDude(actor2))
+						mass2 = cdudeGet(actor2)->mass;
 #endif
 					if (mass1 > mass2)
 					{
@@ -2455,12 +2418,8 @@ static void checkFloorHit(DBloodActor* actor)
 				int mass1 = getDudeInfo(actor)->mass;
 				int mass2 = getDudeInfo(actor2)->mass;
 #ifdef NOONE_EXTENSIONS
-				switch (actor2->GetType())
-				{
-				case kDudeModernCustom:
-					mass2 = getSpriteMassBySize(actor2);
-					break;
-				}
+				if (IsCustomDude(actor2))
+					mass2 = cdudeGet(actor2)->mass;
 #endif
 				if (mass1 > mass2 && actor2->IsDudeActor())
 				{
@@ -3148,19 +3107,22 @@ void MoveDude(DBloodActor* actor)
 				}
 
 #ifdef NOONE_EXTENSIONS
-				if (gModernMap) {
-
-					if (actor->GetType() == kDudeModernCustom) {
-
+				if (gModernMap) 
+				{
+					if (IsCustomDude(actor))
+					{
 						evPostActor(actor, 0, AF(EnemyBubble));
-						if (!canSwim(actor)) actKillDude(actor, actor, kDamageFall, 1000 << 4);
+						if (!cdudeGet(actor)->CanSwim())
+						{
+							actKillDude(actor, actor, kDamageFall, 1000 << 4);
+							return;
+						}
 						break;
 					}
 
 					// continue patrol when fall into water
 					if (actor->IsDudeActor() && actor->xspr.health > 0 && aiInPatrolState(nAiStateType))
 						aiPatrolState(actor, kAiStatePatrolMoveW);
-
 				}
 #endif
 
@@ -3938,44 +3900,50 @@ static void actCheckExplosion()
 			getPlayer(p)->flickerEffect += t;
 		}
 
-#if 0 //def NOONE_EXTENSIONS temporarily disabled
-		if (actor->xspr.data1 != 0)
-		{
-			// add impulse for sprites from physics list
-			if (gPhysSpritesCount > 0 && pExplodeInfo->dmgType != 0)
-			{
-				for (int i = 0; i < gPhysSpritesCount; i++)
-				{
-					if (gPhysSpritesList[i] == nullptr) continue;
-					DBloodActor* physactor = gPhysSpritesList[i];
-					if (!physactor->insector() || (physactor->spr.flags & kHitagFree) != 0) continue;
+#ifdef NOONE_EXTENSIONS
 
-					if (!CheckSector(sectorMap, physactor) || !CheckProximity(physactor, apos, pSector, radius)) continue;
-					else debrisConcuss(Owner, i, apos, pExplodeInfo->dmgType);
+		if (gModernMap && actor->xspr.data1 != 0)
+		{
+			if (pExplodeInfo->dmgType != 0)
+			{
+				// add impulse for sprites from physics list
+				for(int i = gPhysSpritesList.SSize() - 1; i >= 0; i--)
+				{
+					DBloodActor* pSpr = gPhysSpritesList[i];
+					if (pSpr && !(pSpr->spr.flags & kHitagFree))
+					{
+						if (!isOnRespawn(pSpr) && CheckSector(sectorMap, pSpr) && CheckProximity(pSpr, apos, pSector, radius))
+							debrisConcuss(Owner, pSpr, apos, pExplodeInfo->dmgType);
+					}
 				}
 			}
+
 
 			// trigger sprites from impact list
-			if (gImpactSpritesCount > 0) {
-				for (int i = 0; i < gImpactSpritesCount; i++)
+			for (int i = gImpactSpritesList.SSize() - 1; i >= 0; i--)
+			{
+				DBloodActor* pSpr = gImpactSpritesList[i];
+				if (pSpr && !(pSpr->spr.flags & kHitagFree))
 				{
-					if (gImpactSpritesList[i] == nullptr) continue;
+					if (pSpr->xspr.Impact && !pSpr->xspr.isTriggered)
+					{
+						if (!isOnRespawn(pSpr) && CheckSector(sectorMap, pSpr) && CheckProximity(pSpr, apos, pSector, radius))
+							trTriggerSprite(pSpr, kCmdSpriteImpact, Owner ? Owner : actor);
 
-					DBloodActor* impactactor = gImpactSpritesList[i];
-					if (!impactactor->hasX() || !impactactor->insector() || (impactactor->spr.flags & kHitagFree) != 0)	continue;
-
-					if (!CheckSector(sectorMap, impactactor) || !CheckProximity(impactactor, apos, pSector, radius))
 						continue;
-
-					trTriggerSprite(impactactor, kCmdSpriteImpact, Owner);
+					}
 				}
-			}
 
+				// remove from list
+				gImpactSpritesList.Delete(i);
+			}
 		}
 
 		if (!gModernMap || !(actor->spr.flags & kModernTypeFlag1))
 		{
-			// if data4 > 0, do not remove explosion. This can be useful when designer wants put explosion generator in map manually via sprite statnum 2.
+			// do not remove explosion.
+			// can be useful when designer wants put explosion
+			// generator in map manually via sprite statnum 2.
 			actor->xspr.data1 = ClipLow(actor->xspr.data1 - 4, 0);
 			actor->xspr.data2 = ClipLow(actor->xspr.data2 - 4, 0);
 			actor->xspr.data3 = ClipLow(actor->xspr.data3 - 4, 0);
@@ -4058,14 +4026,6 @@ static void actCheckDudes()
 				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 			}
 
-#ifdef NOONE_EXTENSIONS
-			// handle incarnations of custom dude
-			if (actor->GetType() == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
-			{
-				actor->vel.XY().Zero();
-				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
-			}
-#endif
 			if (actor->GetType() == kDudeCerberusTwoHead)
 			{
 				if (actor->xspr.health <= 0 && seqGetStatus(actor) < 0)
@@ -4098,17 +4058,17 @@ static void actCheckDudes()
 
 				if (pPlayer->isUnderwater)
 				{
-					bool bActive = packItemActive(pPlayer, 1);
+					bool bDivingSuit = packItemActive(pPlayer, kPackDivingSuit);
 
-					if (bActive || pPlayer->godMode) pPlayer->underwaterTime = 1200;
+					if (bDivingSuit || pPlayer->godMode) pPlayer->underwaterTime = 1200;
 					else pPlayer->underwaterTime = ClipLow(pPlayer->underwaterTime - 4, 0);
 
-					if (pPlayer->underwaterTime < 1080 && packCheckItem(pPlayer, 1) && !bActive)
-						packUseItem(pPlayer, 1);
+					if (pPlayer->underwaterTime < 1080 && packCheckItem(pPlayer, kPackDivingSuit) && !bDivingSuit)
+						packUseItem(pPlayer, kPackDivingSuit);
 
 					if (!pPlayer->underwaterTime)
 					{
-						pPlayer->chokeEffect += 4;
+						pPlayer->chokeEffect += kTicsPerFrame;
 						if (Chance(pPlayer->chokeEffect))
 							actDamageSprite(actor, actor, kDamageDrown, 3 << 4);
 					}
@@ -4640,14 +4600,9 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 				int mass = getDudeInfo(actor)->mass;
 
 #ifdef NOONE_EXTENSIONS
-				if (actor->IsDudeActor())
+				if (IsCustomDude(actor))
 				{
-					switch (actor->GetType())
-					{
-					case kDudeModernCustom:
-						mass = getSpriteMassBySize(actor);
-						break;
-					}
+					mass = cdudeGet(actor)->mass;
 				}
 #endif
 
@@ -4703,7 +4658,6 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			// add impulse for sprites from physics list
 			if (gPhysSpritesList.Size() > 0 && pVectorData->impulse)
 			{
-
 				if (actor->hasX())
 				{
 					if (actor->xspr.physAttr & kPhysDebrisVector) 
@@ -4712,12 +4666,14 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 						double thrust = double(pVectorData->impulse) / (mass * 4096);
 						actor->vel += dv * thrust;
 
-						if (pVectorData->burnTime != 0) {
+						if (pVectorData->burnTime != 0) 
+						{
 							if (!actor->xspr.burnTime) evPostActor(actor, 0, AF(fxFlameLick));
 							actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 						}
 
-						if (actor->GetType() >= kThingBase && actor->GetType() < kThingMax) {
+						if (actor->IsThingActor())
+						{
 							actor->spr.statnum = kStatThing; // temporary change statnum property
 							actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << 4);
 							actor->spr.statnum = kStatDecoration; // return statnum property back
@@ -4908,6 +4864,38 @@ void MakeSplash(DBloodActor* actor)
 	actor->spr.flags &= ~2;
 	actor->spr.pos.Z -= 4;
 	int nSurface = tileGetSurfType(actor->hit.florhit);
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap)
+	{
+		auto owner = actor->ownerActor;
+		if (!actor->ownerActor) owner = actor;
+
+		switch (actor->GetType()) 
+		{
+		case kThingDripWater:
+			switch (nSurface) 
+			{
+			case kSurfWater:
+				seqSpawn(6, actor);
+				if (owner->xspr.data2 >= 0)
+					sfxPlay3DSound(actor, (!owner->xspr.data2) ? 356 : owner->xspr.data2, -1, 0);
+				return;
+			default:
+				seqSpawn(7, actor);
+				if (owner->xspr.data2 >= 0)
+					sfxPlay3DSound(actor, (!owner->xspr.data2) ? 354 : owner->xspr.data2, -1, 0);
+				return;
+			}
+			return;
+		case kThingDripBlood:
+			seqSpawn(8, actor);
+			if (owner->xspr.data2 >= 0)
+				sfxPlay3DSound(actor, (!owner->xspr.data2) ? 354 : owner->xspr.data2, -1, 0);
+			return;
+		}
+	}
+#endif
+
 	switch (actor->GetType())
 	{
 	case kThingDripWater:
