@@ -197,8 +197,17 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 		if (Underwater)
 			return true;
 		break;
-	case kDudeCerberusTwoHead:
 	case kDudeCerberusOneHead:
+		if (VanillaMode())
+		{
+			if (Crusher)
+				return false;
+			if ((!pSector->hasX() || (!pSector->xs().Underwater && !pSector->xs().Depth)) && floorZ - bottom > 0x2000)
+				return false;
+			break;
+		}
+		[[fallthrough]];
+	case kDudeCerberusTwoHead:
 		// by NoOne: a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
 		// It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
 		// in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
@@ -222,9 +231,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 		break;
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
-		if ((Crusher && !nnExtIsImmune(actor, pXSector->damageType)) || ((Water || Underwater) && !canSwim(actor))) return false;
-		return true;
-		[[fallthrough]];
+		return cdudeGet(actor)->CanMove(pSector, Crusher, Water, Underwater, Depth, bottom, floorZ);
 #endif
 	case kDudeZombieAxeNormal:
 	case kDudePhantasm:
@@ -420,25 +427,8 @@ void aiActivateDude(DBloodActor* actor)
 	}
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
-	{
-		
-		actor->dudeExtra.active = 1;
-		if (actor->GetTarget() == nullptr)
-		{
-			if (spriteIsUnderwater(actor, false))  aiGenDudeNewState(actor, &genDudeSearchW);
-			else aiGenDudeNewState(actor, &genDudeSearchL);
-		}
-		else
-		{
-			if (Chance(0x4000)) playGenDudeSound(actor,kGenDudeSndTargetSpot);
-			if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeChaseW);
-			else aiGenDudeNewState(actor, &genDudeChaseL);
-		}
-		break;
-	}
-		if (actor->GetTarget() == nullptr) aiGenDudeNewState(actor, &genDudeBurnSearch);
-		else aiGenDudeNewState(actor, &genDudeBurnChase);
-		break;
+		cdudeGet(actor)->Activate();
+		return;
 #endif
 	case kDudeCultistTommyProne:
 	{
@@ -971,7 +961,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 				auto pPlayer = getPlayer(source->GetType());
 				if (!pPlayer) return nDamage;
-				//if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
+
 				if (readyForCrit(source, actor)) 
 				{
 					nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
@@ -984,84 +974,13 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 							RecoilDude(actor);
 						}
 					}
-
-					DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->pnum + 1, actor->GetIndex());
 				}
 
 				return nDamage;
 			}
+			if (IsCustomDude(actor))
+				return cdudeGet(actor)->Damage(source, nDmgType, nDamage);
 
-			if (actor->GetType() == kDudeModernCustom)
-			{
-				GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-				if (nDmgType == kDamageBurn)
-				{
-					if (actor->xspr.health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
-					else if (actor->xspr.txID <= 0 || getNextIncarnation(actor) == nullptr) 
-					{
-						removeDudeStuff(actor);
-
-						if (pExtra->weaponType == kGenDudeWeaponKamikaze)
-							doExplosion(actor, actor->xspr.data1 - kTrapExploder);
-
-						if (spriteIsUnderwater(actor)) 
-						{
-							actor->xspr.health = 0;
-							return nDamage;
-						}
-
-						if (actor->xspr.burnTime <= 0)
-							actor->xspr.burnTime = 1200;
-
-						if (pExtra->canBurn && pExtra->availDeaths[kDamageBurn] > 0) {
-
-							aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
-							playGenDudeSound(actor,kGenDudeSndBurning);
-							//actor->ChangeType(kDudeModernCustomBurning);
-
-							if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
-								actor->spr.pal = 0;
-
-							aiGenDudeNewState(actor, &genDudeBurnGoto);
-							actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-							actor->dudeExtra.time = PlayClock + 360;
-							evKillActor(actor, AF(fxFlameLick));
-
-						}
-					}
-					else
-					{
-						actKillDude(actor, actor, kDamageFall, 65535);
-					}
-				} 
-				else if (canWalk(actor) && !inDodge(actor->xspr.aiState) && !inRecoil(actor->xspr.aiState))
-				{
-					if (!dudeIsMelee(actor)) 
-					{
-						if (inIdle(actor->xspr.aiState) || Chance(getDodgeChance(actor))) 
-						{
-							if (!spriteIsUnderwater(actor)) 
-							{
-								if (!canDuck(actor) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(actor, &genDudeDodgeShortL);
-								else aiGenDudeNewState(actor, &genDudeDodgeShortD);
-
-								if (Chance(0x0200))
-									playGenDudeSound(actor,kGenDudeSndGotHit);
-
-							}
-							else if (dudeIsPlayingSeq(actor, 13))
-							{
-								aiGenDudeNewState(actor, &genDudeDodgeShortW);
-							}
-						}
-					}
-					else if (Chance(0x0200))
-					{
-						playGenDudeSound(actor,kGenDudeSndGotHit);
-					}
-				}
-				return nDamage;
-			}
 		}
 #endif
 
@@ -1211,56 +1130,8 @@ void RecoilDude(DBloodActor* actor)
 		{
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
-		{
-			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-			int rChance = getRecoilChance(actor);
-			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(actor, false))
-			{
-				if (Chance(rChance << 3) || (dudeIsMelee(actor) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
-				else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(actor, &genDudeRecoilL);
-				else if (canWalk(actor))
-				{
-
-					if (Chance(rChance >> 2)) aiGenDudeNewState(actor, &genDudeDodgeL);
-					else if (Chance(rChance >> 1)) aiGenDudeNewState(actor, &genDudeDodgeShortL);
-
-				}
-
-			}
-			else if (pExtra->canRecoil && Chance(rChance))
-			{
-				if (inDuck(actor->xspr.aiState) && Chance(rChance >> 2)) aiGenDudeNewState(actor, &genDudeRecoilD);
-				else if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeRecoilW);
-				else aiGenDudeNewState(actor, &genDudeRecoilL);
-			}
-
-			int rState = inRecoil(actor->xspr.aiState);
-			if (rState > 0)
-			{
-				if (!canWalk(actor))
-				{
-					if (rState == 1) actor->xspr.aiState->nextState = &genDudeChaseNoWalkL;
-					else if (rState == 2) actor->xspr.aiState->nextState = &genDudeChaseNoWalkD;
-					else actor->xspr.aiState->nextState = &genDudeChaseNoWalkW;
-
-				}
-				else if (!dudeIsMelee(actor) || Chance(rChance >> 2))
-				{
-					if (rState == 1) actor->xspr.aiState->nextState = (Chance(rChance) ? &genDudeDodgeL : &genDudeDodgeShortL);
-					else if (rState == 2) actor->xspr.aiState->nextState = (Chance(rChance) ? &genDudeDodgeD : &genDudeDodgeShortD);
-					else if (rState == 3) actor->xspr.aiState->nextState = (Chance(rChance) ? &genDudeDodgeW : &genDudeDodgeShortW);
-				}
-				else if (rState == 1) actor->xspr.aiState->nextState = &genDudeChaseL;
-				else if (rState == 2) actor->xspr.aiState->nextState = &genDudeChaseD;
-				else actor->xspr.aiState->nextState = &genDudeChaseW;
-
-				playGenDudeSound(actor,kGenDudeSndGotHit);
-
-			}
-
-			pDudeExtra->teslaHit = 0;
+			cdudeGet(actor)->Recoil();
 			break;
-		}
 #endif
 		case kDudeCultistTommy:
 		case kDudeCultistShotgun:
@@ -1570,9 +1441,14 @@ void aiProcessDudes(void)
 	BloodStatIterator it(kStatDude);
 	while (auto actor = it.Next())
 	{
-		if (actor->spr.flags & 32) continue;
-		DUDEINFO* pDudeInfo = getDudeInfo(actor);
-		if (actor->IsPlayerActor() || actor->xspr.health == 0) continue;
+		if (actor->spr.flags & kHitagFree || actor->IsPlayerActor()) continue;
+		if (IsCustomDude(actor))
+		{
+			cdudeGet(actor)->Process();
+			continue;
+		}
+
+		if (actor->xspr.health == 0) continue;
 
 		actor->xspr.stateTimer = ClipLow(actor->xspr.stateTimer - 4, 0);
 
@@ -1585,42 +1461,18 @@ void aiProcessDudes(void)
 				callActorFunction(*actor->xspr.aiState->thinkFunc, actor);
 		}
 
-#ifdef NOONE_EXTENSIONS
-		switch (actor->GetType()) {
-		case kDudeModernCustom:
+		if (actor->xspr.stateTimer == 0 && actor->xspr.aiState && actor->xspr.aiState->nextState) {
+			if (actor->xspr.aiState->stateTicks > 0)
+				aiNewState(actor, actor->xspr.aiState->nextState);
+			else if (seqGetStatus(actor) < 0)
+				aiNewState(actor, actor->xspr.aiState->nextState);
+		}
+
+		if (actor->xspr.health > 0 && ((getDudeInfo(actor)->hinderDamage << 4) <= actor->cumulDamage))
 		{
-			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-				if (pExtra->slaveCount > 0) updateTargetOfSlaves(actor);
-				if (pExtra->pLifeLeech != nullptr) updateTargetOfLeech(actor);
-			if (actor->xspr.stateTimer == 0 && actor->xspr.aiState && actor->xspr.aiState->nextState
-				&& (actor->xspr.aiState->stateTicks > 0 || seqGetStatus(actor) < 0))
-			{
-					aiGenDudeNewState(actor, actor->xspr.aiState->nextState);
-			}
-			int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
-			if (actor->xspr.health <= 0 || hinder > actor->cumulDamage) break;
 			actor->xspr.data3 = actor->cumulDamage;
 			RecoilDude(actor);
-			break;
 		}
-		default:
-#endif
-			if (actor->xspr.stateTimer == 0 && actor->xspr.aiState && actor->xspr.aiState->nextState) {
-				if (actor->xspr.aiState->stateTicks > 0)
-					aiNewState(actor, actor->xspr.aiState->nextState);
-				else if (seqGetStatus(actor) < 0)
-					aiNewState(actor, actor->xspr.aiState->nextState);
-			}
-
-			if (actor->xspr.health > 0 && ((pDudeInfo->hinderDamage << 4) <= actor->cumulDamage))
-			{
-				actor->xspr.data3 = actor->cumulDamage;
-				RecoilDude(actor);
-			}
-#ifdef NOONE_EXTENSIONS
-			break;
-		}
-#endif
 	}
 
 	it.Reset(kStatDude);
@@ -1653,18 +1505,14 @@ void aiInitSprite(DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 	unsigned int stateTimer = 0;
 	DVector3 targetV(0,0,0);
-	DBloodActor* pTargetMarker = nullptr;
+	DBloodActor* pTarget = nullptr;
 
 	// dude patrol init
 	if (gModernMap)
 	{
-		// must keep it in case of loading save
-		if (actor->xspr.dudeFlag4 && actor->GetTarget() && actor->GetTarget()->GetType() == kMarkerPath)
-		{
-			stateTimer = actor->xspr.stateTimer;
-			pTargetMarker = actor->GetTarget();
-			targetV = actor->xspr.TargetPos;
-		}
+		stateTimer = actor->xspr.stateTimer;
+		pTarget = actor->GetTarget();
+		targetV = actor->xspr.TargetPos;
 	}
 #endif
 
@@ -1816,8 +1664,8 @@ void aiInitSprite(DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
 		if (!gModernMap) break;
-		aiGenDudeInitSprite(actor);
-		genDudePrepare(actor, kGenDudePropertyAll);
+		CUSTOMDUDE_SETUP::Setup(actor);
+		cdudeGet(actor)->InitSprite();
 		break;
 #endif
 	default:
@@ -1878,34 +1726,48 @@ void aiInitSprite(DBloodActor* actor)
 	{
 		if (actor->xspr.dudeFlag4)
 		{
-			// restore dude's path
-			if (pTargetMarker)
+			bool patrol = false;
+			if (pTarget == nullptr)
 			{
-				actor->SetTarget(pTargetMarker);
-				actor->xspr.TargetPos = targetV;
-			}
+				patrol = true;
+				stateTimer = 0;
 
-			// reset target spot progress
-			actor->xspr.data3 = 0;
-
-			// make dude follow the markers
-			bool uwater = spriteIsUnderwater(actor);
-			if (actor->GetTarget() == nullptr || actor->GetTarget()->GetType() != kMarkerPath) 
-			{
-				actor->SetTarget(nullptr);
+				// start new patrol
+				actor->xspr.target = -1;
 				aiPatrolSetMarker(actor);
 			}
-
-			if (stateTimer > 0) 
+			else
 			{
-				if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
-				else if (actor->xspr.modernFlags & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
-				else aiPatrolState(actor, kAiStatePatrolWaitL);
-				actor->xspr.stateTimer = stateTimer; // restore state timer
+				if (pTarget->IsDudeActor()) patrol = false;
+				else if (pTarget->GetType() == kMarkerPath)
+				{
+					// continue patrol
+					actor->xspr.target = pTarget;
+					actor->xspr.TargetPos = targetV;
+					patrol = true;
+				}
 			}
-			else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
-			else if (actor->xspr.modernFlags & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
-			else aiPatrolState(actor, kAiStatePatrolMoveL);
+
+			if (patrol)
+			{
+
+				// reset target spot progress
+				actor->xspr.data3 = 0;
+
+				// make dude follow the markers
+				bool uwater = spriteIsUnderwater(actor);
+
+				if (stateTimer > 0)
+				{
+					if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+					else if (actor->xspr.modernFlags & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+					else aiPatrolState(actor, kAiStatePatrolWaitL);
+					actor->xspr.stateTimer = stateTimer; // restore state timer
+				}
+				else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
+				else if (actor->xspr.modernFlags & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+				else aiPatrolState(actor, kAiStatePatrolMoveL);
+			}
 		}
 	}
 #endif

@@ -264,8 +264,10 @@ DEF_ANIMATOR(fxPodBloodSpray) // 18
 DEF_ANIMATOR(fxPodBloodSplat) // 19
 DEF_ANIMATOR(LeechStateTimer) // 20
 DEF_ANIMATOR(DropVoodooCb) // unused
-DEF_ANIMATOR(callbackMakeMissileBlocking) // 23
 DEF_ANIMATOR(callbackMissileBurst)
+DEF_ANIMATOR(callbackMakeMissileBlocking) // 23
+DEF_ANIMATOR(fxPodGreenBloodSpray) // 24
+
 
 #ifdef NOONE_EXTENSIONS
 DEF_ANIMATOR(forcePunch)

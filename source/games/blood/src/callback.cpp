@@ -291,6 +291,13 @@ void Respawn(DBloodActor* actor) // 9
 				actor->xspr.health = getDudeInfo(actor)->startHealth << 4;
 #ifdef NOONE_EXTENSIONS
 
+			// return dude to the patrol state
+			if (gModernMap && actor->xspr.dudeFlag4) 
+			{
+				actor->xspr.data3 = 0;
+				actor->SetTarget(nullptr);
+			}
+
 			switch (actor->GetType()) {
 			default:
 				actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
@@ -302,11 +309,6 @@ void Respawn(DBloodActor* actor) // 9
 				break;
 			}
 
-			// return dude to the patrol state
-			if (gModernMap && actor->xspr.dudeFlag4) {
-				actor->xspr.data3 = 0;
-				actor->SetTarget(nullptr);
-			}
 #else
 			actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
 			if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
@@ -886,6 +888,18 @@ void callbackMakeMissileBlocking(DBloodActor* actor) // 23
 {
 	if (!actor || actor->spr.statnum != kStatProjectile) return;
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
+}
+
+void fxPodGreenBloodSpray(DBloodActor* actor) // 24
+{
+	auto pFX = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos);
+	if (pFX)
+	{
+		pFX->spr.Angles.Yaw = nullAngle;
+		pFX->vel = actor->vel / 256.;
+	}
+
+	evPostActor(actor, 6, AF(fxPodGreenBloodSpray));
 }
 
 

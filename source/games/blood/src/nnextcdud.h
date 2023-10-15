@@ -1252,7 +1252,7 @@ class CUSTOMDUDE
 		void Process(void);
 		void ProcessEffects(void);
 		void Recoil(void);
-		int  Damage(int nFrom, int nDmgType, int nDmg);
+		int  Damage(DBloodActor* nFrom, int nDmgType, int nDmg);
 		void Kill(DBloodActor* nFrom, int nDmgType, int nDmg);
 		//----------------------------------------------------------------------------------------------------
 		char CanMove(sectortype* pXSect, char Crusher, char Water, char Uwater, char Depth, int bottom, int floorZ);
@@ -1332,7 +1332,7 @@ class CUSTOMDUDE_SETUP
 		char IsFirst(CUSTOMDUDE* pCmp);
 	public:
 		char FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture);
-		void Setup(spritetype* pSpr, XSPRITE* pXSpr);
+		static void Setup(DBloodActor* actor);
 		static void Setup(CUSTOMDUDE* pOver = nullptr);
 
 };
