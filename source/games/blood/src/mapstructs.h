@@ -102,7 +102,9 @@ struct XSPRITE {
 	DAngle goalAng;          // Dude goal ang
 
 	int32_t sysData1;            // used to keep here various system data, so user can't change it in map editor
-	int32_t sysData2;            //
+	int32_t sysData2;
+	int32_t sysData3;
+	int32_t sysData4;
 	int32_t scale;                   // used for scaling SEQ size on sprites
 	uint32_t physAttr;         // currently used by additional physics sprites to keep its attributes.
 	uint32_t health;

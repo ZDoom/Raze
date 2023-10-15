@@ -305,7 +305,6 @@ void nnExtResetGlobals();
 void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
 void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
-int debrisGetFreeIndex(void);
 void debrisBubble(DBloodActor* nSprite);
 void debrisMove(DBloodActor* act);
 void debrisConcuss(DBloodActor* nOwner, int listIndex, const DVector3& pos, int dmg);
@@ -427,6 +426,16 @@ bool isOnRespawn(DBloodActor* pSpr);
 void nnExtOffsetPos(const DVector3& opos, DAngle nAng, DVector3& pos);
 void actPropagateSpriteOwner(DBloodActor* pShot, DBloodActor* pSpr);
 int nnExtDudeStartHealth(DBloodActor* pSpr, int nHealth);
+void nnExtSprScaleSet(DBloodActor* actor, int nScale);
+struct Seq;
+bool seqCanOverride(Seq* pSeq, int nFrame, bool* xrp, bool* yrp, bool* plu);
+inline unsigned int perc2val(unsigned int reqPerc, unsigned int val) { return (val * reqPerc) / 100; }
+inline int perc2val(int reqPerc, int val) { return (val * reqPerc) / 100; }
+inline double perc2val(int reqPerc, double val) { return (val * reqPerc) / 100; }
+void nnExtScaleVelocity(DBloodActor* pSpr, double nVel, const DVector3& dv, int which = 0x03);
+void nnExtScaleVelocityRel(DBloodActor* pSpr, double nVel, const DVector3& dv, int which = 0x03);
+int nnExtGibSprite(DBloodActor* pSpr, TArray<DBloodActor*>& pOut, GIBTYPE nGibType, const DVector3* pPos, const DVector3* pVel);
+
 
 inline bool valueIsBetween(int val, int min, int max)
 {

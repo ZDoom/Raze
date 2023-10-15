@@ -241,21 +241,26 @@ void sfxPlay3DSoundVolume(DBloodActor* pActor, int soundId, int playchannel, int
 //
 //---------------------------------------------------------------------------
 
-void sfxKill3DSound(DBloodActor* pActor, int a2, int a3)
+void sfxKill3DSound(DBloodActor* pActor, int a2, FSoundID sid)
 {
 	if (!pActor)
 		return;
 
 	if (a2 >= 0) a2++;
-	auto sid = soundEngine->FindSoundByResID(a3);
 	soundEngine->EnumerateChannels([=](FSoundChan* channel)
 		{
-			if (channel->SourceType == SOURCE_Actor && channel->Source == pActor && (a2 < 0 || a2 == channel->EntChannel) && (a3 < 0 || sid == channel->OrgID))
+			if (channel->SourceType == SOURCE_Actor && channel->Source == pActor && (a2 < 0 || a2 == channel->EntChannel) && (sid == NO_SOUND || sid == channel->OrgID))
 			{
 				soundEngine->StopChannel(channel);
 			}
 			return false;
 		});
+}
+
+void sfxKill3DSound(DBloodActor* pActor, int a2, int a3)
+{
+	auto sid = soundEngine->FindSoundByResID(a3);
+	sfxKill3DSound(pActor, a2, sid);
 }
 
 void sfxKillAllSounds(void)

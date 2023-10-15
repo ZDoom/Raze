@@ -380,19 +380,26 @@ DEFINE_ACTION_FUNCTION_NATIVE(DBloodActor, impactMissile, actImpactMissile)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actDropObject(DBloodActor* actor, int nType)
+DBloodActor* actDropObject(DBloodActor* actor, PClass* pType)
 {
 	IFVM(BloodActor, dropObject)
 	{
-		PClass* ty = GetSpawnType(nType);
-		if (ty == nullptr) ty = RUNTIME_CLASS(DBloodActor);
+		if (pType == nullptr) pType = RUNTIME_CLASS(DBloodActor);
 		DBloodActor* spawned;
 		VMReturn ret((void**)&spawned);
-		VMValue param[] = { actor, ty };
+		VMValue param[] = { actor, pType };
 		VMCall(func, param, 2, &ret, 1);
 		return spawned;
 	}
 	return nullptr;
+}
+
+
+DBloodActor* actDropObject(DBloodActor* actor, int nType)
+{
+	auto ty = GetSpawnType(nType);
+	auto spawned = actDropObject(actor, ty);
+	if (ty == nullptr) spawned->spr.lotag = nType;	// make sure the type is correct even if not bound to a class.
 }
 
 //---------------------------------------------------------------------------

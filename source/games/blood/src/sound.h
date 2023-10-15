@@ -40,7 +40,8 @@ inline void sfxPlay3DSound(DBloodActor* pActor, int soundId, int a3 = -1, int a4
 {
 	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, -1, 0);
 }
-void sfxKill3DSound(DBloodActor* pActor, int a2 = -1, int a3 = -1);
+void sfxKill3DSound(DBloodActor* pActor, int a2 = -1, FSoundID a3 = NO_SOUND);
+void sfxKill3DSound(DBloodActor* pActor, int a2, int a3);
 void sfxKillAllSounds(void);
 void sfxSetReverb(bool toggle);
 void sfxSetReverb2(bool toggle);

@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "savegamehelp.h"
 #include "nnextsif.h"
+#include "nnextcdud.h"
 
 BEGIN_BLD_NS
 

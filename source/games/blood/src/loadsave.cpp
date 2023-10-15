@@ -635,6 +635,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("target", w.target, def->target)
 			("sysdata1", w.sysData1, def->sysData1)
 			("sysdata2", w.sysData2, def->sysData2)
+			("sysdata3", w.sysData3, def->sysData3)
+			("sysdata4", w.sysData4, def->sysData4)
 			("scale", w.scale, def->scale)
 			("physattr", w.physAttr, def->physAttr)
 			("health", w.health, def->health)

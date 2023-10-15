@@ -441,7 +441,10 @@ enum {
 	kAiStateChase = 4,
 	kAiStateRecoil = 5,
 	kAiStateAttack = 6,
-	kAiStatePatrolBase = 7,
+#ifdef NOONE_EXTENSIONS
+	kAiStateKnockout,
+	kAiStateIdleSleep,
+	kAiStatePatrolBase,
 	kAiStatePatrolWaitL = kAiStatePatrolBase,
 	kAiStatePatrolWaitC,
 	kAiStatePatrolWaitW,
@@ -452,7 +455,9 @@ enum {
 	kAiStatePatrolTurnC,
 	kAiStatePatrolTurnW,
 	kAiStatePatrolMax,
+#endif
 };
+
 
 enum
 {
