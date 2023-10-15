@@ -107,7 +107,7 @@ void burnThinkGoto(DBloodActor* actor)
 		case kDudeBurningTinyCaleb:
 			aiNewState(actor, &tinycalebBurnSearch);
 			break;
-#ifdef NOONE_EXTENSIONS
+#if 0//def NOONE_EXTENSIONS
 		case kDudeModernCustomBurning:
 			aiNewState(actor, &genDudeBurnSearch);
 			break;
@@ -141,7 +141,7 @@ void burnThinkChase(DBloodActor* actor)
 		case kDudeBurningTinyCaleb:
 			aiNewState(actor, &tinycalebBurnGoto);
 			break;
-#ifdef NOONE_EXTENSIONS
+#if 0//def NOONE_EXTENSIONS
 		case kDudeModernCustomBurning:
 			aiNewState(actor, &genDudeBurnGoto);
 			break;
@@ -180,7 +180,7 @@ void burnThinkChase(DBloodActor* actor)
 		case kDudeBurningTinyCaleb:
 			aiNewState(actor, &tinycalebBurnSearch);
 			break;
-#ifdef NOONE_EXTENSIONS
+#if 0//def NOONE_EXTENSIONS
 		case kDudeModernCustomBurning:
 			aiNewState(actor, &genDudeBurnSearch);
 			break;
@@ -220,7 +220,7 @@ void burnThinkChase(DBloodActor* actor)
 					case kDudeBurningTinyCaleb:
 						aiNewState(actor, &tinycalebBurnAttack);
 						break;
-#ifdef NOONE_EXTENSIONS
+#if 0//def NOONE_EXTENSIONS
 					case kDudeModernCustomBurning:
 						aiNewState(actor, &genDudeBurnSearch);
 						break;
@@ -252,7 +252,7 @@ void burnThinkChase(DBloodActor* actor)
 	case kDudeBurningTinyCaleb:
 		aiNewState(actor, &tinycalebBurnGoto);
 		break;
-#ifdef NOONE_EXTENSIONS
+#if 0//def NOONE_EXTENSIONS
 	case kDudeModernCustomBurning:
 		aiNewState(actor, &genDudeBurnSearch);
 		break;

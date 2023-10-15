@@ -496,13 +496,13 @@ void DBloodActor::Serialize(FSerializer& arc)
 #ifdef NOONE_EXTENSIONS
 	if (gModernMap)
 	{
-		arc//("spritemass", spriteMass)
+		arc//("spritemass", spriteMass) // should always be cached and not written out.
 			("prevmarker", prevmarker)
 			.Array("conditions", condition, 2);
 
 
 		// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
-		if (GetType() == kDudeModernCustom || GetType() == kDudeModernCustomBurning)
+		if (GetType() == kDudeModernCustom)
 		{
 			arc("gendudeextra", genDudeExtra);
 		}

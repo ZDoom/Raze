@@ -222,7 +222,6 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 		break;
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
-	case kDudeModernCustomBurning:
 		if ((Crusher && !nnExtIsImmune(actor, pXSector->damageType)) || ((Water || Underwater) && !canSwim(actor))) return false;
 		return true;
 		[[fallthrough]];
@@ -437,7 +436,6 @@ void aiActivateDude(DBloodActor* actor)
 		}
 		break;
 	}
-	case kDudeModernCustomBurning:
 		if (actor->GetTarget() == nullptr) aiGenDudeNewState(actor, &genDudeBurnSearch);
 		else aiGenDudeNewState(actor, &genDudeBurnChase);
 		break;
@@ -993,26 +991,6 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				return nDamage;
 			}
 
-			if (actor->GetType() == kDudeModernCustomBurning)
-			{
-				if (Chance(0x2000) && actor->dudeExtra.time < PlayClock) {
-					playGenDudeSound(actor,kGenDudeSndBurning);
-					actor->dudeExtra.time = PlayClock + 360;
-				}
-
-				if (actor->xspr.burnTime == 0) actor->xspr.burnTime = 2400;
-				if (spriteIsUnderwater(actor, false)) 
-				{
-					actor->ChangeType(kDudeModernCustom);
-					actor->xspr.burnTime = 0;
-					actor->xspr.health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
-					aiGenDudeNewState(actor, &genDudeGotoW);
-				}
-
-				return nDamage;
-
-			}
-
 			if (actor->GetType() == kDudeModernCustom)
 			{
 				GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
@@ -1039,7 +1017,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 							aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 							playGenDudeSound(actor,kGenDudeSndBurning);
-							actor->ChangeType(kDudeModernCustomBurning);
+							//actor->ChangeType(kDudeModernCustomBurning);
 
 							if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
 								actor->spr.pal = 0;
@@ -1317,11 +1295,6 @@ void RecoilDude(DBloodActor* actor)
 		case kDudeBurningCultist:
 			aiNewState(actor, &cultistBurnGoto);
 			break;
-#ifdef NOONE_EXTENSIONS
-		case kDudeModernCustomBurning:
-			aiGenDudeNewState(actor, &genDudeBurnGoto);
-			break;
-#endif
 		case kDudeZombieButcher:
 			aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit)
@@ -1615,7 +1588,7 @@ void aiProcessDudes(void)
 #ifdef NOONE_EXTENSIONS
 		switch (actor->GetType()) {
 		case kDudeModernCustom:
-		case kDudeModernCustomBurning: {
+		{
 			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 				if (pExtra->slaveCount > 0) updateTargetOfSlaves(actor);
 				if (pExtra->pLifeLeech != nullptr) updateTargetOfLeech(actor);
@@ -1842,7 +1815,6 @@ void aiInitSprite(DBloodActor* actor)
 		break;
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
-	case kDudeModernCustomBurning:
 		if (!gModernMap) break;
 		aiGenDudeInitSprite(actor);
 		genDudePrepare(actor, kGenDudePropertyAll);

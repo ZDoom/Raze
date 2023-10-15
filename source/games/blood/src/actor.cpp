@@ -891,7 +891,6 @@ static void actInitDudes()
 				switch (act->GetType())
 				{
 				case kDudeModernCustom:
-				case kDudeModernCustomBurning:
 					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					if (act->xspr.data2 > 0 && getSequence(act->xspr.data2))
 						seqStartId = act->xspr.data2; //  Custom Dude stores it's SEQ in data2
@@ -975,7 +974,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 		{
 			mass = getDudeInfo(actor)->mass;
 #ifdef NOONE_EXTENSIONS
-			if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
+			if (actor->GetType() == kDudeModernCustom)
 			{
 				mass = getSpriteMassBySize(actor);
 			}
@@ -1311,7 +1310,6 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 		{
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
-		case kDudeModernCustomBurning:
 		{
 			playGenDudeSound(actor, kGenDudeSndDeathExplode);
 			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
@@ -1553,10 +1551,6 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		genDudePostDeath(actor, damageType, damage);
 		return;
 
-	case kDudeModernCustomBurning:
-		modernCustomDudeBurningDeath(actor, nSeq);
-		genDudePostDeath(actor, kDamageExplode, damage);
-		return;
 #endif
 
 	case kDudeBurningZombieAxe:
@@ -2278,7 +2272,6 @@ static void checkCeilHit(DBloodActor* actor)
 						switch (actor->GetType())
 						{
 						case kDudeModernCustom:
-						case kDudeModernCustomBurning:
 							mass2 = getSpriteMassBySize(actor);
 							break;
 						}
@@ -2302,7 +2295,6 @@ static void checkCeilHit(DBloodActor* actor)
 							break;
 #ifdef NOONE_EXTENSIONS
 						case kDudeModernCustom:
-						case kDudeModernCustomBurning:
 							int dmg = 0;
 							if (!actor->IsDudeActor() || (dmg = ClipLow((getSpriteMassBySize(actor2) - getSpriteMassBySize(actor)) >> 1, 0)) == 0)
 								break;
@@ -2395,7 +2387,6 @@ static void checkHit(DBloodActor* actor)
 					switch (actor2->GetType())
 					{
 					case kDudeModernCustom:
-					case kDudeModernCustomBurning:
 						mass2 = getSpriteMassBySize(actor2);
 						break;
 					}
@@ -2467,7 +2458,6 @@ static void checkFloorHit(DBloodActor* actor)
 				switch (actor2->GetType())
 				{
 				case kDudeModernCustom:
-				case kDudeModernCustomBurning:
 					mass2 = getSpriteMassBySize(actor2);
 					break;
 				}
@@ -4655,7 +4645,6 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 					switch (actor->GetType())
 					{
 					case kDudeModernCustom:
-					case kDudeModernCustomBurning:
 						mass = getSpriteMassBySize(actor);
 						break;
 					}

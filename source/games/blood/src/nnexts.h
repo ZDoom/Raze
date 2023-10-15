@@ -45,8 +45,6 @@ enum
 	// CONSTANTS
 	// additional non-thing proximity, sight and physics sprites 
 	kMaxSuperXSprites = 512,
-	kMaxTrackingConditions = 64,
-	kMaxTracedObjects = 32, // per one tracking condition
 
 	// additional physics attributes for debris sprites
 	kPhysDebrisFloat = 0x0008, // *debris* slowly goes up and down from it's position
@@ -67,6 +65,7 @@ enum
 	kModernTypeFlag32 = 0x0020,
 	kModernTypeFlag64 = 0x0040,
 	kModernTypeFlag128 = 0x0080,
+	kModernTypeFlag256 = 0x0100,
 
 	kMaxRandomizeRetries = 16,
 	kCondRange = 100,
@@ -143,7 +142,6 @@ enum {
 	kModernRandom2 = 80,
 	kItemModernMapLevel = 150,  // once picked up, draws whole minimap
 	kDudeModernCustom = kDudeVanillaMax,
-	kDudeModernCustomBurning = 255,
 	kModernThingTNTProx = 433, // detects only players
 	kModernThingThrowableRock = 434, // does small damage if hits target
 	kModernThingEnemyLifeLeech = 435, // the same as normal, except it aims in specified target only
@@ -171,42 +169,11 @@ enum {
 };
 
 enum {
-	kCondGameBase = 1,
-	kCondGameMax = 50,
-	kCondMixedBase = 100,
-	kCondMixedMax = 200,
-	kCondWallBase = 200,
-	kCondWallMax = 300,
-	kCondSectorBase = 300,
-	kCondSectorMax = 400,
-	kCondPlayerBase = 400,
-	kCondPlayerMax = 450,
-	kCondDudeBase = 450,
-	kCondDudeMax = 500,
-	kCondSpriteBase = 500,
-	kCondSpriteMax = 600,
-};
-
-enum {
-	kCondSerialSector = 100000,
-	kCondSerialWall = 200000,
-	kCondSerialSprite = 300000,
-	kCondSerialMax = 400000,
-};
-
-enum {
 	kPatrolMoveForward = 0,
 	kPatrolMoveBackward = 1,
 };
 
 // - STRUCTS ------------------------------------------------------------------
-
-struct EXTERNAL_FILES_LIST
-{
-	const char* name;
-	const char* ext;
-};
-
 
 struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 	int seqId;
@@ -218,22 +185,17 @@ struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 	int fraction; // mainly needs for moving debris
 };
 
-struct QAVSCENE { // this one stores qavs anims that can be played by trigger
-	DBloodActor* initiator = nullptr;  // index of sprite which triggered qav scene
-	QAV* qavResrc = nullptr;
-	short dummy = -1;
-};
-
-struct THINGINFO_EXTRA {
-	bool allowThrow; // indicates if kDudeModernCustom can throw it
-};
-
 struct EXPLOSION_EXTRA
 {
 	uint8_t seq;
 	uint16_t snd;
 	bool ground;
 };
+
+struct THINGINFO_EXTRA {
+	bool allowThrow; // indicates if kDudeModernCustom can throw it
+};
+
 
 struct VECTORINFO_EXTRA {
 	int fireSound[2]; // predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
@@ -257,10 +219,6 @@ struct DUDEINFO_EXTRA {
 
 };
 
-struct TRPLAYERCTRL { // this one for controlling the player using triggers (movement speed, jumps and other stuff)
-	QAVSCENE qavScene;
-};
-
 struct PATROL_FOUND_SOUNDS {
 
 	FSoundID snd;
@@ -269,16 +227,22 @@ struct PATROL_FOUND_SOUNDS {
 
 };
 
-struct CONDITION_TYPE_NAMES {
-
-	int rng1;
-	int rng2;
-	char name[32];
-
+struct QAVSCENE { // this one stores qavs anims that can be played by trigger
+	DBloodActor* initiator = nullptr;  // index of sprite which triggered qav scene
+	QAV* qavResrc = nullptr;
+	short dummy = -1;
+};
+struct TRPLAYERCTRL { // this one for controlling the player using triggers (movement speed, jumps and other stuff)
+	QAVSCENE qavScene;
 };
 
-// - VARIABLES ------------------------------------------------------------------
+inline bool rngok(int val, int rngA, int rngB) { return (val >= rngA && val < rngB); }
+inline bool irngok(int val, int rngA, int rngB) { return (val >= rngA && val <= rngB); }
 extern uint8_t gModernMap;
+inline bool mapRev1() { return (gModernMap == 1); }
+inline bool mapRev2() { return (gModernMap == 2); }
+
+// - VARIABLES ------------------------------------------------------------------
 extern bool gTeamsSpawnUsed;
 extern bool gEventRedirectsUsed;
 extern ZONE gStartZoneTeam1[kMaxPlayers];
@@ -286,24 +250,28 @@ extern ZONE gStartZoneTeam2[kMaxPlayers];
 extern const THINGINFO_EXTRA gThingInfoExtra[kThingMax];
 extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
+extern const EXPLOSION_EXTRA gExplodeExtra[kExplosionMax];
 extern const DUDEINFO_EXTRA gDudeInfoExtra[kDudeMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
+extern AISTATE genPatrolStates[kPatrolStateSize];
+
 inline TArray<TObjPtr<DBloodActor*>> gProxySpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gSightSpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gPhysSpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gFlwSpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gImpactSpritesList;
-extern AISTATE genPatrolStates[kPatrolStateSize];
-
 
 // - FUNCTIONS ------------------------------------------------------------------
+bool xsprIsFine(DBloodActor* pSpr);
 bool nnExtEraseModernStuff(DBloodActor* actor);
 void nnExtInitModernStuff(TArray<DBloodActor*>& actors);
 void nnExtProcessSuperSprites(void);
 bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
+void nnExtTriggerObject(EventObject& eob, int command, DBloodActor* initiator);
 //  -------------------------------------------------------------------------   //
+DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, double dist, double zadd);
 void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
 void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
@@ -419,7 +387,6 @@ int getSpritesNearWalls(int nSrcSect, int* spriOut, int nMax, int nDist);
 bool isMovableSector(int nType);
 bool isMovableSector(sectortype* pSect);
 void killEffectGenCallbacks(DBloodActor* actor);
-bool xsprIsFine(DBloodActor* pSpr);
 bool isOnRespawn(DBloodActor* pSpr);
 void nnExtOffsetPos(const DVector3& opos, DAngle nAng, DVector3& pos);
 void actPropagateSpriteOwner(DBloodActor* pShot, DBloodActor* pSpr);
@@ -439,19 +406,12 @@ void useDripGenerator(DBloodActor* pXSource, DBloodActor* pSprite);
 int nnExtGetStartHealth(DBloodActor* actor);
 int nnExtResAddExternalFiles();
 
-inline bool mapRev1() { return (gModernMap == 1); }
-inline bool mapRev2() { return (gModernMap == 2); }
-
 
 inline bool valueIsBetween(int val, int min, int max)
 {
 	return (val > min && val < max);
 }
 
-inline bool rngok(int val, int min, int max)
-{
-	return (val > min && val < max);
-}
 
 inline int EVTIME2TICKS(int x) { return ((x * 120) / 10); }
 
