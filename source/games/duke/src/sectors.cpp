@@ -380,7 +380,7 @@ void setanimatevalue(int i, double value)
 
 void doanimations(void)
 {
-	for (int i = animates.Size() - 1; i >= 0; i--)
+	for (int i = animates.SSize() - 1; i >= 0; i--)
 	{
 		double a = getanimatevalue(i);
 		double const v = animates[i].vel * TICSPERFRAME;
@@ -450,7 +450,7 @@ int getanimationindex(int animtype, sectortype* animtargetp)
 
 	j = -1;
 	int animtarget = sectindex(animtargetp);
-	for (i = animates.Size() - 1; i >= 0; i--)
+	for (i = animates.SSize() - 1; i >= 0; i--)
 		if (animtype == animates[i].type && animtarget == animates[i].target)
 		{
 			j = i;
@@ -1141,7 +1141,7 @@ void operateactivators(int low, DDukePlayer* plr)
 	Cycler * p;
 	walltype* wal;
 
-	for (i = cyclers.Size() - 1; i >= 0; i--)
+	for (i = cyclers.SSize() - 1; i >= 0; i--)
 	{
 		p = &cyclers[i];
 

@@ -654,7 +654,7 @@ void DeleteNoSoundOwner(DSWActor* actor)
         });
 
     // also delete all ambients attached to this actor.
-    for (int i = ambients.Size() - 1; i >= 0; i--)
+    for (int i = ambients.SSize() - 1; i >= 0; i--)
     {
         auto amb = ambients[i];
         if (amb->spot == actor)
