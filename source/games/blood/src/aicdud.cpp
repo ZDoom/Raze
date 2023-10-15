@@ -910,7 +910,7 @@ void thinkChase(DBloodActor* pSpr)
     nHeigh = (pInfo->eyeHeight * pSpr->yrepeat) << 2;
 
     if (thinkTime && !inAttack)
-        aiChooseDirection(pSpr, pXSpr, getangle(dx, dy));
+        aiChooseDirection(pSpr, getangle(dx, dy));
 
     // is the target visible?
     if (nDist > pInfo->seeDist || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSpr->x, pSpr->y, pSpr->z - nHeigh, pSpr->sectnum))
@@ -1196,9 +1196,9 @@ void enterSleep(DBloodActor* pSpr)
     moveStop(pSpr);
 
     // reduce distances while sleeping
-    pDude->seeDist      = kCdudeMinSeeDist;
-    pDude->hearDist     = kCdudeMinHearDist;
-    pDude->periphery    = kAng360;
+    pDude->_seeDist      = kCdudeMinSeeDist;
+    pDude->_hearDist     = kCdudeMinHearDist;
+    pDude->periphery    = DAngle360;
 }
 
 void enterWake(DBloodActor* pSpr)
@@ -1209,9 +1209,9 @@ void enterWake(DBloodActor* pSpr)
         pDude->StatusRem(kCdudeStatusSleep);
 
         // restore distances when awaked
-        pDude->seeDist      = pDude->pInfo->seeDist;
-        pDude->hearDist     = pDude->pInfo->hearDist;
-        pDude->periphery    = pDude->pInfo->periphery;
+        pDude->_seeDist      = pDude->pInfo->SeeDist();
+        pDude->_hearDist     = pDude->pInfo->HearDist();
+        pDude->periphery    = pDude->pInfo->Periphery();
     }
 
     pDude->PlaySound(kCdudeSndWake);

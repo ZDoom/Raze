@@ -348,10 +348,9 @@ native void callbackMissileBurst();
 
 	// nnext stuff. For now not exported to scripting.
 	//SPRITEMASS spriteMass;
-	//GENDUDEEXTRA genDudeExtra;
 	//TObjPtr<BloodActor> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	//DVector3 basePoint;
-	//EventObject condition[2];
+	//EventObject condition[4];
 
 	// transient data (not written to savegame)
 	native int cumulDamage;
