@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 #include "nnextsif.h"
 #include "nnextcdud.h"
+#include "fs_findfile.h"
 
 BEGIN_BLD_NS
 
@@ -44,9 +45,9 @@ bool gExternalFilesAdded = false;
 
 CVARD(Bool, nnext_showconditionsprites, false, 0, "makes kModernCondition sprites visable")
 
-EXTERNAL_FILES_LIST gExternFiles[] =
+const char* gExternFiles[] =
 {
-	{ "CDUD*", "CDU"},
+	"CDUD*.CDU",
 };
 
 // indicate if object is part of trigger
@@ -1158,7 +1159,7 @@ int getChannelOf(EventObject obj, bool rx)
 
 int collectBranchByChannel(int nChannelA, bool rx, TArray<EventObject>* pOut)
 {
-	int i = 0, l, nChannelB;
+	int i = 0, nChannelB;
 	TArray<EventObject> objects;
 
 	collectObjectsByChannel(nChannelA, rx, &objects, 0);
@@ -1449,25 +1450,8 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 	nnExtInitCauserTable();
 	conditionsInit();
 
-#pragma message("Fix " __FUNCTION__ " for custom dudes")
-#if 0
 	// prepare custom dudes array
 	cdudeAlloc();
-
-	if (!gExternalFilesAdded)
-	{
-		// add external files from the mod directory
-		// to the resource system (cdudes scripts etc)
-
-		char modDir[BMAX_PATH] = "./";
-		if (g_modDir[0] != '/' || g_modDir[1] != 0)
-			strcpy(modDir, g_modDir);
-
-		i = nnExtResAddExternalFiles(&gSysRes, modDir, gExternFiles, LENGTH(gExternFiles));
-		Printf("%d custom dude files added.", i);
-		gExternalFilesAdded = true;
-	}
-#endif
 }
 
 
@@ -1617,7 +1601,7 @@ void Process(T& array, F function)
 	for (int i = array.Size(); i >= 0; i--)
 	{
 		if (!array[i]) continue;
-		if (pFunc(array[i]) == kListREMOVE)
+		if (function(array[i]) == kListREMOVE)
 			array.Delete(i);
 	}
 }
@@ -3525,21 +3509,16 @@ void effectGenPropagateAppearance(DBloodActor* pSrc, DBloodActor* pDest, DBloodA
 void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
 	if (!actor) actor = sourceactor;
+	if (!actor->insector()) return;
 
 	int fxId = (sourceactor->xspr.data3 <= 0) ? sourceactor->xspr.data2 : sourceactor->xspr.data2 + Random(sourceactor->xspr.data3 + 1);
 
-
-	if (!actor->hasX()) return;
-	else if (fxId >= kEffectGenCallbackBase)
+	//if (!actor->hasX()) return;
+	if (fxId >= kEffectGenCallbackBase && fxId < kEffectGenCallbackBase + countof(gEffectGenCallbacks))
 	{
-		int length = sizeof(gEffectGenCallbacks) / sizeof(gEffectGenCallbacks[0]);
-		if (fxId < kEffectGenCallbackBase + length)
-		{
-			auto fxfunc = gEffectGenCallbacks[fxId - kEffectGenCallbackBase];
-			evKillActor(actor, *fxfunc);
-			evPostActor(actor, 0, *fxfunc);
-		}
-
+		auto fxfunc = gEffectGenCallbacks[fxId - kEffectGenCallbackBase];
+		evKillActor(actor, *fxfunc);
+		evPostActor(actor, 0, *fxfunc);
 	}
 	else if (valueIsBetween(fxId, 0, kFXMax))
 	{
@@ -3579,27 +3558,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 		if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, actor->sector(), DVector3(actor->spr.pos.XY(), pos))) != nullptr)
 		{
 			pEffect->SetOwner(sourceactor);
-
-			if (sourceactor->spr.flags & kModernTypeFlag1)
-			{
-				pEffect->spr.pal = sourceactor->spr.pal;
-				pEffect->spr.xoffset = sourceactor->spr.xoffset;
-				pEffect->spr.yoffset = sourceactor->spr.yoffset;
-				pEffect->spr.scale = sourceactor->spr.scale;
-				pEffect->spr.shade = sourceactor->spr.shade;
-			}
-
-			if (sourceactor->spr.flags & kModernTypeFlag2)
-			{
-				pEffect->spr.cstat = sourceactor->spr.cstat;
-				if (pEffect->spr.cstat & CSTAT_SPRITE_INVISIBLE)
-					pEffect->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-			}
-
-			if (sourceactor->spr.flags & kModernTypeFlag4)
-			{
-				pEffect->spr.Angles.Yaw = sourceactor->spr.Angles.Yaw;
-			}
+			effectGenPropagateAppearance(sourceactor, actor, pEffect);
 
 			if (pEffect->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
 				pEffect->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
@@ -3637,13 +3596,6 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 	int windVel = ClipRange(sourceactor->xspr.data2, 0, 32767);
 	if ((sourceactor->xspr.data1 & 0x0001))
 		windVel = nnExtRandom(0, windVel);
-
-	// process vertical wind in nnExtProcessSuperSprites();
-	if ((sourceactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
-	{
-		sourceactor->xspr.sysData2 = windVel << 1;
-		return;
-	}
 
 	pXSector->windVel = windVel;
 	if ((sourceactor->spr.flags & kModernTypeFlag1))
@@ -3794,101 +3746,140 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
 
 void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 {
-	if (!actor->IsDudeActor() || !actor->hasX() || actor->xspr.health <= 0 || sourceactor->xspr.data3 < 0)
+	if (!actor->IsDudeActor() || !xsprIsFine(actor) || actor->xspr.health <= 0 || sourceactor->xspr.data3 < 0 || actor->xspr.locked)
 		return;
 
+	auto pPlayer = getPlayer(actor);
+	if (pPlayer && (powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode))
+		return;
 
 	int health = 0;
-
-	auto pPlayer = getPlayerById(actor->GetType());
 	int dmgType = (sourceactor->xspr.data2 >= kDmgFall) ? ClipHigh(sourceactor->xspr.data2, kDmgElectric) : -1;
-	int dmg = actor->xspr.health << 4;
-	int armor[3];
+	int dmg = actor->xspr.health; 
+	int armor[sizeof(pPlayer->armor)];
 
-	bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode)); // kneeling
+	bool immune = (dmgType >= 0 && nnExtIsImmune(actor, dmgType, 0));
+	bool showEffects =!(sourceactor->spr.flags & kModernTypeFlag2); // show it by default
+	bool setHealth = (!(sourceactor->spr.flags & kModernTypeFlag8) || immune);
+	bool forceRecoil = (sourceactor->spr.flags & kModernTypeFlag4);
 
-	if (godMode || actor->xspr.locked) return;
-	else if (sourceactor->xspr.data3)
+	if (sourceactor->xspr.data3)
 	{
 		if (sourceactor->spr.flags & kModernTypeFlag1) dmg = ClipHigh(sourceactor->xspr.data3 << 1, 65535);
 		else if (actor->xspr.sysData2 > 0) dmg = (ClipHigh(actor->xspr.sysData2 << 4, 65535) * sourceactor->xspr.data3) / kPercFull;
 		else dmg = ((getDudeInfo(actor)->startHealth << 4) * sourceactor->xspr.data3) / kPercFull;
 
-		health = actor->xspr.health - dmg;
+		health = std::max(0, (int)actor->xspr.health - dmg);
 	}
 
-	if (dmgType >= kDmgFall)
+	bool death = health < 0;
+	if (!death)
 	{
-		if (dmg < (int)actor->xspr.health << 4)
+		if (dmgType >= kDmgFall && !immune)
 		{
-			if (!nnExtIsImmune(actor, dmgType, 0))
+			if (pPlayer)
 			{
-				if (pPlayer)
-				{
-					playerDamageArmor(pPlayer, (DAMAGE_TYPE)dmgType, dmg);
-					for (int i = 0; i < 3; armor[i] = pPlayer->armor[i], pPlayer->armor[i] = 0, i++);
-					actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
-					for (int i = 0; i < 3; pPlayer->armor[i] = armor[i], i++);
+				playerDamageArmor(pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+				memcpy(armor, pPlayer->armor, sizeof(armor)); memset(pPlayer->armor, 0, sizeof(armor));
+				actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg); // we need clear damage (no armor)
+				memcpy(pPlayer->armor, armor, sizeof(armor));
 
-				}
-				else
-				{
-					actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
-				}
 			}
 			else
 			{
-				//Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", actor->GetType(), dmgType);
+				actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
 			}
 		}
-		else if (!pPlayer) actKillDude(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
-		else playerDamageSprite(sourceactor, pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+
+		// check again if dude still alive
+		if (actor->IsDudeActor() && xsprIsFine(actor))
+		{
+			if (actor->xspr.health <= 0)
+			{
+				if (dmgType < 0)
+					death = true;
+				else
+					return;
+			}
+			else if (IsBurningDude(actor))
+			{
+				if (!rngok(actor->xspr.burnTime, 1, 1200))
+					actBurnSprite(sourceactor, actor, 1200);
+
+				return;
+			}
+			else if (setHealth)
+			{
+				actor->xspr.health = health;
+			}
+
+			// still may going to death 
+			if (!death)
+			{
+				if (showEffects)
+				{
+					switch (dmgType)
+					{
+					case kDmgBurn:
+						if (!rngok(actor->xspr.burnTime, 1, 1200))
+						{
+							actBurnSprite(sourceactor, actor, ClipLow(dmg >> 1, 128));
+							evKillActor(actor, AF(fxFlameLick));
+							evPostActor(actor, 0, AF(fxFlameLick)); // show flames
+						}
+						break;
+					case kDmgElectric:
+						forceRecoil = true; // show tesla recoil animation
+						break;
+					case kDmgBullet:
+						evKillActor(actor, AF(fxBloodSpurt));
+						for (int i = 1; i < 3; i++)
+						{
+							if (Chance(0x10000 >> i))
+								fxSpawnBlood(actor, 0);
+						}
+						break;
+					case kDmgChoke:
+						if (!pPlayer || !Chance(0x2000)) break;
+						else pPlayer->blindEffect += min(dmg << 2, 128);
+					}
+				}
+
+				if (forceRecoil && !pPlayer)
+				{
+					actor->xspr.data3 = 32767; // to be sure dude will play the animation
+					actor->dudeExtra.teslaHit = (dmgType == kDmgElectric) ? 1 : 0;
+					if (actor->xspr.aiState->stateType != kAiStateRecoil)
+						RecoilDude(actor);
+				}
+			}
+		}
+		else return;
 	}
-	else if ((actor->xspr.health = ClipLow(health, 1)) > 16);
-	else if (!pPlayer) actKillDude(sourceactor, actor, kDamageBullet, dmg);
-	else playerDamageSprite(sourceactor, pPlayer, kDamageBullet, dmg);
-
-	if (actor->xspr.health > 0)
+	if (death)
 	{
-		if (!(sourceactor->spr.flags & kModernTypeFlag8))
-			actor->xspr.health = health;
+		if (dmgType < 0 || immune)
+			dmgType = kDmgBullet;
 
-		bool showEffects = !(sourceactor->spr.flags & kModernTypeFlag2); // show it by default
-		bool forceRecoil = (sourceactor->spr.flags & kModernTypeFlag4);
-
-		if (showEffects)
+		if (pPlayer)
+		{
+			playerDamageSprite(actor, pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+		}
+		else
 		{
 			switch (dmgType)
 			{
+			case kDmgExplode:
+				break;
 			case kDmgBurn:
-				if (actor->xspr.burnTime > 0) break;
-				actBurnSprite(sourceactor, actor, ClipLow(dmg >> 1, 128));
-				evKillActor(actor, AF(fxFlameLick));
-				evPostActor(actor, 0, AF(fxFlameLick)); // show flames
+				if (!IsBurningDude(actor) || actor->xspr.burnTime <= 0) break;
+				return;
+			default:
+				actor->xspr.health = 0x1000; // so it wont turn into gib immediately
 				break;
-			case kDmgElectric:
-				forceRecoil = true; // show tesla recoil animation
-				break;
-			case kDmgBullet:
-				evKillActor(actor, AF(fxBloodSpurt));
-				for (int i = 1; i < 6; i++)
-				{
-					if (Chance(0x16000 >> i))
-						fxSpawnBlood(actor, dmg << 4);
-				}
-				break;
-			case kDmgChoke:
-				if (!pPlayer || !Chance(0x2000)) break;
-				else pPlayer->blindEffect += dmg << 2;
 			}
-		}
 
-		if (forceRecoil && !pPlayer)
-		{
-			actor->xspr.data3 = 32767;
-			actor->dudeExtra.teslaHit = (dmgType == kDmgElectric) ? 1 : 0;
-			if (actor->xspr.aiState->stateType != kAiStateRecoil)
-				RecoilDude(actor);
+			actKillDude(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
 		}
 	}
 }
@@ -4162,6 +4153,17 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
 
 	switch (sourceactor->GetType())
 	{
+	case kThingDripBlood:
+	case kThingDripWater:
+		if (destObjType != OBJ_SPRITE) break;
+		useDripGenerator(sourceactor, destactor);
+		break;
+		// spawn gibs with extended settings
+	case kThingObjectExplode:
+	case kThingObjectGib:
+		if (destObjType != OBJ_SPRITE) break;
+		useGibObject(sourceactor, destactor);
+		break;
 		// allows teleport any sprite from any location to the source destination
 	case kMarkerWarpDest:
 		if (destObjType != OBJ_SPRITE) break;
@@ -4788,23 +4790,6 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 //
 //---------------------------------------------------------------------------
 
-void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
-{
-	genDudeSpawn(pSource, pActor, pActor->clipdist * 0.5);
-}
-
-void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
-{
-	if (randomSpawnDude(pSource, pActor, pActor->clipdist * 0.5, 0) == nullptr)
-		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->clipdist * 0.5, 0);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 {
 	DBloodActor* initiator = event.initiator;
@@ -4907,9 +4892,25 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		DudeToGibCallback1(actor); // set proper gib type just in case DATAs was changed from the outside.
 		return false;
 
+	case kThingObjectGib:
+	case kThingObjectExplode:
+		switch (event.cmd)
+		{
+		case kCmdOff:
+		case kCmdOn:
+			if (!SetSpriteState(actor, event.cmd, initiator)) return true;
+			break;
+		default:
+			if (!SetSpriteState(actor, actor->xspr.state ^ 1, initiator)) return true;
+			break;
+		}
+		if (!(actor->xspr.sysData1 & kModernTypeFlag128)) useGibObject(actor, actor);
+		else if (actor->xspr.txID) modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator);
+		return true;
+
 	case kModernCondition:
 	case kModernConditionFalse:
-		if (!actor->xspr.isTriggered) useCondition(actor, event);
+		if (!actor->xspr.isTriggered) useCondition(actor, &event);
 		return true;
 
 		// add spawn random dude feature - works only if at least 2 data fields are not empty.
@@ -4945,11 +4946,11 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
+			SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
-			evKillActor(actor); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
+			//evKillActor(actor); // queue overflow protect
+			SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
 			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
@@ -4962,13 +4963,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 					useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->GetActor());
 			}
 
-			if (actor->xspr.busyTime > 0)
+			if (actor->xspr.busyTime)
 				evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -4990,10 +4990,17 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			return true;
 		}
 		[[fallthrough]];
+	case kModernSectorFXChanger:
+		if (actor->xspr.txID <= 0)
+		{
+			if (SetSpriteState(actor, actor->xspr.state ^ 1, initiator) == 1)
+				useSectorLightChanger(actor, nullptr);
+			return true;
+		}
+		[[fallthrough]];
 	case kModernSlopeChanger:
 	case kModernObjSizeChanger:
 	case kModernObjPicnumChanger:
-	case kModernSectorFXChanger:
 	case kModernObjDataChanger:
 		modernTypeSetSpriteState(actor, actor->xspr.state ^ 1, initiator);
 		return true;
@@ -5016,6 +5023,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->GetType() == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else if (actor->GetType() == kModernSeqSpawner) useSeqSpawnerGen(actor, OBJ_SPRITE, nullptr, nullptr, actor);
 			else useEffectGen(actor, nullptr);
@@ -5024,8 +5032,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 				evPostActor(actor, ClipLow((int(actor->xspr.busyTime) + Random2(actor->xspr.data1)) * 120 / 10, 0), kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5034,21 +5041,22 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
+			SetSpriteState(actor, 0, initiator);
 			windGenStopWindOnSectors(actor);
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
 			break;
 		case kCmdOn:
 			evKillActor(actor, initiator); // queue overflow protect
-			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
+			SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useSectorWindGen(actor, nullptr);
-			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
+			if (actor->xspr.busyTime > 0)
+				evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5064,13 +5072,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID > 0) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useVelocityChanger(actor, actor->sector(), initiator, nullptr);
 			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5093,6 +5101,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID <= 0 || !aiFightGetDudesForBattle(actor))
 			{
 				aiFightFreeAllTargets(actor);
@@ -5107,12 +5116,39 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		actor->xspr.dropMsg = uint8_t(actor->xspr.data4);
 		return true;
+
+	case kGenDripWater:
+	case kGenDripBlood:
+		switch (event.cmd) {
+		case kCmdOff:
+			SetSpriteState(actor, 0, initiator);
+			break;
+		case kCmdOn:
+			evKillActor(actor, initiator);
+			SetSpriteState(actor, 1, initiator);
+			[[fallthrough]];
+		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
+			else if (actor->xspr.txID) modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
+			else useDripGenerator(actor, actor);
+			if (actor->xspr.busyTime)
+				evPostActor(actor, 120 * (Random2(actor->xspr.data1) + actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
+			break;
+		default:
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
+			break;
+		}
+		return true;
+
+	case kGenMissileFireball:
+		// true  = do not repeat if disabled (set as operated here)
+		// false = set as NOT operated here (opertate in vanilla code)
+		return (event.cmd == kCmdRepeat && !actor->xspr.state);
 
 	case kGenTrigger:
 		if (!(actor->spr.flags & kModernTypeFlag1)) return false; // work as vanilla generator
@@ -5125,13 +5161,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID)
 				evSendActor(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5147,6 +5183,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			[[fallthrough]];
 		case kCmdRepeat:
 			// force OFF after *all* TX objects reach the goal value
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->spr.flags == kModernTypeFlag0 && incDecGoalValueIsReached(actor))
 			{
 				evPostActor(actor, 0, kCmdOff, initiator);
@@ -5157,8 +5194,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.busyTime > 0) evPostActor(actor, actor->xspr.busyTime, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5174,13 +5210,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			useRandomItemGen(actor);
 			if (actor->xspr.busyTime > 0)
 				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5207,7 +5243,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		}
 		return true;
 	case kModernThingEnemyLifeLeech:
-		dudeLeechOperate(actor, event);
+		cdudeLeechOperate(actor);
 		return true;
 	case kModernPlayerControl: 
 	{ // WIP
@@ -5318,7 +5354,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
 		}
 	}
-							 return true;
+	return true;
 
 	case kGenModernSound:
 		switch (event.cmd) {
@@ -5330,6 +5366,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID)  modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useSoundGen(actor, actor);
 
@@ -5337,8 +5374,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 				evPostActor(actor, (120 * actor->xspr.busyTime) / 10, kCmdRepeat, initiator);
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5353,6 +5389,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.state == 0) SetSpriteState(actor, 1, initiator);
 			[[fallthrough]];
 		case kCmdRepeat:
+			if (event.cmd == kCmdRepeat && !actor->xspr.state) break;
 			if (actor->xspr.txID)  modernTypeSendCommand(actor, actor->xspr.txID, (COMMAND_ID)actor->xspr.command, initiator);
 			else useUniMissileGen(actor, actor);
 
@@ -5361,8 +5398,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 
 			break;
 		default:
-			if (actor->xspr.state == 0) evPostActor(actor, 0, kCmdOn, initiator);
-			else evPostActor(actor, 0, kCmdOff, initiator);
+			evPostActor(actor, 0, (COMMAND_ID)(actor->xspr.state ^ 1), initiator);
 			break;
 		}
 		return true;
@@ -5563,107 +5599,6 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState, DB
 //
 //---------------------------------------------------------------------------
 
-int useCondition(DBloodActor* sourceactor, EVENT& event)
-{
-	bool srcIsCondition = false;
-
-	auto const pActor = event.isActor() ? event.getActor() : nullptr;
-
-	if (event.isActor() && pActor == nullptr) return -1;
-	if (event.isActor() && pActor != sourceactor)
-		srcIsCondition = (pActor->GetType() == kModernCondition || pActor->GetType() == kModernConditionFalse);
-
-	// if it's a tracking condition, it must ignore all the commands sent from objects
-	if (sourceactor->xspr.busyTime > 0 && event.funcID != nullptr) return -1;
-	else if (!srcIsCondition) // save object serials in the stack and make copy of initial object
-	{
-		condPush(sourceactor, event.target);
-		condBackup(sourceactor);
-	}
-	else  // or grab serials of objects from previous conditions
-	{
-		sourceactor->condition[0] = pActor->condition[0];
-		sourceactor->condition[1] = pActor->condition[1];
-
-	}
-
-	int cond = sourceactor->xspr.data1;
-	bool ok = false;
-	bool RVRS = (sourceactor->GetType() == kModernConditionFalse);
-	bool RSET = (sourceactor->xspr.command == kCmdNumberic + 36);
-	bool PUSH = (sourceactor->xspr.command == kCmdNumberic);
-	int comOp = sourceactor->spr.cstat; // comparison operator
-
-	if (sourceactor->xspr.restState == 0)
-	{
-		if (cond == 0) ok = true; // dummy
-		else if (cond >= kCondGameBase && cond < kCondGameMax) ok = condCheckGame(sourceactor, event, comOp, PUSH);
-		else if (cond >= kCondMixedBase && cond < kCondMixedMax) ok = condCheckMixed(sourceactor, event, comOp, PUSH);
-		else if (cond >= kCondWallBase && cond < kCondWallMax) ok = condCheckWall(sourceactor, comOp, PUSH);
-		else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(sourceactor, comOp, PUSH);
-		else if (cond >= kCondPlayerBase && cond < kCondPlayerMax) ok = condCheckPlayer(sourceactor, comOp, PUSH);
-		else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(sourceactor, comOp, PUSH);
-		else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(sourceactor, comOp, PUSH);
-		else condError(sourceactor, "Unexpected condition id %d!", cond);
-
-		sourceactor->xspr.state = (ok ^ RVRS);
-
-		if (sourceactor->xspr.waitTime > 0 && sourceactor->xspr.state > 0)
-		{
-			sourceactor->xspr.restState = 1;
-			evKillActor(sourceactor);
-			evPostActor(sourceactor, (sourceactor->xspr.waitTime * 120) / 10, kCmdRepeat, event.initiator);
-			return -1;
-		}
-	}
-	else if (event.cmd == kCmdRepeat)
-	{
-		sourceactor->xspr.restState = 0;
-	}
-	else
-	{
-		return -1;
-	}
-
-	int retn = sourceactor->xspr.state;
-	if (retn)
-	{
-		sourceactor->xspr.isTriggered = sourceactor->xspr.triggerOnce;
-
-		if (RSET)
-			condRestore(sourceactor); // reset focus to the initial object
-
-		// send command to rx bucket
-		if (sourceactor->xspr.txID)
-		{
-			evSendActor(sourceactor, sourceactor->xspr.txID, (COMMAND_ID)sourceactor->xspr.command, sourceactor->condition[0].isActor()? sourceactor->condition[0].actor() : nullptr);
-		}
-
-		if (sourceactor->spr.flags) {
-
-			// send it for object currently in the focus
-			if (sourceactor->spr.flags & kModernTypeFlag1)
-			{
-				nnExtTriggerObject(event.target, sourceactor->xspr.command, sourceactor);
-			}
-
-			// send it for initial object
-			if ((sourceactor->spr.flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(sourceactor->spr.hitag & kModernTypeFlag1)))
-			{
-				auto co = condGet(sourceactor);
-				nnExtTriggerObject(co, sourceactor->xspr.command, sourceactor);
-			}
-		}
-	}
-	return retn;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void useRandomItemGen(DBloodActor* actor)
 {
 	// let's first search for previously dropped items and remove it
@@ -5690,19 +5625,14 @@ void useRandomItemGen(DBloodActor* actor)
 		clampSprite(dropactor);
 
 		// check if generator affected by physics
-		if (debrisGetIndex(actor) != -1)
+		if (gPhysSpritesList.Contains(MakeObjPtr(actor)))
 		{
 			dropactor->addX();
-			int nIndex = debrisGetFreeIndex();
-			if (nIndex >= 0)
-			{
-				dropactor->xspr.physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
-				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+			dropactor->xspr.physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
+			dropactor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 
-				gPhysSpritesList[nIndex] = dropactor;
-				if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
-				getSpriteMassBySize(dropactor); // create mass cache
-			}
+			gPhysSpritesList.AddUnique(MakeObjPtr(dropactor));
+			getSpriteMassBySize(dropactor); // create mass cache
 		}
 	}
 }
@@ -5792,7 +5722,7 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
 	int pitch = sourceactor->xspr.data4 << 1;
 	if (pitch < 2000) pitch = 0;
-	sfxPlay3DSoundVolume(actor, sourceactor->xspr.data2, -1, 0, pitch, sourceactor->xspr.data3);
+	sfxPlay3DSoundVolume(actor, sourceactor->xspr.data2, -1, 0, pitch, clamp<int>(sourceactor->xspr.data3, -1, 255));
 }
 
 //---------------------------------------------------------------------------
@@ -5886,12 +5816,12 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, int rel, bool f
 	switch (rel) {
 	default:
 		z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z--;
+		if (((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z--;
 		slope = pSector->floorheinum;
 		break;
 	case 1:
 		z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
-		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z++;
+		if (((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z++;
 		slope = pSector->ceilingheinum;
 		break;
 	}
@@ -5933,7 +5863,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 				BloodSectIterator it(pSect);
 				while (auto iactor = it.Next())
 				{
-					if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+					if ((iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) continue;
 					else if (getflorzofslopeptr(pSect, iactor->spr.pos) - kSlopeDist <= iactor->spr.pos.Z)
 					{
 						sprite2sectorSlope(iactor, pSect, 0, true);
@@ -5969,7 +5899,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 				BloodSectIterator it(pSect);
 				while (auto iactor = it.Next())
 				{
-					if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+					if ((iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) continue;
 					else if (getceilzofslopeptr(pSect, iactor->spr.pos) + kSlopeDist >= iactor->spr.pos.Z)
 					{
 						sprite2sectorSlope(iactor, pSect, 1, true);
@@ -6010,8 +5940,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 	}
 	else if (objType == OBJ_SPRITE)
 	{
-		if (!(objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) objActor->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_SLOPE) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
+		if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
 			objActor->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_SLOPE;
 
 		switch (sourceactor->xspr.data4)
@@ -6072,6 +6001,8 @@ void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, 
 void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
 {
 	bool relative = (sourceactor->spr.flags & kModernTypeFlag16);
+	if (pSector == nullptr) pSector = sourceactor->sector();
+	if (!pSector->hasX()) pSector->allocX();
 	auto pXSector = &pSector->xs();
 
 	if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
@@ -6141,8 +6072,7 @@ void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
 	}
 
 	// add to shadeList
-	if (!shadeList.Contains(pSector))
-		shadeList.Push(pSector);
+	shadeList.AddUnique(pSector);
 }
 
 //---------------------------------------------------------------------------
@@ -6201,19 +6131,18 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 	// special handling for player(s) if target changer data4 > 2.
 	if (playeractor != nullptr)
 	{
-		auto actLeech = leechIsDropped(actor);
 		if (sourceactor->xspr.data4 == 3)
 		{
 			aiSetTarget(actor, actor->spr.pos);
 			aiSetGenIdleState(actor);
-			if (actor->GetType() == kDudeModernCustom && actLeech)
-				removeLeech(actLeech);
+			if (actor->GetType() == kDudeModernCustom)
+				cdudeGet(actor)->LeechPickup();
 		}
 		else if (sourceactor->xspr.data4 == 4)
 		{
 			aiSetTarget(actor, playeractor->spr.pos);
-			if (actor->GetType() == kDudeModernCustom && actLeech)
-				removeLeech(actLeech);
+			if (actor->GetType() == kDudeModernCustom)
+				cdudeGet(actor)->LeechPickup();
 		}
 	}
 
@@ -6461,6 +6390,249 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSe
 			targWall->pal = uint8_t(sourceactor->xspr.data3);
 		break;
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
+{
+	genDudeSpawn(pSource, pActor, pActor->clipdist * 0.5);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useDripGenerator(DBloodActor* pSource, DBloodActor* pActor)
+{
+	double top, bottom;
+	GetActorExtents(pActor, &top, &bottom);
+	auto pThing = actSpawnThing(pActor->sector(), DVector3(pActor->spr.pos.XY(), bottom), (pActor->GetType() == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+	actPropagateSpriteOwner(pThing, pActor);
+	if (pSource->xspr.data4)
+		pThing->vel.Z = pSource->xspr.data4 / 256.;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
+{
+	if (randomSpawnDude(pSource, pActor, pActor->clipdist * 0.5, 0) == nullptr)
+		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->clipdist * 0.5, 0);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool seqForceOverride(DBloodActor* pSpr, SEQINST* pInst, bool ovrPic, bool ovrPal, bool ovrShd, bool ovrRep, bool , bool setTimer)
+{
+	bool xrp, yrp, plu;
+	bool killSeq = (ovrPic || ovrShd);
+	Seq* pSeq;
+
+	if (pInst && ((pSeq = pInst->pSequence) != NULL))
+	{
+		if (!killSeq)
+		{
+			seqCanOverride(pSeq, 1, &xrp, &yrp, &plu);
+			killSeq = (ovrRep && (!xrp || !yrp));
+			if (!killSeq)
+				killSeq = (ovrPal && !plu);
+		}
+
+		if (killSeq)
+		{
+			if (setTimer && (pSeq->flags & 2)) // remove when done flag
+			{
+				evPostActor(pSpr, pInst->timeCounter * kTicsPerFrame, AF(RemoveActor)); // post remove with new time
+				evKillActor(pSpr, AF(RemoveActor));
+			}
+
+			seqKill(pSpr);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void gibPropagateAppearance(DBloodActor* pSrc, DBloodActor* pFrom, DBloodActor* pDest)
+{
+	int t, flags = pSrc->xspr.sysData1;
+	bool xrp = true, yrp = true, plu = true;
+	bool setPal = (flags & kModernTypeFlag1);
+	bool setShd = (flags & kModernTypeFlag2);
+	bool setRep = (flags & kModernTypeFlag4);
+	bool setPic = (flags & kModernTypeFlag8);
+	bool setCst = (flags & kModernTypeFlag16);
+	bool setAng = (flags & kModernTypeFlag32);
+	bool killSeq = (setPic || setShd);
+
+
+	if (pDest->hasX()) // check and kill seq animation so sprites can inherit appearance
+		seqForceOverride(pDest, GetInstance(pDest), setPic, setPal, setShd, setRep, setCst, !pSrc->xspr.busyTime);
+
+
+	if (pDest->hasX() && (t = seqGetID(pDest)) >= 0)
+	{
+		Seq* pSeq = getSequence(t);
+		if (pSeq)
+		{
+			if (!killSeq)
+			{
+				seqCanOverride(pSeq, 1, &xrp, &yrp, &plu);
+				killSeq = (setRep && (!xrp || !yrp));
+				if (!killSeq)
+					killSeq = (setPal && !plu);
+			}
+
+			if (killSeq)
+			{
+				if (!pSrc->xspr.busyTime && (pSeq->flags & 2)) // remove when done flag
+				{
+					SEQINST* pInst = GetInstance(pDest);
+					evKillActor(pDest, AF(RemoveActor));
+					evPostActor(pDest, pInst->timeCounter * kTicsPerFrame, AF(RemoveActor)); // post remove with new time
+				}
+
+				seqKill(pDest);
+			}
+		}
+	}
+
+	// override remove timer
+	if (pSrc->xspr.busyTime)
+	{
+		evKillActor(pDest, AF(RemoveActor));
+		evPostActor(pDest, EVTIME2TICKS(pSrc->xspr.busyTime), AF(RemoveActor)); // post remove with new time
+	}
+
+	if (setPal)
+		pDest->spr.pal = pFrom->spr.pal;
+
+	if (setShd)
+		pDest->spr.shade = pFrom->spr.shade;
+
+	if (setRep)
+	{
+		pDest->spr.scale = pFrom->spr.scale;
+	}
+
+	if (setPic)
+		pDest->spr.setspritetexture(pFrom->spr.spritetexture());
+
+	if (setCst)
+	{
+		pDest->spr.cstat = pFrom->spr.cstat;
+		if (pDest->spr.cstat & CSTAT_SPRITE_INVISIBLE)
+			pDest->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+	}
+
+	if (setAng)
+	{
+		pDest->spr.Angles = pFrom->spr.Angles;
+	}
+	else
+	{
+		auto an = pDest->spr.Angles.Yaw;
+		while (an == pDest->spr.Angles.Yaw)
+			pDest->spr.Angles.Yaw = RandomAngle();
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useGibObject(DBloodActor* pSource, DBloodActor* pSpr)
+{
+	if (!pSpr)
+		pSpr = pSource;
+
+	static int a[3];
+	a[0] = ClipRange(pSource->xspr.data1, 0, 31);
+	a[1] = ClipRange(pSource->xspr.data2, 0, 31);
+	a[2] = ClipRange(pSource->xspr.data3, 0, 31);
+
+	int e = (pSource->xspr.burnTime || mapRev2()) ? 3 : 2;
+
+	bool fromSrc = !(pSource->xspr.sysData1 & kModernTypeFlag64);
+	bool toDest = ((pSource->xspr.sysData1 & kModernTypeFlag128) && pSource->xspr.txID);
+	bool remove = (!toDest && !(pSource->spr.cstat & CSTAT_SPRITE_INVISIBLE));
+
+	if (!pSource->xspr.sysData1)
+	{
+		for (int i = 0; i < e; i++)   // just create new sprites
+		{
+			if (a[i])
+				GibSprite(pSpr, (GIBTYPE)(a[i] - 1), NULL, NULL);
+		}
+	}
+	else
+	{
+		TArray<DBloodActor*> fxList;
+
+		// i don't think there is other easy way to know
+		// which sprites belongs to current objects, so...
+
+		// collect all potential effect sprites in this sector
+		BloodSectIterator it(pSpr->sectno());
+		while (auto pEff = it.Next())
+		{
+			if (pEff->ownerActor == pSource || (pEff->spr.flags & kHitagFree)) continue;
+			else if (pEff->spr.statnum == kStatFX || pEff->spr.statnum == kStatThing)
+				fxList.Push(pEff);
+		}
+
+		for (int i = 0; i < e; i++)   // just create new sprites
+		{
+			if (a[i])
+				GibSprite(pSpr, (GIBTYPE)(a[i] - 1), NULL, NULL);
+		}
+
+		// propagate only to new sprites
+		it.Reset(pSpr->sectno());
+		while (auto pEff = it.Next())
+		{
+			if (pEff->spr.flags & kHitagFree)  continue;
+			else if (pEff->spr.statnum != kStatFX && pEff->spr.statnum != kStatThing) continue;
+			else if (pEff->ownerActor != pSource && !fxList.Contains(pEff))
+			{
+				gibPropagateAppearance(pSource, (fromSrc) ? pSource : pSpr, pEff);
+				pEff->ownerActor = pSource;
+			}
+		}
+	}
+
+	if (pSource->xspr.data4 > 0)
+		sfxPlay3DSectorSound(pSpr->spr.pos, pSource->xspr.data4, pSpr->sector());
+
+	if (pSource->xspr.dropMsg > 0)
+		actDropObject(pSource, pSource->xspr.dropMsg);
+
+	if (remove)
+		actPostSprite(pSource, kStatFree);
 }
 
 //---------------------------------------------------------------------------
@@ -6743,60 +6915,54 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 	{
 	case OBJ_SPRITE:
 	{
-		int type = objActor->GetType();
-
-		// exceptions
-		if (objActor->IsDudeActor() && objActor->xspr.health <= 0) return true;
-		switch (type)
+		CUSTOMDUDE* pDude = NULL;
+		if (objActor->IsDudeActor())
 		{
-		case kThingBloodBits:
-		case kThingBloodChunks:
-		case kThingZombieHead:
-			return true;
-			break;
+			if (objActor->xspr.health <= 0)
+				return true;
+
+			if (IsCustomDude(objActor))
+				pDude = cdudeGet(objActor);
+		}
+		else
+		{
+			// exceptions
+			switch (objActor->GetType())
+			{
+			case kThingBloodBits:
+			case kThingBloodChunks:
+			case kThingZombieHead:
+				return true;
+			}
 		}
 
 		switch (dataIndex)
 		{
 		case 1:
 			objActor->xspr.data1 = value;
-			switch (type)
+			switch (objActor->GetType())
 			{
 			case kSwitchCombo:
 				if (value == objActor->xspr.data2) SetSpriteState(objActor, 1, nullptr);
 				else SetSpriteState(objActor, 0, nullptr);
-				break;
-			case kDudeModernCustom:
-			case kDudeModernCustomBurning:
-				objActor->genDudeExtra.updReq[kGenDudePropertyWeapon] = true;
-				objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-				evPostActor(objActor, kGenDudeUpdTimeRate, AF(callbackGenDudeUpdate));
-				break;
+				return true;
 			}
+
+			if (pDude)
+				CUSTOMDUDE_SETUP::Setup(pDude);
+
 			return true;
 		case 2:
 			objActor->xspr.data2 = value;
-			switch (type)
-			{
-			case kDudeModernCustom:
-			case kDudeModernCustomBurning:
-				objActor->genDudeExtra.updReq[kGenDudePropertySpriteSize] = true;
-				objActor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
-				objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-				objActor->genDudeExtra.updReq[kGenDudePropertyStates] = true;
-				objActor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
-				evPostActor(objActor, kGenDudeUpdTimeRate, AF(callbackGenDudeUpdate));
-				break;
-			}
+			if (pDude && pDude->version == 1)
+				CUSTOMDUDE_SETUP::Setup(pDude);
 			return true;
 		case 3:
 			objActor->xspr.data3 = value;
-			switch (type)
+			if (pDude && pDude->version == 1)
 			{
-			case kDudeModernCustom:
-			case kDudeModernCustomBurning:
 				objActor->xspr.sysData1 = value;
-				break;
+				CUSTOMDUDE_SETUP::Setup(pDude);
 			}
 			return true;
 		case 4:
@@ -6897,90 +7063,106 @@ void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 //
 //---------------------------------------------------------------------------
 
+void aiPatrolState(DBloodActor* actor, AISTATE* pState, int nSeq)
+{
+	actor->xspr.stateTimer = pState->stateTicks; 
+	actor->xspr.aiState = pState;
+	if (getSequence(nSeq))
+		seqSpawn(nSeq, actor, *pState->funcId);
+
+	if (pState->enterFunc)
+		callActorFunction(*pState->enterFunc, actor);
+}
+
 void aiPatrolState(DBloodActor* actor, int state)
 {
-	assert(actor->IsDudeActor()&& actor->hasX());
-	assert(actor->GetTarget());
+	assert(actor->IsDudeActor() && actor->hasX());
 
-	auto markeractor = actor->GetTarget();
-	assert(markeractor->GetType() == kMarkerPath);
-
-	bool nSeqOverride = false, crouch = false;
-	int i, seq = -1, start = 0, end = kPatrolStateSize;
-
-	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->GetType() - kDudeBase];
-
-	switch (state) {
-	case kAiStatePatrolWaitL:
-		seq = pExtra->idlgseqofs;
-		start = 0; end = 2;
-		break;
-	case kAiStatePatrolMoveL:
-		seq = pExtra->mvegseqofs;
-		start = 2, end = 7;
-		break;
-	case kAiStatePatrolTurnL:
-		seq = pExtra->mvegseqofs;
-		start = 7, end = 12;
-		break;
-	case kAiStatePatrolWaitW:
-		seq = pExtra->idlwseqofs;
-		start = 12; end = 18;
-		break;
-	case kAiStatePatrolMoveW:
-		seq = pExtra->mvewseqofs;
-		start = 18; end = 25;
-		break;
-	case kAiStatePatrolTurnW:
-		seq = pExtra->mvewseqofs;
-		start = 25; end = 32;
-		break;
-	case kAiStatePatrolWaitC:
-		seq = pExtra->idlcseqofs;
-		start = 32; end = 36;
-		crouch = true;
-		break;
-	case kAiStatePatrolMoveC:
-		seq = pExtra->mvecseqofs;
-		start = 36; end = 39;
-		crouch = true;
-		break;
-	case kAiStatePatrolTurnC:
-		seq = pExtra->mvecseqofs;
-		start = 39; end = kPatrolStateSize;
-		crouch = true;
-		break;
-	}
-
-
-	if (markeractor->xspr.data4 > 0) seq = markeractor->xspr.data4, nSeqOverride = true;
-	else if (!nSeqOverride && state == kAiStatePatrolWaitC && (actor->GetType() == kDudeCultistTesla || actor->GetType() == kDudeCultistTNT))
-		seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
-
-	if (seq < 0)
-		return aiPatrolStop(actor, nullptr);
-
-	for (i = start; i < end; i++)
+	if (!actor->GetTarget())
 	{
-		AISTATE* newState = &genPatrolStates[i];
-		if (newState->stateType != state || (!nSeqOverride && seq != newState->seqId))
-			continue;
-
-		if (actor->GetType() == kDudeModernCustom) aiGenDudeNewState(actor, newState);
-		else aiNewState(actor, newState);
-
-		if (crouch) actor->xspr.modernFlags |= kDudeFlagCrouch;
-		else actor->xspr.modernFlags &= ~kDudeFlagCrouch;
-
-		if (nSeqOverride)
-			seqSpawn(seq, actor);
-
+		aiPatrolStop(actor, nullptr);
 		return;
 	}
 
-	if (i == end)
+	auto pMarker = actor->GetTarget();
+	if (pMarker->GetType() != kMarkerPath || !xsprIsFine(pMarker))
 	{
-		viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, actor->GetIndex(), actor->GetType());
+		aiPatrolStop(actor, nullptr);
+		return;
+	}
+
+	auto pExtra = &gDudeInfoExtra[actor->GetType() - kDudeBase];
+	bool nSeqOverride = false, crouch = false;
+	int i, seq = -1;
+
+	switch (state)
+	{
+	case kAiStatePatrolWaitL:   seq = pExtra->idlgseqofs;   break;
+	case kAiStatePatrolMoveL:   seq = pExtra->mvegseqofs;   break;
+	case kAiStatePatrolTurnL:   seq = pExtra->mvegseqofs;   break;
+	case kAiStatePatrolWaitW:   seq = pExtra->idlwseqofs;   break;
+	case kAiStatePatrolMoveW:   seq = pExtra->mvewseqofs;   break;
+	case kAiStatePatrolTurnW:   seq = pExtra->mvewseqofs;   break;
+	case kAiStatePatrolWaitC:
+	case kAiStatePatrolMoveC:
+	case kAiStatePatrolTurnC:
+		crouch = true;
+		switch (state)
+		{
+		case kAiStatePatrolWaitC:   seq = pExtra->idlcseqofs;   break;
+		case kAiStatePatrolMoveC:   seq = pExtra->mvecseqofs;   break;
+		case kAiStatePatrolTurnC:   seq = pExtra->mvecseqofs;   break;
+		}
+		break;
+	}
+
+	if (pMarker->xspr.data4 > 0) seq = pMarker->xspr.data4, nSeqOverride = true;
+	else if (state == kAiStatePatrolWaitC && (actor->GetType() == kDudeCultistTesla || actor->GetType() == kDudeCultistTNT))
+		seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
+
+	if (seq < 0)
+	{
+		aiPatrolStop(actor, nullptr);
+		return;
+	}
+
+	for (i = 0; i < kPatrolStateSize; i++)
+	{
+		AISTATE* newState = &genPatrolStates[i];
+		if (newState->stateType != state)
+			continue;
+
+		if (!nSeqOverride)
+		{
+			if (seq != newState->seqId)
+				continue;
+
+			if (actor->GetType() == kDudeModernCustom)
+			{
+				if (!rngok(seq, 0, kCdudeStateMax))
+					continue;
+
+				CUSTOMDUDE* pDude = cdudeGet(actor);
+				AISTATE* pState = (AISTATE*)pDude->states;
+				seq = pState[seq].seqId;
+				if (seq <= 0)
+					continue;
+			}
+			else
+			{
+				seq += getDudeInfo(actor->GetType())->seqStartID;
+			}
+		}
+
+		aiPatrolState(actor, newState, seq);
+		if (crouch) actor->xspr.modernFlags |= kDudeFlagCrouch;
+		else actor->xspr.modernFlags &= ~kDudeFlagCrouch;
+		return;
+	}
+
+	if (i == kPatrolStateSize)
+	{
+		Printf(PRINT_HIGH, "No patrol state #%d found for dude #%d (type = %s)", state, actor->GetIndex(), actor->GetClass()->TypeName.GetChars());
 		aiPatrolStop(actor, nullptr);
 	}
 }
@@ -7232,6 +7414,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 		}
 		else
 		{
+			actor->SetTarget(actor);
 			aiInitSprite(actor);
 			aiSetTarget(actor, actor->xspr.TargetPos);
 		}
@@ -7283,6 +7466,7 @@ void aiPatrolTurn(DBloodActor* actor)
 
 void aiPatrolMove(DBloodActor* actor)
 {
+	int nFrontSpeed, nTurnSpeed;
 	auto targetactor = actor->GetTarget();
 
 	if (!(actor->IsDudeActor()) || !targetactor)
@@ -7303,6 +7487,26 @@ void aiPatrolMove(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
 
+	switch (actor->GetType())
+	{
+	case kDudeModernCustom:
+	{
+		int nPosture;
+		CUSTOMDUDE* pDude = cdudeGet(actor);
+		if (spriteIsUnderwater(actor))nPosture = kCdudePostureW;
+		else if (actor->xspr.modernFlags & kDudeFlagCrouch)   nPosture = kCdudePostureC;
+		else nPosture = kCdudePostureL;
+
+		nFrontSpeed = pDude->GetVelocity(nPosture, kParVelocityForward);
+		nTurnSpeed = pDude->GetVelocity(nPosture, kParVelocityTurn);
+		break;
+	}
+	default:
+		nFrontSpeed = pDudeInfo->frontSpeed;
+		nTurnSpeed = (pDudeInfo->angSpeed << 2) >> 4;
+		break;
+	}
+
 	DVector3 dv = targetactor->spr.pos - actor->spr.pos.plusZ(-pDudeInfo->eyeHeight); // eyeHeight is in map units!
 
 	DAngle goalAng = DAngle180 / 3;
@@ -7319,7 +7523,7 @@ void aiPatrolMove(DBloodActor* actor)
 		actor->spr.flags |= kPhysGravity | kPhysFalling;
 	}
 
-	DAngle nTurnRange = pDudeInfo->TurnRange() / 64;
+	DAngle nTurnRange = DAngle::fromBuild(nTurnSpeed);
 	DAngle nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 
@@ -7347,17 +7551,8 @@ void aiPatrolMove(DBloodActor* actor)
 	}
 	else
 	{
-		int frontSpeed = pDudeInfo->frontSpeed;
-		switch (actor->GetType())
-		{
-			case kDudeModernCustom:
-			case kDudeModernCustomBurning:
-				frontSpeed = actor->genDudeExtra.moveSpeed;
-				break;
-		}
-
-		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
-		actor->vel += actor->spr.Angles.Yaw.ToVector() * FixedToFloat(frontSpeed);
+		nFrontSpeed = aiPatrolGetVelocity(nFrontSpeed, targetactor->xspr.busyTime);
+		actor->vel += actor->spr.Angles.Yaw.ToVector() * FixedToFloat(nFrontSpeed);
 	}
 
 	double vel = (actor->xspr.modernFlags & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
@@ -7506,8 +7701,8 @@ bool aiCanCrouch(DBloodActor* actor)
 {
 	if (actor->GetType() >= kDudeBase && actor->GetType() < kDudeVanillaMax)
 		return (gDudeInfoExtra[actor->GetType() - kDudeBase].idlcseqofs >= 0 && gDudeInfoExtra[actor->GetType() - kDudeBase].mvecseqofs >= 0);
-	else if (actor->GetType() == kDudeModernCustom || actor->GetType() == kDudeModernCustomBurning)
-		return actor->genDudeExtra.canDuck;
+	else if (IsCustomDude(actor))
+		return cdudeGet(actor)->CanCrouch();
 
 	return false;
 
@@ -7936,10 +8131,20 @@ void aiPatrolThink(DBloodActor* actor)
 
 
 	bool crouch = (actor->xspr.modernFlags & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
-	if (markeractor == nullptr || (actor->GetType() == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor))))
+	if (markeractor == nullptr)
 	{
 		aiPatrolStop(actor, nullptr);
 		return;
+	}
+
+	if (actor->GetType() == kDudeModernCustom)
+	{
+		CUSTOMDUDE* pDude = cdudeGet(actor);
+		if ((uwater && !pDude->CanSwim()) || !pDude->CanMove())
+		{
+			aiPatrolStop(actor, nullptr);
+			return;
+		}
 	}
 
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->GetType() - kDudeBase];
@@ -8327,12 +8532,6 @@ void levelEndLevelCustom(int nLevel)
 //
 //---------------------------------------------------------------------------
 
-void callbackGenDudeUpdate(DBloodActor* actor) // 24
-{
-	if (actor)
-		genDudeUpdate(actor);
-}
-
 void clampSprite(DBloodActor* actor, int which)
 {
 	double zTop, zBot;
@@ -8482,6 +8681,235 @@ bool xsprIsFine(DBloodActor* pSpr)
 	return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void nnExtOffsetPos(const DVector3& opos, DAngle nAng, DVector3& pos)
+{
+	// left, right
+	if (opos.X)
+	{
+		pos += (nAng + DAngle90).ToVector() * opos.X;
+	}
+
+	// forward, backward
+	if (opos.Y)
+	{
+		pos += nAng.ToVector() * opos.Y;
+	}
+
+	// top, bottom
+	pos.Z += opos.Z;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+char nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos)
+{
+	auto pos = pSpr->spr.pos;
+	auto sect = pSpr->sector();
+
+	nnExtOffsetPos(opos, pSpr->spr.Angles.Yaw, pos);
+
+	if (sect)
+	{
+		updatesector(pos, &sect);
+		if (!sect)
+		{
+			sect = pSpr->sector();
+			updatesector(pos.XY(), &sect);
+		}
+		if (sect)
+		{
+			if (sect != pSpr->sector())
+				ChangeActorSect(pSpr, sect);
+
+			pSpr->spr.pos = pos;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void nnExtScaleVelocity(DBloodActor* pSpr, int nVel, const DVector3& vel, int which)
+{
+	if (which & 0x01)
+	{
+		pSpr->vel.XY() = vel.XY() * nVel;
+	}
+
+	if (which & 0x02)
+	{
+		pSpr->vel.Z = vel.Z * nVel;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void nnExtScaleVelocityRel(DBloodActor* pSpr, int nVel, const DVector3& vel, int which)
+{
+	if (which & 0x01)
+	{
+		pSpr->vel.XY() += vel.XY() * nVel;
+	}
+
+	if (which & 0x02)
+	{
+		pSpr->vel.Z += vel.Z * nVel;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void nnExtSprScaleSet(DBloodActor* pSpr, int nScale)
+{
+	pSpr->spr.scale.X = clamp(pSpr->spr.scale.X * nScale / 256., 0., 4.);
+	pSpr->spr.scale.Y = clamp(pSpr->spr.scale.Y * nScale / 256., 0., 4.);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool spriteIsUnderwater(DBloodActor* actor, bool oldWay)
+{
+	return (IsUnderwaterSector(actor->sector())
+		|| (oldWay && (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)));
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool isOnRespawn(DBloodActor* pSpr)
+{
+	if (pSpr->spr.flags & kHitagRespawn)
+	{
+		switch (pSpr->spr.statnum)
+		{
+		case kStatDude:
+		case kStatThing:
+		case kStatItem:
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool seqCanOverride(Seq* pSeq, int nFrame, bool* xrp, bool* yrp, bool* plu)
+{
+	SEQFRAME* pFrame;
+	*xrp = *yrp = *plu = true;
+	if (!pSeq)
+		return true;
+
+	while (nFrame < pSeq->nFrames)
+	{
+		pFrame = &pSeq->frames[nFrame++];
+		if (pFrame->scalex) *xrp = false;
+		if (pFrame->scaley) *yrp = false;
+		if (pFrame->palette)     *plu = false;
+		// TO DO: ...add check for cstat
+	}
+
+	return (*xrp && *yrp && *plu);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int nnExtGibSprite(DBloodActor* pSpr, TArray<DBloodActor*>& pOut, GIBTYPE nGibType, DVector3* pPos, DVector3* pVel)
+{
+	auto nSect = pSpr->sector();
+	auto nSectBackup = nSect;
+
+	if (nSect == nullptr)
+		return 0;
+
+	if (pPos)
+	{
+		updatesector(pPos->XY(), &nSect);
+		if (nSect) pSpr->setsector(nSect);
+	}
+
+	// collect all potential effect sprites in this sector
+	BloodSectIterator it(nSect);
+	while (auto pEff = it.Next())
+	{
+		if (pEff->ownerActor == pSpr || (pEff->spr.flags & kHitagFree)) continue;
+		else if (pEff->spr.statnum == kStatFX || pEff->spr.statnum == kStatThing)
+			pOut.Push(pEff);
+	}
+
+	// create new sprites
+	GibSprite(pSpr, (GIBTYPE)nGibType, pPos, pVel);
+
+	// only new sprites must left
+	it.Reset(nSect);
+	while (auto pEff = it.Next())
+	{
+		if (pEff->spr.flags & kHitagFree)  continue;
+		else if (pEff->spr.statnum != kStatFX && pEff->spr.statnum != kStatThing) continue;
+		else if (pEff->ownerActor != pSpr)
+		{
+			auto find = pOut.Find(pEff);
+			if (find < pOut.Size()) pOut.Delete(find);
+			else pOut.Push(pEff);
+		}
+	}
+
+	if (pPos)
+		pSpr->setsector(nSectBackup);
+
+	return pOut.Size();
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int nnExtDudeStartHealth(DBloodActor* pSpr, int nHealth)
 {

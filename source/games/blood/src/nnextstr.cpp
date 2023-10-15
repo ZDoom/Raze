@@ -187,7 +187,6 @@ int btoi(const char* str)
 {
 	if (str)
 	{
-		int i;
 		const NAMED_TYPE* pEntry = gBoolNames;
 		for (auto & e : gBoolNames)
 		{

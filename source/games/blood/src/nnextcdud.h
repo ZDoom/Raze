@@ -422,7 +422,6 @@ class CUSTOMDUDE_SOUND
 		{
 			if (nID != NO_SOUND)
 			{
-				int i, j;
 				int nClock = PlayClock;
 				char uwater = spriteIsUnderwater(pSpr, true);
 				int nRand = Random2(80);
@@ -588,7 +587,7 @@ class APPEARANCE
 			if (shd != 127)
 			{
 				seqKill(pSpr);
-				pSpr->spr.shade = shd;
+				pSpr->spr.shade = (int8_t)shd;
 			}
 
 			if (pal >= 0)
@@ -596,7 +595,7 @@ class APPEARANCE
 				if (!plu)
 					seqKill(pSpr);
 
-				pSpr->spr.pal = pal;
+				pSpr->spr.pal = (int8_t)pal;
 			}
 
 			if (xrp)
@@ -898,7 +897,7 @@ class CUSTOMDUDE_EFFECT
 
 			pEff->ownerActor = pSrc;
 
-			dvel.Z   += Random2F(perc2val(rp, dvel.Z));
+			dvel.Z   += Random2D(perc2val(rp, dvel.Z));
 			nAng += RandomAngle(perc2val(rp >> 1, nAng.Buildang())).Normalized360();
 			pEff->spr.Angles.Yaw = nAng.Normalized360();
 
@@ -906,7 +905,7 @@ class CUSTOMDUDE_EFFECT
 
 			if (nVel >= 0)
 			{
-				nVel += Random2F(perc2val(rp, nVel));
+				nVel += Random2D(perc2val(rp, nVel));
 				dvel.XY() = nAng.ToVector(); // todo: determine factor (dx = (Cos(nAng) >> 16);)
 				
 				if (nVel == 0)
@@ -1019,7 +1018,7 @@ class  CUSTOMDUDE_DODGE
 			unsigned int dmgReq;
 			char Allow(int nDamage)
 			{
-				if (nDamage > dmgReq)
+				if (nDamage > (int)dmgReq)
 				{
 					unsigned int nClock = (unsigned int)PlayClock;
 					unsigned int nChance = chance;
@@ -1057,7 +1056,7 @@ class  CUSTOMDUDE_RECOIL
 		unsigned int dmgReq;
 		char Allow(int nDamage)
 		{
-			if (nDamage > dmgReq)
+			if (nDamage > (int)dmgReq)
 			{
 				unsigned int nClock = (unsigned int)PlayClock;
 				unsigned int nChance = chance;
@@ -1087,7 +1086,7 @@ class  CUSTOMDUDE_KNOCKOUT
 		unsigned int dmgReq;
 		char Allow(int nDamage)
 		{
-			if (nDamage > dmgReq)
+			if (nDamage > (int)dmgReq)
 			{
 				unsigned int nClock = (unsigned int)PlayClock;
 				unsigned int nChance = chance;
@@ -1334,7 +1333,7 @@ class CUSTOMDUDE_SETUP
 	public:
 		char FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture);
 		void Setup(spritetype* pSpr, XSPRITE* pXSpr);
-		void Setup(CUSTOMDUDE* pOver = nullptr);
+		static void Setup(CUSTOMDUDE* pOver = nullptr);
 
 };
 
@@ -1404,9 +1403,8 @@ class CUSTOMDUDEV2_SETUP : CUSTOMDUDE_SETUP
 
 void cdudeFree();
 CUSTOMDUDE* cdudeAlloc();
-CUSTOMDUDE* cdudeGet(int nIndex);
 bool IsCustomDude(DBloodActor* pSpr)        { return (pSpr->GetType() == kDudeModernCustom); }
-CUSTOMDUDE* cdudeGet(DBloodActor* pSpr) { return cdudeGet(pSpr); };
+CUSTOMDUDE* cdudeGet(DBloodActor* pSpr);
 spritetype* cdudeSpawn(DBloodActor* pSource, DBloodActor* pSprite, int nDist);
 void cdudeLeechOperate(DBloodActor* pSprite);
 

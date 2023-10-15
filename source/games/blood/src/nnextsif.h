@@ -38,12 +38,10 @@ BEGIN_BLD_NS
 #define CONDITIONS_USE_BUBBLE_ACTION        1
 
 
-void conditionsInit(bool bSaveLoad);
-void conditionsTrackingAlloc(bool bSaveLoad);
-void conditionsTrackingClear();
+void conditionsInit();
 void conditionsTrackingProcess();
 void conditionsLinkPlayer(DBloodActor* pXCtrl, DBloodPlayer* pPlay);
-void conditionsUpdateIndex(int oType, int oldIndex, int newIndex);
+void conditionsUpdateIndex(EventObject Old, EventObject New);
 void useCondition(DBloodActor* pSource, EVENT* pEvn);
 void conditionListReset();
 

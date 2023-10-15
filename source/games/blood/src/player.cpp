@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "gamestate.h"
 #include "automap.h"
+#include "nnextsif.h"
 
 BEGIN_BLD_NS
 
@@ -929,7 +930,7 @@ void playerStart(int nPlayer, int bNewLevel)
 				DBloodActor* SpriteOld = iactor->prevmarker;
 				trPlayerCtrlLink(iactor, pPlayer, (SpriteOld == nullptr)); // this modifies iactor's prevmarker field!
 				if (SpriteOld)
-					conditionsUpdateIndex(SpriteOld, iactor->prevmarker);
+					conditionsUpdateIndex(EventObject(SpriteOld), EventObject(iactor->prevmarker));
 			}
 		}
 

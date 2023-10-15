@@ -1920,7 +1920,7 @@ void conditionsInit()
 {
 	if (gConditions.Size() == 0) conditionInitData();
 
-	int nCount = 0, i, j, s, e;
+	int nCount = 0;
 
 
 	gTrackingConditionsList.Clear();
@@ -1991,7 +1991,7 @@ void conditionsInit()
 	}
 }
 
-void conditionsTrackingProcess(DBloodActor* pSpr)
+void conditionsTrackingProcess()
 {
 	EVENT evn; 
 	evn.funcID = nullptr; 
@@ -2001,7 +2001,7 @@ void conditionsTrackingProcess(DBloodActor* pSpr)
 	for(int i = gTrackingConditionsList.Size() - 1; i >= 0; i--)
 	{
 		auto pTr = &gTrackingConditionsList[i];  
-		auto actor = pTr->condi;
+		auto pSpr = pTr->condi;
 		if (pSpr->xspr.locked || pSpr->xspr.isTriggered || ++pSpr->xspr.busy < pSpr->xspr.busyTime)
 			continue;
 
@@ -2009,7 +2009,7 @@ void conditionsTrackingProcess(DBloodActor* pSpr)
 		for(auto o : pTr->objects)
 		{
 			evn.target = o;
-			useCondition(actor, &evn);
+			useCondition(pSpr, &evn);
 		}
 	}
 }
@@ -2233,8 +2233,6 @@ void useCondition(DBloodActor* source, EVENT* pEvn)
 #ifdef CONDITIONS_USE_BUBBLE_ACTION
 void conditionsBubble(DBloodActor* pStart, void(*pActionFunc)(DBloodActor*, int), int nValue)
 {
-	int i, j;
-
 	pActionFunc(pStart, nValue);
 
 	// perform action for whole branch from bottom to top while there is no forks
@@ -2248,11 +2246,11 @@ void conditionsBubble(DBloodActor* pStart, void(*pActionFunc)(DBloodActor*, int)
 		while (auto actor2 = it2.Next())
 		{
 			if (actor2->xspr.rxID == pStart->xspr.rxID && actor2->xspr.txID != pStart->xspr.txID)
+			{
+				conditionsBubble(actor, pActionFunc, nValue);
 				break; // fork found
+			}
 		}
-
-		if (j < 0)
-			conditionsBubble(actor, pActionFunc, nValue);
 	}
 }
 void conditionsSetIsTriggered(DBloodActor* actor, int nValue)

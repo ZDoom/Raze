@@ -496,7 +496,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 #ifdef NOONE_EXTENSIONS
 	if (gModernMap)
 	{
-		arc("spritemass", spriteMass)
+		arc//("spritemass", spriteMass)
 			("prevmarker", prevmarker)
 			.Array("conditions", condition, 2);
 

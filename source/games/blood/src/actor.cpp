@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "blood.h"
 #include "texids.h"
+#include "nnexts.h"
+#include "nnextcdud.h"
 
 BEGIN_BLD_NS
 
@@ -764,17 +766,6 @@ struct POSTPONE
 };
 
 TArray<POSTPONE> gPost;
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-bool IsUnderwaterSector(sectortype* pSector)
-{
-	return !!pSector->hasX() && pSector->xs().Underwater;
-}
 
 //---------------------------------------------------------------------------
 //
@@ -2363,10 +2354,12 @@ bool IsBurningDude(DBloodActor* actor)
 	case kDudeBurningZombieButcher:
 	case kDudeBurningTinyCaleb:
 	case kDudeBurningBeast:
-#ifdef NOONE_EXTENSIONS
-	case kDudeModernCustomBurning:
-#endif
 		return true;
+#ifdef NOONE_EXTENSIONS
+	case kDudeModernCustom:
+		CUSTOMDUDE* pDude = cdudeGet(actor);
+		return (pDude->StatusTest(kCdudeStatusBurning));
+#endif
 	}
 
 	return false;

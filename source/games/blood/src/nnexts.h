@@ -64,7 +64,9 @@ enum
 	kModernTypeFlag4 = 0x0004,
 	kModernTypeFlag8 = 0x0008,
 	kModernTypeFlag16 = 0x0010,
+	kModernTypeFlag32 = 0x0020,
 	kModernTypeFlag64 = 0x0040,
+	kModernTypeFlag128 = 0x0080,
 
 	kMaxRandomizeRetries = 16,
 	kCondRange = 100,
@@ -367,10 +369,6 @@ bool incDecGoalValueIsReached(DBloodActor* actor);
 int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
-int useCondition(DBloodActor*, EVENT& event);
-bool condCmp(int val, int arg1, int arg2, int comOp);
-void condError(DBloodActor* pXCond, const char* pzFormat, ...);
-void conditionsUpdateIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
 DBloodActor* evrListRedirectors(int objType, sectortype*, walltype*, DBloodActor* objActor, DBloodActor* pXRedir, int* tx);
 void seqSpawnerOffSameTx(DBloodActor* actor);
 void triggerTouchSprite(DBloodActor* pSprite, DBloodActor* nHSprite);
@@ -434,7 +432,15 @@ inline int perc2val(int reqPerc, int val) { return (val * reqPerc) / 100; }
 inline double perc2val(int reqPerc, double val) { return (val * reqPerc) / 100; }
 void nnExtScaleVelocity(DBloodActor* pSpr, double nVel, const DVector3& dv, int which = 0x03);
 void nnExtScaleVelocityRel(DBloodActor* pSpr, double nVel, const DVector3& dv, int which = 0x03);
-int nnExtGibSprite(DBloodActor* pSpr, TArray<DBloodActor*>& pOut, GIBTYPE nGibType, const DVector3* pPos, const DVector3* pVel);
+enum GIBTYPE;
+int nnExtGibSprite(DBloodActor* pSpr, TArray<DBloodActor*>& pOut, GIBTYPE nGibType, DVector3* pPos, DVector3* pVel);
+void useGibObject(DBloodActor* pXSource, DBloodActor* pSpr);
+void useDripGenerator(DBloodActor* pXSource, DBloodActor* pSprite);
+int nnExtGetStartHealth(DBloodActor* actor);
+int nnExtResAddExternalFiles();
+
+inline bool mapRev1() { return (gModernMap == 1); }
+inline bool mapRev2() { return (gModernMap == 2); }
 
 
 inline bool valueIsBetween(int val, int min, int max)

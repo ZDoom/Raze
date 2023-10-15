@@ -592,7 +592,7 @@ inline double Random2F(int a1, int scale = 16)
 	return FixedToFloat(Random2(a1), scale);
 }
 
-inline double Random2D(double val, int scale)
+inline double Random2D(double val, int scale = 16)
 {
 	return FixedToFloat(Random2(FloatToFixed(val, scale)), scale);
 }

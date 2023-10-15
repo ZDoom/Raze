@@ -131,7 +131,11 @@ void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange
 void actDoLight(int spriteNum);
 #endif
 
-bool IsUnderwaterSector(sectortype* pSector);
+inline bool IsUnderwaterSector(sectortype* pSector)
+{
+	return !!pSector->hasX() && pSector->xs().Underwater;
+}
+
 void actInit(TArray<DBloodActor*>& actors);
 void actWallBounceVector(DBloodActor* actor, walltype* pWall, double factor);
 DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSector, double factor);
@@ -169,8 +173,6 @@ void callActorFunction(VMFunction* funcID, DBloodActor* actor);
 
 extern const int16_t DudeDifficulty[];
 
-
-bool IsUnderwaterSector(sectortype* pSector);
 
 // route state, seq and event callbacks through the scripting interface.
 // this needs to work with incomplete data, so avoid the asserting macros.

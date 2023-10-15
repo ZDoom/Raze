@@ -400,6 +400,7 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 	auto ty = GetSpawnType(nType);
 	auto spawned = actDropObject(actor, ty);
 	if (ty == nullptr) spawned->spr.lotag = nType;	// make sure the type is correct even if not bound to a class.
+	return spawned;
 }
 
 //---------------------------------------------------------------------------
