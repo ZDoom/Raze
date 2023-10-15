@@ -685,6 +685,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/nnexts.cpp
 	games/blood/src/nnsprinsect.cpp
 	games/blood/src/nnextstr.cpp
+	games/blood/src/nnextsif.cpp
 	
 	games/blood/src/osdcmd.cpp
 	games/blood/src/player.cpp

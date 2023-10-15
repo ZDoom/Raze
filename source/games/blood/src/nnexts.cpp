@@ -816,8 +816,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 		else if (actor->IsDudeActor())
 		{
 			if (actor->IsPlayerActor()) return (getPlayer(actor)->damageControl[dmgType]);
-#pragma message("Fix " __FUNCTION__ " for custom dudes")
-			//else if (actor->GetType() == kDudeModernCustom) return (cdudeGet(pSprite->index)->GetDamage(-1, dmgType) <= minScale);
+			else if (actor->GetType() == kDudeModernCustom) return (cdudeGet(actor)->GetDamage(-1, dmgType) <= minScale);
 			return (actor->dmgControl[dmgType] <= minScale);
 		}
 	}
@@ -2106,7 +2105,6 @@ void aiSetGenIdleState(DBloodActor* actor)
 	switch (actor->GetType())
 	{
 	case kDudeModernCustom:
-#pragma message("Fix " __FUNCTION__ " for custom dudes")
 		aiGenDudeNewState(actor, &genIdle);
 		break;
 	default:

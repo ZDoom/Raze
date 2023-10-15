@@ -1168,6 +1168,14 @@ class CUSTOMDUDE_DROPITEM
 		}
 };
 
+/* class DCustomDude : public DObject
+{
+	DECLARE_CLASS(DCustomDude, DObject)
+	HAS_OBJECT_POINTERS
+
+	// Note: we will likely have to write out the entire shit here to make this savegame robust...
+}
+*/
 class CUSTOMDUDE
 {
 	public:
@@ -1178,7 +1186,7 @@ class CUSTOMDUDE
 		DUDEEXTRA* pExtra;
 		DUDEINFO* pInfo;
 		DBloodActor* pSpr;
-		DBloodActor *pLeech;
+		TObjPtr<DBloodActor *> pLeech;
 		CUSTOMDUDE_WEAPON    weapons[kCdudeMaxWeapons];                             // the weapons it may have
 		CUSTOMDUDE_WEAPON*   pWeapon;                                               // pointer to current weapon
 		CUSTOMDUDE_DAMAGE    damage;                                                // damage control
@@ -1190,7 +1198,7 @@ class CUSTOMDUDE
 		CUSTOMDUDE_DROPITEM  dropItem;                                              // drop item control
 		CUSTOMDUDE_EFFECT    effects[kCdudeMaxEffectGroups];                        // fx, gib effect stuff
 		AISTATE states[kCdudeStateMax][kCdudePostureMax];                           // includes states for weapons
-		//IDLIST* pSlaves;                                                            // summoned dudes under control of this dude
+		TArray<TObjPtr<DBloodActor*>> pSlaves;                                                            // summoned dudes under control of this dude
 		uint8_t medium     ;                       // medium in which it can live
 		uint8_t posture    ;                       // current posture
 		unsigned int mass       ;                       // mass in KG

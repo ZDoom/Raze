@@ -1200,41 +1200,25 @@ struct EvalContext final
 	********************************************************************************/
 	bool cdudChkLeechThrown(void)
 	{
-#pragma message("fix for custom dudes")
-#if 0
 		CUSTOMDUDE* pDude = cdudeGet(pSpr);
-		if (!pDude->IsLeechBroken() && pDude->pXLeech)
-			return helperChkSprite(pDude->pXLeech->reference);
-#endif
+		if (!pDude->IsLeechBroken() && pDude->pLeech)
+			return helperChkSprite(pDude->pLeech);
 		return false;
 	};
 	bool cdudChkLeechDead(void)
 	{
-#pragma message("fix" __FUNCTION__ "for custom dudes")
-#if 0
 		CUSTOMDUDE* pDude = cdudeGet(pSpr);
 		if (pDude->IsLeechBroken()) return true;
-		else if (PUSH && pDude->pXLeech) Push(EventObject::Actor, pDude->pXLeech->reference);
-#endif
+		else if (PUSH && pDude->pLeech) Push(pDude->pLeech);
 		return false;
 	};
 	bool cdudCmpSummoned(void)
 	{
-#pragma message("fix" __FUNCTION__ "for custom dudes")
-#if 0
-		IDLIST* pSlaves = cdudeGet(pSpr)->pSlaves;
-		if (!pSlaves)
-			return Cmp(0);
-
-		return Cmp(pSlaves->Length());
-#else
-		return false;
-#endif
+		auto& pSlaves = cdudeGet(pSpr)->pSlaves;
+		return Cmp(pSlaves.Size());
 	};
 	bool cdudChkIfAble(void)
 	{
-#pragma message("fix" __FUNCTION__ "for custom dudes")
-#if 0
 		switch (arg3)
 		{
 		case 1: return false;
@@ -1249,21 +1233,15 @@ struct EvalContext final
 			Error(gErrors[kErrInvalidArgsPass]);
 			break;
 		}
-#endif
 		return false;
 	};
 	bool cdudCmpDispersion(void)
 	{
-#pragma message("fix" __FUNCTION__ "for custom dudes")
-#if 0
 		CUSTOMDUDE_WEAPON* pWeapon = cdudeGet(pSpr)->pWeapon;
 		if (!pWeapon)
 			return Cmp(0);
 
 		return Cmp(pWeapon->dispersion[0]);
-#else
-		return false;
-#endif
 	};
 
 
