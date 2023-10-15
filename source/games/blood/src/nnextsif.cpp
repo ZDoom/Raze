@@ -1998,7 +1998,7 @@ void conditionsTrackingProcess()
 	evn.cmd = kCmdOn; 
 	evn.initiator = nullptr;
 	
-	for(int i = gTrackingConditionsList.Size() - 1; i >= 0; i--)
+	for(int i = gTrackingConditionsList.SSize() - 1; i >= 0; i--)
 	{
 		auto pTr = &gTrackingConditionsList[i];  
 		auto pSpr = pTr->condi;

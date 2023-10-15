@@ -42,7 +42,7 @@ void InitMirrors(void)
 {
 	portalClear();
 
-	for (int i = (int)wall.Size() - 1; i >= 0; i--)
+	for (int i = wall.SSize() - 1; i >= 0; i--)
 	{
 		auto pWalli = &wall[i];
 		if (pWalli->overtexture == mirrortile)
@@ -85,7 +85,7 @@ void InitMirrors(void)
 			continue;
 		}
 	}
-	for (int i = (int)sector.Size() - 1; i >= 0; i--)
+	for (int i = sector.SSize() - 1; i >= 0; i--)
 	{
 		auto secti = &sector[i];
 		if (secti->floortexture == mirrortile)

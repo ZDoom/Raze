@@ -1238,7 +1238,7 @@ class CUSTOMDUDE
 		char CanSleep(void)                            { return (!StatusTest(kCdudeStatusAwaked) && GetStateSeq(kCdudeStateSleep, posture) > 0); }
 		char CanMove(void)                             { return (GetStateSeq(kCdudeStateSearch, posture) > 0); }
 		//----------------------------------------------------------------------------------------------------
-		int  GetDamage(int nSource, int nDmgType);
+		int  GetDamage(DBloodActor* nSource, int nDmgType);
 		char IsPostureMatch(int nPosture);
 		char IsMediumMatch(int nMedium);
 		char IsTooTight(void);
@@ -1253,7 +1253,7 @@ class CUSTOMDUDE
 		void ProcessEffects(void);
 		void Recoil(void);
 		int  Damage(int nFrom, int nDmgType, int nDmg);
-		void Kill(int nFrom, int nDmgType, int nDmg);
+		void Kill(DBloodActor* nFrom, int nDmgType, int nDmg);
 		//----------------------------------------------------------------------------------------------------
 		char CanMove(sectortype* pXSect, char Crusher, char Water, char Uwater, char Depth, int bottom, int floorZ);
 		char FindState(AISTATE* pState, int* nStateType, int* nPosture);

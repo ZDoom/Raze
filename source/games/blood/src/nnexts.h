@@ -277,7 +277,7 @@ void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
 void debrisBubble(DBloodActor* nSprite);
 void debrisMove(DBloodActor* act);
-void debrisConcuss(DBloodActor* nOwner, int listIndex, const DVector3& pos, int dmg);
+void debrisConcuss(DBloodActor* owneractor, DBloodActor* actor, const DVector3& pos, int dmg);
 //  -------------------------------------------------------------------------   //
 void aiSetGenIdleState(DBloodActor*);
 

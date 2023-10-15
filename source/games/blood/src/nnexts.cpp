@@ -1061,7 +1061,7 @@ int collectObjectsByChannel(int nChannel, bool rx, TArray<EventObject>* pOut, ch
 	case 0x20:	unlink = true;    break;
 	}
 
-	for(int i = sector.Size() - 1; i >= 0; i--)
+	for(int i = sector.SSize() - 1; i >= 0; i--)
 	{
 		for(auto& wal : sector[i].walls)
 		{
@@ -1598,7 +1598,7 @@ DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, doub
 template<class T, class F>
 void Process(T& array, F function)
 {
-	for (int i = array.Size(); i >= 0; i--)
+	for (int i = array.SSize(); i >= 0; i--)
 	{
 		if (!array[i]) continue;
 		if (function(array[i]) == kListREMOVE)
