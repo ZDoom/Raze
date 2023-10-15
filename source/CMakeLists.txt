@@ -656,7 +656,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/airat.cpp
 	games/blood/src/aispid.cpp
 	games/blood/src/aitchern.cpp
-	games/blood/src/aiunicult.cpp
+	games/blood/src/aicdud.cpp
 	games/blood/src/aizomba.cpp
 	games/blood/src/aizombf.cpp
 	games/blood/src/animatesprite.cpp

@@ -1849,6 +1849,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACKING_CONDITION
 	return arc;
 }
 
+void SerializeConditions(FSerializer& arc)
+{
+	// if this gets run before loading a map it needs to run the one-time init code before deserializing the data.
+	if (arc.isReading() && gConditions.Size() == 0) conditionInitData();
+	arc("conditions", gTrackingConditionsList);
+}
+
 
 static void TriggerObject(EventObject nSerial, DBloodActor* pCond)
 {

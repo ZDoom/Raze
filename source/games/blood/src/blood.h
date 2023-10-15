@@ -60,6 +60,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+// Define VM entry points for all callback functions so that we can 
+// a) later seamlessly call scripted functions where callbacks are used and
+// b) get a means to serialize callback pointers.
 // ai callbacks
 DEF_ANIMATOR(aiMoveDodge)
 DEF_ANIMATOR(aiMoveForward)
@@ -180,10 +183,36 @@ DEF_ANIMATOR(zombaThinkSearch)
 DEF_ANIMATOR(zombfThinkChase)
 DEF_ANIMATOR(zombfThinkGoto)
 DEF_ANIMATOR(zombfThinkSearch)
+
+#ifdef NOONE_EXTENSIONS
+// patrol
 DEF_ANIMATOR(aiPatrolMove)
 DEF_ANIMATOR(aiPatrolThink)
 DEF_ANIMATOR(aiPatrolRandGoalAng)
 DEF_ANIMATOR(aiPatrolTurn)
+
+// custom dude
+DEF_ANIMATOR(resetTarget)
+DEF_ANIMATOR(moveStop)
+DEF_ANIMATOR(thinkSearch)
+DEF_ANIMATOR(maybeThinkSearch)
+DEF_ANIMATOR(thinkChase)
+DEF_ANIMATOR(thinkFlee)
+DEF_ANIMATOR(thinkTarget)
+DEF_ANIMATOR(thinkMorph)
+DEF_ANIMATOR(thinkDying)
+DEF_ANIMATOR(enterBurnSearchWater)
+DEF_ANIMATOR(enterMorph)
+DEF_ANIMATOR(enterDying)
+DEF_ANIMATOR(enterDeath)
+DEF_ANIMATOR(enterSleep)
+DEF_ANIMATOR(enterWake)
+DEF_ANIMATOR(turnToTarget)
+DEF_ANIMATOR(moveTurn)
+DEF_ANIMATOR(moveDodge)
+DEF_ANIMATOR(moveForward)
+DEF_ANIMATOR(moveKnockout)
+#endif
 
 // seq callbacks
 DEF_ANIMATOR(FireballSeqCallback)
@@ -240,6 +269,9 @@ DEF_ANIMATOR(PlayerKneelsOver)
 DEF_ANIMATOR(FireballTrapSeqCallback)
 DEF_ANIMATOR(MGunFireSeqCallback)
 DEF_ANIMATOR(MGunOpenSeqCallback)
+#ifdef NOONE_EXTENSIONS
+DEF_ANIMATOR(weaponShot)
+#endif
 
 
 // event callbacks
@@ -267,20 +299,6 @@ DEF_ANIMATOR(DropVoodooCb) // unused
 DEF_ANIMATOR(callbackMissileBurst)
 DEF_ANIMATOR(callbackMakeMissileBlocking) // 23
 DEF_ANIMATOR(fxPodGreenBloodSpray) // 24
-
-
-#ifdef NOONE_EXTENSIONS
-DEF_ANIMATOR(forcePunch)
-DEF_ANIMATOR(aiGenDudeMoveForward)
-DEF_ANIMATOR(unicultThinkChase)
-DEF_ANIMATOR(unicultThinkGoto)
-DEF_ANIMATOR(unicultThinkSearch)
-DEF_ANIMATOR(genDudeAttack1)
-DEF_ANIMATOR(punchCallback)
-DEF_ANIMATOR(ThrowCallback1)
-DEF_ANIMATOR(ThrowCallback2)
-DEF_ANIMATOR(callbackGenDudeUpdate)
-#endif
 
 
 enum EFeatureFlags

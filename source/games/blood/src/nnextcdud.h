@@ -62,10 +62,11 @@ kCdudeFXEffectBase         = 0,
 kCudeFXEffectCallbackBase  = 512,
 kCdudeGIBEffectBase        = 1024,
 
-kCdudeMinSeeDist           = 3000,
-kCdudeMinHearDist          = (kCdudeMinSeeDist >> 1),
 kCdudeBurningHealth        = (25 << 4),
 };
+
+constexpr double kCdudeMinSeeDist = 3000 * inttoworld;
+constexpr double kCdudeMinHearDist = (kCdudeMinSeeDist * 0.5);
 
 class CUSTOMDUDE;
 extern VMFunction* nCdudeAppearanceCallback;
@@ -380,13 +381,13 @@ class ARG_PICK_WEAPON
 {
 	public:
 		DAngle angle;
-		double distance;
+		double _distance;
 		uint8_t dudeHealth;
 		uint8_t targHealth;
 		ARG_PICK_WEAPON(DBloodActor* actor, DBloodActor* target)
 		{
 			DVector2 distv = target->spr.pos.XY() - actor->spr.pos.XY();
-			distance = distv.Length();
+			_distance = distv.Length();
 			angle = absangle(distv.Angle(), actor->spr.Angles.Yaw);
 			dudeHealth = CountHealthPerc(actor);
 			targHealth = CountHealthPerc(target);
@@ -394,7 +395,7 @@ class ARG_PICK_WEAPON
 
 		ARG_PICK_WEAPON(DBloodActor* actor, DBloodActor* target, double nDist, DAngle nAng)
 		{
-			distance = nDist;
+			_distance = nDist;
 			angle = nAng;
 			dudeHealth = CountHealthPerc(actor);
 			targHealth = CountHealthPerc(target);
@@ -647,14 +648,14 @@ class CUSTOMDUDE_WEAPON
 		CUSTOMDUDE_SOUND sound;
 		struct SHOT
 		{
-			unsigned int velocity;
+			double _velocity;
 			signed   int slope;
-			uint16_t targetFollow       : 12;
-			uint16_t clipdist           : 8;
-			uint16_t impact             : 2;
-			int16_t remTime            : 14;
+			DAngle targetFollow;
+			uint8_t clipdist;
+			uint8_t impact;
+			int16_t remTime;
 			APPEARANCE appearance;
-			POINT3D offset;
+			DVector3 offset;
 		}
 		shot;
 		struct AMMO
@@ -723,15 +724,16 @@ class CUSTOMDUDE_WEAPON
 			targHpRange[1]  = 255;
 
 			shot.remTime    = -1;
-			shot.velocity = INT32_MAX;
+			shot._velocity = FLT_MAX;
 			shot.slope    = INT32_MAX;
 		}
 		char HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
 		int  GetDistance(void)      { return ClipLow(distRange[1] - distRange[0], 0); }
+		int  GetDistanceF(void)     { return maptoworld * ClipLow(distRange[1] - distRange[0], 0); }
 		int  GetNumshots(void)      { return (ammo.total) ? ClipHigh(ammo.cur, numshots) : numshots; }
 		char IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
 		char HaveSlope(void)        { return (shot.slope != INT32_MAX); }
-		char HaveVelocity(void)     { return (shot.velocity != INT32_MAX); }
+		char HaveVelocity(void)     { return (shot._velocity != FLT_MAX); }
 
 };
 
@@ -818,8 +820,8 @@ class CUSTOMDUDE_EFFECT
 		unsigned short id[kCdudeMaxEffects];
 		unsigned int clock;
 		signed   int liveTime;
-		double velocity;
-		double velocitySlope;
+		double _velocity;
+		double _velocitySlope;
 		DAngle angle;
 		uint8_t posture;
 		uint8_t medium;
@@ -837,7 +839,7 @@ class CUSTOMDUDE_EFFECT
 		{
 			memset(this, 0, sizeof(CUSTOMDUDE_EFFECT));
 			angle       = DAngle360;
-			velocity    = -1;
+			_velocity    = -1;
 			chance      = 0x10000;
 			srcVelocity = 1;
 
@@ -890,9 +892,9 @@ class CUSTOMDUDE_EFFECT
 
 		void Setup(DBloodActor* pSrc, DBloodActor* pEff, bool relVel)
 		{
-			DVector3 dvel(0, 0, velocitySlope);
+			DVector3 dvel(0, 0, _velocitySlope);
 			DAngle nAng = ((angle != DAngle360) ? (pSrc->spr.Angles.Yaw + angle) : RandomAngle()).Normalized360();
-			double nVel = velocity;
+			double nVel = _velocity;
 			int rp = Random(15);
 
 			pEff->ownerActor = pSrc;
@@ -1184,7 +1186,7 @@ class CUSTOMDUDE
 		uint8_t numWeapons;
 		DUDEEXTRA* pExtra;
 		DUDEINFO* pInfo;
-		DBloodActor* pSpr;
+		DBloodActor* pSpr;	// this is our owner so no TObjPtr is needed
 		TObjPtr<DBloodActor *> pLeech;
 		CUSTOMDUDE_WEAPON    weapons[kCdudeMaxWeapons];                             // the weapons it may have
 		CUSTOMDUDE_WEAPON*   pWeapon;                                               // pointer to current weapon
@@ -1203,11 +1205,14 @@ class CUSTOMDUDE
 		unsigned int mass       ;                       // mass in KG
 		FTextureID largestPic ;                       // in all states to compare on crouching
 		sectortype* prevSector ;                       // the recent sector dude was in
-		double seeDist    ;                       // dudeInfo duplicate for sleeping
-		double hearDist   ;                       // dudeInfo duplicate for sleeping
+		double _seeDist    ;                       // dudeInfo duplicate for sleeping
+		double _hearDist   ;                       // dudeInfo duplicate for sleeping
 		DAngle periphery  ;                       // dudeInfo duplicate for sleeping
 		unsigned int fallHeight ;                       // in pixels
-		signed   int nextDude   ;                       // -1: none, <-1: vdude, >=0: ins, >=kMaxSprites: cdude
+		TObjPtr<DBloodActor*> NextDude;
+		int NextDudeType;
+
+		//signed   int nextDude   ;                       // -1: none, <-1: vdude, >=0: ins, >=kMaxSprites: cdude
 		//----------------------------------------------------------------------------------------------------
 		void PlaySound(int nState)                     { return (sound[nState].Play(pSpr)); }
 		int  GetStateSeq(int nState, int nPosture)     { return states[nState][nPosture].seqId; }
@@ -1244,7 +1249,7 @@ class CUSTOMDUDE
 		char IsTooTight(void);
 		//----------------------------------------------------------------------------------------------------
 		CUSTOMDUDE_WEAPON* PickWeapon(ARG_PICK_WEAPON* pArg);
-		int  AdjustSlope(int nTarget, int zOffs);
+		int  AdjustSlope(DBloodActor* nTarget, int zOffs);
 		char AdjustSlope(int nDist, int* nSlope);
 		//----------------------------------------------------------------------------------------------------
 		void InitSprite(void);
@@ -1255,7 +1260,7 @@ class CUSTOMDUDE
 		int  Damage(DBloodActor* nFrom, int nDmgType, int nDmg);
 		void Kill(DBloodActor* nFrom, int nDmgType, int nDmg);
 		//----------------------------------------------------------------------------------------------------
-		char CanMove(sectortype* pXSect, char Crusher, char Water, char Uwater, char Depth, int bottom, int floorZ);
+		char CanMove(sectortype* pXSect, bool Crusher, bool Water, bool Uwater, bool Depth, double bottom, double floorZ);
 		char FindState(AISTATE* pState, int* nStateType, int* nPosture);
 		void NewState(int nStateType, int nTimeOverride = -1);
 		char NewState(AISTATE* pState);

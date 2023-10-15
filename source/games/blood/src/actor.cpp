@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "texids.h"
 #ifdef NOONE_EXTENSIONS
-#include "aicdud.h"
 #include "nnexts.h"
 #include "nnextcdud.h"
 #endif

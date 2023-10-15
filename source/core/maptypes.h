@@ -39,6 +39,7 @@ void MarkVerticesForSector(int sector);
 static constexpr double zmaptoworld = (1 / 256.);	// this for necessary conversions to convert map data to floating point representation.
 static constexpr double maptoworld = (1 / 16.);	// this for necessary conversions to convert map data to floating point representation.
 static constexpr double REPEAT_SCALE = (1 / 64.);	// map's 'repeat' values use 2.6 fixed point.
+static constexpr double CLIPDIST_SCALE = 0.25;
 static constexpr double INV_REPEAT_SCALE = 64;
 
 // These are refactoring markers that should be eliminated.

@@ -23,6 +23,7 @@ public:
 	double dudeSlope; // Q18.14 format
 	bool hasx;
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
+	bool chasehackflag;		// replaces hackery with non-serializable state data.
 	XSPRITE xspr;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
@@ -31,12 +32,11 @@ public:
 	// nnext stuff. For now not exported to scripting.
 #ifdef NOONE_EXTENSIONS
 	SPRITEMASS spriteMass;
-	GENDUDEEXTRA genDudeExtra;
 	EventObject condition[4];
 	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 #endif
 	DVector3 basePoint;
-	int16_t dmgControl[kDamageMax];    // combination of the ones in DUDEINFO, THINGINFO and GENDUDEEXTRA, needs to be modifiable
+	int16_t dmgControl[kDamageMax];    // combination of the ones in DUDEINFO, THINGINFO, needs to be modifiable
 
 	// transient data (not written to savegame)
 	int cumulDamage;

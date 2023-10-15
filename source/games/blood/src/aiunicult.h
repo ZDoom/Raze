@@ -158,40 +158,6 @@ struct GENDUDESND
 
 extern const GENDUDESND gCustomDudeSnd[];
 
-// temporary, until normal DUDEEXTRA gets refactored
-struct GENDUDEEXTRA 
-{
-    double clipdist;
-    uint16_t availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
-    uint32_t moveSpeed;
-    double fireDist;          // counts from sprite size
-    double throwDist;         // counts from sprite size
-    uint16_t curWeapon;       // data1 duplicate to avoid potential problems when changing data dynamically
-    uint16_t weaponType;
-    uint16_t baseDispersion;
-    uint16_t slaveCount;              // how many dudes is summoned
-    TObjPtr<DBloodActor*> pLifeLeech;        // spritenum of dropped dude's leech
-    TObjPtr<DBloodActor*> slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
-    bool updReq[kGenDudePropertyMax]; // update requests
-    union
-    {
-        struct
-        {
-            bool sndPlaying : 1;                        // indicate if sound of AISTATE currently playing
-            bool forcePunch : 1;                        // indicate if there is no fire trigger in punch state seq
-            bool isMelee : 1;
-            bool canBurn : 1;                           // can turn in Burning dude or not
-            bool canElectrocute : 1;
-            bool canAttack : 1;
-            bool canRecoil : 1;
-            bool canWalk : 1;
-            bool canDuck : 1;
-            bool canSwim : 1;
-            bool canFly : 1;
-        };
-        int flags;
-    };
-};
 
 DBloodActor* getNextIncarnation(DBloodActor* actor);
 void killDudeLeech(DBloodActor* pLeech);

@@ -33,6 +33,7 @@ enum {
 
 
 bool CheckProximity(DBloodActor* pSprite, const DVector3& pos, sectortype* pSector, int nDist);
+bool CheckProximityPoint(double nX1, double nY1, double nZ1, double nX2, double nY2, double nZ2, double nDist);
 
 int HitScan(DBloodActor* pSprite, double z, const DVector3& pos, unsigned int nMask, double range = 0);
 int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVector3& vel, double nRange, int ac);

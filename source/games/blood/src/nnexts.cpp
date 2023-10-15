@@ -817,7 +817,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 		else if (actor->IsDudeActor())
 		{
 			if (actor->IsPlayerActor()) return (getPlayer(actor)->damageControl[dmgType]);
-			else if (actor->GetType() == kDudeModernCustom) return (cdudeGet(actor)->GetDamage(-1, dmgType) <= minScale);
+			else if (actor->GetType() == kDudeModernCustom) return (cdudeGet(actor)->GetDamage(nullptr, dmgType) <= minScale);
 			return (actor->dmgControl[dmgType] <= minScale);
 		}
 	}
@@ -1667,8 +1667,6 @@ int getSpriteMassBySize(DBloodActor* actor)
 		switch (actor->GetType())
 		{
 		case kDudeModernCustom:
-			seqId = actor->xspr.data2;
-			clipDist = actor->genDudeExtra.clipdist;
 			break;
 		default:
 			seqId = getDudeInfo(actor)->seqStartID;
@@ -2642,19 +2640,6 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 				fit = true;
 			}
 		}
-
-#if 0
-		if (fit && (targetactor->GetType() == kDudeModernCustom)
-		{
-			// request properties update for custom dude
-
-			targetactor->genDudeExtra.updReq[kGenDudePropertySpriteSize] = true;
-			targetactor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
-			targetactor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
-			targetactor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
-			evPostActor(targetactor, kGenDudeUpdTimeRate, AF(callbackGenDudeUpdate));
-		}
-#endif
 
 		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
 			targetactor->spr.xoffset = ClipRange(sourceactor->xspr.data3, 0, 255);
@@ -8747,7 +8732,7 @@ char nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos)
 //
 //---------------------------------------------------------------------------
 
-void nnExtScaleVelocity(DBloodActor* pSpr, int nVel, const DVector3& vel, int which)
+void nnExtScaleVelocity(DBloodActor* pSpr, double nVel, const DVector3& vel, int which)
 {
 	if (which & 0x01)
 	{
@@ -8767,7 +8752,7 @@ void nnExtScaleVelocity(DBloodActor* pSpr, int nVel, const DVector3& vel, int wh
 //
 //---------------------------------------------------------------------------
 
-void nnExtScaleVelocityRel(DBloodActor* pSpr, int nVel, const DVector3& vel, int which)
+void nnExtScaleVelocityRel(DBloodActor* pSpr, double nVel, const DVector3& vel, int which)
 {
 	if (which & 0x01)
 	{
@@ -8919,34 +8904,6 @@ int nnExtDudeStartHealth(DBloodActor* pSpr, int nHealth)
 	return getDudeInfo(pSpr->GetType())->startHealth << 4;
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, GENDUDEEXTRA* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc ("clipdist", w.clipdist)
-			.Array("availdeaths", w.availDeaths, kDamageMax)
-			("movespeed", w.moveSpeed)
-			("firedist", w.fireDist)
-			("throwdist", w.throwDist)
-			("curweapon", w.curWeapon)
-			("weapontype", w.weaponType)
-			("basedispersion", w.baseDispersion)
-			("slavecount", w.slaveCount)
-			("lifeleech", w.pLifeLeech)
-			.Array("slaves", w.slave, w.slaveCount)
-			.Array("updreq", w.updReq, kGenDudePropertyMax)
-			("flags", w.flags)
-			.EndObject();
-	}
-	return arc;
-}
-
 #if 0 // no need to save if we ensure it never gets accessed directly without validating the content
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPRITEMASS* def)
 {
@@ -8967,6 +8924,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPR
 }
 #endif
 
+void SerializeConditions(FSerializer& arc);
+
 void SerializeNNExts(FSerializer& arc)
 {
 	if (arc.BeginObject("nnexts"))
@@ -8979,6 +8938,7 @@ void SerializeNNExts(FSerializer& arc)
 			("eventredirects", gEventRedirectsUsed);
 
 		gSprNSect.Serialize(arc);
+		SerializeConditions(arc);
 		arc.EndObject();
 	}
 }
