@@ -1247,7 +1247,6 @@ void enterMorph(DBloodActor* pSpr)
 
 void thinkMorph(DBloodActor* pSpr)
 {
-    int nTarget; 
     bool triggerOn, triggerOff;
     DCustomDude* pDude = cdudeGet(pSpr);
 

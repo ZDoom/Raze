@@ -477,7 +477,7 @@ int idListProcessPhysSprite(DBloodActor* actor)
 
 	actor->norm_ang();
 	DAngle ang = actor->spr.Angles.Yaw;
-	if ((uwater = spriteIsUnderwater(actor)) == false) evKillActor(actor, AF(EnemyBubble));
+	if ((uwater = spriteIsUnderwater(actor, false)) == false) evKillActor(actor, AF(EnemyBubble));
 	else if (Chance(0x1000 - mass))
 	{
 		if (actor->vel.Z > 0x100) debrisBubble(actor);
@@ -758,7 +758,8 @@ DBloodActor* nnExtFireMissile(DBloodActor* actor, double xyoff, double zoff, DVe
 			VMCall(func, p, 2, nullptr, 0);
 		}
 
-		actPropagateSpriteOwner(pShot, actor);
+
+		pShot->SetOwner(actor);
 
 		pShot->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // projectiles don't even need this
 		pShot->xspr.target = nullptr;
@@ -2084,7 +2085,7 @@ void aiSetGenIdleState(DBloodActor* actor)
 	switch (actor->GetType())
 	{
 	case kDudeModernCustom:
-		aiGenDudeNewState(actor, &genIdle);
+		cdudeGet(actor)->NewState(kCdudeStateGenIdle);
 		break;
 	default:
 		aiNewState(actor, &genIdle);
@@ -4532,8 +4533,7 @@ bool aiFightUnitCanFly(DBloodActor* dude)
 
 bool aiFightIsMeleeUnit(DBloodActor* dude)
 {
-	if (dude->GetType() == kDudeModernCustom) return (dude->hasX() && dudeIsMelee(dude));
-	else return (dude->IsDudeActor() && gDudeInfoExtra[dude->GetType() - kDudeBase].melee);
+	return (dude->IsDudeActor() && gDudeInfoExtra[dude->GetType() - kDudeBase].melee);
 }
 
 //---------------------------------------------------------------------------
@@ -6382,7 +6382,7 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSe
 
 void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 {
-	genDudeSpawn(pSource, pActor, pActor->clipdist * 0.5);
+	cdudeSpawn(pSource, pActor, pActor->clipdist * 2);
 }
 
 //---------------------------------------------------------------------------
@@ -6396,7 +6396,7 @@ void useDripGenerator(DBloodActor* pSource, DBloodActor* pActor)
 	double top, bottom;
 	GetActorExtents(pActor, &top, &bottom);
 	auto pThing = actSpawnThing(pActor->sector(), DVector3(pActor->spr.pos.XY(), bottom), (pActor->GetType() == kGenDripWater) ? kThingDripWater : kThingDripBlood);
-	actPropagateSpriteOwner(pThing, pActor);
+	pThing->SetOwner(pActor);
 	if (pSource->xspr.data4)
 		pThing->vel.Z = pSource->xspr.data4 / 256.;
 }

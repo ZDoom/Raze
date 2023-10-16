@@ -305,7 +305,6 @@ void Respawn(DBloodActor* actor) // 9
 					seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor);
 				break;
 			case kDudeModernCustom:
-				seqSpawn(genDudeSeqStartId(actor), actor);
 				break;
 			}
 

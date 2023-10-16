@@ -993,6 +993,7 @@ class CUSTOMDUDE_EFFECT
 			else
 			{
 				nID -= kCdudeFXEffectBase;
+				DBloodActor* pFX;
 				if ((pFX = gFX.fxSpawnActor((FX_ID)nID, pSpr->spr.sectp, pos)) != nullptr)
 					Setup(pSpr, pFX, false);
 			}

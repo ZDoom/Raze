@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+class DBloodPlayer;
+
 extern bool gPrediction;
 
 enum VIEW_EFFECT {
@@ -104,15 +106,6 @@ inline void viewInterpolateWall(walltype* pWall)
 {
 	StartInterpolation(pWall, Interp_Wall_X);
 	StartInterpolation(pWall, Interp_Wall_Y);
-}
-
-inline void viewBackupSpriteLoc(DBloodActor* actor)
-{
-	if (!actor->interpolated)
-	{
-		actor->backuploc();
-		actor->interpolated = true;
-	}
 }
 
 

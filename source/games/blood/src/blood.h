@@ -391,4 +391,13 @@ struct GameInterface : public ::GameInterface
 	void FinalizeSetup() override;
 };
 
+inline void viewBackupSpriteLoc(DBloodActor* actor)
+{
+	if (!actor->interpolated)
+	{
+		actor->backuploc();
+		actor->interpolated = true;
+	}
+}
+
 END_BLD_NS

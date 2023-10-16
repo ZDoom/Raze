@@ -278,5 +278,15 @@ struct DUDEEXTRA
 	int birthCounter;
 };
 
+struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
+	int seqId;
+	FTextureID texid; // mainly needs for moving debris
+	DVector2 scale;
+	int16_t airVel; // mainly needs for moving debris
+	double clipDist; // mass multiplier
+	int mass;
+	int fraction; // mainly needs for moving debris
+};
+
 
 END_BLD_NS

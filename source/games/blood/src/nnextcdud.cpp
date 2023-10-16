@@ -4373,7 +4373,7 @@ DBloodActor* cdudeSpawn(DBloodActor* pSource, DBloodActor* pSprite, double nDist
 
 
 // for kThingModernEnemyLifeLeech
-void cdudeLeechOperate(DBloodActor* pSpr, XSPRITE* pXSpr)
+void cdudeLeechOperate(DBloodActor* pSpr)
 {
     if (DBloodActor* pOwn = pSpr->ownerActor)
     {

@@ -1758,7 +1758,7 @@ void aiInitSprite(DBloodActor* actor)
 				actor->xspr.data3 = 0;
 
 				// make dude follow the markers
-				bool uwater = spriteIsUnderwater(actor);
+				bool uwater = spriteIsUnderwater(actor, false);
 
 				if (stateTimer > 0)
 				{

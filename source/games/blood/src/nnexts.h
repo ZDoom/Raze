@@ -175,16 +175,6 @@ enum {
 
 // - STRUCTS ------------------------------------------------------------------
 
-struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
-	int seqId;
-	FTextureID texid; // mainly needs for moving debris
-	DVector2 scale;
-	int16_t airVel; // mainly needs for moving debris
-	double clipDist; // mass multiplier
-	int mass;
-	int fraction; // mainly needs for moving debris
-};
-
 struct EXPLOSION_EXTRA
 {
 	uint8_t seq;
@@ -252,7 +242,6 @@ extern const THINGINFO_EXTRA gThingInfoExtra[kThingMax];
 extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const EXPLOSION_EXTRA gExplodeExtra[kExplosionMax];
-extern const DUDEINFO_EXTRA gDudeInfoExtra[kDudeMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
@@ -410,7 +399,7 @@ bool dudeIsAlive(DBloodActor* actor);
 DBloodActor* nnExtFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dc, int nType);
 bool nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos);
 DBloodActor* nnExtSpawnDude(DBloodActor* pSrc, int nType, const DVector3& pos);
-bool spriteIsUnderwater(DBloodActor* actor, bool oldWay);
+bool spriteIsUnderwater(DBloodActor* actor, bool oldWay = false);
 
 
 inline bool valueIsBetween(int val, int min, int max)

@@ -111,6 +111,13 @@ size_t DBloodActor::PropagateMark()
 	return Super::PropagateMark();
 }
 
+void DBloodActor::OnDestroy()
+{
+	if (customDude) customDude->Destroy();
+	customDude = nullptr;
+	Super::OnDestroy();
+}
+
 static void markgcroots()
 {
 #ifdef NOONE_EXTENSIONS
