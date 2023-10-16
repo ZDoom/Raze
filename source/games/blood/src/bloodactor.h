@@ -34,6 +34,7 @@ public:
 	SPRITEMASS spriteMass;
 	EventObject condition[4];
 	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+	DCustomDude* customDude;			// strictly owned so no TObjPtr needed
 #endif
 	DVector3 basePoint;
 	int16_t dmgControl[kDamageMax];    // combination of the ones in DUDEINFO, THINGINFO, needs to be modifiable
@@ -48,6 +49,8 @@ public:
 
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
+
+	void OnDestroy() override;
 	
 	void SetOwner(DBloodActor* own)
 	{

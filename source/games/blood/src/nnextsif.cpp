@@ -1200,14 +1200,14 @@ struct EvalContext final
 	********************************************************************************/
 	bool cdudChkLeechThrown(void)
 	{
-		CUSTOMDUDE* pDude = cdudeGet(pSpr);
+		DCustomDude* pDude = cdudeGet(pSpr);
 		if (!pDude->IsLeechBroken() && pDude->pLeech)
 			return helperChkSprite(pDude->pLeech);
 		return false;
 	};
 	bool cdudChkLeechDead(void)
 	{
-		CUSTOMDUDE* pDude = cdudeGet(pSpr);
+		DCustomDude* pDude = cdudeGet(pSpr);
 		if (pDude->IsLeechBroken()) return true;
 		else if (PUSH && pDude->pLeech) Push(pDude->pLeech);
 		return false;

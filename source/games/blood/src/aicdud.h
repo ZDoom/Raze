@@ -33,6 +33,6 @@ BEGIN_BLD_NS
 extern AISTATE gCdudeStateTemplate[kCdudeStateNormalMax][kCdudePostureMax];
 extern AISTATE gCdudeStateAttackTemplate[kCdudePostureMax];
 extern AISTATE gCdudeStateDyingTemplate[kCdudePostureMax];
-void cdudeDoExplosion(CUSTOMDUDE* pDude);
+void cdudeDoExplosion(DCustomDude* pDude);
 END_BLD_NS
 #endif

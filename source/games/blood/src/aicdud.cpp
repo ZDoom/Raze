@@ -57,15 +57,15 @@ DAngle getTargetAng(DBloodActor* pSpr);
 
 
 // This set of functions needs to be exported for scripting later to allow extension of this list.
-static DBloodActor* weaponShotDummy(CUSTOMDUDE*, CUSTOMDUDE_WEAPON*, DVector3& offs, DVector3& vel) { return nullptr; }
-static DBloodActor* weaponShotHitscan(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
-static DBloodActor* weaponShotMissile(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
-static DBloodActor* weaponShotThing(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
-static DBloodActor* weaponShotSummon(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
-static DBloodActor* weaponShotKamikaze(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
-static DBloodActor* weaponShotSpecialBeastStomp(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON*, DVector3& offs, DVector3& vel);
+static DBloodActor* weaponShotDummy(DCustomDude*, CUSTOMDUDE_WEAPON*, DVector3& offs, DVector3& vel) { return nullptr; }
+static DBloodActor* weaponShotHitscan(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
+static DBloodActor* weaponShotMissile(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
+static DBloodActor* weaponShotThing(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
+static DBloodActor* weaponShotSummon(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
+static DBloodActor* weaponShotKamikaze(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel);
+static DBloodActor* weaponShotSpecialBeastStomp(DCustomDude* pDude, CUSTOMDUDE_WEAPON*, DVector3& offs, DVector3& vel);
 
-DBloodActor* (*gWeaponShotFunc[])(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel) =
+DBloodActor* (*gWeaponShotFunc[])(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel) =
 {
     weaponShotDummy,    // none
     weaponShotHitscan,
@@ -212,7 +212,7 @@ static const short gCdudeDebrisPics[6] =
     2406, 2280, 2185, 2155, 2620, 3135
 };
 
-static DBloodActor* weaponShotHitscan(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
+static DBloodActor* weaponShotHitscan(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
 {
     const VECTORDATA* pVect = &gVectorData[pWeap->id];
     auto pSpr = pDude->pSpr;
@@ -223,7 +223,7 @@ static DBloodActor* weaponShotHitscan(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWea
     return nullptr;
 }
 
-static DBloodActor* weaponShotMissile(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
+static DBloodActor* weaponShotMissile(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
 {
     DBloodActor* pSpr = pDude->pSpr, *pShot;
 
@@ -258,7 +258,7 @@ static DBloodActor* weaponShotMissile(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWea
     return nullptr;
 }
 
-static DBloodActor* weaponShotThing(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
+static DBloodActor* weaponShotThing(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
 {
     DBloodActor* pSpr = pDude->pSpr;
     DBloodActor* pLeech = pDude->pLeech, *pShot, *pTarget = pSpr->xspr.target;
@@ -441,7 +441,7 @@ static bool posObstructed(DVector3& pos, double nRadius)
 
 
 
-static DBloodActor* weaponShotSummon(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel)
+static DBloodActor* weaponShotSummon(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& offs, DVector3& vel)
 {
     DBloodActor* pShot, *pSpr = pDude->pSpr;
 
@@ -500,7 +500,7 @@ static DBloodActor* weaponShotSummon(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap
     return nullptr;
 }
 
-static DBloodActor* weaponShotKamikaze(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
+static DBloodActor* weaponShotKamikaze(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap, DVector3& pOffs, DVector3& vel)
 {
     DBloodActor* pSpr = pDude->pSpr;
     DBloodActor* pShot = actSpawnSprite(pSpr->sector(), pSpr->spr.pos, kStatExplosion, true);
@@ -521,7 +521,7 @@ static DBloodActor* weaponShotKamikaze(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWe
         pShot->xspr.data1 = pExpl->ticks;
         pShot->xspr.data2 = pExpl->quakeEffect;
         pShot->xspr.data3 = pExpl->flashEffect;
-        pShot->xspr.data4 = ClipLow((int)pWeap->GetDistance() >> 4, pExpl->radius);
+        pShot->xspr.data4 = ClipLow((int)pWeap->GetDistance(), pExpl->radius); // stores actual distance as integer.
 
         seqSpawn(pExtra->seq, pShot);
 
@@ -543,7 +543,7 @@ static DBloodActor* weaponShotKamikaze(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWe
     return pShot;
 }
 
-static DBloodActor* weaponShotSpecialBeastStomp(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeapon, DVector3& pOffs, DVector3& vel)
+static DBloodActor* weaponShotSpecialBeastStomp(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeapon, DVector3& pOffs, DVector3& vel)
 {
     DBloodActor* pSpr = pDude->pSpr;
     
@@ -593,7 +593,7 @@ void weaponShot(DBloodActor* pSpr)
     if (!pSpr->hasX())
         return;
 
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     CUSTOMDUDE_WEAPON *pCurWeap = pDude->pWeapon, *pWeap;
     DBloodActor *pShot;
     POINT3D *pStyleOffs;
@@ -736,7 +736,7 @@ void weaponShot(DBloodActor* pSpr)
     }
 }
 
-static int checkTarget(CUSTOMDUDE* pDude, DBloodActor* pTarget, TARGET_INFO* pOut)
+static int checkTarget(DCustomDude* pDude, DBloodActor* pTarget, TARGET_INFO* pOut)
 {
     if (!pTarget)
         return -1;
@@ -797,7 +797,7 @@ void thinkTarget(DBloodActor* pSpr)
     int i; 
     DBloodActor* pTarget;
     TARGET_INFO targets[kMaxPlayers], *pInfo = targets;
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     int numTargets = 0;
 
     if (Chance(pDude->pInfo->alertChance))
@@ -858,7 +858,7 @@ void maybeThinkSearch(DBloodActor* pSpr)
 
 void thinkChase(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr); 
+    DCustomDude* pDude = cdudeGet(pSpr); 
     auto pHit = &gHitInfo; 
     DUDEINFO* pInfo = pDude->pInfo;
     double nSlope = 0;
@@ -1102,7 +1102,7 @@ void turnToTarget(DBloodActor* pSpr)
 
 void moveTurn(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     DAngle nVelTurn = DAngle::fromBuild(pDude->GetVelocity(kParVelocityTurn));
     DAngle nAng = absangle(pSpr->xspr.goalAng, pSpr->spr.Angles.Yaw);
     pSpr->spr.Angles.Yaw = (pSpr->spr.Angles.Yaw + clamp(nAng, -nVelTurn, nVelTurn)).Normalized360();
@@ -1110,7 +1110,7 @@ void moveTurn(DBloodActor* pSpr)
 
 void moveDodge(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     moveTurn(pSpr);
 
     if (pSpr->xspr.dodgeDir && pDude->CanMove())
@@ -1139,7 +1139,7 @@ void moveKnockout(DBloodActor* pSpr)
 
 void moveForward(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     DAngle nVelTurn    = DAngle::fromBuild(pDude->GetVelocity(kParVelocityTurn));
     double nVelForward = pDude->GetVelocityF(kParVelocityForward);
     DAngle nAng = absangle(pSpr->xspr.goalAng, pSpr->spr.Angles.Yaw);
@@ -1177,7 +1177,7 @@ void moveForward(DBloodActor* pSpr)
 
 void enterSleep(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     pDude->StatusSet(kCdudeStatusSleep);
     resetTarget(pSpr);
     moveStop(pSpr);
@@ -1190,7 +1190,7 @@ void enterSleep(DBloodActor* pSpr)
 
 void enterWake(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     if (pDude->StatusTest(kCdudeStatusSleep))
     {
         pDude->StatusRem(kCdudeStatusSleep);
@@ -1207,7 +1207,7 @@ void enterWake(DBloodActor* pSpr)
 
 void enterDying(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     if (pDude->mass > 48)
         pDude->mass = ClipLow(pDude->mass >> 2, 48);
 }
@@ -1231,7 +1231,7 @@ void enterDeath(DBloodActor* pSpr)
 
 void enterMorph(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
     if (!pDude->IsMorphing())
     {
         pDude->PlaySound(kCdudeSndTransforming);
@@ -1249,7 +1249,7 @@ void thinkMorph(DBloodActor* pSpr)
 {
     int nTarget; 
     bool triggerOn, triggerOff;
-    CUSTOMDUDE* pDude = cdudeGet(pSpr);
+    DCustomDude* pDude = cdudeGet(pSpr);
 
     if (pDude->SeqPlaying())
     {
@@ -1425,7 +1425,7 @@ void enterBurnSearchWater(DBloodActor* pSpr)
     }
 }
 
-void cdudeDoExplosion(CUSTOMDUDE* pDude)
+void cdudeDoExplosion(DCustomDude* pDude)
 {
     static DVector3 nulvec;
     CUSTOMDUDE_WEAPON* pWeap = pDude->pWeapon;

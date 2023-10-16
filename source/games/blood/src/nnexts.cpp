@@ -817,7 +817,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 		else if (actor->IsDudeActor())
 		{
 			if (actor->IsPlayerActor()) return (getPlayer(actor)->damageControl[dmgType]);
-			else if (actor->GetType() == kDudeModernCustom) return (cdudeGet(actor)->GetDamage(nullptr, dmgType) <= minScale);
+			else if (IsCustomDude(actor)) return (cdudeGet(actor)->GetDamage(nullptr, dmgType) <= minScale);
 			return (actor->dmgControl[dmgType] <= minScale);
 		}
 	}
@@ -1449,9 +1449,6 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 	// prepare event causer sequence table
 	nnExtInitCauserTable();
 	conditionsInit();
-
-	// prepare custom dudes array
-	cdudeAlloc();
 }
 
 
@@ -6120,13 +6117,13 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 		{
 			aiSetTarget(actor, actor->spr.pos);
 			aiSetGenIdleState(actor);
-			if (actor->GetType() == kDudeModernCustom)
+			if (IsCustomDude(actor))
 				cdudeGet(actor)->LeechPickup();
 		}
 		else if (sourceactor->xspr.data4 == 4)
 		{
 			aiSetTarget(actor, playeractor->spr.pos);
-			if (actor->GetType() == kDudeModernCustom)
+			if (IsCustomDude(actor))
 				cdudeGet(actor)->LeechPickup();
 		}
 	}
@@ -6900,7 +6897,7 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 	{
 	case OBJ_SPRITE:
 	{
-		CUSTOMDUDE* pDude = NULL;
+		DCustomDude* pDude = NULL;
 		if (objActor->IsDudeActor())
 		{
 			if (objActor->xspr.health <= 0)
@@ -7122,12 +7119,12 @@ void aiPatrolState(DBloodActor* actor, int state)
 			if (seq != newState->seqId)
 				continue;
 
-			if (actor->GetType() == kDudeModernCustom)
+			if (IsCustomDude(actor))
 			{
 				if (!rngok(seq, 0, kCdudeStateMax))
 					continue;
 
-				CUSTOMDUDE* pDude = cdudeGet(actor);
+				DCustomDude* pDude = cdudeGet(actor);
 				AISTATE* pState = (AISTATE*)pDude->states;
 				seq = pState[seq].seqId;
 				if (seq <= 0)
@@ -7477,7 +7474,7 @@ void aiPatrolMove(DBloodActor* actor)
 	case kDudeModernCustom:
 	{
 		int nPosture;
-		CUSTOMDUDE* pDude = cdudeGet(actor);
+		DCustomDude* pDude = cdudeGet(actor);
 		if (spriteIsUnderwater(actor))nPosture = kCdudePostureW;
 		else if (actor->xspr.modernFlags & kDudeFlagCrouch)   nPosture = kCdudePostureC;
 		else nPosture = kCdudePostureL;
@@ -8122,9 +8119,9 @@ void aiPatrolThink(DBloodActor* actor)
 		return;
 	}
 
-	if (actor->GetType() == kDudeModernCustom)
+	if (IsCustomDude(actor))
 	{
-		CUSTOMDUDE* pDude = cdudeGet(actor);
+		DCustomDude* pDude = cdudeGet(actor);
 		if ((uwater && !pDude->CanSwim()) || !pDude->CanMove())
 		{
 			aiPatrolStop(actor, nullptr);

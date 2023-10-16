@@ -68,7 +68,7 @@ kCdudeBurningHealth        = (25 << 4),
 constexpr double kCdudeMinSeeDist = 3000 * inttoworld;
 constexpr double kCdudeMinHearDist = (kCdudeMinSeeDist * 0.5);
 
-class CUSTOMDUDE;
+class DCustomDude;
 extern VMNativeFunction** const gCdudeCustomCallback[];
 
 enum enum_VALUE_TYPE {
@@ -662,7 +662,7 @@ class CUSTOMDUDE_WEAPON
 		unsigned int  clipMask;
 		unsigned int  group;
 		unsigned int  dispersion[2];
-		double  _distRange[2];
+		double  distRange[2];
 		uint8_t targHpRange[2];
 		uint8_t dudeHpRange[2];
 		CUSTOMDUDE_SOUND sound;
@@ -739,7 +739,7 @@ class CUSTOMDUDE_WEAPON
 			stateID         = kCdudeStateAttackBase;
 			turnToTarget    = true;
 
-			_distRange[1]    = 20000;
+			distRange[1]    = 20000 * inttoworld;
 			dudeHpRange[1]  = 255;
 			targHpRange[1]  = 255;
 
@@ -748,7 +748,7 @@ class CUSTOMDUDE_WEAPON
 			shot.slope    = INT32_MAX;
 		}
 		bool HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
-		double  GetDistance(void)     { return max(_distRange[1] - _distRange[0], 0.); }
+		double  GetDistance(void)     { return max(distRange[1] - distRange[0], 0.); }
 		int  GetNumshots(void)      { return (ammo.total) ? ClipHigh(ammo.cur, numshots) : numshots; }
 		bool IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
 		bool HaveSlope(void)        { return (shot.slope != INT32_MAX); }
@@ -1188,16 +1188,14 @@ class CUSTOMDUDE_DROPITEM
 		}
 };
 
-/* class DCustomDude : public DObject
+class DCustomDude : public DObject
 {
 	DECLARE_CLASS(DCustomDude, DObject)
 	HAS_OBJECT_POINTERS
 
+	size_t PropagateMark() override;
+
 	// Note: we will likely have to write out the entire shit here to make this savegame robust...
-}
-*/
-class CUSTOMDUDE
-{
 	public:
 		uint8_t version;
 		uint8_t initialized;
@@ -1306,12 +1304,13 @@ class CUSTOMDUDE_SETUP
 		friend CUSTOMDUDEV2_SETUP;
 	private:
 		const char* pValue;  
-		CUSTOMDUDE* pDude;   
+		DCustomDude* pDude;   
 		const PARAM* pGroup;       
 		char key[256];       
 		int nWarnings;       
 		int hIni;
-		IniFile* pIni;
+		FString strIni;
+		std::unique_ptr<IniFile> pIni;
 		const PARAM* pParam;
 		char val[256];
 		bool showWarnings;
@@ -1353,17 +1352,20 @@ class CUSTOMDUDE_SETUP
 		void SetupSlaves(void);
 		void SetupLeech(void);
 		/*------------------------------------------------------------*/
-		CUSTOMDUDE* SameDudeExist(CUSTOMDUDE* pCmp);
-		CUSTOMDUDE* GetFirstDude(int nID);
-		bool IsFirst(CUSTOMDUDE* pCmp);
+		DCustomDude* SameDudeExist(DCustomDude* pCmp);
+		DCustomDude* GetFirstDude(int nID);
+		bool IsFirst(DCustomDude* pCmp);
+		void DoSetup(DBloodActor* actor);
+		void DoSetup(DCustomDude* pOver = nullptr);
+
 	public:
 		bool FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture);
 		static void Setup(DBloodActor* actor);
-		static void Setup(CUSTOMDUDE* pOver = nullptr);
+		static void Setup(DCustomDude* pOver = nullptr);
 
 };
 
-class CUSTOMDUDEV1_SETUP : CUSTOMDUDE_SETUP
+class CUSTOMDUDEV1_SETUP : public CUSTOMDUDE_SETUP
 {
 	private:
 		void DamageScaleToSurface(int nSurface);
@@ -1377,7 +1379,7 @@ class CUSTOMDUDEV1_SETUP : CUSTOMDUDE_SETUP
 		void Setup(void);
 };
 
-class CUSTOMDUDEV2_SETUP : CUSTOMDUDE_SETUP
+class CUSTOMDUDEV2_SETUP : public CUSTOMDUDE_SETUP
 {
 	private:
 		bool ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVelocity);
@@ -1393,7 +1395,7 @@ class CUSTOMDUDEV2_SETUP : CUSTOMDUDE_SETUP
 		bool ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON* pWeap);
 		bool ParsePosture(const char* str);
 		bool ParseOnEventDmg(const char* str, int* pOut, int nLen);
-		bool ParseDropItem(const char* str, unsigned bool out[2]);
+		bool ParseDropItem(const char* str, uint8_t out[2]);
 		bool ParseSkill(const char* str);
 		int  ParseKeywords(const char* str, PARAM* pDb);
 		int  ParseIDs(const char* str, int nValType, TArray<PClass*>& pOut, int nMax = 0);
@@ -1423,15 +1425,13 @@ class CUSTOMDUDEV2_SETUP : CUSTOMDUDE_SETUP
 		void SetupWeapons(void);
 		void SetupEffect(void);
 		void SetupDropItem(void);
-	public:
+public:
 		void Setup(void);
 };
 
-void cdudeFree();
-CUSTOMDUDE* cdudeAlloc();
 bool IsCustomDude(DBloodActor* pSpr)        { return (pSpr->GetType() == kDudeModernCustom); }
-CUSTOMDUDE* cdudeGet(DBloodActor* pSpr);
-spritetype* cdudeSpawn(DBloodActor* pSource, DBloodActor* pSprite, int nDist);
+DCustomDude* cdudeGet(DBloodActor* pSpr);
+DBloodActor* cdudeSpawn(DBloodActor* pSource, DBloodActor* pSprite, double nDist);
 void cdudeLeechOperate(DBloodActor* pSprite);
 
 END_BLD_NS

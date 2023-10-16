@@ -2315,7 +2315,7 @@ bool IsBurningDude(DBloodActor* actor)
 		return true;
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
-		CUSTOMDUDE* pDude = cdudeGet(actor);
+		DCustomDude* pDude = cdudeGet(actor);
 		return (pDude->StatusTest(kCdudeStatusBurning));
 #endif
 	}

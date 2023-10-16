@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 #include "savegamehelp.h"
+#include "nnextcdud.h"
 
 #include "blood.h"
 
@@ -1442,11 +1443,13 @@ void aiProcessDudes(void)
 	while (auto actor = it.Next())
 	{
 		if (actor->spr.flags & kHitagFree || actor->IsPlayerActor()) continue;
+#ifdef NOONE_EXTENSIONS
 		if (IsCustomDude(actor))
 		{
 			cdudeGet(actor)->Process();
 			continue;
 		}
+#endif
 
 		if (actor->xspr.health == 0) continue;
 
