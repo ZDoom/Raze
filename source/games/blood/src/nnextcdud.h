@@ -983,12 +983,9 @@ class CUSTOMDUDE_EFFECT
 			}
 			else if (nID >= kCudeFXEffectCallbackBase)
 			{
-#pragma message("Fix " __FUNCTION__ " for custom callbacks")
-#if 0
-				nID = gCdudeCustomCallback[nID - kCudeFXEffectCallbackBase];
-				evKill(pSpr->index, OBJ_SPRITE, (CALLBACK_ID)nID);
-				evPost(pSpr->index, OBJ_SPRITE, 0, (CALLBACK_ID)nID);
-#endif
+				auto func = *gCdudeCustomCallback[nID - kCudeFXEffectCallbackBase];
+				evKillActor(pSpr, func);
+				evPostActor(pSpr, 0, func);
 			}
 			else
 			{
@@ -1195,6 +1192,7 @@ class DCustomDude : public DObject
 	HAS_OBJECT_POINTERS
 
 	size_t PropagateMark() override;
+	void OnDestroy();
 
 	// Note: we will likely have to write out the entire shit here to make this savegame robust...
 	public:

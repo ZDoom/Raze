@@ -4452,6 +4452,20 @@ size_t DCustomDude::PropagateMark()
     return pSlaves.Size() + Super::PropagateMark();
 }
 
+void DCustomDude::OnDestroy()
+{
+    // free all allocations now and sever the link to the dude actor.
+    pSpr = nullptr;
+    pSlaves.Reset();
+    for (auto& ef : effects)
+    {
+        ef.pAnims.Reset();
+        ef.pFrames.Reset();
+        ef.pStates.Reset();
+    }
+    Super::Destroy();
+}
+
 
 END_BLD_NS
 #endif

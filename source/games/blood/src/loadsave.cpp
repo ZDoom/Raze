@@ -460,6 +460,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 	{
 		arc//("spritemass", spriteMass) // should always be cached and not written out.
 			("prevmarker", prevmarker)
+			("customdude", customDude)
 			.Array("conditions", condition, 4);
 
 	}

@@ -59,8 +59,9 @@ IMPLEMENT_CLASS(DBloodActor, false, true)
 IMPLEMENT_POINTERS_START(DBloodActor)
 #ifdef NOONE_EXTENSIONS
 IMPLEMENT_POINTER(prevmarker)
-IMPLEMENT_POINTER(ownerActor)
+IMPLEMENT_POINTER(customDude)
 #endif
+IMPLEMENT_POINTER(ownerActor)
 IMPLEMENT_POINTER(xspr.burnSource)
 IMPLEMENT_POINTER(xspr.target)
 IMPLEMENT_POINTERS_END
@@ -105,8 +106,7 @@ size_t DBloodActor::PropagateMark()
 	if (hit.ceilhit.type == kHitSprite) GC::Mark(hit.ceilhit.hitActor);
 	if (hit.florhit.type == kHitSprite) GC::Mark(hit.florhit.hitActor);
 #ifdef NOONE_EXTENSIONS
-	condition[0].Mark();
-	condition[1].Mark();
+	for(auto& cond : condition) cond.Mark();
 #endif
 	return Super::PropagateMark();
 }
