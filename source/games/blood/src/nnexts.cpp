@@ -512,7 +512,7 @@ char idListProcessPhysSprite(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-char dudeIsAlive(DBloodActor* actor)
+bool dudeIsAlive(DBloodActor* actor)
 {
 	return (actor && actor->spr.statnum == kStatDude && xsprIsFine(actor) && actor->xspr.health);
 }
@@ -8696,7 +8696,7 @@ void nnExtOffsetPos(const DVector3& opos, DAngle nAng, DVector3& pos)
 //
 //---------------------------------------------------------------------------
 
-char nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos)
+bool nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos)
 {
 	auto pos = pSpr->spr.pos;
 	auto sect = pSpr->sector();

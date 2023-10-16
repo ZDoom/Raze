@@ -237,6 +237,7 @@ struct TRPLAYERCTRL { // this one for controlling the player using triggers (mov
 };
 
 inline bool rngok(int val, int rngA, int rngB) { return (val >= rngA && val < rngB); }
+inline bool rngok(double val, double rngA, double rngB) { return (val >= rngA && val < rngB); }
 inline bool irngok(int val, int rngA, int rngB) { return (val >= rngA && val <= rngB); }
 extern uint8_t gModernMap;
 inline bool mapRev1() { return (gModernMap == 1); }
@@ -405,6 +406,10 @@ void useGibObject(DBloodActor* pXSource, DBloodActor* pSpr);
 void useDripGenerator(DBloodActor* pXSource, DBloodActor* pSprite);
 int nnExtGetStartHealth(DBloodActor* actor);
 int nnExtResAddExternalFiles();
+bool dudeIsAlive(DBloodActor* actor);
+DBloodActor* nnExtFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dc, int nType);
+bool nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos);
+DBloodActor* nnExtSpawnDude(DBloodActor* pSrc, int nType, const DVector3& pos);
 
 
 inline bool valueIsBetween(int val, int min, int max)

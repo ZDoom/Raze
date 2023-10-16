@@ -42,7 +42,7 @@ BEGIN_BLD_NS
 struct TARGET_INFO
 {
     DBloodActor* pSpr;
-    unsigned int nDist;
+    double nDist;
     DAngle nAng;
     DAngle nDang;
     int nCode;
@@ -53,7 +53,7 @@ void resetTarget(DBloodActor* pSpr)            { pSpr->xspr.target = nullptr; }
 void moveStop(DBloodActor* pSpr)                { pSpr->vel.XY().Zero(); }
 static char THINK_CLOCK(int nSpr, int nClock = 3)               { return ((gFrameCount & nClock) == (nSpr & nClock)); }
 static int qsSortTargets(TARGET_INFO* ref1, TARGET_INFO* ref2)  { return ref1->nDist > ref2->nDist? 1 : ref1->nDist < ref2->nDist? -1 : 0; }
-DAngle getTargetAng(DBloodActor* pSpr)
+DAngle getTargetAng(DBloodActor* pSpr);
 
 
 // This set of functions needs to be exported for scripting later to allow extension of this list.
@@ -218,7 +218,7 @@ static DBloodActor* weaponShotHitscan(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWea
     auto pSpr = pDude->pSpr;
 
     // ugly hack to make it fire at required distance was removed because we have a better solution! :P
-    actFireVector(pSpr, pOffs.X, pOffs.Y, vel, (VECTOR_TYPE)pWeap->id, pWeap->GetDistanceF());
+    actFireVector(pSpr, pOffs.X, pOffs.Y, vel, (VECTOR_TYPE)pWeap->id, pWeap->GetDistance());
 
     return nullptr;
 }
@@ -521,7 +521,7 @@ static DBloodActor* weaponShotKamikaze(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWe
         pShot->xspr.data1 = pExpl->ticks;
         pShot->xspr.data2 = pExpl->quakeEffect;
         pShot->xspr.data3 = pExpl->flashEffect;
-        pShot->xspr.data4 = ClipLow(pWeap->GetDistance() >> 4, pExpl->radius);
+        pShot->xspr.data4 = ClipLow((int)pWeap->GetDistance() >> 4, pExpl->radius);
 
         seqSpawn(pExtra->seq, pShot);
 
@@ -559,10 +559,10 @@ static DBloodActor* weaponShotSpecialBeastStomp(CUSTOMDUDE* pDude, CUSTOMDUDE_WE
             if (pSpr2 == pSpr || !xsprIsFine(pSpr2) || pSpr2->ownerActor == pSpr)
                 continue;
 
-            if (CheckProximity(pSpr2, pSpr->spr.pos, pSpr->sector(), pWeapon->GetDistance()))
+            if (CheckProximity(pSpr2, pSpr->spr.pos, pSpr->sector(), (int)pWeapon->GetDistance()))
             {
-                double nDist2 = (pSpr->spr.pos.XY() - pSpr2->spr.pos.XY()).LengthSquared();
-                if (nDist2 <= vc * vc)
+                int nDist2 = int((pSpr->spr.pos.XY() - pSpr2->spr.pos.XY()).Length() * worldtoint);
+                if (nDist2 <= vc)
                 {
                     int nDamage;
                     if (!nDist2)
@@ -589,7 +589,7 @@ static DBloodActor* weaponShotSpecialBeastStomp(CUSTOMDUDE* pDude, CUSTOMDUDE_WE
 
 void weaponShot(DBloodActor* pSpr)
 {
-    // most of the fixed point math in here has been kept for reasons of simplicity.
+    // most of the fixed point math in here has been kept for reasons of simplicity and needs to be converted later when this can be tested.
     if (!pSpr->hasX())
         return;
 
@@ -640,7 +640,7 @@ void weaponShot(DBloodActor* pSpr)
                 }
 
                 dz1 = (pWeap->shot.slope == INT32_MAX) ?
-                        pDude->AdjustSlope(pSpr->xspr.target, pWeap->shot.offset.Z) : pWeap->shot.slope;
+                        int (zworldtoint * pDude->AdjustSlope(pSpr->xspr.target, pWeap->shot.offset.Z)) : pWeap->shot.slope;
 
                 for (j = nShots; j > 0; j--)
                 {
@@ -1114,7 +1114,7 @@ void moveDodge(DBloodActor* pSpr)
     {
         AdjustVelocity(pSpr, ADJUSTER
             {
-                int nVelDodge = pDude->GetVelocityF(kParVelocityDodge);
+                double nVelDodge = pDude->GetVelocityF(kParVelocityDodge);
                 if (pSpr->xspr.dodgeDir > 0)
                 {
                     t2 += nVelDodge;
@@ -1130,7 +1130,7 @@ void moveDodge(DBloodActor* pSpr)
 
 void moveKnockout(DBloodActor* pSpr)
 {
-    int zv = pSpr->vel.Z;
+    double zv = pSpr->vel.Z;
     pSpr->vel.Z = clamp(zv * (1 + 3. / 16), 1. / 16, 4.);
 }
 
@@ -1368,12 +1368,10 @@ void thinkMorph(DBloodActor* pSpr)
 void enterBurnSearchWater(DBloodActor* pSpr)
 {
     double nClosest = FLT_MAX;
-    int nDist, s, e;
-
+    
     auto p1 = pSpr->spr.pos.XY();
     double z1, z2;
-    double x2, y2;
-
+    
     // this originally edited the state function, which is unsafe.
     pSpr->chasehackflag = false;
     if (!Chance(0x8000))

@@ -74,6 +74,7 @@
 #include "src/nnexts.cpp"
 #include "src/nnextsif.cpp"
 #include "src/nnextstr.cpp"
+#include "src/nnextcdud.cpp"
 #endif
 
 // after nnsprinsect

@@ -271,6 +271,8 @@ DEF_ANIMATOR(MGunFireSeqCallback)
 DEF_ANIMATOR(MGunOpenSeqCallback)
 #ifdef NOONE_EXTENSIONS
 DEF_ANIMATOR(weaponShot)
+DEF_ANIMATOR(callbackSeqCustom);
+
 #endif
 
 

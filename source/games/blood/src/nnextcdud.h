@@ -69,8 +69,7 @@ constexpr double kCdudeMinSeeDist = 3000 * inttoworld;
 constexpr double kCdudeMinHearDist = (kCdudeMinSeeDist * 0.5);
 
 class CUSTOMDUDE;
-extern VMFunction* nCdudeAppearanceCallback;
-extern VMFunction* gCdudeCustomCallback[];
+extern VMNativeFunction** const gCdudeCustomCallback[];
 
 enum enum_VALUE_TYPE {
 kValNone                        = 0,
@@ -408,6 +407,17 @@ class ARG_PICK_WEAPON
 		}
 };
 
+class CUSTOMDUDE_SOUND_TPL
+{
+public:
+	int id[kCdudeMaxSounds];
+	uint8_t medium;
+	bool ai;
+	bool interruptable;
+	bool once;
+	int16_t volume;
+};
+
 class CUSTOMDUDE_SOUND
 {
 	public:
@@ -418,6 +428,16 @@ class CUSTOMDUDE_SOUND
 		bool once;
 		int16_t volume;
 		FSoundID  Pick() { return id[Random(kCdudeMaxSounds)]; }
+		CUSTOMDUDE_SOUND& operator=(const CUSTOMDUDE_SOUND_TPL& tpl)
+		{
+			for (int i = 0; i < kCdudeMaxSounds; i++) id[i] = soundEngine->FindSoundByResID(tpl.id[i]);
+			medium = tpl.medium;
+			ai = tpl.ai;
+			interruptable = tpl.interruptable;
+			once = tpl.once;
+			volume = tpl.volume;
+			return *this;
+		}
 		void Play(DBloodActor* pSpr) { Play(pSpr, Pick()); }
 		void Play(DBloodActor* pSpr, FSoundID nID)
 		{
@@ -579,9 +599,9 @@ class APPEARANCE
 				{
 					pSpr->xspr.sysData2 = clb - 1;
 					if (pSpr->xspr.sysData2 > 10)
-						pInst->callback = gCdudeCustomCallback[pSpr->xspr.sysData2];
+						pInst->callback = *gCdudeCustomCallback[pSpr->xspr.sysData2];
 					else
-						pInst->callback  = nCdudeAppearanceCallback;
+						pInst->callback  = AF(callbackSeqCustom);
 				}
 			}
 
@@ -630,7 +650,7 @@ class CUSTOMDUDE_WEAPON
 		uint16_t  numshots ;
 		uint16_t  id       ;
 		uint16_t  sharedId ;
-		uint16_t  angle    ;
+		DAngle  angle    ;
 		uint16_t  medium   ;
 		unsigned int  pickChance;
 		uint8_t  available     ;
@@ -642,7 +662,7 @@ class CUSTOMDUDE_WEAPON
 		unsigned int  clipMask;
 		unsigned int  group;
 		unsigned int  dispersion[2];
-		unsigned int  distRange[2];
+		double  _distRange[2];
 		unsigned char targHpRange[2];
 		unsigned char dudeHpRange[2];
 		CUSTOMDUDE_SOUND sound;
@@ -713,13 +733,13 @@ class CUSTOMDUDE_WEAPON
 		{
 			memset(this, 0, sizeof(CUSTOMDUDE_WEAPON));
 			
-			angle           = kAng45;
+			angle           = DAngle45;
 			numshots        = 1;
 			pickChance      = 0x10000;
 			stateID         = kCdudeStateAttackBase;
 			turnToTarget    = true;
 
-			distRange[1]    = 20000;
+			_distRange[1]    = 20000;
 			dudeHpRange[1]  = 255;
 			targHpRange[1]  = 255;
 
@@ -728,8 +748,7 @@ class CUSTOMDUDE_WEAPON
 			shot.slope    = INT32_MAX;
 		}
 		char HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
-		int  GetDistance(void)      { return ClipLow(distRange[1] - distRange[0], 0); }
-		double  GetDistanceF(void)     { return maptoworld * ClipLow(distRange[1] - distRange[0], 0); }
+		double  GetDistance(void)     { return max(_distRange[1] - _distRange[0], 0.); }
 		int  GetNumshots(void)      { return (ammo.total) ? ClipHigh(ammo.cur, numshots) : numshots; }
 		char IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
 		char HaveSlope(void)        { return (shot.slope != INT32_MAX); }
@@ -1210,9 +1229,9 @@ class CUSTOMDUDE
 		DAngle periphery  ;                       // dudeInfo duplicate for sleeping
 		unsigned int fallHeight ;                       // in pixels
 		TObjPtr<DBloodActor*> NextDude;
-		int NextDudeType;
+		int NextDudeType;	// 0: none, <0: vdude, >0: cdude, NextDude: existing
 
-		//signed   int nextDude   ;                       // -1: none, <-1: vdude, >=0: ins, >=kMaxSprites: cdude
+		//signed   int nextDude   ;                       
 		//----------------------------------------------------------------------------------------------------
 		void PlaySound(int nState)                     { return (sound[nState].Play(pSpr)); }
 		int  GetStateSeq(int nState, int nPosture)     { return states[nState][nPosture].seqId; }
@@ -1252,7 +1271,7 @@ class CUSTOMDUDE
 		//----------------------------------------------------------------------------------------------------
 		CUSTOMDUDE_WEAPON* PickWeapon(ARG_PICK_WEAPON* pArg);
 		double  AdjustSlope(DBloodActor* nTarget, double zOffs);
-		char AdjustSlope(double nDist, double* nSlope);
+		bool AdjustSlope(double nDist, double* nSlope);
 		//----------------------------------------------------------------------------------------------------
 		void InitSprite(void);
 		void Activate(void);

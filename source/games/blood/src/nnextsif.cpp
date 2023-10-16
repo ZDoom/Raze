@@ -75,7 +75,7 @@ CDUDC,
 CSPR,
 };
 
-static const char* gErrors[] =
+static const char* const gCondErrors[] =
 {
 	"Object #%d (o.type(): %d) is not a %s!",
 	"%d is not condition serial!",
@@ -193,7 +193,7 @@ struct EvalContext final
 	********************************************************************************/
 	bool errCondNotImplemented(void)
 	{
-		Error(gErrors[kErrNotImplementedCond]);
+		Error(gCondErrors[kErrNotImplementedCond]);
 		return false;
 	}
 
@@ -257,7 +257,7 @@ struct EvalContext final
 			}
 			return Cmp((int((kPercFull * nHeigh2) / nHeigh1)));
 		default:
-			Error(gErrors[kErrObjectUnsupp], "sector", pSect->type, pSect->extra);
+			Error(gCondErrors[kErrObjectUnsupp], "sector", pSect->type, pSect->extra);
 			return false;
 		}
 	}
@@ -362,7 +362,7 @@ struct EvalContext final
 			return true;
 		}
 
-		Error(gErrors[kErrInvalidArgsPass]);
+		Error(gCondErrors[kErrInvalidArgsPass]);
 		return false;
 	}
 
@@ -386,7 +386,7 @@ struct EvalContext final
 				}
 				break;
 			default:
-				Error(gErrors[kErrInvalidArgsPass]);
+				Error(gCondErrors[kErrInvalidArgsPass]);
 				break;
 			}
 		}
@@ -419,7 +419,7 @@ struct EvalContext final
 				}
 				break;
 			default:
-				Error(gErrors[kErrInvalidArgsPass]);
+				Error(gCondErrors[kErrInvalidArgsPass]);
 				break;
 			}
 		}
@@ -945,7 +945,7 @@ struct EvalContext final
 			d = getDigitFromValue(arg1, i);
 			if (!rngok(d, 1, 4))
 			{
-				Error(gErrors[kErrInvalidArgsPass]);
+				Error(gCondErrors[kErrInvalidArgsPass]);
 				return false;
 			}
 
@@ -982,7 +982,7 @@ struct EvalContext final
 		case 3:		return Cmp(FloatToFixed(pSpr->vel.Z));
 		}
 
-		Error(gErrors[kErrInvalidArgsPass]);
+		Error(gCondErrors[kErrInvalidArgsPass]);
 		return false;
 	}
 	bool sprCmpChkVelocity(void)
@@ -998,7 +998,7 @@ struct EvalContext final
 		case 3:		return (pSpr->vel.Z != 0);
 		}
 
-		Error(gErrors[kErrInvalidArgsPass]);
+		Error(gCondErrors[kErrInvalidArgsPass]);
 		return false;
 	}
 
@@ -1230,7 +1230,7 @@ struct EvalContext final
 		case 7: return cdudeGet(pSpr)->CanSwim();
 		case 8: return cdudeGet(pSpr)->CanMove();
 		default:
-			Error(gErrors[kErrInvalidArgsPass]);
+			Error(gCondErrors[kErrInvalidArgsPass]);
 			break;
 		}
 		return false;
@@ -1311,7 +1311,7 @@ struct EvalContext final
 		if (valueIsBetween(arg3, 0, 4))
 			return Cmp((pPlayer->armor[arg3 - 1] * kPercFull) / 1600);
 
-		Error(gErrors[kErrInvalidArgsPass]);
+		Error(gCondErrors[kErrInvalidArgsPass]);
 		return false;
 	}
 	bool plyCmpAmmo(void)
@@ -1319,7 +1319,7 @@ struct EvalContext final
 		if (valueIsBetween(arg3, 0, 12))
 			return Cmp(pPlayer->ammoCount[arg3 - 1]);
 
-		Error(gErrors[kErrInvalidArgsPass]);
+		Error(gCondErrors[kErrInvalidArgsPass]);
 		return false;
 	}
 	bool plyChkSpriteItOwns(void)
@@ -1337,7 +1337,7 @@ struct EvalContext final
 			return false;
 		}
 
-		Error(gErrors[kErrInvalidArgsPass]);
+		Error(gCondErrors[kErrInvalidArgsPass]);
 		return false;
 	}
 
@@ -1450,7 +1450,7 @@ bool EvalContext::CheckSector()
 	}
 	else
 	{
-		Error(gErrors[kErrInvalidObject], oindex(), o.type(), "sector");
+		Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "sector");
 		return false;
 	}
 	return (this->*(pEntry->pFunc))();
@@ -1476,7 +1476,7 @@ bool EvalContext::CheckWall()
 	}
 	else
 	{
-		Error(gErrors[kErrInvalidObject], oindex(), o.type(), "wall");
+		Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "wall");
 		return false;
 	}
 
@@ -1490,7 +1490,7 @@ bool EvalContext::CheckDude()
 		pSpr = o.actor();
 		if ((!pSpr->IsDudeActor() && pSpr->GetType() != kThingBloodChunks) || pSpr->IsPlayerActor())
 		{
-			Error(gErrors[kErrInvalidObject], oindex(), o.type(), "dude");
+			Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "dude");
 			return false;
 		}
 
@@ -1507,7 +1507,7 @@ bool EvalContext::CheckDude()
 	}
 	else
 	{
-		Error(gErrors[kErrInvalidObject], oindex(), o.type(), "sprite");
+		Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "sprite");
 		return false;
 	}
 
@@ -1523,12 +1523,12 @@ bool EvalContext::CheckCustomDude()
 		{
 		case kThingBloodChunks:
 			if (pSpr->spr.inittype == kDudeModernCustom) break;
-			Error(gErrors[kErrInvalidObject], oindex(), o.type(), "custom dude");
+			Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "custom dude");
 			return false;
 		case kDudeModernCustom:
 			break;
 		default:
-			Error(gErrors[kErrInvalidObject], oindex(), o.type(), "custom dude");
+			Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "custom dude");
 			return false;
 		}
 
@@ -1545,7 +1545,7 @@ bool EvalContext::CheckCustomDude()
 	}
 	else
 	{
-		Error(gErrors[kErrInvalidObject], oindex(), o.type(), "sprite");
+		Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "sprite");
 		return false;
 	}
 
@@ -1582,7 +1582,7 @@ bool EvalContext::CheckPlayer()
 	}
 	else
 	{
-		Error(gErrors[kErrInvalidObject], oindex(), o.type(), "player");
+		Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "player");
 		return false;
 	}
 
@@ -1607,7 +1607,7 @@ bool EvalContext::CheckSprite()
 	}
 	else
 	{
-		Error(gErrors[kErrInvalidObject], oindex(), o.type(), "sprite");
+		Error(gCondErrors[kErrInvalidObject], oindex(), o.type(), "sprite");
 		return false;
 	}
 
@@ -1624,7 +1624,7 @@ bool EvalContext::CheckObject()
 	}
 
 	// conditions can only work with objects in the switch anyway...
-	Error(gErrors[kErrUnknownObject], o.type(), oindex());
+	Error(gCondErrors[kErrUnknownObject], o.type(), oindex());
 	return false;
 }
 
@@ -1848,6 +1848,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACKING_CONDITION
 	}
 	return arc;
 }
+
+void conditionInitData();
 
 void SerializeConditions(FSerializer& arc)
 {
