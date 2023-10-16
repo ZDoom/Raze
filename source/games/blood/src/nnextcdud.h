@@ -726,8 +726,8 @@ class CUSTOMDUDE_WEAPON
 		struct SHOT_STYLE
 		{
 			bool available;
-			uint16_t angle;
-			POINT3D offset;
+			DAngle angle;
+			DVector3 offset;
 		}
 		style;
 		void Clear()
@@ -965,7 +965,6 @@ class CUSTOMDUDE_EFFECT
 
 		void Spawn(int nID, DBloodActor* pSpr)
 		{
-			DBloodActor* pFX;
 			auto pos = pSpr->spr.pos;
 			nnExtOffsetPos(offset, pSpr->spr.Angles.Yaw, pos);
 
@@ -976,7 +975,7 @@ class CUSTOMDUDE_EFFECT
 				TArray<DBloodActor*> fxList;
 				if (nnExtGibSprite(pSpr, fxList, (GIBTYPE)nID, &pos, nullptr))
 				{
-					for(auto pFx : fxList)
+					for(auto pFX : fxList)
 					{
 						Setup(pSpr, pFX, true);
 					}
@@ -1386,19 +1385,19 @@ class CUSTOMDUDEV2_SETUP : public CUSTOMDUDE_SETUP
 		bool ParseAppearance(const char* str, APPEARANCE* pAppear);
 		bool ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound);
 		bool ParseAnimation(const char* str, AISTATE* pState, bool asPosture);
-		bool ParseRange(const char* str, int nValType, int out[2], int nBaseVal = 0);
+		int ParseRange(const char* str, int nValType, int out[2], int nBaseVal = 0);
 		int  ParseMedium(const char* str);
-		bool ParseOffsets(const char* str, POINT3D* pOut);
+		bool ParseOffsets(const char* str, DVector3& pOut);
 		bool ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap);
 		bool ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap);
 		bool ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pWeap);
 		bool ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON* pWeap);
-		bool ParsePosture(const char* str);
+		int ParsePosture(const char* str);
 		bool ParseOnEventDmg(const char* str, int* pOut, int nLen);
-		bool ParseDropItem(const char* str, uint8_t out[2]);
+		bool ParseDropItem(const char* str, CUSTOMDUDE_DROPITEM::itemdesc& out);
 		bool ParseSkill(const char* str);
 		int  ParseKeywords(const char* str, const PARAM* pDb);
-		int  ParseIDs(const char* str, int nValType, TArray<PClass*>& pOut, int nMax = 0);
+		int  ParseIDs(const char* str, int nValType, TArray<int>& pOut, int nMax = 0);
 		int  ParseIDs(const char* str, int nValType, int* pOut, int nMax);
 		int  ParseEffectIDs(const char* str, const char* paramName, unsigned short* pOut, int nLen = 0);
 		int  ParseStatesToList(const char* str, TArray<int>& pOut);	// todo: determine type.

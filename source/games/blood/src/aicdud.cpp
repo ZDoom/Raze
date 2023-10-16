@@ -596,7 +596,7 @@ void weaponShot(DBloodActor* pSpr)
     DCustomDude* pDude = cdudeGet(pSpr);
     CUSTOMDUDE_WEAPON *pCurWeap = pDude->pWeapon, *pWeap;
     DBloodActor *pShot;
-    POINT3D *pStyleOffs;
+    DVector3 *pStyleOffs;
     DVector3 shotoffs;
 
     int nShots, nTime;
@@ -605,9 +605,8 @@ void weaponShot(DBloodActor* pSpr)
     int dx3, dy3, dz3;
     int i, j;
 
-    int txof;
-    int sang;
-    int tang;
+    DAngle sang;
+    DAngle tang;
     bool hxof;
     int  hsht;
     bool styled;
@@ -630,16 +629,18 @@ void weaponShot(DBloodActor* pSpr)
                         continue;
                 }
 
-                nShots = pWeap->GetNumshots(); pWeap->ammo.Dec(nShots);
+                nShots = pWeap->GetNumshots();
+                pWeap->ammo.Dec(nShots);
                 styled = (nShots > 1 && pWeap->style.available);
                 shotoffs = pWeap->shot.offset;
 
                 if (styled)
                 {
-                    pStyleOffs = &pWeap->style.offset; hsht = nShots >> 1;
+                    pStyleOffs = &pWeap->style.offset;
+                    hsht = nShots >> 1;
                     sang = pWeap->style.angle / nShots;
                     hxof = 0;
-                    tang = 0;
+                    tang = nullAngle;
                 }
 
                 dz1 = (pWeap->shot.slope == INT32_MAX) ?
@@ -673,9 +674,8 @@ void weaponShot(DBloodActor* pSpr)
                         // setup style
                         if (styled)
                         {
-                            if (pStyleOffs->X)
+                            if (double txof = pStyleOffs->X)
                             {
-                                txof = pStyleOffs->X;
                                 if (j <= hsht)
                                 {
                                     if (!hxof)
@@ -687,39 +687,39 @@ void weaponShot(DBloodActor* pSpr)
                                     txof = -txof;
                                 }
 
-                                shotoffs.X += txof * inttoworld;
+                                shotoffs.X += txof;
                             }
 
-                            shotoffs.Y += pStyleOffs->Y * inttoworld;
-                            shotoffs.Z += pStyleOffs->Z * zinttoworld;
+                            shotoffs.Y += pStyleOffs->Y;
+                            shotoffs.Z += pStyleOffs->Z;
 
-                            if (pWeap->style.angle)
+                            if (pWeap->style.angle != nullAngle)
                             {
                                 // for sprites
                                 if (pShot)
                                 {
-                                    if (j <= hsht && sang > 0)
+                                    if (j <= hsht && sang > nullAngle)
                                     {
                                         sang = -sang;
-                                        tang = 0;
+                                        tang = nullAngle;
                                     }
 
                                     tang += sang;
-                                    pShot->vel.XY() = rotatepoint(pShot->vel.XY(), pSpr->spr.pos.XY(), DAngle::fromBuild(tang)); // formula looks broken
-                                    //pShot->vel.XY() = rotatepoint(pShot->vel.XY(), DVector2(0, 0), DAngle::fromBuild(tang)); // what it probably should be!
+                                    pShot->vel.XY() = rotatepoint(pShot->vel.XY(), pSpr->spr.pos.XY(), tang); // formula looks broken
+                                    //pShot->vel.XY() = rotatepoint(pShot->vel.XY(), DVector2(0, 0), tang); // what it probably should be!
                                     pShot->spr.Angles.Yaw = pShot->vel.Angle();
                                 }
                                 // for hitscan
                                 else
                                 {
-                                    if (j <= hsht && sang > 0)
+                                    if (j <= hsht && sang > nullAngle)
                                     {
                                         dx2 = dx1 + dx3; dy2 = dy1 +  dy3;
                                         sang = -sang;
                                     }
 
-                                    auto dv = rotatepoint(DVector2(dx2 * inttoworld, dy2 * inttoworld), pSpr->spr.pos.XY(), DAngle::fromBuild(sang)); // formula looks broken
-                                    //auto dv = rotatepoint(DVector2(dx2 * inttoworld, dy2 * inttoworld), DVector2(0, 0), DAngle::fromBuild(sang)); // what it probably should be!
+                                    auto dv = rotatepoint(DVector2(dx2 * inttoworld, dy2 * inttoworld), pSpr->spr.pos.XY(), sang); // formula looks broken
+                                    //auto dv = rotatepoint(DVector2(dx2 * inttoworld, dy2 * inttoworld), DVector2(0, 0), sang); // what it probably should be!
                                     dx2 = int(dv.X * worldtoint);
                                     dy2 = int(dv.Y * worldtoint);
                                 }
@@ -1359,7 +1359,7 @@ void thinkMorph(DBloodActor* pSpr)
             break;
         default:
             if (pSpr->xspr.dudeFlag4) break;
-            else if (nTarget) aiSetTarget(pSpr, pTarget); // try to restore target
+            else if (pTarget) aiSetTarget(pSpr, pTarget); // try to restore target
             else aiSetTarget(pSpr, pSpr->spr.pos);
             aiActivateDude(pSpr); // finally activate it
             break;

@@ -410,7 +410,7 @@ static bool isIdKeyword(const char* fullStr, const char* prefix, int* nID = null
 static bool isNone(const char* str) { return (stricmp(str, gValTypes[kValNone]) == 0); }
 static int qsSortWeapons(CUSTOMDUDE_WEAPON* ref1, CUSTOMDUDE_WEAPON* ref2) { return ref1->pickChance - ref2->pickChance; }
 static bool helperSeqExists(int nSeq);
-static int helperGetFirstPic(DCustomDude* pDude);
+static FTextureID helperGetFirstPic(DCustomDude* pDude);
 static bool helperSeqTriggerExists(int nSeq);
 static Seq* helperSeqLoad(int nSeq);
 static Seq* helperSeqLock(int nSeq);
@@ -2162,7 +2162,6 @@ void CUSTOMDUDEV2_SETUP::SetupGeneral(void)
 {
     int nVal = 0, i, range[2];
     DBloodActor* pSpr = pDude->pSpr;
-    DBloodActor* pSpr = pDude->pSpr;
     const PARAM* pMorph;
 
     /* ----------------------------------*/
@@ -2531,7 +2530,7 @@ void CUSTOMDUDEV2_SETUP::SetupKnockout(void)
     }
 }
 
-int CUSTOMDUDEV2_SETUP::ParseIDs(const char* str, int nValType, IDLIST* pOut, int nMax)
+int CUSTOMDUDEV2_SETUP::ParseIDs(const char* str, int nValType, TArray<int>& pOut, int nMax)
 {
     char tmp[256];
     int i, nVal, nLen;
@@ -2551,27 +2550,23 @@ int CUSTOMDUDEV2_SETUP::ParseIDs(const char* str, int nValType, IDLIST* pOut, in
     while ((nMax <= 0 || i < nMax) && enumStr(i, str, tmp))
     {
         if ((nVal = CheckValue(tmp, nValType, INT32_MAX)) != INT32_MAX)
-            pOut->Add(nVal);
+            pOut.Push(nVal);
 
         i++;
     }
 
-    return pOut->Length();
+    return pOut.Size();
 }
 
 int CUSTOMDUDEV2_SETUP::ParseIDs(const char* str, int nValType, int* pOut, int nMax)
 {
     int i = 0;
-    IDLIST ids(true, INT32_MAX);
-    if (ParseIDs(str, nValType, &ids, nMax))
+    TArray<int> ids(nMax, false);
+    if (ParseIDs(str, nValType, ids, nMax))
     {
-        int32_t* pDb = ids.First();
-        while (*pDb != INT32_MAX)
-        {
-            pOut[i++] = *pDb++;
-        }
+        i = min(nMax, ids.SSize());
+        memcpy(pOut, ids.Data(), sizeof(int) * i);
     }
-
     return i;
 }
 
@@ -2621,7 +2616,7 @@ int CUSTOMDUDEV2_SETUP::ParseEffectIDs(const char* str, const char* paramName, u
     return i;
 }
 
-int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
+int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, TArray<int>& pOut)
 {
     CUSTOMDUDE_WEAPON* pWeap;
     int i = 0, j, nVal, nPar;
@@ -2637,17 +2632,17 @@ int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
                 for (j = kCdudeStateMoveBase; j < kCdudeStateMoveMax; j++)
                 {
                     if ((pPar = FindParam(j, gParamAnim)) != nullptr)
-                        pOut->AddIfNotExists(pPar->id);
+                        pOut.AddUnique(pPar->id);
                 }
-                pOut->AddIfNotExists(nPar);
+                pOut.AddUnique(nPar);
                 continue;
             case kCdudeStateDeath:
                 for (j = kCdudeStateDeathBase; j < kCdudeStateDeathMax; j++)
                 {
                     if ((pPar = FindParam(j, gParamAnim)) != nullptr)
-                        pOut->AddIfNotExists(pPar->id);
+                        pOut.AddUnique(pPar->id);
                 }
-                pOut->AddIfNotExists(nPar);
+                pOut.AddUnique(nPar);
                 continue;
             case kCdudeStateAttack:
                 for (j = 0; j < pDude->numWeapons; j++)
@@ -2655,19 +2650,19 @@ int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
                     pWeap = &pDude->weapons[j];
                     if (pWeap->group)
                     {
-                        pOut->AddIfNotExists(pWeap->stateID);
+                        pOut.AddUnique(pWeap->stateID);
                         break;
                     }
                 }
-                pOut->AddIfNotExists(nPar);
+                pOut.AddUnique(nPar);
                 continue;
             case kCdudeStateIdle:
-                pOut->AddIfNotExists(kCdudeStateGenIdle);
-                pOut->AddIfNotExists(nPar);
+                pOut.AddUnique(kCdudeStateGenIdle);
+                pOut.AddUnique(nPar);
                 continue;
             default:
                 if (!rngok(nPar, kCdudeStateBase, kCdudeStateMax)) break;
-                pOut->AddIfNotExists(nPar);
+                pOut.AddUnique(nPar);
                 continue;
         }
 
@@ -2681,7 +2676,7 @@ int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
                     pWeap = &pDude->weapons[j];
                     if (pWeap->group == nVal)
                     {
-                        pOut->AddIfNotExists(pWeap->stateID);
+                        pOut.AddUnique(pWeap->stateID);
                         break;
                     }
                 }
@@ -2690,8 +2685,8 @@ int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
                 // fill it with dummy value, otherwise it will
                 // spawn effects anyway
 
-                if (j < 0 && !pOut->Length())
-                    pOut->AddIfNotExists(kCdudeStateMax);
+                if (j < 0 && !pOut.Size())
+                    pOut.AddUnique(kCdudeStateMax);
             }
             else Warning(GetError(kErrInvalidRange), tmp, 1, kCdudeMaxWeapons);
             continue;
@@ -2700,7 +2695,7 @@ int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
         Warning(GetError(kErrInvalidResultC), tmp, str);
     }
 
-    return pOut->Length();
+    return pOut.SSize();
 }
 
 bool CUSTOMDUDEV2_SETUP::ParseGibSetup(const char* str, CUSTOMDUDE_GIB* pGib)
@@ -2764,15 +2759,15 @@ void CUSTOMDUDEV2_SETUP::SetupEffect()
         pEff = &pDude->effects[pDude->numEffects];
         pEff->Clear();
 
-        sprintf(tmp, sizeof(tmp), pGroupText, i + 1);
+        snprintf(tmp, sizeof(tmp), pGroupText, i + 1);
         if (!DescriptGroupExist(tmp))
             continue;
         
-        pGroup->text = tmp;
+        //pGroup->text = tmp;
 
         for (pParam = gParamEffect; pParam->text; pParam++)
         {
-            pValue = DescriptGetValue(pGroup->text, pParam->text);
+            pValue = DescriptGetValue(tmp, pParam->text);
 
             switch (pParam->id)
             {
@@ -2805,7 +2800,7 @@ void CUSTOMDUDEV2_SETUP::SetupEffect()
                                 break;
                             case kParEffectAngle:
                                 nVal = kAng360 - 1;
-                                pEff->angle = CheckValue(pValue, kValFix, -nVal, nVal, 0);
+                                pEff->angle = DAngle::fromBuild(CheckValue(pValue, kValFix, -nVal, nVal, 0));
                                 break;
                             case kParEffectMedium:
                                 if ((nVal = ParseMedium(pValue)) >= 0)
@@ -2818,12 +2813,12 @@ void CUSTOMDUDEV2_SETUP::SetupEffect()
                             case kParEffectAiState:     ParseStatesToList(pValue, pEff->pStates);                       break;
                             case kParEffectAnimFrame:   ParseIDs(pValue, kValUfix, pEff->pFrames);                      break;
                             case kParEffectAnimID:      ParseIDs(pValue, kValUfix, pEff->pAnims);                       break;
-                            case kParEffectOffset:      ParseOffsets(pValue, &pEff->offset);                            break;
+                            case kParEffectOffset:      ParseOffsets(pValue, pEff->offset);                             break;
                             case kParEffectFx2Gib:      ParseGibSetup(pValue, &pEff->spr2gib);                          break;
                             case kParEffectAppearance:  ParseAppearance(pValue, &pEff->appearance);                     break;
                             case kParEffectPosture:     pEff->posture       = ParsePosture(pValue);                     break;
-                            case kParEffectVelocity:    pEff->velocity      = CheckValue(pValue, kValUfix, 0) << 10;    break;
-                            case kParEffectSlope:       pEff->velocitySlope = CheckValue(pValue, kValFix, 0) << 4;      break;
+                            case kParEffectVelocity:    pEff->_velocity      = CheckValue(pValue, kValUfix, 0) / 64.;   break; //The factors here are rather arbitrary...
+                            case kParEffectSlope:       pEff->_velocitySlope = CheckValue(pValue, kValFix, 0) / 16.;    break;
                             case kParEffectRemTime:     pEff->liveTime      = CheckValue(pValue, kValFix, -1, 65535);   break;
                             case kParEffectAllUnique:   pEff->allUnique     = CheckValue(pValue, kValBool, 0);          break;
                             case kParEffectSrcVel:      pEff->srcVelocity   = CheckValue(pValue, kValBool, 1);          break;
@@ -2840,8 +2835,6 @@ void CUSTOMDUDEV2_SETUP::SetupEffect()
         pDude->numEffects++;
 
     }
-
-    pGroup->text = pGroupText;
 }
 
 void CUSTOMDUDEV2_SETUP::SetupMovePattern(void)
@@ -2873,7 +2866,7 @@ bool CUSTOMDUDEV2_SETUP::ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON
 {
     int i, nMin, nMax, nID;
     bool isNum = isufix(str);
-    WEAPINFO* pInfo;
+    const WEAPINFO* pInfo;
 
     if (isempty(str))
     {
@@ -2942,13 +2935,14 @@ bool CUSTOMDUDEV2_SETUP::ParseSkill(const char* str)
     return true;
 }
 
-bool CUSTOMDUDEV2_SETUP::ParseDropItem(const char* str, uint8_t out[2])
+bool CUSTOMDUDEV2_SETUP::ParseDropItem(const char* str, CUSTOMDUDE_DROPITEM::itemdesc& out)
 {
     int nPar, nVal, i = 0;
     uint8_t nItem = 0;
     uint8_t nPerc = 100;
 
-    out[0] = out[1] = 0;
+    out.cls = nullptr;
+    out.perc = 0;
 
     if (isarray(str))
     {
@@ -2972,8 +2966,8 @@ bool CUSTOMDUDEV2_SETUP::ParseDropItem(const char* str, uint8_t out[2])
 
         if (nItem)
         {
-            out[0] = nItem;
-            out[1] = nPerc;
+            out.cls = GetSpawnType(nItem);
+            out.perc = nPerc;
             return true;
         }
     }
@@ -2982,8 +2976,8 @@ bool CUSTOMDUDEV2_SETUP::ParseDropItem(const char* str, uint8_t out[2])
         nVal = CheckValue(str, kValUfix, kItemWeaponBase, kItemMax - 1, 0);
         if (nVal)
         {
-            out[0] = nVal;
-            out[1] = 100;
+            out.cls = GetSpawnType(nVal);
+            out.perc = 100;
             return true;
         }
     }
@@ -3020,8 +3014,7 @@ void CUSTOMDUDEV2_SETUP::SetupDropItem(void)
     // ItemN params then
     for (i = 0, c = 0; i < kCdudeMaxDropItems; i++)
     {
-        sprintf(tmp, sizeof(tmp), pItem->text, i + 1);
-        pParam->text = tmp;
+        snprintf(tmp, sizeof(tmp), pItem->text, i + 1);
 
         pValue = DescriptGetValue(pGroup->text, tmp);
         if (pValue)
@@ -3051,11 +3044,9 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
         pWeap = &pDude->weapons[pDude->numWeapons];
         pWeap->Clear();
 
-        sprintf(tmp, sizeof(tmp), pGroupText, i + 1);
+        snprintf(tmp, sizeof(tmp), pGroupText, i + 1);
         if (!DescriptGroupExist(tmp))
             continue;
-
-        pGroup->text = tmp;
 
         // search for skill settings first
         // ----------------------------------------------
@@ -3080,7 +3071,7 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
                     switch (pParam->id)
                     {
                         case kParWeaponAttackAng:
-                            pWeap->angle = CheckValue(pValue, kValUfix, 0, kAng360, kAng15);
+                            pWeap->angle = DAngle::fromBuild(CheckValue(pValue, kValUfix, 0, kAng360, kAng15));
                             break;
                         case kParWeaponDist:
                             range[0] = 0; range[1] = 0x10000;
@@ -3194,7 +3185,7 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
                         {
                             Seq* pSeq = getSequence(pState->seqId);
                             if (pSeq)
-                                pSeq->frames[pSeq->nFrames - 1].at5_5 = 1;
+                                pSeq->frames[pSeq->nFrames - 1].trigger = 1;
                         }
 
                         pState++;
@@ -3245,7 +3236,6 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
         }
     }
 
-    pGroup->text = pGroupText;
     if (pDude->numWeapons > 1) // weapon with lowest pickChance in top
         qsort(pDude->weapons, pDude->numWeapons, sizeof(pDude->weapons[0]), (int(*)(const void*, const void*))qsSortWeapons);
 }
@@ -3347,7 +3337,7 @@ bool CUSTOMDUDEV2_SETUP::ParseAppearance(const char* str, APPEARANCE* pAppear)
                     //pAppear->sound.ai       = true;
                     break;
                 case kAppearPic:
-                    pAppear->pic = CheckValue(val, kValUfix, 1, kMaxTiles-1, 0);
+                    pAppear->pic = tileGetTextureID(CheckValue(val, kValUfix, 1, kMaxTiles-1, 0));
                     break;
                 case kAppearShade:
                     pAppear->shd = CheckValue(val, kValFix, -128, 64, 127);
@@ -3402,7 +3392,7 @@ bool CUSTOMDUDEV2_SETUP::ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound)
         while (i < t && enumStr(i, str, tmp) && isufix(tmp))
         {
             nVal = CheckValue(tmp, kValUfix, 0, 65535);
-            for (j = i; j < t; j++) pSound->id[j] = nVal;
+            for (j = i; j < t; j++) pSound->id[j] = soundEngine->FindSoundByResID(nVal);
             i++;
         }
 
@@ -3514,7 +3504,7 @@ bool CUSTOMDUDEV2_SETUP::ParseAnimation(const char* str, AISTATE* pState, bool a
     return false;
 }
 
-bool CUSTOMDUDEV2_SETUP::ParseRange(const char* str, int nValType, int out[2], int nBaseVal)
+int CUSTOMDUDEV2_SETUP::ParseRange(const char* str, int nValType, int out[2], int nBaseVal)
 {
     int nLen, nVal;
     int nMin = out[0];
@@ -3587,21 +3577,22 @@ int CUSTOMDUDEV2_SETUP::CheckArray(const char* str, int nMin, int nMax, int nDef
     return nDefault;
 }
 
-bool CUSTOMDUDEV2_SETUP::ParseOffsets(const char* str, POINT3D* pOut)
+bool CUSTOMDUDEV2_SETUP::ParseOffsets(const char* str, DVector3& pOut)
 {
-    int i, nVal, nLen; char tmp[256];
-    memset(pOut, 0, sizeof(POINT3D));
+    int i, nLen; char tmp[256];
+    pOut.Zero();
     nLen = CheckArray(str, 3, 0, 0);
+    double nVal;
 
     i = 0;
     while (i < nLen && enumStr(i, str, tmp))
     {
-        nVal = CheckValue(tmp, kValFix, -16383, 16383, 0);
+        nVal = CheckValue(tmp, kValFix, -16383, 16383, 0) * inttoworld;
         switch (i)
         {
-        case 0: pOut->x = nVal;       break;
-        case 1: pOut->y = nVal;       break;
-        case 2: pOut->z = nVal << 4;  break;
+        case 0: pOut.X = nVal;       break;
+        case 1: pOut.Y = nVal;       break;
+        case 2: pOut.Z = nVal;       break; // the parser uses the same format as for xy.
         }
 
         i++;
@@ -3612,7 +3603,7 @@ bool CUSTOMDUDEV2_SETUP::ParseOffsets(const char* str, POINT3D* pOut)
 
 bool CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap)
 {
-    int i, nPar, nVal;
+    int i, nPar, nVal, nVel;
     if (isarray(str))
     {
         i = 0;
@@ -3622,12 +3613,14 @@ bool CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWea
             switch (nPar)
             {
                 case kParWeaponShotOffs:
-                    ParseOffsets(val, &pWeap->shot.offset);
+                    ParseOffsets(val, pWeap->shot.offset);
                     break;
                 case kParWeaponShotVel:
-                    pWeap->shot.velocity = CheckValue(val, kValUfix, INT32_MAX);
-                    if (pWeap->shot.velocity != INT32_MAX)
-                        pWeap->shot.velocity <<= 10;
+                    nVel = CheckValue(val, kValUfix, INT32_MAX);
+                    if (nVel != INT32_MAX)
+                        pWeap->shot._velocity = nVel / 64.;
+                    else 
+                        pWeap->shot._velocity = FLT_MAX;
                     break;
                 case kParWeaponShotSlope:
                     pWeap->shot.slope = CheckValue(val, kValFix, INT32_MAX);
@@ -3636,7 +3629,7 @@ bool CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWea
                     break;
                 case kParWeaponShotFollow:
                     nVal = CheckValue(val, kValUfix, 0, kAng360);
-                    pWeap->shot.targetFollow = ClipHigh(nVal, kAng360 - 1);
+                    pWeap->shot.targetFollow = DAngle::fromBuild(ClipHigh(nVal, kAng360 - 1));
                     break;
                 case kParWeaponShotClipdist:
                     pWeap->shot.clipdist = CheckValue(val, kValUfix, 0, 255, 32);
@@ -3668,10 +3661,10 @@ bool CUSTOMDUDEV2_SETUP::ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pW
         switch (nPar)
         {
             case kParWeaponStyleOffset:
-                ParseOffsets(val, &pWeap->style.offset);
+                ParseOffsets(val, pWeap->style.offset);
                 break;
             case kParWeaponStyleAngle:
-                pWeap->style.angle = CheckValue(val, kValUfix, 0, kAng360);
+                pWeap->style.angle = DAngle::fromBuild(CheckValue(val, kValUfix, 0, kAng360));
                 break;
         }
     }
@@ -3720,9 +3713,9 @@ bool CUSTOMDUDEV2_SETUP::ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pW
 }
 
 
-bool CUSTOMDUDEV2_SETUP::ParsePosture(const char* str)
+int CUSTOMDUDEV2_SETUP::ParsePosture(const char* str)
 {
-    bool nRetn = 0;
+    int nRetn = 0;
     int i, nVal;
 
     i = 0;
@@ -3931,7 +3924,7 @@ void CUSTOMDUDEV1_SETUP::WeaponMeleeSet(CUSTOMDUDE_WEAPON* pWeapon)
     pWeapon->type           = kCdudeWeaponHitscan;
     pWeapon->id             = kVectorGenDudePunch;
     pWeapon->stateID        = kCdudeStateAttackBase + 2;
-    pWeapon->angle          = kAng90;
+    pWeapon->angle          = DAngle90;
     pWeapon->clipMask       = CLIPMASK1;
     pWeapon->available      = availStatus;
 
@@ -3944,7 +3937,7 @@ void CUSTOMDUDEV1_SETUP::WeaponMeleeSet(CUSTOMDUDE_WEAPON* pWeapon)
         {
             Seq* pSeq = getSequence(pState->seqId);
             if (pSeq)
-                pSeq->frames[pSeq->nFrames - 1].at5_5 = 1;
+                pSeq->frames[pSeq->nFrames - 1].trigger = 1;
         }
 
         pState++;
@@ -3975,18 +3968,19 @@ void CUSTOMDUDEV1_SETUP::WeaponConvert(int nWeaponID)
     if (pW1->type == kCdudeWeaponNone)
     {
         WeaponRangeSet(pW1, 0, kCdudeV1MaxAttackDist);
-        pW1->angle = kAng360;
+        pW1->angle = DAngle360;
     }
     else if (pW1->type == kCdudeWeaponThrow)
     {
-        pW1->angle      = kAng15;
+        pW1->angle      = DAngle15;
 
         switch (pW1->id)
         {
             case kModernThingEnemyLifeLeech:
             case kThingDroppedLifeLeech:
                 pW1->shot.slope = -5000;
-                pW1->ammo.SetTotal(1); pW1->ammo.SetFull();
+                pW1->ammo.SetTotal(1);
+                pW1->ammo.SetFull();
                 [[fallthrough]];
             case kModernThingThrowableRock:
                 pW1->stateID = kCdudeStateAttackBase + 1;
@@ -4003,9 +3997,9 @@ void CUSTOMDUDEV1_SETUP::WeaponConvert(int nWeaponID)
     }
     else if (pW1->type == kCdudeWeaponKamikaze)
     {
-        EXPLOSION* pExpl = &explodeInfo[pW1->id - kTrapExploder];
+        const EXPLOSION* pExpl = &explodeInfo[pW1->id - kTrapExploder];
         WeaponRangeSet(pW1, 0, ClipLow(pExpl->radius, 768));
-        pW1->angle      = kAng90;
+        pW1->angle      = DAngle90;
     }
     else if (pW1->type == kCdudeWeaponSummon)
     {
@@ -4013,30 +4007,30 @@ void CUSTOMDUDEV1_SETUP::WeaponConvert(int nWeaponID)
         pW1->ammo.SetFull();
 
         WeaponRangeSet(pW1, 2000, kCdudeV1MaxAttackDist);
-        pW1->shot.offset.y  = pDude->pSpr->clipdist << 4;
-        pW1->angle          = kAng90;
+        pW1->shot.offset.Y  = pDude->pSpr->clipdist;
+        pW1->angle          = DAngle90;
 
         WeaponMeleeSet(pW2);
         pDude->numWeapons++;
     }
     else if (pW1->type == kCdudeWeaponHitscan)
     {
-        VECTORDATA* pVect = &gVectorData[pW1->id];
+        const VECTORDATA* pVect = &gVectorData[pW1->id];
         WeaponRangeSet(pW1, 0, (pVect->maxDist > 0) ? pVect->maxDist : kCdudeV1MaxAttackDist);
 
         if (pVect->maxDist > 0 && pVect->maxDist <= 2048)
         {
             pW1->dispersion[0] = pW1->dispersion[1] = 0;
-            pW1->angle = pDude->pInfo->periphery;
+            pW1->angle = pDude->pInfo->Periphery();
         }
         else
         {
-            pW1->angle = 56;
+            pW1->angle = DAngle::fromBuild(56);
         }
     }
     else if (pW1->type == kCdudeWeaponMissile)
     {
-        pW1->angle      = 56;
+        pW1->angle      = DAngle::fromBuild(56);
 
         switch (pW1->id)
         {
@@ -4071,21 +4065,22 @@ void CUSTOMDUDEV1_SETUP::WeaponConvert(int nWeaponID)
 void CUSTOMDUDEV1_SETUP::SetupBasics(void)
 {
     DBloodActor* pSpr = pDude->pSpr;
-    SPRITEMASS* pMass = &gSpriteMass[pSpr->index];
 
     if (!pDude->initialized)
     {
         // setup mass
-        memset(pMass, 0, sizeof(SPRITEMASS));                  // clear mass cache
+        memset(&pSpr->spriteMass, 0, sizeof(SPRITEMASS));                  // clear mass cache
 
-        int nPic = pSpr->picnum;
-        pSpr->picnum = helperGetFirstPic(pDude);                // we need a proper pic to get a proper mass
+        auto nPic = pSpr->spr.spritetexture();
+        pSpr->spr.setspritetexture(helperGetFirstPic(pDude));                // we need a proper pic to get a proper mass
         pDude->mass = ClipLow(getSpriteMassBySize(pSpr), 40);   // count mass
-        pSpr->picnum = nPic;
+        pSpr->spr.setspritetexture(nPic);
     }
 
     // auto clipdist
-    pSpr->clipdist = ClipRange((pSpr->xrepeat + pSpr->yrepeat) >> 1, 10, 128); 
+
+    
+    pSpr->clipdist = clamp(pSpr->spr.scale.Sum() * 8, 2.5, 32.); // ClipRange((pSpr->spr.scale.Sum() * INV_REPEAT_SCALE>yrepeat) >> 1, 10, 128);
 
 }
 
@@ -4096,7 +4091,7 @@ void CUSTOMDUDEV1_SETUP::SetupDamage(void)
 
     DamageSetDefault();
     DamageScaleToWeapon(pWeap);
-    DamageScaleToSurface(surfType[helperGetFirstPic(pDude)]);
+    DamageScaleToSurface(tilesurface(helperGetFirstPic(pDude)));
     DamageScaleToSkill(gGameOptions.nDifficulty);
 
     switch (pWeap->type)
@@ -4118,7 +4113,8 @@ void CUSTOMDUDEV1_SETUP::SetupDamage(void)
         memset(&pDude->knockout, 0, sizeof(CUSTOMDUDE_KNOCKOUT));
 
         // more dmg and lower chances (isMelee flag analogue)
-        pDude->recoil.dmgReq = 25, pDude->recoil.chance = 0x0400;
+        pDude->recoil.dmgReq = 25;
+        pDude->recoil.chance = 0x0400;
     }
     else
     {
@@ -4134,7 +4130,6 @@ void CUSTOMDUDEV1_SETUP::SetupDamage(void)
 void CUSTOMDUDEV1_SETUP::SetupIncarnation(void)
 {
     DBloodActor* pSpr = pDude->pSpr;
-    DBloodActor* pSpr = pDude->pSpr;
 
     if (!pDude->initialized)
     {
@@ -4142,14 +4137,12 @@ void CUSTOMDUDEV1_SETUP::SetupIncarnation(void)
         BloodStatIterator it(kStatDude);
         while (auto pSpr2 = it.Next())
         {
-            if (pSpr2->index != pSpr->index && xspriRangeIsFine(pSpr2->extra) && pSpr2->IsDudeActor())
+            if (pSpr2 != pSpr && pSpr2->hasX() && pSpr2->IsDudeActor())
             {
-                XSPRITE* pXSpr2 = &xsprite[pSpr2->extra];
-                if (pXSpr2->rxID == pSpr->xspr.txID)
+                if (pSpr2->xspr.rxID == pSpr->xspr.txID)
                 {
-                    ChangeSpriteStat(pSpr2->index, kStatInactive);
-                    seqKill(OBJ_SPRITE, pSpr2->extra);
-                    i = headspritestat[kStatDude];
+                    ChangeActorStat(pSpr2, kStatInactive);
+                    seqKill(pSpr2);
                 }
             }
         }
@@ -4159,10 +4152,9 @@ void CUSTOMDUDEV1_SETUP::SetupIncarnation(void)
     BloodStatIterator it(kStatInactive);
     while (auto pSpr2 = it.Next())
     {
-        if (pSpr2->index != pSpr->index && xspriRangeIsFine(pSpr2->extra) && pSpr2->IsDudeActor())
+        if (pSpr2 != pSpr && pSpr2->hasX() && pSpr2->IsDudeActor())
         {
-            XSPRITE* pXSpr2 = &xsprite[pSpr2->extra];
-            if (pXSpr2->rxID == pSpr->xspr.txID)
+            if (pSpr2->xspr.rxID == pSpr->xspr.txID)
             {
                 pDude->nextDude = pSpr2;
                 if (nnExtRandom(0, 6) == 3) // random stop
@@ -4193,28 +4185,27 @@ void CUSTOMDUDEV1_SETUP::Setup(void)
 }
 
 
-void callbackSeqCustom(DBloodActor* actor)
+void callbackSeqCustom(DBloodActor* pSpr)
 {
-    if (xspriRangeIsFine(xIndex))
+    if (pSpr->hasX())
     {
-        XSPRITE* pXSpr = &xsprite[xIndex];
         if (rngok(pSpr->xspr.sysData2, 0, countof(gCdudeCustomCallback)))
         {
-            int nFunc = gCdudeCustomCallback[pSpr->xspr.sysData2];
+            auto nFunc = gCdudeCustomCallback[pSpr->xspr.sysData2];
             if (Chance(0x08000))
-                evKill(pSpr->xspr.reference, OBJ_SPRITE, (CALLBACK_ID)nFunc);
+                evKillActor(pSpr, *nFunc);
 
-            evPost(pSpr->xspr.reference, OBJ_SPRITE, 0, (CALLBACK_ID)nFunc);
+            evPostActor(pSpr, 0, *nFunc);
         }
     }
 }
 
 
-static int helperGetFirstPic(DCustomDude* pDude)
+static FTextureID helperGetFirstPic(DCustomDude* pDude)
 {
     DBloodActor* pSpr = pDude->pSpr;
 
-    int nPic = pSpr->picnum;
+    FTextureID nPic = pSpr->spr.spritetexture();
     int nSeq = pDude->GetStateSeq(kCdudeStateIdle, kCdudePostureL);
     if (getSequence(nSeq))
     {
@@ -4222,7 +4213,7 @@ static int helperGetFirstPic(DCustomDude* pDude)
         if (pSeq)
         {
             SEQFRAME* pFrame = &pSeq->frames[0];
-            nPic = pFrame->tile + (pFrame->tile2 << 12);
+            nPic = tileGetTextureID(pFrame->tile + (pFrame->tile2 << 12));
         }
     }
 
@@ -4238,7 +4229,7 @@ static bool helperSeqTriggerExists(int nSeq)
         i = pSeq->nFrames;
         while (--i >= 0)
         {
-            if (pSeq->frames[i].at5_5)
+            if (pSeq->frames[i].trigger)
                 return true;
         }
     }
@@ -4246,35 +4237,29 @@ static bool helperSeqTriggerExists(int nSeq)
     return false;
 }
 
-static void GetExtents(DBloodActor* pSprite, int* top, int* bottom, int nPic)
+static void GetExtents(DBloodActor* pSprite, double* top, double* bottom, FTextureID nPic)
 {
-    int nHeigh, nMid;
-
-    *top = *bottom = pSprite->z;
-    if ((pSprite->cstat & 0x30) != 0x20)
+    *top = *bottom = pSprite->spr.pos.Z;
+    if ((pSprite->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
-        nHeigh = tilesiz[nPic].y;
-        nMid = nHeigh / 2 + picanm[nPic].yofs;
-
-        *top -= (pSprite->yrepeat << 2) * nMid;
-        *bottom += (pSprite->yrepeat << 2) * (nHeigh - nMid);
+        auto tex = TexMan.GetGameTexture(nPic);
+        int height = int(tex->GetDisplayHeight());
+        int center = height / 2 + int(tex->GetDisplayTopOffset());
+        *top -= pSprite->spr.scale.Y * center;
+        *bottom += pSprite->spr.scale.Y * (height - center);
     }
 }
 
 static int AreaOfSector(sectortype* pSector)
 {
+    // the formula makes no sense so keep it precisely as it was
     int area = 0;
-    int startwall = pSector->wallptr;
-    int endwall = startwall + pSector->wallnum;
-    for (int i = startwall; i < endwall; i++)
+    for (auto& wal : pSector->walls)
     {
-        int x1 = wall[i].x >> 4;
-        int y1 = wall[i].y >> 4;
-        int x2 = wall[wall[i].point2].x >> 4;
-        int y2 = wall[wall[i].point2].y >> 4;
-        area += (x1 + x2) * (y2 - y1);
+        auto p1 = wal.pos;
+        auto p2 = wal.point2Wall()->pos;
+        area += (int(p1.X) + int(p2.X)) * (int(p2.Y) - int(p1.Y));
     }
-
     area >>= 1;
     return area;
 }
@@ -4284,10 +4269,10 @@ static bool isIdKeyword(const char* fullStr, const char* prefix, int* nID)
     if (!fullStr || !prefix)
         return false;
     
-    int l1 = strlen(fullStr);
-    int l2 = strlen(prefix);
+    int l1 = (int)strlen(fullStr);
+    int l2 = (int)strlen(prefix);
 
-    if (l2 < l1 && Bstrncasecmp(fullStr, prefix, l2) == 0)
+    if (l2 < l1 && strnicmp(fullStr, prefix, l2) == 0)
     {
         while (fullStr[l2] == '_')
         {
@@ -4318,71 +4303,68 @@ DCustomDude* cdudeGet(DBloodActor* pSpr)
 // for kModernCustomDudeSpawn markers
 DBloodActor* cdudeSpawn(DBloodActor* pSource, DBloodActor* pSprite, double nDist)
 {
-    POINT3D offs;
-    memset(&offs, 0, sizeof(offs));
-    offs.y = nDist;
+    DVector3 offs(0, nDist, 0);
 
-    DBloodActor* pSource = &sprite[pXSource->reference];
-    DBloodActor* pDude = nnExtSpawnDude(pSprite, kDudeModernCustom, pSprite->x, pSprite->y, pSprite->z);
+    DBloodActor* pDude = nnExtSpawnDude(pSprite, kDudeModernCustom, pSprite->spr.pos);
 
     if (pDude)
     {
-        nnExtOffsetSprite(pDude, 0, offs.y, 0);
-        XSPRITE* pXDude = &xsprite[pDude->extra];
+        nnExtOffsetSprite(pDude, offs);
 
         // inherit weapon, seq and sound settings.
-        pXDude->data1 = pXSource->data1;
-        pXDude->data2 = pXSource->data2;
-        pXDude->data3 = pXDude->sysData1 = pXSource->data3; // move sndStartId from data3 to sysData1
-        pXDude->data4 = pXDude->sysData2 = pXSource->data4; // health
+        pDude->xspr.data1 = pSource->xspr.data1;
+        pDude->xspr.data2 = pSource->xspr.data2;
+        pDude->xspr.data3 = pDude->xspr.sysData1 = pSource->xspr.data3; // move sndStartId from data3 to sysData1
+        pDude->xspr.data4 = pDude->xspr.sysData2 = pSource->xspr.data4; // health
 
         // inherit custom hp settings
-        pXDude->health = nnExtDudeStartHealth(pDude, pXSource->data4);
+        pDude->xspr.health = nnExtDudeStartHealth(pDude, pSource->xspr.data4);
 
         // inherit movement speed.
-        pXDude->busyTime = pXSource->busyTime;
+        pDude->xspr.busyTime = pSource->xspr.busyTime;
 
         // inherit clipdist?
         if (pSource->clipdist > 0)
             pDude->clipdist = pSource->clipdist;
 
-        if (pSource->flags & kModernTypeFlag1)
+        if (pSource->spr.flags & kModernTypeFlag1)
         {
-            switch (pSource->type) {
+            switch (pSource->GetType())
+            {
             case kModernCustomDudeSpawn:
                 //inherit pal?
-                if (pDude->pal <= 0) pDude->pal = pSource->pal;
+                if (pDude->spr.pal <= 0) pDude->spr.pal = pSource->spr.pal;
 
                 // inherit spawn sprite trigger settings, so designer can count monsters.
-                pXDude->txID        = pXSource->txID;
-                pXDude->command     = pXSource->command;
-                pXDude->triggerOn   = pXSource->triggerOn;
-                pXDude->triggerOff  = pXSource->triggerOff;
+                pDude->xspr.txID        = pSource->xspr.txID;
+                pDude->xspr.command     = pSource->xspr.command;
+                pDude->xspr.triggerOn   = pSource->xspr.triggerOn;
+                pDude->xspr.triggerOff  = pSource->xspr.triggerOff;
 
                 // inherit drop items
-                pXDude->dropMsg = pXSource->dropMsg;
+                pDude->xspr.dropMsg = pSource->xspr.dropMsg;
 
                 // inherit required key so it can be dropped
-                pXDude->key = pXSource->key;
+                pDude->xspr.key = pSource->xspr.key;
 
                 // inherit dude flags
-                pXDude->dudeDeaf    = pXSource->dudeDeaf;
-                pXDude->dudeGuard   = pXSource->dudeGuard;
-                pXDude->dudeAmbush  = pXSource->dudeAmbush;
-                pXDude->dudeFlag4   = pXSource->dudeFlag4;
-                pXDude->unused1     = pXSource->unused1;
+                pDude->xspr.dudeDeaf    = pSource->xspr.dudeDeaf;
+                pDude->xspr.dudeGuard   = pSource->xspr.dudeGuard;
+                pDude->xspr.dudeAmbush  = pSource->xspr.dudeAmbush;
+                pDude->xspr.dudeFlag4   = pSource->xspr.dudeFlag4;
+                pDude->xspr.modernFlags     = pSource->xspr.modernFlags;
                 break;
             }
         }
 
         // inherit sprite size (useful for seqs with zero repeats)
-        if (pSource->flags & kModernTypeFlag2)
+        if (pSource->spr.flags & kModernTypeFlag2)
         {
-            pDude->xrepeat = pSource->xrepeat;
-            pDude->yrepeat = pSource->yrepeat;
+            pDude->spr.scale = pSource->spr.scale;
         }
 
-        gKillMgr.AddCount(pDude);
+        if (AllowedKillType(pDude))
+            Level.addKillCount();
         aiInitSprite(pDude);
     }
 
@@ -4393,67 +4375,59 @@ DBloodActor* cdudeSpawn(DBloodActor* pSource, DBloodActor* pSprite, double nDist
 // for kThingModernEnemyLifeLeech
 void cdudeLeechOperate(DBloodActor* pSpr, XSPRITE* pXSpr)
 {
-    if (spriRangeIsFine(pSpr->owner))
+    if (DBloodActor* pOwn = pSpr->ownerActor)
     {
-        DBloodActor* pOwn = &sprite[pSpr->owner];
-        if (xsprIsFine(pOwn) && IsDudeSprite(pOwn))
+        if (xsprIsFine(pOwn) && pOwn->IsDudeActor())
         {
-            XSPRITE* pXOwn = &xsprite[pOwn->extra];
-            if (spriRangeIsFine(pXOwn->target))
+            if (pOwn->xspr.target)
             {
-                pSpr->xspr.target = pXOwn->target;
+                pSpr->xspr.target = pOwn->xspr.target;
             }
-            else if (spriRangeIsFine(pSpr->xspr.target))
+            else if (DBloodActor* pTarget = pSpr->xspr.target)
             {
-                DBloodActor* pTarget = &sprite[pSpr->xspr.target];
-                aiSetTarget(pXOwn, pTarget->x, pTarget->y, pTarget->z);
-                aiActivateDude(pOwn, pXOwn);
+                aiSetTarget(pOwn, pTarget->spr.pos);
+                aiActivateDude(pOwn);
             }
         }
     }
 
-    int nTarget = pSpr->xspr.target;
-    if (spriRangeIsFine(nTarget) && nTarget != pSpr->owner)
+    DBloodActor* pTarg = pSpr->xspr.target;
+    if (pTarg && pTarg != pSpr->ownerActor)
     {
-        DBloodActor* pTarg = &sprite[nTarget];
-        if (pTarg->statnum == kStatDude && xsprIsFine(pTarg) && !pSpr->xspr.stateTimer)
+        if (pTarg->spr.statnum == kStatDude && xsprIsFine(pTarg) && !pSpr->xspr.stateTimer)
         {
-            if (IsPlayerSprite(pTarg))
+            if (pTarg->IsPlayerActor())
             {
-                DBloodPlayer* pPlayer = &gPlayer[pTarg->type - kDudePlayer1];
+                DBloodPlayer* pPlayer = getPlayer(pTarg);
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                     return;
             }
 
-            int x = pTarg->x;
-            int y = pTarg->y;
-            int z = pTarg->z;
+            auto targpos = pTarg->spr.pos;
 
-            int zTop, zBot;
-            GetSpriteExtents(pSpr, &zTop, &zBot);
-            int nDist = approxDist(x - pSpr->x, y - pSpr->y);
-            if (nDist && cansee(pSpr->x, pSpr->y, zTop, pSpr->sectnum, x, y, z, pTarg->sectnum))
+            double zTop, zBot;
+            GetActorExtents(pSpr, &zTop, &zBot);
+            double nDist = (targpos - pSpr->spr.pos.XY()).Length();
+            if (nDist && cansee(DVector3(pSpr->spr.pos.XY(), zTop), pSpr->sector(), targpos, pTarg->sector()))
             {
-                int t = divscale12(nDist, 0x1aaaaa);
-                x += (xvel[nTarget] * t) >> 12;
-                y += (yvel[nTarget] * t) >> 12;
-                int nAng = getangle(x - pSpr->x, y - pSpr->y);
-                int dx = Cos(nAng) >> 16;
-                int dy = Sin(nAng) >> 16;
-                int dz = divscale10(pTarg->z - zTop, nDist);
+                targpos += pTarg->vel.XY() * nDist * 0.0375;
+                DAngle nAng = (targpos - pSpr->spr.pos.XY()).Angle();
+                DVector3 dv;
+                dv.XY() = (nAng.ToVector() * 64);
+                dv.Z = (pTarg->spr.pos.Z - zTop / nDist) * 4;
                 
                 int nMissileType = kMissileLifeLeechAltNormal + (pSpr->xspr.data3 ? 1 : 0);
                 int t2;
 
-                if (!pSpr->xspr.data3) t2 = 120 / 10.0;
-                else t2 = (3 * 120) / 10.0;
+                if (!pSpr->xspr.data3) t2 = 120 / 10;
+                else t2 = (3 * 120) / 10;
 
-                DBloodActor* pMissile = actFireMissile(pSpr, 0, zTop - pSpr->z - 384, dx, dy, dz, nMissileType);
+                DBloodActor* pMissile = actFireMissile(pSpr, 0, zTop - pSpr->spr.pos.Z - 1.5, dv, nMissileType);
                 if (pMissile)
                 {
-                    pMissile->owner = pSpr->owner;
+                    pMissile->ownerActor = pSpr->ownerActor;
                     pSpr->xspr.stateTimer = 1;
-                    evPost(pSpr->index, 3, t2, kCallbackLeechStateTimer);
+                    evPostActor(pSpr, t2, AF(LeechStateTimer));
                     pSpr->xspr.data3 = ClipLow(pSpr->xspr.data3 - 1, 0);
                 }
             }
@@ -4472,7 +4446,7 @@ size_t DCustomDude::PropagateMark()
 {
     if (auto ppDude = std::get_if<DBloodActor*>(&nextDude))
     {
-        GC::Mark(ppDude);
+        GC::Mark(*ppDude);
     }
     for (auto& slave : pSlaves) GC::Mark(slave);
     return pSlaves.Size() + Super::PropagateMark();

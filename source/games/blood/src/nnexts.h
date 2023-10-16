@@ -410,6 +410,7 @@ bool dudeIsAlive(DBloodActor* actor);
 DBloodActor* nnExtFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dc, int nType);
 bool nnExtOffsetSprite(DBloodActor* pSpr, const DVector3& opos);
 DBloodActor* nnExtSpawnDude(DBloodActor* pSrc, int nType, const DVector3& pos);
+bool spriteIsUnderwater(DBloodActor* actor, bool oldWay);
 
 
 inline bool valueIsBetween(int val, int min, int max)

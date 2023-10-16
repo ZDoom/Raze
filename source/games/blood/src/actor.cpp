@@ -1700,9 +1700,8 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	if (IsCustomDude(actor))
 		nDamageFactor = cdudeGet(actor)->GetDamage(source, damageType);
 	else
-#else
-		nDamageFactor = actor->dmgControl[damageType];
 #endif
+		nDamageFactor = actor->dmgControl[damageType];
 
 	if (!nDamageFactor) return 0;
 	else if (nDamageFactor != 256) damage = MulScale(damage, nDamageFactor, 8);
