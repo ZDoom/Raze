@@ -49,10 +49,12 @@ struct TARGET_INFO
 };
 #pragma pack(pop)
 
-void resetTarget(DBloodActor* pXSpr)            { pSpr->xspr.xspr.target = nullptr; }
+void resetTarget(DBloodActor* pSpr)            { pSpr->xspr.target = nullptr; }
 void moveStop(DBloodActor* pSpr)                { pSpr->vel.XY().Zero(); }
 static char THINK_CLOCK(int nSpr, int nClock = 3)               { return ((gFrameCount & nClock) == (nSpr & nClock)); }
 static int qsSortTargets(TARGET_INFO* ref1, TARGET_INFO* ref2)  { return ref1->nDist > ref2->nDist? 1 : ref1->nDist < ref2->nDist? -1 : 0; }
+DAngle getTargetAng(DBloodActor* pSpr)
+
 
 // This set of functions needs to be exported for scripting later to allow extension of this list.
 static DBloodActor* weaponShotDummy(CUSTOMDUDE*, CUSTOMDUDE_WEAPON*, DVector3& offs, DVector3& vel) { return nullptr; }
@@ -75,58 +77,58 @@ DBloodActor* (*gWeaponShotFunc[])(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap, D
     weaponShotSpecialBeastStomp,
 };
 
-static AISTATE gCdudeStateDeath = { kAiStateOther, -1, nullptr, 0, &AF(enterDeath), NULL, NULL, NULL }; // just turns dude to a gib
+static AISTATE gCdudeStateDeath = { kAiStateOther, -1, nullptr, 0, &AF(enterDeath), nullptr, nullptr, nullptr }; // just turns dude to a gib
 
 // Land, Crouch, Swim (proper order matters!)
 AISTATE gCdudeStateTemplate[kCdudeStateNormalMax][kCdudePostureMax] =
 {
     // idle (don't change pos or patrol gets broken!)
     {
-        { kAiStateIdle,     SEQOFFS(0),   nullptr, 0, &AF(resetTarget), NULL, &AF(thinkTarget), NULL },
-        { kAiStateIdle,     SEQOFFS(17),  nullptr, 0, &AF(resetTarget), NULL, &AF(thinkTarget), NULL },
-        { kAiStateIdle,     SEQOFFS(13),  nullptr, 0, &AF(resetTarget), NULL, &AF(thinkTarget), NULL },
+        { kAiStateIdle,     SEQOFFS(0),   nullptr, 0, &AF(resetTarget), nullptr, &AF(thinkTarget), nullptr },
+        { kAiStateIdle,     SEQOFFS(17),  nullptr, 0, &AF(resetTarget), nullptr, &AF(thinkTarget), nullptr },
+        { kAiStateIdle,     SEQOFFS(13),  nullptr, 0, &AF(resetTarget), nullptr, &AF(thinkTarget), nullptr },
     },
 
     // search (don't change pos or patrol gets broken!)
     {
-        { kAiStateSearch,   SEQOFFS(9),  nullptr, 800, NULL, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureL] },
-        { kAiStateSearch,   SEQOFFS(14), nullptr, 800, NULL, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureC] },
-        { kAiStateSearch,   SEQOFFS(13), nullptr, 800, NULL, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureW] },
+        { kAiStateSearch,   SEQOFFS(9),  nullptr, 800, nullptr, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureL] },
+        { kAiStateSearch,   SEQOFFS(14), nullptr, 800, nullptr, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureC] },
+        { kAiStateSearch,   SEQOFFS(13), nullptr, 800, nullptr, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureW] },
     },
 
     // dodge
     {
-        { kAiStateMove,     SEQOFFS(9),  nullptr, 90, NULL,  &AF(moveDodge),	NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
-        { kAiStateMove,     SEQOFFS(14), nullptr, 90, NULL,  &AF(moveDodge),	NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
-        { kAiStateMove,     SEQOFFS(13), nullptr, 90, NULL,  &AF(moveDodge),	NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
+        { kAiStateMove,     SEQOFFS(9),  nullptr, 90, nullptr,  &AF(moveDodge),	nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
+        { kAiStateMove,     SEQOFFS(14), nullptr, 90, nullptr,  &AF(moveDodge),	nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
+        { kAiStateMove,     SEQOFFS(13), nullptr, 90, nullptr,  &AF(moveDodge),	nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
     },
 
     // chase
     {
-        { kAiStateChase,    SEQOFFS(9),  nullptr, 30, NULL,	&AF(moveForward), &AF(thinkChase), NULL },
-        { kAiStateChase,    SEQOFFS(14), nullptr, 30, NULL,	&AF(moveForward), &AF(thinkChase), NULL },
-        { kAiStateChase,    SEQOFFS(13), nullptr, 30, NULL,	&AF(moveForward), &AF(thinkChase), NULL },
+        { kAiStateChase,    SEQOFFS(9),  nullptr, 30, nullptr,	&AF(moveForward), &AF(thinkChase), nullptr },
+        { kAiStateChase,    SEQOFFS(14), nullptr, 30, nullptr,	&AF(moveForward), &AF(thinkChase), nullptr },
+        { kAiStateChase,    SEQOFFS(13), nullptr, 30, nullptr,	&AF(moveForward), &AF(thinkChase), nullptr },
     },
 
     // flee
     {
-        { kAiStateMove,    SEQOFFS(9),  nullptr, 256, NULL,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
-        { kAiStateMove,    SEQOFFS(14), nullptr, 256, NULL,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
-        { kAiStateMove,    SEQOFFS(13), nullptr, 256, NULL,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
+        { kAiStateMove,    SEQOFFS(9),  nullptr, 256, nullptr,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
+        { kAiStateMove,    SEQOFFS(14), nullptr, 256, nullptr,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
+        { kAiStateMove,    SEQOFFS(13), nullptr, 256, nullptr,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
     },
 
     // recoil normal
     {
-        { kAiStateRecoil,   SEQOFFS(5), nullptr, 0, NULL, NULL, NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
-        { kAiStateRecoil,   SEQOFFS(5), nullptr, 0, NULL, NULL, NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
-        { kAiStateRecoil,   SEQOFFS(5), nullptr, 0, NULL, NULL, NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
+        { kAiStateRecoil,   SEQOFFS(5), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
+        { kAiStateRecoil,   SEQOFFS(5), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
+        { kAiStateRecoil,   SEQOFFS(5), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
     },
 
     // recoil tesla
     {
-        { kAiStateRecoil,   SEQOFFS(4), nullptr, 0, NULL, NULL, NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
-        { kAiStateRecoil,   SEQOFFS(4), nullptr, 0, NULL, NULL, NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
-        { kAiStateRecoil,   SEQOFFS(4), nullptr, 0, NULL, NULL, NULL, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
+        { kAiStateRecoil,   SEQOFFS(4), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
+        { kAiStateRecoil,   SEQOFFS(4), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
+        { kAiStateRecoil,   SEQOFFS(4), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
     },
 
     // burn search
@@ -138,51 +140,51 @@ AISTATE gCdudeStateTemplate[kCdudeStateNormalMax][kCdudePostureMax] =
 
     // morph (put thinkFunc in moveFunc because it supposed to work fast)
     {
-        { kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), NULL, NULL },
-        { kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), NULL, NULL },
-        { kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), NULL, NULL },
+        { kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), nullptr, nullptr },
+        { kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), nullptr, nullptr },
+        { kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), nullptr, nullptr },
     },
 
     // knock enter
     {
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, NULL,         NULL, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureL] },
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, NULL,         NULL, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureC] },
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, &AF(moveKnockout), NULL, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureW] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureL] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureC] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(moveKnockout), nullptr, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureW] },
     },
 
     // knock
     {
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, NULL,         NULL, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureL] },
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, NULL,         NULL, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureC] },
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, &AF(moveKnockout), NULL, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureW] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureL] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureC] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(moveKnockout), nullptr, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureW] },
     },
 
     // knock exit
     {
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, &AF(turnToTarget), NULL, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, &AF(turnToTarget), NULL, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
-        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, NULL, &AF(turnToTarget), NULL, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
+        { kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
     },
 
     // sleep
     {
-        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), NULL, &AF(thinkTarget), NULL },
-        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), NULL, &AF(thinkTarget), NULL },
-        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), NULL, &AF(thinkTarget), NULL },
+        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), nullptr, &AF(thinkTarget), nullptr },
+        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), nullptr, &AF(thinkTarget), nullptr },
+        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), nullptr, &AF(thinkTarget), nullptr },
     },
 
     // wake
     {
-        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), NULL, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
-        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), NULL, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
-        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), NULL, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
+        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
+        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
+        { kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
     },
 
     // generic idle (ai fight compat.)
     {
-        { kAiStateGenIdle,     SEQOFFS(0),   nullptr, 0, &AF(resetTarget), NULL, NULL, NULL },
-        { kAiStateGenIdle,     SEQOFFS(17),  nullptr, 0, &AF(resetTarget), NULL, NULL, NULL },
-        { kAiStateGenIdle,     SEQOFFS(13),  nullptr, 0, &AF(resetTarget), NULL, NULL, NULL },
+        { kAiStateGenIdle,     SEQOFFS(0),   nullptr, 0, &AF(resetTarget), nullptr, nullptr, nullptr },
+        { kAiStateGenIdle,     SEQOFFS(17),  nullptr, 0, &AF(resetTarget), nullptr, nullptr, nullptr },
+        { kAiStateGenIdle,     SEQOFFS(13),  nullptr, 0, &AF(resetTarget), nullptr, nullptr, nullptr },
     },
 };
 
@@ -190,18 +192,18 @@ AISTATE gCdudeStateTemplate[kCdudeStateNormalMax][kCdudePostureMax] =
 AISTATE gCdudeStateAttackTemplate[kCdudePostureMax] =
 {
     // attack (put thinkFunc in moveFunc because it supposed to work fast)
-    { kAiStateAttack,   SEQOFFS(6), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), NULL, &gCdudeStateAttackTemplate[kCdudePostureL] },
-    { kAiStateAttack,   SEQOFFS(8), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), NULL, &gCdudeStateAttackTemplate[kCdudePostureC] },
-    { kAiStateAttack,   SEQOFFS(8), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), NULL, &gCdudeStateAttackTemplate[kCdudePostureW] },
+    { kAiStateAttack,   SEQOFFS(6), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), nullptr, &gCdudeStateAttackTemplate[kCdudePostureL] },
+    { kAiStateAttack,   SEQOFFS(8), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), nullptr, &gCdudeStateAttackTemplate[kCdudePostureC] },
+    { kAiStateAttack,   SEQOFFS(8), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), nullptr, &gCdudeStateAttackTemplate[kCdudePostureW] },
 };
 
 // Random pick
 AISTATE gCdudeStateDyingTemplate[kCdudePostureMax] =
 {
     // dying
-    { kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), NULL, &AF(thinkDying), &gCdudeStateDeath },
-    { kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), NULL, &AF(thinkDying), &gCdudeStateDeath },
-    { kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), NULL, &AF(thinkDying), &gCdudeStateDeath },
+    { kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), nullptr, &AF(thinkDying), &gCdudeStateDeath },
+    { kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), nullptr, &AF(thinkDying), &gCdudeStateDeath },
+    { kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), nullptr, &AF(thinkDying), &gCdudeStateDeath },
 };
 
 // for kModernThingThrowableRock
@@ -457,7 +459,7 @@ static DBloodActor* weaponShotSummon(CUSTOMDUDE* pDude, CUSTOMDUDE_WEAPON* pWeap
     {
         if (!posObstructed(pos, 2.))
         {
-            if ((pShot = nnExtSpawnDude(pSpr, nDude, pos)) != NULL)
+            if ((pShot = nnExtSpawnDude(pSpr, nDude, pos)) != nullptr)
             {
                 if (nDude == kDudeModernCustom)
                     pShot->xspr.data1 = pWeap->id;
@@ -733,42 +735,36 @@ void weaponShot(DBloodActor* pSpr)
 
 static int checkTarget(CUSTOMDUDE* pDude, DBloodActor* pTarget, TARGET_INFO* pOut)
 {
-    DBloodActor* pSpr = pDude->pSpr;
-    if (!xspriRangeIsFine(pTarget->extra))
+    if (!pTarget)
         return -1;
 
-    XSPRITE* pXTarget = &xsprite[pTarget->extra];
-    if (pSpr->owner == pTarget->index || pXTarget->health <= 0)
+    DBloodActor* pSpr = pDude->pSpr;
+    if (pSpr->ownerActor == pTarget || pTarget->xspr.health <= 0)
         return -2;
 
-    if (IsPlayerSprite(pTarget))
+    if (pTarget->IsPlayerActor())
     {
-        PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+        auto pPlayer = getPlayer(pTarget);
         if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
             return -3;
     }
 
-    int x = pTarget->x;
-    int y = pTarget->y;
-    int z = pTarget->z;
-    int nSector = pTarget->sectnum;
-    int dx = x - pSpr->x;
-    int dy = y - pSpr->y;
-    int nDist = approxDist(dx, dy);
-    char s = (nDist < pDude->seeDist);
-    char h = (nDist < pDude->hearDist);
+    auto dv = pSpr->spr.pos.XY() - pTarget->spr.pos.XY();
+    double nDist = dv.Length();
+    bool s = (nDist < pDude->_seeDist);
+    bool h = (nDist < pDude->_hearDist);
     
     if (!s && !h)
         return -4;
 
     DUDEINFO* pInfo = pDude->pInfo;
-    if (!cansee(x, y, z, nSector, pSpr->x, pSpr->y, pSpr->z - ((pInfo->eyeHeight * pSpr->yrepeat) << 2), pSpr->sectnum))
+    if (!cansee(pTarget->spr.pos, pTarget->sector(), pSpr->spr.pos.plusZ(-(pInfo->eyeHeight * pSpr->spr.scale.Y)), pSpr->sector()))
         return -5;
 
-    int nAng = getangle(dx, dy);
+    DAngle nAng = dv.Angle();
     if (s)
     {
-        int nDang = klabs(((nAng + kAng180 - pSpr->ang) & kAngMask) - kAng180);
+        auto nDang = absangle(nAng, pSpr->spr.Angles.Yaw);
         if (nDang <= pDude->periphery)
         {
             pOut->pSpr  = pTarget;
@@ -784,7 +780,7 @@ static int checkTarget(CUSTOMDUDE* pDude, DBloodActor* pTarget, TARGET_INFO* pOu
     {
         pOut->pSpr  = pTarget;
         pOut->nDist = nDist;
-        pOut->nDang = 0;
+        pOut->nDang = nullAngle;
         pOut->nAng  = nAng;
         pOut->nCode = 2;
         return 2;
@@ -796,7 +792,7 @@ static int checkTarget(CUSTOMDUDE* pDude, DBloodActor* pTarget, TARGET_INFO* pOu
 void thinkTarget(DBloodActor* pSpr)
 {
     int i; 
-    spritetype* pTarget;
+    DBloodActor* pTarget;
     TARGET_INFO targets[kMaxPlayers], *pInfo = targets;
     CUSTOMDUDE* pDude = cdudeGet(pSpr);
     int numTargets = 0;
@@ -805,8 +801,8 @@ void thinkTarget(DBloodActor* pSpr)
     {
         for (i = connecthead; i >= 0; i = connectpoint2[i])
         {
-            PLAYER* pPlayer = &gPlayer[i];
-            if (checkTarget(pDude, pPlayer->pSprite, &targets[numTargets]) > 0)
+            auto pPlayer = getPlayer(i);
+            if (checkTarget(pDude, pPlayer->GetActor(), &targets[numTargets]) > 0)
                 numTargets++;
         }
 
@@ -816,15 +812,15 @@ void thinkTarget(DBloodActor* pSpr)
                 qsort(targets, numTargets, sizeof(targets[0]), (int(*)(const void*, const void*))qsSortTargets);
 
             pTarget = pInfo->pSpr;
-            if (pDude->pExtra->stats.active)
+            if (pDude->pExtra->active)
             {
-                if (pSpr->xspr.target != pTarget->index || Chance(0x0400))
+                if (pSpr->xspr.target != pTarget || Chance(0x0400))
                     pDude->PlaySound(kCdudeSndTargetSpot);
             }
             
-            pSpr->xspr.goalAng = pInfo->nAng & kAngMask;
-            if (pInfo->nCode == 1) aiSetTarget(pXSpr, pTarget->index);
-            else aiSetTarget(pXSpr, pTarget->x, pTarget->y, pTarget->z);
+            pSpr->xspr.goalAng = pInfo->nAng.Normalized360();
+            if (pInfo->nCode == 1) aiSetTarget(pSpr, pTarget);
+            else aiSetTarget(pSpr, pTarget->spr.pos);
             aiActivateDude(pSpr);
         }
     }
@@ -832,12 +828,12 @@ void thinkTarget(DBloodActor* pSpr)
 
 void thinkFlee(DBloodActor* pSpr)
 {
-    int nAng = getangle(pSpr->x - pSpr->xspr.targetX, pSpr->y - pSpr->xspr.targetY);
-    int nDang = klabs(((nAng + kAng180 - pSpr->ang) & kAngMask) - kAng180);
-    if (nDang > kAng45)
-        pSpr->xspr.goalAng = (nAng + (kAng15 * Random2(2))) & kAngMask;
+    DAngle nAng = (pSpr->spr.pos.XY() - pSpr->xspr.TargetPos.XY()).Angle();
+    DAngle nDang = absangle(nAng, pSpr->spr.Angles.Yaw);
+    if (nDang > DAngle45)
+        pSpr->xspr.goalAng = (nAng + (DAngle15 * Random2(2))).Normalized360();
 
-    aiChooseDirection(pSpr, pXSpr, pSpr->xspr.goalAng);
+    aiChooseDirection(pSpr, pSpr->xspr.goalAng);
 
 }
 
@@ -859,31 +855,32 @@ void maybeThinkSearch(DBloodActor* pSpr)
 
 void thinkChase(DBloodActor* pSpr)
 {
-    CUSTOMDUDE* pDude = cdudeGet(pSpr); HITINFO* pHit = &gHitInfo; DUDEINFO* pInfo = pDude->pInfo;
-    int nDist, nHeigh, dx, dy, nDAng, nSlope = 0;
-    char thinkTime = THINK_CLOCK(pSpr->index);
-    char turn2target = 0, interrupt = 0;
-    char inAttack = pDude->IsAttacking();
-    char changePos = 0;
+    CUSTOMDUDE* pDude = cdudeGet(pSpr); 
+    auto pHit = &gHitInfo; 
+    DUDEINFO* pInfo = pDude->pInfo;
+    double nSlope = 0;
+    int thinkTime = THINK_CLOCK(pSpr->GetIndex());
+    int turn2target = 0, interrupt = 0;
+    int inAttack = pDude->IsAttacking();
+    int changePos = 0;
 
-    if (!spriRangeIsFine(pSpr->xspr.target))
+    DBloodActor* pTarget = pSpr->xspr.target;
+    if (!pTarget)
     {
         pDude->NewState(kCdudeStateSearch);
         return;
     }
 
-    spritetype* pTarget = &sprite[pSpr->xspr.target];
-    if (pTarget->owner == pSpr->index || !IsDudeSprite(pTarget) || !xsprIsFine(pTarget)) // target lost
+    if (pTarget->ownerActor == pSpr || !pTarget->IsDudeActor() || !xsprIsFine(pTarget)) // target lost
     {
         pDude->NewState(kCdudeStateSearch);
         return;
     }
 
-    XSPRITE* pXTarget = &xsprite[pTarget->extra];
-    if (pXTarget->health <= 0) // target is dead
+    if (pTarget->xspr.health <= 0) // target is dead
     {
-        PLAYER* pPlayer = NULL;
-        if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fraggerId == pSpr->index))
+        DBloodPlayer* pPlayer = nullptr;
+        if ((!pTarget->IsPlayerActor()) || ((pPlayer = getPlayer(pTarget)) != nullptr && pPlayer->fragger == pSpr))
             pDude->PlaySound(kCdudeSndTargetDead);
         
         if (inAttack) pDude->NextState(kCdudeStateSearch);
@@ -891,9 +888,9 @@ void thinkChase(DBloodActor* pSpr)
         return;
     }
 
-    if (IsPlayerSprite(pTarget))
+    if (pTarget->IsPlayerActor())
     {
-        PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+        auto pPlayer = getPlayer(pTarget);
         if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
         {
             pDude->NewState(kCdudeStateSearch);
@@ -902,35 +899,33 @@ void thinkChase(DBloodActor* pSpr)
     }
 
     // check target
-    dx = pTarget->x - pSpr->x;
-    dy = pTarget->y - pSpr->y;
-    nDist = approxDist(dx, dy);
-
-    nDAng = klabs(((getangle(dx, dy) + kAng180 - pSpr->ang) & kAngMask) - kAng180);
-    nHeigh = (pInfo->eyeHeight * pSpr->yrepeat) << 2;
+    auto dv = pTarget->spr.pos.XY() - pSpr->spr.pos.XY();
+    auto nDist = dv.Length();
+    auto nDAng = absangle(dv.Angle(), pSpr->spr.Angles.Yaw);
+    auto nHeigh = (pInfo->eyeHeight * pSpr->spr.scale.Y);
 
     if (thinkTime && !inAttack)
-        aiChooseDirection(pSpr, getangle(dx, dy));
+        aiChooseDirection(pSpr, dv.Angle());
 
     // is the target visible?
-    if (nDist > pInfo->seeDist || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSpr->x, pSpr->y, pSpr->z - nHeigh, pSpr->sectnum))
+    if (nDist > pInfo->SeeDist() || !cansee(pTarget->spr.pos, pTarget->sector(), pSpr->spr.pos.plusZ(-nHeigh), pSpr->sector()))
     {
         if (inAttack) pDude->NextState(kCdudeStateSearch);
         else pDude->NewState(kCdudeStateSearch);
         return;
     }
-    else if (nDAng > pInfo->periphery)
+    else if (nDAng > pInfo->Periphery())
     {
         if (inAttack) pDude->NextState(kCdudeStateChase);
         else pDude->NewState(kCdudeStateChase);
         return;
     }
 
-    ARG_PICK_WEAPON* pPickArg = new ARG_PICK_WEAPON(pSpr, pXSpr, pTarget, pXTarget, nDist, nDAng);
+    ARG_PICK_WEAPON pPickArg(pSpr, pTarget, nDist, nDAng);
     CUSTOMDUDE_WEAPON* pWeapon = pDude->pWeapon;
     if (pWeapon)
     {
-        nSlope      = pDude->AdjustSlope(pSpr->xspr.target, pWeapon->shot.offset.z);
+        nSlope      = pDude->AdjustSlope(pSpr->xspr.target, pWeapon->shot.offset.Z);
         turn2target = pWeapon->turnToTarget;
         interrupt   = pWeapon->interruptable;
     }
@@ -951,7 +946,7 @@ void thinkChase(DBloodActor* pSpr)
         {
             if (!pSpr->xspr.stateTimer)
             {
-                pWeapon = pDude->PickWeapon(pPickArg);
+                pWeapon = pDude->PickWeapon(&pPickArg);
                 if (pWeapon && pWeapon == pDude->pWeapon)
                 {
                     pDude->pWeapon = pWeapon;
@@ -962,7 +957,7 @@ void thinkChase(DBloodActor* pSpr)
             }
             else if (interrupt)
             {
-                pDude->PickWeapon(pPickArg);
+                pDude->PickWeapon(&pPickArg);
                 if (!pWeapon->available)
                     pDude->NewState(kCdudeStateChase);
             }
@@ -972,7 +967,7 @@ void thinkChase(DBloodActor* pSpr)
 
         if (!pDude->SeqPlaying()) // final frame
         {
-            pWeapon = pDude->PickWeapon(pPickArg);
+            pWeapon = pDude->PickWeapon(&pPickArg);
             if (!pWeapon)
             {
                 pDude->NewState(kCdudeStateChase);
@@ -996,7 +991,7 @@ void thinkChase(DBloodActor* pSpr)
             }
             else
             {
-                pDude->PickWeapon(pPickArg);
+                pDude->PickWeapon(&pPickArg);
                 if (!pWeapon->available)
                 {
                     pDude->NewState(kCdudeStateChase);
@@ -1008,7 +1003,7 @@ void thinkChase(DBloodActor* pSpr)
     else
     {
         // enter attack
-        pWeapon = pDude->PickWeapon(pPickArg);
+        pWeapon = pDude->PickWeapon(&pPickArg);
         if (pWeapon)
             pDude->pWeapon = pWeapon;
     }
@@ -1026,31 +1021,27 @@ void thinkChase(DBloodActor* pSpr)
             case kCdudeWeaponThrow:
                 if (pDude->CanMove())
                 {
-                    HitScan(pSpr, pSpr->z, dx, dy, nSlope, pWeapon->clipMask, nDist);
-                    if (pHit->hitsprite != pSpr->xspr.target && !pDude->AdjustSlope(nDist, &nSlope))
+                    HitScan(pSpr, pSpr->spr.pos.Z, DVector3(dv, nSlope), pWeapon->clipMask, nDist);
+                    DBloodActor* pHitSpr = pHit->actor();
+                    if (pHitSpr != pSpr->xspr.target && !pDude->AdjustSlope(nDist, &nSlope))
                     {
                         changePos = 1;
-                        if (spriRangeIsFine(pHit->hitsprite))
+                        if (pHitSpr)
                         {
-                            spritetype* pHitSpr = &sprite[pHit->hitsprite];
-                            XSPRITE* pXHitSpr = NULL;
-                            if (xsprIsFine(pHitSpr))
-                                pXHitSpr = &xsprite[pHitSpr->extra];
-
-                            if (IsDudeSprite(pHitSpr))
+                            if (pHitSpr->IsDudeActor())
                             {
-                                if (pXHitSpr)
+                                if (pHitSpr->hasX())
                                 {
-                                    if (pXHitSpr->target == pSpr->index)
+                                    if (pHitSpr->xspr.target == pSpr)
                                         return;
 
-                                    if (pXHitSpr->dodgeDir > 0)
-                                        pSpr->xspr.dodgeDir = -pXHitSpr->dodgeDir;
+                                    if (pHitSpr->xspr.dodgeDir > 0)
+                                        pSpr->xspr.dodgeDir = -pHitSpr->xspr.dodgeDir;
                                 }
                             }
-                            else if (pHitSpr->owner == pSpr->index) // projectiles, things, fx etc...
+                            else if (pHitSpr->ownerActor == pSpr) // projectiles, things, fx etc...
                             {
-                                if (!pXHitSpr || !pXHitSpr->health)
+                                if (!pHitSpr->hasX() || !pHitSpr->xspr.health)
                                     changePos = 0;
                             }
                             
@@ -1073,7 +1064,7 @@ void thinkChase(DBloodActor* pSpr)
                         }
                     }
                 }
-                fallthrough__;
+                [[fallthrough]];
             default:
                 pDude->NewState(pWeapon->stateID);
                 pDude->NextState(pWeapon->nextStateID);
@@ -1085,36 +1076,33 @@ void thinkChase(DBloodActor* pSpr)
         pDude->NextState(kCdudeStateSearch);
 }
 
-int getTargetAng(DBloodActor* pSpr)
+DAngle getTargetAng(DBloodActor* pSpr)
 {
-    int x, y;
-    if (spriRangeIsFine(pSpr->xspr.target))
+    DVector2 v;
+    DBloodActor* pTarg = pSpr->xspr.target;
+    if (pTarg)
     {
-        spritetype* pTarg = &sprite[pSpr->xspr.target];
-        x = pTarg->x;
-        y = pTarg->y;
+        v = pTarg->spr.pos.XY();
     }
     else
     {
-        x = pSpr->xspr.targetX;
-        y = pSpr->xspr.targetY;
+        v = pSpr->xspr.TargetPos.XY();
     }
 
-    return getangle(x - pSpr->x, y - pSpr->y);
+    return (v - pSpr->spr.pos.XY()).Angle();
 }
 
 void turnToTarget(DBloodActor* pSpr)
 {
-    pSpr->ang = getTargetAng(pSpr);
-    pSpr->xspr.goalAng = pSpr->ang;
+    pSpr->xspr.goalAng = pSpr->spr.Angles.Yaw = getTargetAng(pSpr);
 }
 
 void moveTurn(DBloodActor* pSpr)
 {
     CUSTOMDUDE* pDude = cdudeGet(pSpr);
-    int nVelTurn = pDude->GetVelocity(kParVelocityTurn);
-    int nAng = ((kAng180 + pSpr->xspr.goalAng - pSpr->ang) & kAngMask) - kAng180;
-    pSpr->ang = ((pSpr->ang + ClipRange(nAng, -nVelTurn, nVelTurn)) & kAngMask);
+    DAngle nVelTurn = DAngle::fromBuild(pDude->GetVelocity(kParVelocityTurn));
+    DAngle nAng = absangle(pSpr->xspr.goalAng, pSpr->spr.Angles.Yaw);
+    pSpr->spr.Angles.Yaw = (pSpr->spr.Angles.Yaw + clamp(nAng, -nVelTurn, nVelTurn)).Normalized360();
 }
 
 void moveDodge(DBloodActor* pSpr)
@@ -1124,66 +1112,62 @@ void moveDodge(DBloodActor* pSpr)
 
     if (pSpr->xspr.dodgeDir && pDude->CanMove())
     {
-        int nVelDodge = pDude->GetVelocity(kParVelocityDodge);
-        int nCos = Cos(pSpr->ang);                  int nSin = Sin(pSpr->ang);
-        int dX = xvel[pSpr->index];                 int dY = yvel[pSpr->index];
-        int t1 = dmulscale30(dX, nCos, dY, nSin);   int t2 = dmulscale30(dX, nSin, -dY, nCos);
+        AdjustVelocity(pSpr, ADJUSTER
+            {
+                int nVelDodge = pDude->GetVelocityF(kParVelocityDodge);
+                if (pSpr->xspr.dodgeDir > 0)
+                {
+                    t2 += nVelDodge;
+                }
+                else
+                {
+                    t2 -= nVelDodge;
+                }
 
-        if (pSpr->xspr.dodgeDir > 0)
-        {
-            t2 += nVelDodge;
-        }
-        else
-        {
-            t2 -= nVelDodge;
-        }
-
-        xvel[pSpr->index] = dmulscale30(t1, nCos, t2, nSin);
-        yvel[pSpr->index] = dmulscale30(t1, nSin, -t2, nCos);
+            });
     }
 }
 
 void moveKnockout(DBloodActor* pSpr)
 {
     int zv = pSpr->vel.Z;
-    pSpr->vel.Z = ClipRange(zv + mulscale16(zv, 0x3000), 0x1000, 0x40000);
+    pSpr->vel.Z = clamp(zv * (1 + 3. / 16), 1. / 16, 4.);
 }
 
 void moveForward(DBloodActor* pSpr)
 {
     CUSTOMDUDE* pDude = cdudeGet(pSpr);
-    int nVelTurn    = pDude->GetVelocity(kParVelocityTurn);
-    int nVelForward = pDude->GetVelocity(kParVelocityForward);
-    int nAng = ((kAng180 + pSpr->xspr.goalAng - pSpr->ang) & kAngMask) - kAng180;
-    pSpr->ang = ((pSpr->ang + ClipRange(nAng, -nVelTurn, nVelTurn)) & kAngMask);
-    int z = 0;
+    DAngle nVelTurn    = DAngle::fromBuild(pDude->GetVelocity(kParVelocityTurn));
+    double nVelForward = pDude->GetVelocityF(kParVelocityForward);
+    DAngle nAng = absangle(pSpr->xspr.goalAng, pSpr->spr.Angles.Yaw);
+    pSpr->spr.Angles.Yaw = (pSpr->spr.Angles.Yaw + clamp(nAng, -nVelTurn, nVelTurn)).Normalized360();
+    double z = 0;
 
     if (pDude->CanMove())
     {
         if (pDude->IsUnderwater())
         {
-            if (spriRangeIsFine(pSpr->xspr.target))
+            DBloodActor* pTarget = pSpr->xspr.target;
+            if (pTarget)
             {
-                spritetype* pTarget = &sprite[pSpr->xspr.target];
                 if (spriteIsUnderwater(pTarget, true))
-                    z = (pTarget->z - pSpr->z) + (10 << Random(12));
+                    z = (pTarget->spr.pos.Z - pSpr->spr.pos.Z) + inttoworld * (10 << Random(12));
             }
             else
             {
-                z = (pSpr->xspr.targetZ - pSpr->z);
+                z = (pSpr->xspr.TargetPos.Z - pSpr->spr.pos.Z);
             }
 
             if (Chance(0x0500))
-                z <<= 1;
+                z *= 2;
 
-            pSpr->vel.Z += z;
+            pSpr->vel.Z += z / 256.;    // was directly adding Build z (Q24.8) to vel (Q16.16)
         }
         
         // don't move forward if trying to turn around
-        if (klabs(nAng) <= kAng60)
+        if (abs(nAng) <= DAngle60)
         {
-            xvel[pSpr->index] += mulscale30(Cos(pSpr->ang), nVelForward);
-            yvel[pSpr->index] += mulscale30(Sin(pSpr->ang), nVelForward);
+            pSpr->vel.XY() += pSpr->spr.Angles.Yaw.ToVector() * nVelForward;
         }
     }
 }

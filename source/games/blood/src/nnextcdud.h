@@ -729,7 +729,7 @@ class CUSTOMDUDE_WEAPON
 		}
 		char HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
 		int  GetDistance(void)      { return ClipLow(distRange[1] - distRange[0], 0); }
-		int  GetDistanceF(void)     { return maptoworld * ClipLow(distRange[1] - distRange[0], 0); }
+		double  GetDistanceF(void)     { return maptoworld * ClipLow(distRange[1] - distRange[0], 0); }
 		int  GetNumshots(void)      { return (ammo.total) ? ClipHigh(ammo.cur, numshots) : numshots; }
 		char IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
 		char HaveSlope(void)        { return (shot.slope != INT32_MAX); }
@@ -1218,39 +1218,41 @@ class CUSTOMDUDE
 		int  GetStateSeq(int nState, int nPosture)     { return states[nState][nPosture].seqId; }
 		int  GetVelocity(int nPosture, int nVelType)   { return velocity[nPosture].id[nVelType]; }
 		int  GetVelocity(int nVelType)                 { return GetVelocity(posture, nVelType); }
-		char IsUnderwater(void)                        { return (pSpr->xspr.medium != kMediumNormal); }
-		char IsCrouching(void)                         { return (posture == kCdudePostureC); }
-		char SeqPlaying(void)                          { return (seqGetStatus(pSpr) >= 0); }
-		char IsAttacking(void)                         { return (pSpr->xspr.aiState->stateType == kAiStateAttack); }
-		char IsKnockout(void)                          { return (pSpr->xspr.aiState->stateType == kAiStateKnockout); }
-		char IsRecoil(void)                            { return (pSpr->xspr.aiState->stateType == kAiStateRecoil); }
-		char IsBurning(void)                           { return StatusTest(kCdudeStatusBurning); }
-		char IsMorphing(void)                          { return StatusTest(kCdudeStatusMorph); }
-		char IsDying(void)                             { return StatusTest(kCdudeStatusDying); }
-		char IsSleeping(void)                          { return StatusTest(kCdudeStatusSleep); }
-		char IsLeechBroken(void)                       { return (pLeech && pLeech->xspr.locked); }
+		double  GetVelocityF(int nPosture, int nVelType)   { return FixedToFloat(velocity[nPosture].id[nVelType]); }
+		double  GetVelocityF(int nVelType)                 { return GetVelocityF(posture, nVelType); }
+		bool IsUnderwater(void)                        { return (pSpr->xspr.medium != kMediumNormal); }
+		bool IsCrouching(void)                         { return (posture == kCdudePostureC); }
+		bool SeqPlaying(void)                          { return (seqGetStatus(pSpr) >= 0); }
+		bool IsAttacking(void)                         { return (pSpr->xspr.aiState->stateType == kAiStateAttack); }
+		bool IsKnockout(void)                          { return (pSpr->xspr.aiState->stateType == kAiStateKnockout); }
+		bool IsRecoil(void)                            { return (pSpr->xspr.aiState->stateType == kAiStateRecoil); }
+		bool IsBurning(void)                           { return StatusTest(kCdudeStatusBurning); }
+		bool IsMorphing(void)                          { return StatusTest(kCdudeStatusMorph); }
+		bool IsDying(void)                             { return StatusTest(kCdudeStatusDying); }
+		bool IsSleeping(void)                          { return StatusTest(kCdudeStatusSleep); }
+		bool IsLeechBroken(void)                       { return (pLeech && pLeech->xspr.locked); }
 		// ---------------------------------------------------------------------------------------------------
 		void StatusSet(int nStatus)                    { pSpr->xspr.sysData1 |= nStatus; }
 		void StatusRem(int nStatus)                    { pSpr->xspr.sysData3 &= ~nStatus; }
-		char StatusTest(int nStatus)                   { return ((pSpr->xspr.sysData3 & nStatus) > 0); }
+		bool StatusTest(int nStatus)                   { return ((pSpr->xspr.sysData3 & nStatus) > 0); }
 		//----------------------------------------------------------------------------------------------------
-		char CanRecoil(void)                           { return (GetStateSeq(kCdudeStateRecoil, posture) > 0); }
-		char CanElectrocute(void)                      { return (GetStateSeq(kCdudeStateRecoilT, posture) > 0); }
-		char CanKnockout(void)                         { return (GetStateSeq(kCdudeStateKnock, posture)); }
-		char CanBurn(void)                             { return (GetStateSeq(kCdudeBurnStateSearch, posture) > 0); }
-		char CanCrouch(void)                           { return (GetStateSeq(kCdudeStateSearch, kCdudePostureC) > 0); }
-		char CanSwim(void)                             { return (GetStateSeq(kCdudeStateSearch, kCdudePostureW) > 0); }
-		char CanSleep(void)                            { return (!StatusTest(kCdudeStatusAwaked) && GetStateSeq(kCdudeStateSleep, posture) > 0); }
-		char CanMove(void)                             { return (GetStateSeq(kCdudeStateSearch, posture) > 0); }
+		bool CanRecoil(void)                           { return (GetStateSeq(kCdudeStateRecoil, posture) > 0); }
+		bool CanElectrocute(void)                      { return (GetStateSeq(kCdudeStateRecoilT, posture) > 0); }
+		bool CanKnockout(void)                         { return (GetStateSeq(kCdudeStateKnock, posture)); }
+		bool CanBurn(void)                             { return (GetStateSeq(kCdudeBurnStateSearch, posture) > 0); }
+		bool CanCrouch(void)                           { return (GetStateSeq(kCdudeStateSearch, kCdudePostureC) > 0); }
+		bool CanSwim(void)                             { return (GetStateSeq(kCdudeStateSearch, kCdudePostureW) > 0); }
+		bool CanSleep(void)                            { return (!StatusTest(kCdudeStatusAwaked) && GetStateSeq(kCdudeStateSleep, posture) > 0); }
+		bool CanMove(void)                             { return (GetStateSeq(kCdudeStateSearch, posture) > 0); }
 		//----------------------------------------------------------------------------------------------------
 		int  GetDamage(DBloodActor* nSource, int nDmgType);
-		char IsPostureMatch(int nPosture);
-		char IsMediumMatch(int nMedium);
-		char IsTooTight(void);
+		bool IsPostureMatch(int nPosture);
+		bool IsMediumMatch(int nMedium);
+		bool IsTooTight(void);
 		//----------------------------------------------------------------------------------------------------
 		CUSTOMDUDE_WEAPON* PickWeapon(ARG_PICK_WEAPON* pArg);
-		int  AdjustSlope(DBloodActor* nTarget, int zOffs);
-		char AdjustSlope(int nDist, int* nSlope);
+		double  AdjustSlope(DBloodActor* nTarget, double zOffs);
+		char AdjustSlope(double nDist, double* nSlope);
 		//----------------------------------------------------------------------------------------------------
 		void InitSprite(void);
 		void Activate(void);
@@ -1260,8 +1262,8 @@ class CUSTOMDUDE
 		int  Damage(DBloodActor* nFrom, int nDmgType, int nDmg);
 		void Kill(DBloodActor* nFrom, int nDmgType, int nDmg);
 		//----------------------------------------------------------------------------------------------------
-		char CanMove(sectortype* pXSect, bool Crusher, bool Water, bool Uwater, bool Depth, double bottom, double floorZ);
-		char FindState(AISTATE* pState, int* nStateType, int* nPosture);
+		bool CanMove(sectortype* pXSect, bool Crusher, bool Water, bool Uwater, bool Depth, double bottom, double floorZ);
+		bool FindState(AISTATE* pState, int* nStateType, int* nPosture);
 		void NewState(int nStateType, int nTimeOverride = -1);
 		char NewState(AISTATE* pState);
 		void NextState(int nStateType, int nTimeOverride = 0);
