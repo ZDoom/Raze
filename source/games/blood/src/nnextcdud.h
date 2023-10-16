@@ -400,7 +400,7 @@ class ARG_PICK_WEAPON
 			targHealth = CountHealthPerc(target);
 		}
 
-		char CountHealthPerc(DBloodActor* actor)
+		int CountHealthPerc(DBloodActor* actor)
 		{
 			int nHealth = ClipLow(nnExtGetStartHealth(actor), 1);
 			return ClipHigh((kPercFull * actor->xspr.health) / nHealth, 255);
@@ -444,7 +444,7 @@ class CUSTOMDUDE_SOUND
 			if (nID != NO_SOUND)
 			{
 				int nClock = PlayClock;
-				char uwater = spriteIsUnderwater(pSpr, true);
+				bool uwater = spriteIsUnderwater(pSpr, true);
 				int nRand = Random2(80);
 
 				if (!medium || ((medium & 0x01) && !uwater) || ((medium & 0x02) && uwater))
@@ -663,8 +663,8 @@ class CUSTOMDUDE_WEAPON
 		unsigned int  group;
 		unsigned int  dispersion[2];
 		double  _distRange[2];
-		unsigned char targHpRange[2];
-		unsigned char dudeHpRange[2];
+		uint8_t targHpRange[2];
+		uint8_t dudeHpRange[2];
 		CUSTOMDUDE_SOUND sound;
 		struct SHOT
 		{
@@ -700,7 +700,7 @@ class CUSTOMDUDE_WEAPON
 				clock += (unsigned int)PlayClock;
 			}
 
-			char Check(void)
+			int Check(void)
 			{
 				if ((unsigned int)PlayClock < clock)
 					return 2;
@@ -747,12 +747,12 @@ class CUSTOMDUDE_WEAPON
 			shot._velocity = FLT_MAX;
 			shot.slope    = INT32_MAX;
 		}
-		char HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
+		bool HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
 		double  GetDistance(void)     { return max(_distRange[1] - _distRange[0], 0.); }
 		int  GetNumshots(void)      { return (ammo.total) ? ClipHigh(ammo.cur, numshots) : numshots; }
-		char IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
-		char HaveSlope(void)        { return (shot.slope != INT32_MAX); }
-		char HaveVelocity(void)     { return (shot._velocity != FLT_MAX); }
+		bool IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
+		bool HaveSlope(void)        { return (shot.slope != INT32_MAX); }
+		bool HaveVelocity(void)     { return (shot._velocity != FLT_MAX); }
 
 };
 
@@ -867,7 +867,7 @@ class CUSTOMDUDE_EFFECT
 			pStates.Clear();
 		}
 
-		char CanSpawn(DBloodActor* pSpr)
+		bool CanSpawn(DBloodActor* pSpr)
 		{
 			int nFrame = 1;
 			int nACount = pAnims.Size();
@@ -1037,7 +1037,7 @@ class  CUSTOMDUDE_DODGE
 			unsigned int timer;
 			unsigned int chance;
 			unsigned int dmgReq;
-			char Allow(int nDamage)
+			bool Allow(int nDamage)
 			{
 				if (nDamage > (int)dmgReq)
 				{
@@ -1062,8 +1062,8 @@ class  CUSTOMDUDE_DODGE
 		onDamage;
 		struct
 		{
-			unsigned int chance : 20;
-			char Allow(void) { return Chance(chance); }
+			unsigned int chance;
+			bool Allow(void) { return Chance(chance); }
 		}
 		onAimMiss;
 };
@@ -1075,7 +1075,7 @@ class  CUSTOMDUDE_RECOIL
 		unsigned int timer;
 		unsigned int chance;
 		unsigned int dmgReq;
-		char Allow(int nDamage)
+		bool Allow(int nDamage)
 		{
 			if (nDamage > (int)dmgReq)
 			{
@@ -1105,7 +1105,7 @@ class  CUSTOMDUDE_KNOCKOUT
 		unsigned int timer;
 		unsigned int chance;
 		unsigned int dmgReq;
-		char Allow(int nDamage)
+		bool Allow(int nDamage)
 		{
 			if (nDamage > (int)dmgReq)
 			{
@@ -1284,14 +1284,14 @@ class CUSTOMDUDE
 		bool CanMove(sectortype* pXSect, bool Crusher, bool Water, bool Uwater, bool Depth, double bottom, double floorZ);
 		bool FindState(AISTATE* pState, int* nStateType, int* nPosture);
 		void NewState(int nStateType, int nTimeOverride = -1);
-		char NewState(AISTATE* pState);
+		bool NewState(AISTATE* pState);
 		void NextState(int nStateType, int nTimeOverride = 0);
 		void NextState(AISTATE* pState, int nTimeOverride = 0);
 		AISTATE* PickDeath(int nDmgType);
 		void SyncState(void);
 		//----------------------------------------------------------------------------------------------------
 		void LeechPickup(void);
-		void LeechKill(char delSpr);
+		void LeechKill(bool delSpr);
 		void UpdateSlaves(void);
 		void DropItems(void);
 		void ClearEffectCallbacks(void);
@@ -1307,23 +1307,23 @@ class CUSTOMDUDE_SETUP
 	private:
 		const char* pValue;  
 		CUSTOMDUDE* pDude;   
-		PARAM* pGroup;       
+		const PARAM* pGroup;       
 		char key[256];       
 		int nWarnings;       
 		int hIni;
 		IniFile* pIni;
-		PARAM* pParam;
+		const PARAM* pParam;
 		char val[256];
-		char showWarnings;
+		bool showWarnings;
 		/*------------------------------------------------------------*/
-		int FindParam(const char* str, PARAM* pDb);
-		PARAM* FindParam(int nParam, PARAM* pDb);
-		int ParamLength(PARAM* pDb);
+		int FindParam(const char* str, const PARAM* pDb);
+		const PARAM* FindParam(int nParam, const PARAM* pDb);
+		int ParamLength(const PARAM* pDb);
 		/*-------------------------------------------------*/
-		char DescriptLoad(int nID);
+		bool DescriptLoad(int nID);
 		void DescriptClose(void);
-		char DescriptGroupExist(const char* pGroupName);
-		char DescriptParamExist(const char* pGroupName, const char* pParamName);
+		bool DescriptGroupExist(const char* pGroupName);
+		bool DescriptParamExist(const char* pGroupName, const char* pParamName);
 		int  DescriptCheck(void);
 		const char* DescriptGetValue(const char* pGroupName, const char* pParamName);
 		/*------------------------------------------------------------*/
@@ -1355,9 +1355,9 @@ class CUSTOMDUDE_SETUP
 		/*------------------------------------------------------------*/
 		CUSTOMDUDE* SameDudeExist(CUSTOMDUDE* pCmp);
 		CUSTOMDUDE* GetFirstDude(int nID);
-		char IsFirst(CUSTOMDUDE* pCmp);
+		bool IsFirst(CUSTOMDUDE* pCmp);
 	public:
-		char FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture);
+		bool FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture);
 		static void Setup(DBloodActor* actor);
 		static void Setup(CUSTOMDUDE* pOver = nullptr);
 
@@ -1380,27 +1380,27 @@ class CUSTOMDUDEV1_SETUP : CUSTOMDUDE_SETUP
 class CUSTOMDUDEV2_SETUP : CUSTOMDUDE_SETUP
 {
 	private:
-		char ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVelocity);
-		char ParseAppearance(const char* str, APPEARANCE* pAppear);
-		char ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound);
-		char ParseAnimation(const char* str, AISTATE* pState, char asPosture);
-		char ParseRange(const char* str, int nValType, int out[2], int nBaseVal = 0);
+		bool ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVelocity);
+		bool ParseAppearance(const char* str, APPEARANCE* pAppear);
+		bool ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound);
+		bool ParseAnimation(const char* str, AISTATE* pState, bool asPosture);
+		bool ParseRange(const char* str, int nValType, int out[2], int nBaseVal = 0);
 		int  ParseMedium(const char* str);
-		char ParseOffsets(const char* str, POINT3D* pOut);
-		char ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap);
-		char ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap);
-		char ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pWeap);
-		char ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON* pWeap);
-		char ParsePosture(const char* str);
-		char ParseOnEventDmg(const char* str, int* pOut, int nLen);
-		char ParseDropItem(const char* str, unsigned char out[2]);
-		char ParseSkill(const char* str);
+		bool ParseOffsets(const char* str, POINT3D* pOut);
+		bool ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap);
+		bool ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap);
+		bool ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pWeap);
+		bool ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON* pWeap);
+		bool ParsePosture(const char* str);
+		bool ParseOnEventDmg(const char* str, int* pOut, int nLen);
+		bool ParseDropItem(const char* str, unsigned bool out[2]);
+		bool ParseSkill(const char* str);
 		int  ParseKeywords(const char* str, PARAM* pDb);
 		int  ParseIDs(const char* str, int nValType, TArray<PClass*>& pOut, int nMax = 0);
 		int  ParseIDs(const char* str, int nValType, int* pOut, int nMax);
 		int  ParseEffectIDs(const char* str, const char* paramName, unsigned short* pOut, int nLen = 0);
 		int  ParseStatesToList(const char* str, TArray<int>& pOut);	// todo: determine type.
-		char ParseGibSetup(const char* str, CUSTOMDUDE_GIB* pOut);
+		bool ParseGibSetup(const char* str, CUSTOMDUDE_GIB* pOut);
 		/*-------------------------------------------------*/
 		int  CheckArray(const char* str, int nMin = 0, int nMax = 0, int nDefault = 1);
 		int  CheckValue(const char* str, int nValType, int nDefault);
@@ -1411,7 +1411,7 @@ class CUSTOMDUDEV2_SETUP : CUSTOMDUDE_SETUP
 		/*-------------------------------------------------*/
 		void SetupGeneral(void);
 		void SetupVelocity(void);
-		void SetupAnimation(AISTATE* pState, char asPosture);
+		void SetupAnimation(AISTATE* pState, bool asPosture);
 		void SetupAnimation(void);
 		void SetupSound(CUSTOMDUDE_SOUND* pSound);
 		void SetupMovePattern(void);

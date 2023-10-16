@@ -43,7 +43,7 @@ BEGIN_BLD_NS
 #define kParamMax 255
 struct SEQCOMPAT
 {
-    unsigned char offset[3];
+    uint8_t offset[3];
     int8_t nAiStateType;
 };
 
@@ -394,27 +394,27 @@ VMNativeFunction** const gCdudeCustomCallback[] =
     &AF(fxPodBloodSpray),       // 10
 };
 
-static char CheckProximity(DBloodActor* pSpr1, DBloodActor* pSpr2, int nDist) = delete; // make this error out for refactoring
+static bool CheckProximity(DBloodActor* pSpr1, DBloodActor* pSpr2, int nDist) = delete; // make this error out for refactoring
 
-static char CheckProximity(DBloodActor* pSpr1, DBloodActor* pSpr2, double nDist)
+static bool CheckProximity(DBloodActor* pSpr1, DBloodActor* pSpr2, double nDist)
 {
     return CheckProximityPoint(pSpr1->spr.pos.X, pSpr1->spr.pos.Y, pSpr1->spr.pos.Z, pSpr2->spr.pos.X, pSpr2->spr.pos.Y, pSpr2->spr.pos.Z, nDist);
 }
 
-static char CanSee(DBloodActor* pSpr1, DBloodActor* pSpr2)
+static bool CanSee(DBloodActor* pSpr1, DBloodActor* pSpr2)
 {
     return cansee(pSpr1->spr.pos, pSpr1->sector(), pSpr2->spr.pos, pSpr2->sector());
 }
 
 static void GetExtents(DBloodActor* pSprite, double* top, double* bottom, FTextureID nPic);
 static int AreaOfSector(sectortype* pSector);
-static char isIdKeyword(const char* fullStr, const char* prefix, int* nID = NULL);
-static char isNone(const char* str) { return (stricmp(str, gValTypes[kValNone]) == 0); }
+static bool isIdKeyword(const char* fullStr, const char* prefix, int* nID = NULL);
+static bool isNone(const char* str) { return (stricmp(str, gValTypes[kValNone]) == 0); }
 static int qsSortWeapons(CUSTOMDUDE_WEAPON* ref1, CUSTOMDUDE_WEAPON* ref2) { return ref1->pickChance - ref2->pickChance; }
 static bool helperSeqExists(int nSeq);
 static bool helperSndExists(int nSnd);
 static int helperGetFirstPic(CUSTOMDUDE* pDude);
-static char helperSeqTriggerExists(int nSeq);
+static bool helperSeqTriggerExists(int nSeq);
 static Seq* helperSeqLoad(int nSeq);
 static Seq* helperSeqLock(int nSeq);
 
@@ -424,9 +424,9 @@ CUSTOMDUDE* CUSTOMDUDE_SETUP::pDude;
 IniFile* CUSTOMDUDE_SETUP::pIni;
 DICTNODE* CUSTOMDUDE_SETUP::hIni;
 
-char CUSTOMDUDE_SETUP::key[256];
-char CUSTOMDUDE_SETUP::val[256];
-char CUSTOMDUDE_SETUP::showWarnings;
+bool CUSTOMDUDE_SETUP::key[256];
+bool CUSTOMDUDE_SETUP::val[256];
+bool CUSTOMDUDE_SETUP::showWarnings;
 PARAM* CUSTOMDUDE_SETUP::pGroup;
 PARAM* CUSTOMDUDE_SETUP::pParam;
 const char* CUSTOMDUDE_SETUP::pValue;
@@ -444,7 +444,7 @@ bool CUSTOMDUDE::IsMediumMatch(int nMedium)
     if (!nMedium)
         return true;
     
-    char uwater = IsUnderwater();
+    bool uwater = IsUnderwater();
     return (((nMedium & 0x01) && !uwater) || ((nMedium & 0x02) && uwater));
 }
 
@@ -697,7 +697,7 @@ void CUSTOMDUDE::ProcessEffects(void)
     }
 }
 
-char CUSTOMDUDE::NewState(AISTATE* pState)
+bool CUSTOMDUDE::NewState(AISTATE* pState)
 {
     if (!IsMorphing())
     {
@@ -1057,7 +1057,7 @@ void CUSTOMDUDE::Kill(DBloodActor* pFrom, int nDmgType, int nDmg)
 
     if (pOpt->nGameType != kGameTypeSinglePlayer)
     {
-        PLAYER* pPlayer;
+        DBloodPlayer* pPlayer;
         for (i = connecthead; i >= 0; i = connectpoint2[i])
         {
             pPlayer = &gPlayer[i];
@@ -1195,7 +1195,7 @@ void CUSTOMDUDE::LeechPickup(void)
     }
 }
 
-void CUSTOMDUDE::LeechKill(char delSpr)
+void CUSTOMDUDE::LeechKill(bool delSpr)
 {
     if (pXLeech)
     {
@@ -1288,7 +1288,7 @@ void CUSTOMDUDE::UpdateSlaves()
     }
 }
 
-char CUSTOMDUDE::CanMove(XSECTOR* pXSect, char Crusher, char Water, char Uwater, char Depth, int bottom, int floorZ)
+bool CUSTOMDUDE::CanMove(XSECTOR* pXSect, bool Crusher, bool Water, bool Uwater, bool Depth, int bottom, int floorZ)
 {
     UNREFERENCED_PARAMETER(Depth);
 
@@ -1361,20 +1361,20 @@ const char* CUSTOMDUDE_SETUP::DescriptGetValue(const char* pGroupName, const cha
     return pRetn;
 }
 
-char CUSTOMDUDE_SETUP::DescriptGroupExist(const char* pGroupName)
+bool CUSTOMDUDE_SETUP::DescriptGroupExist(const char* pGroupName)
 {
     return pIni->SectionExists(pGroupName);
 }
 
-char CUSTOMDUDE_SETUP::DescriptParamExist(const char* pGroupName, const char* pParamName)
+bool CUSTOMDUDE_SETUP::DescriptParamExist(const char* pGroupName, const char* pParamName)
 {
     return pIni->KeyExists(pGroupName, pParamName);
 }
 
 
-char CUSTOMDUDE_SETUP::DescriptLoad(int nID)
+bool CUSTOMDUDE_SETUP::DescriptLoad(int nID)
 {   
-    char tmp[BMAX_PATH]; unsigned char* pRawIni = NULL;
+    char tmp[BMAX_PATH]; uint8_t* pRawIni = NULL;
     const char* fname = kCdudeFileNamePrefix;
     const char* fext = kCdudeFileExt;
 
@@ -1384,10 +1384,10 @@ char CUSTOMDUDE_SETUP::DescriptLoad(int nID)
         if ((hIni = nnExtResFileSearch(&gSysRes, tmp, fext)) == NULL) // name not found
             hIni = gSysRes.Lookup(nID, fext); // try by ID
 
-        if (hIni && (pRawIni = (unsigned char*)gSysRes.Load(hIni)) != NULL)
+        if (hIni && (pRawIni = (uint8_t*)gSysRes.Load(hIni)) != NULL)
         {
             int nBytes = hIni->size;
-            unsigned char* pRawNew = (unsigned char*)Bmalloc(nBytes + 1);
+            uint8_t* pRawNew = (uint8_t*)Bmalloc(nBytes + 1);
             dassert(pRawNew != NULL);
             int i, j, c, nLineLen = 0;
 
@@ -1396,7 +1396,7 @@ char CUSTOMDUDE_SETUP::DescriptLoad(int nID)
             // Sets NULL byte in the end
             // Skips empty lines
 
-            Bmemset(pRawNew, 0, nBytes + 1);
+            memset(pRawNew, 0, nBytes + 1);
             for (i = 0, j = 0; i < nBytes; i++)
             {
                 c = pRawIni[i];
@@ -1422,7 +1422,7 @@ char CUSTOMDUDE_SETUP::DescriptLoad(int nID)
                 }
             }
 
-            pIni = new IniFile((unsigned char*)pRawNew);
+            pIni = new IniFile((uint8_t*)pRawNew);
             Bfree(pRawNew);
             return true;
         }
@@ -1529,7 +1529,7 @@ CUSTOMDUDE* CUSTOMDUDE_SETUP::GetFirstDude(int nID)
     return NULL;
 }
 
-char CUSTOMDUDE_SETUP::IsFirst(CUSTOMDUDE* pCmp)
+bool CUSTOMDUDE_SETUP::IsFirst(CUSTOMDUDE* pCmp)
 {
     return (GetFirstDude(pCmp->pSpr->xspr.data1) == pCmp);
 }
@@ -1574,7 +1574,7 @@ void CUSTOMDUDE_SETUP::RandomizeDudeSettings()
     }
 }
 
-char CUSTOMDUDE_SETUP::FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture)
+bool CUSTOMDUDE_SETUP::FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture)
 {
     int i, j;
     for (i = 0; i < arrLen; i++)
@@ -1606,7 +1606,7 @@ void CUSTOMDUDE_SETUP::Setup(DBloodActor* pSpr, XSPRITE* pXSpr)
     if (pDude->pSlaves)
         delete(pDude->pSlaves);
 
-    Bmemset(pDude, 0, sizeof(CUSTOMDUDE));
+    memset(pDude, 0, sizeof(CUSTOMDUDE));
     pDude->pInfo = getDudeInfo(pSpr->type);
     pDude->pSpr = pSpr; pDude->pXSpr = pXSpr;
     pDude->pExtra = &gDudeExtra[pSpr->extra];
@@ -2115,7 +2115,7 @@ int CUSTOMDUDEV2_SETUP::CheckRange(const char* str, int nVal, int nMin, int nMax
 int CUSTOMDUDEV2_SETUP::CheckValue(const char* str, int nValType, int nDefault)
 {
     int t = 0;
-    char ok = false;
+    bool ok = false;
     
     if (rngok(nValType, kValIdKeywordBase, kValIdKeywordMax))
     {
@@ -2319,7 +2319,7 @@ void CUSTOMDUDEV2_SETUP::SetupVelocity(void)
     }
 }
 
-void CUSTOMDUDEV2_SETUP::SetupAnimation(AISTATE* pState, char asPosture)
+void CUSTOMDUDEV2_SETUP::SetupAnimation(AISTATE* pState, bool asPosture)
 {
     AnimationFill(pState, 0); // clear seqID first
     ParseAnimation(pValue, pState, asPosture);
@@ -2467,7 +2467,7 @@ void CUSTOMDUDEV2_SETUP::SetupRecoil(void)
     /* ----------------------------------*/
     /* DEFAULT VALUES                    */
     /* ----------------------------------*/
-    Bmemset(pRecoil, 0, sizeof(CUSTOMDUDE_RECOIL));
+    memset(pRecoil, 0, sizeof(CUSTOMDUDE_RECOIL));
 
     if (!DescriptGroupExist(pGroup->text))
         return;
@@ -2504,7 +2504,7 @@ void CUSTOMDUDEV2_SETUP::SetupDodge(void)
     /* ----------------------------------*/
     /* DEFAULT VALUES                    */
     /* ----------------------------------*/
-    Bmemset(pDodge, 0, sizeof(CUSTOMDUDE_DODGE));
+    memset(pDodge, 0, sizeof(CUSTOMDUDE_DODGE));
     pDodge->onAimMiss.chance = 0x10000;
 
     if (!DescriptGroupExist(pGroup->text))
@@ -2546,7 +2546,7 @@ void CUSTOMDUDEV2_SETUP::SetupKnockout(void)
     /* ----------------------------------*/
     /* DEFAULT VALUES                    */
     /* ----------------------------------*/
-    Bmemset(pKnock, 0, sizeof(CUSTOMDUDE_KNOCKOUT));
+    memset(pKnock, 0, sizeof(CUSTOMDUDE_KNOCKOUT));
     for (i = 0; i < kCdudePostureMax; i++)
     {
         pState = &pDude->states[kCdudeStateKnock][i];
@@ -2753,10 +2753,10 @@ int CUSTOMDUDEV2_SETUP::ParseStatesToList(const char* str, IDLIST* pOut)
     return pOut->Length();
 }
 
-char CUSTOMDUDEV2_SETUP::ParseGibSetup(const char* str, CUSTOMDUDE_GIB* pGib)
+bool CUSTOMDUDEV2_SETUP::ParseGibSetup(const char* str, CUSTOMDUDE_GIB* pGib)
 {
     int i = 0, nPar, data[3];
-    Bmemset(data, 0, sizeof(data));
+    memset(data, 0, sizeof(data));
     pGib->Clear();
 
     if (!isempty(str))
@@ -2919,10 +2919,10 @@ void CUSTOMDUDEV2_SETUP::SetupMovePattern(void)
 
 }
 
-char CUSTOMDUDEV2_SETUP::ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON* pWeap)
+bool CUSTOMDUDEV2_SETUP::ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON* pWeap)
 {
     int i, nMin, nMax, nID;
-    char isNum = isufix(str);
+    bool isNum = isufix(str);
     WEAPINFO* pInfo;
 
     if (isempty(str))
@@ -2973,7 +2973,7 @@ char CUSTOMDUDEV2_SETUP::ParseWeaponBasicInfo(const char* str, CUSTOMDUDE_WEAPON
     return false;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseSkill(const char* str)
+bool CUSTOMDUDEV2_SETUP::ParseSkill(const char* str)
 {
     int range[2] = {1, 5};
     int nSkill = gGameOptions.nDifficulty + 1;
@@ -2992,11 +2992,11 @@ char CUSTOMDUDEV2_SETUP::ParseSkill(const char* str)
     return true;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseDropItem(const char* str, unsigned char out[2])
+bool CUSTOMDUDEV2_SETUP::ParseDropItem(const char* str, uint8_t out[2])
 {
     int nPar, nVal, i = 0;
-    unsigned char nItem = 0;
-    unsigned char nPerc = 100;
+    uint8_t nItem = 0;
+    uint8_t nPerc = 100;
 
     out[0] = out[1] = 0;
 
@@ -3302,7 +3302,7 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
 
 
 
-char CUSTOMDUDEV2_SETUP::ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVelocity)
+bool CUSTOMDUDEV2_SETUP::ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVelocity)
 {
     int nMod = pDude->pSpr->xspr.busyTime;
     int i, nPar, nVal;
@@ -3359,7 +3359,7 @@ char CUSTOMDUDEV2_SETUP::ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVe
     return false;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseAppearance(const char* str, APPEARANCE* pAppear)
+bool CUSTOMDUDEV2_SETUP::ParseAppearance(const char* str, APPEARANCE* pAppear)
 {
     int i = 0, nPar, range[2];
     pAppear->Clear();
@@ -3440,7 +3440,7 @@ char CUSTOMDUDEV2_SETUP::ParseAppearance(const char* str, APPEARANCE* pAppear)
     return false;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound)
+bool CUSTOMDUDEV2_SETUP::ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound)
 {
     int i = 0, j, nMedium = pSound->medium, nVolume = pSound->volume;
     int t = kCdudeMaxSounds, nVal, nLen;
@@ -3515,7 +3515,7 @@ char CUSTOMDUDEV2_SETUP::ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound)
     return false;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseAnimation(const char* str, AISTATE* pState, char asPosture)
+bool CUSTOMDUDEV2_SETUP::ParseAnimation(const char* str, AISTATE* pState, bool asPosture)
 {
     int i, j, nPar, nLen;
     int nVal;
@@ -3564,12 +3564,12 @@ char CUSTOMDUDEV2_SETUP::ParseAnimation(const char* str, AISTATE* pState, char a
     return false;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseRange(const char* str, int nValType, int out[2], int nBaseVal)
+bool CUSTOMDUDEV2_SETUP::ParseRange(const char* str, int nValType, int out[2], int nBaseVal)
 {
     int nLen, nVal;
     int nMin = out[0];
     int nMax = out[1];
-    char chkrng = (nMin && nMax);
+    bool chkrng = (nMin && nMax);
     char tmp[256];
     int i = 0;
 
@@ -3637,10 +3637,10 @@ int CUSTOMDUDEV2_SETUP::CheckArray(const char* str, int nMin, int nMax, int nDef
     return nDefault;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseOffsets(const char* str, POINT3D* pOut)
+bool CUSTOMDUDEV2_SETUP::ParseOffsets(const char* str, POINT3D* pOut)
 {
     int i, nVal, nLen; char tmp[256];
-    Bmemset(pOut, 0, sizeof(POINT3D));
+    memset(pOut, 0, sizeof(POINT3D));
     nLen = CheckArray(str, 3, 0, 0);
 
     i = 0;
@@ -3660,7 +3660,7 @@ char CUSTOMDUDEV2_SETUP::ParseOffsets(const char* str, POINT3D* pOut)
     return i;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap)
+bool CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap)
 {
     int i, nPar, nVal;
     if (isarray(str))
@@ -3706,9 +3706,9 @@ char CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWea
     return false;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pWeap)
+bool CUSTOMDUDEV2_SETUP::ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pWeap)
 {
-    Bmemset(&pWeap->style, 0, sizeof(pWeap->style));
+    memset(&pWeap->style, 0, sizeof(pWeap->style));
     int nPar, i = 0;
 
     i = 0;
@@ -3730,7 +3730,7 @@ char CUSTOMDUDEV2_SETUP::ParseWeaponStyle(const char* str, CUSTOMDUDE_WEAPON* pW
     return true;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap)
+bool CUSTOMDUDEV2_SETUP::ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pWeap)
 {
     int i = 0, j, nPar, nVal;
     while ((i = enumStr(i, str, key, val)) != 0)
@@ -3770,9 +3770,9 @@ char CUSTOMDUDEV2_SETUP::ParseAttackSetup(const char* str, CUSTOMDUDE_WEAPON* pW
 }
 
 
-char CUSTOMDUDEV2_SETUP::ParsePosture(const char* str)
+bool CUSTOMDUDEV2_SETUP::ParsePosture(const char* str)
 {
-    char nRetn = 0;
+    bool nRetn = 0;
     int i, nVal;
 
     i = 0;
@@ -3790,7 +3790,7 @@ char CUSTOMDUDEV2_SETUP::ParsePosture(const char* str)
     return nRetn;
 }
 
-char CUSTOMDUDEV2_SETUP::ParseOnEventDmg(const char* str, int* pOut, int nLen)
+bool CUSTOMDUDEV2_SETUP::ParseOnEventDmg(const char* str, int* pOut, int nLen)
 {
     int i;
     if (isarray(str))
@@ -3975,7 +3975,7 @@ void CUSTOMDUDEV1_SETUP::DamageScaleToSurface(int nSurface)
 
 void CUSTOMDUDEV1_SETUP::WeaponMeleeSet(CUSTOMDUDE_WEAPON* pWeapon)
 {
-    char availStatus = pWeapon->available;
+    bool availStatus = pWeapon->available;
     pWeapon->Clear();
     
     pWeapon->type           = kCdudeWeaponHitscan;
@@ -4005,7 +4005,7 @@ void CUSTOMDUDEV1_SETUP::WeaponConvert(int nWeaponID)
 {
     CUSTOMDUDE_WEAPON* pW1 = &pDude->weapons[0];
     CUSTOMDUDE_WEAPON* pW2 = &pDude->weapons[1];
-    char availStatus = pW1->available;
+    bool availStatus = pW1->available;
 
     pW1->Clear();
     if (rngok(nWeaponID, 1, kVectorMax))                                       pW1->type = kCdudeWeaponHitscan,     pW1->clipMask = CLIPMASK1;
@@ -4126,7 +4126,7 @@ void CUSTOMDUDEV1_SETUP::SetupBasics(void)
     if (!pDude->initialized)
     {
         // setup mass
-        Bmemset(pMass, 0, sizeof(SPRITEMASS));                  // clear mass cache
+        memset(pMass, 0, sizeof(SPRITEMASS));                  // clear mass cache
 
         int nPic = pSpr->picnum;
         pSpr->picnum = helperGetFirstPic(pDude);                // we need a proper pic to get a proper mass
@@ -4142,7 +4142,7 @@ void CUSTOMDUDEV1_SETUP::SetupBasics(void)
 void CUSTOMDUDEV1_SETUP::SetupDamage(void)
 {
     CUSTOMDUDE_WEAPON* pWeap = &pDude->weapons[0];
-    char isMelee = false;
+    bool isMelee = false;
 
     DamageSetDefault();
     DamageScaleToWeapon(pWeap);
@@ -4162,10 +4162,10 @@ void CUSTOMDUDEV1_SETUP::SetupDamage(void)
     if (isMelee)
     {
         // no dodge
-        Bmemset(&pDude->dodge, 0, sizeof(CUSTOMDUDE_DODGE));
+        memset(&pDude->dodge, 0, sizeof(CUSTOMDUDE_DODGE));
 
         // no knockout
-        Bmemset(&pDude->knockout, 0, sizeof(CUSTOMDUDE_KNOCKOUT));
+        memset(&pDude->knockout, 0, sizeof(CUSTOMDUDE_KNOCKOUT));
 
         // more dmg and lower chances (isMelee flag analogue)
         pDude->recoil.dmgReq = 25, pDude->recoil.chance = 0x0400;
@@ -4282,7 +4282,7 @@ static int helperGetFirstPic(CUSTOMDUDE* pDude)
     return nPic;
 }
 
-static char helperSeqTriggerExists(int nSeq)
+static bool helperSeqTriggerExists(int nSeq)
 {
     int i;
     Seq* pSeq = helperSeqLoad(nSeq);
@@ -4355,7 +4355,7 @@ static int AreaOfSector(sectortype* pSector)
     return area;
 }
 
-static char isIdKeyword(const char* fullStr, const char* prefix, int* nID)
+static bool isIdKeyword(const char* fullStr, const char* prefix, int* nID)
 {
     if (!fullStr || !prefix)
         return false;
@@ -4389,7 +4389,7 @@ CUSTOMDUDE* cdudeAlloc()
     if (!gCustomDude)
     {
         gCustomDude = (CUSTOMDUDE*)Bmalloc(sizeof(CUSTOMDUDE) * kMaxSprites);
-        Bmemset(gCustomDude, 0, sizeof(CUSTOMDUDE) * kMaxSprites);
+        memset(gCustomDude, 0, sizeof(CUSTOMDUDE) * kMaxSprites);
     }
 
     dassert(gCustomDude != NULL);
@@ -4458,7 +4458,7 @@ CUSTOMDUDE* cdudeGet(int nIndex)
 DBloodActor* cdudeSpawn(XSPRITE* pXSource, DBloodActor* pSprite, int nDist)
 {
     POINT3D offs;
-    Bmemset(&offs, 0, sizeof(offs));
+    memset(&offs, 0, sizeof(offs));
     offs.y = nDist;
 
     DBloodActor* pSource = &sprite[pXSource->reference];
@@ -4559,7 +4559,7 @@ void cdudeLeechOperate(DBloodActor* pSpr, XSPRITE* pXSpr)
         {
             if (IsPlayerSprite(pTarg))
             {
-                PLAYER* pPlayer = &gPlayer[pTarg->type - kDudePlayer1];
+                DBloodPlayer* pPlayer = &gPlayer[pTarg->type - kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                     return;
             }

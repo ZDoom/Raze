@@ -234,7 +234,7 @@ struct EvalContext final
 		return true;
 	}
 
-	bool helperCmpHeight(char ceil)
+	bool helperCmpHeight(bool ceil)
 	{
 		double nHeigh1, nHeigh2;
 		switch (pSect->type)
@@ -1360,7 +1360,7 @@ struct EvalContext final
 
 	void ReceiveObjects(EVENT* pFrom)
 	{
-		char srcIsCondition = false;
+		bool srcIsCondition = false;
 
 		o = pFrom->target;
 		if (o.type() == EventObject::Actor && pCond != o.actor())

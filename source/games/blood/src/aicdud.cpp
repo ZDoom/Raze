@@ -51,7 +51,7 @@ struct TARGET_INFO
 
 void resetTarget(DBloodActor* pSpr)            { pSpr->xspr.target = nullptr; }
 void moveStop(DBloodActor* pSpr)                { pSpr->vel.XY().Zero(); }
-static char THINK_CLOCK(int nSpr, int nClock = 3)               { return ((gFrameCount & nClock) == (nSpr & nClock)); }
+static bool THINK_CLOCK(int nSpr, int nClock = 3)               { return ((gFrameCount & nClock) == (nSpr & nClock)); }
 static int qsSortTargets(TARGET_INFO* ref1, TARGET_INFO* ref2)  { return ref1->nDist > ref2->nDist? 1 : ref1->nDist < ref2->nDist? -1 : 0; }
 DAngle getTargetAng(DBloodActor* pSpr);
 
@@ -605,10 +605,13 @@ void weaponShot(DBloodActor* pSpr)
     int dx3, dy3, dz3;
     int i, j;
 
-    int txof; char hxof;
-    int sang; int  hsht;
-    int tang; char styled;
-    
+    int txof;
+    int sang;
+    int tang;
+    bool hxof;
+    int  hsht;
+    bool styled;
+
 
     const int dx1 = int(pSpr->spr.Angles.Yaw.Cos() * 16384);
     const int dy1 = int(pSpr->spr.Angles.Yaw.Sin() * 16384);
@@ -1244,7 +1247,8 @@ void enterMorph(DBloodActor* pSpr)
 
 void thinkMorph(DBloodActor* pSpr)
 {
-    int nTarget; char triggerOn, triggerOff;
+    int nTarget; 
+    bool triggerOn, triggerOff;
     CUSTOMDUDE* pDude = cdudeGet(pSpr);
 
     if (pDude->SeqPlaying())

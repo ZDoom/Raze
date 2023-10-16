@@ -264,7 +264,7 @@ AISTATE genPatrolStates[] = {
 //
 //---------------------------------------------------------------------------
 
-char idListProcessProxySprite(DBloodActor* actor)
+int idListProcessProxySprite(DBloodActor* actor)
 {
 	int i, okDist;
 	bool causerPart;
@@ -325,7 +325,7 @@ char idListProcessProxySprite(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-char idListProcessSightSprite(DBloodActor* actor)
+int idListProcessSightSprite(DBloodActor* actor)
 {
 	double z[3];
 	int i, j;
@@ -405,7 +405,7 @@ char idListProcessSightSprite(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-char idListProcessPhysSprite(DBloodActor* actor)
+int idListProcessPhysSprite(DBloodActor* actor)
 {
 	if (actor->spr.flags & kHitagFree)
 		return kListREMOVE;
@@ -583,7 +583,7 @@ void followTarget(DBloodActor* actor, DBloodActor* pTarg, DAngle nMaxAng)
 //
 //---------------------------------------------------------------------------
 
-char idListProcessFollowSprite(DBloodActor* actor)
+int idListProcessFollowSprite(DBloodActor* actor)
 {
 	if ((actor->spr.flags & kHitagFree) || actor->ownerActor == nullptr)
 		return kListREMOVE;
@@ -1048,7 +1048,7 @@ bool multiTxPointsRx(int rx, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int collectObjectsByChannel(int nChannel, bool rx, TArray<EventObject>* pOut, char flags)
+int collectObjectsByChannel(int nChannel, bool rx, TArray<EventObject>* pOut, int flags)
 {
 	bool ok, link = false, unlink = false;
 	int c = 0;
