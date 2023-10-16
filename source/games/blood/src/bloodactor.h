@@ -12,7 +12,7 @@ struct SPRITEHIT
 	Collision hit, ceilhit, florhit;
 };
 
-class DBloodActor;
+class DCustomDude;
 
 class DBloodActor : public DCoreActor
 {

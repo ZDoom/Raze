@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef NOONE_EXTENSIONS
 #pragma once
+#include <variant>
 #include "nnexts.h"
 #include "sound.h"
 #include "view.h"
@@ -1226,8 +1227,7 @@ class DCustomDude : public DObject
 		double _hearDist   ;                       // dudeInfo duplicate for sleeping
 		DAngle periphery  ;                       // dudeInfo duplicate for sleeping
 		unsigned int fallHeight ;                       // in pixels
-		TObjPtr<DBloodActor*> NextDude;
-		int NextDudeType;	// 0: none, <0: vdude, >0: cdude, NextDude: existing
+		std::variant<bool, int, PClass*, DBloodActor*> nextDude;
 
 		//signed   int nextDude   ;                       
 		//----------------------------------------------------------------------------------------------------
@@ -1397,7 +1397,7 @@ class CUSTOMDUDEV2_SETUP : public CUSTOMDUDE_SETUP
 		bool ParseOnEventDmg(const char* str, int* pOut, int nLen);
 		bool ParseDropItem(const char* str, uint8_t out[2]);
 		bool ParseSkill(const char* str);
-		int  ParseKeywords(const char* str, PARAM* pDb);
+		int  ParseKeywords(const char* str, const PARAM* pDb);
 		int  ParseIDs(const char* str, int nValType, TArray<PClass*>& pOut, int nMax = 0);
 		int  ParseIDs(const char* str, int nValType, int* pOut, int nMax);
 		int  ParseEffectIDs(const char* str, const char* paramName, unsigned short* pOut, int nLen = 0);
@@ -1409,7 +1409,7 @@ class CUSTOMDUDEV2_SETUP : public CUSTOMDUDE_SETUP
 		int  CheckValue(const char* str, int nValType, int nMin, int nMax);
 		int  CheckValue(const char* str, int nValType, int nMin, int nMax, int nDefault);
 		int  CheckRange(const char* str, int nVal, int nMin, int nMax);
-		int  CheckParam(const char* str, PARAM* pDb);
+		int  CheckParam(const char* str, const PARAM* pDb);
 		/*-------------------------------------------------*/
 		void SetupGeneral(void);
 		void SetupVelocity(void);

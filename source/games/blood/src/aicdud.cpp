@@ -1264,10 +1264,10 @@ void thinkMorph(DBloodActor* pSpr)
     pSpr->xspr.locked = 0;
     pSpr->xspr.scale = 0;
 
-    if (pDude->NextDude)
+    if (auto ppNext = std::get_if<DBloodActor*>(&pDude->nextDude))
     {
+        auto pNext = *ppNext;
         // classic morphing to already inserted sprite by TX ID
-        DBloodActor* pNext = pDude->NextDude;
 
         pSpr->xspr.key = pSpr->xspr.dropMsg = 0;
 
@@ -1325,20 +1325,18 @@ void thinkMorph(DBloodActor* pSpr)
     }
     else
     {
-        int nNextDudeType = pDude->NextDudeType;
-
-        // v2 morphing
-        if (nNextDudeType > 0)
-        {
-            // morph to another custom dude
-            pSpr->xspr.data1 = nNextDudeType - 1;
-        }
-        else if (nNextDudeType < 0)
+        if (auto ppClass = std::get_if<PClass*>(&pDude->nextDude))
         {
             // morph to some vanilla dude
-            pSpr->ChangeType(-nNextDudeType - 1);
-            pSpr->clipdist  = getDudeInfo(pSpr)->clipdist * CLIPDIST_SCALE;
-            pSpr->xspr.data1    = 0;
+            pSpr->ChangeType(*ppClass);
+            pSpr->clipdist = getDudeInfo(pSpr)->clipdist * CLIPDIST_SCALE;
+            pSpr->xspr.data1 = 0;
+        }
+        // v2 morphing
+        else if (auto pExt = std::get_if<int>(&pDude->nextDude))
+        {
+            // morph to another custom dude
+            pSpr->xspr.data1 = *pExt;
         }
 
         pSpr->spr.inittype  = pSpr->GetType();

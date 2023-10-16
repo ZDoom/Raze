@@ -989,7 +989,7 @@ void DCustomDude::Kill(DBloodActor* pFrom, int nDmgType, int nDmg)
     if (IsDying())
         return;
 
-    if (NextDude || NextDudeType != 0)
+    if (!std::get_if<bool>(&nextDude))
     {
         // clamp hp so is not count as dead
         pSpr->xspr.health = ClipLow(pSpr->xspr.health, 16);
@@ -1146,7 +1146,7 @@ void DCustomDude::DropItems(void)
     
     if (dropItem.Pick(pSpr, itemList))
     {
-        for(auto& cls : itemList)
+        for(auto cls : itemList)
         {
             pDrop = actDropObject(pSpr, cls);
             if (pDrop && IsUnderwater()) // add a physics for drop items
@@ -1220,7 +1220,7 @@ void DCustomDude::LeechKill(bool delSpr)
 
 void DCustomDude::UpdateSlaves()
 {
-    int t = 0; int32_t* pDb;
+    int t = 0;
     if (pSlaves.Size() == 0)
         return;
 
@@ -1404,9 +1404,10 @@ int CUSTOMDUDE_SETUP::DescriptCheck(void)
         }
         
         pValue = DescriptGetValue(pGroup->text, pParam->text);
-        if (pValue && rngok(strlen(pValue), 0, 5))
+        if (pValue && rngok((int)strlen(pValue), 0, 5))
         {
-            major[0] = pValue[0]; major[1] = '\0';
+            major[0] = pValue[0];
+            major[1] = '\0';
             if (isdigit(major[0]))
                 nRetn = atoi(major);
         }
@@ -1462,7 +1463,6 @@ void CUSTOMDUDE_SETUP::SetupLeech()
 
 DCustomDude* CUSTOMDUDE_SETUP::GetFirstDude(int nID)
 {
-    int i;
     DCustomDude* pRetn;
     BloodStatIterator it(kStatDude);
     while (auto pSpr2 = it.Next())
@@ -1564,8 +1564,7 @@ void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 
     pDude->pWeapon  = &pDude->weapons[0];
     pDude->posture  = kCdudePostureL;
-    pDude->NextDude = nullptr;
-    pDude->NextDudeType = 0;
+    pDude->nextDude = false;
 
     // default stuff
     pDude->_seeDist      = pDude->pInfo->SeeDist();
@@ -2025,7 +2024,7 @@ void CUSTOMDUDE_SETUP::SoundFill(void)
 
 void CUSTOMDUDE_SETUP::FindLargestPic(void)
 {
-    int i, j, nPic, nHeigh = 0;
+    int i, j, nHeigh = 0;
     AISTATE* pState; Seq* pSeq;
 
     for (i = 0; i < kCdudeStateMax; i++)
@@ -2036,10 +2035,12 @@ void CUSTOMDUDE_SETUP::FindLargestPic(void)
 
         for (j = 0; j < pSeq->nFrames; j++)
         {
-            nPic = seqGetTile(&pSeq->frames[j]);
-            if (tilesiz[nPic].y > nHeigh)
+            auto nPic = seqGetTexture(&pSeq->frames[j]);
+            auto pPic = TexMan.GetGameTexture(nPic);
+            int h = (int)pPic->GetDisplayHeight();
+            if (h > nHeigh)
             {
-                nHeigh = tilesiz[nPic].y;
+                nHeigh = h;
                 pDude->largestPic = nPic;
             }
         }
@@ -2169,7 +2170,7 @@ void CUSTOMDUDEV2_SETUP::SetupGeneral(void)
     /* ----------------------------------*/
     pDude->mass         = 75;
     pDude->medium       = kParMediumAny;
-    pDude->nextDude     = -1;
+    pDude->nextDude = false;
 
     pParam = gParamGeneral;
     while (pParam->id != kParamMax)
@@ -2219,12 +2220,12 @@ void CUSTOMDUDEV2_SETUP::SetupGeneral(void)
                             switch (pMorph->id)
                             {
                                 case kValCdud:
-                                    pDude->nextDude = CheckRange(pMorph->text, nVal, 0, 9999) + kMaxSprites;
+                                    pDude->nextDude = CheckRange(pMorph->text, nVal, 0, 9999);
                                     break;
                                 case kValVdud:
                                     range[0] = kDudeCultistTommy - kDudeBase;
                                     range[1] = kDudeVanillaMax - kDudeBase;
-                                    pDude->nextDude = -(kDudeBase + CheckRange(pMorph->text, nVal, range[0], range[1])) - 1;
+                                    pDude->nextDude = GetSpawnType(kDudeBase + CheckRange(pMorph->text, nVal, range[0], range[1]));
                                     break;
                                 default:
                                     continue;
@@ -4154,7 +4155,7 @@ void CUSTOMDUDEV1_SETUP::SetupIncarnation(void)
         }
     }
 
-    pDude->nextDude = -1; // then search
+    pDude->nextDude = false; // then search
     BloodStatIterator it(kStatInactive);
     while (auto pSpr2 = it.Next())
     {
@@ -4163,7 +4164,7 @@ void CUSTOMDUDEV1_SETUP::SetupIncarnation(void)
             XSPRITE* pXSpr2 = &xsprite[pSpr2->extra];
             if (pXSpr2->rxID == pSpr->xspr.txID)
             {
-                pDude->nextDude = pSpr2->index;
+                pDude->nextDude = pSpr2;
                 if (nnExtRandom(0, 6) == 3) // random stop
                     break;
             }
@@ -4465,11 +4466,14 @@ IMPLEMENT_CLASS(DCustomDude, false, true)
 IMPLEMENT_POINTERS_START(DCustomDude)
 IMPLEMENT_POINTER(pSpr)
 IMPLEMENT_POINTER(pLeech)
-IMPLEMENT_POINTER(NextDude)
 IMPLEMENT_POINTERS_END
 
 size_t DCustomDude::PropagateMark()
 {
+    if (auto ppDude = std::get_if<DBloodActor*>(&nextDude))
+    {
+        GC::Mark(ppDude);
+    }
     for (auto& slave : pSlaves) GC::Mark(slave);
     return pSlaves.Size() + Super::PropagateMark();
 }
