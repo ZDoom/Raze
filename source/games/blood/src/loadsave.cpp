@@ -544,8 +544,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 #ifdef NOONE_EXTENSIONS
 	if (gModernMap)
 	{
-		arc//("spritemass", spriteMass) // should always be cached and not written out.
-			("prevmarker", prevmarker)
+		arc("prevmarker", prevmarker)
 			("customdude", customDude)
 			.Array("conditions", condition, 4);
 

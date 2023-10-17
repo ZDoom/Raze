@@ -1785,9 +1785,10 @@ void debrisConcuss(DBloodActor* owneractor, DBloodActor* actor, const DVector3& 
 		double size = (tex->GetDisplayWidth() * actor->spr.scale.X * tex->GetDisplayHeight() * actor->spr.scale.Y) * 2048;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
-			if (actor->spriteMass.mass > 0)
+			int mass = getSpriteMassBySize(actor);
+			if (mass > 0)
 			{
-				double t = double(dmg) * size / actor->spriteMass.mass;
+				double t = double(dmg) * size / mass;
 
 				actor->vel += dv * t / (1 << 24);
 			}
@@ -8901,25 +8902,6 @@ int nnExtDudeStartHealth(DBloodActor* pSpr, int nHealth)
 	return getDudeInfo(pSpr->GetType())->startHealth << 4;
 }
 
-#if 0 // no need to save if we ensure it never gets accessed directly without validating the content
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPRITEMASS* def)
-{
-	static SPRITEMASS nul;
-	if (arc.isReading()) w = {};
-	if (arc.BeginObject(keyname))
-	{
-		arc("seq", w.seqId, &nul.seqId)
-			("texid", w.texid, &nul.texid)
-			("scale", w.scale, &nul.scale)
-			("clipdist", w.clipDist)
-			("mass", w.mass)
-			("airvel", w.airVel)
-			("fraction", w.fraction)
-			.EndObject();
-	}
-	return arc;
-}
-#endif
 
 void SerializeConditions(FSerializer& arc);
 

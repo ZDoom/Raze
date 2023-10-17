@@ -4660,7 +4660,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 				{
 					if (actor->xspr.physAttr & kPhysDebrisVector) 
 					{
-						int mass = max(actor->spriteMass.mass, 10);
+						int mass = max(getSpriteMassBySize(actor), 10);
 						double thrust = double(pVectorData->impulse) / (mass * 4096);
 						actor->vel += dv * thrust;
 
