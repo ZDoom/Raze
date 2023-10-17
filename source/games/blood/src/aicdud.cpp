@@ -268,7 +268,7 @@ static DBloodActor* weaponShotThing(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap
 
     auto dv = pTarget->spr.pos - pSpr->spr.pos;
     auto nDist = dv.Length();
-    int nDiv = 540, nSlope = 12000;
+    double nSlope = FixedToFloat(12000);
     bool impact = true;
     int nHealth = 0;
 
@@ -289,13 +289,14 @@ static DBloodActor* weaponShotThing(DCustomDude* pDude, CUSTOMDUDE_WEAPON* pWeap
             break;
     }
     
-    nSlope = (pWeap->HaveSlope()) ? pWeap->shot.slope : (int(vel.Z * 2) - nSlope);
+    nSlope = (pWeap->HaveSlope()) ? pWeap->shot._slope : ((vel.Z * 2) - nSlope);
 
     // fixed point math sucks
     //nVel = divscale23(nDist / nDiv, 120);
-    double nVel = (nDist * worldtoint * 128 / nDiv) / 120.;
+    //double nVel = (nDist * worldtoint * 128 / 540) / 120.;
+    double nVel = nDist * 0.031605;
 
-    pShot = actFireThing(pSpr, -pOffs.X, pOffs.Z, FixedToFloat(nSlope), pWeap->id, nVel);
+    pShot = actFireThing(pSpr, -pOffs.X, pOffs.Z, nSlope, pWeap->id, nVel);
     if (pShot)
     {
         nnExtOffsetSprite(pShot, DVector3(0, pOffs.Y, 0));
@@ -586,34 +587,27 @@ static DBloodActor* weaponShotSpecialBeastStomp(DCustomDude* pDude, CUSTOMDUDE_W
 }
 
 
-
 void weaponShot(DBloodActor* pSpr)
 {
-    // most of the fixed point math in here has been kept for reasons of simplicity and needs to be converted later when this can be tested.
     if (!pSpr->hasX())
         return;
 
-    DCustomDude* pDude = cdudeGet(pSpr);
-    CUSTOMDUDE_WEAPON *pCurWeap = pDude->pWeapon, *pWeap;
-    DBloodActor *pShot;
-    DVector3 *pStyleOffs;
-    DVector3 shotoffs;
+    auto pDude = cdudeGet(pSpr);
+    CUSTOMDUDE_WEAPON* pCurWeap = pDude->pWeapon, * pWeap;
+    DVector3 shotOffs, * pStyleOffs;
 
     int nShots, nTime;
-    int dz1;
-    int dx2, dy2, dz2;
-    int dx3, dy3, dz3;
     int i, j;
 
-    DAngle sang;
-    DAngle tang;
+    DAngle sang; 
+    DAngle tang; 
     bool hxof;
     int  hsht;
     bool styled;
 
 
-    const int dx1 = int(pSpr->spr.Angles.Yaw.Cos() * 16384);
-    const int dy1 = int(pSpr->spr.Angles.Yaw.Sin() * 16384);
+    DVector3 dv1 (pSpr->spr.Angles.Yaw.ToVector() * 0.25, 0);  // todo: check the factor! If I read it correctly nnextCoSin returns Q18.14 vectors.
+    DVector3 dv2, dv3;
 
     if (pCurWeap)
     {
@@ -632,35 +626,32 @@ void weaponShot(DBloodActor* pSpr)
                 nShots = pWeap->GetNumshots();
                 pWeap->ammo.Dec(nShots);
                 styled = (nShots > 1 && pWeap->style.available);
-                shotoffs = pWeap->shot.offset;
+                shotOffs = pWeap->shot.offset;
 
                 if (styled)
                 {
-                    pStyleOffs = &pWeap->style.offset;
+                    pStyleOffs = &pWeap->style.offset; 
                     hsht = nShots >> 1;
                     sang = pWeap->style.angle / nShots;
                     hxof = 0;
                     tang = nullAngle;
                 }
 
-                dz1 = (pWeap->shot.slope == INT32_MAX) ?
-                        int (zworldtoint * pDude->AdjustSlope(pSpr->xspr.target, pWeap->shot.offset.Z)) : pWeap->shot.slope;
+                dv1.Z = (pWeap->shot._slope == INT32_MAX) ?
+                    pDude->AdjustSlope(pSpr->xspr.target, pWeap->shot.offset.Z) : pWeap->shot._slope;
 
                 for (j = nShots; j > 0; j--)
                 {
                     if (!styled || j == nShots)
                     {
-                        dx3 = Random3(pWeap->dispersion[0]);
-                        dy3 = Random3(pWeap->dispersion[0]);
-                        dz3 = Random3(pWeap->dispersion[1]);
 
-                        dx2 = dx1 + dx3;
-                        dy2 = dy1 + dy3;
-                        dz2 = dz1 + dz3;
+                        dv3.X = Random3F(pWeap->dispersion[0]); // todo: check if same scale as dv1.
+                        dv3.Y = Random3F(pWeap->dispersion[0]);
+                        dv3.Z = Random3F(pWeap->dispersion[1]);
+                        dv2 = dv1 + dv3;
                     }
 
-                    DVector3 dv(dx2 * inttoworld, dy2 * inttoworld, dz2 * zinttoworld);
-                    pShot = gWeaponShotFunc[pWeap->type](pDude, pWeap, shotoffs, dv);
+                    auto pShot = gWeaponShotFunc[pWeap->type](pDude, pWeap, shotOffs, dv2);
                     if (pShot)
                     {
                         // override removal timer
@@ -670,59 +661,57 @@ void weaponShot(DBloodActor* pSpr)
                             if (nTime)
                                 evPostActor(pShot, nTime, AF(RemoveActor));
                         }
+                    }
 
-                        // setup style
-                        if (styled)
+                    // setup style
+                    if (styled)
+                    {
+                        if (double txof = pStyleOffs->X)
                         {
-                            if (double txof = pStyleOffs->X)
+                            if (j <= hsht)
                             {
-                                if (j <= hsht)
+                                if (!hxof)
                                 {
-                                    if (!hxof)
-                                    {
-                                        shotoffs.X = pWeap->shot.offset.X;
-                                        hxof = 1;
-                                    }
-
-                                    txof = -txof;
+                                    shotOffs.X = pWeap->shot.offset.X;
+                                    hxof = 1;
                                 }
 
-                                shotoffs.X += txof;
+                                txof = -txof;
                             }
 
-                            shotoffs.Y += pStyleOffs->Y;
-                            shotoffs.Z += pStyleOffs->Z;
+                            shotOffs.X += txof;
+                        }
 
-                            if (pWeap->style.angle != nullAngle)
+                        shotOffs.Y += pStyleOffs->Y;
+                        shotOffs.Z += pStyleOffs->Z;
+
+                        if (pWeap->style.angle != nullAngle)
+                        {
+                            // for sprites
+                            if (pShot)
                             {
-                                // for sprites
-                                if (pShot)
+                                if (j <= hsht && sang > nullAngle)
                                 {
-                                    if (j <= hsht && sang > nullAngle)
-                                    {
-                                        sang = -sang;
-                                        tang = nullAngle;
-                                    }
-
-                                    tang += sang;
-                                    pShot->vel.XY() = rotatepoint(pShot->vel.XY(), pSpr->spr.pos.XY(), tang); // formula looks broken
-                                    //pShot->vel.XY() = rotatepoint(pShot->vel.XY(), DVector2(0, 0), tang); // what it probably should be!
-                                    pShot->spr.Angles.Yaw = pShot->vel.Angle();
+                                    sang = -sang;
+                                    tang = nullAngle;
                                 }
-                                // for hitscan
-                                else
+
+                                tang += sang;
+                                pShot->vel.XY() = rotatepoint(pShot->vel.XY(), pSpr->spr.pos.XY(), tang); // formula looks broken
+                                //pShot->vel.XY() = rotatepoint(pShot->vel.XY(), DVector2(0, 0), tang); // what it probably should be!
+                                pShot->spr.Angles.Yaw = pShot->vel.Angle();
+                            }
+                            // for hitscan
+                            else
+                            {
+                                if (j <= hsht && sang > nullAngle)
                                 {
-                                    if (j <= hsht && sang > nullAngle)
-                                    {
-                                        dx2 = dx1 + dx3; dy2 = dy1 +  dy3;
-                                        sang = -sang;
-                                    }
-
-                                    auto dv = rotatepoint(DVector2(dx2 * inttoworld, dy2 * inttoworld), pSpr->spr.pos.XY(), sang); // formula looks broken
-                                    //auto dv = rotatepoint(DVector2(dx2 * inttoworld, dy2 * inttoworld), DVector2(0, 0), sang); // what it probably should be!
-                                    dx2 = int(dv.X * worldtoint);
-                                    dy2 = int(dv.Y * worldtoint);
+                                    dv2.XY() = pSpr->spr.Angles.Yaw.ToVector() + dv3.XY();
+                                    sang = -sang;
                                 }
+
+                                auto dv = rotatepoint(dv2.XY(), pSpr->spr.pos.XY(), sang); // formula looks broken
+                                //auto dv = rotatepoint(dv2, DVector2(0, 0), sang); // what it probably should be!
                             }
                         }
                     }
@@ -735,6 +724,7 @@ void weaponShot(DBloodActor* pSpr)
         }
     }
 }
+
 
 static int checkTarget(DCustomDude* pDude, DBloodActor* pTarget, TARGET_INFO* pOut)
 {

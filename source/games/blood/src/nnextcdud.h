@@ -670,7 +670,7 @@ class CUSTOMDUDE_WEAPON
 		struct SHOT
 		{
 			double _velocity;
-			signed   int slope;
+			double _slope;
 			DAngle targetFollow;
 			uint8_t clipdist;
 			uint8_t impact;
@@ -746,13 +746,13 @@ class CUSTOMDUDE_WEAPON
 
 			shot.remTime    = -1;
 			shot._velocity = FLT_MAX;
-			shot.slope    = INT32_MAX;
+			shot._slope    = FLT_MAX;
 		}
 		bool HaveAmmmo(void)        { return (!ammo.total || ammo.cur); }
 		double  GetDistance(void)     { return max(distRange[1] - distRange[0], 0.); }
 		int  GetNumshots(void)      { return (ammo.total) ? ClipHigh(ammo.cur, numshots) : numshots; }
 		bool IsTimeout(void)        { return ((unsigned int)PlayClock < cooldown.clock); }
-		bool HaveSlope(void)        { return (shot.slope != INT32_MAX); }
+		bool HaveSlope(void)        { return (shot._slope != FLT_MAX); }
 		bool HaveVelocity(void)     { return (shot._velocity != FLT_MAX); }
 
 };

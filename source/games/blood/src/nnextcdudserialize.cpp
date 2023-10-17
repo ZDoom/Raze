@@ -67,7 +67,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, CUSTOMDUDE_WEAPON:
 	{
 		arc
 			("velocity", w._velocity)
-			("slope", w.slope)
+			("slope", w._slope)
 			("targetfollow", w.targetFollow)
 			("clipdist", w.clipdist)
 			("impact", w.impact)

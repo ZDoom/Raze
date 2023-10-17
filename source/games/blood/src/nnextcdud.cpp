@@ -3621,10 +3621,14 @@ bool CUSTOMDUDEV2_SETUP::ParseShotSetup(const char* str, CUSTOMDUDE_WEAPON* pWea
                         pWeap->shot._velocity = FLT_MAX;
                     break;
                 case kParWeaponShotSlope:
-                    pWeap->shot.slope = CheckValue(val, kValFix, INT32_MAX);
-                    if (pWeap->shot.slope != INT32_MAX)
-                        pWeap->shot.slope <<= 4;
+                {
+                    int slope = CheckValue(val, kValFix, INT32_MAX);
+                    if (slope != INT32_MAX)
+                        pWeap->shot._slope = FixedToFloat(slope << 4);
+                    else
+                        pWeap->shot._slope = FLT_MAX;
                     break;
+                }
                 case kParWeaponShotFollow:
                     nVal = CheckValue(val, kValUfix, 0, kAng360);
                     pWeap->shot.targetFollow = DAngle::fromBuild(ClipHigh(nVal, kAng360 - 1));
@@ -3974,7 +3978,7 @@ void CUSTOMDUDEV1_SETUP::WeaponConvert(int nWeaponID)
         {
             case kModernThingEnemyLifeLeech:
             case kThingDroppedLifeLeech:
-                pW1->shot.slope = -5000;
+                pW1->shot._slope = FixedToFloat(-5000);
                 pW1->ammo.SetTotal(1);
                 pW1->ammo.SetFull();
                 [[fallthrough]];
