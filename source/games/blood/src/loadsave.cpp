@@ -123,11 +123,6 @@ static AISTATE* const allAIStates[] =
 	&tinycalebBurnGoto,
 	&tinycalebBurnSearch,
 	&tinycalebBurnAttack,
-	&genDudeBurnIdle,
-	&genDudeBurnChase,
-	&genDudeBurnGoto,
-	&genDudeBurnSearch,
-	&genDudeBurnAttack,
 	&tinycalebIdle,
 	&tinycalebChase,
 	&tinycalebDodge,
@@ -191,6 +186,7 @@ static AISTATE* const allAIStates[] =
 	&cultistSProneFire,
 	&cultistTProneFire,
 	&cultistTsProneFire,
+	&cultistTsProneFireFixed,
 	&cultistRecoil,
 	&cultistProneRecoil,
 	&cultistTeslaRecoil,
@@ -353,12 +349,112 @@ static AISTATE* const allAIStates[] =
 	&zombieFTeslaRecoil,
 };
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+#ifdef NOONE_EXTENSIONS
+// Serializing states is a lot more tricky for custom dudes.
+// Note that this makes no assumptions about the relationship between actor and dude because at restoration this isn't known.
+struct AIStateRep
+{
+	DCustomDude* owner;
+	int index;
+};
+static AIStateRep makeStateRep(AISTATE* state)
+{
+	int i = 0;
+	if (state == nullptr) return { nullptr, -1 };
+	for (auto cstate : allAIStates)
+	{
+		if (state == cstate)
+		{
+			
+			return { nullptr, i };
+		}
+		i++;
+	}
+	if (gModernMap)
+	{
+		if (state >= genPatrolStates && state < genPatrolStates + kPatrolStateSize)
+		{
+			return { nullptr, int(state - genPatrolStates) + 1000 };
+		}
+		// now it gets ugly: the custom dudes each have a copied set of states. Find out which one.
+		BloodSpriteIterator it;
+		while (auto actor = it.Next())
+		{
+			if (IsCustomDude(actor))
+			{
+				auto dude = cdudeGet(actor);
+				if (dude)
+				{
+					auto firststate = (AISTATE*)dude->states;
+					auto count = sizeof(dude->states) / sizeof(AISTATE);
+					if (state >= firststate && state < firststate + count)
+					{
+						return { dude, int(state - firststate) };
+					}
+				}
+			}
+		}
+	}
+	Printf(PRINT_HIGH, "Attempt to save invalid state!\n"); // we got no further info here, sorry!
+	return { nullptr, -1 };
+}
 
+static AISTATE* getStateFromRep(AIStateRep* rep)
+{
+	if (rep->owner == nullptr)
+	{
+		int i = rep->index;
+		if (i >= 0 && i < countof(allAIStates))
+		{
+			return allAIStates[i];
+		}
+		else if (gModernMap && i >= 1000 && i < 1000 + kPatrolStateSize)
+		{
+			return genPatrolStates + (i - 1000);
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	else if (gModernMap)
+	{
+		// at this point the object may not have been deserialized but it definitely has been allocated so we can just take the address.
+		AISTATE* state = (AISTATE*)rep->owner->states;
+		return state + rep->index;
+	}
+	else return nullptr;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AIStateRep& w, AIStateRep* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("object", w.owner)
+			("index", w.index)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
+{
+	unsigned i = 0;
+	if (arc.isWriting())
+	{
+		auto rep = makeStateRep(w);
+		arc(keyname, rep);
+	}
+	else
+	{
+		AIStateRep rep;
+		arc(keyname, rep);
+		w = getStateFromRep(&rep);
+	}
+	return arc;
+}
+
+#else
 FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
 {
 	unsigned i = 0;
@@ -374,13 +470,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 			}
 			i++;
 		}
-#ifdef NOONE_EXTENSIONS
-		if (w >= genPatrolStates && w < genPatrolStates + kPatrolStateSize)
-		{
-			i = int(w - genPatrolStates) + 1000;
-			arc(keyname, i);
-		}
-#endif
 	}
 	else
 	{
@@ -389,12 +478,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 		{
 			w = allAIStates[i];
 		}
-#ifdef NOONE_EXTENSIONS
-		else if (i >= 1000 && i < 1000 + kPatrolStateSize)
-		{
-			w = genPatrolStates + (i - 1000);
-		}
-#endif
 		else
 		{
 			w = nullptr;
@@ -402,6 +485,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 	}
 	return arc;
 }
+
+#endif
+
 
 //---------------------------------------------------------------------------
 //

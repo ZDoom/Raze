@@ -110,11 +110,7 @@ extern AISTATE tinycalebBurnChase;
 extern AISTATE tinycalebBurnGoto;
 extern AISTATE tinycalebBurnSearch;
 extern AISTATE tinycalebBurnAttack;
-extern AISTATE genDudeBurnIdle;
-extern AISTATE genDudeBurnChase;
-extern AISTATE genDudeBurnGoto;
-extern AISTATE genDudeBurnSearch;
-extern AISTATE genDudeBurnAttack;
+
 
 extern AISTATE tinycalebIdle;
 extern AISTATE tinycalebChase;
@@ -181,6 +177,7 @@ extern AISTATE cultistTsFire;
 extern AISTATE cultistSProneFire;
 extern AISTATE cultistTProneFire;
 extern AISTATE cultistTsProneFire;
+extern AISTATE cultistTsProneFireFixed;
 extern AISTATE cultistRecoil;
 extern AISTATE cultistProneRecoil;
 extern AISTATE cultistTeslaRecoil;

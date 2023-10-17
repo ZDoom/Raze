@@ -61,11 +61,6 @@ AISTATE tinycalebBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveFo
 AISTATE tinycalebBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), &tinycalebBurnSearch };
 AISTATE tinycalebBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &tinycalebBurnChase };
 
-AISTATE genDudeBurnIdle = { kAiStateIdle, 3, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE genDudeBurnChase = { kAiStateChase, 3, nullptr, 0, NULL, &AF(aiMoveForward), &AF(burnThinkChase), NULL };
-AISTATE genDudeBurnGoto = { kAiStateMove, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkGoto), &genDudeBurnSearch };
-AISTATE genDudeBurnSearch = { kAiStateSearch, 3, nullptr, 3600, NULL, &AF(aiMoveForward), &AF(burnThinkSearch), &genDudeBurnSearch };
-AISTATE genDudeBurnAttack = { kAiStateChase, 3, &AF(BurnSeqCallback), 120, NULL, NULL, NULL, &genDudeBurnChase };
 
 void BurnSeqCallback(DBloodActor*)
 {
