@@ -383,7 +383,7 @@ void actPropagateSpriteOwner(DBloodActor* pShot, DBloodActor* pSpr);
 int nnExtDudeStartHealth(DBloodActor* pSpr, int nHealth);
 void nnExtSprScaleSet(DBloodActor* actor, int nScale);
 struct Seq;
-bool seqCanOverride(Seq* pSeq, int nFrame, bool* xrp, bool* yrp, bool* plu);
+bool seqCanOverride(const Seq* pSeq, int nFrame, bool* xrp, bool* yrp, bool* plu);
 inline unsigned int perc2val(unsigned int reqPerc, unsigned int val) { return (val * reqPerc) / 100; }
 inline int perc2val(int reqPerc, int val) { return (val * reqPerc) / 100; }
 inline double perc2val(int reqPerc, double val) { return (val * reqPerc) / 100; }

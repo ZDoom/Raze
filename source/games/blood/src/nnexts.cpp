@@ -5656,7 +5656,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 				canInherit &= ~0x8;
 
 				SEQINST* pInst = GetInstance(missileactor);
-				Seq* pSeq = pInst->pSequence;
+				const Seq* pSeq = pInst->pSequence;
 				for (int i = 0; i < pSeq->nFrames; i++)
 				{
 					if ((canInherit & 0x4) && pSeq->frames[i].palette != 0) canInherit &= ~0x4;
@@ -6423,7 +6423,7 @@ bool seqForceOverride(DBloodActor* pSpr, SEQINST* pInst, bool ovrPic, bool ovrPa
 {
 	bool xrp, yrp, plu;
 	bool killSeq = (ovrPic || ovrShd);
-	Seq* pSeq;
+	const Seq* pSeq;
 
 	if (pInst && ((pSeq = pInst->pSequence) != NULL))
 	{
@@ -6476,7 +6476,7 @@ void gibPropagateAppearance(DBloodActor* pSrc, DBloodActor* pFrom, DBloodActor* 
 
 	if (pDest->hasX() && (t = seqGetID(pDest)) >= 0)
 	{
-		Seq* pSeq = getSequence(t);
+		const Seq* pSeq = getSequence(t);
 		if (pSeq)
 		{
 			if (!killSeq)
@@ -8815,9 +8815,9 @@ bool isOnRespawn(DBloodActor* pSpr)
 //
 //---------------------------------------------------------------------------
 
-bool seqCanOverride(Seq* pSeq, int nFrame, bool* xrp, bool* yrp, bool* plu)
+bool seqCanOverride(const Seq* pSeq, int nFrame, bool* xrp, bool* yrp, bool* plu)
 {
-	SEQFRAME* pFrame;
+	const SEQFRAME* pFrame;
 	*xrp = *yrp = *plu = true;
 	if (!pSeq)
 		return true;

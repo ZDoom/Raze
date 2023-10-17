@@ -1216,6 +1216,7 @@ class DCustomDude : public DObject
 		CUSTOMDUDE_EFFECT    effects[kCdudeMaxEffectGroups];                        // fx, gib effect stuff
 		AISTATE states[kCdudeStateMax][kCdudePostureMax];                           // includes states for weapons
 		TArray<TObjPtr<DBloodActor*>> pSlaves;                                                            // summoned dudes under control of this dude
+		TArray<int> triggerSeqs;					// this originally hacked the global ser
 		uint8_t medium     ;                       // medium in which it can live
 		uint8_t posture    ;                       // current posture
 		unsigned int mass       ;                       // mass in KG

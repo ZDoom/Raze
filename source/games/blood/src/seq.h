@@ -59,14 +59,14 @@ struct Seq {
 	int16_t soundId;
 	int flags;
 	SEQFRAME frames[1];
-	void Precache(int palette);
+	void Precache(int palette) const;
 
-	bool isLooping()
+	bool isLooping() const
 	{
 		return (flags & 1) != 0;
 	}
 
-	bool isRemovable()
+	bool isRemovable() const
 	{
 		return (flags & 2) != 0;
 	}
@@ -75,7 +75,7 @@ struct Seq {
 class DBloodActor;
 struct SEQINST
 {
-	Seq* pSequence;
+	const Seq* pSequence;
 	EventObject target;
 	int type;
 
@@ -83,15 +83,16 @@ struct SEQINST
 	VMFunction* callback;
 	int16_t timeCounter;
 	uint8_t frameIndex;
+	bool autotrigger;
 	void Update();
 };
 
-inline int seqGetTile(SEQFRAME* pFrame)
+inline int seqGetTile(const SEQFRAME* pFrame)
 {
 	return pFrame->tile + (pFrame->tile2 << 12);
 }
 
-inline FTextureID seqGetTexture(SEQFRAME* pFrame)
+inline FTextureID seqGetTexture(const SEQFRAME* pFrame)
 {
 	return tileGetTextureID(pFrame->tile + (pFrame->tile2 << 12));
 }
@@ -100,7 +101,6 @@ int seqRegisterClient(void(*pClient)(int, int));
 void seqPrecacheId(int id, int palette);
 SEQINST* GetInstance(int a1, EventObject& a2);
 SEQINST* GetInstance(DBloodActor* actor);
-void UnlockInstance(SEQINST* pInst);
 void seqSpawn(int a1, int ty, walltype* a2, VMFunction* a4 = nullptr);
 void seqSpawn(int a1, int ty, sectortype* a2, VMFunction* a4 = nullptr);
 void seqSpawn(int a1, DBloodActor* actor, VMFunction* a4 = nullptr);
@@ -117,7 +117,7 @@ int seqGetID(int a1, sectortype* a2);
 int seqGetID(DBloodActor*);
 void seqProcess(int a1);
 
-Seq* getSequence(int res_id);
+const Seq* getSequence(int res_id);
 
 
 END_BLD_NS

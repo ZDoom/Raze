@@ -703,7 +703,7 @@ bool DCustomDude::NewState(AISTATE* pState)
 
         if (pState->seqId > 0)
         {
-            seqSpawn(pState->seqId, pSpr, *pState->funcId);
+            /*!!!*/seqSpawn(pState->seqId, pSpr, *pState->funcId);
         }
         else if (pState->seqId == 0)
         {
@@ -2025,7 +2025,8 @@ void CUSTOMDUDE_SETUP::SoundFill(void)
 void CUSTOMDUDE_SETUP::FindLargestPic(void)
 {
     int i, j, nHeigh = 0;
-    AISTATE* pState; Seq* pSeq;
+    AISTATE* pState; 
+    const Seq* pSeq;
 
     for (i = 0; i < kCdudeStateMax; i++)
     {
@@ -3183,9 +3184,7 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
                     {
                         if (!helperSeqTriggerExists(pState->seqId))
                         {
-                            Seq* pSeq = getSequence(pState->seqId);
-                            if (pSeq)
-                                pSeq->frames[pSeq->nFrames - 1].trigger = 1;
+                            pDude->triggerSeqs.Push(pState->seqId);
                         }
 
                         pState++;
@@ -3779,7 +3778,7 @@ void CUSTOMDUDEV2_SETUP::Setup(void)
             case kParGroupDodge:         SetupDodge();         break;
             case kParGroupKnockout:      SetupKnockout();      break;
             case kParGroupWeapon:        SetupWeapons();       break;
-            case kParGroupFXEffect:        SetupEffect();        break;
+            case kParGroupFXEffect:      SetupEffect();        break;
             case kParGroupMovePat:       SetupMovePattern();   break;
             case kParGroupDropItem:      SetupDropItem();      break;
         }
@@ -3935,9 +3934,7 @@ void CUSTOMDUDEV1_SETUP::WeaponMeleeSet(CUSTOMDUDE_WEAPON* pWeapon)
     {
         if (!helperSeqTriggerExists(pState->seqId))
         {
-            Seq* pSeq = getSequence(pState->seqId);
-            if (pSeq)
-                pSeq->frames[pSeq->nFrames - 1].trigger = 1;
+            pDude->triggerSeqs.Push(pState->seqId);
         }
 
         pState++;
@@ -4209,10 +4206,10 @@ static FTextureID helperGetFirstPic(DCustomDude* pDude)
     int nSeq = pDude->GetStateSeq(kCdudeStateIdle, kCdudePostureL);
     if (getSequence(nSeq))
     {
-        Seq* pSeq = getSequence(nSeq);
+        const Seq* pSeq = getSequence(nSeq);
         if (pSeq)
         {
-            SEQFRAME* pFrame = &pSeq->frames[0];
+            const SEQFRAME* pFrame = &pSeq->frames[0];
             nPic = tileGetTextureID(pFrame->tile + (pFrame->tile2 << 12));
         }
     }
@@ -4223,7 +4220,7 @@ static FTextureID helperGetFirstPic(DCustomDude* pDude)
 static bool helperSeqTriggerExists(int nSeq)
 {
     int i;
-    Seq* pSeq = getSequence(nSeq);
+    const Seq* pSeq = getSequence(nSeq);
     if (pSeq)
     {
         i = pSeq->nFrames;

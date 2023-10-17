@@ -42,7 +42,7 @@ BEGIN_BLD_NS
 //
 //---------------------------------------------------------------------------
 
-void Seq::Precache(int palette)
+void Seq::Precache(int palette) const
 {
 	if (memcmp(signature, "SEQ\x1a", 4) != 0)
 		I_Error("Invalid sequence");
@@ -64,7 +64,7 @@ void seqPrecacheId(int id, int palette)
 //
 //---------------------------------------------------------------------------
 
-void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
+void UpdateCeiling(sectortype* pSector, const SEQFRAME* pFrame)
 {
 	pSector->setceilingtexture(seqGetTexture(pFrame));
 	pSector->ceilingshade = pFrame->shade;
@@ -78,7 +78,7 @@ void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
+void UpdateFloor(sectortype* pSector, const SEQFRAME* pFrame)
 {
 	pSector->setfloortexture(seqGetTexture(pFrame));
 	pSector->floorshade = pFrame->shade;
@@ -92,7 +92,7 @@ void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
+void UpdateWall(walltype* pWall, const SEQFRAME* pFrame)
 {
 	assert(pWall->hasX());
 	pWall->setwalltexture(seqGetTexture(pFrame));
@@ -122,7 +122,7 @@ void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
+void UpdateMasked(walltype* pWall, const SEQFRAME* pFrame)
 {
 	assert(pWall->hasX());
 	walltype* pWallNext = pWall->nextWall();
@@ -179,7 +179,7 @@ void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
+void UpdateSprite(DBloodActor* actor, const SEQFRAME* pFrame)
 {
 	assert(actor->hasX());
 	if (actor->spr.flags & 2)
@@ -336,11 +336,13 @@ void SEQINST::Update()
 		break;
 	}
 
-	// all seq callbacks are for sprites, but there's no sanity checks here that what gets passed is meant to be for a sprite...
-	if (pSequence->frames[frameIndex].trigger && callback != nullptr)
+	// all seq callbacks are for sprites
+	if (callback != nullptr && type == SS_SPRITE)
 	{
-		assert(type == SS_SPRITE);
-		if (target.isActor()) callActorFunction(callback, target.actor());
+		if (pSequence->frames[frameIndex].trigger || (autotrigger && frameIndex == pSequence->nFrames - 1))
+		{
+			if (target.isActor()) callActorFunction(callback, target.actor());
+		}
 	}
 
 }
@@ -507,7 +509,7 @@ static void ByteSwapSEQ(Seq* pSeq)
 
 FMemArena seqcache;
 static TMap<int, Seq*> sequences;
-Seq* getSequence(int res_id)
+const Seq* getSequence(int res_id)
 {
 	auto p = sequences.CheckKey(res_id);
 	if (p != nullptr) return *p;
@@ -531,9 +533,9 @@ Seq* getSequence(int res_id)
 //
 //---------------------------------------------------------------------------
 
-void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callback)
+void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callback, bool autotrigger = false)
 {
-	Seq* pSequence = getSequence(nSeqID);
+	const Seq* pSequence = getSequence(nSeqID);
 
 	if (pSequence == nullptr) return;
 
@@ -556,12 +558,26 @@ void seqSpawn_(int nSeqID, int type, const EventObject& eob, VMFunction* callbac
 	pInst->frameIndex = 0;
 	pInst->type = type;
 	pInst->target = eob;
+	pInst->autotrigger = autotrigger;
 	pInst->Update();
 }
 
 void seqSpawn(int nSeqID, DBloodActor* actor, VMFunction* callback)
 {
-	seqSpawn_(nSeqID, SS_SPRITE, EventObject(actor), callback);
+	bool autotrigger = false;
+#ifdef NOONE_EXTENSIONS
+	// the custom dude code originally hacked the actual sequence data to insert a trigger.
+	// This is not acceptable because the sequences are supposed to be global immutable data.
+	// So instead, flag them in the dude's data so we can insert the synthesized trigger into
+	// the instance data here without altering the sequence itself. This is also far more
+	// serialization friendly.
+	if (IsCustomDude(actor) && callback)
+	{
+		auto dude = cdudeGet(actor);
+		autotrigger = (dude && dude->triggerSeqs.Contains(nSeqID));
+	}
+#endif
+	seqSpawn_(nSeqID, SS_SPRITE, EventObject(actor), callback, autotrigger);
 }
 
 void seqSpawn(int nSeqID, int type, sectortype* sect, VMFunction* callback)
@@ -636,7 +652,7 @@ void seqProcess(int nTicks)
 	for (int i = 0; i < activeList.getSize(); i++)
 	{
 		SEQINST* pInst = activeList.getInst(i);
-		Seq* pSeq = pInst->pSequence;
+		const Seq* pSeq = pInst->pSequence;
 		auto target = pInst->target;
 
 		assert(pInst->frameIndex < pSeq->nFrames);
@@ -703,7 +719,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 			("seqid", w.nSeqID)
 			("timecounter", w.timeCounter)
 			("frameindex", w.frameIndex)
-			("target", w.target);
+			("target", w.target)
+			("autotrigger", w.autotrigger);
 
 		arc.EndObject();
 	}
