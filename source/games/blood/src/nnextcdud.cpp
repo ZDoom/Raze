@@ -788,8 +788,8 @@ void DCustomDude::InitSprite(void)
     }
     else
     {
-        pExtra->active    = 0;
-        pExtra->thinkTime = 0;
+        pSpr->dudeExtra.active    = 0;
+        pSpr->dudeExtra.thinkTime = 0;
         if (spriteIsUnderwater(pSpr))
         {
             pSpr->xspr.medium   = kMediumWater;
@@ -840,10 +840,10 @@ void DCustomDude::Activate(void)
         {
             if (!IsSleeping())
             {
-                if (!pExtra->active && StatusTest(kCdudeStatusForceCrouch) && IsCrouching())
+                if (!pSpr->dudeExtra.active && StatusTest(kCdudeStatusForceCrouch) && IsCrouching())
                     posture = kCdudePostureL;
 
-                pExtra->active = 1;
+                pSpr->dudeExtra.active = 1;
                 NewState(kCdudeStateChase);
             }
             else
@@ -893,19 +893,19 @@ int DCustomDude::Damage(DBloodActor* nFrom, int nDmgType, int nDmg)
     {
         if (IsKnockout())
         {
-            pExtra->teslaHit = 0;
+            pSpr->dudeExtra.teslaHit = 0;
             return nDmg;
         }
         else if (CanKnockout() && knockout.Allow(t))
         {
             NewState(kCdudeStateKnockEnter);
             PlaySound(kCdudeSndGotHit);
-            pExtra->teslaHit = 0;
+            pSpr->dudeExtra.teslaHit = 0;
             return nDmg;
         }
 
         if (nDmgType == kDmgElectric)
-            pExtra->teslaHit = 1;
+            pSpr->dudeExtra.teslaHit = 1;
 
         if (CanRecoil() && recoil.Allow(t))
             Recoil();
@@ -934,7 +934,7 @@ int DCustomDude::Damage(DBloodActor* nFrom, int nDmgType, int nDmg)
         }
     }
 
-    pExtra->teslaHit = 0;
+    pSpr->dudeExtra.teslaHit = 0;
     return nDmg;
 }
 
@@ -946,7 +946,7 @@ void DCustomDude::Recoil(void)
         if (CanRecoil())
             nState = kCdudeStateRecoil;
 
-        if (pExtra->teslaHit)
+        if (pSpr->dudeExtra.teslaHit)
         {
             if (CanElectrocute() && !IsUnderwater())
             {
@@ -958,7 +958,7 @@ void DCustomDude::Recoil(void)
         NewState(nState);
     }
 
-    pExtra->teslaHit = 0;
+    pSpr->dudeExtra.teslaHit = 0;
 }
 
 AISTATE* DCustomDude::PickDeath(int nDmgType)
@@ -1559,7 +1559,6 @@ void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 
     pDude->pInfo = getDudeInfo(pSpr);
     pDude->pSpr = pSpr;
-    pDude->pExtra = &pSpr->dudeExtra;
     pDude->pLeech = nullptr;
 
     pDude->pWeapon  = &pDude->weapons[0];

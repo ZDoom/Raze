@@ -815,7 +815,7 @@ void thinkTarget(DBloodActor* pSpr)
                 qsort(targets, numTargets, sizeof(targets[0]), (int(*)(const void*, const void*))qsSortTargets);
 
             pTarget = pInfo->pSpr;
-            if (pDude->pExtra->active)
+            if (pDude->pSpr->dudeExtra.active)
             {
                 if (pSpr->xspr.target != pTarget || Chance(0x0400))
                     pDude->PlaySound(kCdudeSndTargetSpot);

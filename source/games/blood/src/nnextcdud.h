@@ -1186,6 +1186,8 @@ class CUSTOMDUDE_DROPITEM
 		}
 };
 
+using NextDudeInfo = std::variant<bool, int, PClass*, DBloodActor*>;
+
 class DCustomDude : public DObject
 {
 	DECLARE_CLASS(DCustomDude, DObject)
@@ -1200,7 +1202,6 @@ class DCustomDude : public DObject
 		uint8_t initialized;
 		uint8_t numEffects;
 		uint8_t numWeapons;
-		DUDEEXTRA* pExtra;
 		DUDEINFO* pInfo;
 		DBloodActor* pSpr;	// this is our owner so no TObjPtr is needed
 		TObjPtr<DBloodActor *> pLeech;
@@ -1226,7 +1227,7 @@ class DCustomDude : public DObject
 		double _hearDist   ;                       // dudeInfo duplicate for sleeping
 		DAngle periphery  ;                       // dudeInfo duplicate for sleeping
 		unsigned int fallHeight ;                       // in pixels
-		std::variant<bool, int, PClass*, DBloodActor*> nextDude;
+		NextDudeInfo nextDude;
 
 		//signed   int nextDude   ;                       
 		//----------------------------------------------------------------------------------------------------
