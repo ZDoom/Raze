@@ -681,7 +681,7 @@ class CUSTOMDUDE_WEAPON
 		shot;
 		struct AMMO
 		{
-			unsigned int cur, total         : 16;
+			uint16_t cur, total;
 			void SetTotal(int nVal) { total = nVal; }
 			void SetFull()          { Set(total); }
 			void Set(int nVal)      { cur = ClipRange(nVal, 0, total); }
@@ -837,6 +837,10 @@ class CUSTOMDUDE_GIB
 class CUSTOMDUDE_EFFECT
 {
 	public:
+		TArray<int> pAnims;	// SEQ IDs
+		TArray<int> pFrames; // SEQ frame indices
+		TArray<int> pStates; // type to be determined
+
 		unsigned short id[kCdudeMaxEffects];
 		unsigned int clock;
 		signed   int liveTime;
@@ -851,21 +855,19 @@ class CUSTOMDUDE_EFFECT
 		unsigned short delay[2];
 		CUSTOMDUDE_GIB spr2gib;
 		APPEARANCE appearance;
-		TArray<int> pAnims;	// SEQ IDs
-		TArray<int> pFrames; // SEQ frame indices
-		TArray<int> pStates; // type to be determined
 		DVector3 offset;
 		void Clear()
 		{
-			memset(this, 0, sizeof(CUSTOMDUDE_EFFECT));
+			pAnims.Clear();
+			pFrames.Clear();
+			pStates.Clear();
+			// do not memset the TArrays!
+			memset(id, 0, sizeof(CUSTOMDUDE_EFFECT) - myoffsetof(CUSTOMDUDE_EFFECT, id));
 			angle       = DAngle360;
 			_velocity    = -1;
 			chance      = 0x10000;
 			srcVelocity = 1;
 
-			pAnims.Clear();
-			pFrames.Clear();
-			pStates.Clear();
 		}
 
 		bool CanSpawn(DBloodActor* pSpr)
@@ -1020,7 +1022,7 @@ class  CUSTOMDUDE_DAMAGE
 {
 	public:
 		unsigned short id[kDmgMax];
-		unsigned int ignoreSources : 8;
+		uint8_t ignoreSources;
 		void Set(int nVal, int nFor) { id[nFor] = ClipRange(nVal, 0, kCdudeMaxDmgScale); }
 		void Inc(int nVal, int nFor) { Set(id[nFor] + abs(nVal), nFor); }
 		void Dec(int nVal, int nFor) { Set(id[nFor] - abs(nVal), nFor); }
@@ -1029,7 +1031,7 @@ class  CUSTOMDUDE_DAMAGE
 class  CUSTOMDUDE_DODGE
 {
 	public:
-		struct
+		struct DAMAGE
 		{
 			unsigned int times;
 			unsigned int timer;
@@ -1058,7 +1060,7 @@ class  CUSTOMDUDE_DODGE
 			}
 		}
 		onDamage;
-		struct
+		struct AIMMISS
 		{
 			unsigned int chance;
 			bool Allow(void) { return Chance(chance); }
@@ -1195,6 +1197,7 @@ class DCustomDude : public DObject
 
 	size_t PropagateMark() override;
 	void OnDestroy();
+	void Serialize(FSerializer& arc) override;
 
 	// Note: we will likely have to write out the entire shit here to make this savegame robust...
 	public:
