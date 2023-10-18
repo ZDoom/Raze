@@ -29,27 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
-
-AISTATE ghostIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(ghostThinkTarget), NULL };
-AISTATE ghostChase = { kAiStateChase, 0, nullptr, 0, NULL, &AF(ghostMoveForward), &AF(ghostThinkChase), &ghostIdle };
-AISTATE ghostGoto = { kAiStateMove, 0, nullptr, 600, NULL, &AF(ghostMoveForward), &AF(ghostThinkGoto), &ghostIdle };
-AISTATE ghostSlash = { kAiStateChase, 6, &AF(ghostSlashSeqCallback), 120, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostThrow = { kAiStateChase, 6, &AF(ghostThrowSeqCallback), 120, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostBlast = { kAiStateChase, 6, &AF(ghostBlastSeqCallback), 120, NULL, &AF(ghostMoveSlow), NULL, &ghostChase };
-AISTATE ghostRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostSearch = { kAiStateSearch, 0, nullptr, 120, NULL, &AF(ghostMoveForward), &AF(ghostThinkSearch), &ghostIdle };
-AISTATE ghostSwoop = { kAiStateOther, 0, nullptr, 120, NULL, &AF(ghostMoveSwoop), &AF(ghostThinkChase), &ghostChase };
-AISTATE ghostFly = { kAiStateMove, 0, nullptr, 0, NULL, &AF(ghostMoveFly), &AF(ghostThinkChase), &ghostChase };
-AISTATE ghostTurn = { kAiStateMove, 0, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &ghostChase };
-AISTATE ghostDodgeUp = { kAiStateMove, 0, nullptr, 60, NULL, &AF(ghostMoveDodgeUp), NULL, &ghostChase };
-AISTATE ghostDodgeUpRight = { kAiStateMove, 0, nullptr, 90, NULL, &AF(ghostMoveDodgeUp), NULL, &ghostChase };
-AISTATE ghostDodgeUpLeft = { kAiStateMove, 0, nullptr, 90, NULL, &AF(ghostMoveDodgeUp), NULL, &ghostChase };
-AISTATE ghostDodgeDown = { kAiStateMove, 0, nullptr, 120, NULL, &AF(ghostMoveDodgeDown), NULL, &ghostChase };
-AISTATE ghostDodgeDownRight = { kAiStateMove, 0, nullptr, 90, NULL, &AF(ghostMoveDodgeDown), NULL, &ghostChase };
-AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, nullptr, 90, NULL, &AF(ghostMoveDodgeDown), NULL, &ghostChase };
-
 void ghostSlashSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

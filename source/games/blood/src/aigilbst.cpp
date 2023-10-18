@@ -29,26 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
-
-AISTATE gillBeastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE gillBeastChase = { kAiStateChase, 9, nullptr, 0, NULL, &AF(aiMoveForward), &AF(gillThinkChase), NULL };
-AISTATE gillBeastDodge = { kAiStateMove, 9, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &gillBeastChase };
-AISTATE gillBeastGoto = { kAiStateMove, 9, nullptr, 600, NULL, &AF(aiMoveForward), &AF(gillThinkGoto), &gillBeastIdle };
-AISTATE gillBeastBite = { kAiStateChase, 6, &AF(GillBiteSeqCallback), 120, NULL, NULL, NULL, &gillBeastChase };
-AISTATE gillBeastSearch = { kAiStateMove, 9, nullptr, 120, NULL, &AF(aiMoveForward), &AF(gillThinkSearch), &gillBeastIdle };
-AISTATE gillBeastRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &gillBeastDodge };
-AISTATE gillBeastSwimIdle = { kAiStateIdle, 10, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE gillBeastSwimChase = { kAiStateChase, 10, nullptr, 0, NULL, &AF(gillMoveSwimChase), &AF(gillThinkSwimChase), NULL };
-AISTATE gillBeastSwimDodge = { kAiStateMove, 10, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &gillBeastSwimChase };
-AISTATE gillBeastSwimGoto = { kAiStateMove, 10, nullptr, 600, NULL, &AF(aiMoveForward), &AF(gillThinkSwimGoto), &gillBeastSwimIdle };
-AISTATE gillBeastSwimSearch = { kAiStateSearch, 10, nullptr, 120, NULL, &AF(aiMoveForward), &AF(gillThinkSearch), &gillBeastSwimIdle };
-AISTATE gillBeastSwimBite = { kAiStateChase, 7, &AF(GillBiteSeqCallback), 0, NULL, NULL, &AF(gillThinkSwimChase), &gillBeastSwimChase };
-AISTATE gillBeastSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &gillBeastSwimDodge };
-AISTATE gillBeastSwimUnused = { kAiStateOther, 10, nullptr, 120, NULL, &AF(gillMoveSwimUnused), &AF(gillThinkSwimChase), &gillBeastSwimChase };
-AISTATE gillBeastSwimMoveIn = { kAiStateOther, 10, nullptr, 0, NULL, &AF(gillSwimMoveIn), &AF(gillThinkSwimChase), &gillBeastSwimChase };
-AISTATE gillBeastSwimTurn = { kAiStateOther, 10, nullptr, 120, NULL, NULL, &AF(aiMoveTurn), &gillBeastSwimChase };
-
 void GillBiteSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

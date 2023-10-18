@@ -46,20 +46,12 @@ struct AISTATE {
 	int seqId;
 	VMNativeFunction** funcId;
 	int stateTicks;
-#if 0
-	void(*enterFunc)(DBloodActor *);
-	void(*moveFunc)(DBloodActor *);
-	void(*thinkFunc)(DBloodActor *);
-#else
 	VMNativeFunction** enterFunc;
 	VMNativeFunction** moveFunc;
 	VMNativeFunction** thinkFunc;
-#endif
+
 	AISTATE *nextState;
 };
-extern AISTATE aiState[];
-extern AISTATE genIdle;
-extern AISTATE genRecoil;
 
 enum AI_SFX_PRIORITY {
 	AI_SFX_PRIORITY_0 = 0,

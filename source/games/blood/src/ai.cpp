@@ -33,9 +33,6 @@ BEGIN_BLD_NS
 
 void RecoilDude(DBloodActor* actor);
 
-AISTATE genIdle = { kAiStateGenIdle, 0, nullptr, 0, NULL, NULL, NULL, NULL };
-AISTATE genRecoil = { kAiStateRecoil, 5, nullptr, 20, NULL, NULL, NULL, &genIdle };
-
 const int gCultTeslaFireChance[5] = { 0x2000, 0x4000, 0x8000, 0xa000, 0xe000 };
 
 //---------------------------------------------------------------------------

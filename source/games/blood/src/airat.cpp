@@ -29,14 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-AISTATE ratIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE ratSearch = { kAiStateSearch, 7, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(ratThinkSearch), &ratIdle };
-AISTATE ratChase = { kAiStateChase, 7, nullptr, 0, NULL, &AF(aiMoveForward), &AF(ratThinkChase), NULL };
-AISTATE ratDodge = { kAiStateMove, 7, nullptr, 0, NULL, NULL, NULL, &ratChase };
-AISTATE ratRecoil = { kAiStateRecoil, 7, nullptr, 0, NULL, NULL, NULL, &ratDodge };
-AISTATE ratGoto = { kAiStateMove, 7, nullptr, 600, NULL, &AF(aiMoveForward), &AF(ratThinkGoto), &ratIdle };
-AISTATE ratBite = { kAiStateChase, 6, &AF(ratBiteSeqCallback), 120, NULL, NULL, NULL, &ratChase };
-
 void ratBiteSeqCallback(DBloodActor* actor)
 {
 	assert(actor->IsDudeActor());

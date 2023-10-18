@@ -29,15 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
-AISTATE handIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE handChoke = { kAiStateOther, 0, nullptr, 0, NULL, NULL, NULL, NULL };
-AISTATE handSearch = { kAiStateMove, 6, nullptr, 600, NULL, &AF(aiMoveForward), &AF(handThinkSearch), &handIdle };
-AISTATE handChase = { kAiStateChase, 6, nullptr, 0, NULL, &AF(aiMoveForward), &AF(handThinkChase), NULL };
-AISTATE handRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &handSearch };
-AISTATE handGoto = { kAiStateMove, 6, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(handThinkGoto), &handIdle };
-AISTATE handJump = { kAiStateChase, 7, &AF(HandJumpSeqCallback), 120, NULL, NULL, NULL, &handChase };
-
 void HandJumpSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

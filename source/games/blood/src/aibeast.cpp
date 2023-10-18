@@ -30,28 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-AISTATE beastIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE beastChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(beastMoveForward), &AF(beastThinkChase), NULL };
-AISTATE beastDodge = { kAiStateMove, 8, nullptr, 60, NULL, &AF(aiMoveDodge), NULL, &beastChase };
-AISTATE beastGoto = { kAiStateMove, 8, nullptr, 600, NULL, &AF(beastMoveForward), &AF(beastThinkGoto), &beastIdle };
-AISTATE beastSlash = { kAiStateChase, 6, &AF(SlashSeqCallback), 120, NULL, NULL, NULL, &beastChase };
-AISTATE beastStomp = { kAiStateChase, 7, &AF(StompSeqCallback), 120, NULL, NULL, NULL, &beastChase };
-AISTATE beastSearch = { kAiStateSearch, 8, nullptr, 120, NULL, &AF(beastMoveForward), &AF(beastThinkSearch), &beastIdle };
-AISTATE beastRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &beastDodge };
-AISTATE beastTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &beastDodge };
-AISTATE beastSwimIdle = { kAiStateIdle, 9, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE beastSwimChase = { kAiStateChase, 9, nullptr, 0, NULL, &AF(beastMoveSwim), &AF(beastThinkSwimChase), NULL };
-AISTATE beastSwimDodge = { kAiStateMove, 9, nullptr, 90, NULL, &AF(aiMoveDodge), NULL, &beastSwimChase };
-AISTATE beastSwimGoto = { kAiStateMove, 9, nullptr, 600, NULL, &AF(beastMoveForward), &AF(beastThinkSwimGoto), &beastSwimIdle };
-AISTATE beastSwimSearch = { kAiStateSearch, 9, nullptr, 120, NULL, &AF(beastMoveForward), &AF(beastThinkSearch), &beastSwimIdle };
-AISTATE beastSwimSlash = { kAiStateChase, 9, &AF(SlashSeqCallback), 0, NULL, NULL, &AF(beastThinkSwimChase), &beastSwimChase };
-AISTATE beastSwimRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &beastSwimDodge };
-AISTATE beastMorphToBeast = { kAiStateOther, -1, nullptr, 0, &AF(MorphToBeast), NULL, NULL, &beastIdle };
-AISTATE beastMorphFromCultist = { kAiStateOther, 2576, nullptr, 0, NULL, NULL, NULL, &beastMorphToBeast };
-AISTATE beastMoveSwimChaseAlt = { kAiStateOther, 9, nullptr, 120, NULL, &AF(beastMoveSwimAlt), &AF(beastThinkSwimChase), &beastSwimChase };
-AISTATE beastSwimAttack = { kAiStateOther, 9, nullptr, 0, NULL, &AF(beastMoveIn), &AF(beastThinkSwimChase), &beastSwimChase };
-AISTATE beastSwimTurn = { kAiStateOther, 9, nullptr, 120, NULL, &AF(aiMoveTurn), NULL, &beastSwimChase };
-
 void SlashSeqCallback(DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;

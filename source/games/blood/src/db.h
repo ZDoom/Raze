@@ -42,9 +42,6 @@ enum
 
 #pragma pack(push, 1)
 
-struct AISTATE;
-
-
 struct MAPSIGNATURE {
 	char signature[4];
 	int16_t version;

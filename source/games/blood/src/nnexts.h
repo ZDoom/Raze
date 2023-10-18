@@ -243,7 +243,6 @@ extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const EXPLOSION_EXTRA gExplodeExtra[kExplosionMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-//extern AISTATE genPatrolStates[kPatrolStateSize];
 
 inline TArray<TObjPtr<DBloodActor*>> gProxySpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gSightSpritesList;

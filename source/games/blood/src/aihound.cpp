@@ -29,16 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
-AISTATE houndIdle = { kAiStateIdle, 0, nullptr, 0, NULL, NULL, &AF(aiThinkTarget), NULL };
-AISTATE houndSearch = { kAiStateMove, 8, nullptr, 1800, NULL, &AF(aiMoveForward), &AF(houndThinkSearch), &houndIdle };
-AISTATE houndChase = { kAiStateChase, 8, nullptr, 0, NULL, &AF(aiMoveForward), &AF(houndThinkChase), NULL };
-AISTATE houndRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &houndSearch };
-AISTATE houndTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &houndSearch };
-AISTATE houndGoto = { kAiStateMove, 8, nullptr, 600, NULL, &AF(aiMoveForward), &AF(houndThinkGoto), &houndIdle };
-AISTATE houndBite = { kAiStateChase, 6, &AF(houndBiteSeqCallback), 60, NULL, NULL, NULL, &houndChase };
-AISTATE houndBurn = { kAiStateChase, 7, &AF(houndBurnSeqCallback), 60, NULL, NULL, NULL, &houndChase };
-
 void houndBiteSeqCallback(DBloodActor* actor)
 {
 	if (!(actor->IsDudeActor())) {
