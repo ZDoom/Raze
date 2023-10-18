@@ -35,10 +35,6 @@ BEGIN_BLD_NS
 
 void validateLinks();
 
-#if 0 // state serialization will be reactivated later when the rest is working.
-
-// name, type, duration, trigger, enter, move, think, next
-// AISTATE "genIdle", "+0", 1, 0, null, null, null, null, "none";
 #ifdef NOONE_EXTENSIONS
 // Serializing states is a lot more tricky for custom dudes.
 // Note that this makes no assumptions about the relationship between actor and dude because at restoration this isn't known.
@@ -49,132 +45,72 @@ struct AIStateRep
 };
 static AIStateRep makeStateRep(AISTATE* state)
 {
-	int i = 0;
-	if (state == nullptr) return { nullptr, -1 };
-	for (auto cstate : allAIStates)
+	// now it gets ugly: the custom dudes each have a copied set of states. Find out which one.
+	BloodSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		if (state == cstate)
+		if (IsCustomDude(actor))
 		{
-			
-			return { nullptr, i };
-		}
-		i++;
-	}
-	if (gModernMap)
-	{
-		// now it gets ugly: the custom dudes each have a copied set of states. Find out which one.
-		BloodSpriteIterator it;
-		while (auto actor = it.Next())
-		{
-			if (IsCustomDude(actor))
+			auto dude = cdudeGet(actor);
+			if (dude)
 			{
-				auto dude = cdudeGet(actor);
-				if (dude)
+				auto firststate = (AISTATE*)dude->states;
+				auto count = sizeof(dude->states) / sizeof(AISTATE);
+				if (state >= firststate && state < firststate + count)
 				{
-					auto firststate = (AISTATE*)dude->states;
-					auto count = sizeof(dude->states) / sizeof(AISTATE);
-					if (state >= firststate && state < firststate + count)
-					{
-						return { dude, int(state - firststate) };
-					}
+					return { dude, int(state - firststate) };
 				}
 			}
 		}
 	}
+	// this should never happen.
 	Printf(PRINT_HIGH, "Attempt to save invalid state!\n"); // we got no further info here, sorry!
 	return { nullptr, -1 };
 }
 
-static AISTATE* getStateFromRep(AIStateRep* rep)
-{
-	if (rep->owner == nullptr)
-	{
-		int i = rep->index;
-		if (i >= 0 && i < countof(allAIStates))
-		{
-			return allAIStates[i];
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
-	else if (gModernMap)
-	{
-		// at this point the object may not have been deserialized but it definitely has been allocated so we can just take the address.
-		AISTATE* state = (AISTATE*)rep->owner->states;
-		return state + rep->index;
-	}
-	else return nullptr;
-}
+#endif
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AIStateRep& w, AIStateRep* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
 {
+	unsigned i = 0;
 	if (arc.BeginObject(keyname))
 	{
-		arc("object", w.owner)
-			("index", w.index)
-			.EndObject();
-	}
-	return arc;
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
-{
-	unsigned i = 0;
-	if (arc.isWriting())
-	{
-		auto rep = makeStateRep(w);
-		arc(keyname, rep);
-	}
-	else
-	{
-		AIStateRep rep;
-		arc(keyname, rep);
-		w = getStateFromRep(&rep);
-	}
-	return arc;
-}
-
-#else
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
-{
-	unsigned i = 0;
-	if (arc.isWriting())
-	{
-		if (def && w == *def) return arc;
-		for (auto cstate : allAIStates)
+		if (arc.isWriting())
 		{
-			if (w == cstate)
+#ifdef NOONE_EXTENSIONS
+			if (w && w->name != NAME_None && gModernMap)
 			{
-				arc(keyname, i);
-				return arc;
+				auto rep = makeStateRep(w);
+				arc("object", rep.owner)
+					("index", rep.index);
+
 			}
-			i++;
-		}
-	}
-	else
-	{
-		arc(keyname, i);
-		if (i < countof(allAIStates))
-		{
-			w = allAIStates[i];
+			else
+#endif
+			{
+				FName name = w ? w->name : NAME_None;
+				arc("name", name);
+			}
 		}
 		else
 		{
 			w = nullptr;
+			FName name = NAME_None;
+			arc("name", name);
+#ifdef NOONE_EXTENSIONS
+			if (name == NAME_None && gModernMap)
+			{
+				AIStateRep rep{};
+				arc("object", rep.owner)
+					("index", rep.index);
+				w = rep.owner->states[0] + rep.index;
+			}
+#endif
 		}
+		arc.EndObject();
 	}
 	return arc;
 }
-
-#endif
-#else
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
-{
-	return arc;
-}
-#endif
 
 
 //---------------------------------------------------------------------------
