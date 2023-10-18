@@ -248,6 +248,7 @@ native void aiPatrolMove();
 native void aiPatrolThink();
 native void aiPatrolRandGoalAng();
 native void aiPatrolTurn();
+native void enterDeath();
 
 native void FireballSeqCallback();
 native void Fx33Callback();
