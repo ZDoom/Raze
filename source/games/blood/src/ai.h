@@ -29,6 +29,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
+struct AISTATES {
+	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
+	int seqId;
+	int stateTicks;
+	FName name;
+	VMFunction* funcId;
+	VMFunction* enterFunc;
+	VMFunction* moveFunc;
+	VMFunction* thinkFunc;
+	AISTATES* nextState;
+};
+
 struct AISTATE {
 	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
 	int seqId;

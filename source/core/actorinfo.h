@@ -19,6 +19,7 @@ enum EDefaultFlags
 	DEFF_SCALE = 4,
 };
 
+
 struct FActorInfo
 {
 	TArray<FInternalLightAssociation *> LightAssociations;

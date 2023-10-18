@@ -703,6 +703,8 @@ void GameInterface::FreeLevelData()
 	return new GameInterface;
 }
 
+void FixStates();
+
 void GameInterface::FinalizeSetup()
 {
 	// assign spawn types to actor classes. Some code will need them.
@@ -718,6 +720,7 @@ void GameInterface::FinalizeSetup()
 			actorinfo->TypeNum = pair->Key;
 		}
 	}
+	FixStates();
 }
 
 //---------------------------------------------------------------------------
@@ -780,5 +783,52 @@ DEFINE_PROPERTY(dmgcontrol, IIIIIII, BloodActor)
 		defaults->dmgControl[i] = (int16_t)clamp(j, -32768, 32767);
 	}
 }
+
+// this is rather makeshift for now, it needs to be cleaned up once the native states are gone.
+// it only supports the minimum needed set of features to allow getting rid of them and takes all available shortcuts.
+TArray<AISTATES> allStates;
+
+DEFINE_PROPERTY(aistate, SSIIGGGGs, BloodActor)
+{
+	PROP_STRING_PARM(label, 0);
+	PROP_STRING_PARM(seq, 1); // either a sequence name or an Id as '#123'.
+	PROP_INT_PARM(type, 2);
+	PROP_INT_PARM(duration, 3);
+	PROP_FUNC_PARM(action, 4);
+	PROP_FUNC_PARM(enter, 5);
+	PROP_FUNC_PARM(move, 6);
+	PROP_FUNC_PARM(tick, 7);
+	const char* next = nullptr;
+	if (PROP_PARM_COUNT > 8)
+	{
+		PROP_STRING_PARM(_next, 8);
+		next = _next;
+	}
+	int seqno = (int)strtol(seq + 1, nullptr, 10); // skip the '+', this needs to be done better later.
+	AISTATES state = { type, seqno, duration, FName(label), action, enter, move, tick, (AISTATES*)(intptr_t)(FName(next).GetIndex()) };
+	allStates.Push(state);
+}
+
+AISTATES* FindState(FName name)
+{
+	int index = name.GetIndex() - NAME_genIdle;
+	if (index < allStates.SSize()) return &allStates[index];
+	I_Error("bad state %s requested\n", name.GetChars());
+}
+
+void FixStates()
+{
+	for (auto& state : allStates)
+	{
+		if (state.nextState)
+		{
+			FName offset = (ENamedName)(intptr_t)state.nextState;
+			state.nextState = FindState(offset);
+			assert(state.nextState->name == offset);
+		}
+	}
+}
+
+
 
 END_BLD_NS
