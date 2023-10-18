@@ -1930,7 +1930,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	DUDEINFO* pDudeInfo = nullptr;
 	bool pIsThing = false;
-	int nThingDamage = actorHit->dmgControl[kDamageBurn];
+	int nThingDamage = actorHit? actorHit->dmgControl[kDamageBurn] : 0;
 
 	if (hitCode == 3 && actorHit)
 	{
