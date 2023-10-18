@@ -1179,7 +1179,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningCultist);
-			aiNewState(actor, &cultistBurnGoto);
+			aiNewState(actor, NAME_cultistBurnGoto);
 			actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
 			return true;
 		}
@@ -1189,7 +1189,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningBeast);
-			aiNewState(actor, &beastBurnGoto);
+			aiNewState(actor, NAME_beastBurnGoto);
 			actHealDude(actor, dudeInfo[53].startHealth, dudeInfo[53].startHealth);
 			return true;
 		}
@@ -1199,7 +1199,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningInnocent);
-			aiNewState(actor, &innocentBurnGoto);
+			aiNewState(actor, NAME_innocentBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
 		}
@@ -1211,7 +1211,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->ChangeType(kDudeBurningTinyCaleb);
-			aiNewState(actor, &tinycalebBurnGoto);
+			aiNewState(actor, NAME_tinycalebBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
 		}
@@ -3000,10 +3000,10 @@ void MoveDude(DBloodActor* actor)
 				{
 				case kDudeCultistTommy:
 				case kDudeCultistShotgun:
-					aiNewState(actor, &cultistGoto);
+					aiNewState(actor, NAME_cultistGoto);
 					break;
 				case kDudeGillBeast:
-					aiNewState(actor, &gillBeastGoto);
+					aiNewState(actor, NAME_gillBeastGoto);
 					actor->spr.flags |= 6;
 					break;
 				case kDudeBoneEel:
@@ -3055,7 +3055,7 @@ void MoveDude(DBloodActor* actor)
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &cultistSwimGoto);
+					aiNewState(actor, NAME_cultistSwimGoto);
 					break;
 				case kDudeBurningCultist:
 				{
@@ -3069,26 +3069,26 @@ void MoveDude(DBloodActor* actor)
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &cultistSwimGoto);
+					aiNewState(actor, NAME_cultistSwimGoto);
 					break;
 				}
 				case kDudeZombieAxeNormal:
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &zombieAGoto);
+					aiNewState(actor, NAME_zombieAGoto);
 					break;
 				case kDudeZombieButcher:
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &zombieFGoto);
+					aiNewState(actor, NAME_zombieFGoto);
 					break;
 				case kDudeGillBeast:
 					actor->xspr.burnTime = 0;
 					evPostActor(actor, 0, AF(EnemyBubble));
 					sfxPlay3DSound(actor, 720, -1, 0);
-					aiNewState(actor, &gillBeastSwimGoto);
+					aiNewState(actor, NAME_gillBeastSwimGoto);
 
 					actor->spr.flags &= ~6;
 					break;

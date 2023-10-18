@@ -1218,7 +1218,7 @@ class DCustomDude : public DObject
 		CUSTOMDUDE_KNOCKOUT  knockout;                                              // knock control
 		CUSTOMDUDE_DROPITEM  dropItem;                                              // drop item control
 		CUSTOMDUDE_EFFECT    effects[kCdudeMaxEffectGroups];                        // fx, gib effect stuff
-		AISTATE states[kCdudeStateMax][kCdudePostureMax];                           // includes states for weapons
+		AISTATES states[kCdudeStateMax][kCdudePostureMax];                           // includes states for weapons
 		TArray<TObjPtr<DBloodActor*>> pSlaves;                                                            // summoned dudes under control of this dude
 		TArray<int> triggerSeqs;					// this originally hacked the global ser
 		uint8_t medium     ;                       // medium in which it can live
@@ -1283,12 +1283,12 @@ class DCustomDude : public DObject
 		void Kill(DBloodActor* nFrom, int nDmgType, int nDmg);
 		//----------------------------------------------------------------------------------------------------
 		bool CanMove(sectortype* pXSect, bool Crusher, bool Water, bool Uwater, bool Depth, double bottom, double floorZ);
-		bool FindState(AISTATE* pState, int* nStateType, int* nPosture);
+		bool FindState(AISTATES* pState, int* nStateType, int* nPosture);
 		void NewState(int nStateType, int nTimeOverride = -1);
-		bool NewState(AISTATE* pState);
+		bool NewState(AISTATES* pState);
 		void NextState(int nStateType, int nTimeOverride = 0);
-		void NextState(AISTATE* pState, int nTimeOverride = 0);
-		AISTATE* PickDeath(int nDmgType);
+		void NextState(AISTATES* pState, int nTimeOverride = 0);
+		AISTATES* PickDeath(int nDmgType);
 		void SyncState(void);
 		//----------------------------------------------------------------------------------------------------
 		void LeechPickup(void);
@@ -1343,7 +1343,7 @@ class CUSTOMDUDE_SETUP
 		void WeaponRangeSet(CUSTOMDUDE_WEAPON* pWeapon, int nMin, int nMax);
 		/*------------------------------------------------------------*/
 		void AnimationConvert(int baseID);
-		void AnimationFill(AISTATE* pState, int nAnim);
+		void AnimationFill(AISTATES* pState, int nAnim);
 		void AnimationFill(void);
 		/*------------------------------------------------------------*/
 		void SoundConvert(int baseID);
@@ -1362,7 +1362,8 @@ class CUSTOMDUDE_SETUP
 		void DoSetup(DCustomDude* pOver = nullptr);
 
 	public:
-		bool FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture);
+		template<class T>
+		bool FindAiState(T stateArr[][kCdudePostureMax], int arrLen, T* pNeedle, int* nType, int* nPosture);
 		static void Setup(DBloodActor* actor);
 		static void Setup(DCustomDude* pOver = nullptr);
 
@@ -1388,7 +1389,7 @@ class CUSTOMDUDEV2_SETUP : public CUSTOMDUDE_SETUP
 		bool ParseVelocity(const char* str, CUSTOMDUDE_VELOCITY* pVelocity);
 		bool ParseAppearance(const char* str, APPEARANCE* pAppear);
 		bool ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound);
-		bool ParseAnimation(const char* str, AISTATE* pState, bool asPosture);
+		bool ParseAnimation(const char* str, AISTATES* pState, bool asPosture);
 		int ParseRange(const char* str, int nValType, int out[2], int nBaseVal = 0);
 		int  ParseMedium(const char* str);
 		bool ParseOffsets(const char* str, DVector3& pOut);
@@ -1416,7 +1417,7 @@ class CUSTOMDUDEV2_SETUP : public CUSTOMDUDE_SETUP
 		/*-------------------------------------------------*/
 		void SetupGeneral(void);
 		void SetupVelocity(void);
-		void SetupAnimation(AISTATE* pState, bool asPosture);
+		void SetupAnimation(AISTATES* pState, bool asPosture);
 		void SetupAnimation(void);
 		void SetupSound(CUSTOMDUDE_SOUND* pSound);
 		void SetupMovePattern(void);

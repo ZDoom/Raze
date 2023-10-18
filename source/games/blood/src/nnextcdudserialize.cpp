@@ -307,41 +307,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, CUSTOMDUDE_DROPITE
 	return arc;
 }
 
-END_BLD_NS
-
-// this one's ugly because there is no easy way to retrieve the function records, especially later for scripted functions.
-// We have to cheat.
-// To avoid endless leaking allocations we store what we create for reuse later. 
-// Note that we cannot reference the holding array because it can reallocate.
-// Once stats can be defined via scripts this will become unnecessary.
-static TArray<VMNativeFunction**> vmfuncpointers;
-template<>
-FSerializer& Serialize(FSerializer& arc, const char* key, VMNativeFunction**& pfunc, VMNativeFunction***)
-{
-	VMFunction* func = pfunc ? *pfunc : nullptr;
-	arc(key, func);
-	if (arc.isReading())
-	{
-		if (func == nullptr) pfunc = nullptr;
-		else
-		{
-			auto pos = vmfuncpointers.FindEx([&](const auto& element) { return *element == func; });
-			if (pos < vmfuncpointers.Size()) pfunc = vmfuncpointers[pos];
-			else
-			{
-				// put these in a place where automatic maintenance will get rid of them later.
-				VMNativeFunction** fakep = (VMNativeFunction**)ClassDataAllocator.Alloc(sizeof(VMFunction*));
-				vmfuncpointers.Push(fakep);
-				pfunc = fakep;
-			}
-		}
-	}
-	return arc;
-}
-
-BEGIN_BLD_NS
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE& w, AISTATE* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATES& w, AISTATES* def)
 {
 	if (arc.BeginObject(keyname))
 	{
@@ -356,6 +322,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE& w, AISTAT
 			("nextState", w.nextState)
 			.EndObject();
 	}
+	if (arc.isReading()) w.name = NAME_None;
 	return arc;
 }
 

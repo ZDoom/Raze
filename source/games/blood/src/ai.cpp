@@ -81,7 +81,7 @@ void aiPlay3DSound(DBloodActor* actor, int soundid, AI_SFX_PRIORITY a3, int play
 //
 //---------------------------------------------------------------------------
 
-void aiNewState(DBloodActor* actor, AISTATE* pAIState)
+void aiNewState(DBloodActor* actor, AISTATES* pAIState)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	actor->xspr.stateTimer = pAIState->stateTicks;
@@ -92,11 +92,24 @@ void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 	{
 		seqStartId += pAIState->seqId;
 		if (getSequence(seqStartId))
-			seqSpawn(seqStartId, actor, pAIState->funcId? *pAIState->funcId : nullptr);
+			seqSpawn(seqStartId, actor, pAIState->funcId? pAIState->funcId : nullptr);
 	}
 
 	if (pAIState->enterFunc)
-		callActorFunction(*pAIState->enterFunc, actor);
+		callActorFunction(pAIState->enterFunc, actor);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+AISTATES* FindState(FName name);
+
+void aiNewState(DBloodActor* actor, FName nAIState)
+{
+	// VERY makeshift for now.
+	aiNewState(actor, FindState(nAIState));
 }
 
 //---------------------------------------------------------------------------
@@ -371,11 +384,11 @@ void aiActivateDude(DBloodActor* actor)
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 1;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &ghostSearch);
+			aiNewState(actor, NAME_ghostSearch);
 		else
 		{
 			aiPlay3DSound(actor, 1600, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &ghostChase);
+			aiNewState(actor, NAME_ghostChase);
 		}
 		break;
 	}
@@ -392,7 +405,7 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &cultistSearch);
+				aiNewState(actor, NAME_cultistSearch);
 				if (Chance(0x8000))
 				{
 					if (actor->GetType() == kDudeCultistTommy) aiPlay3DSound(actor, 4008 + Random(5), AI_SFX_PRIORITY_1, -1);
@@ -401,7 +414,7 @@ void aiActivateDude(DBloodActor* actor)
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &cultistSwimSearch);
+				aiNewState(actor, NAME_cultistSwimSearch);
 				break;
 			}
 		}
@@ -415,12 +428,12 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				if (actor->GetType() == kDudeCultistTommy) aiNewState(actor, &fanaticChase);
-				else aiNewState(actor, &cultistChase);
+				if (actor->GetType() == kDudeCultistTommy) aiNewState(actor, NAME_fanaticChase);
+				else aiNewState(actor, NAME_cultistChase);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &cultistSwimChase);
+				aiNewState(actor, NAME_cultistSwimChase);
 				break;
 			}
 		}
@@ -441,12 +454,12 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case 0:
-				aiNewState(actor, &cultistSearch);
+				aiNewState(actor, NAME_cultistSearch);
 				if (Chance(0x8000)) aiPlay3DSound(actor, 4008 + Random(5), AI_SFX_PRIORITY_1, -1);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &cultistSwimSearch);
+				aiNewState(actor, NAME_cultistSwimSearch);
 				break;
 			}
 		}
@@ -458,11 +471,11 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &cultistProneChase);
+				aiNewState(actor, NAME_cultistProneChase);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &cultistSwimChase);
+				aiNewState(actor, NAME_cultistSwimChase);
 				break;
 			}
 		}
@@ -478,13 +491,13 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &cultistSearch);
+				aiNewState(actor, NAME_cultistSearch);
 				if (Chance(0x8000))
 					aiPlay3DSound(actor, 1008 + Random(5), AI_SFX_PRIORITY_1, -1);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &cultistSwimSearch);
+				aiNewState(actor, NAME_cultistSwimSearch);
 				break;
 			}
 		}
@@ -495,11 +508,11 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &cultistProneChase);
+				aiNewState(actor, NAME_cultistProneChase);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &cultistSwimChase);
+				aiNewState(actor, NAME_cultistSwimChase);
 				break;
 			}
 		}
@@ -507,9 +520,9 @@ void aiActivateDude(DBloodActor* actor)
 	}
 	case kDudeBurningCultist:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &cultistBurnSearch);
+			aiNewState(actor, NAME_cultistBurnSearch);
 		else
-			aiNewState(actor, &cultistBurnChase);
+			aiNewState(actor, NAME_cultistBurnChase);
 		break;
 	case kDudeBat:
 	{
@@ -519,12 +532,12 @@ void aiActivateDude(DBloodActor* actor)
 		if (!actor->spr.flags)
 			actor->spr.flags = 9;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &batSearch);
+			aiNewState(actor, NAME_batSearch);
 		else
 		{
 			if (Chance(0xa000))
 				aiPlay3DSound(actor, 2000, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &batChase);
+			aiNewState(actor, NAME_batChase);
 		}
 		break;
 	}
@@ -534,14 +547,14 @@ void aiActivateDude(DBloodActor* actor)
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 1;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &eelSearch);
+			aiNewState(actor, NAME_eelSearch);
 		else
 		{
 			if (Chance(0x8000))
 				aiPlay3DSound(actor, 1501, AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 1500, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &eelChase);
+			aiNewState(actor, NAME_eelChase);
 		}
 		break;
 	}
@@ -555,9 +568,9 @@ void aiActivateDude(DBloodActor* actor)
 		if (actor->GetTarget() == nullptr)
 		{
 			if (pXSector && pXSector->Underwater)
-				aiNewState(actor, &gillBeastSwimSearch);
+				aiNewState(actor, NAME_gillBeastSwimSearch);
 			else
-				aiNewState(actor, &gillBeastSearch);
+				aiNewState(actor, NAME_gillBeastSearch);
 		}
 		else
 		{
@@ -566,9 +579,9 @@ void aiActivateDude(DBloodActor* actor)
 			else
 				aiPlay3DSound(actor, 1700, AI_SFX_PRIORITY_1, -1);
 			if (pXSector && pXSector->Underwater)
-				aiNewState(actor, &gillBeastSwimChase);
+				aiNewState(actor, NAME_gillBeastSwimChase);
 			else
-				aiNewState(actor, &gillBeastChase);
+				aiNewState(actor, NAME_gillBeastChase);
 		}
 		break;
 	}
@@ -577,7 +590,7 @@ void aiActivateDude(DBloodActor* actor)
 		
 		actor->dudeExtra.thinkTime = 1;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &zombieASearch);
+			aiNewState(actor, NAME_zombieASearch);
 		else
 		{
 			if (Chance(0xa000))
@@ -597,7 +610,7 @@ void aiActivateDude(DBloodActor* actor)
 					break;
 				}
 			}
-			aiNewState(actor, &zombieAChase);
+			aiNewState(actor, NAME_zombieAChase);
 		}
 		break;
 	}
@@ -605,14 +618,14 @@ void aiActivateDude(DBloodActor* actor)
 	{
 		
 		actor->dudeExtra.thinkTime = 1;
-		if (actor->xspr.aiState == &zombieEIdle) aiNewState(actor, &zombieEUp);
+		if (actor->xspr.aiState->name == NAME_zombieEIdle) aiNewState(actor, NAME_zombieEUp);
 		break;
 	}
 	case kDudeZombieAxeLaying:
 	{
 		
 		actor->dudeExtra.thinkTime = 1;
-		if (actor->xspr.aiState == &zombieSIdle) aiNewState(actor, &zombieEStand);
+		if (actor->xspr.aiState->name == NAME_zombieSIdle) aiNewState(actor, NAME_zombieEStand);
 		break;
 	}
 	case kDudeZombieButcher:
@@ -620,42 +633,42 @@ void aiActivateDude(DBloodActor* actor)
 		
 		actor->dudeExtra.thinkTime = 1;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &zombieFSearch);
+			aiNewState(actor, NAME_zombieFSearch);
 		else
 		{
 			if (Chance(0x4000))
 				aiPlay3DSound(actor, 1201, AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 1200, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &zombieFChase);
+			aiNewState(actor, NAME_zombieFChase);
 		}
 		break;
 	}
 	case kDudeBurningZombieAxe:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &zombieABurnSearch);
+			aiNewState(actor, NAME_zombieABurnSearch);
 		else
-			aiNewState(actor, &zombieABurnChase);
+			aiNewState(actor, NAME_zombieABurnChase);
 		break;
 	case kDudeBurningZombieButcher:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &zombieFBurnSearch);
+			aiNewState(actor, NAME_zombieFBurnSearch);
 		else
-			aiNewState(actor, &zombieFBurnChase);
+			aiNewState(actor, NAME_zombieFBurnChase);
 		break;
 	case kDudeGargoyleFlesh: {
 		
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 1;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &gargoyleFSearch);
+			aiNewState(actor, NAME_gargoyleFSearch);
 		else
 		{
 			if (Chance(0x4000))
 				aiPlay3DSound(actor, 1401, AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &gargoyleFChase);
+			aiNewState(actor, NAME_gargoyleFChase);
 		}
 		break;
 	}
@@ -665,14 +678,14 @@ void aiActivateDude(DBloodActor* actor)
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 1;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &gargoyleFSearch);
+			aiNewState(actor, NAME_gargoyleFSearch);
 		else
 		{
 			if (Chance(0x4000))
 				aiPlay3DSound(actor, 1451, AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &gargoyleFChase);
+			aiNewState(actor, NAME_gargoyleFChase);
 		}
 		break;
 	}
@@ -683,87 +696,87 @@ void aiActivateDude(DBloodActor* actor)
 		// play gargoyle statue breaking animation if data1 = 1.
 		if (gModernMap && actor->xspr.data1 == 1)
 		{
-			if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, &statueFBreakSEQ);
-			else aiNewState(actor, &statueSBreakSEQ);
+			if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, NAME_statueFBreakSEQ);
+			else aiNewState(actor, NAME_statueSBreakSEQ);
 		}
 		else
 		{
 			if (Chance(0x4000)) aiPlay3DSound(actor, 1401, AI_SFX_PRIORITY_1, -1);
 			else aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
 
-			if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
-			else aiNewState(actor, &gargoyleSMorph);
+			if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, NAME_gargoyleFMorph);
+			else aiNewState(actor, NAME_gargoyleSMorph);
 		}
 #else
 		if (Chance(0x4000)) aiPlay3DSound(actor, 1401, AI_SFX_PRIORITY_1, -1);
 		else aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
 
-		if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
-		else aiNewState(actor, &gargoyleSMorph);
+		if (actor->GetType() == kDudeGargoyleStatueFlesh) aiNewState(actor, NAME_gargoyleFMorph);
+		else aiNewState(actor, NAME_gargoyleSMorph);
 #endif
 		break;
 	case kDudeCerberusTwoHead:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &cerberusSearch);
+			aiNewState(actor, NAME_cerberusSearch);
 		else
 		{
 			aiPlay3DSound(actor, 2300, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &cerberusChase);
+			aiNewState(actor, NAME_cerberusChase);
 		}
 		break;
 	case kDudeCerberusOneHead:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &cerberus2Search);
+			aiNewState(actor, NAME_cerberus2Search);
 		else
 		{
 			aiPlay3DSound(actor, 2300, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &cerberus2Chase);
+			aiNewState(actor, NAME_cerberus2Chase);
 		}
 		break;
 	case kDudeHellHound:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &houndSearch);
+			aiNewState(actor, NAME_houndSearch);
 		else
 		{
 			aiPlay3DSound(actor, 1300, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &houndChase);
+			aiNewState(actor, NAME_houndChase);
 		}
 		break;
 	case kDudeHand:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &handSearch);
+			aiNewState(actor, NAME_handSearch);
 		else
 		{
 			aiPlay3DSound(actor, 1900, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &handChase);
+			aiNewState(actor, NAME_handChase);
 		}
 		break;
 	case kDudeRat:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &ratSearch);
+			aiNewState(actor, NAME_ratSearch);
 		else
 		{
 			aiPlay3DSound(actor, 2100, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &ratChase);
+			aiNewState(actor, NAME_ratChase);
 		}
 		break;
 	case kDudeInnocent:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &innocentSearch);
+			aiNewState(actor, NAME_innocentSearch);
 		else
 		{
 			if (actor->xspr.health > 0)
 				aiPlay3DSound(actor, 7000 + Random(6), AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &innocentChase);
+			aiNewState(actor, NAME_innocentChase);
 		}
 		break;
 	case kDudeTchernobog:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &tchernobogSearch);
+			aiNewState(actor, NAME_tchernobogSearch);
 		else
 		{
 			aiPlay3DSound(actor, 2350 + Random(7), AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &tchernobogChase);
+			aiNewState(actor, NAME_tchernobogChase);
 		}
 		break;
 	case kDudeSpiderBrown:
@@ -772,11 +785,11 @@ void aiActivateDude(DBloodActor* actor)
 		actor->spr.flags |= 2;
 		actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &spidSearch);
+			aiNewState(actor, NAME_spidSearch);
 		else
 		{
 			aiPlay3DSound(actor, 1800, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &spidChase);
+			aiNewState(actor, NAME_spidChase);
 		}
 		break;
 	case kDudeSpiderMother:
@@ -786,11 +799,11 @@ void aiActivateDude(DBloodActor* actor)
 		actor->spr.flags |= 2;
 		actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &spidSearch);
+			aiNewState(actor, NAME_spidSearch);
 		else
 		{
 			aiPlay3DSound(actor, 1853 + Random(1), AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &spidChase);
+			aiNewState(actor, NAME_spidChase);
 		}
 		break;
 	}
@@ -803,11 +816,11 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &tinycalebSearch);
+				aiNewState(actor, NAME_tinycalebSearch);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &tinycalebSwimSearch);
+				aiNewState(actor, NAME_tinycalebSwimSearch);
 				break;
 			}
 		}
@@ -816,11 +829,11 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &tinycalebChase);
+				aiNewState(actor, NAME_tinycalebChase);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &tinycalebSwimChase);
+				aiNewState(actor, NAME_tinycalebSwimChase);
 				break;
 			}
 		}
@@ -835,11 +848,11 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &beastSearch);
+				aiNewState(actor, NAME_beastSearch);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &beastSwimSearch);
+				aiNewState(actor, NAME_beastSwimSearch);
 				break;
 			}
 		}
@@ -849,11 +862,11 @@ void aiActivateDude(DBloodActor* actor)
 			switch (actor->xspr.medium)
 			{
 			case kMediumNormal:
-				aiNewState(actor, &beastChase);
+				aiNewState(actor, NAME_beastChase);
 				break;
 			case kMediumWater:
 			case kMediumGoo:
-				aiNewState(actor, &beastSwimChase);
+				aiNewState(actor, NAME_beastSwimChase);
 				break;
 			}
 		}
@@ -862,24 +875,24 @@ void aiActivateDude(DBloodActor* actor)
 	case kDudePodGreen:
 	case kDudePodFire:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &podSearch);
+			aiNewState(actor, NAME_podSearch);
 		else
 		{
 			if (actor->GetType() == kDudePodFire)
 				aiPlay3DSound(actor, 2453, AI_SFX_PRIORITY_1, -1);
 			else
 				aiPlay3DSound(actor, 2473, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &podChase);
+			aiNewState(actor, NAME_podChase);
 		}
 		break;
 	case kDudeTentacleGreen:
 	case kDudeTentacleFire:
 		if (actor->GetTarget() == nullptr)
-			aiNewState(actor, &tentacleSearch);
+			aiNewState(actor, NAME_tentacleSearch);
 		else
 		{
 			aiPlay3DSound(actor, 2503, AI_SFX_PRIORITY_1, -1);
-			aiNewState(actor, &tentacleChase);
+			aiNewState(actor, NAME_tentacleChase);
 		}
 		break;
 	}
@@ -1005,16 +1018,16 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			if (nDmgType != kDamageBurn)
 			{
 				if (!dudeIsPlayingSeq(actor, 14) && !actor->xspr.medium)
-					aiNewState(actor, &cultistDodge);
+					aiNewState(actor, NAME_cultistDodge);
 				else if (dudeIsPlayingSeq(actor, 14) && !actor->xspr.medium)
-					aiNewState(actor, &cultistProneDodge);
+					aiNewState(actor, NAME_cultistProneDodge);
 				else if (dudeIsPlayingSeq(actor, 13) && (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo))
-					aiNewState(actor, &cultistSwimDodge);
+					aiNewState(actor, NAME_cultistSwimDodge);
 			}
 			else if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				actor->ChangeType(kDudeBurningCultist);
-				aiNewState(actor, &cultistBurnGoto);
+				aiNewState(actor, NAME_cultistBurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1031 + Random(2), AI_SFX_PRIORITY_2, -1);
 				actor->dudeExtra.time = PlayClock + 360;
@@ -1026,7 +1039,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth/* && (actor->xspr.at17_6 != 1 || actor->xspr.at17_6 != 2)*/)
 			{
 				actor->ChangeType(kDudeBurningInnocent);
-				aiNewState(actor, &cultistBurnGoto);
+				aiNewState(actor, NAME_cultistBurnGoto);
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
 				actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
@@ -1045,7 +1058,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				if (fixRandomCultist) // fix burning cultists randomly switching types underwater
 					actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
 				actor->xspr.burnTime = 0;
-				aiNewState(actor, &cultistSwimGoto);
+				aiNewState(actor, NAME_cultistSwimGoto);
 			}
 			else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
 			{
@@ -1053,18 +1066,18 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				if (fixRandomCultist) // fix burning cultists randomly switching types underwater
 					actor->ChangeType(actor->spr.inittype); // restore back to spawned cultist type
 				actor->xspr.burnTime = 0;
-				aiNewState(actor, &cultistSwimGoto);
+				aiNewState(actor, NAME_cultistSwimGoto);
 			}
 			break;
 		case kDudeGargoyleFlesh:
-			aiNewState(actor, &gargoyleFChase);
+			aiNewState(actor, NAME_gargoyleFChase);
 			break;
 		case kDudeZombieButcher:
 			if (nDmgType == kDamageBurn && actor->xspr.health <= (unsigned int)pDudeInfo->fleeHealth) {
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
 				actor->ChangeType(kDudeBurningZombieButcher);
-				aiNewState(actor, &zombieFBurnGoto);
+				aiNewState(actor, NAME_zombieFBurnGoto);
 				actHealDude(actor, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
 				evKillActor(actor, AF(fxFlameLick));
 			}
@@ -1075,12 +1088,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				if (!cl_bloodvanillaenemies && !VanillaMode()) // fix burning sprite for tiny caleb
 				{
 					actor->ChangeType(kDudeBurningTinyCaleb);
-					aiNewState(actor, &tinycalebBurnGoto);
+					aiNewState(actor, NAME_tinycalebBurnGoto);
 				}
 				else
 				{
 					actor->ChangeType(kDudeBurningInnocent);
-					aiNewState(actor, &cultistBurnGoto);
+					aiNewState(actor, NAME_cultistBurnGoto);
 				}
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				actor->dudeExtra.time = PlayClock + 360;
@@ -1093,7 +1106,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			{
 				actor->ChangeType(kDudeBeast);
 				aiPlay3DSound(actor, 9008, AI_SFX_PRIORITY_1, -1);
-				aiNewState(actor, &beastMorphFromCultist);
+				aiNewState(actor, NAME_beastMorphFromCultist);
 				actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
 			}
 			break;
@@ -1104,7 +1117,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
 				aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
 				actor->ChangeType(kDudeBurningZombieAxe);
-				aiNewState(actor, &zombieABurnGoto);
+				aiNewState(actor, NAME_zombieABurnGoto);
 				actHealDude(actor, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
 				evKillActor(actor, AF(fxFlameLick));
 			}
@@ -1144,147 +1157,147 @@ void RecoilDude(DBloodActor* actor)
 
 			if (!v4 && actor->xspr.medium == kMediumNormal)
 			{
-				if (pDudeExtra->teslaHit) aiNewState(actor, &cultistTeslaRecoil);
-				else aiNewState(actor, &cultistRecoil);
+				if (pDudeExtra->teslaHit) aiNewState(actor, NAME_cultistTeslaRecoil);
+				else aiNewState(actor, NAME_cultistRecoil);
 
 			}
 			else if (v4 && actor->xspr.medium == kMediumNormal)
 			{
-				if (pDudeExtra->teslaHit) aiNewState(actor, &cultistTeslaRecoil);
-				else if (gGameOptions.nDifficulty > 0) aiNewState(actor, &cultistProneRecoil);
-				else aiNewState(actor, &cultistRecoil);
+				if (pDudeExtra->teslaHit) aiNewState(actor, NAME_cultistTeslaRecoil);
+				else if (gGameOptions.nDifficulty > 0) aiNewState(actor, NAME_cultistProneRecoil);
+				else aiNewState(actor, NAME_cultistRecoil);
 			}
 			else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-				aiNewState(actor, &cultistSwimRecoil);
+				aiNewState(actor, NAME_cultistSwimRecoil);
 			else
 			{
 				if (pDudeExtra->teslaHit)
-					aiNewState(actor, &cultistTeslaRecoil);
+					aiNewState(actor, NAME_cultistTeslaRecoil);
 				else
-					aiNewState(actor, &cultistRecoil);
+					aiNewState(actor, NAME_cultistRecoil);
 			}
 			break;
 		case kDudeBurningCultist:
-			aiNewState(actor, &cultistBurnGoto);
+			aiNewState(actor, NAME_cultistBurnGoto);
 			break;
 		case kDudeZombieButcher:
 			aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit)
-				aiNewState(actor, &zombieFTeslaRecoil);
+				aiNewState(actor, NAME_zombieFTeslaRecoil);
 			else
-				aiNewState(actor, &zombieFRecoil);
+				aiNewState(actor, NAME_zombieFRecoil);
 			break;
 		case kDudeZombieAxeNormal:
 		case kDudeZombieAxeBuried:
 			aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit && actor->xspr.data3 > pDudeInfo->startHealth / 3)
-				aiNewState(actor, &zombieATeslaRecoil);
+				aiNewState(actor, NAME_zombieATeslaRecoil);
 			else if (actor->xspr.data3 > pDudeInfo->startHealth / 3)
-				aiNewState(actor, &zombieARecoil2);
+				aiNewState(actor, NAME_zombieARecoil2);
 			else
-				aiNewState(actor, &zombieARecoil);
+				aiNewState(actor, NAME_zombieARecoil);
 			break;
 		case kDudeBurningZombieAxe:
 			aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &zombieABurnGoto);
+			aiNewState(actor, NAME_zombieABurnGoto);
 			break;
 		case kDudeBurningZombieButcher:
 			aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &zombieFBurnGoto);
+			aiNewState(actor, NAME_zombieFBurnGoto);
 			break;
 		case kDudeGargoyleFlesh:
 		case kDudeGargoyleStone:
 			aiPlay3DSound(actor, 1402, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &gargoyleFRecoil);
+			aiNewState(actor, NAME_gargoyleFRecoil);
 			break;
 		case kDudeCerberusTwoHead:
 			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit && actor->xspr.data3 > pDudeInfo->startHealth / 3)
-				aiNewState(actor, &cerberusTeslaRecoil);
+				aiNewState(actor, NAME_cerberusTeslaRecoil);
 			else
-				aiNewState(actor, &cerberusRecoil);
+				aiNewState(actor, NAME_cerberusRecoil);
 			break;
 		case kDudeCerberusOneHead:
 			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &cerberus2Recoil);
+			aiNewState(actor, NAME_cerberus2Recoil);
 			break;
 		case kDudeHellHound:
 			aiPlay3DSound(actor, 1302, AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit)
-				aiNewState(actor, &houndTeslaRecoil);
+				aiNewState(actor, NAME_houndTeslaRecoil);
 			else
-				aiNewState(actor, &houndRecoil);
+				aiNewState(actor, NAME_houndRecoil);
 			break;
 		case kDudeTchernobog:
 			aiPlay3DSound(actor, 2370 + Random(2), AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &tchernobogRecoil);
+			aiNewState(actor, NAME_tchernobogRecoil);
 			break;
 		case kDudeHand:
 			aiPlay3DSound(actor, 1902, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &handRecoil);
+			aiNewState(actor, NAME_handRecoil);
 			break;
 		case kDudeRat:
 			aiPlay3DSound(actor, 2102, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &ratRecoil);
+			aiNewState(actor, NAME_ratRecoil);
 			break;
 		case kDudeBat:
 			aiPlay3DSound(actor, 2002, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &batRecoil);
+			aiNewState(actor, NAME_batRecoil);
 			break;
 		case kDudeBoneEel:
 			aiPlay3DSound(actor, 1502, AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &eelRecoil);
+			aiNewState(actor, NAME_eelRecoil);
 			break;
 		case kDudeGillBeast: {
 			XSECTOR* pXSector = actor->sector()->hasX() ? &actor->sector()->xs() : nullptr;
 
 			aiPlay3DSound(actor, 1702, AI_SFX_PRIORITY_2, -1);
 			if (pXSector && pXSector->Underwater)
-				aiNewState(actor, &gillBeastSwimRecoil);
+				aiNewState(actor, NAME_gillBeastSwimRecoil);
 			else
-				aiNewState(actor, &gillBeastRecoil);
+				aiNewState(actor, NAME_gillBeastRecoil);
 			break;
 		}
 		case kDudePhantasm:
 			aiPlay3DSound(actor, 1602, AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit)
-				aiNewState(actor, &ghostTeslaRecoil);
+				aiNewState(actor, NAME_ghostTeslaRecoil);
 			else
-				aiNewState(actor, &ghostRecoil);
+				aiNewState(actor, NAME_ghostRecoil);
 			break;
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
 		case kDudeSpiderBlack:
 			aiPlay3DSound(actor, 1802 + Random(1), AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &spidDodge);
+			aiNewState(actor, NAME_spidDodge);
 			break;
 		case kDudeSpiderMother:
 			aiPlay3DSound(actor, 1851 + Random(1), AI_SFX_PRIORITY_2, -1);
-			aiNewState(actor, &spidDodge);
+			aiNewState(actor, NAME_spidDodge);
 			break;
 		case kDudeInnocent:
 			aiPlay3DSound(actor, 7007 + Random(2), AI_SFX_PRIORITY_2, -1);
 			if (pDudeExtra->teslaHit)
-				aiNewState(actor, &innocentTeslaRecoil);
+				aiNewState(actor, NAME_innocentTeslaRecoil);
 			else
-				aiNewState(actor, &innocentRecoil);
+				aiNewState(actor, NAME_innocentRecoil);
 			break;
 		case kDudeTinyCaleb:
 			if (actor->xspr.medium == kMediumNormal)
 			{
 				if (pDudeExtra->teslaHit)
-					aiNewState(actor, &tinycalebTeslaRecoil);
+					aiNewState(actor, NAME_tinycalebTeslaRecoil);
 				else
-					aiNewState(actor, &tinycalebRecoil);
+					aiNewState(actor, NAME_tinycalebRecoil);
 			}
 			else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-				aiNewState(actor, &tinycalebSwimRecoil);
+				aiNewState(actor, NAME_tinycalebSwimRecoil);
 			else
 			{
 				if (pDudeExtra->teslaHit)
-					aiNewState(actor, &tinycalebTeslaRecoil);
+					aiNewState(actor, NAME_tinycalebTeslaRecoil);
 				else
-					aiNewState(actor, &tinycalebRecoil);
+					aiNewState(actor, NAME_tinycalebRecoil);
 			}
 			break;
 		case kDudeBeast:
@@ -1292,30 +1305,30 @@ void RecoilDude(DBloodActor* actor)
 			if (actor->xspr.medium == kMediumNormal)
 			{
 				if (pDudeExtra->teslaHit)
-					aiNewState(actor, &beastTeslaRecoil);
+					aiNewState(actor, NAME_beastTeslaRecoil);
 				else
-					aiNewState(actor, &beastRecoil);
+					aiNewState(actor, NAME_beastRecoil);
 			}
 			else if (actor->xspr.medium == kMediumWater || actor->xspr.medium == kMediumGoo)
-				aiNewState(actor, &beastSwimRecoil);
+				aiNewState(actor, NAME_beastSwimRecoil);
 			else
 			{
 				if (pDudeExtra->teslaHit)
-					aiNewState(actor, &beastTeslaRecoil);
+					aiNewState(actor, NAME_beastTeslaRecoil);
 				else
-					aiNewState(actor, &beastRecoil);
+					aiNewState(actor, NAME_beastRecoil);
 			}
 			break;
 		case kDudePodGreen:
 		case kDudePodFire:
-			aiNewState(actor, &podRecoil);
+			aiNewState(actor, NAME_podRecoil);
 			break;
 		case kDudeTentacleGreen:
 		case kDudeTentacleFire:
-			aiNewState(actor, &tentacleRecoil);
+			aiNewState(actor, NAME_tentacleRecoil);
 			break;
 		default:
-			aiNewState(actor, &genRecoil);
+			aiNewState(actor, NAME_genRecoil);
 			break;
 		}
 		pDudeExtra->teslaHit = 0;
@@ -1458,10 +1471,10 @@ void aiProcessDudes(void)
 		if (actor->xspr.aiState)
 		{
 			if (actor->xspr.aiState->moveFunc)
-				callActorFunction(*actor->xspr.aiState->moveFunc, actor);
+				callActorFunction(actor->xspr.aiState->moveFunc, actor);
 
 			if (actor->xspr.aiState->thinkFunc && (gFrameCount & 3) == (actor->GetIndex() & 3))
-				callActorFunction(*actor->xspr.aiState->thinkFunc, actor);
+				callActorFunction(actor->xspr.aiState->thinkFunc, actor);
 		}
 
 		if (actor->xspr.stateTimer == 0 && actor->xspr.aiState && actor->xspr.aiState->nextState) {
@@ -1528,41 +1541,41 @@ void aiInitSprite(DBloodActor* actor)
 	case kDudeCultistBeast:
 	{
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &cultistIdle);
+		aiNewState(actor, NAME_cultistIdle);
 		break;
 	}
 	case kDudeCultistTommyProne:
 	{
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &fanaticProneIdle);
+		aiNewState(actor, NAME_fanaticProneIdle);
 		break;
 	}
 	case kDudeCultistShotgunProne:
 	{
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &cultistProneIdle);
+		aiNewState(actor, NAME_cultistProneIdle);
 		break;
 	}
 	case kDudeZombieButcher: {
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &zombieFIdle);
+		aiNewState(actor, NAME_zombieFIdle);
 		break;
 	}
 	case kDudeZombieAxeNormal: {
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &zombieAIdle);
+		aiNewState(actor, NAME_zombieAIdle);
 		break;
 	}
 	case kDudeZombieAxeLaying:
 	{
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &zombieSIdle);
+		aiNewState(actor, NAME_zombieSIdle);
 		actor->spr.flags &= ~kPhysMove;
 		break;
 	}
 	case kDudeZombieAxeBuried: {
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &zombieEIdle);
+		aiNewState(actor, NAME_zombieEIdle);
 		actor->spr.flags &= ~kPhysMove;
 		break;
 	}
@@ -1570,61 +1583,61 @@ void aiInitSprite(DBloodActor* actor)
 	case kDudeGargoyleStone: {
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &gargoyleFIdle);
+		aiNewState(actor, NAME_gargoyleFIdle);
 		break;
 	}
 	case kDudeGargoyleStatueFlesh:
 	case kDudeGargoyleStatueStone:
-		aiNewState(actor, &gargoyleStatueIdle);
+		aiNewState(actor, NAME_gargoyleStatueIdle);
 		break;
 	case kDudeCerberusTwoHead: {
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &cerberusIdle);
+		aiNewState(actor, NAME_cerberusIdle);
 		break;
 	}
 	case kDudeCerberusOneHead: {
 		if (!VanillaMode()) {
 			actor->dudeExtra.thinkTime = 0;
-			aiNewState(actor, &cerberus2Idle);
+			aiNewState(actor, NAME_cerberus2Idle);
 			break;
 		}
-		aiNewState(actor, &genIdle);
+		aiNewState(actor, NAME_genIdle);
 		break;
 	}
 	case kDudeHellHound:
-		aiNewState(actor, &houndIdle);
+		aiNewState(actor, NAME_houndIdle);
 		break;
 	case kDudeHand:
-		aiNewState(actor, &handIdle);
+		aiNewState(actor, NAME_handIdle);
 		break;
 	case kDudePhantasm:
 	{
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &ghostIdle);
+		aiNewState(actor, NAME_ghostIdle);
 		break;
 	}
 	case kDudeInnocent:
-		aiNewState(actor, &innocentIdle);
+		aiNewState(actor, NAME_innocentIdle);
 		break;
 	case kDudeRat:
-		aiNewState(actor, &ratIdle);
+		aiNewState(actor, NAME_ratIdle);
 		break;
 	case kDudeBoneEel:
 	{
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &eelIdle);
+		aiNewState(actor, NAME_eelIdle);
 		break;
 	}
 	case kDudeGillBeast:
-		aiNewState(actor, &gillBeastIdle);
+		aiNewState(actor, NAME_gillBeastIdle);
 		break;
 	case kDudeBat:
 	{
 		actor->dudeExtra.thinkTime = 0;
 		actor->dudeExtra.active = 0;
-		aiNewState(actor, &batIdle);
+		aiNewState(actor, NAME_batIdle);
 		break;
 	}
 	case kDudeSpiderBrown:
@@ -1633,36 +1646,36 @@ void aiInitSprite(DBloodActor* actor)
 	{
 		actor->dudeExtra.active = 0;
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &spidIdle);
+		aiNewState(actor, NAME_spidIdle);
 		break;
 	}
 	case kDudeSpiderMother:
 	{
 		actor->dudeExtra.active = 0;
 		actor->dudeExtra.birthCounter = 0;
-		aiNewState(actor, &spidIdle);
+		aiNewState(actor, NAME_spidIdle);
 		break;
 	}
 	case kDudeTchernobog:
 	{
 		actor->dudeExtra.active = 0;
 		actor->dudeExtra.thinkTime = 0;
-		aiNewState(actor, &tchernobogIdle);
+		aiNewState(actor, NAME_tchernobogIdle);
 		break;
 	}
 	case kDudeTinyCaleb:
-		aiNewState(actor, &tinycalebIdle);
+		aiNewState(actor, NAME_tinycalebIdle);
 		break;
 	case kDudeBeast:
-		aiNewState(actor, &beastIdle);
+		aiNewState(actor, NAME_beastIdle);
 		break;
 	case kDudePodGreen:
 	case kDudePodFire:
-		aiNewState(actor, &podIdle);
+		aiNewState(actor, NAME_podIdle);
 		break;
 	case kDudeTentacleGreen:
 	case kDudeTentacleFire:
-		aiNewState(actor, &tentacleIdle);
+		aiNewState(actor, NAME_tentacleIdle);
 		break;
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
@@ -1672,7 +1685,7 @@ void aiInitSprite(DBloodActor* actor)
 		break;
 #endif
 	default:
-		aiNewState(actor, &genIdle);
+		aiNewState(actor, NAME_genIdle);
 		break;
 	}
 	aiSetTarget(actor, DVector3(0, 0, 0));

@@ -593,10 +593,10 @@ void DCustomDude::Process(void)
 	int nOldPosture = posture;
 	
 	if (pSpr->xspr.aiState->moveFunc)
-		callActorFunction(*pSpr->xspr.aiState->moveFunc, pSpr);
+		callActorFunction(pSpr->xspr.aiState->moveFunc, pSpr);
 
 	if (pSpr->xspr.aiState->thinkFunc && (gFrameCount & 3) == (pSpr->GetIndex() & 3))
-		callActorFunction(*pSpr->xspr.aiState->thinkFunc, pSpr);
+		callActorFunction(pSpr->xspr.aiState->thinkFunc, pSpr);
 
 	if (!IsMorphing() && !IsDying())
 	{
@@ -694,7 +694,7 @@ void DCustomDude::ProcessEffects(void)
 	}
 }
 
-bool DCustomDude::NewState(AISTATE* pState)
+bool DCustomDude::NewState(AISTATES* pState)
 {
 	if (!IsMorphing())
 	{
@@ -703,7 +703,7 @@ bool DCustomDude::NewState(AISTATE* pState)
 
 		if (pState->seqId > 0)
 		{
-			/*!!!*/seqSpawn(pState->seqId, pSpr, *pState->funcId);
+			/*!!!*/seqSpawn(pState->seqId, pSpr, pState->funcId);
 		}
 		else if (pState->seqId == 0)
 		{
@@ -711,7 +711,7 @@ bool DCustomDude::NewState(AISTATE* pState)
 		}
 
 		if (pState->enterFunc)
-			callActorFunction(*pState->enterFunc, pSpr);
+			callActorFunction(pState->enterFunc, pSpr);
 
 		return true;
 	}
@@ -721,8 +721,8 @@ bool DCustomDude::NewState(AISTATE* pState)
 
 void DCustomDude::NewState(int nStateType, int nTimeOverride)
 {
-	AISTATE* pTmp   = &states[nStateType][posture];
-	AISTATE* pState = &states[nStateType][kCdudePostureL];
+	AISTATES* pTmp   = &states[nStateType][posture];
+	AISTATES* pState = &states[nStateType][kCdudePostureL];
 	if (pTmp->seqId > 0)
 		pState = pTmp;
 
@@ -733,7 +733,7 @@ void DCustomDude::NewState(int nStateType, int nTimeOverride)
 	}
 }
 
-void DCustomDude::NextState(AISTATE* pState, int nTimeOverride)
+void DCustomDude::NextState(AISTATES* pState, int nTimeOverride)
 {
 	pSpr->xspr.aiState->nextState = pState;
 	if (pSpr->xspr.aiState->nextState && nTimeOverride > 0)
@@ -751,7 +751,7 @@ void DCustomDude::SyncState(void)
 	if (pSpr->xspr.aiState && FindState(pSpr->xspr.aiState, &t1, &t2) && t2 != posture)
 	{
 		t2 = pSpr->xspr.stateTimer; // save time
-		AISTATE* pState = &states[t1][posture];
+		AISTATES* pState = &states[t1][posture];
 			
 		NewState(pState);
 		if (pState->stateTicks)
@@ -759,7 +759,7 @@ void DCustomDude::SyncState(void)
 	}
 }
 
-bool DCustomDude::FindState(AISTATE* pState, int* nStateType, int* nPosture)
+bool DCustomDude::FindState(AISTATES* pState, int* nStateType, int* nPosture)
 {
 	return setup.FindAiState(states, countof(states), pState, nStateType, nPosture);
 }
@@ -961,10 +961,10 @@ void DCustomDude::Recoil(void)
 	pSpr->dudeExtra.teslaHit = 0;
 }
 
-AISTATE* DCustomDude::PickDeath(int nDmgType)
+AISTATES* DCustomDude::PickDeath(int nDmgType)
 {
 	int i, nRand = Random(kCdudePostureMax);
-	AISTATE* pDeath = &states[kCdudeStateDeathBase + nDmgType][nRand];
+	AISTATES* pDeath = &states[kCdudeStateDeathBase + nDmgType][nRand];
 	if (pDeath->seqId > 0)
 		return pDeath;
 
@@ -983,7 +983,7 @@ AISTATE* DCustomDude::PickDeath(int nDmgType)
 void DCustomDude::Kill(DBloodActor* pFrom, int nDmgType, int nDmg)
 {
 	GAMEOPTIONS* pOpt = &gGameOptions;
-	AISTATE* pDeath;
+	AISTATES* pDeath;
 	int i;
 
 	if (IsDying())
@@ -1504,7 +1504,7 @@ void CUSTOMDUDE_SETUP::RandomizeDudeSettings()
 
 	for (i = 0; i < countof(states); i++)
 	{
-		AISTATE* pState = pDude->states[states[i]];
+		AISTATES* pState = pDude->states[states[i]];
 		for (j = 0; j < kCdudePostureMax; j++)
 		{
 			nTime = pState->stateTicks;
@@ -1519,7 +1519,8 @@ void CUSTOMDUDE_SETUP::RandomizeDudeSettings()
 	}
 }
 
-bool CUSTOMDUDE_SETUP::FindAiState(AISTATE stateArr[][kCdudePostureMax], int arrLen, AISTATE* pNeedle, int* nType, int* nPosture)
+template<class T>
+bool CUSTOMDUDE_SETUP::FindAiState(T stateArr[][kCdudePostureMax], int arrLen, T* pNeedle, int* nType, int* nPosture)
 {
 	int i, j;
 	for (i = 0; i < arrLen; i++)
@@ -1542,9 +1543,23 @@ void CUSTOMDUDE_SETUP::Setup(DBloodActor* pSpr)
 	setup.DoSetup(pSpr);
 }
 
+static void Copy(AISTATES* to, AISTATE* from)
+{
+	to->name = NAME_None;	// needs special handling
+	to->stateType = from->stateType;
+	to->seqId = from->seqId;
+	to->stateTicks = from->stateTicks;
+	to->funcId = *from->funcId;
+	to->enterFunc = *from->enterFunc;
+	to->moveFunc = *from->moveFunc;
+	to->thinkFunc = *from->thinkFunc;
+	to->nextState = nullptr;
+}
+
 void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 {
-	AISTATE* pModel, * pState;
+	AISTATE* pModel;
+	AISTATES* pState;
 	int nStateType, nPosture;
 	int i, j;
 	
@@ -1579,7 +1594,7 @@ void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 			pModel = &gCdudeStateTemplate[i][j];
 			pState = &pDude->states[i][j];
 
-			memcpy(pState, pModel, sizeof(AISTATE));
+			Copy(pState, pModel);
 
 			if (pModel->nextState)
 			{
@@ -1599,7 +1614,7 @@ void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 		for (j = 0; j < kCdudePostureMax; j++)
 		{
 			pState = &pDude->states[i][j];
-			memcpy(pState, pModel, sizeof(AISTATE));
+			Copy(pState, pModel);
 		}
 	}
 
@@ -1610,7 +1625,7 @@ void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 		for (j = 0; j < kCdudePostureMax; j++)
 		{
 			pState = &pDude->states[i][j];
-			memcpy(pState, pModel, sizeof(AISTATE));
+			Copy(pState, pModel);
 			pState->nextState = pState;
 		}
 	}
@@ -1859,7 +1874,7 @@ void CUSTOMDUDE_SETUP::WeaponSoundSetDefault(CUSTOMDUDE_WEAPON* pWeapon)
 void CUSTOMDUDE_SETUP::AnimationConvert(int baseID)
 {
 	const SEQCOMPAT* pEntry;
-	AISTATE* pState;
+	AISTATES* pState;
 
 	int i, j, nSeq;
 	for (i = 0; i < kCdudeStateMax; i++)
@@ -1883,14 +1898,14 @@ void CUSTOMDUDE_SETUP::AnimationConvert(int baseID)
 	}
 }
 
-void CUSTOMDUDE_SETUP::AnimationFill(AISTATE* pState, int nAnim)
+void CUSTOMDUDE_SETUP::AnimationFill(AISTATES* pState, int nAnim)
 {
 	for (int i = 0; i < kCdudePostureMax; i++) pState[i].seqId = nAnim;
 }
 
 void CUSTOMDUDE_SETUP::AnimationFill(void)
 {
-	AISTATE* pState;
+	AISTATES* pState;
 	int i, j;
 
 	for (i = 0; i < kCdudeStateMax; i++)
@@ -1904,6 +1919,18 @@ void CUSTOMDUDE_SETUP::AnimationFill(void)
 	}
 }
 
+void Copy(CUSTOMDUDE_SOUND* out, const CUSTOMDUDE_SOUND_TPL* in)
+{
+	for (int j = 0; j < 3; j++)
+		out->id[j] = soundEngine->FindSoundByResID(in->id[j]);
+
+	out->medium = in->medium;
+	out->ai = in->ai;
+	out->interruptable = in->interruptable;
+	out->once = in->once;
+	out->volume = in->volume;
+}
+
 void CUSTOMDUDE_SETUP::SoundConvert(int baseID)
 {
 	CUSTOMDUDE_WEAPON* pWeap;
@@ -1912,7 +1939,10 @@ void CUSTOMDUDE_SETUP::SoundConvert(int baseID)
 	const SNDCOMPAT* pEntry;
 
 	// fill with default sounds first
-	memcpy(pDude->sound, gSoundTemplate, sizeof(gSoundTemplate));
+	for (size_t i = 0; i < countof(pDude->sound); i++)
+	{
+		Copy(&pDude->sound[i], &gSoundTemplate[i]);
+	}
 	for (i = 0; i < pDude->numWeapons; i++)
 	{
 		pWeap = &pDude->weapons[i];
@@ -2024,7 +2054,7 @@ void CUSTOMDUDE_SETUP::SoundFill(void)
 void CUSTOMDUDE_SETUP::FindLargestPic(void)
 {
 	int i, j, nHeigh = 0;
-	AISTATE* pState; 
+	AISTATES* pState; 
 	const Seq* pSeq;
 
 	for (i = 0; i < kCdudeStateMax; i++)
@@ -2268,7 +2298,7 @@ void CUSTOMDUDEV2_SETUP::SetupVelocity(void)
 	}
 }
 
-void CUSTOMDUDEV2_SETUP::SetupAnimation(AISTATE* pState, bool asPosture)
+void CUSTOMDUDEV2_SETUP::SetupAnimation(AISTATES* pState, bool asPosture)
 {
 	AnimationFill(pState, 0); // clear seqID first
 	ParseAnimation(pValue, pState, asPosture);
@@ -2326,7 +2356,7 @@ void CUSTOMDUDEV2_SETUP::SetupAnimation(void)
 				}
 				else if (rngok(pParam->id, kCdudeStateDeathBase, kCdudeStateDeathMax))
 				{
-					AISTATE* pState = pDude->states[pParam->id];
+					AISTATES* pState = pDude->states[pParam->id];
 					SetupAnimation(pState, false);
 				}
 				break;
@@ -2360,7 +2390,7 @@ void CUSTOMDUDEV2_SETUP::SetupSound(void)
 		{
 			pSound = &pDude->sound[pParam->id];
 			pValue = DescriptGetValue(pGroup->text, pParam->text);
-			memcpy(pSound, &gSoundTemplate[pParam->id], sizeof(CUSTOMDUDE_SOUND));
+			Copy(pSound, &gSoundTemplate[pParam->id]);
 			SetupSound(pSound);
 		}
 	}
@@ -2489,7 +2519,7 @@ void CUSTOMDUDEV2_SETUP::SetupKnockout(void)
 {
 	CUSTOMDUDE_KNOCKOUT* pKnock = &pDude->knockout;
 	int onEventDmg[3];
-	AISTATE* pState;
+	AISTATES* pState;
 	int i;
 
 	/* ----------------------------------*/
@@ -3032,7 +3062,7 @@ void CUSTOMDUDEV2_SETUP::SetupWeapons(void)
 	char tmp[64]; int range[2];
 
 	CUSTOMDUDE_WEAPON* pWeap;
-	AISTATE* pState;
+	AISTATES* pState;
 
 	/* ----------------------------------*/
 	/* DEFAULT VALUES                    */
@@ -3453,7 +3483,7 @@ bool CUSTOMDUDEV2_SETUP::ParseSound(const char* str, CUSTOMDUDE_SOUND* pSound)
 	return false;
 }
 
-bool CUSTOMDUDEV2_SETUP::ParseAnimation(const char* str, AISTATE* pState, bool asPosture)
+bool CUSTOMDUDEV2_SETUP::ParseAnimation(const char* str, AISTATES* pState, bool asPosture)
 {
 	int i, j, nPar, nLen;
 	int nVal;
@@ -3932,7 +3962,7 @@ void CUSTOMDUDEV1_SETUP::WeaponMeleeSet(CUSTOMDUDE_WEAPON* pWeapon)
 
 	WeaponRangeSet(pWeapon, 0, 512);
 
-	AISTATE* pState = pDude->states[pWeapon->stateID];
+	AISTATES* pState = pDude->states[pWeapon->stateID];
 	for (int i = 0; i < kCdudePostureMax; i++)
 	{
 		if (!helperSeqTriggerExists(pState->seqId))

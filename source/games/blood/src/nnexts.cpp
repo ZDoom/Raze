@@ -187,6 +187,7 @@ const DUDEINFO_EXTRA gDudeInfoExtra[] = {
 };
 
 
+#if 0
 AISTATE genPatrolStates[] = {
 
 	//-------------------------------------------------------------------------------
@@ -257,6 +258,7 @@ AISTATE genPatrolStates[] = {
 	//-------------------------------------------------------------------------------
 
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -2089,7 +2091,7 @@ void aiSetGenIdleState(DBloodActor* actor)
 		cdudeGet(actor)->NewState(kCdudeStateGenIdle);
 		break;
 	default:
-		aiNewState(actor, &genIdle);
+		aiNewState(actor, NAME_genIdle);
 		break;
 	}
 }
@@ -7046,15 +7048,16 @@ void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 //
 //---------------------------------------------------------------------------
 
-void aiPatrolState(DBloodActor* actor, AISTATE* pState, int nSeq)
+void aiPatrolState(DBloodActor* actor, FName nState, int nSeq)
 {
+	auto pState = FindState(nState);
 	actor->xspr.stateTimer = pState->stateTicks; 
 	actor->xspr.aiState = pState;
 	if (getSequence(nSeq))
-		seqSpawn(nSeq, actor, *pState->funcId);
+		seqSpawn(nSeq, actor, pState->funcId);
 
 	if (pState->enterFunc)
-		callActorFunction(*pState->enterFunc, actor);
+		callActorFunction(pState->enterFunc, actor);
 }
 
 void aiPatrolState(DBloodActor* actor, int state)
@@ -7111,7 +7114,8 @@ void aiPatrolState(DBloodActor* actor, int state)
 
 	for (i = 0; i < kPatrolStateSize; i++)
 	{
-		AISTATE* newState = &genPatrolStates[i];
+		FName name = ENamedName(int(NAME_genPatrolState_0) + i);
+		AISTATES* const newState = FindState(name);
 		if (newState->stateType != state)
 			continue;
 
@@ -7126,7 +7130,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 					continue;
 
 				DCustomDude* pDude = cdudeGet(actor);
-				AISTATE* pState = (AISTATE*)pDude->states;
+				AISTATES* pState = pDude->states[0];
 				seq = pState[seq].seqId;
 				if (seq <= 0)
 					continue;
@@ -7137,7 +7141,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 			}
 		}
 
-		aiPatrolState(actor, newState, seq);
+		aiPatrolState(actor, name, seq);
 		if (crouch) actor->xspr.modernFlags |= kDudeFlagCrouch;
 		else actor->xspr.modernFlags &= ~kDudeFlagCrouch;
 		return;

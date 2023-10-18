@@ -243,7 +243,7 @@ extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const EXPLOSION_EXTRA gExplodeExtra[kExplosionMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-extern AISTATE genPatrolStates[kPatrolStateSize];
+//extern AISTATE genPatrolStates[kPatrolStateSize];
 
 inline TArray<TObjPtr<DBloodActor*>> gProxySpritesList;
 inline TArray<TObjPtr<DBloodActor*>> gSightSpritesList;
@@ -351,19 +351,19 @@ inline int aiPatrolGetVelocity(int speed, int value) {
 	return (value > 0) ? ClipRange((speed / 3) + (2500 * value), 0, 0x47956) : speed;
 }
 
-inline bool aiPatrolWaiting(AISTATE* pAiState) {
+inline bool aiPatrolWaiting(AISTATES* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolWaitL && pAiState->stateType <= kAiStatePatrolWaitW);
 }
 
-inline bool aiPatrolMoving(AISTATE* pAiState) {
+inline bool aiPatrolMoving(AISTATES* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolMoveL && pAiState->stateType <= kAiStatePatrolMoveW);
 }
 
-inline bool aiPatrolTurning(AISTATE* pAiState) {
+inline bool aiPatrolTurning(AISTATES* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolTurnL && pAiState->stateType <= kAiStatePatrolTurnW);
 }
 
-inline bool aiInPatrolState(AISTATE* pAiState) {
+inline bool aiInPatrolState(AISTATES* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolBase && pAiState->stateType < kAiStatePatrolMax);
 }
 

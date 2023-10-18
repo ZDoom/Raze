@@ -255,7 +255,7 @@ extern AISTATE gillBeastSwimMoveIn;
 extern AISTATE gillBeastSwimTurn;
 
 extern AISTATE handIdle;
-extern AISTATE hand13A3B4;
+extern AISTATE handChoke;
 extern AISTATE handSearch;
 extern AISTATE handChase;
 extern AISTATE handRecoil;

@@ -57,11 +57,11 @@ struct walltypedisk
 BEGIN_BLD_NS
 
 class DBloodActor;
-struct AISTATE;
+struct AISTATES;
 
 struct XSPRITE {
 
-	AISTATE* aiState;                   // ai
+	AISTATES* aiState;                   // ai
 	union
 	{
 		uint32_t flags;
