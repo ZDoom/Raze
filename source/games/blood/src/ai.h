@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-struct AISTATES {
+struct AISTATE {
 	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
 	int seqId;
 	int stateTicks;
@@ -38,19 +38,7 @@ struct AISTATES {
 	VMFunction* enterFunc;
 	VMFunction* moveFunc;
 	VMFunction* thinkFunc;
-	AISTATES* nextState;
-};
-
-struct AISTATE_TPL {
-	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
-	int seqId;
-	VMNativeFunction** funcId;
-	int stateTicks;
-	VMNativeFunction** enterFunc;
-	VMNativeFunction** moveFunc;
-	VMNativeFunction** thinkFunc;
-
-	AISTATE_TPL *nextState;
+	AISTATE* nextState;
 };
 
 enum AI_SFX_PRIORITY {

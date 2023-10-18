@@ -170,7 +170,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 
 #endif
 #else
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATES*& w, AISTATES** def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
 {
 	return arc;
 }

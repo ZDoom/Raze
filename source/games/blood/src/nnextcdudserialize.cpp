@@ -307,7 +307,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, CUSTOMDUDE_DROPITE
 	return arc;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATES& w, AISTATES* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE& w, AISTATE* def)
 {
 	if (arc.BeginObject(keyname))
 	{

@@ -786,7 +786,7 @@ DEFINE_PROPERTY(dmgcontrol, IIIIIII, BloodActor)
 
 // this is rather makeshift for now, it needs to be cleaned up once the native states are gone.
 // it only supports the minimum needed set of features to allow getting rid of them and takes all available shortcuts.
-TArray<AISTATES> allStates;
+TArray<AISTATE> allStates;
 
 DEFINE_PROPERTY(aistate, SSIIGGGGs, BloodActor)
 {
@@ -805,11 +805,11 @@ DEFINE_PROPERTY(aistate, SSIIGGGGs, BloodActor)
 		next = _next;
 	}
 	int seqno = (int)strtol(seq + 1, nullptr, 10); // skip the '+', this needs to be done better later.
-	AISTATES state = { type, seqno, duration, FName(label), action, enter, move, tick, (AISTATES*)(intptr_t)(FName(next).GetIndex()) };
+	AISTATE state = { type, seqno, duration, FName(label), action, enter, move, tick, (AISTATE*)(intptr_t)(FName(next).GetIndex()) };
 	allStates.Push(state);
 }
 
-AISTATES* FindState(FName name)
+AISTATE* FindState(FName name)
 {
 	int index = name.GetIndex() - NAME_genIdle;
 	if (index < allStates.SSize()) return &allStates[index];

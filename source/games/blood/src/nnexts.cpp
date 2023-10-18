@@ -7043,7 +7043,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 	for (i = 0; i < kPatrolStateSize; i++)
 	{
 		FName name = ENamedName(int(NAME_genPatrolState_0) + i);
-		AISTATES* const newState = FindState(name);
+		AISTATE* const newState = FindState(name);
 		if (newState->stateType != state)
 			continue;
 
@@ -7058,7 +7058,7 @@ void aiPatrolState(DBloodActor* actor, int state)
 					continue;
 
 				DCustomDude* pDude = cdudeGet(actor);
-				AISTATES* pState = pDude->states[0];
+				AISTATE* pState = pDude->states[0];
 				seq = pState[seq].seqId;
 				if (seq <= 0)
 					continue;

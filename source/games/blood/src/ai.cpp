@@ -78,7 +78,7 @@ void aiPlay3DSound(DBloodActor* actor, int soundid, AI_SFX_PRIORITY a3, int play
 //
 //---------------------------------------------------------------------------
 
-void aiNewState(DBloodActor* actor, AISTATES* pAIState)
+void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor);
 	actor->xspr.stateTimer = pAIState->stateTicks;
@@ -101,7 +101,7 @@ void aiNewState(DBloodActor* actor, AISTATES* pAIState)
 //
 //
 //---------------------------------------------------------------------------
-AISTATES* FindState(FName name);
+AISTATE* FindState(FName name);
 
 void aiNewState(DBloodActor* actor, FName nAIState)
 {

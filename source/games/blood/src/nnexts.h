@@ -350,19 +350,19 @@ inline int aiPatrolGetVelocity(int speed, int value) {
 	return (value > 0) ? ClipRange((speed / 3) + (2500 * value), 0, 0x47956) : speed;
 }
 
-inline bool aiPatrolWaiting(AISTATES* pAiState) {
+inline bool aiPatrolWaiting(AISTATE* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolWaitL && pAiState->stateType <= kAiStatePatrolWaitW);
 }
 
-inline bool aiPatrolMoving(AISTATES* pAiState) {
+inline bool aiPatrolMoving(AISTATE* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolMoveL && pAiState->stateType <= kAiStatePatrolMoveW);
 }
 
-inline bool aiPatrolTurning(AISTATES* pAiState) {
+inline bool aiPatrolTurning(AISTATE* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolTurnL && pAiState->stateType <= kAiStatePatrolTurnW);
 }
 
-inline bool aiInPatrolState(AISTATES* pAiState) {
+inline bool aiInPatrolState(AISTATE* pAiState) {
 	return (pAiState && pAiState->stateType >= kAiStatePatrolBase && pAiState->stateType < kAiStatePatrolMax);
 }
 
