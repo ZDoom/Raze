@@ -212,6 +212,7 @@ version "4.12"
 #include "zscript/games/duke/world/redneckbreak.zs"
 
 #include "zscript/games/blood/bloodgame.zs"
+#include "zscript/games/blood/states.zs"
 #include "zscript/games/blood/ui/menu.zs"
 #include "zscript/games/blood/ui/sbar.zs"
 #include "zscript/games/blood/ui/screens.zs"

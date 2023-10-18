@@ -442,10 +442,10 @@ enum {
 	kAiStateRecoil = 5,
 	kAiStateAttack = 6,
 #ifdef NOONE_EXTENSIONS
-	kAiStateKnockout,
-	kAiStateIdleSleep,
 	kAiStatePatrolBase,
-	kAiStatePatrolWaitL = kAiStatePatrolBase,
+	kAiStateKnockout = kAiStatePatrolBase,
+	kAiStateIdleSleep,
+	kAiStatePatrolWaitL,
 	kAiStatePatrolWaitC,
 	kAiStatePatrolWaitW,
 	kAiStatePatrolMoveL,
