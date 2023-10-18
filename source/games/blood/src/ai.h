@@ -41,7 +41,7 @@ struct AISTATES {
 	AISTATES* nextState;
 };
 
-struct AISTATE {
+struct AISTATE_TPL {
 	int stateType; // By NoOne: current type of state. Basically required for kModernDudeTargetChanger, but can be used for something else.
 	int seqId;
 	VMNativeFunction** funcId;
@@ -50,7 +50,7 @@ struct AISTATE {
 	VMNativeFunction** moveFunc;
 	VMNativeFunction** thinkFunc;
 
-	AISTATE *nextState;
+	AISTATE_TPL *nextState;
 };
 
 enum AI_SFX_PRIORITY {

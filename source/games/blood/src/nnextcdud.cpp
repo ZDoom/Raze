@@ -392,6 +392,134 @@ VMNativeFunction** const gCdudeCustomCallback[] =
 	&AF(fxPodBloodSpray),       // 10
 };
 
+
+// Land, Crouch, Swim (proper order matters!)
+AISTATE_TPL gCdudeStateTemplate[kCdudeStateNormalMax][kCdudePostureMax] =
+{
+	// idle (don't change pos or patrol gets broken!)
+	{
+		{ kAiStateIdle,     SEQOFFS(0),   nullptr, 0, &AF(resetTarget), nullptr, &AF(thinkTarget), nullptr },
+		{ kAiStateIdle,     SEQOFFS(17),  nullptr, 0, &AF(resetTarget), nullptr, &AF(thinkTarget), nullptr },
+		{ kAiStateIdle,     SEQOFFS(13),  nullptr, 0, &AF(resetTarget), nullptr, &AF(thinkTarget), nullptr },
+	},
+
+	// search (don't change pos or patrol gets broken!)
+	{
+		{ kAiStateSearch,   SEQOFFS(9),  nullptr, 800, nullptr, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureL] },
+		{ kAiStateSearch,   SEQOFFS(14), nullptr, 800, nullptr, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureC] },
+		{ kAiStateSearch,   SEQOFFS(13), nullptr, 800, nullptr, &AF(moveForward), &AF(thinkSearch), &gCdudeStateTemplate[kCdudeStateIdle][kCdudePostureW] },
+	},
+
+	// dodge
+	{
+		{ kAiStateMove,     SEQOFFS(9),  nullptr, 90, nullptr,  &AF(moveDodge),	nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
+		{ kAiStateMove,     SEQOFFS(14), nullptr, 90, nullptr,  &AF(moveDodge),	nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
+		{ kAiStateMove,     SEQOFFS(13), nullptr, 90, nullptr,  &AF(moveDodge),	nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
+	},
+
+	// chase
+	{
+		{ kAiStateChase,    SEQOFFS(9),  nullptr, 30, nullptr,	&AF(moveForward), &AF(thinkChase), nullptr },
+		{ kAiStateChase,    SEQOFFS(14), nullptr, 30, nullptr,	&AF(moveForward), &AF(thinkChase), nullptr },
+		{ kAiStateChase,    SEQOFFS(13), nullptr, 30, nullptr,	&AF(moveForward), &AF(thinkChase), nullptr },
+	},
+
+	// flee
+	{
+		{ kAiStateMove,    SEQOFFS(9),  nullptr, 256, nullptr,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
+		{ kAiStateMove,    SEQOFFS(14), nullptr, 256, nullptr,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
+		{ kAiStateMove,    SEQOFFS(13), nullptr, 256, nullptr,	&AF(moveForward), &AF(thinkFlee), &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
+	},
+
+	// recoil normal
+	{
+		{ kAiStateRecoil,   SEQOFFS(5), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
+		{ kAiStateRecoil,   SEQOFFS(5), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
+		{ kAiStateRecoil,   SEQOFFS(5), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
+	},
+
+	// recoil tesla
+	{
+		{ kAiStateRecoil,   SEQOFFS(4), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureL] },
+		{ kAiStateRecoil,   SEQOFFS(4), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureC] },
+		{ kAiStateRecoil,   SEQOFFS(4), nullptr, 0, nullptr, nullptr, nullptr, &gCdudeStateTemplate[kCdudeStateChase][kCdudePostureW] },
+	},
+
+	// burn search
+	{
+		{ kAiStateSearch,   SEQOFFS(3), nullptr, 3600, &AF(enterBurnSearchWater), &AF(aiMoveForward), &AF(maybeThinkSearch), &gCdudeStateTemplate[kCdudeBurnStateSearch][kCdudePostureL]},
+		{ kAiStateSearch,   SEQOFFS(3), nullptr, 3600, &AF(enterBurnSearchWater), &AF(aiMoveForward), &AF(maybeThinkSearch), &gCdudeStateTemplate[kCdudeBurnStateSearch][kCdudePostureC] },
+		{ kAiStateSearch,   SEQOFFS(3), nullptr, 3600, &AF(enterBurnSearchWater), &AF(aiMoveForward), &AF(maybeThinkSearch), &gCdudeStateTemplate[kCdudeBurnStateSearch][kCdudePostureW] },
+	},
+
+	// morph (put thinkFunc in moveFunc because it supposed to work fast)
+	{
+		{ kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), nullptr, nullptr },
+		{ kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), nullptr, nullptr },
+		{ kAiStateOther,   SEQOFFS(18), nullptr, 0, &AF(enterMorph), &AF(thinkMorph), nullptr, nullptr },
+	},
+
+	// knock enter
+	{
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureL] },
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureC] },
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(moveKnockout), nullptr, &gCdudeStateTemplate[kCdudeStateKnock][kCdudePostureW] },
+	},
+
+	// knock
+	{
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureL] },
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, nullptr,         nullptr, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureC] },
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(moveKnockout), nullptr, &gCdudeStateTemplate[kCdudeStateKnockExit][kCdudePostureW] },
+	},
+
+	// knock exit
+	{
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
+		{ kAiStateKnockout,   SEQOFFS(0), nullptr, 0, nullptr, &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
+	},
+
+	// sleep
+	{
+		{ kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), nullptr, &AF(thinkTarget), nullptr },
+		{ kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), nullptr, &AF(thinkTarget), nullptr },
+		{ kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterSleep), nullptr, &AF(thinkTarget), nullptr },
+	},
+
+	// wake
+	{
+		{ kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureL] },
+		{ kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureC] },
+		{ kAiStateIdle,     SEQOFFS(0),  nullptr, 0, &AF(enterWake), &AF(turnToTarget), nullptr, &gCdudeStateTemplate[kCdudeStateSearch][kCdudePostureW] },
+	},
+
+	// generic idle (ai fight compat.)
+	{
+		{ kAiStateGenIdle,     SEQOFFS(0),   nullptr, 0, &AF(resetTarget), nullptr, nullptr, nullptr },
+		{ kAiStateGenIdle,     SEQOFFS(17),  nullptr, 0, &AF(resetTarget), nullptr, nullptr, nullptr },
+		{ kAiStateGenIdle,     SEQOFFS(13),  nullptr, 0, &AF(resetTarget), nullptr, nullptr, nullptr },
+	},
+};
+
+// Land, Crouch, Swim
+AISTATE_TPL gCdudeStateAttackTemplate[kCdudePostureMax] =
+{
+	// attack (put thinkFunc in moveFunc because it supposed to work fast)
+	{ kAiStateAttack,   SEQOFFS(6), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), nullptr, &gCdudeStateAttackTemplate[kCdudePostureL] },
+	{ kAiStateAttack,   SEQOFFS(8), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), nullptr, &gCdudeStateAttackTemplate[kCdudePostureC] },
+	{ kAiStateAttack,   SEQOFFS(8), &AF(weaponShot), 0, &AF(moveStop), &AF(thinkChase), nullptr, &gCdudeStateAttackTemplate[kCdudePostureW] },
+};
+
+// Random pick
+AISTATE_TPL gCdudeStateDyingTemplate[kCdudePostureMax] =
+{
+	// dying
+	{ kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), nullptr, &AF(thinkDying), nullptr },
+	{ kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), nullptr, &AF(thinkDying), nullptr },
+	{ kAiStateOther,   SEQOFFS(1), nullptr, 0, &AF(enterDying), nullptr, &AF(thinkDying), nullptr },
+};
+
 static bool CheckProximity(DBloodActor* pSpr1, DBloodActor* pSpr2, int nDist) = delete; // make this error out for refactoring
 
 static bool CheckProximity(DBloodActor* pSpr1, DBloodActor* pSpr2, double nDist)
@@ -1543,7 +1671,7 @@ void CUSTOMDUDE_SETUP::Setup(DBloodActor* pSpr)
 	setup.DoSetup(pSpr);
 }
 
-static void Copy(AISTATES* to, AISTATE* from)
+static void Copy(AISTATES* to, AISTATE_TPL* from)
 {
 	to->name = NAME_None;	// needs special handling
 	to->stateType = from->stateType;
@@ -1558,7 +1686,7 @@ static void Copy(AISTATES* to, AISTATE* from)
 
 void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 {
-	AISTATE* pModel;
+	AISTATE_TPL* pModel;
 	AISTATES* pState;
 	int nStateType, nPosture;
 	int i, j;
@@ -1609,12 +1737,14 @@ void CUSTOMDUDE_SETUP::DoSetup(DBloodActor* pSpr)
 
 	// copy dying states
 	pModel = gCdudeStateDyingTemplate;
+	AISTATES* nextState = FindState(NAME_cdudeDeath);
 	for (i = kCdudeStateDeathBase; i < kCdudeStateDeathMax; i++)
 	{
 		for (j = 0; j < kCdudePostureMax; j++)
 		{
 			pState = &pDude->states[i][j];
 			Copy(pState, pModel);
+			pState->nextState = nextState;
 		}
 	}
 

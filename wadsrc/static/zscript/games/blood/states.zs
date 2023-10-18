@@ -386,5 +386,7 @@ extend class BloodActor
 		AIState "genPatrolState_47", "+10", kAiStatePatrolTurnC, 0, null, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, "none";
 		AIState "genPatrolState_48", "+9", kAiStatePatrolTurnC, 0, null, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, "none";
 		AIState "genPatrolState_49", "+4", kAiStatePatrolTurnC, 0, null, aiPatrolRandGoalAng, aiPatrolTurn, aiPatrolThink, "none";
+		AISTATE "cdudeDeath", "+-1", kAiStateOther, 0, null, enterDeath, null, null, null;
+
 	}
 }
