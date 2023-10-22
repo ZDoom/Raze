@@ -58,8 +58,8 @@ spawnclasses
 	4352 = RedneckRASheriff
 	4357 = RedneckDeputy
 	71 = RedneckRASoundFX
-	7633 = RedneckBarrel
-	7634 = RedneckBarrel2
+	//7633 = RedneckBarrel
+	//7634 = RedneckBarrel2
 
 	7636 = DukeGenericDestructible, noskill, "OLDPHOTO0", "OLDPHOTO0BROKE", "VENT_BUST"
 	7638 = DukeGenericDestructible, noskill, "OLDPHOTO1", "OLDPHOTO1BROKE", "VENT_BUST"

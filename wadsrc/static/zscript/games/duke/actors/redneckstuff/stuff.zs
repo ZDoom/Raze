@@ -124,6 +124,7 @@ class RedneckBustaWin5a : DukeActor
 
 }
 
+/*
 class RedneckBarrel : DukeActor
 {
 	const POWDERKEGBLASTRADIUS = 3880;
@@ -141,6 +142,7 @@ class RedneckBarrel2 : RedneckBarrel
 		spriteset "BARREL2", "BARREL2BROKE";
 	}
 }
+*/
 
 
 class RedneckWaterSurface : DukeActor
