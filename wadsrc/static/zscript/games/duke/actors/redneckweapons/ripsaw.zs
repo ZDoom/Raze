@@ -25,8 +25,7 @@ class RedneckSawBlade : DukeProjectile
 		if (self.extra <= 0)
 		{
 			self.pos += self.angle.ToVector() * 8;
-			let Owner = self.ownerActor;
-			if (!Owner || !(Owner.bALTPROJECTILESPRITE)) // depends on the shooter. Urgh...
+			if (!bALTPROJECTILESPRITE) // depends on the shooter. Urgh...
 			{
 				let j = self.spawn("RedneckCircleStuck");
 				if (j)
@@ -54,7 +53,7 @@ class RedneckSawBlade : DukeProjectile
 	override bool animate(tspritetype tspr)
 	{
 		int frame;
-		if (!OwnerActor || !(OwnerActor.bALTPROJECTILESPRITE)) frame = ((PlayClock >> 4) & 7);
+		if (!bALTPROJECTILESPRITE) frame = ((PlayClock >> 4) & 7);
 		else frame = 8 + ((PlayClock >> 4) & 3);
 		tspr.SetSpritePic(self, frame);
 		return true;
@@ -72,6 +71,8 @@ class RedneckSawBlade : DukeProjectile
 		int scount;
 
 		if (actor.extra >= 0) actor.shade = -96;
+		bALTPROJECTILESPRITE = actor.bALTPROJECTILESPRITE;	// must copy because shooter may disappear.
+
 
 		scount = 1;
 		vel = 40.25;

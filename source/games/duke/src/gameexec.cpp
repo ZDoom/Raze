@@ -2110,10 +2110,10 @@ int ParseState::parse(void)
 		insptr++;
 		auto info = spawnMap.CheckKey(*insptr);
 		if (info != nullptr)
-		{
 			g_ac->ChangeType(info->cls);
-			g_ac->spr.setspritetexture(tileGetTextureID(*insptr));
-		}
+		else
+			g_ac->ChangeType(RUNTIME_CLASS(DDukeActor));
+		g_ac->spr.setspritetexture(tileGetTextureID(*insptr));
 		insptr++;
 		break;
 	}
