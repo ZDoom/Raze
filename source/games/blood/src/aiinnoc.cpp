@@ -37,7 +37,7 @@ AISTATE innocentRecoil = { kAiStateRecoil, 5, nullptr, 0, NULL, NULL, NULL, &inn
 AISTATE innocentTeslaRecoil = { kAiStateRecoil, 4, nullptr, 0, NULL, NULL, NULL, &innocentChase };
 AISTATE innocentGoto = { kAiStateMove, 6, nullptr, 600, NULL, &AF(aiMoveForward), &AF(innocThinkGoto), &innocentIdle };
 
-static void innocThinkSearch(DBloodActor* actor)
+void innocThinkSearch(DBloodActor* actor)
 {
 	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
