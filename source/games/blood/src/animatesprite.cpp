@@ -662,7 +662,6 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				{
 					pTSprite->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 					auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());
-					pTSprite->yoffset += (uint8_t)tex->GetDisplayTopOffset();
 					if (nAnimType == 7)
 					{
 						pTSprite->Angles.Yaw = myclock.Normalized360();
