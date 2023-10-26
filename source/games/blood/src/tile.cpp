@@ -87,6 +87,7 @@ void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
             if (voxindex > -1 && (info.tile[i].extinfo.picanm.extra & 7) >= 6)
             {
                 info.tile[i].extinfo.tiletovox = voxindex;
+                info.tile[i].extinfo.voxoffs = (uint8_t)info.tile[i].orgimage->GetOffsets().second;
             }
         }
     }

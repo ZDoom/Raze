@@ -94,6 +94,7 @@ struct TexExtInfo
 		uint8_t tileshade;		// Blood's shade.dat
 	};
 	int16_t tiletovox;	// engine-side voxel index
+	int16_t voxoffs;
 	picanm_t picanm;	// tile-based animation data.
 	uint32_t flags;		// contents are game dependent.
 	TileOffs hiofs;
