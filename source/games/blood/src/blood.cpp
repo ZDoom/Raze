@@ -204,6 +204,7 @@ TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 		{
 			actor->addX();
 			actor->xspr = sprites.xspr[i];
+			actor->UpdateDmgControl();
 		}
 	}
 	leveltimer = sprites.sprites.Size();

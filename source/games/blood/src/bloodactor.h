@@ -150,6 +150,18 @@ public:
 	}
 #endif
 
+	void UpdateDmgControl()
+	{
+		if (IsDudeActor())
+		{
+			memcpy(dmgControl, getDudeInfo(this)->startDamage, sizeof(dmgControl));
+		}
+		else
+		{
+			memcpy(dmgControl, static_cast<DBloodActor*>(GetDefaultByType(GetClass()))->dmgControl, sizeof(dmgControl));
+		}
+	}
+
 	void ChangeType(PClass* newtype)
 	{
 		if (newtype->IsDescendantOf(RUNTIME_CLASS(DBloodActor)) && newtype->Size == RUNTIME_CLASS(DBloodActor)->Size && GetClass()->Size == RUNTIME_CLASS(DBloodActor)->Size)
@@ -157,6 +169,7 @@ public:
 			// It sucks having to do this but the game heavily depends on being able to swap out the class type and often uses this to manage actor state.
 			// We'll allow this only for classes that do not add their own data, though.
 			SetClass(newtype);
+			UpdateDmgControl();
 		}
 	}
 

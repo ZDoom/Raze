@@ -4331,6 +4331,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	spawned->spr.Angles.Yaw = angle;
 	SetActor(spawned, pos);
 
+	spawned->UpdateDmgControl();
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
 	spawned->clipdist = getDudeInfo(nDude + kDudeBase)->fClipdist();
 	spawned->xspr.health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
