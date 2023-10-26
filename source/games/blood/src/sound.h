@@ -34,11 +34,11 @@ void sfxPlay3DSoundVolume(DBloodActor* pActor, int soundId, int playchannel = -1
 
 inline void sfxPlay3DSound(DBloodActor* pActor, FSoundID soundId, int a3 = -1, int a4 = 0)
 {
-	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, 0, -1);
+	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, -1, 0);
 }
 inline void sfxPlay3DSound(DBloodActor* pActor, int soundId, int a3 = -1, int a4 = 0)
 {
-	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, 0, -1);
+	sfxPlay3DSoundVolume(pActor, soundId, a3, a4, -1, 0);
 }
 void sfxKill3DSound(DBloodActor* pActor, int a2 = -1, int a3 = -1);
 void sfxKillAllSounds(void);
