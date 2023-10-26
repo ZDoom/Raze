@@ -409,6 +409,7 @@ static void StoreLevelStats()
 	LevelData[i].killcount = info.kills;
 	LevelData[i].totalsecrets = info.maxsecrets;
 	LevelData[i].secretcount = info.secrets;
+	LevelData[i].supersecrets = info.supersecrets;
 	LevelData[i].leveltime = info.time / 120;
 }
 
@@ -539,8 +540,9 @@ FString GetStatString()
 	for(unsigned i = 0; i < LevelData.Size(); i++)
 	{
 		OneLevel *l = &LevelData[i];
-		compose.AppendFormat("Level %s - Kills: %d/%d - Secrets: %d/%d - Time: %d:%02d\n", 
-			l->Levelname.GetChars(), l->killcount, l->totalkills, l->secretcount, l->totalsecrets,
+		FString supersecret =l->supersecrets ? FStringf(":%d", l->supersecrets) : FString();
+		compose.AppendFormat("Level %s - Kills: %d/%d - Secrets: %d/%d%s - Time: %d:%02d\n", 
+			l->Levelname.GetChars(), l->killcount, l->totalkills, l->secretcount, l->totalsecrets, supersecret.GetChars(),
 			l->leveltime/(60), (l->leveltime)%60);
 	}
 	return compose;
