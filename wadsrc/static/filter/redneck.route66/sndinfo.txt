@@ -1,2 +1,2 @@
-$conreserve GATORIDLE  438
-$conreserve GATORBITE  439
+$resourceid GATORIDLE  438
+$resourceid GATORBITE  439
