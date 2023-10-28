@@ -56,7 +56,7 @@ enum SICommands
 	SI_MusicVolume,
 	SI_MidiDevice,
 	SI_MusicAlias,
-	SI_ConReserve,
+	SI_ResourceID,
 	SI_Alias,
 	SI_Limit,
 	SI_Singular,
@@ -96,7 +96,7 @@ static const char *SICommandStrings[] =
 	"$musicvolume",
 	"$mididevice",
 	"$musicalias",
-	"$conreserve",
+	"$resourceid",
 	"$alias",
 	"$limit",
 	"$singular",
@@ -456,8 +456,8 @@ static void S_AddSNDINFO (int lump)
 				break;
 			}
 
-			case SI_ConReserve: {
-				// $conreserve <logical name> <resource id>
+			case SI_ResourceID: {
+				// $resourceid <logical name> <resource id>
 				// Assigns a resource ID to the given sound.
 				sc.MustGetString();
 				FSoundID sfx = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
