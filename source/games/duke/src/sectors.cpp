@@ -1333,7 +1333,7 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 bool checkhitceiling(sectortype* sectp)
 {
 	auto data = breakCeilingMap.CheckKey(sectp->ceilingtexture.GetIndex());
-	if (data && !(data->flags & 1))
+	if (data)
 	{
 		if (!data->handler)
 		{
