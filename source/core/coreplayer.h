@@ -71,11 +71,6 @@ public:
 		return angles;
 	}
 
-	const DRotator& getCameraAngles() const
-	{
-		return CameraAngles;
-	}
-
 	void updateCameraAngles(const double interpfrac)
 	{
 		// Apply the current interpolated angle state to the render angles.

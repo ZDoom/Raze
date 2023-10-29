@@ -768,7 +768,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     }
 
 					tsp->pos = pos;
-                    tsp->Angles.Yaw = pp->getCameraAngles().Yaw;
+                    tsp->Angles.Yaw = pp->CameraAngles.Yaw;
                     //continue;
                 }
                 else
@@ -1413,7 +1413,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -(pp->getCameraAngles().Yaw - cang).Normalized360().Degrees();
+                    const auto daang = -(pp->CameraAngles.Yaw - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.
