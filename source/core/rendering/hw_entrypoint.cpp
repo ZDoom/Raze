@@ -206,10 +206,10 @@ FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int s
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.X, -position.Y, -position.Z };
-	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90.f + (float)angles.Yaw.Degrees());
+	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90. + angles.Yaw.Degrees());
 	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(ClampViewPitch(angles.Pitch).Degrees());
-	r_viewpoint.HWAngles.Roll = FAngle::fromDeg((float)angles.Roll.Degrees());
-	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  (float)r_fov);
+	r_viewpoint.HWAngles.Roll = FAngle::fromDeg(angles.Roll.Degrees());
+	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  r_fov);
 	r_viewpoint.RotAngle = angles.Yaw.BAMs();
 	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);
 	DAngle an = DAngle::fromDeg(270. - r_viewpoint.HWAngles.Yaw.Degrees());
