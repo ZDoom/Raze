@@ -1569,7 +1569,7 @@ void processinput_d(DDukePlayer* const p)
 	pact->floorz = floorz;
 	pact->ceilingz = ceilingz;
 
-	p->doslopetilting();
+	p->doViewPitch();
 
 	if (chz.type == kHitSprite)
 	{

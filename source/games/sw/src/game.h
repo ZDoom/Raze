@@ -1856,6 +1856,11 @@ public:
         return vect;
     }
 
+    const bool canSlopeTilt() const override
+    {
+        return (cmd.ucmd.actions & SB_AIMMODE) && !(Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING));
+    }
+
     inline DSWActor* GetActor() override
     {
         return static_cast<DSWActor*>(actor);

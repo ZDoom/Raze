@@ -1705,8 +1705,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		pInput->actions &= ~SB_OPEN;
 	}
 
-	const int florhit = pPlayer->GetActor()->hit.florhit.type;
-	pPlayer->doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
+	pPlayer->doViewPitch();
 	pPlayer->doPitchInput();
 
 	pPlayer->slope = pPlayer->GetActor()->spr.Angles.Pitch.Tan();

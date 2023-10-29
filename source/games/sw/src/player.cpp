@@ -1487,18 +1487,6 @@ void SlipSlope(DSWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerSlopeTilting(DSWPlayer* pp)
-{
-    const bool canslopetilt = (pp->cmd.ucmd.actions & SB_AIMMODE) && !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING));
-    pp->doViewPitch(canslopetilt, pp->Flags & PF_CLIMBING);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void DoPlayerBob(DSWPlayer* pp)
 {
     double amt;
@@ -1979,7 +1967,7 @@ void DoPlayerMove(DSWPlayer* pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    DoPlayerSlopeTilting(pp);
+    pp->doViewPitch(pp->Flags & PF_CLIMBING);
     pp->doPitchInput();
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
@@ -2565,7 +2553,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     OperateSectorObject(pp->sop, plActor->spr.Angles.Yaw, plActor->spr.pos.XY());
     pp->cursector = save_sect; // for speed
 
-    DoPlayerSlopeTilting(pp);
+    pp->doViewPitch(pp->Flags & PF_CLIMBING);
     pp->doPitchInput();
 
     DoTankTreads(pp);
@@ -2621,7 +2609,7 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
-    DoPlayerSlopeTilting(pp);
+    pp->doViewPitch(pp->Flags & PF_CLIMBING);
     pp->doPitchInput();
 }
 
@@ -3206,7 +3194,7 @@ void DoPlayerClimb(DSWPlayer* pp)
     // setsprite to players location
     ChangeActorSect(pp->GetActor(), pp->cursector);
 
-    DoPlayerSlopeTilting(pp);
+    pp->doViewPitch(pp->Flags & PF_CLIMBING);
     pp->doPitchInput();
 
     if (FAF_ConnectArea(pp->cursector))

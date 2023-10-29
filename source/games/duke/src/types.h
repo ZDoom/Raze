@@ -405,9 +405,9 @@ public:
 		}
 	}
 
-	inline void doslopetilting()
+	const bool canSlopeTilt() const override
 	{
-		doViewPitch(aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER);
+		return aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER;
 	}
 
 	inline bool itemUsed(int num)
