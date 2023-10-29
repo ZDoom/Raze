@@ -891,11 +891,6 @@ bool checkRangeOfFaceSprite(DCoreActor* itActor, const DVector3& pos, double max
 
 bool checkRangeOfWallSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double* theZs)
 {
-	int t = itActor->time;
-	if ((t >= 485 && t <= 487) || t == 315)
-	{
-		int a = 0;
-	}
 	DVector2 verts[2];
 	GetWallSpritePosition(&itActor->spr, itActor->spr.pos.XY(), verts);
 	if (IsCloseToLine(pos.XY(), verts[0], verts[1], maxdist) == EClose::Outside) return false;
