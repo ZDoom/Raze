@@ -22,9 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //------------------------------------------------------------------------- 
 
 #include "menu.h"
-#include "gamestate.h"
 #include "gameinput.h"
-#include "coreplayer.h"
 #include "g_input.h"
 
 //---------------------------------------------------------------------------
@@ -437,33 +435,6 @@ CCMD(turnaround)
 CCMD(holsterweapon)
 {
 	gameInput.SendAction(SB_HOLSTER);
-}
-
-CCMD(warptocoords)
-{
-	if (netgame)
-	{
-		Printf("warptocoords cannot be used in multiplayer.\n");
-		return;
-	}
-	if (argv.argc() < 4)
-	{
-		Printf("warptocoords [x] [y] [z] [yaw] (optional) [pitch] (optional): warps the player to the specified coordinates\n");
-		return;
-	}
-	if (gamestate != GS_LEVEL)
-	{
-		Printf("warptocoords: must be in a level\n");
-		return;
-	}
-
-	if (const auto pActor = PlayerArray[myconnectindex]->GetActor())
-	{
-		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
-		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));
-		if (argv.argc() > 5) pActor->spr.Angles.Pitch = DAngle::fromDeg(atof(argv[5]));
-		pActor->backuploc();
-	}
 }
 
 CCMD(third_person_view)

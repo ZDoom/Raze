@@ -272,3 +272,63 @@ void DCorePlayer::doRollInput(const bool bUnderwater)
 		actor->spr.Angles.Roll += cmd.ucmd.ang.Roll * gameInput.SyncInput();
 	}
 }
+
+
+//---------------------------------------------------------------------------
+//
+// Stat for console player's position/angles.
+//
+//---------------------------------------------------------------------------
+
+ADD_STAT(coord)
+{
+	FString out;
+	const auto p = PlayerArray[myconnectindex];
+	if (const auto pActor = p->GetActor())
+	{
+		out.AppendFormat("X: %.4f  ", pActor->spr.pos.X);
+		out.AppendFormat("Y: %.4f  ", pActor->spr.pos.Y);
+		out.AppendFormat("Z: %.4f\n", pActor->spr.pos.Z);
+		out.AppendFormat("Yaw: %.4f  ", pActor->spr.Angles.Yaw.Degrees());
+		out.AppendFormat("Pitch: %.4f  ", pActor->spr.Angles.Pitch.Degrees());
+		out.AppendFormat("Roll: %.4f\n", pActor->spr.Angles.Roll.Degrees());
+		out.AppendFormat("View Yaw: %.4f  ", p->ViewAngles.Yaw.Degrees());
+		out.AppendFormat("View Pitch: %.4f  ", p->ViewAngles.Pitch.Degrees());
+		out.AppendFormat("View Roll: %.4f\n", p->ViewAngles.Roll.Degrees());
+	}
+	return out;
+}
+
+
+//---------------------------------------------------------------------------
+//
+// CCMD to warp console player to the given coordinates.
+//
+//---------------------------------------------------------------------------
+
+CCMD(warptocoords)
+{
+	if (netgame)
+	{
+		Printf("warptocoords cannot be used in multiplayer.\n");
+		return;
+	}
+	if (argv.argc() < 4)
+	{
+		Printf("warptocoords [x] [y] [z] [yaw] (optional) [pitch] (optional): warps the player to the specified coordinates\n");
+		return;
+	}
+	if (gamestate != GS_LEVEL)
+	{
+		Printf("warptocoords: must be in a level\n");
+		return;
+	}
+
+	if (const auto pActor = PlayerArray[myconnectindex]->GetActor())
+	{
+		pActor->spr.pos = DVector3(atof(argv[1]), atof(argv[2]), atof(argv[3]));
+		if (argv.argc() > 4) pActor->spr.Angles.Yaw = DAngle::fromDeg(atof(argv[4]));
+		if (argv.argc() > 5) pActor->spr.Angles.Pitch = DAngle::fromDeg(atof(argv[5]));
+		pActor->backuploc();
+	}
+}
