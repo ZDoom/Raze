@@ -6054,8 +6054,7 @@ static void actCheckDudes()
 			if (actor->xspr.height > 0)
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
 
-			constexpr auto maxVel = (36211. / 3000.);
-			pPlayer->doRollInput(actor->vel.XY(), maxVel, false);
+			pPlayer->doRollInput(false);
 			pPlayer->StrafeVel -= pPlayer->StrafeVel * nDrag;
 		}
 

@@ -1537,7 +1537,6 @@ void processinput_d(DDukePlayer* const p)
 
 	// Get strafe value before it's rotated by the angle.
 	const auto strafeVel = p->cmd.ucmd.vel.Y;
-	constexpr auto maxVel = (117351124. / 10884538.);
 
 	rotateInputVel(p);
 
@@ -1812,7 +1811,7 @@ void processinput_d(DDukePlayer* const p)
 		}
 	}
 
-	p->doRollInput(p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	p->doRollInput((psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 

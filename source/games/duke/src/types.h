@@ -361,6 +361,16 @@ public:
 	void checkhardlanding();
 	void playerweaponsway(double xvel);
 
+	const double GetMaxInputVel() const override
+	{
+		return (117351124. / 10884538.);
+	}
+
+	const DVector2& GetInputVelocity() const override
+	{
+		return vel.XY();
+	}
+
 	inline void setCursector(sectortype* sect)
 	{
 		cursector = sect;

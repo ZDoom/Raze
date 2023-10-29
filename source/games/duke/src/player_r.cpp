@@ -2277,7 +2277,6 @@ void processinput_r(DDukePlayer* const p)
 
 	// Get strafe value before it's rotated by the angle.
 	const auto strafeVel = p->cmd.ucmd.vel.Y;
-	constexpr auto maxVel = (117351124. / 10884538.);
 
 	auto psectp = p->cursector;
 	if (p->OnMotorcycle && pact->spr.extra > 0)
@@ -2703,7 +2702,7 @@ void processinput_r(DDukePlayer* const p)
 
 	if (!p->OnMotorcycle && !p->OnBoat)
 	{
-		p->doRollInput(p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+		p->doRollInput((psectlotag == 1) || (psectlotag == 2));
 	}
 
 HORIZONLY:
