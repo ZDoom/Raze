@@ -67,7 +67,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, const 
 		{
 			// Push you a little bit off the wall
 			*psect = hitinfo.hitSector;
-			hpos.*c -= npos.*c * npos.XY().dot(hitinfo.hitWall->delta().Angle().ToVector().Rotated90CW()) * (1. / 1024.);
+			hpos.*c += npos.*c * npos.XY().dot(hitinfo.hitWall->normalAngle().ToVector()) * (1. / 1024.);
 		}
 		else if (hitinfo.hitActor == nullptr)		
 		{
@@ -87,7 +87,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, const 
 		else
 		{
 			// same as wall calculation.
-			hpos.*c -= npos.*c * npos.XY().dot((act->spr.Angles.Yaw - DAngle90).ToVector().Rotated90CW()) * (1. / 1024.);
+			hpos.*c += npos.*c * npos.XY().dot(act->spr.Angles.Yaw.ToVector()) * (1. / 1024.);
 		}
 
 		const double newdist = hpos.*c / npos.*c;
