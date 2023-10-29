@@ -1388,8 +1388,7 @@ void DoPlayerMove(DSWPlayer* pp)
 
 	actor->vel.X = pp->vect.Length();
 
-    constexpr auto maxVel = (380401538. / 36022361.);
-    pp->doRollInput(pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
+    pp->doRollInput(pp->Flags & (PF_SWIMMING|PF_DIVING));
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {

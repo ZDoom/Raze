@@ -1549,13 +1549,12 @@ static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double nD
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
-    constexpr auto maxVel = 15.25;
 
     // Pitch tilting when player's Z changes (stairs, jumping, etc).
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->doRollInput(pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->doRollInput(nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)
@@ -1566,7 +1565,7 @@ static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double nD
         pPlayer->nIdxBobZ *= !pPlayerActor->vel.Z;
 
         // Increment bob value with index's sine, amplified by player velocity, bob type and bob height CVAR.
-        const auto nBobVel = (pPlayerActor->vel.XY().Length() < 0.09375 && nUnderwater) ? (maxVel / 3.) : pPlayer->totalvel;
+        const auto nBobVel = (pPlayerActor->vel.XY().Length() < 0.09375 && nUnderwater) ? (pPlayer->GetMaxInputVel() * (1. / 3.)) : pPlayer->totalvel;
         const auto nBobAmp = nBobVel * 0.05 * cl_viewbob * cl_exviewbobheight;
         const auto newBobZ = BobVal(pPlayer->nIdxBobZ) * nBobAmp;
         pPlayer->nBobZ = (cl_viewbob == 2) ? (abs(newBobZ) - nBobAmp * 0.5 * !nUnderwater) : (newBobZ);

@@ -299,6 +299,11 @@ public:
 	{
 		return static_cast<DBloodActor*>(actor);
 	}
+
+	const double GetMaxInputVel() const override
+	{
+		return (36211. / 3000.);
+	}
 };
 
 inline DBloodPlayer* getPlayer(int index)

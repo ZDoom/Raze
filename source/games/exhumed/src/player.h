@@ -118,6 +118,11 @@ public:
     {
         return static_cast<DExhumedActor*>(actor);
     }
+
+    const double GetMaxInputVel() const override
+    {
+        return 15.25;
+    }
 };
 
 extern int PlayerCount;

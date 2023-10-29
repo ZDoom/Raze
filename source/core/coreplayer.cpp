@@ -227,12 +227,13 @@ void DCorePlayer::doViewYaw()
 //
 //---------------------------------------------------------------------------
 
-void DCorePlayer::doRollInput(const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater)
+void DCorePlayer::doRollInput(const bool bUnderwater)
 {
 	// Allow viewtilting if we're not in a VR mode.
 	if (!vr_mode)
 	{
 		// Scale/attenuate tilting based on player actions.
+		const auto nMaxVel = GetMaxInputVel();
 		const auto rollAmp = cl_viewtiltscale / (1 + bUnderwater);
 		const auto runScale = 1. / (1 + !(cmd.ucmd.actions & SB_RUN));
 		const auto strafeScale = 1 + !!cmd.ucmd.vel.Y;
@@ -255,7 +256,7 @@ void DCorePlayer::doRollInput(const DVector2& nVelVect, const double nMaxVel, co
 		else if (cl_viewtilting == 3)
 		{
 			// Movement rolling from player's velocity. Adjustment == (90/48) for running keyboard strafe.
-			const auto rollAdj = nVelVect.Rotated(-actor->spr.Angles.Yaw).Y * strafeScale * rollAmp;
+			const auto rollAdj = GetInputVelocity().Rotated(-actor->spr.Angles.Yaw).Y * strafeScale * rollAmp;
 			const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
 			actor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj, -rollMax, rollMax) * (1.875 / nMaxVel));
 		}

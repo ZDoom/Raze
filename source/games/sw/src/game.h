@@ -1852,6 +1852,16 @@ public:
 
     uint8_t WpnReloadState;
 
+    const double GetMaxInputVel() const override
+    {
+        return (380401538. / 36022361.);
+    }
+
+    const DVector2& GetInputVelocity() const override
+    {
+        return vect;
+    }
+
     inline DSWActor* GetActor() override
     {
         return static_cast<DSWActor*>(actor);
