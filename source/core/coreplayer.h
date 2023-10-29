@@ -38,11 +38,11 @@ public:
 	virtual DCoreActor* GetActor() = 0;
 
 	// Angle prototypes.
-	void doPitchInput(InputPacket* const input);
-	void doYawInput(InputPacket* const input);
+	void doPitchInput();
+	void doYawInput();
 	void doViewPitch(const bool canslopetilt, const bool climbing = false);
-	void doViewYaw(InputPacket* const input);
-	void doRollInput(InputPacket* const input, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater);
+	void doViewYaw();
+	void doRollInput(const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater);
 
 	// Angle methods.
 	void InitAngles(const DAngle viewyaw = nullAngle)

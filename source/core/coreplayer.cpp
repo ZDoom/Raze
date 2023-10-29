@@ -68,40 +68,40 @@ CUSTOM_CVAR(Int, cl_viewtilting, 0, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 //
 //---------------------------------------------------------------------------
 
-void DCorePlayer::doPitchInput(InputPacket* const input)
+void DCorePlayer::doPitchInput()
 {
 	// Add player's mouse/device input.
-	if (input->ang.Pitch.Degrees())
+	if (cmd.ucmd.ang.Pitch.Degrees())
 	{
-		actor->spr.Angles.Pitch += input->ang.Pitch * gameInput.SyncInput();
-		input->actions &= ~SB_CENTERVIEW;
+		actor->spr.Angles.Pitch += cmd.ucmd.ang.Pitch * gameInput.SyncInput();
+		cmd.ucmd.actions &= ~SB_CENTERVIEW;
 	}
 
 	// Set up a myriad of bools.
-	const auto aimingUp = (input->actions & SB_LOOK_UP) == SB_AIM_UP;
-	const auto aimingDown = (input->actions & SB_LOOK_DOWN) == SB_AIM_DOWN;
-	const auto lookingUp = (input->actions & SB_LOOK_UP) == SB_LOOK_UP;
-	const auto lookingDown = (input->actions & SB_LOOK_DOWN) == SB_LOOK_DOWN;
+	const auto aimingUp = (cmd.ucmd.actions & SB_LOOK_UP) == SB_AIM_UP;
+	const auto aimingDown = (cmd.ucmd.actions & SB_LOOK_DOWN) == SB_AIM_DOWN;
+	const auto lookingUp = (cmd.ucmd.actions & SB_LOOK_UP) == SB_LOOK_UP;
+	const auto lookingDown = (cmd.ucmd.actions & SB_LOOK_DOWN) == SB_LOOK_DOWN;
 
 	// Process keyboard input.
 	if (const auto aiming = aimingDown - aimingUp)
 	{
 		actor->spr.Angles.Pitch += getTicrateAngle(PITCH_AIMSPEED * aiming);
-		input->actions &= ~SB_CENTERVIEW;
+		cmd.ucmd.actions &= ~SB_CENTERVIEW;
 	}
 	if (const auto looking = lookingDown - lookingUp)
 	{
 		actor->spr.Angles.Pitch += getTicrateAngle(PITCH_LOOKSPEED * looking);
-		input->actions |= SB_CENTERVIEW;
+		cmd.ucmd.actions |= SB_CENTERVIEW;
 	}
 
 	// Do return to centre.
-	if ((input->actions & SB_CENTERVIEW) && !(lookingUp || lookingDown))
+	if ((cmd.ucmd.actions & SB_CENTERVIEW) && !(lookingUp || lookingDown))
 	{
 		const auto pitch = abs(actor->spr.Angles.Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
 		if (scaletozero(actor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale))
-			input->actions &= ~SB_CENTERVIEW;
+			cmd.ucmd.actions &= ~SB_CENTERVIEW;
 	}
 
 	// clamp before we finish, factoring in the player's view pitch offset.
@@ -117,25 +117,25 @@ void DCorePlayer::doPitchInput(InputPacket* const input)
 //
 //---------------------------------------------------------------------------
 
-void DCorePlayer::doYawInput(InputPacket* const input)
+void DCorePlayer::doYawInput()
 {
 	// Add player's mouse/device input.
-	actor->spr.Angles.Yaw += input->ang.Yaw * gameInput.SyncInput();
+	actor->spr.Angles.Yaw += cmd.ucmd.ang.Yaw * gameInput.SyncInput();
 
-	if (input->actions & SB_TURNAROUND)
+	if (cmd.ucmd.actions & SB_TURNAROUND)
 	{
 		if (YawSpin == nullAngle)
 		{
 			// currently not spinning, so start a spin
 			YawSpin = -DAngle180;
 		}
-		input->actions &= ~SB_TURNAROUND;
+		cmd.ucmd.actions &= ~SB_TURNAROUND;
 	}
 
 	if (YawSpin < nullAngle)
 	{
 		// return spin to 0
-		DAngle add = getTicrateAngle(!(input->actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH);
+		DAngle add = getTicrateAngle(!(cmd.ucmd.actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH);
 		YawSpin += add;
 		if (YawSpin > nullAngle)
 		{
@@ -206,14 +206,14 @@ void DCorePlayer::doViewPitch(const bool canslopetilt, const bool climbing)
 //
 //---------------------------------------------------------------------------
 
-void DCorePlayer::doViewYaw(InputPacket* const input)
+void DCorePlayer::doViewYaw()
 {
 	// Process angle return to zeros.
 	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN);
 	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN);
 
 	// Process keyboard input.
-	if (const auto looking = !!(input->actions & SB_LOOK_RIGHT) - !!(input->actions & SB_LOOK_LEFT))
+	if (const auto looking = !!(cmd.ucmd.actions & SB_LOOK_RIGHT) - !!(cmd.ucmd.actions & SB_LOOK_LEFT))
 	{
 		ViewAngles.Yaw += getTicrateAngle(YAW_LOOKINGSPEED * looking);
 		ViewAngles.Roll += getTicrateAngle(YAW_ROTATESPEED * looking);
@@ -227,20 +227,20 @@ void DCorePlayer::doViewYaw(InputPacket* const input)
 //
 //---------------------------------------------------------------------------
 
-void DCorePlayer::doRollInput(InputPacket* const input, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater)
+void DCorePlayer::doRollInput(const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater)
 {
 	// Allow viewtilting if we're not in a VR mode.
 	if (!vr_mode)
 	{
 		// Scale/attenuate tilting based on player actions.
 		const auto rollAmp = cl_viewtiltscale / (1 + bUnderwater);
-		const auto runScale = 1. / (1 + !(input->actions & SB_RUN));
-		const auto strafeScale = 1 + !!input->vel.Y;
+		const auto runScale = 1. / (1 + !(cmd.ucmd.actions & SB_RUN));
+		const auto strafeScale = 1 + !!cmd.ucmd.vel.Y;
 
 		if (cl_viewtilting == 1)
 		{
 			// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
-			const auto rollAdj = input->ang.Yaw * ROLL_TILTAVELSCALE * rollAmp;
+			const auto rollAdj = cmd.ucmd.ang.Yaw * ROLL_TILTAVELSCALE * rollAmp;
 			const auto rollMax = ROLL_TILTAVELMAX * cl_viewtiltscale;
 			scaletozero(actor->spr.Angles.Roll, ROLL_TILTRETURN);
 			actor->spr.Angles.Roll = clamp(actor->spr.Angles.Roll + rollAdj, -rollMax, rollMax);
@@ -268,6 +268,6 @@ void DCorePlayer::doRollInput(InputPacket* const input, const DVector2& nVelVect
 	else
 	{
 		// Add player's device input.
-		actor->spr.Angles.Roll += input->ang.Roll * gameInput.SyncInput();
+		actor->spr.Angles.Roll += cmd.ucmd.ang.Roll * gameInput.SyncInput();
 	}
 }
