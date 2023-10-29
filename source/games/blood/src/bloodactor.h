@@ -304,6 +304,13 @@ public:
 	{
 		return (36211. / 3000.);
 	}
+
+	const bool canSlopeTilt() const override
+	{
+		const auto pActor = static_cast<DBloodActor*>(actor);
+		const int florhit = pActor->hit.florhit.type;
+		return pActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0);
+	}
 };
 
 inline DBloodPlayer* getPlayer(int index)

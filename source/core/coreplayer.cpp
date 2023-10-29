@@ -154,9 +154,9 @@ void DCorePlayer::doYawInput()
 //
 //---------------------------------------------------------------------------
 
-void DCorePlayer::doViewPitch(const bool canslopetilt, const bool climbing)
+void DCorePlayer::doViewPitch(const bool climbing)
 {
-	if (cl_slopetilting && canslopetilt)
+	if (cl_slopetilting && canSlopeTilt())
 	{
 		const auto actorsect = actor->sector();
 		if (actorsect && (actorsect->floorstat & CSTAT_SECTOR_SLOPE)) // If the floor is sloped

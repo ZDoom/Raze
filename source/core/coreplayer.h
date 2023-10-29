@@ -36,13 +36,14 @@ public:
 
 	// All overridable methods.
 	virtual DCoreActor* GetActor() = 0;
+	virtual const bool canSlopeTilt() const { return false; }
 	virtual const DVector2& GetInputVelocity() const { return actor->vel.XY(); }
 	virtual const double GetMaxInputVel() const = 0;
 
 	// Angle prototypes.
 	void doPitchInput();
 	void doYawInput();
-	void doViewPitch(const bool canslopetilt, const bool climbing = false);
+	void doViewPitch(const bool climbing = false);
 	void doViewYaw();
 	void doRollInput(const bool bUnderwater);
 
