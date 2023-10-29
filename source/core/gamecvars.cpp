@@ -249,25 +249,6 @@ ADD_STAT(fps)
 	return gi->statFPS();
 }
 
-ADD_STAT(coord)
-{
-	FString out;
-	const auto p = PlayerArray[myconnectindex];
-	if (const auto pActor = p->GetActor())
-	{
-		out.AppendFormat("X: %.4f  ", pActor->spr.pos.X);
-		out.AppendFormat("Y: %.4f  ", pActor->spr.pos.Y);
-		out.AppendFormat("Z: %.4f\n", pActor->spr.pos.Z);
-		out.AppendFormat("Yaw: %.4f  ", pActor->spr.Angles.Yaw.Degrees());
-		out.AppendFormat("Pitch: %.4f  ", pActor->spr.Angles.Pitch.Degrees());
-		out.AppendFormat("Roll: %.4f\n", pActor->spr.Angles.Roll.Degrees());
-		out.AppendFormat("View Yaw: %.4f  ", p->ViewAngles.Yaw.Degrees());
-		out.AppendFormat("View Pitch: %.4f  ", p->ViewAngles.Pitch.Degrees());
-		out.AppendFormat("View Roll: %.4f\n", p->ViewAngles.Roll.Degrees());
-	}
-	return out;
-}
-
 CUSTOM_CVARD(Int, r_showfps, 0, 0, "show the frame rate counter")
 {
 	if (self < 0 || self > 3) self = 1;

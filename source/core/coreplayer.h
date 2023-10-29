@@ -2,6 +2,7 @@
 
 #include "d_net.h"
 #include "packet.h"
+#include "gamestate.h"
 #include "gamefuncs.h"
 
 class DCorePlayer : public DObject
