@@ -1665,7 +1665,7 @@ void processinput_d(DDukePlayer* const p)
 	doubvel = TICSPERFRAME;
 
 	checklook(p, actions);
-	p->doViewYaw(&p->cmd.ucmd);
+	p->doViewYaw();
 
 	p->updatecentering();
 
@@ -1708,7 +1708,7 @@ void processinput_d(DDukePlayer* const p)
 		gameInput.ForceInputSync(p->pnum);
 	}
 
-	p->doYawInput(&p->cmd.ucmd);
+	p->doYawInput();
 
 	purplelavacheck(p);
 
@@ -1812,7 +1812,7 @@ void processinput_d(DDukePlayer* const p)
 		}
 	}
 
-	p->doRollInput(&p->cmd.ucmd, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+	p->doRollInput(p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 
 HORIZONLY:
 
@@ -1928,7 +1928,7 @@ HORIZONLY:
 		playerAimDown(p, actions);
 	}
 
-	p->doPitchInput(&p->cmd.ucmd);
+	p->doPitchInput();
 
 	p->checkhardlanding();
 

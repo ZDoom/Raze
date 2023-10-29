@@ -1581,8 +1581,8 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		pPlayer->StrafeVel += pInput->vel.Y * svAccel * speed;
 	}
 
-	pPlayer->doViewYaw(pInput);
-	pPlayer->doYawInput(pInput);
+	pPlayer->doViewYaw();
+	pPlayer->doYawInput();
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;
@@ -1707,7 +1707,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 
 	const int florhit = pPlayer->GetActor()->hit.florhit.type;
 	pPlayer->doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
-	pPlayer->doPitchInput(pInput);
+	pPlayer->doPitchInput();
 
 	pPlayer->slope = pPlayer->GetActor()->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)

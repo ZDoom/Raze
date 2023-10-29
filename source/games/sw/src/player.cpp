@@ -1850,8 +1850,8 @@ void DoPlayerMove(DSWPlayer* pp)
 
     SlipSlope(pp);
 
-    pp->doViewYaw(&pp->cmd.ucmd);
-    pp->doYawInput(&pp->cmd.ucmd);
+    pp->doViewYaw();
+    pp->doYawInput();
     UpdatePlayerSpriteAngle(pp);
 
     pp->lastcursector = pp->cursector;
@@ -1900,7 +1900,7 @@ void DoPlayerMove(DSWPlayer* pp)
 	actor->vel.X = pp->vect.Length();
 
     constexpr auto maxVel = (380401538. / 36022361.);
-    pp->doRollInput(&pp->cmd.ucmd, pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
+    pp->doRollInput(pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {
@@ -1981,7 +1981,7 @@ void DoPlayerMove(DSWPlayer* pp)
     DoPlayerSetWadeDepth(pp);
 
     DoPlayerSlopeTilting(pp);
-    pp->doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput();
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -2567,7 +2567,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     pp->cursector = save_sect; // for speed
 
     DoPlayerSlopeTilting(pp);
-    pp->doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput();
 
     DoTankTreads(pp);
 }
@@ -2623,7 +2623,7 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
         pp->Flags |= (PF_PLAYER_MOVED);
 
     DoPlayerSlopeTilting(pp);
-    pp->doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput();
 }
 
 //---------------------------------------------------------------------------
@@ -3208,7 +3208,7 @@ void DoPlayerClimb(DSWPlayer* pp)
     ChangeActorSect(pp->GetActor(), pp->cursector);
 
     DoPlayerSlopeTilting(pp);
-    pp->doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput();
 
     if (FAF_ConnectArea(pp->cursector))
     {

@@ -1555,7 +1555,7 @@ static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double nD
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->doRollInput(&pPlayer->cmd.ucmd, pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->doRollInput(pPlayerActor->vel.XY(), maxVel, nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)
@@ -1813,10 +1813,9 @@ static bool doPlayerInput(DExhumedPlayer* const pPlayer)
         return false;
 
     // update player yaw here as per the original workflow.
-    const auto pInput = &pPlayer->cmd.ucmd;
-    pPlayer->doViewYaw(pInput);
-    pPlayer->doYawInput(pInput);
-    pPlayer->doPitchInput(pInput);
+    pPlayer->doViewYaw();
+    pPlayer->doYawInput();
+    pPlayer->doPitchInput();
 
     if (nMove.type || nMove.exbits)
     {
