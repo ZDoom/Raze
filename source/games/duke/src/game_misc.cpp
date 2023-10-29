@@ -211,11 +211,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double interpfrac)
 {
-	DDukePlayer* pp;
-	DVector2 cposxy;
-	DAngle cang;
-
-	pp = getPlayer(screenpeek);
+	const auto pp = getPlayer(screenpeek);
 	// set palette here, in case the 3D view is off.
 	setgamepalette(setpal(pp));
 
@@ -244,6 +240,9 @@ void drawoverlays(double interpfrac)
 		if (automapMode != am_off)
 		{
 			const auto pact = pp->GetActor();
+			DVector2 cposxy;
+			DAngle cang;
+
 			DoInterpolations(interpfrac);
 
 			if (pp->newOwner == nullptr && playrunning())
@@ -264,6 +263,7 @@ void drawoverlays(double interpfrac)
 				cposxy = pact->opos.XY();
 				cang = pact->PrevAngles.Yaw;
 			}
+
 			DrawOverheadMap(cposxy, cang, interpfrac);
 			RestoreInterpolations();
 		}
