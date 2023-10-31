@@ -575,11 +575,11 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				}
 				else if (sc.Compare("loadgrp"))
 				{
-				do
-				{
-					sc.MustGetToken(TK_StringConst);
-					grp.loadfiles.Push(sc.String);
-				} while (sc.CheckToken(','));
+					do
+					{
+						sc.MustGetToken(TK_StringConst);
+						grp.loadfiles.Push(sc.String);
+					} while (sc.CheckToken(','));
 				}
 				else if (sc.Compare("loadart"))
 				{
