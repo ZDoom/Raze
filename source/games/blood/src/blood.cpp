@@ -391,6 +391,7 @@ void StartLevel(MapRecord* level, bool newgame)
 //
 //
 //---------------------------------------------------------------------------
+void packClear(DBloodPlayer* pPlayer);
 
 void NewLevel(MapRecord *sng, int skill, bool newgame)
 {
@@ -403,6 +404,8 @@ void GameInterface::NewGame(MapRecord *sng, int skill, bool)
 {
 	gGameOptions.uGameFlags = 0;
 	cheatReset();
+	DBloodPlayer* pPlayer = getPlayer(myconnectindex);
+	packClear(pPlayer);
 	NewLevel(sng, skill, true);
 }
 
