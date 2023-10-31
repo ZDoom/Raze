@@ -2341,7 +2341,7 @@ void InitPlayerSprite(DSWPlayer* pp, const DVector3& spawnpos, const DAngle star
     pp->actor = actor;
     pp->pnum = pnum;
 
-    pp->Angles.initialize(pp->GetActor());
+    pp->InitAngles();
 
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);

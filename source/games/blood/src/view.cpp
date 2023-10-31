@@ -412,7 +412,7 @@ static void DrawMap(DBloodPlayer* pPlayer, const double interpfrac)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	DrawOverheadMap(pPlayer->GetActor()->interpolatedpos(interpfrac).XY(), pPlayer->Angles.getRenderAngles(interpfrac).Yaw, interpfrac);
+	DrawOverheadMap(pPlayer->GetActor()->interpolatedpos(interpfrac).XY(), pPlayer->getRenderAngles(interpfrac).Yaw, interpfrac);
 	if (tm)
 		setViewport(hud_size);
 }
@@ -458,7 +458,7 @@ static void SetupView(DBloodPlayer* pPlayer, DVector3& cPos, DRotator& cAngles, 
 #endif
 	{
 		cPos = pPlayer->GetActor()->getRenderPos(interpfrac);
-		cAngles = pPlayer->Angles.getRenderAngles(interpfrac);
+		cAngles = pPlayer->getRenderAngles(interpfrac);
 		zDelta = interpolatedvalue(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - 12, interpfrac);
 		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
 		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
@@ -571,7 +571,7 @@ void viewDrawScreen(bool sceneonly)
 	else interpfrac = 1.;
 
 	// update render angles.
-	pPlayer->Angles.updateCameraAngles(interpfrac);
+	pPlayer->updateCameraAngles(interpfrac);
 
 	if (cl_interpolate)
 	{
@@ -692,7 +692,7 @@ void viewDrawScreen(bool sceneonly)
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
 		if (sceneonly) return;
-		auto offsets = pPlayer->Angles.getCrosshairOffsets(interpfrac);
+		auto offsets = pPlayer->getCrosshairOffsets(interpfrac);
 		DrawCrosshair(pPlayer->GetActor()->xspr.health >> 4, offsets.first.X, offsets.first.Y, 2, offsets.second);
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)

@@ -343,12 +343,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_HORIZOFF:
-		if (bSet) p->Angles.ViewAngles.Pitch = maphoriz(-lValue);
-		else SetGameVarID(lVar2, int(p->Angles.ViewAngles.Pitch.Tan() * -128.), sActor, sPlayer);
+		if (bSet) p->ViewAngles.Pitch = maphoriz(-lValue);
+		else SetGameVarID(lVar2, int(p->ViewAngles.Pitch.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZOFF:
-		if (!bSet) SetGameVarID(lVar2, int(p->Angles.PrevViewAngles.Pitch.Tan() * -128.), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(p->PrevViewAngles.Pitch.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_INVDISPTIME:
@@ -479,8 +479,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) p->Angles.ViewAngles.Yaw = mapangle(lValue);
-		else SetGameVarID(lVar2, p->Angles.ViewAngles.Yaw.Buildang(), sActor, sPlayer);
+		if (bSet) p->ViewAngles.Yaw = mapangle(lValue);
+		else SetGameVarID(lVar2, p->ViewAngles.Yaw.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_EXTRA:
@@ -639,8 +639,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) p->Angles.YawSpin = mapangle(lValue);
-		else SetGameVarID(lVar2, p->Angles.YawSpin.Buildang(), sActor, sPlayer);
+		if (bSet) p->YawSpin = mapangle(lValue);
+		else SetGameVarID(lVar2, p->YawSpin.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:
@@ -689,8 +689,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) p->Angles.PrevViewAngles.Roll = p->Angles.ViewAngles.Roll = -mapangle(lValue);
-		else SetGameVarID(lVar2, -p->Angles.ViewAngles.Roll.Buildang(), sActor, sPlayer);
+		if (bSet) p->PrevViewAngles.Roll = p->ViewAngles.Roll = -mapangle(lValue);
+		else SetGameVarID(lVar2, -p->ViewAngles.Roll.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:

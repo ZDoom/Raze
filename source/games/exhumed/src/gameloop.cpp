@@ -80,7 +80,7 @@ void GameInterface::Render()
     {
         const auto pPlayer = getPlayer(nLocalPlayer);
         DrawStatusBar();
-        auto offsets = pPlayer->Angles.getCrosshairOffsets(interpfrac);
+        auto offsets = pPlayer->getCrosshairOffsets(interpfrac);
         DrawCrosshair(pPlayer->nHealth >> 3, offsets.first.X, offsets.first.Y, 1, offsets.second);
 
         if (paused && !M_Active())

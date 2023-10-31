@@ -949,6 +949,7 @@ set (PCH_SOURCES
 	core/automap.cpp
 	core/cheats.cpp
 	core/cheathandler.cpp
+	core/coreplayer.cpp
 	core/rts.cpp
 	core/ct_chat.cpp
 	core/d_net.cpp

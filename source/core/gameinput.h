@@ -1,7 +1,7 @@
 #pragma once
 
 #include "serializer.h"
-#include "gamefuncs.h"
+#include "coreplayer.h"
 #include "d_net.h"
 
 enum : unsigned
@@ -16,11 +16,6 @@ enum : unsigned
 	VEH_CANTURN = 2,
 	VEH_SCALETURN = 4,
 };
-
-inline double getTicrateScale(const double value)
-{
-	return value / GameTicRate;
-}
 
 class GameInput
 {
@@ -52,7 +47,7 @@ class GameInput
 	// Turn speed doubling after x amount of tics.
 	void updateTurnHeldAmt()
 	{
-		turnheldtime += getTicrateScale(BUILDTICRATE) * scaleAdjust;
+		turnheldtime += getTicrateScale(BUILDTICRATE * scaleAdjust);
 	}
 	bool isTurboTurnTime()
 	{
@@ -117,110 +112,4 @@ public:
 	void resetCrouchToggle();
 };
 
-struct PlayerAngles
-{
-	// Player viewing angles, separate from the camera.
-	DRotator PrevViewAngles, ViewAngles;
-
-	// Strafe roll counter, to be incremented/managed by the game's velocity handler.
-	double PrevStrafeVel, StrafeVel;
-
-	// Holder of current yaw spin state for the 180 degree turn.
-	DAngle YawSpin;
-
-	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-	friend void GameInput::processMovement(const double turnscale, const bool allowstrafe, const int drink_amt);
-	friend void GameInput::processVehicle(const double baseVel, const double velScale, const unsigned flags);
-
-	// Prototypes.
-	void doPitchInput(InputPacket* const input);
-	void doYawInput(InputPacket* const input);
-	void doViewPitch(const bool canslopetilt, const bool climbing = false);
-	void doViewYaw(InputPacket* const input);
-	void doRollInput(InputPacket* const input, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater);
-
-	// General methods.
-	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
-	{
-		memset(this, 0, sizeof(*this));
-		pActor = actor;
-		CameraAngles = PrevLerpAngles = pActor->spr.Angles;
-		PrevViewAngles.Yaw = ViewAngles.Yaw = viewyaw;
-	}
-	DAngle getPitchWithView()
-	{
-		return ClampViewPitch(pActor->spr.Angles.Pitch + ViewAngles.Pitch);
-	}
-
-	// Render angle functions.
-	const DRotator& getCameraAngles() const
-	{
-		return CameraAngles;
-	}
-	DRotator getRenderAngles(const double interpfrac)
-	{
-		// Get angles and return with clamped off pitch.
-		auto angles = CameraAngles + interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
-		angles.Pitch = ClampViewPitch(angles.Pitch);
-		return angles;
-	}
-	void updateCameraAngles(const double interpfrac)
-	{
-		// Apply the current interpolated angle state to the render angles.
-		const auto lerpAngles = interpolatedvalue(pActor->PrevAngles, pActor->spr.Angles, interpfrac);
-		CameraAngles += lerpAngles - PrevLerpAngles;
-		PrevLerpAngles = lerpAngles;
-	}
-	void resetCameraAngles()
-	{
-		if (pActor != nullptr)
-		{
-			// Apply any last remaining ticrate angle updates and reset variables.
-			CameraAngles += pActor->spr.Angles - PrevLerpAngles;
-			PrevLerpAngles = pActor->spr.Angles = CameraAngles;
-			PrevViewAngles = ViewAngles;
-		}
-	}
-
-	// Draw code helpers.
-	auto getCrosshairOffsets(const double interpfrac)
-	{
-		// Set up angles and return as pair with roll as the 2nd object since all callers inevitably need it.
-		const auto viewAngles = interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
-		return std::make_pair(DVector2(160, 120 * -viewAngles.Roll.Tan()) * -viewAngles.Yaw.Tan() / tan(r_fov * pi::pi() / 360.), viewAngles.Roll);
-	}
-	auto getWeaponOffsets(const double interpfrac)
-	{
-		// Push the Y down a bit since the weapon is at the edge of the screen. Also null roll for now.
-		auto offsets = getCrosshairOffsets(interpfrac); offsets.first.Y *= 4.; offsets.second = nullAngle;
-		return offsets;
-	}
-
-private:
-	// Private data which should never be accessed publicly.
-	DRotator PrevLerpAngles, CameraAngles;
-	DCoreActor* pActor;
-
-	// Constants used throughout input functions.
-	static constexpr double ROLL_TILTAVELSCALE = (1966426. / 12000000.);
-	static constexpr DAngle ROLL_TILTAVELMAX = DAngle::fromDeg(90. / 32. * 1.5);
-	static constexpr double ROLL_TILTRETURN = 15.;
-	static constexpr double YAW_LOOKINGSPEED = 801.5625;
-	static constexpr double YAW_ROTATESPEED = 63.28125;
-	static constexpr double YAW_LOOKRETURN = 7.5;
-	static constexpr double YAW_SPINSTAND = 675.;
-	static constexpr double YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
-	static constexpr double PITCH_LOOKSPEED = (269426662. / 1209103.);
-	static constexpr double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
-	static constexpr double PITCH_CENTERSPEED = 10.7375;
-	static constexpr double PITCH_HORIZOFFSPEED = 4.375;
-	static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
-	static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-127076387. / 3344227.);
-	static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(14115687. / 31535389.);
-};
-
 extern GameInput gameInput;
-
-class FSerializer;
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
-bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(7646143. / 110386328.));

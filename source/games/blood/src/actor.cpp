@@ -6055,8 +6055,8 @@ static void actCheckDudes()
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
 
 			constexpr auto maxVel = (36211. / 3000.);
-			pPlayer->Angles.doRollInput(&pPlayer->cmd.ucmd, actor->vel.XY(), maxVel, false);
-			pPlayer->Angles.StrafeVel -= pPlayer->Angles.StrafeVel * nDrag;
+			pPlayer->doRollInput(&pPlayer->cmd.ucmd, actor->vel.XY(), maxVel, false);
+			pPlayer->StrafeVel -= pPlayer->StrafeVel * nDrag;
 		}
 
 		if ((actor->spr.flags & 4) || !actor->vel.isZero() || actor->sector()->velFloor || actor->sector()->velCeil)

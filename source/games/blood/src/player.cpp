@@ -801,7 +801,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, 6, 1);
 	assert(actor->hasX());
 	pPlayer->actor = actor;
-	pPlayer->Angles.initialize(pPlayer->GetActor());
+	pPlayer->InitAngles();
 	DUDEINFO* pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
 	pPlayer->pDudeInfo = pDudeInfo;
 	playerSetRace(pPlayer, kModeHuman);
@@ -821,7 +821,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->SetBurnSource(nullptr);
 	pPlayer->GetActor()->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->GetActor()->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	pPlayer->GetActor()->spr.Angles.Pitch = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
+	pPlayer->GetActor()->spr.Angles.Pitch = pPlayer->ViewAngles.Pitch = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
@@ -829,7 +829,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->restTime = 0;
 	pPlayer->kickPower = 0;
 	pPlayer->laughCount = 0;
-	pPlayer->Angles.YawSpin = nullAngle;
+	pPlayer->YawSpin = nullAngle;
 	pPlayer->posture = 0;
 	pPlayer->voodooTarget = nullptr;
 	pPlayer->voodooTargets = 0;
@@ -1578,11 +1578,11 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		const double fvAccel = pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		const double svAccel = pPosture->sideAccel;
 		actor->vel.XY() += DVector2(pInput->vel.X * fvAccel, pInput->vel.Y * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
-		pPlayer->Angles.StrafeVel += pInput->vel.Y * svAccel * speed;
+		pPlayer->StrafeVel += pInput->vel.Y * svAccel * speed;
 	}
 
-	pPlayer->Angles.doViewYaw(pInput);
-	pPlayer->Angles.doYawInput(pInput);
+	pPlayer->doViewYaw(pInput);
+	pPlayer->doYawInput(pInput);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;
@@ -1706,8 +1706,8 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	}
 
 	const int florhit = pPlayer->GetActor()->hit.florhit.type;
-	pPlayer->Angles.doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
-	pPlayer->Angles.doPitchInput(pInput);
+	pPlayer->doViewPitch(actor->xspr.height < 16 && (florhit == kHitSector || florhit == 0));
+	pPlayer->doPitchInput(pInput);
 
 	pPlayer->slope = pPlayer->GetActor()->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)

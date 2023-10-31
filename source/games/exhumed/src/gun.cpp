@@ -924,7 +924,7 @@ void DrawWeapons(DExhumedPlayer* const pPlayer, double interpfrac)
 
     nPal = RemapPLU(nPal);
 
-    const auto weaponOffsets = pPlayer->Angles.getWeaponOffsets(interpfrac);
+    const auto weaponOffsets = pPlayer->getWeaponOffsets(interpfrac);
     const auto nAngle = weaponOffsets.second;
     double xPos = 160 + weaponOffsets.first.X;
     double yPos = 100 + weaponOffsets.first.Y;

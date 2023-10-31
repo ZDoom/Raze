@@ -3,7 +3,7 @@
 #include "names.h"
 #include "packet.h"
 #include "d_net.h"
-#include "coreplayer.h"
+#include "gameinput.h"
 #include "texturemanager.h"
 
 BEGIN_DUKE_NS
@@ -397,7 +397,7 @@ public:
 
 	inline void doslopetilting()
 	{
-		Angles.doViewPitch(aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER);
+		doViewPitch(aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER);
 	}
 
 	inline bool itemUsed(int num)

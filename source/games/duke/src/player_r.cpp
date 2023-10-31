@@ -1693,12 +1693,12 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				zvel = p->Angles.getPitchWithView().Sin() * 10.;
+				zvel = p->getPitchWithView().Sin() * 10.;
 			}
 			else
 			{
 				vel = 140 / 16.;
-				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
+				setFreeAimVelocity(vel, zvel, p->getPitchWithView(), 10.);
 				zvel -= 4;
 			}
 
@@ -2085,12 +2085,12 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				vel = 15 / 16.;
-				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
+				setFreeAimVelocity(vel, zvel, p->getPitchWithView(), 10.);
 			}
 			else
 			{
 				vel = 2.;
-				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
+				setFreeAimVelocity(vel, zvel, p->getPitchWithView(), 10.);
 				zvel -= 4;
 			}
 
@@ -2486,7 +2486,7 @@ void processinput_r(DDukePlayer* const p)
 	doubvel = TICSPERFRAME;
 
 	checklook(p, actions);
-	p->Angles.doViewYaw(&p->cmd.ucmd);
+	p->doViewYaw(&p->cmd.ucmd);
 	p->apply_seasick();
 
 	p->updatecentering();
@@ -2545,7 +2545,7 @@ void processinput_r(DDukePlayer* const p)
 		gameInput.ForceInputSync(p->pnum);
 	}
 
-	p->Angles.doYawInput(&p->cmd.ucmd);
+	p->doYawInput(&p->cmd.ucmd);
 
 	purplelavacheck(p);
 
@@ -2626,24 +2626,24 @@ void processinput_r(DDukePlayer* const p)
 			doubvel <<= 1;
 
 		p->vel.XY() += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
-		p->Angles.StrafeVel += strafeVel * doubvel * (5. / 16.);
+		p->StrafeVel += strafeVel * doubvel * (5. / 16.);
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
 			p->vel.XY() *= gs.playerfriction - 0.125;
-			p->Angles.StrafeVel *= gs.playerfriction - 0.125;
+			p->StrafeVel *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
 				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
-				p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1400);
+				p->StrafeVel *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
-				p->Angles.StrafeVel *= gs.playerfriction;
+				p->StrafeVel *= gs.playerfriction;
 			}
 		}
 
@@ -2665,7 +2665,7 @@ void processinput_r(DDukePlayer* const p)
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
-				p->Angles.StrafeVel *= gs.playerfriction;
+				p->StrafeVel *= gs.playerfriction;
 			}
 		}
 		else if (tilesurface(psectp->floortexture) == TSURF_MUDDY)
@@ -2675,7 +2675,7 @@ void processinput_r(DDukePlayer* const p)
 				if (p->on_ground)
 				{
 					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
-					p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
+					p->StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 			}
 			else
@@ -2684,26 +2684,26 @@ void processinput_r(DDukePlayer* const p)
 				else
 				{
 					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
-					p->Angles.StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
+					p->StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 		}
 
 		if (abs(p->vel.X) < 1 / 128. && abs(p->vel.Y) < 1 / 128.)
 		{
 			p->vel.X = p->vel.Y = 0;
-			p->Angles.StrafeVel = 0;
+			p->StrafeVel = 0;
 		}
 
 		if (shrunk)
 		{
 			p->vel.XY() *= gs.playerfriction * 0.75;
-			p->Angles.StrafeVel *= gs.playerfriction * 0.75;
+			p->StrafeVel *= gs.playerfriction * 0.75;
 		}
 	}
 
 	if (!p->OnMotorcycle && !p->OnBoat)
 	{
-		p->Angles.doRollInput(&p->cmd.ucmd, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
+		p->doRollInput(&p->cmd.ucmd, p->vel.XY(), maxVel, (psectlotag == 1) || (psectlotag == 2));
 	}
 
 HORIZONLY:
@@ -2895,7 +2895,7 @@ HORIZONLY:
 		pact->spr.Angles.Pitch += maphoriz(d);
 	}
 
-	p->Angles.doPitchInput(&p->cmd.ucmd);
+	p->doPitchInput(&p->cmd.ucmd);
 
 	p->checkhardlanding();
 

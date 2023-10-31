@@ -124,8 +124,8 @@ void forceplayerangle(DDukePlayer* p)
 
 	p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(26.566);
 	p->cmd.ucmd.actions |= SB_CENTERVIEW;
-	p->Angles.ViewAngles.Yaw = ang;
-	p->Angles.ViewAngles.Roll = -ang;
+	p->ViewAngles.Yaw = ang;
+	p->ViewAngles.Roll = -ang;
 }
 
 //---------------------------------------------------------------------------
@@ -220,7 +220,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 		if (!ww2gipistol && (autoaim || otherpistol))
 		{
 			double vel = 1024, zvel = 0;
-			setFreeAimVelocity(vel, zvel, plr->Angles.getPitchWithView(), 16.);
+			setFreeAimVelocity(vel, zvel, plr->getPitchWithView(), 16.);
 
 			HitInfo hit{};
 			hitscan(actor->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
@@ -324,7 +324,7 @@ DDukeActor* aim(DDukeActor* actor, int abase, bool force, bool* b)
 								if (actor->isPlayer())
 								{
 									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 1.25 / sdist;
-									double horiz = getPlayer(actor->PlayerIndex())->Angles.getPitchWithView().Tan();
+									double horiz = getPlayer(actor->PlayerIndex())->getPitchWithView().Tan();
 									check = abs(checkval - horiz) < 0.78125;
 								}
 								else check = 1;
@@ -597,14 +597,14 @@ void playerisdead(DDukePlayer* const p, int psectlotag, double floorz, double ce
 
 	actor->backuploc();
 
-	p->Angles.ViewAngles.Pitch = actor->spr.Angles.Pitch = nullAngle;
+	p->ViewAngles.Pitch = actor->spr.Angles.Pitch = nullAngle;
 
 	updatesector(actor->getPosWithOffsetZ(), &p->cursector);
 
 	pushmove(actor->spr.pos.XY(), actor->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->Angles.ViewAngles.Roll = DAngle::fromBuild(-(p->dead_flag + ((floorz + actor->getOffsetZ()) * 2)));
+		p->ViewAngles.Roll = DAngle::fromBuild(-(p->dead_flag + ((floorz + actor->getOffsetZ()) * 2)));
 
 	p->on_warping_sector = 0;
 
@@ -714,16 +714,16 @@ void DDukePlayer::apply_seasick()
 			static constexpr DAngle adjustment = DAngle::fromDeg(4.21875);
 
 			if (SeaSick >= 180)
-				Angles.ViewAngles.Roll -= adjustment;
+				ViewAngles.Roll -= adjustment;
 			else if (SeaSick >= 130)
-				Angles.ViewAngles.Roll += adjustment;
+				ViewAngles.Roll += adjustment;
 			else if (SeaSick >= 70)
-				Angles.ViewAngles.Roll -= adjustment;
+				ViewAngles.Roll -= adjustment;
 			else if (SeaSick >= 20)
-				Angles.ViewAngles.Roll += adjustment;
+				ViewAngles.Roll += adjustment;
 		}
 		if (SeaSick < 250)
-			Angles.ViewAngles.Yaw = DAngle::fromDeg(krandf(45) - 22.5);
+			ViewAngles.Yaw = DAngle::fromDeg(krandf(45) - 22.5);
 	}
 }
 
@@ -1517,7 +1517,7 @@ void playerreset(DDukePlayer* p, DDukeActor* g_ac)
 		pact->PrevAngles.Pitch = pact->spr.Angles.Pitch = nullAngle;
 		p->on_crane = nullptr;
 		p->frag_ps = p->pnum;
-		p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
+		p->PrevViewAngles.Pitch = p->ViewAngles.Pitch = nullAngle;
 		p->opyoff = 0;
 		p->wackedbyactor = nullptr;
 		p->shield_amount = gs.max_armour_amount;
@@ -1527,7 +1527,7 @@ void playerreset(DDukePlayer* p, DDukeActor* g_ac)
 		p->weapreccnt = 0;
 		p->ftq = 0;
 		p->vel.X = p->vel.Y = 0;
-		if (!isRR()) p->Angles.PrevViewAngles.Roll = p->Angles.ViewAngles.Roll = nullAngle;
+		if (!isRR()) p->PrevViewAngles.Roll = p->ViewAngles.Roll = nullAngle;
 
 		p->falling_counter = 0;
 

@@ -802,7 +802,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     }
 
 					tsp->pos = pos;
-                    tsp->Angles.Yaw = pp->Angles.getCameraAngles().Yaw;
+                    tsp->Angles.Yaw = pp->getCameraAngles().Yaw;
                     //continue;
                 }
                 else
@@ -1012,7 +1012,7 @@ void PrintSpriteInfo(DSWPlayer* pp)
 
 static void DrawCrosshair(DSWPlayer* pp, const double interpfrac)
 {
-    auto offsets = pp->Angles.getCrosshairOffsets(interpfrac);
+    auto offsets = pp->getCrosshairOffsets(interpfrac);
     ::DrawCrosshair(pp->GetActor()->user.Health, offsets.first.X, offsets.first.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, offsets.second, shadeToLight(10));
 }
 
@@ -1232,12 +1232,12 @@ void drawscreen(DSWPlayer* pp, double interpfrac, bool sceneonly)
     }
 
     // update render angles.
-    pp->Angles.updateCameraAngles(interpfrac);
+    pp->updateCameraAngles(interpfrac);
 
     // Get initial player position, interpolating if required.
     DVector3 tpos = camerapp->GetActor()->getRenderPos(interpfrac);
     DVector2 ampos = tpos.XY();
-    DRotator tangles = camerapp->Angles.getRenderAngles(interpfrac);
+    DRotator tangles = camerapp->getRenderAngles(interpfrac);
     sectortype* tsect = camerapp->cursector;
 
     updatesector(tpos, &tsect);
@@ -1448,7 +1448,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -(pp->Angles.getCameraAngles().Yaw - cang).Normalized360().Degrees();
+                    const auto daang = -(pp->getCameraAngles().Yaw - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.

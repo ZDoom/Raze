@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dude.h"
 #include "levels.h"
 #include "qav.h"
-#include "coreplayer.h"
+#include "gameinput.h"
 
 BEGIN_BLD_NS
 
