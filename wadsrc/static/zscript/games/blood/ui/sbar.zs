@@ -776,6 +776,7 @@ class BloodStatusBar : RazeStatusBar
 		let pPlayer = Blood.GetViewPlayer();
 		if (pPlayer.throwPower)
 			TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 1);
+		drawPowerups(pPlayer);
 	}
 
 	//---------------------------------------------------------------------------
