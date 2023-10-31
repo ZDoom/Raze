@@ -409,7 +409,7 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
 
-    const DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
+    const DAngle nAngle = (getPlayer(nLocalPlayer)->CameraPos.XY() - pTSprite->pos.XY()).Angle();
     const int seqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
     const auto& seqFrame = getSequence(seqFile, seqIndex + seqOffset)->frames[frameIndex];
@@ -453,12 +453,13 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
 void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
+    const auto pPlayer = getPlayer(nLocalPlayer);
 
     int seqOffset = 0;
 
     if (!(nFlags & 1))
     {
-        const DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
+        const DAngle nAngle = (pPlayer->CameraPos.XY() - pTSprite->pos.XY()).Angle();
         seqOffset = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
@@ -508,7 +509,7 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
         const auto pSector = pTSprite->sectp;
         const double nFloorZ = pSector->floorz;
 
-        if (nFloorZ <= getPlayer(nLocalPlayer)->GetActor()->getOffsetZ())
+        if (nFloorZ <= pPlayer->GetActor()->getOffsetZ())
         {
             pTSprite->ownerActor = nullptr;
         }

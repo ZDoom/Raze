@@ -329,7 +329,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     else
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        auto look = (tSpr->pos.XY() - getPlayer(screenpeek)->si.XY()).Angle();
+        auto look = (tSpr->pos.XY() - getPlayer(screenpeek)->CameraPos.XY()).Angle();
 		tSpr->pos.XY() += look.ToVector() * 2;
     }
 
@@ -749,7 +749,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
                         tsp->cstat |= (CSTAT_SPRITE_TRANSLUCENT);
 
-                    auto pos = pp->si.plusZ(tsp->pos.Z);
+                    auto pos = pp->CameraPos.plusZ(tsp->pos.Z);
 
                     if (pp->Flags & (PF_CLIMBING))
                     {
@@ -1218,7 +1218,7 @@ void drawscreen(DSWPlayer* pp, double interpfrac, bool sceneonly)
         updatesectorz(tpos, &tsect);
     }
 
-    pp->si = tpos.plusZ(-pp->GetActor()->getOffsetZ());
+    pp->CameraPos = tpos.plusZ(-pp->GetActor()->getOffsetZ());
 
     QuakeViewChange(camerapp, tpos, tangles.Yaw);
     int vis = g_visibility;

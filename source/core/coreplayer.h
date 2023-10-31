@@ -15,6 +15,7 @@ protected:
 		CameraAngles = PrevLerpAngles = PrevViewAngles = ViewAngles = {};
 		PrevStrafeVel = StrafeVel = 0;
 		YawSpin = nullAngle;
+		CameraPos = {};
 		memset(&lastcmd, 0, sizeof(lastcmd));
 		memset(&cmd, 0, sizeof(cmd));
 		actor = nullptr;
@@ -26,6 +27,7 @@ public:
 	DRotator PrevViewAngles, ViewAngles;
 	double PrevStrafeVel, StrafeVel;
 	DAngle YawSpin;
+	DVector3 CameraPos;
 	ticcmd_t lastcmd, cmd;
 	DCoreActor* actor;
 	uint8_t pnum;

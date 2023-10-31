@@ -28,7 +28,6 @@ void DrawStatusBar();
 void DrawView(double interpfrac, bool sceneonly = false);
 void ResetView();
 
-extern DVector3 nCamerapos;
 extern int nChunkTotal;
 
 extern tspriteArray* mytspriteArray;

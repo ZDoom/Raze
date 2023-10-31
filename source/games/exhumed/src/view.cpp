@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 bool bSubTitles = true;
-DVector3 nCamerapos;
 bool bTouchFloor;
 int nChunkTotal = 0;
 int nViewTop;
@@ -77,6 +76,7 @@ void DrawView(double interpfrac, bool sceneonly)
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
     auto pDop = pPlayer->pDoppleSprite;
     auto nDoppleOldCstat = pDop->spr.cstat;
+    DVector3 nCamerapos;
 
     // update render angles.
     pPlayer->updateCameraAngles(interpfrac);
@@ -125,6 +125,7 @@ void DrawView(double interpfrac, bool sceneonly)
         }
     }
 
+    pPlayer->CameraPos = nCamerapos;
     const auto ampos = nCamerapos.XY();
 
     if (nSnakeCam >= 0 && !sceneonly)
@@ -339,8 +340,7 @@ void SerializeView(FSerializer& arc)
 {
     if (arc.BeginObject("view"))
     {
-        arc("camerapos", nCamerapos)
-            ("chunktotal", nChunkTotal)
+        arc("chunktotal", nChunkTotal)
             ("camera", bCamera)
             .EndObject();
     }
