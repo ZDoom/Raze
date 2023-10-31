@@ -512,11 +512,8 @@ static cheatseq_t s_CheatInfo[] = {
 
 void cheatReset(void)
 {
-	DBloodPlayer* pPlayer = getPlayer(myconnectindex);
 	bPlayerCheated = 0;
-	playerSetGodMode(pPlayer, 0);
 	gNoClip = 0;
-	packClear(pPlayer);
 	gInfiniteAmmo = 0;
 	gFullMap = 0;
 }
