@@ -15,6 +15,8 @@
 
 EXTERN_CVAR(Bool, hud_textfont)
 
+extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
+
 extern bool sendsave;
 extern FString	savedescription;
 extern FString	savegamefile;

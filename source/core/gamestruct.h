@@ -43,8 +43,6 @@ enum EMenuSounds : int;
 struct MapRecord;
 struct TilesetBuildInfo;
 
-extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
-
 struct GeoEffect
 {
 	sectortype** geosectorwarp;
@@ -114,24 +112,6 @@ struct GameInterface
 	virtual void StartSoundEngine() = 0;
 	virtual void doPlayerMovement();
 	virtual unsigned getCrouchState() = 0;
-
-	virtual FString statFPS()
-	{
-		FString output;
-
-		output.AppendFormat("Actor think time: %.3f ms\n", actortime.TimeMS());
-		output.AppendFormat("Total think time: %.3f ms\n", thinktime.TimeMS());
-		output.AppendFormat("Game Update: %.3f ms\n", gameupdatetime.TimeMS());
-		output.AppendFormat("Draw time: %.3f ms\n", drawtime.TimeMS());
-
-		return output;
-	}
-
-
 };
 
 extern GameInterface* gi;
-
-
-void ImGui_Begin_Frame();
-
