@@ -1712,7 +1712,6 @@ public:
     sectortype* hi_sectp, *lo_sectp;
 
     double circle_camera_dist;
-    DVector3 si; // save player interp position for PlayerSprite
 
     DVector2 vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
 
