@@ -57,7 +57,7 @@ void resetmys()
 	myxvel = myyvel = myzvel = 0;
 	myang = pact->spr.Angles.Yaw;
 	myhoriz = omyhoriz = pact->spr.Angles.Pitch;
-	myhorizoff = omyhorizoff = p->Angles.ViewAngles.Pitch;
+	myhorizoff = omyhorizoff = p->ViewAngles.Pitch;
 	mycursectnum = sectindex(p->cursector);
 	myjumpingcounter = p->jumping_counter;
 	myjumpingtoggle = p->jumping_toggle;

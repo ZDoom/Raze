@@ -256,7 +256,7 @@ void drawoverlays(double interpfrac)
 				else
 				{
 					cposxy = pact->interpolatedpos(interpfrac).XY();
-					cang = pp->Angles.getRenderAngles(interpfrac).Yaw;
+					cang = pp->getRenderAngles(interpfrac).Yaw;
 				}
 			}
 			else
@@ -274,7 +274,7 @@ void drawoverlays(double interpfrac)
 
 	if (spp->newOwner == nullptr && ud.cameraactor == nullptr)
 	{
-		auto offsets = pp->Angles.getCrosshairOffsets(interpfrac);
+		auto offsets = pp->getCrosshairOffsets(interpfrac);
 		DrawCrosshair(pp->last_extra, offsets.first.X, offsets.first.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, offsets.second);
 	}
 
@@ -421,7 +421,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			double j = clamp(czoom * act->spr.scale.Y + abs(pp->truefz - act->getOffsetZ()) * REPEAT_SCALE, (1. / 3.), 2.);
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
-			auto const daang = -(pp->Angles.getCameraAngles().Yaw - cang).Normalized360().Degrees();
+			auto const daang = -(pp->getCameraAngles().Yaw - cang).Normalized360().Degrees();
 
 			DrawTexture(twod, basetex, false, vec.X, vec.Y, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(pp), act->spr.pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j, DTA_ScaleY, j, TAG_DONE);

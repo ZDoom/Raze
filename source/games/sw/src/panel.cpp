@@ -7375,7 +7375,7 @@ void pDisplaySprites(DSWPlayer* pp, double interpfrac)
     uint8_t pal = 0;
     int flags;
 
-    const auto offpair = pp->Angles.getWeaponOffsets(interpfrac);
+    const auto offpair = pp->getWeaponOffsets(interpfrac);
     const auto offsets = offpair.first;
 
     auto list = pp->GetPanelSpriteList();

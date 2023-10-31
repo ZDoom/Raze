@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once 
 
 #include "gamecontrol.h"
-#include "coreplayer.h"
+#include "gameinput.h"
 
 BEGIN_PS_NS
 
@@ -145,8 +145,8 @@ void updatePlayerTarget(DExhumedPlayer* const pPlayer);
 
 inline void doPlayerVertPanning(DExhumedPlayer* const pPlayer, const double nDestVertPan)
 {
-    const auto nVertPan = (nDestVertPan - pPlayer->Angles.ViewAngles.Pitch.Tan() * 128) * 0.25;
-    pPlayer->Angles.ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
+    const auto nVertPan = (nDestVertPan - pPlayer->ViewAngles.Pitch.Tan() * 128) * 0.25;
+    pPlayer->ViewAngles.Pitch += maphoriz(abs(nVertPan) >= 4 ? Sgn(nVertPan) * 4. : nVertPan * 2.);
 }
 
 END_PS_NS

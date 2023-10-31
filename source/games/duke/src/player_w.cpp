@@ -330,12 +330,12 @@ void operateweapon_ww(DDukePlayer* const p, ESyncBits actions)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
+				setFreeAimVelocity(vel, zvel, p->getPitchWithView(), 10.);
 			}
 			else
 			{
 				vel = 140 / 16.;
-				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
+				setFreeAimVelocity(vel, zvel, p->getPitchWithView(), 10.);
 				zvel -= 4;
 			}
 

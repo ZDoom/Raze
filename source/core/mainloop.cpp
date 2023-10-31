@@ -90,7 +90,7 @@
 #include "i_interface.h"
 #include "texinfo.h"
 #include "texturemanager.h"
-#include "coreplayer.h"
+#include "gameinput.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)

@@ -979,7 +979,7 @@ void SlipSlope(DSWPlayer* pp)
 void DoPlayerSlopeTilting(DSWPlayer* pp)
 {
     const bool canslopetilt = (pp->cmd.ucmd.actions & SB_AIMMODE) && !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING));
-    pp->Angles.doViewPitch(canslopetilt, pp->Flags & PF_CLIMBING);
+    pp->doViewPitch(canslopetilt, pp->Flags & PF_CLIMBING);
 }
 
 //---------------------------------------------------------------------------
@@ -1339,8 +1339,8 @@ void DoPlayerMove(DSWPlayer* pp)
 
     SlipSlope(pp);
 
-    pp->Angles.doViewYaw(&pp->cmd.ucmd);
-    pp->Angles.doYawInput(&pp->cmd.ucmd);
+    pp->doViewYaw(&pp->cmd.ucmd);
+    pp->doYawInput(&pp->cmd.ucmd);
     UpdatePlayerSpriteAngle(pp);
 
     pp->lastcursector = pp->cursector;
@@ -1353,10 +1353,10 @@ void DoPlayerMove(DSWPlayer* pp)
     DoPlayerSlide(pp);
 
     pp->ovect = pp->vect;
-    pp->Angles.PrevStrafeVel = pp->Angles.StrafeVel;
+    pp->PrevStrafeVel = pp->StrafeVel;
 
     pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
-    pp->Angles.StrafeVel += pp->svel * INPUT_SCALE;
+    pp->StrafeVel += pp->svel * INPUT_SCALE;
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -1365,31 +1365,31 @@ void DoPlayerMove(DSWPlayer* pp)
     }
 
 	pp->vect *= FixedToFloat(friction);
-    pp->Angles.StrafeVel *= FixedToFloat(friction);
+    pp->StrafeVel *= FixedToFloat(friction);
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
         pp->vect = (pp->vect + (pp->ovect*1))/2;
-        pp->Angles.StrafeVel = (pp->Angles.StrafeVel + (pp->Angles.PrevStrafeVel*1))/2;
+        pp->StrafeVel = (pp->StrafeVel + (pp->PrevStrafeVel*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
         pp->vect = (pp->vect + (pp->ovect*2))/3;
-        pp->Angles.StrafeVel = (pp->Angles.StrafeVel + (pp->Angles.PrevStrafeVel*2))/3;
+        pp->StrafeVel = (pp->StrafeVel + (pp->PrevStrafeVel*2))/3;
     }
 
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
     {
         pp->vect.Zero();
-        pp->Angles.StrafeVel = 0;
+        pp->StrafeVel = 0;
     }
 
 	actor->vel.X = pp->vect.Length();
 
     constexpr auto maxVel = (380401538. / 36022361.);
-    pp->Angles.doRollInput(&pp->cmd.ucmd, pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
+    pp->doRollInput(&pp->cmd.ucmd, pp->vect, maxVel, pp->Flags & (PF_SWIMMING|PF_DIVING));
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {
@@ -1470,7 +1470,7 @@ void DoPlayerMove(DSWPlayer* pp)
     DoPlayerSetWadeDepth(pp);
 
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput(&pp->cmd.ucmd);
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -2056,7 +2056,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     pp->cursector = save_sect; // for speed
 
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput(&pp->cmd.ucmd);
 
     DoTankTreads(pp);
 }
@@ -2112,7 +2112,7 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
         pp->Flags |= (PF_PLAYER_MOVED);
 
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput(&pp->cmd.ucmd);
 }
 
 //---------------------------------------------------------------------------
@@ -2697,7 +2697,7 @@ void DoPlayerClimb(DSWPlayer* pp)
     ChangeActorSect(pp->GetActor(), pp->cursector);
 
     DoPlayerSlopeTilting(pp);
-    pp->Angles.doPitchInput(&pp->cmd.ucmd);
+    pp->doPitchInput(&pp->cmd.ucmd);
 
     if (FAF_ConnectArea(pp->cursector))
     {
@@ -5976,7 +5976,7 @@ void MoveSkipSavePos(void)
     {
         pp = getPlayer(pnum);
 
-        pp->Angles.resetCameraAngles();
+        pp->resetCameraAngles();
         pp->GetActor()->backuploc();
         pp->obob_z = pp->bob_z;
         pp->opbob_amt = pp->pbob_amt;

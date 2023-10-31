@@ -446,7 +446,7 @@ void GameInterface::Ticker()
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			getPlayer(i)->Angles.resetCameraAngles();
+			getPlayer(i)->resetCameraAngles();
 			viewBackupView(i);
 			playerProcess(getPlayer(i));
 		}

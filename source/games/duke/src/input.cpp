@@ -474,7 +474,7 @@ void hud_input(DDukePlayer* const p)
 			}
 		}
 
-		if (!!(p->cmd.ucmd.actions & SB_TURNAROUND) && p->Angles.YawSpin == nullAngle && p->on_crane == nullptr)
+		if (!!(p->cmd.ucmd.actions & SB_TURNAROUND) && p->YawSpin == nullAngle && p->on_crane == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, p->pnum);
 			OnEvent(EVENT_TURNAROUND, p->pnum, nullptr, -1);

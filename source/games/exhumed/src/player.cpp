@@ -113,7 +113,6 @@ void InitPlayer()
         const auto pPlayer = getPlayer(i);
 
         pPlayer->actor = nullptr;
-        pPlayer->Angles = {};
         pPlayer->pPlayerPushSect = nullptr;
         pPlayer->pPlayerViewSect = nullptr;
     }
@@ -140,7 +139,6 @@ void InitPlayerInventory(DExhumedPlayer* const pPlayer)
     pPlayer->nPlayerSwear = 4;
     pPlayer->nLives = kDefaultLives;
     pPlayer->actor = nullptr;
-    pPlayer->Angles = {};
     pPlayer->nRun = -1;
     pPlayer->nPistolClip = 6;
     pPlayer->nPlayerClip = 0;
@@ -189,7 +187,6 @@ void RestartPlayer(DExhumedPlayer* const pPlayer)
 		ChangeActorStat(pPlayerActor, 0);
 
         pPlayer->actor = nullptr;
-        pPlayer->Angles = {};
 
 		if (pFloorSprite)
 			DeleteActor(pFloorSprite);
@@ -271,7 +268,7 @@ void RestartPlayer(DExhumedPlayer* const pPlayer)
     pPlayer->pPlayerFloorSprite = pFloorSprite;
     pPlayer->pPlayerViewSect = pPlayer->sPlayerSave.pSector;
     pPlayer->nHealth = 800; // TODO - define
-    pPlayer->Angles.initialize(pPlayerActor);
+    pPlayer->InitAngles();
 	pPlayer->bIsMummified = false;
 	pPlayer->nTorch = 0;
 	pPlayer->nMaskAmount = 0;
@@ -1097,8 +1094,8 @@ static void updatePlayerVelocity(DExhumedPlayer* const pPlayer)
         {
             pPlayerActor->vel.XY() += inputvect;
             pPlayerActor->vel.XY() *= 0.953125;
-            pPlayer->Angles.StrafeVel += pInput->vel.Y * 0.375;
-            pPlayer->Angles.StrafeVel *= 0.953125;
+            pPlayer->StrafeVel += pInput->vel.Y * 0.375;
+            pPlayer->StrafeVel *= 0.953125;
         }
     }
 
@@ -1106,7 +1103,7 @@ static void updatePlayerVelocity(DExhumedPlayer* const pPlayer)
     {
         pPlayerActor->vel.XY().Zero();
         pPlayer->nIdxBobZ = 0;
-        pPlayer->Angles.StrafeVel = 0;
+        pPlayer->StrafeVel = 0;
     }
 }
 
@@ -1558,7 +1555,7 @@ static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double nD
     doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
-    pPlayer->Angles.doRollInput(&pPlayer->cmd.ucmd, pPlayerActor->vel.XY(), maxVel, nUnderwater);
+    pPlayer->doRollInput(&pPlayer->cmd.ucmd, pPlayerActor->vel.XY(), maxVel, nUnderwater);
 
     // Update Z bobbing.
     if (cl_viewbob)
@@ -1817,9 +1814,9 @@ static bool doPlayerInput(DExhumedPlayer* const pPlayer)
 
     // update player yaw here as per the original workflow.
     const auto pInput = &pPlayer->cmd.ucmd;
-    pPlayer->Angles.doViewYaw(pInput);
-    pPlayer->Angles.doYawInput(pInput);
-    pPlayer->Angles.doPitchInput(pInput);
+    pPlayer->doViewYaw(pInput);
+    pPlayer->doYawInput(pInput);
+    pPlayer->doPitchInput(pInput);
 
     if (nMove.type || nMove.exbits)
     {

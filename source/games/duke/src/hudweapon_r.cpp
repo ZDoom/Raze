@@ -238,7 +238,7 @@ void displayweapon_r(DDukePlayer* const p, double interpfrac)
 	hard_landing *= 8.;
 	gun_pos -= fabs(pact->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
 
-	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
+	auto offpair = p->getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
 	auto angle = offpair.second;
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;

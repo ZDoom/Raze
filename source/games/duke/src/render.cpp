@@ -221,7 +221,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	DDukePlayer* p = getPlayer(snum);
 
 	// update render angles.
-	p->Angles.updateCameraAngles(interpfrac);
+	p->updateCameraAngles(interpfrac);
 
 	if (automapMode == am_full || !p->insector())
 		return;
@@ -281,7 +281,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		else
 		{
 			cpos = viewer->getRenderPos(interpfrac);
-			cangles = p->Angles.getRenderAngles(interpfrac);
+			cangles = p->getRenderAngles(interpfrac);
 		}
 
 		if (p->newOwner != nullptr)

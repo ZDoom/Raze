@@ -634,7 +634,6 @@ void TerminateLevel(void)
         pp->DoPlayerAction = nullptr;
 
         pp->actor = nullptr;
-        pp->Angles = {};
 
         pp->PlayerUnderActor = nullptr;
 

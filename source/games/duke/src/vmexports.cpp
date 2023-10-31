@@ -1322,7 +1322,7 @@ DEFINE_ACTION_FUNCTION(_DukePlayer, hitablockingwall)
 
 inline double DukePlayer_GetPitchwithView(DDukePlayer* pl)
 {
-	return pl->Angles.getPitchWithView().Degrees();
+	return pl->getPitchWithView().Degrees();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, GetPitchwithView, DukePlayer_GetPitchwithView)

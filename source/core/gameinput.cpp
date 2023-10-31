@@ -33,18 +33,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //---------------------------------------------------------------------------
 
-EXTERN_CVAR(Int, vr_mode)
 CVAR(Bool, cl_noturnscaling, false, CVAR_GLOBALCONFIG | CVAR_ARCHIVE);
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-CVAR(Float, cl_viewtiltscale, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE);
-CUSTOM_CVAR(Int, cl_viewtilting, 0, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-{
-	if (self < 0) self = 0;
-	else if (self > 3) self = 3;
-}
 
 
 //---------------------------------------------------------------------------
@@ -55,35 +48,6 @@ CUSTOM_CVAR(Int, cl_viewtilting, 0, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 
 GameInput gameInput{};
 bool crouch_toggle = false;
-
-
-//---------------------------------------------------------------------------
-//
-// Input helper functions.
-//
-//---------------------------------------------------------------------------
-
-static inline DAngle getTicrateAngle(const double value)
-{
-	return DAngle::fromDeg(getTicrateScale(value));
-}
-
-static inline DAngle getscaledangle(const DAngle angle, const double scale, const DAngle push)
-{
-	return (angle.Normalized180() * getTicrateScale(scale)) + push;
-}
-
-bool scaletozero(DAngle& angle, const double scale, const DAngle push)
-{
-	const auto sgn = angle.Sgn();
-
-	if (!sgn || sgn != (angle -= getscaledangle(angle, scale, push * sgn)).Sgn())
-	{
-		angle = nullAngle;
-		return true;
-	}
-	return false;
-}
 
 
 //---------------------------------------------------------------------------
@@ -143,8 +107,8 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		const double turndir = clamp(turning + strafing * !allowstrafe, -1., 1.);
-		const double tttscale = 1. / (1 + !(cl_noturnscaling || isTurboTurnTime()) * 2.8);
-		const DAngle turnspeed = getTicrateAngle(YAW_TURNSPEEDS[keymove]) * tttscale;
+		const double tttscale = (cl_noturnscaling || isTurboTurnTime()) ? 1 : (5. / 19.);
+		const DAngle turnspeed = getTicrateAngle(YAW_TURNSPEEDS[keymove] * tttscale);
 		thisInput.ang.Yaw += MOUSE_SCALE * mouseInput.X * m_yaw;
 		thisInput.ang.Yaw -= hidspeed * joyAxes[JOYAXIS_Yaw] * scaleAdjust;
 		thisInput.ang.Yaw += turnspeed * turndir * scaleAdjust;
@@ -189,7 +153,7 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		PlayerArray[myconnectindex]->Angles.CameraAngles += thisInput.ang;
+		PlayerArray[myconnectindex]->CameraAngles += thisInput.ang;
 	}
 }
 
@@ -252,7 +216,7 @@ void GameInput::processVehicle(const double baseVel, const double velScale, cons
 	// directly update player angles if we can.
 	if (scaleAdjust < 1)
 	{
-		PlayerArray[myconnectindex]->Angles.CameraAngles += thisInput.ang;
+		PlayerArray[myconnectindex]->CameraAngles += thisInput.ang;
 	}
 }
 
@@ -383,236 +347,6 @@ void GameInput::getInput(InputPacket* packet)
 		*packet = {	clamp(inputBuffer.vel, -maxVel, maxVel), clamp(inputBuffer.ang, -MAXANG, MAXANG), inputBuffer.actions };
 		inputBuffer = {};
 	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Adjust player's pitch by way of keyboard input.
-//
-//---------------------------------------------------------------------------
-
-void PlayerAngles::doPitchInput(InputPacket* const input)
-{
-	// Add player's mouse/device input.
-	if (input->ang.Pitch.Degrees())
-	{
-		pActor->spr.Angles.Pitch += input->ang.Pitch * gameInput.SyncInput();
-		input->actions &= ~SB_CENTERVIEW;
-	}
-
-	// Set up a myriad of bools.
-	const auto aimingUp = (input->actions & SB_LOOK_UP) == SB_AIM_UP;
-	const auto aimingDown = (input->actions & SB_LOOK_DOWN) == SB_AIM_DOWN;
-	const auto lookingUp = (input->actions & SB_LOOK_UP) == SB_LOOK_UP;
-	const auto lookingDown = (input->actions & SB_LOOK_DOWN) == SB_LOOK_DOWN;
-
-	// Process keyboard input.
-	if (const auto aiming = aimingDown - aimingUp)
-	{
-		pActor->spr.Angles.Pitch += getTicrateAngle(PITCH_AIMSPEED) * aiming;
-		input->actions &= ~SB_CENTERVIEW;
-	}
-	if (const auto looking = lookingDown - lookingUp)
-	{
-		pActor->spr.Angles.Pitch += getTicrateAngle(PITCH_LOOKSPEED) * looking;
-		input->actions |= SB_CENTERVIEW;
-	}
-
-	// Do return to centre.
-	if ((input->actions & SB_CENTERVIEW) && !(lookingUp || lookingDown))
-	{
-		const auto pitch = abs(pActor->spr.Angles.Pitch);
-		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-		if (scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale))
-			input->actions &= ~SB_CENTERVIEW;
-	}
-
-	// clamp before we finish, factoring in the player's view pitch offset.
-	const auto maximum = GetMaxPitch() - ViewAngles.Pitch * (ViewAngles.Pitch < nullAngle);
-	const auto minimum = GetMinPitch() - ViewAngles.Pitch * (ViewAngles.Pitch > nullAngle);
-	pActor->spr.Angles.Pitch = clamp(pActor->spr.Angles.Pitch, maximum, minimum);
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Adjust player's yaw by way of keyboard input.
-//
-//---------------------------------------------------------------------------
-
-void PlayerAngles::doYawInput(InputPacket* const input)
-{
-	// Add player's mouse/device input.
-	pActor->spr.Angles.Yaw += input->ang.Yaw * gameInput.SyncInput();
-
-	if (input->actions & SB_TURNAROUND)
-	{
-		if (YawSpin == nullAngle)
-		{
-			// currently not spinning, so start a spin
-			YawSpin = -DAngle180;
-		}
-		input->actions &= ~SB_TURNAROUND;
-	}
-
-	if (YawSpin < nullAngle)
-	{
-		// return spin to 0
-		DAngle add = getTicrateAngle(!(input->actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH);
-		YawSpin += add;
-		if (YawSpin > nullAngle)
-		{
-			// Don't overshoot our target. With variable factor this is possible.
-			add -= YawSpin;
-			YawSpin = nullAngle;
-		}
-		pActor->spr.Angles.Yaw += add;
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Player's slope tilt when playing without a mouse and on a slope.
-//
-//---------------------------------------------------------------------------
-
-void PlayerAngles::doViewPitch(const bool canslopetilt, const bool climbing)
-{
-	if (cl_slopetilting && canslopetilt)
-	{
-		const auto actorsect = pActor->sector();
-		if (actorsect && (actorsect->floorstat & CSTAT_SECTOR_SLOPE)) // If the floor is sloped
-		{
-			// Get a point, 512 (64 for Blood) units ahead of player's position
-			const auto rotpt = pActor->spr.pos.XY() + pActor->spr.Angles.Yaw.ToVector() * (!isBlood() ? 32 : 4);
-			auto tempsect = actorsect;
-			updatesector(rotpt, &tempsect);
-
-			if (tempsect != nullptr) // If the new point is inside a valid sector...
-			{
-				// Get the floorz as if the new (x,y) point was still in
-				// your sector, unless it's Blood.
-				const double j = getflorzofslopeptr(actorsect, pActor->spr.pos.XY());
-				const double k = getflorzofslopeptr(!isBlood() ? actorsect : tempsect, rotpt);
-
-				// If extended point is in same sector as you or the slopes
-				// of the sector of the extended point and your sector match
-				// closely (to avoid accidently looking straight out when
-				// you're at the edge of a sector line) then adjust horizon
-				// accordingly
-				if (actorsect == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
-				{
-					ViewAngles.Pitch -= maphoriz((j - k) * (!isBlood() ? 0.625 : 5.5));
-				}
-			}
-		}
-	}
-
-	if (cl_slopetilting && climbing)
-	{
-		// tilt when climbing but you can't even really tell it.
-		if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB)
-			ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
-	}
-	else
-	{
-		// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-		scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Player's look left/right key angle handler.
-//
-//---------------------------------------------------------------------------
-
-void PlayerAngles::doViewYaw(InputPacket* const input)
-{
-	// Process angle return to zeros.
-	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN);
-	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN);
-
-	// Process keyboard input.
-	if (const auto looking = !!(input->actions & SB_LOOK_RIGHT) - !!(input->actions & SB_LOOK_LEFT))
-	{
-		ViewAngles.Yaw += getTicrateAngle(YAW_LOOKINGSPEED) * looking;
-		ViewAngles.Roll += getTicrateAngle(YAW_ROTATESPEED) * looking;
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// View tilting effects, mostly for Exhumed to enhance its gameplay feel.
-//
-//---------------------------------------------------------------------------
-
-void PlayerAngles::doRollInput(InputPacket* const input, const DVector2& nVelVect, const double nMaxVel, const bool bUnderwater)
-{
-	// Allow viewtilting if we're not in a VR mode.
-	if (!vr_mode)
-	{
-		// Scale/attenuate tilting based on player actions.
-		const auto rollAmp = cl_viewtiltscale / (bUnderwater + 1);
-		const auto runScale = 1. / (!(input->actions & SB_RUN) + 1);
-		const auto strafeScale = !!input->vel.Y + 1;
-
-		if (cl_viewtilting == 1)
-		{
-			// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
-			const auto rollAdj = input->ang.Yaw * ROLL_TILTAVELSCALE * rollAmp;
-			const auto rollMax = ROLL_TILTAVELMAX * cl_viewtiltscale;
-			scaletozero(pActor->spr.Angles.Roll, ROLL_TILTRETURN);
-			pActor->spr.Angles.Roll = clamp(pActor->spr.Angles.Roll + rollAdj, -rollMax, rollMax);
-		}
-		else if (cl_viewtilting == 2)
-		{
-			// Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
-			const auto rollAdj = StrafeVel * strafeScale * rollAmp;
-			const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
-			pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj, -rollMax, rollMax) * (1.875 / nMaxVel));
-		}
-		else if (cl_viewtilting == 3)
-		{
-			// Movement rolling from player's velocity. Adjustment == (90/48) for running keyboard strafe.
-			const auto rollAdj = nVelVect.Rotated(-pActor->spr.Angles.Yaw).Y * strafeScale * rollAmp;
-			const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
-			pActor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj, -rollMax, rollMax) * (1.875 / nMaxVel));
-		}
-		else
-		{
-			// Always reset roll if we're not tilting at all.
-			pActor->spr.Angles.Roll = nullAngle;
-		}
-	}
-	else
-	{
-		// Add player's device input.
-		pActor->spr.Angles.Roll += input->ang.Roll * gameInput.SyncInput();
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("viewangles", w.ViewAngles)
-			("spin", w.YawSpin)
-			("actor", w.pActor)
-			.EndObject();
-	}
-	return arc;
 }
 
 

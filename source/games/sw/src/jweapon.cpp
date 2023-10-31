@@ -1251,7 +1251,7 @@ int PlayerInitChemBomb(DSWPlayer* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->Angles.getPitchWithView(), HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->getPitchWithView(), HORIZ_MULTF);
 
     double oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
@@ -1621,7 +1621,7 @@ int PlayerInitCaltrops(DSWPlayer* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->Angles.getPitchWithView(), HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->getPitchWithView(), HORIZ_MULTF);
 
     double oclipdist = plActor->clipdist;
     plActor->clipdist = 0;

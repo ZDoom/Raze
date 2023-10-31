@@ -261,9 +261,9 @@ ADD_STAT(coord)
 		out.AppendFormat("Yaw: %.4f  ", pActor->spr.Angles.Yaw.Degrees());
 		out.AppendFormat("Pitch: %.4f  ", pActor->spr.Angles.Pitch.Degrees());
 		out.AppendFormat("Roll: %.4f\n", pActor->spr.Angles.Roll.Degrees());
-		out.AppendFormat("View Yaw: %.4f  ", p->Angles.ViewAngles.Yaw.Degrees());
-		out.AppendFormat("View Pitch: %.4f  ", p->Angles.ViewAngles.Pitch.Degrees());
-		out.AppendFormat("View Roll: %.4f\n", p->Angles.ViewAngles.Roll.Degrees());
+		out.AppendFormat("View Yaw: %.4f  ", p->ViewAngles.Yaw.Degrees());
+		out.AppendFormat("View Pitch: %.4f  ", p->ViewAngles.Pitch.Degrees());
+		out.AppendFormat("View Roll: %.4f\n", p->ViewAngles.Roll.Degrees());
 	}
 	return out;
 }

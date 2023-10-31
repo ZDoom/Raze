@@ -177,7 +177,7 @@ bool ReadSavegame(const char* name)
 		// this can only be done after the load is complete
 		for (auto pl : PlayerArray)
 		{
-			pl->Angles.resetCameraAngles();
+			pl->resetCameraAngles();
 		}
 		ResetStatusBar();
 		return true;
@@ -630,8 +630,9 @@ void DCorePlayer::Serialize(FSerializer& arc)
 	Super::Serialize(arc);
 	arc("pnum", pnum)
 		("actor", actor)
-		("angles", Angles)
 		("actions", cmd.ucmd.actions)
+		("viewangles", ViewAngles)
+		("yawspin", YawSpin)
 		//("cmd", cmd)
 		//("lastcmd", lastcmd)
 		;
