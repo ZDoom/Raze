@@ -1444,7 +1444,7 @@ void UpdatePlayerSpriteAngle(DSWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerVehicleInputScaling(DSWPlayer* const pp, DAngle DRotator::* angle, const float scale)
+static void DoPlayerVehicleInputScaling(DSWPlayer* const pp, DAngle DRotator::* const angle, const double scale)
 {
     DAngle& currYaw = pp->cmd.ucmd.ang.*angle;
 
@@ -2443,8 +2443,8 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
     double floordist = abs(zz - pp->sop->floor_loz);
     gameInput.ForceInputSync(pp->pnum);
 
-    DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125f);
-    DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125);
 
     if (RectClip)
     {
@@ -2578,8 +2578,8 @@ void DoPlayerMoveTurret(DSWPlayer* pp)
 
     gameInput.ForceInputSync(pp->pnum);
 
-    DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125f);
-    DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125f);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Yaw, 0.125);
+    DoPlayerVehicleInputScaling(pp, &DRotator::Pitch, 0.125);
 
     if (pp->cmd.ucmd.ang.Yaw != nullAngle)
     {
