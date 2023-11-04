@@ -756,7 +756,7 @@ void playerResetInertia(DBloodPlayer* pPlayer)
 	pPlayer->zView = pPlayer->GetActor()->spr.pos.Z - pPosture->eyeAboveZ;
 	pPlayer->zWeapon = pPlayer->GetActor()->spr.pos.Z - pPosture->weaponAboveZ;
 	pPlayer->GetActor()->oviewzoffset = pPlayer->GetActor()->viewzoffset = pPlayer->zView - pPlayer->GetActor()->spr.pos.Z;
-	viewBackupView(pPlayer->pnum);
+	viewBackupView(pPlayer);
 }
 
 void playerCorrectInertia(DBloodPlayer* pPlayer, const DVector3& oldpos)

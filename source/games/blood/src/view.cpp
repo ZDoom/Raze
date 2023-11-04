@@ -56,17 +56,17 @@ int gViewIndex;
 //
 //---------------------------------------------------------------------------
 
-void viewBackupView(int nPlayer)
+void viewBackupView(DBloodPlayer* pPlayer)
 {
-	DBloodPlayer* pPlayer = getPlayer(nPlayer);
+	const auto pActor = pPlayer->GetActor();
 	pPlayer->ozView = pPlayer->zView;
 	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 12;
 	pPlayer->obobHeight = pPlayer->bobHeight;
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
 	pPlayer->oswayWidth = pPlayer->swayWidth;
-	pPlayer->GetActor()->backuploc();
-	pPlayer->GetActor()->interpolated = true;
+	pActor->backuploc();
+	pActor->interpolated = true;
 }
 
 //---------------------------------------------------------------------------
