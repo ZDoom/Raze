@@ -513,7 +513,7 @@ void GameInterface::doPlayerMovement()
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		static constexpr double VEHICLETURN = (20.f * 360.f / 2048.f);
+		static constexpr double VEHICLETURN = (20. * 360. / 2048.);
 		double baseVel, velScale; unsigned vehFlags;
 
 		if (p->OnMotorcycle)
