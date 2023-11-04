@@ -428,16 +428,18 @@ void GameInterface::Ticker()
 		thinktime.Reset();
 		thinktime.Clock();
 
-		DBloodPlayer* pPlayer = getPlayer(myconnectindex);
+		const auto mciPlayer = getPlayer(myconnectindex);
+		const auto mciActor = mciPlayer->GetActor();
 
 		// disable synchronised input if set by game.
 		gameInput.ResetInputSync();
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			getPlayer(i)->resetCameraAngles();
-			viewBackupView(i);
-			playerProcess(getPlayer(i));
+			const auto pPlayer = getPlayer(i);
+			pPlayer->resetCameraAngles();
+			viewBackupView(pPlayer);
+			playerProcess(pPlayer);
 		}
 
 		trProcessBusy();
@@ -452,25 +454,25 @@ void GameInterface::Ticker()
 		actortime.Unclock();
 
 		viewCorrectPrediction();
-		ambProcess(pPlayer);
-		viewUpdateDelirium(pPlayer);
+		ambProcess(mciPlayer);
+		viewUpdateDelirium(mciPlayer);
 		gi->UpdateSounds();
-		if (pPlayer->hand == 1)
+		if (mciPlayer->hand == 1)
 		{
-			const int CHOKERATE = 8;
-			const int COUNTRATE = 30;
+			static constexpr int CHOKERATE = 8;
+			static constexpr int COUNTRATE = 30;
 			gChokeCounter += CHOKERATE;
 			while (gChokeCounter >= COUNTRATE)
 			{
-				gChoke.callback(pPlayer);
+				gChoke.callback(mciPlayer);
 				gChokeCounter -= COUNTRATE;
 			}
 		}
 		thinktime.Unclock();
 
 		// update console player's viewzoffset at the end of the tic.
-		pPlayer->GetActor()->oviewzoffset = pPlayer->GetActor()->viewzoffset;
-		pPlayer->GetActor()->viewzoffset = pPlayer->zView - pPlayer->GetActor()->spr.pos.Z;
+		mciActor->oviewzoffset = mciActor->viewzoffset;
+		mciActor->viewzoffset = mciPlayer->zView - mciActor->spr.pos.Z;
 
 		gFrameCount++;
 		PlayClock += kTicsPerFrame;

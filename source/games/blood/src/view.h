@@ -77,7 +77,7 @@ void hudDraw(DBloodPlayer* pPlayer, sectortype* pSector, double bobx, double bob
 void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket* pInput);
 void viewCorrectPrediction(void);
-void viewBackupView(int nPlayer);
+void viewBackupView(DBloodPlayer* pPlayer);
 void InitStatusBar(void);
 void UpdateStatusBar(DBloodPlayer* pPlayer);
 void viewInit(void);
