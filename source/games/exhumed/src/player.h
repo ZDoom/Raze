@@ -119,12 +119,12 @@ public:
         return static_cast<DExhumedActor*>(actor);
     }
 
-    const double GetMaxInputVel() const override
+    double GetMaxInputVel() const override
     {
         return 15.25;
     }
 
-    const unsigned getCrouchFlags() const override
+    unsigned getCrouchFlags() const override
     {
         return (CS_CANCROUCH * !bUnderwater) | (CS_DISABLETOGGLE * bUnderwater);
     }

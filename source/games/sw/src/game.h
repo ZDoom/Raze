@@ -1845,7 +1845,7 @@ public:
 
     uint8_t WpnReloadState;
 
-    const double GetMaxInputVel() const override
+    double GetMaxInputVel() const override
     {
         return (380401538. / 36022361.);
     }
@@ -1855,7 +1855,7 @@ public:
         return vect;
     }
 
-    const bool canSlopeTilt() const override
+    bool canSlopeTilt() const override
     {
         return (cmd.ucmd.actions & SB_AIMMODE) && !(Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING));
     }
@@ -1870,7 +1870,7 @@ public:
         GetActor()->spr.pos.Z = val - GetActor()->viewzoffset;
     }
 
-    const unsigned getCrouchFlags() const override
+    unsigned getCrouchFlags() const override
     {
         const bool crouchable = true;
         const bool disableToggle = (Flags & (PF_JUMPING|PF_FALLING|PF_CLIMBING|PF_DIVING|PF_DEAD)) || sop;
