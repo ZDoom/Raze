@@ -98,6 +98,7 @@ public:
 		const auto viewAngles = interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
 		return std::make_pair(DVector2(160, 120 * -viewAngles.Roll.Tan()) * -viewAngles.Yaw.Tan() / tan(r_fov * pi::pi() / 360.), viewAngles.Roll);
 	}
+
 	auto getWeaponOffsets(const double interpfrac)
 	{
 		// Push the Y down a bit since the weapon is at the edge of the screen. Also null roll for now.
@@ -107,11 +108,6 @@ public:
 };
 
 extern DCorePlayer* PlayerArray[MAXPLAYERS];
-
-inline ESyncBits GetPersistentActions()
-{
-	return PlayerArray[myconnectindex]->cmd.ucmd.actions & SB_CENTERVIEW;
-}
 
 inline double getTicrateScale(const double value)
 {

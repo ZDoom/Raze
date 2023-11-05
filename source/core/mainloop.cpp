@@ -274,7 +274,6 @@ static void GameTicker()
 			Net_ClearFifo();
 			inputState.ClearAllInput();
 			gameInput.Clear();
-			gameInput.SendAction(GetPersistentActions());
 			gamestate = GS_LEVEL;
 			return;
 
