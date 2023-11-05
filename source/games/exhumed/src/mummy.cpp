@@ -133,9 +133,8 @@ void AIMummy::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    DExhumedActor* targ = pActor->pTarget;
-    auto pTarget = UpdateEnemy(&targ);
-    pActor->pTarget = targ;
+    auto pTarget = UpdateEnemy(pActor->pTarget);
+    pActor->pTarget = pTarget;
 
     int nAction = pActor->nAction;
 

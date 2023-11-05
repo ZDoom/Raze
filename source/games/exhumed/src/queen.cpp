@@ -563,10 +563,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             bVal = true;
         }
 
-        DExhumedActor* enemy = pEgg->pActor;
-        pTarget = UpdateEnemy(&enemy);
-        pEgg->pActor = enemy;
-        pEgg->pTarget = pTarget;
+        pTarget = UpdateEnemy(pEgg->pTarget);
 
         if (pTarget && (pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) == 0)
         {
@@ -734,6 +731,7 @@ void AIQueenEgg::Draw(RunListEvent* ev)
     const auto nEgg = RunData[ev->nRun].nObjIndex;
     const auto pEgg = &QueenEgg[nEgg];
     const auto eggSeq = &EggSeq[pEgg->nAction];
+    if (pEgg->pActor == nullptr) return;
     seq_PlotSequence(ev->nParam, pEgg->pActor->nSeqFile, eggSeq->nSeqId, pEgg->nFrame, eggSeq->nFlags);
 }
 

@@ -1286,15 +1286,15 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 //
 //---------------------------------------------------------------------------
 
-DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
+DExhumedActor* UpdateEnemy(DExhumedActor* ppEnemy)
 {
-    if (*ppEnemy)
+    if (ppEnemy)
     {
-        if (!((*ppEnemy)->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)) {
-            *ppEnemy = nullptr;
+        if (!(ppEnemy->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)) 
+        {
+            return nullptr;
         }
     }
-
-    return *ppEnemy;
+    return ppEnemy;
 }
 END_PS_NS
