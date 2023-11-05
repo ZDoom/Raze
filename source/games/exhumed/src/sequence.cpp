@@ -450,7 +450,7 @@ void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t
 //
 //---------------------------------------------------------------------------
 
-void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags)
+void seq_PlotSequence(const int nSprite, const FName seqFile, const int seqIndex, int frameIndex, const int nFlags)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
     const auto pPlayer = getPlayer(nLocalPlayer);
@@ -464,7 +464,11 @@ void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqI
     }
 
     const auto fileSeqs = getFileSeqs(seqFile);
-    const auto& seqFrame = fileSeqs->Data(seqIndex + seqOffset)->frames[frameIndex];
+    if (seqIndex + seqOffset > fileSeqs->SSize()) return;
+    const auto& sequence = fileSeqs->Data(seqIndex + seqOffset);
+    if (sequence->frames.SSize() <= frameIndex) frameIndex = sequence->frames.SSize() - 1;
+
+    const auto& seqFrame = sequence->frames[frameIndex];
     const auto chunkCount = seqFrame.chunks.Size();
 
     const auto nShade = pTSprite->shade - (100 * !!(fileSeqs->Data(seqIndex)->frames[frameIndex].flags & 4));

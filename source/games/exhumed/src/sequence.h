@@ -80,7 +80,7 @@ extern int16_t nPilotLightCount;
 
 void seq_LoadSequences();
 void seq_DrawGunSequence(const SeqFrame& seqFrame, double xPos, double yPos, int nShade, int nPal, DAngle nAngle, double nAlpha, int nStat = 0);
-void seq_PlotSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int16_t frameIndex, const int16_t nFlags);
+void seq_PlotSequence(const int nSprite, const FName seqFile, const int seqIndex, int frameIndex, const int nFlags);
 void seq_PlotArrowSequence(const int nSprite, const FName seqFile, const int16_t seqIndex, const int frameIndex);
 void seq_DrawPilotLightSeq(double xPos, double yPos, double nAngle);
 
