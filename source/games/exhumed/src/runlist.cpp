@@ -1790,7 +1790,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
                 }
                 else
                 {
-                    pActor->vel.XY() += nVel.XY() * 128.;
+                    pActor->vel.XY() += nVel.XY() * 0.125;
                 }
             }
         }
