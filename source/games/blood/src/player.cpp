@@ -1267,6 +1267,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 
 	case kItemCrystalBall:
 		if (gGameOptions.nGameType == 0) return 0;
+		[[fallthrough]];
 	case kItemHealthDoctorBag:
 	case kItemJumpBoots:
 	case kItemDivingSuit:
