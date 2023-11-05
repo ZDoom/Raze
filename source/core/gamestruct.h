@@ -111,7 +111,6 @@ struct GameInterface
 	virtual bool WantEscape() { return false; }
 	virtual void StartSoundEngine() = 0;
 	virtual void doPlayerMovement();
-	virtual unsigned getCrouchState() = 0;
 };
 
 extern GameInterface* gi;

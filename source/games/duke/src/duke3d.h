@@ -38,7 +38,6 @@ struct GameInterface : public ::GameInterface
 	void ExitFromMenu() override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void doPlayerMovement() override;
-	unsigned getCrouchState() override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;

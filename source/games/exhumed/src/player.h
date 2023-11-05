@@ -123,6 +123,11 @@ public:
     {
         return 15.25;
     }
+
+    const unsigned getCrouchFlags() const override
+    {
+        return (CS_CANCROUCH * !bUnderwater) | (CS_DISABLETOGGLE * bUnderwater);
+    }
 };
 
 extern int PlayerCount;

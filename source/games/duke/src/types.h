@@ -419,6 +419,14 @@ public:
 	{
 		cmd.ucmd.setItemUsed(num - 1);
 	}
+
+	const unsigned getCrouchFlags() const override
+	{
+		const int sectorLotag = insector() ? cursector->lotag : 0;
+		const int crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || spritebridge) && !jetpack_on;
+		const int disableToggle = (!crouchable && on_ground) || jetpack_on || (isRRRA() && (OnMotorcycle || OnBoat));
+		return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
+	}
 };
 
 struct Cycler

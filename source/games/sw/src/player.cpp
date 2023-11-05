@@ -5882,20 +5882,6 @@ void DoPlayerRun(DSWPlayer* pp)
 //
 //---------------------------------------------------------------------------
 
-unsigned GameInterface::getCrouchState()
-{
-    const auto pp = getPlayer(myconnectindex);
-    const bool crouchable = true;
-    const bool disableToggle = (pp->Flags & (PF_JUMPING|PF_FALLING|PF_CLIMBING|PF_DIVING|PF_DEAD)) || pp->sop;
-    return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void PlayerStateControl(DSWActor* actor)
 {
     if (actor == nullptr || !actor->hasU()) return;

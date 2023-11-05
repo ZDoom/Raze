@@ -50,18 +50,6 @@ bool crouch_toggle = false;
 
 //---------------------------------------------------------------------------
 //
-// Clears crouch toggle state for new games.
-//
-//---------------------------------------------------------------------------
-
-void GameInput::resetCrouchToggle()
-{
-	crouch_toggle = false;
-}
-
-
-//---------------------------------------------------------------------------
-//
 // Default player movement function for the games. Can be overridden.
 //
 //---------------------------------------------------------------------------
@@ -69,6 +57,18 @@ void GameInput::resetCrouchToggle()
 void GameInterface::doPlayerMovement()
 {
 	gameInput.processMovement();
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Clears crouch toggle state for new games.
+//
+//---------------------------------------------------------------------------
+
+void GameInput::resetCrouchToggle()
+{
+	crouch_toggle = false;
 }
 
 
@@ -248,7 +248,7 @@ void GameInput::processInputBits()
 	}
 	else dpad_lock = 0;
 
-	const auto crouchState = gi->getCrouchState();
+	const auto crouchFlags = PlayerArray[myconnectindex]->getCrouchFlags();
 	inputBuffer.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
@@ -266,12 +266,12 @@ void GameInput::processInputBits()
 
 	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
 	{
-		const bool canCrouch = crouchState & CS_CANCROUCH;
+		const bool canCrouch = crouchFlags & CS_CANCROUCH;
 		crouch_toggle = !crouch_toggle && canCrouch;
 		if (canCrouch) buttonMap.ClearButton(gamefunc_Toggle_Crouch);
 	}
 
-	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || (crouchState & CS_DISABLETOGGLE))
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || (crouchFlags & CS_DISABLETOGGLE))
 		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
