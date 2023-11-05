@@ -249,7 +249,7 @@ void GameInput::processInputBits()
 	else dpad_lock = 0;
 
 	const auto crouchState = gi->getCrouchState();
-	inputBuffer.actions |= ActionsToSend | GetPersistentActions();
+	inputBuffer.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && joyAxes[JOYAXIS_Forward] > 0)) 
@@ -327,6 +327,7 @@ void GameInput::processInputBits()
 void GameInput::getInput(InputPacket* packet)
 {
 	I_GetEvent();
+	SendAction(PlayerArray[myconnectindex]->cmd.ucmd.actions & SB_CENTERVIEW);
 
 	if (paused || M_Active() || gamestate != GS_LEVEL)
 	{
