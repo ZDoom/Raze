@@ -1233,6 +1233,7 @@ bool PickupItem(DBloodPlayer* pPlayer, DBloodActor* itemactor)
 		if (!actHealDude(pPlayer->GetActor(), addPower, gPowerUpInfo[nType].maxTime)) return 0;
 		return 1;
 	}
+		[[fallthrough]];
 	case kItemHealthDoctorBag:
 	case kItemJumpBoots:
 	case kItemDivingSuit:
