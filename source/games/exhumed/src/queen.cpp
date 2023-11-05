@@ -312,7 +312,7 @@ void DestroyAllEggs()
 
 void SetHeadVel(DExhumedActor* pActor)
 {
-	pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 1024 * (1 << nVelShift);
+	pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (1 << nVelShift);
 }
 
 //---------------------------------------------------------------------------
@@ -476,13 +476,13 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
     setvalidpic(pActor2);
-    pActor2->spr.Angles.Yaw = pActor->spr.Angles.Yaw + RandomAngle9() - DAngle45;
+    pActor2->spr.Angles.Yaw = (pActor->spr.Angles.Yaw + RandomAngle9() - DAngle45).Normalized360();
     pActor2->backuppos();
 
     if (!nVal)
     {
 		pActor2->spr.scale = DVector2(0.46875, 0.46875);
-		pActor2->vel.XY() = pActor2->spr.Angles.Yaw.ToVector() * 1024;
+		pActor2->vel.XY() = pActor2->spr.Angles.Yaw.ToVector();
         pActor2->vel.Z = -6000 / 256.;
         pActor2->spr.cstat = 0;
     }
@@ -613,7 +613,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
 
             pActor->spr.Angles.Yaw = nAngle;
-			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 512;
+			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 0.5;
         }
 
         break;
@@ -644,7 +644,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case kHitWall:
-            pActor->spr.Angles.Yaw = DAngle45 + DAngle90 + RandomAngle9();
+            pActor->spr.Angles.Yaw = (DAngle45 + DAngle90 + RandomAngle9()).Normalized360();
             pActor->VelFromAngle(-3);
             pActor->vel.Z = (-RandomSize(5)) / 256.;
             break;
