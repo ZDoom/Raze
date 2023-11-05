@@ -137,32 +137,6 @@ TArray<Seq>* getFileSeqs(const FName nSeqFile)
 //
 //---------------------------------------------------------------------------
 
-static void fixSeqs()
-{
-    // Seq file "skulstrt" has one sprite face with 20 frames instead of 24.
-    if (const auto skulstrt = FileSeqMap.CheckKey("skulstrt"))
-    {
-        // Get 5th sequence with missing frames.
-        if (const auto seq = skulstrt->Data(4))
-        {
-            // Store last frame.
-            const auto lastframe = seq->frames.Last();
-
-            // Repeat last frame another four times.
-            for (unsigned i = 20; i < 24; i++)
-            {
-                seq->frames.Push(lastframe);
-            }
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static int addSeq(const char *seqName)
 {
     const FStringf seqfilename("%s.seq", seqName);
@@ -335,9 +309,6 @@ void seq_LoadSequences()
             Printf("Error loading '%s'\n", seq);
         }
     }
-
-    // Perform sequence post-processing for where original assets are malformed.
-    fixSeqs();
 
     nShadowPic = getSequence("shadow")->getFirstFrameTexture();
     nShadowWidth = (int16_t)TexMan.GetGameTexture(nShadowPic)->GetDisplayWidth();
