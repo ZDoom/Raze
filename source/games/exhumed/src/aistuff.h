@@ -210,7 +210,7 @@ void MoveThings();
 void InitChunks();
 void InitPushBlocks();
 void Gravity(DExhumedActor* actor);
-DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
+DExhumedActor* UpdateEnemy(DExhumedActor* ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
 DVector3 WheresMyMouth(DExhumedPlayer* const pPlayer, sectortype** sectnum);
