@@ -329,7 +329,7 @@ void GameInput::getInput(InputPacket* packet)
 	I_GetEvent();
 	SendAction(PlayerArray[myconnectindex]->cmd.ucmd.actions & SB_CENTERVIEW);
 
-	if (paused || M_Active() || gamestate != GS_LEVEL)
+	if (M_Active() || gamestate != GS_LEVEL)
 	{
 		inputBuffer = {};
 		return;
@@ -337,7 +337,7 @@ void GameInput::getInput(InputPacket* packet)
 
 	I_GetAxes(joyAxes);
 	processInputBits();
-	gi->doPlayerMovement();
+	if (!paused) gi->doPlayerMovement();
 	mouseInput.Zero();
 
 	if (packet)
