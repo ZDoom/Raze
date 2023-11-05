@@ -361,7 +361,7 @@ public:
 	void checkhardlanding();
 	void playerweaponsway(double xvel);
 
-	const double GetMaxInputVel() const override
+	double GetMaxInputVel() const override
 	{
 		return (117351124. / 10884538.);
 	}
@@ -405,7 +405,7 @@ public:
 		}
 	}
 
-	const bool canSlopeTilt() const override
+	bool canSlopeTilt() const override
 	{
 		return aim_mode == 0 && on_ground && cursector->lotag != ST_2_UNDERWATER;
 	}
@@ -420,7 +420,7 @@ public:
 		cmd.ucmd.setItemUsed(num - 1);
 	}
 
-	const unsigned getCrouchFlags() const override
+	unsigned getCrouchFlags() const override
 	{
 		const int sectorLotag = insector() ? cursector->lotag : 0;
 		const int crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || spritebridge) && !jetpack_on;

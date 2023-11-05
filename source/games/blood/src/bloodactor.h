@@ -300,19 +300,19 @@ public:
 		return static_cast<DBloodActor*>(actor);
 	}
 
-	const double GetMaxInputVel() const override
+	double GetMaxInputVel() const override
 	{
 		return (36211. / 3000.);
 	}
 
-	const bool canSlopeTilt() const override
+	bool canSlopeTilt() const override
 	{
 		const auto pActor = static_cast<DBloodActor*>(actor);
 		const int florhit = pActor->hit.florhit.type;
 		return pActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0);
 	}
 
-	const unsigned getCrouchFlags() const override
+	unsigned getCrouchFlags() const override
 	{
 		const bool swimming = posture == kPostureSwim;
 		return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
