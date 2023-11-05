@@ -488,21 +488,6 @@ void hud_input(DDukePlayer* const p)
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-unsigned GameInterface::getCrouchState()
-{
-	const auto p = getPlayer(myconnectindex);
-	const int sectorLotag = p->insector() ? p->cursector->lotag : 0;
-	const int crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge) && !p->jetpack_on;
-	const int disableToggle = (!crouchable && p->on_ground) || p->jetpack_on || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
-	return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
-}
-
-//---------------------------------------------------------------------------
-//
 // External entry point
 //
 //---------------------------------------------------------------------------

@@ -1495,18 +1495,6 @@ int ActionScan(DBloodPlayer* pPlayer, HitInfo* out)
 //
 //---------------------------------------------------------------------------
 
-unsigned GameInterface::getCrouchState()
-{
-	const bool swimming = getPlayer(myconnectindex)->posture == kPostureSwim;
-	return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void ProcessInput(DBloodPlayer* pPlayer)
 {
 	enum

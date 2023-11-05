@@ -40,6 +40,7 @@ public:
 	// All overridable methods.
 	virtual DCoreActor* GetActor() = 0;
 	virtual const bool canSlopeTilt() const { return false; }
+	virtual const unsigned getCrouchFlags() const = 0;
 	virtual const DVector2& GetInputVelocity() const { return actor->vel.XY(); }
 	virtual const double GetMaxInputVel() const = 0;
 

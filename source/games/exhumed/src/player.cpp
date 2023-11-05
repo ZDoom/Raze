@@ -1199,18 +1199,6 @@ static void updatePlayerWeapon(DExhumedPlayer* const pPlayer)
 //
 //---------------------------------------------------------------------------
 
-unsigned GameInterface::getCrouchState()
-{
-    const bool swimming = getPlayer(nLocalPlayer)->bUnderwater;
-    return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void updatePlayerAction(DExhumedPlayer* const pPlayer)
 {
     const auto pPlayerActor = pPlayer->GetActor();

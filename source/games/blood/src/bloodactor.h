@@ -283,6 +283,12 @@ public:
 		const int florhit = pActor->hit.florhit.type;
 		return pActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0);
 	}
+
+	const unsigned getCrouchFlags() const override
+	{
+		const bool swimming = posture == kPostureSwim;
+		return (CS_CANCROUCH * !swimming) | (CS_DISABLETOGGLE * swimming);
+	}
 };
 
 inline DBloodPlayer* getPlayer(int index)

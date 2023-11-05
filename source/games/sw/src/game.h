@@ -1869,6 +1869,13 @@ public:
     {
         GetActor()->spr.pos.Z = val - GetActor()->viewzoffset;
     }
+
+    const unsigned getCrouchFlags() const override
+    {
+        const bool crouchable = true;
+        const bool disableToggle = (Flags & (PF_JUMPING|PF_FALLING|PF_CLIMBING|PF_DIVING|PF_DEAD)) || sop;
+        return (CS_CANCROUCH * crouchable) | (CS_DISABLETOGGLE * disableToggle);
+    }
 };
 
 inline DSWPlayer* getPlayer(int index)
@@ -1914,7 +1921,6 @@ struct GameInterface : public ::GameInterface
     void ExitFromMenu() override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;
-    unsigned getCrouchState() override;
     void doPlayerMovement() override
     {
         const auto pp = getPlayer(myconnectindex);
