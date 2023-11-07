@@ -54,6 +54,7 @@
 #include "i_time.h"
 
 #include "maps.h"
+#include "types.h"
 
 static ZSMap<FName, DObject*> AllServices;
 
@@ -847,6 +848,13 @@ DEFINE_ACTION_FUNCTION(_Wads, ReadLump)
 	ACTION_RETURN_STRING(isLumpValid ? GetStringFromLump(lump, false) : FString());
 }
 
+DEFINE_ACTION_FUNCTION(_Wads, GetLumpLength)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(lump);
+	ACTION_RETURN_INT(fileSystem.FileLength(lump));
+}
+
 //==========================================================================
 //
 // CVARs
@@ -1348,3 +1356,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, Inverse, QuatInverse)
 	QuatInverse(self->X, self->Y, self->Z, self->W, &quat);
 	ACTION_RETURN_QUAT(quat);
 }
+
+PFunction * FindFunctionPointer(PClass * cls, int fn_name)
+{
+	auto fn = dyn_cast<PFunction>(cls->FindSymbol(ENamedName(fn_name), true));
+	return (fn && (fn->Variants[0].Flags & (VARF_Action | VARF_Virtual)) == 0 ) ? fn : nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DObject, FindFunction, FindFunctionPointer)
+{
+	PARAM_PROLOGUE;
+	PARAM_CLASS(cls, DObject);
+	PARAM_NAME(fn);
+
+	ACTION_RETURN_POINTER(FindFunctionPointer(cls, fn.GetIndex()));
+}
+
