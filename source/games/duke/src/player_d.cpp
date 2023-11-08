@@ -49,7 +49,7 @@ void operateweapon_ww(DDukePlayer* const p, ESyncBits actions);
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_d(DDukePlayer* p)
+static void incur_damage(DDukePlayer* p)
 {
 	const auto pact = p->GetActor();
 	int damage = 0L, shield_damage = 0L;
@@ -1597,7 +1597,7 @@ void processinput_d(DDukePlayer* const p)
 	}
 
 
-	if (pact->spr.extra > 0) fi.incur_damage(p);
+	if (pact->spr.extra > 0) incur_damage(p);
 	else
 	{
 		pact->spr.extra = 0;

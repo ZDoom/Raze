@@ -77,7 +77,6 @@ struct Dispatcher
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 
 	// player
-	void (*incur_damage)(DDukePlayer* p);
 	void (*selectweapon)(DDukePlayer* const p, int j);
 	int (*doincrements)(DDukePlayer* p);
 	void (*checkweapons)(DDukePlayer* p);
