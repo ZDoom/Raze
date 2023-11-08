@@ -1342,13 +1342,13 @@ int checkp(DDukeActor* self, DDukePlayer* p, int flags)
 		j = 1;
 	else if ((flags & pstanding) && vel >= 0 && vel < 0.5)
 		j = 1;
-	else if ((flags & pwalking) && vel >= 0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)))
+	else if ((flags & pwalking) && vel >= 0.5 && !(p->cmd.ucmd.actions & SB_RUN))
 		j = 1;
 	else if ((flags & prunning) && vel >= 0.5 && !!(p->cmd.ucmd.actions & SB_RUN))
 		j = 1;
 	else if ((flags & phigher) && pact->getOffsetZ() < self->spr.pos.Z - 48)
 		j = 1;
-	else if ((flags & pwalkingback) && vel <= -0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)))
+	else if ((flags & pwalkingback) && vel <= -0.5 && !(p->cmd.ucmd.actions & SB_RUN))
 		j = 1;
 	else if ((flags & prunningback) && vel <= -0.5 && (!!(p->cmd.ucmd.actions & SB_RUN)))
 		j = 1;

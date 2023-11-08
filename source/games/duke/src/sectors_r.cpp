@@ -210,7 +210,7 @@ void checksectors_r(DDukePlayer* const p)
 		lotsofstuff(pact, 2, DukeMailClass);
 
 
-	if (!(!!(p->cmd.ucmd.actions & SB_OPEN)))
+	if (!(p->cmd.ucmd.actions & SB_OPEN))
 		p->toggle_key_flag = 0;
 
 	else if (!p->toggle_key_flag)
