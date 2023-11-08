@@ -43,8 +43,6 @@ void addweapon_d(DDukePlayer* p, int weapon, bool wswitch);
 void addweapon_r(DDukePlayer* p, int weapon, bool wswitch);
 int ifhitbyweapon_r(DDukeActor* sn);
 int ifhitbyweapon_d(DDukeActor* sn);
-void incur_damage_d(DDukePlayer* p);
-void incur_damage_r(DDukePlayer* p);
 void selectweapon_d(DDukePlayer* const p, int j);
 void selectweapon_r(DDukePlayer* const p, int j);
 int doincrements_d(DDukePlayer* p);
@@ -80,7 +78,6 @@ void SetDispatcher()
 		addweapon_d,
 		ifhitbyweapon_d,
 
-		incur_damage_d,
 		selectweapon_d,
 		doincrements_d,
 		checkweapons_d,
@@ -102,7 +99,6 @@ void SetDispatcher()
 		addweapon_r,
 		ifhitbyweapon_r,
 
-		incur_damage_r,
 		selectweapon_r,
 		doincrements_r,
 		checkweapons_r,

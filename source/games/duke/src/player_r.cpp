@@ -43,7 +43,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void incur_damage_r(DDukePlayer* p)
+static void incur_damage(DDukePlayer* p)
 {
 	int  damage = 0, shield_damage = 0;
 	int gut = 0;
@@ -2419,7 +2419,7 @@ void processinput_r(DDukePlayer* const p)
 	}
 
 
-	if (pact->spr.extra > 0) fi.incur_damage(p);
+	if (pact->spr.extra > 0) incur_damage(p);
 	else
 	{
 		pact->spr.extra = 0;
