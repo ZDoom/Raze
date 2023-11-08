@@ -1328,60 +1328,55 @@ void playeraddinventory(DDukePlayer* p, DDukeActor* item, int type, int amount)
 
 int checkp(DDukeActor* self, DDukePlayer* p, int flags)
 {
-	bool j = 0;
-
-	double vel = self->vel.X;
+	const double vel = self->vel.X;
 	const auto pact = p->GetActor();
 
 	// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 	if ((flags & pducking) && p->on_ground && !!(p->cmd.ucmd.actions & SB_CROUCH))
-		j = 1;
+		return 1;
 	else if ((flags & pfalling) && p->jumping_counter == 0 && !p->on_ground && p->vel.Z > 8)
-		j = 1;
+		return 1;
 	else if ((flags & pjumping) && p->jumping_counter > 348)
-		j = 1;
+		return 1;
 	else if ((flags & pstanding) && vel >= 0 && vel < 0.5)
-		j = 1;
+		return 1;
 	else if ((flags & pwalking) && vel >= 0.5 && !(p->cmd.ucmd.actions & SB_RUN))
-		j = 1;
+		return 1;
 	else if ((flags & prunning) && vel >= 0.5 && !!(p->cmd.ucmd.actions & SB_RUN))
-		j = 1;
+		return 1;
 	else if ((flags & phigher) && pact->getOffsetZ() < self->spr.pos.Z - 48)
-		j = 1;
+		return 1;
 	else if ((flags & pwalkingback) && vel <= -0.5 && !(p->cmd.ucmd.actions & SB_RUN))
-		j = 1;
+		return 1;
 	else if ((flags & prunningback) && vel <= -0.5 && (!!(p->cmd.ucmd.actions & SB_RUN)))
-		j = 1;
+		return 1;
 	else if ((flags & pkicking) && (p->quick_kick > 0 || (p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 0)))
-		j = 1;
+		return 1;
 	else if ((flags & pshrunk) && pact->spr.scale.X < (isRR() ? 0.125 : 0.5))
-		j = 1;
+		return 1;
 	else if ((flags & pjetpack) && p->jetpack_on)
-		j = 1;
+		return 1;
 	else if ((flags & ponsteroids) && p->steroids_amount > 0 && p->steroids_amount < 400)
-		j = 1;
+		return 1;
 	else if ((flags & ponground) && p->on_ground)
-		j = 1;
+		return 1;
 	else if ((flags & palive) && pact->spr.scale.X > (isRR() ? 0.125 : 0.5) && pact->spr.extra > 0 && p->timebeforeexit == 0)
-		j = 1;
+		return 1;
 	else if ((flags & pdead) && pact->spr.extra <= 0)
-		j = 1;
+		return 1;
 	else if ((flags & pfacing))
 	{
-		DAngle ang;
 		if (self->isPlayer() && ud.multimode > 1)
 		{
 			const auto pact2 = getPlayer(otherp)->GetActor();
-			ang = absangle(pact2->spr.Angles.Yaw, (pact->spr.pos.XY() - pact2->spr.pos.XY()).Angle());
+			return absangle(pact2->spr.Angles.Yaw, (pact->spr.pos.XY() - pact2->spr.pos.XY()).Angle()) < DAngle22_5;
 		}
 		else
 		{
-			ang = absangle(pact->spr.Angles.Yaw, (self->spr.pos.XY() - pact->spr.pos.XY()).Angle());
+			return absangle(pact->spr.Angles.Yaw, (self->spr.pos.XY() - pact->spr.pos.XY()).Angle()) < DAngle22_5;
 		}
-
-		j = ang < DAngle22_5;
 	}
-	return j;
+	return 0;
 }
 
 //---------------------------------------------------------------------------
