@@ -2498,7 +2498,7 @@ void processinput_r(DDukePlayer* const p)
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((pact->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
+	pact->vel.X = (pact->spr.pos.XY() - p->bobpos).Length();
 	if (p->on_ground) p->bobcounter += int(pact->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
