@@ -421,17 +421,21 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
 	auto spos = pActor->spr.pos;
     double nSpriteHeight = GetActorHeight(pActor);
     auto pSector = pActor->sector();
-    assert(pSector);
+    Collision nRet{};
 
-	double floorZ = pSector->floorz;
+    if (!pSector)
+    {
+        assert(pSector);
+        return nRet;
+    }
 
-    if ((pSector->Flag & kSectUnderwater) || (floorZ < spos.Z))
+    if ((pSector->Flag & kSectUnderwater) || (pSector->floorz < spos.Z))
     {
         vect *= 0.5;
     }
 
     sectortype* overridesect;
-    Collision nRet = movespritez(pActor, dz, nSpriteHeight, pActor->clipdist, &overridesect);
+    nRet = movespritez(pActor, dz, nSpriteHeight, pActor->clipdist, &overridesect);
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
