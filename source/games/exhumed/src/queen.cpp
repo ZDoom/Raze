@@ -644,7 +644,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case kHitWall:
-            pActor->spr.Angles.Yaw += (DAngle45 + DAngle90 + RandomAngle9()).Normalized360();
+            pActor->spr.Angles.Yaw = (pActor->spr.Angles.Yaw + DAngle45 + DAngle90 + RandomAngle9()).Normalized360();
             pActor->VelFromAngle(-3);
             pActor->vel.Z = (-RandomSize(5)) / 256.;
             break;
