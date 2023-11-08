@@ -1564,10 +1564,10 @@ void ProcessInput(DBloodPlayer* pPlayer)
 	if (!pInput->vel.XY().isZero() && (pPlayer->posture == 1 || actor->xspr.height < 256))
 	{
 		const double speed = pPlayer->posture == 1? 1. : 1. - (actor->xspr.height * (1. / 256.) * (actor->xspr.height < 256));
-		const double fvAccel = pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;
-		const double svAccel = pPosture->sideAccel;
-		actor->vel.XY() += DVector2(pInput->vel.X * fvAccel, pInput->vel.Y * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
-		pPlayer->StrafeVel += pInput->vel.Y * svAccel * speed;
+		pInput->vel.X *= pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;
+		pInput->vel.Y *= pPosture->sideAccel;
+		actor->vel.XY() += pInput->vel.XY().Rotated(actor->spr.Angles.Yaw) * speed;
+		pPlayer->StrafeVel += pInput->vel.Y * speed;
 	}
 
 	pPlayer->doViewYaw();
