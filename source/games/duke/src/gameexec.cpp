@@ -2010,13 +2010,13 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pstanding) && vel >= 0 && vel < 0.5)
 					j = 1;
-			else if( (l& pwalking) && vel >= 0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)) )
+			else if( (l& pwalking) && vel >= 0.5 && !(p->cmd.ucmd.actions & SB_RUN) )
 					j = 1;
 			else if( (l& prunning) && vel >= 0.5 && !!(p->cmd.ucmd.actions & SB_RUN) )
 					j = 1;
 			else if( (l& phigher) && pact->getOffsetZ() < g_ac->spr.pos.Z - 48)
 					j = 1;
-			else if( (l& pwalkingback) && vel <= -0.5 && !(!!(p->cmd.ucmd.actions & SB_RUN)) )
+			else if( (l& pwalkingback) && vel <= -0.5 && !(p->cmd.ucmd.actions & SB_RUN) )
 					j = 1;
 			else if( (l& prunningback) && vel <= -0.5 && (!!(p->cmd.ucmd.actions & SB_RUN)) )
 					j = 1;
