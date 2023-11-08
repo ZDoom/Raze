@@ -1465,7 +1465,7 @@ int ifcansee(DDukeActor* actor, DDukePlayer* p)
 
 int ParseState::parse(void)
 {
-	int j, l;
+	int j;
 
 	if(killit_flag) return 1;
 
@@ -1993,66 +1993,7 @@ int ParseState::parse(void)
 		insptr+=6;
 		break;
 	case concmd_ifp:
-	{
-			insptr++;
-
-			l = *insptr;
-			j = 0;
-
-			double vel = g_ac->vel.X;
-
-			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-			if( (l& pducking) && p->on_ground && !!(p->cmd.ucmd.actions & SB_CROUCH))
-					j = 1;
-			else if( (l& pfalling) && p->jumping_counter == 0 && !p->on_ground &&	p->vel.Z > 8 )
-					j = 1;
-			else if( (l& pjumping) && p->jumping_counter > 348 )
-					j = 1;
-			else if( (l& pstanding) && vel >= 0 && vel < 0.5)
-					j = 1;
-			else if( (l& pwalking) && vel >= 0.5 && !(p->cmd.ucmd.actions & SB_RUN) )
-					j = 1;
-			else if( (l& prunning) && vel >= 0.5 && !!(p->cmd.ucmd.actions & SB_RUN) )
-					j = 1;
-			else if( (l& phigher) && pact->getOffsetZ() < g_ac->spr.pos.Z - 48)
-					j = 1;
-			else if( (l& pwalkingback) && vel <= -0.5 && !(p->cmd.ucmd.actions & SB_RUN) )
-					j = 1;
-			else if( (l& prunningback) && vel <= -0.5 && (!!(p->cmd.ucmd.actions & SB_RUN)) )
-					j = 1;
-			else if( (l& pkicking) && ( p->quick_kick > 0 || ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 0 ) ) )
-					j = 1;
-			else if( (l& pshrunk) && pact->spr.scale.X < (isRR() ? 0.125 : 0.5))
-					j = 1;
-			else if( (l& pjetpack) && p->jetpack_on )
-					j = 1;
-			else if( (l& ponsteroids) && p->steroids_amount > 0 && p->steroids_amount < 400 )
-					j = 1;
-			else if( (l& ponground) && p->on_ground)
-					j = 1;
-			else if( (l& palive) && pact->spr.scale.X > (isRR() ? 0.125 : 0.5) && pact->spr.extra > 0 && p->timebeforeexit == 0)
-					j = 1;
-			else if( (l& pdead) && pact->spr.extra <= 0)
-					j = 1;
-			else if( (l& pfacing) )
-			{
-				DAngle ang;
-				if (g_ac->isPlayer() && ud.multimode > 1)
-				{
-					const auto pact2 = getPlayer(otherp)->GetActor();
-					ang = absangle(pact2->spr.Angles.Yaw, (pact->spr.pos.XY() - pact2->spr.pos.XY()).Angle());
-				}
-				else
-				{
-					ang = absangle(pact->spr.Angles.Yaw, (g_ac->spr.pos.XY() - pact->spr.pos.XY()).Angle());
-				}
-
-				j = ang < DAngle22_5;
-			}
-
-			parseifelse( j);
-
-		}
+		parseifelse(checkp(g_ac, p, *(++insptr)));
 		break;
 	case concmd_ifstrength:
 		insptr++;
