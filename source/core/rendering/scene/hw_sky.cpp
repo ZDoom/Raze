@@ -56,7 +56,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 	SkyDefinition skydef;
 	if (!skytex)
 	{
-		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
+		int remap = TRANSLATION(Translation_Remap + curbasepal, palette).index();
 		skydef = getSky(texid);
 		int tw = (int)tex->GetDisplayWidth();
 
