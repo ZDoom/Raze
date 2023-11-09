@@ -527,7 +527,7 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 		auto flortex = sect->floortexture;
 		if (!flortex.isValid()) continue;
 
-		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal).index();
+		auto translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
 		PalEntry light = shadeToLight(sector[i].floorshade);
 
 		for (auto section : sectionsPerSector[i])
@@ -580,7 +580,7 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 			color.a = uint8_t(alpha * 255);
 		}
 
-		int translation = TRANSLATION(Translation_Remap + curbasepal, actor->spr.pal).index();
+		auto translation = TRANSLATION(Translation_Remap + curbasepal, actor->spr.pal);
 		const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
 		twod->AddPoly(TexMan.GetGameTexture(actor->spr.spritetexture(), true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs, &viewport3d);
 	}
