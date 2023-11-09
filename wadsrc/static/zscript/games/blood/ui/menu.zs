@@ -62,7 +62,7 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 		let gamefont = Raze.PickBigFont();
 		int xpos = mXpos - gamefont.StringWidth(mText) / 2;
 		int cr = generic_ui? Font.CR_GRAY : Font.CR_NATIVEPAL;
-		int trans = generic_ui? 0 : Translation.MakeID(Translation_Remap, pal);
+		TranslationID trans = generic_ui? 0 : Translation.MakeID(Translation_Remap, pal);
 
 		if (selected) shade = 32 - ((MSTime() * 120 / 1000) & 63);
 

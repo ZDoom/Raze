@@ -55,7 +55,7 @@ class DRealmsScreen : SkippableScreenJob
 	override void Draw(double smoothratio)
 	{
 		let tex = TexMan.CheckForTexture("DREALMS"); 
-		int translation = TexMan.UseGamePalette(tex)? Translation.MakeID(Translation_BasePalette, Duke.DREALMSPAL) : 0;
+		TranslationID translation = TexMan.UseGamePalette(tex)? Translation.MakeID(Translation_BasePalette, Duke.DREALMSPAL) : 0;
 
 		screen.DrawTexture(tex, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal);
 	}
@@ -116,11 +116,11 @@ class DukeTitleScreen : SkippableScreenJob
 	override void Draw(double smoothratio)
 	{
 		int clock = (ticks + smoothratio) * 120 / GameTicRate;
-		int etrans = Translation.MakeID(Translation_BasePalette, Duke.TITLEPAL);
+		TranslationID etrans = Translation.MakeID(Translation_BasePalette, Duke.TITLEPAL);
 
 		// Only translate if the image depends on the global palette.
 		let tex = TexMan.CheckForTexture("BETASCREEN"); 
-		int trans = TexMan.UseGamePalette(tex)? etrans : 0;
+		TranslationID trans = TexMan.UseGamePalette(tex)? etrans : 0;
 		screen.DrawTexture(tex, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, trans, DTA_LegacyRenderStyle, STYLE_Normal);
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
@@ -251,10 +251,10 @@ class Episode1End1 : SkippableScreenJob
 
 	override void Draw(double sr)
 	{
-		int etrans = Translation.MakeID(Translation_BasePalette, Duke.ENDINGPAL);
+		TranslationID etrans = Translation.MakeID(Translation_BasePalette, Duke.ENDINGPAL);
 
 		let tex = TexMan.CheckForTexture("VICTORY1");
-		int trans = TexMan.UseGamePalette(tex)? etrans : 0;
+		TranslationID trans = TexMan.UseGamePalette(tex)? etrans : 0;
 		screen.DrawTexture(tex, false, 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, trans, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true);
 
 		if (bossani.isValid())

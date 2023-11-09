@@ -462,7 +462,7 @@ class Cinema : SkippableScreenJob
 	TextureID cinematile;
 	int currentCinemaPalette;
 	int cdtrack;
-	int palette;
+	TranslationID palette;
 	bool done;
 
 	ScreenJob Init(String bgTexture, String text, int pal, int cdtrk)

@@ -53,7 +53,7 @@ struct HudStats
 	int ammoselect;
 	
 	Array<String> keyicons;
-	Array<int> keytranslations;
+	Array<TranslationID> keytranslations;
 
 	Array<String> inventoryicons;
 	Array<int> inventoryamounts;	// negative values can be used for special states (-1: "ON", -2: "OFF", -3: "AUTO")
@@ -128,7 +128,7 @@ class AltHud ui
 	//
 	//---------------------------------------------------------------------------
 
-	void DrawImageToBox(TextureID tex, int x, int y, int w, int h, double trans = 0.75, bool animate = false, int translation = 0)
+	void DrawImageToBox(TextureID tex, int x, int y, int w, int h, double trans = 0.75, bool animate = false, TranslationID translation = 0)
 	{
 		double scale1, scale2;
 
@@ -328,7 +328,7 @@ class AltHud ui
 
 		if (icon.isValid())
 		{
-			int trans = 0;
+			TranslationID trans = 0;
 			if (currentStats.keytranslations.Size()) trans = currentStats.keytranslations[keyindex];
 			DrawImageToBox(icon, x, y, 8, 10, 0.75, false, trans);
 			return true;

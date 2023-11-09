@@ -184,6 +184,7 @@ struct Vector3
 struct _ native	// These are the global variables, the struct is only here to avoid extending the parser for this.
 {
 	native readonly Array<class> AllClasses;
+    native internal readonly Map<Name , Service> AllServices;
 	native readonly bool multiplayer;
 	native @KeyBindings Bindings;
 	native @KeyBindings AutomapBindings;
@@ -752,6 +753,7 @@ class Object native
 	private native static void BuiltinRandomSeed(voidptr rng, int seed);
 	private native static Class<Object> BuiltinNameToClass(Name nm, Class<Object> filter);
 	private native static Object BuiltinClassCast(Object inptr, Class<Object> test);
+	private native static Function<void> BuiltinFunctionPtrCast(Function<void> inptr, voidptr newtype);
 	
 	native static uint MSTime();
 	native static double MSTimeF();
@@ -922,10 +924,11 @@ struct StringStruct native
 
 struct Translation version("2.4")
 {
-	static int MakeID(int group, int num)
-	{
-		return (group << 16) + num;
-	}
+	Color colors[256];
+	
+	//native TranslationID AddTranslation(); // this still needs work.
+	native static TranslationID MakeID(int group, int num);
+	native static TranslationID GetID(Name transname);
 }
 
 // Convenient way to attach functions to Quat

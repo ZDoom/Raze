@@ -168,7 +168,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
 		let font = Raze.PickBigFont();
-		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0;
+		TranslationID trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0;
 		Color pe;
 		double scale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.4 : 1.;
 		let xpos = 160 - font.StringWidth(mText) * scale * 0.5;

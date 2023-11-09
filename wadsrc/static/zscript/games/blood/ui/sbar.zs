@@ -232,7 +232,7 @@ class BloodStatusBar : RazeStatusBar
 					DrawTexture(Blood.PowerUpIcon(power), (x, y + powerYoffs[order]), DI_SCREEN_LEFT_CENTER | DI_ITEM_RELCENTER, scale:(powerScale[order], powerScale[order]));
 				}
 
-				DrawStatNumber("%d", remainingSeconds, "SBarNumberInv", x + 15, y, 0, remainingSeconds > warningTime ? 0 : Translation.MakeID(Translation_Remap, 2), 0.5, DI_SCREEN_LEFT_CENTER);
+				DrawStatNumber("%d", remainingSeconds, "SBarNumberInv", x + 15, y, 0, remainingSeconds > warningTime ? 0 : 2, 0.5, DI_SCREEN_LEFT_CENTER);
 				y += 20;
 			}
 		}
@@ -452,8 +452,8 @@ class BloodStatusBar : RazeStatusBar
 		}
 
 		bool meHaveBlueFlag = pPlayer.hasFlag & 1;
-		int trans10 = Translation.MakeID(Translation_Remap, 10);
-		int trans2 = Translation.MakeID(Translation_Remap, 2);
+		let trans10 = Translation.MakeID(Translation_Remap, 10);
+		let trans2 = Translation.MakeID(Translation_Remap, 2);
 		DrawImage(meHaveBlueFlag ? "FlagHave" : "FlagHaveNot", (0, 75 - 100), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, scale:(0.35, 0.35), translation:trans10);
 		if (gBlueFlagDropped)
 			DrawImage("FlagDropped", (305 - 320, 83 - 100), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, translation:trans10);
@@ -507,7 +507,7 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	int DrawStatusBar(BloodPlayer pPlayer, int nPalette)
+	int DrawStatusBar(BloodPlayer pPlayer, TranslationID nPalette)
 	{
 		int th = texHeight("Statusbar");
 		BeginStatusBar(false, 320, 200, th);
@@ -583,7 +583,7 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	int DrawHUD1(BloodPlayer pPlayer, int nPalette)
+	int DrawHUD1(BloodPlayer pPlayer, TranslationID nPalette)
 	{
 		BeginHUD(1, false, 320, 200);
 		DrawImage("FullHUD", (34, 187 - 200), DI_ITEM_RELCENTER, style:STYLE_Normal, col:0xffc0c0c0, translation:nPalette);
@@ -726,19 +726,20 @@ class BloodStatusBar : RazeStatusBar
 
 	override void UpdateStatusBar(SummaryInfo summary)
 	{
-		int nPalette = 0;
+		TranslationID nPalette = 0;
 		let pPlayer = Blood.GetViewPlayer();
 		int y = 0;
 
 		int nGameType = Blood.getGameType();
 		if (nGameType == 3)
 		{
+			int pal;
 			if (pPlayer.teamId & 1)
-				nPalette = 7;
+				pal = 7;
 			else
-				nPalette = 10;
+				pal = 10;
 
-			nPalette = Translation.MakeID(Translation_Remap, nPalette);
+			nPalette = Translation.MakeID(Translation_Remap, pal);
 		}
 
 		if (hud_size == Hud_Full)
