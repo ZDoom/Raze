@@ -125,7 +125,7 @@ FSavegameInfo GameInterface::GetSaveSig()
 void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 {
 	int mclock = I_GetBuildTime();
-	int color = TRANSLATION(Translation_Remap, playercolor2lookup(playercolor));
+	auto color = TRANSLATION(Translation_Remap, playercolor2lookup(playercolor));
 	auto basetex = TexMan.CheckForTexture("PLAYERWALK", ETextureType::Any);
 	if (!basetex.isValid()) return;
 	// these are normal in-game animations. Duke has 4 frames, RR has 8, each with 5 rotations that must have consecutive IDs.
@@ -136,7 +136,7 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 	double scale = isRR() ? 0.375 : 0.75;
 	double scaley = isRR() ? 0.3 : 0.75;
 
-	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scaley, TAG_DONE);
+	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color.index(), DTA_ScaleX, scale, DTA_ScaleY, scaley, TAG_DONE);
 }
 
 END_DUKE_NS

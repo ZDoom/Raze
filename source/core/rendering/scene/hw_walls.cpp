@@ -189,7 +189,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	SetLightAndFog(di, state, fade, palette, shade, visibility, alpha);
 
-	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette).index(), -1);
 
 	if (Sprite == nullptr)
 	{

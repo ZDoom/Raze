@@ -373,7 +373,7 @@ bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wanti
 				applytint = true;
 				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) useremap = 0;
 			}
-			pick.translation = IsLuminosityTranslation(paletteid)? paletteid : paletteid == 0? 0 : TRANSLATION(usepalette + Translation_Remap, useremap);
+			pick.translation = IsLuminosityTranslation(paletteid)? paletteid : paletteid == 0? 0 : TRANSLATION(usepalette + Translation_Remap, useremap).index();
 		}
 		else pick.translation |= 0x80000000;
 	}

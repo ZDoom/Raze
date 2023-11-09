@@ -57,7 +57,7 @@ F2DDrawer twodpsp;
 void hud_drawsprite(double sx, double sy, double sz, double a, FTextureID texid, int dashade, int dapalnum, int dastat, double alpha)
 {
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
-	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum).index();
 
 	auto tex = TexMan.GetGameTexture(texid, true);
 

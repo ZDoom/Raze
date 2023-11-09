@@ -63,7 +63,7 @@ static void doprecache(FTextureID texid, int palette)
 {
    if ((palette < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(palette))) return;
 
-    int palid = TRANSLATION(Translation_Remap + curbasepal, palette);
+    int palid = TRANSLATION(Translation_Remap + curbasepal, palette).index();
 	auto tex = TexMan.GetGameTexture(texid);
     PrecacheTex(tex, palid);
 

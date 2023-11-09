@@ -115,7 +115,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 
 	if (modelframe == 0)
 	{
-		state.SetMaterial(texture, UF_Texture, 0, CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+		state.SetMaterial(texture, UF_Texture, 0, CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette).index(), -1);
 		state.SetNormal(0, 0, 0);
 
 
@@ -157,7 +157,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 			mr.BeginDrawModel(RenderStyle, nullptr, rotmat, mirrored);
 			TArray<VSMatrix> a;
 			mr.SetupFrame(model, 0, 0, 0, a, 0);
-			model->RenderFrame(&mr, TexMan.GetGameTexture(model->GetPaletteTexture()), 0, 0, 0.f, TRANSLATION(Translation_Remap + curbasepal, palette), nullptr, a, 0);
+			model->RenderFrame(&mr, TexMan.GetGameTexture(model->GetPaletteTexture()), 0, 0, 0.f, TRANSLATION(Translation_Remap + curbasepal, palette).index(), nullptr, a, 0);
 			mr.EndDrawModel(RenderStyle, nullptr);
 			state.SetDepthFunc(DF_Less);
 			state.SetVertexBuffer(screen->mVertexData);
