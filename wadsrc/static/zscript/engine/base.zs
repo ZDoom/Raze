@@ -466,6 +466,7 @@ enum DrawTextureTags
 	DTA_Indexed,			// Use an indexed texture combined with the given translation.
 	DTA_CleanTop,			// Like DTA_Clean but aligns to the top of the screen instead of the center.
 	DTA_NoOffset,			// Ignore 2D drawer's offset.
+	DTA_Localize,		// localize drawn string, for DrawText only
 
 };
 
@@ -645,9 +646,9 @@ struct Font native
 	// native Font(const Name name);
 
 	native int GetCharWidth(int code);
-	native int StringWidth(String code);
-	native int GetMaxAscender(String code);
-	native bool CanPrint(String code);
+	native int StringWidth(String code, bool localize = true);
+	native int GetMaxAscender(String code, bool localize = true);
+	native bool CanPrint(String code, bool localize = true);
 	native int GetHeight();
 	native int GetDisplacement();
 	native String GetCursor();
@@ -756,6 +757,8 @@ class Object native
 	native static double MSTimeF();
 	native vararg static void ThrowAbortException(String fmt, ...);
 
+	native static Function<void> FindFunction(Class<Object> cls, Name fn);
+
 	native virtualscope void Destroy();
 
 	// This does not call into the native method of the same name to avoid problems with objects that get garbage collected late on shutdown.
@@ -862,6 +865,7 @@ struct Wads	// todo: make FileSystem an alias to 'Wads'
 	native static int FindLump(string name, int startlump = 0, FindLumpNamespace ns = GlobalNamespace);
 	native static int FindLumpFullName(string name, int startlump = 0, bool noext = false);
 	native static string ReadLump(int lump);
+	native static int GetLumpLength(int lump);
 
 	native static int GetNumLumps();
 	native static string GetLumpName(int lump);
