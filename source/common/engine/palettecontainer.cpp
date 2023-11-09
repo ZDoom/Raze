@@ -820,4 +820,9 @@ bool FRemapTable::AddColors(int start, int count, const uint8_t*colors, int tran
 
 }
 
+// placeholder
+int R_FindCustomTranslation(FName name)
+{
+	return -1;
+}
 
