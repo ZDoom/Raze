@@ -705,7 +705,7 @@ static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect,
 			if (pact->getOffsetZ() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (!p->insector() || p->cursector->lotag != 1)
+				if (!p->insector() || p->cursector->lotag != ST_1_ABOVE_WATER)
 				{
 					if (p->falling_counter > 62 && !ud.god) quickkill(p);
 
