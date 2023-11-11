@@ -707,7 +707,7 @@ static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect,
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
 				{
-					if (p->falling_counter > 62) quickkill(p);
+					if (p->falling_counter > 62 && !ud.god) quickkill(p);
 
 					else if (p->falling_counter > 9)
 					{
