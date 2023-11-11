@@ -1215,7 +1215,7 @@ static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect,
 			if (pact->getOffsetZ() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (!p->insector() || p->cursector->lotag != 1)
+				if (!p->insector() || p->cursector->lotag != ST_1_ABOVE_WATER)
 				{
 					if (isRRRA()) p->MotoOnGround = 1;
 					if ((p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && p->insector() && p->cursector->lotag == 802)) && !ud.god)
