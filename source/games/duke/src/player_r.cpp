@@ -1218,7 +1218,7 @@ static void movement(DDukePlayer* const p, ESyncBits actions, sectortype* psect,
 				if (!p->insector() || p->cursector->lotag != 1)
 				{
 					if (isRRRA()) p->MotoOnGround = 1;
-					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && p->insector() && p->cursector->lotag == 802))
+					if ((p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && p->insector() && p->cursector->lotag == 802)) && !ud.god)
 						quickkill(p);
 
 					else if (p->falling_counter > 9)
