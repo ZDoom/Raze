@@ -76,6 +76,12 @@ public:
     {
         if (arc.BeginObject(key))
         {
+            arc("freecount", freecount)
+                .Array("freelist", FreeList, size)
+                .Array("data", DataList, size);
+
+            /*
+              
             FixedBitArray<size> check;
 
             if (arc.isWriting())
@@ -95,6 +101,7 @@ public:
                     if (!check[i]) FreeList[freecount++] = i;
                 }
             }
+            */
             arc.EndObject();
         }
     }
