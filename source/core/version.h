@@ -71,15 +71,15 @@ const char *GetVersionString();
 
 #define SAVEGAME_EXT "dsave"
 
-#define MINSAVEVER_DN3D 20
-#define MINSAVEVER_BLD 20
-#define MINSAVEVER_SW 20
-#define MINSAVEVER_PS 20
+#define MINSAVEVER_DN3D 21
+#define MINSAVEVER_BLD 21
+#define MINSAVEVER_SW 21
+#define MINSAVEVER_PS 21
 
-#define SAVEVER_DN3D 20
-#define SAVEVER_BLD 20
-#define SAVEVER_SW 20
-#define SAVEVER_PS 20
+#define SAVEVER_DN3D 21
+#define SAVEVER_BLD 21
+#define SAVEVER_SW 21
+#define SAVEVER_PS 21
 
 #define NETGAMEVERSION 1
 
