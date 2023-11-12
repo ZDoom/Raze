@@ -274,7 +274,7 @@ class BloodAmmoVoodooDoll : BloodAmmoBase
 		pic "AmmoIcon9";
 		shade -8;
 		scale 0.75, 0.75;
-		count 1;
+		count 100;
 		type 9;
 		weapontype 10;
 	}
@@ -286,7 +286,7 @@ class BloodAmmoTommygunDrum : BloodAmmoBase
 		pic "AmmoIcon3";
 		shade -8;
 		scale 0.75, 0.75;
-		count 1;
+		count 100;
 		type 3;
 		weapontype 0;
 	}
