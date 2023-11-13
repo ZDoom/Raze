@@ -27,7 +27,7 @@ class GameInput
 
 	static constexpr double YAW_TURNSPEEDS[3] = { 234.375 * (360. / 2048.), 890.625 * (360. / 2048.), 1548.75 * (360. / 2048.) };
 	static constexpr DVector3 MAXVEL[3] = { { 0., 0., 1. }, { 1., 1., 1. }, { 2., 2., 1. } };
-	static constexpr DRotator MAXANG = { DAngle180 - minAngle, DAngle180 - minAngle, DAngle180 - minAngle };
+	static constexpr DRotator MAXANG = { DAngle90 - minAngle, DAngle180 - minAngle, DAngle180 - minAngle };
 	static constexpr DAngle MOUSE_SCALE = DAngle::fromDeg(1. / 16.);
 
 	// Input received from the OS.
