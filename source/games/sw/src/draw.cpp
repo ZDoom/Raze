@@ -107,11 +107,11 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& vie
     tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
 
-    if (!ownerActor->hasU() || ownerActor->user.__legacyState.State == nullptr)
+    if (!ownerActor->hasU() || ownerActor->user.State == nullptr)
         return 0;
 
-    unsigned sprite = ownerActor->user.__legacyState.State->sprite;
-    unsigned frame = ownerActor->user.__legacyState.State->Frame - 'A';
+    unsigned sprite = ownerActor->user.State->sprite;
+    unsigned frame = ownerActor->user.State->Frame - 'A';
 
     if (SpriteDefs.Size() <= sprite) return 0;
     auto spdef = &SpriteDefs[sprite];
@@ -479,9 +479,9 @@ void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
     if (abs(zdiff) > 24)
     {
         if (tActor->user.__legacyState.StateStart == s_StarStuck)
-            tsp->setspritetexture(picFromState(&s_StarDownStuck[tActor->user.__legacyState.State - s_StarStuck]));
+            tsp->setspritetexture(picFromState(&s_StarDownStuck[tActor->user.State - s_StarStuck]));
         else
-            tsp->setspritetexture(picFromState(&s_StarDown[tActor->user.__legacyState.State - s_Star]));
+            tsp->setspritetexture(picFromState(&s_StarDown[tActor->user.State - s_Star]));
 
         if (zdiff > 0)
             tsp->cstat |= (CSTAT_SPRITE_YFLIP);
@@ -1059,7 +1059,7 @@ void PreDrawStackedWater(void)
 
                     // copy everything reasonable from the user that
                     // analyzesprites() needs to draw the image
-                    actorNew->user.__legacyState.State = itActor2->user.__legacyState.State;
+                    actorNew->user.State = itActor2->user.State;
                     actorNew->user.__legacyState.Rot = itActor2->user.__legacyState.Rot;
                     actorNew->user.__legacyState.StateStart = itActor2->user.__legacyState.StateStart;
                     actorNew->user.__legacyState.StateEnd = itActor2->user.__legacyState.StateEnd;

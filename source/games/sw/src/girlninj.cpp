@@ -156,7 +156,7 @@ FState s_GirlNinjaRise[] =
         {SPR_GIRLNINJA_STAND, 'A', GIRLNINJA_STAND_RATE, &AF(NullGirlNinja), &s_GirlNinjaRise[2]},
         {SPR_NULL, 0, 0, nullptr, &s_GirlNinjaRun[0]},  // JBF: s_GirlNinjaRun really is supposed to be the
         // pointer to the state group. See StateControl() where
-        // it says "if (!actor->user.__legacyState.State->Pic)".
+        // it says "if (!actor->user.State->Pic)".
 };
 
 

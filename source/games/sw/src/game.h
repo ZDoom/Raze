@@ -706,9 +706,10 @@ struct USER
     VMFunction* ActorActionFunc;
     PERSONALITY* Personality;
 
+    FState* State;
+
     struct LegacyState
     {
-        FState* State;
         FState* Rot;
         FState* StateStart;
         FState* StateEnd;

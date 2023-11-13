@@ -1544,7 +1544,7 @@ void SpawnPlayerUnderSprite(DSWPlayer* pp)
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 
-    actor->user.__legacyState.State = plActor->user.__legacyState.State;
+    actor->user.State = plActor->user.State;
     NewStateGroup(pp->PlayerUnderActor, plActor->user.__legacyState.Rot);
 
     actor->user.Radius = plActor->user.Radius;

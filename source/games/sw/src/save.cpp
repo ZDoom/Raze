@@ -593,13 +593,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	if (arc.BeginObject(keyname))
 	{
 		// The default serializer cannot handle the statically defined states so call these functons explicitly.
-		_Serialize(arc, "State", w.__legacyState.State, &def->__legacyState.State);
+		_Serialize(arc, "State", w.State, &def->State);
 		_Serialize(arc, "Rot", w.__legacyState.Rot, &def->__legacyState.Rot);
 		_Serialize(arc, "StateStart", w.__legacyState.StateStart, &def->__legacyState.StateStart);
 		_Serialize(arc, "StateEnd", w.__legacyState.StateEnd, &def->__legacyState.StateEnd);
 		_Serialize(arc, "StateFallOverride", w.__legacyState.StateFallOverride, &def->__legacyState.StateFallOverride);
 		/*
-			("State", w.__legacyState.State, def->__legacyState.State)
+			("State", w.State, def->State)
 			("Rot", w.__legacyState.Rot, def->__legacyState.Rot)
 			("StateStart", w.__legacyState.StateStart, def->__legacyState.StateStart)
 			("StateEnd", w.__legacyState.StateEnd, def->__legacyState.StateEnd)
