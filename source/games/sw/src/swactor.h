@@ -64,7 +64,7 @@ public:
 	bool hasState(FName label, int substate = 0);
 	void callAction();
 	void callStateAction();
-	void setPicFromState() { spr.setspritetexture(picFromState(user.__legacyState.State)); }
+	void setPicFromState() { spr.setspritetexture(picFromState(user.State)); }
 };
 
 inline void UpdateChangeXY(DSWActor* actor)

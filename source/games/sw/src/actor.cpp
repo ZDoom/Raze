@@ -1086,7 +1086,7 @@ void DSWActor::callAction()
 
 void DSWActor::callStateAction()
 {
-    user.__legacyState.State->CallAction(this);
+    user.State->CallAction(this);
 }
 
 END_SW_NS

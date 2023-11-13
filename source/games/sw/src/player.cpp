@@ -1117,7 +1117,7 @@ void UpdatePlayerUnderSprite(DSWPlayer* pp)
     // add diff to ceiling
     act_under->spr.pos.Z = act_under->sector()->ceilingz + zdiff;
 
-    act_under->user.__legacyState.State = act_over->user.__legacyState.State;
+    act_under->user.State = act_over->user.State;
     act_under->user.__legacyState.Rot = act_over->user.__legacyState.Rot;
     act_under->user.__legacyState.StateStart = act_over->user.__legacyState.StateStart;
     act_under->spr.setspritetexture(act_over->spr.spritetexture());
@@ -5889,31 +5889,31 @@ void PlayerStateControl(DSWActor* actor)
     actor->user.Tics += synctics;
 
     // Skip states if too much time has passed
-    while (actor->user.Tics >= (actor->user.__legacyState.State->Tics & SF_TICS_MASK))
+    while (actor->user.Tics >= (actor->user.State->Tics & SF_TICS_MASK))
     {
 
         // Set Tics
-        actor->user.Tics -= (actor->user.__legacyState.State->Tics & SF_TICS_MASK);
+        actor->user.Tics -= (actor->user.State->Tics & SF_TICS_MASK);
 
         // Transition to the next state
-        actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
+        actor->user.State = actor->user.State->NextState;
 
         // !JIM! Added this so I can do quick calls in player states!
         // Need this in order for floor blood and footprints to not get called more than once.
-        while ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
+        while ((actor->user.State->Tics & SF_QUICK_CALL))
         {
             // Call it once and go to the next state
             actor->callStateAction();
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
-                actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
+            if ((actor->user.State->Tics & SF_QUICK_CALL))
+                actor->user.State = actor->user.State->NextState;
         }
 
-        if (actor->user.__legacyState.State->sprite == SPR_NULL)
+        if (actor->user.State->sprite == SPR_NULL)
         {
-            NewStateGroup(actor, actor->user.__legacyState.State->NextState);
+            NewStateGroup(actor, actor->user.State->NextState);
         }
     }
 
@@ -5921,7 +5921,7 @@ void PlayerStateControl(DSWActor* actor)
     actor->setPicFromState();
 
     // Call the correct animator
-    if ((actor->user.__legacyState.State->Tics & SF_PLAYER_FUNC))
+    if ((actor->user.State->Tics & SF_PLAYER_FUNC))
         actor->callStateAction();
 
     return;

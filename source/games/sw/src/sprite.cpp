@@ -690,7 +690,7 @@ void ChangeState(DSWActor* actor, FState* statep)
         return;
 
     actor->user.Tics = 0;
-    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = statep;
+    actor->user.State = actor->user.__legacyState.StateStart = statep;
     actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE; // just in case
 }
 
@@ -761,7 +761,7 @@ void SpawnUser(DSWActor* actor, short id, FState* state)
     PRODUCTION_ASSERT(actor->hasU());
 
     // be careful State can be nullptr
-    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = state;
+    actor->user.State = actor->user.__legacyState.StateStart = state;
 
     change_actor_stat(actor, actor->spr.statnum);
 
@@ -822,7 +822,7 @@ DSWActor* SpawnActor(int stat, int id, FState* state, sectortype* sect, const DV
     SpawnUser(spawnedActor, id, state);
 
     // be careful State can be nullptr
-    if (spawnedActor->user.__legacyState.State)
+    if (spawnedActor->user.State)
     {
         spawnedActor->setPicFromState();
         spawnedActor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE; // just in case
@@ -4198,11 +4198,11 @@ int NewStateGroup(DSWActor* actor, FState* StateGroup)
 
     // Kind of a goofy check, but it should catch alot of invalid states!
 
-    if (actor->user.__legacyState.State && (actor->user.__legacyState.State->sprite < 0 || actor->user.__legacyState.State->sprite > SPR_MAX))    // JBF: verify this!
+    if (actor->user.State && (actor->user.State->sprite < 0 || actor->user.State->sprite > SPR_MAX))    // JBF: verify this!
         return 0;
 
     actor->user.__legacyState.Rot = StateGroup;
-    actor->user.__legacyState.State = actor->user.__legacyState.StateStart = StateGroup;
+    actor->user.State = actor->user.__legacyState.StateStart = StateGroup;
 
     actor->user.Tics = 0;
 
@@ -4698,18 +4698,18 @@ int DoCoin(DSWActor* actor)
     {
         if (actor->user.__legacyState.StateStart != s_GreenCoin)
         {
-            offset = int(actor->user.__legacyState.State - actor->user.__legacyState.StateStart);
+            offset = int(actor->user.State - actor->user.__legacyState.StateStart);
             ChangeState(actor, s_GreenCoin);
-            actor->user.__legacyState.State = actor->user.__legacyState.StateStart + offset;
+            actor->user.State = actor->user.__legacyState.StateStart + offset;
         }
     }
     else if (actor->user.WaitTics < 20*120)
     {
         if (actor->user.__legacyState.StateStart != s_YellowCoin)
         {
-            offset = int(actor->user.__legacyState.State - actor->user.__legacyState.StateStart);
+            offset = int(actor->user.State - actor->user.__legacyState.StateStart);
             ChangeState(actor, s_YellowCoin);
-            actor->user.__legacyState.State = actor->user.__legacyState.StateStart + offset;
+            actor->user.State = actor->user.__legacyState.StateStart + offset;
         }
     }
 
@@ -5918,7 +5918,7 @@ int  StateControl(DSWActor* actor)
 {
     short StateTics;
 
-    if (!actor->user.__legacyState.State)
+    if (!actor->user.State)
     {
         actor->callAction();
         return 0;
@@ -5930,11 +5930,11 @@ int  StateControl(DSWActor* actor)
         actor->user.Tics += ACTORMOVETICS;
 
     // Skip states if too much time has passed
-    while (actor->user.Tics >= (actor->user.__legacyState.State->Tics & SF_TICS_MASK))
+    while (actor->user.Tics >= (actor->user.State->Tics & SF_TICS_MASK))
     {
-        StateTics = (actor->user.__legacyState.State->Tics & SF_TICS_MASK);
+        StateTics = (actor->user.State->Tics & SF_TICS_MASK);
 
-        if ((actor->user.__legacyState.State->Tics & SF_TIC_ADJUST))
+        if ((actor->user.State->Tics & SF_TIC_ADJUST))
         {
             ASSERT(actor->user.__legacyState.Attrib);
             ASSERT(actor->user.speed < MAX_SPEED);
@@ -5947,10 +5947,10 @@ int  StateControl(DSWActor* actor)
         actor->user.Tics -= StateTics;
 
         // Transition to the next state
-        actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
+        actor->user.State = actor->user.State->NextState;
 
         // Look for flags embedded into the Tics variable
-        while ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
+        while ((actor->user.State->Tics & SF_QUICK_CALL))
         {
             // Call it once and go to the next state
             actor->callStateAction();
@@ -5962,27 +5962,27 @@ int  StateControl(DSWActor* actor)
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
-            if ((actor->user.__legacyState.State->Tics & SF_QUICK_CALL))
-                actor->user.__legacyState.State = actor->user.__legacyState.State->NextState;
+            if ((actor->user.State->Tics & SF_QUICK_CALL))
+                actor->user.State = actor->user.State->NextState;
         }
 
         if (!actor->hasU())
             break;
 
-        if (actor->user.__legacyState.State->sprite == SPR_NULL)
+        if (actor->user.State->sprite == SPR_NULL)
         {
-            NewStateGroup(actor, actor->user.__legacyState.State->NextState);
+            NewStateGroup(actor, actor->user.State->NextState);
         }
     }
 
     if (actor->hasU())
     {
-        ASSERT(actor->user.__legacyState.State);
+        ASSERT(actor->user.State);
         // Set the correct pic
-        if ((actor->user.__legacyState.State->Tics & SF_WALL_STATE)) // never used anywhere...
+        if ((actor->user.State->Tics & SF_WALL_STATE)) // never used anywhere...
         {
             ASSERT(actor->user.WallP);
-            actor->user.WallP->setwalltexture(picFromState(actor->user.__legacyState.State));
+            actor->user.WallP->setwalltexture(picFromState(actor->user.State));
         }
         else
         {

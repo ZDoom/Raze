@@ -604,7 +604,7 @@ int DoRipperHang(DSWActor* actor)
 
     NewStateGroup(actor, s_RipperJumpAttack);
     // move to the 2nd frame - past the pause frame
-    actor->user.Tics += actor->user.__legacyState.State->Tics;
+    actor->user.Tics += actor->user.State->Tics;
     return 0;
 }
 
