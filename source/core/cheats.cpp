@@ -254,7 +254,7 @@ void ChangeLevel(MapRecord* map, int skill, bool bossexit)
 	Net_WriteByte(DEM_CHANGEMAP);
 	Net_WriteByte(skill);
 	Net_WriteByte(bossexit);
-	Net_WriteString(map? map->labelName.GetChars() : nullptr);
+	Net_WriteString(map? map->labelName.GetChars() : "");
 }
 
 //---------------------------------------------------------------------------
