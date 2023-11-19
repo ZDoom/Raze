@@ -14,7 +14,7 @@ protected:
 	void Clear()
 	{
 		CameraAngles = PrevLerpAngles = PrevViewAngles = ViewAngles = {};
-		PrevStrafeVel = StrafeVel = 0;
+		PrevRollVel = RollVel = 0;
 		YawSpin = nullAngle;
 		CameraPos = {};
 		memset(&lastcmd, 0, sizeof(lastcmd));
@@ -26,7 +26,7 @@ protected:
 public:
 	DRotator PrevLerpAngles, CameraAngles;
 	DRotator PrevViewAngles, ViewAngles;
-	double PrevStrafeVel, StrafeVel;
+	double PrevRollVel, RollVel;
 	DAngle YawSpin;
 	DVector3 CameraPos;
 	ticcmd_t lastcmd, cmd;
@@ -56,7 +56,7 @@ public:
 	{
 		PrevLerpAngles = CameraAngles = actor->spr.Angles;
 		PrevViewAngles = ViewAngles = { nullAngle, viewyaw, nullAngle };
-		PrevStrafeVel = StrafeVel = 0;
+		PrevRollVel = RollVel = 0;
 		YawSpin = nullAngle;
 	}
 

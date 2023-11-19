@@ -6055,7 +6055,7 @@ static void actCheckDudes()
 				nDrag -= Scale(nDrag, (double)actor->xspr.height, 256.);
 
 			pPlayer->doRollInput(false);
-			pPlayer->StrafeVel -= pPlayer->StrafeVel * nDrag;
+			pPlayer->RollVel -= pPlayer->RollVel * nDrag;
 		}
 
 		if ((actor->spr.flags & 4) || !actor->vel.isZero() || actor->sector()->velFloor || actor->sector()->velCeil)

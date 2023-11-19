@@ -249,7 +249,7 @@ void DCorePlayer::doRollInput(const bool bUnderwater)
 		else if (cl_viewtilting == 2)
 		{
 			// Quake-like strafe rolling. Adjustment == (90/48) for running keyboard strafe.
-			const auto rollAdj = StrafeVel * strafeScale * rollAmp;
+			const auto rollAdj = RollVel * strafeScale * rollAmp;
 			const auto rollMax = nMaxVel * runScale * cl_viewtiltscale;
 			actor->spr.Angles.Roll = DAngle::fromDeg(clamp(rollAdj, -rollMax, rollMax) * (1.875 / nMaxVel));
 		}

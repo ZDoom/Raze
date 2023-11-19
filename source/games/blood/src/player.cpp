@@ -1567,7 +1567,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		pInput->vel.X *= pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		pInput->vel.Y *= pPosture->sideAccel;
 		actor->vel.XY() += pInput->vel.XY().Rotated(actor->spr.Angles.Yaw) * speed;
-		pPlayer->StrafeVel += pInput->vel.Y * speed;
+		pPlayer->RollVel += pInput->vel.Y * speed;
 	}
 
 	pPlayer->doViewYaw();

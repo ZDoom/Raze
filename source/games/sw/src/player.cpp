@@ -1851,10 +1851,10 @@ void DoPlayerMove(DSWPlayer* pp)
     DoPlayerSlide(pp);
 
     pp->ovect = pp->vect;
-    pp->PrevStrafeVel = pp->StrafeVel;
+    pp->PrevRollVel = pp->RollVel;
 
     pp->vect += pp->cmd.ucmd.vel.XY() * INPUT_SCALE;
-    pp->StrafeVel += pp->svel * INPUT_SCALE;
+    pp->RollVel += pp->svel * INPUT_SCALE;
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -1863,25 +1863,25 @@ void DoPlayerMove(DSWPlayer* pp)
     }
 
 	pp->vect *= FixedToFloat(friction);
-    pp->StrafeVel *= FixedToFloat(friction);
+    pp->RollVel *= FixedToFloat(friction);
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
         pp->vect = (pp->vect + (pp->ovect*1))/2;
-        pp->StrafeVel = (pp->StrafeVel + (pp->PrevStrafeVel*1))/2;
+        pp->RollVel = (pp->RollVel + (pp->PrevRollVel*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
         pp->vect = (pp->vect + (pp->ovect*2))/3;
-        pp->StrafeVel = (pp->StrafeVel + (pp->PrevStrafeVel*2))/3;
+        pp->RollVel = (pp->RollVel + (pp->PrevRollVel*2))/3;
     }
 
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
     {
         pp->vect.Zero();
-        pp->StrafeVel = 0;
+        pp->RollVel = 0;
     }
 
 	actor->vel.X = pp->vect.Length();

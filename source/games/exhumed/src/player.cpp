@@ -1094,8 +1094,8 @@ static void updatePlayerVelocity(DExhumedPlayer* const pPlayer)
         {
             pPlayerActor->vel.XY() += inputvect;
             pPlayerActor->vel.XY() *= 0.953125;
-            pPlayer->StrafeVel += pInput->vel.Y * 0.375;
-            pPlayer->StrafeVel *= 0.953125;
+            pPlayer->RollVel += pInput->vel.Y * 0.375;
+            pPlayer->RollVel *= 0.953125;
         }
     }
 
@@ -1103,7 +1103,7 @@ static void updatePlayerVelocity(DExhumedPlayer* const pPlayer)
     {
         pPlayerActor->vel.XY().Zero();
         pPlayer->nIdxBobZ = 0;
-        pPlayer->StrafeVel = 0;
+        pPlayer->RollVel = 0;
     }
 }
 

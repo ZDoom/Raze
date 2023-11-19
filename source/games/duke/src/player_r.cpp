@@ -2276,7 +2276,7 @@ void processinput_r(DDukePlayer* const p)
 	ESyncBits& actions = p->cmd.ucmd.actions;
 
 	// Get strafe value before it's rotated by the angle.
-	const auto strafeVel = p->cmd.ucmd.vel.Y;
+	const auto RollVel = p->cmd.ucmd.vel.Y;
 
 	auto psectp = p->cursector;
 	if (p->OnMotorcycle && pact->spr.extra > 0)
@@ -2625,24 +2625,24 @@ void processinput_r(DDukePlayer* const p)
 			doubvel <<= 1;
 
 		p->vel.XY() += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
-		p->StrafeVel += strafeVel * doubvel * (5. / 16.);
+		p->RollVel += RollVel * doubvel * (5. / 16.);
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
 			p->vel.XY() *= gs.playerfriction - 0.125;
-			p->StrafeVel *= gs.playerfriction - 0.125;
+			p->RollVel *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
 				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
-				p->StrafeVel *= gs.playerfriction - FixedToFloat(0x1400);
+				p->RollVel *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
-				p->StrafeVel *= gs.playerfriction;
+				p->RollVel *= gs.playerfriction;
 			}
 		}
 
@@ -2664,7 +2664,7 @@ void processinput_r(DDukePlayer* const p)
 			else
 			{
 				p->vel.XY() *= gs.playerfriction;
-				p->StrafeVel *= gs.playerfriction;
+				p->RollVel *= gs.playerfriction;
 			}
 		}
 		else if (tilesurface(psectp->floortexture) == TSURF_MUDDY)
@@ -2674,7 +2674,7 @@ void processinput_r(DDukePlayer* const p)
 				if (p->on_ground)
 				{
 					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
-					p->StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
+					p->RollVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 			}
 			else
@@ -2683,20 +2683,20 @@ void processinput_r(DDukePlayer* const p)
 				else
 				{
 					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
-					p->StrafeVel *= gs.playerfriction - FixedToFloat(0x1800);
+					p->RollVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 		}
 
 		if (abs(p->vel.X) < 1 / 128. && abs(p->vel.Y) < 1 / 128.)
 		{
 			p->vel.X = p->vel.Y = 0;
-			p->StrafeVel = 0;
+			p->RollVel = 0;
 		}
 
 		if (shrunk)
 		{
 			p->vel.XY() *= gs.playerfriction * 0.75;
-			p->StrafeVel *= gs.playerfriction * 0.75;
+			p->RollVel *= gs.playerfriction * 0.75;
 		}
 	}
 
