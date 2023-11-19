@@ -437,7 +437,6 @@ void GameInterface::Ticker()
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			const auto pPlayer = getPlayer(i);
-			pPlayer->resetCameraAngles();
 			viewBackupView(pPlayer);
 			playerProcess(pPlayer);
 		}

@@ -174,11 +174,6 @@ bool ReadSavegame(const char* name)
 		arc.Close();
 		delete savereader;
 
-		// this can only be done after the load is complete
-		for (auto pl : PlayerArray)
-		{
-			pl->resetCameraAngles();
-		}
 		ResetStatusBar();
 		return true;
 	}

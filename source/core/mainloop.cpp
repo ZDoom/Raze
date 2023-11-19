@@ -315,6 +315,7 @@ static void GameTicker()
 			ticcmd_t* cmd = &PlayerArray[i]->cmd;
 			ticcmd_t* newcmd = &netcmds[i][buf];
 			PlayerArray[i]->lastcmd = *cmd;
+			PlayerArray[i]->resetCameraAngles();
 
 			if ((gametic % ticdup) == 0)
 			{

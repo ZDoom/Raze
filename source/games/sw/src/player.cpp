@@ -6462,7 +6462,6 @@ void MoveSkipSavePos(void)
     {
         pp = getPlayer(pnum);
 
-        pp->resetCameraAngles();
         pp->GetActor()->backuploc();
         pp->obob_z = pp->bob_z;
         pp->opbob_amt = pp->pbob_amt;
