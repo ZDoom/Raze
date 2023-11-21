@@ -147,9 +147,13 @@ FState s_RadiationCloud[] =
 
 #define CHEMBOMB_RATE 8
 
-FState s_ChemBomb[1] =
+FState s_ChemBomb[5] =
 {
-    {SPR_CHEMBOMB, 'A', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[1]},
+    {SPR_CHEMBOMB, 'A', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[0]},
+    {SPR_CHEMBOMB, 'B', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[1]},
+    {SPR_CHEMBOMB, 'C', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[2]},
+    {SPR_CHEMBOMB, 'D', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[3]},
+    {SPR_CHEMBOMB, 'E', CHEMBOMB_RATE, &AF(DoChemBomb), &s_ChemBomb[0]},
 };
 
 

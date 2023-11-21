@@ -5981,8 +5981,8 @@ int  StateControl(DSWActor* actor)
         // Set the correct pic
         if ((actor->user.State->Tics & SF_WALL_STATE)) // never used anywhere...
         {
-            ASSERT(actor->user.WallP);
-            actor->user.WallP->setwalltexture(picFromState(actor->user.State));
+            if (actor->user.WallP)
+                actor->user.WallP->setwalltexture(picFromState(actor->user.State));
         }
         else
         {
