@@ -433,6 +433,15 @@ static saveable_data saveable_zilla_data[] =
     SAVE_DATA(ZillaAttrib),
 
     SAVE_DATA(ZillaActionSet),
+
+    SAVE_DATA(s_ZillaRun),
+    SAVE_DATA(s_ZillaStand),
+    SAVE_DATA(s_ZillaPain),
+    SAVE_DATA(s_ZillaRail),
+    SAVE_DATA(s_ZillaRocket),
+    SAVE_DATA(s_ZillaUzi),
+    SAVE_DATA(s_ZillaDie)
+
 };
 
 saveable_module saveable_zilla =
