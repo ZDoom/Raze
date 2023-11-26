@@ -694,12 +694,12 @@ FState s_Laser[] =
 
 FState s_Micro[] =
 {
-        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicro), &s_Micro[0]},
+        {SPR_ROCKET, 'A', MICRO_RATE, &AF(DoMicro), &s_Micro[0]},
 };
 
 FState s_MicroMini[] =
 {
-        {SPR_MICRO, 'A', MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[0]},
+        {SPR_ROCKET, 'A', MICRO_RATE, &AF(DoMicroMini), &s_MicroMini[0]},
 };
 
 //////////////////////
