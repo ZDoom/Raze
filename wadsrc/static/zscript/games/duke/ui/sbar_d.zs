@@ -534,7 +534,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		{
 			if (p.got_access & (1 << i))
 			{
-				static const int translations[] = { 8, 23, 21 };
+				static const int translations[] = { 0, 21, 23 };
 				stats.keyicons.Push("ACCESSCARD");
 				stats.keytranslations.Push(Translation.MakeID(Translation_Remap, translations[i]));
 			}
