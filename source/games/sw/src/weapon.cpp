@@ -14806,7 +14806,7 @@ int InitUzi(DSWPlayer* pp)
     else
     {
         daang = pp->GetActor()->spr.Angles.Yaw + mapangle(RandomRange(24) - 12);
-        setFreeAimVelocity(dax, daz, pp->getPitchWithView(), 1000. - (RandomRangeF(24000/256.) - 12000/256.));
+        setFreeAimVelocity(dax, daz, pp->getPitchWithView(), 1000. + (RandomRangeF(24000 / 16.) - 12000 / 16.));
     }
 
     DVector3 vect(daang.ToVector() * dax, daz);
