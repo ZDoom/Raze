@@ -142,24 +142,6 @@ FState s_CoolgStand[] =
 
 //////////////////////
 //
-// COOLG CLUB
-//
-//////////////////////
-
-#define COOLG_RATE 16
-
-FState s_CoolgClub[] =
-{
-        {SPR_COOLG_CLUB, 'A', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[1]},
-        {SPR_COOLG_RUN, 'A', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[2]},
-        {SPR_COOLG_CLUB, 'B', 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[3]},
-        {SPR_COOLG_CLUB, 'B', COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[4]},
-        {SPR_COOLG_CLUB, 'B', 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[5]},
-        {SPR_COOLG_CLUB, 'B', COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[5]}
-};
-
-//////////////////////
-//
 // COOLG FIRE
 //
 //////////////////////
@@ -281,7 +263,6 @@ ACTOR_ACTION_SET CoolgActionSet =
     s_CoolgDead,
     nullptr,
     nullptr,
-//  {s_CoolgClub},
     {s_CoolgAttack},
     {1024},
     {s_CoolgAttack},
@@ -745,7 +726,6 @@ static saveable_data saveable_coolg_data[] =
 
     SAVE_DATA(s_CoolgRun),
     SAVE_DATA(s_CoolgStand),
-    SAVE_DATA(s_CoolgClub),
     SAVE_DATA(s_CoolgAttack),
     SAVE_DATA(s_CoolgPain),
     SAVE_DATA(s_CoolgDie),

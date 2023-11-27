@@ -1624,6 +1624,22 @@ void FTextureManager::Listaliases()
 	}
 }
 
+FString FTextureManager::Listaliases(FTextureID id)
+{
+	decltype(aliases)::Iterator it(aliases);
+	decltype(aliases)::Pair* pair;
+
+	FString list;
+	while (it.NextPair(pair))
+	{
+		if (pair->Value != id.GetIndex()) continue;
+		auto tex = GetGameTexture(pair->Value);
+		if (list.IsNotEmpty()) list += ", ";
+		list += pair->Key.GetChars();
+	}
+	return list;
+}
+
 //==========================================================================
 //
 // link a texture with a given lump

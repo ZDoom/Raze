@@ -176,7 +176,7 @@ FState s_GoroSpell[] =
 
 FState s_GoroStand[] =
 {
-        {SPR_GORO_STAND, 'A', GORO_STAND_RATE, &AF(DoGoroMove), &s_GoroStand[0]},
+        {SPR_GORO_CHOP, 'A', GORO_STAND_RATE, &AF(DoGoroMove), &s_GoroStand[0]},
 };
 
 
@@ -190,7 +190,7 @@ FState s_GoroStand[] =
 
 FState s_GoroPain[] =
 {
-        {SPR_GORO_STAND, 'A', GORO_PAIN_RATE, &AF(DoGoroPain), &s_GoroPain[0]},
+        {SPR_GORO_CHOP, 'A', GORO_PAIN_RATE, &AF(DoGoroPain), &s_GoroPain[0]},
 };
 
 
