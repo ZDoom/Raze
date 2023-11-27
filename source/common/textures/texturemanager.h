@@ -77,6 +77,7 @@ public:
 
 	void FlushAll();
 	void Listaliases();
+	FString Listaliases(FTextureID);
 	FTextureID GetFrontSkyLayer(FTextureID);
 	FTextureID GetRawTexture(FTextureID tex, bool dontlookup = false);
 	void SetRawTexture(FTextureID texid) 

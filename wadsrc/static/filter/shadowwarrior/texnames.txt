@@ -1,5 +1,5 @@
 4550 = "BUNNY_RUN", 5, 5, 1 // # of animation frames, # of rotations per frame (either 1, 5, 8), 1: order is frames first, rotation second. Generated name will be "BUNNY_RUN@A1" and up (A = frame, 1 = rotation) - The first frame will also get the base name.
-4575 = "BUNNY_SWIPE", 5, 5, 1
+4575 = "BUNNY_SWIPE", 5
 4580 = "BUNNY_DIE", 3
 4584 = "BUNNY_DEAD"
 
@@ -10,7 +10,7 @@
 
 4307 = "COOLG_DIE", 6
 4312 = "COOLG_DEAD"
-4268 = "COOLG_BIRTH", 8
+4268 = "COOLG_BIRTH", 9
 
 1420 = "COOLIE_CHARGE", 4, 5, 1
 1400 = "COOLIE_RUN", 4, 5, 1
@@ -39,8 +39,7 @@
 4236 = "GIRLNINJA_DEAD_SLICED"
 
 1469 = "GORO_RUN", 4, 5, 1
-1489 = "GORO_CHOP", 3, 5, 1
-1489 = "GORO_STAND", 1, 5, 3
+1489 = "GORO_CHOP", 3, 3, 1, "GORO_RUN"
 1513 = "GORO_SPELL", 2, 3, 1, "GORO_RUN"
 1504 = "GORO_DIE", 9
 1512 = "GORO_DEAD"
@@ -151,7 +150,7 @@
 4369 = RIPPER2_HANG, 1, 5, 1
 4394 = RIPPER2_SWIPE, 4, 5, 1
 4360 = RIPPER2_MEKONG, 3, 5, 1
-4422 = RIPPER2_HEART, 2, 5, 1
+4422 = RIPPER2_HEART, 2
 4414 = RIPPER2_DIE, 8
 4421 = RIPPER2_DEAD
 
@@ -198,7 +197,6 @@
 1270 = SUMO_DIE, 8
 1277 = SUMO_DEAD
 
-2323 = NOTRESTORED
 1 = SUICIDES
 1160 = DEADLOWANG
 
@@ -335,12 +333,12 @@
 2503 = WALLBLOOD4
 
 
-5426 = ZILLA_RUN, 4, 5, 1
-5524 = ZILLA_PAIN, 2, 5, 1
-5446 = ZILLA_ROCKET, 4, 5, 1
-5466 = ZILLA_RAIL, 4, 5, 1
-5506 = ZILLA_SHOOT, 4, 5, 1
-5486 = ZILLA_RECHARGE, 4, 5, 1
+5426 = ZILLA_RUN, 4, 5, -1
+5524 = ZILLA_PAIN, 1, 5, -1
+5446 = ZILLA_ROCKET, 4, 5, -1
+5466 = ZILLA_RAIL, 4, 5, -1
+5506 = ZILLA_SHOOT, 4, 5, -1
+5486 = ZILLA_RECHARGE, 4, 5, -1
 5510 = ZILLA_DIE, 9
 5518 = ZILLA_DEAD
 
@@ -366,22 +364,6 @@
 
 4050 = FIST2_REST                  
 4058 = FIST2_SWING_ALT             
-
-4060 = FIST3_REST                  
-4061 = FIST3_SWING0                
-4062 = FIST3_SWING1                
-4063 = FIST3_SWING2                
-
-4064 = BLOODYFIST3_REST            
-4065 = BLOODYFIST3_SWING0          
-4066 = BLOODYFIST3_SWING1          
-4067 = BLOODYFIST3_SWING2          
-
-4080 = KICK0                       
-4081 = KICK1                       
-
-4082 = BLOODYKICK0                 
-4083 = BLOODYKICK1                 
 
 2130 = STAR_REST                   
 2131 = STAR_DOWN0                  
@@ -452,12 +434,11 @@
 
 2048 = HOTHEAD_REST                
 2049 = HOTHEAD_ATTACK              
-2327 = HOTHEAD_CENTER              
 2314 = HOTHEAD_TURN0               
-2315 = HOTHEAD_TURN1               
-2316 = HOTHEAD_TURN2               
-2317 = HOTHEAD_TURN3               
-2318 = HOTHEAD_CHOMP               
+2315 = HOTHEAD_TURN1
+2316 = HOTHEAD_TURN2
+2317 = HOTHEAD_TURN3
+2318 = HOTHEAD_CHOMP
 
 3157 = ON_FIRE0                    
 3158 = ON_FIRE1                    

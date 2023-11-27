@@ -400,12 +400,56 @@ void DrawOverlays()
 	DrawRateStuff();
 }
 
+static void doDrawTile(const char* texname)
+{
+	auto tex = TexMan.CheckForTexture(texname, ETextureType::Any);
+	if (!tex.isValid()) tex = tileGetTextureID(atoi(texname));
+	if (tex.isValid())
+	{
+		auto tx = TexMan.GetGameTexture(tex, true);
+		if (tx)
+		{
+			int width = (int)tx->GetDisplayWidth();
+			int height = (int)tx->GetDisplayHeight();
+			int dwidth, dheight;
+			if (width > height)
+			{
+				dwidth = screen->GetWidth() / 4;
+				dheight = height * dwidth / width;
+			}
+			else
+			{
+				dheight = screen->GetHeight() / 4;
+				dwidth = width * dheight / height;
+			}
+			DrawText(twod, SmallFont, CR_CYAN, 0, 5, FStringf("Displaying %s %s", texname, TexMan.Listaliases(tex).GetChars()).GetChars(), DTA_KeepRatio, true, TAG_DONE);
+			DrawTexture(twod, tx, 0, 30, DTA_DestWidth, dwidth, DTA_DestHeight, dheight, TAG_DONE);
+		}
+	}
+
+}
 //==========================================================================
 //
 // Display
 //
 //==========================================================================
 CVAR(String, drawtile, "", 0)	// debug stuff. Draws the tile with the given number on top of thze HUD
+
+CCMD(nexttile)
+{
+	do
+	{
+		*(drawtile.get()) = FStringf("#%05d", atoi(*drawtile + 1) + 1).GetChars();
+	} while (TexMan.CheckForTexture(*drawtile, ETextureType::Any).isNull());
+}
+
+CCMD(prevtile)
+{
+	do
+	{
+		*(drawtile.get()) = FStringf("#%05d", atoi(*drawtile + 1) - 1).GetChars();
+	} while (TexMan.CheckForTexture(*drawtile, ETextureType::Any).isNull());
+}
 
 void Display()
 {
@@ -466,29 +510,7 @@ void Display()
 		DrawOverlays();
 		if (drawtile[0])
 		{
-			auto tex = TexMan.CheckForTexture(drawtile, ETextureType::Any);
-			if (!tex.isValid()) tex = tileGetTextureID(atoi(drawtile));
-			if (tex.isValid())
-			{
-				auto tx = TexMan.GetGameTexture(tex, true);
-				if (tx)
-				{
-					int width = (int)tx->GetDisplayWidth();
-					int height = (int)tx->GetDisplayHeight();
-					int dwidth, dheight;
-					if (width > height)
-					{
-						dwidth = screen->GetWidth() / 4;
-						dheight = height * dwidth / width;
-					}
-					else
-					{
-						dheight = screen->GetHeight() / 4;
-						dwidth = width * dheight / height;
-					}
-					DrawTexture(twod, tx, 0, 0, DTA_DestWidth, dwidth, DTA_DestHeight, dheight, TAG_DONE);
-				}
-			}
+			doDrawTile(drawtile);
 		}
 	}
 	else

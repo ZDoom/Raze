@@ -34,6 +34,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+// Not used. No sprites exist for this enemy.
+
 DECISION SkelBattle[] =
 {
     {600,   &AF(InitActorMoveCloser)         },

@@ -83,8 +83,6 @@ extern bool bosswasseen[3];
 
 #define ANIM_SAVE 1
 
-extern FState s_NotRestored[];
-
 
 
 

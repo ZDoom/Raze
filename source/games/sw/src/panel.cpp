@@ -6557,43 +6557,6 @@ PANEL_STATE ps_Fist2Swing[] =
     {SPR_FIST2_SWING_ALT, 2, /* end slide */ &AF(pFistSlideDown),    &ps_Fist2Swing[4], 0,0,0},
 };
 
-PANEL_STATE ps_Fist3Swing[] =
-{
-    {SPR_FIST3_SWING0, FIST_PAUSE_TICS+25,                    nullptr,      &ps_Fist3Swing[1], 0,0,0},
-    {SPR_FIST3_SWING1, 0, /* damage */ &AF(pFistAttack),       &ps_Fist3Swing[2], psf_QuickCall, 0,0},
-    {SPR_FIST3_SWING2, FIST_PAUSE_TICS+10,                    nullptr,      &ps_Fist3Swing[3], 0,0,0},
-    {SPR_FIST3_SWING2, FIST_MID_SLIDE_TICS+3, /* mid slide */ &AF(pFistSlideDown),    &ps_Fist3Swing[4], 0,0,0},
-
-    {SPR_FIST3_SWING2, 8, /* end slide */ &AF(pFistSlideDown),    &ps_Fist3Swing[4], 0,0,0},
-
-    {SPR_FIST3_SWING1, FIST_SLIDE_TICS+20, /* start slide */ &AF(pFistSlideR),       &ps_Fist3Swing[6], psf_Xflip, 0,0},
-    {SPR_FIST3_SWING2, 0, /* damage */ &AF(pFistAttack),       &ps_Fist3Swing[7], psf_QuickCall|psf_Xflip, 0,0},
-    {SPR_FIST3_SWING2, FIST_MID_SLIDE_TICS+3, /* mid slide */ &AF(pFistSlideDownR),   &ps_Fist3Swing[8], psf_Xflip, 0,0},
-
-    {SPR_FIST3_SWING2, 8, /* end slide */ &AF(pFistSlideDownR),   &ps_Fist3Swing[8], psf_Xflip, 0,0},
-    {SPR_FIST3_SWING2, 8, /* end slide */ nullptr,      &ps_Fist3Swing[1], psf_Xflip, 0,0},
-};
-
-#define KICK_PAUSE_TICS 40
-#define KICK_SLIDE_TICS 30
-#define KICK_MID_SLIDE_TICS 20
-
-PANEL_STATE ps_Kick[] =
-{
-    {SPR_KICK0, KICK_PAUSE_TICS,                    nullptr,     &ps_Kick[1], 0,0,0},
-    {SPR_KICK1, 0, /* damage */ &AF(pFistAttack),       &ps_Kick[2], psf_QuickCall, 0,0},
-    {SPR_KICK1, KICK_SLIDE_TICS, /* start slide */ nullptr,     &ps_Kick[3], 0,0,0},
-    {SPR_KICK1, KICK_MID_SLIDE_TICS, /* mid slide */ &AF(pFistSlideDown),    &ps_Kick[4], 0,0,0},
-
-    {SPR_KICK1, 30, /* end slide */ &AF(pFistSlideDown),    &ps_Kick[4], 0,0,0},
-
-    {SPR_KICK0, KICK_SLIDE_TICS, /* start slide */ nullptr,     &ps_Kick[6], psf_Xflip, 0,0},
-    {SPR_KICK1, 0, /* damage */ &AF(pFistAttack),       &ps_Kick[7], psf_QuickCall|psf_Xflip, 0,0},
-    {SPR_KICK1, KICK_MID_SLIDE_TICS,/* mid slide */ &AF(pFistSlideDownR),   &ps_Kick[8], psf_Xflip, 0, 0},
-
-    {SPR_KICK1, 30, /* end slide */ &AF(pFistSlideDownR),   &ps_Kick[8], psf_Xflip, 0,0},
-    {SPR_KICK1, 30, /* end slide */ nullptr,     &ps_Kick[1], psf_Xflip, 0,0},
-};
 
 PANEL_STATE ps_RetractFist[] =
 {
@@ -6746,7 +6709,7 @@ void pFistSlideDown(DPanelSprite* psp)
 
     psp->backupcoords();
 
-    if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
+    if (psp->PlayerP->WpnKungFuMove == 3)
     {
         psp->pos.Y -= pspSinVel(psp, ang);
     }
@@ -6769,15 +6732,8 @@ void pFistSlideDown(DPanelSprite* psp)
 
                 if (RandomRange(1000) > 500)
                 {
-                    //if(RandomRange(1000) > 300)
-                    //    {
                     psp->ActionState = ps_FistSwing;
                     psp->PlayerP->WpnKungFuMove = 0;
-                    //    } else
-                    //    {
-                    //    psp->ActionState = ps_Fist3Swing;
-                    //    psp->PlayerP->WpnKungFuMove = 1;
-                    //    }
                     pSetState(psp, psp->ActionState);
 
                     psp->opos.X = psp->pos.X = FIST_XOFF;
@@ -6849,7 +6805,7 @@ void pFistSlideDownR(DPanelSprite* psp)
 
     psp->backupcoords();
 
-    if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
+    if (psp->PlayerP->WpnKungFuMove == 3)
     {
         psp->pos.Y -= pspSinVel(psp, ang);
     }
@@ -6972,9 +6928,6 @@ void pFistRest(DPanelSprite* psp)
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
     force = !!(psp->flags & PANF_UNHIDE_SHOOT);
-
-    if (psp->ActionState == ps_Kick)
-        psp->ActionState = ps_FistSwing;
 
     // Reset move to default
     psp->PlayerP->WpnKungFuMove = 0;
@@ -7868,15 +7821,8 @@ static saveable_data saveable_panel_data[] =
     SAVE_DATA(ps_PresentFist2),
     SAVE_DATA(ps_Fist2Rest),
     SAVE_DATA(ps_Fist2Hide),
-    /*
-    SAVE_DATA(ps_PresentFist3),
-    SAVE_DATA(ps_Fist3Rest),
-    SAVE_DATA(ps_Fist3Hide),
-    */
     SAVE_DATA(ps_FistSwing),
     SAVE_DATA(ps_Fist2Swing),
-    SAVE_DATA(ps_Fist3Swing),
-    SAVE_DATA(ps_Kick),
     SAVE_DATA(ps_RetractFist),
 
     SAVE_DATA(ps_PanelEnvironSuit),

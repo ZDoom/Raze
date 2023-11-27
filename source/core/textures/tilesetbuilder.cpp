@@ -240,6 +240,20 @@ static void GenerateRotations(int firsttileid, const char* basename, int tile, i
 			}
 		}
 	}
+	else if (order == -1)
+	{
+		for (int rotation = 0; rotation < numrotations; rotation++)
+		{
+			int oldtile = tile;
+			for (int frame = 0; frame < numframes; frame++)
+			{
+				FStringf str("%s@%c%x", basename, frame + 'A', rotation + 1);
+				TexMan.AddAlias(str.GetChars(), FSetTextureID(firsttileid + tile));
+				tile++;
+			}
+			tile -= 2 * numframes;
+		}
+	}
 }
 
 static void CompleteRotations(int firsttileid, const char* basename, const char* getname, int numframes, int numrotations)
@@ -317,7 +331,7 @@ void LoadAliases(int firsttileid, int maxarttile)
 					sc.ScriptMessage("%d: Bad number of rotations\n", numrotations);
 					continue;
 				}
-				if (order < 0)
+				if (order < -1)
 				{
 					sc.ScriptMessage("%d: Bad order\n", order);
 					continue;

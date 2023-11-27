@@ -45,6 +45,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+#define GORE_ChunkS 2430
+#define PLASMA_Drip 1562 //2420
+#define GORE_Drip 1562 //2430
+
 struct MISSILE_PLACEMENT
 {
     int dist_over, dist_out;
@@ -150,12 +154,6 @@ short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 // SPECIAL FStateS
 //
 //////////////////////
-
-// state for sprites that are not restored
-FState s_NotRestored[] =
-{
-    {SPR_NOTRESTORED, 'A', 100, nullptr,  &s_NotRestored[0]}
-};
 
 FState s_Suicide[] =
 {
@@ -815,7 +813,6 @@ FState s_Plasma[] =
 };
 
 // follows actor spewing blood
-#define PLASMA_Drip 1562 //2420
 FState s_PlasmaFountain[] =
 {
     {SPR_PLASMA_Drip, 'A', PLASMA_RATE, &AF(DoPlasmaFountain), &s_PlasmaFountain[1]},
@@ -1546,7 +1543,6 @@ FState s_GoreSkullCap[] =
 };
 
 
-#define GORE_ChunkS 2430
 #define GORE_ChunkS_RATE 16
 
 FState s_GoreChunkS[] =
@@ -1557,7 +1553,6 @@ FState s_GoreChunkS[] =
     {SPR_GORE_ChunkS, 'D', GORE_ChunkS_RATE, &AF(DoShrapJumpFall), &s_GoreChunkS[0]},
 };
 
-#define GORE_Drip 1562 //2430
 #define GORE_Drip_RATE 16
 
 FState s_GoreDrip[] =
@@ -18089,7 +18084,6 @@ void QueueLoWangs(DSWActor* actor)
 
 static saveable_data saveable_weapon_data[] =
 {
-    SAVE_DATA(s_NotRestored),
     SAVE_DATA(s_Suicide),
     SAVE_DATA(s_DeadLoWang),
     SAVE_DATA(s_BreakLight),
