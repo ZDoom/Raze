@@ -177,6 +177,7 @@ void checksectors_r(DDukePlayer* const p)
 		p->cursector->lotag = 0;
 		FTA(9, p);
 		Level.addSecret(p->pnum);
+		SECRET_Trigger(sectindex(p->cursector));
 		return;
 	case -1:
 		p->cursector->lotag = 0;
