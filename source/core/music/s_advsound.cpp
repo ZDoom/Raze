@@ -461,9 +461,16 @@ static void S_AddSNDINFO (int lump)
 				// Assigns a resource ID to the given sound.
 				sc.MustGetString();
 				FSoundID sfx = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
-				auto sfxp = soundEngine->GetWritableSfx(sfx);
 
 				sc.MustGetNumber();
+				// remove resource ID from any previously defined sound.
+				for (unsigned i = 0; i < soundEngine->GetNumSounds(); i++)
+				{
+					auto sfxp = soundEngine->GetWritableSfx(FSoundID::fromInt(i));
+					if (sfxp->ResourceId == sc.Number) sfxp->ResourceId = -1;
+
+				}
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
 				sfxp->ResourceId = sc.Number;
 				break;
 				}
