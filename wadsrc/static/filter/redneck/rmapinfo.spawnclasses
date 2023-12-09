@@ -15,7 +15,7 @@ spawnclasses
 	35 = DukeLightningCtrl, noskill
 	68 = DukeShadeCtrl, noskill
 	252 = RedneckUfoBeam, noskill
-	2586 = RedneckInvisible, noskill
+	3586 = RedneckInvisible, noskill
 	3587 = RedneckLadder, noskill
 	36 = RedneckDestructo, noskill
 	63 = RedneckDestroyTags, noskill
