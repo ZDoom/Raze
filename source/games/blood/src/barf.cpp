@@ -941,7 +941,7 @@ void addMemoryResource(const char* filePath, int flags, int ID)
 {
 	FString zDirectory, zFilename, zType;
 	SplitPath(filePath, zDirectory, zFilename, zType, true);
-	fileSystem.AddFromBuffer(zFilename.GetChars(), zType.GetChars(), buffer, nBytes, ID, flags);
+	fileSystem.AddFromBuffer((zFilename + "." + zType).GetChars(), buffer, nBytes, ID, flags);
 }
 
 
