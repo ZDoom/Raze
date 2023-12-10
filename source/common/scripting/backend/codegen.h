@@ -275,6 +275,9 @@ enum EFxType
 	EFX_DoWhileLoop,
 	EFX_ForLoop,
 	EFX_ForEachLoop,
+	EFX_TwoArgForEachLoop,
+	EFX_ThreeArgForEachLoop,
+	EFX_TypedForEachLoop,
 	EFX_JumpStatement,
 	EFX_ReturnStatement,
 	EFX_ClassTypeCast,
@@ -1621,7 +1624,7 @@ public:
 	FName MethodName;
 	FArgumentList ArgList;
 
-	FxFunctionCall(FName methodname, FName rngname, FArgumentList &args, const FScriptPosition &pos);
+	FxFunctionCall(FName methodname, FName rngname, FArgumentList &&args, const FScriptPosition &pos);
 	~FxFunctionCall();
 	FxExpression *Resolve(FCompileContext&);
 };
@@ -1638,10 +1641,11 @@ class FxMemberFunctionCall : public FxExpression
 	FxExpression *Self;
 	FName MethodName;
 	FArgumentList ArgList;
+	bool ResolveSelf;
 
 public:
 
-	FxMemberFunctionCall(FxExpression *self, FName methodname, FArgumentList &args, const FScriptPosition &pos);
+	FxMemberFunctionCall(FxExpression *self, FName methodname, FArgumentList &&args, const FScriptPosition &pos);
 	~FxMemberFunctionCall();
 	FxExpression *Resolve(FCompileContext&);
 };
@@ -2069,15 +2073,81 @@ public:
 
 class FxForEachLoop : public FxLoopStatement
 {
+public:
 	FName loopVarName;
 	FxExpression* Array;
 	FxExpression* Array2;
+	FxExpression* Array3;
+	FxExpression* Array4;
 	FxExpression* Code;
 
-public:
-	FxForEachLoop(FName vn, FxExpression* arrayvar, FxExpression* arrayvar2, FxExpression* code, const FScriptPosition& pos);
+	FxForEachLoop(FName vn, FxExpression* arrayvar, FxExpression* arrayvar2, FxExpression* arrayvar3, FxExpression* arrayvar4, FxExpression* code, const FScriptPosition& pos);
 	~FxForEachLoop();
 	FxExpression* DoResolve(FCompileContext&);
+};
+
+//==========================================================================
+//
+// FxTwoArgForEachLoop
+//
+//==========================================================================
+
+class FxTwoArgForEachLoop : public FxExpression
+{
+public:
+	FName keyVarName;
+	FName valueVarName;
+	FxExpression* MapExpr;
+	FxExpression* MapExpr2;
+	FxExpression* MapExpr3;
+	FxExpression* MapExpr4;
+	FxExpression* Code;
+
+	FxTwoArgForEachLoop(FName kv, FName vv, FxExpression* mapexpr, FxExpression* mapexpr2, FxExpression* mapexpr3, FxExpression* mapexpr4, FxExpression* code, const FScriptPosition& pos);
+	~FxTwoArgForEachLoop();
+	FxExpression *Resolve(FCompileContext&);
+	//ExpEmit Emit(VMFunctionBuilder *build); This node is transformed, so it won't ever be emitted itself
+};
+
+//==========================================================================
+//
+// FxThreeArgForEachLoop
+//
+//==========================================================================
+
+class FxThreeArgForEachLoop : public FxExpression
+{
+public:
+	FName varVarName;
+	FName posVarName;
+	FName flagsVarName;
+	FxExpression* BlockIteratorExpr;
+	FxExpression* Code;
+
+	FxThreeArgForEachLoop(FName vv, FName pv, FName fv, FxExpression* blockiteartorexpr, FxExpression* code, const FScriptPosition& pos);
+	~FxThreeArgForEachLoop();
+	FxExpression *Resolve(FCompileContext&);
+	//ExpEmit Emit(VMFunctionBuilder *build); This node is transformed, so it won't ever be emitted itself
+};
+
+//==========================================================================
+//
+// FxTypedForEachLoop
+//
+//==========================================================================
+
+class FxTypedForEachLoop : public FxExpression
+{
+public:
+	FName className;
+	FName varName;
+	FxExpression* Expr;
+	FxExpression* Code;
+
+	FxTypedForEachLoop(FName cv, FName vv, FxExpression* castiteartorexpr, FxExpression* code, const FScriptPosition& pos);
+	~FxTypedForEachLoop();
+	FxExpression *Resolve(FCompileContext&);
+	//ExpEmit Emit(VMFunctionBuilder *build); This node is transformed, so it won't ever be emitted itself
 };
 
 //==========================================================================

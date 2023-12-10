@@ -89,10 +89,13 @@ void S_SetReverb(int strength)
 // 
 //==========================================================================
 
-std::vector<uint8_t> RazeSoundEngine::ReadSound(int lumpnum)
+TArray<uint8_t> RazeSoundEngine::ReadSound(int lumpnum)
 {
 	auto wlump = fileSystem.OpenFileReader(lumpnum);
-	return wlump.Read();
+	TArray<uint8_t> buffer(wlump.GetLength(), true);
+	auto len = wlump.Read(buffer.data(), buffer.size());
+	buffer.Resize(len);
+	return buffer;
 }
 
 //==========================================================================

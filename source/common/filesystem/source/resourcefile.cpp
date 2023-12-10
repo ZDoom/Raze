@@ -157,7 +157,7 @@ static bool IsWadInFolder(const FResourceFile* const archive, const char* const 
 		return false;
 	}
 
-    const auto dirName = ExtractBaseName(archive->FileName);
+    const auto dirName = ExtractBaseName(archive->GetFileName());
 	const auto fileName = ExtractBaseName(resPath, true);
 	const std::string filePath = dirName + '/' + fileName;
 
@@ -242,7 +242,7 @@ void *FResourceLump::Lock()
 		catch (const FileSystemException& err)
 		{
 			// enrich the message with info about this lump.
-			throw FileSystemException("%s, file '%s': %s", getName(), Owner->FileName, err.what());
+			throw FileSystemException("%s, file '%s': %s", getName(), Owner->GetFileName(), err.what());
 		}
 	}
 	return Cache;
@@ -360,13 +360,13 @@ int lumpcmp(const void * a, const void * b)
 //
 // Generates a hash identifier for use in file identification.
 // Potential uses are mod-wide compatibility settings or localization add-ons.
-// This only hashes the lump directory but not the actual content
+// This only hashes the directory but not the actual content
 //
 //==========================================================================
 
 void FResourceFile::GenerateHash()
 {
-	// hash the lump directory after sorting
+	// hash the directory after sorting
 	using namespace FileSys::md5;
 
 	auto n = snprintf(Hash, 48, "%08X-%04X-", (unsigned)Reader.GetLength(), NumLumps);
@@ -377,9 +377,10 @@ void FResourceFile::GenerateHash()
 	uint8_t digest[16];
 	for(uint32_t i = 0; i < NumLumps; i++)
 	{
-		auto lump = GetLump(i);
-		md5_append(&state, (const uint8_t*)lump->FullName, (unsigned)strlen(lump->FullName) + 1);
-		md5_append(&state, (const uint8_t*)&lump->LumpSize, 4);
+		auto name = getName(i);
+		auto size = Length(i);
+		md5_append(&state, (const uint8_t*)name, (unsigned)strlen(name) + 1);
+		md5_append(&state, (const uint8_t*)&size, sizeof(size));
 	}
 	md5_finish(&state, digest);
 	for (auto c : digest)
@@ -618,17 +619,16 @@ bool FResourceFile::FindPrefixRange(const char* filter, void *lumps, size_t lump
 //
 //==========================================================================
 
-FResourceLump *FResourceFile::FindLump(const char *name)
+int FResourceFile::FindEntry(const char *name)
 {
 	for (unsigned i = 0; i < NumLumps; i++)
 	{
-		FResourceLump *lump = GetLump(i);
-		if (!stricmp(name, lump->FullName))
+		if (!stricmp(name, getName(i)))
 		{
-			return lump;
+			return i;
 		}
 	}
-	return nullptr;
+	return -1;
 }
 
 //==========================================================================
@@ -639,8 +639,8 @@ FResourceLump *FResourceFile::FindLump(const char *name)
 
 FileReader *FUncompressedLump::GetReader()
 {
-	Owner->Reader.Seek(Position, FileReader::SeekSet);
-	return &Owner->Reader;
+	Owner->GetContainerReader()->Seek(Position, FileReader::SeekSet);
+	return Owner->GetContainerReader();
 }
 
 //==========================================================================
@@ -651,7 +651,7 @@ FileReader *FUncompressedLump::GetReader()
 
 int FUncompressedLump::FillCache()
 {
-	const char * buffer = Owner->Reader.GetBuffer();
+	const char * buffer = Owner->GetContainerReader()->GetBuffer();
 
 	if (buffer != NULL)
 	{
@@ -661,10 +661,10 @@ int FUncompressedLump::FillCache()
 		return -1;
 	}
 
-	Owner->Reader.Seek(Position, FileReader::SeekSet);
+	Owner->GetContainerReader()->Seek(Position, FileReader::SeekSet);
 	Cache = new char[LumpSize];
 
-	auto read = Owner->Reader.Read(Cache, LumpSize);
+	auto read = Owner->GetContainerReader()->Read(Cache, LumpSize);
 	if (read != LumpSize)
 	{
 		throw FileSystemException("only read %d of %d bytes", (int)read, (int)LumpSize);

@@ -144,7 +144,7 @@ public:
                 auto wbuffer = audio.samples + audio.nWrite * kSampleSize;
                 for (int i = 0; i < 2205; i++)
                 {
-                    wbuffer[i] = (buffer[i] - 128) << 8;
+                    wbuffer[i] = (buffer.bytes()[i] - 128) << 8;
                 }
                 audio.nWrite++;
                 if (audio.nWrite >= numAudioBlocks) audio.nWrite = 0;

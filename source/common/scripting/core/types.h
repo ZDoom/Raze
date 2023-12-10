@@ -742,6 +742,7 @@ extern PPointer *TypeVoidPtr;
 extern PPointer* TypeRawFunction;
 extern PPointer* TypeVMFunction;
 
+
 inline FString &DObject::StringVar(FName field)
 {
 	return *(FString*)ScriptVar(field, TypeString);

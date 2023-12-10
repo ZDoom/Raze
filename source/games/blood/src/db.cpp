@@ -613,11 +613,11 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
 	uint8_t md4[16];
-	md4once(buffer.data(), (unsigned)buffer.size(), md4);
+	md4once(buffer.bytes(), (unsigned)buffer.size(), md4);
 	PostProcessLevel(md4, mapname, sprites);
 	loadMapHack(mapname.GetChars(), md4, sprites);
 
-	if (CalcCRC32(buffer.data(), (unsigned)buffer.size() - 4) != nCRC)
+	if (CalcCRC32(buffer.bytes(), (unsigned)buffer.size() - 4) != nCRC)
 	{
 		I_Error("%s: Map File does not match CRC", mapname.GetChars());
 	}

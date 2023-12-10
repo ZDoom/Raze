@@ -153,7 +153,7 @@ class AnmPlayer : public MoviePlayer
 {
 	// This doesn't need its own class type
 	anim_t anim;
-	std::vector<uint8_t> buffer;
+	FileSys::ResourceData buffer;
 	int numframes = 0;
 	int curframe = 1;
 	int frametime = 0;
@@ -171,9 +171,10 @@ public:
 		memcpy(frameTicks, frameticks, 3 * sizeof(int));
 		flags = flags_;
 		buffer = fr.ReadPadded(1);
+		if (buffer.size() < 4) return;
 		fr.Close();
 
-		if (ANIM_LoadAnim(&anim, buffer.data(), buffer.size() - 1) < 0)
+		if (ANIM_LoadAnim(&anim, buffer.bytes(), buffer.size() - 1) < 0)
 		{
 			return;
 		}

@@ -560,7 +560,7 @@ FStateLabels *FStateDefinitions::CreateStateLabelList(TArray<FStateDefine> & sta
 //
 //===========================================================================
 
-void FStateDefinitions::InstallStates(PClassActor *info, AActor *defaults)
+void FStateDefinitions::InstallStates(PClassActor *info, DCoreActor *defaults)
 {
 	if (defaults == nullptr)
 	{

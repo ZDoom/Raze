@@ -145,6 +145,9 @@ enum EZCCTreeNodeType
 	AST_MixinDef,
 	AST_MixinStmt,
 	AST_ArrayIterationStmt,
+	AST_TwoArgIterationStmt,
+	AST_ThreeArgIterationStmt,
+	AST_TypedIterationStmt,
 
 	NUM_AST_NODE_TYPES
 };
@@ -529,6 +532,31 @@ struct ZCC_ArrayIterationStmt : ZCC_Statement
 {
 	ZCC_VarName* ItName;
 	ZCC_Expression* ItArray;
+	ZCC_Statement* LoopStatement;
+};
+
+struct ZCC_TwoArgIterationStmt : ZCC_Statement
+{
+	ZCC_VarName* ItKey;
+	ZCC_VarName* ItValue;
+	ZCC_Expression* ItMap;
+	ZCC_Statement* LoopStatement;
+};
+
+struct ZCC_ThreeArgIterationStmt : ZCC_Statement
+{
+	ZCC_VarName* ItVar;
+	ZCC_VarName* ItPos;
+	ZCC_VarName* ItFlags;
+	ZCC_Expression* ItBlock;
+	ZCC_Statement* LoopStatement;
+};
+
+struct ZCC_TypedIterationStmt : ZCC_Statement
+{
+	ZCC_VarName* ItType;
+	ZCC_VarName* ItVar;
+	ZCC_Expression* ItExpr;
 	ZCC_Statement* LoopStatement;
 };
 

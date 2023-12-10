@@ -125,7 +125,7 @@ void paletteLoadFromDisk(void)
     unsigned length = numshades * 256;
     auto buffer = fil.Read(length);
     if (buffer.size() != length) return;
-    lookups.setTable(0, buffer.data());
+    lookups.setTable(0, buffer.bytes());
 
     paletteloaded |= PALETTE_SHADE | PALETTE_TRANSLUC;
 }

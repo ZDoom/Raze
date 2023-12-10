@@ -136,13 +136,13 @@ bool ReadSavegame(const char* name)
 
 	if (savereader != nullptr)
 	{
-		auto lump = savereader->FindLump("info.json");
-		if (!lump)
+		auto lump = savereader->FindEntry("info.json");
+		if (lump < 0)
 		{
 			delete savereader;
 			return false;
 		}
-		auto file = lump->NewReader();
+		auto file = savereader->GetEntryReader(lump);
 		if (G_ValidateSavegame(file, nullptr, false) <= 0)
 		{
 			delete savereader;
@@ -150,18 +150,17 @@ bool ReadSavegame(const char* name)
 		}
 		file.Close();
 
-		auto info = savereader->FindLump("session.json");
-		if (info == nullptr)
+		auto info = savereader->FindEntry("session.json");
+		if (info < 0)
 		{
 			delete savereader;
 			return false;
 		}
 
-		void* data = info->Lock();
+		auto data = savereader->Read(info);
 		FRazeSerializer arc;
-		if (!arc.OpenReader((const char*)data, info->LumpSize))
+		if (!arc.OpenReader(data.string(), data.size()))
 		{
-			info->Unlock();
 			delete savereader;
 			return false;
 		}
@@ -171,7 +170,6 @@ bool ReadSavegame(const char* name)
 		SerializeSession(arc);
 		g_nextskill = gi->GetCurrentSkill();
 		arc.Close();
-		info->Unlock();
 		delete savereader;
 
 		// this can only be done after the load is complete
@@ -247,7 +245,7 @@ bool WriteSavegame(const char* filename, const char *name)
 	M_FinishPNG(&savepic);
 
 	auto picdata = savepic.GetBuffer();
-	FileSys::FCompressedBuffer bufpng = { picdata->Size(), picdata->Size(), FileSys::METHOD_STORED, 0, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->Size())), (char*)&(*picdata)[0] };
+	FileSys::FCompressedBuffer bufpng = { picdata->size(), picdata->size(), FileSys::METHOD_STORED, 0, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->size())), (char*)&(*picdata)[0] };
 
 	TArray<FileSys::FCompressedBuffer> savegame_content;
 	TArray<FString> savegame_filenames;

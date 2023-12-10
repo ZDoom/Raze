@@ -39,6 +39,7 @@
 
 #include "dobject.h"
 
+class DCoreActor;
 struct Baggage;
 class FScanner;
 struct FActorInfo;
@@ -238,7 +239,7 @@ public:
 	void SetStateLabel(const char *statename, FState *state, uint8_t defflags = SDF_STATE);
 	void AddStateLabel(const char *statename);
 	int GetStateLabelIndex (FName statename);
-	void InstallStates(PClassActor *info, AActor *defaults);
+	void InstallStates(PClassActor *info, DCoreActor *defaults);
 	int FinishStates(PClassActor *actor);
 
 	void MakeStateDefines(const PClassActor *cls);

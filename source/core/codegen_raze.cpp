@@ -519,3 +519,19 @@ void SetRazeCompileEnvironment()
 	compileEnvironment.CheckSpecialMember = CheckForMemberDefault;
 	compileEnvironment.CheckCustomGlobalFunctions = ResolveGlobalCustomFunction;
 }
+
+// todo: clean up this mess
+extern bool HasGameSpecificTwoArgForEachLoopTypeNames() { return false; }
+extern const char* GetGameSpecificTwoArgForEachLoopTypeNames() { return ""; }
+extern bool IsGameSpecificTwoArgForEachLoop(FxTwoArgForEachLoop*) { return false; }
+extern FxExpression* ResolveGameSpecificTwoArgForEachLoop(FxTwoArgForEachLoop*) { return nullptr; }
+extern bool HasGameSpecificThreeArgForEachLoopTypeNames() { return false; }
+extern const char* GetGameSpecificThreeArgForEachLoopTypeNames() { return ""; }
+extern bool IsGameSpecificThreeArgForEachLoop(FxThreeArgForEachLoop*) { return false; }
+extern FxExpression* ResolveGameSpecificThreeArgForEachLoop(FxThreeArgForEachLoop*) { return nullptr; }
+extern bool HasGameSpecificTypedForEachLoopTypeNames() { return false; }
+extern const char* GetGameSpecificTypedForEachLoopTypeNames() { return ""; }
+extern bool IsGameSpecificTypedForEachLoop(FxTypedForEachLoop*) { return false; }
+extern FxExpression* ResolveGameSpecificTypedForEachLoop(FxTypedForEachLoop*) { return nullptr; }
+extern bool IsGameSpecificForEachLoop(FxForEachLoop*) { return false; }
+extern FxExpression* ResolveGameSpecificForEachLoop(FxForEachLoop*) { return nullptr; }

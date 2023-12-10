@@ -71,14 +71,14 @@ void FSavegameManager::ReadSaveStrings()
 				FResourceFile *savegame = FResourceFile::OpenResourceFile(entry.FilePath.c_str(), true);
 				if (savegame != nullptr)
 				{
-					FResourceLump *info = savegame->FindLump("info.json");
-					if (info == nullptr)
+					auto info = savegame->FindEntry("info.json");
+					if (info < 0)
 					{
 						// savegame info not found. This is not a savegame so leave it alone.
 						delete savegame;
 						continue;
 					}
-					auto fr = info->NewReader();
+					auto fr = savegame->GetEntryReader(info, true);
 					FString title;
 					int check = G_ValidateSavegame(fr, &title, true);
 					fr.Close();

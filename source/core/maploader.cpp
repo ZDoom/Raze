@@ -547,7 +547,7 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, secto
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
 	uint8_t md4[16];
-	md4once(buffer.data(), (unsigned)buffer.size(), md4);
+	md4once(buffer.bytes(), (unsigned)buffer.size(), md4);
 	PostProcessLevel(md4, filename, sprites);
 	loadMapHack(filename, md4, sprites);
 	setWallSectors();
@@ -589,7 +589,7 @@ static void Decrypt(void* to_, const void* from_, int len, int key)
 //
 //==========================================================================
 
-static void P_LoadBloodMapWalls(uint8_t* data, size_t len, TArray<walltype>& lwalls)
+static void P_LoadBloodMapWalls(const uint8_t* data, size_t len, TArray<walltype>& lwalls)
 {
 	uint8_t infoBlock[37];
 	int mapver = data[5];
@@ -698,7 +698,7 @@ TArray<walltype> loadMapWalls(const char* filename)
 	if (isBlood())
 	{
 		auto data = fr.Read();
-		P_LoadBloodMapWalls(data.data(), data.size(), lwalls);
+		P_LoadBloodMapWalls(data.bytes(), data.size(), lwalls);
 		return lwalls;
 	}
 

@@ -47,6 +47,7 @@
 #include "findfile.h"
 #include "palutil.h"
 #include "startupinfo.h"
+#include "files.h"
 
 using namespace FileSys;
 
@@ -153,6 +154,7 @@ static std::vector<std::string> ParseGameInfo(std::vector<std::string>& pwads, c
 
 static std::vector<std::string> CheckGameInfo(std::vector<std::string>& pwads)
 {
+#if 1
 	// scan the list of WADs backwards to find the last one that contains a GAMEINFO lump
 	for (int i = (int)pwads.size() - 1; i >= 0; i--)
 	{
@@ -180,18 +182,18 @@ static std::vector<std::string> CheckGameInfo(std::vector<std::string>& pwads)
 		else
 			resfile = FResourceFile::OpenDirectory(filename);
 
-		FName gameinfo = "GAMEINFO.TXT";
-		if (resfile != NULL)
+		const char* gameinfo = "GAMEINFO.TXT";
+		if (resfile != nullptr)
 		{
-			uint32_t cnt = resfile->LumpCount();
+			uint32_t cnt = resfile->EntryCount();
 			for (int c = cnt - 1; c >= 0; c--)
 			{
-				FResourceLump* lmp = resfile->GetLump(c);
-
-				if (FName(lmp->getName(), true) == gameinfo)
+				if (!stricmp(resfile->getName(c), gameinfo))
 				{
 					// Found one!
-					auto bases = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
+					auto data = resfile->Read(c);
+					auto wadname = resfile->GetFileName();
+					auto bases = ParseGameInfo(pwads, wadname, data.string(), (int)data.size());
 					delete resfile;
 					return bases;
 				}
@@ -199,6 +201,7 @@ static std::vector<std::string> CheckGameInfo(std::vector<std::string>& pwads)
 			delete resfile;
 		}
 	}
+#endif
 	return std::vector<std::string>();
 }
 
@@ -445,8 +448,8 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		FILE* f = fopen("filesystem.dir", "wb");
 		for (int num = 0; num < fileSystem.GetNumEntries(); num++)
 		{
-			auto fd = fileSystem.GetFileAt(num);
-			fprintf(f, "%.50s   %60s  %d\n", fd->getName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd->Size());
+			auto fd = fileSystem.FileLength(num);
+			fprintf(f, "%.50s   %60s  %d\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
 		}
 		fclose(f);
 	}

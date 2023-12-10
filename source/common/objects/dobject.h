@@ -179,8 +179,6 @@ public: \
 
 #include "dobjgc.h"
 
-class AActor;
-
 class DObject
 {
 public:

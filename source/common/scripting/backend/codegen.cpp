@@ -2728,7 +2728,7 @@ FxExpression *FxAssign::Resolve(FCompileContext &ctx)
 				{
 					FArgumentList args;
 					args.Push(Right);
-					auto call = new FxMemberFunctionCall(Base, NAME_Copy, args, ScriptPosition);
+					auto call = new FxMemberFunctionCall(Base, NAME_Copy, std::move(args), ScriptPosition);
 					Right = Base = nullptr;
 					delete this;
 					return call->Resolve(ctx);
@@ -2756,7 +2756,7 @@ FxExpression *FxAssign::Resolve(FCompileContext &ctx)
 				{
 					FArgumentList args;
 					args.Push(Right);
-					auto call = new FxMemberFunctionCall(Base, NAME_Copy, args, ScriptPosition);
+					auto call = new FxMemberFunctionCall(Base, NAME_Copy, std::move(args), ScriptPosition);
 					Right = Base = nullptr;
 					delete this;
 					return call->Resolve(ctx);
@@ -3826,6 +3826,16 @@ FxExpression *FxCompareRel::Resolve(FCompileContext& ctx)
 		delete left;
 		left = x;
 	}
+	else if (left->IsNumeric() && right->ValueType == TypeTranslationID && ctx.Version < MakeVersion(4, 12))
+	{
+		right = new FxTypeCast(right, TypeSInt32, true);
+		SAFE_RESOLVE(right, ctx);
+	}
+	else if (right->IsNumeric() && left->ValueType == TypeTranslationID && ctx.Version < MakeVersion(4, 12))
+	{
+		left = new FxTypeCast(left, TypeSInt32, true);
+		SAFE_RESOLVE(left, ctx);
+	}
 
 	if (left->ValueType == TypeString || right->ValueType == TypeString)
 	{
@@ -4118,6 +4128,17 @@ FxExpression *FxCompareEq::Resolve(FCompileContext& ctx)
 			delete left;
 			left = x;
 		}
+		else if (left->IsNumeric() && right->ValueType == TypeTranslationID && ctx.Version < MakeVersion(4, 12))
+		{
+			right = new FxIntCast(right, true, true);
+			SAFE_RESOLVE(right, ctx);
+		}
+		else if (right->IsNumeric() && left->ValueType == TypeTranslationID && ctx.Version < MakeVersion(4, 12))
+		{
+			left = new FxTypeCast(left, TypeSInt32, true);
+			SAFE_RESOLVE(left, ctx);
+		}
+
 		// Special cases: Compare strings and names with names, sounds, colors, state labels and class types.
 		// These are all types a string can be implicitly cast into, so for convenience, so they should when doing a comparison.
 		if ((left->ValueType == TypeString || left->ValueType == TypeName) &&
@@ -8181,7 +8202,7 @@ static bool CheckFunctionCompatiblity(FScriptPosition &ScriptPosition, PFunction
 //
 //==========================================================================
 
-FxFunctionCall::FxFunctionCall(FName methodname, FName rngname, FArgumentList &args, const FScriptPosition &pos)
+FxFunctionCall::FxFunctionCall(FName methodname, FName rngname, FArgumentList &&args, const FScriptPosition &pos)
 : FxExpression(EFX_FunctionCall, pos)
 {
 	MethodName = methodname;
@@ -8608,7 +8629,7 @@ FxExpression *FxFunctionCall::Resolve(FCompileContext& ctx)
 //
 //==========================================================================
 
-FxMemberFunctionCall::FxMemberFunctionCall(FxExpression *self, FName methodname, FArgumentList &args, const FScriptPosition &pos)
+FxMemberFunctionCall::FxMemberFunctionCall(FxExpression *self, FName methodname, FArgumentList &&args, const FScriptPosition &pos)
 	: FxExpression(EFX_MemberFunctionCall, pos)
 {
 	Self = self;
@@ -9153,7 +9174,7 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 			if (a->IsMap())
 			{
 				// Copy and Move must turn their parameter into a pointer to the backing struct type.
-				auto o = static_cast<PMapIterator*>(a->ValueType);
+				auto o = static_cast<PMap*>(a->ValueType);
 				auto backingtype = o->BackingType;
 				if (mapKeyType != o->KeyType || mapValueType != o->ValueType)
 				{
@@ -11361,12 +11382,14 @@ ExpEmit FxForLoop::Emit(VMFunctionBuilder *build)
 //
 //==========================================================================
 
-FxForEachLoop::FxForEachLoop(FName vn, FxExpression* arrayvar, FxExpression* arrayvar2, FxExpression* code, const FScriptPosition& pos)
-	: FxLoopStatement(EFX_ForEachLoop, pos), loopVarName(vn), Array(arrayvar), Array2(arrayvar2), Code(code)
+FxForEachLoop::FxForEachLoop(FName vn, FxExpression* arrayvar, FxExpression* arrayvar2, FxExpression* arrayvar3, FxExpression* arrayvar4, FxExpression* code, const FScriptPosition& pos)
+	: FxLoopStatement(EFX_ForEachLoop, pos), loopVarName(vn), Array(arrayvar), Array2(arrayvar2), Array3(arrayvar3), Array4(arrayvar4), Code(code)
 {
 	ValueType = TypeVoid;
 	if (Array != nullptr) Array->NeedResult = false;
 	if (Array2 != nullptr) Array2->NeedResult = false;
+	if (Array3 != nullptr) Array3->NeedResult = false;
+	if (Array4 != nullptr) Array4->NeedResult = false;
 	if (Code != nullptr) Code->NeedResult = false;
 }
 
@@ -11374,57 +11397,347 @@ FxForEachLoop::~FxForEachLoop()
 {
 	SAFE_DELETE(Array);
 	SAFE_DELETE(Array2);
+	SAFE_DELETE(Array3);
+	SAFE_DELETE(Array4);
 	SAFE_DELETE(Code);
 }
+
+extern bool IsGameSpecificForEachLoop(FxForEachLoop *);
+extern FxExpression * ResolveGameSpecificForEachLoop(FxForEachLoop *);
 
 FxExpression* FxForEachLoop::DoResolve(FCompileContext& ctx)
 {
 	CHECKRESOLVED();
 	SAFE_RESOLVE(Array, ctx);
 	SAFE_RESOLVE(Array2, ctx);
+	SAFE_RESOLVE(Array3, ctx);
+	SAFE_RESOLVE(Array4, ctx);
 
-	// Instead of writing a new code generator for this, convert this into
-	//
-	// int @size = array.Size();
-	// for(int @i = 0; @i < @size; @i++)
-	// {
-	//    let var = array[i];
-	//    body
-	// }
-	// and let the existing 'for' loop code sort out the rest.
 
-	FName sizevar = "@size";
-	FName itvar = "@i";
-	FArgumentList al;
-	auto block = new FxCompoundStatement(ScriptPosition);
-	auto arraysize = new FxMemberFunctionCall(Array, NAME_Size, al, ScriptPosition);
-	auto size = new FxLocalVariableDeclaration(TypeSInt32, sizevar, arraysize, 0, ScriptPosition);
-	auto it = new FxLocalVariableDeclaration(TypeSInt32, itvar, new FxConstant(0, ScriptPosition), 0, ScriptPosition);
-	block->Add(size);
-	block->Add(it);
+	if(Array->ValueType->isMap() || Array->ValueType->isMapIterator())
+	{
+		auto mapLoop = new FxTwoArgForEachLoop(NAME_None, loopVarName, Array, Array2, Array3, Array4, Code, ScriptPosition);
+		Array = Array2 = Array3 = Array4 = Code = nullptr;
+		delete this;
+		return mapLoop->Resolve(ctx);
+	}
+	else if(IsGameSpecificForEachLoop(this))
+	{
+		return ResolveGameSpecificForEachLoop(this)->Resolve(ctx);
+	}
+	else
+	{
+		// Instead of writing a new code generator for this, convert this into
+		//
+		// int @size = array.Size();
+		// for(int @i = 0; @i < @size; @i++)
+		// {
+		//    let var = array[i];
+		//    body
+		// }
+		// and let the existing 'for' loop code sort out the rest.
 
-	auto cit = new FxLocalVariable(it, ScriptPosition);
-	auto csiz = new FxLocalVariable(size, ScriptPosition);
-	auto comp = new FxCompareRel('<', cit, csiz); // new FxIdentifier(itvar, ScriptPosition), new FxIdentifier(sizevar, ScriptPosition));
+		FName sizevar = "@size";
+		FName itvar = "@i";
 
-	auto iit = new FxLocalVariable(it, ScriptPosition);
-	auto bump = new FxPreIncrDecr(iit, TK_Incr);
+		auto block = new FxCompoundStatement(ScriptPosition);
+		auto arraysize = new FxMemberFunctionCall(Array, NAME_Size, {}, ScriptPosition);
+		auto size = new FxLocalVariableDeclaration(TypeSInt32, sizevar, arraysize, 0, ScriptPosition);
+		auto it = new FxLocalVariableDeclaration(TypeSInt32, itvar, new FxConstant(0, ScriptPosition), 0, ScriptPosition);
+		block->Add(size);
+		block->Add(it);
 
-	auto ait = new FxLocalVariable(it, ScriptPosition);
-	auto access = new FxArrayElement(Array2, ait, true); // Note: Array must be a separate copy because these nodes cannot share the same element.
+		auto cit = new FxLocalVariable(it, ScriptPosition);
+		auto csiz = new FxLocalVariable(size, ScriptPosition);
+		auto comp = new FxCompareRel('<', cit, csiz); // new FxIdentifier(itvar, ScriptPosition), new FxIdentifier(sizevar, ScriptPosition));
 
-	auto assign = new FxLocalVariableDeclaration(TypeAuto, loopVarName, access, 0, ScriptPosition);
-	auto body = new FxCompoundStatement(ScriptPosition);
-	body->Add(assign);
-	body->Add(Code);
-	auto forloop = new FxForLoop(nullptr, comp, bump, body, ScriptPosition);
-	block->Add(forloop);
-	Array2 = Array = nullptr;
-	Code = nullptr;
-	delete this;
-	return block->Resolve(ctx);
+		auto iit = new FxLocalVariable(it, ScriptPosition);
+		auto bump = new FxPreIncrDecr(iit, TK_Incr);
+
+		auto ait = new FxLocalVariable(it, ScriptPosition);
+		auto access = new FxArrayElement(Array2, ait, true); // Note: Array must be a separate copy because these nodes cannot share the same element.
+
+		auto assign = new FxLocalVariableDeclaration(TypeAuto, loopVarName, access, 0, ScriptPosition);
+		auto body = new FxCompoundStatement(ScriptPosition);
+		body->Add(assign);
+		body->Add(Code);
+		auto forloop = new FxForLoop(nullptr, comp, bump, body, ScriptPosition);
+		block->Add(forloop);
+		Array2 = Array = nullptr;
+		Code = nullptr;
+		delete this;
+		return block->Resolve(ctx);
+	}
 }
 
+//==========================================================================
+//
+// FxMapForEachLoop
+//
+//==========================================================================
+
+FxTwoArgForEachLoop::FxTwoArgForEachLoop(FName kv, FName vv, FxExpression* mapexpr, FxExpression* mapexpr2, FxExpression* mapexpr3, FxExpression* mapexpr4, FxExpression* code, const FScriptPosition& pos)
+	: FxExpression(EFX_TwoArgForEachLoop,pos), keyVarName(kv), valueVarName(vv), MapExpr(mapexpr), MapExpr2(mapexpr2), MapExpr3(mapexpr3), MapExpr4(mapexpr4), Code(code)
+{
+	ValueType = TypeVoid;
+	if (MapExpr != nullptr) MapExpr->NeedResult = false;
+	if (MapExpr2 != nullptr) MapExpr2->NeedResult = false;
+	if (MapExpr3 != nullptr) MapExpr3->NeedResult = false;
+	if (MapExpr4 != nullptr) MapExpr4->NeedResult = false;
+	if (Code != nullptr) Code->NeedResult = false;
+}
+
+FxTwoArgForEachLoop::~FxTwoArgForEachLoop()
+{
+	SAFE_DELETE(MapExpr);
+	SAFE_DELETE(MapExpr2);
+	SAFE_DELETE(MapExpr3);
+	SAFE_DELETE(MapExpr4);
+	SAFE_DELETE(Code);
+}
+
+extern bool HasGameSpecificTwoArgForEachLoopTypeNames();
+extern const char * GetGameSpecificTwoArgForEachLoopTypeNames();
+extern bool IsGameSpecificTwoArgForEachLoop(FxTwoArgForEachLoop *);
+extern FxExpression * ResolveGameSpecificTwoArgForEachLoop(FxTwoArgForEachLoop *);
+
+FxExpression *FxTwoArgForEachLoop::Resolve(FCompileContext &ctx)
+{
+	CHECKRESOLVED();
+	SAFE_RESOLVE(MapExpr, ctx);
+	SAFE_RESOLVE(MapExpr2, ctx);
+	SAFE_RESOLVE(MapExpr3, ctx);
+	SAFE_RESOLVE(MapExpr4, ctx);
+
+	bool is_iterator = false;
+
+	if(IsGameSpecificTwoArgForEachLoop(this))
+	{
+		return ResolveGameSpecificTwoArgForEachLoop(this)->Resolve(ctx);
+	}
+	else if(!(MapExpr->ValueType->isMap() || (is_iterator = MapExpr->ValueType->isMapIterator())))
+	{
+		if(HasGameSpecificTwoArgForEachLoopTypeNames())
+		{
+			ScriptPosition.Message(MSG_ERROR, "foreach( k, v : m ) - 'm' must be %s a map, or a map iterator, but is a %s", GetGameSpecificTwoArgForEachLoopTypeNames(), MapExpr->ValueType->DescriptiveName());
+			delete this;
+			return nullptr;
+		}
+		else
+		{
+			ScriptPosition.Message(MSG_ERROR, "foreach( k, v : m ) - 'm' must be a map or a map iterator, but is a %s", MapExpr->ValueType->DescriptiveName());
+			delete this;
+			return nullptr;
+		}
+	}
+	else if(valueVarName == NAME_None)
+	{
+		ScriptPosition.Message(MSG_ERROR, "missing value for foreach( k, v : m )");
+		delete this;
+		return nullptr;
+	}
+
+
+	auto block = new FxCompoundStatement(ScriptPosition);
+
+	auto valType = is_iterator ? static_cast<PMapIterator*>(MapExpr->ValueType)->ValueType : static_cast<PMap*>(MapExpr->ValueType)->ValueType;
+	auto keyType = is_iterator ? static_cast<PMapIterator*>(MapExpr->ValueType)->KeyType : static_cast<PMap*>(MapExpr->ValueType)->KeyType;
+
+	auto v = new FxLocalVariableDeclaration(valType, valueVarName, nullptr, 0, ScriptPosition);
+	block->Add(v);
+
+	if(keyVarName != NAME_None)
+	{
+		auto k = new FxLocalVariableDeclaration(keyType, keyVarName, nullptr, 0, ScriptPosition);
+		block->Add(k);
+	}
+	
+
+	if(MapExpr->ValueType->isMapIterator())
+	{
+		/*
+		{
+			KeyType k;
+			ValueType v;
+			if(it.ReInit()) while(it.Next())
+			{
+				k = it.GetKey();
+				v = it.GetValue();
+				body
+			}
+		}
+		*/
+
+		auto inner_block = new FxCompoundStatement(ScriptPosition);
+
+		if(keyVarName != NAME_None)
+		{
+			inner_block->Add(new FxAssign(new FxIdentifier(keyVarName, ScriptPosition), new FxMemberFunctionCall(MapExpr, "GetKey", {}, ScriptPosition), true));
+		}
+
+		inner_block->Add(new FxAssign(new FxIdentifier(valueVarName, ScriptPosition), new FxMemberFunctionCall(MapExpr2, "GetValue", {}, ScriptPosition), true));
+		inner_block->Add(Code);
+
+		auto reInit = new FxMemberFunctionCall(MapExpr3, "ReInit", {}, ScriptPosition);
+		block->Add(new FxIfStatement(reInit, new FxWhileLoop(new FxMemberFunctionCall(MapExpr4, "Next", {}, ScriptPosition), inner_block, ScriptPosition), nullptr, ScriptPosition));
+
+		MapExpr = MapExpr2 = MapExpr3 = MapExpr4 = Code = nullptr;
+		delete this;
+		return block->Resolve(ctx);
+	}
+	else
+	{
+		/*
+		{
+			KeyType k;
+			ValueType v;
+			MapIterator<KeyType, ValueType> @it;
+			@it.Init(map);
+			while(@it.Next())
+			{
+				k = @it.GetKey();
+				v = @it.GetValue();
+				body
+			}
+		}
+		*/
+
+		PType * itType = NewMapIterator(keyType, valType);
+		auto it = new FxLocalVariableDeclaration(itType, "@it", nullptr, 0, ScriptPosition);
+		block->Add(it);
+
+		FArgumentList al_map;
+		al_map.Push(MapExpr);
+
+		block->Add(new FxMemberFunctionCall(new FxIdentifier("@it", ScriptPosition), "Init", std::move(al_map), ScriptPosition));
+
+		auto inner_block = new FxCompoundStatement(ScriptPosition);
+
+		if(keyVarName != NAME_None)
+		{
+			inner_block->Add(new FxAssign(new FxIdentifier(keyVarName, ScriptPosition), new FxMemberFunctionCall(new FxIdentifier("@it", ScriptPosition), "GetKey", {}, ScriptPosition), true));
+		}
+		inner_block->Add(new FxAssign(new FxIdentifier(valueVarName, ScriptPosition), new FxMemberFunctionCall(new FxIdentifier("@it", ScriptPosition), "GetValue", {}, ScriptPosition), true));
+		inner_block->Add(Code);
+
+		block->Add(new FxWhileLoop(new FxMemberFunctionCall(new FxIdentifier("@it", ScriptPosition), "Next", {}, ScriptPosition), inner_block, ScriptPosition));
+
+		delete MapExpr2;
+		delete MapExpr3;
+		delete MapExpr4;
+		MapExpr = MapExpr2 = MapExpr3 = MapExpr4 = Code = nullptr;
+		delete this;
+		return block->Resolve(ctx);
+	}
+}
+
+
+//==========================================================================
+//
+// FxThreeArgForEachLoop
+//
+//==========================================================================
+
+FxThreeArgForEachLoop::FxThreeArgForEachLoop(FName vv, FName pv, FName fv, FxExpression* blockiteartorexpr, FxExpression* code, const FScriptPosition& pos)
+	: FxExpression(EFX_ThreeArgForEachLoop, pos), varVarName(vv), posVarName(pv), flagsVarName(fv), BlockIteratorExpr(blockiteartorexpr), Code(code)
+{
+	ValueType = TypeVoid;
+	if (BlockIteratorExpr != nullptr) BlockIteratorExpr->NeedResult = false;
+	if (Code != nullptr) Code->NeedResult = false;
+}
+
+FxThreeArgForEachLoop::~FxThreeArgForEachLoop()
+{
+	SAFE_DELETE(BlockIteratorExpr);
+	SAFE_DELETE(Code);
+}
+
+extern bool HasGameSpecificThreeArgForEachLoopTypeNames();
+extern const char * GetGameSpecificThreeArgForEachLoopTypeNames();
+extern bool IsGameSpecificThreeArgForEachLoop(FxThreeArgForEachLoop *);
+extern FxExpression * ResolveGameSpecificThreeArgForEachLoop(FxThreeArgForEachLoop *);
+
+FxExpression *FxThreeArgForEachLoop::Resolve(FCompileContext &ctx)
+{
+	CHECKRESOLVED();
+	SAFE_RESOLVE(BlockIteratorExpr, ctx);
+
+
+	if(IsGameSpecificThreeArgForEachLoop(this))
+	{
+		return ResolveGameSpecificThreeArgForEachLoop(this)->Resolve(ctx);
+	}
+	else
+	{
+		//put any non-game-specific typed for-each loops here
+	}
+
+	if(HasGameSpecificThreeArgForEachLoopTypeNames())
+	{
+		ScriptPosition.Message(MSG_ERROR, "foreach( a, b, c : it ) - 'it' must be % but is a %s", GetGameSpecificThreeArgForEachLoopTypeNames(), BlockIteratorExpr->ValueType->DescriptiveName());
+		delete this;
+		return nullptr;
+	}
+	else
+	{
+		ScriptPosition.Message(MSG_ERROR, "foreach( a, b, c : it ) - three-arg foreach loops not supported");
+		delete this;
+		return nullptr;
+	}
+}
+
+//==========================================================================
+//
+// FxCastForEachLoop
+//
+//==========================================================================
+
+FxTypedForEachLoop::FxTypedForEachLoop(FName cv, FName vv, FxExpression* castiteartorexpr, FxExpression* code, const FScriptPosition& pos)
+	: FxExpression(EFX_TypedForEachLoop, pos), className(cv), varName(vv), Expr(castiteartorexpr), Code(code)
+{
+	ValueType = TypeVoid;
+	if (Expr != nullptr) Expr->NeedResult = false;
+	if (Code != nullptr) Code->NeedResult = false;
+}
+
+FxTypedForEachLoop::~FxTypedForEachLoop()
+{
+	SAFE_DELETE(Expr);
+	SAFE_DELETE(Code);
+}
+
+extern bool HasGameSpecificTypedForEachLoopTypeNames();
+extern const char * GetGameSpecificTypedForEachLoopTypeNames();
+extern bool IsGameSpecificTypedForEachLoop(FxTypedForEachLoop *);
+extern FxExpression * ResolveGameSpecificTypedForEachLoop(FxTypedForEachLoop *);
+
+FxExpression *FxTypedForEachLoop::Resolve(FCompileContext &ctx)
+{
+	CHECKRESOLVED();
+	SAFE_RESOLVE(Expr, ctx);
+
+	if(IsGameSpecificTypedForEachLoop(this))
+	{
+		return ResolveGameSpecificTypedForEachLoop(this)->Resolve(ctx);
+	}
+	else
+	{
+		//put any non-game-specific typed for-each loops here
+	}
+
+	if(HasGameSpecificTypedForEachLoopTypeNames())
+	{
+		ScriptPosition.Message(MSG_ERROR, "foreach(Type var : it ) - 'it' must be % but is a %s",GetGameSpecificTypedForEachLoopTypeNames(), Expr->ValueType->DescriptiveName());
+		delete this;
+		return nullptr;
+	}
+	else
+	{
+		ScriptPosition.Message(MSG_ERROR, "foreach(Type var : it ) - typed foreach loops not supported");
+		delete this;
+		return nullptr;
+	}
+}
 
 //==========================================================================
 //
@@ -12267,8 +12580,7 @@ FxExpression *FxLocalVariableDeclaration::Resolve(FCompileContext &ctx)
 	if (IsDynamicArray())
 	{
 		auto stackVar = new FxStackVariable(ValueType, StackOffset, ScriptPosition);
-		FArgumentList argsList;
-		clearExpr = new FxMemberFunctionCall(stackVar, "Clear", argsList, ScriptPosition);
+		clearExpr = new FxMemberFunctionCall(stackVar, "Clear", {}, ScriptPosition);
 		SAFE_RESOLVE(clearExpr, ctx);
 	}
 
@@ -12586,10 +12898,9 @@ FxExpression *FxLocalArrayDeclaration::Resolve(FCompileContext &ctx)
 		else
 		{
 			FArgumentList argsList;
-			argsList.Clear();
 			argsList.Push(v);
 
-			FxExpression *funcCall = new FxMemberFunctionCall(stackVar, NAME_Push, argsList, (const FScriptPosition) v->ScriptPosition);
+			FxExpression *funcCall = new FxMemberFunctionCall(stackVar, NAME_Push, std::move(argsList), (const FScriptPosition) v->ScriptPosition);
 			SAFE_RESOLVE(funcCall, ctx);
 
 			v = funcCall;

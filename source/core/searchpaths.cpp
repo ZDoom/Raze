@@ -628,10 +628,10 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true));
 	if (engine_res)
 	{
-		auto basegrp = engine_res->FindLump("engine/grpinfo.txt");
-		if (basegrp)
+		auto basegrp = engine_res->FindEntry("engine/grpinfo.txt");
+		if (basegrp >= 0)
 		{
-			auto fr = basegrp->NewReader();
+			auto fr = engine_res->GetEntryReader(basegrp, true);
 			if (fr.isOpen())
 			{
 				groups = ParseGrpInfo("engine/grpinfo.txt", fr, CRCMap);
@@ -787,7 +787,7 @@ TArray<GrpEntry> GrpScan()
 							bool ok = true;
 							for (auto &lump : grp->mustcontain)
 							{
-								if (!resf->FindLump(lump.GetChars()))
+								if (resf->FindEntry(lump.GetChars()) < 0)
 								{
 									ok = false;
 									break;

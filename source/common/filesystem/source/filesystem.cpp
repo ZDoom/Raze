@@ -404,14 +404,14 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 	if (resfile != NULL)
 	{
 		if (Printf) 
-			Printf(FSMessageLevel::Message, "adding %s, %d lumps\n", filename, resfile->LumpCount());
+			Printf(FSMessageLevel::Message, "adding %s, %d lumps\n", filename, resfile->EntryCount());
 
 		uint32_t lumpstart = (uint32_t)FileInfo.size();
 
 		resfile->SetFirstLump(lumpstart);
-		for (uint32_t i=0; i < resfile->LumpCount(); i++)
+		for (int i = 0; i < resfile->EntryCount(); i++)
 		{
-			FResourceLump *lump = resfile->GetLump(i);
+			FResourceLump* lump = resfile->GetLump(i);
 			FileInfo.resize(FileInfo.size() + 1);
 			FileSystem::LumpRecord* lump_p = &FileInfo.back();
 			lump_p->SetFromLump((int)Files.size(), lump, stringpool);
@@ -419,15 +419,15 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 
 		Files.push_back(resfile);
 
-		for (uint32_t i=0; i < resfile->LumpCount(); i++)
+		for (int i = 0; i < resfile->EntryCount(); i++)
 		{
-			FResourceLump *lump = resfile->GetLump(i);
-			if (lump->Flags & LUMPF_EMBEDDED)
+			int flags = resfile->GetEntryFlags(i);
+			if (flags & LUMPF_EMBEDDED)
 			{
 				std::string path = filename;
 				path += ':';
-				path += lump->getName();
-				auto embedded = lump->NewReader();
+				path += resfile->getName(i);
+				auto embedded = resfile->GetEntryReader(i, true);
 				AddFile(path.c_str(), &embedded, filter, Printf, hashfile);
 			}
 		}
@@ -454,13 +454,12 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 			else
 				fprintf(hashfile, "file: %s, Directory structure\n", filename);
 
-			for (uint32_t i = 0; i < resfile->LumpCount(); i++)
+			for (int i = 0; i < resfile->EntryCount(); i++)
 			{
-				FResourceLump *lump = resfile->GetLump(i);
-
-				if (!(lump->Flags & LUMPF_EMBEDDED))
+				int flags = resfile->GetEntryFlags(i);
+				if (!(flags & LUMPF_EMBEDDED))
 				{
-					auto reader = lump->NewReader();
+					auto reader = resfile->GetEntryReader(i, true);
 					md5Hash(filereader, cksum);
 
 					for (size_t j = 0; j < sizeof(cksum); ++j)
@@ -468,7 +467,7 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 						snprintf(cksumout + (j * 2), 3, "%02X", cksum[j]);
 					}
 
-					fprintf(hashfile, "file: %s, lump: %s, hash: %s, size: %d\n", filename, lump->getName(), cksumout, lump->LumpSize);
+					fprintf(hashfile, "file: %s, lump: %s, hash: %s, size: %llu\n", filename, resfile->getName(i), cksumout, (uint64_t)resfile->Length(i));
 				}
 			}
 		}
@@ -1421,7 +1420,7 @@ FileReader *FileSystem::GetFileReader(int rfnum)
 		return NULL;
 	}
 
-	return Files[rfnum]->GetReader();
+	return Files[rfnum]->GetContainerReader();
 }
 
 //==========================================================================
@@ -1441,7 +1440,7 @@ const char *FileSystem::GetResourceFileName (int rfnum) const noexcept
 		return NULL;
 	}
 
-	name = Files[rfnum]->FileName;
+	name = Files[rfnum]->GetFileName();
 	slash = strrchr (name, '/');
 	return (slash != nullptr && slash[1] != 0) ? slash+1 : name;
 }
@@ -1473,7 +1472,7 @@ int FileSystem::GetLastEntry (int rfnum) const noexcept
 		return 0;
 	}
 
-	return Files[rfnum]->GetFirstEntry() + Files[rfnum]->LumpCount() - 1;
+	return Files[rfnum]->GetFirstEntry() + Files[rfnum]->EntryCount() - 1;
 }
 
 //==========================================================================
@@ -1488,7 +1487,7 @@ int FileSystem::GetEntryCount (int rfnum) const noexcept
 		return 0;
 	}
 
-	return Files[rfnum]->LumpCount();
+	return Files[rfnum]->EntryCount();
 }
 
 
@@ -1507,7 +1506,7 @@ const char *FileSystem::GetResourceFileFullName (int rfnum) const noexcept
 		return nullptr;
 	}
 
-	return Files[rfnum]->FileName;
+	return Files[rfnum]->GetFileName();
 }
 
 
@@ -1592,15 +1591,5 @@ static void PrintLastError (FileSystemMessageFunc Printf)
 }
 #endif
 
-//==========================================================================
-//
-// NBlood style lookup functions
-//
-//==========================================================================
-
-FResourceLump* FileSystem::GetFileAt(int no)
-{
-	return FileInfo[no].lump;
-}
 
 }

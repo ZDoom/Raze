@@ -67,26 +67,25 @@ static bool    tokenready;                     // only true if UnGetToken was ju
 ==============
 */
 
-std::vector<uint8_t> LoadScriptFile(const char *filename)
+TArray<uint8_t> LoadScriptFile(const char *filename)
 {
+    TArray<uint8_t> ret;
     FileReader fp;
 
 	if (!(fp = fileSystem.OpenFileReader(filename)).isOpen())
 	{
 		// If there's no script file, forget it.
-		return std::vector<uint8_t>();
+		return ret;
 	}
 
-    auto scriptbuffer = fp.Read();
-
-    if (scriptbuffer.size() != 0)
+    ret.Resize(fp.GetLength() + 1);
+    if (fp.Read(ret.Data(), fp.GetLength()) < fp.GetLength())
     {
-        scriptbuffer.push_back(0);
         scriptline = 1;
         endofscript = false;
         tokenready = false;
     }
-    return scriptbuffer;
+    return ret;
 }
 
 

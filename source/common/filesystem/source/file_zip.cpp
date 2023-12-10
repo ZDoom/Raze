@@ -52,7 +52,7 @@ namespace FileSys {
 //
 //==========================================================================
 
-static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, int LumpSize, int CompressedSize, int GPFlags, bool exceptions)
+static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, ptrdiff_t LumpSize, ptrdiff_t CompressedSize, int GPFlags, bool exceptions)
 {
 	switch (Method)
 	{
@@ -79,7 +79,7 @@ static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, int L
 	case METHOD_IMPLODE:
 	{
 		FZipExploder exploder;
-		if (exploder.Explode((unsigned char*)Cache, LumpSize, Reader, CompressedSize, GPFlags) == -1)
+		if (exploder.Explode((unsigned char*)Cache, (unsigned)LumpSize, Reader, (unsigned)CompressedSize, GPFlags) == -1)
 		{
 			// decompression failed so zero the cache.
 			memset(Cache, 0, LumpSize);
@@ -89,7 +89,7 @@ static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, int L
 
 	case METHOD_SHRINK:
 	{
-		ShrinkLoop((unsigned char *)Cache, LumpSize, Reader, CompressedSize);
+		ShrinkLoop((unsigned char *)Cache, (unsigned)LumpSize, Reader, (unsigned)CompressedSize);
 		break;
 	}
 
@@ -445,8 +445,8 @@ FCompressedBuffer FZipLump::GetRawData()
 {
 	FCompressedBuffer cbuf = { (unsigned)LumpSize, (unsigned)CompressedSize, Method, GPFlags, CRC32, new char[CompressedSize] };
 	if (NeedFileStart) SetLumpAddress();
-	Owner->Reader.Seek(Position, FileReader::SeekSet);
-	Owner->Reader.Read(cbuf.mBuffer, CompressedSize);
+	Owner->GetContainerReader()->Seek(Position, FileReader::SeekSet);
+	Owner->GetContainerReader()->Read(cbuf.mBuffer, CompressedSize);
 	return cbuf;
 }
 
@@ -464,8 +464,8 @@ void FZipLump::SetLumpAddress()
 	FZipLocalFileHeader localHeader;
 	int skiplen;
 
-	Owner->Reader.Seek(Position, FileReader::SeekSet);
-	Owner->Reader.Read(&localHeader, sizeof(localHeader));
+	Owner->GetContainerReader()->Seek(Position, FileReader::SeekSet);
+	Owner->GetContainerReader()->Read(&localHeader, sizeof(localHeader));
 	skiplen = LittleShort(localHeader.NameLength) + LittleShort(localHeader.ExtraLength);
 	Position += sizeof(localHeader) + skiplen;
 	NeedFileStart = false;
@@ -484,8 +484,8 @@ FileReader *FZipLump::GetReader()
 	if (Method == METHOD_STORED)
 	{
 		if (NeedFileStart) SetLumpAddress();
-		Owner->Reader.Seek(Position, FileReader::SeekSet);
-		return &Owner->Reader;
+		Owner->GetContainerReader()->Seek(Position, FileReader::SeekSet);
+		return Owner->GetContainerReader();
 	}
 	else return NULL;	
 }
@@ -501,7 +501,7 @@ int FZipLump::FillCache()
 	if (NeedFileStart) SetLumpAddress();
 	const char *buffer;
 
-	if (Method == METHOD_STORED && (buffer = Owner->Reader.GetBuffer()) != NULL)
+	if (Method == METHOD_STORED && (buffer = Owner->GetContainerReader()->GetBuffer()) != NULL)
 	{
 		// This is an in-memory file so the cache can point directly to the file's data.
 		Cache = const_cast<char*>(buffer) + Position;
@@ -509,9 +509,9 @@ int FZipLump::FillCache()
 		return -1;
 	}
 
-	Owner->Reader.Seek(Position, FileReader::SeekSet);
+	Owner->GetContainerReader()->Seek(Position, FileReader::SeekSet);
 	Cache = new char[LumpSize];
-	UncompressZipLump(Cache, Owner->Reader, Method, LumpSize, CompressedSize, GPFlags, true);
+	UncompressZipLump(Cache, *Owner->GetContainerReader(), Method, LumpSize, CompressedSize, GPFlags, true);
 	RefCount = 1;
 	return 1;
 }
@@ -548,9 +548,7 @@ FResourceFile *CheckZip(const char *filename, FileReader &file, LumpFilterInfo* 
 		{
 			auto rf = new FZipFile(filename, file, sp);
 			if (rf->Open(filter, Printf)) return rf;
-
-			file = std::move(rf->Reader); // to avoid destruction of reader
-			delete rf;
+			file = rf->Destroy();
 		}
 	}
 	return NULL;
@@ -606,8 +604,8 @@ static int AppendToZip(FileWriter *zip_file, const FCompressedBuffer &content, s
 	local.ModDate = LittleShort(dostime.first);
 	local.ModTime = LittleShort(dostime.second);
 	local.CRC32 = content.mCRC32;
-	local.UncompressedSize = LittleLong(content.mSize);
-	local.CompressedSize = LittleLong(content.mCompressedSize);
+	local.UncompressedSize = LittleLong((unsigned)content.mSize);
+	local.CompressedSize = LittleLong((unsigned)content.mCompressedSize);
 	local.NameLength = LittleShort((unsigned short)strlen(content.filename));
 	local.ExtraLength = 0;
 
@@ -648,8 +646,8 @@ int AppendCentralDirectory(FileWriter *zip_file, const FCompressedBuffer &conten
 	dir.ModTime = LittleShort(dostime.first);
 	dir.ModDate = LittleShort(dostime.second);
 	dir.CRC32 = content.mCRC32;
-	dir.CompressedSize32 = LittleLong(content.mCompressedSize);
-	dir.UncompressedSize32 = LittleLong(content.mSize);
+	dir.CompressedSize32 = LittleLong((unsigned)content.mCompressedSize);
+	dir.UncompressedSize32 = LittleLong((unsigned)content.mSize);
 	dir.NameLength = LittleShort((unsigned short)strlen(content.filename));
 	dir.ExtraLength = 0;
 	dir.CommentLength = 0;
