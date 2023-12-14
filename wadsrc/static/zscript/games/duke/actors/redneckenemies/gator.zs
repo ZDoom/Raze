@@ -13,4 +13,11 @@ class RedneckGator : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 	}
+
+	override void Initialize(DukeActor spawner)
+	{
+		self.scale = (0.28125, 0.28125);
+		self.setClipDistFromTile();
+	}
+
 }
