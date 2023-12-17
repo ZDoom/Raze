@@ -251,6 +251,7 @@ class DukeStatue : DukeActor
 	{
 		self.clipdist = 32;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_ACTOR);
 	}
 
 	override void OnHit(DukeActor proj)
