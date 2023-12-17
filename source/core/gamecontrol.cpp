@@ -357,7 +357,7 @@ void UserConfig::ProcessOptions()
 		toBeDeleted.Push("turd66.anm*turdmov.anm");
 		toBeDeleted.Push("turd66.voc*turdmov.voc");
 		toBeDeleted.Push("end66.anm*rr_outro.anm");
-		toBeDeleted.Push("end66.voc*rr_outro.voc");
+		toBeDeleted.Push("end66.voc*ln_final.voc");
 	}
 	else if (Args->CheckParm("-cryptic"))
 	{

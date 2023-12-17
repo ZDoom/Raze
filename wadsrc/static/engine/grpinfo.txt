@@ -825,7 +825,7 @@ grpinfo
 	dependency RR_CRC
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"
-	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*ln_final.voc"	// This renames instead of deleting
 	GameID "Route66"
 }
 
@@ -839,7 +839,7 @@ addon
 	dependency RR_CRC
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"
-	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*ln_final.voc"	// This renames instead of deleting
 	GameID "Route66"
 }	
 
