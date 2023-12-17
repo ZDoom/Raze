@@ -76,7 +76,7 @@ static void S_AddBloodSFX(int lumpnum)
 	}
 
 	auto sfxlump = fileSystem.ReadFile(lumpnum);
-	SFX* sfx = (SFX*)sfxlump.GetMem();
+	SFX* sfx = (SFX*)sfxlump.data();
 	ByteSwapSFX(sfx);
 
 	FStringf rawname("%s.raw", sfx->rawName);

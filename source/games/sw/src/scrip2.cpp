@@ -78,7 +78,7 @@ TArray<uint8_t> LoadScriptFile(const char *filename)
 		return ret;
 	}
 
-    ret.Resize(fp.GetLength() + 1);
+    ret.Resize((unsigned)fp.GetLength() + 1);
     if (fp.Read(ret.Data(), fp.GetLength()) < fp.GetLength())
     {
         scriptline = 1;

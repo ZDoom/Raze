@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include "fs_files.h"
+#include "fs_decompress.h"
 
 namespace FileSys {
 	
@@ -18,7 +19,6 @@ void strReplace(std::string& str, const char* from, const char* to);
 struct LumpFilterInfo
 {
 	std::vector<std::string> gameTypeFilter;	// this can contain multiple entries
-	std::string dotFilter;
 
 	// The following are for checking if the root directory of a zip can be removed.
 	std::vector<std::string> reservedFolders;
@@ -78,125 +78,69 @@ typedef enum {
 
 enum ELumpFlags
 {
-	LUMPF_MAYBEFLAT = 1,	// might be a flat outside F_START/END
-	LUMPF_FULLPATH = 2,		// contains a full path. This will trigger extended namespace checks when looking up short names.
-	LUMPF_EMBEDDED = 4,		// marks an embedded resource file for later processing.
-	LUMPF_SHORTNAME = 8,	// the stored name is a short extension-less name
-	LUMPF_COMPRESSED = 16,	// compressed or encrypted, i.e. cannot be read with the container file's reader.
+	RESFF_MAYBEFLAT = 1,	// might be a flat inside a WAD outside F_START/END
+	RESFF_FULLPATH = 2,		// contains a full path. This will trigger extended namespace checks when looking up short names.
+	RESFF_EMBEDDED = 4,		// marks an embedded resource file for later processing.
+	RESFF_SHORTNAME = 8,	// the stored name is a short extension-less name
+	RESFF_COMPRESSED = 16,	// compressed or encrypted, i.e. cannot be read with the container file's reader.
+	RESFF_NEEDFILESTART = 32,	// The real position is not known yet and needs to be calculated on access
 };
 
-// This holds a compresed Zip entry with all needed info to decompress it.
-struct FCompressedBuffer
+enum EReaderType
 {
-	size_t mSize;
-	size_t mCompressedSize;
-	int mMethod;
-	int mZipFlags;
-	unsigned mCRC32;
-	char *mBuffer;
-	const char* filename;
-
-	bool Decompress(char *destbuffer);
-	void Clean()
-	{
-		mSize = mCompressedSize = 0;
-		if (mBuffer != nullptr)
-		{
-			delete[] mBuffer;
-			mBuffer = nullptr;
-		}
-	}
+	READER_SHARED = 0,	// returns a view into the parent's reader.
+	READER_NEW = 1,		// opens a new file handle
+	READER_CACHED = 2,	// returns a MemoryArrayReader
+	READERFLAG_SEEKABLE = 1	// ensure the reader is seekable.
 };
 
-struct FResourceLump
+struct FResourceEntry
 {
-protected:
-	friend class FResourceFile;
-	friend class FWadFile;	// this still needs direct access.
-	friend class FileData;
-	friend class FileSystem;
-	friend class FLumpFile;
-	friend class FLumpReader;
-	friend class FGrpFile;
-	friend class F7ZFile;
-	friend class FSSIFile;
-	friend class FWHResFile;
-	friend class FZipFile;
-	friend class FPakFile;
-	friend class FRFFFile;
-	friend class FDirectory;
-	friend int lumpcmp(const void* a, const void* b);
-
-
-	int				LumpSize;
-	int				RefCount;
-//protected:
-	const char*		FullName;
-//public:
-	uint8_t			Flags;
-	char *			Cache;
-	FResourceFile *	Owner;
-
-public:
-	FResourceLump()
-	{
-		Cache = NULL;
-		Owner = NULL;
-		Flags = 0;
-		RefCount = 0;
-		FullName = "";
-		LumpSize = 0;
-	}
-	virtual ~FResourceLump();
-
-protected:
-
-	virtual FileReader *GetReader();
-	virtual FileReader NewReader();
-	virtual int GetFileOffset() { return -1; }
-	virtual int GetIndexNum() const { return -1; }
-	virtual int GetNamespace() const { return 0; }
-	void LumpNameSetup(const char* iname, StringPool* allocator);
-	void CheckEmbedded(LumpFilterInfo* lfi);
-	virtual FCompressedBuffer GetRawData();
-
-	void *Lock(); // validates the cache and increases the refcount.
-	int Unlock(); // decreases the refcount and frees the buffer
-
-	unsigned Size() const{ return LumpSize; }
-	int LockCount() const { return RefCount; }
-	const char* getName() { return FullName; }
-	void clearName() { FullName = ""; }
-
-protected:
-	virtual int FillCache() { return -1; }
-
+	size_t Length;
+	size_t CompressedSize;
+	const char* FileName;
+	size_t Position;
+	int ResourceID;
+	uint32_t CRC32;
+	uint16_t Flags;
+	uint16_t Method;
+	int16_t Namespace;
 };
+
+void SetMainThread();
 
 class FResourceFile
 {
 public:
+	FResourceFile(const char* filename, StringPool* sp);
+	FResourceFile(const char* filename, FileReader& r, StringPool* sp);
+	const char* NormalizeFileName(const char* fn, int fallbackcp = 0);
+	FResourceEntry* AllocateEntries(int count);
+	void GenerateHash();
+	void PostProcessArchive(LumpFilterInfo* filter);
 protected:
 	FileReader Reader;
 	const char* FileName;
+	FResourceEntry* Entries = nullptr;
 	uint32_t NumLumps;
 	char Hash[48];
 	StringPool* stringpool;
 
-	FResourceFile(const char *filename, StringPool* sp);
-	FResourceFile(const char *filename, FileReader &r, StringPool* sp);
-
 	// for archives that can contain directories
-	void GenerateHash();
-	void PostProcessArchive(void *lumps, size_t lumpsize, LumpFilterInfo *filter);
+	virtual void SetEntryAddress(uint32_t entry)
+	{
+		Entries[entry].Flags &= ~RESFF_NEEDFILESTART;
+	}
+	bool IsFileInFolder(const char* const resPath);
+	void CheckEmbedded(uint32_t entry, LumpFilterInfo* lfi);
 
 private:
 	uint32_t FirstLump;
 
-	int FilterLumps(const std::string& filtername, void *lumps, size_t lumpsize, uint32_t max);
-	int FilterLumpsByGameType(LumpFilterInfo *filter, void *lumps, size_t lumpsize, uint32_t max);
-	bool FindPrefixRange(const char* filter, void *lumps, size_t lumpsize, uint32_t max, uint32_t &start, uint32_t &end);
-	void JunkLeftoverFilters(void *lumps, size_t lumpsize, uint32_t max);
+	int FilterLumps(const std::string& filtername, uint32_t max);
+	bool FindPrefixRange(const char* filter, uint32_t max, uint32_t &start, uint32_t &end);
+	void JunkLeftoverFilters(uint32_t max);
+	void FindCommonFolder(LumpFilterInfo* filter);
 	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool containeronly, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp);
 
 public:
@@ -211,46 +155,44 @@ public:
 	void SetFirstLump(uint32_t f) { FirstLump = f; }
 	const char* GetHash() const { return Hash; }
 
-	virtual FResourceLump *GetLump(int no) = 0;
-
 	int EntryCount() const { return NumLumps; }
 	int FindEntry(const char* name);
 
-	size_t Length(int entry)
+	size_t Length(uint32_t entry)
 	{
-		auto l = GetLump(entry);
-		return l ? l->LumpSize : -1;
+		return (entry < NumLumps) ? Entries[entry].Length : 0;
+	}
+	size_t Offset(uint32_t entry)
+	{
+		return (entry < NumLumps) ? Entries[entry].Position : 0;
 	}
 
-	FileReader GetEntryReader(int entry, bool newreader = true)
+	// default is the safest reader type.
+	virtual FileReader GetEntryReader(uint32_t entry, int readertype = READER_NEW, int flags = READERFLAG_SEEKABLE);
+
+	int GetEntryFlags(uint32_t entry)
 	{
-		auto l = GetLump(entry);
-		return l ? l->NewReader() : FileReader();
+		return (entry < NumLumps) ? Entries[entry].Flags : 0;
 	}
 
-	int GetEntryFlags(int entry)
+	int GetEntryNamespace(uint32_t entry)
 	{
-		auto l = GetLump(entry);
-		return l ? l->Flags : 0;
+		return (entry < NumLumps) ? Entries[entry].Namespace : ns_hidden;
 	}
 
-	ResourceData Read(int entry)
+	int GetEntryResourceID(uint32_t entry)
 	{
-		auto fr = GetEntryReader(entry, false);
-		return fr.Read();
+		return (entry < NumLumps) ? Entries[entry].ResourceID : -1;
 	}
 
-	const char* getName(int entry)
+	const char* getName(uint32_t entry)
 	{
-		auto l = GetLump(entry);
-		return l ? l->FullName : nullptr;
+		return (entry < NumLumps) ? Entries[entry].FileName : nullptr;
 	}
-	FCompressedBuffer GetRawData(int entry)
-	{
-		auto l = GetLump(entry);
-		if (!l) return {};
-		return l->GetRawData();
-	}
+
+	virtual FileData Read(int entry);
+
+	virtual FCompressedBuffer GetRawData(uint32_t entry);
 
 	FileReader Destroy()
 	{

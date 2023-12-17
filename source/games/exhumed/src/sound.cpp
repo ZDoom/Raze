@@ -177,7 +177,7 @@ int LoadSound(const char* name)
     {
         auto check = fileSystem.ReadFile(lump);
 		bool loops = false;
-        if (check.GetSize() > 26 && check.GetString()[26] == 6 && !memcmp("Creative Voice File", check.GetString(), 19))
+        if (check.size() > 26 && check.string()[26] == 6 && !memcmp("Creative Voice File", check.string(), 19))
         {
             // This game uses the actual loop point information in the sound data as its only means to check if a sound is looped.
             loops = true;

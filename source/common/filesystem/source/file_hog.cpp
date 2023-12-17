@@ -1,8 +1,10 @@
 /*
-** file_lump.cpp
+** file_hog.cpp
+**
+** reads Descent .hog files
 **
 **---------------------------------------------------------------------------
-** Copyright 2009 Christoph Oelckers
+** Copyright 2023 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -32,27 +34,51 @@
 **
 */
 
+
 #include "resourcefile.h"
+#include "fs_swap.h"
 
 namespace FileSys {
-//==========================================================================
-//
-// Open it
-//
-//==========================================================================
+    using namespace byteswap;
 
-static bool OpenLump(FResourceFile* file, LumpFilterInfo*)
+
+
+
+static bool OpenHog(FResourceFile* rf, LumpFilterInfo* filter)
 {
-	auto Entries = file->AllocateEntries(1);
-	Entries[0].FileName = file->NormalizeFileName(ExtractBaseName(file->GetFileName(), true).c_str());
-	Entries[0].Namespace = ns_global;
-	Entries[0].ResourceID = -1;
-	Entries[0].Position = 0;
-	Entries[0].Length = file->GetContainerReader()->GetLength();
-	Entries[0].Method = METHOD_STORED;
-	Entries[0].Flags = 0;
-	return true;
+    auto Reader = rf->GetContainerReader();
+    FileReader::Size length = Reader->GetLength();
+
+    std::vector<FResourceEntry> entries;
+    // Hogs store their data as a list of file records, each containing a name, length and the actual data.
+    // To read the directory the entire file must be scanned.
+    while (Reader->Tell() <= length)
+    {
+        char name[13];
+
+        auto r = Reader->Read(&name, 13);
+        if (r < 13) break;
+        name[12] = 0;
+        uint32_t elength = Reader->ReadUInt32();
+
+        FResourceEntry Entry;
+        Entry.Position = Reader->Tell();
+        Entry.Length = elength;
+        Entry.Flags = 0;
+        Entry.CRC32 = 0;
+        Entry.Namespace = ns_global;
+        Entry.ResourceID = -1;
+        Entry.Method = METHOD_STORED;
+        Entry.FileName = rf->NormalizeFileName(name);
+        entries.push_back(Entry);
+        Reader->Seek(elength, FileReader::SeekCur);
+    }
+    auto Entries = rf->AllocateEntries((int)entries.size());
+    memcpy(Entries, entries.data(), entries.size() * sizeof(Entries[0]));
+    rf->GenerateHash();
+    return true;
 }
+
 
 //==========================================================================
 //
@@ -60,13 +86,24 @@ static bool OpenLump(FResourceFile* file, LumpFilterInfo*)
 //
 //==========================================================================
 
-FResourceFile *CheckLump(const char *filename, FileReader &file, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
+FResourceFile* CheckHog(const char* filename, FileReader& file, LumpFilterInfo* filter, FileSystemMessageFunc Printf, StringPool* sp)
 {
-	// always succeeds
-	auto rf = new FResourceFile(filename, file, sp);
-	if (OpenLump(rf, filter)) return rf;
-	file = rf->Destroy();
-	return NULL;
+    char head[3];
+
+    if (file.GetLength() >= 20)
+    {
+        file.Seek(0, FileReader::SeekSet);
+        file.Read(&head, 3);
+        if (!memcmp(head, "DHF", 3))
+        {
+            auto rf = new FResourceFile(filename, file, sp);
+            if (OpenHog(rf, filter)) return rf;
+            file = rf->Destroy();
+        }
+        file.Seek(0, FileReader::SeekSet);
+    }
+    return nullptr;
 }
+
 
 }

@@ -35,6 +35,9 @@
 
 #include <string>
 #include <memory>
+#include <algorithm>
+#include <assert.h>
+#include <string.h>
 #include "files_internal.h"
 
 namespace FileSys {
@@ -326,15 +329,15 @@ char *MemoryReader::Gets(char *strbuf, ptrdiff_t len)
 int BufferingReader::FillBuffer(ptrdiff_t newpos)
 {
 	if (newpos > Length) newpos = Length;
-	if (newpos < bufferpos) return 0;
-	auto read = baseReader->Read(&buf[bufferpos], newpos - bufferpos);
+	if (newpos <= bufferpos) return 0;
+	auto read = baseReader->Read(&buf.writable()[bufferpos], newpos - bufferpos);
 	bufferpos += read;
 	if (bufferpos == Length)
 	{
 		// we have read the entire file, so delete our data provider.
 		baseReader.reset();
 	}
-	return read == newpos - bufferpos ? 0 : -1;
+	return newpos == bufferpos ? 0 : -1;
 }
 
 ptrdiff_t BufferingReader::Seek(ptrdiff_t offset, int origin)
@@ -392,44 +395,39 @@ bool FileReader::OpenMemory(const void *mem, FileReader::Size length)
 	return true;
 }
 
-bool FileReader::OpenMemoryArray(const void *mem, FileReader::Size length)
+bool FileReader::OpenMemoryArray(FileData& data)
 {
 	Close();
-	mReader = new MemoryArrayReader<std::vector<uint8_t>>((const char *)mem, length);
+	if (data.size() > 0) mReader = new MemoryArrayReader(data);
 	return true;
 }
 
-bool FileReader::OpenMemoryArray(std::vector<uint8_t>& data)
+FileData FileReader::Read(size_t len)
 {
-	Close();
-	if (data.size() > 0) mReader = new MemoryArrayReader<std::vector<uint8_t>>(data);
-	return true;
-}
-
-bool FileReader::OpenMemoryArray(ResourceData& data)
-{
-	Close();
-	if (data.size() > 0) mReader = new MemoryArrayReader<ResourceData>(data);
-	return true;
-}
-
-bool FileReader::OpenMemoryArray(std::function<bool(std::vector<uint8_t>&)> getter)
-{
-	auto reader = new MemoryArrayReader<std::vector<uint8_t>>(nullptr, 0);
-	if (getter(reader->GetArray()))
+	FileData buffer;
+	if (len > 0)
 	{
-		Close();
-		reader->UpdateBuffer();
-		mReader = reader;
-		return true;
+		Size length = mReader->Read(buffer.allocate(len), len);
+		if ((size_t)length < len) buffer.allocate(length);
 	}
-	else
-	{
-		// This will keep the old buffer, if one existed
-		delete reader;
-		return false;
-	}
+	return buffer;
 }
+
+FileData FileReader::ReadPadded(size_t padding)
+{
+	auto len = GetLength();
+	FileData buffer;
+
+	if (len > 0)
+	{
+		auto p = (char*)buffer.allocate(len + padding);
+		Size length = mReader->Read(p, len);
+		if (length < len) buffer.clear();
+		else memset(p + len, 0, padding);
+	}
+	return buffer;
+}
+
 
 
 //==========================================================================

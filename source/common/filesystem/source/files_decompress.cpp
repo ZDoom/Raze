@@ -45,6 +45,9 @@
 #include <stdexcept>
 
 #include "fs_files.h"
+#include "files_internal.h"
+#include "ancientzip.h"
+#include "fs_decompress.h"
 
 namespace FileSys {
 	using namespace byteswap;
@@ -53,6 +56,7 @@ namespace FileSys {
 class DecompressorBase : public FileReaderInterface
 {
 	bool exceptions = false;
+
 public:
 	// These do not work but need to be defined to satisfy the FileReaderInterface.
 	// They will just error out when called.
@@ -64,6 +68,10 @@ public:
 	void EnableExceptions(bool on) { exceptions = on; }
 
 protected:
+	DecompressorBase()
+	{
+		//seekable = false;
+	}
 	FileReader* File = nullptr;
 	FileReader OwnedFile;
 };
@@ -174,7 +182,7 @@ public:
 		inflateEnd (&Stream);
 	}
 
-	ptrdiff_t Read (void *buffer, ptrdiff_t len) override
+	ptrdiff_t Read (void *buffer, ptrdiff_t olen) override
 	{
 		int err = 0;
 
@@ -183,6 +191,7 @@ public:
 			DecompressionError("File not open");
 			return 0;
 		}
+		auto len = olen;
 		if (len == 0) return 0;
 
 		while (len > 0)
@@ -215,7 +224,7 @@ public:
 			return 0;
 		}
 
-		return len - Stream.avail_out;
+		return olen - Stream.avail_out;
 	}
 
 	void FillBuffer ()
@@ -841,19 +850,22 @@ public:
 };
 
 
-bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, bool seekable, bool exceptions)
+bool OpenDecompressor(FileReader& self, FileReader &parent, FileReader::Size length, int method, int flags)
 {
+	FileReaderInterface* fr = nullptr;
 	DecompressorBase* dec = nullptr;
 	try
 	{
 		FileReader* p = &parent;
-		switch (method & ~METHOD_TRANSFEROWNER)
+		bool exceptions = !!(flags & DCF_EXCEPTIONS);
+
+		switch (method)
 		{
 		case METHOD_DEFLATE:
 		case METHOD_ZLIB:
 		{
 			auto idec = new DecompressorZ;
-			dec = idec;
+			fr = dec = idec;
 			idec->EnableExceptions(exceptions);
 			if (!idec->Open(p, method == METHOD_DEFLATE))
 			{
@@ -865,7 +877,7 @@ bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, b
 		case METHOD_BZIP2:
 		{
 			auto idec = new DecompressorBZ2;
-			dec = idec;
+			fr = dec = idec;
 			idec->EnableExceptions(exceptions);
 			if (!idec->Open(p))
 			{
@@ -877,7 +889,7 @@ bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, b
 		case METHOD_LZMA:
 		{
 			auto idec = new DecompressorLZMA;
-			dec = idec;
+			fr = dec = idec;
 			idec->EnableExceptions(exceptions);
 			if (!idec->Open(p, length))
 			{
@@ -889,7 +901,7 @@ bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, b
 		case METHOD_XZ:
 		{
 			auto idec = new DecompressorXZ;
-			dec = idec;
+			fr = dec = idec;
 			idec->EnableExceptions(exceptions);
 			if (!idec->Open(p, length))
 			{
@@ -901,7 +913,7 @@ bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, b
 		case METHOD_LZSS:
 		{
 			auto idec = new DecompressorLZSS;
-			dec = idec;
+			fr = dec = idec;
 			idec->EnableExceptions(exceptions);
 			if (!idec->Open(p))
 			{
@@ -911,34 +923,103 @@ bool FileReader::OpenDecompressor(FileReader &parent, Size length, int method, b
 			break;
 		}
 
-		// todo: METHOD_IMPLODE, METHOD_SHRINK
+		// The decoders for these legacy formats can only handle the full data in one go so we have to perform the entire decompression here.
+		case METHOD_IMPLODE_0:
+		case METHOD_IMPLODE_2:
+		case METHOD_IMPLODE_4:
+		case METHOD_IMPLODE_6:
+		{
+			FileData buffer(nullptr, length);
+			FZipExploder exploder;
+			if (exploder.Explode(buffer.writable(), length, *p, p->GetLength(), method - METHOD_IMPLODE_MIN) == -1)
+			{
+				if (exceptions)
+				{
+					throw FileSystemException("DecompressImplode failed");
+				}
+				return false;
+			}
+			fr = new MemoryArrayReader(buffer);
+			flags &= ~(DCF_SEEKABLE | DCF_CACHED);
+			break;
+		}
+
+		case METHOD_SHRINK:
+		{
+			FileData buffer(nullptr, length);
+			ShrinkLoop(buffer.writable(), length, *p, p->GetLength()); // this never fails.
+			fr = new MemoryArrayReader(buffer);
+			flags &= ~(DCF_SEEKABLE | DCF_CACHED);
+			break;
+		}
+
+		// While this could be made a buffering reader it isn't worth the effort because only stock RFFs are encrypted and they do not contain large files.
+		case METHOD_RFFCRYPT:
+		{
+			FileData buffer = p->Read(length);
+			auto bufr = buffer.writable();
+			FileReader::Size cryptlen = std::min<FileReader::Size>(length, 256);
+
+			for (FileReader::Size i = 0; i < cryptlen; ++i)
+			{
+				bufr[i] ^= i >> 1;
+			}
+			fr = new MemoryArrayReader(buffer);
+			flags &= ~(DCF_SEEKABLE | DCF_CACHED);
+			break;
+		}
+
 		default:
 			return false;
 		}
-		if (method & METHOD_TRANSFEROWNER)
+		if (dec)
 		{
-			dec->SetOwnsReader();
+			if (flags & DCF_TRANSFEROWNER)
+			{
+				dec->SetOwnsReader();
+			}
+			dec->Length = length;
 		}
-
-		dec->Length = length;
-		if (!seekable)
+		if ((flags & DCF_CACHED))
 		{
-			Close();
-			mReader = dec;
-			return true;
+			// read everything into a MemoryArrayReader.
+			FileData data(nullptr, length);
+			fr->Read(data.writable(), length);
+			fr = new MemoryArrayReader(data);
 		}
-		else
+		else if ((flags & DCF_SEEKABLE))
 		{
-			// todo: create a wrapper. for now this fails
-			delete dec;
-			return false;
+			// create a wrapper that can buffer the content so that seeking is possible
+			fr = new BufferingReader(fr);
 		}
-	}
+		self = FileReader(fr);
+		return true;
+			}
 	catch (...)
 	{
-		if (dec) delete dec;
+		if (fr) delete fr;
 		throw;
 	}
 }
 
+
+bool FCompressedBuffer::Decompress(char* destbuffer)
+{
+	if (mMethod == METHOD_STORED)
+	{
+		memcpy(destbuffer, mBuffer, mSize);
+		return true;
+	}
+	else
+	{
+		FileReader mr;
+		mr.OpenMemory(mBuffer, mCompressedSize);
+		FileReader frz;
+		if (OpenDecompressor(frz, mr, mSize, mMethod))
+		{
+			return frz.Read(destbuffer, mSize) != mSize;
+		}
+	}
+	return false;
+}
 }

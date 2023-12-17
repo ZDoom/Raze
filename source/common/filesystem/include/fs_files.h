@@ -40,11 +40,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <string.h>
 #include <functional>
 #include <vector>
 #include "fs_swap.h"
-
-#include "tarray.h"
 
 namespace FileSys {
 	
@@ -72,26 +71,10 @@ public:
 	}
 };
 
-// Zip compression methods, extended by some internal types to be passed to OpenDecompressor
-enum
-{
-	METHOD_STORED = 0,
-	METHOD_SHRINK = 1,
-	METHOD_IMPLODE = 6,
-	METHOD_DEFLATE = 8,
-	METHOD_BZIP2 = 12,
-	METHOD_LZMA = 14,
-	METHOD_XZ = 95,
-	METHOD_PPMD = 98,
-	METHOD_LZSS = 1337,	// not used in Zips - this is for Console Doom compression
-	METHOD_ZLIB = 1338,	// Zlib stream with header, used by compressed nodes.
-	METHOD_TRANSFEROWNER = 0x8000,
-};
-
 class FileReader;
 
 // an opaque memory buffer to the file's content. Can either own the memory or just point to an external buffer.
-class ResourceData
+class FileData
 {
 	void* memory;
 	size_t length;
@@ -99,13 +82,29 @@ class ResourceData
 
 public:
 	using value_type = uint8_t;
-	ResourceData() { memory = nullptr; length = 0; owned = true; }
+	FileData() { memory = nullptr; length = 0; owned = true; }
+	FileData(const void* memory_, size_t len, bool own = true)
+	{
+		length = len;
+		if (own)
+		{
+			length = len;
+			memory = allocate(len);
+			if (memory_) memcpy(memory, memory_, len);
+		}
+		else
+		{
+			memory = (void*)memory_;
+			owned = false;
+		}
+	}
+	uint8_t* writable() const { return owned? (uint8_t*)memory : nullptr; }
 	const void* data() const { return memory; }
 	size_t size() const { return length; }
 	const char* string() const { return (const char*)memory; }
 	const uint8_t* bytes() const { return (const uint8_t*)memory; }
 
-	ResourceData& operator = (const ResourceData& copy)
+	FileData& operator = (const FileData& copy)
 	{
 		if (owned && memory) free(memory);
 		length = copy.length;
@@ -119,7 +118,7 @@ public:
 		return *this;
 	}
 
-	ResourceData& operator = (ResourceData&& copy) noexcept
+	FileData& operator = (FileData&& copy) noexcept
 	{
 		if (owned && memory) free(memory);
 		length = copy.length;
@@ -131,13 +130,13 @@ public:
 		return *this;
 	}
 
-	ResourceData(const ResourceData& copy)
+	FileData(const FileData& copy)
 	{
 		memory = nullptr;
 		*this = copy;
 	}
 
-	~ResourceData()
+	~FileData()
 	{
 		if (owned && memory) free(memory);
 	}
@@ -168,6 +167,7 @@ public:
 
 };
 
+
 class FileReaderInterface
 {
 public:
@@ -181,12 +181,8 @@ public:
 	ptrdiff_t GetLength () const { return Length; }
 };
 
-struct FResourceLump;
-
 class FileReader
 {
-	friend struct FResourceLump;	// needs access to the private constructor.
-
 	FileReaderInterface *mReader = nullptr;
 
 	FileReader(const FileReader &r) = delete;
@@ -210,13 +206,13 @@ public:
 
 	FileReader() {}
 
-	FileReader(FileReader &&r)
+	FileReader(FileReader &&r) noexcept
 	{
 		mReader = r.mReader;
 		r.mReader = nullptr;
 	}
 
-	FileReader& operator =(FileReader &&r)
+	FileReader& operator =(FileReader &&r) noexcept
 	{
 		Close();
 		mReader = r.mReader;
@@ -252,11 +248,7 @@ public:
 	bool OpenFile(const char *filename, Size start = 0, Size length = -1, bool buffered = false);
 	bool OpenFilePart(FileReader &parent, Size start, Size length);
 	bool OpenMemory(const void *mem, Size length);	// read directly from the buffer
-	bool OpenMemoryArray(const void *mem, Size length);	// read from a copy of the buffer.
-	bool OpenMemoryArray(std::vector<uint8_t>& data);	// take the given array
-	bool OpenMemoryArray(ResourceData& data);	// take the given array
-	bool OpenMemoryArray(std::function<bool(std::vector<uint8_t>&)> getter);	// read contents to a buffer and return a reader to it
-	bool OpenDecompressor(FileReader &parent, Size length, int method, bool seekable, bool exceptions = false);	// creates a decompressor stream. 'seekable' uses a buffered version so that the Seek and Tell methods can be used.
+	bool OpenMemoryArray(FileData& data);	// take the given array
 
 	Size Tell() const
 	{
@@ -273,36 +265,14 @@ public:
 		return mReader->Read(buffer, len);
 	}
 
-	ResourceData Read(size_t len)
-	{
-		ResourceData buffer;
-		if (len > 0)
-		{
-			Size length = mReader->Read(buffer.allocate(len), len);
-			if ((size_t)length < len) buffer.allocate(length);
-		}
-		return buffer;
-	}
+	FileData Read(size_t len);
+	FileData ReadPadded(size_t padding);
 
-	ResourceData Read()
+	FileData Read()
 	{
 		return Read(GetLength());
 	}
 
-	ResourceData ReadPadded(size_t padding)
-	{
-		auto len = GetLength();
-		ResourceData buffer;
-
-		if (len > 0)
-		{
-			auto p = (char*)buffer.allocate(len + padding);
-			Size length = mReader->Read(p, len);
-			if (length < len) buffer.clear();
-			else memset(p + len, 0, padding);
-		}
-		return buffer;
-	}
 
 	char *Gets(char *strbuf, Size len)
 	{

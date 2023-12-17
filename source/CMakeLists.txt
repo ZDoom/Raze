@@ -1122,6 +1122,7 @@ set (PCH_SOURCES
 	common/utility/s_playlist.cpp
 	common/utility/name.cpp
 	common/utility/r_memory.cpp
+	common/utility/writezip.cpp
 	common/thirdparty/base64.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
@@ -1279,6 +1280,8 @@ set( GAME_SOURCES
 	common/filesystem/source/file_pak.cpp
 	common/filesystem/source/file_whres.cpp
 	common/filesystem/source/file_ssi.cpp
+	common/filesystem/source/file_hog.cpp
+	common/filesystem/source/file_mvl.cpp
 	common/filesystem/source/file_directory.cpp
 	common/filesystem/source/resourcefile.cpp
 	common/filesystem/source/files.cpp
@@ -1286,6 +1289,7 @@ set( GAME_SOURCES
 	common/filesystem/source/fs_findfile.cpp
 	common/filesystem/source/fs_stringpool.cpp
 	common/filesystem/source/unicode.cpp
+	common/filesystem/source/critsec.cpp
 
 )
 

@@ -69,6 +69,7 @@
 
 #include "buildtiles.h"
 #include "fs_findfile.h"
+#include "resourcefile.h"
 
 
 
@@ -79,6 +80,7 @@ extern FString BackupSaveGame;
 int SaveVersion;
 
 void SerializeMap(FSerializer &arc);
+bool WriteZip(const char* filename, const FileSys::FCompressedBuffer* content, size_t contentcount);
 
 BEGIN_BLD_NS
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
@@ -132,7 +134,7 @@ static void SerializeSession(FSerializer& arc)
 
 bool ReadSavegame(const char* name)
 {
-	auto savereader = FResourceFile::OpenResourceFile(name, true);
+	auto savereader = FileSys::FResourceFile::OpenResourceFile(name, true);
 
 	if (savereader != nullptr)
 	{
@@ -245,7 +247,7 @@ bool WriteSavegame(const char* filename, const char *name)
 	M_FinishPNG(&savepic);
 
 	auto picdata = savepic.GetBuffer();
-	FileSys::FCompressedBuffer bufpng = { picdata->size(), picdata->size(), FileSys::METHOD_STORED, 0, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->size())), (char*)&(*picdata)[0] };
+	FileSys::FCompressedBuffer bufpng = { picdata->size(), picdata->size(), FileSys::METHOD_STORED, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->size())), (char*)&(*picdata)[0] };
 
 	TArray<FileSys::FCompressedBuffer> savegame_content;
 	TArray<FString> savegame_filenames;

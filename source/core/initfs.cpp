@@ -433,10 +433,9 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		lfi.embeddings = { "blood.rff", "sounds.rff" };
 	}
 
-	lfi.dotFilter = LumpFilter.GetChars();
-
 	if (isDukeEngine()) lfi.gameTypeFilter.push_back("DukeEngine");
 	if (isDukeLike()) lfi.gameTypeFilter.push_back("DukeLike");
+	lfi.gameTypeFilter.push_back(LumpFilter.GetChars());
 
 	lfi.postprocessFunc = [&]()
 	{
@@ -448,8 +447,8 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		FILE* f = fopen("filesystem.dir", "wb");
 		for (int num = 0; num < fileSystem.GetNumEntries(); num++)
 		{
-			auto fd = fileSystem.FileLength(num);
-			fprintf(f, "%.50s   %60s  %d\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
+			int64_t fd = fileSystem.FileLength(num);
+			fprintf(f, "%.50s   %60s  %lld\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
 		}
 		fclose(f);
 	}
