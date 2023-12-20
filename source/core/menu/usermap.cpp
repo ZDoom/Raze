@@ -71,7 +71,7 @@ void InsertMap(int lumpnum)
 	current->entries.Last().displayname = path.Last();
 	current->entries.Last().filename = fileSystem.GetFileFullName(lumpnum);
 	current->entries.Last().container = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
-	current->entries.Last().size = fileSystem.FileLength(lumpnum);
+	current->entries.Last().size = (int)fileSystem.FileLength(lumpnum);
 	auto mapinfo = FindMapByName(StripExtension(path.Last().GetChars()).GetChars());
 	if (mapinfo) current->entries.Last().info = mapinfo->name;
 }
