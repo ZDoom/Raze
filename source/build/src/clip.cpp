@@ -605,7 +605,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
             sectortype* sect = &sector[*sectnum];
 			updatesector(v, &sect, rad * inttoworld);
-            *sectnum = ::sectindex(sect);
+            if (sect != nullptr) *sectnum = ::sectindex(sect);
+			else *sectnum = -1;
 		}
 
         pos->X = vec.X;
@@ -621,6 +622,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             if (inside(fpos.X, fpos.Y, &sector[clipsectorlist[j]]) == 1)
             {
                 *sectnum = clipsectorlist[j];
+
                 return clipReturn;
             }
 
