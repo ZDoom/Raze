@@ -42,6 +42,8 @@
 #include "s_music.h"
 #include "sc_man.h"
 #include "s_soundinternal.h"
+#include "i_music.h"
+
 #include "gamecontrol.h"
 #include <zmusic.h>
 
@@ -232,7 +234,14 @@ static void S_AddSNDINFO (int lump)
 			case SI_MusicVolume: {
 				sc.MustGetString();
 				FName musname (sc.String);
-				sc.MustGetFloat();
+				if (!sc.CheckFloat())
+				{
+					sc.MustGetString();
+					char* p;
+					double f = strtod(sc.String, &p);
+					if (!stricmp(p, "db")) sc.Float = dBToAmplitude((float)sc.Float);
+					else sc.ScriptError("Bad value for music volume: %s", sc.String);
+				}
 				MusicVolumes[musname] = (float)sc.Float;
 				}
 				break;
