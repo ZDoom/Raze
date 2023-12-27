@@ -113,65 +113,36 @@ int LookupMusic(const char* fn, bool onlyextended)
 //
 //==========================================================================
 
-FileReader OpenMusic(const char* musicname)
+int FindMusic(const char* musicname)
 {
-	FileReader reader;
-	if (!mus_restartonload)
-	{
-		// If the currently playing piece of music is the same, do not restart. Note that there's still edge cases where this may fail to detect identities.
-		if (mus_playing.handle != nullptr && lastStartedMusic.CompareNoCase(musicname) == 0 && mus_playing.loop)
-			return reader;
-	}
 	lastStartedMusic = musicname;	// remember the last piece of music that was requested to be played.
 
-	FString mus = MusicFileExists(musicname);
-	if (mus.IsNotEmpty())
+	int lumpnum = LookupMusic(musicname);
+	if (mus_extendedlookup || lumpnum < 0)
 	{
-		// Load an external file.
-		reader.OpenFile(mus.GetChars());
-	}
-	if (!reader.isOpen())
-	{
-		int lumpnum = LookupMusic(musicname);
-		if (mus_extendedlookup || lumpnum < 0)
+		if (lumpnum >= 0)
 		{
-			if (lumpnum >= 0)
-			{
-				// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
-				auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
-				auto rfbase = ExtractFileBase(rfn);
-				FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
-				int newlumpnum = LookupMusic(aliasMusicname.GetChars());
-				if (newlumpnum >= 0) lumpnum = newlumpnum;
-			}
-
-			// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
-			FStringf aliasMusicname("music/%s", musicname);
-			int newlumpnum = LookupMusic(aliasMusicname.GetChars(), lumpnum >= 0);
+			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
+			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
+			auto rfbase = ExtractFileBase(rfn);
+			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
+			int newlumpnum = LookupMusic(aliasMusicname.GetChars());
 			if (newlumpnum >= 0) lumpnum = newlumpnum;
 		}
 
-		if (lumpnum == -1 && isSWALL())
-		{
-			// Some Shadow Warrior distributions have the music in a subfolder named 'classic'. Check that, too.
-			FStringf aliasMusicname("classic/music/%s", musicname);
-			lumpnum = fileSystem.FindFile(aliasMusicname.GetChars());
-		}
-		if (lumpnum > -1)
-		{
-			if (fileSystem.FileLength(lumpnum) >= 0)
-			{
-				reader = fileSystem.ReopenFileReader(lumpnum);
-				if (!reader.isOpen())
-				{
-					Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
-				}
-				else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).c_str());
-			}
-		}
+		// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
+		FStringf aliasMusicname("music/%s", musicname);
+		int newlumpnum = LookupMusic(aliasMusicname.GetChars(), lumpnum >= 0);
+		if (newlumpnum >= 0) lumpnum = newlumpnum;
 	}
-	else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
-	return reader;
+
+	if (lumpnum == -1 && isSWALL())
+	{
+		// Some Shadow Warrior distributions have the music in a subfolder named 'classic'. Check that, too.
+		FStringf aliasMusicname("classic/music/%s", musicname);
+		lumpnum = fileSystem.FindFile(aliasMusicname.GetChars());
+	}
+	return lumpnum;
 }
 
 
@@ -254,7 +225,7 @@ void Mus_InitMusic()
 	static MusicCallbacks mus_cb =
 	{
 		LookupMusicCB,
-		OpenMusic
+		FindMusic
 	};
 	S_SetMusicCallbacks(&mus_cb);
 }
