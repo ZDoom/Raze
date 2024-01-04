@@ -22,8 +22,6 @@ class DukeFemBase : DukeActor
 
 	override void Initialize(DukeActor spawner)
 	{
-		self.yint = self.hitag;
-		self.hitag = -1;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
 		self.ChangeStat(STAT_ZOMBIEACTOR);
