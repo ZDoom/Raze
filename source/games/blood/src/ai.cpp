@@ -250,7 +250,7 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DAngle vc = deltaangle(actor->spr.Angles.Yaw, direction);
-	auto almost60deg = DAngle::fromBuild(341); // 60° does not work correctly - this is a little bit less, actually.
+	auto almost60deg = DAngle::fromBuild(341); // 60Â° does not work correctly - this is a little bit less, actually.
 	DAngle v8 = vc.Sgn() == -1 ? -almost60deg : almost60deg;
 
 	double range = actor->vel.XY().dot(actor->spr.Angles.Yaw.ToVector()) * 120;

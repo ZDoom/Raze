@@ -33,7 +33,7 @@ struct FActorInfo
 	int NumMoves = 0;
 	int FirstAI = -1;
 	int NumAIs = 0;
-	FName DefaultAction = NAME_Null;	// 'none' is valíd content here so use 'null' as 'not set'.
+	FName DefaultAction = NAME_Null;	// 'none' is valÃ­d content here so use 'null' as 'not set'.
 	FName DefaultMove = NAME_Null;
 	int DefaultMoveflags = 0;
 

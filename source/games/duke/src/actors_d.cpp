@@ -391,7 +391,7 @@ void movetransports_d(void)
 						act2->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
 						act2->backupz();
 
-						// this is actually below the precision óf the original Build coordinate system...
+						// this is actually below the precision of the original Build coordinate system...
 						p->vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
 						p->vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
 
