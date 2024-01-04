@@ -391,10 +391,10 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 			int flags = resfile->GetEntryFlags(i);
 			if (flags & RESFF_EMBEDDED)
 			{
-				auto embedded = resfile->GetEntryReader(i, READER_NEW, READERFLAG_SEEKABLE);
 				std::string path = filename;
-				if (embedded.GetBuffer()) path += ':';
+				path += ':';
 				path += resfile->getName(i);
+				auto embedded = resfile->GetEntryReader(i, READER_NEW, READERFLAG_SEEKABLE);
 				AddFile(path.c_str(), &embedded, filter, Printf, hashfile);
 			}
 		}
