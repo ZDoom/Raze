@@ -379,7 +379,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 		levelEndLevel(1);
 		return;
 #ifdef NOONE_EXTENSIONS
-		// finished level and load custom level ¹ via numbered command.
+		// finished level and load custom level via numbered command.
 	case kChannelModernEndLevelCustom:
 		if (command >= kCmdNumberic) levelEndLevelCustom(command - kCmdNumberic);
 		else viewSetSystemMessage("Invalid Level-Exit# command by %s", eob.description().GetChars());
