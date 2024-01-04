@@ -428,10 +428,12 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	LumpFilterInfo lfi;
 	lfi.reservedFolders = { "textures/", "hires/", "sounds/", "music/", "maps/" };
 	for (auto p = iwad_reserved(); *p; p++) lfi.requiredPrefixes.push_back(*p);
+#if 0
 	if (isBlood())
 	{
 		lfi.embeddings = { "blood.rff", "sounds.rff" };
 	}
+#endif
 
 	if (isDukeEngine()) lfi.gameTypeFilter.push_back("DukeEngine");
 	if (isDukeLike()) lfi.gameTypeFilter.push_back("DukeLike");
