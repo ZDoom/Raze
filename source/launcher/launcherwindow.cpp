@@ -46,14 +46,16 @@ LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int
 	VersionLabel = new TextLabel(this);
 	SelectLabel = new TextLabel(this);
 	GeneralLabel = new TextLabel(this);
-	ExtrasLabel = new TextLabel(this);
+	//ExtrasLabel = new TextLabel(this);
 	ParametersLabel = new TextLabel(this);
 	FullscreenCheckbox = new CheckboxLabel(this);
 	DisableAutoloadCheckbox = new CheckboxLabel(this);
 	DontAskAgainCheckbox = new CheckboxLabel(this);
+	/*
 	LightsCheckbox = new CheckboxLabel(this);
 	BrightmapsCheckbox = new CheckboxLabel(this);
 	WidescreenCheckbox = new CheckboxLabel(this);
+	*/
 	PlayButton = new PushButton(this);
 	ExitButton = new PushButton(this);
 	GamesList = new ListView(this);
@@ -63,18 +65,20 @@ LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int
 	ExitButton->OnClick = [=]() { OnExitButtonClicked(); };
 	GamesList->OnActivated = [=]() { OnGamesListActivated(); };
 
-	SelectLabel->SetText("Select which game file (IWAD) to run.");
+	SelectLabel->SetText("Select which game file to run.");
 	PlayButton->SetText("Play Game");
 	ExitButton->SetText("Exit");
 
 	GeneralLabel->SetText("General");
-	ExtrasLabel->SetText("Extra Graphics");
+	//ExtrasLabel->SetText("Extra Graphics");
 	FullscreenCheckbox->SetText("Fullscreen");
 	DisableAutoloadCheckbox->SetText("Disable autoload");
 	DontAskAgainCheckbox->SetText("Don't ask me again");
+	/*
 	LightsCheckbox->SetText("Lights");
 	BrightmapsCheckbox->SetText("Brightmaps");
 	WidescreenCheckbox->SetText("Widescreen");
+	*/
 	ParametersLabel->SetText("Additional Parameters:");
 
 #ifdef RENDER_BACKENDS
@@ -99,9 +103,11 @@ LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int
 
 	int flags = *autoloadflags;
 	DisableAutoloadCheckbox->SetChecked(flags & 1);
+	/*
 	LightsCheckbox->SetChecked(flags & 2);
 	BrightmapsCheckbox->SetChecked(flags & 4);
 	WidescreenCheckbox->SetChecked(flags & 8);
+	*/
 
 #ifdef RENDER_BACKENDS
 	OpenGLCheckbox->SetRadioStyle(true);
@@ -156,9 +162,11 @@ void LauncherWindow::OnPlayButtonClicked()
 
 	int flags = 0;
 	if (DisableAutoloadCheckbox->GetChecked()) flags |= 1;
+	/*
 	if (LightsCheckbox->GetChecked()) flags |= 2;
 	if (BrightmapsCheckbox->GetChecked()) flags |= 4;
 	if (WidescreenCheckbox->GetChecked()) flags |= 8;
+	*/
 	*AutoloadFlags = flags;
 
 #ifdef RENDER_BACKENDS
@@ -233,7 +241,7 @@ void LauncherWindow::OnGeometryChanged()
 #ifdef RENDER_BACKENDS
 	auto yy = y;
 	y -= GLESCheckbox->GetPreferredHeight();
-	double x = GetWidth() / 2 - panelWidth / 2;
+	double x = GetWidth() - 20.0 - panelWidth;
 	GLESCheckbox->SetFrameGeometry(x, y, 190.0, GLESCheckbox->GetPreferredHeight());
 
 	y -= OpenGLCheckbox->GetPreferredHeight();
@@ -249,19 +257,19 @@ void LauncherWindow::OnGeometryChanged()
 #endif
 	y -= DontAskAgainCheckbox->GetPreferredHeight();
 	DontAskAgainCheckbox->SetFrameGeometry(20.0, y, 190.0, DontAskAgainCheckbox->GetPreferredHeight());
-	WidescreenCheckbox->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, WidescreenCheckbox->GetPreferredHeight());
+	//WidescreenCheckbox->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, WidescreenCheckbox->GetPreferredHeight());
 
 	y -= DisableAutoloadCheckbox->GetPreferredHeight();
 	DisableAutoloadCheckbox->SetFrameGeometry(20.0, y, 190.0, DisableAutoloadCheckbox->GetPreferredHeight());
-	BrightmapsCheckbox->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, BrightmapsCheckbox->GetPreferredHeight());
+	//BrightmapsCheckbox->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, BrightmapsCheckbox->GetPreferredHeight());
 
 	y -= FullscreenCheckbox->GetPreferredHeight();
 	FullscreenCheckbox->SetFrameGeometry(20.0, y, 190.0, FullscreenCheckbox->GetPreferredHeight());
-	LightsCheckbox->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, LightsCheckbox->GetPreferredHeight());
+	//LightsCheckbox->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, LightsCheckbox->GetPreferredHeight());
 
 	y -= GeneralLabel->GetPreferredHeight();
 	GeneralLabel->SetFrameGeometry(20.0, y, 190.0, GeneralLabel->GetPreferredHeight());
-	ExtrasLabel->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, ExtrasLabel->GetPreferredHeight());
+	//ExtrasLabel->SetFrameGeometry(GetWidth() - 20.0 - panelWidth, y, panelWidth, ExtrasLabel->GetPreferredHeight());
 
 	double listViewBottom = y - 10.0;
 	GamesList->SetFrameGeometry(20.0, listViewTop, GetWidth() - 40.0, std::max(listViewBottom - listViewTop, 0.0));
