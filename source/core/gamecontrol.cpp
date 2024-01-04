@@ -89,6 +89,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "buildtiles.h"
 
 void LoadHexFont(const char* filename);
+void InitWidgetResources(const char* basewad);
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -1029,6 +1030,7 @@ int RunGame()
 		I_FatalError("Cannot find " ENGINERES_FILE);
 	}
 	LoadHexFont(wad);	// load hex font early so we have it during startup.
+	InitWidgetResources(wad);
 
 	// Set up the console before anything else so that it can receive text.
 	C_InitConsole(1024, 768, true);
@@ -1109,7 +1111,7 @@ int RunGame()
 
 	V_InitScreenSize();
 	V_InitScreen();
-	StartWindow = FStartupScreen::CreateInstance(8, true);
+	StartWindow = FStartupScreen::CreateInstance(8);
 	StartWindow->Progress();
 
 	if (!GameConfig->IsInitialized())

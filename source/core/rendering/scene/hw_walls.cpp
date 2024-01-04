@@ -420,7 +420,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 	if (seg && (seg->cstat & CSTAT_WALL_ROTATE_90))
 	{
 		float f;
-		// rotate 90° clockwise. The coordinates have already been set up in rotated space, so all we need to do here is swap u and v and then negate the new v.
+		// rotate 90 degrees clockwise. The coordinates have already been set up in rotated space, so all we need to do here is swap u and v and then negate the new v.
 		f = tcs[UPLFT].u; tcs[UPLFT].u = tcs[UPLFT].v; tcs[UPLFT].v = 1.f - f;
 		f = tcs[LOLFT].u; tcs[LOLFT].u = tcs[LOLFT].v; tcs[LOLFT].v = 1.f - f;
 		f = tcs[UPRGT].u; tcs[UPRGT].u = tcs[UPRGT].v; tcs[UPRGT].v = 1.f - f;
