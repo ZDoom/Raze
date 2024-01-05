@@ -215,64 +215,71 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 		isInitialized = true;
 	}
 
-	CreateSectionAtStart("Exhumed.Autoload");
-	CreateSectionAtStart("WW2GI.Autoload");
-	CreateSectionAtStart("Nam.Autoload");
-	CreateSectionAtStart("Exhumed.Autoload");
-	CreateSectionAtStart("Redneck.Route66.Autoload");
-	CreateSectionAtStart("Redneck.RidesAgain.Autoload");
-	CreateSectionAtStart("Redneck.Redneck.Autoload");
-	CreateSectionAtStart("Redneck.Autoload");
-	CreateSectionAtStart("ShadowWarrior.TwinDragon.Autoload");
-	CreateSectionAtStart("ShadowWarrior.Wanton.Autoload");
-	CreateSectionAtStart("ShadowWarrior.ShadowWarrior.Autoload");
-	CreateSectionAtStart("ShadowWarrior.Autoload");
-	CreateSectionAtStart("Blood.Cryptic.Autoload");
-	CreateSectionAtStart("Blood.Blood.Autoload");
-	CreateSectionAtStart("Blood.Autoload");
-	CreateSectionAtStart("Duke.WorldTour.Autoload");
-	CreateSectionAtStart("Duke.NWinter.Autoload");
-	CreateSectionAtStart("Duke.Vacation.15.Autoload");
-	CreateSectionAtStart("Duke.Vacation.13.Autoload");
-	CreateSectionAtStart("Duke.Vacation.Autoload");
-	CreateSectionAtStart("Duke.DukeDC.15.Autoload");
-	CreateSectionAtStart("Duke.DukeDC.13.Autoload");
-	CreateSectionAtStart("Duke.DukeDC.Autoload");
-	CreateSectionAtStart("Duke.Duke.15.Autoload");
-	CreateSectionAtStart("Duke.Duke.13.Autoload");
-	CreateSectionAtStart("Duke.Duke.Autoload");
-	CreateSectionAtStart("Duke.PParadise.Autoload");
-	CreateSectionAtStart("Duke.Autoload");
+	static constexpr const char* gamefilters[] = {
+		"Blood",
+		"Blood.Blood",
+		"Blood.Cryptic",
+		"Duke"
+		"Duke.Duke"
+		"Duke.Duke.13",
+		"Duke.Duke.15",
+		"Duke.DukeDC"
+		"Duke.DukeDC.13",
+		"Duke.DukeDC.15",
+		"Duke.NWinter",
+		"Duke.PParadise",
+		"Duke.Vacation"
+		"Duke.Vacation.13",
+		"Duke.Vacation.15",
+		"Duke.WorldTour",
+		"Duke.Zone"
+		"Duke.Zone.13",
+		"Duke.Zone.15",
+		"Exhumed"
+		"Exhumed.Exhumed",
+		"Exhumed.Powerslave",
+		"Nam"
+		"Nam.Nam",
+		"Nam.Napalm",
+		"Redneck"
+		"Redneck.Redneck",
+		"Redneck.RidesAgain",
+		"Redneck.Route66",
+		"ShadowWarrior"
+		"ShadowWarrior.ShadowWarrior",
+		"ShadowWarrior.TwinDragon",
+		"ShadowWarrior.Wanton",
+		"WW2GI"
+		"WW2GI.Platoon",
+		"WW2GI.WW2GI",
+	};
 
-	CreateSectionAtStart("Global.Autoload");
-
-	// The same goes for auto-exec files.
-	CreateStandardAutoExec("ShadowWarrior.AutoLoad", true);
-	CreateStandardAutoExec("Redneck.RidesAgain.AutoLoad", true);
-	CreateStandardAutoExec("Redneck.Redneck.AutoLoad", true);
-	CreateStandardAutoExec("WW2GI.AutoLoad", true);
-	CreateStandardAutoExec("Nam.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.DN3D.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.DukeDC.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.NWinter.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.Vacation.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.PParadise.AutoLoad", true);
+	for (const auto& gamefilter : gamefilters)
+	{
+		CreateSectionAtStart((FString(gamefilter) + ".Autoload").GetChars());
+		CreateStandardAutoExec((FString(gamefilter) + ".Autoexec").GetChars(), true);
+	}
 
 	// Move search paths back to the top.
 	MoveSectionToStart("SoundfontSearch.Directories");
 	MoveSectionToStart("FileSearch.Directories");
 	MoveSectionToStart("IWADSearch.Directories");
 
-	SetSectionNote("DukeNukem3D.AutoLoad",
+	SetSectionNote("Duke.Autoexec",
 		"# Files to automatically execute when running the corresponding game.\n"
 		"# Each file should be on its own line, preceded by Path=\n\n");
 	SetSectionNote("Global.Autoload",
 		"# Files to always load. These are loaded after the game data but before\n"
 		"# any files added with -file. Place each file on its own line, preceded\n"
 		"# by Path=\n");
-	SetSectionNote("DukeNukem3D.Autoload",
-		"# Files to automatically load depending on the game you are playing\n\n");
+	SetSectionNote("Duke.Autoload",
+		"# Files to automatically load depending on the game you are playing.\n"
+		"# You may have have files that are loaded for all similar games and\n"
+		"# files that are only loaded for particular games. For example, any\n"
+		"# files listed under 'Duke.Autoload' will be loaded for any version of Duke 3D,\n"
+		"# but files listed under 'Duke.Vacation.Autoload' will only load when you are\n"
+		"# playing a Duke Caribbean Vacation-based game (Vaca 1.3, 1.5, etc), and files\n"
+		"# listed under 'Duke.Vacation.15.Autoload' only when playing Duke Carribean Vacation 1.5.\n\n");
 }
 
 void FGameConfigFile::DoGlobalSetup ()
