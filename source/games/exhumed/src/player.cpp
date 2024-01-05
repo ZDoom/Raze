@@ -1533,13 +1533,14 @@ static void doPlayerGravity(DExhumedActor* const pPlayerActor)
 //
 //---------------------------------------------------------------------------
 
-static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double nDestVertPan)
+static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double zDelta)
 {
     const auto pPlayerActor = pPlayer->GetActor();
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
 
     // Pitch tilting when player's Z changes (stairs, jumping, etc).
-    doPlayerVertPanning(pPlayer, nDestVertPan * cl_slopetilting);
+    // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
+    doPlayerVertPanning(pPlayer, zDelta * 2 * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
     pPlayer->doRollInput(nUnderwater);
@@ -1813,13 +1814,12 @@ static bool doPlayerInput(DExhumedPlayer* const pPlayer)
             doPlayerMovingBlocks(pPlayer, nMove, spr_vel, spr_sect);
     }
 
-    const auto posdelta = pPlayerActor->opos - pPlayerActor->spr.pos;
+    const auto posdelta = pPlayerActor->spr.pos - pPlayerActor->opos;
     pPlayer->ototalvel = pPlayer->totalvel;
     pPlayer->totalvel = posdelta.XY().Length();
 
     // Effects such as slope tilting, view bobbing, etc.
-    // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
-    doPlayerCameraEffects(pPlayer, -posdelta.Z * 2.);
+    doPlayerCameraEffects(pPlayer, posdelta.Z);
 
     // Most-move updates. Input bit funcs are here because
     // updatePlayerAction() needs access to bUnderwater.
