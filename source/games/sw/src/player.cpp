@@ -6749,7 +6749,6 @@ void domovethings(void)
         {
             WeaponOperate(pp);
             PlayerOperateEnv(pp);
-            gameInput.ResetInputSync();
         }
 
         // do for moving sectors

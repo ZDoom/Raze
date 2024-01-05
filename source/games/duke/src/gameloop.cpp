@@ -67,9 +67,6 @@ void GameInterface::Ticker()
 			getPlayer(i)->resetCameraAngles();
 		}
 
-		// disable synchronised input if set by game.
-		gameInput.ResetInputSync();
-
 		DukeSpriteIterator it;
 		while (auto ac = it.Next())
 		{

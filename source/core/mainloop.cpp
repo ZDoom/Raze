@@ -363,6 +363,7 @@ static void GameTicker()
 	case GS_LEVEL:
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
+		gameInput.ResetInputSync();
 		gi->Ticker();
 		TickStatusBar();
 		levelTextTime--;
