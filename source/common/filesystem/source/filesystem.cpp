@@ -434,7 +434,7 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 						snprintf(cksumout + (j * 2), 3, "%02X", cksum[j]);
 					}
 
-					fprintf(hashfile, "file: %s, lump: %s, hash: %s, size: %llu\n", filename, resfile->getName(i), cksumout, (uint64_t)resfile->Length(i));
+					fprintf(hashfile, "file: %s, lump: %s, hash: %s, size: %lu\n", filename, resfile->getName(i), cksumout, (uint64_t)resfile->Length(i));
 				}
 			}
 		}

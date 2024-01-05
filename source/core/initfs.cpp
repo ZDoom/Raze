@@ -450,7 +450,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		for (int num = 0; num < fileSystem.GetNumEntries(); num++)
 		{
 			int64_t fd = fileSystem.FileLength(num);
-			fprintf(f, "%.50s   %60s  %lld\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
+			fprintf(f, "%.50s   %60s  %ld\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
 		}
 		fclose(f);
 	}
