@@ -1539,8 +1539,8 @@ static void doPlayerCameraEffects(DExhumedPlayer* const pPlayer, const double zD
     const auto nUnderwater = !!(pPlayerActor->sector()->Flag & kSectUnderwater);
 
     // Pitch tilting when player's Z changes (stairs, jumping, etc).
-    // This should amplified 8x, not 2x, but it feels very heavy. Add a CVAR?
-    doPlayerVertPanning(pPlayer, zDelta * 2 * cl_slopetilting);
+    // The default 8x amplification feels very heavy, so add a CVAR to control it.
+    doPlayerVertPanning(pPlayer, zDelta * cl_exvertpanscale * cl_slopetilting);
 
     // Roll tilting effect, either console or Quake-style.
     pPlayer->doRollInput(nUnderwater);

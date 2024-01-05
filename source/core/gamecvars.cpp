@@ -97,6 +97,7 @@ CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's wea
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
 CVARD(Bool, cl_loadingscreens, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable loading screens for games")
 CVARD(Bool, cl_clampedpitch, true, CVAR_ARCHIVE, "clamp the view pitch to original ranges")
+CVARD(Float, cl_exvertpanscale, 8.f, CVAR_ARCHIVE, "sets the scaling intensity for Exhumed's vert panning/slope tilting")
 
 CUSTOM_CVARD(Int, cl_dukepitchmode, 7, CVAR_ARCHIVE, "customise Duke's myriad of pitch options")
 {

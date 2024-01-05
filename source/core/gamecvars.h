@@ -44,6 +44,7 @@ EXTERN_CVAR(Bool, cl_bloodoldweapbalance)
 EXTERN_CVAR(Bool, cl_loadingscreens)
 EXTERN_CVAR(Bool, cl_clampedpitch)
 EXTERN_CVAR(Int, cl_dukepitchmode)
+EXTERN_CVAR(Float, cl_exvertpanscale)
 
 EXTERN_CVAR(Bool, demorec_seeds_cvar)
 EXTERN_CVAR(Bool, demoplay_diffs)

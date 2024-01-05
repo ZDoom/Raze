@@ -1122,6 +1122,10 @@ OptionMenu "VideoOptions" protected
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",						"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
 	Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",				"OnOff"
+	ifgame(Exhumed)
+	{
+		Slider "$DSPLYMNU_EXVERTPANNING",	"cl_exvertpanscale", 0.5, 10, 0.1
+	}
 	Option "$GLPREFMNU_ENVIRONMENTMAPMIRROR",	gl_mirror_envmap,				"OnOff"
 	ifnotgame(Blood, Exhumed)
 	{
