@@ -119,8 +119,8 @@ bool RTS_IsInitialized()
 	{
 		if (li.size > 0)
 		{
-			char rts[16];
-			snprintf(rts, 16, "rts%02d.rts", i);
+			char rts[18];
+			snprintf(rts, 18, "rts%02d.rts", i);
 			int lump = fileSystem.AddFromBuffer(rts, (char*)RTSFile.Data() + li.position, li.size, -1, 0);
 			li.sid = soundEngine->AddSoundLump(rts, lump, 0, -1);
 		}
