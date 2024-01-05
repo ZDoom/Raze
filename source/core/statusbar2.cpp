@@ -97,6 +97,7 @@ void ST_Clear()
 ReservedSpace GetReservedScreenSpace(int viewsize)
 {
 	ReservedSpace res{};
+	if (StatusBar == nullptr) return res;
 	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, GetReservedScreenSpace)
 	{
 		VMReturn ret[2];

@@ -1050,6 +1050,10 @@ int RunGame()
 	GetGames();
 	auto usedgroups = SetupGame();
 
+	V_InitScreenSize();
+	V_InitScreen();
+	V_Init2();
+
 	bool colorset = false;
 	for (int i = usedgroups.Size()-1; i >= 0; i--)
 	{
@@ -1109,8 +1113,6 @@ int RunGame()
 	auto ci = DumpCPUInfo(&CPU);
 	Printf("%s", ci.GetChars());
 
-	V_InitScreenSize();
-	V_InitScreen();
 	StartWindow = FStartupScreen::CreateInstance(8);
 	StartWindow->Progress();
 
@@ -1173,7 +1175,6 @@ int RunGame()
 	I_UpdateWindowTitle();
 	DeleteStartupScreen();
 
-	V_Init2();
 	while (!screen->CompileNextShader())
 	{
 		// here we can do some visual updates later
