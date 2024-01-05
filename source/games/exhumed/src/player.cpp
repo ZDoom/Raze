@@ -1928,7 +1928,6 @@ static void doPlayerActionSequence(DExhumedPlayer* const pPlayer)
     const auto pPlayerActor = pPlayer->GetActor();
 
     const auto playerSeq = getSequence(pPlayerActor->nSeqFile, PlayerSeq[pPlayerActor->nAction].nSeqId);
-    if (playerSeq == nullptr) return;
     const auto seqSize = playerSeq->frames.Size();
     if (pPlayerActor->nFrame >= seqSize) pPlayerActor->nFrame = seqSize - 1;
     const auto& seqFrame = playerSeq->frames[pPlayerActor->nFrame];

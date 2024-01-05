@@ -88,9 +88,9 @@ TArray<Seq>* getFileSeqs(const FName nSeqFile);
 
 inline Seq* getSequence(const FName nSeqFile, const unsigned nSeqIndex = 0)
 {
-    auto seq = getFileSeqs(nSeqFile);
-    if (nSeqIndex >= seq->Size()) return nullptr;
-    return seq->Data(nSeqIndex);
+    const auto seq = getFileSeqs(nSeqFile);
+    const auto seqSize = seq->Size();
+    return seq->Data((nSeqIndex >= seqSize) ? seqSize - 1 : nSeqIndex);
 }
 
 END_PS_NS
