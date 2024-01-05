@@ -2141,6 +2141,9 @@ OptionMenu "EngineCredits2b"
 	StaticText "Dzierzan          Phredreeke        ", 0
 	StaticText "MaxED             Kinsie            ", 0
 	StaticText "Maxi Clouds                         ", 0
+	StaticText ""
+	StaticText "Duke 3D World Tour Skybox DEFs", 1
+	StaticText "Evan \"Hendricks266\" Ramos", 0
 }
 
 OptionMenu "EngineCredits3"

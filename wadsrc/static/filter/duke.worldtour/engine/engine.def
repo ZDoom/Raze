@@ -1,0 +1,144 @@
+// Used with permission and under MIT license from https://github.com/Hendricks266/e32wt.
+
+
+// Skyboxes
+skybox // CLOUDYOCEAN
+{
+   tile 78 pal 0 artquality
+   back    "textures/skybox/CLOUDYOCEAN/CLOUDYOCEAN_FR.tga"
+   right   "textures/skybox/CLOUDYOCEAN/CLOUDYOCEAN_FR.tga"
+   front   "textures/skybox/CLOUDYOCEAN/CLOUDYOCEAN_FR.tga"
+   left    "textures/skybox/CLOUDYOCEAN/CLOUDYOCEAN_FR.tga"
+   top     "textures/skybox/CLOUDYOCEAN/CLOUDYOCEAN_UP.tga"
+   bottom  "textures/skybox/CLOUDYOCEAN/CLOUDYOCEAN_DN.tga"
+}
+skybox // MOONSKY1
+{
+   tile 80 pal 0 artquality
+   back    "textures/skybox/MOONSKY1/MOONSKY1_FR.tga"
+   right   "textures/skybox/MOONSKY1/MOONSKY1_RT.tga"
+   front   "textures/skybox/MOONSKY1/MOONSKY1_BK.tga"
+   left    "textures/skybox/MOONSKY1/MOONSKY1_LF.tga"
+   top     "textures/skybox/MOONSKY1/MOONSKY1_UP.tga"
+   bottom  "textures/skybox/MOONSKY1/MOONSKY1_DN.tga"
+}
+skybox // BIGORBIT1
+{
+   tile 84 pal 0 artquality
+   back    "textures/skybox/BIGORBIT1/BIGORBIT1_FR.tga"
+   right   "textures/skybox/BIGORBIT1/BIGORBIT1_RT.tga"
+   front   "textures/skybox/BIGORBIT1/BIGORBIT1_BK.tga"
+   left    "textures/skybox/BIGORBIT1/BIGORBIT1_LF.tga"
+   top     "textures/skybox/BIGORBIT1/BIGORBIT1_UP.tga"
+   bottom  "textures/skybox/BIGORBIT1/BIGORBIT1_DN.tga"
+}
+skybox // LA
+{
+   tile 89 pal 0 artquality
+   back    "textures/skybox/LA/LA_FR.tga"
+   right   "textures/skybox/LA/LA_RT.tga"
+   front   "textures/skybox/LA/LA_BK.tga"
+   left    "textures/skybox/LA/LA_LF.tga"
+   top     "textures/skybox/LA/LA_UP.tga"
+   bottom  "textures/skybox/LA/LA_DN.tga"
+}
+skybox // REDSKY2
+{
+   tile 99 pal 0 artquality
+   back    "textures/skybox/REDSKY2/REDSKY2_FR.tga"
+   right   "textures/skybox/REDSKY2/REDSKY2_FR.tga"
+   front   "textures/skybox/REDSKY2/REDSKY2_FR.tga"
+   left    "textures/skybox/REDSKY2/REDSKY2_FR.tga"
+   top     "textures/skybox/REDSKY2/REDSKY2_UP.tga"
+   bottom  "textures/skybox/REDSKY2/REDSKY2_DN.tga"
+}
+skybox // BIGORBITFIX
+{
+   tile 5284 pal 0 artquality
+   back    "textures/skybox/BIGORBIT1/BIGORBIT1_FR.tga"
+   right   "textures/skybox/BIGORBIT1/BIGORBIT1_RT.tga"
+   front   "textures/skybox/BIGORBIT1/BIGORBIT1_BK.tga"
+   left    "textures/skybox/BIGORBIT1/BIGORBIT1_LF.tga"
+   top     "textures/skybox/BIGORBIT1/BIGORBIT1_UP.tga"
+   bottom  "textures/skybox/BIGORBIT1/BIGORBIT1_DN.tga"
+}
+skybox // PARIS
+{
+   tile 5412 pal 0 artquality
+   back    "textures/skybox/PARIS/PARIS_FR.tga"
+   right   "textures/skybox/PARIS/PARIS_RT.tga"
+   front   "textures/skybox/PARIS/PARIS_BK.tga"
+   left    "textures/skybox/PARIS/PARIS_LF.tga"
+   top     "textures/skybox/PARIS/PARIS_UP.tga"
+   bottom  "textures/skybox/PARIS/PARIS_DN.tga"
+}
+skybox // LONDON
+{
+   tile 5420 pal 0 artquality
+   back    "textures/skybox/LONDON/LONDON_FR.tga"
+   right   "textures/skybox/LONDON/LONDON_RT.tga"
+   front   "textures/skybox/LONDON/LONDON_BK.tga"
+   left    "textures/skybox/LONDON/LONDON_LF.tga"
+   top     "textures/skybox/LONDON/LONDON_UP.tga"
+   bottom  "textures/skybox/LONDON/LONDON_DN.tga"
+}
+skybox // MOSCOW
+{
+   tile 5450 pal 0 artquality
+   back    "textures/skybox/MOSCOW/MOSCOW_FR.tga"
+   right   "textures/skybox/MOSCOW/MOSCOW_RT.tga"
+   front   "textures/skybox/MOSCOW/MOSCOW_BK.tga"
+   left    "textures/skybox/MOSCOW/MOSCOW_LF.tga"
+   top     "textures/skybox/MOSCOW/MOSCOW_UP.tga"
+   bottom  "textures/skybox/MOSCOW/MOSCOW_DN.tga"
+}
+skybox // PYRAMIDS
+{
+   tile 5540 pal 0 artquality
+   back    "textures/skybox/PYRAMIDS/PYRAMIDS_FR.tga"
+   right   "textures/skybox/PYRAMIDS/PYRAMIDS_RT.tga"
+   front   "textures/skybox/PYRAMIDS/PYRAMIDS_BK.tga"
+   left    "textures/skybox/PYRAMIDS/PYRAMIDS_LF.tga"
+   top     "textures/skybox/PYRAMIDS/PYRAMIDS_UP.tga"
+   bottom  "textures/skybox/PYRAMIDS/PYRAMIDS_DN.tga"
+}
+skybox // AMSTERDAM
+{
+   tile 5548 pal 0 artquality
+   back    "textures/skybox/AMSTERDAM/AMSTERDAM_FR.tga"
+   right   "textures/skybox/AMSTERDAM/AMSTERDAM_RT.tga"
+   front   "textures/skybox/AMSTERDAM/AMSTERDAM_BK.tga"
+   left    "textures/skybox/AMSTERDAM/AMSTERDAM_LF.tga"
+   top     "textures/skybox/AMSTERDAM/AMSTERDAM_UP.tga"
+   bottom  "textures/skybox/AMSTERDAM/AMSTERDAM_DN.tga"
+}
+skybox // HOLLYWOOD
+{
+   tile 5556 pal 0 artquality
+   back    "textures/skybox/HOLLYWOOD/HOLLYWOOD_FR.tga"
+   right   "textures/skybox/HOLLYWOOD/HOLLYWOOD_RT.tga"
+   front   "textures/skybox/HOLLYWOOD/HOLLYWOOD_BK.tga"
+   left    "textures/skybox/HOLLYWOOD/HOLLYWOOD_LF.tga"
+   top     "textures/skybox/HOLLYWOOD/HOLLYWOOD_UP.tga"
+   bottom  "textures/skybox/HOLLYWOOD/HOLLYWOOD_DN.tga"
+}
+skybox // GOLDENGATE
+{
+   tile 5720 pal 0 artquality
+   back    "textures/skybox/GOLDENGATE/GOLDENGATE_FR.tga"
+   right   "textures/skybox/GOLDENGATE/GOLDENGATE_RT.tga"
+   front   "textures/skybox/GOLDENGATE/GOLDENGATE_BK.tga"
+   left    "textures/skybox/GOLDENGATE/GOLDENGATE_LF.tga"
+   top     "textures/skybox/GOLDENGATE/GOLDENGATE_UP.tga"
+   bottom  "textures/skybox/GOLDENGATE/GOLDENGATE_DN.tga"
+}
+skybox // COLOSSEUM
+{
+   tile 5814 pal 0 artquality
+   back    "textures/skybox/COLOSSEUM/COLOSSEUM_FR.tga"
+   right   "textures/skybox/COLOSSEUM/COLOSSEUM_RT.tga"
+   front   "textures/skybox/COLOSSEUM/COLOSSEUM_BK.tga"
+   left    "textures/skybox/COLOSSEUM/COLOSSEUM_LF.tga"
+   top     "textures/skybox/COLOSSEUM/COLOSSEUM_UP.tga"
+   bottom  "textures/skybox/COLOSSEUM/COLOSSEUM_DN.tga"
+}
