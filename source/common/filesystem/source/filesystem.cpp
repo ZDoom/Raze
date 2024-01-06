@@ -1273,7 +1273,7 @@ void FileSystem::ReadFile (int lump, void *dest)
 
 	if (numread != size)
 	{
-		throw FileSystemException("W_ReadFile: only read %ld of %ld on '%s'\n",
+		throw FileSystemException("W_ReadFile: only read %td of %td on '%s'\n",
 			numread, size, FileInfo[lump].LongName);
 	}
 }

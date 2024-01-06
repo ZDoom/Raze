@@ -377,7 +377,7 @@ void SaveCRCs(TArray<FileEntry>& crclist)
 	{
 		for (auto& crc : crclist)
 		{
-			FStringf line("\"%s\" %llu %llu %u\n", crc.FileName.GetChars(), (long long)crc.FileLength, (long long)crc.FileTime, crc.CRCValue);
+			FStringf line("\"%s\" %zu %zu %u\n", crc.FileName.GetChars(), crc.FileLength, crc.FileTime, crc.CRCValue);
 			fw->Write(line.GetChars(), line.Len());
 		}
 		delete fw;
