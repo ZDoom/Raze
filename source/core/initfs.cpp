@@ -449,8 +449,8 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		FILE* f = fopen("filesystem.dir", "wb");
 		for (int num = 0; num < fileSystem.GetNumEntries(); num++)
 		{
-			int64_t fd = fileSystem.FileLength(num);
-			fprintf(f, "%.50s   %60s  %ld\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
+			auto fd = fileSystem.FileLength(num);
+			fprintf(f, "%.50s   %60s  %td\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
 		}
 		fclose(f);
 	}

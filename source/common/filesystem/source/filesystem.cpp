@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "resourcefile.h"
 #include "fs_filesystem.h"
@@ -415,7 +416,7 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 					snprintf(cksumout + (j * 2), 3, "%02X", cksum[j]);
 				}
 
-				fprintf(hashfile, "file: %s, hash: %s, size: %d\n", filename, cksumout, (int)filereader.GetLength());
+				fprintf(hashfile, "file: %s, hash: %s, size: %td\n", filename, cksumout, filereader.GetLength());
 			}
 
 			else
@@ -434,7 +435,7 @@ void FileSystem::AddFile (const char *filename, FileReader *filer, LumpFilterInf
 						snprintf(cksumout + (j * 2), 3, "%02X", cksum[j]);
 					}
 
-					fprintf(hashfile, "file: %s, lump: %s, hash: %s, size: %lu\n", filename, resfile->getName(i), cksumout, (uint64_t)resfile->Length(i));
+					fprintf(hashfile, "file: %s, lump: %s, hash: %s, size: %zu\n", filename, resfile->getName(i), cksumout, (uint64_t)resfile->Length(i));
 				}
 			}
 		}
