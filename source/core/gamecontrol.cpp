@@ -90,6 +90,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 void LoadHexFont(const char* filename);
 void InitWidgetResources(const char* basewad);
+void CloseWidgetResources();
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -663,6 +664,7 @@ int GameMain()
 		gi = nullptr;
 	}
 	DeleteStartupScreen();
+	CloseWidgetResources();
 	PClass::StaticShutdown();
 	C_UninitCVars();
 	if (Args) delete Args;
