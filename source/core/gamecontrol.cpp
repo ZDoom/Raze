@@ -903,12 +903,6 @@ static TArray<GrpEntry> SetupGame()
 //
 //==========================================================================
 
-void InitLanguages()
-{
-	GStrings.LoadStrings(language);
-}
-
-
 void CreateStatusBar()
 {
 	auto stbarclass = PClass::FindClass(globalCutscenes.StatusBarClass);
@@ -1034,6 +1028,12 @@ int RunGame()
 	LoadHexFont(wad);	// load hex font early so we have it during startup.
 	InitWidgetResources(wad);
 
+	// load strings for picker window.
+	FileSys::FileSystem lang_fs;
+	std::vector<std::string> base_fn = { wad };
+	lang_fs.InitMultipleFiles(base_fn);
+	GStrings.LoadStrings(lang_fs, language);
+
 	// Set up the console before anything else so that it can receive text.
 	C_InitConsole(1024, 768, true);
 
@@ -1107,7 +1107,7 @@ int RunGame()
 	G_ReadConfig(currentGame.GetChars());
 
 	V_InitFontColors();
-	InitLanguages();
+	GStrings.LoadStrings(fileSystem, language);
 
 
 	CheckCPUID(&CPU);

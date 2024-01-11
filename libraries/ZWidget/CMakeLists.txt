@@ -10,8 +10,8 @@ set(ZWIDGET_SOURCES
 	src/core/widget.cpp
 	src/core/utf8reader.cpp
 	src/core/pathfill.cpp
-	src/core/schrift/schrift.cpp
-	src/core/schrift/schrift.h
+	src/core/truetypefont.cpp
+	src/core/truetypefont.h
 	src/core/picopng/picopng.cpp
 	src/core/picopng/picopng.h
 	src/core/nanosvg/nanosvg.cpp
@@ -30,6 +30,7 @@ set(ZWIDGET_SOURCES
 	src/widgets/pushbutton/pushbutton.cpp
 	src/widgets/checkboxlabel/checkboxlabel.cpp
 	src/widgets/listview/listview.cpp
+	src/widgets/tabwidget/tabwidget.cpp
 	src/window/window.cpp
 )
 
@@ -58,6 +59,7 @@ set(ZWIDGET_INCLUDES
 	include/zwidget/widgets/pushbutton/pushbutton.h
 	include/zwidget/widgets/checkboxlabel/checkboxlabel.h
 	include/zwidget/widgets/listview/listview.h
+	include/zwidget/widgets/tabwidget/tabwidget.h
 	include/zwidget/window/window.h
 )
 
@@ -76,7 +78,6 @@ set(ZWIDGET_SDL2_SOURCES
 
 source_group("src" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/.+")
 source_group("src\\core" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/core/.+")
-source_group("src\\core\\schrift" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/core/schrift/.+")
 source_group("src\\core\\picopng" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/core/picopng/.+")
 source_group("src\\core\\nanosvg" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/core/nanosvg/.+")
 source_group("src\\widgets" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/widgets/.+")
@@ -92,6 +93,7 @@ source_group("src\\widgets\\textlabel" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURC
 source_group("src\\widgets\\pushbutton" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/widgets/pushbutton/.+")
 source_group("src\\widgets\\checkboxlabel" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/widgets/checkboxlabel/.+")
 source_group("src\\widgets\\listview" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/widgets/listview/.+")
+source_group("src\\widgets\\tabwidget" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/widgets/tabwidget/.+")
 source_group("src\\window" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/src/window/.+")
 source_group("include" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/.+")
 source_group("include\\core" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/core/.+")
@@ -108,6 +110,7 @@ source_group("include\\widgets\\textlabel" REGULAR_EXPRESSION "${CMAKE_CURRENT_S
 source_group("include\\widgets\\pushbutton" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/widgets/pushbutton/.+")
 source_group("include\\widgets\\checkboxlabel" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/widgets/checkboxlabel/.+")
 source_group("include\\widgets\\listview" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/widgets/listview/.+")
+source_group("include\\widgets\\tabwidget" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/widgets/tabwidget/.+")
 source_group("include\\window" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/window/.+")
 source_group("include\\window\\win32" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/window/win32/.+")
 source_group("include\\window\\sdl2" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/include/zwidget/window/sdl2/.+")

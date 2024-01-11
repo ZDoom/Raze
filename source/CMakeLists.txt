@@ -1022,6 +1022,10 @@ set (PCH_SOURCES
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
 	launcher/launcherwindow.cpp
+	launcher/launcherbanner.cpp
+	launcher/launcherbuttonbar.cpp
+	launcher/playgamepage.cpp
+	launcher/settingspage.cpp
 
 	common/audio/sound/i_sound.cpp
 	common/audio/sound/oalsound.cpp
