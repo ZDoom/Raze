@@ -2,8 +2,9 @@
 goto aftercopyright
 
 **
-** auto-setup-windows.cmd
-** Automatic (easy) setup and build script for Windows
+** auto-setup-windows-arm.cmd
+** Automatic (easy) setup and build script for Windows ARM (cross compiling on x64) - please have a
+** build of x64 in your build folder ready before executing this script!
 **
 ** Note that this script assumes you have both 'git' and 'cmake' installed properly and in your PATH!
 ** This script also assumes you have installed a build system that cmake can automatically detect.
@@ -19,7 +20,7 @@ goto aftercopyright
 ** Not guaranteed to work and your mileage will vary.
 **
 **---------------------------------------------------------------------------
-** Copyright 2023-2024 Rachael Alexanderson and the GZDoom team
+** Copyright 2024 Rachael Alexanderson and the GZDoom team
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -49,34 +50,40 @@ goto aftercopyright
 
 :aftercopyright
 
-setlocal enableextensions
 
-rem -- Always operate within the build folder
-if not exist "%~dp0\build" mkdir "%~dp0\build"
-pushd "%~dp0\build"
+setlocal
+rem -- Always operate within the build-arm folder
+if not exist "%~dp0\build-arm" mkdir "%~dp0\build-arm"
+pushd "%~dp0\build-arm"
 
-if exist vcpkg if exist vcpkg\* git -C ./vcpkg pull
-if not exist vcpkg git clone https://github.com/microsoft/vcpkg
+if exist ..\build\vcpkg if exist ..\build\vcpkg\* git -C ../build/vcpkg pull
+if not exist ..\build\vcpkg goto :nobuild
 
-if exist zmusic if exist vcpkg\* git -C ./zmusic pull
+if exist zmusic if exist zmusic\* git -C ./zmusic pull
 if not exist zmusic git clone https://github.com/zdoom/zmusic
 
-if not exist "%~dp0\build\zmusic\build" mkdir "%~dp0\build\zmusic\build"
-if not exist "%~dp0\build\vcpkg_installed" mkdir "%~dp0\build\vcpkg_installed"
+mkdir "%~dp0\build-arm\zmusic\build"
+mkdir "%~dp0\build-arm\vcpkg_installed"
 
-cmake -A x64 -S ./zmusic -B ./zmusic/build ^
-	-DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ^
+cmake -A ARM64 -S ./zmusic -B ./zmusic/build ^
+	-DCMAKE_TOOLCHAIN_FILE=../../build/vcpkg/scripts/buildsystems/vcpkg.cmake ^
 	-DVCPKG_LIBSNDFILE=1 ^
-	-DVCPKG_INSTALLLED_DIR=../vcpkg_installed/
+	-DVCPKG_INSTALLLED_DIR=../vcpkg_installed/ ^
+	-DCMAKE_CROSSCOMPILING=TRUE
 cmake --build ./zmusic/build --config Release -- -maxcpucount -verbosity:minimal
 
-cmake -A x64 -S .. -B . ^
-	-DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ^
+cmake -A ARM64 -S .. -B . ^
+	-DCMAKE_TOOLCHAIN_FILE=../build/vcpkg/scripts/buildsystems/vcpkg.cmake ^
 	-DZMUSIC_INCLUDE_DIR=./zmusic/include ^
-	-DZMUSIC_LIBRARIES=./zmusic/build/source/Release/zmusiclite.lib ^
-	-DVCPKG_INSTALLLED_DIR=./vcpkg_installed/
+	-DZMUSIC_LIBRARIES=./zmusic/build/source/Release/zmusic.lib ^
+	-DVCPKG_INSTALLLED_DIR=./vcpkg_installed/ ^
+	-DFORCE_CROSSCOMPILE=TRUE ^
+	-DIMPORT_EXECUTABLES=../build/ImportExecutables.cmake
 cmake --build . --config RelWithDebInfo -- -maxcpucount -verbosity:minimal
 
 rem -- If successful, show the build
-if not errorlevel 1 if exist RelWithDebInfo\raze.exe explorer.exe RelWithDebInfo
+if exist RelWithDebInfo\raze.exe explorer.exe RelWithDebInfo
 
+goto :eof
+:nobuild
+echo Please use auto-setup-windows.cmd to create an x64 build first!
