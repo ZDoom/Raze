@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-    "builtin-baseline": "65c013b9667ff1f58fb8724209227e5a2e761043",
+    "builtin-baseline": "2c401863dd54a640aeb26ed736c55489c079323b",
     "features":
     {
         "vcpkg-libvpx":
@@ -10,7 +10,7 @@
                 {
                     "name": "libvpx",
                     "default-features": false,
-                    "platform": "windows & static & staticcrt"
+                    "platform": "(!windows & static) | (windows & static & staticcrt)"
                 }
             ]
         },
@@ -21,31 +21,35 @@
                 {
                     "name": "openal-soft",
                     "default-features": false,
-                    "platform": "!windows | (windows & static & staticcrt)"
+                    "platform": "(!windows & static) | (windows & static & staticcrt)"
                 }
             ]
         }
     },
     "dependencies": [
         {
-            "name": "zlib",
-            "platform": "!windows | (windows & static & staticcrt)"
-        },
-        {
             "name": "bzip2",
-            "platform": "!windows | (windows & static & staticcrt)"
+            "platform": "(!windows & static) | (windows & static & staticcrt)"
         },
         {
             "name": "sdl2",
-            "platform": "!windows & !osx"
+            "platform": "!windows & !osx & static"
         },
         {
             "name": "libvpx",
-            "platform": "!windows"
+            "platform": "!windows & static"
         },
         {
             "name": "libwebp",
-            "platform": "!windows | (windows & static & staticcrt)"
-        }
+            "platform": "(!windows & static) | (windows & static & staticcrt)"
+        },
+	{
+            "name": "gtk3",
+            "platform": "!windows & !osx & static"
+	},
+	{
+            "name": "glib",
+            "platform": "!windows & !osx & static"
+	}
     ]
 }
