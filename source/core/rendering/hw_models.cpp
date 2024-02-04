@@ -44,7 +44,7 @@ VSMatrix FHWModelRenderer::GetViewToWorldMatrix()
 	return objectToWorldMatrix;
 }
 
-void FHWModelRenderer::BeginDrawModel(FRenderStyle style, FSpriteModelFrame *smf, const VSMatrix &objectToWorldMatrix, bool mirrored)
+void FHWModelRenderer::BeginDrawModel(FRenderStyle style, int smf_flags, const VSMatrix &objectToWorldMatrix, bool mirrored)
 {
 	state.SetDepthFunc(DF_LEqual);
 	state.EnableTexture(true);
@@ -54,14 +54,14 @@ void FHWModelRenderer::BeginDrawModel(FRenderStyle style, FSpriteModelFrame *smf
 	state.EnableModelMatrix(true);
 }
 
-void FHWModelRenderer::EndDrawModel(FRenderStyle style, FSpriteModelFrame *smf)
+void FHWModelRenderer::EndDrawModel(FRenderStyle style, int smf_flags)
 {
 	state.EnableModelMatrix(false);
 	state.SetDepthFunc(DF_Less);
 	state.SetCulling(Cull_None);
 }
 
-void FHWModelRenderer::BeginDrawHUDModel(FRenderStyle style, const VSMatrix &objectToWorldMatrix, bool mirrored, FSpriteModelFrame*)
+void FHWModelRenderer::BeginDrawHUDModel(FRenderStyle style, const VSMatrix &objectToWorldMatrix, bool mirrored, int)
 {
 	state.SetDepthFunc(DF_LEqual);
 	state.SetCulling(mirrored ? Cull_CCW : Cull_CW);
@@ -69,7 +69,7 @@ void FHWModelRenderer::BeginDrawHUDModel(FRenderStyle style, const VSMatrix &obj
 	state.EnableModelMatrix(true);
 }
 
-void FHWModelRenderer::EndDrawHUDModel(FRenderStyle style, FSpriteModelFrame*)
+void FHWModelRenderer::EndDrawHUDModel(FRenderStyle style, int)
 {
 	state.EnableModelMatrix(false);
 
