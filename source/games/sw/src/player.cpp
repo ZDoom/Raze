@@ -4713,12 +4713,12 @@ void DoPlayerWade(DSWPlayer* pp)
 
     if (pp->Flags & (PF_PLAYER_MOVED))
     {
-        if (plActor->checkStateGroup(NAME_Run))
+        if (!plActor->checkStateGroup(NAME_Run))
             plActor->setStateGroup(NAME_Run);
     }
     else
     {
-        if (plActor->checkStateGroup(NAME_Stand))
+        if (!plActor->checkStateGroup(NAME_Stand))
             plActor->setStateGroup(NAME_Stand);
     }
 
@@ -6358,12 +6358,12 @@ void DoPlayerRun(DSWPlayer* pp)
     {
         if (pp->Flags & (PF_PLAYER_MOVED))
         {
-            if (plActor->checkStateGroup(NAME_Run))
+            if (!plActor->checkStateGroup(NAME_Run))
                 plActor->setStateGroup(NAME_Run);
         }
         else
         {
-            if (plActor->checkStateGroup(NAME_Stand))
+            if (!plActor->checkStateGroup(NAME_Stand))
                 plActor->setStateGroup(NAME_Stand);
         }
     }
