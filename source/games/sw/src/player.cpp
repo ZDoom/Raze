@@ -56,6 +56,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamestate.h"
 #include "vm.h"
 
+CVAR(Bool, sw_nocenterview, false, CVAR_ARCHIVE)
+
 BEGIN_SW_NS
 
 void pSpriteControl(DSWPlayer* pp);
@@ -2908,7 +2910,7 @@ void DoPlayerFall(DSWPlayer* pp)
         {
             PlayerSound(DIGI_FALLSCREAM, v3df_dontpan|v3df_doppler|v3df_follow,pp);
         }
-        else if (pp->jump_speed > 1300)
+        else if (pp->jump_speed > 1300 && !sw_nocenterview)
         {
             if (!(pp->cmd.ucmd.actions & SB_CENTERVIEW))
             {
