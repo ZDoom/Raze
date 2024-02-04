@@ -376,16 +376,19 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	fileSystem.SetIwadNum(1);
 	fileSystem.SetMaxIwadNum((int)Files.size() - 1);
 
-	D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
-
-	size_t len;
-	size_t lastpos = 0;
-
-	while (lastpos < LumpFilter.Len() && (len = strcspn(LumpFilter.GetChars() + lastpos, ".")) > 0)
+	if (!Args->CheckParm("-noautoload"))
 	{
-		auto file = LumpFilter.Left(len + lastpos) + ".Autoload";
-		D_AddConfigFiles(Files, file.GetChars(), "*.grp", GameConfig);
-		lastpos += len + 1;
+		D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
+
+		size_t len;
+		size_t lastpos = 0;
+
+		while (lastpos < LumpFilter.Len() && (len = strcspn(LumpFilter.GetChars() + lastpos, ".")) > 0)
+		{
+			auto file = LumpFilter.Left(len + lastpos) + ".Autoload";
+			D_AddConfigFiles(Files, file.GetChars(), "*.grp", GameConfig);
+			lastpos += len + 1;
+		}
 	}
 
 	if (!insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
