@@ -219,7 +219,7 @@ int HitScan(DBloodActor* actor, double z, const DVector3& vect, unsigned int nMa
 	gHitInfo.clearObj();
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
-	hitscan(DVector3(actor->spr.pos.XY(), z), actor->sector(), vect, gHitInfo, nMask, nRange);
+	hitscan(DVector3(actor->spr.pos.XY(), z), actor->sector(), vect, gHitInfo, nMask, nRange, true);
 
 	actor->spr.cstat = bakCstat;
 	if (gHitInfo.actor() != nullptr)
@@ -257,7 +257,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
-	hitscan(pos, actor->sector(), vel, gHitInfo, CLIPMASK1, nRange);
+	hitscan(pos, actor->sector(), vel, gHitInfo, CLIPMASK1, nRange, true);
 
 	actor->spr.cstat = bakCstat;
 	while (nNum--)

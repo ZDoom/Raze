@@ -73,7 +73,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 		int hit = HitScan(actor, actor->spr.pos.Z, DVector3(vec.XY(), 0), CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
-			vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
+			vec.Z += (target->spr.pos.Z - actor->spr.pos.Z) / (target->spr.pos.XY() - actor->spr.pos.XY()).Length();
 			DBloodPlayer* pPlayer = getPlayer(target->spr.type - kDudePlayer1);
 			switch (actor->spr.type)
 			{

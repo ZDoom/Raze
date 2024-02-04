@@ -745,7 +745,7 @@ double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector
 // 
 //==========================================================================
 
-int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& vect, HitInfoBase& hitinfo, unsigned cliptype, double maxrange)
+int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& vect, HitInfoBase& hitinfo, unsigned cliptype, double maxrange, bool rangeisxy)
 {
 	double hitfactor = DBL_MAX;
 
@@ -758,7 +758,7 @@ int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& 
 
 	if (maxrange > 0)
 	{
-		hitfactor = maxrange / vect.Length();
+		hitfactor = maxrange / (rangeisxy? vect.XY().Length() : vect.Length());
 		hitinfo.hitpos = start + hitfactor * vect;
 	}
 	else hitinfo.hitpos.X = hitinfo.hitpos.Y = DBL_MAX;
