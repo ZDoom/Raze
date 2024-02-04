@@ -372,13 +372,21 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 	{
 		ReadCVars (0);
 	}
-	strncpy (subsection, "ConsoleAliases", sublen);
-	if (SetSection (section))
+	strncpy(subsection, "ConsoleAliases", sublen);
+	if (SetSection(section))
 	{
-		while (NextInSection (key, value))
+		const char* name = NULL;
+		while (NextInSection(key, value))
 		{
-			FStringf cmd("alias %s \"%s\"", key, value);
-			C_DoCommand(cmd.GetChars());
+			if (stricmp(key, "Name") == 0)
+			{
+				name = value;
+			}
+			else if (stricmp(key, "Command") == 0 && name != NULL)
+			{
+				C_SetAlias(name, value);
+				name = NULL;
+			}
 		}
 	}
 }
