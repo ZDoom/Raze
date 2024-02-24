@@ -213,4 +213,29 @@ int DoWallMoveMatch(short match)
     return found;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+
+#include "saveable.h"
+
+static saveable_code saveable_wallmove_code[] =
+{
+    SAVE_CODE(DoWallMove),
+    SAVE_CODE(CanSeeWallMove),
+    SAVE_CODE(DoWallMoveMatch),
+};
+
+saveable_module saveable_wallmove =
+{
+    // code
+    saveable_wallmove_code,
+    SIZ(saveable_wallmove_code),
+
+    // data
+    nullptr,0
+};
 END_SW_NS

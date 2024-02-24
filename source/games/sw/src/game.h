@@ -48,8 +48,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gameinput.h"
 #include "serialize_obj.h"
 #include "texturemanager.h"
-#include "states.h"
-#include "vm.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -335,24 +333,15 @@ class DPanelSprite;
 struct ANIM;
 class DSWActor;
 
+typedef int ANIMATOR (DSWActor* actor);
 typedef void pANIMATOR (DPanelSprite*);
 typedef void (*soANIMATORp) (SECTOR_OBJECT*);
-
-// this needs to work with incomplete data, so avoid the asserting macros.
-#define DEF_ANIMATOR(func) \
-    int func(DSWActor*); \
-    DEFINE_ACTION_FUNCTION_NATIVE(DSWActor, func, func) \
-    { \
-        auto self = (DSWActor *)(param[0].a); \
-        ACTION_RETURN_INT(func(self)); \
-    }
-#define AF(func) DSWActor_##func##_VMPtr
 
 struct STATE
 {
     short     Pic;
     int       Tics;
-    VMNativeFunction** Animator;    // go through the scripting interface
+    ANIMATOR* Animator;
 
     STATE*   NextState;
 };
@@ -378,6 +367,7 @@ enum  FOOT_TYPE
 {WATER_FOOT, BLOOD_FOOT};
 
 extern FOOT_TYPE FootMode;
+ANIMATOR QueueFloorBlood;                // Weapon.c
 int QueueFootPrint(DSWActor*);                 // Weapon.c
 void QueueLoWangs(DSWActor*);                   // Weapon.c
 int SpawnShell(DSWActor* actor, int ShellNum);     // JWeapon.c
@@ -692,23 +682,16 @@ struct USER
     TArray<int8_t> WallShade;
 
     walltype* WallP; // operate on wall instead of sprite
-    VMFunction* ActorActionFunc;
+    STATE* State;
+    STATE* *Rot;
+    STATE* StateStart;
+    STATE* StateEnd;
+    STATE* *StateFallOverride; // a bit kludgy - override std fall state
+
+    ANIMATOR* ActorActionFunc;
+    ACTOR_ACTION_SET* ActorActionSet;
     PERSONALITY* Personality;
-
-    struct LegacyState
-    {
-        STATE* State;
-        STATE** Rot;
-        STATE* StateStart;
-        STATE* StateEnd;
-        STATE** StateFallOverride; // a bit kludgy - override std fall state
-        ACTOR_ACTION_SET* ActorActionSet;
-        int16_t RotNum;
-        ATTRIBUTE* Attrib;
-
-    };
-    LegacyState __legacyState;
-
+    ATTRIBUTE* Attrib;
     SECTOR_OBJECT* sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
@@ -734,6 +717,7 @@ struct USER
     int Flags2;
     int Tics;
 
+    int16_t RotNum;
     int16_t ID;
 
     // Health/Pain related
@@ -1202,18 +1186,11 @@ enum
 
 extern TRACK Track[MAX_TRACKS];
 
-enum
-{
-    SOType_None = 0,
-    SOType_Floor = 1,
-    SOType_Tornado = 2,
-    SOType_AutoTurret = 3
-};
-
 struct SECTOR_OBJECT
 {
-    bool PreMoveScale;
-    uint8_t AnimType;
+    soANIMATORp PreMoveAnimator;
+    soANIMATORp PostMoveAnimator;
+    soANIMATORp Animator;
     TObjPtr<DSWActor*> controller;
 
     TObjPtr<DSWActor*> sp_child;  // child sprite that holds info for the sector object
@@ -1388,6 +1365,8 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+ANIMATOR NullAnimator;
+
 int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
 DVector3 SectorMidPoint(sectortype* sectp);
 void SpawnUser(DSWActor* actor, short id, STATE* state);
@@ -1434,6 +1413,8 @@ inline int PlayerSound(int num, int flags, DSWPlayer* pp) { return _PlayerSound(
 void StopPlayerSound(DSWPlayer* pp, int which = -1);
  bool SoundValidAndActive(DSWActor* spr, int channel);
 
+
+ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
 struct BREAK_INFO;
 int SpawnShrap(DSWActor*, DSWActor*, int = -1, BREAK_INFO* breakinfo = nullptr);
@@ -2191,301 +2172,6 @@ struct USERSAVE
 extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 constexpr double JUMP_FACTOR = 1. / 256.;
-
-
-// declare all used state animators here for now.
-
-DEF_ANIMATOR(DoBunnyMove)
-DEF_ANIMATOR(DoBunnyGrowUp)
-DEF_ANIMATOR(DoBunnyEat)
-DEF_ANIMATOR(DoBunnyScrew)
-DEF_ANIMATOR(NullBunny)
-DEF_ANIMATOR(InitBunnySlash)
-DEF_ANIMATOR(DoBunnyStandKill)
-DEF_ANIMATOR(DoBunnyPain)
-DEF_ANIMATOR(DoBunnyMoveJump)
-DEF_ANIMATOR(DoBunnyBeginJumpAttack)
-DEF_ANIMATOR(BunnySpew)
-
-DEF_ANIMATOR(DoCoolgMove)
-DEF_ANIMATOR(NullCoolg)
-DEF_ANIMATOR(InitCoolgBash)
-DEF_ANIMATOR(InitCoolgFire)
-DEF_ANIMATOR(DoCoolgPain)
-DEF_ANIMATOR(DoCoolgDeath)
-DEF_ANIMATOR(DoCoolgBirth)
-
-DEF_ANIMATOR(DoCoolieMove)
-DEF_ANIMATOR(CooliePain)
-DEF_ANIMATOR(NullCoolie)
-DEF_ANIMATOR(SpawnCoolieExp)
-DEF_ANIMATOR(DoCoolieWaitBirth)
-DEF_ANIMATOR(SpawnCoolg)
-
-DEF_ANIMATOR(DoEelMove)
-DEF_ANIMATOR(InitEelFire)
-DEF_ANIMATOR(NullEel)
-DEF_ANIMATOR(DoEelDeath)
-
-DEF_ANIMATOR(NullGirlNinja)
-DEF_ANIMATOR(DoGirlNinjaMove)
-DEF_ANIMATOR(DoGirlNinjaPain)
-DEF_ANIMATOR(DoGirlNinjaSpecial)
-
-DEF_ANIMATOR(InitEnemyMine)
-DEF_ANIMATOR(InitEnemyCrossbow)
-
-DEF_ANIMATOR(DoGoroMove)
-DEF_ANIMATOR(NullGoro)
-DEF_ANIMATOR(InitGoroChop)
-DEF_ANIMATOR(DoGoroPain)
-DEF_ANIMATOR(InitEnemyFireball)
-
-DEF_ANIMATOR(DoHornetMove)
-DEF_ANIMATOR(DoHornetDeath)
-
-DEF_ANIMATOR(BloodSprayFall)
-DEF_ANIMATOR(DoSuicide)
-DEF_ANIMATOR(DoRadiationCloud)
-DEF_ANIMATOR(DoChemBomb)
-DEF_ANIMATOR(DoCaltrops)
-DEF_ANIMATOR(DoCaltropsStick)
-DEF_ANIMATOR(DoCarryFlag)
-DEF_ANIMATOR(DoCarryFlagNoDet)
-DEF_ANIMATOR(DoFlag)
-DEF_ANIMATOR(DoPhosphorus)
-DEF_ANIMATOR(DoBloodSpray)
-DEF_ANIMATOR(DoWallBloodDrip)
-
-DEF_ANIMATOR(DoLavaMove)
-DEF_ANIMATOR(NullLava)
-DEF_ANIMATOR(InitLavaThrow)
-DEF_ANIMATOR(InitLavaFlame)
-
-DEF_ANIMATOR(DoActorDeathMove)
-DEF_ANIMATOR(QueueFloorBlood)
-DEF_ANIMATOR(DoActorDebris)
-DEF_ANIMATOR(InitActorDecide)
-
-DEF_ANIMATOR(DoToiletGirl)
-DEF_ANIMATOR(ToiletGirlPain)
-DEF_ANIMATOR(ToiletGirlUzi)
-DEF_ANIMATOR(InitEnemyUzi)
-DEF_ANIMATOR(DoWashGirl)
-DEF_ANIMATOR(WashGirlUzi)
-DEF_ANIMATOR(DoTrashCan)
-DEF_ANIMATOR(TrashCanPain)
-DEF_ANIMATOR(PachinkoLightOperate)
-DEF_ANIMATOR(Pachinko1Operate)
-DEF_ANIMATOR(PachinkoCheckWin)
-DEF_ANIMATOR(DoCarGirl)
-DEF_ANIMATOR(CarGirlPain)
-DEF_ANIMATOR(CarGirlUzi)
-DEF_ANIMATOR(DoMechanicGirl)
-DEF_ANIMATOR(MechanicGirlPain)
-DEF_ANIMATOR(MechanicGirlDrill)
-DEF_ANIMATOR(DoSailorGirl)
-DEF_ANIMATOR(SailorGirlPain)
-DEF_ANIMATOR(SailorGirlThrow)
-DEF_ANIMATOR(DoPruneGirl)
-DEF_ANIMATOR(PruneGirlPain)
-DEF_ANIMATOR(WashGirlPain)
-
-DEF_ANIMATOR(DoNinjaMove)
-DEF_ANIMATOR(NullNinja)
-DEF_ANIMATOR(DoNinjaCeiling)
-DEF_ANIMATOR(DoNinjaPain)
-DEF_ANIMATOR(InitEnemyStar)
-DEF_ANIMATOR(InitEnemyMirv)
-DEF_ANIMATOR(InitEnemyNapalm)
-DEF_ANIMATOR(InitEnemyRocket)
-DEF_ANIMATOR(InitSpriteGrenade)
-DEF_ANIMATOR(InitFlashBomb)
-DEF_ANIMATOR(CheckFire)
-DEF_ANIMATOR(DoNinjaSpecial)
-DEF_ANIMATOR(DoNinjaGrabThroat)
-DEF_ANIMATOR(DoNinjaHariKari)
-
-DEF_ANIMATOR(DoRipperMove)
-DEF_ANIMATOR(NullRipper)
-DEF_ANIMATOR(InitRipperSlash)
-DEF_ANIMATOR(DoRipperStandHeart)
-DEF_ANIMATOR(DoRipperHang)
-DEF_ANIMATOR(DoRipperPain)
-DEF_ANIMATOR(DoRipperMoveJump)
-DEF_ANIMATOR(DoRipperBeginJumpAttack)
-DEF_ANIMATOR(DoRipperHangJF)
-
-DEF_ANIMATOR(DoRipper2Move)
-DEF_ANIMATOR(NullRipper2)
-DEF_ANIMATOR(DoRipper2Hang)
-DEF_ANIMATOR(DoRipper2Pain)
-DEF_ANIMATOR(DoRipper2MoveJump)
-DEF_ANIMATOR(DoRipper2BeginJumpAttack)
-DEF_ANIMATOR(DoRipper2HangJF)
-DEF_ANIMATOR(DoRipper2StandHeart)
-DEF_ANIMATOR(ChestRipper2)
-
-DEF_ANIMATOR(DoSerpMove)
-DEF_ANIMATOR(NullSerp)
-DEF_ANIMATOR(InitSerpSlash)
-DEF_ANIMATOR(InitSerpRing)
-DEF_ANIMATOR(InitSerpSpell)
-DEF_ANIMATOR(InitSerpMonstSpell)
-DEF_ANIMATOR(DoDeathSpecial)
-
-DEF_ANIMATOR(DoSkelMove)
-DEF_ANIMATOR(NullSkel)
-DEF_ANIMATOR(InitSkelSlash)
-DEF_ANIMATOR(InitSkelSpell)
-DEF_ANIMATOR(DoSkelPain)
-DEF_ANIMATOR(DoSkelInitTeleport)
-DEF_ANIMATOR(DoSkelTeleport)
-DEF_ANIMATOR(DoSkelTermTeleport)
-
-DEF_ANIMATOR(DoSkullWait)
-DEF_ANIMATOR(DoSerpRing)
-DEF_ANIMATOR(DoSkullJump)
-DEF_ANIMATOR(DoDamageTest)
-DEF_ANIMATOR(DoSkullSpawnShrap)
-DEF_ANIMATOR(DoBettyWait)
-DEF_ANIMATOR(DoBettyJump)
-
-DEF_ANIMATOR(DoSumoMove)
-DEF_ANIMATOR(NullSumo)
-DEF_ANIMATOR(InitSumoFart)
-DEF_ANIMATOR(InitSumoClap)
-DEF_ANIMATOR(InitSumoStomp)
-DEF_ANIMATOR(DoSumoDeathMelt)
-
-DEF_ANIMATOR(DoDefaultStat)
-DEF_ANIMATOR(DoPuff)
-DEF_ANIMATOR(DoRailPuff)
-DEF_ANIMATOR(DoTracer)
-DEF_ANIMATOR(DoEMP)
-DEF_ANIMATOR(DoEMPBurst)
-DEF_ANIMATOR(DoFastShrapJumpFall)
-
-DEF_ANIMATOR(DoTankShell)
-DEF_ANIMATOR(DoVehicleSmoke)
-DEF_ANIMATOR(DoWaterSmoke)
-DEF_ANIMATOR(DoUziSmoke)
-DEF_ANIMATOR(DoShotgunSmoke)
-DEF_ANIMATOR(DoUziBullet)
-DEF_ANIMATOR(DoBubble)
-DEF_ANIMATOR(DoCrossBolt)
-DEF_ANIMATOR(DoStar)
-DEF_ANIMATOR(DoLavaBoulder)
-DEF_ANIMATOR(DoShrapDamage)
-DEF_ANIMATOR(DoVulcanBoulder)
-DEF_ANIMATOR(DoGrenade)
-DEF_ANIMATOR(DoMineStuck)
-DEF_ANIMATOR(DoMine)
-DEF_ANIMATOR(DoMineSpark)
-DEF_ANIMATOR(DoMeteor)
-DEF_ANIMATOR(DoMirvMissile)
-DEF_ANIMATOR(DoSerpMeteor)
-DEF_ANIMATOR(DoSpear)
-DEF_ANIMATOR(DoRocket)
-DEF_ANIMATOR(DoRail)
-DEF_ANIMATOR(DoLaser)
-DEF_ANIMATOR(DoMicro)
-DEF_ANIMATOR(DoMicroMini)
-DEF_ANIMATOR(DoBoltThinMan)
-DEF_ANIMATOR(DoBoltSeeker)
-DEF_ANIMATOR(DoBoltFatMan)
-DEF_ANIMATOR(DoBoltShrapnel)
-DEF_ANIMATOR(DoCoolgFire)
-DEF_ANIMATOR(DoCoolgDrip)
-DEF_ANIMATOR(DoPlasma)
-DEF_ANIMATOR(DoShrapJumpFall)
-
-DEF_ANIMATOR(DoTracerShrap)
-DEF_ANIMATOR(DoVomitSplash)
-DEF_ANIMATOR(DoVomit)
-DEF_ANIMATOR(DoMirv)
-DEF_ANIMATOR(DoBloodWorm)
-DEF_ANIMATOR(DoNapalm)
-DEF_ANIMATOR(DoRing)
-DEF_ANIMATOR(DoFireball)
-DEF_ANIMATOR(DoBreakFlames)
-DEF_ANIMATOR(DoFireballFlames)
-DEF_ANIMATOR(DoSectorExp)
-DEF_ANIMATOR(SpawnShrapX)
-DEF_ANIMATOR(DoExpDamageTest)
-DEF_ANIMATOR(DoMineExpMine)
-DEF_ANIMATOR(DoMineExp)
-DEF_ANIMATOR(SpawnGrenadeSmallExp)
-DEF_ANIMATOR(DoElectro)
-DEF_ANIMATOR(DoTeleRipper)
-DEF_ANIMATOR(DoPlasmaDone)
-DEF_ANIMATOR(DoPlasmaFountain)
-DEF_ANIMATOR(DoFootPrints)
-DEF_ANIMATOR(DoPlayerSpriteReset)
-
-DEF_ANIMATOR(DoFloorBlood)
-DEF_ANIMATOR(DoWallBlood)
-
-DEF_ANIMATOR(DoGet)
-DEF_ANIMATOR(DoCoin)
-DEF_ANIMATOR(DoFireFly)
-
-DEF_ANIMATOR(DoZillaMove)
-DEF_ANIMATOR(DoZillaStomp)
-DEF_ANIMATOR(NullZilla)
-DEF_ANIMATOR(InitZillaRail)
-DEF_ANIMATOR(InitZillaRocket)
-DEF_ANIMATOR(DoZillaDeathMelt)
-
-DEF_ANIMATOR(DoZombieMove)
-DEF_ANIMATOR(NullZombie)
-DEF_ANIMATOR(DoZombiePain)
-DEF_ANIMATOR(InitEnemyNuke)
-DEF_ANIMATOR(InitEnemyRail)
-
-DEF_ANIMATOR(InitActorRunAway)
-DEF_ANIMATOR(InitActorAttack)
-DEF_ANIMATOR(InitActorDuck)
-DEF_ANIMATOR(InitActorEvade)
-DEF_ANIMATOR(InitActorFindPlayer)
-DEF_ANIMATOR(InitActorMoveCloser)
-DEF_ANIMATOR(InitActorReposition)
-DEF_ANIMATOR(InitActorWanderAround)
-DEF_ANIMATOR(InitCoolgCircle)
-DEF_ANIMATOR(InitCoolieCharge)
-DEF_ANIMATOR(InitHornetCircle)
-DEF_ANIMATOR(InitHornetSting)
-DEF_ANIMATOR(InitRipper2Charge)
-DEF_ANIMATOR(InitRipper2Hang)
-DEF_ANIMATOR(InitRipperHang)
-DEF_ANIMATOR(InitActorRunToward)
-DEF_ANIMATOR(InitActorSetDecide)
-DEF_ANIMATOR(DoActorDecide)
-DEF_ANIMATOR(DoActorMoveJump)
-DEF_ANIMATOR(DoActorDuck)
-DEF_ANIMATOR(NinjaJumpActionFunc)
-DEF_ANIMATOR(DoActorMoveCloser)
-DEF_ANIMATOR(DoActorAttack)
-DEF_ANIMATOR(DoActorReposition)
-DEF_ANIMATOR(DoCoolgCircle)
-DEF_ANIMATOR(DoHornetCircle)
-DEF_ANIMATOR(GenerateDrips)
-DEF_ANIMATOR(DoSpawnSpot)
-DEF_ANIMATOR(DoGrating)
-DEF_ANIMATOR(DoVator)
-DEF_ANIMATOR(DoVatorAuto)
-DEF_ANIMATOR(DoRotator)
-DEF_ANIMATOR(DoActorPause)
-DEF_ANIMATOR(DoSlidor)
-DEF_ANIMATOR(DoSpike)
-DEF_ANIMATOR(DoSpikeAuto)
-DEF_ANIMATOR(DoLavaErupt)
-DEF_ANIMATOR(SpawnVehicleSmoke)
-DEF_ANIMATOR(DoLaserStart)
-DEF_ANIMATOR(DoTracerStart)
-DEF_ANIMATOR(DoRailStart)
-
-DEF_ANIMATOR(DoGenerateSewerDebris)
 
 END_SW_NS
 

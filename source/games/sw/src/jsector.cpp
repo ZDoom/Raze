@@ -62,6 +62,8 @@ uint32_t oscilationclock;
 // Voxel stuff
 //bool bVoxelsOn = true;                  // Turn voxels on by default
 bool bSpinBobVoxels = false;            // Do twizzly stuff to voxels, but
+// not by default
+bool bAutoSize = true;                  // Autosizing on/off
 
 //extern int chainnumpages;
 extern AMB_INFO ambarray[];
@@ -133,6 +135,8 @@ short CheckTileSound(short picnum)
     return sndnum;
 }
 
+ANIMATOR GenerateDrips;
+
 /////////////////////////////////////////////////////
 //  Initialize any of my special use sprites
 /////////////////////////////////////////////////////
@@ -178,10 +182,10 @@ void JS_SpriteSetup(void)
             {
                 SpawnUser(itActor, 0, nullptr);
 
-                itActor->user.__legacyState.RotNum = 0;
+                itActor->user.RotNum = 0;
                 itActor->user.WaitTics = itActor->spr.lotag * 120;
 
-                itActor->user.ActorActionFunc = AF(GenerateDrips);
+                itActor->user.ActorActionFunc = GenerateDrips;
 
                 change_actor_stat(itActor, STAT_NO_STATE);
                 itActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -605,6 +609,9 @@ void GameInterface::LeavePortal(DCoreActor* viewer, int type)
 
 void DoAutoSize(tspritetype* tspr)
 {
+    if (!bAutoSize)
+        return;
+
     switch (tspr->picnum)
     {
     case ICON_STAR:                     // 1793

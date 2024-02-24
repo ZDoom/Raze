@@ -39,14 +39,10 @@ void PlaceSectorObjectsOnTracks(void);
 void PlaceActorsOnTracks(void);
 void SetupSectorObject(sectortype* sect, short tag);
 void PostSetupSectorObject(void);
-void VehicleSetSmoke(SECTOR_OBJECT* sop, VMFunction* animator);
+void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator);
 void CollapseSectorObject(SECTOR_OBJECT* sop, const DVector2& pos);
 void KillSectorObjectSprites(SECTOR_OBJECT* sop);
 void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics);
-
-int DoActorBeginJump(DSWActor* actor);
-int DoActorBeginFall(DSWActor* actor);
-int DoActorFall(DSWActor* actor);
 
 #define TEXT_INFO_TIME (3)
 #define TEXT_INFO_Y (40)

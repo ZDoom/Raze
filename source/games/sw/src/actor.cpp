@@ -39,7 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "sprite.h"
 #include "gamefuncs.h"
-#include "ai.h"
 
 BEGIN_SW_NS
 
@@ -115,11 +114,13 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         switch (meansofdeath)
         {
         case WPN_NM_LAVA:
-            actor->ChangeStateEnd();
+            ChangeState(actor, actor->user.StateEnd);
+            actor->user.RotNum = 0;
             break;
 
         case WPN_NM_SECTOR_SQUISH:
-            actor->ChangeStateEnd();
+            ChangeState(actor, actor->user.StateEnd);
+            actor->user.RotNum = 0;
             break;
         }
 
@@ -134,9 +135,10 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     // Coolie actually explodes himself
     // he is the Sprite AND weapon
     case COOLIE_RUN_R0:
-        actor->ChangeStateEnd();
+        ChangeState(actor, actor->user.StateEnd);
+        actor->user.RotNum = 0;
         actor->vel.X *= 2;
-        actor->clearActionFunc();
+        actor->user.ActorActionFunc = nullptr;
         actor->spr.Angles.Yaw += DAngle180;
         break;
 
@@ -162,8 +164,9 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                     InitPlasmaFountain(weapActor, actor);
                 }
 
-                actor->ChangeStateEnd();
-                actor->clearActionFunc();
+                ChangeState(actor, actor->user.StateEnd);
+                actor->user.RotNum = 0;
+                actor->user.ActorActionFunc = nullptr;
                 actor->vel.X = 12.5 + RandomRangeF(12.5);
                 actor->user.jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
@@ -175,15 +178,16 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             // test for gibable dead bodies
             if (RandomRange(1000) > 500)
                 actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-            actor->ChangeStateEnd();
+            ChangeState(actor, actor->user.StateEnd);
             actor->vel.X = 0;
             actor->user.jump_speed = 0;
             DoActorBeginJump(actor);
         }
 
-        actor->user.__legacyState.RotNum = 0;
+        actor->user.RotNum = 0;
 
-        actor->clearActionFunc();
+        actor->user.ActorActionFunc = nullptr;
+        //actor->user.ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
             actor->spr.Angles.Yaw = weapActor->spr.Angles.Yaw;
         break;
@@ -195,13 +199,15 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case EEL_RUN_R0:
     case STAR1:
     case SUMO_RUN_R0:
-        actor->ChangeStateEnd();
+        ChangeState(actor, actor->user.StateEnd);
+        actor->user.RotNum = 0;
         break;
 
     case UZI_SMOKE:
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        actor->ChangeStateEnd();
+        ChangeState(actor, actor->user.StateEnd);
+        actor->user.RotNum = 0;
         // Rippers still gotta jump or they fall off walls weird
         if (actor->user.ID == RIPPER_RUN_R0 || actor->user.ID == RIPPER2_RUN_R0)
         {
@@ -215,7 +221,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->user.jump_speed = -10 - RandomRange(25);
             DoActorBeginJump(actor);
         }
-        actor->clearActionFunc();
+        actor->user.ActorActionFunc = nullptr;
         // Get angle to player
         actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos.Y).Angle() + DAngle180;
         break;
@@ -223,7 +229,8 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     case UZI_SMOKE+1: // Shotgun
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        actor->ChangeStateEnd();
+        ChangeState(actor, actor->user.StateEnd);
+        actor->user.RotNum = 0;
 
         // Rippers still gotta jump or they fall off walls weird
         if (actor->user.ID == RIPPER_RUN_R0 || actor->user.ID == RIPPER2_RUN_R0)
@@ -237,7 +244,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             actor->user.jump_speed = -100 - RandomRange(250);
         }
         DoActorBeginJump(actor);
-        actor->clearActionFunc();
+        actor->user.ActorActionFunc = nullptr;
         // Get angle to player
         actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle() + DAngle180;
         break;
@@ -247,7 +254,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         {
         case SKULL_R0:
         case BETTY_R0:
-            actor->ChangeStateEnd();
+            ChangeState(actor, actor->user.StateEnd);
             break;
 
         default:
@@ -258,8 +265,9 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 
             if (RandomRange(1000) > 500)
                 actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-            actor->ChangeStateEnd();
-            actor->clearActionFunc();
+            ChangeState(actor, actor->user.StateEnd);
+            actor->user.RotNum = 0;
+            actor->user.ActorActionFunc = nullptr;
             actor->vel.X = 18.75 + RandomRangeF(25);
             actor->user.jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
@@ -531,11 +539,11 @@ void KeepActorOnFloor(DSWActor* actor)
 
     if ((sectp->extra & SECTFX_SINK) &&
         depth > 35 &&
-        actor->hasState(NAME_Swim))
+        actor->user.ActorActionSet && actor->user.ActorActionSet->Swim)
     {
         if (actor->user.Flags & (SPR_SWIMMING))
         {
-            if (!actor->checkStateGroup(NAME_Run) && !actor->checkStateGroup(NAME_Swim) && !actor->checkStateGroup(NAME_Stand))
+            if (actor->user.Rot != actor->user.ActorActionSet->Run && actor->user.Rot != actor->user.ActorActionSet->Swim && actor->user.Rot != actor->user.ActorActionSet->Stand)
             {
                 // was swimming but have now stopped
                 actor->user.Flags &= ~(SPR_SWIMMING);
@@ -544,9 +552,9 @@ void KeepActorOnFloor(DSWActor* actor)
                 return;
             }
 
-            if (actor->checkStateGroup(NAME_Run))
+            if (actor->user.Rot == actor->user.ActorActionSet->Run)
             {
-                actor->setStateGroup(NAME_Swim);
+                NewStateGroup(actor, actor->user.ActorActionSet->Swim);
             }
 
             // are swimming
@@ -555,9 +563,9 @@ void KeepActorOnFloor(DSWActor* actor)
         else
         {
             // only start swimming if you are running
-            if (actor->checkStateGroup(NAME_Run) || actor->checkStateGroup(NAME_Swim))
+            if (actor->user.Rot == actor->user.ActorActionSet->Run || actor->user.Rot == actor->user.ActorActionSet->Swim)
             {
-                actor->setStateGroup(NAME_Swim);
+                NewStateGroup(actor, actor->user.ActorActionSet->Swim);
                 actor->spr.pos.Z = actor->user.oz = actor->user.loz - depth;
                 actor->user.Flags |= (SPR_SWIMMING);
                 actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -656,12 +664,14 @@ int DoActorBeginJump(DSWActor* actor)
     actor->user.jump_grav = ACTOR_GRAVITY;
 
     // Change sprites state to jumping
-    if (actor->user.Flags & (SPR_DEAD))
-        actor->setStateGroup(NAME_DeathJump);
-    else
-        actor->setStateGroup(NAME_Jump);
-
-    actor->user.__legacyState.StateFallOverride = nullptr;
+    if (actor->user.ActorActionSet)
+    {
+        if (actor->user.Flags & (SPR_DEAD))
+            NewStateGroup(actor, actor->user.ActorActionSet->DeathJump);
+        else
+            NewStateGroup(actor, actor->user.ActorActionSet->Jump);
+    }
+    actor->user.StateFallOverride = nullptr;
 
     //DO NOT CALL DoActorJump! DoActorStopFall can cause an infinite loop and
     //stack overflow if it is called.
@@ -726,16 +736,19 @@ int DoActorBeginFall(DSWActor* actor)
     actor->user.jump_grav = ACTOR_GRAVITY;
 
     // Change sprites state to falling
-    if (actor->user.Flags & (SPR_DEAD))
+    if (actor->user.ActorActionSet)
     {
-        actor->setStateGroup(NAME_DeathFall);
-    }
-    else
-        actor->setStateGroup(NAME_Fall);
+        if (actor->user.Flags & (SPR_DEAD))
+        {
+            NewStateGroup(actor, actor->user.ActorActionSet->DeathFall);
+        }
+        else
+            NewStateGroup(actor, actor->user.ActorActionSet->Fall);
 
-    if (actor->user.__legacyState.StateFallOverride)
-    {
-        NewStateGroup(actor, actor->user.__legacyState.StateFallOverride);
+        if (actor->user.StateFallOverride)
+        {
+            NewStateGroup(actor, actor->user.StateFallOverride);
+        }
     }
 
     DoActorFall(actor);
@@ -791,23 +804,23 @@ int DoActorStopFall(DSWActor* actor)
     }
 
     // Change sprites state to running
-    if (actor->user.__legacyState.ActorActionSet)
+    if (actor->user.ActorActionSet)
     {
         if (actor->user.Flags & (SPR_DEAD))
         {
-            actor->setStateGroup(NAME_Dead);
+            NewStateGroup(actor, actor->user.ActorActionSet->Dead);
             PlaySound(DIGI_ACTORBODYFALL1, actor, v3df_none);
         }
         else
         {
             PlaySound(DIGI_ACTORHITGROUND, actor, v3df_none);
 
-            actor->setStateGroup(NAME_Run);
+            NewStateGroup(actor, actor->user.ActorActionSet->Run);
 
-            if ((actor->user.track >= 0) && (actor->user.jump_speed) > 800 && (actor->hasState(NAME_Sit)))
+            if ((actor->user.track >= 0) && (actor->user.jump_speed) > 800 && (actor->user.ActorActionSet->Sit))
             {
                 actor->user.WaitTics = 80;
-                actor->setStateGroup(NAME_Sit);
+                NewStateGroup(actor, actor->user.ActorActionSet->Sit);
             }
         }
     }
@@ -952,148 +965,24 @@ int DoFall(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-// helpers
+#include "saveable.h"
 
-void DSWActor::ChangeStateEnd()
+static saveable_code saveable_actor_code[] =
 {
-    ChangeState(this, user.__legacyState.StateEnd);
-    user.__legacyState.RotNum = 0;
+    SAVE_CODE(DoActorDebris),
+    SAVE_CODE(DoFireFly),
+    SAVE_CODE(DoGenerateSewerDebris),
+    SAVE_CODE(DoActorDeathMove),
+};
 
-}
-
-Personality* DSWActor::getPersonality()
+saveable_module saveable_actor =
 {
-    return nullptr; // not implemented yet.
-}
+    // code
+    saveable_actor_code,
+    SIZ(saveable_actor_code),
 
-static STATE** getLegacyState(ACTOR_ACTION_SET* a, FName label, int subl)
-{
-    if (label == NAME_Run)
-    {
-        return a->Run;
-    }
-    if (label == NAME_Swim)
-    {
-        return a->Swim;
-    }
-    if (label == NAME_DeathJump)
-    {
-        return a->DeathJump;
-    }
-    if (label == NAME_Jump)
-    {
-        return a->Jump;
-    }
-    if (label == NAME_DeathFall)
-    {
-        return a->DeathFall;
-    }
-    if (label == NAME_Fall)
-    {
-        return a->Fall;
-    }
-    if (label == NAME_Dead)
-    {
-        return a->Dead;
-    }
-    if (label == NAME_Sit)
-    {
-        return a->Sit;
-    }
-    if (label == NAME_Stand)
-    {
-        return a->Stand;
-    }
-    if (label == NAME_Death1)
-    {
-        return a->Death1;
-    }
-    if (label == NAME_Death2)
-    {
-        return a->Death2;
-    }
-    if (label == NAME_Duck)
-    {
-        return a->Duck;
-    }
-    if (label == NAME_Rise)
-    {
-        return a->Rise;
-    }
-    if (label == NAME_Fly)
-    {
-        return a->Fly;
-    }
-    if (label == NAME_Crawl)
-    {
-        return a->Crawl;
-    }
-    if (label == NAME_Pain)
-    {
-        return a->Pain;
-    }
-    if (label == NAME_Climb)
-    {
-        return a->Climb;
-    }
-    if (label == NAME_Special)
-    {
-        return a->Special[1]; // special[0] is never used anywhere
-    }
-    if (label == NAME_CloseAttack)
-    {
-        return a->CloseAttack[subl];
-    }
-    if (label == NAME_Attack)
-    {
-        return a->Attack[subl];
-    }
-    return nullptr;
-}
-
-void DSWActor::setStateGroup(FName label, int subl)
-{
-    auto a = user.__legacyState.ActorActionSet;
-    if (a) NewStateGroup(this, getLegacyState(a, label, subl));
-}
-
-bool DSWActor::checkStateGroup(FName label, int subl)
-{
-    auto a = user.__legacyState.ActorActionSet;
-    if (!a) return false;
-    return user.__legacyState.Rot == getLegacyState(a, label, subl);
-}
-
-bool DSWActor::hasState(FName label, int subl)
-{
-    auto a = user.__legacyState.ActorActionSet;
-    if (!a) return false;
-    return getLegacyState(a, label, subl) != nullptr;
-}
-
-void DSWActor::setActionDecide() { user.ActorActionFunc = AF(DoActorDecide); }
-
-void DSWActor::callAction()
-{
-    callFunction(user.ActorActionFunc);
-}
-
-void DSWActor::callStateAction()
-{
-    if (user.__legacyState.State && user.__legacyState.State->Animator)
-		callFunction(*user.__legacyState.State->Animator);
-}
-
-int DSWActor::callFunction(VMFunction* func)
-{
-    int ret = 0;
-    if (func)
-    {
-        VMValue param[] = { this };
-        VMReturn r(&ret);
-        VMCall(func, param, 1, &r, 1);
-    }
-    return ret;
-}
+    // data
+    nullptr,0
+};
 
 END_SW_NS

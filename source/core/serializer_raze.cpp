@@ -44,7 +44,6 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/document.h"
 #include "serializer_raze.h"
-#include "states.h"
 #include "actorinfo.h"
 #include "printf.h"
 #include "utf8.h"

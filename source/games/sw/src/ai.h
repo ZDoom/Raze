@@ -27,22 +27,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef AI_H
 
 #define AI_H
-
-class VMFunction;
 BEGIN_SW_NS
-
 
 // Call functions based on a random range value
 struct DECISION
 {
     int range;
-    VMNativeFunction** action;
-};
-
-struct DECISIONB
-{
-    int range;
-    int noise;
+    ANIMATOR* action;
 };
 
 // Personality structure
@@ -50,7 +41,7 @@ struct PERSONALITY
 {
     DECISION* Battle;
     DECISION* Offense;
-    DECISIONB* Broadcast;
+    DECISION* Broadcast;
     DECISION* Surprised;
     DECISION* Evasive;
     DECISION* LostTarget;
@@ -83,6 +74,17 @@ bool CanSeePlayer(DSWActor* actor);
 int DoActorPickClosePlayer(DSWActor* actor);
 int InitActorDecide(DSWActor* actor);
 int DoActorDecide(DSWActor* actor);
+int InitActorAlertNoise(DSWActor* actor);
+int InitActorAmbientNoise(DSWActor* actor);
+int InitActorAttackNoise(DSWActor* actor);
+int InitActorPainNoise(DSWActor* actor);
+int InitActorDieNoise(DSWActor* actor);
+int InitActorExtra1Noise(DSWActor* actor);
+int InitActorExtra2Noise(DSWActor* actor);
+int InitActorExtra3Noise(DSWActor* actor);
+int InitActorExtra4Noise(DSWActor* actor);
+int InitActorExtra5Noise(DSWActor* actor);
+int InitActorExtra6Noise(DSWActor* actor);
 int InitActorMoveCloser(DSWActor* actor);
 int DoActorCantMoveCloser(DSWActor* actor);
 int DoActorMoveCloser(DSWActor* actor);

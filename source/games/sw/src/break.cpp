@@ -1005,7 +1005,7 @@ bool NullActor(DSWActor* actor)
         return true;
 
     // does not have a STATE or FUNC to control it
-    if (!actor->user.__legacyState.State)
+    if (!actor->user.State)
         return true;
 
     // does not have a STATE or FUNC to control it

@@ -58,6 +58,7 @@ enum
     SINE_SLOPED = BIT(3),
 };
 
+ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(DSWPlayer*);
 
 sectortype* FindNextSectorByTag(sectortype* sect, int tag);
@@ -72,9 +73,6 @@ void DoRotatorOperate(DSWPlayer*, sectortype*);
 void DoRotatorMatch(DSWPlayer* pp, short match, bool);
 void DoSlidorOperate(DSWPlayer*, sectortype*);
 void DoSlidorMatch(DSWPlayer* pp, short match, bool);
-
-void DoTornadoObject(SECTOR_OBJECT* sop);
-void DoAutoTurretObject(SECTOR_OBJECT* sop);
 
 void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
@@ -393,8 +391,9 @@ void SectorSetup(void)
         memset(&SectorObject[ndx].sectp, 0, sizeof(SectorObject[0].sectp));
         memset(&SectorObject[ndx].so_actors, 0, sizeof(SectorObject[0].so_actors));
         SectorObject[ndx].match_event_actor = nullptr;
-        SectorObject[ndx].PreMoveScale = false;
-        SectorObject[ndx].AnimType = SOType_None;
+        SectorObject[ndx].PreMoveAnimator = nullptr;
+        SectorObject[ndx].PostMoveAnimator = nullptr;
+        SectorObject[ndx].Animator = nullptr;
         SectorObject[ndx].controller = nullptr;
         SectorObject[ndx].sp_child = nullptr;
         SectorObject[ndx].mid_sector = nullptr;
@@ -983,7 +982,7 @@ void DoSpawnSpotsForKill(short match)
         if (actor->spr.hitag == SPAWN_SPOT && actor->spr.lotag == match)
         {
             change_actor_stat(actor, STAT_NO_STATE);
-            actor->user.ActorActionFunc = AF(DoSpawnSpot);
+            actor->user.ActorActionFunc = DoSpawnSpot;
             actor->user.WaitTics = SP_TAG5(actor) * 15;
             SetActorZ(actor, actor->spr.pos);
             // setting for Killed
@@ -1010,7 +1009,7 @@ void DoSpawnSpotsForDamage(short match)
         if (actor->spr.hitag == SPAWN_SPOT && actor->spr.lotag == match)
         {
             change_actor_stat(actor, STAT_NO_STATE);
-            actor->user.ActorActionFunc = AF(DoSpawnSpot);
+            actor->user.ActorActionFunc = DoSpawnSpot;
             actor->user.WaitTics = SP_TAG7(actor) * 15;
             // setting for Damaged
             actor->user.LastDamage = 0;
@@ -1753,7 +1752,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         SpawnUser(actor, 0, nullptr);
 
-        actor->user.ActorActionFunc = AF(DoGrating);
+        actor->user.ActorActionFunc = DoGrating;
 
         actor->spr.lotag = 0;
         actor->spr.hitag /= 2;
@@ -2910,14 +2909,10 @@ void DoSector(void)
             }
         }
 
-        switch (sop->AnimType)
+        if (sop->Animator)
         {
-        case SOType_AutoTurret:
-            DoAutoTurretObject(sop);
-            break;
-        case SOType_Tornado:
-            DoTornadoObject(sop);
-            break;
+            (*sop->Animator)(sop);
+            continue;
         }
 
         // force sync SOs to be updated regularly
@@ -2963,5 +2958,31 @@ void DoSector(void)
     DoSineWaveWall();
     DoSpringBoardDown();
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+
+#include "saveable.h"
+
+static saveable_code saveable_sector_code[] =
+{
+    SAVE_CODE(DoSpawnSpot),
+};
+
+saveable_module saveable_sector =
+{
+    // code
+    saveable_sector_code,
+    SIZ(saveable_sector_code),
+
+    // data
+    nullptr,
+    0
+};
+
 
 END_SW_NS

@@ -95,6 +95,8 @@ pANIMATOR pNullAnimator;
 int InitStar(DSWPlayer*);
 int ChangeWeapon(DSWPlayer*);
 
+ANIMATOR InitFire;
+
 int NullAnimator(DSWActor*)
 {
     return 0;

@@ -38,52 +38,54 @@ BEGIN_SW_NS
 
 DECISION EelBattle[] =
 {
-    {649,   &AF(InitActorMoveCloser)         },
-    {650,   &AF(InitActorSetDecide)      },
-    {1024,  &AF(InitActorMoveCloser)         }
+    {649,   InitActorMoveCloser         },
+    {650,   InitActorAlertNoise         },
+    {1024,  InitActorMoveCloser         }
 };
 
 DECISION EelOffense[] =
 {
-    {649,   &AF(InitActorMoveCloser)         },
-    {750,   &AF(InitActorSetDecide)     },
-    {1024,  &AF(InitActorMoveCloser)         }
+    {649,   InitActorMoveCloser         },
+    {750,   InitActorAlertNoise         },
+    {1024,  InitActorMoveCloser         }
 };
 
-DECISIONB EelBroadcast[] =
+DECISION EelBroadcast[] =
 {
-    {3,    attr_alert       },
-    {6,    attr_ambient  },
-    {1024, 0   }
+    {3,    InitActorAlertNoise         },
+    {6,    InitActorAmbientNoise       },
+    {1024,  InitActorDecide            }
 };
 
 DECISION EelSurprised[] =
 {
-    {701,   &AF(InitActorMoveCloser)        },
-    {1024,  &AF(InitActorDecide    )        }
+    {701,   InitActorMoveCloser        },
+    {1024,  InitActorDecide            }
 };
 
 DECISION EelEvasive[] =
 {
-    { 790,  &AF(InitActorRunAway   )        },
-    {1024,  &AF(InitActorMoveCloser)        },
+    { 790,  InitActorRunAway           },
+    {1024,  InitActorMoveCloser        },
 };
 
 DECISION EelLostTarget[] =
 {
-    {900,   &AF(InitActorFindPlayer  )       },
-    {1024,  &AF(InitActorWanderAround)       }
+    {900,   InitActorFindPlayer         },
+    {1024,  InitActorWanderAround       }
 };
 
 DECISION EelCloseRange[] =
 {
-    {950,   &AF(InitActorAttack    )        },
-    {1024,  &AF(InitActorReposition)            }
+    {950,   InitActorAttack            },
+    {1024,  InitActorReposition            }
 };
+
+ANIMATOR InitEelFire;
 
 DECISION EelTouchTarget[] =
 {
-    {1024,  &AF(InitActorAttack)            },
+    {1024,  InitActorAttack            },
 };
 
 PERSONALITY EelPersonality =
@@ -116,37 +118,39 @@ ATTRIBUTE EelAttrib =
 
 #define EEL_RUN_RATE 20
 
+ANIMATOR DoEelMove,DoStayOnFloor, DoActorDebris, NullEel;
+
 STATE s_EelRun[5][4] =
 {
     {
-        {EEL_RUN_R0 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][1]},
-        {EEL_RUN_R0 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][2]},
-        {EEL_RUN_R0 + 2, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][3]},
-        {EEL_RUN_R0 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[0][0]},
+        {EEL_RUN_R0 + 0, EEL_RUN_RATE, DoEelMove, &s_EelRun[0][1]},
+        {EEL_RUN_R0 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[0][2]},
+        {EEL_RUN_R0 + 2, EEL_RUN_RATE, DoEelMove, &s_EelRun[0][3]},
+        {EEL_RUN_R0 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[0][0]},
     },
     {
-        {EEL_RUN_R1 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[1][1]},
-        {EEL_RUN_R1 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[1][2]},
-        {EEL_RUN_R1 + 2, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[1][3]},
-        {EEL_RUN_R1 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[1][0]},
+        {EEL_RUN_R1 + 0, EEL_RUN_RATE, DoEelMove, &s_EelRun[1][1]},
+        {EEL_RUN_R1 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[1][2]},
+        {EEL_RUN_R1 + 2, EEL_RUN_RATE, DoEelMove, &s_EelRun[1][3]},
+        {EEL_RUN_R1 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[1][0]},
     },
     {
-        {EEL_RUN_R2 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[2][1]},
-        {EEL_RUN_R2 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[2][2]},
-        {EEL_RUN_R2 + 2, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[2][3]},
-        {EEL_RUN_R2 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[2][0]},
+        {EEL_RUN_R2 + 0, EEL_RUN_RATE, DoEelMove, &s_EelRun[2][1]},
+        {EEL_RUN_R2 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[2][2]},
+        {EEL_RUN_R2 + 2, EEL_RUN_RATE, DoEelMove, &s_EelRun[2][3]},
+        {EEL_RUN_R2 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[2][0]},
     },
     {
-        {EEL_RUN_R3 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[3][1]},
-        {EEL_RUN_R3 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[3][2]},
-        {EEL_RUN_R3 + 2, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[3][3]},
-        {EEL_RUN_R3 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[3][0]},
+        {EEL_RUN_R3 + 0, EEL_RUN_RATE, DoEelMove, &s_EelRun[3][1]},
+        {EEL_RUN_R3 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[3][2]},
+        {EEL_RUN_R3 + 2, EEL_RUN_RATE, DoEelMove, &s_EelRun[3][3]},
+        {EEL_RUN_R3 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[3][0]},
     },
     {
-        {EEL_RUN_R4 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[4][1]},
-        {EEL_RUN_R4 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[4][2]},
-        {EEL_RUN_R4 + 2, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[4][3]},
-        {EEL_RUN_R4 + 1, EEL_RUN_RATE, &AF(DoEelMove), &s_EelRun[4][0]},
+        {EEL_RUN_R4 + 0, EEL_RUN_RATE, DoEelMove, &s_EelRun[4][1]},
+        {EEL_RUN_R4 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[4][2]},
+        {EEL_RUN_R4 + 2, EEL_RUN_RATE, DoEelMove, &s_EelRun[4][3]},
+        {EEL_RUN_R4 + 1, EEL_RUN_RATE, DoEelMove, &s_EelRun[4][0]},
     }
 };
 
@@ -169,19 +173,19 @@ STATE* sg_EelRun[] =
 STATE s_EelStand[5][1] =
 {
     {
-        {EEL_RUN_R0 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[0][0]},
+        {EEL_RUN_R0 + 0, EEL_RUN_RATE, DoEelMove, &s_EelStand[0][0]},
     },
     {
-        {EEL_RUN_R1 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[1][0]},
+        {EEL_RUN_R1 + 0, EEL_RUN_RATE, DoEelMove, &s_EelStand[1][0]},
     },
     {
-        {EEL_RUN_R2 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[2][0]},
+        {EEL_RUN_R2 + 0, EEL_RUN_RATE, DoEelMove, &s_EelStand[2][0]},
     },
     {
-        {EEL_RUN_R3 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[3][0]},
+        {EEL_RUN_R3 + 0, EEL_RUN_RATE, DoEelMove, &s_EelStand[3][0]},
     },
     {
-        {EEL_RUN_R4 + 0, EEL_RUN_RATE, &AF(DoEelMove), &s_EelStand[4][0]},
+        {EEL_RUN_R4 + 0, EEL_RUN_RATE, DoEelMove, &s_EelStand[4][0]},
     }
 };
 
@@ -200,54 +204,55 @@ STATE* sg_EelStand[] =
 //
 //////////////////////
 
+ANIMATOR InitEelFire, EelShock;
 #define EEL_FIRE_RATE 12
 
 STATE s_EelAttack[5][7] =
 {
     {
-        {EEL_FIRE_R0 + 0, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[0][1]},
-        {EEL_FIRE_R0 + 1, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[0][2]},
-        {EEL_FIRE_R0 + 2, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[0][3]},
-        {EEL_FIRE_R0 + 2, 0|SF_QUICK_CALL,  &AF(InitEelFire),          &s_EelAttack[0][4]},
-        {EEL_FIRE_R0 + 2, EEL_FIRE_RATE,    &AF(NullEel),              &s_EelAttack[0][5]},
-        {EEL_FIRE_R0 + 3, 0|SF_QUICK_CALL,  &AF(InitActorDecide),      &s_EelAttack[0][6]},
-        {EEL_RUN_R0  + 3, EEL_FIRE_RATE,    &AF(DoEelMove),            &s_EelAttack[0][6]}
+        {EEL_FIRE_R0 + 0, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[0][1]},
+        {EEL_FIRE_R0 + 1, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[0][2]},
+        {EEL_FIRE_R0 + 2, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[0][3]},
+        {EEL_FIRE_R0 + 2, 0|SF_QUICK_CALL,  InitEelFire,          &s_EelAttack[0][4]},
+        {EEL_FIRE_R0 + 2, EEL_FIRE_RATE,    NullEel,              &s_EelAttack[0][5]},
+        {EEL_FIRE_R0 + 3, 0|SF_QUICK_CALL,  InitActorDecide,      &s_EelAttack[0][6]},
+        {EEL_RUN_R0  + 3, EEL_FIRE_RATE,    DoEelMove,            &s_EelAttack[0][6]}
     },
     {
-        {EEL_FIRE_R1 + 0, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[1][1]},
-        {EEL_FIRE_R1 + 1, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[1][2]},
-        {EEL_FIRE_R1 + 2, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[1][3]},
-        {EEL_FIRE_R1 + 2, 0|SF_QUICK_CALL,  &AF(InitEelFire),          &s_EelAttack[1][5]},
-        {EEL_FIRE_R1 + 2, EEL_FIRE_RATE,    &AF(NullEel),              &s_EelAttack[1][6]},
-        {EEL_FIRE_R1 + 3, 0|SF_QUICK_CALL,  &AF(InitActorDecide),      &s_EelAttack[1][7]},
-        {EEL_RUN_R0  + 3, EEL_FIRE_RATE,    &AF(DoEelMove),            &s_EelAttack[1][7]}
+        {EEL_FIRE_R1 + 0, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[1][1]},
+        {EEL_FIRE_R1 + 1, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[1][2]},
+        {EEL_FIRE_R1 + 2, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[1][3]},
+        {EEL_FIRE_R1 + 2, 0|SF_QUICK_CALL,  InitEelFire,          &s_EelAttack[1][5]},
+        {EEL_FIRE_R1 + 2, EEL_FIRE_RATE,    NullEel,              &s_EelAttack[1][6]},
+        {EEL_FIRE_R1 + 3, 0|SF_QUICK_CALL,  InitActorDecide,      &s_EelAttack[1][7]},
+        {EEL_RUN_R0  + 3, EEL_FIRE_RATE,    DoEelMove,            &s_EelAttack[1][7]}
     },
     {
-        {EEL_FIRE_R2 + 0, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[2][1]},
-        {EEL_FIRE_R2 + 1, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[2][2]},
-        {EEL_FIRE_R2 + 2, EEL_FIRE_RATE*2,  &AF(NullEel),              &s_EelAttack[2][3]},
-        {EEL_FIRE_R2 + 2, 0|SF_QUICK_CALL,  &AF(InitEelFire),          &s_EelAttack[2][4]},
-        {EEL_FIRE_R2 + 2, EEL_FIRE_RATE,    &AF(NullEel),              &s_EelAttack[2][5]},
-        {EEL_FIRE_R2 + 3, 0|SF_QUICK_CALL,  &AF(InitActorDecide),      &s_EelAttack[2][6]},
-        {EEL_RUN_R0  + 3, EEL_FIRE_RATE,    &AF(DoEelMove),            &s_EelAttack[2][6]}
+        {EEL_FIRE_R2 + 0, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[2][1]},
+        {EEL_FIRE_R2 + 1, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[2][2]},
+        {EEL_FIRE_R2 + 2, EEL_FIRE_RATE*2,  NullEel,              &s_EelAttack[2][3]},
+        {EEL_FIRE_R2 + 2, 0|SF_QUICK_CALL,  InitEelFire,          &s_EelAttack[2][4]},
+        {EEL_FIRE_R2 + 2, EEL_FIRE_RATE,    NullEel,              &s_EelAttack[2][5]},
+        {EEL_FIRE_R2 + 3, 0|SF_QUICK_CALL,  InitActorDecide,      &s_EelAttack[2][6]},
+        {EEL_RUN_R0  + 3, EEL_FIRE_RATE,    DoEelMove,            &s_EelAttack[2][6]}
     },
     {
-        {EEL_RUN_R3 + 0, EEL_FIRE_RATE*2,  &AF(NullEel),               &s_EelAttack[3][1]},
-        {EEL_RUN_R3 + 1, EEL_FIRE_RATE*2,  &AF(NullEel),               &s_EelAttack[3][2]},
-        {EEL_RUN_R3 + 2, EEL_FIRE_RATE*2,  &AF(NullEel),               &s_EelAttack[3][3]},
-        {EEL_RUN_R3 + 2, 0|SF_QUICK_CALL,  &AF(InitEelFire),           &s_EelAttack[3][4]},
-        {EEL_RUN_R3 + 2, EEL_FIRE_RATE,    &AF(NullEel),               &s_EelAttack[3][5]},
-        {EEL_RUN_R3 + 3, 0|SF_QUICK_CALL,  &AF(InitActorDecide),       &s_EelAttack[3][6]},
-        {EEL_RUN_R0 + 3, EEL_FIRE_RATE,    &AF(DoEelMove),             &s_EelAttack[3][6]}
+        {EEL_RUN_R3 + 0, EEL_FIRE_RATE*2,  NullEel,               &s_EelAttack[3][1]},
+        {EEL_RUN_R3 + 1, EEL_FIRE_RATE*2,  NullEel,               &s_EelAttack[3][2]},
+        {EEL_RUN_R3 + 2, EEL_FIRE_RATE*2,  NullEel,               &s_EelAttack[3][3]},
+        {EEL_RUN_R3 + 2, 0|SF_QUICK_CALL,  InitEelFire,           &s_EelAttack[3][4]},
+        {EEL_RUN_R3 + 2, EEL_FIRE_RATE,    NullEel,               &s_EelAttack[3][5]},
+        {EEL_RUN_R3 + 3, 0|SF_QUICK_CALL,  InitActorDecide,       &s_EelAttack[3][6]},
+        {EEL_RUN_R0 + 3, EEL_FIRE_RATE,    DoEelMove,             &s_EelAttack[3][6]}
     },
     {
-        {EEL_RUN_R4 + 0, EEL_FIRE_RATE*2,  &AF(NullEel),               &s_EelAttack[4][1]},
-        {EEL_RUN_R4 + 1, EEL_FIRE_RATE*2,  &AF(NullEel),               &s_EelAttack[4][2]},
-        {EEL_RUN_R4 + 2, EEL_FIRE_RATE*2,  &AF(NullEel),               &s_EelAttack[4][3]},
-        {EEL_RUN_R4 + 2, 0|SF_QUICK_CALL,  &AF(InitEelFire),           &s_EelAttack[4][4]},
-        {EEL_RUN_R4 + 2, EEL_FIRE_RATE,    &AF(NullEel),               &s_EelAttack[4][5]},
-        {EEL_RUN_R4 + 3, 0|SF_QUICK_CALL,  &AF(InitActorDecide),       &s_EelAttack[4][6]},
-        {EEL_RUN_R0 + 3, EEL_FIRE_RATE,    &AF(DoEelMove),             &s_EelAttack[4][6]}
+        {EEL_RUN_R4 + 0, EEL_FIRE_RATE*2,  NullEel,               &s_EelAttack[4][1]},
+        {EEL_RUN_R4 + 1, EEL_FIRE_RATE*2,  NullEel,               &s_EelAttack[4][2]},
+        {EEL_RUN_R4 + 2, EEL_FIRE_RATE*2,  NullEel,               &s_EelAttack[4][3]},
+        {EEL_RUN_R4 + 2, 0|SF_QUICK_CALL,  InitEelFire,           &s_EelAttack[4][4]},
+        {EEL_RUN_R4 + 2, EEL_FIRE_RATE,    NullEel,               &s_EelAttack[4][5]},
+        {EEL_RUN_R4 + 3, 0|SF_QUICK_CALL,  InitActorDecide,       &s_EelAttack[4][6]},
+        {EEL_RUN_R0 + 3, EEL_FIRE_RATE,    DoEelMove,             &s_EelAttack[4][6]}
     }
 };
 
@@ -269,14 +274,15 @@ STATE* sg_EelAttack[] =
 
 #define EEL_DIE_RATE 20
 
+ANIMATOR DoEelDeath;
 STATE s_EelDie[] =
 {
-    {EEL_DIE +    0, EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[1]},
-    {EEL_DIE +    0, EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[2]},
-    {EEL_DIE +    0, EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[3]},
-    {EEL_DIE +    0, EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[4]},
-    {EEL_DIE +    0, EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[5]},
-    {EEL_DIE +    0, EEL_DIE_RATE, &AF(DoEelDeath), &s_EelDie[5]},
+    {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[1]},
+    {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[2]},
+    {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[3]},
+    {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[4]},
+    {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[5]},
+    {EEL_DIE +    0, EEL_DIE_RATE, DoEelDeath, &s_EelDie[5]},
 };
 
 STATE* sg_EelDie[] =
@@ -286,7 +292,8 @@ STATE* sg_EelDie[] =
 
 STATE s_EelDead[] =
 {
-    {EEL_DEAD, EEL_DIE_RATE, &AF(DoActorDebris), &s_EelDead[0]},
+//    {EEL_DEAD, SF_QUICK_CALL , QueueFloorBlood, &s_EelDead[1]},
+    {EEL_DEAD, EEL_DIE_RATE, DoActorDebris, &s_EelDead[0]},
 };
 
 STATE* sg_EelDead[] =
@@ -377,6 +384,8 @@ void EelCommon(DSWActor* actor)
 
 int SetupEel(DSWActor* actor)
 {
+    ANIMATOR DoActorDecide;
+
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,EEL_RUN_R0,s_EelRun[0]);
@@ -384,10 +393,10 @@ int SetupEel(DSWActor* actor)
     }
 
     ChangeState(actor, s_EelRun[0]);
-    actor->user.__legacyState.Attrib = &EelAttrib;
+    actor->user.Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.__legacyState.StateEnd = s_EelDie;
-    actor->user.__legacyState.Rot = sg_EelRun;
+    actor->user.StateEnd = s_EelDie;
+    actor->user.Rot = sg_EelRun;
 
     EnemyDefaults(actor, &EelActionSet, &EelPersonality);
 
@@ -398,13 +407,6 @@ int SetupEel(DSWActor* actor)
     actor->user.Flags &= ~(SPR_SHADOW); // Turn off shadows
     actor->user.zclip = (8);
 
-    return 0;
-}
-
-DEFINE_ACTION_FUNCTION(DSWEel, Initialize)
-{
-    PARAM_SELF_PROLOGUE(DSWActor);
-    SetupEel(self);
     return 0;
 }
 
@@ -562,7 +564,7 @@ int DoEelDeath(DSWActor* actor)
             actor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
             actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
-        actor->setStateGroup(NAME_Dead);
+        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         return 0;
     }
 
@@ -577,10 +579,10 @@ int DoEelDeath(DSWActor* actor)
 
 int DoEelMove(DSWActor* actor)
 {
-    ASSERT(actor->user.__legacyState.Rot != nullptr);
+    ASSERT(actor->user.Rot != nullptr);
 
     if (SpriteOverlap(actor, actor->user.targetActor))
-        actor->setStateGroup(NAME_CloseAttack, 0);
+        NewStateGroup(actor, actor->user.ActorActionSet->CloseAttack[0]);
 
     if (actor->user.Flags & (SPR_SLIDING))
         DoActorSlide(actor);
@@ -588,7 +590,7 @@ int DoEelMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        actor->callAction();
+        (*actor->user.ActorActionFunc)(actor);
 
     DoEelMatchPlayerZ(actor);
 
@@ -607,8 +609,24 @@ int DoEelMove(DSWActor* actor)
 
 #include "saveable.h"
 
+static saveable_code saveable_eel_code[] =
+{
+    SAVE_CODE(DoEelMatchPlayerZ),
+    SAVE_CODE(DoEelDeath),
+    SAVE_CODE(DoEelMove)
+};
+
 static saveable_data saveable_eel_data[] =
 {
+    SAVE_DATA(EelBattle),
+    SAVE_DATA(EelOffense),
+    SAVE_DATA(EelBroadcast),
+    SAVE_DATA(EelSurprised),
+    SAVE_DATA(EelEvasive),
+    SAVE_DATA(EelLostTarget),
+    SAVE_DATA(EelCloseRange),
+    SAVE_DATA(EelTouchTarget),
+
     SAVE_DATA(EelPersonality),
 
     SAVE_DATA(EelAttrib),
@@ -630,7 +648,8 @@ static saveable_data saveable_eel_data[] =
 saveable_module saveable_eel =
 {
     // code
-    nullptr, 0,
+    saveable_eel_code,
+    SIZ(saveable_eel_code),
 
     // data
     saveable_eel_data,

@@ -40,6 +40,9 @@ void Saveable_Init(void)
         saveablemodules.Push(&saveable_ ## x); \
 }
 
+    MODULE(actor)
+    MODULE(ai)
+    MODULE(ai) // was 'build' but that is not used anywhere anymore.
     MODULE(bunny)
     MODULE(coolg)
     MODULE(coolie)
@@ -50,19 +53,28 @@ void Saveable_Init(void)
     MODULE(jweapon)
     MODULE(lava)
     MODULE(miscactr)
+    MODULE(morph)
     MODULE(ninja)
     MODULE(panel)
     MODULE(player)
     MODULE(ripper)
     MODULE(ripper2)
+    MODULE(rotator)
     MODULE(serp)
     MODULE(skel)
     MODULE(skull)
+    MODULE(slidor)
+    MODULE(spike)
     MODULE(sprite)
     MODULE(sumo)
+    MODULE(track)
+    MODULE(vator)
+    MODULE(wallmove)
     MODULE(weapon)
     MODULE(zilla)
     MODULE(zombie)
+
+    MODULE(sector)
 }
 
 //---------------------------------------------------------------------------

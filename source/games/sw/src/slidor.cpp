@@ -609,4 +609,26 @@ int DoSlidor(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+#include "saveable.h"
+
+static saveable_code saveable_slidor_code[] =
+{
+    SAVE_CODE(DoSlidor),
+};
+
+saveable_module saveable_slidor =
+{
+    // code
+    saveable_slidor_code,
+    SIZ(saveable_slidor_code),
+
+    // data
+    nullptr,0
+};
 END_SW_NS

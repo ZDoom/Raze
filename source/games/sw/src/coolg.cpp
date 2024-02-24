@@ -37,56 +37,62 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+ANIMATOR DoCoolgCircle,InitCoolgCircle;
+
 const int COOLG_BOB_AMT = 8;
 
 DECISION CoolgBattle[] =
 {
-    {50,    &AF(InitCoolgCircle    )         },
-    {450,   &AF(InitActorMoveCloser)         },
-    {1024,  &AF(InitActorAttack    )         }
+    {50,    InitCoolgCircle             },
+    {450,   InitActorMoveCloser         },
+    //{456,   InitActorAmbientNoise        },
+    //{760,   InitActorRunAway            },
+    {1024,  InitActorAttack             }
 };
 
 DECISION CoolgOffense[] =
 {
-    {449,   &AF(InitActorMoveCloser)         },
-    {1024,  &AF(InitActorAttack    )         }
+    {449,   InitActorMoveCloser         },
+    //{554,   InitActorAmbientNoise       },
+    {1024,  InitActorAttack             }
 };
 
-DECISIONB CoolgBroadcast[] =
+DECISION CoolgBroadcast[] =
 {
-    {1,    attr_ambient       },
-    {1024, 0            }
+    //{1,    InitActorAlertNoise         },
+    {1,    InitActorAmbientNoise       },
+    {1024, InitActorDecide             }
 };
 
 DECISION CoolgSurprised[] =
 {
-    {100,   &AF(InitCoolgCircle    )        },
-    {701,   &AF(InitActorMoveCloser)        },
-    {1024,  &AF(InitActorDecide    )        }
+    {100,   InitCoolgCircle            },
+    {701,   InitActorMoveCloser        },
+    {1024,  InitActorDecide            }
 };
 
 DECISION CoolgEvasive[] =
 {
-    {20,     &AF(InitCoolgCircle)           },
-    {1024,   &AF(InitActorRunAway)          },
+    {20,     InitCoolgCircle           },
+    {1024,   InitActorRunAway          },
 };
 
 DECISION CoolgLostTarget[] =
 {
-    {900,   &AF(InitActorFindPlayer   )      },
-    {1024,  &AF(InitActorWanderAround)       }
+    {900,   InitActorFindPlayer         },
+    {1024,  InitActorWanderAround       }
 };
 
 DECISION CoolgCloseRange[] =
 {
-    {800,   &AF(InitActorAttack    )         },
-    {1024,  &AF(InitActorReposition)         }
+    {800,   InitActorAttack             },
+    {1024,  InitActorReposition         }
 };
 
 DECISION CoolgTouchTarget[] =
 {
     //{50,   InitCoolgCircle            },
-    {1024,  &AF(InitActorAttack)            },
+    {1024,  InitActorAttack            },
 };
 
 PERSONALITY CoolgPersonality =
@@ -120,37 +126,39 @@ ATTRIBUTE CoolgAttrib =
 
 #define COOLG_RUN_RATE 40
 
+ANIMATOR DoCoolgMove,DoStayOnFloor, DoActorDebris, NullCoolg, DoCoolgBirth;
+
 STATE s_CoolgRun[5][4] =
 {
     {
-        {COOLG_RUN_R0 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][1]},
-        {COOLG_RUN_R0 + 1, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][2]},
-        {COOLG_RUN_R0 + 2, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][3]},
-        {COOLG_RUN_R0 + 3, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[0][0]},
+        {COOLG_RUN_R0 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[0][1]},
+        {COOLG_RUN_R0 + 1, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[0][2]},
+        {COOLG_RUN_R0 + 2, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[0][3]},
+        {COOLG_RUN_R0 + 3, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[0][0]},
     },
     {
-        {COOLG_RUN_R1 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[1][1]},
-        {COOLG_RUN_R1 + 1, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[1][2]},
-        {COOLG_RUN_R1 + 2, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[1][3]},
-        {COOLG_RUN_R1 + 3, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[1][0]},
+        {COOLG_RUN_R1 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[1][1]},
+        {COOLG_RUN_R1 + 1, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[1][2]},
+        {COOLG_RUN_R1 + 2, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[1][3]},
+        {COOLG_RUN_R1 + 3, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[1][0]},
     },
     {
-        {COOLG_RUN_R2 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[2][1]},
-        {COOLG_RUN_R2 + 1, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[2][2]},
-        {COOLG_RUN_R2 + 2, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[2][3]},
-        {COOLG_RUN_R2 + 3, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[2][0]},
+        {COOLG_RUN_R2 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[2][1]},
+        {COOLG_RUN_R2 + 1, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[2][2]},
+        {COOLG_RUN_R2 + 2, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[2][3]},
+        {COOLG_RUN_R2 + 3, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[2][0]},
     },
     {
-        {COOLG_RUN_R3 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[3][1]},
-        {COOLG_RUN_R3 + 1, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[3][2]},
-        {COOLG_RUN_R3 + 2, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[3][3]},
-        {COOLG_RUN_R3 + 3, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[3][0]},
+        {COOLG_RUN_R3 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[3][1]},
+        {COOLG_RUN_R3 + 1, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[3][2]},
+        {COOLG_RUN_R3 + 2, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[3][3]},
+        {COOLG_RUN_R3 + 3, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[3][0]},
     },
     {
-        {COOLG_RUN_R4 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[4][1]},
-        {COOLG_RUN_R4 + 1, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[4][2]},
-        {COOLG_RUN_R4 + 2, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[4][3]},
-        {COOLG_RUN_R4 + 3, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgRun[4][0]},
+        {COOLG_RUN_R4 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[4][1]},
+        {COOLG_RUN_R4 + 1, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[4][2]},
+        {COOLG_RUN_R4 + 2, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[4][3]},
+        {COOLG_RUN_R4 + 3, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgRun[4][0]},
     }
 };
 
@@ -173,19 +181,19 @@ STATE* sg_CoolgRun[] =
 STATE s_CoolgStand[5][1] =
 {
     {
-        {COOLG_RUN_R0 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[0][0]},
+        {COOLG_RUN_R0 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgStand[0][0]},
     },
     {
-        {COOLG_RUN_R1 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[1][0]},
+        {COOLG_RUN_R1 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgStand[1][0]},
     },
     {
-        {COOLG_RUN_R2 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[2][0]},
+        {COOLG_RUN_R2 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgStand[2][0]},
     },
     {
-        {COOLG_RUN_R3 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[3][0]},
+        {COOLG_RUN_R3 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgStand[3][0]},
     },
     {
-        {COOLG_RUN_R4 + 0, COOLG_RUN_RATE, &AF(DoCoolgMove), &s_CoolgStand[4][0]},
+        {COOLG_RUN_R4 + 0, COOLG_RUN_RATE, DoCoolgMove, &s_CoolgStand[4][0]},
     }
 };
 
@@ -205,48 +213,49 @@ STATE* sg_CoolgStand[] =
 //////////////////////
 
 #define COOLG_RATE 16
+ANIMATOR InitCoolgBash;
 
 STATE s_CoolgClub[5][6] =
 {
     {
-        {COOLG_CLUB_R0 + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[0][1]},
-        {COOLG_RUN_R0  + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[0][2]},
-        {COOLG_CLUB_R0 + 1, 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[0][3]},
-        {COOLG_CLUB_R0 + 1, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[0][4]},
-        {COOLG_CLUB_R0 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[0][5]},
-        {COOLG_CLUB_R0 + 1, COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[0][5]}
+        {COOLG_CLUB_R0 + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[0][1]},
+        {COOLG_RUN_R0  + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[0][2]},
+        {COOLG_CLUB_R0 + 1, 0|SF_QUICK_CALL, InitCoolgBash, &s_CoolgClub[0][3]},
+        {COOLG_CLUB_R0 + 1, COOLG_RATE, NullCoolg, &s_CoolgClub[0][4]},
+        {COOLG_CLUB_R0 + 1, 0|SF_QUICK_CALL, InitActorDecide, &s_CoolgClub[0][5]},
+        {COOLG_CLUB_R0 + 1, COOLG_RATE, DoCoolgMove, &s_CoolgClub[0][5]}
     },
     {
-        {COOLG_CLUB_R1 + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[1][1]},
-        {COOLG_RUN_R1  + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[1][2]},
-        {COOLG_CLUB_R1 + 1, 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[1][3]},
-        {COOLG_CLUB_R1 + 1, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[1][4]},
-        {COOLG_CLUB_R1 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[1][5]},
-        {COOLG_CLUB_R1 + 1, COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[1][5]}
+        {COOLG_CLUB_R1 + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[1][1]},
+        {COOLG_RUN_R1  + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[1][2]},
+        {COOLG_CLUB_R1 + 1, 0|SF_QUICK_CALL, InitCoolgBash, &s_CoolgClub[1][3]},
+        {COOLG_CLUB_R1 + 1, COOLG_RATE, NullCoolg, &s_CoolgClub[1][4]},
+        {COOLG_CLUB_R1 + 1, 0|SF_QUICK_CALL, InitActorDecide, &s_CoolgClub[1][5]},
+        {COOLG_CLUB_R1 + 1, COOLG_RATE, DoCoolgMove, &s_CoolgClub[1][5]}
     },
     {
-        {COOLG_CLUB_R2 + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[2][1]},
-        {COOLG_RUN_R2  + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[2][2]},
-        {COOLG_CLUB_R2 + 1, 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[2][3]},
-        {COOLG_CLUB_R2 + 1, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[2][4]},
-        {COOLG_CLUB_R2 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[2][5]},
-        {COOLG_CLUB_R2 + 1, COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[2][5]}
+        {COOLG_CLUB_R2 + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[2][1]},
+        {COOLG_RUN_R2  + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[2][2]},
+        {COOLG_CLUB_R2 + 1, 0|SF_QUICK_CALL, InitCoolgBash, &s_CoolgClub[2][3]},
+        {COOLG_CLUB_R2 + 1, COOLG_RATE, NullCoolg, &s_CoolgClub[2][4]},
+        {COOLG_CLUB_R2 + 1, 0|SF_QUICK_CALL, InitActorDecide, &s_CoolgClub[2][5]},
+        {COOLG_CLUB_R2 + 1, COOLG_RATE, DoCoolgMove, &s_CoolgClub[2][5]}
     },
     {
-        {COOLG_CLUB_R3 + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[3][1]},
-        {COOLG_RUN_R3  + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[3][2]},
-        {COOLG_CLUB_R3 + 1, 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[3][3]},
-        {COOLG_CLUB_R3 + 1, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[3][4]},
-        {COOLG_CLUB_R3 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[3][5]},
-        {COOLG_CLUB_R3 + 1, COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[3][5]}
+        {COOLG_CLUB_R3 + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[3][1]},
+        {COOLG_RUN_R3  + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[3][2]},
+        {COOLG_CLUB_R3 + 1, 0|SF_QUICK_CALL, InitCoolgBash, &s_CoolgClub[3][3]},
+        {COOLG_CLUB_R3 + 1, COOLG_RATE, NullCoolg, &s_CoolgClub[3][4]},
+        {COOLG_CLUB_R3 + 1, 0|SF_QUICK_CALL, InitActorDecide, &s_CoolgClub[3][5]},
+        {COOLG_CLUB_R3 + 1, COOLG_RATE, DoCoolgMove, &s_CoolgClub[3][5]}
     },
     {
-        {COOLG_CLUB_R4 + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[4][1]},
-        {COOLG_RUN_R4  + 0, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[4][2]},
-        {COOLG_CLUB_R4 + 1, 0|SF_QUICK_CALL, &AF(InitCoolgBash), &s_CoolgClub[4][3]},
-        {COOLG_CLUB_R4 + 1, COOLG_RATE, &AF(NullCoolg), &s_CoolgClub[4][4]},
-        {COOLG_CLUB_R4 + 1, 0|SF_QUICK_CALL, &AF(InitActorDecide), &s_CoolgClub[4][5]},
-        {COOLG_CLUB_R4 + 1, COOLG_RATE, &AF(DoCoolgMove), &s_CoolgClub[4][5]}
+        {COOLG_CLUB_R4 + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[4][1]},
+        {COOLG_RUN_R4  + 0, COOLG_RATE, NullCoolg, &s_CoolgClub[4][2]},
+        {COOLG_CLUB_R4 + 1, 0|SF_QUICK_CALL, InitCoolgBash, &s_CoolgClub[4][3]},
+        {COOLG_CLUB_R4 + 1, COOLG_RATE, NullCoolg, &s_CoolgClub[4][4]},
+        {COOLG_CLUB_R4 + 1, 0|SF_QUICK_CALL, InitActorDecide, &s_CoolgClub[4][5]},
+        {COOLG_CLUB_R4 + 1, COOLG_RATE, DoCoolgMove, &s_CoolgClub[4][5]}
     }
 };
 
@@ -265,54 +274,55 @@ STATE* sg_CoolgClub[] =
 //
 //////////////////////
 
+ANIMATOR InitCoolgFire;
 #define COOLG_FIRE_RATE 12
 
 STATE s_CoolgAttack[5][7] =
 {
     {
-        {COOLG_FIRE_R0 + 0, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[0][1]},
-        {COOLG_FIRE_R0 + 1, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[0][2]},
-        {COOLG_FIRE_R0 + 2, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[0][3]},
-        {COOLG_FIRE_R0 + 2, 0|SF_QUICK_CALL,    &AF(InitCoolgFire),          &s_CoolgAttack[0][4]},
-        {COOLG_FIRE_R0 + 2, COOLG_FIRE_RATE,    &AF(NullCoolg),              &s_CoolgAttack[0][5]},
-        {COOLG_FIRE_R0 + 2, 0|SF_QUICK_CALL,    &AF(InitActorDecide),        &s_CoolgAttack[0][6]},
-        {COOLG_RUN_R0  + 2, COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[0][6]}
+        {COOLG_FIRE_R0 + 0, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[0][1]},
+        {COOLG_FIRE_R0 + 1, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[0][2]},
+        {COOLG_FIRE_R0 + 2, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[0][3]},
+        {COOLG_FIRE_R0 + 2, 0|SF_QUICK_CALL,    InitCoolgFire,          &s_CoolgAttack[0][4]},
+        {COOLG_FIRE_R0 + 2, COOLG_FIRE_RATE,    NullCoolg,              &s_CoolgAttack[0][5]},
+        {COOLG_FIRE_R0 + 2, 0|SF_QUICK_CALL,    InitActorDecide,        &s_CoolgAttack[0][6]},
+        {COOLG_RUN_R0  + 2, COOLG_FIRE_RATE,    DoCoolgMove,            &s_CoolgAttack[0][6]}
     },
     {
-        {COOLG_FIRE_R1 + 0, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[1][1]},
-        {COOLG_FIRE_R1 + 1, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[1][2]},
-        {COOLG_FIRE_R1 + 2, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[1][3]},
-        {COOLG_FIRE_R1 + 2, 0|SF_QUICK_CALL,    &AF(InitCoolgFire),          &s_CoolgAttack[1][4]},
-        {COOLG_FIRE_R1 + 2, COOLG_FIRE_RATE,    &AF(NullCoolg),              &s_CoolgAttack[1][5]},
-        {COOLG_FIRE_R1 + 2, 0|SF_QUICK_CALL,    &AF(InitActorDecide),        &s_CoolgAttack[1][6]},
-        {COOLG_RUN_R0  + 2, COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[1][6]}
+        {COOLG_FIRE_R1 + 0, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[1][1]},
+        {COOLG_FIRE_R1 + 1, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[1][2]},
+        {COOLG_FIRE_R1 + 2, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[1][3]},
+        {COOLG_FIRE_R1 + 2, 0|SF_QUICK_CALL,    InitCoolgFire,          &s_CoolgAttack[1][4]},
+        {COOLG_FIRE_R1 + 2, COOLG_FIRE_RATE,    NullCoolg,              &s_CoolgAttack[1][5]},
+        {COOLG_FIRE_R1 + 2, 0|SF_QUICK_CALL,    InitActorDecide,        &s_CoolgAttack[1][6]},
+        {COOLG_RUN_R0  + 2, COOLG_FIRE_RATE,    DoCoolgMove,            &s_CoolgAttack[1][6]}
     },
     {
-        {COOLG_FIRE_R2 + 0, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[2][1]},
-        {COOLG_FIRE_R2 + 1, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[2][2]},
-        {COOLG_FIRE_R2 + 2, COOLG_FIRE_RATE*2,  &AF(NullCoolg),              &s_CoolgAttack[2][3]},
-        {COOLG_FIRE_R2 + 2, 0|SF_QUICK_CALL,    &AF(InitCoolgFire),          &s_CoolgAttack[2][4]},
-        {COOLG_FIRE_R2 + 2, COOLG_FIRE_RATE,    &AF(NullCoolg),              &s_CoolgAttack[2][5]},
-        {COOLG_FIRE_R2 + 2, 0|SF_QUICK_CALL,    &AF(InitActorDecide),        &s_CoolgAttack[2][6]},
-        {COOLG_RUN_R0  + 2, COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[2][6]}
+        {COOLG_FIRE_R2 + 0, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[2][1]},
+        {COOLG_FIRE_R2 + 1, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[2][2]},
+        {COOLG_FIRE_R2 + 2, COOLG_FIRE_RATE*2,  NullCoolg,              &s_CoolgAttack[2][3]},
+        {COOLG_FIRE_R2 + 2, 0|SF_QUICK_CALL,    InitCoolgFire,          &s_CoolgAttack[2][4]},
+        {COOLG_FIRE_R2 + 2, COOLG_FIRE_RATE,    NullCoolg,              &s_CoolgAttack[2][5]},
+        {COOLG_FIRE_R2 + 2, 0|SF_QUICK_CALL,    InitActorDecide,        &s_CoolgAttack[2][6]},
+        {COOLG_RUN_R0  + 2, COOLG_FIRE_RATE,    DoCoolgMove,            &s_CoolgAttack[2][6]}
     },
     {
-        {COOLG_RUN_R3 + 0, COOLG_FIRE_RATE*2,  &AF(NullCoolg),               &s_CoolgAttack[3][1]},
-        {COOLG_RUN_R3 + 1, COOLG_FIRE_RATE*2,  &AF(NullCoolg),               &s_CoolgAttack[3][2]},
-        {COOLG_RUN_R3 + 2, COOLG_FIRE_RATE*2,  &AF(NullCoolg),               &s_CoolgAttack[3][3]},
-        {COOLG_RUN_R3 + 2, 0|SF_QUICK_CALL,    &AF(InitCoolgFire),           &s_CoolgAttack[3][4]},
-        {COOLG_RUN_R3 + 2, COOLG_FIRE_RATE,    &AF(NullCoolg),               &s_CoolgAttack[3][5]},
-        {COOLG_RUN_R3 + 2, 0|SF_QUICK_CALL,    &AF(InitActorDecide),         &s_CoolgAttack[3][6]},
-        {COOLG_RUN_R0 + 2, COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[3][6]}
+        {COOLG_RUN_R3 + 0, COOLG_FIRE_RATE*2,  NullCoolg,               &s_CoolgAttack[3][1]},
+        {COOLG_RUN_R3 + 1, COOLG_FIRE_RATE*2,  NullCoolg,               &s_CoolgAttack[3][2]},
+        {COOLG_RUN_R3 + 2, COOLG_FIRE_RATE*2,  NullCoolg,               &s_CoolgAttack[3][3]},
+        {COOLG_RUN_R3 + 2, 0|SF_QUICK_CALL,    InitCoolgFire,           &s_CoolgAttack[3][4]},
+        {COOLG_RUN_R3 + 2, COOLG_FIRE_RATE,    NullCoolg,               &s_CoolgAttack[3][5]},
+        {COOLG_RUN_R3 + 2, 0|SF_QUICK_CALL,    InitActorDecide,         &s_CoolgAttack[3][6]},
+        {COOLG_RUN_R0 + 2, COOLG_FIRE_RATE,    DoCoolgMove,            &s_CoolgAttack[3][6]}
     },
     {
-        {COOLG_RUN_R4 + 0, COOLG_FIRE_RATE*2,  &AF(NullCoolg),               &s_CoolgAttack[4][1]},
-        {COOLG_RUN_R4 + 1, COOLG_FIRE_RATE*2,  &AF(NullCoolg),               &s_CoolgAttack[4][2]},
-        {COOLG_RUN_R4 + 2, COOLG_FIRE_RATE*2,  &AF(NullCoolg),               &s_CoolgAttack[4][3]},
-        {COOLG_RUN_R4 + 2, 0|SF_QUICK_CALL,    &AF(InitCoolgFire),           &s_CoolgAttack[4][4]},
-        {COOLG_RUN_R4 + 2, COOLG_FIRE_RATE,    &AF(NullCoolg),               &s_CoolgAttack[4][5]},
-        {COOLG_RUN_R4 + 2, 0|SF_QUICK_CALL,    &AF(InitActorDecide),         &s_CoolgAttack[4][6]},
-        {COOLG_RUN_R0 + 2, COOLG_FIRE_RATE,    &AF(DoCoolgMove),            &s_CoolgAttack[4][6]}
+        {COOLG_RUN_R4 + 0, COOLG_FIRE_RATE*2,  NullCoolg,               &s_CoolgAttack[4][1]},
+        {COOLG_RUN_R4 + 1, COOLG_FIRE_RATE*2,  NullCoolg,               &s_CoolgAttack[4][2]},
+        {COOLG_RUN_R4 + 2, COOLG_FIRE_RATE*2,  NullCoolg,               &s_CoolgAttack[4][3]},
+        {COOLG_RUN_R4 + 2, 0|SF_QUICK_CALL,    InitCoolgFire,           &s_CoolgAttack[4][4]},
+        {COOLG_RUN_R4 + 2, COOLG_FIRE_RATE,    NullCoolg,               &s_CoolgAttack[4][5]},
+        {COOLG_RUN_R4 + 2, 0|SF_QUICK_CALL,    InitActorDecide,         &s_CoolgAttack[4][6]},
+        {COOLG_RUN_R0 + 2, COOLG_FIRE_RATE,    DoCoolgMove,            &s_CoolgAttack[4][6]}
     }
 };
 
@@ -332,28 +342,29 @@ STATE* sg_CoolgAttack[] =
 //////////////////////
 
 #define COOLG_PAIN_RATE 15
+ANIMATOR DoCoolgPain;
 
 STATE s_CoolgPain[5][2] =
 {
     {
-        {COOLG_PAIN_R0 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[0][1]},
-        {COOLG_PAIN_R0 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[0][1]},
+        {COOLG_PAIN_R0 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[0][1]},
+        {COOLG_PAIN_R0 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[0][1]},
     },
     {
-        {COOLG_RUN_R1 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[1][1]},
-        {COOLG_RUN_R1 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[1][1]},
+        {COOLG_RUN_R1 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[1][1]},
+        {COOLG_RUN_R1 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[1][1]},
     },
     {
-        {COOLG_RUN_R2 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[2][1]},
-        {COOLG_RUN_R2 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[2][1]},
+        {COOLG_RUN_R2 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[2][1]},
+        {COOLG_RUN_R2 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[2][1]},
     },
     {
-        {COOLG_RUN_R3 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[3][1]},
-        {COOLG_RUN_R3 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[3][1]},
+        {COOLG_RUN_R3 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[3][1]},
+        {COOLG_RUN_R3 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[3][1]},
     },
     {
-        {COOLG_RUN_R4 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[4][1]},
-        {COOLG_RUN_R4 + 0, COOLG_PAIN_RATE, &AF(DoCoolgPain), &s_CoolgPain[4][1]},
+        {COOLG_RUN_R4 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[4][1]},
+        {COOLG_RUN_R4 + 0, COOLG_PAIN_RATE, DoCoolgPain, &s_CoolgPain[4][1]},
     },
 };
 
@@ -377,14 +388,15 @@ STATE* sg_CoolgPain[] =
 
 #define COOLG_DIE 4307
 #define COOLG_DEAD 4307+5
+ANIMATOR DoCoolgDeath;
 STATE s_CoolgDie[] =
 {
-    {COOLG_DIE +    0, COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[1]},
-    {COOLG_DIE +    1, COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[2]},
-    {COOLG_DIE +    2, COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[3]},
-    {COOLG_DIE +    3, COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[4]},
-    {COOLG_DIE +    4, COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[5]},
-    {COOLG_DIE +    5, COOLG_DIE_RATE, &AF(DoCoolgDeath), &s_CoolgDie[5]},
+    {COOLG_DIE +    0, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[1]},
+    {COOLG_DIE +    1, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[2]},
+    {COOLG_DIE +    2, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[3]},
+    {COOLG_DIE +    3, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[4]},
+    {COOLG_DIE +    4, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[5]},
+    {COOLG_DIE +    5, COOLG_DIE_RATE, DoCoolgDeath, &s_CoolgDie[5]},
 };
 
 STATE* sg_CoolgDie[] =
@@ -394,8 +406,8 @@ STATE* sg_CoolgDie[] =
 
 STATE s_CoolgDead[] =
 {
-    {COOLG_DEAD, SF_QUICK_CALL, &AF(QueueFloorBlood), &s_CoolgDead[1]},
-    {COOLG_DEAD, COOLG_DIE_RATE, &AF(DoActorDebris), &s_CoolgDead[1]},
+    {COOLG_DEAD, SF_QUICK_CALL, QueueFloorBlood, &s_CoolgDead[1]},
+    {COOLG_DEAD, COOLG_DIE_RATE, DoActorDebris, &s_CoolgDead[1]},
 };
 
 STATE* sg_CoolgDead[] =
@@ -414,17 +426,17 @@ STATE* sg_CoolgDead[] =
 
 STATE s_CoolgBirth[] =
 {
-    {COOLG_BIRTH + 0, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[1]},
-    {COOLG_BIRTH + 1, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[2]},
-    {COOLG_BIRTH + 2, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[3]},
-    {COOLG_BIRTH + 3, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[4]},
-    {COOLG_BIRTH + 4, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[5]},
-    {COOLG_BIRTH + 5, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[6]},
-    {COOLG_BIRTH + 6, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[7]},
-    {COOLG_BIRTH + 7, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[8]},
-    {COOLG_BIRTH + 8, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[9]},
-    {COOLG_BIRTH + 8, COOLG_BIRTH_RATE, nullptr,  &s_CoolgBirth[10]},
-    {COOLG_BIRTH + 8, 0|SF_QUICK_CALL, &AF(DoCoolgBirth), &s_CoolgBirth[10]}
+    {COOLG_BIRTH + 0, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[1]},
+    {COOLG_BIRTH + 1, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[2]},
+    {COOLG_BIRTH + 2, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[3]},
+    {COOLG_BIRTH + 3, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[4]},
+    {COOLG_BIRTH + 4, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[5]},
+    {COOLG_BIRTH + 5, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[6]},
+    {COOLG_BIRTH + 6, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[7]},
+    {COOLG_BIRTH + 7, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[8]},
+    {COOLG_BIRTH + 8, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[9]},
+    {COOLG_BIRTH + 8, COOLG_BIRTH_RATE, NullAnimator, &s_CoolgBirth[10]},
+    {COOLG_BIRTH + 8, 0|SF_QUICK_CALL, DoCoolgBirth, &s_CoolgBirth[10]}
 };
 
 STATE* sg_CoolgBirth[] =
@@ -513,6 +525,8 @@ void CoolgCommon(DSWActor* actor)
 
 int SetupCoolg(DSWActor* actor)
 {
+    ANIMATOR DoActorDecide;
+
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,COOLG_RUN_R0,s_CoolgRun[0]);
@@ -520,10 +534,10 @@ int SetupCoolg(DSWActor* actor)
     }
 
     ChangeState(actor, s_CoolgRun[0]);
-    actor->user.__legacyState.Attrib = &CoolgAttrib;
+    actor->user.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.__legacyState.StateEnd = s_CoolgDie;
-    actor->user.__legacyState.Rot = sg_CoolgRun;
+    actor->user.StateEnd = s_CoolgDie;
+    actor->user.Rot = sg_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
 
@@ -534,14 +548,6 @@ int SetupCoolg(DSWActor* actor)
     return 0;
 }
 
-DEFINE_ACTION_FUNCTION(DSWCoolg, Initialize)
-{
-    PARAM_SELF_PROLOGUE(DSWActor);
-    SetupCoolg(self);
-    return 0;
-}
-
-
 //---------------------------------------------------------------------------
 //
 //
@@ -550,18 +556,20 @@ DEFINE_ACTION_FUNCTION(DSWCoolg, Initialize)
 
 int NewCoolg(DSWActor* actor)
 {
+    ANIMATOR DoActorDecide;
+
     auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 50/16.);
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
-    actorNew->user.__legacyState.StateEnd = s_CoolgDie;
-    actorNew->user.__legacyState.Rot = sg_CoolgRun;
+    actorNew->user.StateEnd = s_CoolgDie;
+    actorNew->user.Rot = sg_CoolgRun;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
 
-    actorNew->user.__legacyState.ActorActionSet = &CoolgActionSet;
+    actorNew->user.ActorActionSet = &CoolgActionSet;
 
     actorNew->spr.shade = actor->spr.shade;
     actorNew->user.Personality = &CoolgPersonality;
-    actorNew->user.__legacyState.Attrib = &CoolgAttrib;
+    actorNew->user.Attrib = &CoolgAttrib;
 
     // special case
     Level.addKillCount();
@@ -579,13 +587,15 @@ int NewCoolg(DSWActor* actor)
 
 int DoCoolgBirth(DSWActor* actor)
 {
+    ANIMATOR DoActorDecide;
+
     actor->user.Health = HEALTH_COOLIE_GHOST;
-    actor->user.__legacyState.Attrib = &CoolgAttrib;
+    actor->user.Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
 
     ChangeState(actor, s_CoolgRun[0]);
-    actor->user.__legacyState.StateEnd = s_CoolgDie;
-    actor->user.__legacyState.Rot = sg_CoolgRun;
+    actor->user.StateEnd = s_CoolgDie;
+    actor->user.Rot = sg_CoolgRun;
 
     EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
     // special case
@@ -703,9 +713,9 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
 int InitCoolgCircle(DSWActor* actor)
 {
-    actor->user.ActorActionFunc = AF(DoCoolgCircle);
+    actor->user.ActorActionFunc = DoCoolgCircle;
 
-    actor->setStateGroup(NAME_Run);
+    NewStateGroup(actor, actor->user.ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -725,7 +735,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 120;
 
-    actor->callAction();
+    (*actor->user.ActorActionFunc)(actor);
 
     return 0;
 }
@@ -810,7 +820,7 @@ int DoCoolgDeath(DSWActor* actor)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        actor->setStateGroup(NAME_Dead);
+        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         return 0;
     }
 
@@ -891,7 +901,7 @@ int DoCoolgMove(DSWActor* actor)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
-        actor->callAction();
+        (*actor->user.ActorActionFunc)(actor);
     }
 
     if (RANDOM_P2(1024) < 32 && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -931,8 +941,28 @@ int DoCoolgPain(DSWActor* actor)
 
 #include "saveable.h"
 
+static saveable_code saveable_coolg_code[] =
+{
+    SAVE_CODE(DoCoolgBirth),
+    SAVE_CODE(NullCoolg),
+    SAVE_CODE(InitCoolgCircle),
+    SAVE_CODE(DoCoolgCircle),
+    SAVE_CODE(DoCoolgDeath),
+    SAVE_CODE(DoCoolgMove),
+    SAVE_CODE(DoCoolgPain),
+};
+
 static saveable_data saveable_coolg_data[] =
 {
+    SAVE_DATA(CoolgBattle),
+    SAVE_DATA(CoolgOffense),
+    SAVE_DATA(CoolgBroadcast),
+    SAVE_DATA(CoolgSurprised),
+    SAVE_DATA(CoolgEvasive),
+    SAVE_DATA(CoolgLostTarget),
+    SAVE_DATA(CoolgCloseRange),
+    SAVE_DATA(CoolgTouchTarget),
+
     SAVE_DATA(CoolgPersonality),
 
     SAVE_DATA(CoolgAttrib),
@@ -960,7 +990,8 @@ static saveable_data saveable_coolg_data[] =
 saveable_module saveable_coolg =
 {
     // code
-    nullptr, 0,
+    saveable_coolg_code,
+    SIZ(saveable_coolg_code),
 
     // data
     saveable_coolg_data,

@@ -37,56 +37,61 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+ANIMATOR DoHornetCircle, InitHornetCircle;
+
+
 DECISION HornetBattle[] =
 {
-    {50,    &AF(InitHornetCircle   )       },
-    {798,   &AF(InitActorMoveCloser)         },
-    {800,   &AF(InitActorSetDecide)        },
-    {1024,  &AF(InitActorRunAway   )         }
+    {50,    InitHornetCircle          },
+    {798,   InitActorMoveCloser         },
+    {800,   InitActorAlertNoise        },
+    {1024,  InitActorRunAway            }
 };
 
 DECISION HornetOffense[] =
 {
-    {1022,  &AF(InitActorMoveCloser)        },
-    {1024,  &AF(InitActorSetDecide)        }
+    {1022,  InitActorMoveCloser        },
+    {1024,  InitActorAlertNoise        }
 };
 
-DECISIONB HornetBroadcast[] =
+DECISION HornetBroadcast[] =
 {
-    {3,    attr_alert      },
-    {6,    attr_ambient          },
-    {1024, 0   }
+    {3,    InitActorAlertNoise        },
+    {6,    InitActorAmbientNoise          },
+    {1024,  InitActorDecide             }
 };
 
 DECISION HornetSurprised[] =
 {
-    {100,   &AF(InitHornetCircle   )        },
-    {701,   &AF(InitActorMoveCloser)         },
-    {1024,  &AF(InitActorDecide    )         }
+    {100,   InitHornetCircle           },
+    {701,   InitActorMoveCloser         },
+    {1024,  InitActorDecide             }
 };
 
 DECISION HornetEvasive[] =
 {
-    {20,     &AF(InitHornetCircle)          },
+    {20,     InitHornetCircle          },
     {1024,   nullptr                      },
 };
 
 DECISION HornetLostTarget[] =
 {
-    {900,   &AF(InitActorFindPlayer)         },
-    {1024,  &AF(InitActorWanderAround)       }
+    {900,   InitActorFindPlayer         },
+    {1024,  InitActorWanderAround       }
 };
 
 DECISION HornetCloseRange[] =
 {
-    {900,   &AF(InitActorMoveCloser)         },
-    {1024,  &AF(InitActorReposition)         }
+    {900,   InitActorMoveCloser         },
+    {1024,  InitActorReposition         }
 };
+
+ANIMATOR InitHornetSting;
 
 DECISION HornetTouchTarget[] =
 {
-    {500,   &AF(InitHornetCircle)            },
-    {1024,  &AF(InitHornetSting )            }
+    {500,   InitHornetCircle            },
+    {1024,  InitHornetSting             }
 };
 
 PERSONALITY HornetPersonality =
@@ -119,27 +124,29 @@ ATTRIBUTE HornetAttrib =
 
 #define HORNET_RUN_RATE 7
 
+ANIMATOR DoHornetMove,NullHornet,DoStayOnFloor, DoActorDebris, NullHornet, DoHornetBirth;
+
 STATE s_HornetRun[5][2] =
 {
     {
-        {HORNET_RUN_R0 + 0, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[0][1]},
-        {HORNET_RUN_R0 + 1, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[0][0]},
+        {HORNET_RUN_R0 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[0][1]},
+        {HORNET_RUN_R0 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[0][0]},
     },
     {
-        {HORNET_RUN_R1 + 0, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[1][1]},
-        {HORNET_RUN_R1 + 1, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[1][0]},
+        {HORNET_RUN_R1 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[1][1]},
+        {HORNET_RUN_R1 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[1][0]},
     },
     {
-        {HORNET_RUN_R2 + 0, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[2][1]},
-        {HORNET_RUN_R2 + 1, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[2][0]},
+        {HORNET_RUN_R2 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[2][1]},
+        {HORNET_RUN_R2 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[2][0]},
     },
     {
-        {HORNET_RUN_R3 + 0, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[3][1]},
-        {HORNET_RUN_R3 + 1, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[3][0]},
+        {HORNET_RUN_R3 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[3][1]},
+        {HORNET_RUN_R3 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[3][0]},
     },
     {
-        {HORNET_RUN_R4 + 0, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[4][1]},
-        {HORNET_RUN_R4 + 1, HORNET_RUN_RATE, &AF(DoHornetMove), &s_HornetRun[4][0]},
+        {HORNET_RUN_R4 + 0, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[4][1]},
+        {HORNET_RUN_R4 + 1, HORNET_RUN_RATE, DoHornetMove, &s_HornetRun[4][0]},
     }
 };
 
@@ -163,24 +170,24 @@ STATE* sg_HornetRun[] =
 STATE s_HornetStand[5][2] =
 {
     {
-        {HORNET_RUN_R0 + 0, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[0][1]},
-        {HORNET_RUN_R0 + 1, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[0][0]}
+        {HORNET_RUN_R0 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[0][1]},
+        {HORNET_RUN_R0 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[0][0]}
     },
     {
-        {HORNET_RUN_R1 + 0, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[1][1]},
-        {HORNET_RUN_R1 + 1, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[1][0]}
+        {HORNET_RUN_R1 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[1][1]},
+        {HORNET_RUN_R1 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[1][0]}
     },
     {
-        {HORNET_RUN_R2 + 0, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[2][1]},
-        {HORNET_RUN_R2 + 1, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[2][0]}
+        {HORNET_RUN_R2 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[2][1]},
+        {HORNET_RUN_R2 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[2][0]}
     },
     {
-        {HORNET_RUN_R3 + 0, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[3][1]},
-        {HORNET_RUN_R3 + 1, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[3][0]}
+        {HORNET_RUN_R3 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[3][1]},
+        {HORNET_RUN_R3 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[3][0]}
     },
     {
-        {HORNET_RUN_R4 + 0, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[4][1]},
-        {HORNET_RUN_R4 + 1, HORNET_STAND_RATE, &AF(DoHornetMove), &s_HornetStand[4][0]}
+        {HORNET_RUN_R4 + 0, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[4][1]},
+        {HORNET_RUN_R4 + 1, HORNET_STAND_RATE, DoHornetMove, &s_HornetStand[4][0]}
     }
 };
 
@@ -200,9 +207,15 @@ STATE* sg_HornetStand[] =
 //////////////////////
 
 #define HORNET_DIE_RATE 20
+ANIMATOR DoHornetDeath;
 STATE s_HornetDie[] =
 {
-    {HORNET_DIE + 0, HORNET_DIE_RATE, &AF(DoHornetDeath), &s_HornetDie[0]},
+#if 0
+    {HORNET_DIE + 0, HORNET_DIE_RATE, NullHornet, &s_HornetDie[1]},
+    {HORNET_DEAD,    HORNET_DIE_RATE, DoActorDebris, &s_HornetDie[1]},
+#else
+    {HORNET_DIE + 0, HORNET_DIE_RATE, DoHornetDeath, &s_HornetDie[0]},
+#endif
 };
 
 STATE* sg_HornetDie[] =
@@ -212,7 +225,7 @@ STATE* sg_HornetDie[] =
 
 STATE s_HornetDead[] =
 {
-    {HORNET_DEAD, HORNET_DIE_RATE, &AF(DoActorDebris), &s_HornetDead[0]},
+    {HORNET_DEAD, HORNET_DIE_RATE, DoActorDebris, &s_HornetDead[0]},
 };
 
 STATE* sg_HornetDead[] =
@@ -282,6 +295,8 @@ int DoHornetMatchPlayerZ(DSWActor* actor);
 
 int SetupHornet(DSWActor* actor)
 {
+    ANIMATOR DoActorDecide;
+
     if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
     {
         SpawnUser(actor,HORNET_RUN_R0,s_HornetRun[0]);
@@ -289,10 +304,10 @@ int SetupHornet(DSWActor* actor)
     }
 
     ChangeState(actor, s_HornetRun[0]);
-    actor->user.__legacyState.Attrib = &HornetAttrib;
+    actor->user.Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
-    actor->user.__legacyState.StateEnd = s_HornetDie;
-    actor->user.__legacyState.Rot = sg_HornetRun;
+    actor->user.StateEnd = s_HornetDie;
+    actor->user.Rot = sg_HornetRun;
 
     EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
@@ -310,13 +325,6 @@ int SetupHornet(DSWActor* actor)
     // Special looping buzz sound attached to each hornet spawned
     PlaySound(DIGI_HORNETBUZZ, actor, v3df_follow|v3df_init);
 
-    return 0;
-}
-
-DEFINE_ACTION_FUNCTION(DSWHornet, Initialize)
-{
-    PARAM_SELF_PROLOGUE(DSWActor);
-    SetupHornet(self);
     return 0;
 }
 
@@ -420,9 +428,9 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
 
 int InitHornetCircle(DSWActor* actor)
 {
-    actor->user.ActorActionFunc = AF(DoHornetCircle);
+    actor->user.ActorActionFunc = DoHornetCircle;
 
-    actor->setStateGroup(NAME_Run);
+    NewStateGroup(actor, actor->user.ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -442,7 +450,7 @@ int InitHornetCircle(DSWActor* actor)
 
     actor->user.WaitTics = (RandomRange(3)+1) * 60;
 
-    actor->callAction();
+    (*actor->user.ActorActionFunc)(actor);
 
     return 0;
 }
@@ -534,7 +542,7 @@ int DoHornetDeath(DSWActor* actor)
     {
         actor->user.Flags &= ~(SPR_FALLING|SPR_SLIDING);
         actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        actor->setStateGroup(NAME_Dead);
+        NewStateGroup(actor, actor->user.ActorActionSet->Dead);
         DeleteNoSoundOwner(actor);
         return 0;
     }
@@ -608,7 +616,7 @@ int DoHornetMove(DSWActor* actor)
     if (actor->user.track >= 0)
         ActorFollowTrack(actor, ACTORMOVETICS);
     else
-        actor->callAction();
+        (*actor->user.ActorActionFunc)(actor);
 
     DoHornetMatchPlayerZ(actor);
 
@@ -626,8 +634,27 @@ int DoHornetMove(DSWActor* actor)
 
 #include "saveable.h"
 
+static saveable_code saveable_hornet_code[] =
+{
+    SAVE_CODE(NullHornet),
+    SAVE_CODE(DoHornetMatchPlayerZ),
+    SAVE_CODE(InitHornetCircle),
+    SAVE_CODE(DoHornetCircle),
+    SAVE_CODE(DoHornetDeath),
+    SAVE_CODE(DoCheckSwarm),
+    SAVE_CODE(DoHornetMove),
+};
+
 static saveable_data saveable_hornet_data[] =
 {
+    SAVE_DATA(HornetBattle),
+    SAVE_DATA(HornetOffense),
+    SAVE_DATA(HornetBroadcast),
+    SAVE_DATA(HornetSurprised),
+    SAVE_DATA(HornetEvasive),
+    SAVE_DATA(HornetLostTarget),
+    SAVE_DATA(HornetCloseRange),
+    SAVE_DATA(HornetTouchTarget),
 
     SAVE_DATA(HornetPersonality),
 
@@ -648,7 +675,8 @@ static saveable_data saveable_hornet_data[] =
 saveable_module saveable_hornet =
 {
     // code
-    nullptr, 0,
+    saveable_hornet_code,
+    SIZ(saveable_hornet_code),
 
     // data
     saveable_hornet_data,

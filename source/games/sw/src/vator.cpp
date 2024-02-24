@@ -574,4 +574,21 @@ int DoVatorAuto(DSWActor* actor)
 }
 
 
+#include "saveable.h"
+
+static saveable_code saveable_vator_code[] =
+{
+    SAVE_CODE(DoVator),
+    SAVE_CODE(DoVatorAuto),
+};
+
+saveable_module saveable_vator =
+{
+    // code
+    saveable_vator_code,
+    SIZ(saveable_vator_code),
+
+    // data
+    nullptr,0
+};
 END_SW_NS

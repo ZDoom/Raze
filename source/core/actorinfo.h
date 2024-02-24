@@ -7,7 +7,6 @@
 #include "dobject.h"
 #include "m_fixed.h"
 #include "m_random.h"
-#include "states.h"
 
 class FScanner;
 class FInternalLightAssociation;
@@ -45,10 +44,6 @@ struct FActorInfo
 	// these are temporary. Due to how Build games handle their tiles, we cannot look up the textures when scripts are being parsed.
 	TArray<FString> SpriteSetNames;
 
-	FState* OwnedStates = nullptr;
-	int NumOwnedStates = 0;
-	FStateLabels* StateList = nullptr;
-
 	FActorInfo() = default;
 	FActorInfo(const FActorInfo& other)
 	{
@@ -64,7 +59,6 @@ struct FActorInfo
 	}
 
 	void ResolveTextures(const char* clsname, DCoreActor *defaults);
-
 };
 
 // No objects of this type will be created ever - its only use is to static_cast
@@ -88,30 +82,7 @@ public:
 	PClassActor *GetReplacement();
 	PClassActor *GetReplacee();
 
-	bool OwnsState(const FState* state) const 
-	{
-		auto i = ActorInfo();
-		return i != nullptr && state >= i->OwnedStates && state < i->OwnedStates + i->NumOwnedStates;
-	}
-
-	FState* GetStates() const
-	{
-		return ActorInfo()->OwnedStates;
-	}
-
-	FStateLabels* GetStateLabels() const
-	{
-		return ActorInfo()->StateList;
-	}
-
-	FState* FindState(int numnames, FName* names, bool exact = false) const;
-	FState* FindStateByString(const char* name, bool exact = false);
-	FState* FindState(FName name) const
-	{
-		return FindState(1, &name);
-	}
-
-
 	// For those times when being able to scan every kind of actor is convenient
 	inline static TArray<PClassActor *> AllActorClasses;
 };
+

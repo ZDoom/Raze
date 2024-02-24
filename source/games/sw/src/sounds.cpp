@@ -706,7 +706,7 @@ void Terminate3DSounds(void)
 void PlaySpriteSound(DSWActor* actor, int attrib_ndx, int flags)
 {
     if (actor->hasU() && attrib_ndx > attr_none && attrib_ndx < MAXATTRIBSNDS)
-        PlaySound(actor->user.__legacyState.Attrib->Sounds[attrib_ndx - 1], actor, flags);
+        PlaySound(actor->user.Attrib->Sounds[attrib_ndx], actor, flags);
 }
 
 //==========================================================================
