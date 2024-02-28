@@ -3153,10 +3153,18 @@ static const char* ConFile(void)
 		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
 	}
 
+#if 0
 	// This got introduced by EDuke 2.0.
 	if (g_gameType & GAMEFLAG_DUKE)
 	{
-		if (fileSystem.FindFile("eduke.con") >= 0) return "eduke.con";	
+		if (fileSystem.FindFile("eduke.con") >= 0) return "eduke.con";
+	}
+#endif
+
+	// This will load for all games using CON.
+	if (g_gameType & GAMEFLAG_DUKECOMPAT)
+	{
+		if (fileSystem.FindFile("raze.con") >= 0) return "raze.con";
 	}
 
 	// the other games only use game.con.
