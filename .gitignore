@@ -5,3 +5,4 @@ build-vs2019/
 /appimage-build
 *.AppImage
 .DS_Store
+raze-crash.log
