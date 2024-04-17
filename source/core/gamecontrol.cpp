@@ -96,6 +96,8 @@ CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadwidescreen, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
+CVAR (Bool, longsavemessages, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+
 // Note: For the automap label there is a separate option "am_textfont".
 CVARD(Bool, hud_textfont, false, CVAR_ARCHIVE, "Use the regular text font as replacement for the tiny 3x5 font for HUD messages whenever possible")
 
