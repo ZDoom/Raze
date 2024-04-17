@@ -55,6 +55,7 @@
 #include <utility>
 #include <iterator>
 #include <algorithm>
+#include <functional>
 
 #if !defined(_WIN32)
 #include <inttypes.h>		// for intptr_t
@@ -355,6 +356,105 @@ public:
         return i;
     }
 
+	// !!! THIS REQUIRES AN ELEMENT TYPE THAT'S COMPARABLE WITH THE LT OPERATOR !!!
+	bool IsSorted()
+	{
+		for(unsigned i = 1; i < Count; i++)
+		{
+			if(Array[i] < Array[i-1]) return false;
+		}
+		return true;
+	}
+
+	template<typename Func>
+	bool IsSorted(Func &&lt)
+	{
+		for(unsigned i = 1; i < Count; i++)
+		{
+			if(std::invoke(lt, Array[i], Array[i-1])) return false;
+		}
+		return true;
+	}
+
+	// !!! THIS REQUIRES A SORTED OR EMPTY ARRAY !!!
+	// !!! AND AN ELEMENT TYPE THAT'S COMPARABLE WITH THE LT OPERATOR !!!
+	//
+	// exact = false returns the closest match, to be used for, ex., insertions, exact = true returns Size() when no match, like Find does
+	unsigned int SortedFind(const T& item, bool exact = true) const
+	{
+		if(Count == 0) return 0;
+		if(Count == 1) return (item < Array[0]) ? 0 : 1;
+
+		unsigned int lo = 0;
+		unsigned int hi = Count - 1;
+
+		while(lo <= hi)
+		{
+			int mid = lo + ((hi - lo) / 2);
+
+			if(Array[mid] < item)
+			{
+				lo = mid + 1;
+			}
+			else if(item < Array[mid])
+			{
+				hi = mid - 1;
+			}
+			else
+			{
+				return mid;
+			}
+		}
+		if(exact)
+		{
+			return Count;
+		}
+		else
+		{
+			return (lo == Count || (item < Array[lo])) ? lo : lo + 1;
+		}
+	}
+
+	// !!! THIS REQUIRES A SORTED OR EMPTY ARRAY !!!
+	//
+	// exact = false returns the closest match, to be used for, ex., insertions, exact = true returns Size() when no match, like Find does
+	template<typename Func>
+	unsigned int SortedFind(const T& item, Func &&lt, bool exact = true) const
+	{
+		if(Count == 0) return 0;
+		if(Count == 1) return lt(item, Array[0]) ? 0 : 1;
+
+		unsigned int lo = 0;
+		unsigned int hi = Count - 1;
+
+		while(lo <= hi)
+		{
+			int mid = lo + ((hi - lo) / 2);
+
+			if(std::invoke(lt, Array[mid], item))
+			{
+				lo = mid + 1;
+			}
+			else if(std::invoke(lt, item, Array[mid]))
+			{
+				if(mid == 0) break; // prevent negative overflow due to unsigned numbers
+				hi = mid - 1;
+			}
+			else
+			{
+				return mid;
+			}
+		}
+		if(exact)
+		{
+			return Count;
+		}
+		else
+		{
+			return (lo == Count || std::invoke(lt, item, Array[lo])) ? lo : lo + 1;
+		}
+	}
+
    bool Contains(const T& item) const
     {
         unsigned int i;
@@ -367,12 +467,24 @@ public:
     }
 
 	template<class Func> 
-	unsigned int FindEx(Func compare) const
+	bool Contains(const T& item, Func &&compare) const
+	{
+		unsigned int i;
+		for(i = 0;i < Count;++i)
+		{
+			if(std::invoke(compare, Array[i], item))
+				return true;
+		}
+		return false;
+	}
+
+	template<class Func> 
+	unsigned int FindEx(Func &&compare) const
 	{
 		unsigned int i;
 		for (i = 0; i < Count; ++i)
 		{
-			if (compare(Array[i]))
+			if (std::invoke(compare, Array[i]))
 				break;
 		}
 		return i;
@@ -462,6 +574,50 @@ public:
 		return f;
 	}
 
+	unsigned SortedAddUnique(const T& obj)
+	{
+		auto f = SortedFind(obj, true);
+		if (f == Size()) Push(obj);
+		return f;
+	}
+
+	template<typename Func>
+	unsigned SortedAddUnique(const T& obj, Func &&lt)
+	{
+		auto f = SortedFind(obj, std::forward<Func>(lt), true);
+		if (f == Size()) Push(obj);
+		return f;
+	}
+
+	bool SortedDelete(const T& obj)
+	{
+		auto f = SortedFind(obj, true);
+		if (f == Size())
+		{
+			Delete(f);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	template<typename Func>
+	bool SortedDelete(const T& obj, Func &&lt)
+	{
+		auto f = SortedFind(obj, std::forward<Func>(lt), true);
+		if (f == Size())
+		{
+			Delete(f);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	bool Pop ()
 	{
 		if (Count > 0)
@@ -540,6 +696,17 @@ public:
 			// And put the new element in
 			::new ((void *)&Array[index]) T(item);
 		}
+	}
+
+	void SortedInsert (const T &item)
+	{
+		Insert (SortedFind (item, false), item);
+	}
+
+	template<typename Func>
+	void SortedInsert (const T &item, Func &&lt)
+	{
+		Insert (SortedFind (item, std::forward<Func>(lt), false), item);
 	}
 
 	void ShrinkToFit ()

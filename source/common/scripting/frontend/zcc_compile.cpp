@@ -43,6 +43,11 @@
 FSharedStringArena VMStringConstants;
 
 
+static bool ShouldWrapPointer(PType * type)
+{
+	return ((type->isStruct() && type != TypeVector2 && type != TypeVector3 && type != TypeVector4 && type != TypeQuaternion && type != TypeFVector2 && type != TypeFVector3 && type != TypeFVector4 && type != TypeFQuaternion) || type->isDynArray() || type->isMap() || type->isMapIterator());
+}
+
 int GetIntConst(FxExpression *ex, FCompileContext &ctx)
 {
 	ex = new FxIntCast(ex, false);
@@ -2049,8 +2054,17 @@ PType *ZCCCompiler::DetermineType(PType *outertype, ZCC_TreeNode *field, FName n
 			} while( (t = (ZCC_Type *)t->SiblingNext) != fn->RetType);
 			
 			if(auto *t = fn->Params; t != nullptr) do {
-				args.Push(DetermineType(outertype, field, name, t->Type, false, false));
-				argflags.Push(t->Flags == ZCC_Out ? VARF_Out : 0);
+				PType * tt = DetermineType(outertype, field, name, t->Type, false, false);
+				int flags = 0;
+
+				if (ShouldWrapPointer(tt))
+				{
+					tt = NewPointer(tt);
+					flags = VARF_Ref;
+				}
+
+				args.Push(tt);
+				argflags.Push(t->Flags == ZCC_Out ? VARF_Out|flags : flags);
 			} while( (t = (ZCC_FuncPtrParamDecl *) t->SiblingNext) != fn->Params);
 			
 			auto proto = NewPrototype(returns,args);
@@ -2550,7 +2564,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 				{
 					auto type = DetermineType(c->Type(), p, f->Name, p->Type, false, false);
 					int flags = 0;
-					if ((type->isStruct() && type != TypeVector2 && type != TypeVector3 && type != TypeVector4 && type != TypeQuaternion && type != TypeFVector2 && type != TypeFVector3 && type != TypeFVector4 && type != TypeFQuaternion) || type->isDynArray() || type->isMap() || type->isMapIterator())
+					if (ShouldWrapPointer(type))
 					{
 						// Structs are being passed by pointer, but unless marked 'out' that pointer must be readonly.
 						type = NewPointer(type /*, !(p->Flags & ZCC_Out)*/);
@@ -2764,7 +2778,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 			// [ZZ] unspecified virtual function inherits old scope. virtual function scope can't be changed.
 			sym->Variants[0].Implementation->VarFlags = sym->Variants[0].Flags;
 		}
-
+		
 		bool exactReturnType = mVersion < MakeVersion(4, 4);
 		PClass *clstype = forclass? static_cast<PClassType *>(c->Type())->Descriptor : nullptr;
 		if (varflags & VARF_Virtual)
@@ -2785,7 +2799,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 
 				auto parentfunc = clstype->ParentClass? dyn_cast<PFunction>(clstype->ParentClass->VMType->Symbols.FindSymbol(sym->SymbolName, true)) : nullptr;
 
-				int virtindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], parentfunc, exactReturnType);
+				int virtindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], parentfunc, exactReturnType, sym->SymbolName == FName("SpecialBounceHit") && mVersion < MakeVersion(4, 12));
 				// specifying 'override' is necessary to prevent one of the biggest problem spots with virtual inheritance: Mismatching argument types.
 				if (varflags & VARF_Override)
 				{
@@ -2867,7 +2881,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 		}
 		else if (forclass)
 		{
-			int virtindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], nullptr, exactReturnType);
+			int virtindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], nullptr, exactReturnType, sym->SymbolName == FName("SpecialBounceHit") && mVersion < MakeVersion(4, 12));
 			if (virtindex != -1)
 			{
 				Error(f, "Function %s attempts to override parent function without 'override' qualifier", FName(f->Name).GetChars());

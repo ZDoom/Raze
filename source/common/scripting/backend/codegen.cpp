@@ -291,29 +291,31 @@ bool AreCompatiblePointerTypes(PType *dest, PType *source, bool forcompare)
 		if (!forcompare && fromtype->IsConst && !totype->IsConst) return false;
 		// A type is always compatible to itself.
 		if (fromtype == totype) return true;
-		// Pointers to different types are only compatible if both point to an object and the source type is a child of the destination type.
 		if (source->isObjectPointer() && dest->isObjectPointer())
-		{
+		{	// Pointers to different types are only compatible if both point to an object and the source type is a child of the destination type.
 			auto fromcls = static_cast<PObjectPointer*>(source)->PointedClass();
 			auto tocls = static_cast<PObjectPointer*>(dest)->PointedClass();
 			if (forcompare && tocls->IsDescendantOf(fromcls)) return true;
 			return (fromcls->IsDescendantOf(tocls));
 		}
-		// The same rules apply to class pointers. A child type can be assigned to a variable of a parent type.
-		if (source->isClassPointer() && dest->isClassPointer())
-		{
+		else if (source->isClassPointer() && dest->isClassPointer())
+		{	// The same rules apply to class pointers. A child type can be assigned to a variable of a parent type.
 			auto fromcls = static_cast<PClassPointer*>(source)->ClassRestriction;
 			auto tocls = static_cast<PClassPointer*>(dest)->ClassRestriction;
 			if (forcompare && tocls->IsDescendantOf(fromcls)) return true;
 			return (fromcls->IsDescendantOf(tocls));
 		}
-		if(source->isFunctionPointer() && dest->isFunctionPointer())
+		else if(source->isFunctionPointer() && dest->isFunctionPointer())
 		{
 			auto from = static_cast<PFunctionPointer*>(source);
 			auto to = static_cast<PFunctionPointer*>(dest);
 			if(from->PointedType == TypeVoid) return false;
 
 			return to->PointedType == TypeVoid || (AreCompatibleFnPtrTypes((PPrototype *)to->PointedType, (PPrototype *)from->PointedType) && from->ArgFlags == to->ArgFlags && FScopeBarrier::CheckSidesForFunctionPointer(from->Scope, to->Scope));
+		}
+		else if(source->isRealPointer() && dest->isRealPointer())
+		{
+			return fromtype->PointedType == totype->PointedType;
 		}
 	}
 	return false;
@@ -1940,6 +1942,12 @@ FxExpression *FxTypeCast::Resolve(FCompileContext &ctx)
 	{
 		bool writable;
 		basex->RequestAddress(ctx, &writable);
+
+		if(!writable && !ValueType->toPointer()->IsConst && ctx.Version >= MakeVersion(4, 12))
+		{
+			ScriptPosition.Message(MSG_ERROR, "Trying to assign readonly value to writable type.");
+		}
+
 		basex->ValueType = ValueType;
 		auto x = basex;
 		basex = nullptr;
@@ -8739,6 +8747,12 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 	if (Self->ValueType->isRealPointer())
 	{
 		auto pointedType = Self->ValueType->toPointer()->PointedType;
+		
+		if(pointedType && pointedType->isStruct() && Self->ValueType->toPointer()->IsConst && ctx.Version >= MakeVersion(4, 12))
+		{
+			isreadonly = true;
+		}
+
 		if (pointedType && (pointedType->isDynArray() || pointedType->isMap() || pointedType->isMapIterator()))
 		{
 			Self = new FxOutVarDereference(Self, Self->ScriptPosition);
@@ -9268,7 +9282,7 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 			return nullptr;
 		}
 	}
-	else if (Self->ValueType->isStruct())
+	else if (Self->ValueType->isStruct() && !isreadonly)
 	{
 		bool writable;
 
@@ -9527,6 +9541,8 @@ FxExpression *FxVMFunctionCall::Resolve(FCompileContext& ctx)
 	auto &argnames = Function->Variants[0].ArgNames;
 	auto &argflags = Function->Variants[0].ArgFlags;
 	auto *defaults = FnPtrCall ? nullptr : &Function->Variants[0].Implementation->DefaultArgs;
+
+	if(FnPtrCall) static_cast<VMScriptFunction*>(ctx.Function->Variants[0].Implementation)->blockJit = true;
 
 	int implicit = Function->GetImplicitArgs();
 

@@ -214,6 +214,9 @@ class TObjPtr
 		mutable DObject *o;
 	};
 public:
+	TObjPtr() = default;
+
+	TObjPtr(T t) : pp(t) {}
 
 	constexpr TObjPtr<T>& operator=(T q) noexcept
 	{
