@@ -214,10 +214,6 @@ class TObjPtr
 		mutable DObject *o;
 	};
 public:
-	// before doing a backend sync - this needs to be addressed: https://github.com/ZDoom/Raze/actions/runs/8727418834/job/23944876872
-	//TObjPtr() = default;
-
-	//TObjPtr(T t) : pp(t) {}
 
 	constexpr TObjPtr<T>& operator=(T q) noexcept
 	{
