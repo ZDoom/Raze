@@ -317,6 +317,8 @@ void DObject::Release()
 
 void DObject::Destroy ()
 {
+	RemoveFromNetwork();
+
 	// We cannot call the VM during shutdown because all the needed data has been or is in the process of being deleted.
 	if (PClass::bVMOperational)
 	{
@@ -569,8 +571,15 @@ void DObject::Serialize(FSerializer &arc)
 
 	SerializeFlag("justspawned", OF_JustSpawned);
 	SerializeFlag("spawned", OF_Spawned);
-
+	SerializeFlag("networked", OF_Networked);
+		
 	ObjectFlags |= OF_SerialSuccess;
+
+	if (arc.isReading() && (ObjectFlags & OF_Networked))
+	{
+		ClearNetworkID();
+		EnableNetworking(true);
+	}
 }
 
 void DObject::CheckIfSerialized () const
@@ -584,7 +593,6 @@ void DObject::CheckIfSerialized () const
 			StaticType()->TypeName.GetChars());
 	}
 }
-
 
 DEFINE_ACTION_FUNCTION(DObject, MSTime)
 {
