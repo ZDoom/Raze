@@ -620,6 +620,7 @@ file( GLOB HEADER_FILES
 	core/textures/*.h
 	core/models/*.h
 	core/textures/formats/*.h
+	core/vmstubs.cpp
 )
 
 
