@@ -566,15 +566,15 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 
 	sp = (sptr->extra >> 4) / 16.;
 
-	//first find center point by averaging all points
-	dax = 0, day = 0;
+	//first find center point by averaging all points (in Build coordinate system to ensure the higher precision does not affect the result)
+	int idax = 0, iday = 0;
 	for (auto& wal : sptr->walls)
 	{
-		dax += wal.pos.X;
-		day += wal.pos.Y;
+		idax += int(wal.pos.X * 16);
+		iday += int(wal.pos.Y * 16);
 	}
-	dax /= sptr->walls.Size();
-	day /= sptr->walls.Size();
+	dax = (idax / (int)sptr->walls.Size()) / 16.;
+	day = (iday / (int)sptr->walls.Size()) / 16.;
 
 	//find any points with either same x or same y coordinate
 	//  as center (dax, day) - should be 2 points found.
@@ -598,7 +598,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 		auto prevwall = wal - 1;
 		if (prevwall < sptr->walls.Data()) prevwall += sptr->walls.Size();
 
-		if ((wal->pos.X == dax) && (wal->pos.Y == day))
+		if (abs(wal->pos.X - dax) <= (1 / 32.) && abs(wal->pos.Y - day) <= (1 / 32.))
 		{
 			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) * 0.5) - wal->pos.X;
 			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) * 0.5) - wal->pos.Y;
