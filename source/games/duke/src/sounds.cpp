@@ -747,6 +747,7 @@ void S_WorldTourMappingsForOldSounds()
 			fname.ToLower();
 			fname.Substitute("sound/", "");
 			fname.Substitute(".ogg", ".voc");
+			fname.Substitute("amess06_1", "amess06"); // This sound was renamed for the re-recorded set.
 			int lump = fileSystem.FindFile(fname.GetChars()); // in this case we absolutely do not want the extended lookup that's optionally performed by S_LookupSound.
 			if (lump >= 0)
 			{
