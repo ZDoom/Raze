@@ -733,6 +733,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
 void Duke_SetAction(DDukeActor* self, int intname)
 {
 	int ndx = LookupAction(self->GetClass(), FName(ENamedName(intname)));
+	if (ndx < 0 || ndx >= actions.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'action' index");
 	self->curAction = &actions[ndx];
 	self->actioncounter = self->curframe = 0;
 
@@ -749,6 +750,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetAction, Duke_SetAction)
 void Duke_SetMove(DDukeActor* self, int intname, int flags)
 {
 	int ndx = LookupMove(self->GetClass(), FName(ENamedName(intname)));
+	if (ndx < 0 || ndx >= moves.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'move' index");
 	self->curMove = &moves[ndx];
 	self->spr.hitag = flags;
 	self->counter = 0;
@@ -766,10 +768,13 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetMove, Duke_SetMove)
 void Duke_SetAI(DDukeActor* self, int intname)
 {
 	int ndx = LookupAI(self->GetClass(), FName(ENamedName(intname)));
+	if (ndx < 0 || ndx >= ais.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'ai' index");
 	auto ai = &ais[ndx];
 	assert(!(ai->move & 0x80000000));
 	assert(!(ai->action & 0x80000000));
+	if (ai->move < 0 || ai->move >= moves.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'move' index");
 	self->curMove = &moves[ai->move];
+	if (ai->action < 0 || ai->action >= actions.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'action' index");
 	self->curAction = &actions[ai->action];
 	self->spr.hitag = ai->moveflags;
 	self->curAI = ai->name;

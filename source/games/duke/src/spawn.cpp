@@ -88,7 +88,7 @@ static void initanimations(DDukeActor* act)
 		act->actioncounter = act->curframe = 0;
 
 		ndx = LookupMove(act->GetClass(), ainf->DefaultMove);
-		act->curMove = &moves[ndx];
+		act->curMove = &moves[ndx >= 0 && ndx < moves.Size() ? ndx : 0];
 		if (ainf->DefaultMoveflags && act->spr.hitag == 0)
 			act->spr.hitag = ainf->DefaultMoveflags;
 	}
@@ -96,7 +96,7 @@ static void initanimations(DDukeActor* act)
 	{
 		auto sa = &ScriptCode[coninf->scriptaddress];
 		act->curAction = &actions[sa[1]];
-		act->curMove = &moves[sa[2]];
+		act->curMove = &moves[sa[2] >= 0 && sa[2] < moves.Size() ? sa[2] : 0];
 		int s3 = sa[3];
 		if (s3 && act->spr.hitag == 0)
 			act->spr.hitag = s3;

@@ -1528,7 +1528,7 @@ int ParseState::parse(void)
 		auto ai = &ais[*insptr];
 		g_ac->curAI = ai->name;
 		g_ac->curAction = &actions[ai->action];
-		g_ac->curMove = &moves[ai->move];
+		g_ac->curMove = &moves[ai->move >= 0 && ai->move < moves.Size()? ai->move : 0];
 		g_ac->spr.hitag = ai->moveflags;
 		g_ac->actioncounter = g_ac->curframe = 0;
 		g_ac->counter = 0;
@@ -1874,7 +1874,7 @@ int ParseState::parse(void)
 	case concmd_move:
 		g_ac->counter=0;
 		insptr++;
-		g_ac->curMove = &moves[*insptr];
+		g_ac->curMove = &moves[*insptr >= 0 && *insptr < moves.Size() ? *insptr : 0];
 		insptr++;
 		g_ac->spr.hitag = *insptr;
 		insptr++;
