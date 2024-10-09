@@ -1912,11 +1912,13 @@ bool checkhitswitch(DDukePlayer* const p, walltype* wwal, DDukeActor* act)
 
 void animatewalls(void)
 {
-	static FTextureID noise, ff1, ff2;
+	static FTextureID noise[3], ff1, ff2;
 
 	// all that was done here is to open the system up sufficiently to allow replacing the textures being used without having to use ART files.
 	// Custom animated textures are better done with newly written controller actors.
-	if (!noise.isValid()) noise = TexMan.CheckForTexture("SCREENBREAK6", ETextureType::Any);
+	if (!noise[0].isValid()) noise[0] = TexMan.CheckForTexture("SCREENBREAK6", ETextureType::Any);
+	if (!noise[1].isValid()) noise[1] = TexMan.CheckForTexture("SCREENBREAK7", ETextureType::Any);
+	if (!noise[2].isValid()) noise[2] = TexMan.CheckForTexture("SCREENBREAK8", ETextureType::Any);
 	if (!ff1.isValid()) ff1 = TexMan.CheckForTexture("W_FORCEFIELD", ETextureType::Any);
 	if (!ff2.isValid()) ff2 = TexMan.CheckForTexture("W_FORCEFIELD2", ETextureType::Any);
 
@@ -1942,17 +1944,18 @@ void animatewalls(void)
 			{
 				if ((krand() & 255) < 16)
 				{
-					wal->setwalltexture(noise);
+					wal->setwalltexture(noise[0]);
 				}
 			}
 			else if (tileflags(wal->walltexture) & TFLAG_ANIMSCREENNOISE)
 			{
-				if (animwall[p].origtex.isValid())
+				if (animwall[p].origtex.isValid() && !(tileflags(animwall[p].origtex) & TFLAG_ANIMSCREENNOISE))
 					wal->setwalltexture(animwall[p].origtex);
 				else
 				{
-					texid = texid + 1;
-					if (texid.GetIndex() > noise.GetIndex() + 3 || texid.GetIndex() < noise.GetIndex()) texid = noise;
+					if (texid == noise[0]) texid = noise[1];
+					else if (texid == noise[1]) texid = noise[2];
+					else if (texid == noise[2]) texid = noise[0];
 					wal->setwalltexture(texid);
 				}
 			}
