@@ -282,7 +282,7 @@ void drawoverlays(double interpfrac)
 	{
 		double x = 160, y = 100;
 		double scale = isRR() ? 0.4 : 1.;
-		const char* text = GStrings("Game Paused");
+		const char* text = GStrings.GetString("Game Paused");
 		auto myfont = PickBigFont(text);
 		x -= myfont->StringWidth(text) * 0.5 * scale;
 		DrawText(twod, myfont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);

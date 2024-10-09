@@ -50,14 +50,14 @@ const char* SetGodMode(DBloodPlayer* pPlayer, bool god)
 {
 	playerSetGodMode(pPlayer, god);
 	bPlayerCheated = true;
-	return pPlayer->godMode ? GStrings("TXTB_GODMODE") : GStrings("TXTB_NOTGODMODE");
+	return pPlayer->godMode ? GStrings.GetString("TXTB_GODMODE") : GStrings.GetString("TXTB_NOTGODMODE");
 }
 
 const char* SetClipMode(bool noclip)
 {
 	gNoClip = noclip;
 	bPlayerCheated = true;
-	return gNoClip ? GStrings("TXTB_NOCLIP") : GStrings("TXTB_NOCLIPOFF");
+	return gNoClip ? GStrings.GetString("TXTB_NOCLIP") : GStrings.GetString("TXTB_NOCLIPOFF");
 }
 
 void packStuff(DBloodPlayer* pPlayer)
@@ -82,13 +82,13 @@ void SetAmmo(DBloodPlayer* pPlayer, bool stat)
 	{
 		for (int i = 0; i < 12; i++)
 			pPlayer->ammoCount[i] = gAmmoInfo[i].max;
-		viewSetMessage(GStrings("TXTB_FULLAMMO"));
+		viewSetMessage(GStrings.GetString("TXTB_FULLAMMO"));
 	}
 	else
 	{
 		for (int i = 0; i < 12; i++)
 			pPlayer->ammoCount[i] = 0;
-		viewSetMessage(GStrings("TXTB_NOAMMO"));
+		viewSetMessage(GStrings.GetString("TXTB_NOAMMO"));
 	}
 }
 
@@ -100,7 +100,7 @@ void SetWeapons(DBloodPlayer* pPlayer, bool stat)
 	}
 	SetAmmo(pPlayer, stat);
 	if (stat)
-		viewSetMessage(GStrings("TXTB_ALLWEAP"));
+		viewSetMessage(GStrings.GetString("TXTB_ALLWEAP"));
 	else
 	{
 		if (!VanillaMode())
@@ -110,7 +110,7 @@ void SetWeapons(DBloodPlayer* pPlayer, bool stat)
 			pPlayer->curWeapon = kWeapNone;
 			pPlayer->nextWeapon = kWeapPitchFork;
 		}
-		viewSetMessage(GStrings("TXTB_NOWEAP"));
+		viewSetMessage(GStrings.GetString("TXTB_NOWEAP"));
 	}
 }
 
@@ -119,12 +119,12 @@ void SetToys(DBloodPlayer* pPlayer, bool stat)
 	if (stat)
 	{
 		packStuff(pPlayer);
-		viewSetMessage(GStrings("TXTB_FULLINV"));
+		viewSetMessage(GStrings.GetString("TXTB_FULLINV"));
 	}
 	else
 	{
 		packClear(pPlayer);
-		viewSetMessage(GStrings("TXTB_NOINV"));
+		viewSetMessage(GStrings.GetString("TXTB_NOINV"));
 	}
 }
 
@@ -133,12 +133,12 @@ void SetArmor(DBloodPlayer* pPlayer, bool stat)
 	int nAmount;
 	if (stat)
 	{
-		viewSetMessage(GStrings("TXTB_FULLARM"));
+		viewSetMessage(GStrings.GetString("TXTB_FULLARM"));
 		nAmount = 3200;
 	}
 	else
 	{
-		viewSetMessage(GStrings("TXTB_NOARM"));
+		viewSetMessage(GStrings.GetString("TXTB_NOARM"));
 		nAmount = 0;
 	}
 	for (int i = 0; i < 3; i++)
@@ -150,27 +150,27 @@ void SetKeys(DBloodPlayer* pPlayer, bool stat)
 	for (int i = 1; i <= 7; i++)
 		pPlayer->hasKey[i] = stat;
 	if (stat)
-		viewSetMessage(GStrings("TXTB_ALLKEYS"));
+		viewSetMessage(GStrings.GetString("TXTB_ALLKEYS"));
 	else
-		viewSetMessage(GStrings("TXTB_NOKEYS"));
+		viewSetMessage(GStrings.GetString("TXTB_NOKEYS"));
 }
 
 void SetInfiniteAmmo(bool stat)
 {
 	gInfiniteAmmo = stat;
 	if (gInfiniteAmmo)
-		viewSetMessage(GStrings("TXTB_INFAMMO"));
+		viewSetMessage(GStrings.GetString("TXTB_INFAMMO"));
 	else
-		viewSetMessage(GStrings("TXTB_LIMAMMO"));
+		viewSetMessage(GStrings.GetString("TXTB_LIMAMMO"));
 }
 
 void SetMap(bool stat)
 {
 	gFullMap = stat;
 	if (gFullMap)
-		viewSetMessage(GStrings("TXTB_ALLMAP"));
+		viewSetMessage(GStrings.GetString("TXTB_ALLMAP"));
 	else
-		viewSetMessage(GStrings("TXTB_NOALLMAP"));
+		viewSetMessage(GStrings.GetString("TXTB_NOALLMAP"));
 }
 
 void SetWooMode(DBloodPlayer* pPlayer, bool stat)
@@ -200,7 +200,7 @@ void ToggleBoots(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpJumpBoots))
 	{
-		viewSetMessage(GStrings("TXTB_NOJBOOTS"));
+		viewSetMessage(GStrings.GetString("TXTB_NOJBOOTS"));
 		if (!VanillaMode())
 		{
 			pPlayer->pwUpTime[kPwUpJumpBoots] = 0;
@@ -210,7 +210,7 @@ void ToggleBoots(DBloodPlayer* pPlayer)
 	}
 	else
 	{
-		viewSetMessage(GStrings("TXTB_JBOOTS"));
+		viewSetMessage(GStrings.GetString("TXTB_JBOOTS"));
 		if (!VanillaMode())
 			pPlayer->pwUpTime[kPwUpJumpBoots] = gPowerUpInfo[kPwUpJumpBoots].bonusTime;
 		powerupActivate(pPlayer, kPwUpJumpBoots);
@@ -221,14 +221,14 @@ void ToggleInvisibility(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpShadowCloak))
 	{
-		viewSetMessage(GStrings("TXTB_VISIBLE"));
+		viewSetMessage(GStrings.GetString("TXTB_VISIBLE"));
 		if (!VanillaMode())
 			pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
 		powerupDeactivate(pPlayer, kPwUpShadowCloak);
 	}
 	else
 	{
-		viewSetMessage(GStrings("TXTB_INVISIBLE"));
+		viewSetMessage(GStrings.GetString("TXTB_INVISIBLE"));
 		powerupActivate(pPlayer, kPwUpShadowCloak);
 	}
 }
@@ -237,14 +237,14 @@ void ToggleInvulnerability(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpDeathMask))
 	{
-		viewSetMessage(GStrings("TXTB_VULN"));
+		viewSetMessage(GStrings.GetString("TXTB_VULN"));
 		if (!VanillaMode())
 			pPlayer->pwUpTime[kPwUpDeathMask] = 0;
 		powerupDeactivate(pPlayer, kPwUpDeathMask);
 	}
 	else
 	{
-		viewSetMessage(GStrings("TXTB_INVULN"));
+		viewSetMessage(GStrings.GetString("TXTB_INVULN"));
 		powerupActivate(pPlayer, kPwUpDeathMask);
 	}
 }
@@ -253,14 +253,14 @@ void ToggleDelirium(DBloodPlayer* pPlayer)
 {
 	if (powerupCheck(pPlayer, kPwUpDeliriumShroom))
 	{
-		viewSetMessage(GStrings("TXTB_NODELIR"));
+		viewSetMessage(GStrings.GetString("TXTB_NODELIR"));
 		if (!VanillaMode())
 			pPlayer->pwUpTime[kPwUpDeliriumShroom] = 0;
 		powerupDeactivate(pPlayer, kPwUpDeliriumShroom);
 	}
 	else
 	{
-		viewSetMessage(GStrings("TXTB_DELIR"));
+		viewSetMessage(GStrings.GetString("TXTB_DELIR"));
 		powerupActivate(pPlayer, kPwUpDeliriumShroom);
 	}
 }
@@ -323,18 +323,18 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		break;
 	case kCheatKevorkian:
 		actDamageSprite(pPlayer->GetActor(), pPlayer->GetActor(), kDamageBullet, 8000);
-		return GStrings("TXTB_KEVORKIAN");
+		return GStrings.GetString("TXTB_KEVORKIAN");
 
 	case kCheatMcGee:
 	{
 		if (!pPlayer->GetActor()->xspr.burnTime)
 			evPostActor(pPlayer->GetActor(), 0, kCallbackFXFlameLick);
 		actBurnSprite(pPlayer->GetActor(), pPlayer->GetActor(), 2400);
-		return GStrings("TXTB_FIRED");
+		return GStrings.GetString("TXTB_FIRED");
 	}
 	case kCheatEdmark:
 		actDamageSprite(pPlayer->GetActor(), pPlayer->GetActor(), kDamageExplode, 8000);
-		return GStrings("TXTB_THEDAYS");
+		return GStrings.GetString("TXTB_THEDAYS");
 
 	case kCheatKrueger:
 	{
@@ -343,7 +343,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		if (!pPlayer->GetActor()->xspr.burnTime)
 			evPostActor(pPlayer->GetActor(), 0, kCallbackFXFlameLick);
 		actBurnSprite(pPlayer->GetActor(), pPlayer->GetActor(), 2400);
-		return GStrings("TXTB_RETARD");
+		return GStrings.GetString("TXTB_RETARD");
 	}
 	case kCheatSterno:
 		pPlayer->blindEffect = 250;
@@ -357,7 +357,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	case kCheatClarice:
 		for (int i = 0; i < 3; i++)
 			pPlayer->armor[i] = 1600;
-		return GStrings("TXTB_HALFARMOR");
+		return GStrings.GetString("TXTB_HALFARMOR");
 	case kCheatFrankenstein:
 		pPlayer->packSlots[0].curAmount = 100;
 		break;

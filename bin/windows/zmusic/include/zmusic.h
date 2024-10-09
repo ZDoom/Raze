@@ -148,9 +148,10 @@ typedef enum EIntConfigKey_
 	zmusic_mod_autochip_scan_threshold,
 
 	zmusic_snd_streambuffersize,
-
+	
 	zmusic_snd_mididevice,
 	zmusic_snd_outputrate,
+	zmusic_mod_preferredplayer,
 
 	NUM_ZMUSIC_INT_CONFIGS
 } EIntConfigKey;
@@ -226,7 +227,7 @@ typedef struct ZMusicCallbacks_
 {
 	// Callbacks the client can install to capture messages from the backends
 	// or to provide sound font data.
-
+	
 	void (*MessageFunc)(int severity, const char* msg);
 	// The message callbacks are optional, without them the output goes to stdout.
 

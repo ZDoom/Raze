@@ -1874,7 +1874,7 @@ int ParseState::parse(void)
 	case concmd_move:
 		g_ac->counter=0;
 		insptr++;
-		g_ac->curMove = &moves[*insptr >= 0 && *insptr < moves.Size() ? *insptr : 0];
+		g_ac->curMove = &moves[*insptr >= 0 && *insptr < moves.SSize() ? *insptr : 0];
 		insptr++;
 		g_ac->spr.hitag = *insptr;
 		insptr++;

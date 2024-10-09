@@ -11,13 +11,13 @@
 #include <zwidget/window/window.h>
 #include <zwidget/widgets/tabwidget/tabwidget.h>
 
-int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags)
+int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs)
 {
 	Size screenSize = GetScreenSize();
 	double windowWidth = 615.0;
 	double windowHeight = 700.0;
 
-	auto launcher = std::make_unique<LauncherWindow>(wads, numwads, defaultiwad, autoloadflags);
+	auto launcher = std::make_unique<LauncherWindow>(wads, numwads, defaultiwad, autoloadflags, extraArgs);
 	launcher->SetFrameGeometry((screenSize.width - windowWidth) * 0.5, (screenSize.height - windowHeight) * 0.5, windowWidth, windowHeight);
 	launcher->Show();
 
@@ -26,7 +26,7 @@ int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int*
 	return launcher->ExecResult;
 }
 
-LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags) : Widget(nullptr, WidgetType::Window)
+LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs) : Widget(nullptr, WidgetType::Window)
 {
 	SetWindowBackground(Colorf::fromRgba8(51, 51, 51));
 	SetWindowBorderColor(Colorf::fromRgba8(51, 51, 51));
@@ -72,8 +72,8 @@ void LauncherWindow::Exit()
 
 void LauncherWindow::UpdateLanguage()
 {
-	Pages->SetTabText(PlayGame, GStrings("PICKER_TAB_PLAY"));
-	Pages->SetTabText(Settings, GStrings("OPTMNU_TITLE"));
+	Pages->SetTabText(PlayGame, GStrings.GetString("PICKER_TAB_PLAY"));
+	Pages->SetTabText(Settings, GStrings.GetString("OPTMNU_TITLE"));
 	Banner->UpdateLanguage();
 	PlayGame->UpdateLanguage();
 	Settings->UpdateLanguage();

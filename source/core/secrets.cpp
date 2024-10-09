@@ -91,7 +91,7 @@ CCMD(secret)
 				{
 					FString levelname;
 					auto cc = currentLevel->name.GetChars();
-					if (*cc == '$') cc = GStrings[cc + 1];
+					if (*cc == '$') cc = GStrings.CheckString(cc + 1);
 					if (thislevel) levelname.Format("%s - %s", mapname, cc);
 					else levelname = mapname;
 					Printf(TEXTCOLOR_YELLOW "%s\n", levelname.GetChars());

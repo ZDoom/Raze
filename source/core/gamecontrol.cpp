@@ -194,11 +194,6 @@ CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 	if (self < 0 || self > 3) self = 0;
 }
 
-int StrTable_GetGender()
-{
-	return cl_gender;
-}
-
 bool validFilter(const char* str);
 
 extern int chatmodeon;
@@ -600,7 +595,6 @@ int GameMain()
 		nullptr,
 		System_DispatchEvent,
 		validFilter,
-		StrTable_GetGender,
 		System_MenuClosed,
 		nullptr,
 		nullptr,
@@ -829,7 +823,8 @@ static TArray<GrpEntry> SetupGame()
 				if (autoloadbrightmaps) flags |= 4;
 				if (autoloadwidescreen) flags |= 8;
 
-				pick = I_PickIWad(&wads[0], (int)wads.Size(), queryiwad, pick, flags);
+				FString extraArgs;
+				pick = I_PickIWad(&wads[0], (int)wads.Size(), queryiwad, pick, flags, extraArgs);
 				if (pick >= 0)
 				{
 					disableautoload = !!(flags & 1);
@@ -1620,7 +1615,7 @@ void TITLE_InformName(const char* newname)
 {
 	LevelName = newname;
 	if (newname[0] == '$')
-		LevelName = GStrings(newname + 1);
+		LevelName = GStrings.GetString(newname + 1);
 	I_UpdateWindowTitle();
 }
 

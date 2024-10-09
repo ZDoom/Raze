@@ -69,7 +69,7 @@ const char *GameInterface::CheckCheatMode()
 {
      if (Skill >= 3 && !sv_cheats)
      {
-         return GStrings("TXTS_TOOSKILLFUL");
+         return GStrings.GetString("TXTS_TOOSKILLFUL");
      }
      return nullptr;
  }
@@ -80,19 +80,19 @@ const char *GameInterface::GenericCheat(int player, int cheat)
     {
     case CHT_GOD:
         GodMode ^= 1;   // fixme: Make god mode a player property.
-        return GStrings(GodMode ? "GOD MODE: ON" : "GOD MODE: OFF");
+        return GStrings.GetString(GodMode ? "GOD MODE: ON" : "GOD MODE: OFF");
 
     case CHT_GODOFF:
         GodMode = 0;   // fixme: Make god mode a player property.
-        return GStrings("GOD MODE: OFF");
+        return GStrings.GetString("GOD MODE: OFF");
 
     case CHT_GODON:
         GodMode = 1;   // fixme: Make god mode a player property.
-        return GStrings("GOD MODE: ON");
+        return GStrings.GetString("GOD MODE: ON");
 
     case CHT_NOCLIP:
         getPlayer(player)->Flags ^= PF_CLIP_CHEAT;
-        return GStrings(getPlayer(player)->Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
+        return GStrings.GetString(getPlayer(player)->Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
 
     case CHT_FLY:
         ToggleFlyMode = true;
@@ -146,7 +146,7 @@ bool MapCheat(cheatseq_t* c)
     if (!(pp=checkCheat(c))) return false;
     gFullMap = !gFullMap;
     // Need to do this differently. The code here was completely broken.
-    PutStringInfo(pp, GStrings(gFullMap ? "TXTS_AMON" : "TXTS_AMOFF"));
+    PutStringInfo(pp, GStrings.GetString(gFullMap ? "TXTS_AMON" : "TXTS_AMOFF"));
     return true;
 }
 
@@ -193,7 +193,7 @@ bool WinPachinkoCheat(cheatseq_t* c)
         return false;
 
     Pachinko_Win_Cheat = !Pachinko_Win_Cheat;
-    PutStringInfo(getPlayer(myconnectindex), GStrings(Pachinko_Win_Cheat ? "TXTS_WINPACHINKOEN" : "TXTS_WINPACHINKODIS"));
+    PutStringInfo(getPlayer(myconnectindex), GStrings.GetString(Pachinko_Win_Cheat ? "TXTS_WINPACHINKOEN" : "TXTS_WINPACHINKODIS"));
     return true;
 }
 
@@ -209,7 +209,7 @@ bool BunnyCheat(cheatseq_t* c)
         return false;
 
     sw_bunnyrockets = !sw_bunnyrockets;
-    PutStringInfo(getPlayer(myconnectindex), GStrings(sw_bunnyrockets ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
+    PutStringInfo(getPlayer(myconnectindex), GStrings.GetString(sw_bunnyrockets ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
     return true;
 }
 
@@ -290,7 +290,7 @@ static void WeaponCheat(int player)
 static void ItemCheat(int player)
 {
     auto p = getPlayer(player);
-    PutStringInfo(p, GStrings("GIVING EVERYTHING!"));
+    PutStringInfo(p, GStrings.GetString("GIVING EVERYTHING!"));
     memset(p->HasKey, true, sizeof(p->HasKey));
 
     p->WpnShotgunAuto = 50;
@@ -341,7 +341,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         if (getPlayer(player)->GetActor()->user.Health < getPlayer(player)->MaxHealth)
         {
             getPlayer(player)->GetActor()->user.Health += 25;
-            PutStringInfo(getPlayer(player), GStrings("TXTS_ADDEDHEALTH"));
+            PutStringInfo(getPlayer(player), GStrings.GetString("TXTS_ADDEDHEALTH"));
         }
         break;
 
@@ -370,19 +370,19 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         if (getPlayer(player)->GetActor()->user.Health < getPlayer(player)->MaxHealth)
         {
             getPlayer(player)->Armor = 100;
-            PutStringInfo(getPlayer(player), GStrings("TXTB_FULLARM"));
+            PutStringInfo(getPlayer(player), GStrings.GetString("TXTB_FULLARM"));
         }
         break;
 
     case GIVE_KEYS:
         memset(getPlayer(player)->HasKey, true, sizeof(getPlayer(player)->HasKey));
-        PutStringInfo(getPlayer(player), GStrings("TXTS_GIVEKEY"));
+        PutStringInfo(getPlayer(player), GStrings.GetString("TXTS_GIVEKEY"));
         break;
 
     case GIVE_INVENTORY:
     {
         auto p = getPlayer(player);
-        PutStringInfo(p, GStrings("GOT ALL INVENTORY"));
+        PutStringInfo(p, GStrings.GetString("GOT ALL INVENTORY"));
 
         p->WpnShotgunAuto = 50;
         p->WpnRocketHeat = 5;

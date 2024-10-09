@@ -87,7 +87,7 @@ CCMD(allmap)
 	if (!CheckCheatmode(true, false))
 	{
 		gFullMap = !gFullMap;
-		Printf("%s\n", GStrings(gFullMap ? "SHOW MAP: ON" : "SHOW MAP: OFF"));
+		Printf("%s\n", GStrings.GetString(gFullMap ? "SHOW MAP: ON" : "SHOW MAP: OFF"));
 	}
 }
 
@@ -105,7 +105,7 @@ CCMD(togglefollow)
 {
 	am_followplayer = !am_followplayer;
 	auto msg = quoteMgr.GetQuote(am_followplayer ? 84 : 83);
-	if (!msg || !*msg) msg = am_followplayer ? GStrings("FOLLOW MODE ON") : GStrings("FOLLOW MODE Off");
+	if (!msg || !*msg) msg = am_followplayer ? GStrings.GetString("FOLLOW MODE ON") : GStrings.GetString("FOLLOW MODE Off");
 	Printf(PRINT_NOTIFY, "%s\n", msg);
 	if (am_followplayer) follow.X = INT_MAX;
 }
@@ -113,7 +113,7 @@ CCMD(togglefollow)
 CCMD(togglerotate)
 {
 	am_rotate = !am_rotate;
-	auto msg = am_rotate ? GStrings("TXT_ROTATE_ON") : GStrings("TXT_ROTATE_OFF");
+	auto msg = am_rotate ? GStrings.GetString("TXT_ROTATE_ON") : GStrings.GetString("TXT_ROTATE_OFF");
 	Printf(PRINT_NOTIFY, "%s\n", msg);
 }
 

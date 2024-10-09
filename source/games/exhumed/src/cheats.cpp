@@ -64,7 +64,7 @@ static const char* GodCheat(DExhumedPlayer* const pPlayer, int state)
 	}
 	else pPlayer->invincibility = -state;
 
-	return GStrings(pPlayer->invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
+	return GStrings.GetString(pPlayer->invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
 }
 
 //---------------------------------------------------------------------------
@@ -78,12 +78,12 @@ static const char* SlipCheat()
 	if (bSlipMode == false)
 	{
 		bSlipMode = true;
-		return GStrings("TXT_EX_SLIPON");
+		return GStrings.GetString("TXT_EX_SLIPON");
 	}
 	else
 	{
 		bSlipMode = false;
-		return GStrings("TXT_EX_SLIPOFF");
+		return GStrings.GetString("TXT_EX_SLIPOFF");
 	}
 }
 
@@ -132,13 +132,13 @@ static bool HollyCheat(cheatseq_t* c)
 
 static bool KimberlyCheat(cheatseq_t* c)
 {
-	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SWEETIE"));
+	Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_SWEETIE"));
 	return true;
 }
 
 static bool LiteCheat(cheatseq_t* c)
 {
-	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FLASHES"));
+	Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_FLASHES"));
 	bDoFlashes = !bDoFlashes;
 	g_visibility = 1024 + 512 - g_visibility;	// let there be light - for real!
 	return true;
@@ -157,11 +157,11 @@ static bool SnakeCheat(cheatseq_t* c)
 		if (bSnakeCam == false)
 		{
 			bSnakeCam = true;
-			Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SNAKEON"));
+			Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_SNAKEON"));
 		}
 		else {
 			bSnakeCam = false;
-			Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SNAKEOFF"));
+			Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_SNAKEOFF"));
 		}
 	}
 	return true;
@@ -175,7 +175,7 @@ static bool SnakeCheat(cheatseq_t* c)
 
 static bool SphereCheat(cheatseq_t* c)
 {
-	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FULLMAP"));
+	Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_FULLMAP"));
 	gFullMap = !gFullMap; // only set the cheat flag so it can be toggled.
 	bShowTowers = gFullMap;
 	return true;
@@ -257,17 +257,17 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	if (buttons & kButtonCheatGuns) // LOBOCOP cheat
 	{
 		FillWeapons(pPlayer);
-		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_WEAPONS"));
+		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_WEAPONS"));
 	}
 	if (buttons & kButtonCheatKeys) // LOBOPICK cheat
 	{
 		pPlayer->keys = 0xFFFF;
-		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_KEYS"));
+		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_KEYS"));
 	}
 	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
 	{
 		FillItems(pPlayer);
-		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_ITEMS"));
+		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("TXT_EX_ITEMS"));
 	}
 
 }

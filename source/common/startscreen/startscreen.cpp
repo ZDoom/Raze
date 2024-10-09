@@ -372,6 +372,13 @@ FStartScreen* GetGameStartScreen(int max_progress)
 	return nullptr;
 }
 
+FStartScreen::~FStartScreen()
+{
+	if (StartupTexture) delete StartupTexture;
+	if (HeaderTexture) delete HeaderTexture;
+	if (NetTexture) delete NetTexture;
+}
+
 //==========================================================================
 //
 // ST_Util_ClearBlock
@@ -607,7 +614,7 @@ bool FStartScreen::NetInit(const char* message, int numplayers)
 {
 	NetMaxPos = numplayers;
 	NetCurPos = 0;
-	NetMessageString.Format("%s %s", message, GStrings("TXT_NET_PRESSESC"));
+	NetMessageString.Format("%s %s", message, GStrings.GetString("TXT_NET_PRESSESC"));
 	NetProgress(1);	// You always know about yourself
 	return true;
 }

@@ -558,7 +558,7 @@ void AISWPressSector::Use(RunListEvent* ev)
         {
             PlayFXAtXYZ(StaticSound[nSwitchSound], pPlayer->GetActor()->spr.pos, CHANF_LISTENERZ);
 
-            StatusMessage(300, GStrings("TXT_EX_NEEDKEY"));
+            StatusMessage(300, GStrings.GetString("TXT_EX_NEEDKEY"));
         }
     }
 

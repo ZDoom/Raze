@@ -7065,94 +7065,94 @@ const char *DeathString(DSWActor* actor)
     case NINJA_RUN_R0:
         return " ";
     case ZOMBIE_RUN_R0:
-        return GStrings("Zombie");
+        return GStrings.GetString("Zombie");
     case BLOOD_WORM:
-        return GStrings("Blood Worm");
+        return GStrings.GetString("Blood Worm");
     case SKEL_RUN_R0:
-        return GStrings("Skeletor Priest");
+        return GStrings.GetString("Skeletor Priest");
     case COOLG_RUN_R0:
-        return GStrings("Coolie Ghost");
+        return GStrings.GetString("Coolie Ghost");
     case GORO_RUN_R0:
-        return GStrings("Guardian");
+        return GStrings.GetString("Guardian");
     case HORNET_RUN_R0:
-        return GStrings("Hornet");
+        return GStrings.GetString("Hornet");
     case RIPPER_RUN_R0:
-        return GStrings("Ripper Hatchling");
+        return GStrings.GetString("Ripper Hatchling");
     case RIPPER2_RUN_R0:
-        return GStrings("Ripper");
+        return GStrings.GetString("Ripper");
     case BUNNY_RUN_R0:
-        return GStrings("Killer Rabbit");
+        return GStrings.GetString("Killer Rabbit");
     case SERP_RUN_R0:
-        return GStrings("Serpent god");
+        return GStrings.GetString("Serpent god");
     case GIRLNINJA_RUN_R0:
-        return GStrings("Girl Ninja");
+        return GStrings.GetString("Girl Ninja");
     case BLADE1:
     case BLADE2:
     case BLADE3:
     case 5011:
-        return GStrings("blade");
+        return GStrings.GetString("blade");
     case STAR1:
-        if (sw_darts) return GStrings("dart");
-        else return GStrings("shuriken");
+        if (sw_darts) return GStrings.GetString("dart");
+        else return GStrings.GetString("shuriken");
     case CROSSBOLT:
-        return GStrings("crossbow bolt");
+        return GStrings.GetString("crossbow bolt");
     case SPEAR_R0:
-        return GStrings("spear");
+        return GStrings.GetString("spear");
     case LAVA_BOULDER:
     case LAVA_SHARD:
-        return GStrings("lava boulder");
+        return GStrings.GetString("lava boulder");
     case UZI_SMOKE:
-        return GStrings("Uzi");
+        return GStrings.GetString("Uzi");
     case UZI_SMOKE+2:
-        return GStrings("Evil Ninja Uzi");
+        return GStrings.GetString("Evil Ninja Uzi");
     case SHOTGUN_SMOKE:
-        return GStrings("shotgun");
+        return GStrings.GetString("shotgun");
     case MIRV_METEOR:
     case SERP_METEOR:
-        return GStrings("meteor");
+        return GStrings.GetString("meteor");
     case BOLT_THINMAN_R0:
-        return GStrings("rocket");
+        return GStrings.GetString("rocket");
     case BOLT_THINMAN_R1:
-        return GStrings("rail gun");
+        return GStrings.GetString("rail gun");
     case BOLT_THINMAN_R2:
-        return GStrings("enemy rocket");
+        return GStrings.GetString("enemy rocket");
     case BOLT_THINMAN_R4:  // BunnyRocket
-        return GStrings("bunny rocket");
+        return GStrings.GetString("bunny rocket");
     case BOLT_EXP:
-        return GStrings("explosion");
+        return GStrings.GetString("explosion");
     case TANK_SHELL_EXP:
-        return GStrings("tank shell");
+        return GStrings.GetString("tank shell");
     case MUSHROOM_CLOUD:
-        return GStrings("nuclear bomb");
+        return GStrings.GetString("nuclear bomb");
     case GRENADE_EXP:
-        return GStrings("40mm grenade");
+        return GStrings.GetString("40mm grenade");
     case MICRO_EXP:
-        return GStrings("micro missile");
+        return GStrings.GetString("micro missile");
     case MINE_EXP:
         //case MINE_SHRAP:
-        return GStrings("sticky bomb");
+        return GStrings.GetString("sticky bomb");
     case NAP_EXP:
-        return GStrings("napalm");
+        return GStrings.GetString("napalm");
     case Vomit1:
     case Vomit2:
-        return GStrings("vomit");
+        return GStrings.GetString("vomit");
     case COOLG_FIRE:
-        return GStrings("Coolie Ghost phlem");
+        return GStrings.GetString("Coolie Ghost phlem");
     case SKULL_R0:
-        return GStrings("Accursed Head");
+        return GStrings.GetString("Accursed Head");
     case BETTY_R0:
-        return GStrings("Bouncing Betty");
+        return GStrings.GetString("Bouncing Betty");
     case SKULL_SERP:
-        return GStrings("Serpent god Protector");
+        return GStrings.GetString("Serpent god Protector");
     case FIREBALL1:
     case FIREBALL:
     case GORO_FIREBALL:
     case FIREBALL_FLAMES:
-        return GStrings("flames");
+        return GStrings.GetString("flames");
     case RADIATION_CLOUD:
-        return GStrings("radiation");
+        return GStrings.GetString("radiation");
     case CALTROPS:
-        return GStrings("useitem 7");
+        return GStrings.GetString("useitem 7");
     }
     return "";
 }

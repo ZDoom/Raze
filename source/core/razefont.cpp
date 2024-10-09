@@ -189,8 +189,8 @@ FFont* PickBigFont(const char* txt)
 {
 	if (generic_ui) return NewSmallFont; // Note: Support is incomplete. Translations do not exist anyway for most content.
 	if (!OriginalBigFont || OriginalBigFont == BigFont) return BigFont;
-	if (txt && *txt == '$') txt = GStrings[txt + 1];
-	if (!txt || !*txt) txt = GStrings["REQUIRED_CHARACTERS"];
+	if (txt && *txt == '$') txt = GStrings.CheckString(txt + 1);
+	if (!txt || !*txt) txt = GStrings.CheckString("REQUIRED_CHARACTERS");
 	if (!txt || !*txt || BigFont->CanPrint(txt)) return BigFont;
 	return OriginalBigFont;
 }
@@ -212,8 +212,8 @@ FFont* PickSmallFont(const char* txt)
 {
 	if (generic_ui) return NewSmallFont; // Note: Support is incomplete. Translations do not exist anyway for most content.
 	if (!OriginalSmallFont || OriginalSmallFont == SmallFont) return SmallFont;
-	if (txt && *txt == '$') txt = GStrings[txt + 1];
-	if (!txt || !*txt) txt = GStrings["REQUIRED_CHARACTERS"];
+	if (txt && *txt == '$') txt = GStrings.CheckString(txt + 1);
+	if (!txt || !*txt) txt = GStrings.CheckString("REQUIRED_CHARACTERS");
 	if (!txt || !*txt || SmallFont->CanPrint(txt)) return SmallFont;
 	return OriginalSmallFont;
 }

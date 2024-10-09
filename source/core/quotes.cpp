@@ -44,7 +44,7 @@
 void Quotes::MakeStringLabel(FString &quote)
 {
 	// Only prepend a quote if the string is localizable.
-	if (quote.Len() > 0 && quote[0] != '$' && GStrings[quote.GetChars()]) quote.Insert(0, "$");
+	if (quote.Len() > 0 && quote[0] != '$' && GStrings.CheckString(quote.GetChars())) quote.Insert(0, "$");
 }
 
 void Quotes::InitializeQuote(int num, const char *text, bool fromscript)

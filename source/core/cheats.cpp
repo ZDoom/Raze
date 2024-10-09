@@ -103,7 +103,7 @@ void genericCheat(int player, uint8_t** stream, bool skip)
         Printf(PRINT_NOTIFY, "%s\n", msg);
     else
     {
-        FString message = GStrings("TXT_X_CHEATS");
+        FString message = GStrings.GetString("TXT_X_CHEATS");
         //message.Substitute("%s", player->userinfo.GetName()); // fixme - make globally accessible
         Printf(PRINT_NOTIFY, "%s: %s\n", message.GetChars(), msg);
     }

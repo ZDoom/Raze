@@ -1909,7 +1909,7 @@ void TriggerSecret(sectortype* sectp, DSWPlayer* pp)
 
     SECRET_Trigger(sectindex(pp->cursector));
 
-    PutStringInfo(pp, GStrings("TXTS_SECRET"));
+    PutStringInfo(pp, GStrings.GetString("TXTS_SECRET"));
     // always give to the first player
     Level.addSecret(myconnectindex);
     sectp->lotag = 0;

@@ -670,7 +670,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(FFont, GetBottomAlignOffset, GetBottomAlignOffset)
 
 static int StringWidth(FFont *font, const FString &str, int localize)
 {
-	const char *txt = (localize && str[0] == '$') ? GStrings(&str[1]) : str.GetChars();
+	const char *txt = (localize && str[0] == '$') ? GStrings.GetString(&str[1]) : str.GetChars();
 	return font->StringWidth(txt);
 }
 
@@ -684,7 +684,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(FFont, StringWidth, StringWidth)
 
 static int GetMaxAscender(FFont* font, const FString& str, int localize)
 {
-	const char* txt = (localize && str[0] == '$') ? GStrings(&str[1]) : str.GetChars();
+	const char* txt = (localize && str[0] == '$') ? GStrings.GetString(&str[1]) : str.GetChars();
 	return font->GetMaxAscender(txt);
 }
 
@@ -698,7 +698,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(FFont, GetMaxAscender, GetMaxAscender)
 
 static int CanPrint(FFont *font, const FString &str, int localize)
 {
-	const char *txt = (localize && str[0] == '$') ? GStrings(&str[1]) : str.GetChars();
+	const char *txt = (localize && str[0] == '$') ? GStrings.GetString(&str[1]) : str.GetChars();
 	return font->CanPrint(txt);
 }
 
@@ -769,6 +769,26 @@ DEFINE_ACTION_FUNCTION_NATIVE(FFont, GetDisplayTopOffset, GetDisplayTopOffset)
 	PARAM_INT(code);
 	ACTION_RETURN_FLOAT(GetDisplayTopOffset(self, code));
 }
+
+static int GetChar(FFont* font, int c)
+{
+	int texc = 0;
+	auto getch = font->GetChar(c, CR_UNDEFINED, nullptr);
+	if (getch)
+		texc = getch->GetID().GetIndex();
+	return texc;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(FFont, GetChar, ::GetChar)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FFont);
+	PARAM_INT(mchar);
+
+	if (numret > 0) ret[0].SetInt(::GetChar(self, mchar));
+	if (numret > 1) ret[1].SetInt(self->GetCharWidth(mchar));
+	return min(2, numret);
+}
+
 
 //==========================================================================
 //
@@ -1139,6 +1159,17 @@ DEFINE_ACTION_FUNCTION(_Console, PrintfEx)
 	FString s = FStringFormat(VM_ARGS_NAMES,1);
 
 	Printf(printlevel,"%s\n", s.GetChars());
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Console, DebugPrintf)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(debugLevel);
+	PARAM_VA_POINTER(va_reginfo);
+
+	FString s = FStringFormat(VM_ARGS_NAMES, 1);
+	DPrintf(debugLevel, "%s\n", s.GetChars());
 	return 0;
 }
 

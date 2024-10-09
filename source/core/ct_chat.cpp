@@ -226,7 +226,7 @@ void CT_Drawer (void)
 
 	if (chatmodeon)
 	{
-		FStringf prompt("%s ", GStrings("TXT_SAY"));
+		FStringf prompt("%s ", GStrings.GetString("TXT_SAY"));
 		int x, scalex, y, promptwidth;
 
 
@@ -356,7 +356,7 @@ static void ShoveChatStr (const char *str, uint8_t who)
 			Net_WriteString(MakeUTF8(substBuff));
 		}
 #else
-		Printf("%s %s\n", GStrings("TXT_SAY"), str);
+		Printf("%s %s\n", GStrings.GetString("TXT_SAY"), str);
 #endif
 	}
 }

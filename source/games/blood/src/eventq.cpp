@@ -257,7 +257,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command, DBloodActor* initiat
 
 					if (gGameOptions.nGameType == 0)
 					{
-						viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), nullptr, MESSAGE_PRIORITY_SECRET);
+						viewSetMessage(GStrings.GetString(FStringf("TXTB_SECRET%d", Random(2))), nullptr, MESSAGE_PRIORITY_SECRET);
 					}
 				}
 			}

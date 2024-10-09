@@ -772,9 +772,9 @@ void Duke_SetAI(DDukeActor* self, int intname)
 	auto ai = &ais[ndx];
 	assert(!(ai->move & 0x80000000));
 	assert(!(ai->action & 0x80000000));
-	if (ai->move < 0 || ai->move >= moves.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'move' index");
+	if (ai->move >= moves.Size()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'move' index");
 	self->curMove = &moves[ai->move];
-	if (ai->action < 0 || ai->action >= actions.SSize()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'action' index");
+	if (ai->action >= actions.Size()) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Bad 'action' index");
 	self->curAction = &actions[ai->action];
 	self->spr.hitag = ai->moveflags;
 	self->curAI = ai->name;

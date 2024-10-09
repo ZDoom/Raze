@@ -5602,7 +5602,7 @@ void DoPlayerBeginDie(DSWPlayer* pp)
 
     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
-    PutStringInfo(pp, GStrings("TXTS_PRESSSPACE"));
+    PutStringInfo(pp, GStrings.GetString("TXTS_PRESSSPACE"));
 
     if (pp->sop_control)
         DoPlayerStopOperate(pp);

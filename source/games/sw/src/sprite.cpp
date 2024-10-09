@@ -5247,7 +5247,7 @@ KeyMain:
                 {
                     int cookie = StdRandomRange(MAX_FORTUNES);
                     // print to the console, and the user quote display.
-                    FStringf msg("%s %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
+                    FStringf msg("%s %s", GStrings.GetString("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
                     Printf(PRINT_NONOTIFY, TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
                     if (hud_messages)
                     {
@@ -5415,7 +5415,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
 
-            PutStringInfo(pp, sw_darts? GStrings("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
+            PutStringInfo(pp, sw_darts? GStrings.GetString("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
             PlayerUpdateAmmo(pp, WPN_STAR, DamageData[WPN_STAR].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp->pnum == myconnectindex)

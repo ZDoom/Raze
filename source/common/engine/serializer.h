@@ -9,6 +9,7 @@
 #include "palentry.h"
 #include "name.h"
 #include "dictionary.h"
+#include "bonecomponents.h"
 
 extern bool save_full;
 
@@ -93,6 +94,7 @@ public:
 	void EndObject();
 	bool HasKey(const char* name);
 	bool HasObject(const char* name);
+	bool IsKeyNull(const char* name);
 	bool BeginArray(const char *name);
 	void EndArray();
 	unsigned GetSize(const char *group);
@@ -224,6 +226,7 @@ public:
 
 	int mErrors = 0;
 	int mObjectErrors = 0;
+	FString mLumpName;
 };
 
 FSerializer& Serialize(FSerializer& arc, const char* key, char& value, char* defval);
@@ -247,7 +250,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FString &sid, FString 
 FSerializer &Serialize(FSerializer &arc, const char *key, NumericValue &sid, NumericValue *def);
 FSerializer &Serialize(FSerializer &arc, const char *key, struct ModelOverride &mo, struct ModelOverride *def);
 FSerializer &Serialize(FSerializer &arc, const char *key, struct AnimModelOverride &mo, struct AnimModelOverride *def);
-FSerializer &Serialize(FSerializer &arc, const char *key, struct AnimOverride &ao, struct AnimOverride *def);
+FSerializer &Serialize(FSerializer &arc, const char *key, ModelAnim &ao, ModelAnim *def);
+FSerializer &Serialize(FSerializer &arc, const char *key, ModelAnimFrame &ao, ModelAnimFrame *def);
 FSerializer& Serialize(FSerializer& arc, const char* key, FTranslationID& value, FTranslationID* defval);
 
 void SerializeFunctionPointer(FSerializer &arc, const char *key, FunctionPointerValue *&p);

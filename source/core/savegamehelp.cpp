@@ -291,7 +291,7 @@ static bool CheckSingleFile (const char *name, bool &printRequires, bool printwa
 		{
 			if (!printRequires)
 			{
-				Printf ("%s:\n%s", GStrings("TXT_SAVEGAMENEEDS"), name);
+				Printf ("%s:\n%s", GStrings.GetString("TXT_SAVEGAMENEEDS"), name);
 			}
 			else
 			{
@@ -790,15 +790,15 @@ void G_SaveGame(const char* filename, const char* description)
 {
 	if (sendsave || gameaction == ga_savegame)
 	{
-		Printf("%s\n", GStrings("TXT_SAVEPENDING"));
+		Printf("%s\n", GStrings.GetString("TXT_SAVEPENDING"));
 	}
 	else if (gamestate != GS_LEVEL)
 	{
-		Printf("%s\n", GStrings("TXT_NOTINLEVEL"));
+		Printf("%s\n", GStrings.GetString("TXT_NOTINLEVEL"));
 	}
 	else if (!gi->CanSave())
 	{
-		Printf("%s\n", GStrings("TXT_SPPLAYERDEAD"));
+		Printf("%s\n", GStrings.GetString("TXT_SPPLAYERDEAD"));
 	}
 	else
 	{
@@ -844,7 +844,7 @@ void G_DoSaveGame(bool ok4q, bool forceq, const char* fn, const char* desc)
 	if (WriteSavegame(fn, desc))
 	{
 		savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
-		Printf(PRINT_NOTIFY, "%s\n", GStrings("GGSAVED"));
+		Printf(PRINT_NOTIFY, "%s\n", GStrings.GetString("GGSAVED"));
 		BackupSaveGame = fn;
 	}
 }

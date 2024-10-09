@@ -303,7 +303,7 @@ DEFINE_ACTION_FUNCTION(_Exhumed, DrawPlasma)
 void TextOverlay::Create(const FString& text, int pal)
 {
     lastclock = 0;
-    FString ttext = GStrings(text);
+    FString ttext = GStrings.GetString(text);
     font = PickSmallFont(ttext.GetChars());
     screentext = ttext.Split("\n");
     ComputeCinemaText();
@@ -329,7 +329,7 @@ void TextOverlay::ComputeCinemaText()
 
 void TextOverlay::ReadyCinemaText(const char* nVal)
 {
-    FString label = nVal[0] == '$'? GStrings(nVal +1) : nVal;
+    FString label = nVal[0] == '$'? GStrings.GetString(nVal +1) : nVal;
     Create(label, 0);
 }
 

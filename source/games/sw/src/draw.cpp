@@ -1353,7 +1353,7 @@ void drawscreen(DSWPlayer* pp, double interpfrac, bool sceneonly)
 
     if (paused && !M_Active())
     {
-        auto str = GStrings("Game Paused");
+        auto str = GStrings.GetString("Game Paused");
         auto font = PickSmallFont(str);
         int w = font->StringWidth(str);
         DrawText(twod, font, CR_UNTRANSLATED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);

@@ -182,7 +182,7 @@ void DoRotatorMatch(DSWPlayer* pp, short match, bool manual)
             // bool 8 must be set for message to display
             if (TEST_BOOL4(actor) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
-                if (pp && TEST_BOOL11(actor)) PutStringInfo(pp, GStrings("TXT_SPONLY"));
+                if (pp && TEST_BOOL11(actor)) PutStringInfo(pp, GStrings.GetString("TXT_SPONLY"));
                 continue;
             }
 

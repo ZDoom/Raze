@@ -1067,6 +1067,7 @@ set (PCH_SOURCES
 	common/textures/multipatchtexturebuilder.cpp
 	common/textures/skyboxtexture.cpp
 	common/textures/animtexture.cpp
+	common/textures/firetexture.cpp
 	common/textures/v_collection.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp

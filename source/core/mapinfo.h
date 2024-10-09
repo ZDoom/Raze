@@ -157,7 +157,7 @@ struct MapRecord
 
 	const char* LabelName() const
 	{
-		if (flags & MI_USERMAP) return GStrings("MNU_USERMAP");
+		if (flags & MI_USERMAP) return GStrings.GetString("MNU_USERMAP");
 		return labelName.GetChars();
 	}
 	const char *DisplayName() const
@@ -181,7 +181,7 @@ struct MapRecord
 	const char* GetMessage(int num)
 	{
 		if (num < 0 || num>= MAX_MESSAGES) return "";
-		return GStrings(messages[num]);
+		return GStrings.GetString(messages[num]);
 	}
 
 	void AddMessage(int num, const FString &msg)

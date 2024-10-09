@@ -805,7 +805,7 @@ void SetTorch(DExhumedPlayer* const pPlayer, int bTorchOnOff)
     }
 
     const char* buf = bTorch ? "TXT_EX_TORCHLIT" : "TXT_EX_TORCHOUT";
-    StatusMessage(150, GStrings(buf));
+    StatusMessage(150, GStrings.GetString(buf));
 }
 
 //---------------------------------------------------------------------------

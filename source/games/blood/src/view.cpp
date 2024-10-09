@@ -737,7 +737,7 @@ void viewDrawScreen(bool sceneonly)
 	viewDrawAimedPlayerName(pPlayer);
 	if (paused)
 	{
-		auto text = GStrings("TXTB_PAUSED");
+		auto text = GStrings.GetString("TXTB_PAUSED");
 		viewDrawText(PickBigFont(text), text, 160, 10, 0, 0, 1, 0);
 	}
 	else if (pPlayer->pnum != myconnectindex)

@@ -1741,11 +1741,11 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
     if (nEnergyTowers == 1)
     {
         runlist_ChangeChannel(nEnergyChan, nEnergyTowers);
-        StatusMessage(1000, GStrings("TXT_EX_TAKEOUT"));
+        StatusMessage(1000, GStrings.GetString("TXT_EX_TAKEOUT"));
     }
     else if (nEnergyTowers != 0)
     {
-		FString msg = GStrings("TXT_EX_TOWERSREMAIN");
+		FString msg = GStrings.GetString("TXT_EX_TOWERSREMAIN");
 		msg.Substitute("%d", std::to_string(nEnergyTowers).c_str());
         StatusMessage(500, msg.GetChars());
     }

@@ -133,7 +133,7 @@ static const char * cheatMonsters()
 	static char textbuf[64];
 	if (++actor_tog == 3) actor_tog = 0;
 	static const char* s[] = { "OPTVAL_ON", "OPTVAL_OFF", "TXT_ON2" };
-	mysnprintf(textbuf, 64, "%s: %s", GStrings("NETMNU_MONSTERS"), GStrings(s[actor_tog]));
+	mysnprintf(textbuf, 64, "%s: %s", GStrings.GetString("NETMNU_MONSTERS"), GStrings.GetString(s[actor_tog]));
 	return textbuf;
 }
 

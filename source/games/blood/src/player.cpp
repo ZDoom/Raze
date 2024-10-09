@@ -1339,17 +1339,17 @@ void PickUp(DBloodPlayer* pPlayer, DBloodActor* actor)
 
 	if (nType >= kItemBase && nType <= kItemMax) {
 		pickedUp = PickupItem(pPlayer, actor);
-		if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_ITEM%02d", int(nType - kItemBase + 1)));
+		if (pickedUp && customMsg == -1) msg = GStrings.GetString(FStringf("TXTB_ITEM%02d", int(nType - kItemBase + 1)));
 
 	}
 	else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) {
 		pickedUp = PickupAmmo(pPlayer, actor);
-		if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_AMMO%02d", int(nType - kItemAmmoBase + 1)));
+		if (pickedUp && customMsg == -1) msg = GStrings.GetString(FStringf("TXTB_AMMO%02d", int(nType - kItemAmmoBase + 1)));
 
 	}
 	else if (nType >= kItemWeaponBase && nType < kItemWeaponMax) {
 		pickedUp = PickupWeapon(pPlayer, actor);
-		if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_WPN%02d", int(nType - kItemWeaponBase + 1)));
+		if (pickedUp && customMsg == -1) msg = GStrings.GetString(FStringf("TXTB_WPN%02d", int(nType - kItemWeaponBase + 1)));
 	}
 
 	if (!pickedUp) return;
@@ -1618,7 +1618,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 			int key = pXSector->Key;
 			if (pXSector->locked && pPlayer->pnum == myconnectindex)
 			{
-				viewSetMessage(GStrings("TXTB_LOCKED"));
+				viewSetMessage(GStrings.GetString("TXTB_LOCKED"));
 				auto snd = 3062;
 				if (sndCheckPlaying(snd))
 					sndStopSample(snd);
@@ -1628,7 +1628,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 				trTriggerSector(pSector, kCmdSpritePush);
 			else if (pPlayer->pnum == myconnectindex)
 			{
-				viewSetMessage(GStrings("TXTB_KEY"));
+				viewSetMessage(GStrings.GetString("TXTB_KEY"));
 				auto snd = 3063;
 				if (sndCheckPlaying(snd))
 					sndStopSample(snd);
@@ -1643,7 +1643,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 			int key = pXWall->key;
 			if (pXWall->locked && pPlayer->pnum == myconnectindex)
 			{
-				viewSetMessage(GStrings("TXTB_LOCKED"));
+				viewSetMessage(GStrings.GetString("TXTB_LOCKED"));
 				auto snd = 3062;
 				if (sndCheckPlaying(snd))
 					sndStopSample(snd);
@@ -1653,7 +1653,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 				trTriggerWall(pWall, kCmdWallPush);
 			else if (pPlayer->pnum == myconnectindex)
 			{
-				viewSetMessage(GStrings("TXTB_KEY"));
+				viewSetMessage(GStrings.GetString("TXTB_KEY"));
 				auto snd = 3063;
 				if (sndCheckPlaying(snd))
 					sndStopSample(snd);
@@ -1671,7 +1671,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 				trTriggerSprite(act, kCmdSpritePush);
 			else if (pPlayer->pnum == myconnectindex)
 			{
-				viewSetMessage(GStrings("TXTB_KEY"));
+				viewSetMessage(GStrings.GetString("TXTB_KEY"));
 				sndStartSample(3063, 255, 2, 0);
 			}
 			break;
@@ -1918,7 +1918,7 @@ void playerFrag(DBloodPlayer* pKiller, DBloodPlayer* pVictim)
 		int nSound = gSuicide[nMessage].Kills;
 		if (pVictim->pnum == myconnectindex && pVictim->handTime <= 0)
 		{
-			strcpy(buffer, GStrings("TXTB_KILLSELF"));
+			strcpy(buffer, GStrings.GetString("TXTB_KILLSELF"));
 			if (gGameOptions.nGameType > 0 && nSound >= 0)
 				sndStartSample(nSound, 255, 2, 0);
 		}
@@ -2310,7 +2310,7 @@ void PlayerSurvive(int, DBloodActor* actor)
 		{
 			DBloodPlayer* pPlayer = getPlayer(actor->spr.type - kDudePlayer1);
 			if (pPlayer->pnum == myconnectindex)
-				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
+				viewSetMessage(GStrings.GetString("TXT_LIVEAGAIM"));
 			else
 			{
 				snprintf(buffer, sizeof(buffer), "%s lives again!", PlayerName(pPlayer->pnum));

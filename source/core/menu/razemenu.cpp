@@ -98,7 +98,7 @@ static bool DoStartGame(FNewGameStartup& gs)
 
 		if (isShareware() && (vol->flags & VF_SHAREWARELOCK))
 		{
-			M_StartMessage(GStrings("SHAREWARELOCK"), 1, NAME_None);
+			M_StartMessage(GStrings.GetString("SHAREWARELOCK"), 1, NAME_None);
 			return false;
 		}
 
@@ -164,7 +164,7 @@ bool M_SetSpecialMenu(FName& menu, int param)
 		if (!gi->CanSave())
 		{
 			// cannot save outside the game.
-			M_StartMessage(GStrings("SAVEDEAD"), 1, NAME_None);
+			M_StartMessage(GStrings.GetString("SAVEDEAD"), 1, NAME_None);
 			return true;
 		}
 		break;
@@ -234,7 +234,7 @@ CCMD(menu_quit)
 	M_StartControlPanel(true);
 
 	FString EndString;
-	EndString << GStrings("CONFIRM_QUITMSG") << "\n\n" << GStrings("PRESSYN");
+	EndString << GStrings.GetString("CONFIRM_QUITMSG") << "\n\n" << GStrings.GetString("PRESSYN");
 
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, EndString.GetChars(), 0, false, NAME_None, []()
 		{
@@ -260,7 +260,7 @@ CCMD(menu_endgame)
 
 	M_StartControlPanel(true);
 	FString tempstring;
-	tempstring << GStrings("ENDGAME") << "\n\n" << GStrings("PRESSYN");
+	tempstring << GStrings.GetString("ENDGAME") << "\n\n" << GStrings.GetString("PRESSYN");
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring.GetChars(), 0, false, NAME_None, []()
 		{
 			STAT_Cancel();
@@ -305,7 +305,7 @@ CCMD(quicksave)
 		return;
 	}
 
-	FString tempstring = GStrings("QSPROMPT");
+	FString tempstring = GStrings.GetString("QSPROMPT");
 	tempstring.Substitute("%s", slot->SaveTitle.GetChars());
 	M_StartControlPanel(true);
 
@@ -329,7 +329,7 @@ CCMD(quickload)
 	if (netgame)
 	{
 		M_StartControlPanel(true);
-		M_StartMessage(GStrings("QLOADNET"), 1);
+		M_StartMessage(GStrings.GetString("QLOADNET"), 1);
 		return;
 	}
 
@@ -348,7 +348,7 @@ CCMD(quickload)
 		G_LoadGame(savegameManager.quickSaveSlot->Filename.GetChars());
 		return;
 	}
-	FString tempstring = GStrings("QLPROMPT");
+	FString tempstring = GStrings.GetString("QLPROMPT");
 	tempstring.Substitute("%s", savegameManager.quickSaveSlot->SaveTitle.GetChars());
 
 	M_StartControlPanel(true);

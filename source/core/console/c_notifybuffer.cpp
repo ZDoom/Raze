@@ -175,7 +175,7 @@ static bool printNative()
 	// Blood originally uses its tiny font for the notify display which does not play along well with localization because it is too small, so for non-English switch to the text font.
 	if (con_notify_advanced) return false;
 	if (!isBlood()) return true;
-	auto p = GStrings["REQUIRED_CHARACTERS"];
+	auto p = GStrings.CheckString("REQUIRED_CHARACTERS");
 	if (p && *p) return false;
 	return true;
 }

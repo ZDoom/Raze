@@ -491,7 +491,7 @@ static void pickupMessage(int no)
     if (no != -1)
     {
         FStringf label("TXT_EX_PICKUP%d", no + 1);
-        auto str = GStrings[label.GetChars()];
+        auto str = GStrings.CheckString(label.GetChars());
         if (str) Printf(PRINT_NOTIFY, "%s\n", str);
     }
 }
@@ -1343,7 +1343,7 @@ static void doPlayerCounters(DExhumedPlayer* const pPlayer)
         pPlayer->nDouble--;
 
         if (pPlayer->nDouble == 150 && bConsolePlayer)
-            PlayAlert(GStrings("TXT_EX_WEAPONEX"));
+            PlayAlert(GStrings.GetString("TXT_EX_WEAPONEX"));
     }
 
     if (pPlayer->nInvisible > 0)
@@ -1359,7 +1359,7 @@ static void doPlayerCounters(DExhumedPlayer* const pPlayer)
         }
         else if (pPlayer->nInvisible == 150 && bConsolePlayer)
         {
-            PlayAlert(GStrings("TXT_EX_INVISEX"));
+            PlayAlert(GStrings.GetString("TXT_EX_INVISEX"));
         }
     }
 
@@ -1368,7 +1368,7 @@ static void doPlayerCounters(DExhumedPlayer* const pPlayer)
         pPlayer->invincibility--;
 
         if (pPlayer->invincibility == 150 && bConsolePlayer)
-            PlayAlert(GStrings("TXT_EX_INVINCEX"));
+            PlayAlert(GStrings.GetString("TXT_EX_INVINCEX"));
     }
 
     if (pPlayer->nMaskAmount > 0 && pPlayer->nHealth > 0)
@@ -1376,7 +1376,7 @@ static void doPlayerCounters(DExhumedPlayer* const pPlayer)
         pPlayer->nMaskAmount--;
 
         if (pPlayer->nMaskAmount == 150 && bConsolePlayer)
-            PlayAlert(GStrings("TXT_EX_MASKEX"));
+            PlayAlert(GStrings.GetString("TXT_EX_MASKEX"));
     }
 
     if (pPlayer->nQuake != 0)

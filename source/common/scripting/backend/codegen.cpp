@@ -2828,83 +2828,104 @@ FxExpression *FxAssign::Resolve(FCompileContext &ctx)
 
 	// Special case: Assignment to a bitfield.
 	IsBitWrite = Base->GetBitValue();
+	if (IsBitWrite >= 0x10000)
+	{
+		// internal flags - need more here
+		IsBitWrite &= 0xffff;
+	}
 	return this;
 }
 
 ExpEmit FxAssign::Emit(VMFunctionBuilder *build)
 {
-	static const uint8_t loadops[] = { OP_LK, OP_LKF, OP_LKS, OP_LKP };
-	assert(Base->ValueType->GetRegType() == Right->ValueType->GetRegType());
-
-	ExpEmit pointer = Base->Emit(build);
-	Address = pointer;
-
-	ExpEmit result;
-	bool intconst = false;
-	int intconstval = 0;
-
-	if (Right->isConstant() && Right->ValueType->GetRegType() == REGT_INT)
+	if (IsBitWrite < 64)
 	{
-		intconst = true;
-		intconstval = static_cast<FxConstant*>(Right)->GetValue().GetInt();
-		result.Konst = true;
-		result.RegType = REGT_INT;
-	}
-	else
-	{
-		result = Right->Emit(build);
-	}
-	assert(result.RegType <= REGT_TYPE);
+		static const uint8_t loadops[] = { OP_LK, OP_LKF, OP_LKS, OP_LKP };
+		assert(Base->ValueType->GetRegType() == Right->ValueType->GetRegType());
 
-	if (pointer.Target)
-	{
-		if (result.Konst)
+		ExpEmit pointer = Base->Emit(build);
+		Address = pointer;
+
+		ExpEmit result;
+		bool intconst = false;
+		int intconstval = 0;
+
+		if (Right->isConstant() && Right->ValueType->GetRegType() == REGT_INT)
 		{
-			if (intconst) build->EmitLoadInt(pointer.RegNum, intconstval);
-			else build->Emit(loadops[result.RegType], pointer.RegNum, result.RegNum);
+			intconst = true;
+			intconstval = static_cast<FxConstant*>(Right)->GetValue().GetInt();
+			result.Konst = true;
+			result.RegType = REGT_INT;
 		}
 		else
 		{
-			build->Emit(Right->ValueType->GetMoveOp(), pointer.RegNum, result.RegNum);
+			result = Right->Emit(build);
 		}
-	}
-	else
-	{
-		if (result.Konst)
+		assert(result.RegType <= REGT_TYPE);
+
+		if (pointer.Target)
 		{
-			ExpEmit temp(build, result.RegType);
-			if (intconst) build->EmitLoadInt(temp.RegNum, intconstval);
-			else build->Emit(loadops[result.RegType], temp.RegNum, result.RegNum);
+			if (result.Konst)
+			{
+				if (intconst) build->EmitLoadInt(pointer.RegNum, intconstval);
+				else build->Emit(loadops[result.RegType], pointer.RegNum, result.RegNum);
+			}
+			else
+			{
+				build->Emit(Right->ValueType->GetMoveOp(), pointer.RegNum, result.RegNum);
+			}
+		}
+		else
+		{
+			if (result.Konst)
+			{
+				ExpEmit temp(build, result.RegType);
+				if (intconst) build->EmitLoadInt(temp.RegNum, intconstval);
+				else build->Emit(loadops[result.RegType], temp.RegNum, result.RegNum);
+				result.Free(build);
+				result = temp;
+			}
+
+			if (IsBitWrite == -1)
+			{
+				build->Emit(Base->ValueType->GetStoreOp(), pointer.RegNum, result.RegNum, build->GetConstantInt(0));
+			}
+			else
+			{
+				build->Emit(OP_SBIT, pointer.RegNum, result.RegNum, 1 << IsBitWrite);
+			}
+		}
+
+		if (AddressRequested)
+		{
 			result.Free(build);
-			result = temp;
+			return pointer;
 		}
 
-		if (IsBitWrite == -1)
-		{
-			build->Emit(Base->ValueType->GetStoreOp(), pointer.RegNum, result.RegNum, build->GetConstantInt(0));
+		pointer.Free(build);
+
+		if (intconst)
+		{	//fix int constant return for assignment
+			return Right->Emit(build);
 		}
 		else
 		{
-			build->Emit(OP_SBIT, pointer.RegNum, result.RegNum, 1 << IsBitWrite);
+			return result;
 		}
-
-	}
-
-	if (AddressRequested)
-	{
-		result.Free(build);
-		return pointer;
-	}
-
-	pointer.Free(build);
-
-	if(intconst)
-	{	//fix int constant return for assignment
-		return Right->Emit(build);
 	}
 	else
 	{
-		return result;
+		VMFunction* callfunc;
+		auto sym = FindBuiltinFunction(NAME_HandleDeprecatedFlags);
+
+		assert(sym);
+		callfunc = sym->Variants[0].Implementation;
+
+		FunctionCallEmitter emitters(callfunc);
+		emitters.AddParameter(build, Base);
+		emitters.AddParameter(build, Right);
+		emitters.AddParameterIntConst(IsBitWrite - 64);
+		return emitters.EmitCall(build);
 	}
 }
 
@@ -2934,23 +2955,40 @@ FxExpression *FxAssignSelf::Resolve(FCompileContext &ctx)
 
 ExpEmit FxAssignSelf::Emit(VMFunctionBuilder *build)
 {
-	ExpEmit pointer = Assignment->Address; // FxAssign should have already emitted it
-	if (!pointer.Target)
+	if (Assignment->IsBitWrite < 64)
 	{
-		ExpEmit out(build, ValueType->GetRegType(), ValueType->GetRegCount());
-		if (Assignment->IsBitWrite != -1)
+		ExpEmit pointer = Assignment->Address; // FxAssign should have already emitted it
+		if (!pointer.Target)
 		{
-			build->Emit(OP_LBIT, out.RegNum, pointer.RegNum, 1 << Assignment->IsBitWrite);
+			ExpEmit out(build, ValueType->GetRegType(), ValueType->GetRegCount());
+			if (Assignment->IsBitWrite == -1)
+			{
+				build->Emit(ValueType->GetLoadOp(), out.RegNum, pointer.RegNum, build->GetConstantInt(0));
+			}
+			else
+			{
+				build->Emit(OP_LBIT, out.RegNum, pointer.RegNum, 1 << Assignment->IsBitWrite);
+			}
+			return out;
 		}
 		else
 		{
-			build->Emit(ValueType->GetLoadOp(), out.RegNum, pointer.RegNum, build->GetConstantInt(0));
+			return pointer;
 		}
-		return out;
 	}
 	else
 	{
-		return pointer;
+		VMFunction* callfunc;
+		auto sym = FindBuiltinFunction(NAME_CheckDeprecatedFlags);
+
+		assert(sym);
+		callfunc = sym->Variants[0].Implementation;
+
+		FunctionCallEmitter emitters(callfunc);
+		emitters.AddParameter(build, Assignment->Base);
+		emitters.AddParameterIntConst(Assignment->IsBitWrite - 64);
+		emitters.AddReturn(REGT_INT);
+		return emitters.EmitCall(build);
 	}
 }
 
@@ -7728,56 +7766,73 @@ FxExpression *FxStructMember::Resolve(FCompileContext &ctx)
 
 ExpEmit FxStructMember::Emit(VMFunctionBuilder *build)
 {
-	ExpEmit obj = classx->Emit(build);
-	assert(obj.RegType == REGT_POINTER);
-
-	if (obj.Konst)
+	if (membervar->BitValue < 64 || AddressRequested)
 	{
-		// If the situation where we are dereferencing a constant
-		// pointer is common, then it would probably be worthwhile
-		// to add new opcodes for those. But as of right now, I
-		// don't expect it to be a particularly common case.
-		ExpEmit newobj(build, REGT_POINTER);
-		build->Emit(OP_LKP, newobj.RegNum, obj.RegNum);
-		obj = newobj;
-	}
+		ExpEmit obj = classx->Emit(build);
+		assert(obj.RegType == REGT_POINTER);
 
-	if (membervar->Flags & VARF_Meta)
-	{
-		obj.Free(build);
-		ExpEmit meta(build, REGT_POINTER);
-		build->Emit(OP_META, meta.RegNum, obj.RegNum);
-		obj = meta;
-	}
-
-	if (AddressRequested)
-	{
-		if (membervar->Offset == 0)
+		if (obj.Konst)
 		{
-			return obj;
+			// If the situation where we are dereferencing a constant
+			// pointer is common, then it would probably be worthwhile
+			// to add new opcodes for those. But as of right now, I
+			// don't expect it to be a particularly common case.
+			ExpEmit newobj(build, REGT_POINTER);
+			build->Emit(OP_LKP, newobj.RegNum, obj.RegNum);
+			obj = newobj;
+		}
+
+		if (membervar->Flags & VARF_Meta)
+		{
+			obj.Free(build);
+			ExpEmit meta(build, REGT_POINTER);
+			build->Emit(OP_META, meta.RegNum, obj.RegNum);
+			obj = meta;
+		}
+
+		if (AddressRequested)
+		{
+			if (membervar->Offset == 0)
+			{
+				return obj;
+			}
+			obj.Free(build);
+			ExpEmit out(build, REGT_POINTER);
+			build->Emit(OP_ADDA_RK, out.RegNum, obj.RegNum, build->GetConstantInt((int)membervar->Offset));
+			return out;
+		}
+
+		int offsetreg = build->GetConstantInt((int)membervar->Offset);
+		ExpEmit loc(build, membervar->Type->GetRegType(), membervar->Type->GetRegCount());
+
+		if (membervar->BitValue == -1)
+		{
+			build->Emit(membervar->Type->GetLoadOp(), loc.RegNum, obj.RegNum, offsetreg);
+		}
+		else
+		{
+			ExpEmit out(build, REGT_POINTER);
+			build->Emit(OP_ADDA_RK, out.RegNum, obj.RegNum, offsetreg);
+			build->Emit(OP_LBIT, loc.RegNum, out.RegNum, 1 << membervar->BitValue);
+			out.Free(build);
 		}
 		obj.Free(build);
-		ExpEmit out(build, REGT_POINTER);
-		build->Emit(OP_ADDA_RK, out.RegNum, obj.RegNum, build->GetConstantInt((int)membervar->Offset));
-		return out;
-	}
-
-	int offsetreg = build->GetConstantInt((int)membervar->Offset);
-	ExpEmit loc(build, membervar->Type->GetRegType(), membervar->Type->GetRegCount());
-
-	if (membervar->BitValue == -1)
-	{
-		build->Emit(membervar->Type->GetLoadOp(), loc.RegNum, obj.RegNum, offsetreg);
+		return loc;
 	}
 	else
 	{
-		ExpEmit out(build, REGT_POINTER);
-		build->Emit(OP_ADDA_RK, out.RegNum, obj.RegNum, offsetreg);
-		build->Emit(OP_LBIT, loc.RegNum, out.RegNum, 1 << membervar->BitValue);
-		out.Free(build);
+		VMFunction* callfunc;
+		auto sym = FindBuiltinFunction(NAME_CheckDeprecatedFlags);
+
+		assert(sym);
+		callfunc = sym->Variants[0].Implementation;
+
+		FunctionCallEmitter emitters(callfunc);
+		emitters.AddParameter(build, classx);
+		emitters.AddParameterIntConst(membervar->BitValue - 64);
+		emitters.AddReturn(REGT_INT);
+		return emitters.EmitCall(build);
 	}
-	obj.Free(build);
-	return loc;
 }
 
 
@@ -9544,7 +9599,9 @@ FxExpression *FxVMFunctionCall::Resolve(FCompileContext& ctx)
 
 	if(FnPtrCall) static_cast<VMScriptFunction*>(ctx.Function->Variants[0].Implementation)->blockJit = true;
 
-	int implicit = Function->GetImplicitArgs();
+	unsigned implicit = Function->GetImplicitArgs();
+
+	bool relaxed_named_arugments = (ctx.Version >= MakeVersion(4, 13));
 
 	if (!CheckAccessibility(ctx.Version))
 	{
@@ -9576,21 +9633,128 @@ FxExpression *FxVMFunctionCall::Resolve(FCompileContext& ctx)
 	CallingFunction = ctx.Function;
 	if (ArgList.Size() > 0)
 	{
-		if (argtypes.Size() == 0)
+		if ((argtypes.Size() == 0) || (argtypes.Last() != nullptr && ArgList.Size() + implicit > argtypes.Size()))
 		{
 			ScriptPosition.Message(MSG_ERROR, "Too many arguments in call to %s", Function->SymbolName.GetChars());
 			delete this;
 			return nullptr;
 		}
 
+		bool isvararg = (argtypes.Last() == nullptr);
+
+		{
+			TDeletingArray<FxExpression*> OrderedArgs;
+			const unsigned count = (argtypes.Size() - implicit) - isvararg;
+
+			OrderedArgs.Resize(count);
+			memset(OrderedArgs.Data(), 0, sizeof(FxExpression*) * count);
+
+			unsigned index = 0;
+			unsigned n = ArgList.Size();
+
+			for(unsigned i = 0; i < n; i++)
+			{
+				if(ArgList[i]->ExprType == EFX_NamedNode)
+				{
+					if(FnPtrCall)
+					{
+						ScriptPosition.Message(MSG_ERROR, "Named arguments not supported in function pointer calls");
+						delete this;
+						return nullptr;
+					}
+					else if((index >= count) && isvararg)
+					{
+						ScriptPosition.Message(MSG_ERROR, "Cannot use a named argument in the varargs part of the parameter list.");
+						delete this;
+						return nullptr;
+					}
+					else
+					{
+						FName name = static_cast<FxNamedNode *>(ArgList[i])->name;
+						if(argnames[index + implicit] != name)
+						{
+							unsigned j;
+
+							for (j = 0; j < count; j++)
+							{
+								if (argnames[j + implicit] == name)
+								{
+									if(!relaxed_named_arugments && !(argflags[j + implicit] & VARF_Optional))
+									{
+										ScriptPosition.Message(MSG_ERROR, "Cannot use a named argument here - not all required arguments have been passed.");
+									}
+									else if(!relaxed_named_arugments && j < index)
+									{
+										ScriptPosition.Message(MSG_ERROR, "Named argument %s comes before current position in argument list.", name.GetChars());
+									}
+
+									// i don't think this needs any further optimization? 
+									//			O(N^2) complexity technically but N isn't likely to be large,
+									//			and the check itself is just an int comparison, so it should be fine
+									index = j;
+
+									break;
+								}
+							}
+
+							if(j == count)
+							{
+								ScriptPosition.Message(MSG_ERROR, "Named argument %s not found.", name.GetChars());
+								delete this;
+								return nullptr;
+							}
+						}
+						else if(!relaxed_named_arugments && !(argflags[index + implicit] & VARF_Optional))
+						{
+							ScriptPosition.Message(MSG_ERROR, "Cannot use a named argument here - not all required arguments have been passed.");
+						}
+					}
+				}
+
+				if(index >= count)
+				{
+					if(isvararg)
+					{
+						OrderedArgs.Push(ArgList[i]);
+						ArgList[i] = nullptr;
+						index++;
+					}
+					else
+					{
+						ScriptPosition.Message(MSG_ERROR, "Too many arguments in call to %s", Function->SymbolName.GetChars());
+						delete this;
+						return nullptr;
+					}
+				}
+				else
+				{
+					if(ArgList[i]->ExprType == EFX_NamedNode)
+					{
+						auto * node = static_cast<FxNamedNode *>(ArgList[i]);
+						OrderedArgs[index] = node->value;
+						node->value = nullptr;
+					}
+					else
+					{
+						OrderedArgs[index] = ArgList[i];
+					}
+					ArgList[i] = nullptr;
+					index++;
+				}
+			}
+
+			ArgList = std::move(OrderedArgs);
+		}
+
 		bool foundvarargs = false;
 		PType * type = nullptr;
 		int flag = 0;
-		if (argtypes.Size() > 0 && argtypes.Last() != nullptr && ArgList.Size() + implicit > argtypes.Size())
+
+		int defaults_index = 0;
+
+		for(unsigned i = 0; i < implicit; i++)
 		{
-			ScriptPosition.Message(MSG_ERROR, "Too many arguments in call to %s", Function->SymbolName.GetChars());
-			delete this;
-			return nullptr;
+			defaults_index += argtypes[i]->GetRegCount();
 		}
 
 		for (unsigned i = 0; i < ArgList.Size(); i++)
@@ -9608,93 +9772,44 @@ FxExpression *FxVMFunctionCall::Resolve(FCompileContext& ctx)
 			}
 			assert(type != nullptr);
 
-			if (ArgList[i]->ExprType == EFX_NamedNode)
+			if(!foundvarargs)
 			{
-				if(FnPtrCall)
+				if(ArgList[i] == nullptr)
 				{
-					ScriptPosition.Message(MSG_ERROR, "Named arguments not supported in function pointer calls");
-					delete this;
-					return nullptr;
-				}
-				if (!(flag & VARF_Optional))
-				{
-					ScriptPosition.Message(MSG_ERROR, "Cannot use a named argument here - not all required arguments have been passed.");
-					delete this;
-					return nullptr;
-				}
-				if (foundvarargs)
-				{
-					ScriptPosition.Message(MSG_ERROR, "Cannot use a named argument in the varargs part of the parameter list.");
-					delete this;
-					return nullptr;
-				}
-				unsigned j;
-				bool done = false;
-				FName name = static_cast<FxNamedNode *>(ArgList[i])->name;
-				for (j = 0; j < argnames.Size() - implicit; j++)
-				{
-					if (argnames[j + implicit] == name)
+					if(!(flag & VARF_Optional))
 					{
-						if (j < i)
+						ScriptPosition.Message(MSG_ERROR, "Required argument %s has not been passed in call to %s", argnames[i + implicit].GetChars(), Function->SymbolName.GetChars());
+						delete this;
+						return nullptr;
+					}
+
+					auto ntype = argtypes[i + implicit];
+					// If this is a reference argument, the pointer type must be undone because the code below expects the pointed type as value type.
+					if (argflags[i + implicit] & VARF_Ref)
+					{
+						assert(ntype->isPointer());
+						ntype = TypeNullPtr; // the default of a reference type can only be a null pointer
+					}
+					if (ntype->GetRegCount() == 1)
+					{
+						ArgList[i] = new FxConstant(ntype, (*defaults)[defaults_index], ScriptPosition);
+					}
+					else 
+					{
+						// Vectors need special treatment because they are not normal constants
+						FxConstant *cs[4] = { nullptr };
+						for (int l = 0; l < ntype->GetRegCount(); l++)
 						{
-							ScriptPosition.Message(MSG_ERROR, "Named argument %s comes before current position in argument list.", name.GetChars());
-							delete this;
-							return nullptr;
+							cs[l] = new FxConstant(TypeFloat64, (*defaults)[l + defaults_index], ScriptPosition);
 						}
-						// copy the original argument into the list
-						auto old = static_cast<FxNamedNode *>(ArgList[i]);
-						ArgList[i] = old->value; 
-						old->value = nullptr;
-						delete old;
-						// now fill the gap with constants created from the default list so that we got a full list of arguments.
-						int insert = j - i;
-						int skipdefs = 0;
-						// Defaults contain multiple entries for pointers so we need to calculate how much additional defaults we need to skip
-						for (unsigned k = 0; k < i + implicit; k++)
-						{
-							skipdefs += argtypes[k]->GetRegCount() - 1;
-						}
-						for (int k = 0; k < insert; k++)
-						{
-							auto ntype = argtypes[i + k + implicit];
-							// If this is a reference argument, the pointer type must be undone because the code below expects the pointed type as value type.
-							if (argflags[i + k + implicit] & VARF_Ref)
-							{
-								assert(ntype->isPointer());
-								ntype = TypeNullPtr; // the default of a reference type can only be a null pointer
-							}
-							if (ntype->GetRegCount() == 1)
-							{
-								auto x = new FxConstant(ntype, (*defaults)[i + k + skipdefs + implicit], ScriptPosition);
-								ArgList.Insert(i + k, x);
-							}
-							else 
-							{
-								// Vectors need special treatment because they are not normal constants
-								FxConstant *cs[4] = { nullptr };
-								for (int l = 0; l < ntype->GetRegCount(); l++)
-								{
-									cs[l] = new FxConstant(TypeFloat64, (*defaults)[l + i + k + skipdefs + implicit], ScriptPosition);
-								}
-								FxExpression *x = new FxVectorValue(cs[0], cs[1], cs[2], cs[3], ScriptPosition);
-								ArgList.Insert(i + k, x);
-								skipdefs += ntype->GetRegCount() - 1;
-							}
-						}
-						done = true;
-						break;
+						ArgList[i] = new FxVectorValue(cs[0], cs[1], cs[2], cs[3], ScriptPosition);
 					}
 				}
-				if (!done)
-				{
-					ScriptPosition.Message(MSG_ERROR, "Named argument %s not found.", name.GetChars());
-					delete this;
-					return nullptr;
-				}
-				// re-get the proper info for the inserted node.
-				type = argtypes[i + implicit];
-				flag = argflags[i + implicit];
+
+				defaults_index += argtypes[i + implicit]->GetRegCount();
 			}
+
+			assert(ArgList[i]);
 
 			FxExpression *x = nullptr;
 			if (foundvarargs && (Function->Variants[0].Flags & VARF_VarArg))
