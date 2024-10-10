@@ -184,38 +184,6 @@ int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
     {
         PlaySpriteSound(actor, attr_attack, v3df_follow);
     }
-    else if (Action == InitActorPainNoise)
-    {
-        PlaySpriteSound(actor, attr_pain, v3df_follow);
-    }
-    else if (Action == InitActorDieNoise)
-    {
-        PlaySpriteSound(actor, attr_die, v3df_none);
-    }
-    else if (Action == InitActorExtra1Noise)
-    {
-        PlaySpriteSound(actor, attr_extra1, v3df_follow);
-    }
-    else if (Action == InitActorExtra2Noise)
-    {
-        PlaySpriteSound(actor, attr_extra2, v3df_follow);
-    }
-    else if (Action == InitActorExtra3Noise)
-    {
-        PlaySpriteSound(actor, attr_extra3, v3df_follow);
-    }
-    else if (Action == InitActorExtra4Noise)
-    {
-        PlaySpriteSound(actor, attr_extra4, v3df_follow);
-    }
-    else if (Action == InitActorExtra5Noise)
-    {
-        PlaySpriteSound(actor, attr_extra5, v3df_follow);
-    }
-    else if (Action == InitActorExtra6Noise)
-     {
-        PlaySpriteSound(actor, attr_extra6, v3df_follow);
-    }
 
     return 0;
 }
@@ -736,70 +704,6 @@ int InitActorAmbientNoise(DSWActor* actor)
 int InitActorAttackNoise(DSWActor* actor)
 {
     sw_snd_scratch = 3;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorPainNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 4;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorDieNoise(DSWActor* actor)
-{
-    sw_snd_scratch = 5;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorExtra1Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 6;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorExtra2Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 7;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorExtra3Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 8;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorExtra4Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 9;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorExtra5Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 10;
-    actor->user.ActorActionFunc = DoActorDecide;
-
-    return 0;
-}
-
-int InitActorExtra6Noise(DSWActor* actor)
-{
-    sw_snd_scratch = 11;
     actor->user.ActorActionFunc = DoActorDecide;
 
     return 0;
@@ -1778,14 +1682,6 @@ static saveable_code saveable_ai_code[] =
     SAVE_CODE(InitActorAlertNoise),
     SAVE_CODE(InitActorAmbientNoise),
     SAVE_CODE(InitActorAttackNoise),
-    SAVE_CODE(InitActorPainNoise),
-    SAVE_CODE(InitActorDieNoise),
-    SAVE_CODE(InitActorExtra1Noise),
-    SAVE_CODE(InitActorExtra2Noise),
-    SAVE_CODE(InitActorExtra3Noise),
-    SAVE_CODE(InitActorExtra4Noise),
-    SAVE_CODE(InitActorExtra5Noise),
-    SAVE_CODE(InitActorExtra6Noise),
     SAVE_CODE(InitActorMoveCloser),
     SAVE_CODE(DoActorMoveCloser),
     SAVE_CODE(FindTrackToPlayer),
