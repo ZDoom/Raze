@@ -1766,7 +1766,7 @@ PlayerPart:
 
 void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
 {
-    short wallcount = 0;
+    int wallcount = 0;
     DAngle delta_ang_from_orig;
 
     // do scaling

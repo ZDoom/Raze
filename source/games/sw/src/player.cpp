@@ -4935,6 +4935,8 @@ void FindMainSector(SECTOR_OBJECT* sop)
     if (sop->op_main_sector == nullptr)
     {
         auto oldpos = sop->pmid;
+        auto oldflags = sop->flags;
+        sop->flags &= ~SOBJ_DONT_ROTATE;    // This flag must be disabled here because it messes with the movement that's intended below.
 
         PlaceSectorObject(sop, { MAXSO, MAXSO });
 
@@ -4944,6 +4946,7 @@ void FindMainSector(SECTOR_OBJECT* sop)
         updatesectorz(oldpos, &sop->op_main_sector);
 
         PlaceSectorObject(sop, oldpos.XY());
+        sop->flags = oldflags;
     }
 }
 
