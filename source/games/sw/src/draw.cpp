@@ -347,8 +347,8 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     ground_dist = int(abs(loz - GetSpriteZOfBottom(tsp)) * (1./16));
 	
 	double scaleofs = (ground_dist - view_dist) * REPEAT_SCALE;
-	scale.X = clamp(scale.X + scaleofs, 0.0625, 4.);
-	scale.Y = clamp(scale.Y + scaleofs, 0.0625, 4.);
+	scale.X = clamp(scale.X - scaleofs, 0.0625, 4.);
+	scale.Y = clamp(scale.Y - scaleofs, 0.0625, 4.);
 	tSpr->scale = scale;
 
     if (tilehasmodelorvoxel(tsp->spritetexture(), tsp->pal))
