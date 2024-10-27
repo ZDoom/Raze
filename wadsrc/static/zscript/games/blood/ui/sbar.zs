@@ -773,11 +773,12 @@ class BloodStatusBar : RazeStatusBar
 
 	override void AltHUDOverlay(SummaryInfo summary)
 	{
-		BeginStatusBar(false, 320, 200, 28);
+		BeginHUD(1, false, 320, 200);
 		let pPlayer = Blood.GetViewPlayer();
 		if (pPlayer.throwPower)
 			TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 1);
 		drawPowerups(pPlayer);
+		BeginStatusBar(false, 320, 200, 28);
 	}
 
 	//---------------------------------------------------------------------------
