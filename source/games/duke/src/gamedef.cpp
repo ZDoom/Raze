@@ -3291,7 +3291,7 @@ void loadcons()
 	{
 		// fix broken secret exit in WT's super secret map. 
 		// This cannot be done from an RMAPINFO definition because the conditions are too specific and must not override custom maps.
-		int num = fileSystem.CheckNumForName("e1l7.map");
+		int num = fileSystem.FindFile("e1l7.map");
 		int file = fileSystem.GetFileContainer(num);
 		if (file <= fileSystem.GetMaxIwadNum())
 		{
