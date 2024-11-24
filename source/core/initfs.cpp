@@ -49,8 +49,6 @@
 #include "startupinfo.h"
 #include "files.h"
 
-using namespace FileSys;
-
 #ifndef PATH_MAX
 #define PATH_MAX 260
 #endif
@@ -268,10 +266,10 @@ static void DeleteStuff(FileSystem &fileSystem, const TArray<FString>& deletelum
 			str.Truncate(ndx);
 		}
 
-		for (int i = 0; i < fileSystem.GetNumEntries(); i++)
+		for (int i = 0; i < fileSystem.GetFileCount(); i++)
 		{
 			int cf = fileSystem.GetFileContainer(i);
-			auto fname = fileSystem.GetFileFullName(i, false);
+			auto fname = fileSystem.GetFileName(i);
 			if (cf >= 1 && cf <= numgamefiles && !str.CompareNoCase(fname))
 			{
 				fileSystem.RenameFile(i, renameTo.GetChars());
@@ -296,7 +294,7 @@ const char** iwad_reserved()
 		(g_gameType & GAMEFLAG_BLOOD) ? iwad_reserved_blood : iwad_reserved_duke;
 }
 
-static int FileSystemPrintf(FSMessageLevel level, const char* fmt, ...)
+static int FileSystemPrintf(FileSys::FSMessageLevel level, const char* fmt, ...)
 {
 	va_list arg;
 	va_start(arg, fmt);
@@ -304,22 +302,22 @@ static int FileSystemPrintf(FSMessageLevel level, const char* fmt, ...)
 	text.VFormat(fmt, arg);
 	switch (level)
 	{
-	case FSMessageLevel::Error:
+	case FileSys::FSMessageLevel::Error:
 		return Printf(TEXTCOLOR_RED "%s", text.GetChars());
 		break;
-	case FSMessageLevel::Warning:
+	case FileSys::FSMessageLevel::Warning:
 		Printf(TEXTCOLOR_YELLOW "%s", text.GetChars());
 		break;
-	case FSMessageLevel::Attention:
+	case FileSys::FSMessageLevel::Attention:
 		Printf(TEXTCOLOR_BLUE "%s", text.GetChars());
 		break;
-	case FSMessageLevel::Message:
+	case FileSys::FSMessageLevel::Message:
 		Printf("%s", text.GetChars());
 		break;
-	case FSMessageLevel::DebugWarn:
+	case FileSys::FSMessageLevel::DebugWarn:
 		DPrintf(DMSG_WARNING, "%s", text.GetChars());
 		break;
-	case FSMessageLevel::DebugNotify:
+	case FileSys::FSMessageLevel::DebugNotify:
 		DPrintf(DMSG_NOTIFY, "%s", text.GetChars());
 		break;
 	}
@@ -373,8 +371,8 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		}
 		i--;
 	}
-	fileSystem.SetIwadNum(1);
-	fileSystem.SetMaxIwadNum((int)Files.size() - 1);
+	fileSystem.SetBaseNum(1);
+	fileSystem.SetMaxBaseNum((int)Files.size() - 1);
 
 	if (!Args->CheckParm("-noautoload"))
 	{
@@ -428,7 +426,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		todelete.Append(g.FileInfo.tobedeleted);
 	}
 	todelete.Append(userConfig.toBeDeleted);
-	LumpFilterInfo lfi;
+	FileSys::FileSystemFilterInfo lfi;
 	lfi.reservedFolders = { "textures/", "hires/", "sounds/", "music/", "maps/" };
 	for (auto p = iwad_reserved(); *p; p++) lfi.requiredPrefixes.push_back(*p);
 #if 0
@@ -446,14 +444,14 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	{
 		DeleteStuff(fileSystem, todelete, groups.Size());
 	};
-	fileSystem.InitMultipleFiles(Files, &lfi, FileSystemPrintf);
+	fileSystem.Initialize(Files, &lfi, FileSystemPrintf);
 	if (Args->CheckParm("-dumpfs"))
 	{
 		FILE* f = fopen("filesystem.dir", "wb");
-		for (int num = 0; num < fileSystem.GetNumEntries(); num++)
+		for (int num = 0; num < fileSystem.GetFileCount(); num++)
 		{
 			auto fd = fileSystem.FileLength(num);
-			fprintf(f, "%.50s   %60s  %td\n", fileSystem.GetFileFullName(num), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(num)), fd);
+			fprintf(f, "%.50s   %60s  %td\n", fileSystem.GetFileName(num), fileSystem.GetContainerFullName(fileSystem.GetFileContainer(num)), fd);
 		}
 		fclose(f);
 	}

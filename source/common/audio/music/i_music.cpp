@@ -53,9 +53,6 @@
 #include "s_music.h"
 #include "filereadermusicinterface.h"
 
-using namespace FileSys;
-
-
 void I_InitSoundFonts();
 
 EXTERN_CVAR (Int, snd_samplerate)
@@ -188,7 +185,7 @@ static void SetupGenMidi()
 
 static void SetupWgOpn()
 {
-	int lump = fileSystem.CheckNumForFullName("xg.wopn");
+	int lump = fileSystem.FindFile("xg.wopn");
 	if (lump < 0)
 	{
 		return;
@@ -313,7 +310,7 @@ static ZMusic_MidiSource GetMIDISource(const char *fn)
 	if (src.Compare("*") == 0) src = mus_playing.name;
 
 	auto lump = fileSystem.CheckNumForName(src.GetChars(), ns_music);
-	if (lump < 0) lump = fileSystem.CheckNumForFullName(src.GetChars());
+	if (lump < 0) lump = fileSystem.FindFile(src.GetChars());
 	if (lump < 0)
 	{
 		Printf("Cannot find MIDI lump %s.\n", src.GetChars());

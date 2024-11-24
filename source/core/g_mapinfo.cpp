@@ -1664,7 +1664,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		if (sc.Compare("include"))
 		{
 			sc.MustGetString();
-			int inclump = fileSystem.CheckNumForFullName(sc.String, true);
+			int inclump = fileSystem.CheckNumForAnyName(sc.String);
 			if (inclump < 0)
 			{
 				sc.ScriptError("include file '%s' not found", sc.String);
@@ -1675,7 +1675,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 				if (fileSystem.GetFileContainer(sc.LumpNum) == 0)
 				{
 					I_FatalError("File %s is overriding core lump %s.",
-						fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(inclump)), sc.String);
+						fileSystem.GetContainerFullName(fileSystem.GetFileContainer(inclump)), sc.String);
 				}
 			}
 			// use a new parser object to parse the include. Otherwise we'd have to save the entire FScanner in a local variable which is a lot more messy.

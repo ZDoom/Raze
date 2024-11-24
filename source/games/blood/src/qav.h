@@ -241,7 +241,7 @@ void qavProcessTimer(DBloodPlayer* const pPlayer, QAV* const pQAV, int* duration
 inline bool qavIsOriginal(const int res_id)
 {
 	auto const lump = fileSystem.FindResource(res_id, "QAV");
-	return lump >= 0 && fileSystem.GetFileContainer(lump) < fileSystem.GetMaxIwadNum();
+	return lump >= 0 && fileSystem.GetFileContainer(lump) < fileSystem.GetMaxBaseNum();
 }
 
 inline int qavGetCorrectID(const int res_id)

@@ -717,7 +717,7 @@ class ExCredits : ScreenJob
 	{
 		Super.Init();
 		String text;
-		int lump = Wads.CheckNumForFullName("credits.txt");
+		int lump = Wads.FindFile("credits.txt");
 		if (lump > -1) text = Wads.ReadLump(lump);
 		text.Substitute("\r", "");
 		text.Split(credits, "\n\n");

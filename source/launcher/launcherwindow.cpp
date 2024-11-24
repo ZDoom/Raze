@@ -11,22 +11,24 @@
 #include <zwidget/window/window.h>
 #include <zwidget/widgets/tabwidget/tabwidget.h>
 
-int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs)
+int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString * extraArgs)
 {
 	Size screenSize = GetScreenSize();
 	double windowWidth = 615.0;
 	double windowHeight = 700.0;
 
-	auto launcher = std::make_unique<LauncherWindow>(wads, numwads, defaultiwad, autoloadflags, extraArgs);
+	auto launcher = std::make_unique<LauncherWindow>(wads, numwads, defaultiwad, autoloadflags);
 	launcher->SetFrameGeometry((screenSize.width - windowWidth) * 0.5, (screenSize.height - windowHeight) * 0.5, windowWidth, windowHeight);
 	launcher->Show();
 
 	DisplayWindow::RunLoop();
 
+	if(extraArgs) *extraArgs = launcher->PlayGame->GetExtraArgs();
+
 	return launcher->ExecResult;
 }
 
-LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs) : Widget(nullptr, WidgetType::Window)
+LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags) : Widget(nullptr, WidgetType::Window)
 {
 	SetWindowBackground(Colorf::fromRgba8(51, 51, 51));
 	SetWindowBorderColor(Colorf::fromRgba8(51, 51, 51));
@@ -53,12 +55,6 @@ LauncherWindow::LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int
 void LauncherWindow::Start()
 {
 	Settings->Save();
-
-	std::string extraargs = PlayGame->GetExtraArgs();
-	if (!extraargs.empty())
-	{
-		// To do: restart the process like the cocoa backend is doing?
-	}
 
 	ExecResult = PlayGame->GetSelectedGame();
 	DisplayWindow::ExitLoop();

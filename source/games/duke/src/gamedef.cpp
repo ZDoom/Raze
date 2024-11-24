@@ -252,7 +252,7 @@ enum
 
 void ConCompiler::ReportError(int error)
 {
-	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+	const char* fn = fileSystem.GetFileName(currentsourcefile);
 	switch (error)
 	{
 	case ERROR_ISAKEYWORD:
@@ -642,7 +642,7 @@ int ConCompiler::transword(void)
 
 	textptr += l;
 
-	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+	const char* fn = fileSystem.GetFileName(currentsourcefile);
 	if (parsebuf[0] == '{' && parsebuf[1] != 0)
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE or CR between '{' and '%s'.\n", fn, line_number, parsebuf + 1);
 	else if (parsebuf[0] == '}' && parsebuf[1] != 0)
@@ -713,7 +713,7 @@ int ConCompiler::transnum(int type)
 			textptr += l;
 			auto el = translatelabeltype(type);
 			auto gl = translatelabeltype(labels[i].type);
-			const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+			const char* fn = fileSystem.GetFileName(currentsourcefile);
 			Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) %s: Expected a '%s' label but found a '%s' label instead.\n", fn, line_number, labels[i].GetChars(), el.GetChars(), gl.GetChars());
 			return -1;  // valid label name, but wrong type
 		}
@@ -748,7 +748,7 @@ int ConCompiler::transnum(int type)
 
 	if (type != LABEL_DEFINE && value != 0)
 	{
-		const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+		const char* fn = fileSystem.GetFileName(currentsourcefile);
 		Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) Expected an identifier, got a numeric literal %d.\n", fn, line_number, (int)value);
 	}
 
@@ -822,7 +822,7 @@ int ConCompiler::CountCaseStatements()
 
 int ConCompiler::parsecommand()
 {
-	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+	const char* fn = fileSystem.GetFileName(currentsourcefile);
 	int i, j, k;
 	int tempscrptr;
 	uint8_t done, temp_ifelse_check;// , tw;
@@ -3293,7 +3293,7 @@ void loadcons()
 		// This cannot be done from an RMAPINFO definition because the conditions are too specific and must not override custom maps.
 		int num = fileSystem.FindFile("e1l7.map");
 		int file = fileSystem.GetFileContainer(num);
-		if (file <= fileSystem.GetMaxIwadNum())
+		if (file <= fileSystem.GetMaxBaseNum())
 		{
 			auto maprec = FindMapByName("e1l7");
 			if (maprec) maprec->NextMap = "e1l5";

@@ -205,7 +205,7 @@ bool WriteSavegame(const char* filename, const char *name)
 	savegameinfo.AddString("Software", buf)
 		("Save Version", savesig.currentsavever)
 		.AddString("Engine", savesig.savesig)
-		.AddString("Game Resource", fileSystem.GetResourceFileName(1))
+		.AddString("Game Resource", fileSystem.GetContainerName(1))
 		.AddString("Map Name", lev->DisplayName())
 		.AddString("Creation Time", myasctime())
 		.AddString("Title", name)
@@ -219,7 +219,7 @@ bool WriteSavegame(const char* filename, const char *name)
 	{
 		auto fileno = fileSystem.FindFile(fn);
 		auto mapfile = fileSystem.GetFileContainer(fileno);
-		auto mapcname = fileSystem.GetResourceFileName(mapfile);
+		auto mapcname = fileSystem.GetContainerName(mapfile);
 		if (mapcname) savegameinfo.AddString("Map Resource", mapcname);
 		else
 		{
@@ -285,7 +285,7 @@ static bool CheckSingleFile (const char *name, bool &printRequires, bool printwa
 	{
 		return FileExists(name + 7);	// User maps  must be present to be validated.
 	}
-	if (fileSystem.CheckIfResourceFileLoaded(name) < 0)
+	if (fileSystem.CheckIfContainerLoaded(name) < 0)
 	{
 		if (printwarn)
 		{
@@ -389,7 +389,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 	}
 	else
 	{
-		auto ggfn = ExtractFileBase(fileSystem.GetResourceFileName(1), true);
+		auto ggfn = ExtractFileBase(fileSystem.GetContainerName(1), true);
 		if (gamegrp.CompareNoCase(ggfn) == 0)
 		{
 			return G_CheckSaveGameWads(gamegrp.GetChars(), mapgrp.GetChars(), false) ? 1 : -2;

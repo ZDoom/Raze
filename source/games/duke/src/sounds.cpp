@@ -740,7 +740,7 @@ void S_WorldTourMappingsForOldSounds()
 	for(unsigned i = 1; i < maxsnd; i++)
 	{
 		auto sfx = soundEngine->GetSfx(FSoundID::fromInt(i));
-		FString fname = fileSystem.GetFileFullName(sfx->lumpnum);
+		FString fname = fileSystem.GetFileName(sfx->lumpnum);
 		if (!fname.Right(4).CompareNoCase(".ogg"))
 		{
 			// All names here follow the same convention. We must strip the "sound/" folder and replace the extension to get the original VOCs.

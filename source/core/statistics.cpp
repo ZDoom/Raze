@@ -433,7 +433,7 @@ void STAT_Update(bool endofgame)
 		if (lump >= 0)
 		{
 			int file = fileSystem.GetFileContainer(lump);
-			fn = fileSystem.GetResourceFileName(file);
+			fn = fileSystem.GetContainerName(file);
 		}
 
 		FString section = ExtractFileBase(fn) + "." + ExtractFileBase(LevelData[0].Levelname.GetChars());

@@ -136,6 +136,39 @@ void I_SetIWADInfo()
 
 //==========================================================================
 //
+// isConsoleApp()
+//
+// runtime detection to detect if this is a console subsystem app.
+//
+// the reason for doing this is because it is possible to edit a binary directly and change its subsystem
+// type via hexedit so in order to gain flexibility it makes no sense to just compile out the unused code.
+//
+// we may plan to publish tools to allow users to do this manually on their own.
+//
+//==========================================================================
+
+bool isConsoleApp()
+{
+	static bool alreadychecked = false;
+	static bool returnvalue;
+
+	if (!alreadychecked)
+	{
+		DWORD pids[2];
+		DWORD num_pids = GetConsoleProcessList(pids, 2);
+		bool win32con_is_exclusive = (num_pids <= 1);
+
+		returnvalue = ((GetConsoleWindow() != NULL && !win32con_is_exclusive) || (GetStdHandle(STD_OUTPUT_HANDLE) != NULL));
+		alreadychecked = true;
+	}
+
+	//printf("isConsoleApp is %i\n", returnvalue);
+
+	return returnvalue;
+}
+
+//==========================================================================
+//
 // DoMain
 //
 //==========================================================================
@@ -158,7 +191,22 @@ int DoMain (HINSTANCE hInstance)
 		Args->AppendArg(FString(wargv[i]));
 	}
 
-	if (Args->CheckParm("-stdout") || Args->CheckParm("-norun"))
+	if (isConsoleApp())
+	{
+		StdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		SetConsoleCP(CP_UTF8);
+		SetConsoleOutputCP(CP_UTF8);
+
+		DWORD mode;
+
+		if (GetConsoleMode(StdOut, &mode))
+		{
+			if (SetConsoleMode(StdOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+				FancyStdOut = IsWindows10OrGreater(); // Windows 8.1 and lower do not understand ANSI formatting.
+		}
+	}
+	else if (Args->CheckParm("-stdout") || Args->CheckParm("-norun"))
 	{
 		// As a GUI application, we don't normally get a console when we start.
 		// If we were run from the shell and are on XP+, we can attach to its
@@ -474,6 +522,11 @@ CUSTOM_CVAR(Bool, disablecrashlog, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 // WinMain
 //
 //==========================================================================
+
+int wmain()
+{
+    return wWinMain(GetModuleHandle(0), 0, GetCommandLineW(), SW_SHOW);
+}
 
 int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE nothing, LPWSTR cmdline, int nCmdShow)
 {

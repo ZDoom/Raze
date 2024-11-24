@@ -97,7 +97,7 @@ SettingsPage::SettingsPage(LauncherWindow* launcher, int* autoloadflags) : Widge
 			}
 		}
 	}
-	catch (const std::exception& ex)
+	catch (const std::exception& )
 	{
 		hideLanguage = true;
 	}

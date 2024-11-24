@@ -42,7 +42,7 @@ public:
 	RazeSoundEngine()
 	{
 		// add the empty sound right now.
-		AddSoundLump("no_sound", fileSystem.CheckNumForFullName("engine/dsempty.lmp"), 0);
+		AddSoundLump("no_sound", fileSystem.FindFile("engine/dsempty.lmp"), 0);
 	}
 	virtual bool SourceIsActor(FSoundChan* chan) { return chan->SourceType == SOURCE_Actor; }
 	virtual int SoundSourceIndex(FSoundChan* chan) { return 0; }

@@ -132,7 +132,7 @@ void GameInterface::StartSoundEngine()
 void sndInit(void)
 {
 	soundEngine->AddSoundLump("", 0, 0, -1, 6); // add a dummy entry at index #0
-	for (int i = fileSystem.GetNumEntries() - 1; i >= 0; i--)
+	for (int i = fileSystem.GetFileCount() - 1; i >= 0; i--)
 	{
 		auto type = fileSystem.GetResourceType(i);
 		if (!stricmp(type, "SFX"))
@@ -141,8 +141,8 @@ void sndInit(void)
 		}
 		else if (!stricmp(type, "WAV") || !stricmp(type, "OGG") || !stricmp(type, "FLAC") || !stricmp(type, "VOC"))
 		{
-			if (fileSystem.GetFileNamespace(i) != FileSys::ns_music)
-				soundEngine->AddSoundLump(fileSystem.GetFileFullName(i), i, 0, fileSystem.GetResourceId(i) | 0x40000000, 6); // mark the resource ID as special.
+			if (fileSystem.GetFileNamespace(i) != ns_music)
+				soundEngine->AddSoundLump(fileSystem.GetFileName(i), i, 0, fileSystem.GetResourceId(i) | 0x40000000, 6); // mark the resource ID as special.
 		}
 	}
 	soundEngine->HashSounds();

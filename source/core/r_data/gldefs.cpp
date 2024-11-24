@@ -136,7 +136,7 @@ static void ParseVavoomSkybox()
 				sc.MustGetStringName("map");
 				sc.MustGetString();
 
-				maplump = fileSystem.CheckNumForFullName(sc.String, true);
+				maplump = fileSystem.CheckNumForAnyName(sc.String);
 
 				auto tex = TexMan.FindGameTexture(sc.String, ETextureType::Wall, FTextureManager::TEXMAN_TryAny);
 				if (tex == NULL)
@@ -1888,7 +1888,7 @@ public:
 				{
 					sc.MustGetString();
 					// This is not using sc.Open because it can print a more useful error message when done here
-					lump = fileSystem.CheckNumForFullName(sc.String, true);
+					lump = fileSystem.CheckNumForAnyName(sc.String);
 					if (lump==-1)
 						sc.ScriptError("Lump '%s' not found", sc.String);
 

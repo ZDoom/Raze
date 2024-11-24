@@ -14,9 +14,9 @@ struct WadStuff;
 class LauncherWindow : public Widget
 {
 public:
-	static int ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs);
+	static int ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString * extraArgs = nullptr);
 
-	LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs);
+	LauncherWindow(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags);
 	void UpdateLanguage();
 
 	void Start();

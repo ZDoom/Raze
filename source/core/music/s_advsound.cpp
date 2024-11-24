@@ -162,7 +162,7 @@ static FSoundID S_AddSound(const char* logicalname, int lumpnum, FScanner* sc)
 FSoundID S_AddSound(const char* logicalname, const char* lumpname, FScanner* sc)
 {
 	int lump = S_LookupSound(lumpname);
-	if (lump == -1 && sc && fileSystem.GetFileContainer(sc->LumpNum) > fileSystem.GetMaxIwadNum())
+	if (lump == -1 && sc && fileSystem.GetFileContainer(sc->LumpNum) > fileSystem.GetMaxBaseNum())
 		sc->ScriptMessage("%s: sound file not found", sc->String);
 	return S_AddSound(logicalname, lump, sc);
 }
