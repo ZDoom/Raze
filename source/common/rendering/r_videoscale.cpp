@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------
 **
 ** Copyright(C) 2017 Magnus Norddahl
-** Copyright(C) 2017-2020 Rachael Alexanderson
+** Copyright(C) 2017-2024 Rachael Alexanderson
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -98,6 +98,33 @@ namespace
 	{
 		return (uint32_t)((float)inheight * v_MinimumToFill(inwidth, inheight));
 	}
+	
+	float v_MinimumToFill2(uint32_t inwidth, uint32_t inheight)
+	{
+		// sx = screen x dimension, sy = same for y
+		float sx = (float)inwidth * 1.2f, sy = (float)inheight;
+		static float lastsx = 0., lastsy = 0., result = 0.;
+		if (lastsx != sx || lastsy != sy)
+		{
+			if (sx <= 0. || sy <= 0.)
+				return 1.; // prevent x/0 error
+			// set absolute minimum scale to fill the entire screen but get as close to 640x400 as possible
+			float ssx = (float)(VID_MIN_UI_WIDTH) / 1.2f / sx, ssy = (float)(VID_MIN_UI_HEIGHT) / sy;
+			result = (ssx < ssy) ? ssy : ssx;
+			lastsx = sx;
+			lastsy = sy;
+		}
+		return result;
+	}
+	inline uint32_t v_mfillX2(uint32_t inwidth, uint32_t inheight)
+	{
+		return (uint32_t)((float)inwidth * v_MinimumToFill2(inwidth, inheight) * 1.2);
+	}
+	inline uint32_t v_mfillY2(uint32_t inwidth, uint32_t inheight)
+	{
+		return (uint32_t)((float)inheight * v_MinimumToFill2(inwidth, inheight));
+	}
+	
 	inline void refresh_minimums()
 	{
 		// specialUI is tracking a state where high-res console fonts are actually required, and
@@ -128,16 +155,17 @@ namespace
 
 	// the odd formatting of this struct definition is meant to resemble a table header. set your tab stops to 4 when editing this file.
 	struct v_ScaleTable
-		{ bool isValid;		uint32_t(*GetScaledWidth)(uint32_t Width, uint32_t Height);								uint32_t(*GetScaledHeight)(uint32_t Width, uint32_t Height);						float pixelAspect;		bool isCustom;	};
+		{ bool isValid;		uint32_t(*GetScaledWidth)(uint32_t Width, uint32_t Height);										uint32_t(*GetScaledHeight)(uint32_t Width, uint32_t Height);								float pixelAspect;		bool isCustom;	};
 	v_ScaleTable vScaleTable[] =
 	{
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return Width; },		        		[](uint32_t Width, uint32_t Height)->uint32_t { return Height; },	        		1.0f,	  				false   },	// 0  - Native
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return v_mfillX(Width, Height); },		[](uint32_t Width, uint32_t Height)->uint32_t { return v_mfillY(Width, Height); },	1.0f,					false   },	// 6  - Minimum Scale to Fill Entire Screen
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 640; },		            		[](uint32_t Width, uint32_t Height)->uint32_t { return 400; },			        	1.2f,   				false   },	// 2  - 640x400 (formerly 320x200)
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 960; },		            		[](uint32_t Width, uint32_t Height)->uint32_t { return 600; },				        1.2f,  				 	false   },	// 3  - 960x600 (formerly 640x400)
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 1280; },		           		[](uint32_t Width, uint32_t Height)->uint32_t { return 800; },	        			1.2f,   				false   },	// 4  - 1280x800
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return vid_scale_customwidth; },		[](uint32_t Width, uint32_t Height)->uint32_t { return vid_scale_customheight; },	1.0f,   				true    },	// 5  - Custom
-		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 320; },		            		[](uint32_t Width, uint32_t Height)->uint32_t { return 200; },			        	1.2f,   				false   },	// 7  - 320x200
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return Width; },		        				[](uint32_t Width, uint32_t Height)->uint32_t { return Height; },	        				1.0f,	  				false   },	// 0  - Native
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return v_mfillX(Width, Height); },				[](uint32_t Width, uint32_t Height)->uint32_t { return v_mfillY(Width, Height); },			1.0f,					false   },	// 1  - Minimum Scale to Fill Entire Screen
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 640; },		            				[](uint32_t Width, uint32_t Height)->uint32_t { return 400; },			        			1.2f,   				false   },	// 2  - 640x400 (formerly 320x200)
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 960; },		            				[](uint32_t Width, uint32_t Height)->uint32_t { return 600; },				        		1.2f,  				 	false   },	// 3  - 960x600 (formerly 640x400)
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 1280; },		           					[](uint32_t Width, uint32_t Height)->uint32_t { return 800; },	        					1.2f,   				false   },	// 4  - 1280x800
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return vid_scale_customwidth; },				[](uint32_t Width, uint32_t Height)->uint32_t { return vid_scale_customheight; },			1.0f,   				true    },	// 5  - Custom
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return 320; },		            				[](uint32_t Width, uint32_t Height)->uint32_t { return 200; },			        			1.2f,   				false   },	// 6  - 320x200
+		{ true,				[](uint32_t Width, uint32_t Height)->uint32_t { return v_mfillX2(Width, Height) * 1.2f; },		[](uint32_t Width, uint32_t Height)->uint32_t { return v_mfillY2(Width, Height); },			1.2f,					false   },	// 7  - Minimum Scale to Fill Entire Screen (1.2)
 	};
 	bool isOutOfBounds(int x)
 	{
@@ -248,7 +276,7 @@ CCMD (vid_scaletoheight)
 	}
 }
 
-inline bool atob(char* I)
+inline bool atob(const char* I)
 {
     if (stricmp (I, "true") == 0 || stricmp (I, "1") == 0)
         return true;

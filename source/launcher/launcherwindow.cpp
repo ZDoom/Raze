@@ -11,13 +11,13 @@
 #include <zwidget/window/window.h>
 #include <zwidget/widgets/tabwidget/tabwidget.h>
 
-int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString& extraArgs)
+int LauncherWindow::ExecModal(WadStuff* wads, int numwads, int defaultiwad, int* autoloadflags, FString* extraArgs)
 {
 	Size screenSize = GetScreenSize();
 	double windowWidth = 615.0;
 	double windowHeight = 700.0;
 
-	auto launcher = std::make_unique<LauncherWindow>(wads, numwads, defaultiwad, autoloadflags, extraArgs);
+	auto launcher = std::make_unique<LauncherWindow>(wads, numwads, defaultiwad, autoloadflags, *extraArgs);
 	launcher->SetFrameGeometry((screenSize.width - windowWidth) * 0.5, (screenSize.height - windowHeight) * 0.5, windowWidth, windowHeight);
 	launcher->Show();
 
