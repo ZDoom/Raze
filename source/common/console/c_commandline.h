@@ -44,7 +44,7 @@ public:
 	FCommandLine (const char *commandline, bool no_escapes = false);
 	~FCommandLine ();
 	int argc ();
-	const char *operator[] (int i);
+	char *operator[] (int i);
 	const char *args () { return cmd; }
 	void Shift();
 

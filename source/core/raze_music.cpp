@@ -104,7 +104,7 @@ int LookupMusic(const char* fn, bool onlyextended)
 		int l = fileSystem.FindFileWithExtensions(name.GetChars(), knownMusicExts, countof(knownMusicExts));
 		if (l >= 0 || onlyextended) return l;
 	}
-	return fileSystem.CheckNumForAnyName(fn, ns_music);
+	return fileSystem.CheckNumForFullName(fn, true, FileSys::ns_music);
 }
 
 //==========================================================================
@@ -123,7 +123,7 @@ int FindMusic(const char* musicname)
 		if (lumpnum >= 0)
 		{
 			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
-			auto rfn = fileSystem.GetContainerName(fileSystem.GetFileContainer(lumpnum));
+			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 			auto rfbase = ExtractFileBase(rfn);
 			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
 			int newlumpnum = LookupMusic(aliasMusicname.GetChars());

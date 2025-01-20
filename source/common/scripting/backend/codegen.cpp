@@ -8268,12 +8268,8 @@ static bool CheckFunctionCompatiblity(FScriptPosition &ScriptPosition, PFunction
 FxFunctionCall::FxFunctionCall(FName methodname, FName rngname, FArgumentList &&args, const FScriptPosition &pos)
 : FxExpression(EFX_FunctionCall, pos)
 {
-	const bool isClient = methodname == NAME_CRandom || methodname == NAME_CFRandom
-							|| methodname == NAME_CRandomPick || methodname == NAME_CFRandomPick
-							|| methodname == NAME_CRandom2 || methodname == NAME_CSetRandomSeed;
-
 	MethodName = methodname;
-	RNG = isClient ? &M_Random : &pr_exrandom;
+	RNG = &pr_exrandom;
 	ArgList = std::move(args);
 	if (rngname != NAME_None)
 	{
@@ -8285,16 +8281,7 @@ FxFunctionCall::FxFunctionCall(FName methodname, FName rngname, FArgumentList &&
 		case NAME_FRandomPick:
 		case NAME_Random2:
 		case NAME_SetRandomSeed:
-			RNG = FRandom::StaticFindRNG(rngname.GetChars(), false);
-			break;
-
-		case NAME_CRandom:
-		case NAME_CFRandom:
-		case NAME_CRandomPick:
-		case NAME_CFRandomPick:
-		case NAME_CRandom2:
-		case NAME_CSetRandomSeed:
-			RNG = FRandom::StaticFindRNG(rngname.GetChars(), true);
+			RNG = FRandom::StaticFindRNG(rngname.GetChars());
 			break;
 
 		default:
@@ -8560,22 +8547,13 @@ FxExpression *FxFunctionCall::Resolve(FCompileContext& ctx)
 		}
 		break;
 
-	case NAME_CSetRandomSeed:
-		if (CheckArgSize(NAME_CRandom, ArgList, 1, 1, ScriptPosition))
-		{
-			func = new FxRandomSeed(RNG, ArgList[0], ScriptPosition, ctx.FromDecorate);
-			ArgList[0] = nullptr;
-		}
-		break;
-
 	case NAME_Random:
-	case NAME_CRandom:
 		// allow calling Random without arguments to default to (0, 255)
 		if (ArgList.Size() == 0)
 		{
 			func = new FxRandom(RNG, new FxConstant(0, ScriptPosition), new FxConstant(255, ScriptPosition), ScriptPosition, ctx.FromDecorate);
 		}
-		else if (CheckArgSize(MethodName, ArgList, 2, 2, ScriptPosition))
+		else if (CheckArgSize(NAME_Random, ArgList, 2, 2, ScriptPosition))
 		{
 			func = new FxRandom(RNG, ArgList[0], ArgList[1], ScriptPosition, ctx.FromDecorate);
 			ArgList[0] = ArgList[1] = nullptr;
@@ -8583,8 +8561,7 @@ FxExpression *FxFunctionCall::Resolve(FCompileContext& ctx)
 		break;
 
 	case NAME_FRandom:
-	case NAME_CFRandom:
-		if (CheckArgSize(MethodName, ArgList, 2, 2, ScriptPosition))
+		if (CheckArgSize(NAME_FRandom, ArgList, 2, 2, ScriptPosition))
 		{
 			func = new FxFRandom(RNG, ArgList[0], ArgList[1], ScriptPosition);
 			ArgList[0] = ArgList[1] = nullptr;
@@ -8593,17 +8570,14 @@ FxExpression *FxFunctionCall::Resolve(FCompileContext& ctx)
 
 	case NAME_RandomPick:
 	case NAME_FRandomPick:
-	case NAME_CRandomPick:
-	case NAME_CFRandomPick:
 		if (CheckArgSize(MethodName, ArgList, 1, -1, ScriptPosition))
 		{
-			func = new FxRandomPick(RNG, ArgList, MethodName == NAME_FRandomPick || MethodName == NAME_CFRandomPick, ScriptPosition, ctx.FromDecorate);
+			func = new FxRandomPick(RNG, ArgList, MethodName == NAME_FRandomPick, ScriptPosition, ctx.FromDecorate);
 		}
 		break;
 
 	case NAME_Random2:
-	case NAME_CRandom2:
-		if (CheckArgSize(MethodName, ArgList, 0, 1, ScriptPosition))
+		if (CheckArgSize(NAME_Random2, ArgList, 0, 1, ScriptPosition))
 		{
 			func = new FxRandom2(RNG, ArgList.Size() == 0? nullptr : ArgList[0], ScriptPosition, ctx.FromDecorate);
 			if (ArgList.Size() > 0) ArgList[0] = nullptr;
@@ -12666,15 +12640,6 @@ FxExpression *FxLocalVariableDeclaration::Resolve(FCompileContext &ctx)
 	if (ValueType->RegType == REGT_NIL && ValueType != TypeAuto)
 	{
 		auto sfunc = static_cast<VMScriptFunction *>(ctx.Function->Variants[0].Implementation);
-
-		const unsigned MAX_STACK_ALLOC = 512 * 1024; // Windows stack is 1 MB, but we cannot go up there without problems
-		if (uint64_t(ValueType->Size) + uint64_t(sfunc->ExtraSpace) > MAX_STACK_ALLOC)
-		{
-			ScriptPosition.Message(MSG_ERROR, "%s exceeds max. allowed size of 512kb for local variables at variable %s", sfunc->Name.GetChars(), Name.GetChars());
-			delete this;
-			return nullptr;
-		}
-
 		StackOffset = sfunc->AllocExtraStack(ValueType);
 
 		if (Init != nullptr)

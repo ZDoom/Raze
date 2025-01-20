@@ -132,8 +132,7 @@ enum
 	PRE_CONACK,				// Sent from host to guest to acknowledge PRE_CONNECT receipt
 	PRE_ALLFULL,			// Sent from host to an unwanted guest
 	PRE_ALLHEREACK,			// Sent from guest to host to acknowledge PRE_ALLHEREACK receipt
-	PRE_GO,					// Sent from host to guest to continue game startup
-	PRE_IN_PROGRESS,		// Sent from host to guest if the game has already started
+	PRE_GO					// Sent from host to guest to continue game startup
 };
 
 // Set PreGamePacket.fake to this so that the game rejects any pregame packets
@@ -270,8 +269,6 @@ void PacketSend (void)
 	//			I_Error ("SendPacket error: %s",strerror(errno));
 }
 
-void PreSend(const void* buffer, int bufferlen, const sockaddr_in* to);
-void SendConAck(int num_connected, int num_needed);
 
 //
 // PacketGet
@@ -306,7 +303,7 @@ void PacketGet (void)
 					GetPlayerName(node).GetChars());
 			}
 
-			doomcom.data[0] = NCMD_EXIT;
+			doomcom.data[0] = 0x80;	// NCMD_EXIT
 			c = 1;
 		}
 		else if (err != WSAEWOULDBLOCK)
@@ -344,11 +341,10 @@ void PacketGet (void)
 	}
 	else if (c > 0)
 	{	//The packet is not from any in-game node, so we might as well discard it.
-		if (TransmitBuffer[0] == PRE_FAKE)
+		// Don't show the message for disconnect notifications.
+		if (c != 2 || TransmitBuffer[0] != PRE_FAKE || TransmitBuffer[1] != PRE_DISCONNECT)
 		{
-			// If it's someone waiting in the lobby, let them know the game already started
-			uint8_t msg[] = { PRE_FAKE, PRE_IN_PROGRESS };
-			PreSend(msg, 2, &fromaddress);
+			DPrintf(DMSG_WARNING, "Dropped packet: Unknown host (%s:%d)\n", inet_ntoa(fromaddress.sin_addr), fromaddress.sin_port);
 		}
 		doomcom.remotenode = -1;
 		return;
@@ -373,22 +369,7 @@ sockaddr_in *PreGet (void *buffer, int bufferlen, bool noabort)
 		int err = WSAGetLastError();
 		if (err == WSAEWOULDBLOCK || (noabort && err == WSAECONNRESET))
 			return NULL;	// no packet
-
-		if (doomcom.consoleplayer == 0)
-		{
-			int node = FindNode(&fromaddress);
-			I_NetMessage("Got unexpected disconnect.");
-			doomcom.numnodes--;
-			for (; node < doomcom.numnodes; ++node)
-				sendaddress[node] = sendaddress[node + 1];
-
-			// Let remaining guests know that somebody left.
-			SendConAck(doomcom.numnodes, doomcom.numplayers);
-		}
-		else
-		{
-			I_NetError("The host disbanded the game unexpectedly");
-		}
+		I_Error ("PreGet: %s", neterror ());
 	}
 	return &fromaddress;
 }
@@ -518,7 +499,7 @@ void SendAbort (void)
 	}
 }
 
-void SendConAck (int num_connected, int num_needed)
+static void SendConAck (int num_connected, int num_needed)
 {
 	PreGamePacket packet;
 
@@ -727,7 +708,7 @@ bool HostGame (int i)
 
 	doomcom.numnodes = 1;
 
-	I_NetInit ("Hosting game", numplayers);
+	I_NetInit ("Waiting for players", numplayers);
 
 	// Wait for numplayers-1 different connections
 	if (!I_NetLoop (Host_CheckForConnects, (void *)(intptr_t)numplayers))
@@ -802,15 +783,13 @@ bool Guest_ContactHost (void *userdata)
 			}
 			else if (packet.Message == PRE_DISCONNECT)
 			{
-				I_NetError("The host cancelled the game.");
+				doomcom.numnodes = 0;
+				I_FatalError ("The host cancelled the game.");
 			}
 			else if (packet.Message == PRE_ALLFULL)
 			{
-				I_NetError("The game is full.");
-			}
-			else if (packet.Message == PRE_IN_PROGRESS)
-			{
-				I_NetError("The game was already started.");
+				doomcom.numnodes = 0;
+				I_FatalError ("The game is full.");
 			}
 		}
 	}
@@ -871,7 +850,7 @@ bool Guest_WaitForOthers (void *userdata)
 			return true;
 
 		case PRE_DISCONNECT:
-			I_NetError("The host cancelled the game.");
+			I_FatalError ("The host cancelled the game.");
 			break;
 		}
 	}
@@ -896,7 +875,6 @@ bool JoinGame (int i)
 	BuildAddress (&sendaddress[1], Args->GetArg(i+1));
 	sendplayer[1] = 0;
 	doomcom.numnodes = 2;
-	doomcom.consoleplayer = -1;
 
 
 	// Let host know we are here
@@ -1066,13 +1044,6 @@ void I_NetMessage(const char* text, ...)
 	va_end(argptr);
 	fprintf(stderr, "\r%-40s\n", str.GetChars());
 #endif
-}
-
-void I_NetError(const char* error)
-{
-	doomcom.numnodes = 0;
-	StartWindow->NetClose();
-	I_FatalError(error);
 }
 
 // todo: later these must be dispatched by the main menu, not the start screen.

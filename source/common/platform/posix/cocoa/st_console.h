@@ -66,7 +66,6 @@ public:
 	void NetInit(const char* message, int playerCount);
 	void NetProgress(int count);
 	void NetDone();
-	void NetClose();
 
 private:
 	NSWindow*            m_window;

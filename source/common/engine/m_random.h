@@ -44,9 +44,9 @@ class FSerializer;
 class FRandom : public SFMTObj
 {
 public:
-	FRandom() : FRandom(false) {}
-	FRandom(const char* name) : FRandom(name, false) {}
-	~FRandom();
+	FRandom ();
+	FRandom (const char *name);
+	~FRandom ();
 
 	int Seed() const
 	{
@@ -170,17 +170,11 @@ public:
 	static void StaticClearRandom ();
 	static void StaticReadRNGState (FSerializer &arc);
 	static void StaticWriteRNGState (FSerializer &file);
-	static FRandom *StaticFindRNG(const char *name, bool client);
-	static void SaveRNGState(TArray<FRandom>& backups);
-	static void RestoreRNGState(TArray<FRandom>& backups);
+	static FRandom *StaticFindRNG(const char *name);
 
 #ifndef NDEBUG
 	static void StaticPrintSeeds ();
 #endif
-
-protected:
-	FRandom(bool client);
-	FRandom(const char* name, bool client);
 
 private:
 #ifndef NDEBUG
@@ -188,16 +182,8 @@ private:
 #endif
 	FRandom *Next;
 	uint32_t NameCRC;
-	bool bClient;
 
-	static FRandom *RNGList, *CRNGList;
-};
-
-class FCRandom : public FRandom
-{
-public:
-	FCRandom() : FRandom(true) {}
-	FCRandom(const char* name) : FRandom(name, true) {}
+	static FRandom *RNGList;
 };
 
 extern uint32_t rngseed;			// The starting seed (not part of state)
@@ -207,6 +193,6 @@ extern bool use_staticrng;
 
 
 // M_Random can be used for numbers that do not affect gameplay
-extern FCRandom M_Random;
+extern FRandom M_Random;
 
 #endif

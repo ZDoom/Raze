@@ -63,7 +63,7 @@ CCMD(listmaps)
 		if (lump >= 0)
 		{
 			int rfnum = fileSystem.GetFileContainer(lump);
-			Printf("%s - %s (%s)\n", map->LabelName(), map->DisplayName(), fileSystem.GetContainerName(rfnum));
+			Printf("%s - %s (%s)\n", map->LabelName(), map->DisplayName(), fileSystem.GetResourceFileName(rfnum));
 		}
 		else
 		{
@@ -260,7 +260,7 @@ MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 	map->SetFileName(boardfilename);
 	map->flags = MI_USERMAP|MI_FORCEEOG;
 	int lookup = LookupMusic(boardfilename, true);
-	if (lookup >= 0) map->music = fileSystem.GetFileName(lookup);
+	if (lookup >= 0) map->music = fileSystem.GetFileFullName(lookup);
 	else map->music = defaultmusic;
 	return map;
 }

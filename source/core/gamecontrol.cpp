@@ -292,7 +292,7 @@ void System_CrashInfo(char* buffer, size_t bufflen, const char *lfstr)
 		buffer += snprintf(buffer, buffend - buffer, " %s", Args->GetArg(i));
 	}
 
-	for (i = 0; (arg = fileSystem.GetContainerName(i)) != NULL; ++i)
+	for (i = 0; (arg = fileSystem.GetResourceFileName(i)) != NULL; ++i)
 	{
 		buffer += mysnprintf(buffer, buffend - buffer, "%sFile %d: %s", lfstr, i, arg);
 	}
@@ -1026,9 +1026,9 @@ int RunGame()
 	InitWidgetResources(wad);
 
 	// load strings for picker window.
-	FileSystem lang_fs;
+	FileSys::FileSystem lang_fs;
 	std::vector<std::string> base_fn = { wad };
-	lang_fs.Initialize(base_fn);
+	lang_fs.InitMultipleFiles(base_fn);
 	GStrings.LoadStrings(lang_fs, language);
 
 	// Set up the console before anything else so that it can receive text.

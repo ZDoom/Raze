@@ -83,7 +83,7 @@ FRandom pr_exrandom("EX_Random");
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
-FCRandom M_Random;
+FRandom M_Random;
 
 // Global seed. This is modified predictably to initialize every RNG.
 uint32_t rngseed;
@@ -126,8 +126,8 @@ CCMD(rngseed)
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
-FRandom *FRandom::RNGList, *FRandom::CRNGList;
-static TDeletingArray<FRandom *> NewRNGs, NewCRNGs;
+FRandom *FRandom::RNGList;
+static TDeletingArray<FRandom *> NewRNGs;
 
 // CODE --------------------------------------------------------------------
 
@@ -139,22 +139,14 @@ static TDeletingArray<FRandom *> NewRNGs, NewCRNGs;
 //
 //==========================================================================
 
-FRandom::FRandom (bool client)
-: NameCRC (0), bClient(client)
+FRandom::FRandom ()
+: NameCRC (0)
 {
 #ifndef NDEBUG
 	Name = NULL;
 #endif
-	if (bClient)
-	{
-		Next = CRNGList;
-		CRNGList = this;
-	}
-	else
-	{
-		Next = RNGList;
-		RNGList = this;
-	}
+	Next = RNGList;
+	RNGList = this;
 	Init(0);
 }
 
@@ -166,7 +158,7 @@ FRandom::FRandom (bool client)
 //
 //==========================================================================
 
-FRandom::FRandom (const char *name, bool client) : bClient(client)
+FRandom::FRandom (const char *name)
 {
 	NameCRC = CalcCRC32 ((const uint8_t *)name, (unsigned int)strlen (name));
 #ifndef NDEBUG
@@ -178,7 +170,7 @@ FRandom::FRandom (const char *name, bool client) : bClient(client)
 #endif
 
 	// Insert the RNG in the list, sorted by CRC
-	FRandom **prev = (bClient ? &CRNGList : &RNGList), * probe = (bClient ? CRNGList : RNGList);
+	FRandom **prev = &RNGList, *probe = RNGList;
 
 	while (probe != NULL && probe->NameCRC < NameCRC)
 	{
@@ -213,8 +205,8 @@ FRandom::~FRandom ()
 
 	FRandom *last = NULL;
 
-	prev = bClient ? &CRNGList : &RNGList;
-	rng = bClient ? CRNGList : RNGList;
+	prev = &RNGList;
+	rng = RNGList;
 
 	while (rng != NULL && rng != this)
 	{
@@ -242,11 +234,6 @@ void FRandom::StaticClearRandom ()
 {
 	// go through each RNG and set each starting seed differently
 	for (FRandom *rng = FRandom::RNGList; rng != NULL; rng = rng->Next)
-	{
-		rng->Init(rngseed);
-	}
-
-	for (FRandom* rng = FRandom::CRNGList; rng != NULL; rng = rng->Next)
 	{
 		rng->Init(rngseed);
 	}
@@ -358,15 +345,15 @@ void FRandom::StaticReadRNGState(FSerializer &arc)
 //
 //==========================================================================
 
-FRandom *FRandom::StaticFindRNG (const char *name, bool client)
+FRandom *FRandom::StaticFindRNG (const char *name)
 {
 	uint32_t NameCRC = CalcCRC32 ((const uint8_t *)name, (unsigned int)strlen (name));
 
 	// Use the default RNG if this one happens to have a CRC of 0.
-	if (NameCRC == 0) return client ? &M_Random : &pr_exrandom;
+	if (NameCRC == 0) return &pr_exrandom;
 
 	// Find the RNG in the list, sorted by CRC
-	FRandom **prev = (client ? &CRNGList : &RNGList), *probe = (client ? CRNGList : RNGList);
+	FRandom **prev = &RNGList, *probe = RNGList;
 
 	while (probe != NULL && probe->NameCRC < NameCRC)
 	{
@@ -377,30 +364,12 @@ FRandom *FRandom::StaticFindRNG (const char *name, bool client)
 	if (probe == NULL || probe->NameCRC != NameCRC)
 	{
 		// A matching RNG doesn't exist yet so create it.
-		probe = new FRandom(name, client);
+		probe = new FRandom(name);
 
 		// Store the new RNG for destruction when ZDoom quits.
-		if (client)
-			NewCRNGs.Push(probe);
-		else
-			NewRNGs.Push(probe);
+		NewRNGs.Push(probe);
 	}
 	return probe;
-}
-
-void FRandom::SaveRNGState(TArray<FRandom>& backups)
-{
-	for (auto cur = RNGList; cur != nullptr; cur = cur->Next)
-		backups.Push(*cur);
-}
-
-void FRandom::RestoreRNGState(TArray<FRandom>& backups)
-{
-	unsigned int i = 0u;
-	for (auto cur = RNGList; cur != nullptr; cur = cur->Next)
-		*cur = backups[i++];
-
-	backups.Clear();
 }
 
 //==========================================================================

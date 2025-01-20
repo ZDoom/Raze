@@ -53,7 +53,7 @@ static FUsermapDirectory root;
 
 void InsertMap(int lumpnum)
 {
-	FString filename = fileSystem.GetFileName(lumpnum);
+	FString filename = fileSystem.GetFileFullName(lumpnum);
 	auto path = filename.Split("/");
 
 	auto current = &root;
@@ -69,8 +69,8 @@ void InsertMap(int lumpnum)
 	}
 	current->entries.Reserve(1);
 	current->entries.Last().displayname = path.Last();
-	current->entries.Last().filename = fileSystem.GetFileName(lumpnum);
-	current->entries.Last().container = fileSystem.GetContainerName(fileSystem.GetFileContainer(lumpnum));
+	current->entries.Last().filename = fileSystem.GetFileFullName(lumpnum);
+	current->entries.Last().container = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 	current->entries.Last().size = (int)fileSystem.FileLength(lumpnum);
 	auto mapinfo = FindMapByName(StripExtension(path.Last().GetChars()).GetChars());
 	if (mapinfo) current->entries.Last().info = mapinfo->name;
@@ -78,7 +78,7 @@ void InsertMap(int lumpnum)
 
 bool ValidateMap(int lumpnum)
 {
-	FString filename = fileSystem.GetFileName(lumpnum);
+	FString filename = fileSystem.GetFileFullName(lumpnum);
 
 	if (fileSystem.FindFile(filename.GetChars()) != lumpnum) return false;
 	auto fr = fileSystem.OpenFileReader(lumpnum);
@@ -126,11 +126,11 @@ void ReadUserMaps()
 	if (didit) return;
 	didit = true;
 
-	int numfiles = fileSystem.GetFileCount();
+	int numfiles = fileSystem.GetNumEntries();
 
 	for (int i = 0; i < numfiles; i++)
 	{
-		auto fn1 = fileSystem.GetFileName(i);
+		auto fn1 = fileSystem.GetFileFullName(i);
 		if (!fn1 || !*fn1) continue;
 		FString lowfn = fn1;
 		if (lowfn.Right(4).CompareNoCase(".map")) continue;

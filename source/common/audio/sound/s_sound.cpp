@@ -61,7 +61,7 @@ enum
 {
 	DEFAULT_PITCH = 128,
 };
-static FCRandom pr_soundpitch ("SoundPitch");
+static FRandom pr_soundpitch ("SoundPitch");
 SoundEngine* soundEngine;
 
 //==========================================================================

@@ -1978,7 +1978,7 @@ void loaddefinitionsfile(TilesetBuildInfo& info, const char* fn, bool cumulative
 		int lump, lastlump = 0;
 		while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
 		{
-			if (maingame && fileSystem.GetFileContainer(lump) > fileSystem.GetMaxBaseNum()) break;
+			if (maingame && fileSystem.GetFileContainer(lump) > fileSystem.GetMaxIwadNum()) break;
 			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).c_str());
 			deftimer.Clock();
 			parseit(lump);

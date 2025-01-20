@@ -924,7 +924,7 @@ public:
 		return *this;
 	}
 
-	~TDeletingArray()
+	~TDeletingArray<T, TT> ()
 	{
 		for (unsigned int i = 0; i < TArray<T,TT>::Size(); ++i)
 		{

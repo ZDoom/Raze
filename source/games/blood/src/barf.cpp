@@ -954,7 +954,7 @@ void addMemoryResource(const char* filePath, int flags, int ID)
 void ReadAllRFS()
 {
 	bool found = false;
-	auto numf = fileSystem.GetFileCount();
+	auto numf = fileSystem.GetNumEntries();
 	for (int i = 0; i < numf; i++)
 	{
 		auto rl = fileSystem.GetResourceType(i);

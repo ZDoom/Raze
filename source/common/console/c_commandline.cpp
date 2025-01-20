@@ -193,7 +193,7 @@ int FCommandLine::argc ()
 	return _argc;
 }
 
-const char *FCommandLine::operator[] (int i)
+char *FCommandLine::operator[] (int i)
 {
 	if (_argv == NULL)
 	{

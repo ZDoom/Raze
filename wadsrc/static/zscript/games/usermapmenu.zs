@@ -168,7 +168,7 @@ class UsermapMenu : ListMenu
 	{
 		numparent = (currentDir.parent != null);
 		numdirs = currentDir.GetNumDirectories();
-		numentries = currentDir.GetFileCount();
+		numentries = currentDir.GetNumEntries();
 		NumTotalEntries = numparent + numdirs + numentries;
 	}
 

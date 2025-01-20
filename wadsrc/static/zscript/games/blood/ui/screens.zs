@@ -296,7 +296,7 @@ class BloodCutscenes ui
 		if (!userConfig.nologo)
 		{
 			Array<int> soundinfo;
-			if (Wads.FindFile("logo.smk") != -1)
+			if (Wads.CheckNumForFullName("logo.smk") != -1)
 			{
 				String s = "logo.wav"; // sound name must be converted at run-time, not compile time!
 				runner.Append(MoviePlayerJob.CreateWithSound("logo.smk", s, MoviePlayer.FIXEDVIEWPORT));
@@ -305,7 +305,7 @@ class BloodCutscenes ui
 			{
 				runner.Append(new("BloodIntroImage").Init("MonolithScreen", ScreenJob.fadein|ScreenJob.fadeout));
  			}
-			if (Wads.FindFile("gti.smk") != -1)
+			if (Wads.CheckNumForFullName("gti.smk") != -1)
 			{
 				String s = "gt.wav";
 				runner.Append(MoviePlayerJob.CreateWithSound("gti.smk", s, MoviePlayer.FIXEDVIEWPORT));

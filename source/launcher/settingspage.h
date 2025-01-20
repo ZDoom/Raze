@@ -1,7 +1,6 @@
 #pragma once
 
 #include <zwidget/core/widget.h>
-#include "gstrings.h"
 
 #define RENDER_BACKENDS
 

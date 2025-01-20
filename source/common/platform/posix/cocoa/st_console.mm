@@ -531,8 +531,3 @@ void FConsoleWindow::NetDone()
 		m_netAbortButton = nil;
 	}
 }
-
-void FConsoleWindow::NetClose()
-{
-	// TODO: Implement this
-}
