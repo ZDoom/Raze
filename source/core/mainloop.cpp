@@ -94,8 +94,11 @@
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR(Bool, vid_dontdowait, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Bool, cl_capfps)
 CVAR(Bool, cl_resumesavegame, true, CVAR_ARCHIVE)
+EXTERN_CVAR (Bool, vid_vsync)
+EXTERN_CVAR (Int, vid_maxfps)
 
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
@@ -560,6 +563,9 @@ void TryRunTics (void)
 	// If paused, do not eat more CPU time than we need, because it
 	// will all be wasted anyway.
 	bool doWait = (cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated() && gamestate != GS_CUTSCENE && gamestate != GS_INTRO));
+
+	if (vid_dontdowait && ((vid_maxfps > 0) || (vid_vsync == true)))
+		doWait = false;
 
 	// get real tics
 	if (doWait)
