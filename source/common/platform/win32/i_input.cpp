@@ -485,14 +485,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_ACTIVATEAPP:
 		AppActive = (wParam == TRUE);
-		if (wParam || !i_pauseinbackground)
-		{
-			SetPriorityClass (GetCurrentProcess (), INGAME_PRIORITY_CLASS);
-		}
-		else if (!noidle && !(sysCallbacks.NetGame && sysCallbacks.NetGame()))
-		{
-			SetPriorityClass (GetCurrentProcess (), IDLE_PRIORITY_CLASS);
-		}
 		S_SetSoundPaused (wParam);
 		break;
 
