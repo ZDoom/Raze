@@ -41,19 +41,19 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "1.11pre"
+#define VERSIONSTR "1.12pre"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 1,10,9999,0
-#define RC_PRODUCTVERSION 1,10,9999,0
+#define RC_FILEVERSION 1,11,9999,0
+#define RC_PRODUCTVERSION 1,11,9999,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 4
-#define VER_MINOR 12
+#define VER_MINOR 13
 #define VER_REVISION 0
 
 #define ENG_MAJOR 1
-#define ENG_MINOR 11
+#define ENG_MINOR 12
 #define ENG_REVISION 0
 
 // More stuff that needs to be different for derivatives.
