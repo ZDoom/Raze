@@ -194,7 +194,7 @@ class AltHud ui
 	{
 		String s = String.Format("%02i:%02i:%02i", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
 		int length = 8 * fnt.GetCharWidth("0");
-		DrawHudText(fnt, color, s, x-length, y, trans, fontscale);
+		DrawHudText(fnt, color, s, x-length * fontscale, y, trans, fontscale);
 	}
 	
 	//===========================================================================
@@ -638,8 +638,8 @@ class AltHud ui
 		let allname = amstr .. volname;
 		let myfont = generic_ui? NewSmallFont : StatFont.CanPrint(allname)? StatFont : OriginalSmallFont;
 		int bottom = hudheight - 1;
-		int fonth = myfont.GetHeight() + 1;
 		double fontscale = generic_ui? 1. : currentStats.info.fontscale;
+		double fonth = myfont.GetHeight() * fontscale + 1;
 	
 		if (am_showtotaltime)
 		{
