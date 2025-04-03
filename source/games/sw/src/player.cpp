@@ -1842,7 +1842,7 @@ void DoPlayerSlide(DSWPlayer* pp)
     if (abs(pp->slide_vect.X) < 0.05 && abs(pp->slide_vect.Y) < 0.05)
         pp->slide_vect.Zero();
 
-    push_ret = pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -1856,10 +1856,10 @@ void DoPlayerSlide(DSWPlayer* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, pp->slide_vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, pp->slide_vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2008,7 +2008,7 @@ void DoPlayerMove(DSWPlayer* pp)
     }
     else
     {
-        push_ret = pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - 16., CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - 16., CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2031,12 +2031,12 @@ void DoPlayerMove(DSWPlayer* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->GetActor()->getPosWithOffsetZ(), &pp->cursector);
-        clipmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, pp->vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, pp->vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - 16., CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - 16., CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2626,7 +2626,7 @@ void DoPlayerMoveVehicle(DSWPlayer* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(plActor->spr.pos.XY(), zz, &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(plActor->spr.pos, zz, &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -4612,7 +4612,7 @@ void DoPlayerCurrent(DSWPlayer* pp)
 
     auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
 
-    push_ret = pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4628,10 +4628,10 @@ void DoPlayerCurrent(DSWPlayer* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, vect, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, vect, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->GetActor()->spr.pos.XY(), pp->GetActor()->getOffsetZ(), &pp->cursector, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->GetActor()->spr.pos, pp->GetActor()->getOffsetZ(), &pp->cursector, pp->GetActor()->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))

@@ -490,12 +490,13 @@ inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec
 	return result.type;
 }
 
-inline int clipmove(DVector2& pos, double z, sectortype** const sect, const DVector2& mvec,
+inline int clipmove(DVector3& pos, double z, sectortype** const sect, const DVector2& mvec,
 	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {
-	auto vect = DVector3(pos, z);
+	auto vect = DVector3(pos.XY(), z);
 	auto res = clipmove(vect, sect, mvec, walldist, ceildist, flordist, cliptype, result);
-	pos = vect.XY();
+	pos.X = vect.X;
+	pos.Y = vect.Y;
 	return res;
 }
 

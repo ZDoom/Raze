@@ -590,7 +590,7 @@ void playerisdead(DDukePlayer* const p, int psectlotag, double floorz, double ce
 		}
 
 		Collision coll;
-		clipmove(actor->spr.pos.XY(), actor->getOffsetZ(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
+		clipmove(actor->spr.pos, actor->getOffsetZ(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
 	actor->backuploc();
@@ -599,7 +599,7 @@ void playerisdead(DDukePlayer* const p, int psectlotag, double floorz, double ce
 
 	updatesector(actor->getPosWithOffsetZ(), &p->cursector);
 
-	pushmove(actor->spr.pos.XY(), actor->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
+	pushmove(actor->spr.pos, actor->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
 		p->ViewAngles.Roll = DAngle::fromBuild(-(p->dead_flag + ((floorz + actor->getOffsetZ()) * 2)));

@@ -227,11 +227,12 @@ bool checkOpening(const DVector2& inpos, double z, const sectortype* sec, const 
 int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist, double flordist, unsigned cliptype);
 tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 
-inline int pushmove(DVector2& pos, double z, sectortype** pSect, double walldist, double ceildist, double flordist, unsigned cliptype)
+inline int pushmove(DVector3& pos, double z, sectortype** pSect, double walldist, double ceildist, double flordist, unsigned cliptype)
 {
-	auto vect = DVector3(pos, z);
+	auto vect = DVector3(pos.XY(), z);
 	auto result = pushmove(vect, pSect, walldist, ceildist, flordist, cliptype);
-	pos = vect.XY();
+	pos.X = vect.X;
+	pos.Y = vect.Y;
 	return result;
 }
 
