@@ -112,7 +112,11 @@ FString M_GetAppDataPath(bool create)
 {
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	FString path = NicePath("$HOME/.config/" GAMENAMELOWERCASE);
+	#if defined(__HAIKU__)
+		FString path = NicePath("$HOME/config/settings/" GAMENAME);
+	#else
+		FString path = NicePath("$HOME/.config/" GAMENAMELOWERCASE);
+	#endif
 	if (create)
 	{
 		CreatePath(path.GetChars());
