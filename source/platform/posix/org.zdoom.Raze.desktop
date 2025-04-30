@@ -5,7 +5,6 @@ Exec=raze
 Icon=org.zdoom.Raze
 Name=Raze
 StartupNotify=true
-PrefersNonDefaultGPU=true
 Terminal=false
 Type=Application
 Keywords=Build;Duke;Nukem;3D;Redneck;Rampage;Shadow;Warrior;Blood;NAM;Powerslave;Exhumed;FPS;first;person;shooter;
