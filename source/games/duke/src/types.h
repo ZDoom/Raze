@@ -366,7 +366,7 @@ public:
 		return (117351124. / 10884538.);
 	}
 
-	const DVector2& GetInputVelocity() const override
+	const DVector2 GetInputVelocity() const override
 	{
 		return vel.XY();
 	}
