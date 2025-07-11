@@ -42,7 +42,7 @@ public:
 	virtual bool canSlopeTilt() const { return false; }
 	virtual unsigned getCrouchFlags() const = 0;
 	virtual double GetMaxInputVel() const = 0;
-	virtual const DVector2& GetInputVelocity() const { return actor->vel.XY(); }
+	virtual const DVector2 GetInputVelocity() const { return actor->vel.XY(); }
 
 	// Angle prototypes.
 	void doPitchInput();

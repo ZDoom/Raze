@@ -1831,7 +1831,7 @@ public:
         return (380401538. / 36022361.);
     }
 
-    const DVector2& GetInputVelocity() const override
+    const DVector2 GetInputVelocity() const override
     {
         return vect;
     }
