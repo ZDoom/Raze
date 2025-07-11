@@ -94,6 +94,8 @@ struct TVector2
 	{
 	}
 
+	constexpr TVector2(std::nullptr_t nul) = delete;
+
 	template<typename U>
 	constexpr explicit operator TVector2<U> () const noexcept {
 		return TVector2<U>(static_cast<U>(X), static_cast<U>(Y));
