@@ -401,7 +401,7 @@ static void beastMoveForward(DBloodActor* actor)
 	double nDist = dvec.Length();
 	if (nDist <= 0x40 && Random(64) < 32)
 		return;
-	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
+	actor->vel += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
 }
 
 static void sub_628A0(DBloodActor* actor)

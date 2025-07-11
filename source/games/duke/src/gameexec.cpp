@@ -2010,7 +2010,7 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(p);
-		p->vel.XY() -= pact->spr.Angles.Yaw.ToVector() * 8;
+		p->vel -= pact->spr.Angles.Yaw.ToVector() * 8;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;

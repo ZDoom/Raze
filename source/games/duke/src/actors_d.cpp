@@ -188,11 +188,11 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				if (adef->flags2 & SFLAG2_DOUBLEDMGTHRUST)
 				{
-					p->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
+					p->vel += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
 				else
 				{
-					p->vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
+					p->vel += actor->hitang.ToVector() * actor->hitextra * 0.125;
 				}
 			}
 			else
@@ -342,7 +342,7 @@ void movetransports_d(void)
 						if ((p->jetpack_on == 0) || (p->jetpack_on && (!!(p->cmd.ucmd.actions & SB_JUMP) || p->cmd.ucmd.vel.Z > 0)) ||
 							(p->jetpack_on && (!!(p->cmd.ucmd.actions & SB_CROUCH) || p->cmd.ucmd.vel.Z < 0)))
 						{
-							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
 							act2->backupvec2();
 
 							if (p->jetpack_on && (!!(p->cmd.ucmd.actions & SB_JUMP) || p->jetpack_on < 11))
@@ -416,7 +416,7 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
 						act2->backupvec2();
 
 						if (!Owner || Owner->GetOwner() != Owner)
@@ -438,7 +438,7 @@ void movetransports_d(void)
 					}
 					else if (k == 2)
 					{
-						act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
 						act2->backupvec2();
 
 						if (Owner->GetOwner() != Owner)

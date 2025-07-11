@@ -141,7 +141,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 			return false;
 		return true;
 	}
-	pos.XY() += nRange / 16 * nAngVect; // see above - same weird mixup.
+	pos += nRange / 16 * nAngVect; // see above - same weird mixup.
 	auto pSector = actor->sector();
 	assert(pSector);
 	auto ps2 = pSector;
@@ -300,7 +300,7 @@ void aiMoveForward(DBloodActor* actor)
 	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	if (abs(nAng) > DAngle60)
 		return;
-	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
+	actor->vel += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
 }
 
 //---------------------------------------------------------------------------

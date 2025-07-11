@@ -168,7 +168,7 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
         if ((hit.hitWall->cstat & CSTAT_WALL_WARP_HITSCAN))
         {
             // back it up a bit to get a correct warp location
-            hit.hitpos.XY() -= vect.XY() * (1 / 512.);
+            hit.hitpos -= vect.XY() * (1 / 512.);
 
             // warp to new x,y,z, sectnum
             if (Warp(hit.hitpos, &hit.hitSector))

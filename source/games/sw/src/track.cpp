@@ -1487,7 +1487,7 @@ void MovePlayer(DSWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
         pp->RevolveDeltaAng = nullAngle;
     }
 
-    pp->GetActor()->spr.pos.XY() += move;
+    pp->GetActor()->spr.pos += move;
 
     if ((sop->flags & SOBJ_DONT_ROTATE))
     {

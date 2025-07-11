@@ -17235,7 +17235,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     ASSERT(Found);
 
     // update to the new x y position
-	actor->spr.pos.XY() += (underActor->spr.pos.XY() - overActor->spr.pos.XY());
+	actor->spr.pos += (underActor->spr.pos.XY() - overActor->spr.pos.XY());
 
     auto over = overActor->sector();
     auto under = underActor->sector();
@@ -17494,7 +17494,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
 
 int DoVehicleSmoke(DSWActor* actor)
 {
-	actor->spr.pos.XY() += actor->user.change.XY();
+	actor->spr.pos += actor->user.change.XY();
     actor->spr.pos.Z -= actor->vel.Z;
     return false;
 }

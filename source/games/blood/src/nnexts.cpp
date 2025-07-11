@@ -1834,7 +1834,7 @@ void debrisMove(int listIndex)
 
 		if ((floorColl.actor()->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
-			actor->vel.XY() += (actor->spr.pos.XY() - floorColl.actor()->spr.pos.XY()) / 4096.;
+			actor->vel += (actor->spr.pos.XY() - floorColl.actor()->spr.pos.XY()) / 4096.;
 			return;
 		}
 	}
@@ -1847,9 +1847,9 @@ void debrisMove(int listIndex)
 	if (actor->xspr.height > 0)
 		nDrag *= 1 - actor->xspr.height / 256.;
 
-	actor->vel.XY() *= 1 - nDrag;
+	actor->vel.SetXY(actor->vel.XY() * (1 - nDrag));
 	if (actor->vel.XY().LengthSquared() < 1 / 256.)
-		actor->vel.XY().Zero();
+		actor->vel.SetXY(DVector2(0, 0));
 }
 
 //---------------------------------------------------------------------------
@@ -3042,7 +3042,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			double v = actor->xspr.data1 * kVelScale;
 			if (v != 0) v += rr;
 
-			vv.XY() += nAng.ToVector() * v;
+			vv += nAng.ToVector() * v;
 		}
 
 		if (actor->xspr.physAttr)
@@ -8166,7 +8166,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
-		actor->vel.XY().Zero();
+		actor->vel.SetXY(DVector2(0, 0));
 		return;
 	}
 

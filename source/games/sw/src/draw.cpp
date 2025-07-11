@@ -363,7 +363,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
         auto look = (tSpr->pos.XY() - getPlayer(screenpeek)->CameraPos.XY()).Angle();
-		tSpr->pos.XY() += look.ToVector() * 2;
+		tSpr->pos += look.ToVector() * 2;
     }
 
     // Check for voxel items and use a round generic pic if so
@@ -790,7 +790,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     if (pp->Flags & (PF_CLIMBING))
                     {
                         // move sprite forward some so he looks like he's climbing
-                        pos.XY() += tsp->Angles.Yaw.ToVector() * 13;
+                        pos += tsp->Angles.Yaw.ToVector() * 13;
                         pos.Z -= PLAYER_HEIGHTF - 17.;
                     }
 

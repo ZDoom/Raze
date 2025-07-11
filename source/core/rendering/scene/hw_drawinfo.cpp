@@ -316,11 +316,11 @@ void HWDrawInfo::DispatchSprites()
 
 		if (actor->sprext.renderflags & SPREXT_AWAY1)
 		{
-			tspr->pos.XY() += tspr->Angles.Yaw.ToVector() * 0.125;
+			tspr->pos += tspr->Angles.Yaw.ToVector() * 0.125;
 		}
 		else if (actor->sprext.renderflags & SPREXT_AWAY2)
 		{
-			tspr->pos.XY() -= tspr->Angles.Yaw.ToVector() * 0.125;
+			tspr->pos -= tspr->Angles.Yaw.ToVector() * 0.125;
 		}
 
 		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)

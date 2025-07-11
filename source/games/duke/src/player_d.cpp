@@ -1591,7 +1591,7 @@ void processinput_d(DDukePlayer* const p)
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
 			auto ang = (clz.actor()->spr.pos.XY() - pact->spr.pos.XY()).Angle();
-			p->vel.XY() -= ang.ToVector();
+			p->vel -= ang.ToVector();
 		}
 		CallStandingOn(clz.actor(), p);
 	}
@@ -1772,7 +1772,7 @@ void processinput_d(DDukePlayer* const p)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.XY() += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
+		p->vel += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
 		p->RollVel += RollVel * doubvel * (5. / 16.);
 
 		bool check;
@@ -1781,19 +1781,19 @@ void processinput_d(DDukePlayer* const p)
 		else check = ((aplWeaponWorksLike(p->curr_weapon, p) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->vel.XY() *= gs.playerfriction - 0.125;
+			p->vel.SetXY(p->vel.XY() * (gs.playerfriction - 0.125));
 			p->RollVel *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == ST_2_UNDERWATER)
 			{
-				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
+				p->vel.SetXY(p->vel.XY() * (gs.playerfriction - FixedToFloat(0x1400)));
 				p->RollVel *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
-				p->vel.XY() *= gs.playerfriction;
+				p->vel.SetXY(p->vel.XY() * gs.playerfriction);
 				p->RollVel *= gs.playerfriction;
 			}
 		}
@@ -1806,7 +1806,7 @@ void processinput_d(DDukePlayer* const p)
 
 		if (shrunk)
 		{
-			p->vel.XY() *= gs.playerfriction * 0.75;
+			p->vel.SetXY(p->vel.XY() * (gs.playerfriction * 0.75));
 			p->RollVel *= gs.playerfriction * 0.75;
 		}
 	}
@@ -1823,7 +1823,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		pact->spr.pos.XY() += p->vel.XY() ;
+		pact->spr.pos += p->vel.XY();
 		updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}

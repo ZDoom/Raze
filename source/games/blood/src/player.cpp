@@ -724,7 +724,7 @@ void playerCorrectInertia(DBloodPlayer* pPlayer, const DVector3& oldpos)
 	auto zAdj = pPlayer->GetActor()->spr.pos.Z - oldpos.Z;
 	pPlayer->zView += zAdj;
 	pPlayer->zWeapon += zAdj;
-	pPlayer->GetActor()->opos.XY() += pPlayer->GetActor()->spr.pos.XY() - oldpos.XY();
+	pPlayer->GetActor()->opos += pPlayer->GetActor()->spr.pos.XY() - oldpos.XY();
 	pPlayer->ozView += zAdj;
 	pPlayer->GetActor()->opos.Z += zAdj;
 }
@@ -1566,7 +1566,7 @@ void ProcessInput(DBloodPlayer* pPlayer)
 		const double speed = pPlayer->posture == 1? 1. : 1. - (actor->xspr.height * (1. / 256.) * (actor->xspr.height < 256));
 		pInput->vel.X *= pInput->vel.X > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		pInput->vel.Y *= pPosture->sideAccel;
-		actor->vel.XY() += pInput->vel.XY().Rotated(actor->spr.Angles.Yaw) * speed;
+		actor->vel += pInput->vel.XY().Rotated(actor->spr.Angles.Yaw) * speed;
 		pPlayer->RollVel += pInput->vel.Y * speed;
 	}
 

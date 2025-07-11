@@ -472,7 +472,7 @@ static void SetupView(DBloodPlayer* pPlayer, DVector3& cPos, DRotator& cAngles, 
 	{
 		if (cl_viewhbob)
 		{
-			cPos.XY() -= cAngles.Yaw.ToVector().Rotated90CW() * bobWidth;
+			cPos -= cAngles.Yaw.ToVector().Rotated90CW() * bobWidth;
 		}
 		if (cl_viewvbob)
 		{

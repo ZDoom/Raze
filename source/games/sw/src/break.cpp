@@ -767,7 +767,7 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& a
 
     ang = wall_ang;
 
-    pos.XY() += wall_ang.ToVector() * 16;
+    pos += wall_ang.ToVector() * 16;
 
     updatesectorz(pos, sectp);
     if (*sectp == nullptr)
