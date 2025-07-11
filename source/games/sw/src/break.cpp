@@ -738,7 +738,7 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& a
     ASSERT(*sectp);
 
     // midpoint of wall
-    pos.XY() = wp->center();
+    pos.SetXY(wp->center());
 
     if (!wp->twoSided())
     {

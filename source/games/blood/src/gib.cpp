@@ -481,8 +481,7 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel)
 	assert(pWall);
 	assert(nGibType >= 0 && nGibType < kGibMax);
 
-	DVector3 center;
-	center.XY() = pWall->center();
+	DVector3 center(pWall->center(), 0);
 
 	auto pSector = pWall->sectorp();
 	double ceilZ, floorZ;
@@ -492,9 +491,7 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel)
 
 	ceilZ = max(ceilZ, ceilZ2);
 	floorZ = min(floorZ, floorZ2);
-	DVector3 w;
-	w.Z = floorZ - ceilZ;
-	w.XY() = pWall->delta();
+	DVector3 w(pWall->delta(), floorZ - ceilZ);
 	center.Z = (ceilZ + floorZ) * 0.5;
 
 	GIBLIST* pGib = &gibList[nGibType];

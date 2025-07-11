@@ -73,10 +73,10 @@ Collision MultiClipMove(DSWPlayer* pp, double zz, double floordist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].XY() = pp->GetActor()->spr.pos.XY() + ang.ToVector() * sop->clipbox_vdist[i];
+            opos[i].SetXY(pp->GetActor()->spr.pos.XY() + ang.ToVector() * sop->clipbox_vdist[i]);
 
             // spos.x is where it hit
-            pos[i].XY() = spos.XY();
+            pos[i].SetXY(spos.XY());
 
             // see the dist moved
             dist = (pos[i].XY() - opos[i].XY()).Length();

@@ -243,7 +243,7 @@ void RestartPlayer(DExhumedPlayer* const pPlayer)
 	}
 	else
 	{
-        pPlayerActor->spr.pos.XY() = pPlayer->sPlayerSave.pos.XY();
+        pPlayerActor->spr.pos.SetXY(pPlayer->sPlayerSave.pos.XY());
 		pPlayerActor->spr.pos.Z = pPlayer->sPlayerSave.pSector->floorz;
 		pPlayerActor->spr.Angles.Yaw = pPlayer->sPlayerSave.nAngle;
         ChangeActorSect(pPlayerActor, pPlayer->sPlayerSave.pSector);
@@ -1584,7 +1584,7 @@ static void updatePlayerFloorActor(DExhumedPlayer* const pPlayer)
 
     const auto pPlayerActor = pPlayer->GetActor();
     const auto pPlayerSect = pPlayerActor->sector();
-    pFloorActor->spr.pos.XY() = pPlayerActor->spr.pos.XY();
+    pFloorActor->spr.pos.SetXY(pPlayerActor->spr.pos.XY());
     pFloorActor->spr.pos.Z = pPlayerSect->floorz;
 
     if (pFloorActor->sector() != pPlayerSect)
@@ -1785,7 +1785,7 @@ static bool doPlayerInput(DExhumedPlayer* const pPlayer)
         if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
         {
             ChangeActorSect(pPlayerActor, spr_sect);
-            pPlayerActor->spr.pos.XY() = pPlayerActor->opos.XY();
+            pPlayerActor->spr.pos.SetXY(pPlayerActor->opos.XY());
 
             if (nStartVelZ < pPlayerActor->vel.Z)
                 pPlayerActor->vel.Z = nStartVelZ;

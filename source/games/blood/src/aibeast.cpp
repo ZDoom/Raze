@@ -66,10 +66,11 @@ void SlashSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DVector3 dv;
-	dv.XY() = actor->spr.Angles.Yaw.ToVector();
-	// Correct ?
-	dv.Z = (actor->spr.pos.Z - target->spr.pos.Z) / 64;
+	DVector3 dv(
+		actor->spr.Angles.Yaw.ToVector(),
+		// Correct ?
+		(actor->spr.pos.Z - target->spr.pos.Z) / 64
+	);
 
 	dv.X += Random3(4000 - 700 * gGameOptions.nDifficulty) / 16384.;
 	dv.Y += Random3(4000 - 700 * gGameOptions.nDifficulty) / 16384.;

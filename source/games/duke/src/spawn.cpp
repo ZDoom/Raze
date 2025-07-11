@@ -676,7 +676,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 						{
 							if (actor->spr.Angles.Yaw == DAngle90)
 							{
-								actor->spr.pos.XY() = act2->spr.pos.XY();
+								actor->spr.pos.SetXY(act2->spr.pos.XY());
 							}
 							found = true;
 							actor->SetOwner(act2);
@@ -737,7 +737,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			else if (actor->spr.lotag == SE_26)
 			{
-				actor->temp_pos.XY() = actor->spr.pos.XY();
+				actor->temp_pos.SetXY(actor->spr.pos.XY());
 				if (actor->spr.shade == sectp->floorshade) //UP
 					actor->vel.Z = -1;
 				else

@@ -473,7 +473,7 @@ void JS_DrawCameras(DSWPlayer* pp, const DVector3& campos, double smoothratio)
                 // Finish finding offsets
                 DVector3 dpos;
                 DVector3 tdpos;
-                tdpos.XY() = mid - campos;
+                tdpos.SetXY(mid - campos);
 
                 if (mid.X >= campos.X)
                     dpos.X = camactor->spr.pos.X - campos.X;

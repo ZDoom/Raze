@@ -281,7 +281,7 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if ((PlotCourseToSprite(pActor, pTarget) >= 60*16) || pActor->nCount > 0)
                 {
-					pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 256;
+					pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * 256);
                 }
                 else
                 {
@@ -369,7 +369,7 @@ void AIRex::Tick(RunListEvent* ev)
                     }
                     else
                     {
-						pHitActor->vel.XY() = vel / 8.;
+						pHitActor->vel.SetXY(vel / 8.);
                         pHitActor->vel.Z = 11.25;
                     }
                 }

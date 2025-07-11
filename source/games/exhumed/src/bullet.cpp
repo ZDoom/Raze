@@ -248,7 +248,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
             {
                 auto nAngle = (pActor->spr.Angles.Yaw + DAngle22_5) - RandomAngle9();
 
-				pHitActor->vel.XY() = nAngle.ToVector() * 2048;
+				pHitActor->vel.SetXY(nAngle.ToVector() * 2048);
                 pHitActor->vel.Z = -(RandomSize(3) + 1);
             }
             else
@@ -257,7 +257,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 pHitActor->VelFromAngle(-2);
 
                 MoveCreature(pHitActor);
-				pHitActor->vel.XY() = Vel;
+				pHitActor->vel.SetXY(Vel);
             }
 
             break;
@@ -769,7 +769,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     }
 
     pBullet->vect.Z = 0;
-    pBullet->vect.XY() = nAngle.ToVector() * pActor->clipdist;
+    pBullet->vect.SetXY(nAngle.ToVector() * pActor->clipdist);
     BulletList[nBullet].pEnemy = nullptr;
 
 
@@ -780,7 +780,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     else
     {
         pBullet->field_10 = pBulletInfo->field_4;
-		pBullet->vect.XY() = nAngle.ToVector() * pBulletInfo->field_4 / 128.;
+		pBullet->vect.SetXY(nAngle.ToVector() * pBulletInfo->field_4 / 128.);
         pBullet->vect.Z = nVertVel * 0.125;
     }
 

@@ -275,11 +275,11 @@ void AILion::Tick(RunListEvent* ev)
 
             if (pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
             {
-				pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 2048;
+				pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * 2048);
             }
             else
             {
-				pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 512;
+				pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * 512);
             }
         }
 
@@ -403,7 +403,7 @@ void AILion::Tick(RunListEvent* ev)
             pActor->spr.Angles.Yaw = nAngle;
             pActor->nFrame = 0;
             pActor->nAction = 6;
-			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (1024 - 128);
+			pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * (1024 - 128));
 			D3PlayFX(StaticSound[kSound24], pActor);
         }
 
@@ -469,7 +469,7 @@ void AILion::Tick(RunListEvent* ev)
             pActor->vel.Z = -1000 / 256.;
             pActor->nFrame = 0;
             pActor->nAction = 6;
-			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (1024 - 128);
+			pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * (1024 - 128));
             D3PlayFX(StaticSound[kSound24], pActor);
         }
 

@@ -473,7 +473,7 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
 
         if ((pSector->floorz - spos.Z) < (dz + flordist))
         {
-			pActor->spr.pos.XY() = spos.XY();
+			pActor->spr.pos.SetXY(spos.XY());
         }
         else
         {
@@ -776,7 +776,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
     DVector3 pos;
 
-    pos.XY() = sBlockInfo[nBlock].pos;
+    pos.SetXY(sBlockInfo[nBlock].pos);
     auto b_pos = pos.XY();
 
     double nZVal;
@@ -812,7 +812,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
     {
         if (!bUnderwater)
         {
-            pos.XY() = b_pos;
+            pos.SetXY(b_pos);
             pos.Z = nZVal;
 
             clipmove(pos, &pSectorB, nVect, pBlockInfo->mindist, 0., 0., CLIPMASK1, scratch);
@@ -847,7 +847,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
                 if ((nSectFlag & kSectUnderwater) || pos.Z != nZVal || pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
                 {
-                    pos.XY() = pActor->spr.pos.XY();
+                    pos.SetXY(pActor->spr.pos.XY());
                     pSectorB = pSector;
 
                     // The vector that got passed in here originally was Q28.4, while clipmove expects Q14.18, effectively resulting in actual zero movement
@@ -1270,7 +1270,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 			double nSqrt = pActor->vel.Length();
 
 
-			pActor->vel.XY() = nAngle.ToVector() * nSqrt * 0.5;
+			pActor->vel.SetXY(nAngle.ToVector() * nSqrt * 0.5);
             return;
         }
     }

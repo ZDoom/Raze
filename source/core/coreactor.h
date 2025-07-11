@@ -111,7 +111,7 @@ public:
 
 	void backupvec2()
 	{
-		opos.XY() = spr.pos.XY();
+		opos.SetXY(spr.pos.XY());
 	}
 
 	void backuppos()
@@ -139,7 +139,7 @@ public:
 
 	void restorevec2()
 	{
-		spr.pos.XY() = opos.XY();
+		spr.pos.SetXY(opos.XY());
 	}
 
 	void restorepos()

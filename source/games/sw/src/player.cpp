@@ -3224,7 +3224,7 @@ void DoPlayerClimb(DSWPlayer* pp)
                 if (fabs(ppos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
                     ppos.Y = pp->LadderPosition.Y;
             }
-            plActor->spr.pos.XY() = ppos;
+            plActor->spr.pos.SetXY(ppos);
         }
     }
 
@@ -4060,10 +4060,10 @@ void DoPlayerWarpToUnderwater(DSWPlayer* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    plActor->user.pos.XY() = over_act->spr.pos.XY() - pp->GetActor()->spr.pos.XY();
+    plActor->user.pos.SetXY(over_act->spr.pos.XY() - pp->GetActor()->spr.pos.XY());
 
     // update to the new x y position
-    pp->GetActor()->spr.pos.XY() = under_act->spr.pos.XY() - plActor->user.pos.XY();
+    pp->GetActor()->spr.pos.SetXY(under_act->spr.pos.XY() - plActor->user.pos.XY());
 
     auto over  = over_act->sector();
     auto under = under_act->sector();
@@ -4132,10 +4132,10 @@ void DoPlayerWarpToSurface(DSWPlayer* pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    plActor->user.pos.XY() = under_act->spr.pos.XY() - pp->GetActor()->spr.pos.XY();
+    plActor->user.pos.SetXY(under_act->spr.pos.XY() - pp->GetActor()->spr.pos.XY());
 
     // update to the new x y position
-    pp->GetActor()->spr.pos.XY() = over_act->spr.pos.XY() - plActor->user.pos.XY();
+    pp->GetActor()->spr.pos.SetXY(over_act->spr.pos.XY() - plActor->user.pos.XY());
 
     auto over = over_act->sector();
     auto under = under_act->sector();
@@ -5029,7 +5029,7 @@ void DoPlayerBeginOperate(DSWPlayer* pp)
     sop->controller = pp->GetActor();
 
     pp->GetActor()->PrevAngles.Yaw = pp->GetActor()->spr.Angles.Yaw = sop->ang;
-    pp->GetActor()->spr.pos.XY() = sop->pmid.XY();
+    pp->GetActor()->spr.pos.SetXY(sop->pmid.XY());
     updatesector(pp->GetActor()->getPosWithOffsetZ(), &pp->cursector);
     calcSlope(pp->cursector, pp->GetActor()->getPosWithOffsetZ(), &cz, &fz);
     pp->posZset(fz - PLAYER_HEIGHTF);
@@ -5119,7 +5119,7 @@ void DoPlayerBeginRemoteOperate(DSWPlayer* pp, SECTOR_OBJECT* sop)
     auto save_sect = pp->cursector;
 
     pp->GetActor()->PrevAngles.Yaw = pp->GetActor()->spr.Angles.Yaw = sop->ang;
-    pp->GetActor()->spr.pos.XY() = sop->pmid.XY();
+    pp->GetActor()->spr.pos.SetXY(sop->pmid.XY());
     updatesector(pp->GetActor()->getPosWithOffsetZ(), &pp->cursector);
     calcSlope(pp->cursector, pp->GetActor()->getPosWithOffsetZ(), &cz, &fz);
     pp->posZset(fz - PLAYER_HEIGHTF);
@@ -5205,7 +5205,7 @@ void PlayerRemoteReset(DSWPlayer* pp, sectortype* sect)
     pp->lastcursector = pp->cursector;
 
     auto rsp = pp->remoteActor;
-    pp->GetActor()->spr.pos.XY() = rsp->spr.pos.XY();
+    pp->GetActor()->spr.pos.SetXY(rsp->spr.pos.XY());
     pp->posZset(sect->floorz - PLAYER_HEIGHTF);
 
     pp->vect.Zero();
@@ -6073,7 +6073,7 @@ void DoPlayerDeathMoveHead(DSWPlayer* pp)
         }
     }
 
-    pp->GetActor()->spr.pos.XY() = plActor->spr.pos.XY();
+    pp->GetActor()->spr.pos.SetXY(plActor->spr.pos.XY());
     pp->setcursector(plActor->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
@@ -6083,13 +6083,13 @@ void DoPlayerDeathMoveHead(DSWPlayer* pp)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->GetActor(), pp->lv_sector);
-        pp->GetActor()->spr.pos.XY() = pp->lv.XY();
-		plActor->spr.pos.XY() = pp->GetActor()->spr.pos.XY();
+        pp->GetActor()->spr.pos.SetXY(pp->lv.XY());
+        plActor->spr.pos.SetXY(pp->GetActor()->spr.pos.XY());
     }
     else
     {
         pp->lv_sector = sect;
-        pp->lv.XY() = pp->GetActor()->spr.pos.XY();
+        pp->lv.SetXY(pp->GetActor()->spr.pos.XY());
     }
 }
 
@@ -6870,7 +6870,7 @@ void domovethings(void)
 
         // convert fvel/svel into a vector before performing actions.
         pp->cmd.ucmd.vel.X += pp->cmd.ucmd.vel.Z * (pp->DoPlayerAction == DoPlayerClimb);
-        pp->cmd.ucmd.vel.XY() = pp->cmd.ucmd.vel.XY().Rotated(pp->GetActor()->spr.Angles.Yaw);
+        pp->cmd.ucmd.vel.SetXY(pp->cmd.ucmd.vel.XY().Rotated(pp->GetActor()->spr.Angles.Yaw));
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 

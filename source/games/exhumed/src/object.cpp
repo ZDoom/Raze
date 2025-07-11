@@ -1388,7 +1388,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
     auto pSpark = insertActor(pActor->sector(), 0);
 
-    pSpark->spr.pos.XY() = pActor->spr.pos.XY();
+    pSpark->spr.pos.SetXY(pActor->spr.pos.XY());
     pSpark->spr.cstat = 0;
     pSpark->spr.shade = -127;
     pSpark->spr.pal = 1;
@@ -1416,11 +1416,11 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
         if (nVal)
         {
-			pSpark->vel.XY() = nAngle.ToVector() * 32;
+			pSpark->vel.SetXY(nAngle.ToVector() * 32);
         }
         else
         {
-			pSpark->vel.XY() = nAngle.ToVector() * 16;
+			pSpark->vel.SetXY(nAngle.ToVector() * 16);
         }
 
         pSpark->vel.Z = -RandomSize(4) * 0.5;
@@ -1620,7 +1620,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     auto pActor = insertActor(pSector, 406);
 
-	pActor->spr.pos.XY() = apos / pSector->walls.Size();
+	pActor->spr.pos.SetXY(apos / pSector->walls.Size());
 
     pSector->extra = (int16_t)EnergyBlocks.Push(pActor);
 

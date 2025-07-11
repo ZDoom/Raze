@@ -894,7 +894,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
 
     exp->spr.scale.X += (((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
     exp->spr.scale.Y += (((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
-    exp->user.change.XY() = exp->spr.Angles.Yaw.ToVector(5.75);
+    exp->user.change.SetXY(exp->spr.Angles.Yaw.ToVector(5.75));
 }
 
 

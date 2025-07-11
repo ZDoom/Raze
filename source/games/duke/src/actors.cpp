@@ -1264,7 +1264,7 @@ int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int clipty
 		else
 			clipmove(ppos, &dasectp, change.XY() * 0.5, actor->clipdist, 4., 4., cliptype, result);
 	}
-	actor->spr.pos.XY() = ppos.XY();
+	actor->spr.pos.SetXY(ppos.XY());
 
 	if (dasectp != nullptr && dasectp != actor->sector())
 		ChangeActorSect(actor, dasectp);
@@ -1619,7 +1619,7 @@ void handle_se00(DDukeActor* actor)
 		if (actor->temp_pos.Y == 0)
 			actor->temp_pos.Y = (actor->spr.pos.XY() - Owner->spr.pos.XY()).Length();
 		actor->vel.X = actor->temp_pos.Y;
-		actor->spr.pos.XY() = Owner->spr.pos.XY();
+		actor->spr.pos.SetXY(Owner->spr.pos.XY());
 		actor->spr.Angles.Yaw += ang_amount * direction;
 		actor->temp_angle += ang_amount * direction;
 	}
@@ -1639,7 +1639,7 @@ void handle_se00(DDukeActor* actor)
 
 				auto result = rotatepoint(Owner->spr.pos.XY(), pact->spr.pos.XY(), ang_amount * direction);
 				p->bobpos += (result - pact->spr.pos.XY());
-				pact->spr.pos.XY() = result;
+				pact->spr.pos.SetXY(result);
 			}
 		}
 		DukeSectIterator itp(actor->sector());
@@ -1783,7 +1783,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 					updatesector(pact->getPosWithOffsetZ(), &sect);
 					if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && p->cursector != actor->sector()))
 					{
-						pact->spr.pos.XY() = actor->spr.pos.XY();
+						pact->spr.pos.SetXY(actor->spr.pos.XY());
 						p->setCursector(actor->sector());
 
 						SetActor(pact, actor->spr.pos);
@@ -1810,7 +1810,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 				if (actor->sector() == pact->sector())
 				{
 					auto result = rotatepoint(actor->spr.pos.XY(), pact->spr.pos.XY(), diffangle);
-					pact->spr.pos.XY() = result + vec;
+					pact->spr.pos.SetXY(result + vec);
 
 					p->bobpos += vec;
 					pact->spr.Angles.Yaw += diffangle;
@@ -1821,7 +1821,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 					}
 					if (pact->spr.extra <= 0)
 					{
-						pact->spr.pos.XY() = pact->spr.pos.XY();
+						pact->spr.pos.SetXY(pact->spr.pos.XY());
 					}
 				}
 			}
@@ -1833,7 +1833,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 				(!iseffector(a2) || a2->spr.lotag == SE_49_POINT_LIGHT || a2->spr.lotag == SE_50_SPOT_LIGHT) &&
 				!islocator(a2))
 			{
-				a2->spr.pos.XY() = rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), diffangle) + vec;
+				a2->spr.pos.SetXY(rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), diffangle) + vec);
 				a2->spr.Angles.Yaw += diffangle;
 
 				if (numplayers > 1)
@@ -1860,7 +1860,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 					updatesector(pact->getPosWithOffsetZ(), &k);
 					if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && p->cursector != actor->sector()))
 					{
-						pact->spr.pos.XY() = actor->spr.pos.XY();
+						pact->spr.pos.SetXY(actor->spr.pos.XY());
 						pact->backupvec2();
 						p->setCursector(actor->sector());
 
@@ -1965,7 +1965,7 @@ void handle_se30(DDukeActor *actor)
 					updatesector(pact->getPosWithOffsetZ(), &k);
 					if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && p->cursector != actor->sector()))
 					{
-						pact->spr.pos.XY() = actor->spr.pos.XY();
+						pact->spr.pos.SetXY(actor->spr.pos.XY());
 						p->setCursector(actor->sector());
 
 						SetActor(pact, actor->spr.pos);
@@ -2030,7 +2030,7 @@ void handle_se30(DDukeActor *actor)
 						updatesector(pact->getPosWithOffsetZ(), &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && p->cursector != actor->sector()))
 						{
-							pact->spr.pos.XY() = actor->spr.pos.XY();
+							pact->spr.pos.SetXY(actor->spr.pos.XY());
 							pact->backupvec2();
 
 							p->setCursector(actor->sector());
@@ -3229,7 +3229,7 @@ void handle_se26(DDukeActor* actor)
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)
 	{
-		actor->spr.pos.XY() = actor->temp_pos.XY();
+		actor->spr.pos.SetXY(actor->temp_pos.XY());
 		sc->addfloorz(-((zvel * actor->spr.shade) - zvel));
 		actor->spr.shade = 0;
 	}

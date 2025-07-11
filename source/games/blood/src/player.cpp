@@ -1686,8 +1686,10 @@ void ProcessInput(DBloodPlayer* pPlayer)
 			if (spawned)
 			{
 				spawned->spr.Angles.Yaw += DAngle180;
-				spawned->vel.XY() = pPlayer->GetActor()->vel.XY() + (64. / 3.) * pPlayer->GetActor()->spr.Angles.Yaw.ToVector();
-				spawned->vel.Z = pPlayer->GetActor()->vel.Z;
+				spawned->vel = DVector3(
+					pPlayer->GetActor()->vel.XY() + (64. / 3.) * pPlayer->GetActor()->spr.Angles.Yaw.ToVector(),
+					pPlayer->GetActor()->vel.Z
+				);
 			}
 			pPlayer->hand = 0;
 		}

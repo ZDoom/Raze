@@ -556,7 +556,7 @@ int DoSkelTeleport(DSWActor* actor)
 
     while (true)
     {
-        pos.XY() = actor->spr.pos.XY();
+        pos.SetXY(actor->spr.pos.XY());
 
         if (RANDOM_P2(1024) < 512)
             pos.X += 32 + RANDOM_P2F(64, 4);

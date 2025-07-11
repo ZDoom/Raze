@@ -2992,7 +2992,7 @@ void OffMotorcycle(DDukePlayer *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = pact->spr.Angles.Yaw.ToVector() / 2048.;
+		p->vel.SetXY(pact->spr.Angles.Yaw.ToVector() / 2048.);
 		p->moto_underwater = 0;
 		auto spawned = spawn(pact, RedneckEmptyBikeClass);
 		if (spawned)
@@ -3047,7 +3047,7 @@ void OffBoat(DDukePlayer *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = pact->spr.Angles.Yaw.ToVector() / 2048.;
+		p->vel.SetXY(pact->spr.Angles.Yaw.ToVector() / 2048.);
 		p->moto_underwater = 0;
 		auto spawned = spawn(pact, RedneckEmptyBoatClass);
 		if (spawned)

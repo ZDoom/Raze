@@ -64,12 +64,13 @@ void HackSeqCallback(int, DBloodActor* actor)
 	if (!target) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	DVector3 dv;
-	dv.XY() = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
-	dv.Z = height - height2;
+	DVector3 dv(
+		(actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64),
+		height - height2
+	);
 
 	sfxPlay3DSound(actor, 1101, 1, 0);
 	actFireVector(actor, 0, 0, dv, kVectorAxe);

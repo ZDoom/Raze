@@ -498,7 +498,7 @@ void UpdateAimVector(DBloodPlayer* pPlayer)
 				double dzCenter = (pos2.Z - center) - pos.Z;
 
 				nClosest = nDist2;
-				Aim.XY() = angle.ToVector();
+				Aim.SetXY(angle.ToVector());
 				Aim.Z = dzCenter / nDist;
 				targetactor = actor;
 			}
@@ -541,7 +541,7 @@ void UpdateAimVector(DBloodPlayer* pPlayer)
 				if (cansee(pos, plActor->sector(), pos2, actor->sector()))
 				{
 					nClosest = nDist2;
-					Aim.XY() = angle.ToVector();
+					Aim.SetXY(angle.ToVector());
 					Aim.Z = dv.Z / nDist;
 					targetactor = actor;
 				}
@@ -549,14 +549,14 @@ void UpdateAimVector(DBloodPlayer* pPlayer)
 		}
 	}
 	DVector3 Aim2(Aim);
-	Aim2.XY() = Aim2.XY().Rotated(-plActor->spr.Angles.Yaw);
+	Aim2.SetXY(Aim2.XY().Rotated(-plActor->spr.Angles.Yaw));
 	Aim2.Z -= pPlayer->slope;
 
 	pPlayer->relAim.X = interpolatedvalue(pPlayer->relAim.X, Aim2.X, FixedToFloat(pWeaponTrack->aimSpeedHorz));
 	pPlayer->relAim.Y = interpolatedvalue(pPlayer->relAim.Y, Aim2.Y, FixedToFloat(pWeaponTrack->aimSpeedHorz));
 	pPlayer->relAim.Z = interpolatedvalue(pPlayer->relAim.Z, Aim2.Z, FixedToFloat(pWeaponTrack->aimSpeedVert));
 	pPlayer->aim = pPlayer->relAim;
-	pPlayer->aim.XY() = pPlayer->aim.XY().Rotated(plActor->spr.Angles.Yaw);
+	pPlayer->aim.SetXY(pPlayer->aim.XY().Rotated(plActor->spr.Angles.Yaw));
 	pPlayer->aim.Z += pPlayer->slope;
 	pPlayer->aimTarget = targetactor;
 }

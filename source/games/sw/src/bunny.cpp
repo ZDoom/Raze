@@ -1044,7 +1044,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                     }
                 }
 
-                actor->spr.pos.XY() = hitActor->spr.pos.XY();
+                actor->spr.pos.SetXY(hitActor->spr.pos.XY());
                 actor->spr.Angles.Yaw = hitActor->spr.Angles.Yaw;
                 actor->spr.Angles.Yaw += DAngle180;
                 HelpMissileLateral(actor, 2000);

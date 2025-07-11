@@ -402,7 +402,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
             int nVel = RandomSize(5) + 1;
 
-			pSpiderActor->vel.XY() = pSpiderActor->spr.Angles.Yaw.ToVector() * 4 * nVel;
+			pSpiderActor->vel.SetXY(pSpiderActor->spr.Angles.Yaw.ToVector() * 4 * nVel);
             pSpiderActor->vel.Z = -(RandomSize(5) + 3);
         }
 
