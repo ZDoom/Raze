@@ -333,8 +333,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 		int iDist = (rdist << 18) / 120 + Random2(((rdist / 4) << 18) / 120);
 		double nDist = iDist / 65536.;
 		DAngle nAngle = actor->spr.Angles.Yaw + Random2A(56) + DAngle90;
-		pBrass->vel.XY() = nAngle.ToVector() * nDist;
-		pBrass->vel.Z = actor->vel.Z - 2 - Random2(40) / 30.;
+		pBrass->vel = DVector3(nAngle.ToVector() * nDist, actor->vel.Z - 2 - Random2(40) / 30.);
 	}
 }
 
@@ -356,8 +355,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int rdist)
 		int iDist = (rdist << 18) / 120 + Random2(((rdist / 4) << 18) / 120);
 		double nDist = iDist / 65536.;
 		DAngle nAngle = actor->spr.Angles.Yaw + Random2A(56) + DAngle90;
-		pShell->vel.XY() = nAngle.ToVector() * nDist;
-		pShell->vel.Z = actor->vel.Z - 2 - Random2(28) / 30.;
+		pShell->vel = DVector3(nAngle.ToVector() * nDist, actor->vel.Z - 2 - Random2(28) / 30.);
 	}
 }
 

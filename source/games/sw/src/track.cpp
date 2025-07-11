@@ -844,7 +844,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                 }
 
 
-                itActor->user.pos.XY() = sop->pmid.XY() - itActor->spr.pos.XY();
+                itActor->user.pos.SetXY(sop->pmid.XY() - itActor->spr.pos.XY());
                 itActor->user.pos.Z = sop->mid_sector->floorz - itActor->spr.pos.Z;
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
@@ -1481,7 +1481,7 @@ void MovePlayer(DSWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
         pp->Flags |= (PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->GetActor()->spr.Angles.Yaw;
-        pp->Revolve.XY() = pp->GetActor()->spr.pos.XY();
+        pp->Revolve.SetXY(pp->GetActor()->spr.pos.XY());
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1503,7 +1503,7 @@ void MovePlayer(DSWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
         // moving then you
         // know where he was last
         pp->RevolveAng = pp->GetActor()->spr.Angles.Yaw;
-        pp->Revolve.XY() = pp->GetActor()->spr.pos.XY();
+        pp->Revolve.SetXY(pp->GetActor()->spr.pos.XY());
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1522,7 +1522,7 @@ void MovePlayer(DSWPlayer* pp, SECTOR_OBJECT* sop, const DVector2& move)
     // increment Players delta angle
     pp->RevolveDeltaAng += GlobSpeedSO;
 
-    pp->GetActor()->spr.pos.XY() = rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng);
+    pp->GetActor()->spr.pos.SetXY(rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng));
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
@@ -1554,7 +1554,7 @@ void MovePoints(SECTOR_OBJECT* sop, DAngle deltaangle, const DVector2& move)
         PlayerMove = false;
 
     // move child sprite along also
-    sop->sp_child->spr.pos.XY() = sop->pmid.XY();
+    sop->sp_child->spr.pos.SetXY(sop->pmid.XY());
 
     // setting floor z if need be
     if ((sop->flags & SOBJ_ZMID_FLOOR))
@@ -1652,7 +1652,7 @@ PlayerPart:
             }
         }
 
-        actor->spr.pos.XY() = sop->pmid.XY() - actor->user.pos.XY();
+        actor->spr.pos.SetXY(sop->pmid.XY() - actor->user.pos.XY());
 
         // sprites z update
         if ((sop->flags & SOBJ_SPRITE_OBJ))
@@ -1690,12 +1690,12 @@ PlayerPart:
 
             if ((actor->sector()->walls[0].extra & WALLFX_LOOP_REVERSE_SPIN))
             {
-                actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), -deltaangle);
+                actor->spr.pos.SetXY(rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), -deltaangle));
                 actor->spr.Angles.Yaw -= deltaangle;
             }
             else
             {
-                actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle);
+                actor->spr.pos.SetXY(rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle));
                 actor->spr.Angles.Yaw += deltaangle;
             }
 			actor->norm_ang();
@@ -1705,7 +1705,7 @@ PlayerPart:
             if (!(sop->flags & SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
-                actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle);
+                actor->spr.pos.SetXY(rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle));
                 actor->spr.Angles.Yaw += deltaangle;
 				actor->norm_ang();
             }
@@ -3240,7 +3240,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             // move out in front of the ladder
             auto vec = lActor->spr.Angles.Yaw.ToVector() * 6.25;
 
-			actor->spr.pos.XY() = lActor->spr.pos.XY() + vec;
+			actor->spr.pos.SetXY(lActor->spr.pos.XY() + vec);
 
 			actor->spr.Angles.Yaw += DAngle180;
 
@@ -3446,7 +3446,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         else
         {
             // calculate a new x and y
-			vec.XY() = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
+			vec.SetXY(actor->spr.Angles.Yaw.ToVector() * actor->vel.X);
         }
 
         if (actor->vel.Z != 0)

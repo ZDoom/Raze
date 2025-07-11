@@ -3765,7 +3765,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->spr.pos.XY() = actor->spr.pos.XY();
+        actorNew->spr.pos.SetXY(actor->spr.pos.XY());
         actorNew->spr.pos.Z = ActorLowerZ(actor) + 10;
         actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 
@@ -6328,7 +6328,7 @@ Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, 
     clipmove(clip_pos, &dasect, change.XY() * numtics * 0.125, actor->clipdist, ceildist, flordist, cliptype, retval, 1);
 
 
-    actor->spr.pos.XY() = clip_pos.XY();
+    actor->spr.pos.SetXY(clip_pos.XY());
 
     if (dasect == nullptr)
     {
@@ -6545,7 +6545,7 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceil_dist
 
 
     clipmove(clip_pos, &dasect, change.XY() * numtics * 0.125, actor->clipdist, ceil_dist, flor_dist, cliptype, retval, 1);
-    actor->spr.pos.XY() = clip_pos.XY();
+    actor->spr.pos.SetXY(clip_pos.XY());
 
     if (dasect == nullptr)
     {
@@ -6694,7 +6694,7 @@ Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ce
         opos = actor->spr.pos;
         opos.Z = daz;
         clipmove(opos, &dasect, change * numtics * 0.125, actor->clipdist, ceildist, flordist, cliptype, retval, 1);
-		actor->spr.pos.XY() = opos.XY();
+		actor->spr.pos.SetXY(opos.XY());
     }
 
     if (dasect == nullptr)

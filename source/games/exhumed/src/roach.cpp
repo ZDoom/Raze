@@ -103,7 +103,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
 
 void GoRoach(DExhumedActor* pActor)
 {
-	pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (512 - 128);
+	pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * (512 - 128));
 }
 
 void AIRoach::Draw(RunListEvent* ev)

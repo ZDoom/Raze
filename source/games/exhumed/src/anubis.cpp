@@ -175,7 +175,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F) && pTarget)
         {
             PlotCourseToSprite(ap, pTarget);
-			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
+			ap->vel.SetXY(ap->spr.Angles.Yaw.ToVector() * 256);
         }
 
         switch (move.type)
@@ -264,7 +264,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         if (bVal)
         {
             ap->nAction = 1;
-			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
+			ap->vel.SetXY(ap->spr.Angles.Yaw.ToVector() * 256);
             ap->nFrame = 0;
         }
         else if (seqFrame.flags & 0x80)

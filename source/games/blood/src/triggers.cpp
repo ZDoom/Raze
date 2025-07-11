@@ -908,7 +908,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 		{
 			auto spot = rotatepoint(pivot, actor->basePoint.XY(), ptang_w2);
 			viewBackupSpriteLoc(actor);
-			actor->spr.pos.XY() = spot + pt_w2 - pivot;
+			actor->spr.pos.SetXY(spot + pt_w2 - pivot);
 			actor->spr.Angles.Yaw += angleofs;
 
 		}
@@ -919,7 +919,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 
 			auto spot = rotatepoint(pivotDy, actor->basePoint.XY(), ptang_w2);
 			viewBackupSpriteLoc(actor);
-			actor->spr.pos.XY() = spot - pt_w2 + pivot;
+			actor->spr.pos.SetXY(spot - pt_w2 + pivot);
 			actor->spr.Angles.Yaw += angleofs;
 		}
 		else if (pXSector->Drag)
@@ -932,7 +932,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 				viewBackupSpriteLoc(actor);
 				if (angleofs != nullAngle)
 				{
-					actor->spr.pos.XY() = rotatepoint(pt_w1, actor->spr.pos.XY(), angleofs);
+					actor->spr.pos.SetXY(rotatepoint(pt_w1, actor->spr.pos.XY(), angleofs));
 				}
 				actor->spr.Angles.Yaw += angleofs;
 				actor->spr.pos += position;
@@ -958,7 +958,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 				{
 					auto spot = rotatepoint(pivot, ac->basePoint.XY(), ptang_w2);
 					viewBackupSpriteLoc(ac);
-					ac->spr.pos.XY() = spot + pt_w2 - pivot;
+					ac->spr.pos.SetXY(spot + pt_w2 - pivot);
 					ac->spr.Angles.Yaw += angleofs;
 					if (!VanillaMode() && ac->IsPlayerActor()) getPlayer(ac->spr.type - kDudePlayer1)->GetActor()->spr.Angles.Yaw += angleofs;
 				}
@@ -966,7 +966,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 				{
 					auto spot = rotatepoint(pivot, ac->basePoint.XY(), ptang_w2);
 					viewBackupSpriteLoc(ac);
-					ac->spr.pos.XY() = spot - pt_w2 + pivot;
+					ac->spr.pos.SetXY(spot - pt_w2 + pivot);
 					ac->spr.Angles.Yaw += angleofs;
 					if (!VanillaMode() && ac->IsPlayerActor()) getPlayer(ac->spr.type - kDudePlayer1)->GetActor()->spr.Angles.Yaw += angleofs;
 				}
@@ -1608,7 +1608,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					TeleFrag(pXSector->actordata, destactor->sector());
 				}
-				actor->spr.pos.XY() = destactor->spr.pos.XY();
+				actor->spr.pos.SetXY(destactor->spr.pos.XY());
 				actor->spr.pos.Z += destactor->sector()->floorz - pSector->floorz;
 				actor->spr.Angles.Yaw = destactor->spr.Angles.Yaw;
 				ChangeActorSect(actor, destactor->sector());
@@ -2536,7 +2536,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 				evPostActor(actor, 1, kCmdOff, actor);
 		}
 		DVector3 dv;
-		dv.XY() = actor->spr.Angles.Yaw.ToVector();
+		dv.SetXY(actor->spr.Angles.Yaw.ToVector());
 		dv.X += Random2F(1000, 14);
 		dv.Y += Random2F(1000, 14);
 		dv.Z = Random2F(1000, 14);

@@ -128,11 +128,11 @@ void fakedomovethings(void)
 
 		if( ud.clipping == 0 && ( psect->floortexture == mirrortex || psect == nullptr) )
 		{
-			mypos.XY() = omypos.XY();
+			mypos.SetXY(omypos.XY());
 		}
 		else
 		{
-			omypos.XY() = mypos.XY();
+			omypos.SetXY(mypos.XY());
 		}
 
 		omyhoriz = myhoriz;

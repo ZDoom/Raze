@@ -459,7 +459,7 @@ int DoBloodSpray(DSWActor* actor)
                 actor->user.change.X = actor->user.change.Y = 0;
                 double scale = (70 - RandomRange(25)) * REPEAT_SCALE;
                 actor->spr.scale = DVector2(scale, scale);
-                actor->spr.pos.XY() = bldActor->spr.pos.XY();
+                actor->spr.pos.SetXY(bldActor->spr.pos.XY());
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall
@@ -1209,7 +1209,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121)
     {
         actorNew->user.Radius = 2000;
-        actorNew->user.change.XY() = actorNew->spr.Angles.Yaw.ToVector() * actorNew->vel.X * 0.25;
+        actorNew->user.change.SetXY(actorNew->spr.Angles.Yaw.ToVector() * actorNew->vel.X * 0.25);
 		actorNew->vel.Z = 1 + RandomRangeF(2);
     }
     else

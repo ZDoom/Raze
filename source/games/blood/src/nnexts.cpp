@@ -1594,9 +1594,10 @@ void debrisBubble(DBloodActor* actor)
 	for (unsigned int i = 0; i < 1 + Random(5); i++)
 	{
 		DAngle nAngle = RandomAngle();
-		DVector3 pos;
-		pos.XY() = actor->spr.pos.XY() + nAngle.ToVector() * nDist;
-		pos.Z = bottom - RandomD(bottom - top, 8);
+		DVector3 pos(
+			actor->spr.pos.XY() + nAngle.ToVector() * nDist,
+			bottom - RandomD(bottom - top, 8)
+		);
 		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), pos, nullAngle);
 		if (pFX) {
 			pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
@@ -3099,7 +3100,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			
 			auto velv = pSprite->vel.XY();
 			auto pt = rotatepoint(pSprite->spr.pos.XY(), velv, angl);
-			pSprite->vel.XY() = pt;
+			pSprite->vel.SetXY(pt);
 
 
 			vAng = pSprite->vel.Angle();
@@ -3145,7 +3146,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	if (actor->sector() != sourceactor->sector())
 		ChangeActorSect(actor, sourceactor->sector());
 
-	actor->spr.pos.XY() =sourceactor->spr.pos.XY();
+	actor->spr.pos.SetXY(sourceactor->spr.pos.XY());
 	double zTop, zBot;
 	GetActorExtents(sourceactor, &zTop, &zBot);
 	actor->spr.pos.Z = zBot;
@@ -3251,8 +3252,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		{
 			auto velv = actor->vel.XY();
 			auto pt = rotatepoint(actor->spr.pos.XY(), velv, sourceactor->spr.Angles.Yaw - velv.Angle());
-			actor->vel.XY() = pt;
-
+			actor->vel.SetXY(pt);
 		}
 
 		if (sourceactor->xspr.data3 & kModernTypeFlag4)
@@ -3719,7 +3719,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 			{
 				DVector3 cpos;
 				
-				cpos.XY() = pWall->center();
+				cpos.SetXY(pWall->center());
 				auto pMySector = pWall->sectorp();
 				double ceilZ, floorZ;
 				calcSlope(pSector, cpos, &ceilZ, &floorZ);
@@ -6498,8 +6498,10 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 	}
 	else
 	{
-		dv.XY() = actor->spr.Angles.Yaw.ToVector();
-		dv.Z = clamp(sourceactor->xspr.data3 / 256., -4., 4.); // add slope controlling
+		dv = DVector3(
+			actor->spr.Angles.Yaw.ToVector(),
+			clamp(sourceactor->xspr.data3 / 256., -4., 4.) // add slope controlling
+		);
 	}
 
 	auto missileactor = actFireMissile(actor, 0, 0, dv, actor->xspr.data1);

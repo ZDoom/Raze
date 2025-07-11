@@ -430,7 +430,7 @@ void AISet::Tick(RunListEvent* ev)
             }
 
             // loc_338E2
-			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 512;
+			pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * 512);
 
             if (pActor->nIndex2)
             {

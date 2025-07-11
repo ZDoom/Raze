@@ -693,8 +693,8 @@ double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector
 	double startcz, startfz;
 	double p3cz, p3fz;
 
-	pt1.XY() = wal->pos;
-	pt2.XY() = wal->point2Wall()->pos;
+	pt1.SetXY(wal->pos);
+	pt2.SetXY(wal->point2Wall()->pos);
 	pt3.X = pt1.X + pt2.Y - pt1.Y;
 	pt3.Y = pt1.Y + pt2.X - pt1.X; // somewhere off the first line.
 

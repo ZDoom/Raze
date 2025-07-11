@@ -3832,7 +3832,7 @@ int DoVomit(DSWActor* actor)
         actor->spr.pos.Z = actor->user.loz;
         actor->user.WaitTics = 60;
         // notreallypos
-        actor->user.pos.XY() = actor->spr.scale;
+        actor->user.pos.SetXY(actor->spr.scale);
         return 0;
     }
 
@@ -4061,14 +4061,14 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
             {
                 p = ExtraBlood;
                 hit_angle = weapActor->spr.Angles.Yaw + DAngle180;
-                hitpos.XY() = actor->spr.pos.XY();
+                hitpos.SetXY(actor->spr.pos.XY());
                 hitpos.Z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) * 0.25);
             }
             break;
         case SERP_RUN_R0:
             p = ExtraBlood;
             hit_angle = weapActor->spr.Angles.Yaw + DAngle180;
-            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.SetXY(actor->spr.pos.XY());
             hitpos.Z = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
             break;
         case BLADE1:
@@ -4077,26 +4077,26 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
         case 5011:
             p = SmallBlood;
             hit_angle = AngToSprite(actor, weapActor) + DAngle180;
-            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.SetXY(actor->spr.pos.XY());
             hitpos.Z = weapActor->spr.pos.Z + (ActorSizeZ(weapActor) * 0.5);
             break;
         case STAR1:
         case CROSSBOLT:
             p = SomeBlood;
             hit_angle = weapActor->spr.Angles.Yaw + DAngle180;
-            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.SetXY(actor->spr.pos.XY());
             hitpos.Z = weapActor->spr.pos.Z;
             break;
         case PLASMA_FOUNTAIN:
             p = PlasmaFountainBlood;
             hit_angle = weapActor->spr.Angles.Yaw;
-            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.SetXY(actor->spr.pos.XY());
             hitpos.Z = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
             break;
         default:
             p = SomeBlood;
             hit_angle = weapActor->spr.Angles.Yaw + DAngle180;
-            hitpos.XY() = actor->spr.pos.XY();
+            hitpos.SetXY(actor->spr.pos.XY());
             hitpos.Z = ActorZOfTop(weapActor) + (ActorSizeZ(weapActor) * 0.25);
             break;
         }
@@ -8272,7 +8272,7 @@ void WallBounce(DSWActor* actor, DAngle ang)
     //
 	if (old_ang == actor->spr.Angles.Yaw)
     {
-        actor->user.change.XY() = -actor->user.change.XY();
+        actor->user.change.SetXY(-actor->user.change.XY());
 		SetAngleFromChange(actor);
     }
 }
@@ -10284,7 +10284,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, DAngle ang)
 
     //ang = RANDOM_P2(2048);
     double const vel = (128+8) + RandomRangeF(128);
-    expActor->user.change.XY() = ang.ToVector() * vel;
+    expActor->user.change.SetXY(ang.ToVector() * vel);
     expActor->user.Radius = 200; // was NUKE_RADIUS
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
 									   expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10481,7 +10481,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
 
     actor->user.Flags |= (SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
 
-    actor->user.pos.XY() = sop->pmid.XY() - actor->spr.pos.XY();
+    actor->user.pos.SetXY(sop->pmid.XY() - actor->spr.pos.XY());
     actor->user.pos.Z = sop->mid_sector->floorz - actor->spr.pos.Z;
 
     actor->user.sang = actor->spr.Angles.Yaw;
@@ -10571,7 +10571,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, DAngle ang)
 
     //ang = RANDOM_P2(2048);
     double vel = (96) + RandomRangeF(64);
-    expActor->user.change.XY() = ang.ToVector() * vel;
+    expActor->user.change.SetXY(ang.ToVector() * vel);
 
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
                            expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11168,7 +11168,7 @@ int DoBloodWorm(DSWActor* actor)
 
     if (actor->user.coll.type != kHitNone)
     {
-		actor->user.change.XY() = -actor->user.change.XY();
+		actor->user.change.SetXY(-actor->user.change.XY());
         actor->user.coll.setNone();
         actor->spr.Angles.Yaw += DAngle180;
         return true;
@@ -11222,7 +11222,7 @@ int DoBloodWorm(DSWActor* actor)
         GlobalSkipZrange = false;
     }
 
-	actor->spr.pos.XY() = bpos;
+	actor->spr.pos.SetXY(bpos);
 
     return false;
 }
@@ -17011,7 +17011,7 @@ int InitEnemyFireball(DSWActor* actor)
         HelpMissileLateral(actorNew, 500);
         actorNew->spr.Angles.Yaw -= lat_ang[i];
 
-        actorNew->user.change.XY() = change;
+        actorNew->user.change.SetXY(change);
 
         MissileSetPos(actorNew, DoFireball, 700);
 
@@ -17097,7 +17097,7 @@ bool WarpToUnderwater(DVector3& pos, sectortype** psectu)
 	spos = overActor->spr.pos.XY() - pos.XY();
 
     // update to the new x y position
-	pos.XY() = underActor->spr.pos.XY() - spos;
+	pos.SetXY(underActor->spr.pos.XY() - spos);
 
     auto over = overActor->sector();
     auto under = underActor->sector();
@@ -17169,7 +17169,7 @@ bool WarpToSurface(DVector3& pos, sectortype** psectu)
 	DVector2 spos = underActor->spr.pos.XY() - pos.XY();
 
     // update to the new x y position
-    pos.XY() = overActor->spr.pos.XY() - spos;
+    pos.SetXY(overActor->spr.pos.XY() - spos);
 
     auto over = overActor->sector();
     auto under = underActor->sector();
@@ -17472,7 +17472,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     double scale = (8 + (RANDOM_P2(8 << 8) >> 8)) * REPEAT_SCALE;
     actorNew->spr.scale = DVector2(scale, scale);
     // notreallypos
-    actorNew->user.pos.XY() = actorNew->spr.scale;
+    actorNew->user.pos.SetXY(actorNew->spr.scale);
     actorNew->user.ceiling_dist = 1;
     actorNew->user.floor_dist = 1;
     actorNew->spr.shade = actor->sector()->floorshade - 10;
@@ -18695,7 +18695,7 @@ int DoItemFly(DSWActor* actor)
             }
             else
             {
-				actor->user.change.XY() = -actor->user.change.XY();
+				actor->user.change.SetXY(-actor->user.change.XY());
             }
 
             break;

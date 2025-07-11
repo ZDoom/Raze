@@ -140,7 +140,7 @@ void checkplayerhurt_d(DDukePlayer* p, const Collision& coll)
 			p->hurt_delay = 16;
 			SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-			p->vel.XY() = -pact->spr.Angles.Yaw.ToVector() * 16;
+			p->vel.SetXY(-pact->spr.Angles.Yaw.ToVector() * 16);
 			S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 
 			checkhitwall(pact, wal, pact->getPosWithOffsetZ() + pact->spr.Angles.Yaw.ToVector() * 2);

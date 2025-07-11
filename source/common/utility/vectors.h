@@ -544,6 +544,12 @@ struct TVector3
 		return Vector2(X, Y);
 	}
 
+	void SetXY(const Vector2 &v)
+	{
+		X = v.X;
+		Y = v.Y;
+	}
+
 	// Add a 3D vector and a 2D vector.
 	constexpr friend TVector3 operator+ (const TVector3 &v3, const Vector2 &v2)
 	{

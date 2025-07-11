@@ -227,7 +227,7 @@ void QuakeViewChange(DSWPlayer* pp, DVector3& tpos, DAngle& tang)
     tangdiff = mapangle(StdRandomRange(ang_amt) - (ang_amt/2));
 
     int pos_amt = QUAKE_PosAmt(actor) * 4L;
-    tposdiff.XY() = DVector2(StdRandomRange(pos_amt) - (pos_amt/2), StdRandomRange(pos_amt) - (pos_amt/2)) * (1. / 4.);
+    tposdiff.SetXY(DVector2(StdRandomRange(pos_amt) - (pos_amt/2), StdRandomRange(pos_amt) - (pos_amt/2)) * (1. / 4.));
 
     if (!QUAKE_TestDontTaper(actor))
     {

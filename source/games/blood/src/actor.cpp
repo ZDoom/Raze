@@ -2594,7 +2594,7 @@ void actWallBounceVector(DBloodActor* actor, walltype* pWall, double factor)
 	auto vel = actor->vel.XY();
 	double t = vel.X * -delta.Y + vel.Y * delta.X;
 	double t2 = t * (factor+1);
-	actor->vel.XY() = (vel - DVector2(-delta.Y * t2, delta.X * t2));
+	actor->vel.SetXY(vel - DVector2(-delta.Y * t2, delta.X * t2));
 }
 
 //---------------------------------------------------------------------------
@@ -4583,7 +4583,7 @@ static Collision MoveThing(DBloodActor* actor)
 			actor->spr.flags |= 4;
 
 			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), FixedToFloat(pThingInfo->elastic));
-			actor->vel.XY() = vec4.XY();
+			actor->vel.SetXY(vec4.XY());
 			int vax = FloatToFixed(vec4.W);
 
 			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
@@ -5057,7 +5057,7 @@ void MoveDude(DBloodActor* actor)
 		if (veldiff > 0)
 		{
 			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), 0);
-			actor->vel.XY() = vec4.XY();
+			actor->vel.SetXY(vec4.XY());
 			int vax = FloatToFixed(vec4.W);
 
 			int nDamage = MulScale(vax, vax, 30);
@@ -5191,7 +5191,7 @@ int MoveMissile(DBloodActor* actor)
 		if (target->spr.statnum == kStatDude && target->hasX() && target->xspr.health > 0)
 		{
 			double vel = missileInfo[actor->spr.type - kMissileBase].fVelocity();
-			actor->vel.XY() = DVector2(vel, 0).Rotated((target->spr.pos - actor->spr.pos).Angle());
+			actor->vel.SetXY(DVector2(vel, 0).Rotated((target->spr.pos - actor->spr.pos).Angle()));
 
 			double deltaz = (target->spr.pos.Z - actor->spr.pos.Z) / (10 * 256);
 
@@ -6340,7 +6340,7 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 
 	if (HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->clipdist * 0.25) != -1)
 	{
-		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * actor->clipdist * 2;
+		vect.SetXY(gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * actor->clipdist * 2);
 	}
 	auto fired = actSpawnThing(actor->sector(), vect, thingType);
 	fired->SetOwner(actor);
@@ -6453,11 +6453,11 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 		if (hit == 3 || hit == 0)
 		{
 			impact = true;
-			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * 1;
+			vect.SetXY(gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * 1);
 		}
 		else
 		{
-			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * pMissileInfo->fClipDist() * 2;
+			vect.SetXY(gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * pMissileInfo->fClipDist() * 2);
 		}
 	}
 	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1);

@@ -182,7 +182,7 @@ void CopySectorMatch(int match)
                         auto src_off = spos.XY() - itActor->spr.pos.XY();
 
                         // move sprite to dest sector
-                        itActor->spr.pos.XY() = dpos.XY() - src_off;
+                        itActor->spr.pos.SetXY(dpos.XY() - src_off);
 
                         // change sector
                         ChangeActorSect(itActor, dsectp);

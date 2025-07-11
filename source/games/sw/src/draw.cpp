@@ -401,8 +401,10 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
         z_amt_per_pixel = -ownerActor->vel.Z / tsp->ownerActor->vel.X;
     }
 
-    dpos.XY() = npos.XY() = angle.ToVector() * ownerActor->user.motion_blur_dist;
-    dpos.Z = npos.Z = z_amt_per_pixel * ownerActor->user.motion_blur_dist * (1./16);
+    dpos = npos = DVector3(
+        angle.ToVector() * ownerActor->user.motion_blur_dist,
+        z_amt_per_pixel * ownerActor->user.motion_blur_dist * (1. / 16)
+    );
 
 	scale = tsp->scale;
 

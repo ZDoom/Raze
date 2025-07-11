@@ -312,7 +312,7 @@ void DestroyAllEggs()
 
 void SetHeadVel(DExhumedActor* pActor)
 {
-	pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (1 << nVelShift);
+	pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * (1 << nVelShift));
 }
 
 //---------------------------------------------------------------------------
@@ -482,7 +482,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     if (!nVal)
     {
 		pActor2->spr.scale = DVector2(0.46875, 0.46875);
-		pActor2->vel.XY() = pActor2->spr.Angles.Yaw.ToVector();
+		pActor2->vel.SetXY(pActor2->spr.Angles.Yaw.ToVector());
         pActor2->vel.Z = -6000 / 256.;
         pActor2->spr.cstat = 0;
     }
@@ -613,7 +613,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
 
             pActor->spr.Angles.Yaw = nAngle;
-			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 0.5;
+			pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * 0.5);
         }
 
         break;
@@ -750,7 +750,7 @@ void BuildQueenHead(int nQueen)
 
     auto pActor2 = insertActor(pSector, 121);
 
-	pActor2->spr.pos.XY() = pActor->spr.pos.XY();
+	pActor2->spr.pos.SetXY(pActor->spr.pos.XY());
 	pActor2->spr.pos.Z = pSector->floorz;
 	pActor2->clipdist = 17.5;
 	pActor2->spr.scale = DVector2(1.25, 1.25);

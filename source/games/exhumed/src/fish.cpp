@@ -423,7 +423,7 @@ void AIFish::Tick(RunListEvent* ev)
 
             if (z <= nHeight)
             {
-				pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (32 - 8);
+				pActor->vel.SetXY(pActor->spr.Angles.Yaw.ToVector() * (32 - 8));
             }
             else
             {
