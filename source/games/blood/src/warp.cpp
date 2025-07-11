@@ -211,7 +211,7 @@ int CheckLink(DBloodActor* actor)
 			assert(aLower);
 			assert(aLower->insector());
 			ChangeActorSect(actor, aLower->sector());
-			actor->spr.pos.XY() += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
+			actor->spr.pos += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
 			double z2;
 			if (aLower->spr.type == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
@@ -235,7 +235,7 @@ int CheckLink(DBloodActor* actor)
 			assert(aUpper);
 			assert(aUpper->insector());
 			ChangeActorSect(actor, aUpper->sector());
-			actor->spr.pos.XY() += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
+			actor->spr.pos += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
 			double z2;
 			if (aUpper->spr.type == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;
@@ -272,7 +272,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			assert(aLower);
 			assert(aLower->insector());
 			*pSector = aLower->sector();
-			cPos.XY() += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
+			cPos += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
 			double z2;
 			if (aUpper->spr.type == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
@@ -294,7 +294,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			aUpper = aLower->GetOwner();
 			assert(aUpper);
 			*pSector = aUpper->sector();
-			cPos.XY() += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
+			cPos += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
 			double z2;
 			if (aLower->spr.type == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;

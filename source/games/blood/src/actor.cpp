@@ -2936,7 +2936,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			actDropObject(actor, actor->xspr.dropMsg);
 
 		actor->spr.flags &= ~kPhysMove;
-		actor->vel.XY().Zero();
+		actor->vel.SetXY(DVector2(0, 0));
 
 		playGenDudeSound(actor, kGenDudeSndTransforming);
 		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
@@ -4137,7 +4137,7 @@ static void checkCeilHit(DBloodActor* actor)
 			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && !actor->vel.isZero())
 			{
 				auto adelta = actor2->spr.pos - actor->spr.pos;
-				actor2->vel.XY() += adelta.XY() * (1. / SLOPEVAL_FACTOR);
+				actor2->vel += adelta.XY() * (1. / SLOPEVAL_FACTOR);
 
 				if (actor2->spr.statnum == kStatThing)
 				{
@@ -4636,7 +4636,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->spr.pos.Z += max(ceilZ - top, 0.);
 		if (actor->vel.Z < 0)
 		{
-			actor->vel.XY() *= 0.75;
+			actor->vel.SetXY(actor->vel.XY() * 0.75);
 			actor->vel.Z *= -0.25;
 
 			switch (actor->spr.type)
@@ -4669,13 +4669,13 @@ static Collision MoveThing(DBloodActor* actor)
 			auto hitActor = coll.actor();
 			if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->vel.XY() += (actor->spr.pos.XY() - hitActor->spr.pos.XY()) / SLOPEVAL_FACTOR;
+				actor->vel += (actor->spr.pos.XY() - hitActor->spr.pos.XY()) / SLOPEVAL_FACTOR;
 				lhit = actor->hit.hit;
 			}
 		}
 		if (nVel > 0)
 		{
-			actor->vel.XY() -= actor->vel.XY() * nVelClipped / nVel;
+			actor->vel -= actor->vel.XY() * nVelClipped / nVel;
 		}
 	}
 	if (actor->vel.X != 0 || actor->vel.Y != 0)
@@ -5139,7 +5139,7 @@ void MoveDude(DBloodActor* actor)
 			auto hitAct = floorColl.actor();
 			if ((hitAct->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->vel.XY() += (actor->spr.pos - hitAct->spr.pos).XY() * (1. / SLOPEVAL_FACTOR);
+				actor->vel += (actor->spr.pos - hitAct->spr.pos).XY() * (1. / SLOPEVAL_FACTOR);
 				return;
 			}
 		}
@@ -5157,7 +5157,7 @@ void MoveDude(DBloodActor* actor)
 
 		if (actor->vel.XY().Length() < 0.0625)
 		{
-			actor->vel.XY().Zero();
+			actor->vel.SetXY(DVector2(0, 0));
 		}
 	}
 }
@@ -5265,7 +5265,7 @@ int MoveMissile(DBloodActor* actor)
 		if (cliptype >= 0 && cliptype != 3)
 		{
 			double nVel = actor->vel.XY().Length();
-			ppos.XY() -= actor->vel.XY() / nVel;
+			ppos -= actor->vel.XY() / nVel;
 			vel.Z -= actor->vel.Z / nVel;
 			updatesector(ppos, &pSector);
 			pSector2 = pSector;
@@ -5945,7 +5945,7 @@ static void actCheckDudes()
 			// handle incarnations of custom dude
 			if (actor->spr.type == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
 			{
-				actor->vel.XY().Zero();
+				actor->vel.SetXY(DVector2(0, 0));
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif
@@ -6088,7 +6088,7 @@ void actCheckFlares()
 		if (target->hasX() && target->xspr.health > 0)
 		{
 			DVector3 pos = target->spr.pos;
-			pos.XY() += (actor->xspr.goalAng + target->spr.Angles.Yaw).ToVector() * target->clipdist * 0.5;
+			pos += (actor->xspr.goalAng + target->spr.Angles.Yaw).ToVector() * target->clipdist * 0.5;
 			pos.Z += actor->xspr.TargetPos.Z;
 			SetActor(actor, pos);
 			actor->vel = target->vel;
@@ -6183,7 +6183,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 
 	if (dist >= 0)
 	{
-		pos.XY() += angle.ToVector() * dist;
+		pos += angle.ToVector() * dist;
 	}
 	spawned->spr.type = nType;
 	if (!VanillaMode())

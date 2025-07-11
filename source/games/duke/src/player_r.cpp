@@ -426,7 +426,7 @@ int doincrements_r(DDukePlayer* p)
 		{
 			p->noise_radius = 1024;
 			madenoise(getPlayer(screenpeek));
-			p->vel.XY() += pact->spr.Angles.Yaw.ToVector();
+			p->vel += pact->spr.Angles.Yaw.ToVector();
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -1032,14 +1032,14 @@ static void onMotorcycle(DDukePlayer* const p, ESyncBits &actions)
 			}
 		}
 
-		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
+		p->vel += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
 		pact->spr.Angles.Yaw -= DAngle::fromBam(angAdjustment);
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		velAdjustment = krand() & 1 ? adjust : -adjust;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
-		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
+		p->vel += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -1106,7 +1106,7 @@ static void onBoat(DDukePlayer* const p, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->vel.XY() += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
+		p->vel += (pact->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
 		pact->spr.Angles.Yaw -= DAngle::fromBam(angAdjustment);
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
@@ -1754,7 +1754,7 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
+				p->vel -= pact->spr.Angles.Yaw.ToVector();
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -1837,12 +1837,12 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= pact->spr.Angles.Yaw.ToVector() * 2;
+					p->vel -= pact->spr.Angles.Yaw.ToVector() * 2;
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
+				p->vel -= pact->spr.Angles.Yaw.ToVector();
 			}
 		}
 
@@ -1928,7 +1928,7 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
+					p->vel -= pact->spr.Angles.Yaw.ToVector();
 				}
 				checkavailweapon(p);
 
@@ -2068,7 +2068,7 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->vel.XY() -= pact->spr.Angles.Yaw.ToVector();
+			p->vel -= pact->spr.Angles.Yaw.ToVector();
 			pact->spr.Angles.Pitch -= DAngle::fromDeg(8.88);
 			p->recoil += 20;
 		}
@@ -2115,7 +2115,7 @@ static void operateweapon(DDukePlayer* const p, ESyncBits actions, sectortype* p
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->vel.XY() += pact->spr.Angles.Yaw.ToVector();
+			p->vel += pact->spr.Angles.Yaw.ToVector();
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -2398,7 +2398,7 @@ void processinput_r(DDukePlayer* const p)
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
 			auto ang = (clz.actor()->spr.pos.XY() - pact->spr.pos.XY()).Angle();
-			p->vel.XY() -= ang.ToVector();
+			p->vel -= ang.ToVector();
 		}
 		if (clz.actor()->GetClass() == RedneckLadderClass)
 		{
@@ -2624,24 +2624,24 @@ void processinput_r(DDukePlayer* const p)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.XY() += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
+		p->vel += p->cmd.ucmd.vel.XY() * doubvel * (5. / 16.);
 		p->RollVel += RollVel * doubvel * (5. / 16.);
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
-			p->vel.XY() *= gs.playerfriction - 0.125;
+			p->vel.SetXY(p->vel.XY() * (gs.playerfriction - 0.125));
 			p->RollVel *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
+				p->vel.SetXY(p->vel.XY() * (gs.playerfriction - FixedToFloat(0x1400)));
 				p->RollVel *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
-				p->vel.XY() *= gs.playerfriction;
+				p->vel.SetXY(p->vel.XY() * gs.playerfriction);
 				p->RollVel *= gs.playerfriction;
 			}
 		}
@@ -2663,7 +2663,7 @@ void processinput_r(DDukePlayer* const p)
 				p->boot_amount--;
 			else
 			{
-				p->vel.XY() *= gs.playerfriction;
+				p->vel.SetXY(p->vel.XY() * gs.playerfriction);
 				p->RollVel *= gs.playerfriction;
 			}
 		}
@@ -2673,7 +2673,7 @@ void processinput_r(DDukePlayer* const p)
 			{
 				if (p->on_ground)
 				{
-					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
+					p->vel.SetXY(p->vel.XY() * (gs.playerfriction - FixedToFloat(0x1800)));
 					p->RollVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 			}
@@ -2682,7 +2682,7 @@ void processinput_r(DDukePlayer* const p)
 					p->boot_amount--;
 				else
 				{
-					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
+					p->vel.SetXY(p->vel.XY() * (gs.playerfriction - FixedToFloat(0x1800)));
 					p->RollVel *= gs.playerfriction - FixedToFloat(0x1800);
 				}
 		}
@@ -2695,7 +2695,7 @@ void processinput_r(DDukePlayer* const p)
 
 		if (shrunk)
 		{
-			p->vel.XY() *= gs.playerfriction * 0.75;
+			p->vel.SetXY(p->vel.XY() * (gs.playerfriction * 0.75));
 			p->RollVel *= gs.playerfriction * 0.75;
 		}
 	}
@@ -2715,7 +2715,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		pact->spr.pos.XY() += p->vel.XY() ;
+		pact->spr.pos += p->vel.XY();
 		updatesector(pact->getPosWithOffsetZ(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}

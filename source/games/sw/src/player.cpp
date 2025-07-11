@@ -2001,7 +2001,7 @@ void DoPlayerMove(DSWPlayer* pp)
         {
             actor->backupvec2();
         }
-		actor->spr.pos.XY() += pp->vect;
+		actor->spr.pos += pp->vect;
         updatesector(pp->GetActor()->getPosWithOffsetZ(), &sect);
         if (sect != nullptr)
             pp->cursector = sect;

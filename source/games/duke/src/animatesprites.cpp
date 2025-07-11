@@ -76,7 +76,7 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 			{
 				// Alter the shadow's position so that it appears behind the sprite itself.
 				auto look = (shadowspr->pos.XY() - spactpos.XY()).Angle();
-				shadowspr->pos.XY() += look.ToVector() * 2;
+				shadowspr->pos += look.ToVector() * 2;
 			}
 		}
 	}

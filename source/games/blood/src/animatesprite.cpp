@@ -98,7 +98,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 		pTSprite->ownerActor = parentTSprite->ownerActor;
 		pTSprite->Angles.Yaw = parentTSprite->Angles.Yaw;
 	}
-	pos.XY() += gCameraAng.ToVector() * 2;
+	pos += gCameraAng.ToVector() * 2;
 	pTSprite->pos = pos;
 	return pTSprite;
 }
@@ -510,7 +510,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->pos.XY() += gView->GetActor()->spr.Angles.Yaw.ToVector() * 8;
+				pNSprite->pos += gView->GetActor()->spr.Angles.Yaw.ToVector() * 8;
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->Angles.Yaw += DAngle90;
@@ -867,7 +867,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &thisPlayer->pPosture[thisPlayer->lifeMode][thisPlayer->posture];
-						pNTSprite->pos.XY() += pTSprite->Angles.Yaw.ToVector() * pPosture->xOffset;
+						pNTSprite->pos += pTSprite->Angles.Yaw.ToVector() * pPosture->xOffset;
 						pNTSprite->pos.Z = thisPlayer->GetActor()->spr.pos.Z - pPosture->zOffset;
 					}
 				}

@@ -1551,7 +1551,7 @@ void wackplayer(DDukePlayer* p)
 		forceplayerangle(p);
 	else
 	{
-		p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector() * 64;
+		p->vel -= p->GetActor()->spr.Angles.Yaw.ToVector() * 64;
 		p->jumping_counter = 767;
 		p->jumping_toggle = 1;
 	}

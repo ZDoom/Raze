@@ -124,7 +124,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 		pos2 += actor->vel * nDist * (65536. / 0x1aaaaa);
 
 		DVector3 tvec = pos;
-		tvec.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
+		tvec += actor->spr.Angles.Yaw.ToVector() * nDist;
 		tvec.Z += actor->dudeSlope * nDist;
 
 		double tsr = nDist * 9.23828125;

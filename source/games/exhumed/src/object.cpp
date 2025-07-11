@@ -1984,7 +1984,7 @@ void AIObject::Tick(RunListEvent* ev)
 
             if (nMov.exbits & kHitAux2)
             {
-				pActor->vel.XY() *= 0.875;
+				pActor->vel.SetXY(pActor->vel.XY() * 0.875);
             }
 
             if (nMov.type == kHitSprite)

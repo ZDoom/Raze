@@ -111,7 +111,7 @@ Collision MultiClipMove(DSWPlayer* pp, double zz, double floordist)
     }
 
     // put posx and y off from offset
-    pp->GetActor()->spr.pos.XY() += pos[min_ndx].XY() - opos[min_ndx].XY();
+    pp->GetActor()->spr.pos += pos[min_ndx].XY() - opos[min_ndx].XY();
 
     return min_ret;
 }
@@ -207,7 +207,7 @@ int RectClipMove(DSWPlayer* pp, DVector2* qpos)
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
-        pp->GetActor()->spr.pos.XY() += pvect;
+        pp->GetActor()->spr.pos += pvect;
         return true;
     }
 
@@ -223,7 +223,7 @@ int RectClipMove(DSWPlayer* pp, DVector2* qpos)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->GetActor()->spr.pos.XY() += { -pvect.X * 0.5, pvect.X * 0.5 };
+            pp->GetActor()->spr.pos += { -pvect.X * 0.5, pvect.X * 0.5 };
         }
 
         return false;
@@ -238,7 +238,7 @@ int RectClipMove(DSWPlayer* pp, DVector2* qpos)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->GetActor()->spr.pos.XY() += { pvect.X * 0.5, -pvect.X * 0.5 };
+            pp->GetActor()->spr.pos += { pvect.X * 0.5, -pvect.X * 0.5 };
         }
 
         return false;
