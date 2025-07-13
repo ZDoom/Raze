@@ -231,6 +231,29 @@ public:
 			ConstructEmpty(0, Count - 1);
 		}
 	}
+	
+	TArray (std::initializer_list<T> list)
+	{
+		Most = list.size();
+		Count = list.size();
+
+		if (Count > 0)
+		{
+			Array = (T *)M_Malloc (sizeof(T) * Count);
+
+			const T* it = list.begin();
+
+			for (unsigned int i = 0; i < Count; ++i)
+			{
+				::new(&Array[i]) T(*it++);
+			}
+		}
+		else
+		{
+			Array = nullptr;
+		}
+	}
+
 	TArray (const TArray<T,TT> &other)
 	{
 		DoCopy (other);
@@ -1377,6 +1400,18 @@ public:
 			n = NewKey(key);
 		}
 		::new(&n->Pair.Value) VT;
+		return n->Pair.Value;
+	}
+
+	template<typename... Args>
+	VT &TryEmplace(const KT key, Args&&... args)
+	{
+		Node *n = FindKey(key);
+		if (n == NULL)
+		{
+			n = NewKey(key);
+			::new(&n->Pair.Value) VT(std::forward<Args>(args)...);
+		}
 		return n->Pair.Value;
 	}
 

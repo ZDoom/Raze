@@ -75,6 +75,8 @@ enum
 	CVAR_CONFIG_ONLY		= 1 << 18, // do not save var to savegame and do not send it across network.
 	CVAR_ZS_CUSTOM			= 1 << 19, // Custom CVar backed by a ZScript class
 	CVAR_ZS_CUSTOM_CLONE	= 1 << 20, // Clone of a Custom ZScript CVar
+	
+	CVAR_SYSTEM_ONLY		= 1 << 21, // System-related cvar that should only ever be changed by the user
 };
 
 enum ECVarType
@@ -267,7 +269,7 @@ private:
 	// These need to go away!
 	friend FString C_GetMassCVarString (uint32_t filter, bool compact);
 	friend void C_SerializeCVars(FSerializer& arc, const char* label, uint32_t filter);
-	friend void C_ReadCVars (uint8_t **demo_p);
+	friend void C_ReadCVars (TArrayView<uint8_t>& demo_p);
 	friend void C_BackupCVars (void);
 	friend FBaseCVar *FindCVar (const char *var_name, FBaseCVar **prev);
 	friend FBaseCVar *FindCVarSub (const char *var_name, int namelen);
@@ -286,12 +288,12 @@ private:
 // the cvar names are omitted to save space.
 FString C_GetMassCVarString (uint32_t filter, bool compact=false);
 
-// Writes all cvars that could effect demo sync to *demo_p. These are
+// Writes all cvars that could effect demo sync to demo_p. These are
 // cvars that have either CVAR_SERVERINFO or CVAR_DEMOSAVE set.
-void C_WriteCVars (uint8_t **demo_p, uint32_t filter, bool compact=false);
+void C_WriteCVars (TArrayView<uint8_t>& demo_p, uint32_t filter, bool compact=false);
 
-// Read all cvars from *demo_p and set them appropriately.
-void C_ReadCVars (uint8_t **demo_p);
+// Read all cvars from demo_p and set them appropriately.
+void C_ReadCVars (TArrayView<uint8_t>& demo_p);
 
 void C_InstallHandlers(ConsoleCallbacks* cb);
 
@@ -587,6 +589,8 @@ class FBoolCVarRef
 {
 	FBoolCVar* ref;
 public:
+	int operator= (const FBoolCVarRef&) = delete;
+	int operator= (FBoolCVarRef&&) = delete;
 	
 	inline bool operator= (bool val) { *ref = val; return val; }
 	inline operator bool () const { return **ref; }
@@ -600,7 +604,11 @@ class FIntCVarRef
 	FIntCVar* ref;
 public:
 	
+	int operator= (const FIntCVarRef&) = delete;
+	int operator= (FIntCVarRef&&) = delete;
+
 	int operator= (int val) { *ref = val; return val; }
+
 	inline operator int () const { return **ref; }
 	inline int operator *() const { return **ref; }
 	inline FIntCVar* operator->() { return ref; }
@@ -611,6 +619,8 @@ class FFloatCVarRef
 {
 	FFloatCVar* ref;
 public:
+	int operator= (const FFloatCVarRef&) = delete;
+	int operator= (FFloatCVarRef&&) = delete;
 	
 	float operator= (float val) { *ref = val; return val; }
 	inline operator float () const { return **ref; }
@@ -623,6 +633,8 @@ class FStringCVarRef
 {
 	FStringCVar* ref;
 public:
+	int operator= (const FStringCVarRef&) = delete;
+	int operator= (FStringCVarRef&&) = delete;
 	
 	const char* operator= (const char* val) { *ref = val; return val; }
 	inline operator const char* () const { return **ref; }
@@ -635,6 +647,8 @@ class FColorCVarRef
 {
 	FColorCVar* ref;
 public:
+	int operator= (const FColorCVarRef&) = delete;
+	int operator= (FColorCVarRef&&) = delete;
 	
 	//uint32_t operator= (uint32_t val) { *ref = val; return val; }
 	inline operator uint32_t () const { return **ref; }
@@ -647,6 +661,9 @@ class FFlagCVarRef
 {
 	FFlagCVar* ref;
 public:
+	int operator= (const FFlagCVarRef&) = delete;
+	int operator= (FFlagCVarRef&&) = delete;
+
 	inline bool operator= (bool val) { *ref = val; return val; }
 	inline bool operator= (const FFlagCVar& val) { *ref = val; return val; }
 	inline operator int () const { return **ref; }
@@ -658,6 +675,9 @@ class FMaskCVarRef
 {
 	FMaskCVar* ref;
 public:
+	int operator= (const FMaskCVarRef&) = delete;
+	int operator= (FMaskCVarRef&&) = delete;
+
 	//int operator= (int val) { *ref = val; return val; }
 	inline operator int () const { return **ref; }
 	inline int operator *() const { return **ref; }

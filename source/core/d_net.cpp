@@ -1407,7 +1407,6 @@ bool DoArbitrate (void *userdata)
 {
 	ArbitrateData *data = (ArbitrateData *)userdata;
 	char *s;
-	uint8_t *stream;
 	int version;
 	int node;
 	int i, j;
@@ -1431,6 +1430,7 @@ bool DoArbitrate (void *userdata)
 			data->playersdetected[node] =
 				(netbuffer[5] << 24) | (netbuffer[6] << 16) | (netbuffer[7] << 8) | netbuffer[8];
 
+			uint8_t* stream;
 			if (netbuffer[0] == NCMD_SETUP)
 			{ // Sent to host
 				data->gotsetup[node] = netbuffer[9] & 0x80;
@@ -1466,12 +1466,13 @@ bool DoArbitrate (void *userdata)
 			ticdup = doomcom.ticdup = netbuffer[1];
 			NetMode = netbuffer[2];
 
-			stream = &netbuffer[3];
+			uint8_t* stream = &netbuffer[3];
 			s = ReadString (&stream);
 			startmap = s;
 			delete[] s;
 			rngseed = ReadLong (&stream);
-			C_ReadCVars (&stream);
+			TArrayView<uint8_t> streamView(stream, MAX_MSGLEN - int(stream - netbuffer));
+			C_ReadCVars (streamView);
 		}
 		else if (netbuffer[0] == NCMD_SETUP+3)
 		{
@@ -1503,7 +1504,7 @@ bool DoArbitrate (void *userdata)
 		netbuffer[0] = NCMD_SETUP;
 		netbuffer[1] = myconnectindex;
 		netbuffer[9] = data->gotsetup[0];
-		stream = &netbuffer[10];
+		uint8_t* stream = &netbuffer[10];
 		D_WriteUserInfoStrings (myconnectindex, &stream, true);
 		SendSetup (data->playersdetected, data->gotsetup, int(stream - netbuffer));
 	}
@@ -1518,24 +1519,24 @@ bool DoArbitrate (void *userdata)
 				if ((data->playersdetected[0] & (1<<j)) && !(data->playersdetected[i] & (1<<j)))
 				{
 					netbuffer[1] = j;
-					stream = &netbuffer[9];
+					uint8_t* stream = &netbuffer[9];
 					D_WriteUserInfoStrings (j, &stream, true);
 					HSendPacket (i, int(stream - netbuffer));
 				}
 			}
 		}
-	}
 
-	// If we're the host, send the game info, too
-	if (myconnectindex == Net_Arbitrator)
-	{
+		// As the host, send the game info, too
 		netbuffer[0] = NCMD_SETUP+2;
 		netbuffer[1] = (uint8_t)doomcom.ticdup;
 		netbuffer[2] = NetMode;
-		stream = &netbuffer[3];
+		uint8_t* stream = &netbuffer[3];
 		WriteString (startmap, &stream);
 		WriteLong (rngseed, &stream);
-		C_WriteCVars (&stream, CVAR_SERVERINFO, true);
+
+		TArrayView<uint8_t> streamView(stream, MAX_MSGLEN - int(stream - netbuffer));
+		C_WriteCVars (streamView, CVAR_SERVERINFO, true);
+		stream = streamView.Data();
 
 		SendSetup (data->playersdetected, data->gotsetup, int(stream - netbuffer));
 	}
