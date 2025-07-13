@@ -166,6 +166,8 @@ public:
 
 	const char *GetChars() const { return Chars; }
 
+	TArrayView<uint8_t> GetTArrayView();
+
 	const char &operator[] (int index) const { return Chars[index]; }
 #if defined(_WIN32) && !defined(_WIN64) && defined(_MSC_VER)
 	// Compiling 32-bit Windows source with MSVC: size_t is typedefed to an
@@ -297,11 +299,11 @@ public:
 	void MergeChars (char merger, char newchar);
 	void MergeChars (const char *charset, char newchar);
 
-	void Substitute (const FString &oldstr, const FString &newstr);
-	void Substitute (const char *oldstr, const FString &newstr);
-	void Substitute (const FString &oldstr, const char *newstr);
-	void Substitute (const char *oldstr, const char *newstr);
-	void Substitute (const char *oldstr, const char *newstr, size_t oldstrlen, size_t newstrlen);
+	bool Substitute (const FString &oldstr, const FString &newstr);
+	bool Substitute (const char *oldstr, const FString &newstr);
+	bool Substitute (const FString &oldstr, const char *newstr);
+	bool Substitute (const char *oldstr, const char *newstr);
+	bool Substitute (const char *oldstr, const char *newstr, size_t oldstrlen, size_t newstrlen);
 
 	void Format (const char *fmt, ...) PRINTFISH(3);
 	void AppendFormat (const char *fmt, ...) PRINTFISH(3);
