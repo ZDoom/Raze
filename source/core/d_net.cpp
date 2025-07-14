@@ -51,6 +51,7 @@
 #include "c_console.h"
 #include "d_net.h"
 #include "d_protocol.h"
+#include "i_protocol.h"
 #include "cmdlib.h"
 #include "c_dispatch.h"
 #include "gameconfigfile.h"
@@ -81,8 +82,8 @@ bool singletics;
 char* startmap;
 bool autostart;
 bool usergame;
-void D_ReadUserInfoStrings(int, uint8_t**, bool) {}
-void D_WriteUserInfoStrings(int, uint8_t**, bool) {}
+void D_ReadUserInfoStrings(int, TArrayView<uint8_t>& stream, bool) {}
+void D_WriteUserInfoStrings(int, TArrayView<uint8_t>& stream, bool) {}
 FString GetPlayerName(int num);
 
 //#define SIMULATEERRORS		(RAND_MAX/3)
@@ -271,7 +272,7 @@ static struct TicSpecial
 		if (streamptr)
 		{
 			CheckSpace (1);
-			WriteByte (it, &streamptr);
+			UncheckedWriteInt8 (it, &streamptr);
 		}
 		return *this;
 	}
@@ -281,7 +282,7 @@ static struct TicSpecial
 		if (streamptr)
 		{
 			CheckSpace (2);
-			WriteWord (it, &streamptr);
+			UncheckedWriteInt16 (it, &streamptr);
 		}
 		return *this;
 	}
@@ -291,7 +292,7 @@ static struct TicSpecial
 		if (streamptr)
 		{
 			CheckSpace (4);
-			WriteLong (it, &streamptr);
+			UncheckedWriteInt32 (it, &streamptr);
 		}
 		return *this;
 	}
@@ -301,7 +302,7 @@ static struct TicSpecial
 		if (streamptr)
 		{
 			CheckSpace (4);
-			WriteFloat (it, &streamptr);
+			UncheckedWriteFloat (it, &streamptr);
 		}
 		return *this;
 	}
@@ -311,7 +312,7 @@ static struct TicSpecial
 		if (streamptr)
 		{
 			CheckSpace (strlen (it) + 1);
-			WriteString (it, &streamptr);
+			UncheckedWriteString (it, &streamptr);
 		}
 		return *this;
 	}
@@ -400,15 +401,15 @@ int NetbufferSize ()
 		return k + 3 * count * numtics;
 	}
 
-	uint8_t *skipper = &netbuffer[k];
+	auto skipper = TArrayView(&netbuffer[k], MAX_MSGLEN - k);
 	if ((netbuffer[0] & NCMD_EXIT) == 0)
 	{
 		while (count-- > 0)
 		{
-			SkipTicCmd (&skipper, numtics);
+			SkipTicCmd (skipper, numtics);
 		}
 	}
-	return int(skipper - netbuffer);
+	return int(skipper.Data() - netbuffer);
 }
 
 //
@@ -765,7 +766,6 @@ void GetPackets (void)
 	int realstart;
 	int numtics;
 	int retransmitfrom;
-	int k;
 	uint8_t playerbytes[MAXNETNODES];
 	int numplayers;
 
@@ -790,6 +790,8 @@ void GetPackets (void)
 		lastrecvtime[netconsole] = currrecvtime[netconsole];
 		currrecvtime[netconsole] = I_msTime ();
 
+		auto cmddata = TArrayView(&netbuffer[2], MAX_MSGLEN - 2);
+
 		// check for exiting the game
 		if (netbuffer[0] & NCMD_EXIT)
 		{
@@ -801,12 +803,11 @@ void GetPackets (void)
 				PlayerIsGone (netnode, netconsole);
 				if (NetMode == NET_PacketServer)
 				{
-					uint8_t *foo = &netbuffer[2];
 					for (int i = 0; i < MAXPLAYERS; ++i)
 					{
 						if (playeringame[i])
 						{
-							int resend = ReadLong (&foo);
+							int resend = ReadInt32 (cmddata);
 							if (i != myconnectindex)
 							{
 								resendto[nodeforplayer[i]] = resend;
@@ -823,18 +824,16 @@ void GetPackets (void)
 			continue;
 		}
 
-		k = 2;
-
 		if (NetMode == NET_PacketServer &&
 			netconsole == Net_Arbitrator &&
 			netconsole != myconnectindex)
 		{
-			mastertics = ExpandTics (netbuffer[k++]);
+			mastertics = ExpandTics (ReadInt8 (cmddata));
 		}
 
 		if (netbuffer[0] & NCMD_RETRANSMIT)
 		{
-			retransmitfrom = netbuffer[k++];
+			retransmitfrom = ReadInt8 (cmddata);
 		}
 		else
 		{
@@ -844,28 +843,30 @@ void GetPackets (void)
 		numtics = (netbuffer[0] & NCMD_XTICS);
 		if (numtics == 3)
 		{
-			numtics += netbuffer[k++];
+			numtics += ReadInt8 (cmddata);
 		}
 
 		if (netbuffer[0] & NCMD_QUITTERS)
 		{
-			numplayers = netbuffer[k++];
+			numplayers = ReadInt8(cmddata);
 			for (int i = 0; i < numplayers; ++i)
 			{
-				PlayerIsGone (nodeforplayer[netbuffer[k]], netbuffer[k]);
-				k++;
+				uint8_t player = ReadInt8 (cmddata);
+				PlayerIsGone (nodeforplayer[player], player);
 			}
 		}
 
 		// Pull current network delay from node
-		netdelay[netnode][(nettics[netnode]+1) % BACKUPTICS] = netbuffer[k++];
+		netdelay[netnode][(nettics[netnode]+1) % BACKUPTICS] = ReadInt8 (cmddata);
 
 		playerbytes[0] = netconsole;
 		if (netbuffer[0] & NCMD_MULTI)
 		{
-			numplayers = netbuffer[k++];
-			memcpy (playerbytes+1, &netbuffer[k], numplayers - 1);
-			k += numplayers - 1;
+			numplayers = ReadInt8 (cmddata);
+			if (numplayers > MAXNETNODES)
+				I_Error ("Too many players in NCMD_MULTI packet (%d)", numplayers);
+			auto dst = TArrayView(&playerbytes[1], numplayers - 1);
+			ReadBytes (dst, cmddata);
 		}
 		else
 		{
@@ -917,19 +918,16 @@ void GetPackets (void)
 
 		// update command store from the packet
 		{
-			uint8_t *start;
 			int i, tics;
 			remoteresend[netnode] = false;
-
-			start = &netbuffer[k];
 
 			for (i = 0; i < numplayers; ++i)
 			{
 				int node = nodeforplayer[playerbytes[i]];
 
-				SkipTicCmd (&start, nettics[node] - realstart);
+				SkipTicCmd (cmddata, nettics[node] - realstart);
 				for (tics = nettics[node]; tics < realend; tics++)
-					ReadTicCmd (&start, playerbytes[i], tics);
+					ReadTicCmd (cmddata, playerbytes[i], tics);
 
 				nettics[nodeforplayer[playerbytes[i]]] = realend;
 			}
@@ -951,7 +949,6 @@ void NetUpdate (void)
 	int 	newtics;
 	int 	i,j;
 	int 	realstart;
-	uint8_t	*cmddata;
 	bool	resendOnly;
 
 	GC::CheckGC();
@@ -1133,13 +1130,12 @@ void NetUpdate (void)
 		}
 
 		int numtics;
-		int k;
 
 		lowtic = maketic / ticdup;
 
 		netbuffer[0] = 0;
 		netbuffer[1] = realstart = resendto[i];
-		k = 2;
+		auto cmddata = TArrayView(&netbuffer[2], MAX_MSGLEN - 2);
 
 		if (NetMode == NET_PacketServer &&
 			myconnectindex == Net_Arbitrator &&
@@ -1152,7 +1148,7 @@ void NetUpdate (void)
 					lowtic = nettics[j];
 				}
 			}
-			netbuffer[k++] = lowtic;
+			WriteInt8 (lowtic, cmddata);
 		}
 
 		numtics = max(0, lowtic - realstart);
@@ -1176,7 +1172,7 @@ void NetUpdate (void)
 		if (remoteresend[i])
 		{
 			netbuffer[0] |= NCMD_RETRANSMIT;
-			netbuffer[k++] = nettics[i];
+			WriteInt8 (nettics[i], cmddata);
 		}
 
 		if (numtics < 3)
@@ -1186,25 +1182,25 @@ void NetUpdate (void)
 		else
 		{
 			netbuffer[0] |= NCMD_XTICS;
-			netbuffer[k++] = numtics - 3;
+			WriteInt8 (numtics - 3, cmddata);
 		}
 
 		if (quitcount > 0)
 		{
 			netbuffer[0] |= NCMD_QUITTERS;
-			netbuffer[k++] = quitcount;
+			WriteInt8 (quitcount, cmddata);
 			for (int l = 0; l < doomcom.numnodes; ++l)
 			{
 				if (nodejustleft[l])
 				{
-					netbuffer[k++] = playerfornode[l];
+					WriteInt8 (playerfornode[l], cmddata);
 				}
 			}
 		}
 
 		// Send current network delay
 		// The number of tics we just made should be removed from the count.
-		netbuffer[k++] = ((maketic - numtics - gametic) / ticdup);
+		WriteInt8 ((maketic - numtics - gametic) / ticdup, cmddata);
 
 		if (numtics > 0)
 		{
@@ -1213,7 +1209,7 @@ void NetUpdate (void)
 			if (count > 1 && i != 0 && myconnectindex == Net_Arbitrator)
 			{
 				netbuffer[0] |= NCMD_MULTI;
-				netbuffer[k++] = count;
+				WriteInt8 (count, cmddata);
 
 				if (NetMode == NET_PacketServer)
 				{
@@ -1222,13 +1218,11 @@ void NetUpdate (void)
 						if (playeringame[j] && j != playerfornode[i] && j != myconnectindex)
 						{
 							playerbytes[l++] = j;
-							netbuffer[k++] = j;
+							WriteInt8 (j, cmddata);
 						}
 					}
 				}
 			}
-
-			cmddata = &netbuffer[k];
 
 			for (l = 0; l < count; ++l)
 			{
@@ -1246,40 +1240,25 @@ void NetUpdate (void)
 					// the other players.
 					if (l == 0)
 					{
-						WriteWord (localcmds[localstart].consistency, &cmddata);
+						WriteInt16 (localcmds[localstart].consistency, cmddata);
 						// [RH] Write out special "ticcmds" before real ticcmd
-						if (specials.used[start])
-						{
-							memcpy (cmddata, specials.streams[start], specials.used[start]);
-							cmddata += specials.used[start];
-						}
+						WriteBytes (TArrayView(specials.streams[start], specials.used[start]), cmddata);
 						WriteUserCmdMessage (&localcmds[localstart].ucmd,
-							localprev >= 0 ? &localcmds[localprev].ucmd : NULL, &cmddata);
+							localprev >= 0 ? &localcmds[localprev].ucmd : NULL, cmddata);
 					}
 					else if (i != 0)
 					{
-						int len;
-						uint8_t *spec;
-
-						WriteWord (netcmds[playerbytes[l]][start].consistency, &cmddata);
-						spec = NetSpecs[playerbytes[l]][start].GetData (&len);
-						if (spec != NULL)
-						{
-							memcpy (cmddata, spec, len);
-							cmddata += len;
-						}
+						WriteInt16 (netcmds[playerbytes[l]][start].consistency, cmddata);
+						auto data = NetSpecs[playerbytes[l]][start].GetTArrayView();
+						WriteBytes (data, cmddata);
 
 						WriteUserCmdMessage (&netcmds[playerbytes[l]][start].ucmd,
-							prev >= 0 ? &netcmds[playerbytes[l]][prev].ucmd : NULL, &cmddata);
+							prev >= 0 ? &netcmds[playerbytes[l]][prev].ucmd : NULL, cmddata);
 					}
 				}
 			}
-			HSendPacket (i, int(cmddata - netbuffer));
 		}
-		else
-		{
-			HSendPacket (i, k);
-		}
+		HSendPacket (i, int(cmddata.Data() - netbuffer));
 	}
 
 	// listen for other packets
@@ -1430,18 +1409,13 @@ bool DoArbitrate (void *userdata)
 			data->playersdetected[node] =
 				(netbuffer[5] << 24) | (netbuffer[6] << 16) | (netbuffer[7] << 8) | netbuffer[8];
 
-			uint8_t* stream;
+			auto stream = TArrayView(&netbuffer[9], MAX_MSGLEN - 9);
 			if (netbuffer[0] == NCMD_SETUP)
 			{ // Sent to host
-				data->gotsetup[node] = netbuffer[9] & 0x80;
-				stream = &netbuffer[10];
-			}
-			else
-			{ // Sent from host
-				stream = &netbuffer[9];
+				data->gotsetup[node] = ReadInt8(stream) & 0x80;
 			}
 
-			D_ReadUserInfoStrings (netbuffer[1], &stream, false);
+			D_ReadUserInfoStrings (netbuffer[1], stream, false);
 			if (!nodeingame[node])
 			{
 				version = (netbuffer[2] << 16) | (netbuffer[3] << 8) | netbuffer[4];
@@ -1466,13 +1440,12 @@ bool DoArbitrate (void *userdata)
 			ticdup = doomcom.ticdup = netbuffer[1];
 			NetMode = netbuffer[2];
 
-			uint8_t* stream = &netbuffer[3];
-			s = ReadString (&stream);
+			auto stream = TArrayView<uint8_t>(&netbuffer[3], MAX_MSGLEN - 3);
+			s = ReadString (stream);
 			startmap = s;
 			delete[] s;
-			rngseed = ReadLong (&stream);
-			TArrayView<uint8_t> streamView(stream, MAX_MSGLEN - int(stream - netbuffer));
-			C_ReadCVars (streamView);
+			rngseed = ReadInt32 (stream);
+			C_ReadCVars (stream);
 		}
 		else if (netbuffer[0] == NCMD_SETUP+3)
 		{
@@ -1504,9 +1477,9 @@ bool DoArbitrate (void *userdata)
 		netbuffer[0] = NCMD_SETUP;
 		netbuffer[1] = myconnectindex;
 		netbuffer[9] = data->gotsetup[0];
-		uint8_t* stream = &netbuffer[10];
-		D_WriteUserInfoStrings (myconnectindex, &stream, true);
-		SendSetup (data->playersdetected, data->gotsetup, int(stream - netbuffer));
+		auto stream = TArrayView<uint8_t>(&netbuffer[10], MAX_MSGLEN - 10);
+		D_WriteUserInfoStrings (myconnectindex, stream, true);
+		SendSetup (data->playersdetected, data->gotsetup, int(stream.Data() - netbuffer));
 	}
 	else
 	{ // Send user info for all nodes
@@ -1519,9 +1492,9 @@ bool DoArbitrate (void *userdata)
 				if ((data->playersdetected[0] & (1<<j)) && !(data->playersdetected[i] & (1<<j)))
 				{
 					netbuffer[1] = j;
-					uint8_t* stream = &netbuffer[9];
-					D_WriteUserInfoStrings (j, &stream, true);
-					HSendPacket (i, int(stream - netbuffer));
+					auto stream = TArrayView<uint8_t>(&netbuffer[9], MAX_MSGLEN - 9);
+					D_WriteUserInfoStrings (j, stream, true);
+					HSendPacket (i, int(stream.Data() - netbuffer));
 				}
 			}
 		}
@@ -1530,15 +1503,12 @@ bool DoArbitrate (void *userdata)
 		netbuffer[0] = NCMD_SETUP+2;
 		netbuffer[1] = (uint8_t)doomcom.ticdup;
 		netbuffer[2] = NetMode;
-		uint8_t* stream = &netbuffer[3];
-		WriteString (startmap, &stream);
-		WriteLong (rngseed, &stream);
+		auto stream = TArrayView<uint8_t>(&netbuffer[3], MAX_MSGLEN - 3);
+		WriteString (startmap, stream);
+		WriteInt32 (rngseed, stream);
+		C_WriteCVars (stream, CVAR_SERVERINFO, true);
 
-		TArrayView<uint8_t> streamView(stream, MAX_MSGLEN - int(stream - netbuffer));
-		C_WriteCVars (streamView, CVAR_SERVERINFO, true);
-		stream = streamView.Data();
-
-		SendSetup (data->playersdetected, data->gotsetup, int(stream - netbuffer));
+		SendSetup (data->playersdetected, data->gotsetup, int(stream.Data() - netbuffer));
 	}
 	return false;
 }
@@ -1770,7 +1740,7 @@ bool D_CheckNetGame (void)
 //
 void D_QuitNetGame (void)
 {
-	int i, j, k;
+	int i, j;
 
 	if (!netgame || !usergame || myconnectindex == -1 || demoplayback)
 		return;
@@ -1779,19 +1749,16 @@ void D_QuitNetGame (void)
 	netbuffer[0] = NCMD_EXIT;
 	netbuffer[1] = 0;
 
-	k = 2;
+	auto cmddata = TArrayView(&netbuffer[2], MAX_MSGLEN - 2);
 	if (NetMode == NET_PacketServer && myconnectindex == Net_Arbitrator)
 	{
-		uint8_t *foo = &netbuffer[2];
-
 		// Let the new arbitrator know what resendto counts to use
 
 		for (i = 0; i < MAXPLAYERS; ++i)
 		{
 			if (playeringame[i] && i != myconnectindex)
-				WriteLong (resendto[nodeforplayer[i]], &foo);
+				WriteInt32 (resendto[nodeforplayer[i]], cmddata);
 		}
-		k = int(foo - netbuffer);
 	}
 
 	for (i = 0; i < 4; i++)
@@ -1804,7 +1771,7 @@ void D_QuitNetGame (void)
 		{
 			for (j = 1; j < doomcom.numnodes; j++)
 				if (nodeingame[j])
-					HSendPacket (j, k);
+					HSendPacket (j, int(cmddata.Data() - netbuffer));
 		}
 		I_WaitVBL (1);
 	}
@@ -1938,6 +1905,11 @@ uint8_t *FDynamicBuffer::GetData (int *len)
 	return m_Len ? m_Data : NULL;
 }
 
+TArrayView<uint8_t> FDynamicBuffer::GetTArrayView()
+{
+	return TArrayView(m_Data, m_Len);
+}
+
 
 NetCommandHandler nethandlers[DEM_MAX];
 
@@ -1950,7 +1922,7 @@ void Net_SetCommandHandler(EDemoCommand cmd, NetCommandHandler handler) noexcept
 // [RH] Execute a special "ticcmd". The type byte should
 //		have already been read, and the stream is positioned
 //		at the beginning of the command's actual data.
-void Net_DoCommand (int cmd, uint8_t **stream, int player)
+void Net_DoCommand (int cmd, TArrayView<uint8_t>& stream, int player)
 {
 	assert(cmd >= 0 && cmd < DEM_MAX);
 	if (cmd >= 0 && cmd < DEM_MAX && nethandlers[cmd])
@@ -1962,7 +1934,7 @@ void Net_DoCommand (int cmd, uint8_t **stream, int player)
 }
 
 
-void Net_SkipCommand (int cmd, uint8_t **stream)
+void Net_SkipCommand (int cmd, TArrayView<uint8_t>& stream)
 {
 	if (cmd >= 0 && cmd < DEM_MAX && nethandlers[cmd])
 	{

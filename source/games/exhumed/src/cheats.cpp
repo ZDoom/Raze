@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "aistuff.h"
 #include "d_net.h"
+#include "i_protocol.h"
 
 BEGIN_PS_NS
 
@@ -208,9 +209,9 @@ static cheatseq_t excheats[] = {
 //
 //---------------------------------------------------------------------------
 
-static void cmd_Give(int player, uint8_t** stream, bool skip)
+static void cmd_Give(int player, TArrayView<uint8_t>& stream, bool skip)
 {
-	int type = ReadByte(stream);
+	int type = ReadInt8(stream);
 	if (skip) return;
 
 	const auto pPlayer = getPlayer(player);

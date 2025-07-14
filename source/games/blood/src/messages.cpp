@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "cheathandler.h"
 #include "d_protocol.h"
+#include "i_protocol.h"
 #include "gamestate.h"
 #include "automap.h"
 
@@ -525,10 +526,10 @@ void cheatReset(void)
 //
 //---------------------------------------------------------------------------
 
-static void cmd_Give(int player, uint8_t** stream, bool skip)
+static void cmd_Give(int player, TArrayView<uint8_t>& stream, bool skip)
 {
 	DBloodPlayer* pPlayer = getPlayer(player);
-	int type = ReadByte(stream);
+	int type = ReadInt8(stream);
 	if (skip) return;
 
 	if (numplayers != 1 || gamestate != GS_LEVEL || pPlayer->GetActor()->xspr.health == 0)

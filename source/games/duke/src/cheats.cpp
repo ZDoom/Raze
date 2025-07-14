@@ -42,6 +42,7 @@ source as it is released.
 #include "gamestate.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "i_protocol.h"
 
 EXTERN_CVAR(Int, developer)
 EXTERN_CVAR(Bool, sv_cheats)
@@ -470,9 +471,9 @@ static cheatseq_t rrcheats[] = {
 };
 
 
-static void cmd_Give(int player, uint8_t** stream, bool skip)
+static void cmd_Give(int player, TArrayView<uint8_t>& stream, bool skip)
 {
-	int type = ReadByte(stream);
+	int type = ReadInt8(stream);
 	if (skip) return;
 
 	const auto p = getPlayer(player);

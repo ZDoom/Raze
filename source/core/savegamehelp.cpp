@@ -60,6 +60,7 @@
 #include "hw_sections.h"
 #include "sectorgeometry.h"
 #include "d_net.h"
+#include "i_protocol.h"
 #include "ns.h"
 #include "serialize_obj.h"
 #include "games/blood/src/mapstructs.h"
@@ -814,13 +815,10 @@ void G_SaveGame(const char* filename, const char* description)
 //
 //---------------------------------------------------------------------------
 
-void startSaveGame(int player, uint8_t** stream, bool skip)
+void startSaveGame(int player, TArrayView<uint8_t>& stream, bool skip)
 {
-	auto s = ReadString(stream);
-	savegamefile = s;
-	delete[] s;
-	s = ReadString(stream);
-	savedescription = s;
+	savegamefile = ReadString(stream);
+	savedescription = ReadString(stream);
 	if (!skip && gi->CanSave())
 	{
 		if (player != consoleplayer)

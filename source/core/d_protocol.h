@@ -167,34 +167,22 @@ enum EGiveType
 	GIVE_WEAPONS
 };
 
-typedef void(*NetCommandHandler)(int player, uint8_t **stream, bool skip);
+typedef void(*NetCommandHandler)(int player, TArrayView<uint8_t>& stream, bool skip);
 
 void Net_SetCommandHandler(EDemoCommand cmd, NetCommandHandler handler) noexcept;
 
-void StartChunk (int id, uint8_t **stream);
-void FinishChunk (uint8_t **stream);
-void SkipChunk (uint8_t **stream);
+void StartChunk (int id, TArrayView<uint8_t>& stream);
+void FinishChunk (TArrayView<uint8_t>& stream);
+void SkipChunk (TArrayView<uint8_t>& stream);
 
-int UnpackUserCmd (InputPacket *ucmd, const InputPacket*basis, uint8_t **stream);
-int PackUserCmd (const InputPacket*ucmd, const InputPacket*basis, uint8_t **stream);
-int WriteUserCmdMessage (InputPacket*ucmd, const InputPacket*basis, uint8_t **stream);
+void UnpackUserCmd (InputPacket *ucmd, const InputPacket*basis, TArrayView<uint8_t>& stream);
+void PackUserCmd (const InputPacket*ucmd, const InputPacket*basis, TArrayView<uint8_t>& stream);
+void WriteUserCmdMessage (InputPacket*ucmd, const InputPacket*basis, TArrayView<uint8_t>& stream);
 
 struct ticcmd_t;
 
-int SkipTicCmd (uint8_t **stream, int count);
-void ReadTicCmd (uint8_t **stream, int player, int tic);
+void SkipTicCmd (TArrayView<uint8_t>& stream, int count);
+void ReadTicCmd (TArrayView<uint8_t>& stream, int player, int tic);
 void RunNetSpecs (int player, int buf);
-
-int ReadByte (uint8_t **stream);
-int ReadShort (uint8_t **stream);
-int ReadLong (uint8_t **stream);
-float ReadFloat (uint8_t **stream);
-char *ReadString (uint8_t **stream);
-const char *ReadStringConst(uint8_t **stream);
-void WriteByte (uint8_t val, uint8_t **stream);
-void WriteWord (short val, uint8_t **stream);
-void WriteLong (int val, uint8_t **stream);
-void WriteFloat (float val, uint8_t **stream);
-void WriteString (const char *string, uint8_t **stream);
 
 #endif //__D_PROTOCOL_H__
