@@ -21,6 +21,7 @@ public:
 
 	void SetData (const uint8_t *data, int len);
 	uint8_t *GetData (int *len = NULL);
+	TArrayView<uint8_t> GetTArrayView();
 
 private:
 	uint8_t *m_Data;
@@ -51,8 +52,8 @@ void Net_WriteFloat (float);
 void Net_WriteString (const char *);
 void Net_WriteBytes (const uint8_t *, int len);
 
-void Net_DoCommand (int type, uint8_t **stream, int player);
-void Net_SkipCommand (int type, uint8_t **stream);
+void Net_DoCommand (int type, TArrayView<uint8_t>& stream, int player);
+void Net_SkipCommand (int type, TArrayView<uint8_t>& stream);
 
 void Net_ClearBuffers ();
 

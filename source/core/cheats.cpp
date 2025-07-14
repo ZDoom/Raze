@@ -43,6 +43,7 @@
 #include "gamestate.h"
 #include "gstrings.h"
 #include "gamecontrol.h"
+#include "i_protocol.h"
 #include "screenjob.h"
 #include "mapinfo.h"
 #include "statistics.h"
@@ -91,9 +92,9 @@ bool CheckCheatmode (bool printmsg, bool sponly)
 //
 //---------------------------------------------------------------------------
 
-void genericCheat(int player, uint8_t** stream, bool skip)
+void genericCheat(int player, TArrayView<uint8_t>& stream, bool skip)
 {
-    int cheat = ReadByte(stream);
+    int cheat = ReadInt8(stream);
     if (skip) return;
 	const char *msg = gi->GenericCheat(player, cheat);
     if (!msg || !*msg)              // Don't print blank lines.
@@ -216,10 +217,10 @@ void CompleteLevel(MapRecord* map)
 //
 //---------------------------------------------------------------------------
 
-void changeMap(int player, uint8_t** stream, bool skip)
+void changeMap(int player, TArrayView<uint8_t>& stream, bool skip)
 {
-	int skill = (int8_t)ReadByte(stream);
-	int bossexit = (int8_t)ReadByte(stream);
+	int skill = (int8_t)ReadInt8(stream);
+	int bossexit = (int8_t)ReadInt8(stream);
 	auto mapname = ReadStringConst(stream);
 	if (skip) return;
 	auto map = FindMapByName(mapname);
@@ -238,7 +239,7 @@ void changeMap(int player, uint8_t** stream, bool skip)
 //
 //---------------------------------------------------------------------------
 
-void endScreenJob(int player, uint8_t** stream, bool skip)
+void endScreenJob(int player, TArrayView<uint8_t>& stream, bool skip)
 {
 	if (!skip) gameaction = ga_endscreenjob;
 }

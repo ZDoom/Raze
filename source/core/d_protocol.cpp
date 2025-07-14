@@ -35,109 +35,14 @@
 
 #include "d_protocol.h"
 #include "d_net.h"
+#include "i_protocol.h"
 #include "cmdlib.h"
 #include "serializer.h"
 
 extern int gametic;
 
-
-char *ReadString (uint8_t **stream)
+void UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, TArrayView<uint8_t>& stream)
 {
-	char *string = *((char **)stream);
-
-	*stream += strlen (string) + 1;
-	return copystring (string);
-}
-
-const char *ReadStringConst(uint8_t **stream)
-{
-	const char *string = *((const char **)stream);
-	*stream += strlen (string) + 1;
-	return string;
-}
-
-int ReadByte (uint8_t **stream)
-{
-	uint8_t v = **stream;
-	*stream += 1;
-	return v;
-}
-
-int ReadWord (uint8_t **stream)
-{
-	short v = (((*stream)[0]) << 8) | (((*stream)[1]));
-	*stream += 2;
-	return v;
-}
-
-int ReadLong (uint8_t **stream)
-{
-	int v = (((*stream)[0]) << 24) | (((*stream)[1]) << 16) | (((*stream)[2]) << 8) | (((*stream)[3]));
-	*stream += 4;
-	return v;
-}
-
-float ReadFloat (uint8_t **stream)
-{
-	union
-	{
-		int i;
-		float f;
-	} fakeint;
-	fakeint.i = ReadLong (stream);
-	return fakeint.f;
-}
-
-void WriteString (const char *string, uint8_t **stream)
-{
-	char *p = *((char **)stream);
-
-	while (*string) {
-		*p++ = *string++;
-	}
-
-	*p++ = 0;
-	*stream = (uint8_t *)p;
-}
-
-
-void WriteByte (uint8_t v, uint8_t **stream)
-{
-	**stream = v;
-	*stream += 1;
-}
-
-void WriteWord (short v, uint8_t **stream)
-{
-	(*stream)[0] = v >> 8;
-	(*stream)[1] = v & 255;
-	*stream += 2;
-}
-
-void WriteLong (int v, uint8_t **stream)
-{
-	(*stream)[0] = v >> 24;
-	(*stream)[1] = (v >> 16) & 255;
-	(*stream)[2] = (v >> 8) & 255;
-	(*stream)[3] = v & 255;
-	*stream += 4;
-}
-
-void WriteFloat (float v, uint8_t **stream)
-{
-	union
-	{
-		int i;
-		float f;
-	} fakeint;
-	fakeint.f = v;
-	WriteLong (fakeint.i, stream);
-}
-
-// Returns the number of bytes read
-int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream)
-{
-	uint8_t *start = *stream;
 	uint8_t flags;
 
 	if (basis != NULL)
@@ -152,13 +57,13 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		memset (ucmd, 0, sizeof(InputPacket));
 	}
 
-	flags = ReadByte (stream);
+	flags = ReadInt8 (stream);
 
 	if (flags)
 	{
 		// We can support up to 29 buttons, using from 0 to 4 bytes to store them.
 		if (flags & UCMDF_BUTTONS)
-			ucmd->actions = ESyncBits::FromInt(ReadLong(stream));
+			ucmd->actions = ESyncBits::FromInt(ReadInt32(stream));
 		if (flags & UCMDF_PITCH)
 			ucmd->ang.Pitch = DAngle::fromDeg(ReadFloat(stream));
 		if (flags & UCMDF_YAW)
@@ -172,16 +77,12 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_ROLL)
 			ucmd->ang.Roll = DAngle::fromDeg(ReadFloat(stream));
 	}
-
-	return int(*stream - start);
 }
 
-// Returns the number of bytes written
-int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **stream)
+void PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, TArrayView<uint8_t>& stream)
 {
 	uint8_t flags = 0;
-	uint8_t *temp = *stream;
-	uint8_t *start = *stream;
+	auto packingBitsView = TArrayView(stream.Data(), 1);
 	InputPacket blank;
 
 	if (basis == NULL)
@@ -190,12 +91,12 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 		basis = &blank;
 	}
 
-	WriteByte (0, stream);			// Make room for the packing bits
+	WriteInt8 (0, stream);			// Make room for the packing bits
 
 	if (ucmd->actions != basis->actions)
 	{
 		flags |= UCMDF_BUTTONS;
-		WriteLong(ucmd->actions, stream);
+		WriteInt32(ucmd->actions, stream);
 	}
 	if (ucmd->ang.Pitch != basis->ang.Pitch)
 	{
@@ -229,9 +130,7 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 	}
 
 	// Write the packing bits
-	WriteByte (flags, &temp);
-
-	return int(*stream - start);
+	WriteInt8 (flags, packingBitsView);
 }
 
 FSerializer &Serialize(FSerializer &arc, const char *key, ticcmd_t &cmd, ticcmd_t *def)
@@ -257,53 +156,52 @@ FSerializer &Serialize(FSerializer &arc, const char *key, InputPacket &cmd, Inpu
 	return arc;
 }
 
-int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream)
+void WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, TArrayView<uint8_t>& stream)
 {
 	if (basis == NULL)
 	{
 		if (ucmd->actions != 0 || !ucmd->vel.isZero() || !ucmd->ang.isZero())
 		{
-			WriteByte (DEM_USERCMD, stream);
-			return PackUserCmd (ucmd, basis, stream) + 1;
+			WriteInt8 (DEM_USERCMD, stream);
+			PackUserCmd (ucmd, basis, stream);
+			return;
 		}
 	}
 	else if (ucmd->actions != basis->actions || ucmd->vel != basis->vel || ucmd->ang != basis->ang)
 	{
-		WriteByte (DEM_USERCMD, stream);
-		return PackUserCmd (ucmd, basis, stream) + 1;
+		WriteInt8 (DEM_USERCMD, stream);
+		PackUserCmd (ucmd, basis, stream);
+		return;
 	}
 
-	WriteByte (DEM_EMPTYUSERCMD, stream);
-	return 1;
+	WriteInt8 (DEM_EMPTYUSERCMD, stream);
 }
 
 
-int SkipTicCmd (uint8_t **stream, int count)
+void SkipTicCmd (TArrayView<uint8_t>& stream, int count)
 {
-	int i, skip;
-	uint8_t *flow = *stream;
-
-	for (i = count; i > 0; i--)
+	for (int i = count; i > 0; i--)
 	{
 		bool moreticdata = true;
 
-		flow += 2;		// Skip consistancy marker
+		AdvanceStream(stream, 2);		// Skip consistancy marker
 		while (moreticdata)
 		{
-			uint8_t type = *flow++;
+			uint8_t type = ReadInt8(stream);
 
 			if (type == DEM_USERCMD)
 			{
 				moreticdata = false;
-				skip = 1;
-				if (*flow & UCMDF_PITCH)		skip += 4;
-				if (*flow & UCMDF_YAW)			skip += 4;
-				if (*flow & UCMDF_FORWARDMOVE)	skip += 4;
-				if (*flow & UCMDF_SIDEMOVE)		skip += 4;
-				if (*flow & UCMDF_UPMOVE)		skip += 4;
-				if (*flow & UCMDF_ROLL)			skip += 4;
-				if (*flow & UCMDF_BUTTONS)		skip += 4;
-				flow += skip;
+				int flags = ReadInt8(stream);
+				size_t skip = 0;
+				if (flags & UCMDF_PITCH)		skip += 4;
+				if (flags & UCMDF_YAW)			skip += 4;
+				if (flags & UCMDF_FORWARDMOVE)	skip += 4;
+				if (flags & UCMDF_SIDEMOVE)		skip += 4;
+				if (flags & UCMDF_UPMOVE)		skip += 4;
+				if (flags & UCMDF_ROLL)			skip += 4;
+				if (flags & UCMDF_BUTTONS)		skip += 4;
+				AdvanceStream(stream, skip);
 			}
 			else if (type == DEM_EMPTYUSERCMD)
 			{
@@ -311,19 +209,14 @@ int SkipTicCmd (uint8_t **stream, int count)
 			}
 			else
 			{
-				Net_SkipCommand (type, &flow);
+				Net_SkipCommand (type, stream);
 			}
 		}
 	}
-
-	skip = int(flow - *stream);
-	*stream = flow;
-
-	return skip;
 }
 
 extern short consistency[MAXPLAYERS][BACKUPTICS];
-void ReadTicCmd (uint8_t **stream, int player, int tic)
+void ReadTicCmd (TArrayView<uint8_t>& stream, int player, int tic)
 {
 	int type;
 	uint8_t *start;
@@ -332,14 +225,14 @@ void ReadTicCmd (uint8_t **stream, int player, int tic)
 	int ticmod = tic % BACKUPTICS;
 
 	tcmd = &netcmds[player][ticmod];
-	tcmd->consistency = ReadWord (stream);
+	tcmd->consistency = ReadInt16 (stream);
 
-	start = *stream;
+	start = stream.Data();
 
-	while ((type = ReadByte (stream)) != DEM_USERCMD && type != DEM_EMPTYUSERCMD)
+	while ((type = ReadInt8 (stream)) != DEM_USERCMD && type != DEM_EMPTYUSERCMD)
 		Net_SkipCommand (type, stream);
 
-	NetSpecs[player][ticmod].SetData (start, int(*stream - start - 1));
+	NetSpecs[player][ticmod].SetData (start, int(stream.Data() - start - 1));
 
 	if (type == DEM_USERCMD)
 	{
@@ -365,21 +258,17 @@ void ReadTicCmd (uint8_t **stream, int player, int tic)
 
 void RunNetSpecs (int player, int buf)
 {
-	uint8_t *stream;
-	int len;
-
 	if (gametic % ticdup == 0)
 	{
-		stream = NetSpecs[player][buf].GetData (&len);
-		if (stream)
+		auto stream = NetSpecs[player][buf].GetTArrayView ();
+		if (stream.Size())
 		{
-			uint8_t *end = stream + len;
-			while (stream < end)
+			while (stream.Size())
 			{
-				int type = ReadByte (&stream);
+				int type = ReadInt8 (stream);
 				try
 				{
-					Net_DoCommand(type, &stream, player);
+					Net_DoCommand(type, stream, player);
 				}
 				catch (...)
 				{
@@ -395,40 +284,37 @@ void RunNetSpecs (int player, int buf)
 	}
 }
 
-uint8_t *lenspot;
+uint8_t *lenspot = nullptr;
 
 // Write the header of an IFF chunk and leave space
 // for the length field.
-void StartChunk (int id, uint8_t **stream)
+void StartChunk (int id, TArrayView<uint8_t>& stream)
 {
-	WriteLong (id, stream);
-	lenspot = *stream;
-	*stream += 4;
+	WriteInt32(id, stream);
+	lenspot = stream.Data();
+	AdvanceStream(stream, 4);
 }
 
 // Write the length field for the chunk and insert
 // pad byte if the chunk is odd-sized.
-void FinishChunk (uint8_t **stream)
+void FinishChunk (TArrayView<uint8_t>& stream)
 {
-	int len;
-
 	if (!lenspot)
 		return;
 
-	len = int(*stream - lenspot - 4);
-	WriteLong (len, &lenspot);
+	int len = int(stream.Data() - lenspot - 4);
+	auto lenSpotView = TArrayView<uint8_t>(lenspot, 4);
+	WriteInt32 (len, lenSpotView);
 	if (len & 1)
-		WriteByte (0, stream);
+		WriteInt8 (0, stream);
 
 	lenspot = NULL;
 }
 
-// Skip past an unknown chunk. *stream should be
+// Skip past an unknown chunk. stream should be
 // pointing to the chunk's length field.
-void SkipChunk (uint8_t **stream)
+void SkipChunk (TArrayView<uint8_t>& stream)
 {
-	int len;
-
-	len = ReadLong (stream);
-	*stream += len + (len & 1);
+	int len = ReadInt32(stream);
+	AdvanceStream(stream, len + (len & 1));
 }

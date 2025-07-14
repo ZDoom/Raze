@@ -37,6 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gstrings.h"
 #include "cheathandler.h"
 #include "d_protocol.h"
+#include "i_protocol.h"
 #include "cheats.h"
 #include "gamestate.h"
 #include "automap.h"
@@ -319,9 +320,9 @@ static void ItemCheat(int player)
 //
 //---------------------------------------------------------------------------
 
-static void cmd_Give(int player, uint8_t** stream, bool skip)
+static void cmd_Give(int player, TArrayView<uint8_t>& stream, bool skip)
 {
-    int type = ReadByte(stream);
+    int type = ReadInt8(stream);
     if (skip) return;
 
     if (numplayers != 1 || gamestate != GS_LEVEL || (getPlayer(player)->Flags & PF_DEAD))
