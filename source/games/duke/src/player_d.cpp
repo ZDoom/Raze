@@ -538,7 +538,7 @@ void checkweapons_d(DDukePlayer* p)
 {
 	static PClassActor* const * const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &DukeFirstgunSpriteClass, &DukeShotgunSpriteClass,
 			&DukeChaingunSpriteClass, &DukeRPGSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass, &DukeDevastatorSpriteClass,
-			&DukeTripBombSpriteClass, &DukeFreezeSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass };
+			&DukeTripBombSpriteClass, &DukeFreezeSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass, &DukeFlamethrowerSpriteClass };
 
 	int cw;
 
@@ -556,7 +556,7 @@ void checkweapons_d(DDukePlayer* p)
 	{
 		const auto pact = p->GetActor();
 
-		if (krand() & 1)
+		if (weapon_sprites[cw] && krand() & 1)
 			spawn(pact, *weapon_sprites[cw]);
 		else switch (cw)
 		{
