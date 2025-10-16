@@ -715,7 +715,7 @@ void validateStartSector(const char* filename, const DVector3& pos, sectortype**
 void PostProcessLevel(const uint8_t* checksum, const FString& mapname, SpawnSpriteDef& sprites);
 
 // should only be used to read angles from map-loaded data (for proper documentation)
-constexpr DAngle mapangle(int mapang)
+constexpr DAngle mapangle(double mapang)
 {
 	return DAngle::fromBuild(mapang);
 }

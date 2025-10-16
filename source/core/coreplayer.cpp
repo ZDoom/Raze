@@ -30,21 +30,65 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 //---------------------------------------------------------------------------
 
-static constexpr double ROLL_TILTAVELSCALE = (1966426. / 12000000.);
-static constexpr DAngle ROLL_TILTAVELMAX = DAngle::fromDeg(90. / 32. * 1.5);
-static constexpr double ROLL_TILTRETURN = 15.;
-static constexpr double YAW_LOOKINGSPEED = 801.5625;
-static constexpr double YAW_ROTATESPEED = 63.28125;
-static constexpr double YAW_LOOKRETURN = 7.5;
-static constexpr double YAW_SPINSTAND = 675.;
+// Looking speed (in Build angle).
+// Duke:     152 * 30 = 4560;
+static constexpr double YAW_LOOKINGSPEED = mapangle(152).Degrees() * 30.;
+
+// Rotating speed (in Build angle).
+// Duke:      24 * 30 = 720 (halved for a consistent YAW_LOOKRETURN value)
+static constexpr double YAW_ROTATESPEED = mapangle(24).Degrees() * 0.5 * 30.;
+
+// Look return speed (in Build angle).
+// Duke: (1 / 4) * 30 = 7.5;
+static constexpr double YAW_LOOKRETURN = 0.25 * 30.;
+
+// Look return push (in Build angle).
+// Duke:       1 * 30 = 30;
+// SW:         1 * 40 = 40;
+// Average: 35.;
+static constexpr double YAW_LOOKRETURNPUSH = ((mapangle(1).Degrees() * 30.) + (mapangle(1).Degrees() * 40.)) * 0.5;
+
+// Spin standing speed (in Build angle).
+// Duke:     128 * 30 = 3840;
+// Blood:    128 * 30 = 3840;
+static constexpr double YAW_SPINSTAND = mapangle(128).Degrees() * 30.;
 static constexpr double YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
-static constexpr double PITCH_LOOKSPEED = (269426662. / 1209103.);
-static constexpr double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
-static constexpr double PITCH_CENTERSPEED = 10.7375;
-static constexpr double PITCH_HORIZOFFSPEED = 4.375;
-static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
-static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-127076387. / 3344227.);
-static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(14115687. / 31535389.);
+
+// Look speed (in Build tangent).
+// Duke:     12 * 30 = 360;
+// SW:       16 * 40 = 640;
+// Average: 500.;
+static const double PITCH_LOOKSPEED = ((maphoriz(12).Degrees() * 30.) + (maphoriz(16).Degrees() * 40.)) * 0.5;
+static const double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
+
+// Return to centre speed (in Build tangent).
+// Duke: (1 / 3) * 30 = 10;
+// SW:   (1 / 4) * 40 = 10;
+// Average: 10.;
+static constexpr double PITCH_CENTERSPEED = ((((1. / 3.) * 30.) + ((1. / 4.) * 40.)) * 0.5) + (3. / 4.); // Plus additional sine offset compensation.
+
+// Horizoff centre speed (in Build tangent).
+// Duke: (1 / 8) * 30 = 3.75;
+// SW:   (1 / 8) * 40 = 5;
+// Average: 4.375;
+static constexpr double PITCH_HORIZOFFSPEED = (((1. / 8.) * 30.) + ((1. / 8.) * 40.)) * 0.5;
+
+// Horizoff climb maximum (in Build tangent).
+// SW:                = 100;
+static const DAngle PITCH_HORIZOFFCLIMB = -maphoriz(100);
+
+// Horizon offset push (in Build tangent).
+// Duke:       1 * 30 = 30;
+// SW:         1 * 40 = 40;
+// Average: 35.;
+static const double PITCH_HORIZOFFPUSH = ((maphoriz(1).Degrees() * 30.) + (maphoriz(1).Degrees() * 40.)) * 0.5;
+
+// Constants for new input features, not in the original games.
+static const double SCALETOZEROPUSH = (PITCH_HORIZOFFPUSH + YAW_LOOKRETURNPUSH) * 0.5 * (2. / 9.);
+static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 * (1. / 8.);
+static constexpr DAngle ROLL_TILTAVELMAX = DAngle::fromDeg((90. / 32.) * 1.5);
+static constexpr double ROLL_TILTAVELSCALE = (1966426. / 12000000.);
+static constexpr double ROLL_TILTRETURN = 15.;
 
 
 //---------------------------------------------------------------------------
@@ -100,8 +144,10 @@ void DCorePlayer::doPitchInput()
 	{
 		const auto pitch = abs(actor->spr.Angles.Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-		if (scaletozero(actor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale))
+		if (scaleAngleToZero(actor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale))
+		{
 			cmd.ucmd.actions &= ~SB_CENTERVIEW;
+		}
 	}
 
 	// clamp before we finish, factoring in the player's view pitch offset.
@@ -190,12 +236,14 @@ void DCorePlayer::doViewPitch(const bool climbing)
 	{
 		// tilt when climbing but you can't even really tell it.
 		if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB)
-			ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
+		{
+			ViewAngles.Pitch += getScaledAngle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
+		}
 	}
 	else
 	{
 		// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-		scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
+		scaleAngleToZero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
 	}
 }
 
@@ -209,8 +257,8 @@ void DCorePlayer::doViewPitch(const bool climbing)
 void DCorePlayer::doViewYaw()
 {
 	// Process angle return to zeros.
-	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN);
-	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN);
+	scaleAngleToZero(ViewAngles.Yaw, YAW_LOOKRETURN);
+	scaleAngleToZero(ViewAngles.Roll, YAW_LOOKRETURN);
 
 	// Process keyboard input.
 	if (const auto looking = !!(cmd.ucmd.actions & SB_LOOK_RIGHT) - !!(cmd.ucmd.actions & SB_LOOK_LEFT))
@@ -243,7 +291,7 @@ void DCorePlayer::doRollInput(const bool bUnderwater)
 			// Console-like yaw rolling. Adjustment == ~(90/32) for keyboard turning. Clamp is 1.5x this value.
 			const auto rollAdj = cmd.ucmd.ang.Yaw * ROLL_TILTAVELSCALE * rollAmp;
 			const auto rollMax = ROLL_TILTAVELMAX * cl_viewtiltscale;
-			scaletozero(actor->spr.Angles.Roll, ROLL_TILTRETURN);
+			scaleAngleToZero(actor->spr.Angles.Roll, ROLL_TILTRETURN);
 			actor->spr.Angles.Roll = clamp(actor->spr.Angles.Roll + rollAdj, -rollMax, rollMax);
 		}
 		else if (cl_viewtilting == 2)
@@ -271,6 +319,24 @@ void DCorePlayer::doRollInput(const bool bUnderwater)
 		// Add player's device input.
 		actor->spr.Angles.Roll += cmd.ucmd.ang.Roll * gameInput.SyncInput();
 	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Scales a referenced angle's value towards zero by the given scale.
+//
+//---------------------------------------------------------------------------
+
+bool scaleAngleToZero(DAngle& angle, const double scale, const double push)
+{
+	const auto sgn = angle.Sgn();
+	if (!sgn || sgn != (angle -= getScaledAngle(angle, scale, getTicrateAngle(push == DBL_MAX ? SCALETOZEROPUSH : push) * sgn)).Sgn())
+	{
+		angle = nullAngle;
+		return true;
+	}
+	return false;
 }
 
 

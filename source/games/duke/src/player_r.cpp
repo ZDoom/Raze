@@ -733,7 +733,7 @@ static void doVehicleTilting(DDukePlayer* const p, const bool canTilt)
 	if (cl_rrvehicletilting) adj *= cl_viewtiltscale;
 	p->oTiltStatus = p->TiltStatus;
 
-	scaletozero(p->TiltStatus, 10.);
+	scaleAngleToZero(p->TiltStatus, 10.);
 	p->GetActor()->spr.Angles.Roll = (p->TiltStatus += adj) * cl_rrvehicletilting;
 }
 

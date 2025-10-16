@@ -360,6 +360,7 @@ public:
 	void backupweapon();
 	void checkhardlanding();
 	void playerweaponsway(double xvel);
+	void updatecentering();
 
 	double GetMaxInputVel() const override
 	{
@@ -384,25 +385,6 @@ public:
 	inline void setbobpos()
 	{
 		bobpos = GetActor()->spr.pos.XY();
-	}
-
-	void updatecentering()
-	{
-		if (!(cmd.ucmd.actions & SB_CENTERVIEW))
-			return;
-
-		const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
-		const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > 2.2370; // Build horizon value of 5.
-
-		if ((centertest && returnlock) || !cmd.ucmd.ang.Pitch.Degrees())
-		{
-			gameInput.ForceInputSync(pnum);
-			cmd.ucmd.ang.Pitch = nullAngle;
-		}
-		else
-		{
-			cmd.ucmd.actions &= ~SB_CENTERVIEW;
-		}
 	}
 
 	bool canSlopeTilt() const override

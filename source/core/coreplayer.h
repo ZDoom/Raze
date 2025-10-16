@@ -120,19 +120,14 @@ inline DAngle getTicrateAngle(const double value)
 	return DAngle::fromDeg(getTicrateScale(value));
 }
 
-inline DAngle getscaledangle(const DAngle angle, const double scale, const DAngle push)
+inline DAngle getScaledAngle(const DAngle angle, const double scale, const DAngle push)
 {
 	return (angle.Normalized180() * getTicrateScale(scale)) + push;
 }
 
-inline bool scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(7646143. / 110386328.))
+inline DAngle getScaledAngle(const DAngle angle, const double scale, const double push)
 {
-	const auto sgn = angle.Sgn();
-
-	if (!sgn || sgn != (angle -= getscaledangle(angle, scale, push * sgn)).Sgn())
-	{
-		angle = nullAngle;
-		return true;
-	}
-	return false;
+	return (angle.Normalized180() * getTicrateScale(scale)) + getTicrateAngle(push);
 }
+
+bool scaleAngleToZero(DAngle& angle, const double scale, const double push = DBL_MAX);

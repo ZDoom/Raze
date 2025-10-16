@@ -19,16 +19,19 @@ enum : unsigned
 
 class GameInput
 {
+	/*
+	// Turbo turn time.
+	Blood:     24 * 30 = 720;
+	Duke: 120 / 8 * 30 = 450;
+	SW:   120 / 8 * 40 = 600;
+	Exhumed: N/A;
+	Average: 590.;
+	*/
 	enum
 	{
 		BUILDTICRATE = 120,
 		TURBOTURNBASE = 590,
 	};
-
-	static constexpr double YAW_TURNSPEEDS[3] = { 234.375 * (360. / 2048.), 890.625 * (360. / 2048.), 1548.75 * (360. / 2048.) };
-	static constexpr DVector3 MAXVEL[3] = { { 0., 0., 1. }, { 1., 1., 1. }, { 2., 2., 1. } };
-	static constexpr DRotator MAXANG = { DAngle90 - minAngle, DAngle180 - minAngle, DAngle180 - minAngle };
-	static constexpr DAngle MOUSE_SCALE = DAngle::fromDeg(1. / 16.);
 
 	// Input received from the OS.
 	float joyAxes[NUM_JOYAXIS];

@@ -785,6 +785,12 @@ void DDukePlayer::checkhardlanding()
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DDukePlayer::playerweaponsway(double xvel)
 {
 	if (cl_weaponsway)
@@ -806,6 +812,33 @@ void DDukePlayer::playerweaponsway(double xvel)
 				oweapon_sway = weapon_sway;
 			}
 		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void DDukePlayer::updatecentering()
+{
+	if (!(cmd.ucmd.actions & SB_CENTERVIEW))
+	{
+		return;
+	}
+
+	static const double CENTERMAX = maphoriz(5).Degrees();
+	const bool returnlock = cl_dukepitchmode & kDukePitchLockReturn;
+	const bool centertest = abs(GetActor()->spr.Angles.Pitch.Degrees()) > CENTERMAX;
+	if ((centertest && returnlock) || !cmd.ucmd.ang.Pitch.Degrees())
+	{
+		gameInput.ForceInputSync(pnum);
+		cmd.ucmd.ang.Pitch = nullAngle;
+	}
+	else
+	{
+		cmd.ucmd.actions &= ~SB_CENTERVIEW;
 	}
 }
 

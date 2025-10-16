@@ -40,6 +40,41 @@ CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 
 //---------------------------------------------------------------------------
 //
+// Input constants used throughout associated functions.
+//
+//---------------------------------------------------------------------------
+
+/*
+// Running speed.
+Blood: 92 / 4 * 2 * 30 = 1380;
+Duke:  15 * 2 * 2 * 30 = 1800;
+SW:  28 * 1.40625 * 40 = 1575;   // Precisely, ((((28 * 12) + ((28 * 12) / 4)) * 3) / 32) * 40
+Exhumed:   12 * 4 * 30 = 1440;
+Average: 1548.75;
+
+// Normal speed.
+Blood:     92 / 4 * 30 = 690;
+Duke:      15 * 2 * 30 = 900;
+SW:  18 * 1.40625 * 40 = 1012.5; // Precisely, (((((12 + 6) * 12) + (((12 + 6) * 12) / 4)) * 3) / 32) * 40
+Exhumed:    8 * 4 * 30 = 960;
+Average: 890.625;
+
+// Preamble.
+Blood:   N/A;
+Exhumed: N/A;
+Duke:       5 * 2 * 30 = 300;
+SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3) / 32) * 40
+Average: 234.375;
+*/
+static constexpr double YAW_TURNSPEEDS[3] = { 234.375 * (360. / 2048.), 890.625 * (360. / 2048.), 1548.75 * (360. / 2048.) };
+static constexpr double PRETURBOTURNSCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
+static constexpr DVector3 MAXVEL[3] = { { 0., 0., 1. }, { 1., 1., 1. }, { 2., 2., 1. } };
+static constexpr DRotator MAXANG = { DAngle90 - minAngle, DAngle180 - minAngle, DAngle180 - minAngle };
+static constexpr DAngle MOUSE_SCALE = DAngle::fromDeg(1. / 16.);
+
+
+//---------------------------------------------------------------------------
+//
 // Initialised variables.
 //
 //---------------------------------------------------------------------------
@@ -105,7 +140,7 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		const double turndir = clamp(turning + strafing * !allowstrafe, -1., 1.);
-		const double tttscale = (cl_noturnscaling || isTurboTurnTime()) ? 1 : (5. / 19.);
+		const double tttscale = (cl_noturnscaling || isTurboTurnTime()) ? 1 : PRETURBOTURNSCALE;
 		const DAngle turnspeed = getTicrateAngle(YAW_TURNSPEEDS[keymove] * tttscale);
 		thisInput.ang.Yaw += MOUSE_SCALE * mouseInput.X * m_yaw;
 		thisInput.ang.Yaw -= hidspeed * joyAxes[JOYAXIS_Yaw] * scaleAdjust;
