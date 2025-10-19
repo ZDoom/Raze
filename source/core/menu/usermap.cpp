@@ -238,16 +238,16 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 	{
 		if (wal.nextwall < 0) continue;
 		auto point2 = &entry->walls[wal.point2];
-		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
-			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
+		twod->AddLine(DVector2(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale),
+			DVector2(dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale),
 			nullptr, 0xff808080);
 	}
 	for (auto& wal : entry->walls)
 	{
 		if (wal.nextwall >= 0) continue;
 		auto point2 = &entry->walls[wal.point2];
-		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
-			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
+		twod->AddLine(DVector2(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale),
+			DVector2(dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale),
 			nullptr, 0xffffffff);
 	}
 	return 0;

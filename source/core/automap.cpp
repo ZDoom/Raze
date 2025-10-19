@@ -321,10 +321,10 @@ void MarkSectorSeen(sectortype* sec)
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
 {
 	if (am_linethickness >= 2) {
-		twod->AddThickLine(x1 / 4096, y1 / 4096, x2 / 4096, y2 / 4096, am_linethickness, p, uint8_t(am_linealpha * 255));
+		twod->AddThickLine(DVector2(x1 / 4096, y1 / 4096), DVector2(x2 / 4096, y2 / 4096), am_linethickness, p, uint8_t(am_linealpha * 255));
 	} else {
 		// Use more efficient thin line drawing routine.
-		twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, &viewport3d, p, uint8_t(am_linealpha * 255));
+		twod->AddLine(DVector2(x1 / 4096., y1 / 4096.), DVector2(x2 / 4096., y2 / 4096.), &viewport3d, p, uint8_t(am_linealpha * 255));
 	}
 }
 

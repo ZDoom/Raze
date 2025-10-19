@@ -375,7 +375,7 @@ static void UpdateAmbients()
     for (auto& amb : ambients)
     {
         auto spot = amb->spot;
-        auto sdist = SoundDist(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, voc[amb->vocIndex.Index()].voc_distance);
+        auto sdist = SoundDist(spot->spr.pos.X, spot->spr.pos.Y, spot->spr.pos.Z, voc[amb->vocIndex.index()].voc_distance);
 
         if (sdist < 255 && amb->vocIndex.index() == DIGI_WHIPME)
         {

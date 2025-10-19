@@ -586,6 +586,20 @@ public:
 //
 //==========================================================================
 
+class FxQuaternionValue : public FxVectorValue
+{
+public:
+	FxQuaternionValue(FxExpression* x, FxExpression* y, FxExpression* z, FxExpression* w, const FScriptPosition& sc);
+	FxExpression* Resolve(FCompileContext&);
+};
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 class FxBoolCast : public FxExpression
 {
 	FxExpression *basex;

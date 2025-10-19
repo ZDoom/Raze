@@ -38,8 +38,6 @@ typedef int64_t coord_t;
 
 enum
 {
-    MAXVOXMIPS = 5,
-
     MAXWALLSB = 6144,
 
     MAXVOXELS = 1024,

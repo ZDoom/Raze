@@ -142,6 +142,7 @@ enum EHudSize
 	Hud_StbarOverlay,
 	Hud_Mini,
 	Hud_full,
+	Hud_Althud,
 	Hud_Nothing,
 	Hud_MAX
 };

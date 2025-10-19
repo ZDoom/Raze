@@ -1559,10 +1559,10 @@ void VirtualToRealCoordsInt(F2DDrawer *drawer, int &x, int &y, int &w, int &h,
 //
 //==========================================================================
 
-static void DrawLine(int x0, int y0, int x1, int y1, uint32_t realcolor, int alpha)
+static void DrawLine(double x1, double y1, double x2, double y2, uint32_t realcolor, int alpha)
 {
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
-	twod->AddLine((float)x0, (float)y0, (float)x1, (float)y1, nullptr, realcolor | MAKEARGB(255, 0, 0, 0), alpha);
+	twod->AddLine(DVector2(x1, y1), DVector2(x2, y2), nullptr, realcolor | MAKEARGB(255, 0, 0, 0), alpha);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawLine, DrawLine)
@@ -1587,15 +1587,15 @@ DEFINE_ACTION_FUNCTION(FCanvas, DrawLine)
 	PARAM_FLOAT(y1);
 	PARAM_INT(color);
 	PARAM_INT(alpha);
-	self->Drawer.AddLine((float)x0, (float)y0, (float)x1, (float)y1, nullptr, color | MAKEARGB(255, 0, 0, 0), alpha);
+	self->Drawer.AddLine(DVector2(x0, y0), DVector2(x1, y1), nullptr, color | MAKEARGB(255, 0, 0, 0), alpha);
 	self->Tex->NeedUpdate();
 	return 0;
 }
 
-static void DrawThickLine(int x0, int y0, int x1, int y1, double thickness, uint32_t realcolor, int alpha)
+static void DrawThickLine(double x1, double y1, double x2, double y2, double thickness, uint32_t realcolor, int alpha)
 {
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
-	twod->AddThickLine(x0, y0, x1, y1, thickness, realcolor, alpha);
+	twod->AddThickLine(DVector2(x1, y1), DVector2(x2, y2), thickness, realcolor, alpha);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawThickLine, DrawThickLine)
@@ -1622,7 +1622,7 @@ DEFINE_ACTION_FUNCTION(FCanvas, DrawThickLine)
 	PARAM_FLOAT(thickness);
 	PARAM_INT(color);
 	PARAM_INT(alpha);
-	self->Drawer.AddThickLine(x0, y0, x1, y1, thickness, color, alpha);
+	self->Drawer.AddThickLine(DVector2(x0, y0), DVector2(x1, y1), thickness, color, alpha);
 	self->Tex->NeedUpdate();
 	return 0;
 }

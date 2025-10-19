@@ -318,7 +318,7 @@ void S_GetCamera(vec3_t** c, int32_t* ca, sectortype** cs)
 	if (ud.cameraactor == nullptr)
 	{
 		auto p = &ps[screenpeek];
-		if (c) *c = p->actor->spr.pos;
+		if (c) *c = &p->actor->spr.pos;
 		if (cs) *cs = p->cursector;
 		if (ca) *ca = p->angle.ang.asbuild();
 	}
@@ -359,7 +359,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 			auto aactor = (DDukeActor*)source;
 			if (aactor != nullptr)
 			{
-				GetPositionInfo(aactor, chanSound.index() - 1, camsect, campos, aactor->spr.pos, nullptr, pos);
+				GetPositionInfo(aactor, chanSound.index() - 1, camsect, campos, &aactor->spr.pos, nullptr, pos);
 				/*
 				if (vel) // DN3D does not properly maintain this.
 				{

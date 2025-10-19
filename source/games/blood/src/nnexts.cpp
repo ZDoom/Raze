@@ -9511,6 +9511,11 @@ void SerializeNNExts(FSerializer& arc)
 	}
 }
 
+int getVelocityAngle(DBloodActor* pSpr)
+{
+	return getangle(pSpr->vel.X >> 12, pSpr->vel.Y >> 12);
+}
+
 ///////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.
 // For full documentation please visit http://cruo.bloodgame.ru/xxsystem

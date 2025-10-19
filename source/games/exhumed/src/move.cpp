@@ -227,8 +227,8 @@ void MoveThings()
 
 void ResetMoveFifo()
 {
-    movefifoend = 0;
-    movefifopos = 0;
+    //movefifoend = 0;
+    //movefifopos = 0;
 }
 
 // not used
