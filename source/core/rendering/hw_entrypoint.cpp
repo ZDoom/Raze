@@ -160,8 +160,8 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 		{
 			vp.Pos += eye.GetViewShift(vp.HWAngles.Yaw.Degrees());
 			sectortype* sect = &sector[vp.SectCount];
-			updatesector(DVector2(vp.Pos.X, -vp.Pos.Y), &sect);
-			vp.SectCount = sectindex(sect);
+			updatesector(int(vp.Pos.X * 16), int(-vp.Pos.Y * 16), &sect);
+			vp.SectCount = int(sect - sector.Data());
 		}
 
 		di->SetupView(RenderState, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, false, false);
