@@ -1995,11 +1995,12 @@ static void doPlayerDeathPitch(DExhumedPlayer* const pPlayer)
     }
     else
     {
+        static const DAngle maxPitch = -maphoriz(108);
         pPlayerActor->spr.Angles.Pitch -= maphoriz(pPlayer->dVertPan);
 
-        if (pPlayerActor->spr.Angles.Pitch.Degrees() <= -40.156)
+        if (pPlayerActor->spr.Angles.Pitch <= maxPitch)
         {
-            pPlayerActor->spr.Angles.Pitch = DAngle::fromDeg(-40.156);
+            pPlayerActor->spr.Angles.Pitch = maxPitch;
         }
         else if (pPlayerActor->spr.Angles.Pitch.Sgn() >= 0 && !(pPlayerActor->sector()->Flag & kSectUnderwater))
         {
