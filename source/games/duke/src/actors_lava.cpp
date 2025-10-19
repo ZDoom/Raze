@@ -477,7 +477,7 @@ void thunder(void)
 	}
 	if (!winderflash)
 	{
-		auto tex = tileGetTexture(RTILE_RRTILE2562);
+		auto tex = tileGetTexture(RRTILE2562);
 		if (tex->isSeen(true))
 		{
 			if (krand() > 65000)

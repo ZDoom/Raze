@@ -459,6 +459,10 @@ int lastcamclock;
 // views
 short camplayerview = 1;                // Don't show yourself!
 
+static bool testgotpic(int num)
+{
+    return tileGetTexture(num)->isSeen(false);
+}
 
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.

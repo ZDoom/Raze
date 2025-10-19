@@ -1388,7 +1388,6 @@ void GameInterface::FreeLevelData()
 //
 //---------------------------------------------------------------------------
 
-void ST_DrawCrosshair(int phealth, double xpos, double ypos, double scale);
 //void DrawGenericCrosshair(int num, int phealth, double xdelta);
 void ST_LoadCrosshair(int num, bool alwaysload);
 CVAR(Int, crosshair, 0, CVAR_ARCHIVE)

@@ -1604,8 +1604,29 @@ void FTextureManager::SetTranslation(FTextureID fromtexnum, FTextureID totexnum)
 void FTextureManager::AddAlias(const char* name, FGameTexture* tex)
 {
 	FTextureID id = tex->GetID();
-	if (tex != Textures[id.GetIndex()].Texture || !tex->isValid()) return;	// Whatever got passed in here was not valid, so ignore the alias.
+	if (tex != Textures[id.GetIndex()].Texture)// || !tex->isValid())
+	{
+		return;	// Whatever got passed in here was not valid, so ignore the alias.
+	}
 	aliases.Insert(name, id.GetIndex());
+}
+
+void FTextureManager::Listaliases()
+{
+	decltype(aliases)::Iterator it(aliases);
+	decltype(aliases)::Pair* pair;
+
+	TArray<FString> list;
+	while (it.NextPair(pair))
+	{
+		auto tex = GetGameTexture(pair->Value);
+		list.Push(FStringf("%s -> %s%s", pair->Key.GetChars(), tex ? tex->GetName().GetChars() : "(null)", ((tex && tex->GetUseType() == ETextureType::Null) ? ", null" : "")));
+	}
+	std::sort(list.begin(), list.end(), [](const FString& l, const FString& r) { return l.CompareNoCase(r) < 0; });
+	for (auto& s : list)
+	{
+		Printf("%s\n", s.GetChars());
+	}
 }
 
 //==========================================================================
@@ -1627,3 +1648,7 @@ CCMD(flushtextures)
 	TexMan.FlushAll();
 }
 
+CCMD(listtexturealiases)
+{
+	TexMan.Listaliases();
+}

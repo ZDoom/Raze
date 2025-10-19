@@ -4935,11 +4935,11 @@ void MoveDude(DBloodActor* actor)
 		{
 		case kMarkerLowStack:
 			if (pPlayer == gView)
-				gotpic.Set(actor->sector()->floorpicnum);
+				tileGetTexture(actor->sector()->floorpicnum)->setSeen();
 			break;
 		case kMarkerUpStack:
 			if (pPlayer == gView)
-				gotpic.Set(actor->sector()->ceilingpicnum);
+				tileGetTexture(actor->sector()->ceilingpicnum)->setSeen();
 			break;
 		case kMarkerLowWater:
 		case kMarkerLowGoo:
