@@ -1043,10 +1043,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			else
 			{
 				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-				if (act->spr.picnum != 5501)
-					if (actorfella(act))
-						ps[myconnectindex].max_actors_killed++;
+				addtokills(act);
 			}
 
 			if (actj)

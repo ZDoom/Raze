@@ -266,8 +266,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			if (actorflag(act, SFLAG_BADGUYSTAYPUT))
 				act->actorstayput = act->sector();
 
-			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
-				ps[myconnectindex].max_actors_killed++;
+			addtokills(act);
 
 			act->spr.clipdist = 80;
 			if (actj)
@@ -567,8 +566,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 			ChangeActorStat(actor, STAT_MISC);
 			return true;
 		}
-		if (!isRR() || actorflag(actor, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
-			ps[myconnectindex].max_actors_killed++;
+		addtokills(actor);
 		actor->temp_data[5] = 0;
 		if (ud.monsters_off == 1)
 		{

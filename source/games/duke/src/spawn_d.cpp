@@ -94,7 +94,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				makeitfall(act);
 
 				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-				ps[connecthead].max_actors_killed++;
+				addtokills(act);
 
 				if (actj) {
 					act->timetosleep = 0;
@@ -887,9 +887,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			else
 			{
 				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-				if (act->spr.picnum != SHARK)
-					ps[myconnectindex].max_actors_killed++;
+				addtokills(act);
 			}
 
 			if (act->spr.picnum == ORGANTIC) act->spr.cstat |= CSTAT_SPRITE_YCENTER;
@@ -1213,7 +1211,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum == EGG)
 			{
 				act->spr.clipdist = 24;
-				ps[connecthead].max_actors_killed++;
 			}
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);

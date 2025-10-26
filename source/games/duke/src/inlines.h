@@ -47,11 +47,6 @@ inline int attackerflag(DDukeActor* actor, EDukeFlags2 mask)
 	return (((gs.actorinfo[actor->attackertype].flags2) & mask) != 0);
 }
 
-inline int actorfella(DDukeActor* actor)
-{
-	return actorflag(actor, SFLAG_KILLCOUNT);
-}
-
 inline void setflag(EDukeFlags1 flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
@@ -249,6 +244,36 @@ inline ESpriteFlags randomXFlip()
 	int r = krand() & 4;
 	if (r == 0) return 0;
 	return CSTAT_SPRITE_XFLIP;
+}
+
+
+// flag mess to avoid double counting of kills.
+// this is still not foolproof because CON requires manually recording the kills.
+inline void addtokills(DDukeActor* actor)
+{
+	if (actorflag(actor, SFLAG_KILLCOUNT) && !(actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILLADDED))
+	{
+		ps[myconnectindex].max_actors_killed++;
+		actor->spr.cstat2 |= CSTAT2_SPRITE_COUNTKILL |CSTAT2_SPRITE_COUNTKILLADDED;
+	}
+}
+
+inline void addkill(DDukeActor* actor)
+{
+	if (actorflag(actor, SFLAG_KILLCOUNT) && (actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
+	{
+		ps[myconnectindex].actors_killed++;
+		actor->spr.cstat2 &= ~CSTAT2_SPRITE_COUNTKILL;
+	}
+}
+
+inline void subkill(DDukeActor* actor)
+{
+	if (actorflag(actor, SFLAG_KILLCOUNT) && !(actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
+	{
+		ps[myconnectindex].actors_killed--;
+		actor->spr.cstat2 |= CSTAT2_SPRITE_COUNTKILL;
+	}
 }
 
 END_DUKE_NS

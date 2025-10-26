@@ -917,16 +917,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ps[iPlayer].secret_rooms, sActor, sPlayer);
 		break;
 
-	case PLAYER_MAX_ACTORS_KILLED:
-		if (bSet) ps[iPlayer].max_actors_killed = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].max_actors_killed, sActor, sPlayer);
-		break;
-
-	case PLAYER_ACTORS_KILLED:
-		if (bSet) ps[iPlayer].actors_killed = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].actors_killed, sActor, sPlayer);
-		break;
-
 	case PLAYER_RETURN_TO_CENTER:
 		if (bSet) ps[iPlayer].sync.actions |= SB_CENTERVIEW;
 		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? abs(int(ps[iPlayer].horizon.horiz.asq16() * (9. / gi->playerHorizMax()))) : 0, sActor, sPlayer);
@@ -1704,12 +1694,6 @@ int ParseState::parse(void)
 			g_ac->spr.pal = ps[g_ac->spr.yvel].palookup;
 		else
 		{
-			// Copied from DukeGDX.
-			if (g_ac->spr.picnum == TILE_EGG && g_ac->temp_data[5] == TILE_EGG + 2 && g_ac->spr.pal == 1) 
-			{
-				ps[connecthead].max_actors_killed++; //revive the egg
-				g_ac->temp_data[5] = 0;
-			}
 			g_ac->spr.pal = (uint8_t)g_ac->tempang;
 		}
 		g_ac->tempang = 0;
@@ -1901,15 +1885,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_addkills:
 		insptr++;
-		if (isRR())
+		if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128 || !isRR())
 		{
-			if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128)
-			{
-				if (actorfella(g_ac))
-					ps[g_p].actors_killed += *insptr;
-			}
+			if (*insptr) addkill(g_ac);
+			else if (*insptr < 0) subkill(g_ac);
 		}
-		else ps[g_p].actors_killed += *insptr;
 		g_ac->actorstayput = nullptr;
 		insptr++;
 		break;
@@ -3754,11 +3734,11 @@ void execute(DDukeActor *actor,int p,int x)
 
 	if(!actor->insector())
 	{
-		if(badguy(actor))
-			ps[p].actors_killed++;
+		addkill(actor);
 		deletesprite(actor);
 		return;
 	}
+
 
 	if (s.g_t[4])
 	{

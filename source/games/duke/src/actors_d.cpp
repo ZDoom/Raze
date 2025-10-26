@@ -2135,7 +2135,7 @@ static void greenslime(DDukeActor *actor)
 				auto k = EGS(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 				k->spr.pal = 1;
 			}
-			ps[p].actors_killed++;
+			addkill(actor);
 			S_PlayActorSound(GLASS_BREAKING, actor);
 			deletesprite(actor);
 		}
@@ -2181,7 +2181,7 @@ static void greenslime(DDukeActor *actor)
 					auto spawned = spawn(actor, BLOODPOOL);
 					if (spawned) spawned->spr.pal = 0;
 				}
-				ps[p].actors_killed++;
+				addkill(actor);
 				actor->temp_data[0] = -3;
 				if (ps[p].somethingonplayer == actor)
 					ps[p].somethingonplayer = nullptr;
@@ -2275,7 +2275,7 @@ static void greenslime(DDukeActor *actor)
 			actor->temp_data[0] = -5; actor->temp_data[3] = 0;
 			return;
 		}
-		ps[p].actors_killed++;
+		addkill(actor);
 
 		if ((krand() & 255) < 32)
 		{

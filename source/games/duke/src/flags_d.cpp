@@ -157,7 +157,9 @@ void initactorflags_d()
 	gs.actorinfo[OCTABRAIN].falladjustz = gs.actorinfo[COMMANDER].falladjustz = gs.actorinfo[DRONE].falladjustz = 0;
 
 	setflag(SFLAG_INTERNAL_BADGUY, {
-			SHARK,
+			SHARK });
+
+	setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT, {
 			RECON,
 			DRONE,
 			LIZTROOPONTOILET,
@@ -226,8 +228,8 @@ void initactorflags_d()
 
 	if (isWorldTour())
 	{
-		setflag(SFLAG_INTERNAL_BADGUY, { FIREFLY });
-		setflag(SFLAG_INTERNAL_BADGUY|SFLAG_NODAMAGEPUSH|SFLAG_BOSS, { BOSS5 });
+		setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT, { FIREFLY });
+		setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT |SFLAG_NODAMAGEPUSH|SFLAG_BOSS, { BOSS5 });
 	}
 
 	setflag(SFLAG_INVENTORY, {

@@ -1660,7 +1660,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			S_PlayActorSound(LASERTRIP_EXPLODE, actor);
 			int sp = getspawn(actor);
 			if (sp >= 0) spawn(actor, sp);
-			ps[myconnectindex].actors_killed++;
+			addkill(actor);
 			deletesprite(actor);
 		}
 		return;
