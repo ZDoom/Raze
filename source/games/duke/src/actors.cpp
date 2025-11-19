@@ -2519,7 +2519,11 @@ void handle_se11(DDukeActor *actor)
 		if (actor->temp_data[4] <= -511 || actor->temp_data[4] >= 512)
 		{
 			actor->temp_data[4] = 0;
-			actor->temp_angle = mapangle(actor->temp_angle.Buildang() & 0xffffff00); // Gross hack! What is this supposed to do?
+			// Normalize to avoid getting negative Build angle on CCW rotations
+			int snapped = actor->temp_angle.Normalized360().Buildang();
+			// Quantize to 256-bit increments to prevent vector drift (legacy Build behavior)
+			snapped &= 0xffffff00;
+			actor->temp_angle = mapangle(snapped);
 			movesector(actor, actor->temp_data[1], actor->temp_angle);
 			//SetActor(actor, actor->spr.pos);
 		}
