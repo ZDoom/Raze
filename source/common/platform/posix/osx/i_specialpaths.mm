@@ -35,6 +35,8 @@
 
 #import <Foundation/NSFileManager.h>
 
+#include <stdlib.h>
+
 #include "cmdlib.h"
 #include "version.h"	// for GAMENAME
 #include "i_specialpaths.h"
@@ -275,11 +277,11 @@ FString M_GetDemoPath()
 
 FString M_GetNormalizedPath(const char* path)
 {
-	NSString *str = [NSString stringWithUTF8String:path];
-	NSString *out;
-	if ([str completePathIntoString:&out caseSensitive:NO matchesIntoArray:nil filterTypes:nil])
+	// Filename completion can turn "." into ".DS_Store" instead of resolving the directory.
+	char fullpath[PATH_MAX];
+	if (realpath(path, fullpath) != nullptr)
 	{
-		return out.UTF8String;
+		return fullpath;
 	}
 	return path;
 }
