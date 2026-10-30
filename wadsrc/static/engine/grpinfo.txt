@@ -785,6 +785,32 @@ grpinfo
 	GameID "TwinDragon"
 }
 
+addon
+{
+	// GOG's Classic Complete release installs the expansion as loose files in 'dragon'.
+	name "Shadow Warrior: Twin Dragon"
+	mustcontain "dragon/TDRAGON.EXE", "dragon/$WHIRL.MAP", "dragon/TILES021.ART", "dragon/TILES022.ART", "dragon/TILES023.ART"
+	loadgrp "dragon"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
+	dependency SWREG12_CRC
+	defname "sw.def"
+	gamefilter "ShadowWarrior.TwinDragon"
+	GameID "TwinDragon"
+}
+
+addon
+{
+	// Also recognize the expansion when searching its own directory.
+	name "Shadow Warrior: Twin Dragon"
+	mustcontain "TDRAGON.EXE", "$WHIRL.MAP", "TILES021.ART", "TILES022.ART", "TILES023.ART"
+	loadgrp "."
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
+	dependency SWREG12_CRC
+	defname "sw.def"
+	gamefilter "ShadowWarrior.TwinDragon"
+	GameID "TwinDragon"
+}
+
 grpinfo
 {
 	name "Redneck Rampage"

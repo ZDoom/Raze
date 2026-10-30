@@ -345,9 +345,10 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		// Directories of addon content are not added if they differ from the main directory. 
 		// Also, the directory is inserted after the base dependency, allowing the addons to override directory content.
 		// This can be overridden via command line switch if needed.
-		if (!grp.FileInfo.loaddirectory && grp.FileName.IsNotEmpty())
+		if (grp.FileName.IsNotEmpty())
 		{
-			D_AddFile(Files, grp.FileName.GetChars(), true, -1, GameConfig);
+			if (!grp.FileInfo.loaddirectory)
+				D_AddFile(Files, grp.FileName.GetChars(), true, -1, GameConfig);
 			fn = ExtractFilePath(grp.FileName.GetChars());
 			if (fn.Len() > 0 && fn.Back() != '/') fn += '/';
 		}
