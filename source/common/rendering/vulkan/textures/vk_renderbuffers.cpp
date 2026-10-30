@@ -125,6 +125,11 @@ void VkRenderBuffers::CreatePipeline(int width, int height)
 
 	CreatePipelineDepthStencil(width, height);
 
+	auto commands = fb->GetCommands()->GetDrawCommands();
+	VkClearColorValue clearColor = {};
+	clearColor.float32[3] = 1.0f;
+	VkImageSubresourceRange clearRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+
 	VkImageTransition barrier;
 	barrier.AddImage(&PipelineDepthStencil, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, true);
 	for (int i = 0; i < NumPipelineImages; i++)
@@ -141,9 +146,15 @@ void VkRenderBuffers::CreatePipeline(int width, int height)
 			.DebugName("VkRenderBuffers.PipelineView")
 			.Create(fb->device.get());
 
-		barrier.AddImage(&PipelineImage[i], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, true);
+		// 2D-only startup frames blend into these images before any scene is rendered.
+		// Initialize them so undefined floating-point contents cannot contaminate blending.
+		VkImageTransition()
+			.AddImage(&PipelineImage[i], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true)
+			.Execute(commands);
+		commands->clearColorImage(PipelineImage[i].Image->image, PipelineImage[i].Layout, &clearColor, 1, &clearRange);
+		barrier.AddImage(&PipelineImage[i], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, false);
 	}
-	barrier.Execute(fb->GetCommands()->GetDrawCommands());
+	barrier.Execute(commands);
 }
 
 void VkRenderBuffers::CreateScene(int width, int height, VkSampleCountFlagBits samples)

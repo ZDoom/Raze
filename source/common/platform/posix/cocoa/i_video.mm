@@ -447,8 +447,9 @@ public:
 
 				fb = new VulkanRenderDevice(nullptr, vid_fullscreen, m_vulkanSurface);
 			}
-			catch (std::exception const&)
+			catch (std::exception const& error)
 			{
+				Printf("Initialization of Vulkan failed: %s. Falling back to OpenGL.\n", error.what());
 				ms_isVulkanEnabled = false;
 
 				SetupOpenGLView(ms_window, OpenGLProfile::Core);
@@ -462,7 +463,8 @@ public:
 		if (fb == nullptr)
 		{
 #ifdef HAVE_GLES2
-			if(V_GetBackend() != 0)
+			// A failed Vulkan initialization must fall back to desktop OpenGL.
+			if (V_GetBackend() == 2)
 				fb = new OpenGLESRenderer::OpenGLFrameBuffer(0, vid_fullscreen);
 			else
 #endif
