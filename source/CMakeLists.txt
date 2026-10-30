@@ -1473,6 +1473,26 @@ if( APPLE )
 
 	if( HAVE_VULKAN )
 		set( LINK_FRAMEWORKS "${LINK_FRAMEWORKS} -framework QuartzCore" )
+		if( VCPKG_TOOLCHAIN AND MOLTENVK_VCPKG )
+			find_file(MOLTENVK_LIBRARY libMoltenVK.dylib
+				PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" NO_DEFAULT_PATH)
+			find_file(MOLTENVK_LICENSE copyright
+				PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/moltenvk" NO_DEFAULT_PATH)
+			if( NOT MOLTENVK_LIBRARY OR NOT MOLTENVK_LICENSE )
+				message(FATAL_ERROR "The MoltenVK vcpkg runtime or its license was not found")
+			endif()
+			# Stage by content so archive timestamps cannot leave an older bundled runtime.
+			configure_file("${MOLTENVK_LIBRARY}" "${CMAKE_CURRENT_BINARY_DIR}/moltenvk/libMoltenVK.dylib" COPYONLY)
+			configure_file("${MOLTENVK_LICENSE}" "${CMAKE_CURRENT_BINARY_DIR}/moltenvk/copyright" COPYONLY)
+			set(MOLTENVK_BUNDLE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/moltenvk/libMoltenVK.dylib")
+			set(MOLTENVK_BUNDLE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}/moltenvk/copyright")
+			# Bundle the dynamically loaded runtime without linking against it.
+			target_sources(${PROJECT_NAME} PRIVATE "${MOLTENVK_BUNDLE_LIBRARY}" "${MOLTENVK_BUNDLE_LICENSE}")
+			set_source_files_properties("${MOLTENVK_BUNDLE_LIBRARY}" PROPERTIES
+				HEADER_FILE_ONLY TRUE MACOSX_PACKAGE_LOCATION MacOS)
+			set_source_files_properties("${MOLTENVK_BUNDLE_LICENSE}" PROPERTIES
+				HEADER_FILE_ONLY TRUE MACOSX_PACKAGE_LOCATION Resources/licenses/MoltenVK)
+		endif()
 	endif()
 
 	set_target_properties(${PROJECT_NAME} PROPERTIES

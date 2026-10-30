@@ -27,6 +27,10 @@ if (OPENAL_SOFT_VCPKG)
 	list(APPEND VCPKG_MANIFEST_FEATURES "vcpkg-openal-soft")
 endif()
 
+if (MOLTENVK_VCPKG)
+	list(APPEND VCPKG_MANIFEST_FEATURES "vcpkg-moltenvk")
+endif()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR (NOT CMAKE_SYSTEM_NAME AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows"))
 	# Force static triplet on Windows
 	set(VCPKG_TARGET_TRIPLET "x64-windows-static")
@@ -40,6 +44,9 @@ endif()
 
 if (VCPKG_TOOLCHAIN)
 	option(OPENAL_SOFT_VCPKG "Use OpenAL from vcpkg" OFF)
+	if (APPLE)
+		option(MOLTENVK_VCPKG "Bundle the MoltenVK runtime from vcpkg (macOS 12+)" OFF)
+	endif()
 endif()
 
 if (NOT VCPKG_TOOLCHAIN)

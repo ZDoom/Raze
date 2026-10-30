@@ -14,6 +14,16 @@
                 }
             ]
         },
+        "vcpkg-moltenvk":
+        {
+            "description": "Bundle the MoltenVK runtime on macOS.",
+            "dependencies": [
+                {
+                    "name": "moltenvk",
+                    "platform": "osx"
+                }
+            ]
+        },
         "vcpkg-openal-soft":
         {
             "description": "Use openal-soft provided by vcpkg.",

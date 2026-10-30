@@ -1,0 +1,8 @@
+{
+    "name": "moltenvk",
+    "version": "1.4.2",
+    "description": "Official prebuilt MoltenVK runtime for macOS 12 and newer",
+    "homepage": "https://github.com/KhronosGroup/MoltenVK",
+    "license": "Apache-2.0",
+    "supports": "osx & (arm64 | x64)"
+}

@@ -44,6 +44,24 @@ Special thanks to Coraline of the 3DGE team for allowing us to use her README.md
 
 To build Raze, please see the [wiki](https://zdoom.org/wiki/) and see the "Programmer's Corner" on the bottom-right corner of the page to build for your platform - use this repository instead of GZDoom's.
 
+### macOS dependencies
+
+Use ZMusic 1.1.14, matching the CI builds. For builds using the vcpkg toolchain,
+these options bundle the MoltenVK runtime and link OpenAL Soft for audio:
+
+```sh
+cmake -S . -B build \
+  -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DMOLTENVK_VCPKG=ON -DOPENAL_SOFT_VCPKG=ON -DDYN_OPENAL=OFF
+cmake --build build --parallel
+```
+
+The local vcpkg overlay downloads the official MoltenVK 1.4.2 macOS binary,
+verifies its checksum, and bundles it and its license in `raze.app`. It supports
+Apple Silicon and Intel Macs running macOS 12 or newer. Vulkan must remain
+enabled (`HAVE_VULKAN=ON`, the default). The MoltenVK option is off by default;
+builds without it can still use an externally installed Vulkan runtime.
+
 # Resources
 - https://raze.zdoom.org/ - Home Page
 - https://forum.zdoom.org/viewforum.php?f=351 - Forum

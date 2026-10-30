@@ -69,7 +69,7 @@ if [ ! -d "zmusic" ]; then
 	git clone https://github.com/zdoom/zmusic
 fi
 if [ -d "zmusic" ]; then
-	git -C ./zmusic checkout 1.1.12
+	git -C ./zmusic checkout 1.1.14
 fi
 
 if [ ! -d "zmusic/build" ]; then
