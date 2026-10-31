@@ -35,6 +35,13 @@ surfacetypes
 		WATER6,
 		WATER7,
 		WATER8,
+		// Complete the original 320-343 water tile range.
+		"#00328", "#00329", "#00330", "#00331", "#00332", "#00333", "#00334", "#00335",
+		"#00336", "#00337", "#00338", "#00339", "#00340", "#00341", "#00342", "#00343",
+		// AWATER and its remaining frames (780-794) are liquid floors too.
+		AWATER,
+		"#00781", "#00782", "#00783", "#00784", "#00785", "#00786", "#00787",
+		"#00788", "#00789", "#00790", "#00791", "#00792", "#00793", "#00794",
 		WHIRL1,
 		WHIRL2,
 		WHIRL3,
@@ -55,6 +62,6 @@ surfacetypes
 		LAVA8
 		
 	TSURF_SHALLOWWATER =
-		SHALLOWWATER, AWATER, FLSLUDGE, SLUDGE
+		SHALLOWWATER, FLSLUDGE, SLUDGE
 
 }
