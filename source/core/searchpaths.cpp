@@ -876,6 +876,9 @@ TArray<GrpEntry> GrpScan()
 					foundGames.Reserve(1);
 					auto& fga = foundGames.Last();
 					fga.FileInfo = *addon;
+					// Keep the directory where the add-on was found, even if its base GRP is deduplicated.
+					fga.FileName = entry->FileName;
+					fga.FileInfo.loaddirectory = true;
 				}
 			}
 		}
