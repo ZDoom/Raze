@@ -187,8 +187,8 @@ void GameInput::processMovement(const double turnscale, const bool allowstrafe, 
 	inputBuffer.vel += thisInput.vel;
 	inputBuffer.ang += thisInput.ang;
 
-	// directly update player angles if we can.
-	if (scaleAdjust < 1)
+	// Apply unsynchronised input directly, regardless of frame duration.
+	if (!SyncInput())
 	{
 		PlayerArray[myconnectindex]->CameraAngles += thisInput.ang;
 	}
@@ -250,8 +250,8 @@ void GameInput::processVehicle(const double baseVel, const double velScale, cons
 		turnheldtime = 0;
 	}
 
-	// directly update player angles if we can.
-	if (scaleAdjust < 1)
+	// Apply unsynchronised input directly, regardless of frame duration.
+	if (!SyncInput())
 	{
 		PlayerArray[myconnectindex]->CameraAngles += thisInput.ang;
 	}
