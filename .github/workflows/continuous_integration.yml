@@ -32,7 +32,7 @@ jobs:
         - name: Linux GCC 9
           os: ubuntu-22.04
           extra_options: -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9
-          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libgtk2.0-dev libwebp-dev
+          deps_cmdline: sudo apt update && sudo apt install -y gcc-9 g++-9 libsdl2-dev libvpx-dev libgtk2.0-dev libwebp-dev
           build_type: RelWithDebInfo
 
         - name: Linux GCC 12
