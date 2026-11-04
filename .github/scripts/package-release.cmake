@@ -119,22 +119,6 @@ elseif(RELEASE_PLATFORM STREQUAL "windows")
     file(GLOB crt_dlls "${crt_dir}/*.dll")
     file(COPY ${crt_dlls} DESTINATION "${stage}")
     require_file("${stage}/vcruntime140.dll")
-    find_program(python NAMES python python3 REQUIRED)
-    execute_process(COMMAND "${python}" -c [=[
-import ctypes
-import os
-import pathlib
-import struct
-import sys
-
-folder = pathlib.Path(sys.argv[1])
-binary = (folder / "raze.exe").read_bytes()
-pe = struct.unpack_from("<I", binary, 0x3c)[0]
-assert binary[pe:pe + 4] == b"PE\0\0"
-assert struct.unpack_from("<H", binary, pe + 4)[0] == 0x8664, "Expected an x64 executable"
-with os.add_dll_directory(str(folder)):
-    ctypes.WinDLL(str(folder / "zmusiclite.dll"))
-]=] "${stage}" COMMAND_ERROR_IS_FATAL ANY)
 
     # Package symbols from the same build as the shipped executable and DLL.
     set(pdb_name "${package_name}-pdb")

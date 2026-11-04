@@ -62,48 +62,6 @@ Apple Silicon and Intel Macs running macOS 12 or newer. Vulkan must remain
 enabled (`HAVE_VULKAN=ON`, the default). The MoltenVK option is off by default;
 builds without it can still use an externally installed Vulkan runtime.
 
-### Automated releases
-
-The [Release workflow](.github/workflows/release.yml) builds Windows x64, Linux
-x64, macOS Intel and macOS Apple Silicon packages. Windows uses the native Win32
-backend with a 64-bit executable; 32-bit x86 builds are not currently supported.
-
-Push a tag in the form `vMAJOR.MINOR.PATCH` to build and publish a GitHub Release:
-
-```sh
-git tag -a v1.2.3 -m "Release v1.2.3"
-git push origin v1.2.3
-```
-
-Use an unused version number and tag the commit containing the release changes.
-All four builds must succeed before the workflow publishes the five archives and
-`SHA256SUMS`. Only the publishing job receives write access, using the built-in
-`GITHUB_TOKEN`; no release secret is required.
-
-For a test build, run **Actions → Release → Run workflow** on a branch or tag.
-Manual runs upload artifacts for seven days without creating a release. Their
-filenames use `ci-RUN_NUMBER-RUN_ATTEMPT`. Manual dispatch becomes available once
-the workflow is on the repository's default branch.
-
-To test the complete release process from a feature branch, push a tag such as
-`v2.0.0-test.1`. Tags ending in `-test.N` build all packages and upload them to a
-**draft prerelease**. They never publish a public release or mark it as latest.
-Use a new test number for each revised commit. Other prerelease suffixes are
-rejected; only `vMAJOR.MINOR.PATCH` tags publish stable releases.
-
-Windows and macOS packages include their runtime libraries, engine resources and
-soundfont. macOS builds require macOS 15 or newer and are ad-hoc signed. Linux
-packages target Ubuntu 22.04 and include ZMusic; system library requirements and
-launch instructions are in the bundled [release README](package/release/README.txt).
-ZMusic 1.1.14, vcpkg and GitHub Actions are pinned in the workflow.
-Release builds use the pinned vcpkg checkout's dependency versions for both Raze
-and ZMusic, preserving the original manifests for normal developer builds.
-
-The Windows build uses optimized `RelWithDebInfo` binaries with full PDBs. A
-separate `raze-VERSION-windows-x86_64-pdb.7z` download contains matching symbols
-for `raze.exe` and `zmusiclite.dll`, plus codec symbols when available. The PDB
-archive is also included in `SHA256SUMS` and in manual workflow artifacts.
-
 # Resources
 - https://raze.zdoom.org/ - Home Page
 - https://forum.zdoom.org/viewforum.php?f=351 - Forum
