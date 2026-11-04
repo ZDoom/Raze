@@ -1,0 +1,197 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  metadata:
+    runs-on: ubuntu-22.04
+    outputs:
+      publish: ${{ steps.release.outputs.publish }}
+      draft: ${{ steps.release.outputs.draft }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Validate release ref
+        id: release
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          if [[ "$EVENT_NAME" == push && "$REF_TYPE" == tag ]]; then
+            if [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              draft=false
+            elif [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-test\.[0-9]+$ ]]; then
+              draft=true
+            else
+              echo "Expected vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-test.N: $REF_NAME" >&2
+              exit 1
+            fi
+            publish=true
+            version="$REF_NAME"
+          else
+            publish=false
+            draft=false
+            version="ci-${RUN_NUMBER}-${RUN_ATTEMPT}"
+          fi
+          {
+            echo "publish=$publish"
+            echo "draft=$draft"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.platform }} / ${{ matrix.architecture }}
+    needs: metadata
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Raze currently supports 64-bit targets only.
+          - runner: windows-2022
+            platform: windows
+            architecture: x86_64
+          - runner: ubuntu-22.04
+            platform: linux
+            architecture: x86_64
+          - runner: macos-15-intel
+            platform: macos
+            architecture: x86_64
+          - runner: macos-15
+            platform: macos
+            architecture: arm64
+    env:
+      RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+      RELEASE_PLATFORM: ${{ matrix.platform }}
+      RELEASE_ARCHITECTURE: ${{ matrix.architecture }}
+      GIT_DESCRIBE: ${{ needs.metadata.outputs.version }}
+      VCPKG_DISABLE_METRICS: '1'
+    steps:
+      - name: Check out source and tags
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out ZMusic 1.1.14
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ZDoom/ZMusic
+          ref: 89f3d65734470fb7ec0c1e69f73a0cfcc88ed557
+          path: build/deps/zmusic
+          persist-credentials: false
+
+      - name: Check out vcpkg
+        if: runner.os != 'Linux'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: microsoft/vcpkg
+          ref: 09e7d22e2d9bf97f9549c9f37759bf11758d62f0
+          path: build/deps/vcpkg
+          persist-credentials: false
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            build-essential cmake ninja-build pkg-config \
+            libasound2-dev libbz2-dev libglib2.0-dev libgtk-3-dev libmpg123-dev \
+            libopenal-dev libsdl2-dev libsndfile1-dev libvpx-dev zlib1g-dev
+
+      - name: Install macOS build tools
+        if: runner.os == 'macOS'
+        run: |
+          brew install autoconf automake cmake glib libtool nasm ninja pkg-config
+          build/deps/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Bootstrap vcpkg on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build/deps/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+
+      - name: Build release binaries
+        run: bash .github/scripts/build-release.sh
+
+      - name: Package and verify release
+        run: |
+          cmake \
+            -DRELEASE_VERSION="$RELEASE_VERSION" \
+            -DRELEASE_PLATFORM="$RELEASE_PLATFORM" \
+            -DRELEASE_ARCHITECTURE="$RELEASE_ARCHITECTURE" \
+            -P .github/scripts/package-release.cmake
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-${{ matrix.platform }}-${{ matrix.architecture }}
+          path: build/release/dist/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  publish:
+    needs: [metadata, build]
+    if: needs.metadata.outputs.publish == 'true'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download release archives
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Verify asset set and generate checksums
+        working-directory: release-assets
+        env:
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          assets=(
+            "raze-${RELEASE_VERSION}-windows-x86_64.zip"
+            "raze-${RELEASE_VERSION}-windows-x86_64-pdb.7z"
+            "raze-${RELEASE_VERSION}-linux-x86_64.tar.gz"
+            "raze-${RELEASE_VERSION}-macos-x86_64.zip"
+            "raze-${RELEASE_VERSION}-macos-arm64.zip"
+          )
+          for asset in "${assets[@]}"; do
+            test -s "$asset"
+          done
+          sha256sum -- "${assets[@]}" | sort -k2 > SHA256SUMS
+
+      - name: Publish GitHub Release
+        working-directory: release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.metadata.outputs.version }}
+          DRAFT_RELEASE: ${{ needs.metadata.outputs.draft }}
+        run: |
+          release_options=()
+          if [[ "$DRAFT_RELEASE" == true ]]; then
+            release_options+=(--draft --prerelease)
+          fi
+          gh release create "$RELEASE_TAG" \
+            ./*.zip ./*.tar.gz ./*.7z ./SHA256SUMS \
+            --verify-tag --generate-notes --title "$RELEASE_TAG" \
+            "${release_options[@]}"

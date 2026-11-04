@@ -140,7 +140,14 @@ endif()
 
 if( NOT NO_OPENAL )
 	if ( NOT DYN_OPENAL )	# DYN_OPENAL uses local copies of the headers.
-		find_package( OpenAL )
+		if( OPENAL_SOFT_VCPKG )
+			# The imported target carries static-link definitions and platform libraries.
+			find_package( OpenAL CONFIG REQUIRED )
+			get_target_property( OPENAL_INCLUDE_DIR OpenAL::OpenAL INTERFACE_INCLUDE_DIRECTORIES )
+			set( OPENAL_LIBRARY OpenAL::OpenAL )
+		else()
+			find_package( OpenAL )
+		endif()
 		mark_as_advanced(CLEAR OPENAL_INCLUDE_DIR)
 		if( OPENAL_INCLUDE_DIR )
 			include_directories( SYSTEM ${OPENAL_INCLUDE_DIR} )
