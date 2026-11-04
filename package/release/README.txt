@@ -26,7 +26,7 @@ Run ./raze from the extracted directory. ZMusic is included. The remaining
 shared libraries come from the operating system. On Ubuntu 22.04, install:
 
   sudo apt-get install libsdl2-2.0-0 libvpx7 libopenal1 libsndfile1 \
-    libmpg123-0 libasound2 libgtk-3-0 libbz2-1.0 zlib1g
+    libmpg123-0 libasound2 libgtk-3-0 libbz2-1.0 libgomp1 zlib1g
 
 Other distributions need compatible versions of these libraries, including
 libvpx.so.7 and glibc 2.35 or newer. Vulkan also needs a suitable graphics driver.
