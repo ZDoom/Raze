@@ -72,6 +72,22 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 {
 	searchpaths.Append(I_GetSteamPath());
 	searchpaths.Append(I_GetGogPaths());
+
+	// Known GOG installation layouts under Heroic's default library directory.
+	// List nested game directories explicitly; do not scan the library recursively.
+	static const char* const heroicPaths[] = {
+		"Blood",
+		"NAM",
+		"Powerslave",
+		"Redneck Rampage Collection",
+		"Redneck Rampage Collection/AGAIN",
+		"Shadow Warrior Complete",
+	};
+	const FString heroicRoot = NicePath("$HOME/Games/Heroic/");
+	for (const auto* path : heroicPaths)
+	{
+		AddSearchPath(searchpaths, (heroicRoot + path).GetChars());
+	}
 }
 
 
@@ -222,7 +238,7 @@ TArray<FString> CollectSearchPaths()
 		{
 			if (stricmp(key, "Path") == 0)
 			{
-				// Checking Steam via a list entry allows easy removal if not wanted.
+				// Storefront discovery uses a list entry so it can be disabled.
 				if (stricmp(value, "$STEAM") == 0)
 				{
 					G_AddExternalSearchPaths(searchpaths);
