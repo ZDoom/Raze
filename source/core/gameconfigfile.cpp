@@ -125,7 +125,7 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "/usr/local/share/games/voidsw", true);
 
 #endif
-		SetValueForKey ("Path", "$STEAM", true); // also covers GOG.
+		SetValueForKey ("Path", "$STEAM", true); // also covers GOG and, on macOS/Linux, Heroic.
 	}
 
 	// Set default search paths if none present
